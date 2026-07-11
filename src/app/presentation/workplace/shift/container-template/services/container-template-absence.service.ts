@@ -22,6 +22,8 @@ import {
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 const ABSENCE_DEFAULT_DURATION_MINUTES = 15;
 const MINUTES_PER_HOUR = 60;
 
@@ -90,8 +92,8 @@ export class ContainerTemplateAbsenceService {
   ): void {
     if (!item.absenceId) return;
 
-    const lang = this.translateService.currentLang || 'de';
-    this.absenceModalTitle = item.absence?.name?.[lang] || item.absence?.name?.['de'] || '';
+    const lang = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
+    this.absenceModalTitle = getLocalizedValue(item.absence?.name, lang);
 
     const startParts = (item.startItem || '00:00').split(':');
     this.absenceStartTime = OwnTime.forTime(

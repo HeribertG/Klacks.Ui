@@ -41,6 +41,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 interface MacroFormModel {
   name: string;
   type: string;
@@ -374,7 +375,7 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('macro-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

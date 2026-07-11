@@ -506,7 +506,7 @@ export class CalendarRulesComponent
 
   /* #region Help */
   loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('calendar-rule-manual', lang)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(content => this.manualContent.set(content));

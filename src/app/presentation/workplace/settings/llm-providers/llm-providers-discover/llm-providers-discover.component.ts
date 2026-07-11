@@ -12,6 +12,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { IDiscoveredProvider, ProviderCandidateSource, ProviderConnectivityStatus } from 'src/app/domain/models/assistant/discovered-provider';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 type DiscoverTab = 'list' | 'manual';
 
 const MANUAL_NAME = 'llm-providers-manual';
@@ -57,7 +58,7 @@ export class LLMProvidersDiscoverComponent implements OnInit {
   }
 
   private loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual(MANUAL_NAME, lang)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(content => {

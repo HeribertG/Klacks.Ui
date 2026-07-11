@@ -49,6 +49,7 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 const GROUP_PERIOD_RESTRICTED_COLOR = 'rgba(70, 130, 180, 0.25)';
 
 @Injectable()
@@ -237,7 +238,7 @@ export class ScheduleDataService extends BaseDataService {
 
     if (entry.entryType === WorkScheduleEntryType.ScheduleNote ||
         entry.entryType === WorkScheduleEntryType.ScheduleCommand) {
-      return entry.description?.de || entry.description?.en || '';
+      return getLocalizedValue(entry.description, this.translateService.currentLang || DomainMessages.DEFAULT_LANG);
     }
 
     return entry.abbreviation || '';
@@ -804,9 +805,7 @@ export class ScheduleDataService extends BaseDataService {
     abbreviation: { de?: string; en?: string; fr?: string; it?: string } | undefined,
     language: string,
   ): string {
-    if (!abbreviation) return '';
-    const value = (abbreviation as Record<string, string | undefined>)[language];
-    return value || abbreviation.de || abbreviation.en || '';
+    return getLocalizedValue(abbreviation, language);
   }
 
   findFirstRowByShiftIdAndColumn(shiftId: string, column: number): number {

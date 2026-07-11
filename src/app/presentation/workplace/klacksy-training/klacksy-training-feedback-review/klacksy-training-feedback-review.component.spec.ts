@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingFeedbackReviewComponent } from './klacksy-training-feedback-review.component';
 import { KlacksyTrainingService } from '../../../../core/services/klacksy-training.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 describe('KlacksyTrainingFeedbackReviewComponent', () => {
   let fixture: ComponentFixture<KlacksyTrainingFeedbackReviewComponent>;
   let service: { listFeedback: ReturnType<typeof vi.fn> };
@@ -22,7 +23,7 @@ describe('KlacksyTrainingFeedbackReviewComponent', () => {
   });
 
   it('loads feedback on init', () => {
-    expect(service.listFeedback).toHaveBeenCalledWith('de', 50);
+    expect(service.listFeedback).toHaveBeenCalledWith(DomainMessages.DEFAULT_LANG, 50);
     const rows = fixture.nativeElement.querySelectorAll('#klacksyTrainingFeedbackTable tbody tr');
     expect(rows.length).toBe(1);
   });

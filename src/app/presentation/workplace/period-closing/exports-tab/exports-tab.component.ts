@@ -42,6 +42,7 @@ import {
 import { OrderRangeExportSectionComponent } from './order-range-export-section/order-range-export-section.component';
 import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from './export-format-options.constants';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
 const ORDER_FAMILY = 'order';
 const PAYROLL_FAMILY = 'payroll';
@@ -231,7 +232,7 @@ export class ExportsTabComponent implements OnInit {
       fromDate: ngbDateStructToIsoDate(this.filterFrom()),
       untilDate: ngbDateStructToIsoDate(this.filterUntil()),
       format: this.format(),
-      language: this.translate.currentLang || this.translate.defaultLang || 'de',
+      language: this.translate.currentLang || this.translate.defaultLang || DomainMessages.DEFAULT_LANG,
       groupId: null,
     }).subscribe({
       next: (res) => {
@@ -267,7 +268,7 @@ export class ExportsTabComponent implements OnInit {
     }
 
     const format = this.clientExportFormat();
-    const language = this.translate.currentLang || this.translate.defaultLang || 'de';
+    const language = this.translate.currentLang || this.translate.defaultLang || DomainMessages.DEFAULT_LANG;
     const isPayroll = this.isPayrollFormat();
     const groupId = this.selectedGroupId();
 

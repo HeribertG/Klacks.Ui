@@ -1,14 +1,21 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service loading the installation-wide language configuration from the backend.
+ * Exposes supported languages, fallback order, per-language metadata and the
+ * installation default UI language (client fallback: FALLBACK_DEFAULT_LANGUAGE).
+ */
 import { Injectable, signal, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { LanguageMetadata } from 'src/app/domain/models/settings/language-config';
 import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.interface';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageConfigService implements ILanguageConfig {
   static readonly CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
+  static readonly FALLBACK_DEFAULT_LANGUAGE = DomainMessages.DEFAULT_LANG;
   private static readonly DEFAULT_SUPPORTED_LANGUAGES = ['de', 'en', 'fr', 'it'];
   private static readonly DEFAULT_FALLBACK_ORDER = ['de', 'fr', 'it', 'en'];
 
@@ -16,11 +23,13 @@ export class LanguageConfigService implements ILanguageConfig {
 
   private supportedLanguages = signal<string[]>([...LanguageConfigService.DEFAULT_SUPPORTED_LANGUAGES]);
   private fallbackOrder = signal<string[]>([...LanguageConfigService.DEFAULT_FALLBACK_ORDER]);
+  private defaultLanguage = signal<string>(LanguageConfigService.FALLBACK_DEFAULT_LANGUAGE);
   private metadata = signal<Record<string, LanguageMetadata>>({});
   private loaded = signal<boolean>(false);
 
   readonly supportedLanguages$ = this.supportedLanguages.asReadonly();
   readonly fallbackOrder$ = this.fallbackOrder.asReadonly();
+  readonly defaultLanguage$ = this.defaultLanguage.asReadonly();
   readonly metadata$ = this.metadata.asReadonly();
   readonly loaded$ = this.loaded.asReadonly();
 
@@ -29,6 +38,7 @@ export class LanguageConfigService implements ILanguageConfig {
       .then((response) => {
         this.supportedLanguages.set(response.supportedLanguages);
         this.fallbackOrder.set(response.fallbackOrder);
+        this.defaultLanguage.set(response.defaultLanguage || LanguageConfigService.FALLBACK_DEFAULT_LANGUAGE);
         this.metadata.set(response.metadata ?? {});
         this.loaded.set(true);
       })
@@ -43,6 +53,10 @@ export class LanguageConfigService implements ILanguageConfig {
 
   getSupportedLanguages(): string[] {
     return this.supportedLanguages();
+  }
+
+  getDefaultLanguage(): string {
+    return this.defaultLanguage();
   }
 
   getMetadata(): Record<string, LanguageMetadata> {

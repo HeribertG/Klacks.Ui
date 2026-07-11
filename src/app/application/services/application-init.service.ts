@@ -1,15 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service running application startup tasks: seeds the initial UI language
+ * (stored user choice wins, otherwise the backend default language), applies
+ * the persisted theme and loads icons, logo and the application title.
+ */
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { DataSettingsVariousService } from '../../infrastructure/api/settings/data-settings-various.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AppSetting, ISetting } from 'src/app/domain/models/settings/settings-various-class';
-import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -23,6 +28,7 @@ export class ApplicationInitService {
   private localStorageService = inject(LocalStorageService);
   private assistantService = inject(DataManagementAssistantService);
   private authorizationService = inject(AuthorizationService);
+  private languageConfigService = inject(LanguageConfigService);
   private destroy$ = new Subject<void>();
 
   public initialize(): void {
@@ -43,7 +49,7 @@ export class ApplicationInitService {
     if (!this.localStorageService.get(StorageKeys.CURRENT_LANG)) {
       this.localStorageService.set(
         StorageKeys.CURRENT_LANG,
-        DomainMessages.DEFAULT_LANG
+        this.languageConfigService.getDefaultLanguage()
       );
     }
   }

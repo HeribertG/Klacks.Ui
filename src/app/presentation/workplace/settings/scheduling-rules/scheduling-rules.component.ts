@@ -353,7 +353,7 @@ export class SchedulingRulesComponent
   }
 
   loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('scheduling-rule-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

@@ -8,7 +8,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
-
+
+import { DomainMessages } from 'src/app/domain/constants/messages';
 interface AddressModel {
   addressName: string;
   phone: string;
@@ -149,7 +150,7 @@ export class OwnerAddressComponent implements OnInit {
   }
 
   get currentLang(): string {
-    return this.translate.currentLang || 'de';
+    return this.translate.currentLang || DomainMessages.DEFAULT_LANG;
   }
 
   onCalendarSelectionChange(calendarId: string): void {

@@ -24,6 +24,7 @@ import { ISkillRelation } from 'src/app/domain/models/assistant/skill-relation.i
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-assistant-skill-relations',
   templateUrl: './assistant-skill-relations.component.html',
@@ -69,7 +70,7 @@ export class AssistantSkillRelationsComponent implements OnInit, OnDestroy {
   }
 
   private loadManual(): void {
-    const lang = this.translateService.currentLang || this.translateService.defaultLang || 'de';
+    const lang = this.translateService.currentLang || this.translateService.defaultLang || DomainMessages.DEFAULT_LANG;
     this.manualLoaderService.loadManual('skill-relations-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

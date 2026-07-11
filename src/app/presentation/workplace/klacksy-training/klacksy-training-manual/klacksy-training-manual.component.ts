@@ -9,6 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-klacksy-training-manual',
   standalone: true,
@@ -36,7 +37,7 @@ export class KlacksyTrainingManualComponent implements OnInit, OnDestroy {
   }
 
   private loadManual(): void {
-    const lang = this.translate.currentLang || this.translate.defaultLang || 'de';
+    const lang = this.translate.currentLang || this.translate.defaultLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('klacksy-training-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

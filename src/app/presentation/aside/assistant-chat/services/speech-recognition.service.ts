@@ -7,7 +7,8 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
-
+
+import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 declare global {
   interface Window {
     webkitSpeechRecognition: any;
@@ -59,7 +60,7 @@ export class SpeechRecognitionService {
   public isWhisperModelLoaded = this.whisperStreamingService.isModelLoaded;
   public isTranscribing = this.whisperStreamingService.isTranscribing;
 
-  transcribeBlob(blob: Blob, language = 'de'): Promise<string> {
+  transcribeBlob(blob: Blob, language = SpeechDefaults.Locale): Promise<string> {
     return this.whisperStreamingService.transcribeBlob(blob, language);
   }
 
@@ -340,7 +341,7 @@ export class SpeechRecognitionService {
     this.accumulatedTranscript = '';
 
     if (this.useWhisperFallback) {
-      this.startWhisperStreaming(language || 'de', deviceId);
+      this.startWhisperStreaming(language || SpeechDefaults.Locale, deviceId);
       return this.results$.asObservable();
     }
 

@@ -40,6 +40,7 @@ import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/butto
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-shift-qualifications',
   templateUrl: './shift-qualifications.component.html',
@@ -69,7 +70,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
 
   public readonly QualificationType = QualificationType;
   public readonly QualificationCategory = QualificationCategory;
-  public currentLang = 'de';
+  public currentLang = DomainMessages.DEFAULT_LANG;
   public masterQualifications: IQualification[] = [];
   public filterType: QualificationType | null = null;
   public filterCountry = '';
@@ -96,7 +97,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.currentLang = this.translate.currentLang ?? 'de';
+    this.currentLang = this.translate.currentLang ?? DomainMessages.DEFAULT_LANG;
     this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe((event) => {
       this.currentLang = event.lang;
       this.cdr.markForCheck();

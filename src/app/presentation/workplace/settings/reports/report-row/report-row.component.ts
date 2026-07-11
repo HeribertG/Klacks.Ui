@@ -22,7 +22,8 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-
+
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-report-row',
   templateUrl: './report-row.component.html',
@@ -325,7 +326,7 @@ export class ReportRowComponent implements OnDestroy {
   }
 
   loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('report-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

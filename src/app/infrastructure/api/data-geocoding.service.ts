@@ -5,6 +5,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, map, retry } from 'rxjs';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 export interface GeocodingResult {
   lat: number;
   lon: number;
@@ -24,7 +25,7 @@ export class DataGeocodingService {
   private httpClient = inject(HttpClient);
   private readonly NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
 
-  searchAddress(query: string, language = 'de'): Observable<GeocodingResult | null> {
+  searchAddress(query: string, language = DomainMessages.DEFAULT_LANG): Observable<GeocodingResult | null> {
     const url = `${this.NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
 
     return this.httpClient.get<NominatimResult[]>(url, {

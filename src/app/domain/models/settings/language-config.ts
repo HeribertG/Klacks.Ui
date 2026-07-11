@@ -5,6 +5,7 @@ export type Language = string;
 export interface LanguageConfigResponse {
   supportedLanguages: string[];
   fallbackOrder: string[];
+  defaultLanguage?: string;
   metadata: Record<string, LanguageMetadata>;
 }
 

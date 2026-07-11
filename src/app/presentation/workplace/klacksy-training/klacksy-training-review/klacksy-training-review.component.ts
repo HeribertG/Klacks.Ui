@@ -12,6 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
 import { KlacksyTrainingSynonymEditorComponent } from '../klacksy-training-synonym-editor/klacksy-training-synonym-editor.component';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-klacksy-training-review',
   standalone: true,
@@ -22,7 +23,7 @@ import { KlacksyTrainingSynonymEditorComponent } from '../klacksy-training-synon
 })
 export class KlacksyTrainingReviewComponent implements OnInit {
   private readonly service = inject(KlacksyTrainingService);
-  private readonly formModel = signal<{ status: string; locale: string }>({ status: '', locale: 'de' });
+  private readonly formModel = signal<{ status: string; locale: string }>({ status: '', locale: DomainMessages.DEFAULT_LANG });
   protected readonly filterForm = form(this.formModel);
   protected readonly targets = signal<NavigationTargetDto[]>([]);
   protected readonly selected = signal<NavigationTargetDto | null>(null);

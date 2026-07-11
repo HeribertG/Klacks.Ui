@@ -18,7 +18,8 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
-
+
+import { DomainMessages } from 'src/app/domain/constants/messages';
 export interface ReportFetchParams {
   groupId?: string;
   startDate?: string;
@@ -221,7 +222,7 @@ export class ReportDataProviderService {
         return { rows, clients, metadata: { totalClients: response.totalCount } };
       },
       resolveFieldValue: (field, row) => {
-        const lang = this.translate.currentLang || 'de';
+        const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
         switch (field.dataBinding) {
           case 'absence.clientName': return row.clientName ?? '';
           case 'absence.clientFirstName': return row.clientFirstName ?? '';
@@ -263,7 +264,7 @@ export class ReportDataProviderService {
       buildFormulaVariables: (row: any) => ({
         fromDate: row.from ?? '',
         untilDate: row.until ?? '',
-        absenceName: this.absenceLookup.getNameForEntryId(row.absenceId, this.translate.currentLang || 'de'),
+        absenceName: this.absenceLookup.getNameForEntryId(row.absenceId, this.translate.currentLang || DomainMessages.DEFAULT_LANG),
         defaultValue: this.absenceLookup.findAbsenceForEntryId(row.absenceId)?.defaultValue ?? 0,
         clientName: row.clientName ?? '',
         clientFirstName: row.clientFirstName ?? '',
@@ -554,7 +555,7 @@ export class ReportDataProviderService {
       case 'entry.description':
       case 'expense.description':
         if (entry.description) {
-          const lang = this.translate.currentLang || 'de';
+          const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
           return (entry.description as Record<string, string>)[lang] ?? '';
         }
         return '';
@@ -623,7 +624,7 @@ export class ReportDataProviderService {
       return this.translate.instant(this.resolveWorkChangeAbbrKey(entry));
     }
     if (entry.entryType === WorkScheduleEntryType.Break) {
-      const lang = this.translate.currentLang || 'de';
+      const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
       return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, lang);
     }
     return entry.abbreviation ?? '';

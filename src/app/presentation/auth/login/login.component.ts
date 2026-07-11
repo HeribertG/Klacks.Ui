@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Login page component with credential login and optional OAuth2 provider support.
  * @param loginFormModel - Signal holding username and password form values
@@ -23,7 +22,7 @@ import { RouterModule } from '@angular/router';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { DomainMessages } from 'src/app/domain/constants/messages';
+import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
@@ -60,6 +59,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   readonly forgotPasswordModal = viewChild.required('forgotPasswordModal', { read: TemplateRef });
 
   private auth = inject(AuthService);
+  private languageConfigService = inject(LanguageConfigService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
@@ -85,7 +85,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   public oauth2Loading = signal(false);
 
   ngOnInit(): void {
-    this.translateService.setDefaultLang(DomainMessages.DEFAULT_LANG);
+    this.translateService.setDefaultLang(this.languageConfigService.getDefaultLanguage());
 
     const lang = this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
     if (lang) {

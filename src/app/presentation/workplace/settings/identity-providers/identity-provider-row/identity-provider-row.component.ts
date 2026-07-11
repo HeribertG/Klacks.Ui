@@ -31,7 +31,8 @@ import { DataManagementIdentityProviderService } from 'src/app/domain/services/s
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-
+
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-identity-provider-row',
   templateUrl: './identity-provider-row.component.html',
@@ -194,7 +195,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
   }
 
   loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('identity-provider-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

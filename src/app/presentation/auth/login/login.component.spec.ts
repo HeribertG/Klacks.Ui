@@ -19,7 +19,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { DomainMessages } from 'src/app/domain/constants/messages';
+import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
@@ -75,6 +75,9 @@ describe('LoginComponent', () => {
             showSuccess: vi.fn(),
             showError: vi.fn()
         };
+        const languageConfigServiceSpy = {
+            getDefaultLanguage: vi.fn().mockReturnValue('fr')
+        };
 
         await TestBed.configureTestingModule({
             imports: [
@@ -100,6 +103,7 @@ describe('LoginComponent', () => {
                 { provide: DataSyncNotificationService, useValue: syncNotificationServiceSpy },
                 { provide: SignalRService, useValue: signalRServiceSpy },
                 { provide: AssistantSignalRService, useValue: assistantSignalRServiceSpy },
+                { provide: LanguageConfigService, useValue: languageConfigServiceSpy },
             ],
         }).compileComponents();
 
@@ -125,12 +129,13 @@ describe('LoginComponent', () => {
         expect(component.isClicked()).toBe(false);
     });
 
-    it('should set default language on ngOnInit', () => {
+    it('should set the backend default language on ngOnInit', () => {
         localStorageService.get.mockReturnValue(null);
 
         component.ngOnInit();
 
-        expect(translateService.setDefaultLang).toHaveBeenCalledWith(DomainMessages.DEFAULT_LANG);
+        expect(translateService.setDefaultLang).toHaveBeenCalledWith('fr');
+        expect(translateService.use).not.toHaveBeenCalled();
     });
 
     it('should use saved language if available', () => {

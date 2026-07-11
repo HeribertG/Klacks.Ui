@@ -12,6 +12,7 @@ import { ISealedOrderWorkEntry } from 'src/app/infrastructure/api/period-closing
 import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 const ORDER: SealedOrderListItem = {
   id: 'order-1',
   abbreviation: 'A1',
@@ -188,7 +189,7 @@ describe('OrderRangeExportSectionComponent', () => {
         fromDate: '2026-06-01',
         untilDate: '2026-06-30',
         format: 'xml',
-        language: 'de',
+        language: DomainMessages.DEFAULT_LANG,
         currencyCode: 'EUR',
       });
       expect(window.URL.createObjectURL).toHaveBeenCalledTimes(1);

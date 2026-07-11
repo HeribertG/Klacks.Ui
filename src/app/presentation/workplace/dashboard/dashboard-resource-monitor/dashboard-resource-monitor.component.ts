@@ -27,6 +27,7 @@ import { IMonthMarker, IReferenceLine, ISpecialDay, SpecialDayType, StackedBarCh
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { NgClass } from '@angular/common';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 type TabId = 'chart' | 'manual';
 
 const WUNSCH_COLOR = '#e91e63';
@@ -59,7 +60,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
-  private currentLang = signal(this.translate.currentLang ?? 'de');
+  private currentLang = signal(this.translate.currentLang ?? DomainMessages.DEFAULT_LANG);
   isLoading = signal(true);
   error = signal<string | null>(null);
   activeTab = signal<TabId>('chart');
@@ -152,7 +153,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   }
 
   private loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('resource-monitor-manual', lang)
       .subscribe(content => this.manualContent.set(content));
   }

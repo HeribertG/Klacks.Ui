@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
+
 /**
  * Constants for the speech/voice conversation feature.
  */
@@ -34,7 +36,7 @@ export class VoiceId {
 }
 
 export class SpeechDefaults {
-  static readonly Locale = 'de';
+  static readonly Locale = DomainMessages.DEFAULT_LANG;
   static readonly TranscriptionModel = 'deepseek-chat';
   static readonly DefaultTranscriptionPrompt = `You are a transcription enhancer. Clean up the following speech-to-text output:
 - Remove filler words (um, uh, like, also, ähm, halt, sozusagen)

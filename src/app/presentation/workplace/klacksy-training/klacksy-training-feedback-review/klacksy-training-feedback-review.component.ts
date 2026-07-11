@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingService, NavigationFeedbackDto } from '../../../../core/services/klacksy-training.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-klacksy-training-feedback-review',
   standalone: true,
@@ -19,7 +20,7 @@ import { KlacksyTrainingService, NavigationFeedbackDto } from '../../../../core/
 })
 export class KlacksyTrainingFeedbackReviewComponent implements OnInit {
   private readonly service = inject(KlacksyTrainingService);
-  private readonly formModel = signal<{ locale: string }>({ locale: 'de' });
+  private readonly formModel = signal<{ locale: string }>({ locale: DomainMessages.DEFAULT_LANG });
   protected readonly localeForm = form(this.formModel);
   protected readonly items = signal<NavigationFeedbackDto[]>([]);
 

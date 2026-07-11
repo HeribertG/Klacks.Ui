@@ -14,7 +14,8 @@ import { TranslationService } from 'src/app/domain/services/translation/translat
 import { ITranslatedEmail } from 'src/app/domain/models/email/received-email.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-closed.component';
-
+
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-inbox-detail',
   templateUrl: './inbox-detail.component.html',
@@ -86,7 +87,7 @@ export class InboxDetailComponent {
     if (!e || this.isTranslating()) return;
 
     const requestedId = e.id;
-    const targetLanguage = this.translateService.currentLang || this.translateService.defaultLang || 'de';
+    const targetLanguage = this.translateService.currentLang || this.translateService.defaultLang || DomainMessages.DEFAULT_LANG;
     this.isTranslating.set(true);
     this.translateError.set(false);
 

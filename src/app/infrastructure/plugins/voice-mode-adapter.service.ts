@@ -13,6 +13,7 @@ import { ConversationOrchestratorService, ConversationState, ConversationCallbac
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Injectable()
 export class VoiceModeAdapterService implements IPluginVoiceService, OnDestroy {
   private readonly orchestrator = inject(ConversationOrchestratorService);
@@ -42,7 +43,7 @@ export class VoiceModeAdapterService implements IPluginVoiceService, OnDestroy {
       isTextProcessing: signal(false),
     };
 
-    const currentLang = this.translateService.currentLang || this.translateService.defaultLang || 'de';
+    const currentLang = this.translateService.currentLang || this.translateService.defaultLang || DomainMessages.DEFAULT_LANG;
     const locale = this.languageMappingService.getSpeechLocale(currentLang);
 
     this.orchestrator.initialize(conversationCallbacks, locale);

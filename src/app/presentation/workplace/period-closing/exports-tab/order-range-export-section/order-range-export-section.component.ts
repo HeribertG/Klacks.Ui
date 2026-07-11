@@ -37,10 +37,11 @@ import {
 } from 'src/app/shared/helpers/file-download.helper';
 import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from '../export-format-options.constants';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 type WorkEntryStatus = 'exportable' | 'periodOpen' | 'notClosed';
 
 const RANGE_EXPORT_CURRENCY_CODE = 'EUR';
-const FALLBACK_LANGUAGE = 'de';
+const FALLBACK_LANGUAGE = DomainMessages.DEFAULT_LANG;
 const SEALED_LOCK_LEVEL = 3;
 const EMPTY_VALUE_PLACEHOLDER = '—';
 const EMPTY_RESPONSE_BODY_MESSAGE = 'Empty response body';

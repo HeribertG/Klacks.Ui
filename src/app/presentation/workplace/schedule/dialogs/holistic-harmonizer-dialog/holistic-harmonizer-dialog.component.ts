@@ -34,6 +34,7 @@ import {
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
 
 @Component({
@@ -256,7 +257,7 @@ export class HolisticHarmonizerDialogComponent {
       periodUntil: formatDateOnly(end),
       agentIds: clients.map((c) => c.id),
       analyseToken: this.analyseScenarioService.activeToken(),
-      language: this.translate.currentLang ?? 'en',
+      language: this.translate.currentLang ?? DomainMessages.DEFAULT_LANG,
     };
   }
 }

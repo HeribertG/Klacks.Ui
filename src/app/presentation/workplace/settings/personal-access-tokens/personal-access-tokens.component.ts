@@ -44,6 +44,7 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 interface PersonalAccessTokenFormModel {
   name: string;
   expiresInDays: string;
@@ -169,7 +170,7 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
   }
 
   loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('personal-access-token-manual', lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));

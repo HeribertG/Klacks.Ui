@@ -38,7 +38,7 @@ export class WhisperStreamingService {
   private results$ = new Subject<string>();
   private interimResults$ = new Subject<string>();
   private errors$ = new Subject<string>();
-  private currentLanguage = 'de';
+  private currentLanguage = SpeechDefaults.Locale;
   private lastChunkTime = 0;
   private vadCheckInterval: any = null;
 
@@ -63,7 +63,7 @@ export class WhisperStreamingService {
     this.silenceDurationMs = SpeechDefaults.clampSilenceThresholdMs(ms);
   }
 
-  async transcribeBlob(blob: Blob, language = 'de'): Promise<string> {
+  async transcribeBlob(blob: Blob, language = SpeechDefaults.Locale): Promise<string> {
     if (!this.pipeline) {
       const loaded = await this.loadModel();
       if (!loaded) {
@@ -131,7 +131,7 @@ export class WhisperStreamingService {
     }
   }
 
-  async startStreaming(language = 'de', deviceId?: string): Promise<void> {
+  async startStreaming(language = SpeechDefaults.Locale, deviceId?: string): Promise<void> {
     this.currentLanguage = language;
     this.accumulatedText = '';
     this.audioChunks = [];

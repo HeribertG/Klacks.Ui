@@ -12,6 +12,7 @@ import { IScheduleQualification } from 'src/app/domain/models/schedule/work-sche
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { QualificationBubble } from './qualification-bubble.model';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 const HIT_PADDING = 2;
 
 @Injectable({
@@ -42,7 +43,7 @@ export class QualificationBubbleTooltipService {
 
   buildQualificationLabel(qualification: IScheduleQualification | null): string {
     if (!qualification) return '';
-    const lang = this.translateService.currentLang ?? 'de';
+    const lang = this.translateService.currentLang ?? DomainMessages.DEFAULT_LANG;
     const name = getLocalizedValue(qualification.name, lang);
     const emoji = qualification.emoji ?? '';
     return emoji ? `${emoji} ${name}` : name;

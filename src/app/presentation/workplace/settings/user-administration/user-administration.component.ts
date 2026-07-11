@@ -144,7 +144,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   }
 
   private loadManual(): void {
-    const lang = this.translate.currentLang || this.translate.defaultLang || 'de';
+    const lang = this.translate.currentLang || this.translate.defaultLang || DomainMessages.DEFAULT_LANG;
     this.manualLoaderService.loadManual('user-administration-manual', lang)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(content => this.manualContent.set(content));

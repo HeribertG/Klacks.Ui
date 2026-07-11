@@ -231,7 +231,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private async showTranslatedError(errorMessage: string, messageKey: string): Promise<void> {
-    const currentLang = this.translateService.currentLang || 'de';
+    const currentLang = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
 
     if (currentLang === 'en') {
       this.toastShowService.showError(errorMessage, messageKey);

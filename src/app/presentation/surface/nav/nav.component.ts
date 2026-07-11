@@ -32,6 +32,7 @@ import { IconUserComponent } from 'src/app/presentation/icons/icon-user.componen
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
+import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
@@ -105,6 +106,7 @@ export class NavComponent implements OnInit {
   private translateStringConstantsService = inject(TranslateStringConstantsService);
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
+  private languageConfigService = inject(LanguageConfigService);
   private themeService = inject(ThemeService);
   private urlParameterService = inject(UrlParameterService);
   private destroyRef = inject(DestroyRef);
@@ -116,7 +118,7 @@ export class NavComponent implements OnInit {
 
   public tooltipPlacement = document.documentElement.dir === 'rtl' ? 'left' : 'right';
 
-  private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
+  private currentLanguage = signal<string>(this.languageConfigService.getDefaultLanguage());
   private currentTheme = computed(() => this.themeService.theme());
   private currentPage = signal<NavigationPage>('');
 
@@ -210,12 +212,12 @@ export class NavComponent implements OnInit {
   }
 
   private initializeTranslation(): void {
-    this.translateService.setDefaultLang(DomainMessages.DEFAULT_LANG);
+    this.translateService.setDefaultLang(this.languageConfigService.getDefaultLanguage());
   }
 
   private loadSavedLanguage(): void {
     const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    const lang = savedLang || LocaleService.detectBrowserLanguage();
+    const lang = savedLang || this.languageConfigService.getDefaultLanguage();
     this.onChangeLanguage(lang);
   }
 

@@ -42,6 +42,7 @@ import {
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-client-qualifications',
   templateUrl: './client-qualifications.component.html',
@@ -73,7 +74,7 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy {
   public readonly QualificationType = QualificationType;
   public readonly QualificationCategory = QualificationCategory;
   public faCalendar = faCalendar;
-  public currentLang = 'de';
+  public currentLang = DomainMessages.DEFAULT_LANG;
   public qualifications: IQualification[] = [];
   public filterType: QualificationType | null = null;
   public filterCountry = '';
@@ -107,7 +108,7 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.currentLang = this.translate.currentLang ?? 'de';
+    this.currentLang = this.translate.currentLang ?? DomainMessages.DEFAULT_LANG;
     this.translate.onLangChange.pipe(takeUntil(this.ngUnsubscribe)).subscribe((event) => {
       this.currentLang = event.lang;
       this.cdr.markForCheck();

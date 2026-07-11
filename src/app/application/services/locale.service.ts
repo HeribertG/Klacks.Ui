@@ -6,6 +6,7 @@
  */
 import { Injectable, signal } from '@angular/core';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Injectable({ providedIn: 'root' })
 export class LocaleService {
   public locale = signal<string>(LocaleService.detectBrowserLanguage());
@@ -19,7 +20,7 @@ export class LocaleService {
   }
 
   static detectBrowserLanguage(): string {
-    const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+    const browserLang = navigator.language || navigator.languages?.[0] || DomainMessages.DEFAULT_LANG;
     return browserLang.split('-')[0].toLowerCase();
   }
 }

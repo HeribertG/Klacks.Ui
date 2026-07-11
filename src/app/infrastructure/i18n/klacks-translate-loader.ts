@@ -4,9 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { TranslateLoader } from '@ngx-translate/core';
 import { Observable, forkJoin, map, of, catchError } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
-const FALLBACK_LANGUAGE = 'en';
+const FALLBACK_LANGUAGE = DomainMessages.DEFAULT_LANG;
 
 export class KlacksTranslateLoader implements TranslateLoader {
   private readonly apiUrl: string;

@@ -18,6 +18,7 @@ import { createFormulaTestData, createFooterFormulaTestData } from 'src/app/doma
 import { PropertyMetadata } from 'src/app/domain/models/shift/shift-data-class';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 export type FormulaEditorTab = 'formula' | 'variables' | 'explanations';
 
 @Injectable()
@@ -91,7 +92,7 @@ export class ReportDesignerFormulaService {
   }
 
   private loadManual(): void {
-    const lang = this.translate.currentLang || 'de';
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.manualLoader.loadManual('formula-manual', lang).subscribe(content => {
       this.manualContent.set(content);
       this.manualLoaded = true;

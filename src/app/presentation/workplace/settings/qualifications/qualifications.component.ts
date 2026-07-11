@@ -41,6 +41,7 @@ import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 interface QualFormModel {
   name: string;
   description: string;
@@ -207,8 +208,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.originalQualification = q;
     const lang = this.currentLang;
     this.formModel.set({
-      name: q.name?.[lang] || q.name?.de || '',
-      description: q.description?.[lang] || q.description?.de || '',
+      name: getLocalizedValue(q.name, lang),
+      description: getLocalizedValue(q.description, lang),
     });
     this.selectedEmoji.set(q.emoji ?? '');
     this.isTimeLimitedValue.set(q.isTimeLimited);

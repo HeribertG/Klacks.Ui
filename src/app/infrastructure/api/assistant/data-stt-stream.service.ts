@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
+import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 export interface SttTranscriptResult {
   text: string;
   isFinal: boolean;
@@ -24,7 +25,7 @@ export class SttStreamService implements OnDestroy {
 
   private ws: WebSocket | null = null;
 
-  connect(locale = 'de'): void {
+  connect(locale = SpeechDefaults.Locale): void {
     if (this.ws) this.disconnect();
 
     const baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;

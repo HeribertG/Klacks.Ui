@@ -43,7 +43,8 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
-
+
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 interface AbsenceFormModel {
   name: string;
   abbreviation: string;
@@ -338,17 +339,17 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
 
     let name = '';
     if (absence.name) {
-      name = absence.name[lang] || absence.name.de || '';
+      name = getLocalizedValue(absence.name, lang);
     }
 
     let abbreviation = '';
     if (absence.abbreviation) {
-      abbreviation = absence.abbreviation[lang] || absence.abbreviation.de || '';
+      abbreviation = getLocalizedValue(absence.abbreviation, lang);
     }
 
     let description = '';
     if (absence.description) {
-      description = absence.description[lang] || absence.description.de || '';
+      description = getLocalizedValue(absence.description, lang);
     }
 
     this.formModel.set({

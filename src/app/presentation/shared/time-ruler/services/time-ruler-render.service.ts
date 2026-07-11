@@ -23,6 +23,9 @@ import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { TranslateService } from '@ngx-translate/core';
 export interface ShiftBoxDrawParams {
   ctx: CanvasRenderingContext2D;
   range: any;
@@ -47,6 +50,7 @@ export interface IShiftSceneContext {
 })
 export class TimeRulerRenderService {
   private timeRangeService = inject(TimeRangeService);
+  private translateService = inject(TranslateService);
   private gridColorService = inject(GridColorService);
 
   readonly PADDING_MINUTES_DEFAULT = 30;
@@ -617,9 +621,9 @@ export class TimeRulerRenderService {
     let abbreviation: string;
     let name: string;
     if (item.absenceId && item.absence) {
-      const lang = 'de';
-      abbreviation = item.absence.abbreviation?.[lang] || '';
-      name = item.absence.name?.[lang] || '';
+      const lang = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
+      abbreviation = getLocalizedValue(item.absence.abbreviation, lang);
+      name = getLocalizedValue(item.absence.name, lang);
     } else {
       abbreviation = item.shift?.abbreviation || '';
       name = item.shift?.name || '';

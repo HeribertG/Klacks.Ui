@@ -11,6 +11,7 @@ import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-qualifications-row',
   standalone: true,
@@ -25,10 +26,10 @@ export class QualificationsRowComponent implements OnInit {
   readonly isDeleteEvent = output<IQualification>();
 
   private translate = inject(TranslateService);
-  currentLang = 'de';
+  currentLang = DomainMessages.DEFAULT_LANG;
 
   ngOnInit(): void {
-    this.currentLang = this.translate.currentLang ?? 'de';
+    this.currentLang = this.translate.currentLang ?? DomainMessages.DEFAULT_LANG;
   }
 
   getDisplayName(): string {

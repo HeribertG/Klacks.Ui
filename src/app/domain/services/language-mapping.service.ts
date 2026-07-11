@@ -4,6 +4,7 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
+import { DomainMessages } from 'src/app/domain/constants/messages';
 export interface LanguageConfig {
   code: string;
   name: string;
@@ -50,7 +51,7 @@ export class LanguageMappingService {
       langCode ||
       this.translateService.currentLang ||
       this.translateService.defaultLang ||
-      'de';
+      DomainMessages.DEFAULT_LANG;
     const fromConfig = this.languageConfigService.getSpeechLocale(code);
     if (fromConfig && fromConfig !== 'de-CH') {
       return fromConfig;
@@ -63,7 +64,7 @@ export class LanguageMappingService {
       langCode ||
       this.translateService.currentLang ||
       this.translateService.defaultLang ||
-      'de';
+      DomainMessages.DEFAULT_LANG;
     const metadata = this.languageConfigService.getLanguageMetadata(code);
     if (metadata) {
       return metadata.name;
