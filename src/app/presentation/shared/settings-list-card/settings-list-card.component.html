@@ -21,6 +21,7 @@
 
   <div [id]="idPrefix() + '-rows'" class="container-box">
     <ng-content select="[rows]"></ng-content>
+    <div class="rows-bottom-spacer" aria-hidden="true"></div>
   </div>
 
   @if (showAddButton()) {
