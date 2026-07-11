@@ -804,21 +804,43 @@
     }
   }
 
-  &.listening {
-    color: var(--standartRedColor);
-    animation: pulse-red 1s infinite;
+  &.listening,
+  &.listening.voice-enabled {
+    background: colors.$voiceStateListeningColor;
+    color: white;
+    border-radius: 50%;
+    animation: pulse-voice 1s infinite;
+  }
 
-    &.voice-enabled {
-      background: var(--standartGreenColor);
-      color: white;
-      animation: pulse-green 1s infinite;
+  &.transcribing,
+  &.transcribing.voice-enabled {
+    background: colors.$voiceStateEnhancingColor;
+    color: white;
+    border-radius: 50%;
+    cursor: wait;
+
+    .transcribing-waves span {
+      background: colors.$standartWhiteColor;
     }
   }
 
-  &.transcribing {
-    background: var(--waveBackgroundColor);
+  &.processing,
+  &.processing.voice-enabled {
+    background: colors.$voiceStateProcessingColor;
+    color: white;
     border-radius: 50%;
     cursor: wait;
+
+    .transcribing-waves span {
+      background: colors.$standartWhiteColor;
+    }
+  }
+
+  &.speaking,
+  &.speaking.voice-enabled {
+    background: colors.$voiceStateSpeakingColor;
+    color: white;
+    border-radius: 50%;
   }
 
   &.not-supported {
@@ -873,25 +895,6 @@
   }
   50% {
     transform: scaleY(1);
-  }
-}
-
-@keyframes pulse-red {
-  0%,
-  100% {
-    opacity: 0.7;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse-green {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(27, 197, 189, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(27, 197, 189, 0);
   }
 }
 

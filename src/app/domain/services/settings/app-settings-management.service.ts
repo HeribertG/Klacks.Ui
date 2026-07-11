@@ -21,7 +21,7 @@ import {
 } from 'src/app/domain/models/settings/app-settings.model';
 import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
-import { SttEngine, TtsProvider } from 'src/app/domain/constants/speech-constants';
+import { SttEngine, TtsProvider, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
@@ -160,7 +160,7 @@ export class AppSettingsManagementService {
     [AppSetting.ASSISTANT_TRANSCRIPTION_PROMPT, (v, m) => (m.speech.transcriptionPrompt = v)],
     [AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, (v, m) => (m.speech.enhancementEnabled = v === 'true')],
     [AppSetting.ASSISTANT_OUTPUT_MODE, (v, m) => (m.speech.outputMode = v)],
-    [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = parseInt(v, 10) || 1500)],
+    [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = SpeechDefaults.clampSilenceThresholdMs(parseInt(v, 10)))],
     [AppSetting.ASSISTANT_BARGE_IN_ENABLED, (v, m) => (m.speech.bargeInEnabled = v === 'true')],
 
     [AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, (v, m) => (m.holisticHarmonizer.llmModelId = v)],

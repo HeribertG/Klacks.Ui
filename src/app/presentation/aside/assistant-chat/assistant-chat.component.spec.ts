@@ -224,6 +224,8 @@ describe('AssistantChatComponent', () => {
                                 ),
                                 clearMessages: vi.fn(() => messagesSig.set([])),
                                 initialize: vi.fn(),
+                                setLocale: vi.fn(),
+                                errors$: of(),
                                 toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
                                 interrupt: vi.fn(),
                                 onStreamContent: vi.fn(),

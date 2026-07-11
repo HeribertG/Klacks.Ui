@@ -8,6 +8,7 @@
  */
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
 @Injectable({ providedIn: 'root' })
 export class AudioQueueService implements OnDestroy {
@@ -18,6 +19,7 @@ export class AudioQueueService implements OnDestroy {
   private queue: Blob[] = [];
   private currentAudio: HTMLAudioElement | null = null;
   private currentObjectUrl: string | null = null;
+  private sentenceGapTimer: ReturnType<typeof setTimeout> | null = null;
 
   enqueue(audioBlob: Blob): void {
     console.log('[VS] audio-queue enqueue, size=', audioBlob.size, 'type=', audioBlob.type);
@@ -30,6 +32,7 @@ export class AudioQueueService implements OnDestroy {
   }
 
   stop(): void {
+    this.clearSentenceGapTimer();
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio.currentTime = 0;
@@ -78,7 +81,7 @@ export class AudioQueueService implements OnDestroy {
       console.log('[VS] audio-queue playback ended');
       detachCurrent();
       this.revokeObjectUrl();
-      this.playNext();
+      this.playNextAfterSentenceGap();
     };
 
     this.currentAudio.onerror = (ev) => {
@@ -112,6 +115,29 @@ export class AudioQueueService implements OnDestroy {
         console.error('[VS] audio-queue play() rejected:', err);
         this.playNext();
       });
+  }
+
+  /**
+   * Inserts a short natural pause between finished and next sentence.
+   * An empty queue skips the gap so playbackFinished$ fires without extra delay.
+   */
+  private playNextAfterSentenceGap(): void {
+    if (this.queue.length === 0) {
+      this.playNext();
+      return;
+    }
+    this.clearSentenceGapTimer();
+    this.sentenceGapTimer = setTimeout(() => {
+      this.sentenceGapTimer = null;
+      this.playNext();
+    }, SpeechDefaults.SentenceGapMs);
+  }
+
+  private clearSentenceGapTimer(): void {
+    if (this.sentenceGapTimer) {
+      clearTimeout(this.sentenceGapTimer);
+      this.sentenceGapTimer = null;
+    }
   }
 
   private revokeObjectUrl(): void {

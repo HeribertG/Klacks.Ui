@@ -8,6 +8,7 @@
  */
 export type VoiceShellErrorKind =
   | 'stt-connection'
+  | 'stt-empty'
   | 'network'
   | 'mic-permission'
   | 'tts-failure';

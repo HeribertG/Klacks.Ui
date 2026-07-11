@@ -6,6 +6,9 @@
  * Replaces VoiceModeService with deterministic state transitions and interrupt support.
  * With barge-in enabled, the microphone keeps monitoring during PROCESSING/SPEAKING
  * (raised VAD threshold) and sustained user speech interrupts playback.
+ * For server blob STT engines (Groq/custom), a provisional transcript of the audio
+ * recorded so far is shown in the input field every few seconds while the user speaks;
+ * the final transcription after silence detection stays authoritative.
  * @param state - Current state of the conversation (signal)
  * @param voiceModeEnabled - Whether voice mode is active
  * @param interimText - Live transcription preview while user speaks
@@ -14,6 +17,7 @@ import { Injectable, OnDestroy, Signal, signal, computed, inject, NgZone } from 
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
+import { EarconService } from 'src/app/infrastructure/services/speech/earcon.service';
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
@@ -53,6 +57,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private readonly transcription = inject(DataTranscriptionService);
   private readonly dataTts = inject(DataTtsService);
   private readonly audioQueue = inject(AudioQueueService);
+  private readonly earcon = inject(EarconService);
   private readonly settings = inject(AppSettingsManagementService);
   private readonly transcriptSanitizer = inject(TranscriptSanitizerService);
   private readonly ngZone = inject(NgZone);
@@ -130,13 +135,18 @@ export class ConversationOrchestratorService implements OnDestroy {
   private autoSpeakStreaming = false;
   private bargeInCandidateTimer: ReturnType<typeof setTimeout> | null = null;
   private bargeInTriggered = false;
+  private interimTranscriptionTimer: ReturnType<typeof setInterval> | null = null;
+  private interimRequestInFlight = false;
+  private interimTickSequence = 0;
+  private lastAppliedInterimSequence = 0;
+  private interimEpoch = 0;
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
     console.log('[VS] orchestrator.initialize called, locale=', locale);
     this.callbacks = callbacks;
     this.textProcessingSignal = callbacks.isTextProcessing;
     this.locale = locale;
-    this.audioCapture.setSilenceThresholdMs(this.settings.speechSettings().silenceThresholdMs);
+    this.applyConfiguredSilenceThreshold();
 
     if (this.subscriptionsWired) {
       return;
@@ -194,6 +204,14 @@ export class ConversationOrchestratorService implements OnDestroy {
         });
       });
 
+  }
+
+  /**
+   * Update the speech locale used for STT and TTS after a UI language change.
+   * @param locale - New speech locale (e.g. 'de', 'en')
+   */
+  setLocale(locale: string): void {
+    this.locale = locale;
   }
 
   async toggleVoiceMode(): Promise<void> {
@@ -377,6 +395,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.autoSpeakStreaming = false;
     this.isPlanningSignal.set(false);
     this.clearBargeInCandidateTimer();
+    this.stopInterimTranscription();
     this.bargeInTriggered = false;
     this.audioCapture.setVadThresholdMultiplier(1);
     this.audioQueue.stop();
@@ -389,10 +408,23 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.synthesisChain = Promise.resolve();
   }
 
+  /**
+   * Pushes the configured silence window into both silence-detection paths
+   * (PCM capture and browser Whisper blob chunking) so they share one source of truth.
+   * Falls back to the clamped default when the setting is missing or out of range.
+   */
+  private applyConfiguredSilenceThreshold(): void {
+    const configured = this.settings.speechSettings().silenceThresholdMs;
+    const clamped = SpeechDefaults.clampSilenceThresholdMs(configured ?? SpeechDefaults.SilenceThresholdMs);
+    this.audioCapture.setSilenceThresholdMs(clamped);
+    this.whisper.setSilenceDurationMs(clamped);
+  }
+
   private async transitionToListening(): Promise<void> {
     console.log('[VS] transitionToListening, voiceModeEnabled=', this.voiceModeEnabled());
     if (!this.voiceModeEnabled()) return;
 
+    this.applyConfiguredSilenceThreshold();
     this.clearBargeInCandidateTimer();
     this.audioCapture.setVadThresholdMultiplier(1);
     if (!this.bargeInTriggered) {
@@ -451,13 +483,15 @@ export class ConversationOrchestratorService implements OnDestroy {
     console.log('[VS] onSilenceDetected, state=', this.state(), 'callbacks=', this.callbacks ? 'SET' : 'NULL');
     if (this.state() !== ConversationState.Listening) return;
 
+    this.stopInterimTranscription();
+
     const speechSettings = this.settings.speechSettings();
 
     if (this.usesBlobStt(speechSettings.sttEngine)) {
       const blob = this.audioCapture.takeRecordedBlob();
       this.audioCapture.stop();
       console.log('[VS] blob STT engine=', speechSettings.sttEngine, 'bytes=', blob.size);
-      if (blob.size < 1000) {
+      if (blob.size < SpeechDefaults.MinBlobBytes) {
         console.log('[VS] blob too small, loop back');
         await this.transitionToListening();
         return;
@@ -489,6 +523,11 @@ export class ConversationOrchestratorService implements OnDestroy {
     const rawText = this.callbacks?.getInputText() || '';
     if (!rawText.trim() || this.transcriptSanitizer.isNonSpeech(rawText)) {
       this.callbacks?.setInputText('');
+      this.reportError({
+        kind: 'stt-empty',
+        i18nKey: 'klacksy.voice.errors.stt-empty',
+        persistent: false,
+      });
       await this.transitionToListening();
       return;
     }
@@ -505,11 +544,23 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
 
     this.state.set(ConversationState.Processing);
+    this.playProcessingEarconIfAudible();
     this.sentenceBuffer = '';
     this.pendingSentences = [];
     this.synthesisChain = Promise.resolve();
     void this.startBargeInMonitorIfEnabled();
     await this.callbacks?.sendMessage();
+  }
+
+  /**
+   * Subtle listening feedback: a short quiet earcon confirms "understood, thinking now"
+   * when voice mode enters Processing. Skipped in text-only output mode, where the
+   * user has opted out of any audible response.
+   */
+  private playProcessingEarconIfAudible(): void {
+    if (!this.voiceModeEnabled()) return;
+    if (this.settings.speechSettings().outputMode === OutputMode.Text) return;
+    this.earcon.playProcessingEarcon();
   }
 
   /**
@@ -532,6 +583,11 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private onSpeechStarted(): void {
+    if (this.state() === ConversationState.Listening) {
+      this.startInterimTranscriptionIfEligible();
+      return;
+    }
+
     if (!this.isBargeInWatching()) return;
 
     this.clearBargeInCandidateTimer();
@@ -539,6 +595,76 @@ export class ConversationOrchestratorService implements OnDestroy {
       () => this.ngZone.run(() => this.confirmBargeIn()),
       SpeechDefaults.BargeInMinSpeechDurationMs,
     );
+  }
+
+  /**
+   * Engines whose blob is transcribed by a server REST provider (Groq or a custom
+   * self-hosted provider). The browser Whisper engine is excluded: it produces its
+   * own live interim results and must not be polled with partial blobs.
+   * @param engine - The configured STT engine identifier
+   */
+  private usesServerBlobStt(engine: string): boolean {
+    return engine === SttEngine.GroqWhisper || SttEngine.isCustom(engine);
+  }
+
+  /**
+   * While the user is speaking, periodically transcribe the audio recorded so far
+   * so a provisional transcript appears in the input field before silence is detected.
+   * Partials are comfort only: the final transcription after silence stays authoritative.
+   */
+  private startInterimTranscriptionIfEligible(): void {
+    if (this.interimTranscriptionTimer) return;
+    if (!this.voiceModeEnabled()) return;
+    if (!this.usesServerBlobStt(this.settings.speechSettings().sttEngine)) return;
+
+    this.interimTranscriptionTimer = setInterval(
+      () => this.ngZone.run(() => void this.runInterimTranscriptionTick()),
+      SpeechDefaults.InterimTranscriptionIntervalMs,
+    );
+  }
+
+  /**
+   * Stops interim polling and invalidates in-flight partial responses by bumping
+   * the epoch, so a late partial can never overwrite the final transcription.
+   */
+  private stopInterimTranscription(): void {
+    this.interimEpoch++;
+    if (this.interimTranscriptionTimer) {
+      clearInterval(this.interimTranscriptionTimer);
+      this.interimTranscriptionTimer = null;
+    }
+  }
+
+  private async runInterimTranscriptionTick(): Promise<void> {
+    if (this.state() !== ConversationState.Listening) return;
+    if (this.interimRequestInFlight) return;
+
+    if (this.audioCapture.getRecordedDurationMs() > SpeechDefaults.InterimTranscriptionMaxAudioMs) {
+      this.stopInterimTranscription();
+      return;
+    }
+
+    const blob = this.audioCapture.peekRecordedBlob();
+    if (blob.size < SpeechDefaults.MinBlobBytes) return;
+
+    const epochAtStart = this.interimEpoch;
+    const sequence = ++this.interimTickSequence;
+    this.interimRequestInFlight = true;
+    try {
+      const text = await this.dataStt.transcribe(blob, this.locale);
+      if (epochAtStart !== this.interimEpoch) return;
+      if (sequence <= this.lastAppliedInterimSequence) return;
+      if (this.state() !== ConversationState.Listening) return;
+      if (!text.trim()) return;
+
+      this.lastAppliedInterimSequence = sequence;
+      this.callbacks?.setInputText(text);
+      this.callbacks?.detectChanges();
+    } catch (err) {
+      console.debug('[VS] interim transcription failed (ignored):', err instanceof Error ? err.message : err);
+    } finally {
+      this.interimRequestInFlight = false;
+    }
   }
 
   private confirmBargeIn(): void {
@@ -568,7 +694,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private extractSentences(): string[] {
     const sentences: string[] = [];
-    const regex = /[^.!?]+[.!?]\s*/g;
+    const regex = /[^.!?。！？؟]+[.!?。！？؟]\s*/g;
     let match: RegExpExecArray | null;
     let lastIndex = 0;
 

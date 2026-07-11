@@ -69,6 +69,9 @@ import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assist
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import {
   IOnboardingStation,
@@ -121,6 +124,7 @@ export class AssistantChatComponent {
   private assistantSignalR = inject(AssistantSignalRService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
+  private localStorageService = inject(LocalStorageService);
   readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
   private tourIndex = 0;
@@ -228,7 +232,7 @@ export class AssistantChatComponent {
       this.ttsService.stop();
     });
 
-    const currentLangForSpeech = this.translateService.currentLang || this.translateService.defaultLang;
+    const currentLangForSpeech = this.resolveCurrentLang();
     const speechLocale = this.languageMappingService.getSpeechLocale(currentLangForSpeech);
     this.orchestrator.initialize(
       {
@@ -242,6 +246,10 @@ export class AssistantChatComponent {
       speechLocale,
     );
 
+    this.orchestrator.errors$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hint) => this.onVoiceErrorHint(hint));
+
     this.translateService.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => {
@@ -249,9 +257,10 @@ export class AssistantChatComponent {
         this.updateWelcomeMessage(event.lang);
         const speechLang = this.getSpeechLanguageCode(event.lang);
         this.speechService.updateLanguage(speechLang);
+        this.orchestrator.setLocale(this.languageMappingService.getSpeechLocale(event.lang));
       });
 
-    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+    const currentLang = this.resolveCurrentLang();
     this.updateSpeechLanguage(currentLang);
     if (!this.asideService.openedWithContext() && this.messages.length === 0) {
       this.addWelcomeMessage(currentLang);
@@ -528,7 +537,9 @@ export class AssistantChatComponent {
     }
     this.cdr.detectChanges();
 
-    const voiceModeActive = this.orchestrator.voiceModeEnabled();
+    const voiceModeActive =
+      this.orchestrator.voiceModeEnabled() ||
+      this.appSettings.speechSettings().outputMode === OutputMode.BothAuto;
     this.currentStreamController = this.assistantService.sendMessageStream(
       messageText,
       this.conversationId,
@@ -1281,6 +1292,36 @@ export class AssistantChatComponent {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  /**
+   * Resolves the user's language, preferring the persisted choice: in floating voice
+   * modes this component bootstraps before the translate service has a current language.
+   */
+  private resolveCurrentLang(): string {
+    return (
+      this.localStorageService.get(StorageKeys.CURRENT_LANG) ||
+      this.translateService.currentLang ||
+      this.translateService.defaultLang
+    );
+  }
+
+  /**
+   * Surfaces orchestrator voice errors in the classic chat panel, where no voice-shell
+   * icon exists to blink. Floating modes keep the shell's own error visuals instead.
+   * @param hint - Error hint emitted by the conversation orchestrator
+   */
+  private onVoiceErrorHint(hint: IVoiceShellErrorHint): void {
+    const mode = this.appSettings.speechSettings().outputMode;
+    if (mode === OutputMode.Audio || mode === OutputMode.BothAuto) {
+      return;
+    }
+    const message = this.translateService.instant(hint.i18nKey);
+    if (hint.kind === 'stt-empty') {
+      this.toastShowService.showInfo(message);
+    } else {
+      this.toastShowService.showError(message);
+    }
   }
 
   private updateSpeechLanguage(langCode: string): void {

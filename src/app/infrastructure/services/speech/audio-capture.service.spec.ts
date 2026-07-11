@@ -6,6 +6,7 @@
 import { vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { AudioCaptureService } from './audio-capture.service';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
 
 describe('AudioCaptureService', () => {
@@ -27,8 +28,9 @@ describe('AudioCaptureService', () => {
     expect(service.isSpeechDetected()).toBe(false);
   });
 
-  it('should have default silence threshold of 1500ms', () => {
-    expect(service.silenceThresholdMs()).toBe(1500);
+  it('should have default silence threshold of 1000ms (SpeechDefaults)', () => {
+    expect(service.silenceThresholdMs()).toBe(1000);
+    expect(service.silenceThresholdMs()).toBe(SpeechDefaults.SilenceThresholdMs);
   });
 
   it('should update silence threshold via setter', () => {
@@ -36,9 +38,74 @@ describe('AudioCaptureService', () => {
     expect(service.silenceThresholdMs()).toBe(2000);
   });
 
+  it('should clamp silence threshold below the minimum to 500ms', () => {
+    service.setSilenceThresholdMs(100);
+    expect(service.silenceThresholdMs()).toBe(SpeechDefaults.SilenceThresholdMinMs);
+  });
+
+  it('should clamp silence threshold above the maximum to 3000ms', () => {
+    service.setSilenceThresholdMs(10000);
+    expect(service.silenceThresholdMs()).toBe(SpeechDefaults.SilenceThresholdMaxMs);
+  });
+
+  it('should fall back to the default for non-finite silence threshold', () => {
+    service.setSilenceThresholdMs(Number.NaN);
+    expect(service.silenceThresholdMs()).toBe(SpeechDefaults.SilenceThresholdMs);
+  });
+
   it('should stop cleanly when not capturing', () => {
     expect(() => service.stop()).not.toThrow();
     expect(service.isCapturing()).toBe(false);
+  });
+
+  describe('recorded blob access', () => {
+    const WAV_HEADER_BYTES = 44;
+    const BYTES_PER_SAMPLE = 2;
+    type RecordingAccess = { recordedPcm: Int16Array[] };
+
+    const seedRecording = (samples: number): void => {
+      (service as unknown as RecordingAccess).recordedPcm = [new Int16Array(samples)];
+    };
+
+    it('peekRecordedBlob builds a WAV blob WITHOUT clearing the recording buffer', () => {
+      seedRecording(1000);
+
+      const first = service.peekRecordedBlob();
+      const second = service.peekRecordedBlob();
+
+      expect(first.size).toBe(WAV_HEADER_BYTES + 1000 * BYTES_PER_SAMPLE);
+      expect(second.size).toBe(first.size);
+      expect((service as unknown as RecordingAccess).recordedPcm.length).toBe(1);
+    });
+
+    it('takeRecordedBlob clears the recording buffer', () => {
+      seedRecording(1000);
+
+      const blob = service.takeRecordedBlob();
+
+      expect(blob.size).toBe(WAV_HEADER_BYTES + 1000 * BYTES_PER_SAMPLE);
+      expect((service as unknown as RecordingAccess).recordedPcm.length).toBe(0);
+      expect(service.peekRecordedBlob().size).toBe(WAV_HEADER_BYTES);
+    });
+
+    it('peekRecordedBlob then takeRecordedBlob returns the same audio payload size', () => {
+      seedRecording(2000);
+
+      const peeked = service.peekRecordedBlob();
+      const taken = service.takeRecordedBlob();
+
+      expect(taken.size).toBe(peeked.size);
+    });
+
+    it('getRecordedDurationMs derives the duration from samples and the default rate', () => {
+      seedRecording(SpeechDefaults.SampleRate);
+
+      expect(service.getRecordedDurationMs()).toBe(SpeechDefaults.MillisecondsPerSecond);
+    });
+
+    it('getRecordedDurationMs is zero when nothing has been recorded', () => {
+      expect(service.getRecordedDurationMs()).toBe(0);
+    });
   });
 
   describe('device selection', () => {

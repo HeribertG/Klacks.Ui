@@ -1,8 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Local in-browser Whisper STT: loads the ONNX whisper-tiny model, records microphone
+ * audio and transcribes it either as a whole blob or chunk-wise on detected silence.
+ * @param silenceDurationMs - Silence duration before a chunk is transcribed; fed from the shared speech settings
+ */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, signal } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +26,7 @@ export class WhisperStreamingService {
   private isProcessingChunk = false;
 
   private readonly SILENCE_THRESHOLD = 15;
-  private readonly SILENCE_DURATION_MS = 1500;
+  private silenceDurationMs = SpeechDefaults.SilenceThresholdMs;
   private readonly MIN_AUDIO_DURATION_MS = 500;
 
   public readonly isLoading = signal<boolean>(false);
@@ -46,6 +52,15 @@ export class WhisperStreamingService {
 
   get errors(): Observable<string> {
     return this.errors$.asObservable();
+  }
+
+  /**
+   * Applies the configured silence window so blob-path chunking uses the same
+   * source of truth as the streaming audio capture.
+   * @param ms - Silence duration in milliseconds; clamped to the supported range
+   */
+  setSilenceDurationMs(ms: number): void {
+    this.silenceDurationMs = SpeechDefaults.clampSilenceThresholdMs(ms);
   }
 
   async transcribeBlob(blob: Blob, language = 'de'): Promise<string> {
@@ -188,7 +203,7 @@ export class WhisperStreamingService {
         if (!this.silenceTimeout) {
           this.silenceTimeout = setTimeout(() => {
             this.processCurrentChunk();
-          }, this.SILENCE_DURATION_MS);
+          }, this.silenceDurationMs);
         }
       } else {
         if (this.silenceTimeout) {

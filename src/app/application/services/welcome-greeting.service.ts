@@ -65,7 +65,7 @@ export class WelcomeGreetingService {
     const lastVariantIndex = this.readLastVariantIndex(pool);
 
     const request: IWelcomeRequest = {
-      lang: this.translateService.currentLang || this.translateService.defaultLang || 'en',
+      lang: this.resolveLang(),
       localHour,
       weekday: now.getDay(),
       route: this.router.url,
@@ -83,6 +83,19 @@ export class WelcomeGreetingService {
     }
 
     return request;
+  }
+
+  /**
+   * Resolves the user's language, preferring the persisted choice over the translate
+   * service state, which is still unset when the chat bootstraps before language setup.
+   */
+  private resolveLang(): string {
+    return (
+      this.localStorageService.get(StorageKeys.CURRENT_LANG) ||
+      this.translateService.currentLang ||
+      this.translateService.defaultLang ||
+      'en'
+    );
   }
 
   private isReopenSession(): boolean {

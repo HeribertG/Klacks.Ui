@@ -119,9 +119,9 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   bargeInEnabled = false;
 
   readonly silenceOptions: Options = {
-    floor: 500,
-    ceil: 3000,
-    step: 100,
+    floor: SpeechDefaults.SilenceThresholdMinMs,
+    ceil: SpeechDefaults.SilenceThresholdMaxMs,
+    step: SpeechDefaults.SilenceThresholdStepMs,
     showSelectionBar: true,
     translate: (value: number): string => `${value}ms`,
   };

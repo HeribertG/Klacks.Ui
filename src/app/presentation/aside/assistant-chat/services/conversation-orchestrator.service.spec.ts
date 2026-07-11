@@ -10,7 +10,10 @@ import { vi } from 'vitest';
 import { ConversationOrchestratorService, ConversationState, ConversationCallbacks } from './conversation-orchestrator.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
+import { EarconService } from 'src/app/infrastructure/services/speech/earcon.service';
+import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
+import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
@@ -28,6 +31,9 @@ describe('ConversationOrchestratorService', () => {
     clearRecording: ReturnType<typeof vi.fn>;
     isCapturing: ReturnType<typeof vi.fn>;
     isSpeechDetected: ReturnType<typeof vi.fn>;
+    takeRecordedBlob: ReturnType<typeof vi.fn>;
+    peekRecordedBlob: ReturnType<typeof vi.fn>;
+    getRecordedDurationMs: ReturnType<typeof vi.fn>;
     audioChunk$: Subject<ArrayBuffer>;
     silenceDetected$: Subject<void>;
     speechStarted$: Subject<void>;
@@ -42,6 +48,9 @@ describe('ConversationOrchestratorService', () => {
   };
   let mockTranscription: { enhance: ReturnType<typeof vi.fn> };
   let mockDataTts: { synthesize: ReturnType<typeof vi.fn> };
+  let mockDataStt: { transcribe: ReturnType<typeof vi.fn> };
+  let mockWhisper: { setSilenceDurationMs: ReturnType<typeof vi.fn>; transcribeBlob: ReturnType<typeof vi.fn> };
+  let mockEarcon: { playProcessingEarcon: ReturnType<typeof vi.fn> };
   let mockAudioQueue: {
     enqueue: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
@@ -73,7 +82,7 @@ describe('ConversationOrchestratorService', () => {
       transcriptionModel: 'deepseek-chat',
       enhancementEnabled: true,
       outputMode: 'both',
-      silenceThresholdMs: 1500,
+      silenceThresholdMs: 1000,
       bargeInEnabled: false,
     };
 
@@ -85,6 +94,9 @@ describe('ConversationOrchestratorService', () => {
       clearRecording: vi.fn(),
       isCapturing: vi.fn(() => false),
       isSpeechDetected: vi.fn(() => false),
+      takeRecordedBlob: vi.fn(() => new Blob([new Uint8Array(4000)])),
+      peekRecordedBlob: vi.fn(() => new Blob([new Uint8Array(4000)])),
+      getRecordedDurationMs: vi.fn(() => 5000),
       audioChunk$: new Subject(),
       silenceDetected$: new Subject(),
       speechStarted$: new Subject(),
@@ -107,6 +119,10 @@ describe('ConversationOrchestratorService', () => {
       synthesize: vi.fn().mockResolvedValue(new Blob()),
     };
 
+    mockDataStt = {
+      transcribe: vi.fn().mockResolvedValue(''),
+    };
+
     mockAudioQueue = {
       enqueue: vi.fn(),
       stop: vi.fn(),
@@ -115,14 +131,26 @@ describe('ConversationOrchestratorService', () => {
       playbackFinished$: new Subject(),
     };
 
+    mockWhisper = {
+      setSilenceDurationMs: vi.fn(),
+      transcribeBlob: vi.fn().mockResolvedValue(''),
+    };
+
+    mockEarcon = {
+      playProcessingEarcon: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         ConversationOrchestratorService,
         { provide: AudioCaptureService, useValue: mockAudioCapture },
         { provide: SttStreamService, useValue: mockSttStream },
+        { provide: DataSttService, useValue: mockDataStt },
         { provide: DataTranscriptionService, useValue: mockTranscription },
         { provide: DataTtsService, useValue: mockDataTts },
         { provide: AudioQueueService, useValue: mockAudioQueue },
+        { provide: WhisperStreamingService, useValue: mockWhisper },
+        { provide: EarconService, useValue: mockEarcon },
         { provide: AppSettingsManagementService, useValue: { speechSettings: vi.fn(() => currentSettings) } },
       ],
     });
@@ -784,6 +812,275 @@ describe('ConversationOrchestratorService', () => {
     expect(service.state()).toBe(ConversationState.Listening);
     expect(mockAudioCapture.setVadThresholdMultiplier).toHaveBeenLastCalledWith(1);
     expect(mockAudioCapture.clearRecording).toHaveBeenCalled();
+  });
+
+  // --- Configured silence threshold (single source of truth) ---
+
+  it('Silence threshold 1: initialize pushes the configured value into capture AND whisper paths', () => {
+    currentSettings = { ...currentSettings, silenceThresholdMs: 800 };
+
+    service.initialize(makeCallbacks(), 'de');
+
+    expect(mockAudioCapture.setSilenceThresholdMs).toHaveBeenCalledWith(800);
+    expect(mockWhisper.setSilenceDurationMs).toHaveBeenCalledWith(800);
+  });
+
+  it('Silence threshold 2: out-of-range setting is clamped before it is applied', () => {
+    currentSettings = { ...currentSettings, silenceThresholdMs: 99999 };
+
+    service.initialize(makeCallbacks(), 'de');
+
+    expect(mockAudioCapture.setSilenceThresholdMs).toHaveBeenCalledWith(3000);
+    expect(mockWhisper.setSilenceDurationMs).toHaveBeenCalledWith(3000);
+  });
+
+  it('Silence threshold 3: transitionToListening re-applies a changed setting for the next turn', async () => {
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    currentSettings = { ...currentSettings, silenceThresholdMs: 2000 };
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    service.onStreamContent('Hi there.');
+    await flushPromises();
+    service.onStreamDone();
+    await flushPromises();
+    mockAudioQueue.playbackFinished$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Listening);
+    expect(mockAudioCapture.setSilenceThresholdMs).toHaveBeenLastCalledWith(2000);
+    expect(mockWhisper.setSilenceDurationMs).toHaveBeenLastCalledWith(2000);
+  });
+
+  // --- Processing earcon (audible "understood, thinking now" feedback) ---
+
+  it('Earcon 1: entering PROCESSING in voice mode plays the confirmation earcon once', async () => {
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Processing);
+    expect(mockEarcon.playProcessingEarcon).toHaveBeenCalledTimes(1);
+  });
+
+  it('Earcon 2: text-only output mode suppresses the earcon', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'text' };
+
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Processing);
+    expect(mockEarcon.playProcessingEarcon).not.toHaveBeenCalled();
+  });
+
+  it('Earcon 3: no earcon outside voice mode (auto-speak streaming)', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'both-auto' };
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    await flushPromises();
+
+    expect(mockEarcon.playProcessingEarcon).not.toHaveBeenCalled();
+  });
+
+  it('Earcon 4: empty transcript loops back to LISTENING without an earcon', async () => {
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => '',
+      setInputText: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+    };
+
+    service.initialize(callbacks, 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Listening);
+    expect(mockEarcon.playProcessingEarcon).not.toHaveBeenCalled();
+  });
+
+  // --- Interim transcripts while speaking (server blob STT only) ---
+
+  const makeSpyCallbacks = () => {
+    let inputText = '';
+    const setInputText = vi.fn((text: string) => { inputText = text; });
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => inputText,
+      setInputText,
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+    };
+    return { callbacks, setInputText };
+  };
+
+  const startListening = async (sttEngine: string, callbacks: ConversationCallbacks): Promise<void> => {
+    currentSettings = { ...currentSettings, sttEngine, enhancementEnabled: false };
+    service.initialize(callbacks, 'de');
+    await service.toggleVoiceMode();
+    expect(service.state()).toBe(ConversationState.Listening);
+  };
+
+  it('Interim 1: periodic tick transcribes the peeked blob and shows the partial text', async () => {
+    mockDataStt.transcribe.mockResolvedValue('partial text');
+    const { callbacks, setInputText } = makeSpyCallbacks();
+    await startListening('groq-whisper', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(2000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockAudioCapture.peekRecordedBlob).toHaveBeenCalled();
+    expect(mockDataStt.transcribe).toHaveBeenCalledTimes(1);
+    expect(setInputText).toHaveBeenCalledWith('partial text');
+    expect(callbacks.detectChanges).toHaveBeenCalled();
+  });
+
+  it('Interim 2: tick is skipped while a partial request is still in flight (no queueing)', async () => {
+    mockDataStt.transcribe.mockImplementation(() => new Promise(() => undefined));
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('custom:whisper-local', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(6000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockDataStt.transcribe).toHaveBeenCalledTimes(1);
+  });
+
+  it('Interim 3: a stale partial response after silence detection is discarded', async () => {
+    let resolvePartial!: (text: string) => void;
+    mockDataStt.transcribe
+      .mockImplementationOnce(() => new Promise<string>(resolve => { resolvePartial = resolve; }))
+      .mockResolvedValue('final text');
+    const { callbacks, setInputText } = makeSpyCallbacks();
+    await startListening('groq-whisper', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(2000);
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(mockDataStt.transcribe).toHaveBeenCalledTimes(1);
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+    expect(setInputText).toHaveBeenCalledWith('final text');
+    expect(service.state()).toBe(ConversationState.Processing);
+
+    resolvePartial('stale partial');
+    await flushPromises();
+
+    expect(setInputText).not.toHaveBeenCalledWith('stale partial');
+    expect(callbacks.getInputText()).toBe('final text');
+  });
+
+  it('Interim 4: browser Whisper engine gets no server partials (it has its own interims)', async () => {
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('browser', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(6000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockDataStt.transcribe).not.toHaveBeenCalled();
+    expect(mockAudioCapture.peekRecordedBlob).not.toHaveBeenCalled();
+  });
+
+  it('Interim 5: no partials once more than 30s of audio has been recorded', async () => {
+    mockAudioCapture.getRecordedDurationMs.mockReturnValue(31000);
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('groq-whisper', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(6000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockDataStt.transcribe).not.toHaveBeenCalled();
+  });
+
+  it('Interim 6: too-small peeked blob skips the tick without a request', async () => {
+    mockAudioCapture.peekRecordedBlob.mockReturnValue(new Blob([new Uint8Array(10)]));
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('groq-whisper', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(4000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockDataStt.transcribe).not.toHaveBeenCalled();
+  });
+
+  it('Interim 7: disabling voice mode stops the interim interval', async () => {
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('groq-whisper', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await service.toggleVoiceMode();
+      await vi.advanceTimersByTimeAsync(6000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockDataStt.transcribe).not.toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Idle);
+  });
+
+  it('Interim 8: partial failures are silent (no error hint, loop keeps running)', async () => {
+    mockDataStt.transcribe
+      .mockRejectedValueOnce(new Error('partial boom'))
+      .mockResolvedValue('recovered partial');
+    const errorSpy = vi.fn();
+    service.errors$.subscribe(errorSpy);
+    const { callbacks, setInputText } = makeSpyCallbacks();
+    await startListening('groq-whisper', callbacks);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(4000);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockDataStt.transcribe).toHaveBeenCalledTimes(2);
+    expect(errorSpy).not.toHaveBeenCalled();
+    expect(setInputText).toHaveBeenCalledWith('recovered partial');
   });
 });
 

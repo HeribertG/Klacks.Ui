@@ -1,11 +1,12 @@
 @use 'sass:color';
+@use '../../../../assets/standard-styles/colors' as colors;
 
-$color-idle: #94a3b8;
-$color-listening: #007bff;
-$color-enhancing: #a855f7;
-$color-processing: #f59e0b;
-$color-planning: #6366f1;
-$color-speaking: #10b981;
+$color-idle: colors.$voiceStateIdleColor;
+$color-listening: colors.$voiceStateListeningColor;
+$color-enhancing: colors.$voiceStateEnhancingColor;
+$color-processing: colors.$voiceStateProcessingColor;
+$color-planning: colors.$voiceStatePlanningColor;
+$color-speaking: colors.$voiceStateSpeakingColor;
 
 .icon-root {
   position: relative;

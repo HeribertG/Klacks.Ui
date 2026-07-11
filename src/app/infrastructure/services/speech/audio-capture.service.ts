@@ -32,11 +32,13 @@ export class AudioCaptureService implements OnDestroy {
   private vadThresholdMultiplier = 1;
   private readonly micSelection = inject(MicrophoneSelectionService);
   private recordedPcm: Int16Array[] = [];
+  private preRollPcm: Int16Array[] = [];
+  private preRollSampleCount = 0;
   private debugRmsLogCounter = 0;
   private debugMaxRms = 0;
 
   setSilenceThresholdMs(ms: number): void {
-    this.silenceThresholdMs.set(ms);
+    this.silenceThresholdMs.set(SpeechDefaults.clampSilenceThresholdMs(ms));
   }
 
   setVadThresholdMultiplier(multiplier: number): void {
@@ -45,6 +47,7 @@ export class AudioCaptureService implements OnDestroy {
 
   clearRecording(): void {
     this.recordedPcm = [];
+    this.clearPreRoll();
   }
 
   async start(): Promise<void> {
@@ -138,6 +141,7 @@ export class AudioCaptureService implements OnDestroy {
     this.mediaStream?.getTracks().forEach(t => t.stop());
     this.mediaStream = null;
     this.recordedPcm = [];
+    this.clearPreRoll();
     this.isCapturing.set(false);
     this.isSpeechDetected.set(false);
   }
@@ -156,7 +160,8 @@ export class AudioCaptureService implements OnDestroy {
     }
     const rms = Math.sqrt(sumSquares / float32Data.length);
     const effectiveThreshold = this.vadThreshold * this.vadThresholdMultiplier;
-    const hasSpeech = rms > effectiveThreshold;
+    const hasSpeechOnset = rms > effectiveThreshold;
+    const sustainsSpeech = rms > effectiveThreshold * SpeechDefaults.VadReleaseFactor;
 
     if (rms > this.debugMaxRms) this.debugMaxRms = rms;
     this.debugRmsLogCounter++;
@@ -164,12 +169,18 @@ export class AudioCaptureService implements OnDestroy {
       console.log('[VS] VAD tick: rms=', rms.toFixed(5), 'max=', this.debugMaxRms.toFixed(5), 'threshold=', effectiveThreshold, 'speech=', this.isSpeechDetected());
     }
 
-    if (hasSpeech) {
-      if (!this.isSpeechDetected()) {
-        console.log('[VS] SPEECH STARTED rms=', rms.toFixed(5));
-        this.isSpeechDetected.set(true);
-        this.speechStarted$.next();
-      }
+    if (!this.isSpeechDetected()) {
+      this.appendToPreRoll(this.float32ToInt16(float32Data));
+    }
+
+    if (hasSpeechOnset && !this.isSpeechDetected()) {
+      console.log('[VS] SPEECH STARTED rms=', rms.toFixed(5), 'preRollMs=', Math.round(this.preRollSampleCount / this.currentSampleRate() * SpeechDefaults.MillisecondsPerSecond));
+      this.isSpeechDetected.set(true);
+      this.adoptPreRollIntoRecording();
+      this.speechStarted$.next();
+    }
+
+    if (this.isSpeechDetected() && (hasSpeechOnset || sustainsSpeech)) {
       this.clearSilenceTimer();
       this.resetSilenceTimer();
     }
@@ -181,7 +192,57 @@ export class AudioCaptureService implements OnDestroy {
     }
   }
 
+  private appendToPreRoll(chunk: Int16Array): void {
+    this.preRollPcm.push(chunk);
+    this.preRollSampleCount += chunk.length;
+    const maxSamples = (this.currentSampleRate() * SpeechDefaults.PreRollDurationMs) / SpeechDefaults.MillisecondsPerSecond;
+    while (this.preRollSampleCount > maxSamples && this.preRollPcm.length > 1) {
+      const dropped = this.preRollPcm.shift()!;
+      this.preRollSampleCount -= dropped.length;
+    }
+  }
+
+  private adoptPreRollIntoRecording(): void {
+    for (const chunk of this.preRollPcm) {
+      this.recordedPcm.push(chunk);
+    }
+    this.clearPreRoll();
+  }
+
+  private clearPreRoll(): void {
+    this.preRollPcm = [];
+    this.preRollSampleCount = 0;
+  }
+
+  private currentSampleRate(): number {
+    return this.audioContext?.sampleRate ?? SpeechDefaults.SampleRate;
+  }
+
   takeRecordedBlob(): Blob {
+    const blob = this.buildWavBlobFromRecording();
+    this.recordedPcm = [];
+    return blob;
+  }
+
+  /**
+   * Builds a WAV blob from the recording so far WITHOUT clearing the PCM buffer,
+   * so interim transcriptions can peek at the audio while recording continues.
+   */
+  peekRecordedBlob(): Blob {
+    return this.buildWavBlobFromRecording();
+  }
+
+  /**
+   * Duration of the audio recorded so far in milliseconds, derived from the
+   * accumulated PCM sample count and the actual capture sample rate.
+   */
+  getRecordedDurationMs(): number {
+    const totalSamples = this.recordedPcm.reduce((s, a) => s + a.length, 0);
+    const rate = this.audioContext?.sampleRate ?? SpeechDefaults.SampleRate;
+    return (totalSamples / rate) * SpeechDefaults.MillisecondsPerSecond;
+  }
+
+  private buildWavBlobFromRecording(): Blob {
     const total = this.recordedPcm.reduce((s, a) => s + a.length, 0);
     const merged = new Int16Array(total);
     let offset = 0;
@@ -189,7 +250,6 @@ export class AudioCaptureService implements OnDestroy {
       merged.set(chunk, offset);
       offset += chunk.length;
     }
-    this.recordedPcm = [];
     const rate = this.audioContext?.sampleRate ?? SpeechDefaults.SampleRate;
     return this.pcmToWavBlob(merged, rate, SpeechDefaults.ChannelCount);
   }
