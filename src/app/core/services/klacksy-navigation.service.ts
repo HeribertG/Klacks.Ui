@@ -39,6 +39,12 @@ export class KlacksyNavigationService {
   private static readonly ANCHOR_POLL_MS = 100;
   private static readonly ANCHOR_MAX_MS = 5000;
   private static readonly ANCHOR_CANCEL_EVENTS = ['wheel', 'touchstart', 'mousedown'] as const;
+  // Streamed [SCROLL:...] markers can arrive faster than a reader follows the page;
+  // spacing the jumps keeps each highlighted section visible for a moment.
+  private static readonly EXPLAIN_SCROLL_INTERVAL_MS = 1800;
+
+  private explainScrollQueue: string[] = [];
+  private explainScrollTimer: ReturnType<typeof setTimeout> | null = null;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
     await this.router.navigateByUrl(route);
@@ -58,6 +64,50 @@ export class KlacksyNavigationService {
     const focusable = el.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
     focusable?.focus({ preventScroll: true });
     void this.keepAnchoredWhileLayoutGrows(el);
+    return { success: true };
+  }
+
+  queueExplainScroll(target: string): void {
+    this.explainScrollQueue.push(target);
+    if (this.explainScrollTimer === null) {
+      this.drainExplainScrollQueue();
+    }
+  }
+
+  clearExplainScrollQueue(): void {
+    this.explainScrollQueue = [];
+    if (this.explainScrollTimer !== null) {
+      clearTimeout(this.explainScrollTimer);
+      this.explainScrollTimer = null;
+    }
+  }
+
+  private drainExplainScrollQueue(): void {
+    const target = this.explainScrollQueue.shift();
+    if (target === undefined) {
+      this.explainScrollTimer = null;
+      return;
+    }
+    void this.scrollToTargetOnPage(target);
+    this.explainScrollTimer = setTimeout(
+      () => this.drainExplainScrollQueue(),
+      KlacksyNavigationService.EXPLAIN_SCROLL_INTERVAL_MS
+    );
+  }
+
+  // Scrolls to a target on the CURRENT page without navigating — used while a streamed
+  // explanation walks through the page section by section. No layout re-anchoring here:
+  // the next queued section would fight the previous target's re-anchor loop.
+  async scrollToTargetOnPage(target: string): Promise<NavigationResult> {
+    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS);
+    if (!el) {
+      this.telemetry.trackTargetMiss(this.router.url, target);
+      return { success: false, reason: 'target-not-found' };
+    }
+
+    this.scrollTargetIntoView(el);
+    el.classList.add(KlacksyNavigationService.HIGHLIGHT_CLASS);
+    setTimeout(() => el.classList.remove(KlacksyNavigationService.HIGHLIGHT_CLASS), KlacksyNavigationService.HIGHLIGHT_MS);
     return { success: true };
   }
 

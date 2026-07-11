@@ -182,9 +182,11 @@ export class AssistantChatComponent {
   private streamBuffer = '';
   private streamRafHandle: number | null = null;
   private streamPreviousClean = '';
+  private scrollMarkersDispatched = 0;
 
-  private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
-  private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
+  private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES|SCROLL)(?::[^\]]*?)?\]/g;
+  private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES|SCROLL)(?::[\s\S]*)?$/;
+  private static readonly SCROLL_MARKER_REGEX = /\[SCROLL:\s*([\w-]+)\s*\]/gi;
   private static readonly TOOL_CALL_BLOCK_REGEX = /<\s*function_calls\b[\s\S]*?<\s*\/\s*function_calls\s*>/gi;
   private static readonly TOOL_CALL_TRAILING_REGEX = /<\s*function_calls\b[\s\S]*$/i;
   private static readonly INVOKE_BLOCK_REGEX = /<\s*invoke\b[\s\S]*?<\s*\/\s*invoke\s*>/gi;
@@ -421,6 +423,8 @@ export class AssistantChatComponent {
     this.streamBuffer = '';
     this.streamPreviousClean = '';
     this.currentRawStream = '';
+    this.scrollMarkersDispatched = 0;
+    this.klacksyNavigation.clearExplainScrollQueue();
   }
 
   private addToolStep(functionName: string): void {
@@ -450,6 +454,7 @@ export class AssistantChatComponent {
     const delta = this.streamBuffer;
     this.streamBuffer = '';
     this.currentRawStream += delta;
+    this.dispatchScrollMarkers(this.currentRawStream);
     const nextContent = this.stripMetadataMarkers(this.currentRawStream);
     const previousClean = this.streamPreviousClean;
 
@@ -470,6 +475,17 @@ export class AssistantChatComponent {
     if (ttsClean) {
       this.orchestrator.onStreamContent(ttsClean);
     }
+  }
+
+  // Fires the in-page scroll for every COMPLETE [SCROLL:target] marker that streamed in since
+  // the last flush. Counting dispatched matches (instead of remembering target ids) keeps a
+  // repeated target late in the answer working, e.g. when the model returns to a section.
+  private dispatchScrollMarkers(rawStream: string): void {
+    const matches = [...rawStream.matchAll(AssistantChatComponent.SCROLL_MARKER_REGEX)];
+    for (let i = this.scrollMarkersDispatched; i < matches.length; i++) {
+      this.klacksyNavigation.queueExplainScroll(matches[i][1]);
+    }
+    this.scrollMarkersDispatched = matches.length;
   }
 
   private drainStreamBuffer(assistantMessageId: string): void {
@@ -531,6 +547,7 @@ export class AssistantChatComponent {
     this.currentRawStream = '';
     this.streamBuffer = '';
     this.streamPreviousClean = '';
+    this.scrollMarkersDispatched = 0;
     if (this.streamRafHandle !== null) {
       cancelAnimationFrame(this.streamRafHandle);
       this.streamRafHandle = null;

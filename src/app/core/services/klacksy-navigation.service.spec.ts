@@ -202,4 +202,67 @@ describe('KlacksyNavigationService', () => {
       expect(scrollAdjustCount).toBe(1);
     });
   });
+
+  describe('explain scroll queue', () => {
+    const createTarget = (id: string): HTMLElement => {
+      const el = document.createElement('div');
+      el.setAttribute('data-klacksy-target', id);
+      el.scrollIntoView = vi.fn();
+      document.body.appendChild(el);
+      return el;
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('scrolls to a target on the current page without navigating', async () => {
+      const el = createTarget('settings-general');
+      vi.useRealTimers();
+      const result = await service.scrollToTargetOnPage('settings-general');
+      expect(result.success).toBe(true);
+      expect(el.classList.contains('klacksy-highlight')).toBe(true);
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('reports a miss when the target is absent', async () => {
+      const pending = service.scrollToTargetOnPage('does-not-exist');
+      await vi.advanceTimersByTimeAsync(2000);
+      const result = await pending;
+      expect(result).toEqual({ success: false, reason: 'target-not-found' });
+      expect(telemetry.trackTargetMiss).toHaveBeenCalled();
+    });
+
+    it('spaces queued explain scrolls so each highlight stays visible', async () => {
+      const first = createTarget('settings-general');
+      const second = createTarget('owner-address');
+
+      service.queueExplainScroll('settings-general');
+      service.queueExplainScroll('owner-address');
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(first.classList.contains('klacksy-highlight')).toBe(true);
+      expect(second.classList.contains('klacksy-highlight')).toBe(false);
+
+      await vi.advanceTimersByTimeAsync(1800);
+      expect(second.classList.contains('klacksy-highlight')).toBe(true);
+    });
+
+    it('clearExplainScrollQueue drops pending scrolls', async () => {
+      createTarget('settings-general');
+      const second = createTarget('owner-address');
+
+      service.queueExplainScroll('settings-general');
+      service.queueExplainScroll('owner-address');
+      await vi.advanceTimersByTimeAsync(0);
+      service.clearExplainScrollQueue();
+
+      await vi.advanceTimersByTimeAsync(4000);
+      expect(second.classList.contains('klacksy-highlight')).toBe(false);
+    });
+  });
 });
