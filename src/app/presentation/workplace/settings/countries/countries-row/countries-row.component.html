@@ -12,40 +12,15 @@
       />
     </div>
     <div id="country-row-name-wrapper-{{ data()!.id }}">
-      @if (currentLang === 'de') {
-        <input
-          id="country-row-name-de-{{ data()!.id }}"
-          type="text"
-          [formField]="countryForm.nameDe"
-          aria-label="data.name"
-          class="form-control country-name"
-        />
-      } @else if (currentLang === 'en') {
-        <input
-          id="country-row-name-en-{{ data()!.id }}"
-          type="text"
-          [formField]="countryForm.nameEn"
-          aria-label="data.name"
-          class="form-control country-name"
-        />
-      } @else if (currentLang === 'fr') {
-        <input
-          id="country-row-name-fr-{{ data()!.id }}"
-          type="text"
-          [formField]="countryForm.nameFr"
-          aria-label="data.name"
-          class="form-control country-name"
-        />
-      } @else if (currentLang === 'it') {
-        <input
-          id="country-row-name-it-{{ data()!.id }}"
-          type="text"
-          [formField]="countryForm.nameIt"
-          aria-label="data.name"
-          class="form-control country-name"
-        />
-      }
+      <input
+        id="country-row-name-{{ currentLang() }}-{{ data()!.id }}"
+        type="text"
+        [formField]="countryForm.nameCurrent"
+        aria-label="data.name"
+        class="form-control country-name"
+      />
     </div>
+
     <div id="country-row-prefix-wrapper-{{ data()!.id }}">
       <input
         id="country-row-prefix-{{ data()!.id }}"

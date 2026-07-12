@@ -9,7 +9,7 @@ import {
   signal,
   input,
   output,
-  ChangeDetectorRef,
+  untracked,
 } from '@angular/core';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -22,10 +22,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 
 interface StateModel {
   abbreviation: string;
-  nameDe: string;
-  nameEn: string;
-  nameFr: string;
-  nameIt: string;
+  nameCurrent: string;
   countryPrefix: string;
 }
 
@@ -42,41 +39,32 @@ export class StateRowComponent implements OnInit, OnDestroy {
   readonly isDeleteEvent = output<void>();
   readonly isChangingEvent = output<void>();
 
-  currentLang: Language = DomainMessages.DEFAULT_LANG;
+  readonly currentLang = signal<Language>(DomainMessages.DEFAULT_LANG);
 
   public translate = inject(TranslateService);
-  private cdr = inject(ChangeDetectorRef);
   private ngUnsubscribe = new Subject<void>();
 
   private isInitialized = false;
   private lastModel: StateModel | null = null;
   private stateModel = signal<StateModel>({
     abbreviation: '',
-    nameDe: '',
-    nameEn: '',
-    nameFr: '',
-    nameIt: '',
+    nameCurrent: '',
     countryPrefix: '',
   });
   stateForm = form(this.stateModel, f => {
     debounce(f.abbreviation, 500);
-    debounce(f.nameDe, 500);
-    debounce(f.nameEn, 500);
-    debounce(f.nameFr, 500);
-    debounce(f.nameIt, 500);
+    debounce(f.nameCurrent, 500);
     debounce(f.countryPrefix, 500);
   });
 
   constructor() {
     effect(() => {
       const currentData = this.data();
+      const langKey = this.currentLang().toLowerCase();
       if (currentData) {
         const initialModel: StateModel = {
           abbreviation: currentData.abbreviation || '',
-          nameDe: currentData.name?.de || '',
-          nameEn: currentData.name?.en || '',
-          nameFr: currentData.name?.fr || '',
-          nameIt: currentData.name?.it || '',
+          nameCurrent: currentData.name?.[langKey] || '',
           countryPrefix: currentData.countryPrefix || '',
         };
         this.stateModel.set(initialModel);
@@ -87,13 +75,11 @@ export class StateRowComponent implements OnInit, OnDestroy {
 
     effect(() => {
       const model = this.stateModel();
-      const currentData = this.data();
+      const currentData = untracked(() => this.data());
+      const langKey = untracked(() => this.currentLang()).toLowerCase();
       if (this.isInitialized && currentData && this.hasModelChanged(model)) {
         currentData.abbreviation = model.abbreviation;
-        currentData.name!.de = model.nameDe;
-        currentData.name!.en = model.nameEn;
-        currentData.name!.fr = model.nameFr;
-        currentData.name!.it = model.nameIt;
+        currentData.name![langKey] = model.nameCurrent;
         currentData.countryPrefix = model.countryPrefix;
         this.lastModel = { ...model };
         this.updateDataDirtyState();
@@ -105,22 +91,18 @@ export class StateRowComponent implements OnInit, OnDestroy {
     if (!this.lastModel) return false;
     return (
       model.abbreviation !== this.lastModel.abbreviation ||
-      model.nameDe !== this.lastModel.nameDe ||
-      model.nameEn !== this.lastModel.nameEn ||
-      model.nameFr !== this.lastModel.nameFr ||
-      model.nameIt !== this.lastModel.nameIt ||
+      model.nameCurrent !== this.lastModel.nameCurrent ||
       model.countryPrefix !== this.lastModel.countryPrefix
     );
   }
 
   ngOnInit(): void {
-    this.currentLang = this.translate.currentLang as Language;
+    this.currentLang.set(this.translate.currentLang as Language);
 
     this.translate.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
-        this.currentLang = this.translate.currentLang as Language;
-        this.cdr.markForCheck();
+        this.currentLang.set(this.translate.currentLang as Language);
       });
   }
 
