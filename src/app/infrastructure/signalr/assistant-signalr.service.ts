@@ -1,7 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * SignalR service for assistant notifications (proactive messages, onboarding prompts).
+ * SignalR service for assistant notifications (proactive messages, onboarding prompts, plan updates).
+ * Owns the assistant event Subject streams and delegates the connection lifecycle to the shared
+ * SignalRConnectionHelper (FSM, backend probe, token validation, single watchdog-driven reconnect).
+ * This replaces the previous naive skipNegotiation/WebSockets-only implementation whose overlapping
+ * scheduleReconnect chains stormed the server ("Failed to start the HttpConnection before stop()")
+ * whenever the backend was slow to become ready (e.g. cold start on an empty database).
  * @param hubUrl - URL of the assistant notification hub
  */
 
@@ -10,8 +15,10 @@ import * as signalR from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from '../constants/storage-keys';
+import { DataAuthService } from '../api/data-auth.service';
 import { AssistantSignalRConstants } from './signalr.constants';
+import { SignalRTokenHelper } from './signalr-token.helper';
+import { SignalRConnectionHelper } from './signalr-connection.helper';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan.interface';
 import { IEntityChanged } from 'src/app/domain/interfaces/entity-changed.interface';
@@ -21,11 +28,11 @@ import { IncomingMessage } from 'klacks-plugin-messaging';
   providedIn: 'root',
 })
 export class AssistantSignalRService implements OnDestroy {
-  private localStorageService = inject(LocalStorageService);
+  private readonly _localStorage = inject(LocalStorageService);
+  private readonly _dataAuthService = inject(DataAuthService);
 
-  private hubConnection: signalR.HubConnection | null = null;
-  private readonly hubUrl: string;
-  private pendingStart: Promise<void> | null = null;
+  private readonly _tokenHelper: SignalRTokenHelper;
+  private readonly _connectionHelper: SignalRConnectionHelper;
 
   public proactiveMessage$ = new Subject<IProactiveMessage>();
   public onboardingPrompt$ = new Subject<IProactiveMessage>();
@@ -34,148 +41,106 @@ export class AssistantSignalRService implements OnDestroy {
   public entityChanged$ = new Subject<IEntityChanged>();
 
   constructor() {
-    this.hubUrl = environment.baseUrl.replace('/api/backend/', AssistantSignalRConstants.HubPath);
+    this._tokenHelper = new SignalRTokenHelper(this._localStorage, this._dataAuthService);
+
+    const hubUrl = environment.baseUrl.replace(
+      '/api/backend/',
+      AssistantSignalRConstants.HubPath,
+    );
+
+    this._connectionHelper = new SignalRConnectionHelper(
+      this._tokenHelper,
+      this._localStorage,
+      hubUrl,
+      {
+        onVisibilityDrift: async () => await this.refreshConnection(),
+        onWatchdogNeedsReconnect: async () => await this.startConnection(),
+      },
+    );
+  }
+
+  get isConnected(): boolean {
+    return this._connectionHelper.isConnected();
   }
 
   async startConnection(): Promise<void> {
-    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
-      return;
-    }
-    // app.component/login/oauth2-callback can all call startConnection() around the same time
-    // (e.g. after login). Without this guard, a second call while the first is still connecting
-    // would build a second hub instance and orphan the first one - leaving two live connections
-    // registered server-side for the same user, so every proactive message arrives twice.
-    if (this.pendingStart) {
-      await this.pendingStart;
-      return;
-    }
-
-    this.pendingStart = this.startConnectionInternal();
-    try {
-      await this.pendingStart;
-    } finally {
-      this.pendingStart = null;
-    }
-  }
-
-  private async startConnectionInternal(): Promise<void> {
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
-    if (!token) {
-      return;
-    }
-
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(this.hubUrl, {
-        accessTokenFactory: () => this.localStorageService.get(StorageKeys.TOKEN) ?? '',
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
-      })
-      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.Warning)
-      .build();
-
-    this.registerEventHandlers();
-    this.registerConnectionEvents();
-
-    try {
-      await this.hubConnection.start();
-    } catch (error) {
-      console.error('Assistant SignalR connection failed:', error);
-      // A failed initial start() does not fire onclose, so automatic reconnect never kicks in
-      // (e.g. the token was not ready yet at app init). Schedule an explicit retry so the proactive
-      // channel recovers instead of staying dead for the whole session.
-      this.scheduleReconnect();
-    }
+    await this._connectionHelper.startConnection(
+      (hub) => this.registerEventHandlers(hub),
+      {
+        onConnected: async () => {
+          this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
+        },
+        onReconnecting: async () => undefined,
+        onReconnected: async () => undefined,
+        onClosed: () => undefined,
+      },
+    );
   }
 
   async stopConnection(): Promise<void> {
-    if (this.hubConnection) {
-      await this.hubConnection.stop();
-      this.hubConnection = null;
-    }
+    await this._connectionHelper.stopConnection();
   }
 
-  private isConnected(): boolean {
-    return this.hubConnection?.state === signalR.HubConnectionState.Connected;
+  async refreshConnection(): Promise<void> {
+    await this.stopConnection();
+    await this.startConnection();
   }
 
-  private registerEventHandlers(): void {
-    if (!this.hubConnection) return;
+  resetAuthFailure(): void {
+    this._connectionHelper.resetAuthFailure();
+  }
 
-    this.hubConnection.on(
+  private registerEventHandlers(hub: signalR.HubConnection): void {
+    hub.on(
       AssistantSignalRConstants.Events.ProactiveMessage,
       (message: IProactiveMessage) => {
+        this._connectionHelper.notePush();
         this.proactiveMessage$.next(message);
-      }
+      },
     );
 
-    this.hubConnection.on(
+    hub.on(
       AssistantSignalRConstants.Events.OnboardingPrompt,
       (message: IProactiveMessage) => {
+        this._connectionHelper.notePush();
         this.onboardingPrompt$.next(message);
-      }
+      },
     );
 
-    this.hubConnection.on(
+    hub.on(
       AssistantSignalRConstants.Events.PluginEvent,
       (eventType: string, payload: unknown) => {
+        this._connectionHelper.notePush();
         if (eventType === 'messaging.incoming') {
           this.incomingMessage$.next(payload as IncomingMessage);
         }
-      }
+      },
     );
 
-    this.hubConnection.on(
+    hub.on(
       AssistantSignalRConstants.Events.PlanUpdated,
       (update: IAgentPlanUpdate) => {
+        this._connectionHelper.notePush();
         this.planUpdated$.next(update);
-      }
+      },
     );
 
-    this.hubConnection.on(
+    hub.on(
       AssistantSignalRConstants.Events.EntityChanged,
       (change: IEntityChanged) => {
+        this._connectionHelper.notePush();
         this.entityChanged$.next(change);
-      }
+      },
     );
   }
 
-  private registerConnectionEvents(): void {
-    if (!this.hubConnection) return;
-
-    this.hubConnection.onclose(() => {
-      this.scheduleReconnect();
-    });
-  }
-
-  private scheduleReconnect(attempt = 0): void {
-    const delays = [2000, 5000, 10000, 30000, 60000];
-    const delay = delays[Math.min(attempt, delays.length - 1)];
-
-    setTimeout(async () => {
-      const token = this.localStorageService.get(StorageKeys.TOKEN);
-      if (!token) return;
-
-      try {
-        // Stop any lingering connection before building a new one. withAutomaticReconnect can keep
-        // the old instance alive; nulling it without stopping leaks a second connection whose event
-        // handlers keep firing, so every proactive message would arrive twice.
-        if (this.hubConnection) {
-          await this.hubConnection.stop();
-        }
-        this.hubConnection = null;
-        await this.startConnection();
-        if (!this.isConnected()) {
-          this.scheduleReconnect(attempt + 1);
-        }
-      } catch {
-        this.scheduleReconnect(attempt + 1);
-      }
-    }, delay);
-  }
-
-  ngOnDestroy(): void {
-    this.stopConnection();
+  async ngOnDestroy(): Promise<void> {
+    this._connectionHelper.dispose();
+    try {
+      await this._connectionHelper.stopConnection();
+    } catch {
+      // ignored: stop is best-effort during teardown
+    }
     this.proactiveMessage$.complete();
     this.onboardingPrompt$.complete();
     this.incomingMessage$.complete();

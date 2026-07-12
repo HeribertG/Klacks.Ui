@@ -2,6 +2,10 @@
 
 /**
  * SignalR service for email notifications (new emails, read state changes).
+ * Owns the email event Subject streams and delegates the connection lifecycle to the shared
+ * SignalRConnectionHelper (FSM, backend probe, token validation, single watchdog-driven reconnect).
+ * This replaces the previous naive skipNegotiation/WebSockets-only implementation whose stacking
+ * scheduleReconnect chains stormed the server whenever the backend was slow to become ready.
  * @param hubUrl - URL of the email notification hub
  */
 
@@ -10,117 +14,100 @@ import * as signalR from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from '../constants/storage-keys';
+import { DataAuthService } from '../api/data-auth.service';
 import { EmailSignalRConstants } from './signalr.constants';
+import { SignalRTokenHelper } from './signalr-token.helper';
+import { SignalRConnectionHelper } from './signalr-connection.helper';
 import { INewEmailsNotification, IEmailReadStateNotification } from 'src/app/domain/models/email/email-notification.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EmailSignalRService implements OnDestroy {
-  private localStorageService = inject(LocalStorageService);
+  private readonly _localStorage = inject(LocalStorageService);
+  private readonly _dataAuthService = inject(DataAuthService);
 
-  private hubConnection: signalR.HubConnection | null = null;
-  private readonly hubUrl: string;
+  private readonly _tokenHelper: SignalRTokenHelper;
+  private readonly _connectionHelper: SignalRConnectionHelper;
 
   public newEmailsReceived$ = new Subject<INewEmailsNotification>();
   public emailReadStateChanged$ = new Subject<IEmailReadStateNotification>();
 
   constructor() {
-    this.hubUrl = environment.baseUrl.replace('/api/backend/', EmailSignalRConstants.HubPath);
+    this._tokenHelper = new SignalRTokenHelper(this._localStorage, this._dataAuthService);
+
+    const hubUrl = environment.baseUrl.replace(
+      '/api/backend/',
+      EmailSignalRConstants.HubPath,
+    );
+
+    this._connectionHelper = new SignalRConnectionHelper(
+      this._tokenHelper,
+      this._localStorage,
+      hubUrl,
+      {
+        onVisibilityDrift: async () => await this.refreshConnection(),
+        onWatchdogNeedsReconnect: async () => await this.startConnection(),
+      },
+    );
+  }
+
+  get isConnected(): boolean {
+    return this._connectionHelper.isConnected();
   }
 
   async startConnection(): Promise<void> {
-    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
-      return;
-    }
-
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
-    if (!token) {
-      return;
-    }
-
-    const urlWithToken = `${this.hubUrl}?${EmailSignalRConstants.QueryParams.AccessToken}=${encodeURIComponent(token)}`;
-
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(urlWithToken, {
-        accessTokenFactory: () => this.localStorageService.get(StorageKeys.TOKEN) ?? '',
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
-      })
-      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.Warning)
-      .build();
-
-    this.registerEventHandlers();
-    this.registerConnectionEvents();
-
-    try {
-      await this.hubConnection.start();
-    } catch (error) {
-      console.error('Email SignalR connection failed:', error);
-    }
+    await this._connectionHelper.startConnection(
+      (hub) => this.registerEventHandlers(hub),
+      {
+        onConnected: async () => {
+          this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
+        },
+        onReconnecting: async () => undefined,
+        onReconnected: async () => undefined,
+        onClosed: () => undefined,
+      },
+    );
   }
 
   async stopConnection(): Promise<void> {
-    if (this.hubConnection) {
-      await this.hubConnection.stop();
-      this.hubConnection = null;
-    }
+    await this._connectionHelper.stopConnection();
   }
 
-  private isConnected(): boolean {
-    return this.hubConnection?.state === signalR.HubConnectionState.Connected;
+  async refreshConnection(): Promise<void> {
+    await this.stopConnection();
+    await this.startConnection();
   }
 
-  private registerEventHandlers(): void {
-    if (!this.hubConnection) return;
+  resetAuthFailure(): void {
+    this._connectionHelper.resetAuthFailure();
+  }
 
-    this.hubConnection.on(
+  private registerEventHandlers(hub: signalR.HubConnection): void {
+    hub.on(
       EmailSignalRConstants.Events.NewEmailsReceived,
       (notification: INewEmailsNotification) => {
+        this._connectionHelper.notePush();
         this.newEmailsReceived$.next(notification);
       },
     );
 
-    this.hubConnection.on(
+    hub.on(
       EmailSignalRConstants.Events.EmailReadStateChanged,
       (notification: IEmailReadStateNotification) => {
+        this._connectionHelper.notePush();
         this.emailReadStateChanged$.next(notification);
       },
     );
   }
 
-  private registerConnectionEvents(): void {
-    if (!this.hubConnection) return;
-
-    this.hubConnection.onclose(() => {
-      this.scheduleReconnect();
-    });
-  }
-
-  private scheduleReconnect(attempt = 0): void {
-    const delays = [2000, 5000, 10000, 30000, 60000];
-    const delay = delays[Math.min(attempt, delays.length - 1)];
-
-    setTimeout(async () => {
-      const token = this.localStorageService.get(StorageKeys.TOKEN);
-      if (!token) return;
-
-      try {
-        this.hubConnection = null;
-        await this.startConnection();
-        if (!this.isConnected()) {
-          this.scheduleReconnect(attempt + 1);
-        }
-      } catch {
-        this.scheduleReconnect(attempt + 1);
-      }
-    }, delay);
-  }
-
-  ngOnDestroy(): void {
-    this.stopConnection();
+  async ngOnDestroy(): Promise<void> {
+    this._connectionHelper.dispose();
+    try {
+      await this._connectionHelper.stopConnection();
+    } catch {
+      // ignored: stop is best-effort during teardown
+    }
     this.newEmailsReceived$.complete();
     this.emailReadStateChanged$.complete();
   }

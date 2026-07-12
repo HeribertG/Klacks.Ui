@@ -11,7 +11,7 @@ import {
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-enum';
-import { EMPTY, forkJoin, Subject, tap, catchError } from 'rxjs';
+import { EMPTY, forkJoin, Subject, tap, catchError, retry, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 
@@ -23,6 +23,12 @@ export class ClientConfigService {
   private dataCountryStateService = inject(DataCountryStateService);
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
   private destroy$ = new Subject<void>();
+
+  // On a cold start against an empty database the backend can still be seeding when this service
+  // first fires. Without a retry, a single failed request would leave isInit permanently false and
+  // the whole client config dead for the session. Retry with backoff so it recovers on its own.
+  private static readonly INIT_RETRY_COUNT = 5;
+  private static readonly INIT_RETRY_DELAY_MS = 3000;
 
   public stateList = signal<StateCountryToken[]>([]);
   public countries = signal<ICountry[]>([]);
@@ -54,6 +60,10 @@ export class ClientConfigService {
       rootGroups: this.dataGroupVisibilityService.getRoots(),
     })
       .pipe(
+        retry({
+          count: ClientConfigService.INIT_RETRY_COUNT,
+          delay: () => timer(ClientConfigService.INIT_RETRY_DELAY_MS),
+        }),
         tap((results) => {
           this.processStateTokens(results.stateTokens);
           this.processCountries(results.countries);
