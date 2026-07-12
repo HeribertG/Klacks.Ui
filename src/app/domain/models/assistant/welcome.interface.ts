@@ -24,6 +24,7 @@ export interface IWelcomeResponse {
  */
 export interface IOnboardingState {
   shouldOffer: boolean;
+  llmLive?: boolean;
   showCard: boolean;
   status: string;
   completedStations: string[];

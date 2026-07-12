@@ -80,6 +80,8 @@ export const ONBOARDING_TOUR_CHOICE = {
   End: 'end',
 } as const;
 
+export const ONBOARDING_STATION_LLM_PROVIDER = 'llm-provider';
+
 const EXPLAIN = 'assistant-chat.onboarding.explain.';
 
 export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
@@ -87,7 +89,7 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'branding', type: 'navigate', target: 'settings-general', explainKey: EXPLAIN + 'branding', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'address', type: 'ask', target: 'owner-address', explainKey: EXPLAIN + 'address', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'default-language', type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'default-language', navIconId: ONBOARDING_NAV_ICON.Settings },
-  { id: 'llm-provider', type: 'navigate', target: 'llm-provider', explainKey: EXPLAIN + 'llm-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: ONBOARDING_STATION_LLM_PROVIDER, type: 'navigate', target: 'llm-provider', explainKey: EXPLAIN + 'llm-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'harmonizer', type: 'explain', target: '', explainKey: EXPLAIN + 'harmonizer', navIconId: ONBOARDING_NAV_ICON.Schedules, route: ONBOARDING_ROUTE.Schedule },
   { id: 'calendar', type: 'navigate', target: 'calendar-selection', explainKey: EXPLAIN + 'calendar', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'users', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'users', navIconId: ONBOARDING_NAV_ICON.Settings },

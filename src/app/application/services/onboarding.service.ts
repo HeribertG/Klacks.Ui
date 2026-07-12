@@ -6,13 +6,15 @@
  * collect-and-write stations (title, address, default-language) by writing the answers as settings rows.
  * Completed-station ids that no longer exist in the catalog are ignored for the progress count. The
  * proactive offer is surfaced at most once per browser session; the resumable progress card follows
- * `showCard`.
+ * `showCard`. `llmLive` mirrors the backend's LLM availability (missing field is treated as live so
+ * offline hints only appear on an explicit false) and can be re-read via `refreshState`.
  * @param dataAssistant - HTTP API used to persist status/station changes
  * @param dataSettings - HTTP API used to upsert the collected title/address setting rows
  */
 
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
@@ -48,6 +50,7 @@ export class OnboardingService {
   readonly tourStartRequested = this.tourStartRequestSignal.asReadonly();
   readonly showCard = computed(() => this.stateSignal()?.showCard ?? false);
   readonly status = computed(() => this.stateSignal()?.status ?? '');
+  readonly llmLive = computed(() => this.stateSignal()?.llmLive ?? true);
   private readonly knownStationIds = new Set(ONBOARDING_STATIONS.map((station) => station.id));
 
   readonly total = ONBOARDING_STATIONS.length;
@@ -85,6 +88,15 @@ export class OnboardingService {
 
   markStationCompleted(stationId: string): void {
     this.persist({ completedStation: stationId });
+  }
+
+  refreshState(completedStationId?: string): Observable<IOnboardingState> {
+    const request: ISaveOnboardingStateRequest = completedStationId
+      ? { completedStation: completedStationId }
+      : {};
+    return this.dataAssistant
+      .saveOnboardingState(request)
+      .pipe(tap((state) => this.stateSignal.set(state)));
   }
 
   firstPendingStation(): IOnboardingStation {

@@ -26,7 +26,9 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ONBOARDING_STATIONS } from 'src/app/domain/constants/onboarding-stations';
+import { ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATIONS } from 'src/app/domain/constants/onboarding-stations';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -444,6 +446,117 @@ describe('AssistantChatComponent', () => {
         });
     });
 
+    describe('onboarding llm-provider station recheck', () => {
+        let onboarding: OnboardingService;
+
+        const onboardingState = (overrides: Partial<IOnboardingState> = {}): IOnboardingState => ({
+            shouldOffer: false,
+            showCard: true,
+            status: 'in_progress',
+            completedStations: [],
+            ...overrides,
+        });
+
+        const llmStation = ONBOARDING_STATIONS.find(
+            (station) => station.id === ONBOARDING_STATION_LLM_PROVIDER,
+        )!;
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            onboarding = TestBed.inject(OnboardingService);
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            vi.spyOn(onboarding, 'markStationCompleted').mockImplementation(() => undefined);
+            vi.spyOn(component as any, 'presentStationAtCursor').mockImplementation(() => undefined);
+            vi.spyOn(component as any, 'advanceTour').mockImplementation(() => undefined);
+        });
+
+        it('posts the offline hint once when starting the tour without a live LLM', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: false }));
+
+            component.startOnboardingTour();
+            component.startOnboardingTour();
+
+            const offlineCalls = (mockTranslateService.instant as any).mock.calls.filter(
+                (call: any[]) => call[0] === 'assistant-chat.onboarding.llm.offline',
+            );
+            expect(offlineCalls.length).toBe(1);
+        });
+
+        it('does not post the offline hint when the LLM is live', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: true }));
+
+            component.startOnboardingTour();
+
+            expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.llm.offline');
+        });
+
+        it('posts the free-provider hint when presenting the llm-provider station while offline', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: false }));
+
+            (component as any).maybePostFreeProviderHint(llmStation);
+
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.llm.free-providers');
+        });
+
+        it('does not post the free-provider hint when the LLM is live', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: true }));
+
+            (component as any).maybePostFreeProviderHint(llmStation);
+
+            expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.llm.free-providers');
+        });
+
+        it('rechecks the state on done and posts the online message when the LLM came up', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: false }));
+            const refreshSpy = vi.spyOn(onboarding, 'refreshState').mockImplementation((completedStationId?: string) => {
+                onboarding.applyWelcome(onboardingState({
+                    llmLive: true,
+                    completedStations: completedStationId ? [completedStationId] : [],
+                }));
+                return of(onboardingState({ llmLive: true }));
+            });
+
+            (component as any).handleStationChoice(llmStation, 'done');
+
+            expect(refreshSpy).toHaveBeenCalledWith(ONBOARDING_STATION_LLM_PROVIDER);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.llm.online');
+            expect((component as any).advanceTour).toHaveBeenCalled();
+        });
+
+        it('posts the still-offline hint on skip when the LLM stays down', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: false }));
+            const refreshSpy = vi.spyOn(onboarding, 'refreshState').mockReturnValue(of(onboardingState({ llmLive: false })));
+
+            (component as any).handleStationChoice(llmStation, 'skip');
+
+            expect(refreshSpy).toHaveBeenCalledWith(undefined);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.llm.still-offline');
+            expect((component as any).advanceTour).toHaveBeenCalled();
+        });
+
+        it('advances without a recheck when the LLM was already live', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: true }));
+            const refreshSpy = vi.spyOn(onboarding, 'refreshState');
+
+            (component as any).handleStationChoice(llmStation, 'done');
+
+            expect(refreshSpy).not.toHaveBeenCalled();
+            expect(onboarding.markStationCompleted).toHaveBeenCalledWith(ONBOARDING_STATION_LLM_PROVIDER);
+            expect((component as any).advanceTour).toHaveBeenCalled();
+        });
+
+        it('leaves other stations untouched by the recheck flow', () => {
+            onboarding.applyWelcome(onboardingState({ llmLive: false }));
+            const refreshSpy = vi.spyOn(onboarding, 'refreshState');
+
+            (component as any).handleStationChoice(ONBOARDING_STATIONS[1], 'done');
+
+            expect(refreshSpy).not.toHaveBeenCalled();
+            expect(onboarding.markStationCompleted).toHaveBeenCalledWith(ONBOARDING_STATIONS[1].id);
+            expect((component as any).advanceTour).toHaveBeenCalled();
+        });
+    });
+
     describe('onboarding tour chips during side questions', () => {
         let toastService: ToastShowService;
         let dismissSpy: any;
@@ -665,6 +778,16 @@ describe('AssistantChatComponent', () => {
                 const content = '- Eins\n- Zwei\n- Drei';
                 const result = component.formatMessage(content);
                 expect(result).toBe('<ul><li>Eins</li><li>Zwei</li><li>Drei</li></ul>');
+            });
+
+            it('should render markdown links as anchor tags opening in a new tab', () => {
+                const result = component.formatMessage('Hol dir einen Key: [Groq](https://console.groq.com/keys)');
+                expect(result).toContain('<a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Groq</a>');
+            });
+
+            it('should not render links for non-http schemes', () => {
+                const result = component.formatMessage('[x](javascript:alert(1))');
+                expect(result).not.toContain('<a ');
             });
 
             it('should support * as list bullet alternative to -', () => {

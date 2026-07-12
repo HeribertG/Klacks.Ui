@@ -31,6 +31,10 @@ describe('AuthService', () => {
         toastShowService = TestBed.inject(ToastShowService);
     });
 
+    afterEach(() => {
+        localStorage.clear();
+    });
+
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
@@ -75,6 +79,85 @@ describe('AuthService', () => {
         service.logOut();
 
         expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+    });
+
+    function makeJwt(expSecondsFromNow: number): string {
+        const payload = btoa(
+            JSON.stringify({ exp: Math.floor(Date.now() / 1000) + expSecondsFromNow })
+        );
+        return `header.${payload}.signature`;
+    }
+
+    const refreshUrl = 'https://localhost:5001/api/backend/Accounts/RefreshToken';
+
+    it('should not refresh at startup when no token is stored', async () => {
+        await service.ensureFreshTokenAtStartup();
+        httpMock.expectNone(refreshUrl);
+    });
+
+    it('should not refresh at startup when the access token is still valid', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'refreshToken');
+
+        await service.ensureFreshTokenAtStartup();
+
+        httpMock.expectNone(refreshUrl);
+    });
+
+    it('should not refresh at startup when the token is expired but no refresh token exists', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+
+        await service.ensureFreshTokenAtStartup();
+
+        httpMock.expectNone(refreshUrl);
+    });
+
+    it('should silently refresh an expired-but-renewable token at startup', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'refreshToken');
+
+        const startupPromise = service.ensureFreshTokenAtStartup();
+
+        const req = httpMock.expectOne(refreshUrl);
+        expect(req.request.method).toBe('POST');
+        req.flush({
+            token: makeJwt(900),
+            subject: 'subject',
+            username: 'username',
+            id: 'id',
+            expTime: new Date(),
+            isAdmin: true,
+            isAuthorised: true,
+            version: '1.0',
+            refreshToken: 'rotatedRefreshToken',
+        });
+
+        await startupPromise;
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(makeJwt(900));
+    });
+
+    it('should refresh only once when startup refresh is requested concurrently', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'refreshToken');
+
+        const first = service.ensureFreshTokenAtStartup();
+        const second = service.ensureFreshTokenAtStartup();
+
+        const req = httpMock.expectOne(refreshUrl);
+        req.flush({
+            token: makeJwt(900),
+            subject: 'subject',
+            username: 'username',
+            id: 'id',
+            expTime: new Date(),
+            isAdmin: true,
+            isAuthorised: true,
+            version: '1.0',
+            refreshToken: 'rotatedRefreshToken',
+        });
+
+        await Promise.all([first, second]);
+        httpMock.expectNone(refreshUrl);
     });
 
     it('should invalidate the cached group tree on logout so the next user gets fresh scope-checked data', () => {

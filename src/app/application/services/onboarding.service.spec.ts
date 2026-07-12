@@ -167,6 +167,46 @@ describe('OnboardingService', () => {
         });
     });
 
+    describe('llmLive', () => {
+        it('defaults to live when no state is present', () => {
+            expect(service.llmLive()).toBe(true);
+        });
+
+        it('defaults to live when the backend omits the field', () => {
+            service.applyWelcome(state());
+
+            expect(service.llmLive()).toBe(true);
+        });
+
+        it('reflects an explicit offline flag from the backend', () => {
+            service.applyWelcome(state({ llmLive: false }));
+
+            expect(service.llmLive()).toBe(false);
+        });
+    });
+
+    describe('refreshState', () => {
+        it('re-reads the state with an empty request and updates the signal', () => {
+            saveOnboardingState.mockReturnValue(of(state({ llmLive: true })));
+            service.applyWelcome(state({ llmLive: false }));
+
+            service.refreshState().subscribe();
+
+            expect(saveOnboardingState).toHaveBeenCalledWith({});
+            expect(service.llmLive()).toBe(true);
+        });
+
+        it('persists the completed station in the same round trip when given', () => {
+            saveOnboardingState.mockReturnValue(of(state({ llmLive: false, completedStations: ['llm-provider'] })));
+
+            service.refreshState('llm-provider').subscribe();
+
+            expect(saveOnboardingState).toHaveBeenCalledWith({ completedStation: 'llm-provider' });
+            expect(service.llmLive()).toBe(false);
+            expect(service.progress()).toBe(1);
+        });
+    });
+
     describe('station catalog', () => {
         it('every station carries a known main-nav icon id', () => {
             const knownIconIds = Object.values(ONBOARDING_NAV_ICON);

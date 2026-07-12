@@ -23,6 +23,10 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
   providedIn: 'root',
 })
 export class AuthService {
+  private static readonly TOKEN_EXPIRY_BUFFER_MS = 30000;
+
+  private startupRefreshPromise: Promise<void> | null = null;
+
   public toastShowService = inject(ToastShowService);
   private dataAuthService = inject(DataAuthService);
   private dataOAuth2Service = inject(DataOAuth2Service);
@@ -277,6 +281,53 @@ export class AuthService {
       default:
         this.navigationService.navigateToError();
         this.toastShowService.showError(DomainMessages.UNKNOWN_ERROR);
+    }
+  }
+
+  /**
+   * Silently refreshes an expired-but-renewable access token during app bootstrap,
+   * before any component or config initializer fires its first authenticated request.
+   * Single-flight: concurrent callers share one refresh so the rotating refresh token
+   * is never spent twice. Does nothing when there is no token, the token is still
+   * valid, or no refresh token is stored - a failed refresh is left to the normal
+   * 401/login flow so the session is never dropped while it is still recoverable.
+   */
+  ensureFreshTokenAtStartup(): Promise<void> {
+    if (!this.startupRefreshPromise) {
+      this.startupRefreshPromise = this.performStartupRefresh();
+    }
+    return this.startupRefreshPromise;
+  }
+
+  private async performStartupRefresh(): Promise<void> {
+    const token = this.localStorageService.get(StorageKeys.TOKEN);
+    if (!token || !this.isAccessTokenExpired(token)) {
+      return;
+    }
+
+    const refreshToken = this.localStorageService.get(
+      StorageKeys.TOKEN_REFRESHTOKEN
+    );
+    if (!refreshToken) {
+      return;
+    }
+
+    await this.refreshToken();
+  }
+
+  private isAccessTokenExpired(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return true;
+      }
+      const decoded = JSON.parse(atob(payload));
+      if (!decoded.exp) {
+        return false;
+      }
+      return Date.now() > decoded.exp * 1000 - AuthService.TOKEN_EXPIRY_BUFFER_MS;
+    } catch {
+      return true;
     }
   }
 

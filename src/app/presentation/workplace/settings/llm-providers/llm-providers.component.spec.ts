@@ -589,6 +589,126 @@ describe('LLMProvidersComponent', () => {
         });
     });
 
+    describe('Keyless Providers (requiresApiKey = false)', () => {
+        const keylessForm = {
+            providerId: 'ollama',
+            providerName: 'Ollama',
+            baseUrl: 'http://localhost:11434/v1/',
+            apiVersion: '',
+            priority: '10',
+            providerApiKey: '',
+            isEnabled: true,
+            requiresApiKey: false,
+        };
+
+        it('treats a missing requiresApiKey flag as required', () => {
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, requiresApiKey: undefined });
+
+            expect(component.isApiKeyRequired()).toBe(true);
+        });
+
+        it('accepts a new keyless provider without an API key', () => {
+            component.isNewProvider = true;
+            component.editingProvider = {
+                id: '',
+                providerId: 'ollama',
+                providerName: 'Ollama',
+                baseUrl: 'http://localhost:11434/v1/',
+                apiVersion: '',
+                isEnabled: true,
+                priority: 10,
+                requiresApiKey: false,
+            };
+            (component as any).formModel.set({ ...keylessForm });
+
+            expect(component.isFormValid()).toBe(true);
+            expect(component.getValidationErrors()).toEqual([]);
+        });
+
+        it('accepts an existing keyless provider without a stored key', () => {
+            component.isNewProvider = false;
+            component.editingProvider = {
+                id: '3',
+                providerId: 'lm-studio',
+                providerName: 'LM Studio',
+                baseUrl: 'http://localhost:1234/v1/',
+                apiVersion: '',
+                isEnabled: true,
+                priority: 10,
+                hasApiKey: false,
+                requiresApiKey: false,
+            };
+            (component as any).formModel.set({ ...keylessForm, providerId: 'lm-studio', providerName: 'LM Studio' });
+
+            expect(component.isFormValid()).toBe(true);
+            expect(component.getValidationErrors()).toEqual([]);
+        });
+
+        it('still rejects a new keyed provider without an API key', () => {
+            component.isNewProvider = true;
+            component.editingProvider = {
+                id: '',
+                providerId: 'vllm',
+                providerName: 'vLLM',
+                baseUrl: 'http://localhost:8000/v1/',
+                apiVersion: '',
+                isEnabled: true,
+                priority: 10,
+                requiresApiKey: true,
+            };
+            (component as any).formModel.set({ ...keylessForm, providerId: 'vllm', providerName: 'vLLM', requiresApiKey: true });
+
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('sends requiresApiKey in the create payload', async () => {
+            component.isNewProvider = true;
+            component.editingProvider = {
+                id: '',
+                providerId: 'ollama',
+                providerName: 'Ollama',
+                baseUrl: 'http://localhost:11434/v1/',
+                apiVersion: '',
+                isEnabled: true,
+                priority: 10,
+                requiresApiKey: false,
+            };
+            (component as any).formModel.set({ ...keylessForm });
+            mockProviderService.createProvider.mockReturnValue(Promise.resolve(component.editingProvider));
+
+            await component.onSaveModal({ close: vi.fn() });
+
+            expect(mockProviderService.createProvider).toHaveBeenCalledWith(
+                expect.objectContaining({ requiresApiKey: false, apiKey: undefined }),
+            );
+        });
+
+        it('sends requiresApiKey in the update payload', async () => {
+            component.isNewProvider = false;
+            component.editingProvider = {
+                id: '9',
+                providerId: 'ollama',
+                providerName: 'Ollama',
+                baseUrl: 'http://localhost:11434/v1/',
+                apiVersion: '',
+                isEnabled: true,
+                priority: 10,
+                hasApiKey: false,
+                requiresApiKey: false,
+            };
+            (component as any).formModel.set({ ...keylessForm });
+            mockProviderService.updateProvider.mockReturnValue(Promise.resolve(component.editingProvider));
+
+            await component.onSaveModal({ close: vi.fn() });
+
+            expect(mockProviderService.updateProvider).toHaveBeenCalledWith(
+                '9',
+                expect.objectContaining({ requiresApiKey: false }),
+            );
+        });
+    });
+
     describe('Helper Methods', () => {
         it('should generate provider class name', () => {
             const className = component.getProviderClass('OpenAI');

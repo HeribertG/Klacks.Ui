@@ -44,6 +44,7 @@ import localeIt from '@angular/common/locales/it';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { CustomDatepickerI18n } from 'src/app/application/services/custom-datepicker-i18n.service';
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
+import { AuthService } from './presentation/auth/auth.service';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
 import { Title } from '@angular/platform-browser';
 import { DomainEventHandler } from './presentation/handlers/domain-event.handler';
@@ -82,6 +83,10 @@ export function initializeDomainEventHandler(handler: DomainEventHandler) {
   return () => handler;
 }
 
+export function initializeAuthStartup(authService: AuthService) {
+  return () => authService.ensureFreshTokenAtStartup();
+}
+
 export function initializeLanguageConfig(service: LanguageConfigService) {
   return () => service.loadConfig().then(() => initializeLanguageHelper(service));
 }
@@ -90,6 +95,12 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter([]),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeAuthStartup,
+      deps: [AuthService],
+      multi: true,
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeDomainEventHandler,

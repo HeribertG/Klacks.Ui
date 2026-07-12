@@ -29,9 +29,12 @@ import {
   HarmonizerResult,
   HarmonizerStatus,
 } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
+import { HarmonizerJobStatusResponse } from 'src/app/domain/models/harmonizer/harmonizer-status.model';
 
 @Injectable({ providedIn: 'root' })
 export class DataHarmonizerService implements OnDestroy {
+  private static readonly HUB_START_TIMEOUT_MS = 20000;
+
   private readonly http = inject(HttpClient);
   private readonly localStorage = inject(LocalStorageService);
 
@@ -54,15 +57,24 @@ export class DataHarmonizerService implements OnDestroy {
     this.resetState();
     this.status.set('running');
 
-    await this.ensureConnected();
+    try {
+      await this.ensureConnected();
 
-    const response = await firstValueFrom(
-      this.http.post<StartHarmonizerResponse>(`${this.apiBase}/Start`, request),
-    );
+      const response = await firstValueFrom(
+        this.http.post<StartHarmonizerResponse>(`${this.apiBase}/Start`, request),
+      );
 
-    this.currentJobId.set(response.jobId);
-    await this.hubConnection?.send(HarmonizerSignalRConstants.HubMethods.JoinJob, response.jobId);
-    return response.jobId;
+      this.currentJobId.set(response.jobId);
+      await this.joinJobGroup(response.jobId);
+      return response.jobId;
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : ((error as { message?: string } | null)?.message ?? String(error));
+      this.failureReason.set(message);
+      this.status.set('failed');
+      throw error;
+    }
   }
 
   async cancel(jobId: string): Promise<boolean> {
@@ -80,21 +92,26 @@ export class DataHarmonizerService implements OnDestroy {
   }
 
   async stopConnection(): Promise<void> {
-    if (!this.hubConnection) {
+    const connection = this.hubConnection;
+    if (!connection) {
       return;
     }
+    this.hubConnection = null;
 
     const jobId = this.currentJobId();
     if (jobId) {
       try {
-        await this.hubConnection.send(HarmonizerSignalRConstants.HubMethods.LeaveJob, jobId);
+        await connection.send(HarmonizerSignalRConstants.HubMethods.LeaveJob, jobId);
       } catch {
         // Ignore — connection may already be down.
       }
     }
 
-    await this.hubConnection.stop();
-    this.hubConnection = null;
+    try {
+      await connection.stop();
+    } catch {
+      // Ignore — connection may already be down.
+    }
   }
 
   ngOnDestroy(): void {
@@ -108,9 +125,61 @@ export class DataHarmonizerService implements OnDestroy {
     this.currentJobId.set(null);
   }
 
+  private async reconcileJobState(jobId: string): Promise<boolean> {
+    try {
+      const state = await firstValueFrom(
+        this.http.get<HarmonizerJobStatusResponse>(`${this.apiBase}/Status/${jobId}`),
+      );
+      if (jobId !== this.currentJobId() || this.status() !== 'running') {
+        return false;
+      }
+      switch (state.status) {
+        case 'completed':
+          if (!state.result) {
+            return false;
+          }
+          this.result.set(state.result);
+          this.status.set('completed');
+          return true;
+        case 'cancelled':
+          this.status.set('cancelled');
+          return true;
+        case 'failed':
+          this.failureReason.set(state.reason ?? 'Harmonizer job failed.');
+          this.status.set('failed');
+          return true;
+        case 'unknown':
+          this.failureReason.set('Harmonizer job is no longer tracked by the server.');
+          this.status.set('failed');
+          return true;
+        default:
+          return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  private async joinJobGroup(jobId: string): Promise<void> {
+    if (this.hubConnection?.state !== signalR.HubConnectionState.Connected) {
+      await this.ensureConnected();
+    }
+    const connection = this.hubConnection;
+    if (!connection) {
+      throw new Error('Hub connection was closed before joining the job group.');
+    }
+    await connection.send(HarmonizerSignalRConstants.HubMethods.JoinJob, jobId);
+  }
+
   private async ensureConnected(): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return;
+    }
+
+    const staleConnection = this.hubConnection;
+    this.hubConnection = null;
+    if (staleConnection) {
+      staleConnection.stop().catch(() => undefined);
     }
 
     const token = this.localStorage.get(StorageKeys.TOKEN);
@@ -118,30 +187,72 @@ export class DataHarmonizerService implements OnDestroy {
       throw new Error('Missing auth token; cannot connect to harmonizer hub.');
     }
 
-    this.hubConnection = new signalR.HubConnectionBuilder()
+    const connection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
       })
       .withAutomaticReconnect()
       .build();
 
-    this.registerHandlers(this.hubConnection);
+    this.registerHandlers(connection);
 
-    const startTimeoutMs = 20000;
+    connection.onreconnected(async () => {
+      const jobId = this.currentJobId();
+      if (jobId && this.hubConnection === connection) {
+        try {
+          await connection.send(HarmonizerSignalRConstants.HubMethods.JoinJob, jobId);
+        } catch {
+          // Best effort — connection may have dropped again.
+        }
+        if (this.status() === 'running') {
+          await this.reconcileJobState(jobId);
+        }
+      }
+    });
+
+    connection.onclose(() => {
+      if (this.hubConnection !== connection) {
+        return;
+      }
+      this.hubConnection = null;
+      if (this.status() !== 'running') {
+        return;
+      }
+      const jobId = this.currentJobId();
+      void (async () => {
+        const reconciled = jobId ? await this.reconcileJobState(jobId) : false;
+        if (!reconciled && this.status() === 'running') {
+          this.failureReason.set('Connection to the harmonizer hub was lost.');
+          this.status.set('failed');
+        }
+      })();
+    });
+
+    this.hubConnection = connection;
+
     await Promise.race([
-      this.hubConnection.start(),
+      connection.start(),
       new Promise<void>((_, reject) =>
-        setTimeout(() => reject(new Error(`hub.start() did not resolve within ${startTimeoutMs}ms`)), startTimeoutMs),
+        setTimeout(
+          () => reject(new Error(`hub.start() did not resolve within ${DataHarmonizerService.HUB_START_TIMEOUT_MS}ms`)),
+          DataHarmonizerService.HUB_START_TIMEOUT_MS,
+        ),
       ),
     ]);
   }
 
   private registerHandlers(connection: signalR.HubConnection): void {
     connection.on(HarmonizerSignalRConstants.Events.OnProgress, (progress: HarmonizerProgress) => {
+      if (progress.jobId !== this.currentJobId()) {
+        return;
+      }
       this.progress.set(progress);
     });
 
     connection.on(HarmonizerSignalRConstants.Events.OnCompleted, (result: HarmonizerResult) => {
+      if (result.jobId !== this.currentJobId()) {
+        return;
+      }
       this.result.set(result);
       this.status.set('completed');
     });

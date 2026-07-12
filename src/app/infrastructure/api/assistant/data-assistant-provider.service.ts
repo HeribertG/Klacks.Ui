@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * API service for managing LLM providers and models, including keyless local providers.
+ * @param requiresApiKey - Whether a provider needs an API key (false for local servers such as Ollama)
+ */
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,6 +17,7 @@ export interface IAssistantProvider {
   providerName: string;
   isEnabled: boolean;
   hasApiKey?: boolean;
+  requiresApiKey?: boolean;
   apiKey?: string;
   baseUrl?: string;
   apiVersion?: string;
@@ -27,6 +32,7 @@ export interface ICreateProviderRequest {
   apiVersion?: string;
   isEnabled: boolean;
   priority: number;
+  requiresApiKey?: boolean;
 }
 
 export interface IUpdateProviderRequest {
@@ -36,6 +42,7 @@ export interface IUpdateProviderRequest {
   apiVersion?: string;
   isEnabled: boolean;
   priority: number;
+  requiresApiKey?: boolean;
 }
 
 @Injectable({

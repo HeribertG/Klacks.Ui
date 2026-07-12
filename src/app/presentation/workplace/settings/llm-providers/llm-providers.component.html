@@ -95,11 +95,26 @@
         </div>
       </div>
 
+      @if (isNewProvider) {
+      <div id="llm-providers-modal-requires-key-row" class="row-line-modal-inline">
+        <div class="checkbox-container">
+          <input
+            id="llm-providers-modal-requires-api-key"
+            type="checkbox"
+            [formField]="providerForm.requiresApiKey"
+          />
+          <label for="llm-providers-modal-requires-api-key">
+            {{ 'settings.llm-providers.requires-api-key' | translate }}</label
+          >
+        </div>
+      </div>
+      }
+
       <div id="llm-providers-modal-apikey-row" class="row-line-modal-inline">
         <div class="provider-field full-width">
           <label for="apiKey">
             {{ 'settings.llm-providers.api-key' | translate }}
-            @if (isNewProvider || !editingProvider.hasApiKey) {
+            @if (isApiKeyRequired() && (isNewProvider || !editingProvider.hasApiKey)) {
             <span class="required-marker">*</span>
             }</label
           >
@@ -108,10 +123,12 @@
             type="password"
             [formField]="providerForm.providerApiKey"
             class="form-control"
-            [placeholder]="!isNewProvider && editingProvider.hasApiKey ? '••••••••' : 'sk-...'"
+            [placeholder]="getApiKeyPlaceholder()"
           />
           <small class="info-text">
-            @if (!isNewProvider && editingProvider.hasApiKey) {
+            @if (!isApiKeyRequired()) {
+              {{ 'settings.llm-providers.api-key-not-required' | translate }}
+            } @else if (!isNewProvider && editingProvider.hasApiKey) {
               {{ 'settings.llm-providers.api-key-keep-existing' | translate }}
             } @else {
               {{ 'settings.llm-providers.api-key-info' | translate }}

@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, catchError } from 'rxjs';
+import { Observable, of, catchError, switchMap } from 'rxjs';
 import { LanguageConfigService } from './language-config.service';
 import { DataLanguagePluginService } from 'src/app/infrastructure/api/settings/data-language-plugin.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -25,6 +25,11 @@ export class ManualLoaderService {
     }
 
     return this.pluginService.getPluginDoc(lang, manualName).pipe(
+      switchMap((html) =>
+        html && html.trim().length > 0
+          ? of(html)
+          : this.loadStaticDoc(manualName, DomainMessages.DEFAULT_LANG)
+      ),
       catchError(() => this.loadStaticDoc(manualName, DomainMessages.DEFAULT_LANG))
     );
   }

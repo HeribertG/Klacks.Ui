@@ -20,7 +20,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   HostListener,
   inject,
   OnInit,
@@ -76,10 +75,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
-import { AUTO_WIZARD_LIMITS } from 'src/app/infrastructure/api/auto-wizard/auto-wizard-limits.constants';
+import { AutoWizardOrchestratorService } from '../services/auto-wizard-orchestrator.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
@@ -168,7 +165,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private timelineRangeService = inject(ScheduleTimelineRangeService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private authorizationService = inject(AuthorizationService);
-  private dataAutoWizardService = inject(DataAutoWizardService);
+  private autoWizardOrchestrator = inject(AutoWizardOrchestratorService);
   private scheduleSignalR = inject(SCHEDULE_SIGNALR);
   private destroyRef = inject(DestroyRef);
   private modalService = inject(ModalService);
@@ -181,74 +178,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   private readonly wizardDropdownMode = signal(false);
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
-  readonly isAutoWizardRunning = computed(
-    () => this.dataAutoWizardService.status() === 'running',
-  );
+  readonly isAutoWizardRunning = this.autoWizardOrchestrator.isRunning;
 
   constructor() {
-    effect(() => {
-      const status = this.dataAutoWizardService.status();
-      if (status === 'completed') {
-        const result = this.dataAutoWizardService.result();
-        if (
-          result?.finalScenarioId &&
-          result.finalScenarioToken &&
-          result.finalScenarioName
-        ) {
-          const newScenario = {
-            id: result.finalScenarioId,
-            name: result.finalScenarioName,
-            token: result.finalScenarioToken,
-            fromDate: '',
-            untilDate: '',
-            createdByUser: '',
-            status: AnalyseScenarioStatus.Active,
-          };
-          this.analyseScenarioService.scenarios.update((list) => {
-            return list.some((s) => s.id === newScenario.id)
-              ? list
-              : [...list, newScenario];
-          });
-          this.analyseScenarioService.selectScenario(newScenario);
-          this.dataManagementSchedule.readDatas();
-        }
-        const message = this.translateService.instant(
-          'autoWizard.toast.completed',
-          {
-            scenario: result?.finalScenarioName ?? '',
-          },
-        );
-        this.toastShowService.showInfo(
-          message,
-          'auto-wizard',
-          '',
-          TOAST_ICONS.INFO,
-        );
-        const gapCount = result?.qualificationGaps?.length ?? 0;
-        if (gapCount > 0) {
-          this.toastShowService.showError(
-            this.translateService.instant('autoWizard.toast.qualificationGaps', { count: gapCount }),
-            'auto-wizard',
-            '',
-            TOAST_ICONS.WARNING,
-          );
-        }
-        this.dataAutoWizardService.status.set('idle');
-      } else if (status === 'failed') {
-        const rawReason = (this.dataAutoWizardService.failureReason() ?? '').trim();
-        const reason =
-          rawReason.length > 0
-            ? rawReason
-            : this.translateService.instant('autoWizard.toast.failedUnknown');
-        const message = this.translateService.instant(
-          'autoWizard.toast.failed',
-          { reason },
-        );
-        this.toastShowService.showError(message, 'auto-wizard');
-        this.dataAutoWizardService.status.set('idle');
-      }
-    });
-
     this.scheduleSignalR.thoroughRecalculationCompleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => {
@@ -476,88 +408,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   async onAutoWizardClick(): Promise<void> {
-    if (this.isAutoWizardRunning()) return;
-
-    const startDate = this.dataManagementSchedule.periodStartDate;
-    const endDate = this.dataManagementSchedule.periodEndDate;
-    if (!startDate || !endDate) {
-      this.toastShowService.showError(
-        this.translateService.instant('autoWizard.toast.noPeriod'),
-        'auto-wizard',
-      );
-      return;
-    }
-
-    const agentIds = this.dataManagementSchedule.clients
-      .map((c) => c.id)
-      .filter((id): id is string => !!id);
-    if (agentIds.length === 0) {
-      this.toastShowService.showError(
-        this.translateService.instant('autoWizard.toast.noAgents'),
-        'auto-wizard',
-      );
-      return;
-    }
-
-    const shiftIds = [
-      ...new Set(
-        this.dataManagementSchedule.shiftSchedules.map((s) => s.shiftId),
-      ),
-    ];
-    if (shiftIds.length === 0) {
-      this.toastShowService.showError(
-        this.translateService.instant('autoWizard.toast.noShifts'),
-        'auto-wizard',
-      );
-      return;
-    }
-
-    const periodDays = Math.max(
-      1,
-      Math.floor(
-        (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
-      ) + 1,
-    );
-    const slotProduct = agentIds.length * Math.max(1, shiftIds.length) * periodDays;
-    if (
-      agentIds.length > AUTO_WIZARD_LIMITS.maxAgents ||
-      shiftIds.length > AUTO_WIZARD_LIMITS.maxShifts ||
-      slotProduct > AUTO_WIZARD_LIMITS.maxSlotProduct
-    ) {
-      this.toastShowService.showError(
-        this.translateService.instant('autoWizard.toast.tooLarge', {
-          agents: agentIds.length,
-          shifts: shiftIds.length,
-          days: periodDays,
-          maxAgents: AUTO_WIZARD_LIMITS.maxAgents,
-          maxShifts: AUTO_WIZARD_LIMITS.maxShifts,
-          maxSlotProduct: AUTO_WIZARD_LIMITS.maxSlotProduct,
-        }),
-        'auto-wizard',
-      );
-      return;
-    }
-
-    try {
-      await this.dataAutoWizardService.start({
-        periodFrom: formatDateOnly(startDate),
-        periodUntil: formatDateOnly(endDate),
-        agentIds,
-        shiftIds,
-        groupId: this.dataManagementSchedule.workFilter.selectedGroup ?? null,
-        analyseToken: this.analyseScenarioService.activeToken(),
-        language: this.translateService.currentLang ?? null,
-        agentOrderIsUserDefined: this.dataManagementSchedule.isIndividualClientSortActive,
-      });
-      this.toastShowService.showInfo(
-        this.translateService.instant('autoWizard.toast.started'),
-        'auto-wizard',
-        '',
-        TOAST_ICONS.INFO,
-      );
-    } catch {
-      // Failure handled via the status effect.
-    }
+    await this.autoWizardOrchestrator.start();
   }
 
   async onSendAllSchedules(): Promise<void> {

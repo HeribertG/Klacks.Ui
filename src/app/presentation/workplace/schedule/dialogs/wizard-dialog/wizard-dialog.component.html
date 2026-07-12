@@ -65,6 +65,11 @@
       }
       @case ('done') {
         @if (wizardService.result(); as r) {
+          @if (applyError()) {
+            <div class="alert alert-danger">
+              {{ applyError() }}
+            </div>
+          }
           <div class="summary-badges">
             <span
               class="badge"
@@ -117,35 +122,36 @@
 
           @if (sortedTokenRows().length > 0) {
             <div class="result-table-wrapper">
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th>{{ "wizard.dialog.col.date" | translate }}</th>
-                    <th>{{ "wizard.dialog.col.shift" | translate }}</th>
-                    <th>{{ "wizard.dialog.col.agent" | translate }}</th>
-                    <th class="text-end">{{ "wizard.dialog.col.hours" | translate }}</th>
-                    <th>{{ "wizard.dialog.col.reason" | translate }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of sortedTokenRows(); track row.date + row.agentName + row.shiftName) {
-                    <tr>
-                      <td>{{ row.date }}</td>
-                      <td>{{ row.shiftName }}</td>
-                      <td>{{ row.agentName }}</td>
-                      <td class="text-end">{{ formatHours(row.hours) }}</td>
-                      <td class="reason-cell" [title]="row.reasonDetails">
-                        @if (row.escalation) {
-                          <span class="badge badge-warning">⚠ {{ row.escalation }}</span>
-                        }
-                        @if (row.firedRules.length > 0) {
-                          <span class="rule-list">{{ row.firedRules.join(', ') }}</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+              <div class="result-grid-row result-grid-header">
+                <span>{{ "wizard.dialog.col.date" | translate }}</span>
+                <span>{{ "wizard.dialog.col.shift" | translate }}</span>
+                <span>{{ "wizard.dialog.col.agent" | translate }}</span>
+                <span class="text-end">{{ "wizard.dialog.col.hours" | translate }}</span>
+                <span>{{ "wizard.dialog.col.reason" | translate }}</span>
+              </div>
+              <cdk-virtual-scroll-viewport
+                class="result-viewport"
+                [itemSize]="resultRowHeight"
+                [style.height.px]="resultViewportHeight()"
+              >
+                <div
+                  class="result-grid-row"
+                  *cdkVirtualFor="let row of sortedTokenRows(); trackBy: trackRow"
+                >
+                  <span>{{ row.date }}</span>
+                  <span class="cell-ellipsis">{{ row.shiftName }}</span>
+                  <span class="cell-ellipsis">{{ row.agentName }}</span>
+                  <span class="text-end">{{ formatHours(row.hours) }}</span>
+                  <span class="reason-cell cell-ellipsis" [title]="row.reasonDetails">
+                    @if (row.escalation) {
+                      <span class="badge badge-warning">⚠ {{ row.escalation }}</span>
+                    }
+                    @if (row.firedRules.length > 0) {
+                      <span class="rule-list">{{ row.firedRules.join(', ') }}</span>
+                    }
+                  </span>
+                </div>
+              </cdk-virtual-scroll-viewport>
             </div>
           }
         }

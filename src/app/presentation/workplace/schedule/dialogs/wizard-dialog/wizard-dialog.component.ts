@@ -16,10 +16,12 @@ import {
   viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { take } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
+import { WIZARD_LIMITS } from 'src/app/infrastructure/api/wizard/wizard-limits.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
@@ -39,7 +41,7 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
   templateUrl: './wizard-dialog.component.html',
   styleUrls: ['./wizard-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, QualificationGapReportComponent],
+  imports: [CommonModule, ScrollingModule, TranslateModule, QualificationGapReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WizardDialogComponent {
@@ -54,6 +56,10 @@ export class WizardDialogComponent {
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
+  private readonly _applyError = signal<string | null>(null);
+  readonly applyError = this._applyError.asReadonly();
+
+  private startPromise: Promise<string> | null = null;
 
   readonly appliedCount = signal(0);
 
@@ -108,6 +114,18 @@ export class WizardDialogComponent {
       }
     }
 
+    const shiftNameById = new Map<string, string>();
+    for (const s of schedules) {
+      if (!shiftNameById.has(s.shiftId)) {
+        shiftNameById.set(s.shiftId, s.shiftName);
+      }
+    }
+    const agentNameById = new Map<string, string>();
+    for (const c of clients) {
+      const parts = [c.name, c.firstName].filter(Boolean);
+      agentNameById.set(c.id, parts.length ? parts.join(', ') : c.id);
+    }
+
     return result.tokens
       .map(t => {
         const key = awardKey(t.date, t.agentId);
@@ -115,8 +133,8 @@ export class WizardDialogComponent {
         const firedRules = awardMap.get(key) ?? [];
         return {
           date:      t.date,
-          shiftName: schedules.find(s => s.shiftId === t.shiftId)?.shiftName ?? t.shiftId,
-          agentName: this.resolveAgentName(clients, t.agentId),
+          shiftName: shiftNameById.get(t.shiftId) ?? t.shiftId,
+          agentName: agentNameById.get(t.agentId) ?? t.agentId,
           hours:     t.hours,
           firedRules,
           escalation: escalation ? this.shortenEscalation(escalation) : '',
@@ -125,6 +143,20 @@ export class WizardDialogComponent {
       })
       .sort((a, b) => a.date.localeCompare(b.date));
   });
+
+  private static readonly RESULT_ROW_HEIGHT_PX = 32;
+  private static readonly RESULT_VIEWPORT_MAX_HEIGHT_PX = 340;
+
+  readonly resultRowHeight = WizardDialogComponent.RESULT_ROW_HEIGHT_PX;
+
+  readonly resultViewportHeight = computed(() =>
+    Math.min(
+      this.sortedTokenRows().length * WizardDialogComponent.RESULT_ROW_HEIGHT_PX,
+      WizardDialogComponent.RESULT_VIEWPORT_MAX_HEIGHT_PX,
+    ));
+
+  readonly trackRow = (_: number, row: { date: string; agentName: string; shiftName: string }): string =>
+    `${row.date}|${row.agentName}|${row.shiftName}`;
 
   escalationCount(result: WizardResult): number {
     return result.escalations?.length ?? 0;
@@ -151,6 +183,7 @@ export class WizardDialogComponent {
   open(): void {
     this._applyPhase.set(null);
     this._localError.set(null);
+    this._applyError.set(null);
     this.appliedCount.set(0);
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), {
@@ -165,9 +198,13 @@ export class WizardDialogComponent {
       }
       return;
     }
-    this.wizardService.start(request).catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err);
-      this._localError.set(message);
+    this.startRun(request);
+  }
+
+  private startRun(request: WizardRequest): void {
+    this.startPromise = this.wizardService.start(request);
+    this.startPromise.catch((err: unknown) => {
+      this._localError.set(err instanceof Error ? err.message : String(err));
     });
   }
 
@@ -192,11 +229,12 @@ export class WizardDialogComponent {
     }
   }
 
-  onRetryRun(): void {
+  async onRetryRun(): Promise<void> {
     this._applyPhase.set(null);
     this._localError.set(null);
+    this._applyError.set(null);
     this.appliedCount.set(0);
-    void this.wizardService.stopConnection();
+    await this.wizardService.stopConnection();
     const request = this.buildRequest();
     if (!request) {
       if (this._localError() === null) {
@@ -204,9 +242,7 @@ export class WizardDialogComponent {
       }
       return;
     }
-    this.wizardService.start(request).catch((err: unknown) => {
-      this._localError.set(err instanceof Error ? err.message : String(err));
-    });
+    this.startRun(request);
   }
 
   private loadAuctionRatio(): number {
@@ -222,8 +258,10 @@ export class WizardDialogComponent {
   }
 
   async onApply(): Promise<void> {
+    if (this._applyPhase() !== null) return;
     const jobId = this.wizardService.currentJobId();
     if (!jobId) return;
+    this._applyError.set(null);
     this._applyPhase.set('applying');
     try {
       if (this.analyseScenarioService.isScenarioMode()) {
@@ -250,7 +288,7 @@ export class WizardDialogComponent {
       this.dataManagementSchedule.readDatas();
     } catch (err) {
       this._applyPhase.set(null);
-      this._localError.set(err instanceof Error ? err.message : 'Failed to apply schedule');
+      this._applyError.set(err instanceof Error ? err.message : 'Failed to apply schedule');
     }
   }
 
@@ -264,9 +302,17 @@ export class WizardDialogComponent {
   }
 
   private cancelIfRunning(): void {
-    const jobId = this.wizardService.currentJobId();
-    if (jobId && this.wizardService.status() === 'running') {
-      void this.wizardService.cancel(jobId);
+    if (this.wizardService.status() === 'running') {
+      const jobId = this.wizardService.currentJobId();
+      if (jobId) {
+        this.wizardService.cancel(jobId).catch(() => undefined);
+      } else {
+        this.startPromise
+          ?.then((startedJobId) => this.wizardService.cancel(startedJobId))
+          .catch(() => undefined)
+          .then(() => this.wizardService.stopConnection())
+          .catch(() => undefined);
+      }
     }
     void this.wizardService.stopConnection();
   }
@@ -277,9 +323,6 @@ export class WizardDialogComponent {
     const parts = [c.name, c.firstName].filter(Boolean);
     return parts.length ? parts.join(', ') : agentId;
   }
-
-  private static readonly MAX_AGENTS_PER_WIZARD_RUN = 100;
-  private static readonly MAX_SHIFTS_PER_WIZARD_RUN = 50;
 
   private buildRequest(): WizardRequest | null {
     const start   = this.dataManagementSchedule.periodStartDate;
@@ -292,13 +335,13 @@ export class WizardDialogComponent {
     const allAgentIds = clients.map(c => c.id);
     const allShiftIds = [...new Set(shifts.map(s => s.shiftId))];
 
-    if (allAgentIds.length > WizardDialogComponent.MAX_AGENTS_PER_WIZARD_RUN
-        || allShiftIds.length > WizardDialogComponent.MAX_SHIFTS_PER_WIZARD_RUN) {
+    if (allAgentIds.length > WIZARD_LIMITS.maxAgents
+        || allShiftIds.length > WIZARD_LIMITS.maxShifts) {
       this._localError.set(this.translate.instant('wizard.dialog.error.tooLarge', {
         agents: allAgentIds.length,
         shifts: allShiftIds.length,
-        maxAgents: WizardDialogComponent.MAX_AGENTS_PER_WIZARD_RUN,
-        maxShifts: WizardDialogComponent.MAX_SHIFTS_PER_WIZARD_RUN,
+        maxAgents: WIZARD_LIMITS.maxAgents,
+        maxShifts: WIZARD_LIMITS.maxShifts,
       }));
       return null;
     }

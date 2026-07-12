@@ -29,7 +29,7 @@ export class DataLanguagePluginService {
   }
 
   getPluginDoc(code: string, manualName: string): Observable<string> {
-    return this.httpClient.get(`${this.apiUrl}config/language-plugins/${code}/docs/${manualName}`, { responseType: 'text' }).pipe(retry(3));
+    return this.httpClient.get(`${this.apiUrl}config/language-plugins/${code}/docs/${manualName}`, { responseType: 'text' });
   }
 
   searchMarketplace(search: string, page: number, pageSize: number): Observable<MarketplaceSearchResult> {

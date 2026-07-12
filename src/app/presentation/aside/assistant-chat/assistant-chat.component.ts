@@ -77,9 +77,16 @@ import {
   IOnboardingStation,
   ONBOARDING_OFFER_CHOICE,
   ONBOARDING_SETTINGS_ROUTE,
+  ONBOARDING_STATION_LLM_PROVIDER,
   ONBOARDING_STATIONS,
   ONBOARDING_TOUR_CHOICE,
 } from 'src/app/domain/constants/onboarding-stations';
+
+const ONBOARDING_LLM_OFFLINE_KEY = 'assistant-chat.onboarding.llm.offline';
+const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';
+const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-offline';
+const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
+const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 
@@ -129,6 +136,7 @@ export class AssistantChatComponent {
   private readonly destroyRef = inject(DestroyRef);
   private tourIndex = 0;
   private isTourStationPending = false;
+  private llmOfflineHintShown = false;
   private eventBus = inject(EVENT_BUS_TOKEN);
 
   private shouldScrollToBottom = true;
@@ -329,6 +337,7 @@ export class AssistantChatComponent {
 
   private restartGuidedTour(): void {
     this.onboarding.accept();
+    this.maybePostLlmOfflineHint();
     this.tourIndex = 0;
     this.presentStationAtCursor();
   }
@@ -962,7 +971,16 @@ export class AssistantChatComponent {
       return;
     }
     this.onboarding.markOfferedThisSession();
+    this.maybePostLlmOfflineHint();
     this.showOnboardingOffer();
+  }
+
+  private maybePostLlmOfflineHint(): void {
+    if (this.llmOfflineHintShown || this.onboarding.llmLive()) {
+      return;
+    }
+    this.llmOfflineHintShown = true;
+    this.postKlacksyMessage(this.translateService.instant(ONBOARDING_LLM_OFFLINE_KEY));
   }
 
   private showOnboardingOffer(): void {
@@ -996,6 +1014,7 @@ export class AssistantChatComponent {
 
   startOnboardingTour(): void {
     this.onboarding.accept();
+    this.maybePostLlmOfflineHint();
     this.tourIndex = this.onboarding.firstPendingIndex();
     this.presentStationAtCursor();
   }
@@ -1019,8 +1038,16 @@ export class AssistantChatComponent {
       this.presentAskField();
     } else {
       this.postKlacksyMessage(this.translateService.instant(station.explainKey));
+      this.maybePostFreeProviderHint(station);
       this.showStationChips(station);
     }
+  }
+
+  private maybePostFreeProviderHint(station: IOnboardingStation): void {
+    if (station.id !== ONBOARDING_STATION_LLM_PROVIDER || this.onboarding.llmLive()) {
+      return;
+    }
+    this.postKlacksyMessage(this.translateService.instant(ONBOARDING_LLM_FREE_PROVIDERS_KEY));
   }
 
   private presentAskField(): void {
@@ -1069,14 +1096,42 @@ export class AssistantChatComponent {
   }
 
   private handleStationChoice(station: IOnboardingStation, choice: string): void {
-    if (choice === ONBOARDING_TOUR_CHOICE.Done) {
-      this.onboarding.markStationCompleted(station.id);
-      this.advanceTour();
-    } else if (choice === ONBOARDING_TOUR_CHOICE.Skip) {
-      this.advanceTour();
-    } else {
+    if (choice !== ONBOARDING_TOUR_CHOICE.Done && choice !== ONBOARDING_TOUR_CHOICE.Skip) {
       this.endTour();
+      return;
     }
+    const completedStationId = choice === ONBOARDING_TOUR_CHOICE.Done ? station.id : undefined;
+    if (station.id === ONBOARDING_STATION_LLM_PROVIDER && !this.onboarding.llmLive()) {
+      this.recheckLlmThenAdvance(completedStationId);
+      return;
+    }
+    if (completedStationId) {
+      this.onboarding.markStationCompleted(completedStationId);
+    }
+    this.advanceTour();
+  }
+
+  private recheckLlmThenAdvance(completedStationId?: string): void {
+    this.onboarding
+      .refreshState(completedStationId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+      next: () =>
+        this.ngZone.run(() => {
+          const key = this.onboarding.llmLive()
+            ? ONBOARDING_LLM_ONLINE_KEY
+            : ONBOARDING_LLM_STILL_OFFLINE_KEY;
+          this.postKlacksyMessage(this.translateService.instant(key));
+          this.advanceTour();
+        }),
+      error: () =>
+        this.ngZone.run(() => {
+          if (completedStationId) {
+            this.onboarding.markStationCompleted(completedStationId);
+          }
+          this.advanceTour();
+        }),
+    });
   }
 
   private handleAskChoice(choice: string): void {
@@ -1278,6 +1333,7 @@ export class AssistantChatComponent {
     closeList();
 
     return blocks.join('')
+      .replace(MARKDOWN_LINK_REGEX, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
       .replace(/`([^`\n]+?)`/g, '<code>$1</code>');

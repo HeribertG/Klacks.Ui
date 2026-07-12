@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Settings component for configuring LLM providers and models; API key entry is optional for keyless local providers.
+ * @param requiresApiKey - Form flag controlling whether the API key field is mandatory
+ */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
@@ -37,6 +41,9 @@ import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-r
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 const DEFAULT_PROVIDER_PRIORITY = 10;
+const API_KEY_MASK_PLACEHOLDER = '••••••••';
+const API_KEY_EXAMPLE_PLACEHOLDER = 'sk-...';
+const API_KEY_NOT_REQUIRED_KEY = 'settings.llm-providers.api-key-not-required';
 
 interface LLMProviderFormModel {
   providerId: string;
@@ -46,6 +53,7 @@ interface LLMProviderFormModel {
   priority: string;
   providerApiKey: string;
   isEnabled: boolean;
+  requiresApiKey: boolean;
 }
 
 @Component({
@@ -112,6 +120,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     priority: '10',
     providerApiKey: '',
     isEnabled: true,
+    requiresApiKey: true,
   });
 
   providerForm = form(this.formModel, f => {
@@ -177,7 +186,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
       isEnabled: true,
       priority: 10,
       baseUrl: '',
-      apiVersion: ''
+      apiVersion: '',
+      requiresApiKey: true
     };
     this.originalProvider = null;
     this.initFormFromProvider(this.editingProvider);
@@ -220,6 +230,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
         apiVersion: candidate.apiVersion ?? undefined,
         isEnabled: false,
         priority: DEFAULT_PROVIDER_PRIORITY,
+        requiresApiKey: candidate.requiresApiKey,
       };
 
       const created = await this.providerService.createProvider(createRequest);
@@ -258,6 +269,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
       priority: String(provider.priority || 10),
       providerApiKey: apiKey,
       isEnabled: provider.isEnabled ?? true,
+      requiresApiKey: provider.requiresApiKey ?? true,
     });
   }
 
@@ -270,6 +282,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     this.editingProvider.apiVersion = formData.apiVersion;
     this.editingProvider.priority = parseInt(formData.priority, 10) || 10;
     this.editingProvider.isEnabled = formData.isEnabled;
+    this.editingProvider.requiresApiKey = formData.requiresApiKey;
   }
 
   async onSaveModal(modal: any): Promise<void> {
@@ -327,7 +340,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
           baseUrl: this.editingProvider.baseUrl,
           apiVersion: this.editingProvider.apiVersion,
           isEnabled: this.editingProvider.isEnabled,
-          priority: this.editingProvider.priority
+          priority: this.editingProvider.priority,
+          requiresApiKey: this.editingProvider.requiresApiKey ?? true
         };
 
         const newProvider = await this.providerService.createProvider(createRequest);
@@ -349,7 +363,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
           baseUrl: this.editingProvider.baseUrl,
           apiVersion: this.editingProvider.apiVersion,
           isEnabled: this.editingProvider.isEnabled,
-          priority: this.editingProvider.priority
+          priority: this.editingProvider.priority,
+          requiresApiKey: this.editingProvider.requiresApiKey ?? true
         };
 
         const updatedProvider = await this.providerService.updateProvider(
@@ -374,17 +389,33 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     return !defaultModel || defaultModel.providerId !== provider.providerId;
   }
 
+  isApiKeyRequired(): boolean {
+    return this.formModel().requiresApiKey !== false;
+  }
+
+  getApiKeyPlaceholder(): string {
+    if (!this.isApiKeyRequired()) {
+      return this.translate.instant(API_KEY_NOT_REQUIRED_KEY);
+    }
+    if (!this.isNewProvider && this.editingProvider?.hasApiKey) {
+      return API_KEY_MASK_PLACEHOLDER;
+    }
+    return API_KEY_EXAMPLE_PLACEHOLDER;
+  }
+
   isFormValid(): boolean {
     if (!this.editingProvider) return false;
     const formData = this.formModel();
 
     const hasRequiredFields = !!(formData.providerName && formData.baseUrl);
+    const keyRequired = this.isApiKeyRequired();
+    const hasKeyInput = !!formData.providerApiKey.trim();
 
     if (this.isNewProvider) {
-      return hasRequiredFields && !!formData.providerId && !!formData.providerApiKey.trim();
+      return hasRequiredFields && !!formData.providerId && (!keyRequired || hasKeyInput);
     }
 
-    const apiKeyValid = !!this.editingProvider.hasApiKey || !!formData.providerApiKey.trim();
+    const apiKeyValid = !keyRequired || !!this.editingProvider.hasApiKey || hasKeyInput;
     return hasRequiredFields && apiKeyValid;
   }
 
@@ -415,7 +446,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
         )
       );
     }
-    const needsApiKey = this.isNewProvider || !this.editingProvider?.hasApiKey;
+    const needsApiKey =
+      this.isApiKeyRequired() && (this.isNewProvider || !this.editingProvider?.hasApiKey);
     if (needsApiKey && !formData.providerApiKey.trim()) {
       errors.push(
         this.translate.instant(

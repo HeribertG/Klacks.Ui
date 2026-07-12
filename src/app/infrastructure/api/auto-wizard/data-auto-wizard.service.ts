@@ -52,8 +52,16 @@ export interface AutoWizardCancelResponse {
   cancelled: boolean;
 }
 
+export interface AutoWizardJobStatusResponse {
+  status: 'running' | 'completed' | 'cancelled' | 'failed' | 'unknown';
+  result: AutoWizardResult | null;
+  reason: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DataAutoWizardService implements OnDestroy {
+  private static readonly HUB_START_TIMEOUT_MS = 20000;
+
   private readonly http = inject(HttpClient);
   private readonly localStorage = inject(LocalStorageService);
   private readonly translateService = inject(TranslateService);
@@ -84,7 +92,7 @@ export class DataAutoWizardService implements OnDestroy {
       );
 
       this.currentJobId.set(response.jobId);
-      await this.hubConnection?.send(AutoWizardSignalRConstants.HubMethods.JoinJob, response.jobId);
+      await this.joinJobGroup(response.jobId);
       return response.jobId;
     } catch (error) {
       const message = this.extractMessage(error);
@@ -102,21 +110,26 @@ export class DataAutoWizardService implements OnDestroy {
   }
 
   async stopConnection(): Promise<void> {
-    if (!this.hubConnection) {
+    const connection = this.hubConnection;
+    if (!connection) {
       return;
     }
+    this.hubConnection = null;
 
     const jobId = this.currentJobId();
     if (jobId) {
       try {
-        await this.hubConnection.send(AutoWizardSignalRConstants.HubMethods.LeaveJob, jobId);
+        await connection.send(AutoWizardSignalRConstants.HubMethods.LeaveJob, jobId);
       } catch {
         // Connection may already be down; ignore.
       }
     }
 
-    await this.hubConnection.stop();
-    this.hubConnection = null;
+    try {
+      await connection.stop();
+    } catch {
+      // Connection may already be down; ignore.
+    }
   }
 
   ngOnDestroy(): void {
@@ -129,9 +142,59 @@ export class DataAutoWizardService implements OnDestroy {
     this.currentJobId.set(null);
   }
 
+  private async reconcileJobState(jobId: string): Promise<boolean> {
+    try {
+      const state = await firstValueFrom(
+        this.http.get<AutoWizardJobStatusResponse>(`${this.apiBase}/Status/${jobId}`),
+      );
+      if (jobId !== this.currentJobId() || this.status() !== 'running') {
+        return false;
+      }
+      switch (state.status) {
+        case 'completed':
+          if (!state.result) {
+            return false;
+          }
+          this.result.set(state.result);
+          this.status.set('completed');
+          return true;
+        case 'cancelled':
+        case 'failed':
+          this.failureReason.set(this.normaliseReason(state.reason));
+          this.status.set('failed');
+          return true;
+        case 'unknown':
+          this.failureReason.set(this.normaliseReason('AutoWizard job is no longer tracked by the server.'));
+          this.status.set('failed');
+          return true;
+        default:
+          return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  private async joinJobGroup(jobId: string): Promise<void> {
+    if (this.hubConnection?.state !== signalR.HubConnectionState.Connected) {
+      await this.ensureConnected();
+    }
+    const connection = this.hubConnection;
+    if (!connection) {
+      throw new Error('Hub connection was closed before joining the job group.');
+    }
+    await connection.send(AutoWizardSignalRConstants.HubMethods.JoinJob, jobId);
+  }
+
   private async ensureConnected(): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return;
+    }
+
+    const staleConnection = this.hubConnection;
+    this.hubConnection = null;
+    if (staleConnection) {
+      staleConnection.stop().catch(() => undefined);
     }
 
     const token = this.localStorage.get(StorageKeys.TOKEN);
@@ -139,39 +202,66 @@ export class DataAutoWizardService implements OnDestroy {
       throw new Error('Missing auth token; cannot connect to auto wizard hub.');
     }
 
-    this.hubConnection = new signalR.HubConnectionBuilder()
+    const connection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
       })
       .withAutomaticReconnect()
       .build();
 
-    this.registerHandlers(this.hubConnection);
+    this.registerHandlers(connection);
 
-    this.hubConnection.onreconnected(async () => {
+    connection.onreconnected(async () => {
       const jobId = this.currentJobId();
-      if (jobId && this.hubConnection) {
+      if (jobId && this.hubConnection === connection) {
         try {
-          await this.hubConnection.send(AutoWizardSignalRConstants.HubMethods.JoinJob, jobId);
+          await connection.send(AutoWizardSignalRConstants.HubMethods.JoinJob, jobId);
         } catch {
           // Best effort — connection may have dropped again.
+        }
+        if (this.status() === 'running') {
+          await this.reconcileJobState(jobId);
         }
       }
     });
 
-    const startTimeoutMs = 20000;
+    connection.onclose(() => {
+      if (this.hubConnection !== connection) {
+        return;
+      }
+      this.hubConnection = null;
+      if (this.status() !== 'running') {
+        return;
+      }
+      const jobId = this.currentJobId();
+      void (async () => {
+        const reconciled = jobId ? await this.reconcileJobState(jobId) : false;
+        if (!reconciled && this.status() === 'running') {
+          this.failureReason.set(this.normaliseReason('Connection to the auto wizard hub was lost.'));
+          this.status.set('failed');
+        }
+      })();
+    });
+
+    this.hubConnection = connection;
+
     await Promise.race([
-      this.hubConnection.start(),
+      connection.start(),
       new Promise<void>((_, reject) =>
-        setTimeout(() => reject(new Error(`hub.start() did not resolve within ${startTimeoutMs}ms`)), startTimeoutMs),
+        setTimeout(
+          () => reject(new Error(`hub.start() did not resolve within ${DataAutoWizardService.HUB_START_TIMEOUT_MS}ms`)),
+          DataAutoWizardService.HUB_START_TIMEOUT_MS,
+        ),
       ),
     ]);
   }
 
   private registerHandlers(connection: signalR.HubConnection): void {
     connection.on(AutoWizardSignalRConstants.Events.OnCompleted, (result: AutoWizardResult) => {
+      if (result.jobId !== this.currentJobId()) {
+        return;
+      }
       this.result.set(result);
-      this.currentJobId.set(result.jobId);
       this.status.set('completed');
     });
 
