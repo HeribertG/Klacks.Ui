@@ -105,7 +105,7 @@
               {{ 'setting.qualifications.modal.country' | translate }}
             </label>
             <div id="qualifications-modal-country" class="country-checkbox-list">
-              @for (c of countryOptions; track c.code) {
+              @for (c of countryOptions(); track c.code) {
                 <div class="country-checkbox-option" (click)="onCountryToggle(c.code, $event)">
                   <input
                     type="checkbox"

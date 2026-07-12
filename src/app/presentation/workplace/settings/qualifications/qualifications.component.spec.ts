@@ -8,6 +8,7 @@ import { of, throwError } from 'rxjs';
 
 import { QualificationsComponent } from './qualifications.component';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
@@ -18,6 +19,7 @@ describe('QualificationsComponent', () => {
   let component: QualificationsComponent;
   let fixture: ComponentFixture<QualificationsComponent>;
   let mockDataQualService: any;
+  let mockDataCountryStateService: any;
   let mockToastService: any;
   let mockNgbModal: any;
   let mockModalService: ModalService;
@@ -35,6 +37,10 @@ describe('QualificationsComponent', () => {
       addQualification: vi.fn(),
       updateQualification: vi.fn(),
       deleteQualification: vi.fn(),
+    };
+
+    mockDataCountryStateService = {
+      getCountryList: vi.fn().mockReturnValue(of([])),
     };
 
     mockToastService = {
@@ -58,6 +64,7 @@ describe('QualificationsComponent', () => {
       imports: [QualificationsComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataQualificationService, useValue: mockDataQualService },
+        { provide: DataCountryStateService, useValue: mockDataCountryStateService },
         { provide: ToastShowService, useValue: mockToastService },
         { provide: NgbModal, useValue: mockNgbModal },
         ModalService,

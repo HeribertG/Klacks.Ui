@@ -27,6 +27,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
+import { ICountry } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { Language } from 'src/app/domain/models/settings/language-config';
@@ -69,6 +71,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   readonly qualModal = viewChild.required<TemplateRef<unknown>>('qualModal');
 
   private dataQualService = inject(DataQualificationService);
+  private dataCountryStateService = inject(DataCountryStateService);
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
@@ -125,6 +128,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
     this.loadQualifications();
+    this.loadCountries();
   }
 
   ngAfterViewInit(): void {
@@ -132,6 +136,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.currentLang = this.translate.currentLang as Language;
+        this.refreshCountryOptions();
         this.cdr.markForCheck();
       });
 
@@ -176,6 +181,33 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
           this.cdr.markForCheck();
         },
       });
+  }
+
+  private loadCountries(): void {
+    this.dataCountryStateService
+      .getCountryList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: list => {
+          this.countries.set(list);
+          this.refreshCountryOptions();
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.toastService.showError('setting.qualifications.error.load');
+        },
+      });
+  }
+
+  private refreshCountryOptions(): void {
+    const lang = this.currentLang;
+    const options = this.countries()
+      .map(c => ({
+        code: c.abbreviation,
+        label: `${c.abbreviation} – ${getLocalizedValue(c.name, lang)}`,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, lang));
+    this.countryOptions.set(options);
   }
 
   onClickAdd(): void {
@@ -241,31 +273,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.isTimeLimitedValue.set((event.target as HTMLInputElement).checked);
   }
 
-  readonly countryOptions: { code: string; label: string }[] = [
-    { code: 'CH', label: 'CH – Schweiz' },
-    { code: 'DE', label: 'DE – Deutschland' },
-    { code: 'AT', label: 'AT – Österreich' },
-    { code: 'FR', label: 'FR – Frankreich' },
-    { code: 'BE', label: 'BE – Belgien' },
-    { code: 'IT', label: 'IT – Italien' },
-    { code: 'GB', label: 'GB – Großbritannien' },
-    { code: 'US', label: 'US – USA' },
-    { code: 'AU', label: 'AU – Australien' },
-    { code: 'CA', label: 'CA – Kanada' },
-    { code: 'IE', label: 'IE – Irland' },
-    { code: 'JP', label: 'JP – Japan' },
-    { code: 'CN', label: 'CN – China' },
-    { code: 'TW', label: 'TW – Taiwan' },
-    { code: 'KR', label: 'KR – Südkorea' },
-    { code: 'SG', label: 'SG – Singapur' },
-    { code: 'SA', label: 'SA – Saudi-Arabien' },
-    { code: 'AE', label: 'AE – Vereinigte Arabische Emirate' },
-    { code: 'MA', label: 'MA – Marokko' },
-    { code: 'IL', label: 'IL – Israel' },
-    { code: 'SM', label: 'SM – San Marino' },
-    { code: 'LI', label: 'LI – Liechtenstein' },
-    { code: 'LU', label: 'LU – Luxemburg' },
-  ];
+  private countries = signal<ICountry[]>([]);
+  countryOptions = signal<{ code: string; label: string }[]>([]);
 
   onCountryToggle(code: string, event: Event): void {
     const input = event.target as HTMLInputElement;

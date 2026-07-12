@@ -42,7 +42,8 @@ export class LanguageConfigService implements ILanguageConfig {
         this.metadata.set(response.metadata ?? {});
         this.loaded.set(true);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('LanguageConfigService: failed to load language config, falling back to core languages', error);
         this.loaded.set(true);
       });
   }
