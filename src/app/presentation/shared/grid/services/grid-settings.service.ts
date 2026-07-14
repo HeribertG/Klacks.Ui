@@ -1,37 +1,42 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
+
+const WEEKDAY_KEYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const MONTH_KEYS = [
+  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+];
 
 @Injectable({
   providedIn: 'root',
 })
 export class GridSettingsService {
+  private translateService = inject(TranslateService);
+  private ngUnsubscribe = new Subject<void>();
+
   weekday = new Array(7);
   monthsName = new Array(12);
-  constructor() {
-    this.weekday[0] = 'So';
-    this.weekday[1] = 'Mo';
-    this.weekday[2] = 'Di';
-    this.weekday[3] = 'Mi';
-    this.weekday[4] = 'Do';
-    this.weekday[5] = 'Fr';
-    this.weekday[6] = 'Sa';
 
-    this.monthsName[0] = 'Januar';
-    this.monthsName[1] = 'Februar';
-    this.monthsName[2] = 'März';
-    this.monthsName[3] = 'April';
-    this.monthsName[4] = 'Mai';
-    this.monthsName[5] = 'Juni';
-    this.monthsName[6] = 'Juli';
-    this.monthsName[7] = 'August';
-    this.monthsName[8] = 'September';
-    this.monthsName[9] = 'Oktober';
-    this.monthsName[10] = 'November';
-    this.monthsName[11] = 'Dezember';
+  constructor() {
+    this.updateLabels();
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(() => this.updateLabels());
+  }
+
+  private updateLabels(): void {
+    const translatedWeekdays = this.translateService.instant(WEEKDAY_KEYS);
+    const translatedMonths = this.translateService.instant(MONTH_KEYS);
+    this.weekday = WEEKDAY_KEYS.map((key) => translatedWeekdays[key]);
+    this.monthsName = MONTH_KEYS.map((key) => translatedMonths[key]);
   }
 
   destroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
     this.monthsName = [];
     this.weekday = [];
   }
