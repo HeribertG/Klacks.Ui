@@ -87,11 +87,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.translateService.setDefaultLang(this.languageConfigService.getDefaultLanguage());
 
-    const lang = this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
-    if (lang) {
-      this.translateService.use(
-        this.localStorageService.get(StorageKeys.CURRENT_LANG) as string
-      );
+    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
+    if (savedLang && this.languageConfigService.isLanguageSupported(savedLang)) {
+      this.translateService.use(savedLang);
     }
 
     this.loadOAuth2Providers();

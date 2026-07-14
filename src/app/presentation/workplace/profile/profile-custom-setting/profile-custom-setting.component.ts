@@ -36,7 +36,7 @@ export class ProfileCustomSettingComponent {
 
   constructor() {
     const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    if (savedLang) {
+    if (savedLang && this.languageConfigService.isLanguageSupported(savedLang)) {
       this.onChangeLanguage(savedLang);
     }
     this.selectedTheme.set(this.themeService.getCurrentTheme());

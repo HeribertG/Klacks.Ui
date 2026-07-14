@@ -217,7 +217,10 @@ export class NavComponent implements OnInit {
 
   private loadSavedLanguage(): void {
     const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    const lang = savedLang || this.languageConfigService.getDefaultLanguage();
+    const lang =
+      savedLang && this.languageConfigService.isLanguageSupported(savedLang)
+        ? savedLang
+        : this.languageConfigService.getDefaultLanguage();
     this.onChangeLanguage(lang);
   }
 
