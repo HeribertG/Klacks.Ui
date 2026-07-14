@@ -33,6 +33,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
@@ -107,6 +108,7 @@ export class NavComponent implements OnInit {
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
   private languageConfigService = inject(LanguageConfigService);
+  private directionService = inject(DirectionService);
   private themeService = inject(ThemeService);
   private urlParameterService = inject(UrlParameterService);
   private destroyRef = inject(DestroyRef);
@@ -116,7 +118,7 @@ export class NavComponent implements OnInit {
   public featurePluginState = inject(FeaturePluginStateService);
   private spinnerService = inject(LOADING_INDICATOR_TOKEN);
 
-  public tooltipPlacement = document.documentElement.dir === 'rtl' ? 'left' : 'right';
+  public tooltipPlacement = computed(() => (this.directionService.direction() === 'rtl' ? 'left' : 'right'));
 
   private currentLanguage = signal<string>(this.languageConfigService.getDefaultLanguage());
   private currentTheme = computed(() => this.themeService.theme());

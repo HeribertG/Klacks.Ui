@@ -3,6 +3,7 @@
 import {
   Component, DestroyRef, EventEmitter, inject, OnInit, output, signal, WritableSignal,
   ChangeDetectionStrategy,
+  computed,
   input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,6 +21,7 @@ import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-le
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 const GROUPING_LABEL_KEYS = [
   'client-availability.grouping.1h',
@@ -53,8 +55,9 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private gridSettingsService = inject(GridSettingsService);
   private calendarUtil = inject(CalendarUtilService);
+  private directionService = inject(DirectionService);
 
-  readonly isRtl = document.documentElement.dir === 'rtl';
+  readonly isRtl = computed(() => this.directionService.direction() === 'rtl');
 
   readonly viewMode = input<PaymentInterval>(PaymentInterval.Weekly);
 

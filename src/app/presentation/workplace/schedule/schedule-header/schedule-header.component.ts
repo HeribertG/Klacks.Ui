@@ -38,6 +38,7 @@ import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/perio
 import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
@@ -127,7 +128,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly wizard4Dialog = viewChild.required<Wizard4DialogComponent>('wizard4Dialog');
   readonly recoveryDialog = viewChild.required<RecoveryDialogComponent>('recoveryDialog');
 
-  readonly isRtl = document.documentElement.dir === 'rtl';
+  private directionService = inject(DirectionService);
+  readonly isRtl = computed(() => this.directionService.direction() === 'rtl');
 
   value = 100;
   options: Options = {

@@ -7,7 +7,7 @@
         id="open-schedules"
         (click)="onClickSchedule()"
         [attr.aria-label]="'Manage schedules (Alt+1)'"
-        [placement]="tooltipPlacement"
+        [placement]="tooltipPlacement()"
         appTooltipAutoClose
         ngbTooltip="{{ all_schedule | translate }} (Alt+1)"
       >
@@ -22,7 +22,7 @@
         id="open-absences"
         (click)="onClickAbsence()"
         [attr.aria-label]="'Manage absences (Alt+2)'"
-        [placement]="tooltipPlacement"
+        [placement]="tooltipPlacement()"
         appTooltipAutoClose
         ngbTooltip="{{ absence | translate }} (Alt+2)"
       >
@@ -39,7 +39,7 @@
         [attr.aria-label]="
           ('client-availability.nav.tooltip' | translate) + ' (Alt+3)'
         "
-        [placement]="tooltipPlacement"
+        [placement]="tooltipPlacement()"
         appTooltipAutoClose
         ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+3)"
       >
@@ -54,7 +54,7 @@
         id="open-shifts"
         (click)="onClickShift()"
         [attr.aria-label]="'Manage shifts (Alt+4)'"
-        [placement]="tooltipPlacement"
+        [placement]="tooltipPlacement()"
         appTooltipAutoClose
         ngbTooltip="{{ all_shift | translate }} (Alt+4)"
       >
@@ -69,7 +69,7 @@
         id="open-employees"
         (click)="onClickClients()"
         [attr.aria-label]="'Manage employees (Alt+5)'"
-        [placement]="tooltipPlacement"
+        [placement]="tooltipPlacement()"
         appTooltipAutoClose
         ngbTooltip="{{ all_employee | translate }} (Alt+5)"
       >
@@ -85,7 +85,7 @@
           id="open-groups"
           (click)="onClickGroup()"
           [attr.aria-label]="'Manage groups (Alt+6)'"
-          [placement]="tooltipPlacement"
+          [placement]="tooltipPlacement()"
           appTooltipAutoClose
           ngbTooltip="{{ 'group.select.all-groups' | translate }} (Alt+6)"
         >
@@ -102,7 +102,7 @@
           id="open-period-closing"
           (click)="onClickPeriodClosing()"
           [attr.aria-label]="'periodClosing.title' | translate"
-          [placement]="tooltipPlacement"
+          [placement]="tooltipPlacement()"
           appTooltipAutoClose
           ngbTooltip="{{ 'periodClosing.title' | translate }}"
         >
@@ -119,7 +119,7 @@
           id="open-inbox"
           (click)="onClickInbox()"
           [attr.aria-label]="'Open Inbox (Alt+9)'"
-          [placement]="tooltipPlacement"
+          [placement]="tooltipPlacement()"
           appTooltipAutoClose
           ngbTooltip="{{ inbox | translate }} (Alt+9)"
         >
@@ -141,7 +141,7 @@
           [id]="'open-plugin-' + plugin.name"
           (click)="onClickPlugin(plugin)"
           [attr.aria-label]="'Open ' + plugin.name"
-          [placement]="tooltipPlacement"
+          [placement]="tooltipPlacement()"
           ngbTooltip="{{ plugin.labelKey | translate }}"
         >
           <app-plugin-icon

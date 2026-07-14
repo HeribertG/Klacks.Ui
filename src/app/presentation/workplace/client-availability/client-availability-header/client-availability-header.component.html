@@ -5,7 +5,7 @@
       (click)="goToPrevious()"
       aria-label="previous period"
     >
-      @if (isRtl) {
+      @if (isRtl()) {
         <app-icon-angle-right />
       } @else {
         <app-icon-angle-left />
@@ -51,7 +51,7 @@
       (click)="goToNext()"
       aria-label="next period"
     >
-      @if (isRtl) {
+      @if (isRtl()) {
         <app-icon-angle-left />
       } @else {
         <app-icon-angle-right />

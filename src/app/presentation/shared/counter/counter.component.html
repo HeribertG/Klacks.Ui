@@ -6,7 +6,7 @@
     (click)="onClickPaginationButton(-1)"
     disabled="currentNumber ===1"
   >
-    <fa-icon [icon]="faAngleLeft"></fa-icon>
+    <fa-icon [icon]="faAngleLeft()"></fa-icon>
   </div>
   <div class="ownPaginationBlock">{{ currentNumber }}</div>
   <div
@@ -15,6 +15,6 @@
     (click)="onClickPaginationButton(1)"
     disabled="maxNumber ===1"
   >
-    <fa-icon [icon]="faAngleRight"></fa-icon>
+    <fa-icon [icon]="faAngleRight()"></fa-icon>
   </div>
 </div>
