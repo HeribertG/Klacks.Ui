@@ -1175,6 +1175,8 @@
   "setting.macro.function.custom": "Personalizzato",
   "setting.macro.function.standard": "Standard",
   "setting.macro.function.standard-conflict": "\"{{name}}\" è già impostato come macro standard per questa categoria. Impostane prima la funzione su Personalizzato, poi salva questa come standard.",
+  "setting.macro.function.standard-additive": "Standard (additivo)",
+  "setting.macro.function.standard-additive-conflict": "\"{{name}}\" è già impostata come macro standard additiva per questa categoria. Imposta prima la sua funzione su \"Personalizzato\", poi salva questa macro come standard additivo.",
   "setting.macro.category-modal": "Categoria",
   "setting.macro.category.unspecified": "Non specificato",
   "setting.macro.category.shift": "Turno",

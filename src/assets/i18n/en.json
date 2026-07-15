@@ -1175,6 +1175,8 @@
   "setting.macro.function.custom": "Custom",
   "setting.macro.function.standard": "Standard",
   "setting.macro.function.standard-conflict": "\"{{name}}\" is already the Standard macro for this category. Set its function to Custom first, then save this one as Standard.",
+  "setting.macro.function.standard-additive": "Standard (additive)",
+  "setting.macro.function.standard-additive-conflict": "\"{{name}}\" is already set as the additive standard macro for this category. Set its function to \"Custom\" first, then save this macro as the additive standard.",
   "setting.macro.category-modal": "Category",
   "setting.macro.category.unspecified": "Unspecified",
   "setting.macro.category.shift": "Shift",

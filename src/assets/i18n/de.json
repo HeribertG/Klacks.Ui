@@ -1175,6 +1175,8 @@
   "setting.macro.function.custom": "Benutzerdefiniert",
   "setting.macro.function.standard": "Standard",
   "setting.macro.function.standard-conflict": "Für diese Kategorie ist bereits \"{{name}}\" als Standard-Macro festgelegt. Setzen Sie dort zuerst die Funktion auf \"Benutzerdefiniert\", bevor Sie dieses Macro als Standard speichern.",
+  "setting.macro.function.standard-additive": "Standard (additiv)",
+  "setting.macro.function.standard-additive-conflict": "Für diese Kategorie ist bereits \"{{name}}\" als additives Standard-Macro festgelegt. Setzen Sie dort zuerst die Funktion auf \"Benutzerdefiniert\", bevor Sie dieses Macro als additiven Standard speichern.",
   "setting.macro.category-modal": "Kategorie",
   "setting.macro.category.unspecified": "Nicht zugewiesen",
   "setting.macro.category.shift": "Dienst",

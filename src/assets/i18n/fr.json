@@ -1175,6 +1175,8 @@
   "setting.macro.function.custom": "Personnalisé",
   "setting.macro.function.standard": "Standard",
   "setting.macro.function.standard-conflict": "« {{name}} » est déjà défini comme macro standard pour cette catégorie. Réglez d'abord sa fonction sur Personnalisé, puis enregistrez celle-ci comme standard.",
+  "setting.macro.function.standard-additive": "Standard (additif)",
+  "setting.macro.function.standard-additive-conflict": "\"{{name}}\" est déjà défini comme macro standard additive pour cette catégorie. Réglez d'abord sa fonction sur \"Personnalisé\", puis enregistrez cette macro comme standard additif.",
   "setting.macro.category-modal": "Catégorie",
   "setting.macro.category.unspecified": "Non spécifié",
   "setting.macro.category.shift": "Service",

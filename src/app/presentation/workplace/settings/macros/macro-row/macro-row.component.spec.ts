@@ -376,17 +376,12 @@ describe('MacroRowComponent', () => {
       expect(component.macroFunctionOptions[0]).toHaveProperty('label');
     });
 
-    it('should not offer StandardAdditive', () => {
-      // Assert
-      const values = component.macroFunctionOptions.map((option) => option.value);
-      expect(values).not.toContain(MacroFunction.StandardAdditive);
-    });
-
-    it('should offer Custom and Standard', () => {
+    it('should offer Custom, Standard and StandardAdditive', () => {
       // Assert
       const values = component.macroFunctionOptions.map((option) => option.value);
       expect(values).toContain(MacroFunction.Custom);
       expect(values).toContain(MacroFunction.Standard);
+      expect(values).toContain(MacroFunction.StandardAdditive);
     });
   });
 

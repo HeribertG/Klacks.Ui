@@ -108,7 +108,6 @@ export class MacroRowComponent implements OnDestroy {
 
   macroFunctionOptions = Object.values(MacroFunction)
     .filter((v): v is MacroFunction => typeof v === 'number')
-    .filter((value) => value !== MacroFunction.StandardAdditive)
     .map((value) => ({
       value,
       label: MacroFunctionLabels[value] ?? '',
@@ -270,8 +269,12 @@ export class MacroRowComponent implements OnDestroy {
     const errors: string[] = [];
     const conflict = this.findStandardFunctionConflict();
     if (conflict) {
+      const messageKey =
+        +this.macroModel().type === MacroFunction.StandardAdditive
+          ? 'setting.macro.function.standard-additive-conflict'
+          : 'setting.macro.function.standard-conflict';
       errors.push(
-        this.translate.instant('setting.macro.function.standard-conflict', {
+        this.translate.instant(messageKey, {
           name: conflict.name,
         })
       );
@@ -282,7 +285,8 @@ export class MacroRowComponent implements OnDestroy {
 
   private findStandardFunctionConflict(): IMacro | null {
     const model = this.macroModel();
-    if (+model.type !== MacroFunction.Standard) {
+    const modelFunction = +model.type as MacroFunction;
+    if (modelFunction === MacroFunction.Custom) {
       return null;
     }
 
@@ -293,7 +297,7 @@ export class MacroRowComponent implements OnDestroy {
       (macro) =>
         macro !== current &&
         macro.isDirty !== CreateEntriesEnum.delete &&
-        macro.type === MacroFunction.Standard &&
+        macro.type === modelFunction &&
         macro.category === category
     );
 

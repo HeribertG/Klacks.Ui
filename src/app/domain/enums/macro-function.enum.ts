@@ -6,7 +6,8 @@ export enum MacroFunction {
   StandardAdditive = 2,
 }
 
-export const MacroFunctionLabels: Partial<Record<MacroFunction, string>> = {
+export const MacroFunctionLabels: Record<MacroFunction, string> = {
   [MacroFunction.Custom]: 'setting.macro.function.custom',
   [MacroFunction.Standard]: 'setting.macro.function.standard',
+  [MacroFunction.StandardAdditive]: 'setting.macro.function.standard-additive',
 };
