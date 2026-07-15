@@ -181,12 +181,27 @@ export class CollisionDetectionService implements OnDestroy {
   private localizeCommentParams(
     params: Record<string, string> | undefined
   ): Record<string, string> | undefined {
-    const dayOfWeek = params?.['dayOfWeek'];
-    if (!dayOfWeek) {
+    if (!params) {
       return params;
     }
 
-    return { ...params, dayOfWeek: this.translate.instant(dayOfWeek.toLowerCase()) };
+    const localized = { ...params };
+    const dayOfWeek = localized['dayOfWeek'];
+    if (dayOfWeek) {
+      localized['dayOfWeek'] = this.translate.instant(dayOfWeek.toLowerCase());
+    }
+
+    const event = localized['event'];
+    if (event) {
+      localized['event'] = this.translate.instant(`counter-event.${event.toLowerCase()}`);
+    }
+
+    const period = localized['period'];
+    if (period) {
+      localized['period'] = this.translate.instant(`counter-period.${period.toLowerCase()}`);
+    }
+
+    return localized;
   }
 
   private addUnderstaffedShiftEntries(entries: ScheduleErrorEntry[]): void {
