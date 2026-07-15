@@ -169,13 +169,24 @@ export class CollisionDetectionService implements OnDestroy {
         clientId: validation.clientId,
         clientName: validation.clientName,
         comment: validation.comment,
-        commentParams: validation.commentParams,
+        commentParams: this.localizeCommentParams(validation.commentParams),
       });
     }
 
     this.addUnderstaffedShiftEntries(entries);
 
     this.errorEntries.set(entries);
+  }
+
+  private localizeCommentParams(
+    params: Record<string, string> | undefined
+  ): Record<string, string> | undefined {
+    const dayOfWeek = params?.['dayOfWeek'];
+    if (!dayOfWeek) {
+      return params;
+    }
+
+    return { ...params, dayOfWeek: this.translate.instant(dayOfWeek.toLowerCase()) };
   }
 
   private addUnderstaffedShiftEntries(entries: ScheduleErrorEntry[]): void {

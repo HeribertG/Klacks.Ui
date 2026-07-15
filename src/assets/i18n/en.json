@@ -843,6 +843,7 @@
   "schedule.error-list.weekly-overtime": "Weekly work time {{actualHours}}h exceeds maximum of {{maxHours}}h",
   "schedule.error-list.period-cap": "Period hours {{actualHours}}h exceed the cap of {{capHours}}h ({{period}})",
   "schedule.error-list.rolling-average": "Average weekly work time {{actualHours}}h exceeds {{capHours}}h over the {{windowWeeks}}-week window",
+  "schedule.error-list.rest-day-rotation": "Rest-day rotation violated: only {{actualFree}} free days ({{dayOfWeek}}) in {{windowWeeks}} weeks (min. {{minFree}})",
   "schedule.error-list.min-rest-days": "Only {{actualDays}} rest days per week (min. {{minDays}})",
   "schedule.error-list.travel-time-warning": "Travel time tight: gap {{gapMinutes}} min, travel time approx. {{travelMinutes}} min",
   "schedule.error-list.travel-time-error": "Travel time insufficient: gap {{gapMinutes}} min, travel time approx. {{travelMinutes}} min",
