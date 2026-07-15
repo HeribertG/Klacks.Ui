@@ -115,6 +115,7 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
           this._symbol.index,
           this._symbol.text
         );
+        returnDo = true;
       }
     } while (!returnDo);
   }

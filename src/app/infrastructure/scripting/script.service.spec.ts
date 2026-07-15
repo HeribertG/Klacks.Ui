@@ -1115,4 +1115,46 @@ describe('ScriptService', () => {
             expect(result.messages[0].message).toBe('186');
         });
     });
+
+    describe('Malformed Scripts', () => {
+        it('should report a compile error for DIM followed by a non-identifier instead of hanging', () => {
+            // Arrange & Act
+            const compiled = service.compile('DIM 123abc', true, false);
+
+            // Assert
+            expect(compiled.hasError).toBe(true);
+        });
+
+        it('should report a compile error for DIM followed by a number instead of hanging', () => {
+            // Arrange & Act
+            const compiled = service.compile('dim 123', true, false);
+
+            // Assert
+            expect(compiled.hasError).toBe(true);
+        });
+
+        it('should report a compile error for a trailing non-identifier in a DIM list instead of hanging', () => {
+            // Arrange & Act
+            const compiled = service.compile('dim x, 5\noutput 1, x', true, false);
+
+            // Assert
+            expect(compiled.hasError).toBe(true);
+        });
+
+        it('should report a compile error for IMPORT followed by a non-identifier instead of hanging', () => {
+            // Arrange & Act
+            const compiled = service.compile('import 42', true, true);
+
+            // Assert
+            expect(compiled.hasError).toBe(true);
+        });
+
+        it('should still compile a valid DIM declaration list', () => {
+            // Arrange & Act
+            const compiled = service.compile('dim x, y\nx = 1\ny = 2\noutput 1, x + y', true, false);
+
+            // Assert
+            expect(compiled.hasError).toBe(false);
+        });
+    });
 });
