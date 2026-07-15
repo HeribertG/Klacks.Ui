@@ -33,6 +33,7 @@ describe('LoginComponent', () => {
     let translateService: any;
     let userAdministrationService: any;
     let toastService: any;
+    let languageConfigService: any;
 
     beforeEach(async () => {
         const authServiceSpy = {
@@ -76,7 +77,8 @@ describe('LoginComponent', () => {
             showError: vi.fn()
         };
         const languageConfigServiceSpy = {
-            getDefaultLanguage: vi.fn().mockReturnValue('fr')
+            getDefaultLanguage: vi.fn().mockReturnValue('fr'),
+            resolveInitialLanguage: vi.fn().mockReturnValue('fr'),
         };
 
         await TestBed.configureTestingModule({
@@ -117,6 +119,7 @@ describe('LoginComponent', () => {
         translateService = TestBed.inject(TranslateService) as any;
         userAdministrationService = TestBed.inject(UserAdministrationService) as any;
         toastService = TestBed.inject(ToastShowService) as any;
+        languageConfigService = TestBed.inject(LanguageConfigService) as any;
     });
 
     it('should create', () => {
@@ -135,16 +138,27 @@ describe('LoginComponent', () => {
         component.ngOnInit();
 
         expect(translateService.setDefaultLang).toHaveBeenCalledWith('fr');
-        expect(translateService.use).not.toHaveBeenCalled();
     });
 
     it('should use saved language if available', () => {
         const savedLang = 'de';
         localStorageService.get.mockReturnValue(savedLang);
+        languageConfigService.resolveInitialLanguage.mockReturnValue(savedLang);
 
         component.ngOnInit();
 
+        expect(languageConfigService.resolveInitialLanguage).toHaveBeenCalledWith(savedLang);
         expect(translateService.use).toHaveBeenCalledWith(savedLang);
+    });
+
+    it('should fall back to the browser language when nothing is saved', () => {
+        localStorageService.get.mockReturnValue(null);
+        languageConfigService.resolveInitialLanguage.mockReturnValue('it');
+
+        component.ngOnInit();
+
+        expect(languageConfigService.resolveInitialLanguage).toHaveBeenCalledWith(null);
+        expect(translateService.use).toHaveBeenCalledWith('it');
     });
 
     it('should check token validity on ngAfterViewInit', () => {

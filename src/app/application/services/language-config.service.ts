@@ -11,6 +11,7 @@ import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/d
 import { LanguageMetadata } from 'src/app/domain/models/settings/language-config';
 import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { LocaleService } from 'src/app/application/services/locale.service';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageConfigService implements ILanguageConfig {
@@ -78,6 +79,23 @@ export class LanguageConfigService implements ILanguageConfig {
 
   isLanguageSupported(langCode: string): boolean {
     return this.supportedLanguages().includes(langCode);
+  }
+
+  /**
+   * Resolves the language to use on first render: a saved user preference wins,
+   * otherwise the browser language if supported, otherwise the installation default.
+   */
+  resolveInitialLanguage(savedLang: string | null): string {
+    if (savedLang && this.isLanguageSupported(savedLang)) {
+      return savedLang;
+    }
+
+    const browserLang = LocaleService.detectBrowserLanguage();
+    if (this.isLanguageSupported(browserLang)) {
+      return browserLang;
+    }
+
+    return this.getDefaultLanguage();
   }
 
   isCoreLanguage(langCode: string): boolean {

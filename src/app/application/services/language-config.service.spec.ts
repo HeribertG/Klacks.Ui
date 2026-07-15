@@ -6,9 +6,16 @@ import { LanguageConfigService } from './language-config.service';
 import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { LanguageConfigResponse } from 'src/app/domain/models/settings/language-config';
 
+function mockNavigatorLanguage(value: string) {
+  Object.defineProperty(navigator, 'language', { get: () => value, configurable: true });
+  Object.defineProperty(navigator, 'languages', { get: () => (value ? [value] : []), configurable: true });
+}
+
 describe('LanguageConfigService', () => {
   let service: LanguageConfigService;
   let dataService: { getLanguageConfig: ReturnType<typeof vi.fn> };
+  let originalLanguageGetter: PropertyDescriptor | undefined;
+  let originalLanguagesGetter: PropertyDescriptor | undefined;
 
   function createResponse(overrides: Partial<LanguageConfigResponse> = {}): LanguageConfigResponse {
     return {
@@ -20,6 +27,9 @@ describe('LanguageConfigService', () => {
   }
 
   beforeEach(() => {
+    originalLanguageGetter = Object.getOwnPropertyDescriptor(navigator, 'language');
+    originalLanguagesGetter = Object.getOwnPropertyDescriptor(navigator, 'languages');
+
     dataService = {
       getLanguageConfig: vi.fn(),
     };
@@ -29,6 +39,15 @@ describe('LanguageConfigService', () => {
     });
 
     service = TestBed.inject(LanguageConfigService);
+  });
+
+  afterEach(() => {
+    if (originalLanguageGetter) {
+      Object.defineProperty(navigator, 'language', originalLanguageGetter);
+    }
+    if (originalLanguagesGetter) {
+      Object.defineProperty(navigator, 'languages', originalLanguagesGetter);
+    }
   });
 
   describe('getDefaultLanguage', () => {
@@ -84,6 +103,32 @@ describe('LanguageConfigService', () => {
       expect(service.getFallbackOrder()).toEqual(['en', 'ar']);
       expect(service.getDefaultLanguage()).toBe('ar');
       expect(service.loaded$()).toBe(true);
+    });
+  });
+
+  describe('resolveInitialLanguage', () => {
+    it('should return the saved language when it is supported', () => {
+      mockNavigatorLanguage('fr-FR');
+
+      expect(service.resolveInitialLanguage('it')).toBe('it');
+    });
+
+    it('should ignore an unsupported saved language and fall back to the browser language', () => {
+      mockNavigatorLanguage('fr-FR');
+
+      expect(service.resolveInitialLanguage('xx')).toBe('fr');
+    });
+
+    it('should use the browser language when nothing is saved', () => {
+      mockNavigatorLanguage('it-IT');
+
+      expect(service.resolveInitialLanguage(null)).toBe('it');
+    });
+
+    it('should fall back to the installation default when the browser language is not supported', () => {
+      mockNavigatorLanguage('th-TH');
+
+      expect(service.resolveInitialLanguage(null)).toBe(service.getDefaultLanguage());
     });
   });
 });

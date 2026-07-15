@@ -88,9 +88,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.translateService.setDefaultLang(this.languageConfigService.getDefaultLanguage());
 
     const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    if (savedLang && this.languageConfigService.isLanguageSupported(savedLang)) {
-      this.translateService.use(savedLang);
-    }
+    this.translateService.use(this.languageConfigService.resolveInitialLanguage(savedLang));
 
     this.loadOAuth2Providers();
   }
