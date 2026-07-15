@@ -24,7 +24,7 @@ import { EditorSelection } from '@codemirror/state';
 import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setError, clearError } from 'src/app/infrastructure/scripting/klacks-script-language';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { MacroTypes, MacroTypeLabels } from 'src/app/domain/enums/macro-type.enum';
+import { MacroFunction, MacroFunctionLabels } from 'src/app/domain/enums/macro-function.enum';
 import { MacroCategoryEnum, MacroCategoryLabels } from 'src/app/domain/enums/macro-category.enum';
 import { IMacro, Macro } from 'src/app/domain/models/settings/macro-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
@@ -106,11 +106,12 @@ export class MacroRowComponent implements OnDestroy {
   test = signal('');
   manualContent = signal('');
 
-  macroTypeOptions = Object.values(MacroTypes)
-    .filter((v): v is MacroTypes => typeof v === 'number')
+  macroFunctionOptions = Object.values(MacroFunction)
+    .filter((v): v is MacroFunction => typeof v === 'number')
+    .filter((value) => value !== MacroFunction.StandardAdditive)
     .map((value) => ({
       value,
-      label: MacroTypeLabels[value],
+      label: MacroFunctionLabels[value] ?? '',
     }));
 
   macroCategoryOptions = Object.values(MacroCategoryEnum)
@@ -239,16 +240,7 @@ export class MacroRowComponent implements OnDestroy {
 
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
       () => {
-        const saved = this.data();
-        if (saved) {
-          const model = this.macroModel();
-          saved.name = model.name;
-          saved.type = +model.type;
-          saved.category = +model.category as MacroCategoryEnum;
-          saved.content = this.addImports(this.editorContent());
-          saved.description = this.description;
-        }
-
+        this.commitFormToData();
         this.wasSaved = true;
         this.onChange();
         this.macroManagementService.save();
@@ -260,6 +252,52 @@ export class MacroRowComponent implements OnDestroy {
         }
       }
     );
+  }
+
+  private commitFormToData(): void {
+    const saved = this.data();
+    if (saved) {
+      const model = this.macroModel();
+      saved.name = model.name;
+      saved.type = +model.type;
+      saved.category = +model.category as MacroCategoryEnum;
+      saved.content = this.addImports(this.editorContent());
+      saved.description = this.description;
+    }
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+    const conflict = this.findStandardFunctionConflict();
+    if (conflict) {
+      errors.push(
+        this.translate.instant('setting.macro.function.standard-conflict', {
+          name: conflict.name,
+        })
+      );
+    }
+
+    return errors;
+  }
+
+  private findStandardFunctionConflict(): IMacro | null {
+    const model = this.macroModel();
+    if (+model.type !== MacroFunction.Standard) {
+      return null;
+    }
+
+    const category = +model.category as MacroCategoryEnum;
+    const current = this.data();
+
+    const conflict = this.macroManagementService.macroList().find(
+      (macro) =>
+        macro !== current &&
+        macro.isDirty !== CreateEntriesEnum.delete &&
+        macro.type === MacroFunction.Standard &&
+        macro.category === category
+    );
+
+    return conflict ?? null;
   }
 
   onClickData(): void {
@@ -275,18 +313,22 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   onSave(): void {
-    const d = this.data();
-    if (d) {
-      const model = this.macroModel();
-      d.name = model.name;
-      d.type = +model.type;
-      d.category = +model.category as MacroCategoryEnum;
-      d.content = this.addImports(this.editorContent());
-      d.description = this.description;
+    if (this.getValidationErrors().length > 0) {
+      return;
     }
+
+    this.commitFormToData();
     this.wasSaved = true;
     this.onChange();
     this.macroManagementService.save();
+  }
+
+  onSaveAndClose(modal: { close: () => void }): void {
+    if (this.getValidationErrors().length > 0) {
+      return;
+    }
+
+    modal.close();
   }
 
   onCheckMacro(): void {

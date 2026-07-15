@@ -2,7 +2,8 @@
 
 /**
  * Enum for macro category classification used to link macros to specific absence/shift types.
- * Values 1-6 are exclusive — only one macro per category is allowed at a time.
+ * Any number of macros may share a category; at most one macro per category may carry a
+ * non-Custom function (see MacroFunction) — enforced by a partial unique index in the backend.
  */
 export enum MacroCategoryEnum {
   Unspecified = 0,

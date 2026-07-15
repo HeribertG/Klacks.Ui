@@ -49,7 +49,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     STATES: 'States/',
     GROUPS: 'Groups/',
     LOAD_FILE: 'LoadFile/',
-    MACROS: 'Settings/Macros/',
+    MACROS: 'Macros/Macros/',
     WORKS: 'Works/',
     SHIFTS: 'Shifts/',
     SETTINGS: 'Settings/',

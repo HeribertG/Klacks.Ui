@@ -11,13 +11,15 @@ import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { IMacro } from 'src/app/domain/models/settings/macro-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { MacroTypes } from 'src/app/domain/enums/macro-type.enum';
-import { WritableSignal } from '@angular/core';
+import { MacroFunction } from 'src/app/domain/enums/macro-function.enum';
+import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';
+import { WritableSignal, signal } from '@angular/core';
 
 interface MacroFormModel {
   name: string;
   type: string;
   content: string;
+  category: string;
 }
 
 interface MacroRowComponentPrivate {
@@ -32,12 +34,16 @@ describe('MacroRowComponent', () => {
     compile: ReturnType<typeof vi.fn>;
     run: ReturnType<typeof vi.fn>;
   };
-  let mockMacroManagementService: { save: ReturnType<typeof vi.fn> };
+  let mockMacroManagementService: {
+    save: ReturnType<typeof vi.fn>;
+    macroList: WritableSignal<IMacro[]>;
+  };
 
   const mockMacro: IMacro = {
     id: 'macro-1',
     name: 'Test Macro',
-    type: MacroTypes.ShiftAndEmployments,
+    type: MacroFunction.Custom,
+    category: MacroCategoryEnum.Shift,
     content: 'dim x as integer\nx = 10',
     isDirty: CreateEntriesEnum.undefined,
   } as IMacro;
@@ -59,6 +65,7 @@ describe('MacroRowComponent', () => {
 
     mockMacroManagementService = {
       save: vi.fn(),
+      macroList: signal<IMacro[]>([]),
     };
 
     const translateServiceSpy = {
@@ -121,7 +128,7 @@ describe('MacroRowComponent', () => {
       fixture.componentRef.setInput('data', {
         ...mockMacro,
         name: 'My Macro',
-        type: MacroTypes.WorkRules,
+        type: MacroFunction.Standard,
         content: 'dim y as integer',
       } as IMacro);
       fixture.detectChanges();
@@ -129,7 +136,7 @@ describe('MacroRowComponent', () => {
       // Assert
       const model = (component as unknown as MacroRowComponentPrivate).macroModel();
       expect(model.name).toBe('My Macro');
-      expect(model.type).toBe(String(MacroTypes.WorkRules));
+      expect(model.type).toBe(String(MacroFunction.Standard));
       expect(component.editorContent()).toBe('dim y as integer');
     });
   });
@@ -216,8 +223,9 @@ describe('MacroRowComponent', () => {
       fixture.detectChanges();
       (component as unknown as MacroRowComponentPrivate).macroModel.set({
         name: 'Updated Name',
-        type: String(MacroTypes.WorkRules),
+        type: String(MacroFunction.Standard),
         content: '',
+        category: String(MacroCategoryEnum.Shift),
       });
       component.onEditorContentChange('new code');
 
@@ -226,7 +234,7 @@ describe('MacroRowComponent', () => {
 
       // Assert
       expect(component.data().name).toBe('Updated Name');
-      expect(component.data().type).toBe(MacroTypes.WorkRules);
+      expect(component.data().type).toBe(MacroFunction.Standard);
       expect(component.data().content).toContain('new code');
     });
 
@@ -360,12 +368,175 @@ describe('MacroRowComponent', () => {
     });
   });
 
-  describe('macroTypeOptions', () => {
-    it('should contain macro type options', () => {
+  describe('macroFunctionOptions', () => {
+    it('should contain macro function options', () => {
       // Assert
-      expect(component.macroTypeOptions.length).toBeGreaterThan(0);
-      expect(component.macroTypeOptions[0]).toHaveProperty('value');
-      expect(component.macroTypeOptions[0]).toHaveProperty('label');
+      expect(component.macroFunctionOptions.length).toBeGreaterThan(0);
+      expect(component.macroFunctionOptions[0]).toHaveProperty('value');
+      expect(component.macroFunctionOptions[0]).toHaveProperty('label');
+    });
+
+    it('should not offer StandardAdditive', () => {
+      // Assert
+      const values = component.macroFunctionOptions.map((option) => option.value);
+      expect(values).not.toContain(MacroFunction.StandardAdditive);
+    });
+
+    it('should offer Custom and Standard', () => {
+      // Assert
+      const values = component.macroFunctionOptions.map((option) => option.value);
+      expect(values).toContain(MacroFunction.Custom);
+      expect(values).toContain(MacroFunction.Standard);
+    });
+  });
+
+  describe('getValidationErrors - Standard uniqueness per category', () => {
+    it('should return no errors when function is Custom', () => {
+      // Arrange
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Custom),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+
+      // Assert
+      expect(component.getValidationErrors()).toEqual([]);
+    });
+
+    it('should return no errors when no other macro in the category is Standard', () => {
+      // Arrange
+      mockMacroManagementService.macroList.set([{ ...mockMacro }]);
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Standard),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+
+      // Assert
+      expect(component.getValidationErrors()).toEqual([]);
+    });
+
+    it('should return an error naming the existing Standard macro of the same category', () => {
+      // Arrange
+      const existingStandard: IMacro = {
+        ...mockMacro,
+        id: 'macro-2',
+        name: 'Existing Standard Macro',
+        type: MacroFunction.Standard,
+        category: MacroCategoryEnum.Shift,
+      };
+      mockMacroManagementService.macroList.set([existingStandard]);
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Standard),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+
+      // Act
+      const errors = component.getValidationErrors();
+
+      // Assert
+      expect(errors.length).toBe(1);
+    });
+
+    it('should ignore the macro itself when checking for conflicts', () => {
+      // Arrange: the currently edited macro is already Standard for its category
+      const dataAsStandard: IMacro = { ...mockMacro, type: MacroFunction.Standard };
+      fixture.componentRef.setInput('data', dataAsStandard);
+      mockMacroManagementService.macroList.set([dataAsStandard]);
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Standard),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+
+      // Assert
+      expect(component.getValidationErrors()).toEqual([]);
+    });
+
+    it('should ignore macros marked for deletion', () => {
+      // Arrange
+      const deletedStandard: IMacro = {
+        ...mockMacro,
+        id: 'macro-3',
+        type: MacroFunction.Standard,
+        category: MacroCategoryEnum.Shift,
+        isDirty: CreateEntriesEnum.delete,
+      };
+      mockMacroManagementService.macroList.set([deletedStandard]);
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Standard),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+
+      // Assert
+      expect(component.getValidationErrors()).toEqual([]);
+    });
+
+    it('should block onSave when a conflict exists', () => {
+      // Arrange
+      const existingStandard: IMacro = {
+        ...mockMacro,
+        id: 'macro-2',
+        name: 'Existing Standard Macro',
+        type: MacroFunction.Standard,
+        category: MacroCategoryEnum.Shift,
+      };
+      mockMacroManagementService.macroList.set([existingStandard]);
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Standard),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+
+      // Act
+      component.onSave();
+
+      // Assert
+      expect(mockMacroManagementService.save).not.toHaveBeenCalled();
+    });
+
+    it('should block onSaveAndClose when a conflict exists', () => {
+      // Arrange
+      const existingStandard: IMacro = {
+        ...mockMacro,
+        id: 'macro-2',
+        name: 'Existing Standard Macro',
+        type: MacroFunction.Standard,
+        category: MacroCategoryEnum.Shift,
+      };
+      mockMacroManagementService.macroList.set([existingStandard]);
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
+        name: 'Test Macro',
+        type: String(MacroFunction.Standard),
+        content: '',
+        category: String(MacroCategoryEnum.Shift),
+      });
+      const closeSpy = vi.fn();
+
+      // Act
+      component.onSaveAndClose({ close: closeSpy });
+
+      // Assert
+      expect(closeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should allow onSaveAndClose when there is no conflict', () => {
+      // Arrange
+      const closeSpy = vi.fn();
+
+      // Act
+      component.onSaveAndClose({ close: closeSpy });
+
+      // Assert
+      expect(closeSpy).toHaveBeenCalled();
     });
   });
 

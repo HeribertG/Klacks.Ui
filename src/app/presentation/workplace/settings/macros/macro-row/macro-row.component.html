@@ -45,9 +45,9 @@
         id="macro-modal-type-section"
         style="margin-inline-start: 30px; width: 200px"
       >
-        <label for="type">{{ 'setting.macro.type-modal' | translate }}</label>
+        <label for="type">{{ 'setting.macro.function-modal' | translate }}</label>
         <select class="form-select" [formField]="macroForm.type" id="type">
-          @for (option of macroTypeOptions; track option.value) {
+          @for (option of macroFunctionOptions; track option.value) {
           <option [value]="option.value">
             {{ option.label | translate }}
           </option>
@@ -186,6 +186,19 @@
         [innerHTML]="manualContent()"
       ></div>
     </div>
+    @if (getValidationErrors().length > 0) {
+    <div id="macro-modal-validation-row" class="row-line-modal-inline">
+      <div class="validation-errors-section">
+        <div class="alert alert-danger">
+          <ul>
+            @for (error of getValidationErrors(); track error) {
+            <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+    }
   </div>
 
   <div id="macro-modal-footer" class="modal-footer">
@@ -200,6 +213,7 @@
       id="macro-modal-save-btn"
       type="button"
       class="btn save-btn"
+      [disabled]="getValidationErrors().length > 0"
       (click)="onSave()"
     >
       {{ 'save' | translate }}
@@ -208,7 +222,8 @@
       id="macro-modal-save-close-btn"
       type="button"
       class="btn save-btn"
-      (click)="modal.close()"
+      [disabled]="getValidationErrors().length > 0"
+      (click)="onSaveAndClose(modal)"
     >
       {{ 'setting.macro.save-close-btn' | translate }}
     </button>
