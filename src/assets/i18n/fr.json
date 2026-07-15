@@ -840,6 +840,8 @@
   "schedule.error-list.overtime": "Durée de travail journalière {{actualHours}}h dépasse le maximum de {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} jours de travail consécutifs (max. {{maxDays}})",
   "schedule.error-list.weekly-overtime": "Durée de travail hebdomadaire {{actualHours}}h dépasse le maximum de {{maxHours}}h",
+  "schedule.error-list.period-cap": "Heures de la période {{actualHours}}h dépassent le plafond de {{capHours}}h ({{period}})",
+  "schedule.error-list.rolling-average": "Durée de travail hebdomadaire moyenne {{actualHours}}h dépasse {{capHours}}h sur une fenêtre de {{windowWeeks}} semaines",
   "schedule.error-list.min-rest-days": "Seulement {{actualDays}} jours de repos par semaine (min. {{minDays}})",
   "schedule.error-list.travel-time-warning": "Temps de trajet serré : écart {{gapMinutes}} min, temps de trajet env. {{travelMinutes}} min",
   "schedule.error-list.travel-time-error": "Temps de trajet insuffisant : écart {{gapMinutes}} min, temps de trajet env. {{travelMinutes}} min",
