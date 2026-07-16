@@ -2,13 +2,13 @@
 
 <h3>Introduction</h3>
 <p>
-The Macro Editor allows you to write scripts that serve as calculation basis
-for services, employments etc.
+The Macro Editor allows you to write scripts that serve as the calculation basis
+for shifts, employments etc.
 </p>
 
 <p><strong>Application examples:</strong></p>
 <ul>
-  <li>Exact calculation of hours for vacation or military service based on employment level</li>
+  <li>Exact calculation of hours for vacation or military service according to employment level</li>
   <li>Calculation of surcharges for night work, weekends and holidays</li>
   <li>Flexible adaptation to new requirements</li>
 </ul>
@@ -16,6 +16,79 @@ for services, employments etc.
 <p>
 <em>Note: The script interpreter runs in a secure sandbox environment without access
 to the file system or network. It is not possible to execute malicious code.</em>
+</p>
+
+<hr>
+
+<h3>Function and Category</h3>
+<p>
+In addition to name and script content, every macro in the macro list has two further
+properties that are set via dropdowns in the editor: <strong>Category</strong> and
+<strong>Function</strong>. Both are pure metadata – they exist outside the script and
+do not change its calculation, but control how Klacks automatically finds and assigns
+the appropriate macro.
+</p>
+
+<h4>Category</h4>
+<p>The category assigns a macro to a functional area of application:</p>
+<table>
+  <tr><th>Category</th><th>Usage</th></tr>
+  <tr><td>Unspecified</td><td>No specific area of application (default for new macros)</td></tr>
+  <tr><td>Shift</td><td>Surcharge calculation for regular shifts (night, weekend, holiday surcharge)</td></tr>
+  <tr><td>Vacation</td><td>Hour calculation for vacation</td></tr>
+  <tr><td>Illness</td><td>Hour calculation for illness</td></tr>
+  <tr><td>Accident</td><td>Hour calculation for accident</td></tr>
+  <tr><td>Workshop (paid)</td><td>Paid workshop/training time</td></tr>
+  <tr><td>Workshop (unpaid)</td><td>Unpaid workshop/training time</td></tr>
+</table>
+<p>
+The category <strong>Shift</strong> has a special role: newly created shifts automatically
+get the Standard macro of this category assigned (see "Function" below). Existing shifts
+are never changed retroactively.
+</p>
+
+<h4>Function: Custom, Standard, Standard (additive)</h4>
+<p>The function classifies the role of a macro within its category:</p>
+<table>
+  <tr><th>Function</th><th>Meaning</th></tr>
+  <tr><td>Custom</td><td>Free macro without a special role. Any number possible per category.</td></tr>
+  <tr><td>Standard</td><td>The standard macro of this category – automatically assigned to new shifts. At most ONE macro per category may carry this function.</td></tr>
+  <tr><td>Standard (additive)</td><td>Alternative standard macro with additive surcharge logic (see below). Likewise at most one per category, possible in addition to the "Standard" macro.</td></tr>
+</table>
+
+<p>
+<strong>Important:</strong> The function alone calculates nothing – it is a label. Whether
+surcharges are calculated as "highest-wins" (only the highest applicable rate counts) or
+additively (all applicable rates are summed up) is decided by the <em>script itself</em>.
+The two built-in category "Shift" macros show the difference on the same basic structure:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (Function: Standard) – determines the <em>highest</em>
+  applicable surcharge per time segment (night/WE1/WE2/WE3/holiday) and uses only this one.</li>
+  <li><strong>"AllShiftAdditive"</strong> (Function: Standard (additive)) – calculates night,
+  weekend and holiday surcharge independently of each other and sums them.</li>
+</ul>
+<p>
+Which of the two is automatically assigned when a new shift is created is controlled by an
+installation-wide setting ("additive" or "highest rate wins"). The macro can subsequently
+be switched manually for each shift at any time – a mixed operation is therefore possible.
+</p>
+<p>
+<em>Uniqueness: If you try to save a second macro of the same category also as "Standard"
+or "Standard (additive)", the editor blocks saving and names the macro already assigned.
+Set that macro's function to "Custom" first.</em>
+</p>
+
+<p>
+<strong>Manually editing "AllShift"/"AllShiftAdditive" is discouraged.</strong>
+These two macros are the mechanism through which country- and industry-specific adjustments
+are applied automatically: as long as you leave them unchanged, Klacks keeps them
+automatically in sync with the rules appropriate for your country and industry. If you edit
+either one manually, it is from then on considered customer-owned – future automatic
+country/industry updates for that macro are then <em>no longer</em> applied silently, but
+fail with a conflict until you resolve the discrepancy manually. If you need custom surcharge
+logic, create a new macro with function "Custom" instead and assign it specifically to the
+affected shifts.
 </p>
 
 <hr>
@@ -35,18 +108,29 @@ IMPORT amount, discount
 <table>
   <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>Work hours (from Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>Start time as decimal hours (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>End time as decimal hours (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Start time, e.g. "08:30" – convertible to decimal hours with <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>End time, e.g. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Weekday ISO-8601 (1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>Is current day an official holiday</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>Is next day an official holiday</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Night surcharge rate from Contract (e.g. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Holiday surcharge rate from Contract (e.g. 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Saturday surcharge rate from Contract</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Sunday surcharge rate from Contract</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Surcharge rate for configurable weekend day 1 (e.g. Saturday)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Surcharge rate for configurable weekend day 2 (e.g. Sunday)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Surcharge rate for configurable weekend day 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Start of the night window from Contract/Settings, e.g. "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>End of the night window, e.g. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Guaranteed monthly hours from Contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Full-time hours from Contract</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>ISO weekday of the 1st configured weekend day (0 = not configured)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>ISO weekday of the 2nd configured weekend day</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>ISO weekday of the 3rd configured weekend day</td></tr>
 </table>
+
+<p><em>Note: the former variables <code>sarate</code>/<code>sorate</code> (fixed Saturday/Sunday
+rate) have been replaced by the three country-neutral <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+which together with <code>weekendday1-3</code> can represent arbitrary weekend days (e.g. Friday/Saturday
+instead of Saturday/Sunday).</em></p>
 
 <hr>
 
@@ -234,11 +318,41 @@ a &= "!"    ' String concatenation
 
 <hr>
 
-<h3>Return Value</h3>
+<h3>Return Value (OUTPUT)</h3>
 
 <pre>
-OUTPUT type, value          ' Return to Klacks (type corresponds to MacroType)
+OUTPUT typ, wert
 </pre>
+
+<p>
+<code>typ</code> and <code>wert</code> are two comma-separated expressions; both are
+optional (default <code>0</code> or <code>""</code> respectively, if omitted). A macro may
+contain any number of <code>OUTPUT</code> lines – each produces its own return value.
+Klacks only evaluates the following types:
+</p>
+
+<table>
+  <tr><th>Type</th><th>Meaning</th></tr>
+  <tr><td>1</td><td>Main result (hours or total amount) – is applied even at value 0</td></tr>
+  <tr><td>10</td><td>Night surcharge</td></tr>
+  <tr><td>11</td><td>Surcharge for weekend day 1 (e.g. Saturday)</td></tr>
+  <tr><td>12</td><td>Surcharge for weekend day 2 (e.g. Sunday)</td></tr>
+  <tr><td>13</td><td>Surcharge for weekend day 3 (third configurable weekend day)</td></tr>
+  <tr><td>14</td><td>Holiday surcharge</td></tr>
+</table>
+
+<p>
+Surcharge lines (type 10-14) with value <code>0</code> are ignored – a macro therefore does
+not need to output a separate line for every surcharge type, only for surcharges that
+actually apply. Values that cannot be interpreted as a number are skipped.
+</p>
+
+<p>
+<em>When saving, the macro is always compiled and executed once on a trial basis with
+neutral test values. Syntax and runtime errors (e.g. unbalanced parentheses or a dangling
+expression) are reliably reported instead of silently resulting in a non-functional
+macro.</em>
+</p>
 
 <hr>
 
@@ -263,69 +377,172 @@ DEBUGPRINT "Calculation running..."
 
 <hr>
 
-<h3>Example: Surcharge Calculation</h3>
-<p>Calculates surcharges for night, holiday and weekend with proper handling
-of shifts crossing midnight (segment splitting).</p>
+<h3>Example: Surcharge Calculation ("AllShift")</h3>
+<p>
+The built-in standard macro of the category "Shift". Calculates surcharges for night,
+holiday and the three configurable weekend days with correct handling of shifts crossing
+midnight (segment splitting) and applies the <em>highest</em> applicable rate per segment
+(highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Calculate night hours (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' Sat = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Sun = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Highest rate for night hours
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Highest rate for day hours
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Calculate next day weekday (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Shift crosses midnight - 2 segments
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Normal day shift
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>Explanation</h4>
 <ul>
-  <li><strong>Segment Splitting:</strong> Shifts crossing midnight (e.g. 22:00-06:00) are split into two segments</li>
-  <li><strong>CalcSegment:</strong> Calculates the surcharge for a segment considering night, holiday and weekend rates</li>
-  <li><strong>Separate Sat/Sun rates:</strong> sarate and sorate allow different surcharges for Saturday and Sunday</li>
-  <li><strong>Highest Rate:</strong> Always uses the highest applicable surcharge</li>
-  <li><strong>holidaynextday:</strong> Considers if the next day is a holiday (important for night shifts)</li>
+  <li><strong>Segment splitting:</strong> For shifts crossing midnight (e.g. 22:00-06:00), the shift is split into two segments (until midnight / from midnight), each with its own weekday/holiday flag</li>
+  <li><strong>SegBonusForType:</strong> Calculates the surcharge for a segment and a specific surcharge type (10-14) taking night, holiday and weekend surcharges into account</li>
+  <li><strong>WE1/WE2/WE3 instead of Sat/Sun:</strong> <code>weekendday1-3</code> make the weekend days configurable (not every country has Saturday/Sunday as the weekend)</li>
+  <li><strong>Highest surcharge per segment:</strong> <code>NRate</code>/<code>DRate</code> each determine the highest applicable rate for night or day hours respectively – highest-wins, no stacking</li>
+  <li><strong>HolidayNextDay:</strong> Takes into account whether the next day is a holiday (important for night shifts crossing midnight)</li>
+  <li><strong>Multiple OUTPUT lines:</strong> line 1 provides the total sum, lines 10-14 provide the individual surcharge amounts (see the "Return Value" section)</li>
 </ul>
+
+<h4>The additive variant ("AllShiftAdditive")</h4>
+<p>
+The Standard (additive) macro of the same category has identical <code>IMPORT</code> lines
+and the same overall structure – only <code>SegBonusForType</code> differs: instead of the
+highest rate, it is calculated <em>independently</em> for each surcharge type whether it
+applies, and all applicable amounts are summed up at the end (no more highest-wins):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+If, for example, a night shift additionally falls on a holiday, with "AllShift" it only
+receives the higher of the two rates, whereas with "AllShiftAdditive" it receives both the
+night <em>and</em> holiday surcharge together. The rest of the script (segment splitting,
+summation, <code>OUTPUT</code> lines) is identical to "AllShift" above.
+</p>
