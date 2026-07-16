@@ -841,6 +841,8 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} jours de travail consécutifs (max. {{maxDays}})",
   "schedule.error-list.weekly-overtime": "Durée de travail hebdomadaire {{actualHours}}h dépasse le maximum de {{maxHours}}h",
   "schedule.error-list.period-cap": "Heures de la période {{actualHours}}h dépassent le plafond de {{capHours}}h ({{period}})",
+  "schedule.error-list.period-cap-overtime": "Les heures supplémentaires {{actualHours}}h dépassent le plafond d'heures supplémentaires de {{capHours}}h ({{period}})",
+  "schedule.error-list.period-cap-overtime-window": "Les heures supplémentaires {{actualHours}}h dépassent le plafond d'heures supplémentaires de {{capHours}}h sur les {{windowWeeks}} dernières semaines",
   "schedule.error-list.rolling-average": "Durée de travail hebdomadaire moyenne {{actualHours}}h dépasse {{capHours}}h sur une fenêtre de {{windowWeeks}} semaines",
   "schedule.error-list.rest-day-rotation": "Rotation des jours de repos non respectée : seulement {{actualFree}} jours libres ({{dayOfWeek}}) sur {{windowWeeks}} semaines (min. {{minFree}})",
   "schedule.error-list.counter-rule": "Règle de comptage atteinte : {{count}}× {{event}} par {{period}} (seuil {{threshold}})",

@@ -842,6 +842,8 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} aufeinanderfolgende Arbeitstage (max. {{maxDays}})",
   "schedule.error-list.weekly-overtime": "Wochenarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
   "schedule.error-list.period-cap": "Periodenstunden {{actualHours}}h überschreiten die Obergrenze von {{capHours}}h ({{period}})",
+  "schedule.error-list.period-cap-overtime": "Überstunden {{actualHours}}h überschreiten die Überstunden-Obergrenze von {{capHours}}h ({{period}})",
+  "schedule.error-list.period-cap-overtime-window": "Überstunden {{actualHours}}h überschreiten die Überstunden-Obergrenze von {{capHours}}h in den letzten {{windowWeeks}} Wochen",
   "schedule.error-list.rolling-average": "Durchschnittliche Wochenarbeitszeit {{actualHours}}h überschreitet {{capHours}}h im {{windowWeeks}}-Wochen-Schnitt",
   "schedule.error-list.rest-day-rotation": "Ruhetags-Rotation verletzt: nur {{actualFree}} freie Tage ({{dayOfWeek}}) in {{windowWeeks}} Wochen (min. {{minFree}})",
   "schedule.error-list.counter-rule": "Zähler-Regel erreicht: {{count}}× {{event}} pro {{period}} (Schwelle {{threshold}})",
