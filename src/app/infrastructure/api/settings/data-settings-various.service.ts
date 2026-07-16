@@ -20,9 +20,7 @@ export class DataSettingsVariousService {
   private httpClient = inject(HttpClient);
 
   readSetting(value: string): Observable<ISetting> {
-    return this.httpClient
-      .get<ISetting>(`${environment.baseUrl}GeneralSettings/GetSetting/` + value)
-      .pipe(retry(3));
+    return this.httpClient.get<ISetting>(`${environment.baseUrl}GeneralSettings/GetSetting/` + value);
   }
 
   updateSetting(value: ISetting): Observable<ISetting> {
