@@ -61,7 +61,9 @@ describe('AudioCaptureService', () => {
   describe('recorded blob access', () => {
     const WAV_HEADER_BYTES = 44;
     const BYTES_PER_SAMPLE = 2;
-    type RecordingAccess = { recordedPcm: Int16Array[] };
+    interface RecordingAccess {
+      recordedPcm: Int16Array[];
+    }
 
     const seedRecording = (samples: number): void => {
       (service as unknown as RecordingAccess).recordedPcm = [new Int16Array(samples)];

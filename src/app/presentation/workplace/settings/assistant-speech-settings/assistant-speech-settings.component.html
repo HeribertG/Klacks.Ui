@@ -82,10 +82,13 @@
           </div>
         } @else if (isCustomStt()) {
           <div class="form-group firstColumn">
-            <label>{{ "setting.speech.stt-custom-server" | translate }}</label>
+            <label for="sttCustomServerTest">{{
+              "setting.speech.stt-custom-server" | translate
+            }}</label>
             <div class="input-with-button">
               <button
                 type="button"
+                id="sttCustomServerTest"
                 class="btn btn-sm btn-outline-secondary"
                 (click)="testSttConnection()"
               >
