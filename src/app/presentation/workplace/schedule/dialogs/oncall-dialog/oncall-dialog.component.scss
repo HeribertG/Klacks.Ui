@@ -1,0 +1,15 @@
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+.form-group {
+  &.time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    .duration-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+  }
+}

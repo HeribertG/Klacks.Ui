@@ -18,7 +18,7 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
-
+
 import { DomainMessages } from 'src/app/domain/constants/messages';
 export interface ReportFetchParams {
   groupId?: string;
@@ -644,6 +644,8 @@ export class ReportDataProviderService {
       case WorkChangeType.CorrectionStart:
       case WorkChangeType.CorrectionEnd:
         return 'workChange.abbr.correction';
+      case WorkChangeType.OnCallPresence: return 'workChange.abbr.oncallPresence';
+      case WorkChangeType.OnCallStandby: return 'workChange.abbr.oncallStandby';
       default:
         return entry.replaceClientId
           ? 'workChange.abbr.replacement'

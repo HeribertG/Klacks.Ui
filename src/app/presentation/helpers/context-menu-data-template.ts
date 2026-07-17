@@ -185,6 +185,18 @@ export class MenuDataTemplate {
     ];
   }
 
+  public static onCall(): MenuItem[] {
+    return [
+      new MenuItem(
+        'onCall',
+        DomainMessages.ON_CALL,
+        false,
+        '',
+        'fa-solid fa-phone-volume'
+      ),
+    ];
+  }
+
   public static replacement(): MenuItem[] {
     const value: MenuItem[] = [];
     value.push(

@@ -56,6 +56,8 @@ export enum WorkChangeType {
   Briefing = 7,
   Debriefing = 8,
   ReplacementWithin = 9,
+  OnCallPresence = 10,
+  OnCallStandby = 11,
 }
 
 export interface WorkTimeContext {

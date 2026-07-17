@@ -1,0 +1,107 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #onCallModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "dialog.oncall.title" | translate }}</div>
+    <span class="filler"></span>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="onCancel()"
+    >
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+      >&times;</span>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group">
+      <label>{{ "dialog.oncall.type" | translate }}</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="onCallType"
+            [checked]="onCallType() === WorkChangeType.OnCallPresence"
+            (change)="onTypeChange(WorkChangeType.OnCallPresence)"
+          />
+          {{ "dialog.oncall.presence" | translate }}
+        </label>
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="onCallType"
+            [checked]="onCallType() === WorkChangeType.OnCallStandby"
+            (change)="onTypeChange(WorkChangeType.OnCallStandby)"
+          />
+          {{ "dialog.oncall.standby" | translate }}
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group time-row">
+      <app-time-input
+        [label]="'dialog.oncall.startTime' | translate"
+        [value]="startTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="wcStartHours"
+        minutesId="wcStartMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.oncall.endTime' | translate"
+        [value]="endTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="wcEndHours"
+        minutesId="wcEndMinutes"
+      ></app-time-input>
+
+      <div class="duration-wrapper">
+        <app-time-input
+          [label]="'dialog.oncall.duration' | translate"
+          [value]="duration"
+          [disabled]="true"
+          [forDuration]="true"
+          hoursId="wcDurationHours"
+          minutesId="wcDurationMinutes"
+        ></app-time-input>
+      </div>
+    </div>
+
+    @if (validation.errorKey) {
+      <div class="error-message">{{ validation.errorKey | translate }}</div>
+    }
+
+    <div class="form-group">
+      <label for="description">{{
+        "dialog.oncall.description" | translate
+      }}</label>
+      <textarea
+        id="description"
+        [formField]="onCallForm.description"
+        class="form-control"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </span>
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave()"
+      [disabled]="!isValid()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
