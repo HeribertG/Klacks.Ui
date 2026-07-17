@@ -846,6 +846,8 @@
   "schedule.error-list.rolling-average": "Orario di lavoro settimanale medio {{actualHours}}h supera {{capHours}}h su una finestra di {{windowWeeks}} settimane",
   "schedule.error-list.rest-day-rotation": "Rotazione dei giorni di riposo violata: solo {{actualFree}} giorni liberi ({{dayOfWeek}}) in {{windowWeeks}} settimane (min. {{minFree}})",
   "schedule.error-list.counter-rule": "Regola di conteggio raggiunta: {{count}}× {{event}} per {{period}} (soglia {{threshold}})",
+  "schedule.error-list.compensatory-rest-due": "Riposo compensativo dovuto: {{shortfallHours}} h di riduzione del {{triggerDate}}, da compensare entro il {{dueDate}}",
+  "schedule.error-list.compensatory-rest-overdue": "Riposo compensativo SCADUTO: {{shortfallHours}} h di riduzione del {{triggerDate}}, era dovuto entro il {{dueDate}}",
   "counter-event.nightshift": "turno notturno",
   "counter-event.workeddayinweek": "giorno lavorato nella settimana",
   "counter-event.shiftexceedinghours": "turno troppo lungo",
