@@ -72,11 +72,38 @@ describe('AuthService', () => {
         expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(mockToken.token);
     });
 
+    const logoutUrl = 'https://localhost:5001/api/backend/Accounts/Logout';
+
     it('should remove token on logout', () => {
         // Setup a dummy token
         localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
 
         service.logOut();
+
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+
+        const req = httpMock.expectOne(logoutUrl);
+        expect(req.request.method).toBe('POST');
+        req.flush(null);
+    });
+
+    it('should call the server-side logout endpoint before clearing local tokens', () => {
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+
+        service.logOut();
+
+        httpMock.expectOne(logoutUrl).flush(null);
+    });
+
+    it('should still clear local tokens when the server-side logout call fails', () => {
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+
+        service.logOut();
+
+        httpMock.expectOne(logoutUrl).flush('Unauthorized', {
+            status: 401,
+            statusText: 'Unauthorized',
+        });
 
         expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
     });
@@ -167,6 +194,7 @@ describe('AuthService', () => {
         httpMock.expectOne('https://localhost:5001/api/backend/Dashboard/GroupTree').flush({ rootId: null, nodes: [] });
 
         service.logOut();
+        httpMock.expectOne(logoutUrl).flush(null);
 
         dataDashboardService.getClientsOverviewData().subscribe();
         httpMock.expectOne('https://localhost:5001/api/backend/Dashboard/GroupTree').flush({ rootId: null, nodes: [] });

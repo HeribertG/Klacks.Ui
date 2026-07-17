@@ -38,6 +38,7 @@ import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-c
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { addDays } from 'src/app/shared/helpers/date.helper';
+import { sanitizeCssColor } from 'src/app/shared/helpers/color.helper';
 import { ScheduleDataService } from './schedule-data.service';
 
 export interface ContextMenuContext {
@@ -313,7 +314,7 @@ export class ScheduleContextMenuService {
   }
 
   private getAbsenceSvgIcon(color: string): string {
-    const fillColor = color || 'transparent';
+    const fillColor = sanitizeCssColor(color);
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 18" width="17" height="18"><rect width="17" height="18" fill="${fillColor}"/></svg>`;
   }
 

@@ -53,4 +53,13 @@ export class DataAuthService {
 
     return this.refreshInFlight$;
   }
+
+  /**
+   * Invalidates all server-side refresh tokens of the current user. Requires a
+   * still-valid access token (Authorization header set by the auth interceptor);
+   * callers must not block client-side logout on the outcome of this call.
+   */
+  logout(): Observable<void> {
+    return this.httpClient.post<void>(`${environment.baseUrl}Accounts/Logout`, {});
+  }
 }

@@ -71,7 +71,17 @@ export class AuthService {
       });
   }
 
+  /**
+   * Logs the user out. Invalidates the refresh token(s) on the server first (fire-and-forget,
+   * so a failure - e.g. an already-expired access token - never blocks the client-side logout),
+   * then clears all locally stored session state.
+   */
   logOut() {
+    this.dataAuthService.logout().subscribe({
+      next: () => undefined,
+      error: () => undefined,
+    });
+
     this.removeToken();
     this.removeStateValue();
     this.dataLoadFileService.clearAllImages();
