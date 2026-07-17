@@ -846,6 +846,7 @@
   "schedule.error-list.rolling-average": "Durée de travail hebdomadaire moyenne {{actualHours}}h dépasse {{capHours}}h sur une fenêtre de {{windowWeeks}} semaines",
   "schedule.error-list.rest-day-rotation": "Rotation des jours de repos non respectée : seulement {{actualFree}} jours libres ({{dayOfWeek}}) sur {{windowWeeks}} semaines (min. {{minFree}})",
   "schedule.error-list.counter-rule": "Règle de comptage atteinte : {{count}}× {{event}} par {{period}} (seuil {{threshold}})",
+  "schedule.error-list.restricted-time-window": "Fenêtre horaire interdite non respectée : le travail entre {{dailyStart}} et {{dailyEnd}} n'est pas autorisé du {{seasonFrom}} au {{seasonTo}} ({{groupTag}})",
   "schedule.error-list.compensatory-rest-due": "Repos compensateur dû : {{shortfallHours}} h de réduction du {{triggerDate}}, à compenser avant le {{dueDate}}",
   "schedule.error-list.compensatory-rest-overdue": "Repos compensateur EN RETARD : {{shortfallHours}} h de réduction du {{triggerDate}}, échéance dépassée le {{dueDate}}",
   "counter-event.nightshift": "service de nuit",
