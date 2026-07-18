@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Column header for the LLM sync log card: Date, Provider, New, Failed, Deactivated.
+ * Column header for the LLM sync log card: Date, Provider, New, Failed, Removed.
  */
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
