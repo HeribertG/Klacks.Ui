@@ -1,0 +1,133 @@
+<div id="active-industries-settings-container" class="container-dashboard">
+  <div id="active-industries-settings-header" class="container-header">
+    {{ "setting.activeIndustries.headline" | translate }}
+  </div>
+
+  <div id="active-industries-settings-line" class="container-line"></div>
+
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          id="active-industries-settings-tab-settings"
+          class="nav-link"
+          [class.active]="activeTab() === 'settings'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'settings'"
+          tabindex="0"
+          (click)="activeTab.set('settings')"
+          (keydown.enter)="activeTab.set('settings')"
+        >
+          {{ "setting.tab.settings" | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="active-industries-settings-tab-manual"
+          class="nav-link"
+          [class.active]="activeTab() === 'manual'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'manual'"
+          tabindex="0"
+          (click)="activeTab.set('manual')"
+          (keydown.enter)="activeTab.set('manual')"
+        >
+          {{ "setting.tab.manual" | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="standard-tab-body">
+  @if (activeTab() === 'settings') {
+  @if (isDataLoaded) {
+    <form id="active-industries-settings-form">
+      <div id="active-industries-hint-row" class="row-line-single">
+        <p class="hint-text">
+          {{ "setting.activeIndustries.hint" | translate }}
+        </p>
+      </div>
+
+      <div id="active-industries-homecare-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="industriesForm.homecare"
+              aria-label="aiHomecare"
+              id="aiHomecare"
+            />
+            {{ "setting.activeIndustries.homecare" | translate }}
+          </label>
+        </div>
+      </div>
+      <div id="active-industries-healthcare-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="industriesForm.healthcare"
+              aria-label="aiHealthcare"
+              id="aiHealthcare"
+            />
+            {{ "setting.activeIndustries.healthcare" | translate }}
+          </label>
+        </div>
+      </div>
+      <div id="active-industries-security-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="industriesForm.security"
+              aria-label="aiSecurity"
+              id="aiSecurity"
+            />
+            {{ "setting.activeIndustries.security" | translate }}
+          </label>
+        </div>
+      </div>
+      <div id="active-industries-facility-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="industriesForm.facility"
+              aria-label="aiFacility"
+              id="aiFacility"
+            />
+            {{ "setting.activeIndustries.facility" | translate }}
+          </label>
+        </div>
+      </div>
+      <div id="active-industries-logistics-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="industriesForm.logistics"
+              aria-label="aiLogistics"
+              id="aiLogistics"
+            />
+            {{ "setting.activeIndustries.logistics" | translate }}
+          </label>
+        </div>
+      </div>
+
+      @if (!hasSelection()) {
+        <div id="active-industries-validation-row" class="row-line-single">
+          <small id="active-industries-validation-error" class="validation-error">
+            {{ "setting.activeIndustries.minimumOneRequired" | translate }}
+          </small>
+        </div>
+      }
+
+      <div class="bottom-border-space"></div>
+    </form>
+  }
+  }
+  @if (activeTab() === 'manual') {
+    <div id="active-industries-settings-manual" class="manual-content" [innerHTML]="manualContent()"></div>
+  }
+  </div>
+</div>

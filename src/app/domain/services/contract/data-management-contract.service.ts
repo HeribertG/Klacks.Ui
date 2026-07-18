@@ -129,10 +129,7 @@ export class DataManagementContractService {
 
   private async loadSchedulingRules(): Promise<void> {
     try {
-      if (!this.schedulingRuleService.isRead()) {
-        await this.schedulingRuleService.readRules();
-      }
-      this.availableSchedulingRules = this.schedulingRuleService.rules;
+      this.availableSchedulingRules = await this.schedulingRuleService.readSelectableRules();
     } catch (error) {
       console.error('Error loading scheduling rules:', error);
       this.availableSchedulingRules = [];

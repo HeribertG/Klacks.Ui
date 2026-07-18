@@ -15,9 +15,10 @@ import { retry } from 'rxjs/operators';
 export class DataQualificationService {
   private httpClient = inject(HttpClient);
 
-  getQualificationList() {
+  getQualificationList(activeIndustriesOnly = false) {
+    const url = `${environment.baseUrl}Qualification/GetQualificationList`;
     return this.httpClient
-      .get<IQualification[]>(`${environment.baseUrl}Qualification/GetQualificationList`)
+      .get<IQualification[]>(activeIndustriesOnly ? `${url}?activeIndustriesOnly=true` : url)
       .pipe(retry(3));
   }
 

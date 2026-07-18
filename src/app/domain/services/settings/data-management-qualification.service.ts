@@ -15,7 +15,7 @@ import { DataQualificationService } from 'src/app/infrastructure/api/settings/da
 export class DataManagementQualificationService {
   private dataQualificationService = inject(DataQualificationService);
 
-  getQualificationList(): Observable<IQualification[]> {
-    return this.dataQualificationService.getQualificationList();
+  getQualificationList(activeIndustriesOnly = false): Observable<IQualification[]> {
+    return this.dataQualificationService.getQualificationList(activeIndustriesOnly);
   }
 }

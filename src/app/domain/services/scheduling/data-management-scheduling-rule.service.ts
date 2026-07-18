@@ -60,6 +60,21 @@ export class DataManagementSchedulingRuleService {
     }
   }
 
+  async readSelectableRules(): Promise<ISchedulingRule[]> {
+    try {
+      const result = await this.apiService.getSelectable();
+      return Array.isArray(result) ? result : [];
+    } catch (error) {
+      this.eventBus.emit(DomainEventType.ERROR, {
+        message: DomainMessages.UNKNOWN_ERROR,
+        code: 'errorLoadingData',
+        context: 'DataManagementSchedulingRuleService.readSelectableRules'
+      });
+      console.error('Error loading selectable scheduling rules:', error);
+      return [];
+    }
+  }
+
   createRule(): SchedulingRule {
     const rule = new SchedulingRule();
     const sched = this.settingsService.appSettings.schedulingDefaultSettings();

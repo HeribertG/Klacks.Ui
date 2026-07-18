@@ -25,6 +25,7 @@ import {
   ISurchargeModeSettings,
   IOvertimeSettings,
   IComplianceEnforcementSettings,
+  IActiveIndustriesSettings,
   AppContactSettings,
   EmailServerSettings,
   ImapServerSettings,
@@ -36,6 +37,7 @@ import {
   SurchargeModeSettings,
   OvertimeSettings,
   ComplianceEnforcementSettings,
+  ActiveIndustriesSettings,
   SurchargeRateMode,
   SurchargeStackingMode,
   OvertimeBasis,
@@ -48,6 +50,7 @@ import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/
 import { SttEngine, TtsProvider, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
+import { IndustrySlugs } from 'src/app/domain/constants/industry-slugs.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -58,6 +61,29 @@ import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/objec
  */
 function serializeNullableNumber(value: number | null): string {
   return value === null ? '' : value.toString();
+}
+
+/**
+ * Parses the stored ACTIVE_INDUSTRIES value into a slug list.
+ * @param value - Comma-separated industry slugs as stored in the setting
+ * @returns The parsed slugs, or all industry slugs when the value is empty
+ */
+function parseActiveIndustries(value: string): string[] {
+  const slugs = (value ?? '')
+    .split(IndustrySlugs.Separator)
+    .map((slug) => slug.trim())
+    .filter((slug) => slug.length > 0);
+  return slugs.length === 0 ? [...IndustrySlugs.All] : slugs;
+}
+
+/**
+ * Serializes an industry slug list into its stored string form.
+ * @param slugs - The selected industry slugs
+ * @returns Comma-separated slugs; an empty selection falls back to all slugs so the setting is never written empty
+ */
+function serializeActiveIndustries(slugs: string[]): string {
+  const effective = slugs.length === 0 ? [...IndustrySlugs.All] : slugs;
+  return effective.join(IndustrySlugs.Separator);
 }
 
 interface SettingsModels {
@@ -79,6 +105,7 @@ interface SettingsModels {
   surchargeMode: ISurchargeModeSettings;
   overtime: IOvertimeSettings;
   complianceEnforcement: IComplianceEnforcementSettings;
+  activeIndustries: IActiveIndustriesSettings;
 }
 
 @Injectable({
@@ -276,6 +303,8 @@ export class AppSettingsManagementService {
       m.complianceEnforcement.rosterPublicationMinLeadDays = Number.isNaN(parsed) ? 0 : parsed;
     }],
     [AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, (v, m) => (m.complianceEnforcement.rosterPublicationCountWorkdaysOnly = v === 'true')],
+
+    [AppSetting.ACTIVE_INDUSTRIES, (v, m) => (m.activeIndustries.activeIndustries = parseActiveIndustries(v))],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -296,6 +325,7 @@ export class AppSettingsManagementService {
   public surchargeModeSettings = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
   public overtimeSettings = signal<IOvertimeSettings>(new OvertimeSettings());
   public complianceEnforcementSettings = signal<IComplianceEnforcementSettings>(new ComplianceEnforcementSettings());
+  public activeIndustriesSettings = signal<IActiveIndustriesSettings>(new ActiveIndustriesSettings());
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
@@ -315,6 +345,7 @@ export class AppSettingsManagementService {
   private surchargeModeSettingsOriginal = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
   private overtimeSettingsOriginal = signal<IOvertimeSettings>(new OvertimeSettings());
   private complianceEnforcementSettingsOriginal = signal<IComplianceEnforcementSettings>(new ComplianceEnforcementSettings());
+  private activeIndustriesSettingsOriginal = signal<IActiveIndustriesSettings>(new ActiveIndustriesSettings());
 
   public isLoading = signal<boolean>(false);
   public isDirty = computed(() => this.checkIfDirty());
@@ -344,6 +375,7 @@ export class AppSettingsManagementService {
       this.surchargeModeSettings();
       this.overtimeSettings();
       this.complianceEnforcementSettings();
+      this.activeIndustriesSettings();
 
       untracked(() => {
         if (this.autoSaveTimer) {
@@ -419,6 +451,7 @@ export class AppSettingsManagementService {
       surchargeMode: new SurchargeModeSettings(),
       overtime: new OvertimeSettings(),
       complianceEnforcement: new ComplianceEnforcementSettings(),
+      activeIndustries: new ActiveIndustriesSettings(),
     };
 
     for (const setting of settings) {
@@ -446,6 +479,7 @@ export class AppSettingsManagementService {
     this.surchargeModeSettings.set(models.surchargeMode);
     this.overtimeSettings.set(models.overtime);
     this.complianceEnforcementSettings.set(models.complianceEnforcement);
+    this.activeIndustriesSettings.set(models.activeIndustries);
 
     this.contactSettingsOriginal.set(cloneObject(models.contact));
     this.emailSettingsOriginal.set(cloneObject(models.email));
@@ -465,6 +499,7 @@ export class AppSettingsManagementService {
     this.surchargeModeSettingsOriginal.set(cloneObject(models.surchargeMode));
     this.overtimeSettingsOriginal.set(cloneObject(models.overtime));
     this.complianceEnforcementSettingsOriginal.set(cloneObject(models.complianceEnforcement));
+    this.activeIndustriesSettingsOriginal.set(cloneObject(models.activeIndustries));
   }
 
   private readonly saveDefinitions: readonly { key: string; getCurrent: () => string; getOriginal: () => string }[] = [
@@ -633,6 +668,8 @@ export class AppSettingsManagementService {
     { key: AppSetting.COMPLIANCE_ENFORCEMENT_RESTRICTED_TIME_WINDOW, getCurrent: () => this.complianceEnforcementSettings().enforcementRestrictedTimeWindow, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementRestrictedTimeWindow },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, getCurrent: () => this.complianceEnforcementSettings().rosterPublicationMinLeadDays.toString(), getOriginal: () => this.complianceEnforcementSettingsOriginal().rosterPublicationMinLeadDays.toString() },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, getCurrent: () => String(this.complianceEnforcementSettings().rosterPublicationCountWorkdaysOnly), getOriginal: () => String(this.complianceEnforcementSettingsOriginal().rosterPublicationCountWorkdaysOnly) },
+
+    { key: AppSetting.ACTIVE_INDUSTRIES, getCurrent: () => serializeActiveIndustries(this.activeIndustriesSettings().activeIndustries), getOriginal: () => serializeActiveIndustries(this.activeIndustriesSettingsOriginal().activeIndustries) },
   ];
 
   save(): void {
@@ -713,6 +750,7 @@ export class AppSettingsManagementService {
       this.surchargeModeSettingsOriginal.set(cloneObject(this.surchargeModeSettings()));
       this.overtimeSettingsOriginal.set(cloneObject(this.overtimeSettings()));
       this.complianceEnforcementSettingsOriginal.set(cloneObject(this.complianceEnforcementSettings()));
+      this.activeIndustriesSettingsOriginal.set(cloneObject(this.activeIndustriesSettings()));
     }
   }
 
@@ -748,7 +786,8 @@ export class AppSettingsManagementService {
       !compareComplexObjects(this.compensatoryRestSettings(), this.compensatoryRestSettingsOriginal()) ||
       !compareComplexObjects(this.surchargeModeSettings(), this.surchargeModeSettingsOriginal()) ||
       !compareComplexObjects(this.overtimeSettings(), this.overtimeSettingsOriginal()) ||
-      !compareComplexObjects(this.complianceEnforcementSettings(), this.complianceEnforcementSettingsOriginal())
+      !compareComplexObjects(this.complianceEnforcementSettings(), this.complianceEnforcementSettingsOriginal()) ||
+      !compareComplexObjects(this.activeIndustriesSettings(), this.activeIndustriesSettingsOriginal())
     );
   }
 

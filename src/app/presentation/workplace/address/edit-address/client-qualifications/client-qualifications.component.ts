@@ -262,7 +262,7 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy {
 
   private loadQualifications(): void {
     this.dataQualificationService
-      .getQualificationList()
+      .getQualificationList(true)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((list) => {
         this.qualifications = list ?? [];

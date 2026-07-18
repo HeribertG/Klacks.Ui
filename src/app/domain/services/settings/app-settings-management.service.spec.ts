@@ -252,6 +252,84 @@ describe('AppSettingsManagementService', () => {
         });
     });
 
+    describe('ACTIVE_INDUSTRIES', () => {
+        const allSlugs = ['homecare', 'healthcare', 'security', 'facility', 'logistics'];
+
+        it('should default to all industries when the setting is missing', () => {
+            // Arrange
+            dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
+
+            // Act
+            service.loadSettings();
+
+            // Assert
+            expect(service.activeIndustriesSettings().activeIndustries).toEqual(allSlugs);
+        });
+
+        it('should default to all industries when the setting value is empty', () => {
+            // Arrange
+            dataSettingsService.readSettingList.mockReturnValue(of([
+                ...mockSettings,
+                { id: '4', type: AppSetting.ACTIVE_INDUSTRIES, value: '' }
+            ]));
+
+            // Act
+            service.loadSettings();
+
+            // Assert
+            expect(service.activeIndustriesSettings().activeIndustries).toEqual(allSlugs);
+        });
+
+        it('should load exactly the stored industries', () => {
+            // Arrange
+            dataSettingsService.readSettingList.mockReturnValue(of([
+                ...mockSettings,
+                { id: '4', type: AppSetting.ACTIVE_INDUSTRIES, value: 'healthcare,security' }
+            ]));
+
+            // Act
+            service.loadSettings();
+
+            // Assert
+            expect(service.activeIndustriesSettings().activeIndustries).toEqual(['healthcare', 'security']);
+        });
+
+        it('should save the selection as a comma separated value', () => {
+            // Arrange
+            dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
+            service.loadSettings();
+            service.activeIndustriesSettings.update(s => ({ ...s, activeIndustries: ['healthcare', 'security'] }));
+
+            // Act
+            service.save();
+
+            // Assert
+            expect(dataSettingsService.addSetting).toHaveBeenCalledWith(
+                expect.objectContaining({ type: AppSetting.ACTIVE_INDUSTRIES, value: 'healthcare,security' })
+            );
+        });
+
+        it('should never write an empty value for an empty selection', () => {
+            // Arrange
+            dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
+            service.loadSettings();
+            service.activeIndustriesSettings.update(s => ({ ...s, activeIndustries: [] }));
+
+            // Act
+            service.save();
+
+            // Assert
+            const writtenValues = [
+                ...dataSettingsService.addSetting.mock.calls,
+                ...dataSettingsService.updateSetting.mock.calls,
+            ]
+                .map((call: any[]) => call[0])
+                .filter((setting: any) => setting.type === AppSetting.ACTIVE_INDUSTRIES)
+                .map((setting: any) => setting.value);
+            expect(writtenValues).not.toContain('');
+        });
+    });
+
     describe('resetData', () => {
         it('should call loadSettings', () => {
             // Arrange

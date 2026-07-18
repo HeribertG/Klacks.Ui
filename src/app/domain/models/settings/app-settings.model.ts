@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { IndustrySlugs } from 'src/app/domain/constants/industry-slugs.constants';
+
 export interface IAppContactSettings {
   name: string;
   addressName: string;
@@ -311,4 +313,12 @@ export class ComplianceEnforcementSettings implements IComplianceEnforcementSett
   enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode = '';
   rosterPublicationMinLeadDays = 0;
   rosterPublicationCountWorkdaysOnly = false;
+}
+
+export interface IActiveIndustriesSettings {
+  activeIndustries: string[];
+}
+
+export class ActiveIndustriesSettings implements IActiveIndustriesSettings {
+  activeIndustries: string[] = [...IndustrySlugs.All];
 }

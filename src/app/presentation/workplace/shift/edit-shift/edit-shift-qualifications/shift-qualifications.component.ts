@@ -227,7 +227,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
 
   private loadMasterQualifications(): void {
     this.dataQualificationService
-      .getQualificationList()
+      .getQualificationList(true)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((list) => {
         this.masterQualifications = list ?? [];

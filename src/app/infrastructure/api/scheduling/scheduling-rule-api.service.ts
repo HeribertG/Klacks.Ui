@@ -17,6 +17,10 @@ export class SchedulingRuleApiService {
     return firstValueFrom(this.http.get<ISchedulingRule[]>(`${environment.baseUrl}schedulingrules?page=${page}&pageSize=${pageSize}`).pipe(retry(3)));
   }
 
+  getSelectable(): Promise<ISchedulingRule[]> {
+    return firstValueFrom(this.http.get<ISchedulingRule[]>(`${environment.baseUrl}schedulingrules?activeIndustriesOnly=true`).pipe(retry(3)));
+  }
+
   getById(id: string): Promise<ISchedulingRule> {
     return firstValueFrom(this.http.get<ISchedulingRule>(`${environment.baseUrl}schedulingrules/${id}`).pipe(retry(3)));
   }
