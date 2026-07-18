@@ -1,0 +1,66 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/standard-manual.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.rule-config-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  gap: 30px;
+}
+
+.rule-config-item {
+  flex: 1;
+  max-width: 250px;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--colorWorkplaceHeadline);
+  }
+}
+
+.rule-config-item-wide {
+  max-width: 520px;
+}
+
+.rule-input {
+  width: 120px;
+  height: 30px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: end;
+}
+
+.rule-select {
+  width: 200px;
+  height: 30px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--colorLabel);
+}
+
+.manual-tab-body {
+  padding-block: 20px;
+  padding-inline-start: 30px;
+  padding-inline-end: 40px;
+}

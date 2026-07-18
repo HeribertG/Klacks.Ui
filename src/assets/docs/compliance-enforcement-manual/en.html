@@ -1,0 +1,43 @@
+<h3>Compliance Enforcement &ndash; Explanations</h3>
+<p>This card controls how strictly Klacks treats violations of working-time and rest rules, and how far in advance rosters must be published.</p>
+
+<h4>Default mode</h4>
+<p>Defines the global behaviour when a rule is violated, unless a rule is overridden individually:</p>
+<ul>
+  <li><strong>Warn</strong>: the violation is shown, but planning remains possible.</li>
+  <li><strong>Block</strong>: the action is prevented until the violation is resolved.</li>
+</ul>
+<p>Default: <strong>Warn</strong>.</p>
+
+<h4>Allow supervisor override</h4>
+<p>When enabled, authorised supervisors may deliberately override a block. When disabled, a block applies without exception. Default: <strong>enabled</strong>.</p>
+
+<h4>Mode per rule</h4>
+<p>The mode can be set individually for each of the eleven compliance rules:</p>
+<ul>
+  <li><strong>Inherit default</strong>: the default mode selected above applies.</li>
+  <li><strong>Warn</strong>: a notice only for this rule.</li>
+  <li><strong>Block</strong>: a hard block for this rule.</li>
+</ul>
+<p>The eleven rules are:</p>
+<ul>
+  <li><strong>Maximum daily hours</strong> &ndash; upper limit of working hours per day.</li>
+  <li><strong>Maximum weekly hours</strong> &ndash; upper limit of working hours per week.</li>
+  <li><strong>Minimum rest hours</strong> &ndash; minimum continuous rest between two assignments.</li>
+  <li><strong>Minimum rest days</strong> &ndash; minimum number of free days in the reference period.</li>
+  <li><strong>Maximum consecutive workdays</strong> &ndash; upper limit of workdays in a row.</li>
+  <li><strong>Period cap</strong> &ndash; hour limit over a defined period.</li>
+  <li><strong>Rolling average</strong> &ndash; maximum average weekly hours over a rolling window.</li>
+  <li><strong>Rest-day rotation</strong> &ndash; required rotation of rest days.</li>
+  <li><strong>Counter rule</strong> &ndash; custom event counters (e.g. night shifts per period).</li>
+  <li><strong>Compensatory rest</strong> &ndash; timely granting of compensatory rest.</li>
+  <li><strong>Restricted time window</strong> &ndash; periods in which planning is not allowed.</li>
+</ul>
+<p>Default: <strong>Inherit default</strong> for all eleven rules.</p>
+
+<h4>Roster publication lead time</h4>
+<p>Determines how early a roster must be published before it starts.</p>
+<ul>
+  <li><strong>Minimum lead days</strong>: the number of days that must lie between publication and the roster start. Default: <strong>0</strong>.</li>
+  <li><strong>Count workdays only</strong>: when enabled, only workdays are counted for the lead time, not weekends and holidays. Default: <strong>disabled</strong>.</li>
+</ul>

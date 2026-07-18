@@ -1,0 +1,28 @@
+<h3>Surcharge Mode &ndash; Explanations</h3>
+<p>This card defines how surcharges for night, holiday and weekend work are calculated and represented. The settings act as the basis for new shifts; existing shifts keep the values already stored on them.</p>
+
+<h4>Surcharge Modes (Rate Modes)</h4>
+<p>For every category &ndash; night, holiday and the three weekend tiers WE1, WE2 and WE3 &ndash; the rate mode determines how the configured rate is interpreted:</p>
+<ul>
+  <li><strong>Multiplier</strong>: the rate is a factor applied to the hourly wage (e.g. 1.5 = 150%).</li>
+  <li><strong>Fixed amount per hour</strong>: a fixed amount is added for every hour worked.</li>
+  <li><strong>Fixed amount per shift</strong>: a fixed amount is added once per shift.</li>
+</ul>
+<p>Default: <strong>Multiplier</strong> for all five categories.</p>
+
+<h4>WE3 surcharge (%)</h4>
+<p>Percentage surcharge rate for the WE3 weekend tier. The value is entered as a percentage (e.g. 100 = 100%) and stored internally as a factor. Default: <strong>0</strong>.</p>
+
+<h4>Minimum amounts per hour</h4>
+<p>Optional minimum amount per hour for night, holiday, WE1, WE2 and WE3. When a value is set, the surcharge per hour never falls below this amount. If the field is left empty, no minimum applies. Default: <strong>empty</strong> (no minimum).</p>
+
+<h4>Night window</h4>
+<p>Start and end of the time window during which work counts as night work. The window may cross midnight. Default: <strong>23:00</strong> to <strong>06:00</strong>.</p>
+
+<h4>Stacking mode</h4>
+<p>Determines how several surcharges that apply at the same time (e.g. night and holiday) are combined:</p>
+<ul>
+  <li><strong>Highest wins</strong>: only the highest applicable surcharge is applied.</li>
+  <li><strong>Additive</strong>: all applicable surcharges are added together.</li>
+</ul>
+<p>Default: <strong>Highest wins</strong>. Note: this setting only selects the default macro for new shifts; existing shifts are not affected.</p>

@@ -1,0 +1,73 @@
+<h2>Règles de comptage – Manuel</h2>
+
+<h3>Que sont les règles de comptage ?</h3>
+<p>
+Les règles de comptage comptabilisent des événements récurrents par personne sur une
+période définie et déclenchent un avertissement ou un blocage dans la planification
+lorsqu'un seuil est dépassé. Elles permettent d'appliquer des limites opérationnelles
+ou légales, comme le nombre maximal de services de nuit par mois.
+</p>
+
+<h3>Les paramètres en détail</h3>
+
+<h4>Type d'événement</h4>
+<p>Détermine quel événement est compté :</p>
+<ul>
+  <li><strong>Service de nuit</strong> – compte les services qui tombent dans la plage de nuit définie.</li>
+  <li><strong>Jour travaillé par semaine</strong> – compte les jours par semaine où la personne est planifiée.</li>
+  <li><strong>Service dépassant une durée</strong> – compte les services dont la durée dépasse le seuil d'heures défini ci-dessous.</li>
+</ul>
+
+<h4>Période</h4>
+<p>
+La fenêtre sur laquelle s'effectue le comptage : <strong>semaine</strong>,
+<strong>mois</strong> ou <strong>année</strong>. Le compteur est remis à zéro au début
+de chaque nouvelle période.
+</p>
+
+<h4>Seuil</h4>
+<p>
+Le nombre maximal autorisé de l'événement au cours de la période. Dès que la valeur est
+atteinte ou dépassée, l'application s'active. Exemple : seuil 5 avec le type d'événement
+<em>service de nuit</em> et la période <em>mois</em> limite la personne à cinq services
+de nuit par mois.
+</p>
+
+<h4>Seuil d'heures</h4>
+<p>
+Pertinent et affiché uniquement lorsque le type d'événement <strong>service dépassant
+une durée</strong> est sélectionné. Définit à partir de quelle durée de service (en
+heures) un service est compté comme événement.
+</p>
+
+<h4>Application</h4>
+<p>Comment la planification réagit en cas de dépassement :</p>
+<ul>
+  <li><strong>Hériter du défaut</strong> – utilise le mode par défaut configuré sous l'application de conformité.</li>
+  <li><strong>Avertir</strong> – affiche un message mais autorise la planification.</li>
+  <li><strong>Bloquer</strong> – empêche la planification jusqu'à ce que la règle soit à nouveau respectée.</li>
+</ul>
+
+<h4>Liaison à une règle de planification (facultatif)</h4>
+<p>
+Relie la règle de comptage à une règle de planification existante. Si le champ reste
+vide, la règle de comptage s'applique de manière autonome. La liaison est facultative
+et inutile dans les cas standards.
+</p>
+
+<hr>
+
+<h3>Remarque importante sur les règles importées</h3>
+<ul>
+  <li>
+    Les règles issues d'une configuration régionale (profil pays) sont
+    <strong>rétablies</strong> lors d'une nouvelle importation de la configuration
+    régionale. Supprimer une telle ligne n'est donc <strong>pas définitif</strong> –
+    elle réapparaît après la prochaine réimportation.
+  </li>
+  <li>
+    Une <strong>liaison à une règle de planification</strong> définie sur une ligne
+    importée est <strong>réinitialisée</strong> à sa valeur d'origine lors de la
+    réimportation. Les règles créées manuellement ne sont pas concernées.
+  </li>
+</ul>

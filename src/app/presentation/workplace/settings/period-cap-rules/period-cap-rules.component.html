@@ -1,0 +1,255 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<!-- Period Cap Rule Modal -->
+<ng-template #ruleModal id="period-cap-rule-modal-template" let-modal>
+  <div id="period-cap-rule-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ 'setting.periodCapRule.headline-modal' | translate }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="period-cap-rule-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="period-cap-rule-modal-body" class="modal-body">
+    @if (editingRule) {
+    <div>
+      <!-- Period / Scope -->
+      <div id="period-cap-rule-modal-period-scope-row" class="row-line-modal-inline rule-config-row">
+        <div class="rule-config-item">
+          <label for="periodCapPeriod">{{ 'setting.periodCapRule.period' | translate }}</label>
+          <select
+            id="periodCapPeriod"
+            class="form-control rule-select"
+            [(ngModel)]="editingRule.period"
+            name="period"
+            aria-label="period"
+          >
+            <option [ngValue]="PeriodCapPeriod.Month">{{ 'setting.periodCapRule.period.month' | translate }}</option>
+            <option [ngValue]="PeriodCapPeriod.Quarter">{{ 'setting.periodCapRule.period.quarter' | translate }}</option>
+            <option [ngValue]="PeriodCapPeriod.Year">{{ 'setting.periodCapRule.period.year' | translate }}</option>
+            <option [ngValue]="PeriodCapPeriod.CustomWeeks">{{ 'setting.periodCapRule.period.customWeeks' | translate }}</option>
+          </select>
+        </div>
+
+        <div class="rule-config-item">
+          <label for="periodCapScope">{{ 'setting.periodCapRule.scope' | translate }}</label>
+          <select
+            id="periodCapScope"
+            class="form-control rule-select"
+            [(ngModel)]="editingRule.scope"
+            name="scope"
+            aria-label="scope"
+          >
+            <option [ngValue]="PeriodCapScope.TotalHours">{{ 'setting.periodCapRule.scope.totalHours' | translate }}</option>
+            <option [ngValue]="PeriodCapScope.OvertimeHours">{{ 'setting.periodCapRule.scope.overtimeHours' | translate }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Custom Period Weeks (only when period = CustomWeeks) -->
+      @if (editingRule.period === PeriodCapPeriod.CustomWeeks) {
+      <div id="period-cap-rule-modal-custom-weeks-row" class="row-line-modal-inline rule-config-row">
+        <div class="rule-config-item">
+          <label for="customPeriodWeeks">{{ 'setting.periodCapRule.customPeriodWeeks' | translate }}</label>
+          <input
+            type="number"
+            min="1"
+            max="104"
+            [(ngModel)]="editingRule.customPeriodWeeks"
+            class="form-control rule-input"
+            id="customPeriodWeeks"
+            name="customPeriodWeeks"
+            aria-label="customPeriodWeeks"
+          />
+        </div>
+      </div>
+      }
+
+      <!-- Cap Hours / Warn At Percent (fixed mode) -->
+      <div id="period-cap-rule-modal-fixed-row" class="row-line-modal-inline rule-config-row">
+        <div class="rule-config-item">
+          <label for="capHours">{{ 'setting.periodCapRule.capHours' | translate }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingRule.capHours"
+            class="form-control rule-input"
+            id="capHours"
+            name="capHours"
+            aria-label="capHours"
+          />
+        </div>
+
+        <div class="rule-config-item">
+          <label for="warnAtPercent">{{ 'setting.periodCapRule.warnAtPercent' | translate }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingRule.warnAtPercent"
+            class="form-control rule-input"
+            id="warnAtPercent"
+            name="warnAtPercent"
+            aria-label="warnAtPercent"
+          />
+          <small class="field-hint">{{ 'setting.periodCapRule.warnAtPercentHint' | translate }}</small>
+        </div>
+      </div>
+
+      <!-- Rolling Window Weeks / Max Average Weekly Hours (rolling mode) -->
+      <div id="period-cap-rule-modal-rolling-row" class="row-line-modal-inline rule-config-row">
+        <div class="rule-config-item">
+          <label for="rollingWindowWeeks">{{ 'setting.periodCapRule.rollingWindowWeeks' | translate }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingRule.rollingWindowWeeks"
+            class="form-control rule-input"
+            id="rollingWindowWeeks"
+            name="rollingWindowWeeks"
+            aria-label="rollingWindowWeeks"
+          />
+        </div>
+
+        <div class="rule-config-item">
+          <label for="maxAverageWeeklyHours">{{ 'setting.periodCapRule.maxAverageWeeklyHours' | translate }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingRule.maxAverageWeeklyHours"
+            class="form-control rule-input"
+            id="maxAverageWeeklyHours"
+            name="maxAverageWeeklyHours"
+            aria-label="maxAverageWeeklyHours"
+          />
+        </div>
+      </div>
+
+      <!-- Scheduling Rule Id (optional binding) -->
+      <div id="period-cap-rule-modal-scheduling-rule-row" class="row-line-modal-inline rule-config-row">
+        <div class="rule-config-item rule-config-item-wide">
+          <label for="schedulingRuleId">{{ 'setting.periodCapRule.schedulingRuleId' | translate }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingRule.schedulingRuleId"
+            class="form-control"
+            id="schedulingRuleId"
+            name="schedulingRuleId"
+            aria-label="schedulingRuleId"
+          />
+          <small class="field-hint">{{ 'setting.periodCapRule.schedulingRuleIdHint' | translate }}</small>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div id="period-cap-rule-modal-validation-row" class="row-line-modal-inline">
+        <div id="period-cap-rule-modal-validation-section" class="validation-errors-section">
+          <div id="period-cap-rule-modal-validation-alert" class="alert alert-danger">
+            <strong>{{ 'validation.errors' | translate }}:</strong>
+            <ul id="period-cap-rule-modal-validation-list">
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <div id="period-cap-rule-modal-footer" class="modal-footer">
+    <span
+      id="period-cap-rule-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="period-cap-rule-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<div class="standard-tabs-header">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        id="period-cap-rules-tab-list"
+        class="nav-link"
+        [class.active]="activeTab() === 'list'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'list'"
+        tabindex="0"
+        (click)="setTab('list')"
+        (keydown.enter)="setTab('list')"
+      >
+        {{ 'setting.tab.list' | translate }}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="period-cap-rules-tab-manual"
+        class="nav-link"
+        [class.active]="activeTab() === 'manual'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'manual'"
+        tabindex="0"
+        (click)="setTab('manual')"
+        (keydown.enter)="setTab('manual')"
+      >
+        {{ 'setting.tab.manual' | translate }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="standard-tab-body">
+@if (activeTab() === 'list') {
+<app-settings-list-card
+  [headline]="'setting.periodCapRule.headline' | translate"
+  [addLabel]="'setting.periodCapRule.add' | translate"
+  [showHeader]="true"
+  idPrefix="period-cap-rules"
+  (addClick)="onClickAdd()"
+>
+  <app-period-cap-rule-header header id="period-cap-rules-table-header"></app-period-cap-rule-header>
+  <div rows #containerBox>
+    @for (rule of dataManagementService.rules; track rule.id || $index; let i = $index) {
+      <app-period-cap-rule-row
+        [id]="'period-cap-rule-row-' + i"
+        [data]="rule"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteRule(i)"
+      />
+    }
+  </div>
+</app-settings-list-card>
+}
+
+@if (activeTab() === 'manual') {
+  <div class="manual-tab-body">
+    <div class="manual-content" [innerHTML]="manualContent()"></div>
+  </div>
+}
+</div>

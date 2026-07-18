@@ -1,0 +1,28 @@
+<h3>Zuschlagsmodus &ndash; Erkl&auml;rungen</h3>
+<p>Diese Karte legt fest, wie Zuschl&auml;ge f&uuml;r Nacht-, Feiertags- und Wochenendarbeit berechnet und dargestellt werden. Die Einstellungen bilden die Grundlage f&uuml;r neue Schichten; bestehende Schichten behalten ihre bereits gespeicherten Werte.</p>
+
+<h4>Zuschlagsmodi (Rate-Modi)</h4>
+<p>F&uuml;r jede Kategorie &ndash; Nacht, Feiertag sowie die drei Wochenend-Stufen WE1, WE2 und WE3 &ndash; legt der Rate-Modus fest, wie der hinterlegte Satz interpretiert wird:</p>
+<ul>
+  <li><strong>Multiplikator</strong>: der Satz ist ein Faktor auf den Stundenlohn (z.&nbsp;B. 1,5 = 150&nbsp;%).</li>
+  <li><strong>Fixbetrag pro Stunde</strong>: ein fester Betrag wird je geleisteter Stunde zugeschlagen.</li>
+  <li><strong>Fixbetrag pro Schicht</strong>: ein fester Betrag wird einmalig je Schicht zugeschlagen.</li>
+</ul>
+<p>Standard: <strong>Multiplikator</strong> f&uuml;r alle f&uuml;nf Kategorien.</p>
+
+<h4>WE3-Zuschlag (%)</h4>
+<p>Prozentualer Zuschlagssatz f&uuml;r die Wochenend-Stufe WE3. Die Eingabe erfolgt in Prozent (z.&nbsp;B. 100 = 100&nbsp;%) und wird intern als Faktor gespeichert. Standard: <strong>0</strong>.</p>
+
+<h4>Mindestbetr&auml;ge pro Stunde</h4>
+<p>Optionaler Mindestbetrag je Stunde f&uuml;r Nacht, Feiertag, WE1, WE2 und WE3. Ist ein Wert gesetzt, f&auml;llt der Zuschlag pro Stunde nie unter diesen Betrag. Bleibt das Feld leer, gilt kein Mindestbetrag. Standard: <strong>leer</strong> (kein Mindestbetrag).</p>
+
+<h4>Nachtfenster</h4>
+<p>Beginn und Ende des Zeitfensters, in dem Arbeit als Nachtarbeit gilt. Das Fenster darf &uuml;ber Mitternacht reichen. Standard: <strong>23:00</strong> bis <strong>06:00</strong>.</p>
+
+<h4>Stapelung (Stacking-Modus)</h4>
+<p>Legt fest, wie mehrere gleichzeitig zutreffende Zuschl&auml;ge (z.&nbsp;B. Nacht und Feiertag) kombiniert werden:</p>
+<ul>
+  <li><strong>H&ouml;chster gewinnt</strong>: nur der h&ouml;chste zutreffende Zuschlag wird angewendet.</li>
+  <li><strong>Additiv</strong>: alle zutreffenden Zuschl&auml;ge werden addiert.</li>
+</ul>
+<p>Standard: <strong>H&ouml;chster gewinnt</strong>. Hinweis: Diese Einstellung w&auml;hlt nur das Standard-Makro neuer Schichten; bestehende Schichten sind nicht betroffen.</p>

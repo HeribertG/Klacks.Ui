@@ -1,0 +1,79 @@
+<h2>Period Caps – Manual</h2>
+
+<h3>What are period caps?</h3>
+<p>
+Period caps limit a person's working time over a defined period. They support two modes:
+a <strong>fixed cap</strong> for a calendar period (e.g. maximum hours per month) and a
+<strong>rolling window</strong> with a maximum average of weekly hours over several past
+weeks.
+</p>
+
+<h3>The settings in detail</h3>
+
+<h4>Period</h4>
+<p>The calendar period the fixed cap refers to:</p>
+<ul>
+  <li><strong>Month</strong>, <strong>quarter</strong> or <strong>year</strong> – the respective calendar period.</li>
+  <li><strong>Custom weeks</strong> – a freely chosen period in weeks (see period weeks).</li>
+</ul>
+
+<h4>Scope</h4>
+<p>Which hours are counted:</p>
+<ul>
+  <li><strong>Total hours</strong> – all scheduled working hours.</li>
+  <li><strong>Overtime hours</strong> – only the hours reported as overtime.</li>
+</ul>
+
+<h4>Cap hours</h4>
+<p>
+The maximum permitted number of hours within the chosen period and scope. Once the value
+is reached or exceeded, the schedule reports it.
+</p>
+
+<h4>Warn at percent (%)</h4>
+<p>
+Percentage of the cap at which an early warning should be raised (e.g. 80%).
+<strong>Reserved:</strong> this value is not yet evaluated and serves as a placeholder
+for a future early-warning stage.
+</p>
+
+<h4>Period weeks</h4>
+<p>
+Only relevant and only shown when the period <strong>custom weeks</strong> is selected.
+Length of the period in weeks; <strong>1 to 104</strong> weeks are permitted.
+</p>
+
+<h4>Rolling window weeks</h4>
+<p>
+Length of the look-back rolling window in weeks. Together with the maximum average weekly
+hours this activates the rolling-window mode: the average over the last <em>n</em> weeks
+is checked.
+</p>
+
+<h4>Max. average weekly hours</h4>
+<p>
+The highest permitted average of working hours per week across the rolling window.
+Example: 48 hours with a rolling window of 17 weeks limits the rolling weekly average to
+48 hours.
+</p>
+
+<h4>Scheduling rule binding (optional)</h4>
+<p>
+Links the period cap to an existing scheduling rule. Left empty, the cap applies on its
+own.
+</p>
+
+<hr>
+
+<h3>Important note on imported rules</h3>
+<ul>
+  <li>
+    Rules from a region setup (country profile) are <strong>restored</strong> when the
+    region setup is re-imported. Deleting such a row is therefore <strong>not
+    permanent</strong> – it reappears after the next re-import.
+  </li>
+  <li>
+    A <strong>scheduling rule binding</strong> set on an imported row is <strong>reset</strong>
+    to its original value on re-import. Manually created rules are not affected.
+  </li>
+</ul>

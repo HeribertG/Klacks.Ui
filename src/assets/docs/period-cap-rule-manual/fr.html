@@ -1,0 +1,83 @@
+<h2>Plafonds de période – Manuel</h2>
+
+<h3>Que sont les plafonds de période ?</h3>
+<p>
+Les plafonds de période limitent le temps de travail d'une personne sur une période
+définie. Ils connaissent deux modes de fonctionnement : un <strong>plafond fixe</strong>
+pour une période calendaire (p.&nbsp;ex. nombre maximal d'heures par mois) et une
+<strong>fenêtre glissante</strong> avec une moyenne maximale d'heures hebdomadaires sur
+plusieurs semaines passées.
+</p>
+
+<h3>Les paramètres en détail</h3>
+
+<h4>Période</h4>
+<p>La période calendaire à laquelle se rapporte le plafond fixe :</p>
+<ul>
+  <li><strong>Mois</strong>, <strong>trimestre</strong> ou <strong>année</strong> – la période calendaire correspondante.</li>
+  <li><strong>Semaines personnalisées</strong> – une période librement choisie en semaines (voir semaines de période).</li>
+</ul>
+
+<h4>Portée</h4>
+<p>Quelles heures sont comptées :</p>
+<ul>
+  <li><strong>Heures totales</strong> – toutes les heures de travail planifiées.</li>
+  <li><strong>Heures supplémentaires</strong> – uniquement les heures déclarées comme supplémentaires.</li>
+</ul>
+
+<h4>Plafond (h)</h4>
+<p>
+Le nombre maximal d'heures autorisé dans la période et la portée choisies. Dès que la
+valeur est atteinte ou dépassée, la planification le signale.
+</p>
+
+<h4>Seuil d'avertissement (%)</h4>
+<p>
+Pourcentage du plafond à partir duquel un avertissement anticipé doit être émis
+(p.&nbsp;ex. 80&nbsp;%). <strong>Réservé :</strong> cette valeur n'est pas encore évaluée
+et sert d'espace réservé pour un futur niveau d'alerte anticipée.
+</p>
+
+<h4>Semaines de période</h4>
+<p>
+Pertinent et affiché uniquement lorsque la période <strong>semaines personnalisées</strong>
+est sélectionnée. Durée de la période en semaines ; de <strong>1 à 104</strong> semaines
+sont autorisées.
+</p>
+
+<h4>Semaines de la fenêtre glissante</h4>
+<p>
+Durée de la fenêtre glissante rétrospective en semaines. Avec la moyenne maximale
+d'heures hebdomadaires, cela active le mode fenêtre glissante : la moyenne sur les
+<em>n</em> dernières semaines est vérifiée.
+</p>
+
+<h4>Moyenne max. d'heures hebdomadaires</h4>
+<p>
+La moyenne la plus élevée autorisée d'heures de travail par semaine sur la fenêtre
+glissante. Exemple : 48 heures avec une fenêtre glissante de 17 semaines limite la
+moyenne hebdomadaire glissante à 48 heures.
+</p>
+
+<h4>Liaison à une règle de planification (facultatif)</h4>
+<p>
+Relie le plafond de période à une règle de planification existante. Si le champ reste
+vide, le plafond s'applique de manière autonome.
+</p>
+
+<hr>
+
+<h3>Remarque importante sur les règles importées</h3>
+<ul>
+  <li>
+    Les règles issues d'une configuration régionale (profil pays) sont
+    <strong>rétablies</strong> lors d'une nouvelle importation de la configuration
+    régionale. Supprimer une telle ligne n'est donc <strong>pas définitif</strong> –
+    elle réapparaît après la prochaine réimportation.
+  </li>
+  <li>
+    Une <strong>liaison à une règle de planification</strong> définie sur une ligne
+    importée est <strong>réinitialisée</strong> à sa valeur d'origine lors de la
+    réimportation. Les règles créées manuellement ne sont pas concernées.
+  </li>
+</ul>

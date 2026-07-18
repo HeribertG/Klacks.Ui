@@ -1,0 +1,411 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div id="compliance-enforcement-settings-container" class="container-dashboard">
+  <div id="compliance-enforcement-settings-header" class="container-header">
+    {{ "setting.complianceEnforcement.headline" | translate }}
+  </div>
+
+  <div id="compliance-enforcement-settings-line" class="container-line"></div>
+
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          id="compliance-enforcement-settings-tab-settings"
+          class="nav-link"
+          [class.active]="activeTab() === 'settings'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'settings'"
+          tabindex="0"
+          (click)="setTab('settings')"
+          (keydown.enter)="setTab('settings')"
+        >
+          {{ "setting.tab.settings" | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="compliance-enforcement-settings-tab-manual"
+          class="nav-link"
+          [class.active]="activeTab() === 'manual'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'manual'"
+          tabindex="0"
+          (click)="setTab('manual')"
+          (keydown.enter)="setTab('manual')"
+        >
+          {{ "setting.tab.manual" | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="standard-tab-body">
+  @if (isDataLoaded) {
+    <form
+      id="compliance-enforcement-settings-form"
+      [style.display]="activeTab() === 'settings' ? 'block' : 'none'"
+    >
+      <div id="compliance-enforcement-intro-row" class="row-line-single">
+        <p class="hint-text">
+          {{ "setting.complianceEnforcement.hint" | translate }}
+        </p>
+      </div>
+
+      <div
+        id="compliance-enforcement-default-header-row"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label>{{
+            "setting.complianceEnforcement.default-header" | translate
+          }}</label>
+        </div>
+      </div>
+      <div id="compliance-enforcement-default-mode-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="ceDefaultMode">{{
+            "setting.complianceEnforcement.default-mode" | translate
+          }}</label>
+          <select
+            class="form-control"
+            [formField]="complianceForm.enforcementDefaultMode"
+            aria-label="ceDefaultMode"
+            id="ceDefaultMode"
+          >
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group secondColumn"></div>
+      </div>
+      <div id="compliance-enforcement-override-row" class="row-line" style="margin-top: 16px">
+        <div class="form-group firstColumn">
+          <label for="ceAllowSupervisorOverride">&#8203;</label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="complianceForm.enforcementAllowSupervisorOverride"
+              id="ceAllowSupervisorOverride"
+            />
+            {{
+              "setting.complianceEnforcement.allow-supervisor-override"
+                | translate
+            }}
+          </label>
+        </div>
+        <div class="form-group secondColumn"></div>
+      </div>
+
+      <div
+        id="compliance-enforcement-per-rule-header-row"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label>{{
+            "setting.complianceEnforcement.per-rule-header" | translate
+          }}</label>
+        </div>
+      </div>
+      <div id="compliance-enforcement-per-rule-hint-row" class="row-line-single">
+        <p class="hint-text">
+          {{ "setting.complianceEnforcement.per-rule-hint" | translate }}
+        </p>
+      </div>
+      <div id="compliance-enforcement-rule-list" class="rule-list">
+        <div class="rule-row">
+          <label class="rule-name" for="ceMaxDailyHours">{{
+            "setting.complianceEnforcement.rule.maxDailyHours" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementMaxDailyHours"
+            aria-label="ceMaxDailyHours"
+            id="ceMaxDailyHours"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceMaxWeeklyHours">{{
+            "setting.complianceEnforcement.rule.maxWeeklyHours" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementMaxWeeklyHours"
+            aria-label="ceMaxWeeklyHours"
+            id="ceMaxWeeklyHours"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceMinRestHours">{{
+            "setting.complianceEnforcement.rule.minRestHours" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementMinRestHours"
+            aria-label="ceMinRestHours"
+            id="ceMinRestHours"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceMinRestDays">{{
+            "setting.complianceEnforcement.rule.minRestDays" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementMinRestDays"
+            aria-label="ceMinRestDays"
+            id="ceMinRestDays"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceMaxConsecutiveDays">{{
+            "setting.complianceEnforcement.rule.maxConsecutiveDays" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementMaxConsecutiveDays"
+            aria-label="ceMaxConsecutiveDays"
+            id="ceMaxConsecutiveDays"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="cePeriodCap">{{
+            "setting.complianceEnforcement.rule.periodCap" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementPeriodCap"
+            aria-label="cePeriodCap"
+            id="cePeriodCap"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceRollingAverage">{{
+            "setting.complianceEnforcement.rule.rollingAverage" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementRollingAverage"
+            aria-label="ceRollingAverage"
+            id="ceRollingAverage"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceRestDayRotation">{{
+            "setting.complianceEnforcement.rule.restDayRotation" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementRestDayRotation"
+            aria-label="ceRestDayRotation"
+            id="ceRestDayRotation"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceCounterRule">{{
+            "setting.complianceEnforcement.rule.counterRule" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementCounterRule"
+            aria-label="ceCounterRule"
+            id="ceCounterRule"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceCompensatoryRest">{{
+            "setting.complianceEnforcement.rule.compensatoryRest" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementCompensatoryRest"
+            aria-label="ceCompensatoryRest"
+            id="ceCompensatoryRest"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceRestrictedTimeWindow">{{
+            "setting.complianceEnforcement.rule.restrictedTimeWindow" | translate
+          }}</label>
+          <select
+            class="form-control rule-select"
+            [formField]="complianceForm.enforcementRestrictedTimeWindow"
+            aria-label="ceRestrictedTimeWindow"
+            id="ceRestrictedTimeWindow"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div
+        id="compliance-enforcement-roster-header-row"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label>{{
+            "setting.complianceEnforcement.roster-publication-header" | translate
+          }}</label>
+        </div>
+      </div>
+      <div id="compliance-enforcement-roster-lead-days-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="ceRosterMinLeadDays">{{
+            "setting.complianceEnforcement.roster-publication-min-lead-days"
+              | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="complianceForm.rosterPublicationMinLeadDays"
+            aria-label="ceRosterMinLeadDays"
+            id="ceRosterMinLeadDays"
+          />
+        </div>
+        <div class="form-group secondColumn"></div>
+      </div>
+      <div id="compliance-enforcement-roster-workdays-row" class="row-line" style="margin-top: 16px">
+        <div class="form-group firstColumn">
+          <label for="ceRosterCountWorkdaysOnly">&#8203;</label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="complianceForm.rosterPublicationCountWorkdaysOnly"
+              id="ceRosterCountWorkdaysOnly"
+            />
+            {{
+              "setting.complianceEnforcement.roster-publication-count-workdays-only"
+                | translate
+            }}
+          </label>
+        </div>
+        <div class="form-group secondColumn"></div>
+      </div>
+
+      <div class="bottom-border-space"></div>
+    </form>
+  }
+
+    <div
+      id="compliance-enforcement-settings-manual-content"
+      class="manual-content"
+      [innerHTML]="manualContent()"
+      [style.display]="activeTab() === 'manual' ? 'block' : 'none'"
+    ></div>
+  </div>
+</div>

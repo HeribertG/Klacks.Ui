@@ -1,0 +1,179 @@
+<div id="overtime-settings-container" class="container-dashboard">
+  <div id="overtime-settings-header" class="container-header">
+    {{ "setting.overtime.headline" | translate }}
+  </div>
+
+  <div id="overtime-settings-line" class="container-line"></div>
+
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          id="overtime-settings-tab-settings"
+          class="nav-link"
+          [class.active]="activeTab() === 'settings'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'settings'"
+          tabindex="0"
+          (click)="activeTab.set('settings')"
+          (keydown.enter)="activeTab.set('settings')"
+        >
+          {{ "setting.tab.settings" | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="overtime-settings-tab-manual"
+          class="nav-link"
+          [class.active]="activeTab() === 'manual'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'manual'"
+          tabindex="0"
+          (click)="activeTab.set('manual')"
+          (keydown.enter)="activeTab.set('manual')"
+        >
+          {{ "setting.tab.manual" | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="standard-tab-body">
+  @if (activeTab() === 'settings') {
+  @if (isDataLoaded) {
+    <form id="overtime-settings-form">
+      <div id="overtime-settings-mode-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="otBasis">{{
+            "setting.overtime.basis.label" | translate
+          }}</label>
+          <select
+            class="form-control"
+            [formField]="overtimeForm.overtimeBasis"
+            aria-label="otBasis"
+            id="otBasis"
+          >
+            <option value="day">
+              {{ "setting.overtime.basis.day" | translate }}
+            </option>
+            <option value="week">
+              {{ "setting.overtime.basis.week" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group secondColumn">
+          <label for="otRateMode">{{
+            "setting.overtime.rateMode.label" | translate
+          }}</label>
+          <select
+            class="form-control"
+            [formField]="overtimeForm.overtimeRateMode"
+            aria-label="otRateMode"
+            id="otRateMode"
+          >
+            <option value="multiplier">
+              {{ "setting.overtime.rateMode.multiplier" | translate }}
+            </option>
+            <option value="fixedperhour">
+              {{ "setting.overtime.rateMode.fixedperhour" | translate }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div id="overtime-settings-tier1-row" class="row-line" style="margin-top: 16px">
+        <div class="form-group firstColumn">
+          <label for="otTier1AfterHours">{{
+            "setting.overtime.tier1.afterHours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="overtimeForm.overtimeTier1AfterHours"
+            aria-label="otTier1AfterHours"
+            id="otTier1AfterHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="otTier1Rate"
+            >{{ "setting.overtime.tier1.rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="overtimeForm.overtimeTier1Rate"
+            aria-label="otTier1Rate"
+            id="otTier1Rate"
+          />
+        </div>
+      </div>
+
+      <div id="overtime-settings-tier2-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="otTier2AfterHours">{{
+            "setting.overtime.tier2.afterHours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="overtimeForm.overtimeTier2AfterHours"
+            aria-label="otTier2AfterHours"
+            id="otTier2AfterHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="otTier2Rate"
+            >{{ "setting.overtime.tier2.rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="overtimeForm.overtimeTier2Rate"
+            aria-label="otTier2Rate"
+            id="otTier2Rate"
+          />
+        </div>
+      </div>
+
+      <div id="overtime-settings-tier3-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="otTier3AfterHours">{{
+            "setting.overtime.tier3.afterHours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="overtimeForm.overtimeTier3AfterHours"
+            aria-label="otTier3AfterHours"
+            id="otTier3AfterHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="otTier3Rate"
+            >{{ "setting.overtime.tier3.rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="overtimeForm.overtimeTier3Rate"
+            aria-label="otTier3Rate"
+            id="otTier3Rate"
+          />
+        </div>
+      </div>
+
+      <div class="bottom-border-space"></div>
+    </form>
+  }
+  }
+  @if (activeTab() === 'manual') {
+    <div id="overtime-settings-manual" class="manual-content" [innerHTML]="manualContent()"></div>
+  }
+  </div>
+</div>

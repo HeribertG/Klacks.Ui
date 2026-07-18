@@ -1,0 +1,35 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="restricted-time-window-rule-row-container-{{ data().id }}" class="first custom-control-inline">
+  <span
+    id="restricted-time-window-rule-row-season-{{ data().id }}"
+    class="row-value col-season"
+    (click)="onClickEdit()"
+    >{{ seasonDisplay }}</span
+  >
+  <span
+    id="restricted-time-window-rule-row-daily-window-{{ data().id }}"
+    class="row-value col-daily-window"
+    (click)="onClickEdit()"
+    >{{ dailyWindowDisplay }}</span
+  >
+  <span
+    id="restricted-time-window-rule-row-group-tag-{{ data().id }}"
+    class="row-value col-group-tag"
+    (click)="onClickEdit()"
+  >
+    @if (data().appliesToGroupTag) {
+      {{ data().appliesToGroupTag }}
+    } @else {
+      {{ 'setting.restrictedTimeWindowRule.allShifts' | translate }}
+    }
+  </span>
+
+  <span
+    id="restricted-time-window-rule-row-delete-{{ data().id }}"
+    class="delete-button"
+    type="button"
+    (click)="onClickDelete()"
+    ><app-icon-trash-red
+  /></span>
+</div>

@@ -1,0 +1,83 @@
+<h2>Perioden-Obergrenzen – Handbuch</h2>
+
+<h3>Was sind Perioden-Obergrenzen?</h3>
+<p>
+Perioden-Obergrenzen begrenzen die Arbeitszeit einer Person über einen definierten
+Zeitraum. Sie kennen zwei Betriebsarten: eine <strong>feste Obergrenze</strong> für
+einen Kalenderzeitraum (z.&nbsp;B. maximale Stunden pro Monat) und ein
+<strong>Gleitfenster</strong> mit einem maximalen Durchschnitt an Wochenstunden über
+mehrere zurückliegende Wochen.
+</p>
+
+<h3>Die Einstellungen im Detail</h3>
+
+<h4>Zeitraum</h4>
+<p>Der Kalenderzeitraum, auf den sich die feste Obergrenze bezieht:</p>
+<ul>
+  <li><strong>Monat</strong>, <strong>Quartal</strong> oder <strong>Jahr</strong> – jeweils der kalendarische Zeitraum.</li>
+  <li><strong>Benutzerdefinierte Wochen</strong> – ein frei wählbarer Zeitraum in Wochen (siehe Perioden-Wochen).</li>
+</ul>
+
+<h4>Geltungsbereich</h4>
+<p>Welche Stunden gezählt werden:</p>
+<ul>
+  <li><strong>Gesamtstunden</strong> – alle geplanten Arbeitsstunden.</li>
+  <li><strong>Überstunden</strong> – nur die als Überstunden ausgewiesenen Stunden.</li>
+</ul>
+
+<h4>Obergrenze (Std.)</h4>
+<p>
+Die maximal zulässige Stundenzahl im gewählten Zeitraum und Geltungsbereich. Wird der
+Wert erreicht bzw. überschritten, meldet die Planung dies.
+</p>
+
+<h4>Warnschwelle (%)</h4>
+<p>
+Prozentsatz der Obergrenze, ab dem eine Vorwarnung erfolgen soll (z.&nbsp;B. 80&nbsp;%).
+<strong>Reserviert:</strong> Dieser Wert wird derzeit noch nicht ausgewertet und dient
+als Platzhalter für eine spätere Vorwarnstufe.
+</p>
+
+<h4>Perioden-Wochen</h4>
+<p>
+Nur relevant und nur eingeblendet, wenn der Zeitraum <strong>Benutzerdefinierte
+Wochen</strong> gewählt ist. Länge des Zeitraums in Wochen, zulässig sind
+<strong>1 bis 104</strong> Wochen.
+</p>
+
+<h4>Gleitfenster-Wochen</h4>
+<p>
+Länge des rückblickenden Gleitfensters in Wochen. Zusammen mit der maximalen
+durchschnittlichen Wochenstundenzahl aktiviert dies die Gleitfenster-Betriebsart:
+geprüft wird der Durchschnitt über die letzten <em>n</em> Wochen.
+</p>
+
+<h4>Max. Ø Wochenstunden</h4>
+<p>
+Der höchstzulässige Durchschnitt an Arbeitsstunden pro Woche über das Gleitfenster.
+Beispiel: 48 Stunden bei einem Gleitfenster von 17 Wochen begrenzt den gleitenden
+Wochendurchschnitt auf 48 Stunden.
+</p>
+
+<h4>Planungsregel-Bindung (optional)</h4>
+<p>
+Verknüpft die Perioden-Obergrenze mit einer bestehenden Planungsregel (Scheduling
+Rule). Bleibt das Feld leer, gilt die Obergrenze unabhängig.
+</p>
+
+<hr>
+
+<h3>Wichtiger Hinweis zu importierten Regeln</h3>
+<ul>
+  <li>
+    Regeln aus einem Regions-Setup (Länderprofil) werden beim erneuten Import des
+    Regions-Setups <strong>wiederhergestellt</strong>. Das Löschen einer solchen Zeile
+    ist deshalb <strong>nicht dauerhaft</strong> – sie erscheint nach dem nächsten
+    Re-Import wieder.
+  </li>
+  <li>
+    Eine an einer importierten Zeile gesetzte <strong>Planungsregel-Bindung</strong>
+    wird beim Re-Import auf den Ausgangswert <strong>zurückgesetzt</strong>. Manuell
+    angelegte Regeln sind davon nicht betroffen.
+  </li>
+</ul>

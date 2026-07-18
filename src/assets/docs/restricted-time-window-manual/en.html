@@ -1,0 +1,47 @@
+<h2>Restricted Time Windows – Manual</h2>
+
+<h3>What are restricted time windows?</h3>
+<p>
+A restricted time window forbids scheduling shifts within a certain part of the day during
+a certain season. This can be used, for example, to model a night-scheduling ban for part
+of the year or industry-specific blackout periods.
+</p>
+
+<h3>The settings in detail</h3>
+
+<h4>Season from (month / day)</h4>
+<p>
+Start of the season in which the window applies, as month (1–12) and day (1–31). The
+season refers to the shift's date, not to a calendar year, and may span the turn of the
+year (see below).
+</p>
+
+<h4>Season to (month / day)</h4>
+<p>
+End of the season as month and day. If the end lies before the start (e.g. from 1 November
+to 28 February), the season applies across the turn of the year.
+</p>
+
+<h4>Daily window – start / end</h4>
+<p>
+The time of day during which the restriction applies, as a start time and end time
+(HH:mm). A window whose end time lies before the start time (e.g. 22:00 to 06:00) applies
+across midnight.
+</p>
+
+<h4>Applies to group tag</h4>
+<p>
+Restricts the block to shifts of a specific group (via its tag/identifier). If the field
+is left <strong>empty</strong>, the restriction applies to <strong>all shifts</strong>.
+</p>
+
+<hr>
+
+<h3>Important note on imported rules</h3>
+<ul>
+  <li>
+    Rules from a region setup (country profile) are <strong>restored</strong> when the
+    region setup is re-imported. Deleting such a row is therefore <strong>not
+    permanent</strong> – it reappears after the next re-import.
+  </li>
+</ul>

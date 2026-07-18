@@ -1,0 +1,35 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+.first {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-inline-start: 30px;
+}
+
+.row-value {
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-season {
+  width: 200px;
+}
+
+.col-daily-window {
+  width: 160px;
+}
+
+.col-group-tag {
+  width: 200px;
+}
+
+.delete-button {
+  cursor: pointer;
+}

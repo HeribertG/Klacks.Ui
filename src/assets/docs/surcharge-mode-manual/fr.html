@@ -1,0 +1,28 @@
+<h3>Mode de majoration &ndash; Explications</h3>
+<p>Cette carte d&eacute;finit comment les majorations pour le travail de nuit, les jours f&eacute;ri&eacute;s et le week-end sont calcul&eacute;es et repr&eacute;sent&eacute;es. Les param&egrave;tres servent de base aux nouvelles affectations&nbsp;; les affectations existantes conservent les valeurs d&eacute;j&agrave; enregistr&eacute;es.</p>
+
+<h4>Modes de majoration (modes de taux)</h4>
+<p>Pour chaque cat&eacute;gorie &ndash; nuit, jour f&eacute;ri&eacute; ainsi que les trois niveaux de week-end WE1, WE2 et WE3 &ndash; le mode de taux d&eacute;termine comment le taux configur&eacute; est interpr&eacute;t&eacute;&nbsp;:</p>
+<ul>
+  <li><strong>Multiplicateur</strong>&nbsp;: le taux est un facteur appliqu&eacute; au salaire horaire (p.&nbsp;ex. 1,5 = 150&nbsp;%).</li>
+  <li><strong>Montant fixe par heure</strong>&nbsp;: un montant fixe est ajout&eacute; pour chaque heure travaill&eacute;e.</li>
+  <li><strong>Montant fixe par affectation</strong>&nbsp;: un montant fixe est ajout&eacute; une seule fois par affectation.</li>
+</ul>
+<p>Par d&eacute;faut&nbsp;: <strong>Multiplicateur</strong> pour les cinq cat&eacute;gories.</p>
+
+<h4>Majoration WE3 (%)</h4>
+<p>Taux de majoration en pourcentage pour le niveau de week-end WE3. La valeur est saisie en pourcentage (p.&nbsp;ex. 100 = 100&nbsp;%) et enregistr&eacute;e en interne sous forme de facteur. Par d&eacute;faut&nbsp;: <strong>0</strong>.</p>
+
+<h4>Montants minimaux par heure</h4>
+<p>Montant minimal facultatif par heure pour la nuit, les jours f&eacute;ri&eacute;s, WE1, WE2 et WE3. Lorsqu'une valeur est d&eacute;finie, la majoration horaire ne descend jamais en dessous de ce montant. Si le champ reste vide, aucun minimum ne s'applique. Par d&eacute;faut&nbsp;: <strong>vide</strong> (aucun minimum).</p>
+
+<h4>Fen&ecirc;tre de nuit</h4>
+<p>D&eacute;but et fin de la plage horaire pendant laquelle le travail est consid&eacute;r&eacute; comme travail de nuit. La plage peut passer minuit. Par d&eacute;faut&nbsp;: <strong>23:00</strong> &agrave; <strong>06:00</strong>.</p>
+
+<h4>Mode de cumul</h4>
+<p>D&eacute;termine comment plusieurs majorations applicables en m&ecirc;me temps (p.&nbsp;ex. nuit et jour f&eacute;ri&eacute;) sont combin&eacute;es&nbsp;:</p>
+<ul>
+  <li><strong>La plus &eacute;lev&eacute;e l'emporte</strong>&nbsp;: seule la majoration applicable la plus &eacute;lev&eacute;e est appliqu&eacute;e.</li>
+  <li><strong>Additif</strong>&nbsp;: toutes les majorations applicables sont additionn&eacute;es.</li>
+</ul>
+<p>Par d&eacute;faut&nbsp;: <strong>La plus &eacute;lev&eacute;e l'emporte</strong>. Remarque&nbsp;: ce param&egrave;tre ne s&eacute;lectionne que la macro par d&eacute;faut des nouvelles affectations&nbsp;; les affectations existantes ne sont pas concern&eacute;es.</p>

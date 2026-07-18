@@ -1,0 +1,72 @@
+<h2>Regole di conteggio – Manuale</h2>
+
+<h3>Che cosa sono le regole di conteggio?</h3>
+<p>
+Le regole di conteggio contano gli eventi ricorrenti per persona su un periodo definito
+e attivano un avviso o un blocco nella pianificazione quando viene superata una soglia.
+Servono per applicare limiti operativi o legali, come il numero massimo di turni
+notturni al mese.
+</p>
+
+<h3>Le impostazioni in dettaglio</h3>
+
+<h4>Tipo di evento</h4>
+<p>Determina quale evento viene contato:</p>
+<ul>
+  <li><strong>Turno notturno</strong> – conta i turni che ricadono nella finestra notturna definita.</li>
+  <li><strong>Giorno lavorato per settimana</strong> – conta i giorni a settimana in cui la persona è pianificata.</li>
+  <li><strong>Turno oltre le ore</strong> – conta i turni la cui durata supera la soglia di ore definita di seguito.</li>
+</ul>
+
+<h4>Periodo</h4>
+<p>
+La finestra su cui avviene il conteggio: <strong>settimana</strong>, <strong>mese</strong>
+o <strong>anno</strong>. Il contatore viene azzerato all'inizio di ogni nuovo periodo.
+</p>
+
+<h4>Soglia</h4>
+<p>
+Il numero massimo consentito dell'evento all'interno del periodo. Una volta raggiunto o
+superato il valore, si applica l'applicazione della regola. Esempio: soglia 5 con tipo
+di evento <em>turno notturno</em> e periodo <em>mese</em> limita la persona a cinque
+turni notturni al mese.
+</p>
+
+<h4>Soglia di ore</h4>
+<p>
+Rilevante e visibile solo quando è selezionato il tipo di evento <strong>turno oltre le
+ore</strong>. Definisce a partire da quale durata del turno (in ore) un turno viene
+contato come evento.
+</p>
+
+<h4>Applicazione</h4>
+<p>Come reagisce la pianificazione in caso di superamento:</p>
+<ul>
+  <li><strong>Eredita predefinito</strong> – usa la modalità predefinita configurata nell'applicazione della conformità.</li>
+  <li><strong>Avvisa</strong> – mostra un avviso ma consente comunque la pianificazione.</li>
+  <li><strong>Blocca</strong> – impedisce la pianificazione finché la regola non è di nuovo rispettata.</li>
+</ul>
+
+<h4>Collegamento a una regola di pianificazione (facoltativo)</h4>
+<p>
+Collega la regola di conteggio a una regola di pianificazione esistente. Se il campo
+resta vuoto, la regola di conteggio si applica in modo autonomo. Il collegamento è
+facoltativo e non necessario nei casi standard.
+</p>
+
+<hr>
+
+<h3>Nota importante sulle regole importate</h3>
+<ul>
+  <li>
+    Le regole che provengono da una configurazione regionale (profilo paese) vengono
+    <strong>ripristinate</strong> quando la configurazione regionale viene reimportata.
+    L'eliminazione di una tale riga non è quindi <strong>permanente</strong> – ricompare
+    dopo la successiva reimportazione.
+  </li>
+  <li>
+    Un <strong>collegamento a una regola di pianificazione</strong> impostato su una riga
+    importata viene <strong>reimpostato</strong> al suo valore originale alla
+    reimportazione. Le regole create manualmente non ne sono interessate.
+  </li>
+</ul>

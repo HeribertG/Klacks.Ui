@@ -185,3 +185,130 @@ export class WorkSettings implements IWorkSettings {
   dayVisibleBefore = 3;
   dayVisibleAfter = 3;
 }
+
+export interface IOnCallSettings {
+  onCallEnabled: boolean;
+  onCallPresenceCountsPercent: number;
+  onCallStandbyCountsPercent: number;
+  onCallIncludeInPeriodCaps: boolean;
+}
+
+export class OnCallSettings implements IOnCallSettings {
+  onCallEnabled = false;
+  onCallPresenceCountsPercent = 100;
+  onCallStandbyCountsPercent = 0;
+  onCallIncludeInPeriodCaps = false;
+}
+
+export interface ICompensatoryRestSettings {
+  compensatoryRestEnabled: boolean;
+  compensatoryRestDeadlineDays: number;
+  compensatoryRestAutoPlan: boolean;
+}
+
+export class CompensatoryRestSettings implements ICompensatoryRestSettings {
+  compensatoryRestEnabled = false;
+  compensatoryRestDeadlineDays = 0;
+  compensatoryRestAutoPlan = false;
+}
+
+export type SurchargeRateMode = 'multiplier' | 'fixedperhour' | 'fixedpershift';
+export type SurchargeStackingMode = 'highestwins' | 'additive';
+
+export interface ISurchargeModeSettings {
+  we3Rate: number;
+  nightRateMode: SurchargeRateMode;
+  holidayRateMode: SurchargeRateMode;
+  we1RateMode: SurchargeRateMode;
+  we2RateMode: SurchargeRateMode;
+  we3RateMode: SurchargeRateMode;
+  nightMinimumPerHour: number | null;
+  holidayMinimumPerHour: number | null;
+  we1MinimumPerHour: number | null;
+  we2MinimumPerHour: number | null;
+  we3MinimumPerHour: number | null;
+  nightStart: string;
+  nightEnd: string;
+  stackingMode: SurchargeStackingMode;
+}
+
+export class SurchargeModeSettings implements ISurchargeModeSettings {
+  we3Rate = 0;
+  nightRateMode: SurchargeRateMode = 'multiplier';
+  holidayRateMode: SurchargeRateMode = 'multiplier';
+  we1RateMode: SurchargeRateMode = 'multiplier';
+  we2RateMode: SurchargeRateMode = 'multiplier';
+  we3RateMode: SurchargeRateMode = 'multiplier';
+  nightMinimumPerHour: number | null = null;
+  holidayMinimumPerHour: number | null = null;
+  we1MinimumPerHour: number | null = null;
+  we2MinimumPerHour: number | null = null;
+  we3MinimumPerHour: number | null = null;
+  nightStart = '23:00';
+  nightEnd = '06:00';
+  stackingMode: SurchargeStackingMode = 'highestwins';
+}
+
+export type OvertimeBasis = 'day' | 'week';
+export type OvertimeRateMode = 'multiplier' | 'fixedperhour';
+
+export interface IOvertimeSettings {
+  overtimeBasis: OvertimeBasis;
+  overtimeRateMode: OvertimeRateMode;
+  overtimeTier1AfterHours: number | null;
+  overtimeTier1Rate: number | null;
+  overtimeTier2AfterHours: number | null;
+  overtimeTier2Rate: number | null;
+  overtimeTier3AfterHours: number | null;
+  overtimeTier3Rate: number | null;
+}
+
+export class OvertimeSettings implements IOvertimeSettings {
+  overtimeBasis: OvertimeBasis = 'day';
+  overtimeRateMode: OvertimeRateMode = 'multiplier';
+  overtimeTier1AfterHours: number | null = null;
+  overtimeTier1Rate: number | null = null;
+  overtimeTier2AfterHours: number | null = null;
+  overtimeTier2Rate: number | null = null;
+  overtimeTier3AfterHours: number | null = null;
+  overtimeTier3Rate: number | null = null;
+}
+
+export type ComplianceEnforcementDefaultMode = 'warn' | 'block';
+export type ComplianceEnforcementRuleMode = '' | 'warn' | 'block';
+
+export interface IComplianceEnforcementSettings {
+  enforcementDefaultMode: ComplianceEnforcementDefaultMode;
+  enforcementAllowSupervisorOverride: boolean;
+  enforcementMaxDailyHours: ComplianceEnforcementRuleMode;
+  enforcementMaxWeeklyHours: ComplianceEnforcementRuleMode;
+  enforcementMinRestHours: ComplianceEnforcementRuleMode;
+  enforcementMinRestDays: ComplianceEnforcementRuleMode;
+  enforcementMaxConsecutiveDays: ComplianceEnforcementRuleMode;
+  enforcementPeriodCap: ComplianceEnforcementRuleMode;
+  enforcementRollingAverage: ComplianceEnforcementRuleMode;
+  enforcementRestDayRotation: ComplianceEnforcementRuleMode;
+  enforcementCounterRule: ComplianceEnforcementRuleMode;
+  enforcementCompensatoryRest: ComplianceEnforcementRuleMode;
+  enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode;
+  rosterPublicationMinLeadDays: number;
+  rosterPublicationCountWorkdaysOnly: boolean;
+}
+
+export class ComplianceEnforcementSettings implements IComplianceEnforcementSettings {
+  enforcementDefaultMode: ComplianceEnforcementDefaultMode = 'warn';
+  enforcementAllowSupervisorOverride = true;
+  enforcementMaxDailyHours: ComplianceEnforcementRuleMode = '';
+  enforcementMaxWeeklyHours: ComplianceEnforcementRuleMode = '';
+  enforcementMinRestHours: ComplianceEnforcementRuleMode = '';
+  enforcementMinRestDays: ComplianceEnforcementRuleMode = '';
+  enforcementMaxConsecutiveDays: ComplianceEnforcementRuleMode = '';
+  enforcementPeriodCap: ComplianceEnforcementRuleMode = '';
+  enforcementRollingAverage: ComplianceEnforcementRuleMode = '';
+  enforcementRestDayRotation: ComplianceEnforcementRuleMode = '';
+  enforcementCounterRule: ComplianceEnforcementRuleMode = '';
+  enforcementCompensatoryRest: ComplianceEnforcementRuleMode = '';
+  enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode = '';
+  rosterPublicationMinLeadDays = 0;
+  rosterPublicationCountWorkdaysOnly = false;
+}

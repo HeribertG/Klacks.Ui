@@ -300,6 +300,127 @@
     class="section-header first"
     tabindex="0"
     role="button"
+    (click)="toggleSection('compliance')"
+    (keydown.enter)="toggleSection('compliance')"
+  >
+    <span>{{ "setting.section.compliance" | translate }}</span>
+    <button class="section-toggle-button">
+      @if (sections["compliance"]) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  @if (sections["compliance"]) {
+    <div id="settings-home-on-call-row" class="container-profilline">
+      <app-on-call-settings
+        id="settings-on-call"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-on-call-settings')"
+        data-klacksy-target="on-call"
+        data-klacksy-label-key="settings.onCall"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-on-call-settings>
+    </div>
+
+    <div id="settings-home-compensatory-rest-row" class="container-profilline">
+      <app-compensatory-rest-settings
+        id="settings-compensatory-rest"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-compensatory-rest-settings')"
+        data-klacksy-target="compensatory-rest"
+        data-klacksy-label-key="settings.compensatoryRest"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-compensatory-rest-settings>
+    </div>
+
+    <div id="settings-home-surcharge-mode-row" class="container-profilline">
+      <app-surcharge-mode-settings
+        id="settings-surcharge-mode"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-surcharge-mode-settings')"
+        data-klacksy-target="surcharge-mode"
+        data-klacksy-label-key="settings.surchargeMode"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-surcharge-mode-settings>
+    </div>
+
+    <div id="settings-home-overtime-row" class="container-profilline">
+      <app-overtime-settings
+        id="settings-overtime"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-overtime-settings')"
+        data-klacksy-target="overtime"
+        data-klacksy-label-key="settings.overtime"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-overtime-settings>
+    </div>
+
+    <div id="settings-home-compliance-enforcement-row" class="container-profilline">
+      <app-compliance-enforcement-settings
+        id="settings-compliance-enforcement"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-compliance-enforcement-settings')"
+        data-klacksy-target="compliance-enforcement"
+        data-klacksy-label-key="settings.complianceEnforcement"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-compliance-enforcement-settings>
+    </div>
+
+    <div id="settings-home-counter-rules-row" class="container-profilline">
+      <app-counter-rules
+        id="settings-counter-rules"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-counter-rules')"
+        data-klacksy-target="counter-rules"
+        data-klacksy-label-key="settings.counterRule"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      ></app-counter-rules>
+    </div>
+
+    <div id="settings-home-period-cap-rules-row" class="container-profilline">
+      <app-period-cap-rules
+        id="settings-period-cap-rules"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-period-cap-rules')"
+        data-klacksy-target="period-cap-rules"
+        data-klacksy-label-key="settings.periodCapRule"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      ></app-period-cap-rules>
+    </div>
+
+    <div id="settings-home-restricted-time-window-rules-row" class="container-profilline">
+      <app-restricted-time-window-rules
+        id="settings-restricted-time-window-rules"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-restricted-time-window-rules')"
+        data-klacksy-target="restricted-time-window-rules"
+        data-klacksy-label-key="settings.restrictedTimeWindowRule"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      ></app-restricted-time-window-rules>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
     (click)="toggleSection('absence')"
     (keydown.enter)="toggleSection('absence')"
   >

@@ -1,0 +1,222 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<!-- Restricted Time Window Rule Modal -->
+<ng-template #ruleModal id="restricted-time-window-rule-modal-template" let-modal>
+  <div id="restricted-time-window-rule-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ 'setting.restrictedTimeWindowRule.headline-modal' | translate }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="restricted-time-window-rule-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="restricted-time-window-rule-modal-body" class="modal-body">
+    @if (editingRule) {
+    <!-- Season From -->
+    <div id="restricted-time-window-rule-modal-season-from-row" class="row-line-modal-inline rule-config-row">
+      <div id="restricted-time-window-rule-modal-season-from-month-item" class="rule-config-item">
+        <label for="seasonFromMonth">{{ 'setting.restrictedTimeWindowRule.seasonFromMonth' | translate }}</label>
+        <input
+          type="number"
+          [formField]="ruleForm.seasonFromMonth"
+          class="form-control rule-input"
+          id="seasonFromMonth"
+          aria-label="seasonFromMonth"
+        />
+      </div>
+
+      <div id="restricted-time-window-rule-modal-season-from-day-item" class="rule-config-item">
+        <label for="seasonFromDay">{{ 'setting.restrictedTimeWindowRule.seasonFromDay' | translate }}</label>
+        <input
+          type="number"
+          [formField]="ruleForm.seasonFromDay"
+          class="form-control rule-input"
+          id="seasonFromDay"
+          aria-label="seasonFromDay"
+        />
+      </div>
+    </div>
+
+    <!-- Season To -->
+    <div id="restricted-time-window-rule-modal-season-to-row" class="row-line-modal-inline rule-config-row">
+      <div id="restricted-time-window-rule-modal-season-to-month-item" class="rule-config-item">
+        <label for="seasonToMonth">{{ 'setting.restrictedTimeWindowRule.seasonToMonth' | translate }}</label>
+        <input
+          type="number"
+          [formField]="ruleForm.seasonToMonth"
+          class="form-control rule-input"
+          id="seasonToMonth"
+          aria-label="seasonToMonth"
+        />
+      </div>
+
+      <div id="restricted-time-window-rule-modal-season-to-day-item" class="rule-config-item">
+        <label for="seasonToDay">{{ 'setting.restrictedTimeWindowRule.seasonToDay' | translate }}</label>
+        <input
+          type="number"
+          [formField]="ruleForm.seasonToDay"
+          class="form-control rule-input"
+          id="seasonToDay"
+          aria-label="seasonToDay"
+        />
+      </div>
+    </div>
+
+    <!-- Daily Start / Daily End -->
+    <div id="restricted-time-window-rule-modal-daily-row" class="row-line-modal-inline rule-config-row">
+      <div id="restricted-time-window-rule-modal-daily-start-item" class="rule-config-item">
+        <label for="dailyStart">{{ 'setting.restrictedTimeWindowRule.dailyStart' | translate }}</label>
+        <input
+          type="time"
+          [formField]="ruleForm.dailyStart"
+          class="form-control rule-time-input"
+          id="dailyStart"
+          aria-label="dailyStart"
+        />
+      </div>
+
+      <div id="restricted-time-window-rule-modal-daily-end-item" class="rule-config-item">
+        <label for="dailyEnd">{{ 'setting.restrictedTimeWindowRule.dailyEnd' | translate }}</label>
+        <input
+          type="time"
+          [formField]="ruleForm.dailyEnd"
+          class="form-control rule-time-input"
+          id="dailyEnd"
+          aria-label="dailyEnd"
+        />
+      </div>
+    </div>
+
+    <!-- Applies To Group Tag -->
+    <div id="restricted-time-window-rule-modal-group-tag-row" class="row-line-modal-inline">
+      <div id="restricted-time-window-rule-modal-group-tag-section" class="rule-group-tag-section">
+        <label for="appliesToGroupTag">{{ 'setting.restrictedTimeWindowRule.appliesToGroupTag' | translate }}</label>
+        <input
+          type="text"
+          [formField]="ruleForm.appliesToGroupTag"
+          class="form-control"
+          id="appliesToGroupTag"
+          aria-label="appliesToGroupTag"
+        />
+        <small id="restricted-time-window-rule-modal-group-tag-hint" class="form-text hint-text">
+          {{ 'setting.restrictedTimeWindowRule.appliesToGroupTagHint' | translate }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Validation Errors -->
+    @if (getValidationErrors().length > 0) {
+    <div id="restricted-time-window-rule-modal-validation-row" class="row-line-modal-inline">
+      <div id="restricted-time-window-rule-modal-validation-section" class="validation-errors-section">
+        <div id="restricted-time-window-rule-modal-validation-alert" class="alert alert-danger">
+          <strong>{{ 'validation.errors' | translate }}:</strong>
+          <ul id="restricted-time-window-rule-modal-validation-list">
+            @for (error of getValidationErrors(); track error) {
+            <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+    }
+    }
+  </div>
+
+  <div id="restricted-time-window-rule-modal-footer" class="modal-footer">
+    <span
+      id="restricted-time-window-rule-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="restricted-time-window-rule-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<div class="standard-tabs-header">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        id="restricted-time-window-rules-tab-list"
+        class="nav-link"
+        [class.active]="activeTab() === 'list'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'list'"
+        tabindex="0"
+        (click)="setTab('list')"
+        (keydown.enter)="setTab('list')"
+      >
+        {{ 'setting.tab.list' | translate }}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="restricted-time-window-rules-tab-manual"
+        class="nav-link"
+        [class.active]="activeTab() === 'manual'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'manual'"
+        tabindex="0"
+        (click)="setTab('manual')"
+        (keydown.enter)="setTab('manual')"
+      >
+        {{ 'setting.tab.manual' | translate }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="standard-tab-body">
+@if (activeTab() === 'list') {
+<app-settings-list-card
+  [headline]="'setting.restrictedTimeWindowRule.headline' | translate"
+  [addLabel]="'setting.restrictedTimeWindowRule.add' | translate"
+  [showHeader]="true"
+  idPrefix="restricted-time-window-rules"
+  (addClick)="onClickAdd()"
+>
+  <app-restricted-time-window-rule-header header id="restricted-time-window-rules-table-header"></app-restricted-time-window-rule-header>
+  <div rows #containerBox>
+    @for (rule of dataManagementService.rules; track rule.id || $index; let i = $index) {
+      <app-restricted-time-window-rule-row
+        [id]="'restricted-time-window-rule-row-' + i"
+        [data]="rule"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteRule(i)"
+      />
+    }
+  </div>
+</app-settings-list-card>
+}
+
+@if (activeTab() === 'manual') {
+  <div class="manual-tab-body">
+    <div class="manual-content" [innerHTML]="manualContent()"></div>
+  </div>
+}
+</div>

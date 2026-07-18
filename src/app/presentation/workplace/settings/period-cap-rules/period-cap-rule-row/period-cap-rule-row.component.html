@@ -1,0 +1,44 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="period-cap-rule-row-form-{{ data().id }}">
+  <div id="period-cap-rule-row-container-{{ data().id }}" class="first custom-control-inline">
+    <input
+      id="period-cap-rule-row-period-{{ data().id }}"
+      type="text"
+      [value]="periodKey() | translate"
+      class="form-control cap-period"
+      aria-label="period"
+      (click)="onClickEdit()"
+      readonly
+    />
+    <input
+      id="period-cap-rule-row-scope-{{ data().id }}"
+      type="text"
+      [value]="scopeKey() | translate"
+      class="form-control cap-scope"
+      aria-label="scope"
+      (click)="onClickEdit()"
+      readonly
+    />
+    <input
+      id="period-cap-rule-row-cap-hours-{{ data().id }}"
+      type="text"
+      [value]="capHoursDisplay()"
+      class="form-control cap-hours"
+      aria-label="capHours"
+      (click)="onClickEdit()"
+      readonly
+    />
+    <input
+      id="period-cap-rule-row-rolling-{{ data().id }}"
+      type="text"
+      [value]="rollingSummary()"
+      class="form-control cap-rolling"
+      aria-label="rolling"
+      (click)="onClickEdit()"
+      readonly
+    />
+
+    <span id="period-cap-rule-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+  </div>
+</form>

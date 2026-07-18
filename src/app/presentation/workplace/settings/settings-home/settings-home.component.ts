@@ -63,6 +63,14 @@ import { ExportFormatOverridesSettingComponent } from '../export-format-override
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
+import { OnCallSettingsComponent } from '../on-call-settings/on-call-settings.component';
+import { CompensatoryRestSettingsComponent } from '../compensatory-rest-settings/compensatory-rest-settings.component';
+import { SurchargeModeSettingsComponent } from '../surcharge-mode-settings/surcharge-mode-settings.component';
+import { OvertimeSettingsComponent } from '../overtime-settings/overtime-settings.component';
+import { ComplianceEnforcementSettingsComponent } from '../compliance-enforcement-settings/compliance-enforcement-settings.component';
+import { CounterRulesComponent } from '../counter-rules/counter-rules.component';
+import { PeriodCapRulesComponent } from '../period-cap-rules/period-cap-rules.component';
+import { RestrictedTimeWindowRulesComponent } from '../restricted-time-window-rules/restricted-time-window-rules.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -129,6 +137,14 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     UpdatesSettingComponent,
     QualificationsComponent,
     PersonalAccessTokensComponent,
+    OnCallSettingsComponent,
+    CompensatoryRestSettingsComponent,
+    SurchargeModeSettingsComponent,
+    OvertimeSettingsComponent,
+    ComplianceEnforcementSettingsComponent,
+    CounterRulesComponent,
+    PeriodCapRulesComponent,
+    RestrictedTimeWindowRulesComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -149,6 +165,7 @@ export class SettingsHomeComponent implements OnInit {
     users: true,
     organization: true,
     work: true,
+    compliance: true,
     absence: true,
     communication: true,
     appearance: true,

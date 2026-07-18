@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Central store for all key-value application settings persisted through the generic
+ * GeneralSettings endpoint. Loads the flat setting list into strongly typed sub-group
+ * signals (contact, email, imap, work, scheduling defaults, on-call, compensatory rest,
+ * surcharge modes, overtime, compliance enforcement, etc.), tracks per-group dirtiness
+ * against an original snapshot, and debounces an auto-save that writes only changed keys.
+ */
+
 import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
@@ -12,12 +20,28 @@ import {
   IWorkSettings,
   ISchedulingDefaultSettings,
   IDataRetentionSettings,
+  IOnCallSettings,
+  ICompensatoryRestSettings,
+  ISurchargeModeSettings,
+  IOvertimeSettings,
+  IComplianceEnforcementSettings,
   AppContactSettings,
   EmailServerSettings,
   ImapServerSettings,
   WorkSettings,
   SchedulingDefaultSettings,
-  DataRetentionSettings
+  DataRetentionSettings,
+  OnCallSettings,
+  CompensatoryRestSettings,
+  SurchargeModeSettings,
+  OvertimeSettings,
+  ComplianceEnforcementSettings,
+  SurchargeRateMode,
+  SurchargeStackingMode,
+  OvertimeBasis,
+  OvertimeRateMode,
+  ComplianceEnforcementDefaultMode,
+  ComplianceEnforcementRuleMode
 } from 'src/app/domain/models/settings/app-settings.model';
 import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
@@ -26,6 +50,15 @@ import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+
+/**
+ * Serializes a nullable numeric setting into its stored string form.
+ * @param value - The raw numeric value or null when the setting is unset
+ * @returns Empty string for null, otherwise the number as an invariant string
+ */
+function serializeNullableNumber(value: number | null): string {
+  return value === null ? '' : value.toString();
+}
 
 interface SettingsModels {
   contact: IAppContactSettings;
@@ -41,6 +74,11 @@ interface SettingsModels {
   erpImportCronTimeZone: string;
   speech: ISpeechSettings;
   holisticHarmonizer: IHolisticHarmonizerSettings;
+  onCall: IOnCallSettings;
+  compensatoryRest: ICompensatoryRestSettings;
+  surchargeMode: ISurchargeModeSettings;
+  overtime: IOvertimeSettings;
+  complianceEnforcement: IComplianceEnforcementSettings;
 }
 
 @Injectable({
@@ -177,6 +215,67 @@ export class AppSettingsManagementService {
       ? sortDayNamesMondayFirst(v.split(',').map(s => s.trim()).filter(s => s.length > 0))
       : ['Saturday', 'Sunday'])],
     [AppSetting.CALENDAR_WEEK_START_DAY, (v, m) => (m.schedulingDefaults.weekStartDay = v || 'Monday')],
+
+    [AppSetting.WORKTIME_ONCALL_ENABLED, (v, m) => (m.onCall.onCallEnabled = v === 'true')],
+    [AppSetting.WORKTIME_ONCALL_PRESENCE_COUNTS_PERCENT, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.onCall.onCallPresenceCountsPercent = Number.isNaN(parsed) ? 100 : parsed;
+    }],
+    [AppSetting.WORKTIME_ONCALL_STANDBY_COUNTS_PERCENT, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.onCall.onCallStandbyCountsPercent = Number.isNaN(parsed) ? 0 : parsed;
+    }],
+    [AppSetting.WORKTIME_ONCALL_INCLUDE_IN_PERIOD_CAPS, (v, m) => (m.onCall.onCallIncludeInPeriodCaps = v === 'true')],
+
+    [AppSetting.COMPLIANCE_COMPENSATORY_REST_ENABLED, (v, m) => (m.compensatoryRest.compensatoryRestEnabled = v === 'true')],
+    [AppSetting.COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.compensatoryRest.compensatoryRestDeadlineDays = Number.isNaN(parsed) ? 0 : parsed;
+    }],
+    [AppSetting.COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN, (v, m) => (m.compensatoryRest.compensatoryRestAutoPlan = v === 'true')],
+
+    [AppSetting.WORK_WE3_RATE, (v, m) => (m.surchargeMode.we3Rate = parseFloat(v) || 0)],
+    [AppSetting.SURCHARGE_NIGHT_RATE_MODE, (v, m) => (m.surchargeMode.nightRateMode = (v || 'multiplier') as SurchargeRateMode)],
+    [AppSetting.SURCHARGE_HOLIDAY_RATE_MODE, (v, m) => (m.surchargeMode.holidayRateMode = (v || 'multiplier') as SurchargeRateMode)],
+    [AppSetting.SURCHARGE_WE1_RATE_MODE, (v, m) => (m.surchargeMode.we1RateMode = (v || 'multiplier') as SurchargeRateMode)],
+    [AppSetting.SURCHARGE_WE2_RATE_MODE, (v, m) => (m.surchargeMode.we2RateMode = (v || 'multiplier') as SurchargeRateMode)],
+    [AppSetting.SURCHARGE_WE3_RATE_MODE, (v, m) => (m.surchargeMode.we3RateMode = (v || 'multiplier') as SurchargeRateMode)],
+    [AppSetting.SURCHARGE_NIGHT_MINIMUM_PER_HOUR, (v, m) => (m.surchargeMode.nightMinimumPerHour = v === '' ? null : parseFloat(v))],
+    [AppSetting.SURCHARGE_HOLIDAY_MINIMUM_PER_HOUR, (v, m) => (m.surchargeMode.holidayMinimumPerHour = v === '' ? null : parseFloat(v))],
+    [AppSetting.SURCHARGE_WE1_MINIMUM_PER_HOUR, (v, m) => (m.surchargeMode.we1MinimumPerHour = v === '' ? null : parseFloat(v))],
+    [AppSetting.SURCHARGE_WE2_MINIMUM_PER_HOUR, (v, m) => (m.surchargeMode.we2MinimumPerHour = v === '' ? null : parseFloat(v))],
+    [AppSetting.SURCHARGE_WE3_MINIMUM_PER_HOUR, (v, m) => (m.surchargeMode.we3MinimumPerHour = v === '' ? null : parseFloat(v))],
+    [AppSetting.SURCHARGE_NIGHT_START, (v, m) => (m.surchargeMode.nightStart = v || '23:00')],
+    [AppSetting.SURCHARGE_NIGHT_END, (v, m) => (m.surchargeMode.nightEnd = v || '06:00')],
+    [AppSetting.SURCHARGE_STACKING_MODE, (v, m) => (m.surchargeMode.stackingMode = (v || 'highestwins') as SurchargeStackingMode)],
+
+    [AppSetting.OVERTIME_BASIS, (v, m) => (m.overtime.overtimeBasis = (v || 'day') as OvertimeBasis)],
+    [AppSetting.OVERTIME_RATE_MODE, (v, m) => (m.overtime.overtimeRateMode = (v || 'multiplier') as OvertimeRateMode)],
+    [AppSetting.OVERTIME_TIER1_AFTER_HOURS, (v, m) => (m.overtime.overtimeTier1AfterHours = v === '' ? null : parseFloat(v))],
+    [AppSetting.OVERTIME_TIER1_RATE, (v, m) => (m.overtime.overtimeTier1Rate = v === '' ? null : parseFloat(v))],
+    [AppSetting.OVERTIME_TIER2_AFTER_HOURS, (v, m) => (m.overtime.overtimeTier2AfterHours = v === '' ? null : parseFloat(v))],
+    [AppSetting.OVERTIME_TIER2_RATE, (v, m) => (m.overtime.overtimeTier2Rate = v === '' ? null : parseFloat(v))],
+    [AppSetting.OVERTIME_TIER3_AFTER_HOURS, (v, m) => (m.overtime.overtimeTier3AfterHours = v === '' ? null : parseFloat(v))],
+    [AppSetting.OVERTIME_TIER3_RATE, (v, m) => (m.overtime.overtimeTier3Rate = v === '' ? null : parseFloat(v))],
+
+    [AppSetting.COMPLIANCE_ENFORCEMENT_DEFAULT_MODE, (v, m) => (m.complianceEnforcement.enforcementDefaultMode = (v || 'warn') as ComplianceEnforcementDefaultMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_ALLOW_SUPERVISOR_OVERRIDE, (v, m) => (m.complianceEnforcement.enforcementAllowSupervisorOverride = v === 'true')],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_MAX_DAILY_HOURS, (v, m) => (m.complianceEnforcement.enforcementMaxDailyHours = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_MAX_WEEKLY_HOURS, (v, m) => (m.complianceEnforcement.enforcementMaxWeeklyHours = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_MIN_REST_HOURS, (v, m) => (m.complianceEnforcement.enforcementMinRestHours = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_MIN_REST_DAYS, (v, m) => (m.complianceEnforcement.enforcementMinRestDays = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_MAX_CONSECUTIVE_DAYS, (v, m) => (m.complianceEnforcement.enforcementMaxConsecutiveDays = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_PERIOD_CAP, (v, m) => (m.complianceEnforcement.enforcementPeriodCap = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_ROLLING_AVERAGE, (v, m) => (m.complianceEnforcement.enforcementRollingAverage = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_REST_DAY_ROTATION, (v, m) => (m.complianceEnforcement.enforcementRestDayRotation = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_COUNTER_RULE, (v, m) => (m.complianceEnforcement.enforcementCounterRule = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_COMPENSATORY_REST, (v, m) => (m.complianceEnforcement.enforcementCompensatoryRest = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_RESTRICTED_TIME_WINDOW, (v, m) => (m.complianceEnforcement.enforcementRestrictedTimeWindow = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.complianceEnforcement.rosterPublicationMinLeadDays = Number.isNaN(parsed) ? 0 : parsed;
+    }],
+    [AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, (v, m) => (m.complianceEnforcement.rosterPublicationCountWorkdaysOnly = v === 'true')],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -192,6 +291,11 @@ export class AppSettingsManagementService {
   public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
   public holisticHarmonizerSettings = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
+  public onCallSettings = signal<IOnCallSettings>(new OnCallSettings());
+  public compensatoryRestSettings = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
+  public surchargeModeSettings = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
+  public overtimeSettings = signal<IOvertimeSettings>(new OvertimeSettings());
+  public complianceEnforcementSettings = signal<IComplianceEnforcementSettings>(new ComplianceEnforcementSettings());
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
@@ -206,6 +310,11 @@ export class AppSettingsManagementService {
   private erpImportCronTimeZoneOriginal = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
   private holisticHarmonizerSettingsOriginal = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
+  private onCallSettingsOriginal = signal<IOnCallSettings>(new OnCallSettings());
+  private compensatoryRestSettingsOriginal = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
+  private surchargeModeSettingsOriginal = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
+  private overtimeSettingsOriginal = signal<IOvertimeSettings>(new OvertimeSettings());
+  private complianceEnforcementSettingsOriginal = signal<IComplianceEnforcementSettings>(new ComplianceEnforcementSettings());
 
   public isLoading = signal<boolean>(false);
   public isDirty = computed(() => this.checkIfDirty());
@@ -230,6 +339,11 @@ export class AppSettingsManagementService {
       this.erpImportCronTimeZone();
       this.speechSettings();
       this.holisticHarmonizerSettings();
+      this.onCallSettings();
+      this.compensatoryRestSettings();
+      this.surchargeModeSettings();
+      this.overtimeSettings();
+      this.complianceEnforcementSettings();
 
       untracked(() => {
         if (this.autoSaveTimer) {
@@ -300,6 +414,11 @@ export class AppSettingsManagementService {
       erpImportCronTimeZone: ErpImportScheduleDefaults.CronTimeZone,
       speech: new SpeechSettings(),
       holisticHarmonizer: new HolisticHarmonizerSettings(),
+      onCall: new OnCallSettings(),
+      compensatoryRest: new CompensatoryRestSettings(),
+      surchargeMode: new SurchargeModeSettings(),
+      overtime: new OvertimeSettings(),
+      complianceEnforcement: new ComplianceEnforcementSettings(),
     };
 
     for (const setting of settings) {
@@ -322,6 +441,11 @@ export class AppSettingsManagementService {
     this.erpImportCronTimeZone.set(models.erpImportCronTimeZone);
     this.speechSettings.set(models.speech);
     this.holisticHarmonizerSettings.set(models.holisticHarmonizer);
+    this.onCallSettings.set(models.onCall);
+    this.compensatoryRestSettings.set(models.compensatoryRest);
+    this.surchargeModeSettings.set(models.surchargeMode);
+    this.overtimeSettings.set(models.overtime);
+    this.complianceEnforcementSettings.set(models.complianceEnforcement);
 
     this.contactSettingsOriginal.set(cloneObject(models.contact));
     this.emailSettingsOriginal.set(cloneObject(models.email));
@@ -336,6 +460,11 @@ export class AppSettingsManagementService {
     this.erpImportCronTimeZoneOriginal.set(models.erpImportCronTimeZone);
     this.speechSettingsOriginal.set(cloneObject(models.speech));
     this.holisticHarmonizerSettingsOriginal.set(cloneObject(models.holisticHarmonizer));
+    this.onCallSettingsOriginal.set(cloneObject(models.onCall));
+    this.compensatoryRestSettingsOriginal.set(cloneObject(models.compensatoryRest));
+    this.surchargeModeSettingsOriginal.set(cloneObject(models.surchargeMode));
+    this.overtimeSettingsOriginal.set(cloneObject(models.overtime));
+    this.complianceEnforcementSettingsOriginal.set(cloneObject(models.complianceEnforcement));
   }
 
   private readonly saveDefinitions: readonly { key: string; getCurrent: () => string; getOriginal: () => string }[] = [
@@ -455,6 +584,55 @@ export class AppSettingsManagementService {
 
     { key: AppSetting.CALENDAR_WEEKEND_DAYS, getCurrent: () => this.schedulingDefaultSettings().weekendDays.join(','), getOriginal: () => this.schedulingDefaultSettingsOriginal().weekendDays.join(',') },
     { key: AppSetting.CALENDAR_WEEK_START_DAY, getCurrent: () => this.schedulingDefaultSettings().weekStartDay, getOriginal: () => this.schedulingDefaultSettingsOriginal().weekStartDay },
+
+    { key: AppSetting.WORKTIME_ONCALL_ENABLED, getCurrent: () => String(this.onCallSettings().onCallEnabled), getOriginal: () => String(this.onCallSettingsOriginal().onCallEnabled) },
+    { key: AppSetting.WORKTIME_ONCALL_PRESENCE_COUNTS_PERCENT, getCurrent: () => this.onCallSettings().onCallPresenceCountsPercent.toString(), getOriginal: () => this.onCallSettingsOriginal().onCallPresenceCountsPercent.toString() },
+    { key: AppSetting.WORKTIME_ONCALL_STANDBY_COUNTS_PERCENT, getCurrent: () => this.onCallSettings().onCallStandbyCountsPercent.toString(), getOriginal: () => this.onCallSettingsOriginal().onCallStandbyCountsPercent.toString() },
+    { key: AppSetting.WORKTIME_ONCALL_INCLUDE_IN_PERIOD_CAPS, getCurrent: () => String(this.onCallSettings().onCallIncludeInPeriodCaps), getOriginal: () => String(this.onCallSettingsOriginal().onCallIncludeInPeriodCaps) },
+
+    { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_ENABLED, getCurrent: () => String(this.compensatoryRestSettings().compensatoryRestEnabled), getOriginal: () => String(this.compensatoryRestSettingsOriginal().compensatoryRestEnabled) },
+    { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS, getCurrent: () => this.compensatoryRestSettings().compensatoryRestDeadlineDays.toString(), getOriginal: () => this.compensatoryRestSettingsOriginal().compensatoryRestDeadlineDays.toString() },
+    { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN, getCurrent: () => String(this.compensatoryRestSettings().compensatoryRestAutoPlan), getOriginal: () => String(this.compensatoryRestSettingsOriginal().compensatoryRestAutoPlan) },
+
+    { key: AppSetting.WORK_WE3_RATE, getCurrent: () => this.surchargeModeSettings().we3Rate.toString(), getOriginal: () => this.surchargeModeSettingsOriginal().we3Rate.toString() },
+    { key: AppSetting.SURCHARGE_NIGHT_RATE_MODE, getCurrent: () => this.surchargeModeSettings().nightRateMode, getOriginal: () => this.surchargeModeSettingsOriginal().nightRateMode },
+    { key: AppSetting.SURCHARGE_HOLIDAY_RATE_MODE, getCurrent: () => this.surchargeModeSettings().holidayRateMode, getOriginal: () => this.surchargeModeSettingsOriginal().holidayRateMode },
+    { key: AppSetting.SURCHARGE_WE1_RATE_MODE, getCurrent: () => this.surchargeModeSettings().we1RateMode, getOriginal: () => this.surchargeModeSettingsOriginal().we1RateMode },
+    { key: AppSetting.SURCHARGE_WE2_RATE_MODE, getCurrent: () => this.surchargeModeSettings().we2RateMode, getOriginal: () => this.surchargeModeSettingsOriginal().we2RateMode },
+    { key: AppSetting.SURCHARGE_WE3_RATE_MODE, getCurrent: () => this.surchargeModeSettings().we3RateMode, getOriginal: () => this.surchargeModeSettingsOriginal().we3RateMode },
+    { key: AppSetting.SURCHARGE_NIGHT_MINIMUM_PER_HOUR, getCurrent: () => serializeNullableNumber(this.surchargeModeSettings().nightMinimumPerHour), getOriginal: () => serializeNullableNumber(this.surchargeModeSettingsOriginal().nightMinimumPerHour) },
+    { key: AppSetting.SURCHARGE_HOLIDAY_MINIMUM_PER_HOUR, getCurrent: () => serializeNullableNumber(this.surchargeModeSettings().holidayMinimumPerHour), getOriginal: () => serializeNullableNumber(this.surchargeModeSettingsOriginal().holidayMinimumPerHour) },
+    { key: AppSetting.SURCHARGE_WE1_MINIMUM_PER_HOUR, getCurrent: () => serializeNullableNumber(this.surchargeModeSettings().we1MinimumPerHour), getOriginal: () => serializeNullableNumber(this.surchargeModeSettingsOriginal().we1MinimumPerHour) },
+    { key: AppSetting.SURCHARGE_WE2_MINIMUM_PER_HOUR, getCurrent: () => serializeNullableNumber(this.surchargeModeSettings().we2MinimumPerHour), getOriginal: () => serializeNullableNumber(this.surchargeModeSettingsOriginal().we2MinimumPerHour) },
+    { key: AppSetting.SURCHARGE_WE3_MINIMUM_PER_HOUR, getCurrent: () => serializeNullableNumber(this.surchargeModeSettings().we3MinimumPerHour), getOriginal: () => serializeNullableNumber(this.surchargeModeSettingsOriginal().we3MinimumPerHour) },
+    { key: AppSetting.SURCHARGE_NIGHT_START, getCurrent: () => this.surchargeModeSettings().nightStart, getOriginal: () => this.surchargeModeSettingsOriginal().nightStart },
+    { key: AppSetting.SURCHARGE_NIGHT_END, getCurrent: () => this.surchargeModeSettings().nightEnd, getOriginal: () => this.surchargeModeSettingsOriginal().nightEnd },
+    { key: AppSetting.SURCHARGE_STACKING_MODE, getCurrent: () => this.surchargeModeSettings().stackingMode, getOriginal: () => this.surchargeModeSettingsOriginal().stackingMode },
+
+    { key: AppSetting.OVERTIME_BASIS, getCurrent: () => this.overtimeSettings().overtimeBasis, getOriginal: () => this.overtimeSettingsOriginal().overtimeBasis },
+    { key: AppSetting.OVERTIME_RATE_MODE, getCurrent: () => this.overtimeSettings().overtimeRateMode, getOriginal: () => this.overtimeSettingsOriginal().overtimeRateMode },
+    { key: AppSetting.OVERTIME_TIER1_AFTER_HOURS, getCurrent: () => serializeNullableNumber(this.overtimeSettings().overtimeTier1AfterHours), getOriginal: () => serializeNullableNumber(this.overtimeSettingsOriginal().overtimeTier1AfterHours) },
+    { key: AppSetting.OVERTIME_TIER1_RATE, getCurrent: () => serializeNullableNumber(this.overtimeSettings().overtimeTier1Rate), getOriginal: () => serializeNullableNumber(this.overtimeSettingsOriginal().overtimeTier1Rate) },
+    { key: AppSetting.OVERTIME_TIER2_AFTER_HOURS, getCurrent: () => serializeNullableNumber(this.overtimeSettings().overtimeTier2AfterHours), getOriginal: () => serializeNullableNumber(this.overtimeSettingsOriginal().overtimeTier2AfterHours) },
+    { key: AppSetting.OVERTIME_TIER2_RATE, getCurrent: () => serializeNullableNumber(this.overtimeSettings().overtimeTier2Rate), getOriginal: () => serializeNullableNumber(this.overtimeSettingsOriginal().overtimeTier2Rate) },
+    { key: AppSetting.OVERTIME_TIER3_AFTER_HOURS, getCurrent: () => serializeNullableNumber(this.overtimeSettings().overtimeTier3AfterHours), getOriginal: () => serializeNullableNumber(this.overtimeSettingsOriginal().overtimeTier3AfterHours) },
+    { key: AppSetting.OVERTIME_TIER3_RATE, getCurrent: () => serializeNullableNumber(this.overtimeSettings().overtimeTier3Rate), getOriginal: () => serializeNullableNumber(this.overtimeSettingsOriginal().overtimeTier3Rate) },
+
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_DEFAULT_MODE, getCurrent: () => this.complianceEnforcementSettings().enforcementDefaultMode, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementDefaultMode },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_ALLOW_SUPERVISOR_OVERRIDE, getCurrent: () => String(this.complianceEnforcementSettings().enforcementAllowSupervisorOverride), getOriginal: () => String(this.complianceEnforcementSettingsOriginal().enforcementAllowSupervisorOverride) },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_MAX_DAILY_HOURS, getCurrent: () => this.complianceEnforcementSettings().enforcementMaxDailyHours, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementMaxDailyHours },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_MAX_WEEKLY_HOURS, getCurrent: () => this.complianceEnforcementSettings().enforcementMaxWeeklyHours, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementMaxWeeklyHours },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_MIN_REST_HOURS, getCurrent: () => this.complianceEnforcementSettings().enforcementMinRestHours, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementMinRestHours },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_MIN_REST_DAYS, getCurrent: () => this.complianceEnforcementSettings().enforcementMinRestDays, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementMinRestDays },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_MAX_CONSECUTIVE_DAYS, getCurrent: () => this.complianceEnforcementSettings().enforcementMaxConsecutiveDays, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementMaxConsecutiveDays },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_PERIOD_CAP, getCurrent: () => this.complianceEnforcementSettings().enforcementPeriodCap, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementPeriodCap },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_ROLLING_AVERAGE, getCurrent: () => this.complianceEnforcementSettings().enforcementRollingAverage, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementRollingAverage },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_REST_DAY_ROTATION, getCurrent: () => this.complianceEnforcementSettings().enforcementRestDayRotation, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementRestDayRotation },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_COUNTER_RULE, getCurrent: () => this.complianceEnforcementSettings().enforcementCounterRule, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementCounterRule },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_COMPENSATORY_REST, getCurrent: () => this.complianceEnforcementSettings().enforcementCompensatoryRest, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementCompensatoryRest },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_RESTRICTED_TIME_WINDOW, getCurrent: () => this.complianceEnforcementSettings().enforcementRestrictedTimeWindow, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementRestrictedTimeWindow },
+    { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, getCurrent: () => this.complianceEnforcementSettings().rosterPublicationMinLeadDays.toString(), getOriginal: () => this.complianceEnforcementSettingsOriginal().rosterPublicationMinLeadDays.toString() },
+    { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, getCurrent: () => String(this.complianceEnforcementSettings().rosterPublicationCountWorkdaysOnly), getOriginal: () => String(this.complianceEnforcementSettingsOriginal().rosterPublicationCountWorkdaysOnly) },
   ];
 
   save(): void {
@@ -530,6 +708,11 @@ export class AppSettingsManagementService {
       this.erpImportCronTimeZoneOriginal.set(this.erpImportCronTimeZone());
       this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
       this.holisticHarmonizerSettingsOriginal.set(cloneObject(this.holisticHarmonizerSettings()));
+      this.onCallSettingsOriginal.set(cloneObject(this.onCallSettings()));
+      this.compensatoryRestSettingsOriginal.set(cloneObject(this.compensatoryRestSettings()));
+      this.surchargeModeSettingsOriginal.set(cloneObject(this.surchargeModeSettings()));
+      this.overtimeSettingsOriginal.set(cloneObject(this.overtimeSettings()));
+      this.complianceEnforcementSettingsOriginal.set(cloneObject(this.complianceEnforcementSettings()));
     }
   }
 
@@ -560,7 +743,12 @@ export class AppSettingsManagementService {
       this.erpImportCronExpression() !== this.erpImportCronExpressionOriginal() ||
       this.erpImportCronTimeZone() !== this.erpImportCronTimeZoneOriginal() ||
       !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal()) ||
-      !compareComplexObjects(this.holisticHarmonizerSettings(), this.holisticHarmonizerSettingsOriginal())
+      !compareComplexObjects(this.holisticHarmonizerSettings(), this.holisticHarmonizerSettingsOriginal()) ||
+      !compareComplexObjects(this.onCallSettings(), this.onCallSettingsOriginal()) ||
+      !compareComplexObjects(this.compensatoryRestSettings(), this.compensatoryRestSettingsOriginal()) ||
+      !compareComplexObjects(this.surchargeModeSettings(), this.surchargeModeSettingsOriginal()) ||
+      !compareComplexObjects(this.overtimeSettings(), this.overtimeSettingsOriginal()) ||
+      !compareComplexObjects(this.complianceEnforcementSettings(), this.complianceEnforcementSettingsOriginal())
     );
   }
 

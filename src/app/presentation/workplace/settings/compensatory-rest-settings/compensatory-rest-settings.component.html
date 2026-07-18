@@ -1,0 +1,107 @@
+<div id="compensatory-rest-settings-container" class="container-dashboard">
+  <div id="compensatory-rest-settings-header" class="container-header">
+    {{ "setting.compensatoryRest.headline" | translate }}
+  </div>
+
+  <div id="compensatory-rest-settings-line" class="container-line"></div>
+
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          id="compensatory-rest-settings-tab-settings"
+          class="nav-link"
+          [class.active]="activeTab() === 'settings'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'settings'"
+          tabindex="0"
+          (click)="activeTab.set('settings')"
+          (keydown.enter)="activeTab.set('settings')"
+        >
+          {{ "setting.tab.settings" | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="compensatory-rest-settings-tab-manual"
+          class="nav-link"
+          [class.active]="activeTab() === 'manual'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'manual'"
+          tabindex="0"
+          (click)="activeTab.set('manual')"
+          (keydown.enter)="activeTab.set('manual')"
+        >
+          {{ "setting.tab.manual" | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="standard-tab-body">
+  @if (activeTab() === 'settings') {
+  @if (isDataLoaded) {
+    <form id="compensatory-rest-settings-form">
+      <div id="compensatory-rest-enabled-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="crEnabled">&#8203;</label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="compensatoryRestForm.compensatoryRestEnabled"
+              aria-label="crEnabled"
+              id="crEnabled"
+            />
+            {{ "setting.compensatoryRest.enabled" | translate }}
+          </label>
+        </div>
+      </div>
+      <div id="compensatory-rest-deadline-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="crDeadlineDays">{{
+            "setting.compensatoryRest.deadlineDays" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="compensatoryRestForm.compensatoryRestDeadlineDays"
+            aria-label="crDeadlineDays"
+            id="crDeadlineDays"
+          />
+        </div>
+      </div>
+      <div id="compensatory-rest-autoplan-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="crAutoPlan">&#8203;</label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formField]="compensatoryRestForm.compensatoryRestAutoPlan"
+              aria-label="crAutoPlan"
+              id="crAutoPlan"
+            />
+            {{ "setting.compensatoryRest.autoPlan" | translate }}
+          </label>
+        </div>
+      </div>
+      <div
+        id="compensatory-rest-note-row"
+        class="row-line-single"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <p class="compensatory-rest-note">
+            {{ "setting.compensatoryRest.standardRestHoursNote" | translate }}
+          </p>
+        </div>
+      </div>
+      <div class="bottom-border-space"></div>
+    </form>
+  }
+  }
+  @if (activeTab() === 'manual') {
+    <div id="compensatory-rest-settings-manual" class="manual-content" [innerHTML]="manualContent()"></div>
+  }
+  </div>
+</div>

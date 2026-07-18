@@ -1,0 +1,12 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+.first {
+  margin-inline-start: 30px;
+  padding-inline-end: -30px;
+}
+
+label {
+  width: 100px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}

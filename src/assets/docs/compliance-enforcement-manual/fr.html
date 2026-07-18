@@ -1,0 +1,43 @@
+<h3>Application de la conformit&eacute; &ndash; Explications</h3>
+<p>Cette carte contr&ocirc;le avec quelle rigueur Klacks traite les infractions aux r&egrave;gles de temps de travail et de repos, et le d&eacute;lai avec lequel les plannings doivent &ecirc;tre publi&eacute;s.</p>
+
+<h4>Mode par d&eacute;faut</h4>
+<p>D&eacute;finit le comportement global en cas d'infraction &agrave; une r&egrave;gle, sauf si une r&egrave;gle est red&eacute;finie individuellement&nbsp;:</p>
+<ul>
+  <li><strong>Avertir</strong>&nbsp;: l'infraction est signal&eacute;e, mais la planification reste possible.</li>
+  <li><strong>Bloquer</strong>&nbsp;: l'action est emp&ecirc;ch&eacute;e jusqu'&agrave; ce que l'infraction soit corrig&eacute;e.</li>
+</ul>
+<p>Par d&eacute;faut&nbsp;: <strong>Avertir</strong>.</p>
+
+<h4>Autoriser la d&eacute;rogation par les sup&eacute;rieurs</h4>
+<p>Lorsqu'elle est activ&eacute;e, les sup&eacute;rieurs autoris&eacute;s peuvent d&eacute;lib&eacute;r&eacute;ment passer outre un blocage. Lorsqu'elle est d&eacute;sactiv&eacute;e, un blocage s'applique sans exception. Par d&eacute;faut&nbsp;: <strong>activ&eacute;e</strong>.</p>
+
+<h4>Mode par r&egrave;gle</h4>
+<p>Le mode peut &ecirc;tre d&eacute;fini individuellement pour chacune des onze r&egrave;gles de conformit&eacute;&nbsp;:</p>
+<ul>
+  <li><strong>H&eacute;riter du d&eacute;faut</strong>&nbsp;: le mode par d&eacute;faut choisi ci-dessus s'applique.</li>
+  <li><strong>Avertir</strong>&nbsp;: simple avertissement pour cette r&egrave;gle.</li>
+  <li><strong>Bloquer</strong>&nbsp;: blocage strict pour cette r&egrave;gle.</li>
+</ul>
+<p>Les onze r&egrave;gles sont&nbsp;:</p>
+<ul>
+  <li><strong>Heures quotidiennes maximales</strong> &ndash; limite sup&eacute;rieure des heures de travail par jour.</li>
+  <li><strong>Heures hebdomadaires maximales</strong> &ndash; limite sup&eacute;rieure des heures de travail par semaine.</li>
+  <li><strong>Repos minimal (heures)</strong> &ndash; repos continu minimal entre deux affectations.</li>
+  <li><strong>Jours de repos minimaux</strong> &ndash; nombre minimal de jours libres dans la p&eacute;riode de r&eacute;f&eacute;rence.</li>
+  <li><strong>Jours de travail cons&eacute;cutifs maximaux</strong> &ndash; limite sup&eacute;rieure des jours de travail cons&eacute;cutifs.</li>
+  <li><strong>Plafond de p&eacute;riode</strong> &ndash; limite d'heures sur une p&eacute;riode d&eacute;finie.</li>
+  <li><strong>Moyenne glissante</strong> &ndash; heures hebdomadaires moyennes maximales sur une fen&ecirc;tre glissante.</li>
+  <li><strong>Rotation des jours de repos</strong> &ndash; alternance requise des jours de repos.</li>
+  <li><strong>R&egrave;gle de compteur</strong> &ndash; compteurs d'&eacute;v&eacute;nements personnalis&eacute;s (p.&nbsp;ex. postes de nuit par p&eacute;riode).</li>
+  <li><strong>Repos compensateur</strong> &ndash; octroi du repos compensateur dans les d&eacute;lais.</li>
+  <li><strong>Fen&ecirc;tre horaire restreinte</strong> &ndash; p&eacute;riodes pendant lesquelles la planification est interdite.</li>
+</ul>
+<p>Par d&eacute;faut&nbsp;: <strong>H&eacute;riter du d&eacute;faut</strong> pour les onze r&egrave;gles.</p>
+
+<h4>D&eacute;lai de publication du planning</h4>
+<p>D&eacute;termine combien de temps &agrave; l'avance un planning doit &ecirc;tre publi&eacute; avant son d&eacute;but.</p>
+<ul>
+  <li><strong>D&eacute;lai minimal (jours)</strong>&nbsp;: nombre de jours devant s'&eacute;couler au minimum entre la publication et le d&eacute;but du planning. Par d&eacute;faut&nbsp;: <strong>0</strong>.</li>
+  <li><strong>Compter uniquement les jours ouvr&eacute;s</strong>&nbsp;: lorsqu'elle est activ&eacute;e, seuls les jours ouvr&eacute;s sont compt&eacute;s pour le d&eacute;lai, et non les week-ends et jours f&eacute;ri&eacute;s. Par d&eacute;faut&nbsp;: <strong>d&eacute;sactiv&eacute;e</strong>.</li>
+</ul>

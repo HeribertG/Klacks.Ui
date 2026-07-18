@@ -1,0 +1,43 @@
+<h3>Applicazione della conformit&agrave; &ndash; Spiegazioni</h3>
+<p>Questa scheda controlla con quale rigore Klacks tratta le violazioni delle regole sull'orario di lavoro e sui periodi di riposo, e con quale anticipo devono essere pubblicati i piani di turno.</p>
+
+<h4>Modalit&agrave; predefinita</h4>
+<p>Definisce il comportamento globale in caso di violazione di una regola, salvo che una regola venga ridefinita singolarmente:</p>
+<ul>
+  <li><strong>Avvisa</strong>: la violazione viene segnalata, ma la pianificazione resta possibile.</li>
+  <li><strong>Blocca</strong>: l'azione viene impedita finch&eacute; la violazione non viene risolta.</li>
+</ul>
+<p>Predefinito: <strong>Avvisa</strong>.</p>
+
+<h4>Consenti override dei superiori</h4>
+<p>Se attiva, i superiori autorizzati possono ignorare deliberatamente un blocco. Se disattivata, un blocco si applica senza eccezioni. Predefinito: <strong>attivato</strong>.</p>
+
+<h4>Modalit&agrave; per regola</h4>
+<p>La modalit&agrave; pu&ograve; essere impostata singolarmente per ciascuna delle undici regole di conformit&agrave;:</p>
+<ul>
+  <li><strong>Eredita predefinito</strong>: si applica la modalit&agrave; predefinita scelta sopra.</li>
+  <li><strong>Avvisa</strong>: solo un avviso per questa regola.</li>
+  <li><strong>Blocca</strong>: blocco rigido per questa regola.</li>
+</ul>
+<p>Le undici regole sono:</p>
+<ul>
+  <li><strong>Ore giornaliere massime</strong> &ndash; limite superiore delle ore di lavoro al giorno.</li>
+  <li><strong>Ore settimanali massime</strong> &ndash; limite superiore delle ore di lavoro alla settimana.</li>
+  <li><strong>Riposo minimo (ore)</strong> &ndash; riposo continuo minimo tra due impieghi.</li>
+  <li><strong>Giorni di riposo minimi</strong> &ndash; numero minimo di giorni liberi nel periodo di riferimento.</li>
+  <li><strong>Giorni lavorativi consecutivi massimi</strong> &ndash; limite superiore dei giorni lavorativi consecutivi.</li>
+  <li><strong>Tetto di periodo</strong> &ndash; limite di ore su un periodo definito.</li>
+  <li><strong>Media mobile</strong> &ndash; ore settimanali medie massime su una finestra mobile.</li>
+  <li><strong>Rotazione dei giorni di riposo</strong> &ndash; alternanza richiesta dei giorni di riposo.</li>
+  <li><strong>Regola contatore</strong> &ndash; contatori di eventi personalizzati (es. turni notturni per periodo).</li>
+  <li><strong>Riposo compensativo</strong> &ndash; concessione tempestiva del riposo compensativo.</li>
+  <li><strong>Finestra temporale limitata</strong> &ndash; periodi in cui la pianificazione non &egrave; consentita.</li>
+</ul>
+<p>Predefinito: <strong>Eredita predefinito</strong> per tutte e undici le regole.</p>
+
+<h4>Anticipo di pubblicazione del piano</h4>
+<p>Determina con quanto anticipo un piano di turno deve essere pubblicato prima del suo inizio.</p>
+<ul>
+  <li><strong>Anticipo minimo (giorni)</strong>: numero di giorni che devono trascorrere al minimo tra la pubblicazione e l'inizio del piano. Predefinito: <strong>0</strong>.</li>
+  <li><strong>Conta solo i giorni lavorativi</strong>: se attiva, per l'anticipo vengono conteggiati solo i giorni lavorativi, non i fine settimana e i giorni festivi. Predefinito: <strong>disattivato</strong>.</li>
+</ul>

@@ -1,0 +1,50 @@
+<h2>Plages horaires interdites – Manuel</h2>
+
+<h3>Que sont les plages horaires interdites ?</h3>
+<p>
+Une plage horaire interdite empêche la planification de services pendant une partie
+déterminée de la journée durant une saison déterminée. Cela permet par exemple de
+modéliser une interdiction de planification de nuit pendant une partie de l'année ou des
+périodes de blocage propres à un secteur.
+</p>
+
+<h3>Les paramètres en détail</h3>
+
+<h4>Saison à partir de (mois / jour)</h4>
+<p>
+Début de la saison pendant laquelle la plage s'applique, sous forme de mois (1–12) et de
+jour (1–31). La saison se rapporte à la date du service, et non à une année civile, et
+peut chevaucher le passage à la nouvelle année (voir ci-dessous).
+</p>
+
+<h4>Saison jusqu'à (mois / jour)</h4>
+<p>
+Fin de la saison sous forme de mois et de jour. Si la fin précède le début (p.&nbsp;ex. du
+1er novembre au 28 février), la saison s'applique à cheval sur le changement d'année.
+</p>
+
+<h4>Fenêtre quotidienne – début / fin</h4>
+<p>
+L'heure de la journée pendant laquelle la restriction s'applique, sous forme d'heure de
+début et d'heure de fin (HH:mm). Une fenêtre dont l'heure de fin précède l'heure de début
+(p.&nbsp;ex. 22:00 à 06:00) s'applique à cheval sur minuit.
+</p>
+
+<h4>S'applique à l'étiquette de groupe</h4>
+<p>
+Limite le blocage aux services d'un groupe spécifique (via son étiquette/identifiant). Si
+le champ reste <strong>vide</strong>, la restriction s'applique à <strong>tous les
+services</strong>.
+</p>
+
+<hr>
+
+<h3>Remarque importante sur les règles importées</h3>
+<ul>
+  <li>
+    Les règles issues d'une configuration régionale (profil pays) sont
+    <strong>rétablies</strong> lors d'une nouvelle importation de la configuration
+    régionale. Supprimer une telle ligne n'est donc <strong>pas définitif</strong> –
+    elle réapparaît après la prochaine réimportation.
+  </li>
+</ul>

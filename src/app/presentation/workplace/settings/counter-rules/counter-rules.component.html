@@ -1,0 +1,223 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<!-- Counter Rule Modal -->
+<ng-template #ruleModal id="counter-rule-modal-template" let-modal>
+  <div id="counter-rule-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ 'setting.counterRule.headline-modal' | translate }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="counter-rule-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="counter-rule-modal-body" class="modal-body">
+    @if (editingRule) {
+    <!-- Event Type / Period -->
+    <div id="counter-rule-modal-type-period-row" class="row-line-modal-inline rule-config-row">
+      <div id="counter-rule-modal-event-type-item" class="rule-config-item">
+        <label for="counterRuleEventType">{{ 'setting.counterRule.field.eventType' | translate }}</label>
+        <select
+          id="counterRuleEventType"
+          class="form-control"
+          aria-label="counterRuleEventType"
+          [(ngModel)]="editingRule.eventType"
+          (ngModelChange)="onEventTypeChange()"
+        >
+          <option [ngValue]="CounterEventType.NightShift">{{ 'setting.counterRule.eventType.nightShift' | translate }}</option>
+          <option [ngValue]="CounterEventType.WorkedDayInWeek">{{ 'setting.counterRule.eventType.workedDayInWeek' | translate }}</option>
+          <option [ngValue]="CounterEventType.ShiftExceedingHours">{{ 'setting.counterRule.eventType.shiftExceedingHours' | translate }}</option>
+        </select>
+      </div>
+
+      <div id="counter-rule-modal-period-item" class="rule-config-item">
+        <label for="counterRulePeriod">{{ 'setting.counterRule.field.period' | translate }}</label>
+        <select
+          id="counterRulePeriod"
+          class="form-control"
+          aria-label="counterRulePeriod"
+          [(ngModel)]="editingRule.period"
+        >
+          <option [ngValue]="CounterPeriod.Week">{{ 'setting.counterRule.period.week' | translate }}</option>
+          <option [ngValue]="CounterPeriod.Month">{{ 'setting.counterRule.period.month' | translate }}</option>
+          <option [ngValue]="CounterPeriod.Year">{{ 'setting.counterRule.period.year' | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Threshold / Hours Threshold -->
+    <div id="counter-rule-modal-threshold-row" class="row-line-modal-inline rule-config-row">
+      <div id="counter-rule-modal-threshold-item" class="rule-config-item">
+        <label for="counterRuleThreshold">{{ 'setting.counterRule.field.threshold' | translate }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.threshold"
+          class="form-control rule-input"
+          id="counterRuleThreshold"
+          aria-label="counterRuleThreshold"
+        />
+      </div>
+
+      @if (editingRule.eventType === CounterEventType.ShiftExceedingHours) {
+      <div id="counter-rule-modal-hours-threshold-item" class="rule-config-item">
+        <label for="counterRuleHoursThreshold">{{ 'setting.counterRule.field.hoursThreshold' | translate }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.hoursThreshold"
+          class="form-control rule-input"
+          id="counterRuleHoursThreshold"
+          aria-label="counterRuleHoursThreshold"
+        />
+      </div>
+      }
+    </div>
+
+    <!-- Enforcement -->
+    <div id="counter-rule-modal-enforcement-row" class="row-line-modal-inline rule-config-row">
+      <div id="counter-rule-modal-enforcement-item" class="rule-config-item">
+        <label for="counterRuleEnforcement">{{ 'setting.counterRule.field.enforcement' | translate }}</label>
+        <select
+          id="counterRuleEnforcement"
+          class="form-control"
+          aria-label="counterRuleEnforcement"
+          [(ngModel)]="editingRule.enforcement"
+        >
+          <option [ngValue]="null">{{ 'setting.counterRule.enforcement.default' | translate }}</option>
+          <option [ngValue]="RuleEnforcementMode.Warn">{{ 'setting.counterRule.enforcement.warn' | translate }}</option>
+          <option [ngValue]="RuleEnforcementMode.Block">{{ 'setting.counterRule.enforcement.block' | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Scheduling Rule Id (optional) -->
+    <div id="counter-rule-modal-scheduling-rule-id-row" class="row-line-modal-inline rule-config-row">
+      <div id="counter-rule-modal-scheduling-rule-id-item" class="rule-config-item rule-config-item-wide">
+        <label for="counterRuleSchedulingRuleId">{{ 'setting.counterRule.field.schedulingRuleId' | translate }}</label>
+        <input
+          type="text"
+          [(ngModel)]="editingRule.schedulingRuleId"
+          class="form-control"
+          id="counterRuleSchedulingRuleId"
+          aria-label="counterRuleSchedulingRuleId"
+        />
+        <small id="counter-rule-modal-scheduling-rule-id-hint" class="rule-hint">
+          {{ 'setting.counterRule.schedulingRuleIdHint' | translate }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Validation Errors -->
+    @if (getValidationErrors().length > 0) {
+    <div id="counter-rule-modal-validation-row" class="row-line-modal-inline">
+      <div id="counter-rule-modal-validation-section" class="validation-errors-section">
+        <div id="counter-rule-modal-validation-alert" class="alert alert-danger">
+          <strong>{{ 'validation.errors' | translate }}:</strong>
+          <ul id="counter-rule-modal-validation-list">
+            @for (error of getValidationErrors(); track error) {
+            <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+    }
+    }
+  </div>
+
+  <div id="counter-rule-modal-footer" class="modal-footer">
+    <span
+      id="counter-rule-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="counter-rule-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<div class="standard-tabs-header">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        id="counter-rules-tab-list"
+        class="nav-link"
+        [class.active]="activeTab() === 'list'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'list'"
+        tabindex="0"
+        (click)="setTab('list')"
+        (keydown.enter)="setTab('list')"
+      >
+        {{ 'setting.tab.list' | translate }}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="counter-rules-tab-manual"
+        class="nav-link"
+        [class.active]="activeTab() === 'manual'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'manual'"
+        tabindex="0"
+        (click)="setTab('manual')"
+        (keydown.enter)="setTab('manual')"
+      >
+        {{ 'setting.tab.manual' | translate }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="standard-tab-body">
+@if (activeTab() === 'list') {
+<app-settings-list-card
+  [headline]="'setting.counterRule.headline' | translate"
+  [addLabel]="'setting.counterRule.add' | translate"
+  [showHeader]="true"
+  idPrefix="counter-rules"
+  (addClick)="onClickAdd()"
+>
+  <app-counter-rule-header header id="counter-rules-table-header"></app-counter-rule-header>
+  <div rows #containerBox>
+    @for (rule of dataManagementService.rules; track rule.id || $index; let i = $index) {
+      <app-counter-rule-row
+        [id]="'counter-rule-row-' + i"
+        [data]="rule"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteRule(i)"
+      />
+    }
+  </div>
+</app-settings-list-card>
+}
+
+@if (activeTab() === 'manual') {
+  <div class="manual-tab-body">
+    <div class="manual-content" [innerHTML]="manualContent()"></div>
+  </div>
+}
+</div>

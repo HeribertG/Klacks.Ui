@@ -1,0 +1,73 @@
+<h2>Zähler-Regeln – Handbuch</h2>
+
+<h3>Was sind Zähler-Regeln?</h3>
+<p>
+Zähler-Regeln zählen wiederkehrende Ereignisse pro Person über einen festgelegten
+Zeitraum und lösen bei Überschreiten eines Schwellwerts eine Warnung oder eine
+Blockierung in der Planung aus. Damit lassen sich betriebliche oder gesetzliche
+Grenzen abbilden, etwa die maximale Anzahl Nachtschichten pro Monat.
+</p>
+
+<h3>Die Einstellungen im Detail</h3>
+
+<h4>Ereignistyp</h4>
+<p>Bestimmt, welches Ereignis gezählt wird:</p>
+<ul>
+  <li><strong>Nachtschicht</strong> – zählt Schichten, die in das definierte Nachtfenster fallen.</li>
+  <li><strong>Arbeitstag pro Woche</strong> – zählt die Tage pro Woche, an denen die Person eingeplant ist.</li>
+  <li><strong>Schicht über Stundengrenze</strong> – zählt Schichten, deren Dauer den unten festgelegten Stunden-Schwellwert überschreitet.</li>
+</ul>
+
+<h4>Zeitraum</h4>
+<p>
+Das Zeitfenster, über das gezählt wird: <strong>Woche</strong>, <strong>Monat</strong>
+oder <strong>Jahr</strong>. Der Zähler wird zu Beginn jedes neuen Zeitraums
+zurückgesetzt.
+</p>
+
+<h4>Schwellwert</h4>
+<p>
+Die maximal erlaubte Anzahl des Ereignisses innerhalb des Zeitraums. Wird der Wert
+erreicht bzw. überschritten, greift die Durchsetzung. Beispiel: Schwellwert 5 mit
+Ereignistyp <em>Nachtschicht</em> und Zeitraum <em>Monat</em> begrenzt auf fünf
+Nachtschichten pro Monat.
+</p>
+
+<h4>Stunden-Schwellwert</h4>
+<p>
+Nur relevant und nur eingeblendet, wenn der Ereignistyp <strong>Schicht über
+Stundengrenze</strong> gewählt ist. Legt fest, ab welcher Schichtdauer (in Stunden)
+eine Schicht als Ereignis gezählt wird.
+</p>
+
+<h4>Durchsetzung</h4>
+<p>Wie die Planung auf ein Überschreiten reagiert:</p>
+<ul>
+  <li><strong>Standard erben</strong> – übernimmt den in der Compliance-Durchsetzung hinterlegten Standardmodus.</li>
+  <li><strong>Warnen</strong> – zeigt einen Hinweis, lässt die Planung aber zu.</li>
+  <li><strong>Blockieren</strong> – verhindert die Planung, bis die Regel wieder eingehalten wird.</li>
+</ul>
+
+<h4>Planungsregel-Bindung (optional)</h4>
+<p>
+Verknüpft die Zähler-Regel mit einer bestehenden Planungsregel (Scheduling Rule).
+Bleibt das Feld leer, gilt die Zähler-Regel unabhängig. Die Bindung ist optional und
+für Standardfälle nicht nötig.
+</p>
+
+<hr>
+
+<h3>Wichtiger Hinweis zu importierten Regeln</h3>
+<ul>
+  <li>
+    Regeln, die aus einem Regions-Setup (Länderprofil) stammen, werden beim erneuten
+    Import des Regions-Setups <strong>wiederhergestellt</strong>. Das Löschen einer
+    solchen Zeile ist deshalb <strong>nicht dauerhaft</strong> – sie erscheint nach dem
+    nächsten Re-Import wieder.
+  </li>
+  <li>
+    Eine an einer importierten Zeile gesetzte <strong>Planungsregel-Bindung</strong>
+    wird beim Re-Import auf den Ausgangswert <strong>zurückgesetzt</strong>. Manuell
+    angelegte Regeln sind davon nicht betroffen.
+  </li>
+</ul>

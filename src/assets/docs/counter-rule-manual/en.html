@@ -1,0 +1,68 @@
+<h2>Counter Rules – Manual</h2>
+
+<h3>What are counter rules?</h3>
+<p>
+Counter rules count recurring events per person over a defined period and trigger a
+warning or a block in the schedule when a threshold is exceeded. They are used to
+enforce operational or legal limits, such as the maximum number of night shifts per
+month.
+</p>
+
+<h3>The settings in detail</h3>
+
+<h4>Event type</h4>
+<p>Determines which event is counted:</p>
+<ul>
+  <li><strong>Night shift</strong> – counts shifts that fall into the defined night window.</li>
+  <li><strong>Worked day per week</strong> – counts the days per week on which the person is scheduled.</li>
+  <li><strong>Shift exceeding hours</strong> – counts shifts whose duration exceeds the hours threshold defined below.</li>
+</ul>
+
+<h4>Period</h4>
+<p>
+The window over which counting happens: <strong>week</strong>, <strong>month</strong>
+or <strong>year</strong>. The counter resets at the start of each new period.
+</p>
+
+<h4>Threshold</h4>
+<p>
+The maximum permitted number of the event within the period. Once the value is reached
+or exceeded, enforcement applies. Example: threshold 5 with event type <em>night
+shift</em> and period <em>month</em> limits the person to five night shifts per month.
+</p>
+
+<h4>Hours threshold</h4>
+<p>
+Only relevant and only shown when the event type <strong>shift exceeding hours</strong>
+is selected. Defines from which shift duration (in hours) a shift is counted as an
+event.
+</p>
+
+<h4>Enforcement</h4>
+<p>How the schedule reacts when the threshold is exceeded:</p>
+<ul>
+  <li><strong>Inherit default</strong> – uses the default mode configured under compliance enforcement.</li>
+  <li><strong>Warn</strong> – shows a notice but still allows scheduling.</li>
+  <li><strong>Block</strong> – prevents scheduling until the rule is satisfied again.</li>
+</ul>
+
+<h4>Scheduling rule binding (optional)</h4>
+<p>
+Links the counter rule to an existing scheduling rule. Left empty, the counter rule
+applies on its own. The binding is optional and not needed for standard cases.
+</p>
+
+<hr>
+
+<h3>Important note on imported rules</h3>
+<ul>
+  <li>
+    Rules that originate from a region setup (country profile) are <strong>restored</strong>
+    when the region setup is re-imported. Deleting such a row is therefore <strong>not
+    permanent</strong> – it reappears after the next re-import.
+  </li>
+  <li>
+    A <strong>scheduling rule binding</strong> set on an imported row is <strong>reset</strong>
+    to its original value on re-import. Manually created rules are not affected.
+  </li>
+</ul>

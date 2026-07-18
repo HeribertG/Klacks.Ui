@@ -1,0 +1,36 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="counter-rule-row-container-{{ data().id }}" class="first custom-control-inline counter-rule-row">
+  <span
+    id="counter-rule-row-event-type-{{ data().id }}"
+    class="counter-rule-cell counter-rule-cell-event-type"
+    (click)="onClickEdit()"
+    >{{ eventTypeKey() | translate }}</span
+  >
+  <span
+    id="counter-rule-row-period-{{ data().id }}"
+    class="counter-rule-cell counter-rule-cell-period"
+    (click)="onClickEdit()"
+    >{{ periodKey() | translate }}</span
+  >
+  <span
+    id="counter-rule-row-threshold-{{ data().id }}"
+    class="counter-rule-cell counter-rule-cell-threshold"
+    (click)="onClickEdit()"
+    >{{ data().threshold }}</span
+  >
+  <span
+    id="counter-rule-row-hours-threshold-{{ data().id }}"
+    class="counter-rule-cell counter-rule-cell-hours-threshold"
+    (click)="onClickEdit()"
+    >@if (showHoursThreshold()) { {{ data().hoursThreshold }} } @else { &mdash; }</span
+  >
+  <span
+    id="counter-rule-row-enforcement-{{ data().id }}"
+    class="counter-rule-cell counter-rule-cell-enforcement"
+    (click)="onClickEdit()"
+    >{{ enforcementKey() | translate }}</span
+  >
+
+  <span id="counter-rule-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+</div>

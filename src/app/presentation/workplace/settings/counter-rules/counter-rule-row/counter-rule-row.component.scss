@@ -1,0 +1,39 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+.counter-rule-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.counter-rule-cell {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.counter-rule-cell-event-type {
+  width: 220px;
+}
+
+.counter-rule-cell-period {
+  width: 120px;
+}
+
+.counter-rule-cell-threshold {
+  width: 110px;
+}
+
+.counter-rule-cell-hours-threshold {
+  width: 130px;
+}
+
+.counter-rule-cell-enforcement {
+  width: 130px;
+}

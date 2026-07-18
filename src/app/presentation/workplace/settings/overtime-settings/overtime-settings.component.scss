@@ -1,0 +1,32 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/standard-manual.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
+}
+
+input {
+  width: 420px;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.row-line-single {
+  margin-top: 5px;
+}
+
+.firstColumn {
+  margin-inline-start: 30px;
+}
+
+.secondColumn {
+  margin-inline-start: 40px;
+}

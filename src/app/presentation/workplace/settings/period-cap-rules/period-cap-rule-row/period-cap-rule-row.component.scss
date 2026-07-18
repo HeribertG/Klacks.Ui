@@ -1,0 +1,42 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-inline-start: 30px;
+  padding-inline-end: -30px;
+  height: 40px;
+}
+
+input {
+  height: 32px;
+}
+
+.cap-period {
+  width: 150px;
+  margin-inline-end: 10px;
+}
+
+.cap-scope {
+  width: 150px;
+  margin-inline-end: 10px;
+}
+
+.cap-hours {
+  width: 90px;
+  margin-inline-end: 10px;
+  text-align: end;
+}
+
+.cap-rolling {
+  width: 150px;
+  margin-inline-end: 10px;
+  text-align: center;
+}
+
+.delete-button {
+  margin-top: 5px;
+  margin-inline-start: 20px;
+  color: var(--standartRedColor);
+}
