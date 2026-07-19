@@ -28,6 +28,11 @@ import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-sc
 import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
+import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
+import {
+  ScenarioComplianceReport,
+  toComplianceEntries,
+} from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 
 type HarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
 
@@ -36,7 +41,7 @@ type HarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | '
   templateUrl: './harmonizer-dialog.component.html',
   styleUrls: ['./harmonizer-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, QualificationGapReportComponent],
+  imports: [CommonModule, TranslateModule, QualificationGapReportComponent, ComplianceViolationReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HarmonizerDialogComponent {
@@ -50,8 +55,12 @@ export class HarmonizerDialogComponent {
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
+  private readonly _appliedComplianceReport = signal<ScenarioComplianceReport | null>(null);
 
   readonly appliedScenarioName = signal<string | null>(null);
+
+  readonly complianceEntries = computed(() => toComplianceEntries(this._appliedComplianceReport()));
+  readonly complianceBlockingCount = computed(() => this._appliedComplianceReport()?.blockingIssues.length ?? 0);
 
   readonly phase = computed<HarmonizerPhase>(() => {
     const ap = this._applyPhase();
@@ -103,6 +112,7 @@ export class HarmonizerDialogComponent {
     this._applyPhase.set(null);
     this._localError.set(null);
     this.appliedScenarioName.set(null);
+    this._appliedComplianceReport.set(null);
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true, backdrop: 'static', keyboard: false, size: 'lg',
@@ -153,6 +163,7 @@ export class HarmonizerDialogComponent {
       this.analyseScenarioService.scenarios.update(list => [...list, newScenario]);
       this.analyseScenarioService.selectScenario(newScenario);
       this.appliedScenarioName.set(response.scenarioName);
+      this._appliedComplianceReport.set(response.complianceReport ?? null);
       this._applyPhase.set('applied');
       this.dataManagementSchedule.readDatas();
     } catch (err: unknown) {

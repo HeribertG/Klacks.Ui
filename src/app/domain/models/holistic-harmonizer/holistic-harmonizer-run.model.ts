@@ -7,6 +7,7 @@
  */
 
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
+import { ScenarioComplianceReport } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 
 export interface HolisticHarmonizerRunRequest {
   periodFrom: string;
@@ -68,6 +69,7 @@ export interface HolisticHarmonizerApplyResponse {
   scenarioName: string;
   runGroupId: string | null;
   createdWorkIds: string[];
+  complianceReport?: ScenarioComplianceReport;
 }
 
 export type HolisticHarmonizerStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

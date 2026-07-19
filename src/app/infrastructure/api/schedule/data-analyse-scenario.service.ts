@@ -8,8 +8,8 @@
  */
 
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, retry } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { Observable, of, retry, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   IAnalyseScenario,
@@ -42,10 +42,19 @@ export class DataAnalyseScenarioService {
       .pipe(retry(3));
   }
 
-  accept(id: string): Observable<void> {
-    return this.httpClient
-      .post<void>(`${this.baseUrl}/${id}/Accept`, {})
-      .pipe(retry(3));
+  accept(id: string, overrideBlock = false): Observable<void> {
+    const url = overrideBlock
+      ? `${this.baseUrl}/${id}/Accept?overrideBlock=true`
+      : `${this.baseUrl}/${id}/Accept`;
+    return this.httpClient.post<void>(url, {}).pipe(
+      retry({
+        count: 3,
+        delay: (error: unknown) =>
+          error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict
+            ? throwError(() => error)
+            : of(null),
+      }),
+    );
   }
 
   reject(id: string): Observable<void> {

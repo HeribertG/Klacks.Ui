@@ -220,6 +220,9 @@
             <p class="mb-0">{{ name }}</p>
           }
         </div>
+        @if (complianceEntries().length > 0) {
+          <app-compliance-violation-report [entries]="complianceEntries()" [blockingCount]="complianceBlockingCount()" />
+        }
       }
     }
   </div>

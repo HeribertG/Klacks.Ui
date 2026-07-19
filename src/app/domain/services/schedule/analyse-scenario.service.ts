@@ -51,8 +51,8 @@ export class AnalyseScenarioService {
     );
   }
 
-  acceptScenario(id: string): Observable<void> {
-    return this.dataService.accept(id).pipe(
+  acceptScenario(id: string, overrideBlock = false): Observable<void> {
+    return this.dataService.accept(id, overrideBlock).pipe(
       tap(() => {
         this.scenarios.update(list => list.filter(s => s.id !== id));
         this.activeScenario.set(null);

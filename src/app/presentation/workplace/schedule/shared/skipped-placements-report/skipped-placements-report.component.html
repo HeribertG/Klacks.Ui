@@ -1,0 +1,27 @@
+@if (entries().length > 0) {
+  <div class="alert alert-danger skipped-placements-report">
+    <div class="fw-semibold mb-2">
+      ⛔ {{ 'schedule.compliance.skipped.title' | translate }} ({{ entries().length }})
+    </div>
+    <table class="table table-sm mb-0">
+      <thead>
+        <tr>
+          <th>{{ 'schedule.compliance.skipped.col.date' | translate }}</th>
+          <th>{{ 'schedule.compliance.skipped.col.client' | translate }}</th>
+          <th>{{ 'schedule.compliance.skipped.col.shift' | translate }}</th>
+          <th>{{ 'schedule.compliance.skipped.col.reason' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track $index) {
+          <tr class="table-danger">
+            <td>{{ entry.date }}</td>
+            <td>{{ entry.clientName ?? entry.clientId }}</td>
+            <td>{{ entry.shiftName ?? '' }}</td>
+            <td>{{ reasonLabelKey(entry) | translate }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

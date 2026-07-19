@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
+
 export interface WizardTrainingOverrides {
   initAuctionRatio?: number;
 }
@@ -24,6 +27,9 @@ export interface CancelWizardResponse {
 
 export interface ApplyWizardResponse {
   createdWorkIds: string[];
+  complianceViolations: ScheduleErrorEntry[];
+  skippedPlacements: SkippedPlacementEntry[];
+  overrideApplied: boolean;
 }
 
 export interface WizardApplyAsScenarioResponse {
@@ -32,4 +38,7 @@ export interface WizardApplyAsScenarioResponse {
   scenarioName: string;
   runGroupId: string | null;
   createdWorkIds: string[];
+  complianceViolations: ScheduleErrorEntry[];
+  skippedPlacements: SkippedPlacementEntry[];
+  overrideApplied: boolean;
 }

@@ -33,6 +33,12 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
+import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
+import { SkippedPlacementsReportComponent } from 'src/app/presentation/workplace/schedule/shared/skipped-placements-report/skipped-placements-report.component';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
 
 type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
 
@@ -41,7 +47,14 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
   templateUrl: './wizard-dialog.component.html',
   styleUrls: ['./wizard-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, ScrollingModule, TranslateModule, QualificationGapReportComponent],
+  imports: [
+    CommonModule,
+    ScrollingModule,
+    TranslateModule,
+    QualificationGapReportComponent,
+    ComplianceViolationReportComponent,
+    SkippedPlacementsReportComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WizardDialogComponent {
@@ -53,11 +66,21 @@ export class WizardDialogComponent {
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly translate = inject(TranslateService);
   private readonly localStorageService = inject(LocalStorageService);
+  readonly authorizationService = inject(AuthorizationService);
+  private readonly modalService = inject(ModalService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
   private readonly _applyError = signal<string | null>(null);
   readonly applyError = this._applyError.asReadonly();
+
+  private readonly _skippedPlacements = signal<SkippedPlacementEntry[]>([]);
+  private readonly _complianceViolations = signal<ScheduleErrorEntry[]>([]);
+  private readonly _overrideApplied = signal(false);
+  readonly skippedPlacements = this._skippedPlacements.asReadonly();
+  readonly complianceViolations = this._complianceViolations.asReadonly();
+  readonly overrideApplied = this._overrideApplied.asReadonly();
+  readonly overrideBlockRequested = signal(false);
 
   private startPromise: Promise<string> | null = null;
 
@@ -173,6 +196,30 @@ export class WizardDialogComponent {
     );
   });
 
+  readonly skippedPlacementsResolved = computed<SkippedPlacementEntry[]>(() => {
+    const entries = this._skippedPlacements();
+    if (entries.length === 0) return [];
+    const clients = this.dataManagementSchedule.clients;
+    const schedules = this.dataManagementSchedule.shiftSchedules;
+    const shiftNameById = new Map<string, string>();
+    for (const s of schedules) {
+      if (!shiftNameById.has(s.shiftId)) {
+        shiftNameById.set(s.shiftId, s.shiftName);
+      }
+    }
+    return entries.map((entry) => ({
+      ...entry,
+      clientName: entry.clientName ?? this.resolveAgentName(clients, entry.clientId),
+      shiftName: entry.shiftId ? shiftNameById.get(entry.shiftId) : undefined,
+    }));
+  });
+
+  readonly canRetryWithOverride = computed<boolean>(() =>
+    this.analyseScenarioService.isScenarioMode()
+    && this._skippedPlacements().length > 0
+    && this.appliedCount() === 0
+    && this.authorizationService.isAuthorised);
+
   private shortenEscalation(full: string): string {
     const colon = full.indexOf(':');
     return colon > 0 ? full.substring(0, colon) : full;
@@ -185,6 +232,10 @@ export class WizardDialogComponent {
     this._localError.set(null);
     this._applyError.set(null);
     this.appliedCount.set(0);
+    this._skippedPlacements.set([]);
+    this._complianceViolations.set([]);
+    this._overrideApplied.set(false);
+    this.overrideBlockRequested.set(false);
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true, backdrop: 'static', keyboard: false, size: 'lg',
@@ -234,6 +285,10 @@ export class WizardDialogComponent {
     this._localError.set(null);
     this._applyError.set(null);
     this.appliedCount.set(0);
+    this._skippedPlacements.set([]);
+    this._complianceViolations.set([]);
+    this._overrideApplied.set(false);
+    this.overrideBlockRequested.set(false);
     await this.wizardService.stopConnection();
     const request = this.buildRequest();
     if (!request) {
@@ -261,15 +316,40 @@ export class WizardDialogComponent {
     if (this._applyPhase() !== null) return;
     const jobId = this.wizardService.currentJobId();
     if (!jobId) return;
+    await this.runApply(jobId, this.overrideBlockRequested());
+  }
+
+  onOverrideRetry(): void {
+    if (!this.canRetryWithOverride()) return;
+
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translate.instant('schedule.compliance.override.confirmTitle'),
+      message: this.translate.instant('schedule.compliance.override.confirmMessage', {
+        count: this._skippedPlacements().length,
+      }),
+      confirmText: this.translate.instant('schedule.compliance.override.retryButton'),
+      cancelText: this.translate.instant('cancel'),
+      onConfirm: () => {
+        const jobId = this.wizardService.currentJobId();
+        if (jobId) void this.runApply(jobId, true);
+      },
+    });
+  }
+
+  private async runApply(jobId: string, override: boolean): Promise<void> {
     this._applyError.set(null);
     this._applyPhase.set('applying');
     try {
       if (this.analyseScenarioService.isScenarioMode()) {
-        const ids = await this.wizardService.apply(jobId);
-        this.appliedCount.set(ids.length);
+        const result = await this.wizardService.apply(jobId, override);
+        this.appliedCount.set(result.createdWorkIds.length);
+        this._skippedPlacements.set(result.skippedPlacements);
+        this._complianceViolations.set(result.complianceViolations);
+        this._overrideApplied.set(result.overrideApplied);
       } else {
         const groupId = this.dataManagementSchedule.workFilter.selectedGroup ?? null;
-        const result = await this.wizardService.applyAsScenario(jobId, groupId);
+        const result = await this.wizardService.applyAsScenario(jobId, groupId, override);
         const newScenario = {
           id: result.scenarioId,
           name: result.scenarioName,
@@ -283,6 +363,9 @@ export class WizardDialogComponent {
         this.analyseScenarioService.scenarios.update(list => [...list, newScenario]);
         this.analyseScenarioService.selectScenario(newScenario);
         this.appliedCount.set(result.createdWorkIds.length);
+        this._skippedPlacements.set(result.skippedPlacements);
+        this._complianceViolations.set(result.complianceViolations);
+        this._overrideApplied.set(result.overrideApplied);
       }
       this._applyPhase.set('applied');
       this.dataManagementSchedule.readDatas();

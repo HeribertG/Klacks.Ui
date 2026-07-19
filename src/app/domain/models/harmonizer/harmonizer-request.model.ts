@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { ScenarioComplianceReport } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
+
 export interface HarmonizerRequest {
   periodFrom: string;
   periodUntil: string;
@@ -21,4 +23,5 @@ export interface HarmonizerApplyAsScenarioResponse {
   scenarioName: string;
   runGroupId: string | null;
   createdWorkIds: string[];
+  complianceReport?: ScenarioComplianceReport;
 }

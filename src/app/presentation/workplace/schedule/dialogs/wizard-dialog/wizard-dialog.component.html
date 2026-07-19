@@ -105,6 +105,17 @@
             <app-qualification-gap-report [gaps]="qualificationGaps()" />
           }
 
+          @if (authorizationService.isAuthorised) {
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="wizard-override-block"
+                     [checked]="overrideBlockRequested()"
+                     (change)="overrideBlockRequested.set($any($event.target).checked)" />
+              <label class="form-check-label" for="wizard-override-block">
+                {{ "schedule.compliance.override.checkboxLabel" | translate }}
+              </label>
+            </div>
+          }
+
           <div class="auction-ratio-bar">
             <label for="wizard-auction-ratio">
               {{ "wizard.dialog.auctionRatio" | translate }}: {{ auctionRatioPercent() }}%
@@ -174,6 +185,25 @@
         <div class="alert alert-success">
           {{ appliedCount() }} {{ "wizard.dialog.applied" | translate }}
         </div>
+        @if (overrideApplied()) {
+          <div class="alert alert-info">
+            {{ "schedule.compliance.override.appliedNotice" | translate: { count: complianceViolations().length } }}
+          </div>
+        }
+        <app-compliance-violation-report [entries]="complianceViolations()" />
+        <app-skipped-placements-report [entries]="skippedPlacementsResolved()" />
+        @if (skippedPlacements().length > 0) {
+          @if (canRetryWithOverride()) {
+            <button type="button" class="save-btn" (click)="onOverrideRetry()">
+              {{ "schedule.compliance.override.retryButton" | translate }}
+            </button>
+          } @else {
+            <p class="text-muted">
+              {{ "schedule.compliance.skipped.info" | translate: { count: skippedPlacements().length } }}
+              {{ "schedule.compliance.skipped.retryHint" | translate }}
+            </p>
+          }
+        }
       }
       @case ('error') {
         <div class="error-message">

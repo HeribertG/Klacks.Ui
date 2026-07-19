@@ -50,6 +50,9 @@
             @if (r.qualificationGaps?.length) {
               <app-qualification-gap-report [gaps]="r.qualificationGaps" />
             }
+            @if (complianceEntries().length > 0) {
+              <app-compliance-violation-report [entries]="complianceEntries()" [blockingCount]="complianceBlockingCount()" />
+            }
           }
           @if (phase() === 'applying') {
             <p class="apply-hint">{{ 'harmonizer.dialog.hint.applying' | translate }}</p>

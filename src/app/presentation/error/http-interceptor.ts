@@ -90,6 +90,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    if (url.includes('AnalyseScenarios/') && url.includes('/Accept') && error.status === 409) {
+      return throwError(() => error);
+    }
+
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
       return throwError(() => error);

@@ -1,0 +1,30 @@
+@if (entries().length > 0) {
+  <div class="alert alert-warning compliance-violation-report">
+    <div class="fw-semibold mb-2">
+      ⚠ {{ 'schedule.compliance.violations.title' | translate }} ({{ entries().length }})
+    </div>
+    @if (blockingCount() > 0) {
+      <div class="mb-2">
+        {{ 'schedule.compliance.violations.blockingHint' | translate: { count: blockingCount() } }}
+      </div>
+    }
+    <table class="table table-sm mb-0">
+      <thead>
+        <tr>
+          <th>{{ 'schedule.error-list.column.date' | translate }}</th>
+          <th>{{ 'schedule.error-list.column.client' | translate }}</th>
+          <th>{{ 'schedule.error-list.column.comment' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track $index) {
+          <tr [class]="rowClass(entry)">
+            <td>{{ entry.date }}</td>
+            <td>{{ entry.clientName }}</td>
+            <td>{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

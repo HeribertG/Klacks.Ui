@@ -84,22 +84,24 @@ export class DataWizardService implements OnDestroy {
     return response.cancelled;
   }
 
-  async apply(jobId: string): Promise<string[]> {
-    const response = await firstValueFrom(
+  async apply(jobId: string, overrideBlock = false): Promise<ApplyWizardResponse> {
+    return firstValueFrom(
       this.http
-        .post<ApplyWizardResponse>(`${this.apiBase}/Apply`, { jobId })
+        .post<ApplyWizardResponse>(`${this.apiBase}/Apply`, { jobId, overrideBlock })
         .pipe(timeout(DataWizardService.APPLY_TIMEOUT_MS)),
     );
-    return response.createdWorkIds;
   }
 
-  async applyAsScenario(jobId: string, groupId: string | null): Promise<WizardApplyAsScenarioResponse> {
-    const response = await firstValueFrom(
+  async applyAsScenario(
+    jobId: string,
+    groupId: string | null,
+    overrideBlock = false,
+  ): Promise<WizardApplyAsScenarioResponse> {
+    return firstValueFrom(
       this.http
-        .post<WizardApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId })
+        .post<WizardApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId, overrideBlock })
         .pipe(timeout(DataWizardService.APPLY_TIMEOUT_MS)),
     );
-    return response;
   }
 
   async stopConnection(): Promise<void> {

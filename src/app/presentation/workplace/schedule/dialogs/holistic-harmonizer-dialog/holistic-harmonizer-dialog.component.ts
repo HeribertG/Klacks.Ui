@@ -33,6 +33,11 @@ import {
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
+import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
+import {
+  ScenarioComplianceReport,
+  toComplianceEntries,
+} from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
@@ -42,7 +47,7 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
   templateUrl: './holistic-harmonizer-dialog.component.html',
   styleUrls: ['./holistic-harmonizer-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, QualificationGapReportComponent],
+  imports: [CommonModule, TranslateModule, QualificationGapReportComponent, ComplianceViolationReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HolisticHarmonizerDialogComponent {
@@ -57,8 +62,12 @@ export class HolisticHarmonizerDialogComponent {
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
+  private readonly _appliedComplianceReport = signal<ScenarioComplianceReport | null>(null);
 
   readonly appliedScenarioName = signal<string | null>(null);
+
+  readonly complianceEntries = computed(() => toComplianceEntries(this._appliedComplianceReport()));
+  readonly complianceBlockingCount = computed(() => this._appliedComplianceReport()?.blockingIssues.length ?? 0);
 
   readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
 
@@ -172,6 +181,7 @@ export class HolisticHarmonizerDialogComponent {
     this._applyPhase.set(null);
     this._localError.set(null);
     this.appliedScenarioName.set(null);
+    this._appliedComplianceReport.set(null);
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
@@ -228,6 +238,7 @@ export class HolisticHarmonizerDialogComponent {
       this.analyseScenarioService.scenarios.update((list) => [...list, newScenario]);
       this.analyseScenarioService.selectScenario(newScenario);
       this.appliedScenarioName.set(response.scenarioName);
+      this._appliedComplianceReport.set(response.complianceReport ?? null);
       this._applyPhase.set('applied');
       this.dataManagementSchedule.readDatas();
     } catch (err: unknown) {
