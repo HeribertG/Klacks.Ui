@@ -121,6 +121,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
     return (
       !req.url.includes('LoginUser') &&
       !req.url.includes('RefreshToken') &&
+      !req.url.includes('Logout') &&
       req.headers.has('Authorization')
     );
   }

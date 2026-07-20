@@ -349,6 +349,23 @@ describe('TokenRefreshInterceptor', () => {
         req.flush(null, { status: 401, statusText: 'Unauthorized' });
     });
 
+    it('should not attempt refresh for Logout endpoint', async () => {
+        const testUrl = '/api/Logout';
+
+        httpClient.get(testUrl).subscribe({
+            next: () => {
+                throw new Error('Should error without refresh');
+            },
+            error: (error: HttpErrorResponse) => {
+                expect(error.status).toBe(401);
+                expect(authService.refreshToken).not.toHaveBeenCalled();
+            },
+        });
+
+        const req = httpMock.expectOne(testUrl);
+        req.flush(null, { status: 401, statusText: 'Unauthorized' });
+    });
+
     it('should not attempt refresh when no Authorization header present', async () => {
         const testUrl = '/api/test';
 
