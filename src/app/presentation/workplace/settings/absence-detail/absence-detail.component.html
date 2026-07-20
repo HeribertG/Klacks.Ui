@@ -3,10 +3,13 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Absence Detail Modal -->
 <ng-template #absenceDetailModal id="absence-detail-modal-template" let-modal>
-  <form id="absence-detail-modal-form" data-klacksy-target="absence-detail-form">
+  <form
+    id="absence-detail-modal-form"
+    data-klacksy-target="absence-detail-form"
+  >
     <div id="absence-detail-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
-        {{ 'setting.absence-detail.headline-modal' | translate }}
+        {{ "setting.absence-detail.headline-modal" | translate }}
       </div>
       <span class="filler"></span>
 
@@ -36,14 +39,16 @@
           class="row-line-modal-inline"
         >
           <div class="model-field full-width">
-            <label for="absenceId">{{ 'setting.absence-detail.modal.absence' | translate }}</label>
+            <label for="absenceId">{{
+              "setting.absence-detail.modal.absence" | translate
+            }}</label>
             <select
               id="absence-detail-modal-absence"
               [formField]="absenceDetailForm.absenceId"
-              class="form-control"
+              class="form-select"
             >
               <option value="">
-                {{ 'setting.absence-detail.modal.select-absence' | translate }}
+                {{ "setting.absence-detail.modal.select-absence" | translate }}
               </option>
               @for (absence of absences; track absence.id) {
                 <option [value]="absence.id">
@@ -57,7 +62,7 @@
         <!-- Mode Selection -->
         <div id="absence-detail-modal-mode-row" class="row-line-modal-inline">
           <div class="model-field full-width">
-            <label>{{ 'setting.absence-detail.modal.mode' | translate }}</label>
+            <label>{{ "setting.absence-detail.modal.mode" | translate }}</label>
             <div class="mode-selection">
               <div class="mode-option">
                 <input
@@ -67,7 +72,9 @@
                   [checked]="selectedMode() === AbsenceDetailMode.TimeRange"
                   (change)="onModeChange(AbsenceDetailMode.TimeRange)"
                 />
-                <label for="mode-time-range">{{ 'setting.absence-detail.modal.mode-time-range' | translate }}</label>
+                <label for="mode-time-range">{{
+                  "setting.absence-detail.modal.mode-time-range" | translate
+                }}</label>
               </div>
               <div class="mode-option">
                 <input
@@ -77,7 +84,9 @@
                   [checked]="selectedMode() === AbsenceDetailMode.Duration"
                   (change)="onModeChange(AbsenceDetailMode.Duration)"
                 />
-                <label for="mode-duration">{{ 'setting.absence-detail.modal.mode-duration' | translate }}</label>
+                <label for="mode-duration">{{
+                  "setting.absence-detail.modal.mode-duration" | translate
+                }}</label>
               </div>
             </div>
           </div>
@@ -95,9 +104,7 @@
             >
               <app-time-input
                 id="absence-detail-modal-start-time-input"
-                [label]="
-                  'setting.absence-detail.modal.start-time' | translate
-                "
+                [label]="'setting.absence-detail.modal.start-time' | translate"
                 [value]="internalStartTime"
                 (valueChange)="onStartTimeChange($event)"
                 hoursName="startTimeHours"
@@ -115,9 +122,7 @@
             >
               <app-time-input
                 id="absence-detail-modal-end-time-input"
-                [label]="
-                  'setting.absence-detail.modal.end-time' | translate
-                "
+                [label]="'setting.absence-detail.modal.end-time' | translate"
                 [value]="internalEndTime"
                 (valueChange)="onEndTimeChange($event)"
                 hoursName="endTimeHours"
@@ -143,9 +148,7 @@
             >
               <app-time-input
                 id="absence-detail-modal-duration-input"
-                [label]="
-                  'setting.absence-detail.modal.duration' | translate
-                "
+                [label]="'setting.absence-detail.modal.duration' | translate"
                 [value]="internalDuration"
                 (valueChange)="onDurationChange($event)"
                 hoursName="durationHours"
@@ -162,7 +165,9 @@
         <!-- Detail Name -->
         <div id="absence-detail-modal-name-row" class="row-line-modal-inline">
           <div class="model-field full-width">
-            <label for="detailName">{{ 'setting.absence-detail.modal.detail-name' | translate }}</label>
+            <label for="detailName">{{
+              "setting.absence-detail.modal.detail-name" | translate
+            }}</label>
             <input
               id="absence-detail-modal-detail-name"
               type="text"
@@ -173,9 +178,14 @@
         </div>
 
         <!-- Description -->
-        <div id="absence-detail-modal-description-row" class="row-line-modal-inline">
+        <div
+          id="absence-detail-modal-description-row"
+          class="row-line-modal-inline"
+        >
           <div class="model-field full-width">
-            <label for="description">{{ 'setting.absence-detail.modal.description' | translate }}</label>
+            <label for="description">{{
+              "setting.absence-detail.modal.description" | translate
+            }}</label>
             <textarea
               id="absence-detail-modal-description"
               [formField]="absenceDetailForm.description"
@@ -193,7 +203,7 @@
           >
             <div class="validation-errors-section">
               <div class="alert alert-danger">
-                <strong>{{ 'validation.errors' | translate }}:</strong>
+                <strong>{{ "validation.errors" | translate }}:</strong>
                 <ul>
                   @for (error of getValidationErrors(); track error) {
                     <li>{{ error }}</li>
@@ -213,7 +223,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ 'cancel' | translate }}</span
+      >{{ "cancel" | translate }}</span
     >
     <button
       id="absence-detail-modal-save-btn"
@@ -222,7 +232,7 @@
       (click)="onSaveModal(modal)"
       [disabled]="!isFormValid()"
     >
-      {{ 'save' | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
 </ng-template>
