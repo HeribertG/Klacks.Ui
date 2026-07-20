@@ -996,7 +996,7 @@
   "setting.contract.performsShiftWork-modal": "Lavoro a turni (mattina/pomeriggio/notte)",
   "setting.schedulingRule.add": "+ Nuova regola di pianificazione",
   "setting.schedulingRule.header.name": "Nome",
-  "setting.schedulingRule.headline": "Regole di pianificazione",
+  "setting.schedulingRule.headline": "Regole di pianificazione individuali",
   "setting.schedulingRule.headline-modal": "Modifica regola di pianificazione",
   "setting.schedulingRule.maxConsecutiveDays": "Max. giorni lavorativi consecutivi",
   "setting.schedulingRule.maxDailyHours": "Max. ore giornaliere",

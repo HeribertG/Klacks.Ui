@@ -997,7 +997,7 @@
   "setting.contract.performsShiftWork-modal": "Schichtarbeit (Früh-/Spät-/Nachtdienste)",
   "setting.schedulingRule.add": "+ Neue Planungsregel",
   "setting.schedulingRule.header.name": "Name",
-  "setting.schedulingRule.headline": "Planungsregeln",
+  "setting.schedulingRule.headline": "Individuelle Planungsregeln",
   "setting.schedulingRule.headline-modal": "Planungsregel bearbeiten",
   "setting.schedulingRule.maxConsecutiveDays": "Max. aufeinanderfolgende Arbeitstage",
   "setting.schedulingRule.maxDailyHours": "Max. Tagesstunden",

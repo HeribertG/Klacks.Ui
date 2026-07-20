@@ -997,7 +997,7 @@
   "setting.contract.performsShiftWork-modal": "Shift Work (Early/Late/Night Shifts)",
   "setting.schedulingRule.add": "+ New Scheduling Rule",
   "setting.schedulingRule.header.name": "Name",
-  "setting.schedulingRule.headline": "Scheduling Rules",
+  "setting.schedulingRule.headline": "Individual Scheduling Rules",
   "setting.schedulingRule.headline-modal": "Edit Scheduling Rule",
   "setting.schedulingRule.maxConsecutiveDays": "Max. Consecutive Work Days",
   "setting.schedulingRule.maxDailyHours": "Max. Daily Hours",
