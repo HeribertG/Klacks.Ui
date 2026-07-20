@@ -69,7 +69,7 @@
             </label>
             <select
               id="qualifications-modal-type"
-              class="form-control"
+              class="form-select"
               [ngModel]="selectedType()"
               (ngModelChange)="selectedType.set($event)"
               [ngModelOptions]="{standalone: true}"
@@ -83,7 +83,7 @@
             <label for="qualifications-modal-category">
               {{ 'setting.qualifications.modal.category' | translate }}
             </label>
-            <select id="qualifications-modal-category" class="form-control"
+            <select id="qualifications-modal-category" class="form-select"
               [ngModel]="selectedCategory()"
               (ngModelChange)="selectedCategory.set($event)"
               [ngModelOptions]="{standalone: true}">

@@ -35,7 +35,7 @@
         <label for="counterRuleEventType">{{ 'setting.counterRule.field.eventType' | translate }}</label>
         <select
           id="counterRuleEventType"
-          class="form-control"
+          class="form-select"
           aria-label="counterRuleEventType"
           [(ngModel)]="editingRule.eventType"
           (ngModelChange)="onEventTypeChange()"
@@ -50,7 +50,7 @@
         <label for="counterRulePeriod">{{ 'setting.counterRule.field.period' | translate }}</label>
         <select
           id="counterRulePeriod"
-          class="form-control"
+          class="form-select"
           aria-label="counterRulePeriod"
           [(ngModel)]="editingRule.period"
         >
@@ -94,7 +94,7 @@
         <label for="counterRuleEnforcement">{{ 'setting.counterRule.field.enforcement' | translate }}</label>
         <select
           id="counterRuleEnforcement"
-          class="form-control"
+          class="form-select"
           aria-label="counterRuleEnforcement"
           [(ngModel)]="editingRule.enforcement"
         >

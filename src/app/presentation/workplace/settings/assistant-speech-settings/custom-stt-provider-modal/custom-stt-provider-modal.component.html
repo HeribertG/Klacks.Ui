@@ -25,7 +25,7 @@
       <div class="row-line-modal-inline">
         <div class="modal-field full-width">
           <label for="stt-type">{{ "setting.speech.stt-provider-type" | translate }}</label>
-          <select id="stt-type" class="form-control" [formField]="providerForm.connectionType">
+          <select id="stt-type" class="form-select" [formField]="providerForm.connectionType">
             <option value="rest">REST Upload</option>
             <option value="websocket">WebSocket Stream</option>
           </select>

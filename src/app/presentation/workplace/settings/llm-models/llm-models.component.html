@@ -58,7 +58,7 @@
           <label for="provider">{{ 'settings.llm-models.provider' | translate }}</label>
           <select
             id="llm-models-modal-provider"
-            class="form-control"
+            class="form-select"
             [formField]="llmForm.providerId"
           >
             @for (provider of availableProviders; track provider.providerId) {
