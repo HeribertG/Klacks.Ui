@@ -5,6 +5,7 @@
  * add/delete/change, and the save payload filtering (blank entries dropped).
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';

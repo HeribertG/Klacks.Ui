@@ -6,6 +6,7 @@
  * Telegram bot token validation state machine.
  */
 
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';

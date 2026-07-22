@@ -5,6 +5,7 @@
  * of new versus persisted rows, and the create-vs-update save branch.
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';

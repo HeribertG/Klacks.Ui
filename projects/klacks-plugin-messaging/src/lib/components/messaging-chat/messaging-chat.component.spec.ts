@@ -8,6 +8,7 @@
  * pipe instances are created, keeping the test focused on the component class.
  */
 
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, Subject } from 'rxjs';
