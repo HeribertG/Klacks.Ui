@@ -5,7 +5,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { of, throwError, delay } from 'rxjs';
+import { of, throwError, delay, firstValueFrom } from 'rxjs';
 
 import { DataManagementAssistantService } from './data-management-assistant.service';
 import { DataAssistantService, IAssistantChatResponse, IAssistantUsage, } from 'src/app/infrastructure/api/assistant/data-assistant.service';
@@ -442,21 +442,15 @@ describe('DataManagementAssistantService', () => {
             mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             // Act
-            service.sendMessage('Hello 1', 'conv-1').subscribe({
-                next: async () => {
-                    await new Promise(resolve => setTimeout(resolve, 60));
-                    service.sendMessage('Hello 2', 'conv-2').subscribe({
-                        next: async () => {
-                            // Assert
-                            await new Promise(resolve => setTimeout(resolve, 60));
-                            const conversations = service.getAllConversations();
-                            expect(conversations.length).toBe(2);
-                            // Should be sorted by last activity (most recent first)
-                            expect(conversations[0].id).toBe('conv-2');
-                        },
-                    });
-                },
-            });
+            service.sendMessage('Hello 1', 'conv-1').subscribe();
+            await new Promise((resolve) => setTimeout(resolve, 60));
+            service.sendMessage('Hello 2', 'conv-2').subscribe();
+
+            // Assert
+            const conversations = service.getAllConversations();
+            expect(conversations.length).toBe(2);
+            // Should be sorted by last activity (most recent first)
+            expect(conversations[0].id).toBe('conv-2');
         });
     });
 
@@ -615,21 +609,17 @@ describe('DataManagementAssistantService', () => {
             mockDataAssistantService.chat.mockReturnValue(of(mockResponse).pipe(delay(50)));
 
             await new Promise(resolve => setTimeout(resolve, 60));
-            // Act
-            service.sendMessage('Hello').subscribe({
-                next: async () => {
-                    // Assert - wait for all state changes to complete
-                    await new Promise(resolve => setTimeout(resolve, 110));
-                    expect(loadingStates.length).toBeGreaterThanOrEqual(2);
-                    expect(loadingStates).toContain(true); // Started loading
-                    expect(loadingStates).toContain(false); // Finished loading
-                    sub.unsubscribe();
-                },
-                error: (err) => {
-                    sub.unsubscribe();
-                    throw new Error(err);
-                }
-            });
+            // Act - await the full request/response cycle so the assertions run
+            // inside the test (a rejection here fails the test instead of leaking
+            // as an unhandled error).
+            await firstValueFrom(service.sendMessage('Hello'));
+            await new Promise(resolve => setTimeout(resolve, 10));
+
+            // Assert
+            expect(loadingStates.length).toBeGreaterThanOrEqual(2);
+            expect(loadingStates).toContain(true); // Started loading
+            expect(loadingStates).toContain(false); // Finished loading
+            sub.unsubscribe();
         });
     });
 

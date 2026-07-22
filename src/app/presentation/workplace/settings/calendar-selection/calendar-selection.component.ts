@@ -85,6 +85,7 @@ export class CalendarSelectionComponent
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
+  private modalOpenTimer: ReturnType<typeof setTimeout> | undefined;
 
   calendarSelections = signal<ICalendarSelection[]>([]);
   searchTerm = signal('');
@@ -162,6 +163,10 @@ export class CalendarSelectionComponent
   }
 
   ngOnDestroy(): void {
+    if (this.modalOpenTimer !== undefined) {
+      clearTimeout(this.modalOpenTimer);
+      this.modalOpenTimer = undefined;
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -324,7 +329,11 @@ export class CalendarSelectionComponent
   }
 
   private openModal(): void {
-    setTimeout(() => {
+    if (this.modalOpenTimer !== undefined) {
+      clearTimeout(this.modalOpenTimer);
+    }
+    this.modalOpenTimer = setTimeout(() => {
+      this.modalOpenTimer = undefined;
       this.ngbModal.open(this.calendarSelectionModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
