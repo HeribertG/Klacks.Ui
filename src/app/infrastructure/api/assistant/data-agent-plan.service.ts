@@ -2,7 +2,7 @@
 
 /**
  * HTTP client for the Klacksy AgentPlans REST endpoints (Phase 3 autonomy roadmap).
- * Talks to /api/backend/assistant/plans: create+start, approve, list, get-by-id.
+ * Talks to /api/backend/assistant/plans: create+start, approve, abort, list, get-by-id.
  * @param baseUrl - Resolved from environment.baseAssistantUrl or baseUrl + assistant
  */
 
@@ -28,6 +28,10 @@ export class DataAgentPlanService {
 
   approve(planId: string): Observable<IAgentPlan> {
     return this.http.post<IAgentPlan>(`${this.baseUrl}plans/${planId}/approve`, {});
+  }
+
+  abort(planId: string): Observable<IAgentPlan> {
+    return this.http.post<IAgentPlan>(`${this.baseUrl}plans/${planId}/abort`, {});
   }
 
   listMyPlans(): Observable<IAgentPlan[]> {

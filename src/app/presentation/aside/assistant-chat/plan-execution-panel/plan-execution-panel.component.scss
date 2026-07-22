@@ -100,10 +100,24 @@
   margin-inline-start: 4px;
 }
 
+.plan-status-aborted {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
 .plan-approve-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--standartBorderColor, #ddd);
+  gap: 8px;
+}
+
+.plan-action-bar {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--standartBorderColor, #ddd);
@@ -114,6 +128,18 @@
   color: #856404;
 }
 
-.plan-approve-btn {
+.plan-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.plan-approve-btn,
+.plan-abort-btn {
   font-size: 12px;
+}
+
+.plan-approve-btn:disabled,
+.plan-abort-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

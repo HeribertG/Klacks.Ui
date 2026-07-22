@@ -22,6 +22,7 @@ import {
   viewChild
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
@@ -56,6 +57,8 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
+import { PlanExecutionPanelComponent } from './plan-execution-panel/plan-execution-panel.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
@@ -106,6 +109,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     TranslateModule,
     IconLogoComponent,
     IconUserComponent,
+    PlanExecutionPanelComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],
@@ -136,6 +140,7 @@ export class AssistantChatComponent {
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
+  readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
   private localStorageService = inject(LocalStorageService);
@@ -330,6 +335,18 @@ export class AssistantChatComponent {
           const lang = this.translateService.currentLang || this.translateService.defaultLang;
           this.addWelcomeMessage(lang);
         }
+      }
+    });
+
+    // Separate effect: must depend ONLY on isVisible. The block above also reads
+    // this.messages.length, which changes on every streamed token — folding the plan
+    // refresh in there would re-fire listMyPlans on ~60 signal writes/sec while
+    // streaming and clobber the SignalR-maintained activePlan mid-conversation.
+    effect(() => {
+      if (this.asideService.isVisible()) {
+        this.planService.refreshActivePlan()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       }
     });
 
@@ -1425,5 +1442,32 @@ export class AssistantChatComponent {
 
   isUsingWhisper(): boolean {
     return this.speechService.getDiagnostics().useWhisperFallback;
+  }
+
+  onPlanApprove(planId: string): void {
+    this.planService.approve(planId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => this.ngZone.run(() => {
+          this.toastShowService.showError(
+            this.translateService.instant('assistant-chat.plan-execution.approve-error'),
+          );
+          this.cdr.detectChanges();
+        }),
+      });
+  }
+
+  onPlanAbort(planId: string): void {
+    this.planService.abort(planId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: (error: unknown) => this.ngZone.run(() => {
+          const messageKey = error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict
+            ? 'assistant-chat.plan-execution.abort-conflict'
+            : 'assistant-chat.plan-execution.abort-error';
+          this.toastShowService.showError(this.translateService.instant(messageKey));
+          this.cdr.detectChanges();
+        }),
+      });
   }
 }

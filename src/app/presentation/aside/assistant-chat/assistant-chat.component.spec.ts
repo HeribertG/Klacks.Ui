@@ -7,12 +7,15 @@ import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { CUSTOM_ELEMENTS_SCHEMA, Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { AssistantChatComponent } from './assistant-chat.component';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
+import { AsideService } from '../aside.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
@@ -98,7 +101,21 @@ describe('AssistantChatComponent', () => {
         },
     ];
 
+    let mockPlanService: any;
+
     beforeEach(async () => {
+        mockPlanService = {
+            activePlan: signal(null),
+            totalSteps: signal(0),
+            isLoading: signal(false),
+            isApproving: signal(false),
+            isAborting: signal(false),
+            hasVisiblePlan: signal(false),
+            refreshActivePlan: vi.fn().mockReturnValue(of(null)),
+            approve: vi.fn().mockReturnValue(of({})),
+            abort: vi.fn().mockReturnValue(of({})),
+        };
+
         const llmServiceSpy = {
             getAvailableModels: vi.fn(),
             getCurrentModelId: vi.fn(),
@@ -183,6 +200,7 @@ describe('AssistantChatComponent', () => {
             providers: [
                 { provide: DataManagementAssistantService, useValue: llmServiceSpy },
                 { provide: DataManagementAssistantProviderService, useValue: llmProviderServiceSpy },
+                { provide: DataManagementAgentPlanService, useValue: mockPlanService },
                 { provide: SpeechRecognitionService, useValue: speechServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
@@ -1196,6 +1214,101 @@ describe('AssistantChatComponent', () => {
 
             callbacks.onContent('Erledigt.');
             expect(component.toolSteps().length).toBe(0);
+        });
+    });
+
+    describe('AgentPlan panel wiring', () => {
+        it('refreshes the active plan when the aside becomes visible', () => {
+            const asideService = TestBed.inject(AsideService);
+
+            fixture.detectChanges();
+            TestBed.flushEffects();
+            asideService.show();
+            TestBed.flushEffects();
+
+            expect(mockPlanService.refreshActivePlan).toHaveBeenCalled();
+        });
+
+        it('does not re-fetch the active plan on every streamed message while the aside stays open', () => {
+            const asideService = TestBed.inject(AsideService);
+
+            fixture.detectChanges();
+            TestBed.flushEffects();
+            asideService.show();
+            TestBed.flushEffects();
+            expect(mockPlanService.refreshActivePlan).toHaveBeenCalledTimes(1);
+
+            component.orchestrator.addMessage({
+                id: 'stream-1',
+                sender: 'assistant',
+                content: 'partial',
+                formattedContent: 'partial',
+                timestamp: new Date(),
+            });
+            TestBed.flushEffects();
+
+            expect(mockPlanService.refreshActivePlan).toHaveBeenCalledTimes(1);
+        });
+
+        it('onPlanApprove calls the plan service with the given plan id', () => {
+            fixture.detectChanges();
+
+            component.onPlanApprove('plan-1');
+
+            expect(mockPlanService.approve).toHaveBeenCalledWith('plan-1');
+        });
+
+        it('onPlanApprove shows an error toast when approving fails', () => {
+            mockPlanService.approve.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+            const toastService = TestBed.inject(ToastShowService);
+            const showErrorSpy = vi.spyOn(toastService, 'showError');
+            fixture.detectChanges();
+
+            component.onPlanApprove('plan-1');
+
+            expect(showErrorSpy).toHaveBeenCalled();
+        });
+
+        it('onPlanAbort calls the plan service with the given plan id', () => {
+            fixture.detectChanges();
+
+            component.onPlanAbort('plan-1');
+
+            expect(mockPlanService.abort).toHaveBeenCalledWith('plan-1');
+        });
+
+        it('onPlanAbort shows a conflict-specific toast on a 409 response', () => {
+            mockPlanService.abort.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+            const toastService = TestBed.inject(ToastShowService);
+            const showErrorSpy = vi.spyOn(toastService, 'showError');
+            fixture.detectChanges();
+
+            component.onPlanAbort('plan-1');
+
+            expect(showErrorSpy).toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.plan-execution.abort-conflict');
+        });
+
+        it('onPlanAbort shows a generic error toast on a non-conflict failure', () => {
+            mockPlanService.abort.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+            const toastService = TestBed.inject(ToastShowService);
+            const showErrorSpy = vi.spyOn(toastService, 'showError');
+            fixture.detectChanges();
+
+            component.onPlanAbort('plan-1');
+
+            expect(showErrorSpy).toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.plan-execution.abort-error');
+        });
+
+        it('exposes hasVisiblePlan from the plan service for the template', () => {
+            fixture.detectChanges();
+
+            expect(component.planService.hasVisiblePlan()).toBe(false);
+
+            mockPlanService.hasVisiblePlan.set(true);
+
+            expect(component.planService.hasVisiblePlan()).toBe(true);
         });
     });
 });

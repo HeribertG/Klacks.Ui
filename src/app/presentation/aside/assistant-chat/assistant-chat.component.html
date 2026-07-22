@@ -121,6 +121,14 @@
   </div>
   }
 
+  <!-- Klacksy AgentPlan execution panel (hidden during the setup tour) -->
+  @if (!isTourActive() && planService.hasVisiblePlan()) {
+  <app-plan-execution-panel
+    (approveRequested)="onPlanApprove($event)"
+    (abortRequested)="onPlanAbort($event)"
+  ></app-plan-execution-panel>
+  }
+
   <!-- Messages Area -->
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">

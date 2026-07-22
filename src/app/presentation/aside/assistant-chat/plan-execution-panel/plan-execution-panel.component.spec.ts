@@ -29,7 +29,10 @@ describe('PlanExecutionPanelComponent', () => {
     };
   }
 
-  function setupComponent(plan: IAgentPlan | null): PlanExecutionPanelComponent {
+  function setupComponent(
+    plan: IAgentPlan | null,
+    options?: { isApproving?: boolean; isAborting?: boolean },
+  ): PlanExecutionPanelComponent {
     const activePlan = signal(plan);
     const totalSteps = signal(plan ? (JSON.parse(plan.stepsJson) as unknown[]).length : 0);
     const steps = signal<IAgentPlanStep[]>(plan ? (JSON.parse(plan.stepsJson) as IAgentPlanStep[]) : []);
@@ -37,6 +40,8 @@ describe('PlanExecutionPanelComponent', () => {
     const isExecuting = signal(plan?.status === PlanStatus.Executing);
     const isCompleted = signal(plan?.status === PlanStatus.Completed);
     const isFailed = signal(plan?.status === PlanStatus.Failed);
+    const isApproving = signal(options?.isApproving ?? false);
+    const isAborting = signal(options?.isAborting ?? false);
 
     const serviceMock: Partial<DataManagementAgentPlanService> = {
       activePlan,
@@ -46,6 +51,8 @@ describe('PlanExecutionPanelComponent', () => {
       isExecuting,
       isCompleted,
       isFailed,
+      isApproving,
+      isAborting,
     };
 
     TestBed.configureTestingModule({
@@ -100,5 +107,71 @@ describe('PlanExecutionPanelComponent', () => {
     component.onApproveClick();
 
     expect(emitted).toBeUndefined();
+  });
+
+  it('allows abort while executing', () => {
+    const component = setupComponent(makePlan(PlanStatus.Executing, 1));
+
+    expect(component.canAbort()).toBe(true);
+  });
+
+  it('allows abort while paused for approval', () => {
+    const component = setupComponent(makePlan(PlanStatus.PausedForApproval, 1));
+
+    expect(component.canAbort()).toBe(true);
+  });
+
+  it('does not allow abort once completed', () => {
+    const component = setupComponent(makePlan(PlanStatus.Completed, 3));
+
+    expect(component.canAbort()).toBe(false);
+  });
+
+  it('emits abortRequested when Abort clicked while executing', () => {
+    const component = setupComponent(makePlan(PlanStatus.Executing, 1));
+
+    let emitted: string | undefined;
+    component.abortRequested.subscribe((id: string) => (emitted = id));
+    component.onAbortClick();
+
+    expect(emitted).toBe('plan-1');
+  });
+
+  it('does not emit abortRequested when plan is already completed', () => {
+    const component = setupComponent(makePlan(PlanStatus.Completed, 3));
+
+    let emitted: string | undefined;
+    component.abortRequested.subscribe((id: string) => (emitted = id));
+    component.onAbortClick();
+
+    expect(emitted).toBeUndefined();
+  });
+
+  it('does not emit approveRequested while a request is already in flight', () => {
+    const component = setupComponent(makePlan(PlanStatus.PausedForApproval, 1), { isApproving: true });
+
+    let emitted: string | undefined;
+    component.approveRequested.subscribe((id: string) => (emitted = id));
+    component.onApproveClick();
+
+    expect(emitted).toBeUndefined();
+  });
+
+  it('does not emit abortRequested while a request is already in flight', () => {
+    const component = setupComponent(makePlan(PlanStatus.Executing, 1), { isAborting: true });
+
+    let emitted: string | undefined;
+    component.abortRequested.subscribe((id: string) => (emitted = id));
+    component.onAbortClick();
+
+    expect(emitted).toBeUndefined();
+  });
+
+  it('builds the status label key from the plan status', () => {
+    const component = setupComponent(makePlan(PlanStatus.PausedForApproval, 1));
+
+    expect(component.statusLabelKey(PlanStatus.PausedForApproval)).toBe(
+      'assistant-chat.plan-execution.status.paused_for_approval',
+    );
   });
 });
