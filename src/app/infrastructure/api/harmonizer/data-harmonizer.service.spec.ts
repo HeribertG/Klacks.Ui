@@ -3,101 +3,85 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import * as signalR from '@microsoft/signalr';
 import { DataHarmonizerService } from './data-harmonizer.service';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
 import { HarmonizerResult } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
 
-const signalRFake = vi.hoisted(() => {
-  class FakeConnection {
-    state = 'Disconnected';
-    startCalls = 0;
-    stopCalls = 0;
-    readonly sendCalls: { method: string; args: unknown[] }[] = [];
-    private readonly handlers = new Map<string, (...args: unknown[]) => void>();
-    private readonly reconnectedCallbacks: (() => unknown)[] = [];
-    private readonly closeCallbacks: ((error?: Error) => void)[] = [];
+class FakeConnection {
+  state = 'Disconnected';
+  startCalls = 0;
+  stopCalls = 0;
+  readonly sendCalls: { method: string; args: unknown[] }[] = [];
+  private readonly handlers = new Map<string, (...args: unknown[]) => void>();
+  private readonly reconnectedCallbacks: (() => unknown)[] = [];
+  private readonly closeCallbacks: ((error?: Error) => void)[] = [];
 
-    async start(): Promise<void> {
-      this.startCalls++;
-      this.state = 'Connected';
-    }
+  async start(): Promise<void> {
+    this.startCalls++;
+    this.state = 'Connected';
+  }
 
-    async stop(): Promise<void> {
-      this.stopCalls++;
-      this.state = 'Disconnected';
-    }
+  async stop(): Promise<void> {
+    this.stopCalls++;
+    this.state = 'Disconnected';
+  }
 
-    async send(method: string, ...args: unknown[]): Promise<void> {
-      this.sendCalls.push({ method, args });
-    }
+  async send(method: string, ...args: unknown[]): Promise<void> {
+    this.sendCalls.push({ method, args });
+  }
 
-    on(name: string, callback: (...args: unknown[]) => void): void {
-      this.handlers.set(name, callback);
-    }
+  on(name: string, callback: (...args: unknown[]) => void): void {
+    this.handlers.set(name, callback);
+  }
 
-    onreconnected(callback: () => unknown): void {
-      this.reconnectedCallbacks.push(callback);
-    }
+  onreconnected(callback: () => unknown): void {
+    this.reconnectedCallbacks.push(callback);
+  }
 
-    onclose(callback: (error?: Error) => void): void {
-      this.closeCallbacks.push(callback);
-    }
+  onclose(callback: (error?: Error) => void): void {
+    this.closeCallbacks.push(callback);
+  }
 
-    emit(name: string, ...args: unknown[]): void {
-      this.handlers.get(name)?.(...args);
-    }
+  emit(name: string, ...args: unknown[]): void {
+    this.handlers.get(name)?.(...args);
+  }
 
-    async fireReconnected(): Promise<void> {
-      for (const callback of this.reconnectedCallbacks) {
-        await callback();
-      }
-    }
-
-    fireClose(): void {
-      for (const callback of this.closeCallbacks) {
-        callback();
-      }
+  async fireReconnected(): Promise<void> {
+    for (const callback of this.reconnectedCallbacks) {
+      await callback();
     }
   }
 
-  const connections: FakeConnection[] = [];
-
-  class FakeBuilder {
-    withUrl(): this {
-      return this;
-    }
-
-    withAutomaticReconnect(): this {
-      return this;
-    }
-
-    configureLogging(): this {
-      return this;
-    }
-
-    build(): FakeConnection {
-      const connection = new FakeConnection();
-      connections.push(connection);
-      return connection;
+  fireClose(): void {
+    for (const callback of this.closeCallbacks) {
+      callback();
     }
   }
+}
 
-  return {
-    connections,
-    module: {
-      HubConnectionBuilder: FakeBuilder,
-      HubConnectionState: {
-        Connected: 'Connected',
-        Disconnected: 'Disconnected',
-        Reconnecting: 'Reconnecting',
-      },
-      LogLevel: { Information: 1 },
-    },
-  };
-});
+const connections: FakeConnection[] = [];
 
-vi.mock('@microsoft/signalr', () => signalRFake.module);
+class FakeBuilder {
+  withUrl(): this {
+    return this;
+  }
+
+  withAutomaticReconnect(): this {
+    return this;
+  }
+
+  configureLogging(): this {
+    return this;
+  }
+
+  build(): FakeConnection {
+    const connection = new FakeConnection();
+    connections.push(connection);
+    return connection;
+  }
+}
 
 const REQUEST: HarmonizerRequest = {
   periodFrom: '2026-04-01',
@@ -121,9 +105,17 @@ const tick = () => new Promise<void>((resolve) => setTimeout(resolve));
 describe('DataHarmonizerService', () => {
   let service: DataHarmonizerService;
   let httpMock: HttpTestingController;
+  let originalBuilder: typeof signalR.HubConnectionBuilder;
 
   beforeEach(() => {
-    signalRFake.connections.length = 0;
+    connections.length = 0;
+    originalBuilder = signalR.HubConnectionBuilder;
+    Object.defineProperty(signalR, 'HubConnectionBuilder', {
+      configurable: true,
+      writable: true,
+      value: FakeBuilder,
+    });
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -135,8 +127,14 @@ describe('DataHarmonizerService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await service.stopConnection();
     httpMock.verify();
+    Object.defineProperty(signalR, 'HubConnectionBuilder', {
+      configurable: true,
+      writable: true,
+      value: originalBuilder,
+    });
   });
 
   async function startJob(jobId = 'job-1') {
@@ -144,7 +142,7 @@ describe('DataHarmonizerService', () => {
     await tick();
     httpMock.expectOne((req) => req.url.endsWith('Harmonizer/Start')).flush({ jobId });
     await promise;
-    return signalRFake.connections[signalRFake.connections.length - 1];
+    return connections[connections.length - 1];
   }
 
   it('start connects, joins the job group and sets running', async () => {

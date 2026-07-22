@@ -4,7 +4,6 @@
  * Navigation filter component for the edit-group view (client filters: gender, membership, date range, region).
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   DestroyRef,
