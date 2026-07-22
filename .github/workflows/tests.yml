@@ -1,0 +1,48 @@
+# .github/workflows/tests.yml for Klacks.Ui
+#
+# CI spine for the frontend test mass (AP 0.3, mirrors Klacks.Api/.github/workflows/tests.yml).
+# Runs on every push/PR to main. Vitest (via the Angular "unit-test" builder) runs headless in
+# jsdom (see vitest.config.ts: environment: 'jsdom', pool: 'forks') — no browser/Chrome install
+# needed on the runner.
+#
+# Node version is pinned to what local dev uses; the repo has neither an "engines" field in
+# package.json nor an .nvmrc to derive it from.
+
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: tests-klacks-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  frontend-tests:
+    name: frontend-tests (Klacks.Ui)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Klacks.Ui
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:no-report
+
+      - name: Lint
+        run: npm run lint
