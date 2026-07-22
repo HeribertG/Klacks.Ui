@@ -34,7 +34,7 @@ describe('DataAnalyseScenarioService', () => {
     it('should not retry on 409 Conflict and pass the error through immediately', () => {
       let receivedError: unknown;
       service.accept('scenario-1').subscribe({
-        next: () => fail('expected an error'),
+        next: () => expect.unreachable('expected an error'),
         error: (error) => (receivedError = error),
       });
 
@@ -51,7 +51,7 @@ describe('DataAnalyseScenarioService', () => {
     it('should retry up to 3 times on transient errors', () => {
       let receivedError: unknown;
       service.accept('scenario-1').subscribe({
-        next: () => fail('expected an error'),
+        next: () => expect.unreachable('expected an error'),
         error: (error) => (receivedError = error),
       });
 
