@@ -26,6 +26,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { firstValueFrom, timeout } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { filterModelsWithActiveProvider } from 'src/app/domain/services/assistant/assistant-model-provider-filter';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
@@ -66,6 +68,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private dataSttService = inject(DataSttService);
   private dataTtsService = inject(DataTtsService);
   private dataAssistantService = inject(DataAssistantService);
+  private assistantProviderService = inject(DataManagementAssistantProviderService);
   private dataDictionaryService = inject(DataTranscriptionDictionaryService);
 
   private isInitialized = false;
@@ -178,16 +181,18 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     await this.loadCustomSttProviders();
 
     try {
-      const models = await firstValueFrom(
-        this.dataAssistantService.getModels(),
-      );
+      const [models, providers] = await Promise.all([
+        firstValueFrom(this.dataAssistantService.getModels()),
+        this.assistantProviderService.loadProviders(),
+      ]);
       this.transcriptionModels.set(
-        models
-          .filter((m) => m.isEnabled)
-          .map((m) => ({
-            value: m.modelId,
-            label: m.displayName ?? m.modelId,
-          })),
+        filterModelsWithActiveProvider(
+          models.filter((m) => m.isEnabled),
+          providers,
+        ).map((m) => ({
+          value: m.modelId,
+          label: m.displayName ?? m.modelId,
+        })),
       );
     } catch {
       this.transcriptionModels.set([]);

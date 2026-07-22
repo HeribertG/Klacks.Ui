@@ -5,6 +5,7 @@
  * @param isLoading - Shows a spinner and disables the button while true
  * @param disabled - Additional disable condition independent of loading state
  * @param ariaLabel - Pre-translated accessible label for the button
+ * @param buttonId - Optional DOM id for the inner button (e.g. so the setup tour can target it)
  */
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -21,6 +22,7 @@ export class RefreshButtonComponent {
   readonly isLoading = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly ariaLabel = input<string>('');
+  readonly buttonId = input<string | null>(null);
   readonly clicked = output<void>();
 
   protected readonly faRotate = faRotate;

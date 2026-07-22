@@ -15,7 +15,6 @@ export class DomainMessages {
   public static SERVER_NOT_VALID =
     'Es konnte keine Verbindung mit dem Server hergestellt werden';
   public static UNKNOWN_ERROR = 'Unbekannter Fehler';
-  public static readonly CONNECTION_ERROR = 'CONNECTION_ERROR';
   public static HTTP204 =
     'Fehler 204 Die Ressource konnte nicht gefunden werden';
   public static HTTP400 = 'Fehler 400 Ungültige Anforderung';

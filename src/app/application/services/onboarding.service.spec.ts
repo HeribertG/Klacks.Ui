@@ -48,37 +48,6 @@ describe('OnboardingService', () => {
         expect(service).toBeTruthy();
     });
 
-    describe('ask-state lifecycle', () => {
-        it('walks the address fields in order and ends after the last one', () => {
-            const fields = onboardingAskFields('address');
-
-            expect(service.isAwaitingAnswer()).toBe(false);
-
-            service.beginAsk('address');
-            expect(service.isAwaitingAnswer()).toBe(true);
-            expect(service.currentAskStationId()).toBe('address');
-            expect(service.currentAskField()).toBe(fields[0]);
-
-            expect(service.advanceAskField()).toBe(fields[1]);
-            expect(service.advanceAskField()).toBe(fields[2]);
-            expect(service.advanceAskField()).toBe(fields[3]);
-            expect(service.advanceAskField()).toBeNull();
-        });
-
-        it('cancelAsk clears the cursor', () => {
-            service.beginAsk('title');
-            service.cancelAsk();
-
-            expect(service.isAwaitingAnswer()).toBe(false);
-            expect(service.currentAskStationId()).toBeNull();
-            expect(service.currentAskField()).toBeNull();
-        });
-
-        it('advanceAskField returns null when no ask is active', () => {
-            expect(service.advanceAskField()).toBeNull();
-        });
-    });
-
     describe('writeField', () => {
         it('writes a single text field into its setting type (trimmed)', () => {
             const field = onboardingAskFields('title')[0];

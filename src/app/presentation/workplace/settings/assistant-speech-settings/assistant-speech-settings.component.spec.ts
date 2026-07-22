@@ -14,6 +14,7 @@ import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.se
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataTranscriptionDictionaryService } from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 
 function makeEntry(over: Partial<EditableDictionaryEntry> = {}): EditableDictionaryEntry {
   return {
@@ -59,6 +60,10 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
         {
           provide: DataAssistantService,
           useValue: { getModels: vi.fn(), checkSpeechModels: vi.fn() },
+        },
+        {
+          provide: DataManagementAssistantProviderService,
+          useValue: { loadProviders: vi.fn().mockResolvedValue([]) },
         },
         { provide: DataTranscriptionDictionaryService, useValue: mockDict },
       ],

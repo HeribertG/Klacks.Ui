@@ -19,6 +19,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 import { TranslateService } from '@ngx-translate/core';
 import { DataTranslationService } from 'src/app/infrastructure/api/translation/data-translation.service';
 import { firstValueFrom } from 'rxjs';
+import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -29,6 +30,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
   private dataTranslationService = inject(DataTranslationService);
+  private backendAvailabilityService = inject(BackendAvailabilityService);
 
   private static readonly ERROR_PATTERNS = {
     POSTCODE: 'PostcodeCh',
@@ -451,6 +453,11 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private handleGenericError(error: HttpErrorResponse): Observable<never> {
+    if (this.isBackendUnreachable(error)) {
+      this.backendAvailabilityService.reportUnavailable();
+      return throwError(() => error);
+    }
+
     switch (error.status) {
       case 401: // wird vom TokenRefreshInterceptor behandelt
         break;
@@ -467,14 +474,6 @@ export class ResponseInterceptor implements HttpInterceptor {
           this.navigationService.navigateToError();
         }
         break;
-      case 0: // Network Error
-        this.toastShowService.showError(
-          DomainMessages.CONNECTION_ERROR,
-          'CONNECTION_ERROR',
-          error.message
-        );
-        this.navigationService.navigateToError();
-        break;
       default:
         // Für unbekannte Status-Codes
         if (error.status >= 400) {
@@ -483,16 +482,14 @@ export class ResponseInterceptor implements HttpInterceptor {
           );
         }
     }
-    if (error.statusText === 'Unknown Error') {
-      this.toastShowService.showError(
-        DomainMessages.CONNECTION_ERROR,
-        'CONNECTION_ERROR',
-        error.message
-      );
-      this.navigationService.navigateToError();
-    }
 
     return throwError(() => error);
+  }
+
+  // Status 0 or "Unknown Error" typically mean the backend is not reachable yet (e.g. still
+  // starting up / migrating a freshly installed database), not a genuine request failure.
+  private isBackendUnreachable(error: HttpErrorResponse): boolean {
+    return error.status === 0 || error.statusText === 'Unknown Error';
   }
 
   private isSpecific500Error(url: string): boolean {

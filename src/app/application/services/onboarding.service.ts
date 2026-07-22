@@ -1,15 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Holds the Klacksy first-run setup-tour state (from the welcome payload) as a signal, persists the
- * user's choices via the onboarding-state endpoint, and drives the per-field "ask" capture for the
- * collect-and-write stations (title, address, default-language) by writing the answers as settings rows.
- * Completed-station ids that no longer exist in the catalog are ignored for the progress count. The
- * proactive offer is surfaced at most once per browser session; the resumable progress card follows
- * `showCard`. `llmLive` mirrors the backend's LLM availability (missing field is treated as live so
- * offline hints only appear on an explicit false) and can be re-read via `refreshState`.
+ * Holds the Klacksy first-run setup-tour state (from the welcome payload) as a signal and persists the
+ * user's choices via the onboarding-state endpoint. `writeField` writes a single collected answer into
+ * its setting row(s) — used only for the `default-language` station, the sole remaining station without
+ * a real settings-page field the guided tour can navigate to and focus; every other "ask" station lets
+ * the user fill in the real, auto-saving form directly. Completed-station ids that no longer exist in
+ * the catalog are ignored for the progress count. The proactive offer is surfaced at most once per
+ * browser session; the resumable progress card follows `showCard`. `llmLive` mirrors the backend's LLM
+ * availability (missing field is treated as live so offline hints only appear on an explicit false) and
+ * can be re-read via `refreshState`. `isTourActive` is the single source of truth for "the setup tour is
+ * being offered or run" (status `pending` covers the not-yet-accepted offer, `in_progress` covers the
+ * running tour) — presentation code must gate any tour-conflicting UI (warnings, model picker, unrelated
+ * proactive chat messages) on it instead of re-deriving tour state locally.
  * @param dataAssistant - HTTP API used to persist status/station changes
- * @param dataSettings - HTTP API used to upsert the collected title/address setting rows
+ * @param dataSettings - HTTP API used to upsert the collected default-language setting row
  */
 
 import { computed, inject, Injectable, signal } from '@angular/core';
@@ -27,15 +32,9 @@ import {
   IOnboardingStation,
   ONBOARDING_STATIONS,
   ONBOARDING_STATUS,
-  onboardingAskFields,
 } from 'src/app/domain/constants/onboarding-stations';
 
 const SESSION_OFFER_KEY = 'klacksy.onboarding.offeredSession';
-
-interface IAskCursor {
-  stationId: string;
-  fieldIndex: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {
@@ -43,7 +42,6 @@ export class OnboardingService {
   private readonly dataSettings = inject(DataSettingsVariousService);
 
   private readonly stateSignal = signal<IOnboardingState | null>(null);
-  private readonly askSignal = signal<IAskCursor | null>(null);
   private readonly tourStartRequestSignal = signal(0);
 
   readonly state = this.stateSignal.asReadonly();
@@ -51,6 +49,10 @@ export class OnboardingService {
   readonly showCard = computed(() => this.stateSignal()?.showCard ?? false);
   readonly status = computed(() => this.stateSignal()?.status ?? '');
   readonly llmLive = computed(() => this.stateSignal()?.llmLive ?? true);
+  readonly isTourActive = computed(() => {
+    const status = this.status();
+    return status === ONBOARDING_STATUS.Pending || status === ONBOARDING_STATUS.InProgress;
+  });
   private readonly knownStationIds = new Set(ONBOARDING_STATIONS.map((station) => station.id));
 
   readonly total = ONBOARDING_STATIONS.length;
@@ -107,40 +109,6 @@ export class OnboardingService {
     const done = new Set(this.stateSignal()?.completedStations ?? []);
     const index = ONBOARDING_STATIONS.findIndex((station) => !done.has(station.id));
     return index < 0 ? ONBOARDING_STATIONS.length : index;
-  }
-
-  isAwaitingAnswer(): boolean {
-    return this.askSignal() !== null;
-  }
-
-  currentAskStationId(): string | null {
-    return this.askSignal()?.stationId ?? null;
-  }
-
-  beginAsk(stationId: string): void {
-    this.askSignal.set({ stationId, fieldIndex: 0 });
-  }
-
-  cancelAsk(): void {
-    this.askSignal.set(null);
-  }
-
-  currentAskField(): IOnboardingAskField | null {
-    const cursor = this.askSignal();
-    if (!cursor) {
-      return null;
-    }
-    return onboardingAskFields(cursor.stationId)[cursor.fieldIndex] ?? null;
-  }
-
-  advanceAskField(): IOnboardingAskField | null {
-    const cursor = this.askSignal();
-    if (!cursor) {
-      return null;
-    }
-    const nextIndex = cursor.fieldIndex + 1;
-    this.askSignal.set({ stationId: cursor.stationId, fieldIndex: nextIndex });
-    return onboardingAskFields(cursor.stationId)[nextIndex] ?? null;
   }
 
   writeField(field: IOnboardingAskField, rawText: string): Observable<unknown> {

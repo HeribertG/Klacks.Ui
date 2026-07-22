@@ -2,8 +2,10 @@
 
 /**
  * Catalog of the Klacksy first-run setup-tour stations (single source of truth for order + total).
- * `type` decides how a station is handled: 'ask' = Klacksy collects the value in chat and writes it,
- * 'navigate' = open the page and let the user look at or fill the real form, 'explain' = explain only.
+ * `type` decides how a station is handled: 'ask' = the real settings form is opened and focused so the
+ * user fills it in directly (autosaved by the settings page itself), except `default-language`, which
+ * has no real form field yet and still collects the value in chat; 'navigate' = open the page and let
+ * the user look at or fill the real form; 'explain' = explain only.
  * `target` is the data-klacksy-target anchor on the page (empty = navigate without scrolling);
  * `route` overrides the default /workplace/settings destination for workspace stations;
  * `navIconId` is the main-nav icon Klacksy pulses so the user learns which icon opens the page;
@@ -81,6 +83,7 @@ export const ONBOARDING_TOUR_CHOICE = {
 } as const;
 
 export const ONBOARDING_STATION_LLM_PROVIDER = 'llm-provider';
+export const ONBOARDING_STATION_DEFAULT_LANGUAGE = 'default-language';
 
 const EXPLAIN = 'assistant-chat.onboarding.explain.';
 
@@ -88,9 +91,12 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'title', type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'title', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'branding', type: 'navigate', target: 'settings-general', explainKey: EXPLAIN + 'branding', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'address', type: 'ask', target: 'owner-address', explainKey: EXPLAIN + 'address', navIconId: ONBOARDING_NAV_ICON.Settings },
-  { id: 'default-language', type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'default-language', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: ONBOARDING_STATION_DEFAULT_LANGUAGE, type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'default-language', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: ONBOARDING_STATION_LLM_PROVIDER, type: 'navigate', target: 'llm-provider', explainKey: EXPLAIN + 'llm-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
-  { id: 'harmonizer', type: 'explain', target: '', explainKey: EXPLAIN + 'harmonizer', navIconId: ONBOARDING_NAV_ICON.Schedules, route: ONBOARDING_ROUTE.Schedule },
+  { id: 'llm-sync', type: 'navigate', target: 'llm-sync-log', explainKey: EXPLAIN + 'llm-sync', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'llm-model-check', type: 'navigate', target: 'klacksy-model-check', explainKey: EXPLAIN + 'llm-model-check', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'harmonizer', type: 'ask', target: 'wizard', explainKey: EXPLAIN + 'harmonizer', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'klacksy-settings', type: 'ask', target: 'assistant-speech', explainKey: EXPLAIN + 'klacksy-settings', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'calendar', type: 'navigate', target: 'calendar-selection', explainKey: EXPLAIN + 'calendar', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'users', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'users', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'group-scope', type: 'navigate', target: 'group-scope', explainKey: EXPLAIN + 'group-scope', navIconId: ONBOARDING_NAV_ICON.Groups },
@@ -104,7 +110,6 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'holidays', type: 'explain', target: 'calendar-rules', explainKey: EXPLAIN + 'holidays', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'period-closing', type: 'navigate', target: '', explainKey: EXPLAIN + 'period-closing', navIconId: ONBOARDING_NAV_ICON.PeriodClosing, route: ONBOARDING_ROUTE.PeriodClosing },
   { id: 'email', type: 'explain', target: 'email-config', explainKey: EXPLAIN + 'email', navIconId: ONBOARDING_NAV_ICON.Inbox },
-  { id: 'klacksy-settings', type: 'navigate', target: 'assistant-speech', explainKey: EXPLAIN + 'klacksy-settings', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'security', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'security', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'plugins', type: 'explain', target: 'feature-plugins', explainKey: EXPLAIN + 'plugins', navIconId: ONBOARDING_NAV_ICON.Settings },
 ];

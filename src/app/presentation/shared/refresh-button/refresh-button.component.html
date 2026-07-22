@@ -1,6 +1,7 @@
 <button
   type="button"
   class="btn btn-secondary refresh-button"
+  [attr.id]="buttonId()"
   [disabled]="isLoading() || disabled()"
   [attr.aria-label]="ariaLabel()"
   (click)="clicked.emit()"

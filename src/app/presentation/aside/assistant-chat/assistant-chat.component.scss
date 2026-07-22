@@ -343,6 +343,18 @@
   justify-content: center;
   font-size: 14px;
   flex-shrink: 0;
+  overflow: hidden;
+
+  app-icon-logo {
+    display: flex;
+    transform: scale(0.7);
+  }
+
+  .message-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 
   .message-wrapper.user & {
     background: colors.$standartGreenColor;

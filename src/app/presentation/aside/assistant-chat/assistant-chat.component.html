@@ -19,8 +19,8 @@
   </div>
   }
 
-  <!-- No API Key Warning -->
-  @if (!isInitializing() && hasNoApiKey()) {
+  <!-- No API Key Warning (hidden during the setup tour: the tour itself sets up the API key) -->
+  @if (!isInitializing() && hasNoApiKey() && !isTourActive()) {
   <div class="no-api-key-warning" role="alert" aria-live="polite">
     <div class="warning-icon">⚠️</div>
     <div class="warning-content">
@@ -34,7 +34,8 @@
   </div>
   }
 
-  <!-- Model Selection Header -->
+  <!-- Model Selection Header (hidden during the setup tour to avoid distracting from the tour steps) -->
+  @if (!isTourActive()) {
   <div class="model-selection-header">
     <button
       id="assistant-chat-model-dropdown"
@@ -90,6 +91,7 @@
       }
     </button>
   </div>
+  }
   <!-- Onboarding setup-tour card -->
   @if (onboarding.showCard()) {
   <div class="onboarding-card">
@@ -131,8 +133,10 @@
         <div class="message-avatar">
           @if (message.sender === 'user') {
           <app-icon-user></app-icon-user>
+          } @else if (hasLogoImage()) {
+          <img class="message-avatar-image" [src]="logoImage()" alt="" />
           } @else {
-          <app-icon-mml></app-icon-mml>
+          <app-icon-logo></app-icon-logo>
           }
         </div>
         <div class="message-content">
@@ -211,7 +215,11 @@
       @if (isProcessing()) {
       <div class="message-wrapper assistant">
         <div class="message-avatar">
-          <app-icon-mml></app-icon-mml>
+          @if (hasLogoImage()) {
+          <img class="message-avatar-image" [src]="logoImage()" alt="" />
+          } @else {
+          <app-icon-logo></app-icon-logo>
+          }
         </div>
         <div class="message-content">
           <div class="message-bubble assistant">
@@ -241,7 +249,8 @@
     </div>
   </div>
 
-  <!-- Input Area -->
+  <!-- Input Area (hidden for the entire setup tour: tour answers are captured on the real settings forms) -->
+  @if (!isTourActive()) {
   <div class="input-container" [class.disabled]="isInitializing() || hasNoApiKey()">
     <!-- Whisper loading indicator -->
     @if (speechService.isWhisperLoading()) {
@@ -324,5 +333,6 @@
       </button>
     </div>
   </div>
+  }
 </div>
 

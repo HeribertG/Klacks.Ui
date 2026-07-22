@@ -1,0 +1,15 @@
+@if (backendAvailability.isUnavailable()) {
+<div class="backend-unavailable-overlay" role="alert" aria-live="assertive">
+  <div class="backend-unavailable-content">
+    <span class="backend-unavailable-spinner" aria-hidden="true"></span>
+    <h1>{{ 'backend-unavailable.headline' | translate }}</h1>
+    <p>{{ 'backend-unavailable.message' | translate }}</p>
+    @if (showReloadHint()) {
+    <p class="backend-unavailable-hint">
+      {{ 'backend-unavailable.hint' | translate }}
+      <button type="button" (click)="reload()">{{ 'error.button' | translate }}</button>
+    </p>
+    }
+  </div>
+</div>
+}

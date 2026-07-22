@@ -13,6 +13,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { HolisticHarmonizerModelCheckDto } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { filterModelsWithActiveProvider } from 'src/app/domain/services/assistant/assistant-model-provider-filter';
 
 @Component({
   selector: 'app-wizard-settings',
@@ -26,6 +28,7 @@ export class WizardSettingsComponent implements OnInit {
   private readonly appSettingsService = inject(AppSettingsManagementService);
   private readonly dataAssistantService = inject(DataAssistantService);
   private readonly dataHolisticHarmonizerService = inject(DataHolisticHarmonizerService);
+  private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
 
   readonly llmModelId = signal<string>('');
   readonly llmModels = signal<{ value: string; label: string }[]>([]);
@@ -41,11 +44,15 @@ export class WizardSettingsComponent implements OnInit {
     this.isInitialized = true;
 
     try {
-      const models = await firstValueFrom(this.dataAssistantService.getModels());
+      const [models, providers] = await Promise.all([
+        firstValueFrom(this.dataAssistantService.getModels()),
+        this.assistantProviderService.loadProviders(),
+      ]);
       this.llmModels.set(
-        models
-          .filter((m) => m.isEnabled)
-          .map((m) => ({ value: m.modelId, label: m.displayName ?? m.modelId })),
+        filterModelsWithActiveProvider(
+          models.filter((m) => m.isEnabled),
+          providers,
+        ).map((m) => ({ value: m.modelId, label: m.displayName ?? m.modelId })),
       );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

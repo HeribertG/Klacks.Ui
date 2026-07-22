@@ -9,6 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { ToastsContainerComponent } from './presentation/toast/toast.component';
+import { BackendUnavailableOverlayComponent } from './presentation/error/backend-unavailable-overlay/backend-unavailable-overlay.component';
 import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
 import { AsideComponent } from './presentation/aside/aside.component';
 import { AsideService } from './presentation/aside/aside.service';
@@ -32,6 +33,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
     RouterModule,
     TranslateModule,
     ToastsContainerComponent,
+    BackendUnavailableOverlayComponent,
     KeyboardShortcutDirective,
     AsideComponent,
     VoiceShellComponent,
