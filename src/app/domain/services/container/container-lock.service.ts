@@ -10,9 +10,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, Subject, interval, switchMap, takeUntil, catchError, of, tap } from 'rxjs';
 import { DataContainerLockService } from 'src/app/infrastructure/api/container/data-container-lock.service';
 import { IContainerLock } from 'src/app/domain/models/container/container-lock';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const HEARTBEAT_INTERVAL_MS = 30000;
-const INSTANCE_ID_KEY = 'klacks.containerLock.instanceId';
 
 @Injectable({ providedIn: 'root' })
 export class ContainerLockService {
@@ -23,10 +23,10 @@ export class ContainerLockService {
   readonly currentLock = signal<IContainerLock | null>(null);
 
   get instanceId(): string {
-    let id = sessionStorage.getItem(INSTANCE_ID_KEY);
+    let id = sessionStorage.getItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID);
     if (!id) {
       id = crypto.randomUUID();
-      sessionStorage.setItem(INSTANCE_ID_KEY, id);
+      sessionStorage.setItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID, id);
     }
     return id;
   }

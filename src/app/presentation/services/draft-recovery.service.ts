@@ -96,7 +96,7 @@ export class DraftRecoveryService {
       );
   }
 
-  private clear(): Promise<boolean> {
+  clear(): Promise<boolean> {
     return this.sessionStorageService.removeFilter(
       DraftRecoveryService.DRAFT_KEY
     );

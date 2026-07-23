@@ -502,7 +502,6 @@ export class ConversationOrchestratorService implements OnDestroy {
           speechSettings.sttEngine === SttEngine.Browser
             ? await this.whisper.transcribeBlob(blob, this.locale)
             : await this.dataStt.transcribe(blob, this.locale);
-        console.log('[VS] blob STT result:', JSON.stringify(text));
         this.callbacks?.setInputText(text);
         this.callbacks?.detectChanges();
       } catch (err) {
@@ -713,7 +712,6 @@ export class ConversationOrchestratorService implements OnDestroy {
   private async synthesizeAndEnqueue(sentence: string): Promise<void> {
     try {
       const speechSettings = this.settings.speechSettings();
-      console.log('[VS] TTS synthesize:', JSON.stringify(sentence.slice(0, 40)), 'locale=', this.locale);
       const blob = await this.dataTts.synthesize({
         text: sentence,
         locale: this.locale,

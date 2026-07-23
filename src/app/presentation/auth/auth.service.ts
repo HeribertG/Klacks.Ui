@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
 /* eslint-disable no-prototype-builtins */
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector, ProviderToken } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -18,6 +18,28 @@ import { DataDashboardService } from '../../infrastructure/api/data-dashboard.se
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
+import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
+import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
+import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
+
+/**
+ * Realtime hub services whose authenticated push channel must be torn down on logout
+ * so no live connection survives the session. Resolved lazily via Injector at logout
+ * time to avoid a construction-time DI cycle (these services read the token through the
+ * auth/HTTP pipeline). Each exposes an idempotent stopConnection().
+ */
+const REALTIME_CONNECTION_SERVICES: ProviderToken<{
+  stopConnection(): Promise<void>;
+}>[] = [
+  SignalRService,
+  AssistantSignalRService,
+  EmailSignalRService,
+  DataHarmonizerService,
+  DataHolisticHarmonizerService,
+];
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +58,7 @@ export class AuthService {
   private authorizationService = inject(AuthorizationService);
   private spinnerService = inject(SpinnerService);
   private dataDashboardService = inject(DataDashboardService);
+  private injector = inject(Injector);
 
   async logIn(userName: string, password: string): Promise<boolean> {
     return await firstValueFrom(
@@ -74,7 +97,13 @@ export class AuthService {
   /**
    * Logs the user out. Invalidates the refresh token(s) on the server first (fire-and-forget,
    * so a failure - e.g. an already-expired access token - never blocks the client-side logout),
-   * then clears all locally stored session state.
+   * then clears all locally stored session state, tears down every realtime hub connection and
+   * drops the session-scoped draft and instance id.
+   *
+   * The server logout request is issued before the token is removed so the auth interceptor can
+   * still attach the Authorization header and connection id. Realtime connections are stopped only
+   * after removeToken(), because a deliberate hub stop schedules a reconnect that is short-circuited
+   * by the now-missing token.
    */
   logOut() {
     this.dataAuthService.logout().subscribe({
@@ -87,6 +116,35 @@ export class AuthService {
     this.dataLoadFileService.clearAllImages();
     this.dataDashboardService.invalidateGroupTreeCache();
     this.spinnerService.reset();
+    this.stopRealtimeAndClearSession();
+  }
+
+  /**
+   * Tears down all authenticated realtime hub connections and clears session-scoped state that
+   * outlives token removal (the recoverable form draft and the container-lock instance id).
+   * Every step is best-effort and isolated so a single failure never blocks logout. Services are
+   * resolved lazily through the Injector to avoid a construction-time DI cycle.
+   */
+  private stopRealtimeAndClearSession(): void {
+    for (const token of REALTIME_CONNECTION_SERVICES) {
+      try {
+        void this.injector.get(token).stopConnection().catch(() => undefined);
+      } catch {
+        // Service not resolvable or already disposed - ignore.
+      }
+    }
+
+    try {
+      void this.injector.get(DraftRecoveryService).clear();
+    } catch {
+      // Draft recovery not resolvable - ignore.
+    }
+
+    try {
+      sessionStorage.removeItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID);
+    } catch {
+      // sessionStorage unavailable - ignore.
+    }
   }
 
   async logOutWithSso(): Promise<void> {
@@ -104,6 +162,7 @@ export class AuthService {
         this.dataLoadFileService.clearAllImages();
         this.dataDashboardService.invalidateGroupTreeCache();
         this.localStorageService.remove('oauth2_provider_id');
+        this.stopRealtimeAndClearSession();
 
         if (response.supportsLogout && response.logoutUrl) {
           try {
@@ -123,12 +182,14 @@ export class AuthService {
         this.dataLoadFileService.clearAllImages();
         this.dataDashboardService.invalidateGroupTreeCache();
         this.localStorageService.remove('oauth2_provider_id');
+        this.stopRealtimeAndClearSession();
       }
     } else {
       this.removeToken();
       this.removeStateValue();
       this.dataLoadFileService.clearAllImages();
       this.dataDashboardService.invalidateGroupTreeCache();
+      this.stopRealtimeAndClearSession();
     }
 
     this.navigationService.navigateToRoot();

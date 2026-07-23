@@ -9,6 +9,12 @@ import { ToastShowService } from '../toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
+import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
+import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
+import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
 
 describe('AuthService', () => {
     let service: AuthService;
@@ -33,6 +39,7 @@ describe('AuthService', () => {
 
     afterEach(() => {
         localStorage.clear();
+        sessionStorage.clear();
     });
 
     it('should be created', () => {
@@ -198,5 +205,56 @@ describe('AuthService', () => {
 
         dataDashboardService.getClientsOverviewData().subscribe();
         httpMock.expectOne('https://localhost:5001/api/backend/Dashboard/GroupTree').flush({ rootId: null, nodes: [] });
+    });
+
+});
+
+describe('AuthService logout session cleanup', () => {
+    const logoutUrl = 'https://localhost:5001/api/backend/Accounts/Logout';
+    let service: AuthService;
+    let httpMock: HttpTestingController;
+    const signalRMock = { stopConnection: vi.fn().mockResolvedValue(undefined) };
+    const draftRecoveryMock = { clear: vi.fn().mockResolvedValue(true) };
+
+    beforeEach(() => {
+        signalRMock.stopConnection.mockClear();
+        draftRecoveryMock.clear.mockClear();
+        TestBed.configureTestingModule({
+            imports: [RouterTestingModule],
+            providers: [
+                AuthService,
+                ToastShowService,
+                provideHttpClient(withXhr(), withInterceptorsFromDi()),
+                provideHttpClientTesting(),
+                { provide: SignalRService, useValue: signalRMock },
+                { provide: AssistantSignalRService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
+                { provide: EmailSignalRService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
+                { provide: DataHarmonizerService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
+                { provide: DataHolisticHarmonizerService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
+                { provide: DraftRecoveryService, useValue: draftRecoveryMock },
+            ],
+        });
+        service = TestBed.inject(AuthService);
+        httpMock = TestBed.inject(HttpTestingController);
+    });
+
+    afterEach(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+    });
+
+    it('should stop the realtime connection and clear the session draft and instance id on logout', () => {
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        sessionStorage.setItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID, 'instance-123');
+
+        service.logOut();
+
+        expect(signalRMock.stopConnection).toHaveBeenCalled();
+        expect(draftRecoveryMock.clear).toHaveBeenCalled();
+        expect(
+            sessionStorage.getItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID)
+        ).toBeNull();
+
+        httpMock.expectOne(logoutUrl).flush(null);
     });
 });

@@ -64,11 +64,10 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private getOrCreateInstanceId(): string {
-    const key = 'klacks.containerLock.instanceId';
-    let id = sessionStorage.getItem(key);
+    let id = sessionStorage.getItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID);
     if (!id) {
       id = crypto.randomUUID();
-      sessionStorage.setItem(key, id);
+      sessionStorage.setItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID, id);
     }
     return id;
   }
