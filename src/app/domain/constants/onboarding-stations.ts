@@ -99,8 +99,6 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'harmonizer', type: 'ask', target: 'wizard', explainKey: EXPLAIN + 'harmonizer', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'klacksy-settings', type: 'ask', target: 'assistant-speech', explainKey: EXPLAIN + 'klacksy-settings', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'calendar', type: 'navigate', target: 'owner-address', explainKey: EXPLAIN + 'calendar', navIconId: ONBOARDING_NAV_ICON.Settings },
-  { id: 'users', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'users', navIconId: ONBOARDING_NAV_ICON.Settings },
-  { id: 'group-scope', type: 'navigate', target: 'group-scope', explainKey: EXPLAIN + 'group-scope', navIconId: ONBOARDING_NAV_ICON.Groups },
   { id: 'identity-provider', type: 'navigate', target: 'identity-providers', explainKey: EXPLAIN + 'identity-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'scheduling', type: 'explain', target: 'scheduling-defaults', explainKey: EXPLAIN + 'scheduling', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'weekend', type: 'navigate', target: 'scheduling-defaults', explainKey: EXPLAIN + 'weekend', navIconId: ONBOARDING_NAV_ICON.Schedules },
