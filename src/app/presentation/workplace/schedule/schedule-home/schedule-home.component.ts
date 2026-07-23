@@ -30,7 +30,11 @@ import {
 } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
-import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import {
+  HolidayCollectionService,
+  OfficialOverrideMap,
+  buildOfficialOverrideKey,
+} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
@@ -70,6 +74,11 @@ import { WorkBlockRendererService } from '../schedule-section/timeline/renderers
 import { WorkChangeBlockRendererService } from '../schedule-section/timeline/renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../schedule-section/timeline/renderers/break-block-renderer.service';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
+
+interface ResolvedCalendarChips {
+  tokens: StateCountryToken[];
+  overrides: OfficialOverrideMap;
+}
 
 @Component({
   selector: 'app-schedule-home',
@@ -179,9 +188,9 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private async finalizeHolidays(holidayListPromise: Promise<void>): Promise<void> {
     await holidayListPromise;
 
-    const chips = await this.resolveCalendarChips();
-    if (chips.length > 0) {
-      this.holidayCollection.setSelection(chips);
+    const { tokens, overrides } = await this.resolveCalendarChips();
+    if (tokens.length > 0) {
+      this.holidayCollection.setSelection(tokens, overrides);
     }
 
     this.updateHolidayDates();
@@ -213,13 +222,13 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async resolveCalendarChips(): Promise<StateCountryToken[]> {
+  private async resolveCalendarChips(): Promise<ResolvedCalendarChips> {
     const calendarSelectionId =
       this.groupSelectionService.selectedGroup?.calendarSelectionId ||
       this.appSettingsService.contactSettings().globalCalendarSelectionId;
 
     if (!calendarSelectionId) {
-      return [];
+      return { tokens: [], overrides: new Map() };
     }
 
     try {
@@ -228,17 +237,24 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
       );
 
       if (!selection?.selectedCalendars?.length) {
-        return [];
+        return { tokens: [], overrides: new Map() };
       }
 
-      return selection.selectedCalendars.map((sc) => {
+      const tokens: StateCountryToken[] = [];
+      const overrides: OfficialOverrideMap = new Map();
+      selection.selectedCalendars.forEach((sc) => {
         const token = new StateCountryToken();
         token.country = sc.country;
         token.state = sc.state;
-        return token;
+        tokens.push(token);
+        overrides.set(
+          buildOfficialOverrideKey(sc.country, sc.state),
+          sc.officialOverride
+        );
       });
+      return { tokens, overrides };
     } catch {
-      return [];
+      return { tokens: [], overrides: new Map() };
     }
   }
 

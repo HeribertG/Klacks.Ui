@@ -253,9 +253,7 @@ describe('AppSettingsManagementService', () => {
     });
 
     describe('ACTIVE_INDUSTRIES', () => {
-        const allSlugs = ['homecare', 'healthcare', 'security', 'facility', 'logistics'];
-
-        it('should default to all industries when the setting is missing', () => {
+        it('should default to an empty value when the setting is missing', () => {
             // Arrange
             dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
 
@@ -263,10 +261,10 @@ describe('AppSettingsManagementService', () => {
             service.loadSettings();
 
             // Assert
-            expect(service.activeIndustriesSettings().activeIndustries).toEqual(allSlugs);
+            expect(service.activeIndustriesSettings().activeIndustry).toBe('');
         });
 
-        it('should default to all industries when the setting value is empty', () => {
+        it('should default to an empty value when the setting value is empty', () => {
             // Arrange
             dataSettingsService.readSettingList.mockReturnValue(of([
                 ...mockSettings,
@@ -277,10 +275,10 @@ describe('AppSettingsManagementService', () => {
             service.loadSettings();
 
             // Assert
-            expect(service.activeIndustriesSettings().activeIndustries).toEqual(allSlugs);
+            expect(service.activeIndustriesSettings().activeIndustry).toBe('');
         });
 
-        it('should load exactly the stored industries', () => {
+        it('should pass through the stored value untouched, including legacy multi-slug values', () => {
             // Arrange
             dataSettingsService.readSettingList.mockReturnValue(of([
                 ...mockSettings,
@@ -291,42 +289,22 @@ describe('AppSettingsManagementService', () => {
             service.loadSettings();
 
             // Assert
-            expect(service.activeIndustriesSettings().activeIndustries).toEqual(['healthcare', 'security']);
+            expect(service.activeIndustriesSettings().activeIndustry).toBe('healthcare,security');
         });
 
-        it('should save the selection as a comma separated value', () => {
+        it('should save the selected single value as-is', () => {
             // Arrange
             dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
             service.loadSettings();
-            service.activeIndustriesSettings.update(s => ({ ...s, activeIndustries: ['healthcare', 'security'] }));
+            service.activeIndustriesSettings.update(s => ({ ...s, activeIndustry: 'security' }));
 
             // Act
             service.save();
 
             // Assert
             expect(dataSettingsService.addSetting).toHaveBeenCalledWith(
-                expect.objectContaining({ type: AppSetting.ACTIVE_INDUSTRIES, value: 'healthcare,security' })
+                expect.objectContaining({ type: AppSetting.ACTIVE_INDUSTRIES, value: 'security' })
             );
-        });
-
-        it('should never write an empty value for an empty selection', () => {
-            // Arrange
-            dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
-            service.loadSettings();
-            service.activeIndustriesSettings.update(s => ({ ...s, activeIndustries: [] }));
-
-            // Act
-            service.save();
-
-            // Assert
-            const writtenValues = [
-                ...dataSettingsService.addSetting.mock.calls,
-                ...dataSettingsService.updateSetting.mock.calls,
-            ]
-                .map((call: any[]) => call[0])
-                .filter((setting: any) => setting.type === AppSetting.ACTIVE_INDUSTRIES)
-                .map((setting: any) => setting.value);
-            expect(writtenValues).not.toContain('');
         });
     });
 

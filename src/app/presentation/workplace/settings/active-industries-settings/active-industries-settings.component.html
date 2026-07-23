@@ -40,7 +40,7 @@
 
   <div class="standard-tab-body">
   @if (activeTab() === 'settings') {
-  @if (isDataLoaded) {
+  @if (isDataLoaded()) {
     <form id="active-industries-settings-form">
       <div id="active-industries-hint-row" class="row-line-single">
         <p class="hint-text">
@@ -48,79 +48,194 @@
         </p>
       </div>
 
-      <div id="active-industries-homecare-row" class="row-line">
-        <div class="form-group firstColumn">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [formField]="industriesForm.homecare"
-              aria-label="aiHomecare"
-              id="aiHomecare"
-            />
-            {{ "setting.activeIndustries.homecare" | translate }}
-          </label>
-        </div>
-      </div>
-      <div id="active-industries-healthcare-row" class="row-line">
-        <div class="form-group firstColumn">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [formField]="industriesForm.healthcare"
-              aria-label="aiHealthcare"
-              id="aiHealthcare"
-            />
-            {{ "setting.activeIndustries.healthcare" | translate }}
-          </label>
-        </div>
-      </div>
-      <div id="active-industries-security-row" class="row-line">
-        <div class="form-group firstColumn">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [formField]="industriesForm.security"
-              aria-label="aiSecurity"
-              id="aiSecurity"
-            />
-            {{ "setting.activeIndustries.security" | translate }}
-          </label>
-        </div>
-      </div>
-      <div id="active-industries-facility-row" class="row-line">
-        <div class="form-group firstColumn">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [formField]="industriesForm.facility"
-              aria-label="aiFacility"
-              id="aiFacility"
-            />
-            {{ "setting.activeIndustries.facility" | translate }}
-          </label>
-        </div>
-      </div>
-      <div id="active-industries-logistics-row" class="row-line">
-        <div class="form-group firstColumn">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [formField]="industriesForm.logistics"
-              aria-label="aiLogistics"
-              id="aiLogistics"
-            />
-            {{ "setting.activeIndustries.logistics" | translate }}
-          </label>
-        </div>
-      </div>
-
-      @if (!hasSelection()) {
-        <div id="active-industries-validation-row" class="row-line-single">
-          <small id="active-industries-validation-error" class="validation-error">
-            {{ "setting.activeIndustries.minimumOneRequired" | translate }}
-          </small>
+      @if (showSelectionBanner()) {
+        <div id="active-industries-selection-banner-row" class="row-line-single">
+          <p id="active-industries-selection-banner" class="selection-banner">
+            {{ "setting.activeIndustries.legacyBanner" | translate }}
+          </p>
         </div>
       }
+
+      @for (option of industryOptions; track option.slug) {
+        <div [id]="'active-industries-' + option.slug + '-block'" class="industry-option-block">
+          <div [id]="'active-industries-' + option.slug + '-row'" class="industry-option-row">
+            <div class="form-group firstColumn">
+              <label class="radio-label">
+                <input
+                  type="radio"
+                  [value]="option.slug"
+                  [formField]="industriesForm.selectedOption"
+                  [attr.aria-label]="option.labelKey | translate"
+                  [id]="'ai-' + option.slug"
+                />
+                {{ option.labelKey | translate }}
+              </label>
+            </div>
+            <button
+              type="button"
+              class="preview-toggle-btn"
+              [id]="'ai-' + option.slug + '-preview-toggle'"
+              [attr.aria-expanded]="isIndustryExpanded(option.slug)"
+              [attr.aria-label]="'setting.activeIndustries.preview.toggleAriaLabel' | translate"
+              (click)="toggleIndustryPreview(option.slug)"
+            >
+              @if (isIndustryExpanded(option.slug)) {
+                <app-icon-angle-down aria-hidden="true" />
+              } @else {
+                <app-icon-angle-right aria-hidden="true" />
+              }
+            </button>
+          </div>
+
+          @if (isIndustryExpanded(option.slug)) {
+            @let preview = previewState(option.slug);
+            <div [id]="'ai-' + option.slug + '-preview-panel'" class="industry-preview-panel">
+              <h4 class="industry-preview-panel-heading">{{ option.labelKey | translate }}</h4>
+              @switch (preview.status) {
+                @case ('loading') {
+                  <p class="hint-text">{{ "setting.activeIndustries.preview.loading" | translate }}</p>
+                }
+                @case ('error') {
+                  <p class="validation-error">{{ "setting.activeIndustries.preview.error" | translate }}</p>
+                }
+                @case ('loaded') {
+                  @if (preview.data && (preview.data.schedulingRules.length > 0 || preview.data.qualifications.length > 0)) {
+                    <div class="preview-group">
+                      <h5>
+                        {{ "setting.activeIndustries.preview.schedulingRulesHeading" | translate: { count: preview.data.schedulingRules.length } }}
+                      </h5>
+                      @if (preview.data.schedulingRules.length > 0) {
+                        <ul>
+                          @for (rule of preview.data.schedulingRules; track rule.name) {
+                            <li>
+                              <div class="rule-header">
+                                <strong>{{ rule.name }}</strong>
+                                @if (rule.description) {
+                                  — {{ rule.description }}
+                                }
+                                <button
+                                  type="button"
+                                  class="rule-detail-toggle-btn"
+                                  [attr.aria-expanded]="isRuleExpanded(option.slug, rule.name)"
+                                  [attr.aria-label]="'setting.activeIndustries.preview.rule.toggleAriaLabel' | translate"
+                                  (click)="toggleRuleDetails(option.slug, rule.name)"
+                                >
+                                  @if (isRuleExpanded(option.slug, rule.name)) {
+                                    <app-icon-angle-down aria-hidden="true" />
+                                  } @else {
+                                    <app-icon-angle-right aria-hidden="true" />
+                                  }
+                                </button>
+                              </div>
+                              @if (isRuleExpanded(option.slug, rule.name)) {
+                                @let detailGroups = ruleDetailGroups(rule);
+                                @if (detailGroups.length > 0) {
+                                  @for (group of detailGroups; track group.headingKey) {
+                                    <div class="rule-detail-group">
+                                      <h6>{{ group.headingKey | translate }}</h6>
+                                      <ul class="rule-detail-list">
+                                        @for (row of group.rows; track row.labelKey) {
+                                          <li>{{ row.labelKey | translate }}: {{ row.value }}</li>
+                                        }
+                                      </ul>
+                                    </div>
+                                  }
+                                } @else {
+                                  <p class="hint-text rule-detail-empty">{{ "setting.activeIndustries.preview.rule.noDetails" | translate }}</p>
+                                }
+                              }
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                    <div class="preview-group">
+                      <h5>
+                        {{ "setting.activeIndustries.preview.qualificationsHeading" | translate: { count: preview.data.qualifications.length } }}
+                      </h5>
+                      @if (preview.data.qualifications.length > 0) {
+                        <ul>
+                          @for (qualification of preview.data.qualifications; track $index) {
+                            @let qualificationDescription = qualification.description | fallback: currentLang;
+                            <li>
+                              <strong>{{ qualification.name | fallback: currentLang }}</strong>
+                              @if (qualificationDescription) {
+                                — {{ qualificationDescription }}
+                              }
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  } @else {
+                    <p class="hint-text">{{ "setting.activeIndustries.preview.empty" | translate }}</p>
+                  }
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div class="industry-option-block">
+        <div id="active-industries-custom-row" class="industry-option-row">
+          <div class="form-group firstColumn">
+            <label class="radio-label">
+              <input
+                type="radio"
+                [value]="customOptionSlug"
+                [formField]="industriesForm.selectedOption"
+                [attr.aria-label]="'setting.activeIndustries.custom.label' | translate"
+                id="ai-custom"
+              />
+              {{ "setting.activeIndustries.custom.label" | translate }}
+            </label>
+          </div>
+        </div>
+        @if (isCustomOptionSelected()) {
+          <div id="active-industries-custom-panel" class="custom-option-panel">
+            @if (isCustomGateBlocked()) {
+              <div id="active-industries-custom-gate-warning" class="custom-gate-warning-panel">
+                <p class="hint-text">
+                  {{ "setting.activeIndustries.custom.gateWarning" | translate }}
+                </p>
+                <div class="custom-gate-actions">
+                  <button
+                    type="button"
+                    id="active-industries-custom-gate-setup-btn"
+                    class="btn btn-primary custom-open-chat-btn"
+                    (click)="openKlacksyForCustomPlanningRule()"
+                  >
+                    {{ "setting.activeIndustries.custom.openChat" | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    id="active-industries-custom-gate-force-btn"
+                    class="btn btn-secondary"
+                    (click)="forceActivateCustomPlanningRule()"
+                  >
+                    {{ "setting.activeIndustries.custom.forceActivate" | translate }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <p class="hint-text">
+                {{ "setting.activeIndustries.custom.description" | translate }}
+              </p>
+              <button
+                type="button"
+                id="active-industries-custom-open-chat-btn"
+                class="btn btn-primary custom-open-chat-btn"
+                [disabled]="!customRuleChatAvailable"
+                [ngbTooltip]="!customRuleChatAvailable ? ('setting.activeIndustries.custom.comingSoon' | translate) : null"
+                (click)="openKlacksyForCustomPlanningRule()"
+              >
+                {{ "setting.activeIndustries.custom.openChat" | translate }}
+              </button>
+            }
+          </div>
+        }
+      </div>
 
       <div class="bottom-border-space"></div>
     </form>

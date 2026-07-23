@@ -35,7 +35,11 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
-import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import {
+  HolidayCollectionService,
+  OfficialOverrideMap,
+  buildOfficialOverrideKey,
+} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -52,6 +56,11 @@ import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/cl
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
+
+interface ResolvedCalendarChips {
+  tokens: StateCountryToken[];
+  overrides: OfficialOverrideMap;
+}
 
 @Component({
   selector: 'app-client-availability-home',
@@ -250,19 +259,19 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   }
 
   private async applyCalendarSelection(): Promise<void> {
-    const chips = await this.resolveCalendarChips();
-    if (chips.length > 0) {
-      this.holidayCollection.setSelection(chips);
+    const { tokens, overrides } = await this.resolveCalendarChips();
+    if (tokens.length > 0) {
+      this.holidayCollection.setSelection(tokens, overrides);
     }
   }
 
-  private async resolveCalendarChips(): Promise<StateCountryToken[]> {
+  private async resolveCalendarChips(): Promise<ResolvedCalendarChips> {
     const calendarSelectionId =
       this.groupSelection.selectedGroup?.calendarSelectionId ||
       this.appSettingsService.contactSettings().globalCalendarSelectionId;
 
     if (!calendarSelectionId) {
-      return [];
+      return { tokens: [], overrides: new Map() };
     }
 
     try {
@@ -271,17 +280,24 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
       );
 
       if (!selection?.selectedCalendars?.length) {
-        return [];
+        return { tokens: [], overrides: new Map() };
       }
 
-      return selection.selectedCalendars.map((sc) => {
+      const tokens: StateCountryToken[] = [];
+      const overrides: OfficialOverrideMap = new Map();
+      selection.selectedCalendars.forEach((sc) => {
         const token = new StateCountryToken();
         token.country = sc.country;
         token.state = sc.state;
-        return token;
+        tokens.push(token);
+        overrides.set(
+          buildOfficialOverrideKey(sc.country, sc.state),
+          sc.officialOverride
+        );
       });
+      return { tokens, overrides };
     } catch {
-      return [];
+      return { tokens: [], overrides: new Map() };
     }
   }
 }

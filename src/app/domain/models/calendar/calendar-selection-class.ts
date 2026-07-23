@@ -5,12 +5,14 @@ export interface ISelectedCalendar {
   calendarSelection: CalendarSelection | undefined;
   country: string;
   state: string;
+  officialOverride: boolean | null;
 }
 export class SelectedCalendar implements ISelectedCalendar {
   id: string | undefined = '';
   calendarSelection: CalendarSelection | undefined = undefined;
   country = '';
   state = '';
+  officialOverride: boolean | null = null;
 }
 
 export interface ICalendarSelection {

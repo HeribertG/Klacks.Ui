@@ -11,6 +11,17 @@ import {
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 import { firstValueFrom } from 'rxjs';
 
+const OVERRIDE_KEY_SEPARATOR = '|';
+
+export type OfficialOverrideMap = Map<string, boolean | null>;
+
+export function buildOfficialOverrideKey(
+  country: string,
+  state: string
+): string {
+  return `${country}${OVERRIDE_KEY_SEPARATOR}${state}`;
+}
+
 @Injectable()
 export class HolidayCollectionService {
   private dataCalendarRule = inject(DataCalendarRuleService);
@@ -65,15 +76,39 @@ export class HolidayCollectionService {
     }
   }
 
-  setSelection(values: StateCountryToken[]): void {
+  setSelection(
+    values: StateCountryToken[],
+    overrides?: OfficialOverrideMap
+  ): void {
     this.isReset.set(false);
     this.possibleHolidayRule.setFilter(values);
     this.holidays.clear();
     const rules = this.possibleHolidayRule.getFilterData().map((x) => x.rule);
     if (rules) {
-      this.holidays.addRange(rules as ICalendarRule[]);
+      this.holidays.addRange(
+        this.applyOfficialOverrides(rules as ICalendarRule[], overrides)
+      );
     }
     this.computeHolidays();
+  }
+
+  private applyOfficialOverrides(
+    rules: ICalendarRule[],
+    overrides?: OfficialOverrideMap
+  ): ICalendarRule[] {
+    if (!overrides || overrides.size === 0) {
+      return rules;
+    }
+    return rules.map((rule) => {
+      const override = overrides.get(
+        buildOfficialOverrideKey(rule.country, rule.state)
+      );
+      const effectiveMandatory = override ?? rule.isMandatory;
+      if (effectiveMandatory === rule.isMandatory) {
+        return rule;
+      }
+      return { ...rule, isMandatory: effectiveMandatory };
+    });
   }
 
   selection(): PossibleHolidayRule[] {

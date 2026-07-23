@@ -20,7 +20,11 @@ import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper'
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import {
+  HolidayCollectionService,
+  OfficialOverrideMap,
+  buildOfficialOverrideKey,
+} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { IMonthMarker, IReferenceLine, ISpecialDay, SpecialDayType, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
@@ -185,13 +189,19 @@ export class DashboardResourceMonitorComponent implements OnInit {
       );
       if (!selection?.selectedCalendars?.length) return;
 
-      const tokens = selection.selectedCalendars.map(sc => {
+      const tokens: StateCountryToken[] = [];
+      const overrides: OfficialOverrideMap = new Map();
+      selection.selectedCalendars.forEach(sc => {
         const token = new StateCountryToken();
         token.country = sc.country;
         token.state = sc.state;
-        return token;
+        tokens.push(token);
+        overrides.set(
+          buildOfficialOverrideKey(sc.country, sc.state),
+          sc.officialOverride
+        );
       });
-      this.holidayCollection.setSelection(tokens);
+      this.holidayCollection.setSelection(tokens, overrides);
     } catch {
       // holiday loading is non-critical
     }

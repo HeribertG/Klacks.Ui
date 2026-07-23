@@ -32,7 +32,11 @@ import { CalendarSettingService } from '../services/calendar-setting.service';
 import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import {
+  HolidayCollectionService,
+  OfficialOverrideMap,
+  buildOfficialOverrideKey,
+} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -45,6 +49,11 @@ import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop
 import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
 import { GanttCoordinateService } from '../services/gantt-coordinate.service';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
+
+interface ResolvedCalendarChips {
+  tokens: StateCountryToken[];
+  overrides: OfficialOverrideMap;
+}
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -118,21 +127,21 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
       this.dataManagementAbsence.readDataAsync(),
     ]);
 
-    const chips = await this.resolveCalendarChips();
-    if (chips.length > 0) {
-      this.holidayCollection.setSelection(chips);
+    const { tokens, overrides } = await this.resolveCalendarChips();
+    if (tokens.length > 0) {
+      this.holidayCollection.setSelection(tokens, overrides);
     }
 
     await this.ganttHeader().initAsync();
   }
 
-  private async resolveCalendarChips(): Promise<StateCountryToken[]> {
+  private async resolveCalendarChips(): Promise<ResolvedCalendarChips> {
     const calendarSelectionId =
       this.groupSelectionService.selectedGroup?.calendarSelectionId ||
       this.appSettingsService.contactSettings().globalCalendarSelectionId;
 
     if (!calendarSelectionId) {
-      return [];
+      return { tokens: [], overrides: new Map() };
     }
 
     try {
@@ -141,17 +150,24 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
       );
 
       if (!selection?.selectedCalendars?.length) {
-        return [];
+        return { tokens: [], overrides: new Map() };
       }
 
-      return selection.selectedCalendars.map((sc) => {
+      const tokens: StateCountryToken[] = [];
+      const overrides: OfficialOverrideMap = new Map();
+      selection.selectedCalendars.forEach((sc) => {
         const token = new StateCountryToken();
         token.country = sc.country;
         token.state = sc.state;
-        return token;
+        tokens.push(token);
+        overrides.set(
+          buildOfficialOverrideKey(sc.country, sc.state),
+          sc.officialOverride
+        );
       });
+      return { tokens, overrides };
     } catch {
-      return [];
+      return { tokens: [], overrides: new Map() };
     }
   }
 

@@ -50,7 +50,6 @@ import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/
 import { SttEngine, TtsProvider, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
-import { IndustrySlugs } from 'src/app/domain/constants/industry-slugs.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -64,26 +63,15 @@ function serializeNullableNumber(value: number | null): string {
 }
 
 /**
- * Parses the stored ACTIVE_INDUSTRIES value into a slug list.
- * @param value - Comma-separated industry slugs as stored in the setting
- * @returns The parsed slugs, or all industry slugs when the value is empty
+ * Normalizes the stored ACTIVE_INDUSTRIES value. The setting holds exactly one token going
+ * forward (one industry slug or the custom-planning-rule sentinel); pre-existing multi-slug
+ * values from the legacy checkbox-based UI are passed through untouched so the settings
+ * card can detect and surface them, instead of silently collapsing them here.
+ * @param value - The raw setting value as stored
+ * @returns The trimmed value, or an empty string when the setting is unset
  */
-function parseActiveIndustries(value: string): string[] {
-  const slugs = (value ?? '')
-    .split(IndustrySlugs.Separator)
-    .map((slug) => slug.trim())
-    .filter((slug) => slug.length > 0);
-  return slugs.length === 0 ? [...IndustrySlugs.All] : slugs;
-}
-
-/**
- * Serializes an industry slug list into its stored string form.
- * @param slugs - The selected industry slugs
- * @returns Comma-separated slugs; an empty selection falls back to all slugs so the setting is never written empty
- */
-function serializeActiveIndustries(slugs: string[]): string {
-  const effective = slugs.length === 0 ? [...IndustrySlugs.All] : slugs;
-  return effective.join(IndustrySlugs.Separator);
+function normalizeActiveIndustry(value: string): string {
+  return (value ?? '').trim();
 }
 
 interface SettingsModels {
@@ -304,7 +292,7 @@ export class AppSettingsManagementService {
     }],
     [AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, (v, m) => (m.complianceEnforcement.rosterPublicationCountWorkdaysOnly = v === 'true')],
 
-    [AppSetting.ACTIVE_INDUSTRIES, (v, m) => (m.activeIndustries.activeIndustries = parseActiveIndustries(v))],
+    [AppSetting.ACTIVE_INDUSTRIES, (v, m) => (m.activeIndustries.activeIndustry = normalizeActiveIndustry(v))],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -669,7 +657,7 @@ export class AppSettingsManagementService {
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, getCurrent: () => this.complianceEnforcementSettings().rosterPublicationMinLeadDays.toString(), getOriginal: () => this.complianceEnforcementSettingsOriginal().rosterPublicationMinLeadDays.toString() },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, getCurrent: () => String(this.complianceEnforcementSettings().rosterPublicationCountWorkdaysOnly), getOriginal: () => String(this.complianceEnforcementSettingsOriginal().rosterPublicationCountWorkdaysOnly) },
 
-    { key: AppSetting.ACTIVE_INDUSTRIES, getCurrent: () => serializeActiveIndustries(this.activeIndustriesSettings().activeIndustries), getOriginal: () => serializeActiveIndustries(this.activeIndustriesSettingsOriginal().activeIndustries) },
+    { key: AppSetting.ACTIVE_INDUSTRIES, getCurrent: () => this.activeIndustriesSettings().activeIndustry, getOriginal: () => this.activeIndustriesSettingsOriginal().activeIndustry },
   ];
 
   save(): void {

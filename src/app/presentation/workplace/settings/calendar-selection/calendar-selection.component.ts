@@ -215,8 +215,10 @@ export class CalendarSelectionComponent
     this.selectedTokens.set(
       item.selectedCalendars.map((x) => {
         const token = new SelectedCalendar();
+        token.id = x.id;
         token.country = x.country;
         token.state = x.state;
+        token.officialOverride = x.officialOverride;
         return token;
       })
     );
@@ -250,8 +252,30 @@ export class CalendarSelectionComponent
       const item = new SelectedCalendar();
       item.country = token.country;
       item.state = token.state;
+      item.officialOverride = null;
       this.selectedTokens.set([...current, item]);
     }
+  }
+
+  isTokenReminderOnly(token: ISelectedCalendar): boolean {
+    return token.officialOverride === false;
+  }
+
+  setTokenReminderOnly(token: ISelectedCalendar, value: boolean): void {
+    this.selectedTokens.set(
+      this.selectedTokens().map((x) => {
+        if (x.country === token.country && x.state === token.state) {
+          const updated = new SelectedCalendar();
+          updated.id = x.id;
+          updated.calendarSelection = x.calendarSelection;
+          updated.country = x.country;
+          updated.state = x.state;
+          updated.officialOverride = value ? false : null;
+          return updated;
+        }
+        return x;
+      })
+    );
   }
 
   removeToken(token: ISelectedCalendar): void {

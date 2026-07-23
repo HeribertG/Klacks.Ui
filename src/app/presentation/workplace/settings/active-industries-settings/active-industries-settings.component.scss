@@ -10,7 +10,7 @@
   padding-inline-end: 40px;
 }
 
-.checkbox-label input[type="checkbox"] {
+.radio-label input[type="radio"] {
   width: auto;
 }
 
@@ -21,13 +21,15 @@
 
 .row-line-single {
   margin-top: 5px;
+  margin-left: 30px;
+  margin-right: 30px;
 }
 
 .firstColumn {
   margin-inline-start: 30px;
 }
 
-.checkbox-label {
+.radio-label {
   margin-top: 5px;
 }
 
@@ -42,4 +44,114 @@
   display: block;
   margin-inline-start: 30px;
   color: var(--standartRedColor);
+}
+
+.selection-banner {
+  max-width: 640px;
+  margin-inline-start: 30px;
+  margin-top: 5px;
+  padding: 8px 12px;
+  font-weight: 600;
+  border-inline-start: 3px solid var(--standartTextColor);
+}
+
+.industry-option-block {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.industry-option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.preview-toggle-btn,
+.rule-detail-toggle-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  color: inherit;
+}
+
+.industry-preview-panel {
+  margin-inline-start: 30px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  max-width: 640px;
+}
+
+.industry-preview-panel-heading {
+  margin-bottom: 6px;
+  font-size: 1em;
+  font-weight: 700;
+}
+
+.preview-group {
+  margin-top: 5px;
+
+  h5 {
+    margin-bottom: 2px;
+    font-size: 0.95em;
+    font-weight: 600;
+  }
+
+  > ul {
+    margin: 0;
+    padding-inline-start: 20px;
+  }
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rule-detail-group {
+  margin: 4px 0 6px 20px;
+
+  h6 {
+    margin: 4px 0 1px;
+    font-size: 0.85em;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+}
+
+.rule-detail-list {
+  margin: 0 0 4px;
+  padding-inline-start: 20px;
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+.rule-detail-empty {
+  margin-inline-start: 20px;
+  margin-top: 2px;
+}
+
+.custom-option-panel {
+  margin-inline-start: 30px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  max-width: 640px;
+}
+
+.custom-open-chat-btn {
+  margin-top: 5px;
+}
+
+.custom-gate-warning-panel {
+  padding: 8px 12px;
+  border-inline-start: 3px solid var(--standartTextColor);
+}
+
+.custom-gate-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
 }

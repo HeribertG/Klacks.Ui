@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { IndustrySlugs } from 'src/app/domain/constants/industry-slugs.constants';
-
 export interface IAppContactSettings {
   name: string;
   addressName: string;
@@ -316,9 +314,9 @@ export class ComplianceEnforcementSettings implements IComplianceEnforcementSett
 }
 
 export interface IActiveIndustriesSettings {
-  activeIndustries: string[];
+  activeIndustry: string;
 }
 
 export class ActiveIndustriesSettings implements IActiveIndustriesSettings {
-  activeIndustries: string[] = [...IndustrySlugs.All];
+  activeIndustry = '';
 }

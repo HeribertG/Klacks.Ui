@@ -91,6 +91,22 @@
                 @for (token of selectedTokens(); track token.country + '|' + token.state) {
                   <span class="selected-token">
                     {{ getSelectedTokenLabel(token) }}
+                    <label
+                      class="reminder-only-checkbox"
+                      for="calendar-selection-modal-reminder-{{ token.country }}-{{ token.state }}"
+                      [title]="'setting.calendar-selection.modal.reminder-only-hint' | translate"
+                    >
+                      <input
+                        #reminderCheckbox
+                        id="calendar-selection-modal-reminder-{{ token.country }}-{{ token.state }}"
+                        type="checkbox"
+                        [checked]="isTokenReminderOnly(token)"
+                        (change)="setTokenReminderOnly(token, reminderCheckbox.checked)"
+                      />
+                      <span>{{
+                        'setting.calendar-selection.modal.reminder-only' | translate
+                      }}</span>
+                    </label>
                     <span
                       class="remove-token"
                       role="button"

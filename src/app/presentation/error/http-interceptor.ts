@@ -92,6 +92,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    if (url.includes('IndustryTemplates/GetCustomRulesSummary') && error.status === 404) {
+      return throwError(() => error);
+    }
+
     if (url.includes('AnalyseScenarios/') && url.includes('/Accept') && error.status === 409) {
       return throwError(() => error);
     }

@@ -50,8 +50,20 @@ describe('CalendarSelectionComponent', () => {
     isSeeded: true,
     internal: undefined,
     selectedCalendars: [
-      { id: 'sc-1', calendarSelection: undefined, country: 'CH', state: 'CH' },
-      { id: 'sc-2', calendarSelection: undefined, country: 'CH', state: 'ZH' },
+      {
+        id: 'sc-1',
+        calendarSelection: undefined,
+        country: 'CH',
+        state: 'CH',
+        officialOverride: null,
+      },
+      {
+        id: 'sc-2',
+        calendarSelection: undefined,
+        country: 'CH',
+        state: 'ZH',
+        officialOverride: null,
+      },
     ],
   };
 
@@ -61,7 +73,13 @@ describe('CalendarSelectionComponent', () => {
     isSeeded: false,
     internal: undefined,
     selectedCalendars: [
-      { id: 'sc-3', calendarSelection: undefined, country: 'CH', state: 'BE' },
+      {
+        id: 'sc-3',
+        calendarSelection: undefined,
+        country: 'CH',
+        state: 'BE',
+        officialOverride: false,
+      },
     ],
   };
 
@@ -322,6 +340,36 @@ describe('CalendarSelectionComponent', () => {
         mockSelectionService.updateCalendarSelectionItem
       ).toHaveBeenCalled();
       expect(modal.close).toHaveBeenCalled();
+    });
+
+    it('should preserve id and officialOverride through an edit round-trip', async () => {
+      component.onClickEdit(customSelection);
+
+      const modal = { close: vi.fn() };
+      await component.onSaveModal(modal);
+
+      const saved = mockSelectionService.updateCalendarSelectionItem.mock
+        .calls[0][0] as ICalendarSelection;
+      expect(saved.selectedCalendars.length).toBe(1);
+      expect(saved.selectedCalendars[0].id).toBe('sc-3');
+      expect(saved.selectedCalendars[0].officialOverride).toBe(false);
+    });
+
+    it('should toggle reminder-only override and emit a new token array', () => {
+      component.onClickEdit(customSelection);
+      const before = component.selectedTokens();
+
+      component.setTokenReminderOnly(before[0], true);
+      const afterOn = component.selectedTokens();
+      expect(afterOn).not.toBe(before);
+      expect(afterOn[0].officialOverride).toBe(false);
+      expect(component.isTokenReminderOnly(afterOn[0])).toBe(true);
+
+      component.setTokenReminderOnly(afterOn[0], false);
+      expect(component.selectedTokens()[0].officialOverride).toBeNull();
+      expect(component.isTokenReminderOnly(component.selectedTokens()[0])).toBe(
+        false
+      );
     });
 
     it('should show error toast and keep modal open when save fails', async () => {
