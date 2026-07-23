@@ -595,7 +595,7 @@ describe('AssistantChatComponent', () => {
 
         it('should keep tour chips alive and restore them after a side question during the tour', async () => {
             // Arrange
-            presentExplainStation('scheduling');
+            presentExplainStation('weekend');
             expect((component as any).isTourStationPending).toBe(true);
             dismissSpy.mockClear();
             showSpy.mockClear();
@@ -619,7 +619,7 @@ describe('AssistantChatComponent', () => {
 
         it('should prioritize tour chips over suggested replies from the answer', async () => {
             // Arrange
-            presentExplainStation('scheduling');
+            presentExplainStation('weekend');
             showSpy.mockClear();
             component.inputText.set('Was sehe ich hier?');
             mockLlmService.sendMessageStream.mockImplementation(
@@ -636,7 +636,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             const lastConfig = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
-            expect(lastConfig.options.length).toBe(4); // back + done + skip + end ('scheduling' is not the first station)
+            expect(lastConfig.options.length).toBe(4); // back + done + skip + end ('weekend' is not the first station)
             expect((component as any).isTourStationPending).toBe(true);
         });
 
@@ -768,7 +768,7 @@ describe('AssistantChatComponent', () => {
 
         it('should offer a back chip on any station after the first', () => {
             // Arrange
-            presentStation('scheduling');
+            presentStation('weekend');
 
             // Assert
             const config = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
@@ -779,7 +779,7 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const onboarding = TestBed.inject(OnboardingService);
             const markCompletedSpy = vi.spyOn(onboarding, 'markStationCompleted').mockImplementation(() => undefined);
-            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'scheduling');
+            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'weekend');
             (component as any).tourIndex = index;
 
             // Act
