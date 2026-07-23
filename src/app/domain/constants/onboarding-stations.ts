@@ -80,6 +80,7 @@ export const ONBOARDING_TOUR_CHOICE = {
   Done: 'done',
   Skip: 'skip',
   End: 'end',
+  Back: 'back',
 } as const;
 
 export const ONBOARDING_STATION_LLM_PROVIDER = 'llm-provider';

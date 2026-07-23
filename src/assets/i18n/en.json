@@ -2297,6 +2297,7 @@
   "assistant-chat.onboarding.tour.done": "Done, next",
   "assistant-chat.onboarding.tour.skip": "Skip",
   "assistant-chat.onboarding.tour.end": "End tour",
+  "assistant-chat.onboarding.tour.back": "One step back",
   "assistant-chat.onboarding.tour.completed": "That's it – Klacks is ready to go! You can find all settings anytime under Settings. 🎉",
   "assistant-chat.onboarding.llm.offline": "By the way: Klacksy is still offline because no LLM is set up yet. The tour works anyway – it will take you to the LLM setup in a moment.",
   "assistant-chat.onboarding.llm.online": "Klacksy is now online and can answer freely and accompany you through the rest of the tour. 🎉",

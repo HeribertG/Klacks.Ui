@@ -2296,6 +2296,7 @@
   "assistant-chat.onboarding.tour.done": "Fatto, avanti",
   "assistant-chat.onboarding.tour.skip": "Salta",
   "assistant-chat.onboarding.tour.end": "Termina il tour",
+  "assistant-chat.onboarding.tour.back": "Un passo indietro",
   "assistant-chat.onboarding.tour.completed": "Ecco fatto – Klacks è pronto! Trovi tutte le impostazioni in qualsiasi momento sotto Impostazioni. 🎉",
   "assistant-chat.onboarding.llm.offline": "A proposito: Klacksy è ancora offline perché non è stato configurato alcun LLM. Il tour funziona comunque – tra poco ti porterà alla configurazione dell'LLM.",
   "assistant-chat.onboarding.llm.online": "Klacksy è ora online e può rispondere liberamente e accompagnarti nel resto del tour. 🎉",

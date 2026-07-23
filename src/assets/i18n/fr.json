@@ -2296,6 +2296,7 @@
   "assistant-chat.onboarding.tour.done": "Terminé, suivant",
   "assistant-chat.onboarding.tour.skip": "Passer",
   "assistant-chat.onboarding.tour.end": "Terminer la visite",
+  "assistant-chat.onboarding.tour.back": "Un pas en arrière",
   "assistant-chat.onboarding.tour.completed": "C'est tout – Klacks est prêt ! Vous retrouvez tous les paramètres à tout moment sous Paramètres. 🎉",
   "assistant-chat.onboarding.llm.offline": "Au fait : Klacksy est encore hors ligne car aucun LLM n'est configuré. La visite fonctionne quand même – elle vous mène tout de suite à la configuration du LLM.",
   "assistant-chat.onboarding.llm.online": "Klacksy est maintenant en ligne et peut répondre librement et vous accompagner pendant le reste de la visite. 🎉",

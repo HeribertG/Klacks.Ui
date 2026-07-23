@@ -29,7 +29,7 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATIONS } from 'src/app/domain/constants/onboarding-stations';
+import { IOnboardingAskField, ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATIONS, ONBOARDING_TOUR_CHOICE } from 'src/app/domain/constants/onboarding-stations';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
 
@@ -636,7 +636,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             const lastConfig = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
-            expect(lastConfig.options.length).toBe(3);
+            expect(lastConfig.options.length).toBe(4); // back + done + skip + end ('scheduling' is not the first station)
             expect((component as any).isTourStationPending).toBe(true);
         });
 
@@ -738,6 +738,123 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(showSpy).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('onboarding tour back navigation', () => {
+        let toastService: ToastShowService;
+        let showSpy: any;
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            toastService = TestBed.inject(ToastShowService);
+            showSpy = vi.spyOn(toastService, 'showInteractiveReply');
+        });
+
+        function presentStation(stationId: string): void {
+            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === stationId);
+            (component as any).tourIndex = index;
+            (component as any).showStationChips(ONBOARDING_STATIONS[index]);
+        }
+
+        it('should not offer a back chip on the first station', () => {
+            // Arrange
+            presentStation('title');
+
+            // Assert
+            const config = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
+            expect(config.options.some((o: any) => o.value === ONBOARDING_TOUR_CHOICE.Back)).toBe(false);
+        });
+
+        it('should offer a back chip on any station after the first', () => {
+            // Arrange
+            presentStation('scheduling');
+
+            // Assert
+            const config = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
+            expect(config.options[0].value).toBe(ONBOARDING_TOUR_CHOICE.Back);
+        });
+
+        it('should move the tour cursor one station back without touching completion state', () => {
+            // Arrange
+            const onboarding = TestBed.inject(OnboardingService);
+            const markCompletedSpy = vi.spyOn(onboarding, 'markStationCompleted').mockImplementation(() => undefined);
+            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'scheduling');
+            (component as any).tourIndex = index;
+
+            // Act
+            (component as any).handleStationChoice(ONBOARDING_STATIONS[index], ONBOARDING_TOUR_CHOICE.Back);
+
+            // Assert
+            expect((component as any).tourIndex).toBe(index - 1);
+            expect(markCompletedSpy).not.toHaveBeenCalled();
+        });
+
+        it('should not move the cursor before the first station', () => {
+            // Arrange
+            presentStation('title');
+
+            // Act
+            (component as any).handleStationChoice(ONBOARDING_STATIONS[0], ONBOARDING_TOUR_CHOICE.Back);
+
+            // Assert
+            expect((component as any).tourIndex).toBe(0);
+        });
+
+        it('should offer a back chip on the language station when it is not first', () => {
+            // Arrange
+            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'default-language');
+            (component as any).tourIndex = index;
+
+            // Act
+            (component as any).showLanguageChoiceChips(ONBOARDING_STATIONS[index]);
+
+            // Assert
+            const config = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
+            expect(config.options[0].value).toBe(ONBOARDING_TOUR_CHOICE.Back);
+        });
+
+        it('should move back from the language station via handleLanguageChoice', () => {
+            // Arrange
+            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'default-language');
+            const field: IOnboardingAskField = { promptKey: 'x', kind: 'text', settingTypes: [] };
+
+            // Act
+            (component as any).tourIndex = index;
+            (component as any).handleLanguageChoice(ONBOARDING_STATIONS[index].id, field, ONBOARDING_TOUR_CHOICE.Back);
+
+            // Assert
+            expect((component as any).tourIndex).toBe(index - 1);
+        });
+
+        it('should resume one station before the persisted first-pending station (survives a restart)', () => {
+            // Arrange
+            const onboarding = TestBed.inject(OnboardingService);
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            const presentSpy = vi.spyOn(component as any, 'presentStationAtCursor').mockImplementation(() => undefined);
+            const completed = ONBOARDING_STATIONS.slice(0, 5).map((station) => station.id);
+            onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
+
+            // Act
+            component.resumeTourOneStepBack();
+
+            // Assert
+            expect((component as any).tourIndex).toBe(4);
+            expect(presentSpy).toHaveBeenCalled();
+        });
+
+        it('should not resume before station 0 when the first pending station is already the first', () => {
+            // Arrange
+            const onboarding = TestBed.inject(OnboardingService);
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            vi.spyOn(component as any, 'presentStationAtCursor').mockImplementation(() => undefined);
+            onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: [] });
+
+            // Act
+            component.resumeTourOneStepBack();
+
+            // Assert
+            expect((component as any).tourIndex).toBe(0);
         });
     });
 

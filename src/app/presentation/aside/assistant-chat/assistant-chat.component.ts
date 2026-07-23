@@ -1066,6 +1066,13 @@ export class AssistantChatComponent {
     this.presentStationAtCursor();
   }
 
+  resumeTourOneStepBack(): void {
+    this.onboarding.accept();
+    this.maybePostLlmOfflineHint();
+    this.tourIndex = Math.max(0, this.onboarding.firstPendingIndex() - 1);
+    this.presentStationAtCursor();
+  }
+
   dismissOnboarding(): void {
     this.onboarding.dismiss();
   }
@@ -1098,16 +1105,21 @@ export class AssistantChatComponent {
   private showLanguageChoiceChips(station: IOnboardingStation): void {
     const field = onboardingAskFields(station.id)[0];
     this.postKlacksyMessage(this.translateService.instant(field.promptKey));
+    const options: ISuggestedReply[] = [];
+    if (this.tourIndex > 0) {
+      options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.back'), value: ONBOARDING_TOUR_CHOICE.Back });
+    }
+    options.push(
+      ...this.languageConfigService.getSupportedLanguages().map((code) => ({
+        label: this.languageConfigService.getDisplayName(code),
+        value: code,
+      })),
+      { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
+      { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
+    );
     const config: ISuggestedRepliesConfig = {
       selectionMode: 'single',
-      options: [
-        ...this.languageConfigService.getSupportedLanguages().map((code) => ({
-          label: this.languageConfigService.getDisplayName(code),
-          value: code,
-        })),
-        { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
-        { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
-      ],
+      options,
     };
     this.toastShowService.dismissInteractiveReplies();
     this.toastShowService.showInteractiveReply(config, (values: string[]) => {
@@ -1120,6 +1132,10 @@ export class AssistantChatComponent {
   }
 
   private handleLanguageChoice(stationId: string, field: IOnboardingAskField, choice: string): void {
+    if (choice === ONBOARDING_TOUR_CHOICE.Back) {
+      this.retreatTour();
+      return;
+    }
     if (choice === ONBOARDING_TOUR_CHOICE.Skip) {
       this.advanceTour();
       return;
@@ -1135,13 +1151,18 @@ export class AssistantChatComponent {
   }
 
   private showStationChips(station: IOnboardingStation): void {
+    const options: ISuggestedReply[] = [];
+    if (this.tourIndex > 0) {
+      options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.back'), value: ONBOARDING_TOUR_CHOICE.Back });
+    }
+    options.push(
+      { label: this.translateService.instant('assistant-chat.onboarding.tour.done'), value: ONBOARDING_TOUR_CHOICE.Done },
+      { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
+      { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
+    );
     const config: ISuggestedRepliesConfig = {
       selectionMode: 'single',
-      options: [
-        { label: this.translateService.instant('assistant-chat.onboarding.tour.done'), value: ONBOARDING_TOUR_CHOICE.Done },
-        { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
-        { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
-      ],
+      options,
     };
     this.toastShowService.dismissInteractiveReplies();
     this.toastShowService.showInteractiveReply(config, (values: string[]) => {
@@ -1154,6 +1175,10 @@ export class AssistantChatComponent {
   }
 
   private handleStationChoice(station: IOnboardingStation, choice: string): void {
+    if (choice === ONBOARDING_TOUR_CHOICE.Back) {
+      this.retreatTour();
+      return;
+    }
     if (choice !== ONBOARDING_TOUR_CHOICE.Done && choice !== ONBOARDING_TOUR_CHOICE.Skip) {
       this.endTour();
       return;
@@ -1204,6 +1229,11 @@ export class AssistantChatComponent {
 
   private advanceTour(): void {
     this.tourIndex += 1;
+    this.presentStationAtCursor();
+  }
+
+  private retreatTour(): void {
+    this.tourIndex = Math.max(0, this.tourIndex - 1);
     this.presentStationAtCursor();
   }
 

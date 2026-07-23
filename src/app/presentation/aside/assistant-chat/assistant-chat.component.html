@@ -115,9 +115,16 @@
         [style.width.%]="onboarding.total ? (onboarding.progress() / onboarding.total) * 100 : 0"
       ></div>
     </div>
-    <button type="button" class="onboarding-card-start" (click)="startOnboardingTour()">
-      {{ (onboarding.progress() > 0 ? 'assistant-chat.onboarding.card.resume' : 'assistant-chat.onboarding.card.start') | translate }}
-    </button>
+    <div class="onboarding-card-actions">
+      @if (onboarding.progress() > 0) {
+      <button type="button" class="onboarding-card-back" (click)="resumeTourOneStepBack()">
+        {{ 'assistant-chat.onboarding.tour.back' | translate }}
+      </button>
+      }
+      <button type="button" class="onboarding-card-start" (click)="startOnboardingTour()">
+        {{ (onboarding.progress() > 0 ? 'assistant-chat.onboarding.card.resume' : 'assistant-chat.onboarding.card.start') | translate }}
+      </button>
+    </div>
   </div>
   }
 

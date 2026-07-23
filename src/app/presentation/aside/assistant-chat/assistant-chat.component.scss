@@ -1036,8 +1036,12 @@
     transition: width 0.3s ease;
   }
 
+  .onboarding-card-actions {
+    display: flex;
+    gap: 8px;
+  }
+
   .onboarding-card-start {
-    align-self: flex-start;
     background: colors.$standartGreenColor;
     color: #fff;
     border: none;
@@ -1048,6 +1052,20 @@
 
     &:hover {
       opacity: 0.9;
+    }
+  }
+
+  .onboarding-card-back {
+    background: transparent;
+    color: colors.$CurrentGreyColor;
+    border: 1px solid var(--cardBorderColor);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
     }
   }
 }
