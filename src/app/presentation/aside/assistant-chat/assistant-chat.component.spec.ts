@@ -664,6 +664,83 @@ describe('AssistantChatComponent', () => {
         });
     });
 
+    describe('welcome/greeting toast tour gating', () => {
+        let onboarding: OnboardingService;
+        let toastService: ToastShowService;
+        let dismissSpy: any;
+        let showSpy: any;
+
+        const onboardingState = (overrides: Partial<IOnboardingState> = {}): IOnboardingState => ({
+            shouldOffer: false,
+            showCard: true,
+            status: 'in_progress',
+            completedStations: [],
+            ...overrides,
+        });
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            onboarding = TestBed.inject(OnboardingService);
+            toastService = TestBed.inject(ToastShowService);
+            dismissSpy = vi.spyOn(toastService, 'dismissInteractiveReplies');
+            showSpy = vi.spyOn(toastService, 'showInteractiveReply');
+        });
+
+        it('should not show the welcome action toast while the setup tour is active', () => {
+            // Arrange
+            onboarding.applyWelcome(onboardingState());
+            showSpy.mockClear();
+            dismissSpy.mockClear();
+
+            // Act
+            (component as any).showActionsAsToast(['Erstelle einen neuen Mitarbeiter']);
+
+            // Assert
+            expect(showSpy).not.toHaveBeenCalled();
+            expect(dismissSpy).toHaveBeenCalled();
+        });
+
+        it('should show the welcome action toast when the setup tour is not active', () => {
+            // Arrange
+            onboarding.applyWelcome(null);
+            showSpy.mockClear();
+            dismissSpy.mockClear();
+
+            // Act
+            (component as any).showActionsAsToast(['Erstelle einen neuen Mitarbeiter']);
+
+            // Assert
+            expect(showSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not show greeting options toast while the setup tour is active', () => {
+            // Arrange
+            onboarding.applyWelcome(onboardingState());
+            showSpy.mockClear();
+            dismissSpy.mockClear();
+
+            // Act
+            (component as any).showGreetingOptionsAsToast([{ label: 'Einstellungen öffnen', value: '/workplace/settings' }]);
+
+            // Assert
+            expect(showSpy).not.toHaveBeenCalled();
+            expect(dismissSpy).toHaveBeenCalled();
+        });
+
+        it('should show greeting options toast when the setup tour is not active', () => {
+            // Arrange
+            onboarding.applyWelcome(null);
+            showSpy.mockClear();
+            dismissSpy.mockClear();
+
+            // Act
+            (component as any).showGreetingOptionsAsToast([{ label: 'Einstellungen öffnen', value: '/workplace/settings' }]);
+
+            // Assert
+            expect(showSpy).toHaveBeenCalledTimes(1);
+        });
+    });
+
     describe('voice input', () => {
         beforeEach(() => {
             fixture.detectChanges();

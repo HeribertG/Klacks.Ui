@@ -795,6 +795,10 @@ export class AssistantChatComponent {
   }
 
   private showActionsAsToast(suggestions?: string[], navigateTo?: string | null): void {
+    if (this.onboarding.isTourActive()) {
+      this.toastShowService.dismissInteractiveReplies();
+      return;
+    }
     const options: ISuggestedReply[] = [];
     if (navigateTo && navigateTo.startsWith('/workplace/')) {
       options.push({
@@ -831,6 +835,10 @@ export class AssistantChatComponent {
 
   private showGreetingOptionsAsToast(options: ISuggestedReply[]): void {
     if (!options.length) return;
+    if (this.onboarding.isTourActive()) {
+      this.toastShowService.dismissInteractiveReplies();
+      return;
+    }
     const config: ISuggestedRepliesConfig = {
       selectionMode: 'single',
       prompt: this.translateService.instant('assistant-chat.action-toast.prompt'),
