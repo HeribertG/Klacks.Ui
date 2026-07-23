@@ -29,7 +29,7 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { IOnboardingAskField, ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATIONS, ONBOARDING_TOUR_CHOICE } from 'src/app/domain/constants/onboarding-stations';
+import { IOnboardingAskField, ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATION_TITLE, ONBOARDING_STATIONS, ONBOARDING_TOUR_CHOICE } from 'src/app/domain/constants/onboarding-stations';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
 
@@ -575,6 +575,27 @@ describe('AssistantChatComponent', () => {
         });
     });
 
+    describe('onboarding double-click-edit hint', () => {
+        const titleStation = ONBOARDING_STATIONS.find((station) => station.id === ONBOARDING_STATION_TITLE)!;
+        const nonTitleStation = ONBOARDING_STATIONS.find((station) => station.id !== ONBOARDING_STATION_TITLE)!;
+
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
+        it('posts the double-click-edit hint when presenting the title station', () => {
+            (component as any).maybePostDoubleClickEditHint(titleStation);
+
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.hint.double-click-edit');
+        });
+
+        it('does not post the double-click-edit hint for any other station', () => {
+            (component as any).maybePostDoubleClickEditHint(nonTitleStation);
+
+            expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.hint.double-click-edit');
+        });
+    });
+
     describe('onboarding tour chips during side questions', () => {
         let toastService: ToastShowService;
         let dismissSpy: any;
@@ -790,6 +811,23 @@ describe('AssistantChatComponent', () => {
             expect(markCompletedSpy).not.toHaveBeenCalled();
         });
 
+        it('should reflect the live tour position in displayedTourProgress after going back, decoupled from persisted progress', () => {
+            // Arrange
+            const onboarding = TestBed.inject(OnboardingService);
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            const completed = ONBOARDING_STATIONS.slice(0, 5).map((station) => station.id);
+            onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
+
+            // Act
+            component.startOnboardingTour();
+            (component as any).retreatTour();
+            (component as any).retreatTour();
+
+            // Assert
+            expect(onboarding.progress()).toBe(5);
+            expect(component.displayedTourProgress()).toBe(3);
+        });
+
         it('should not move the cursor before the first station', () => {
             // Arrange
             presentStation('title');
@@ -855,6 +893,22 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect((component as any).tourIndex).toBe(0);
+        });
+
+        it('should keep stepping back on repeated presses instead of resetting to the persisted position', () => {
+            // Arrange
+            const onboarding = TestBed.inject(OnboardingService);
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            const completed = ONBOARDING_STATIONS.slice(0, 5).map((station) => station.id);
+            onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
+
+            // Act
+            component.resumeTourOneStepBack();
+            expect((component as any).tourIndex).toBe(4);
+            component.resumeTourOneStepBack();
+
+            // Assert
+            expect((component as any).tourIndex).toBe(3);
         });
     });
 

@@ -107,22 +107,22 @@
       </button>
     </div>
     <div class="onboarding-card-progress-text">
-      {{ 'assistant-chat.onboarding.card.progress' | translate : { done: onboarding.progress(), total: onboarding.total } }}
+      {{ 'assistant-chat.onboarding.card.progress' | translate : { done: displayedTourProgress(), total: onboarding.total } }}
     </div>
     <div class="onboarding-card-bar">
       <div
         class="onboarding-card-fill"
-        [style.width.%]="onboarding.total ? (onboarding.progress() / onboarding.total) * 100 : 0"
+        [style.width.%]="onboarding.total ? (displayedTourProgress() / onboarding.total) * 100 : 0"
       ></div>
     </div>
     <div class="onboarding-card-actions">
-      @if (onboarding.progress() > 0) {
+      @if (displayedTourProgress() > 0) {
       <button type="button" class="onboarding-card-back" (click)="resumeTourOneStepBack()">
         {{ 'assistant-chat.onboarding.tour.back' | translate }}
       </button>
       }
       <button type="button" class="onboarding-card-start" (click)="startOnboardingTour()">
-        {{ (onboarding.progress() > 0 ? 'assistant-chat.onboarding.card.resume' : 'assistant-chat.onboarding.card.start') | translate }}
+        {{ (displayedTourProgress() > 0 ? 'assistant-chat.onboarding.card.resume' : 'assistant-chat.onboarding.card.start') | translate }}
       </button>
     </div>
   </div>

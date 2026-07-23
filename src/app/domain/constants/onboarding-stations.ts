@@ -85,11 +85,12 @@ export const ONBOARDING_TOUR_CHOICE = {
 
 export const ONBOARDING_STATION_LLM_PROVIDER = 'llm-provider';
 export const ONBOARDING_STATION_DEFAULT_LANGUAGE = 'default-language';
+export const ONBOARDING_STATION_TITLE = 'title';
 
 const EXPLAIN = 'assistant-chat.onboarding.explain.';
 
 export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
-  { id: 'title', type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'title', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: ONBOARDING_STATION_TITLE, type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'title', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'branding', type: 'navigate', target: 'settings-general', explainKey: EXPLAIN + 'branding', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'address', type: 'ask', target: 'owner-address', explainKey: EXPLAIN + 'address', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: ONBOARDING_STATION_DEFAULT_LANGUAGE, type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'default-language', navIconId: ONBOARDING_NAV_ICON.Settings },

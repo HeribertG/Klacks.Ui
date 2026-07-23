@@ -87,6 +87,7 @@ import {
   ONBOARDING_SETTINGS_ROUTE,
   ONBOARDING_STATION_DEFAULT_LANGUAGE,
   ONBOARDING_STATION_LLM_PROVIDER,
+  ONBOARDING_STATION_TITLE,
   ONBOARDING_STATIONS,
   ONBOARDING_TOUR_CHOICE,
 } from 'src/app/domain/constants/onboarding-stations';
@@ -95,6 +96,7 @@ const ONBOARDING_LLM_OFFLINE_KEY = 'assistant-chat.onboarding.llm.offline';
 const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';
 const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-offline';
 const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
+const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
@@ -149,6 +151,7 @@ export class AssistantChatComponent {
   private readonly destroyRef = inject(DestroyRef);
   private tourIndex = 0;
   private isTourStationPending = false;
+  private readonly liveTourStep = signal<number | null>(null);
   private llmOfflineHintShown = false;
   private eventBus = inject(EVENT_BUS_TOKEN);
 
@@ -198,6 +201,10 @@ export class AssistantChatComponent {
   });
 
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
+  readonly displayedTourProgress = computed(() => {
+    const liveStep = this.liveTourStep();
+    return liveStep === null ? this.onboarding.progress() : Math.min(liveStep, this.onboarding.total);
+  });
   readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   readonly hasLogoImage = computed(() => !!this.logoImage());
 
@@ -1069,7 +1076,8 @@ export class AssistantChatComponent {
   resumeTourOneStepBack(): void {
     this.onboarding.accept();
     this.maybePostLlmOfflineHint();
-    this.tourIndex = Math.max(0, this.onboarding.firstPendingIndex() - 1);
+    const currentPosition = this.liveTourStep() ?? this.onboarding.firstPendingIndex();
+    this.tourIndex = Math.max(0, currentPosition - 1);
     this.presentStationAtCursor();
   }
 
@@ -1079,6 +1087,7 @@ export class AssistantChatComponent {
 
   private presentStationAtCursor(): void {
     this.isTourStationPending = false;
+    this.liveTourStep.set(this.tourIndex);
     if (this.tourIndex >= ONBOARDING_STATIONS.length) {
       this.completeTour();
       return;
@@ -1092,6 +1101,7 @@ export class AssistantChatComponent {
       return;
     }
     this.maybePostFreeProviderHint(station);
+    this.maybePostDoubleClickEditHint(station);
     this.showStationChips(station);
   }
 
@@ -1100,6 +1110,13 @@ export class AssistantChatComponent {
       return;
     }
     this.postKlacksyMessage(this.translateService.instant(ONBOARDING_LLM_FREE_PROVIDERS_KEY));
+  }
+
+  private maybePostDoubleClickEditHint(station: IOnboardingStation): void {
+    if (station.id !== ONBOARDING_STATION_TITLE) {
+      return;
+    }
+    this.postKlacksyMessage(this.translateService.instant(ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY));
   }
 
   private showLanguageChoiceChips(station: IOnboardingStation): void {

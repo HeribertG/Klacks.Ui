@@ -2303,6 +2303,7 @@
   "assistant-chat.onboarding.llm.online": "Klacksy is now online and can answer freely and accompany you through the rest of the tour. 🎉",
   "assistant-chat.onboarding.llm.still-offline": "No LLM active yet – you can set this up later at any time in the settings. The tour continues as normal.",
   "assistant-chat.onboarding.llm.free-providers": "Tip: There are free providers to get you started – grab a key, paste it on the card and enable the provider:\n- [Cerebras](https://cloud.cerebras.ai) – high free limits, works well for Klacksy, preset available\n- [Mistral](https://console.mistral.ai/api-keys) – generous free tier, preset available\n- [OpenRouter](https://openrouter.ai/settings/keys) – one key for many models\n- [Groq](https://console.groq.com/keys) – very fast, but a small per-minute quota (often too tight for chat)\nAll available without a credit card.",
+  "assistant-chat.onboarding.hint.double-click-edit": "A quick tip up front: later in this tour, in User Management, editable name fields are highlighted in green – double-click one to open a window for editing the account details.",
   "assistant-chat.speak-now": "Speak now...",
   "assistant-chat.speech-not-supported": "Speech recognition not available in this browser. Use text input below.",
   "assistant-chat.speech-not-available": "Speech recognition not available - Enable Windows Speech Recognition",
