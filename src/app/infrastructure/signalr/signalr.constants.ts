@@ -137,6 +137,7 @@ export const AssistantSignalRConstants = {
   Events: {
     ProactiveMessage: 'ProactiveMessage',
     OnboardingPrompt: 'OnboardingPrompt',
+    ProactiveInboxChanged: 'ProactiveInboxChanged',
     PluginEvent: 'PluginEvent',
     PlanUpdated: 'PlanUpdated',
     EntityChanged: 'EntityChanged',

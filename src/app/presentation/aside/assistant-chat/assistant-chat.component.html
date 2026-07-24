@@ -139,6 +139,12 @@
   <!-- Messages Area -->
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
+      @if (inboxHeadingVisible()) {
+      <div class="inbox-heading" role="heading" aria-level="2">
+        <fa-icon [icon]="faBell"></fa-icon>
+        <span>{{ "assistant-chat.proactive.inbox-heading" | translate }}</span>
+      </div>
+      }
       @for (message of messages; track message.id) {
       <div
         class="message-wrapper"

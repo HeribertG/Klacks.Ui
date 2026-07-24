@@ -24,9 +24,11 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TranslateModule } from '@ngx-translate/core';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../icons/icon-logo.component';
 import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/signalr-status-indicator.component';
+import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 
 @Component({
   selector: 'app-header',
@@ -39,6 +41,7 @@ import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/sign
     GroupSelectComponent,
     IconSignOutComponent,
     FontAwesomeModule,
+    TranslateModule,
     IconMMLComponent,
     IconLogoComponent,
     SignalRStatusIndicatorComponent,
@@ -49,6 +52,7 @@ export class HeaderComponent {
   public dataLoadFileService = inject(DataLoadFileService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public searchService = inject(SearchService);
+  public proactiveInboxService = inject(DataManagementProactiveInboxService);
 
   private auth = inject(AuthService);
   private navigationService = inject(NavigationService);
@@ -86,6 +90,9 @@ export class HeaderComponent {
 
   constructor() {
     this.authorised.set(this.auth.authenticated());
+    if (this.auth.authenticated()) {
+      this.proactiveInboxService.refreshUnreadCount();
+    }
   }
 
   onClickDashboard(): void {

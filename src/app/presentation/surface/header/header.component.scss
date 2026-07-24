@@ -52,14 +52,36 @@ app-group-select {
   width: 400px;
 }
 
+.assistant-btn-container {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+  margin-top: 20px;
+  margin-inline-end: 30px;
+}
+
 .assistant-btn {
   cursor: pointer;
 
-  margin-top: 20px;
   width: 20px;
   height: 20px;
-  margin-inline-end: 30px;
   &:hover {
     fill: color.adjust(colors.$standartGreenColor, $lightness: -10%);
   }
+}
+
+.assistant-unread-badge {
+  position: absolute;
+  top: -8px;
+  inset-inline-end: -10px;
+  background-color: colors.$CurrentGreyColor;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 4px;
 }

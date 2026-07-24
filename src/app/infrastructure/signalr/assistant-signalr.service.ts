@@ -20,6 +20,7 @@ import { AssistantSignalRConstants } from './signalr.constants';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRConnectionHelper } from './signalr-connection.helper';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { IProactiveInboxChanged } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan.interface';
 import { IEntityChanged } from 'src/app/domain/interfaces/entity-changed.interface';
 import { IncomingMessage } from 'klacks-plugin-messaging';
@@ -36,6 +37,7 @@ export class AssistantSignalRService implements OnDestroy {
 
   public proactiveMessage$ = new Subject<IProactiveMessage>();
   public onboardingPrompt$ = new Subject<IProactiveMessage>();
+  public proactiveInboxChanged$ = new Subject<IProactiveInboxChanged>();
   public incomingMessage$ = new Subject<IncomingMessage>();
   public planUpdated$ = new Subject<IAgentPlanUpdate>();
   public entityChanged$ = new Subject<IEntityChanged>();
@@ -108,6 +110,14 @@ export class AssistantSignalRService implements OnDestroy {
     );
 
     hub.on(
+      AssistantSignalRConstants.Events.ProactiveInboxChanged,
+      (change: IProactiveInboxChanged) => {
+        this._connectionHelper.notePush();
+        this.proactiveInboxChanged$.next(change);
+      },
+    );
+
+    hub.on(
       AssistantSignalRConstants.Events.PluginEvent,
       (eventType: string, payload: unknown) => {
         this._connectionHelper.notePush();
@@ -143,6 +153,7 @@ export class AssistantSignalRService implements OnDestroy {
     }
     this.proactiveMessage$.complete();
     this.onboardingPrompt$.complete();
+    this.proactiveInboxChanged$.complete();
     this.incomingMessage$.complete();
     this.planUpdated$.complete();
     this.entityChanged$.complete();

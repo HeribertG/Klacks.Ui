@@ -74,6 +74,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { PROACTIVE_REACTION, ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
@@ -147,6 +149,7 @@ export class AssistantChatComponent {
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
+  private proactiveInboxService = inject(DataManagementProactiveInboxService);
   readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
@@ -183,6 +186,8 @@ export class AssistantChatComponent {
 
   correctionMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
+  readonly inboxHeadingVisible = signal(false);
+  private inboxLoadRequested = false;
 
   inputText = signal('');
   isProcessing = signal(false);
@@ -372,6 +377,70 @@ export class AssistantChatComponent {
         this.restartGuidedTour();
       }
     });
+
+    effect(() => {
+      if (!this.asideService.isVisible()) {
+        this.inboxLoadRequested = false;
+        return;
+      }
+      if (this.onboarding.isTourActive() || this.inboxLoadRequested) {
+        return;
+      }
+      this.inboxLoadRequested = true;
+      this.loadProactiveInbox();
+    });
+  }
+
+  private loadProactiveInbox(): void {
+    this.proactiveInboxService
+      .loadUnreadMessages()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (items) => this.ngZone.run(() => this.presentInboxMessages(items)),
+        error: () => undefined,
+      });
+  }
+
+  private presentInboxMessages(items: IProactiveInboxItem[]): void {
+    if (items.length === 0) {
+      return;
+    }
+    const knownIds = new Set(this.messages.map((message) => message.id));
+    const freshItems = items.filter((item) => !knownIds.has(item.id));
+    if (freshItems.length > 0) {
+      const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
+      this.messages = [...inboxMessages, ...this.messages];
+      this.inboxHeadingVisible.set(true);
+      this.shouldScrollToBottom = true;
+    }
+    this.markInboxRead();
+  }
+
+  private toInboxChatMessage(item: IProactiveInboxItem): ChatMessage {
+    const content = this.resolveProactiveContent(item.content, item.contentParams);
+    return {
+      id: item.id,
+      sender: 'assistant',
+      content,
+      formattedContent: this.formatMessage(content),
+      timestamp: new Date(item.createdUtc),
+      messageKind: 'proactive',
+      proactiveReaction: this.toProactiveReaction(item.reaction),
+    };
+  }
+
+  private toProactiveReaction(reaction?: string | null): ProactiveReaction | undefined {
+    const normalized = reaction?.toLowerCase();
+    return normalized === PROACTIVE_REACTION.Helpful || normalized === PROACTIVE_REACTION.Dismissed
+      ? normalized
+      : undefined;
+  }
+
+  private markInboxRead(): void {
+    this.proactiveInboxService
+      .markAllRead()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ error: () => undefined });
   }
 
   private restartGuidedTour(): void {
@@ -1511,6 +1580,7 @@ export class AssistantChatComponent {
 
   clearChat(): void {
     this.isTourStationPending = false;
+    this.inboxHeadingVisible.set(false);
     this.orchestrator.clearMessages();
     this.toastShowService.dismissInteractiveReplies();
 

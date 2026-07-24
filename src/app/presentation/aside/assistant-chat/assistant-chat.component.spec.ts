@@ -34,6 +34,8 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
 
 @Pipe({ name: 'translate' })
@@ -105,8 +107,18 @@ describe('AssistantChatComponent', () => {
     ];
 
     let mockPlanService: any;
+    let mockProactiveInboxService: any;
 
     beforeEach(async () => {
+        mockProactiveInboxService = {
+            unreadCount: signal(0),
+            hasUnread: signal(false),
+            refreshUnreadCount: vi.fn(),
+            loadUnreadMessages: vi.fn().mockReturnValue(of([])),
+            markRead: vi.fn().mockReturnValue(of(void 0)),
+            markAllRead: vi.fn().mockReturnValue(of(void 0)),
+        };
+
         mockPlanService = {
             activePlan: signal(null),
             totalSteps: signal(0),
@@ -205,6 +217,7 @@ describe('AssistantChatComponent', () => {
                 { provide: DataManagementAssistantService, useValue: llmServiceSpy },
                 { provide: DataManagementAssistantProviderService, useValue: llmProviderServiceSpy },
                 { provide: DataManagementAgentPlanService, useValue: mockPlanService },
+                { provide: DataManagementProactiveInboxService, useValue: mockProactiveInboxService },
                 { provide: SpeechRecognitionService, useValue: speechServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
@@ -1743,6 +1756,175 @@ describe('AssistantChatComponent', () => {
             // Assert
             const assistantReply = component.messages.find((m) => m.sender === 'assistant' && m.content === 'Hi there!');
             expect(assistantReply?.messageKind).toBeUndefined();
+        });
+    });
+
+    describe('proactive inbox (while you were away)', () => {
+        let asideService: AsideService;
+        let signalRService: AssistantSignalRService;
+
+        const inboxItem = (overrides: Partial<IProactiveInboxItem> = {}): IProactiveInboxItem => ({
+            id: 'inbox-1',
+            content: 'Bei Anton Heinz weichen die Stunden im Zeitraum 2026-07 vom Soll ab.',
+            contentParams: {},
+            severity: 'medium',
+            reaction: null,
+            createdUtc: '2026-07-24T06:00:00Z',
+            readAtUtc: null,
+            ...overrides,
+        });
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            asideService = TestBed.inject(AsideService);
+            signalRService = TestBed.inject(AssistantSignalRService);
+        });
+
+        afterEach(() => {
+            asideService.hide();
+            fixture.detectChanges();
+        });
+
+        it('loads unread messages on aside open, prepends them and marks all read', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.loadUnreadMessages).toHaveBeenCalledTimes(1);
+            expect(component.messages[0].id).toBe('inbox-1');
+            expect(component.messages[0].messageKind).toBe('proactive');
+            expect(component.inboxHeadingVisible()).toBe(true);
+            expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not fetch twice while the aside stays open, but refetches after reopening', () => {
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.loadUnreadMessages).toHaveBeenCalledTimes(1);
+
+            // Act
+            asideService.hide();
+            fixture.detectChanges();
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.loadUnreadMessages).toHaveBeenCalledTimes(2);
+        });
+
+        it('shows no heading and skips read-all when there is nothing unread', () => {
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.inboxHeadingVisible()).toBe(false);
+            expect(mockProactiveInboxService.markAllRead).not.toHaveBeenCalled();
+        });
+
+        it('does not duplicate an entry already shown via live push but still marks it read', () => {
+            // Arrange
+            signalRService.proactiveMessage$.next({
+                messageId: 'inbox-dup',
+                content: 'Eine Periode ist überfällig.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            });
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-dup' })]));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(1);
+            expect(component.inboxHeadingVisible()).toBe(false);
+            expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+        });
+
+        it('locks the reaction buttons for entries the user already reacted to', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([inboxItem({ id: 'inbox-reacted', reaction: 'Helpful' })]),
+            );
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            const message = component.messages.find((m) => m.id === 'inbox-reacted')!;
+            expect(message.proactiveReaction).toBe(PROACTIVE_REACTION.Helpful);
+        });
+
+        it('sends reactions for inbox entries with the row id like for live messages', async () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-react' })]));
+            asideService.show();
+            fixture.detectChanges();
+            const message = component.messages.find((m) => m.id === 'inbox-react')!;
+
+            // Act
+            await component.submitProactiveReaction(message, PROACTIVE_REACTION.Helpful);
+
+            // Assert
+            expect(mockLlmService.setProactiveReaction).toHaveBeenCalledWith(
+                'inbox-react',
+                PROACTIVE_REACTION.Helpful,
+            );
+        });
+
+        it('does not load the inbox while the setup tour is active', () => {
+            // Arrange
+            const onboarding = TestBed.inject(OnboardingService);
+            onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: [] });
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.loadUnreadMessages).not.toHaveBeenCalled();
+        });
+
+        it('resolves i18n marker content for inbox entries', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([inboxItem({ id: 'inbox-i18n', content: 'i18n:assistant-chat.proactive.curiosity.sport' })]),
+            );
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockTranslateService.instant).toHaveBeenCalledWith(
+                'assistant-chat.proactive.curiosity.sport',
+                {},
+            );
+        });
+
+        it('hides the inbox heading again when the chat is cleared', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
+            asideService.show();
+            fixture.detectChanges();
+            expect(component.inboxHeadingVisible()).toBe(true);
+
+            // Act
+            component.clearChat();
+
+            // Assert
+            expect(component.inboxHeadingVisible()).toBe(false);
         });
     });
 });

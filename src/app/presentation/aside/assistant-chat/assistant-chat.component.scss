@@ -693,6 +693,19 @@
   }
 }
 
+.inbox-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 10px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(colors.$CurrentGreyColor, 0.15);
+  color: var(--colorLabel);
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .proactive-reactions {
   display: flex;
   align-items: center;

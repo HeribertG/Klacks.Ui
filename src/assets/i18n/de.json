@@ -2324,6 +2324,8 @@
   "assistant-chat.correction.none-needed": "Hätte keine Aktion sein sollen",
   "assistant-chat.proactive.reaction-helpful": "Hilfreich",
   "assistant-chat.proactive.reaction-dismissed": "Ausblenden",
+  "assistant-chat.proactive.inbox-heading": "Während du weg warst…",
+  "assistant-chat.proactive.inbox-badge-tooltip": "Ungelesene Hinweise von Klacksy",
   "assistant-chat.error.generic": "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
   "assistant-chat.error.microphone-permission": "Mikrofon-Berechtigung erforderlich! Bitte erlauben Sie den Zugriff auf das Mikrofon in den Browser-Einstellungen.",
   "assistant-chat.error.microphone-access": "Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.",

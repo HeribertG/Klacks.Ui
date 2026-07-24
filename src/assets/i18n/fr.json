@@ -2323,6 +2323,8 @@
   "assistant-chat.correction.none-needed": "N'aurait dû rien faire",
   "assistant-chat.proactive.reaction-helpful": "Utile",
   "assistant-chat.proactive.reaction-dismissed": "Masquer",
+  "assistant-chat.proactive.inbox-heading": "Pendant ton absence…",
+  "assistant-chat.proactive.inbox-badge-tooltip": "Notes non lues de Klacksy",
   "assistant-chat.error.generic": "Désolé, une erreur s'est produite. Veuillez réessayer.",
   "assistant-chat.error.microphone-permission": "Autorisation de microphone requise! Veuillez autoriser l'accès au microphone dans les paramètres de votre navigateur.",
   "assistant-chat.error.microphone-access": "Erreur d'accès au microphone. Vérifiez les paramètres de votre navigateur.",

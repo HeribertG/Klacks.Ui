@@ -34,11 +34,23 @@
   <app-signalr-status-indicator></app-signalr-status-indicator>
 
   @if (!hideAssistantButton()) {
-    <app-icon-mml
-      id="header-assistant-button"
-      class="assistant-btn"
+    <span
+      id="header-assistant-button-container"
+      class="assistant-btn-container"
       (click)="onToggleAssistant()"
-    ></app-icon-mml>
+    >
+      <app-icon-mml
+        id="header-assistant-button"
+        class="assistant-btn"
+      ></app-icon-mml>
+      @if (proactiveInboxService.hasUnread()) {
+        <span
+          id="header-assistant-unread-badge"
+          class="assistant-unread-badge"
+          [title]="'assistant-chat.proactive.inbox-badge-tooltip' | translate"
+        >{{ proactiveInboxService.unreadCount() }}</span>
+      }
+    </span>
   }
 
   <app-icon-sign-out

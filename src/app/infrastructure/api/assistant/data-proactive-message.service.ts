@@ -1,16 +1,22 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * API service for recording user reactions to proactive assistant messages.
+ * API service for proactive assistant messages: user reactions plus the silent-channel
+ * inbox (unread listing, unread count, mark-as-read).
  * @param messageId - Identifier of the proactive message dispatch (Guid)
  * @param reaction - Chosen reaction value, helpful or dismissed
+ * @param take - Maximum number of unread messages to fetch
  */
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+  IProactiveInboxItem,
+  IProactiveUnreadCount,
+} from 'src/app/domain/interfaces/proactive-inbox.interface';
 
 export interface ISetProactiveReactionRequest {
   reaction: ProactiveReaction;
@@ -29,6 +35,39 @@ export class DataProactiveMessageService {
     return this.httpClient.put<void>(
       `${this.baseUrl}proactive-messages/${messageId}/reaction`,
       request,
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
+
+  getUnreadMessages(take: number): Observable<IProactiveInboxItem[]> {
+    const params = new HttpParams()
+      .set('unreadOnly', true)
+      .set('take', take);
+    return this.httpClient.get<IProactiveInboxItem[]>(
+      `${this.baseUrl}proactive-messages`,
+      { params, context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
+
+  getUnreadCount(): Observable<IProactiveUnreadCount> {
+    return this.httpClient.get<IProactiveUnreadCount>(
+      `${this.baseUrl}proactive-messages/unread-count`,
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
+
+  markRead(messageId: string): Observable<void> {
+    return this.httpClient.put<void>(
+      `${this.baseUrl}proactive-messages/${messageId}/read`,
+      null,
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
+
+  markAllRead(): Observable<void> {
+    return this.httpClient.put<void>(
+      `${this.baseUrl}proactive-messages/read-all`,
+      null,
       { context: new HttpContext().set(SKIP_LOADING, true) },
     );
   }
