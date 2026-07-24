@@ -19,6 +19,8 @@ import {
   IKlacksyModelCheckResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
+import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
+import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
 import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -51,6 +53,7 @@ export interface IConversation {
 export class DataManagementAssistantService {
   private dataAssistantService = inject(DataAssistantService);
   private dataProactiveMessageService = inject(DataProactiveMessageService);
+  private dataTriggerPreferenceService = inject(DataTriggerPreferenceService);
   private dataAssistantStreamService = inject(DataAssistantStreamService);
   private pageContextService = inject(AssistantPageContextService);
   private eventBus = inject(EVENT_BUS_TOKEN);
@@ -386,6 +389,10 @@ export class DataManagementAssistantService {
 
   setProactiveReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {
     return this.dataProactiveMessageService.setReaction(messageId, reaction);
+  }
+
+  muteTriggerKind(triggerKind: string): Observable<ITriggerPreference> {
+    return this.dataTriggerPreferenceService.muteKind(triggerKind);
   }
 
   generateSkillProposals(trajectories?: number): Observable<IGenerateProposalsResponse> {

@@ -37,6 +37,8 @@ import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.i
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
+import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
+import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -142,6 +144,7 @@ describe('AssistantChatComponent', () => {
             clearConversation: vi.fn(),
             warmupCache: vi.fn(),
             setProactiveReaction: vi.fn().mockReturnValue(of(void 0)),
+            muteTriggerKind: vi.fn().mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true })),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
             availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
@@ -1968,6 +1971,266 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.inboxHeadingMessageId()).toBeNull();
+        });
+    });
+
+    describe('proactive one-click action and mute suggestion (phases 4+5)', () => {
+        let signalRService: AssistantSignalRService;
+        let navigationService: KlacksyNavigationService;
+
+        const proactiveWithAction = (overrides: Partial<IProactiveMessage> = {}): IProactiveMessage => ({
+            messageId: 'proactive-action-1',
+            content: 'Eine Schicht am 2026-08-03 ist noch unbesetzt.',
+            timestamp: new Date().toISOString(),
+            messageType: 'proactive',
+            kind: 'unstaffed_shift',
+            actionRoute: '/workplace/schedule',
+            actionParams: { groupId: 'g-1', period: '2026-08' },
+            ...overrides,
+        });
+
+        const muteSuggestion = (overrides: Partial<IProactiveMessage> = {}): IProactiveMessage => ({
+            messageId: 'mute-suggestion-1',
+            content: 'i18n:assistant.proactive.muteSuggestion',
+            timestamp: new Date().toISOString(),
+            messageType: 'proactive',
+            kind: PROACTIVE_TRIGGER_KIND.MuteSuggestion,
+            contentParams: { kind: 'unstaffed_shift' },
+            actionRoute: null,
+            actionParams: null,
+            ...overrides,
+        });
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            signalRService = TestBed.inject(AssistantSignalRService);
+            navigationService = TestBed.inject(KlacksyNavigationService);
+            vi.spyOn(navigationService, 'navigateAndScroll').mockResolvedValue({ success: true });
+        });
+
+        it('navigates to the action route with query params and keeps the aside open', () => {
+            // Arrange
+            const asideService = TestBed.inject(AsideService);
+            asideService.show();
+            fixture.detectChanges();
+            signalRService.proactiveMessage$.next(proactiveWithAction());
+            fixture.detectChanges();
+
+            // Act
+            const actionButton: HTMLButtonElement = fixture.nativeElement.querySelector('.proactive-action-btn');
+            expect(actionButton).toBeTruthy();
+            actionButton.click();
+
+            // Assert
+            expect(navigationService.navigateAndScroll).toHaveBeenCalledWith(
+                '/workplace/schedule?groupId=g-1&period=2026-08',
+            );
+            expect(asideService.isVisible()).toBe(true);
+            asideService.hide();
+        });
+
+        it('navigates without a query string when the action has no params', () => {
+            // Arrange
+            signalRService.proactiveMessage$.next(
+                proactiveWithAction({ messageId: 'proactive-action-2', actionParams: null }),
+            );
+            const message = component.messages.find((m) => m.id === 'proactive-action-2')!;
+
+            // Act
+            component.onProactiveActionClick(message);
+
+            // Assert
+            expect(navigationService.navigateAndScroll).toHaveBeenCalledWith('/workplace/schedule');
+        });
+
+        it('renders the show-me button only for proactive messages carrying an action route', () => {
+            // Arrange
+            signalRService.proactiveMessage$.next(proactiveWithAction());
+            signalRService.proactiveMessage$.next({
+                messageId: 'proactive-no-action',
+                content: 'Eine Periode ist überfällig.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            });
+
+            // Act
+            fixture.detectChanges();
+
+            // Assert
+            const actionButtons = fixture.nativeElement.querySelectorAll('.proactive-action-btn');
+            expect(actionButtons.length).toBe(1);
+        });
+
+        it('renders the mute button instead of the reaction pair for mute suggestions', () => {
+            // Arrange
+            signalRService.proactiveMessage$.next(muteSuggestion());
+
+            // Act
+            fixture.detectChanges();
+
+            // Assert
+            const muteButtons = fixture.nativeElement.querySelectorAll('.proactive-mute-btn');
+            expect(muteButtons.length).toBe(1);
+            const reactionButtons = fixture.nativeElement.querySelectorAll(
+                '.proactive-reactions .proactive-reaction-btn:not(.proactive-mute-btn)',
+            );
+            expect(reactionButtons.length).toBe(0);
+        });
+
+        it('mutes the suggested kind from the content params, locks the button and confirms via toast', async () => {
+            // Arrange
+            const toastService = TestBed.inject(ToastShowService);
+            const showInfoSpy = vi.spyOn(toastService, 'showInfo');
+            signalRService.proactiveMessage$.next(muteSuggestion());
+            const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
+
+            // Act
+            await component.submitMuteSuggestion(appended);
+
+            // Assert
+            expect(mockLlmService.muteTriggerKind).toHaveBeenCalledWith('unstaffed_shift');
+            const updated = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
+            expect(updated.proactiveMuted).toBe(true);
+            expect(component.pendingMuteMessageId()).toBeNull();
+            expect(showInfoSpy).toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.mute-confirmed');
+
+            // Act again on the already-muted message
+            await component.submitMuteSuggestion(updated);
+
+            // Assert: locked, no second call
+            expect(mockLlmService.muteTriggerKind).toHaveBeenCalledTimes(1);
+        });
+
+        it('ignores a second click while a mute request is still pending', async () => {
+            // Arrange
+            const request$ = new Subject<void>();
+            mockLlmService.muteTriggerKind.mockReturnValue(request$.asObservable());
+            signalRService.proactiveMessage$.next(muteSuggestion({ messageId: 'mute-suggestion-pending' }));
+            const appended = component.messages.find((m) => m.id === 'mute-suggestion-pending')!;
+
+            // Act
+            const firstCall = component.submitMuteSuggestion(appended);
+            expect(component.pendingMuteMessageId()).toBe('mute-suggestion-pending');
+            await component.submitMuteSuggestion(appended);
+
+            // Assert
+            expect(mockLlmService.muteTriggerKind).toHaveBeenCalledTimes(1);
+
+            request$.next();
+            request$.complete();
+            await firstCall;
+            expect(component.pendingMuteMessageId()).toBeNull();
+        });
+
+        it('shows an error toast and keeps the mute button active for a retry when the PUT fails', async () => {
+            // Arrange
+            mockLlmService.muteTriggerKind.mockReturnValue(throwError(() => new Error('offline')));
+            const toastService = TestBed.inject(ToastShowService);
+            const showErrorSpy = vi.spyOn(toastService, 'showError');
+            signalRService.proactiveMessage$.next(muteSuggestion({ messageId: 'mute-suggestion-error' }));
+            const appended = component.messages.find((m) => m.id === 'mute-suggestion-error')!;
+
+            // Act
+            await component.submitMuteSuggestion(appended);
+
+            // Assert
+            expect(showErrorSpy).toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
+            expect(
+                component.messages.find((m) => m.id === 'mute-suggestion-error')?.proactiveMuted,
+            ).toBeUndefined();
+            expect(component.pendingMuteMessageId()).toBeNull();
+
+            // Act: retry succeeds after the transient failure
+            mockLlmService.muteTriggerKind.mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true }));
+            const current = component.messages.find((m) => m.id === 'mute-suggestion-error')!;
+            await component.submitMuteSuggestion(current);
+
+            // Assert
+            expect(
+                component.messages.find((m) => m.id === 'mute-suggestion-error')?.proactiveMuted,
+            ).toBe(true);
+        });
+
+        it('does not send a mute request when the target kind is missing from the content params', async () => {
+            // Arrange
+            signalRService.proactiveMessage$.next(
+                muteSuggestion({ messageId: 'mute-suggestion-no-target', contentParams: {} }),
+            );
+            const appended = component.messages.find((m) => m.id === 'mute-suggestion-no-target')!;
+
+            // Act
+            await component.submitMuteSuggestion(appended);
+
+            // Assert
+            expect(mockLlmService.muteTriggerKind).not.toHaveBeenCalled();
+        });
+
+        it('maps kind, action route and params for inbox items and renders the action button', () => {
+            // Arrange
+            const asideService = TestBed.inject(AsideService);
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([
+                    {
+                        id: 'inbox-action-1',
+                        content: 'Eine Schicht ist unbesetzt.',
+                        contentParams: {},
+                        severity: 'high',
+                        reaction: null,
+                        createdUtc: '2026-07-24T06:00:00Z',
+                        readAtUtc: null,
+                        kind: 'unstaffed_shift',
+                        actionRoute: '/workplace/schedule',
+                        actionParams: { groupId: 'g-9' },
+                    } satisfies IProactiveInboxItem,
+                ]),
+            );
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            const message = component.messages.find((m) => m.id === 'inbox-action-1')!;
+            expect(message.proactiveKind).toBe('unstaffed_shift');
+            expect(message.proactiveActionRoute).toBe('/workplace/schedule');
+            expect(message.proactiveActionParams).toEqual({ groupId: 'g-9' });
+            const actionButtons = fixture.nativeElement.querySelectorAll('.proactive-action-btn');
+            expect(actionButtons.length).toBe(1);
+            asideService.hide();
+        });
+
+        it('maps the mute target kind for inbox mute suggestions and renders the mute button', () => {
+            // Arrange
+            const asideService = TestBed.inject(AsideService);
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([
+                    {
+                        id: 'inbox-mute-1',
+                        content: 'i18n:assistant.proactive.muteSuggestion',
+                        contentParams: { kind: 'period_overdue' },
+                        severity: 'low',
+                        reaction: null,
+                        createdUtc: '2026-07-24T06:00:00Z',
+                        readAtUtc: null,
+                        kind: PROACTIVE_TRIGGER_KIND.MuteSuggestion,
+                        actionRoute: null,
+                        actionParams: null,
+                    } satisfies IProactiveInboxItem,
+                ]),
+            );
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            const message = component.messages.find((m) => m.id === 'inbox-mute-1')!;
+            expect(message.proactiveMuteTargetKind).toBe('period_overdue');
+            const muteButtons = fixture.nativeElement.querySelectorAll('.proactive-mute-btn');
+            expect(muteButtons.length).toBe(1);
+            asideService.hide();
         });
     });
 });

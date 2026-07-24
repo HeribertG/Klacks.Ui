@@ -7,4 +7,7 @@ export interface IProactiveMessage {
   timestamp: string;
   messageType: 'proactive' | 'onboarding';
   contentParams?: Record<string, string>;
+  kind?: string | null;
+  actionRoute?: string | null;
+  actionParams?: Record<string, string> | null;
 }

@@ -40,6 +40,8 @@ import {
   faThumbsUp,
   faCheck,
   faBell,
+  faBellSlash,
+  faArrowRight,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -77,6 +79,10 @@ import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.i
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { PROACTIVE_REACTION, ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+  MUTE_SUGGESTION_KIND_PARAM,
+  PROACTIVE_TRIGGER_KIND,
+} from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
@@ -104,6 +110,7 @@ const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-of
 const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
 const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
 const PROACTIVE_REACTION_ERROR_KEY = 'assistant-chat.error.generic';
+const PROACTIVE_MUTE_CONFIRMED_KEY = 'assistant-chat.proactive.mute-confirmed';
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
@@ -181,11 +188,14 @@ export class AssistantChatComponent {
   faThumbsUp = faThumbsUp;
   faCheck = faCheck;
   faBell = faBell;
+  faBellSlash = faBellSlash;
+  faArrowRight = faArrowRight;
 
   readonly proactiveReactions = PROACTIVE_REACTION;
 
   correctionMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
+  readonly pendingMuteMessageId = signal<string | null>(null);
   readonly inboxHeadingMessageId = signal<string | null>(null);
   private inboxLoadRequested = false;
 
@@ -426,6 +436,24 @@ export class AssistantChatComponent {
       timestamp: new Date(item.createdUtc),
       messageKind: 'proactive',
       proactiveReaction: this.toProactiveReaction(item.reaction),
+      ...this.toProactiveActionFields(item.kind, item.actionRoute, item.actionParams, item.contentParams),
+    };
+  }
+
+  private toProactiveActionFields(
+    kind: string | null | undefined,
+    actionRoute: string | null | undefined,
+    actionParams: Record<string, string> | null | undefined,
+    contentParams: Record<string, string> | undefined,
+  ): Partial<ChatMessage> {
+    return {
+      proactiveKind: kind ?? undefined,
+      proactiveActionRoute: actionRoute ?? undefined,
+      proactiveActionParams: actionParams ?? undefined,
+      proactiveMuteTargetKind:
+        kind === PROACTIVE_TRIGGER_KIND.MuteSuggestion
+          ? contentParams?.[MUTE_SUGGESTION_KIND_PARAM]
+          : undefined,
     };
   }
 
@@ -510,9 +538,55 @@ export class AssistantChatComponent {
       formattedContent: this.formatMessage(content),
       timestamp: new Date(msg.timestamp),
       messageKind: msg.messageType,
+      ...this.toProactiveActionFields(msg.kind, msg.actionRoute, msg.actionParams, msg.contentParams),
     });
     this.shouldScrollToBottom = true;
     this.cdr.detectChanges();
+  }
+
+  isMuteSuggestion(message: ChatMessage): boolean {
+    return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
+  }
+
+  onProactiveActionClick(message: ChatMessage): void {
+    if (!message.proactiveActionRoute) {
+      return;
+    }
+    const url = this.buildActionUrl(message.proactiveActionRoute, message.proactiveActionParams);
+    void this.klacksyNavigation.navigateAndScroll(url);
+  }
+
+  private buildActionUrl(route: string, params?: Record<string, string>): string {
+    if (!params || Object.keys(params).length === 0) {
+      return route;
+    }
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    return `${route}?${query}`;
+  }
+
+  async submitMuteSuggestion(message: ChatMessage): Promise<void> {
+    if (message.messageKind !== 'proactive' || message.proactiveMuted) return;
+    if (!message.proactiveMuteTargetKind) return;
+    if (this.pendingMuteMessageId() !== null) return;
+
+    this.pendingMuteMessageId.set(message.id);
+    this.cdr.detectChanges();
+    try {
+      await firstValueFrom(this.assistantService.muteTriggerKind(message.proactiveMuteTargetKind));
+      this.orchestrator.updateMessage(message.id, { proactiveMuted: true });
+      this.toastShowService.showInfo(
+        this.translateService.instant(PROACTIVE_MUTE_CONFIRMED_KEY),
+      );
+    } catch {
+      this.toastShowService.showError(
+        this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
+      );
+    } finally {
+      this.pendingMuteMessageId.set(null);
+      this.cdr.detectChanges();
+    }
   }
 
   get voiceModeEnabled(): boolean {

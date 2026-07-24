@@ -8,6 +8,9 @@ export interface IProactiveInboxItem {
   reaction?: string | null;
   createdUtc: string;
   readAtUtc?: string | null;
+  kind?: string | null;
+  actionRoute?: string | null;
+  actionParams?: Record<string, string> | null;
 }
 
 export interface IProactiveUnreadCount {

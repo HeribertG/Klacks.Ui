@@ -23,4 +23,14 @@ export interface ChatMessage {
   messageKind?: 'proactive' | 'onboarding';
   /** Reaction the user chose for a proactive message; once set, the reaction buttons lock. */
   proactiveReaction?: ProactiveReaction;
+  /** Trigger kind of a proactive message (e.g. unstaffed_shift, mute_suggestion). */
+  proactiveKind?: string;
+  /** Frontend route offered as one-click action on a proactive message. */
+  proactiveActionRoute?: string;
+  /** Query params for the one-click action route. */
+  proactiveActionParams?: Record<string, string>;
+  /** Trigger kind a mute suggestion offers to silence, taken from the message content params. */
+  proactiveMuteTargetKind?: string;
+  /** Set after the user muted the suggested trigger kind; locks the mute button. */
+  proactiveMuted?: boolean;
 }

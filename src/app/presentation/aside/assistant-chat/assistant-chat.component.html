@@ -239,6 +239,30 @@
           <!-- Reaction actions for proactive messages -->
           @if (message.messageKind === 'proactive') {
           <div class="proactive-reactions">
+            @if (message.proactiveActionRoute) {
+            <button
+              type="button"
+              class="proactive-reaction-btn proactive-action-btn"
+              (click)="onProactiveActionClick(message)"
+              [attr.aria-label]="'assistant-chat.proactive.action-show' | translate"
+            >
+              <fa-icon [icon]="faArrowRight"></fa-icon>
+              {{ "assistant-chat.proactive.action-show" | translate }}
+            </button>
+            }
+            @if (isMuteSuggestion(message)) {
+            <button
+              type="button"
+              class="proactive-reaction-btn proactive-mute-btn"
+              [class.selected]="message.proactiveMuted"
+              [disabled]="!!message.proactiveMuted || pendingMuteMessageId() !== null"
+              (click)="submitMuteSuggestion(message)"
+              [attr.aria-label]="'assistant-chat.proactive.mute-kind' | translate"
+            >
+              <fa-icon [icon]="faBellSlash"></fa-icon>
+              {{ "assistant-chat.proactive.mute-kind" | translate }}
+            </button>
+            } @else {
             <button
               type="button"
               class="proactive-reaction-btn"
@@ -261,6 +285,7 @@
               <fa-icon [icon]="faTimes"></fa-icon>
               {{ "assistant-chat.proactive.reaction-dismissed" | translate }}
             </button>
+            }
           </div>
           }
         </div>
