@@ -330,6 +330,11 @@
       background: var(--backgroundColorCard);
       color: var(--standartTextColor);
       border: 1px solid var(--cardBorderColor);
+
+      &.system-notice {
+        background: var(--backgroundColorSubCards);
+        border-color: var(--gridColorLine);
+      }
     }
   }
 }
@@ -382,6 +387,25 @@
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .system-notice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(colors.$CurrentGreyColor, 0.15);
+    color: var(--colorLabel);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    fa-icon {
+      font-size: 10px;
+    }
   }
 
   .message-text {

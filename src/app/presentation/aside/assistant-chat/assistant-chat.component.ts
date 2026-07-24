@@ -38,6 +38,7 @@ import {
   faSpinner,
   faThumbsDown,
   faCheck,
+  faBell,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -171,6 +172,7 @@ export class AssistantChatComponent {
   faSpinner = faSpinner;
   faThumbsDown = faThumbsDown;
   faCheck = faCheck;
+  faBell = faBell;
 
   correctionMenuMessageId = signal<string | null>(null);
 
@@ -430,6 +432,7 @@ export class AssistantChatComponent {
       content,
       formattedContent: this.formatMessage(content),
       timestamp: new Date(msg.timestamp),
+      messageKind: msg.messageType,
     });
     this.shouldScrollToBottom = true;
     this.cdr.detectChanges();

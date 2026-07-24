@@ -18,4 +18,6 @@ export interface ChatMessage {
   respondedToUserMessage?: string;
   /** Set after the user submitted a correction for this assistant message. */
   correctionSubmitted?: boolean;
+  /** Set when this message originated from a backend push (SignalR) instead of answering the current conversation. */
+  messageKind?: 'proactive' | 'onboarding';
 }

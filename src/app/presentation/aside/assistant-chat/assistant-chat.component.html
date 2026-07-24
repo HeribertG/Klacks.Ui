@@ -159,7 +159,14 @@
             class="message-bubble"
             [class.user]="message.sender === 'user'"
             [class.assistant]="message.sender === 'assistant'"
+            [class.system-notice]="!!message.messageKind"
           >
+            @if (message.messageKind) {
+            <div class="system-notice-badge">
+              <fa-icon [icon]="faBell"></fa-icon>
+              <span>{{ "assistant-chat.system-notice.badge" | translate }}</span>
+            </div>
+            }
             <div
               class="message-text"
               [innerHTML]="message.formattedContent ?? formatMessage(message.content)"

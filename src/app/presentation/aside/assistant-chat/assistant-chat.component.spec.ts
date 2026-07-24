@@ -32,6 +32,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { IOnboardingAskField, ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATION_TITLE, ONBOARDING_STATIONS, ONBOARDING_TOUR_CHOICE } from 'src/app/domain/constants/onboarding-stations';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -1557,6 +1559,71 @@ describe('AssistantChatComponent', () => {
             mockPlanService.hasVisiblePlan.set(true);
 
             expect(component.planService.hasVisiblePlan()).toBe(true);
+        });
+    });
+
+    describe('proactive background messages', () => {
+        let signalRService: AssistantSignalRService;
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            signalRService = TestBed.inject(AssistantSignalRService);
+        });
+
+        it('tags a message pushed via proactiveMessage$ with messageKind "proactive"', () => {
+            // Arrange
+            const proactiveMessage: IProactiveMessage = {
+                messageId: 'proactive-1',
+                content: 'Bei Anton Heinz weichen die Stunden im Zeitraum 2026-07 um -170.0 h vom Soll ab.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            };
+
+            // Act
+            signalRService.proactiveMessage$.next(proactiveMessage);
+
+            // Assert
+            const appended = component.messages.find((m) => m.id === 'proactive-1');
+            expect(appended).toBeDefined();
+            expect(appended?.messageKind).toBe('proactive');
+        });
+
+        it('tags a message pushed via onboardingPrompt$ with messageKind "onboarding"', () => {
+            // Arrange
+            const onboardingMessage: IProactiveMessage = {
+                messageId: 'onboarding-1',
+                content: 'Möchtest du die Einrichtung fortsetzen?',
+                timestamp: new Date().toISOString(),
+                messageType: 'onboarding',
+            };
+
+            // Act
+            signalRService.onboardingPrompt$.next(onboardingMessage);
+
+            // Assert
+            const appended = component.messages.find((m) => m.id === 'onboarding-1');
+            expect(appended).toBeDefined();
+            expect(appended?.messageKind).toBe('onboarding');
+        });
+
+        it('leaves messageKind unset for a regular conversation reply', async () => {
+            // Arrange
+            component.inputText.set('Hallo');
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Hi there!');
+                    callbacks.onMetadata({});
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            // Act
+            await component.sendMessage();
+
+            // Assert
+            const assistantReply = component.messages.find((m) => m.sender === 'assistant' && m.content === 'Hi there!');
+            expect(assistantReply?.messageKind).toBeUndefined();
         });
     });
 });
