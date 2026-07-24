@@ -221,9 +221,8 @@ async function scan(): Promise<void> {
   }
 
   // Step 3: merge with existing file so manually maintained synonyms survive.
-  const existing: TargetEntry[] = existsSync(TARGETS_OUTPUT)
-    ? JSON.parse(readFileSync(TARGETS_OUTPUT, 'utf8'))
-    : [];
+  const existingRaw = existsSync(TARGETS_OUTPUT) ? readFileSync(TARGETS_OUTPUT, 'utf8') : null;
+  const existing: TargetEntry[] = existingRaw ? JSON.parse(existingRaw) : [];
 
   const merged = new Map<string, TargetEntry>();
   for (const e of existing) merged.set(e.targetId, e);
@@ -259,7 +258,7 @@ async function scan(): Promise<void> {
       }
     }
 
-    merged.set(id, {
+    const candidate: TargetEntry = {
       ...fresh,
       labelKey: fresh.labelKey || prev?.labelKey || '',
       category: fresh.category ?? prev?.category,
@@ -267,23 +266,35 @@ async function scan(): Promise<void> {
       synonyms,
       synonymStatus,
       obsolete: false,
-    });
+    };
+    // Keep the previous timestamp for content-identical entries so a repeated
+    // scan is diff-free (the CI gate diffs navigation-targets.json).
+    if (prev && sameContentIgnoringScanTimestamp(candidate, prev)) {
+      candidate.lastScannedAt = prev.lastScannedAt;
+    }
+    merged.set(id, candidate);
   }
   for (const [id, prev] of merged) {
     if (!newEntries.has(id)) merged.set(id, { ...prev, obsolete: true });
   }
 
   const targetsOutput = Array.from(merged.values()).sort((a, b) => a.targetId.localeCompare(b.targetId));
-  writeFileSync(TARGETS_OUTPUT, JSON.stringify(targetsOutput, null, 2) + '\n', 'utf8');
+  const targetsSerialized = JSON.stringify(targetsOutput, null, 2) + '\n';
+  if (existingRaw === null || normalizeLineEndings(existingRaw) !== targetsSerialized) {
+    writeFileSync(TARGETS_OUTPUT, targetsSerialized, 'utf8');
+  }
 
   // Step 4: emit the backend-side generated JSON consumed by NavigateToSkill.
+  // Rewritten only when the payload changed so a repeated scan stays diff-free.
   ensureDir(API_DEFINITIONS_DIR);
   const pageKeysOutput = {
     generatedAt: now,
     source: 'Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts',
     entries: pageKeys,
   };
-  writeFileSync(PAGE_KEYS_OUTPUT, JSON.stringify(pageKeysOutput, null, 2) + '\n', 'utf8');
+  if (pageKeysPayloadChanged(pageKeysOutput)) {
+    writeFileSync(PAGE_KEYS_OUTPUT, JSON.stringify(pageKeysOutput, null, 2) + '\n', 'utf8');
+  }
 
   // Step 5: sync the navigate_to skill seed so description and enum stay in lock-step.
   syncSkillSeed(pageKeys);
@@ -297,6 +308,34 @@ async function scan(): Promise<void> {
       `  → ${relative(UI_ROOT, TARGETS_OUTPUT)}\n` +
       `  → ${relative(UI_ROOT, PAGE_KEYS_OUTPUT)}`,
   );
+}
+
+function sameContentIgnoringScanTimestamp(a: TargetEntry, b: TargetEntry): boolean {
+  return (
+    a.targetId === b.targetId &&
+    a.route === b.route &&
+    a.labelKey === b.labelKey &&
+    a.category === b.category &&
+    a.requiredPermission === b.requiredPermission &&
+    a.sourceFile === b.sourceFile &&
+    a.synonymStatus === b.synonymStatus &&
+    a.obsolete === b.obsolete &&
+    JSON.stringify(a.synonyms) === JSON.stringify(b.synonyms)
+  );
+}
+
+function pageKeysPayloadChanged(next: { source: string; entries: KlacksyPageKeyEntry[] }): boolean {
+  if (!existsSync(PAGE_KEYS_OUTPUT)) return true;
+  try {
+    const previous = JSON.parse(readFileSync(PAGE_KEYS_OUTPUT, 'utf8'));
+    return previous.source !== next.source || JSON.stringify(previous.entries) !== JSON.stringify(next.entries);
+  } catch {
+    return true;
+  }
+}
+
+function normalizeLineEndings(text: string): string {
+  return text.replace(/\r\n/g, '\n');
 }
 
 function ensureDir(dir: string): void {
