@@ -693,6 +693,47 @@
   }
 }
 
+.proactive-reactions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.proactive-reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+  }
+
+  &.selected {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+    border-color: var(--standartTextColor);
+  }
+
+  &:disabled {
+    cursor: default;
+
+    &:not(.selected) {
+      opacity: 0.3;
+    }
+  }
+}
+
 .suggestion-btn {
   background: var(--backgroundColorFocus);
   color: var(--standartTextColor);

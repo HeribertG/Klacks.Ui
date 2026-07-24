@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
 
 export interface ChatMessage {
   id: string;
@@ -20,4 +21,6 @@ export interface ChatMessage {
   correctionSubmitted?: boolean;
   /** Set when this message originated from a backend push (SignalR) instead of answering the current conversation. */
   messageKind?: 'proactive' | 'onboarding';
+  /** Reaction the user chose for a proactive message; once set, the reaction buttons lock. */
+  proactiveReaction?: ProactiveReaction;
 }

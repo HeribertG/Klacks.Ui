@@ -2322,6 +2322,8 @@
   "assistant-chat.correction.wrong-skill": "Wrong skill chosen",
   "assistant-chat.correction.wrong-param": "Wrong parameters",
   "assistant-chat.correction.none-needed": "Should have done nothing",
+  "assistant-chat.proactive.reaction-helpful": "Helpful",
+  "assistant-chat.proactive.reaction-dismissed": "Dismiss",
   "assistant-chat.error.generic": "Sorry, an error occurred. Please try again.",
   "assistant-chat.error.microphone-permission": "Microphone permission required! Please allow microphone access in your browser settings.",
   "assistant-chat.error.microphone-access": "Error accessing microphone. Check your browser settings.",

@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { CUSTOM_ELEMENTS_SCHEMA, Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -34,6 +34,7 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -128,6 +129,7 @@ describe('AssistantChatComponent', () => {
             setLanguage: vi.fn(),
             clearConversation: vi.fn(),
             warmupCache: vi.fn(),
+            setProactiveReaction: vi.fn().mockReturnValue(of(void 0)),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
             availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
@@ -1604,6 +1606,123 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'onboarding-1');
             expect(appended).toBeDefined();
             expect(appended?.messageKind).toBe('onboarding');
+        });
+
+        it('records a helpful reaction and locks both reaction buttons', async () => {
+            // Arrange
+            const proactiveMessage: IProactiveMessage = {
+                messageId: 'proactive-reaction-1',
+                content: 'Eine Periode ist überfällig.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            };
+            signalRService.proactiveMessage$.next(proactiveMessage);
+            const appended = component.messages.find((m) => m.id === 'proactive-reaction-1')!;
+
+            // Act
+            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
+
+            // Assert
+            expect(mockLlmService.setProactiveReaction).toHaveBeenCalledWith(
+                'proactive-reaction-1',
+                PROACTIVE_REACTION.Helpful,
+            );
+            const updated = component.messages.find((m) => m.id === 'proactive-reaction-1')!;
+            expect(updated.proactiveReaction).toBe(PROACTIVE_REACTION.Helpful);
+            expect(component.pendingReactionMessageId()).toBeNull();
+
+            // Act again on the already-reacted message
+            await component.submitProactiveReaction(updated, PROACTIVE_REACTION.Dismissed);
+
+            // Assert: no second call, reaction unchanged
+            expect(mockLlmService.setProactiveReaction).toHaveBeenCalledTimes(1);
+            expect(
+                component.messages.find((m) => m.id === 'proactive-reaction-1')?.proactiveReaction,
+            ).toBe(PROACTIVE_REACTION.Helpful);
+        });
+
+        it('ignores a second click while a reaction request is still pending', async () => {
+            // Arrange
+            const request$ = new Subject<void>();
+            mockLlmService.setProactiveReaction.mockReturnValue(request$.asObservable());
+            const proactiveMessage: IProactiveMessage = {
+                messageId: 'proactive-reaction-pending',
+                content: 'Eine Schicht ist unbesetzt.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            };
+            signalRService.proactiveMessage$.next(proactiveMessage);
+            const appended = component.messages.find((m) => m.id === 'proactive-reaction-pending')!;
+
+            // Act
+            const firstCall = component.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
+            expect(component.pendingReactionMessageId()).toBe('proactive-reaction-pending');
+            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Dismissed);
+
+            // Assert
+            expect(mockLlmService.setProactiveReaction).toHaveBeenCalledTimes(1);
+
+            request$.next();
+            request$.complete();
+            await firstCall;
+            expect(component.pendingReactionMessageId()).toBeNull();
+        });
+
+        it('does not send a reaction for onboarding messages', async () => {
+            // Arrange
+            const onboardingMessage: IProactiveMessage = {
+                messageId: 'onboarding-reaction-1',
+                content: 'Möchtest du die Einrichtung fortsetzen?',
+                timestamp: new Date().toISOString(),
+                messageType: 'onboarding',
+            };
+            signalRService.onboardingPrompt$.next(onboardingMessage);
+            const appended = component.messages.find((m) => m.id === 'onboarding-reaction-1')!;
+
+            // Act
+            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
+
+            // Assert
+            expect(mockLlmService.setProactiveReaction).not.toHaveBeenCalled();
+            expect(appended.proactiveReaction).toBeUndefined();
+        });
+
+        it('discards the reaction, re-enables the buttons and shows an error toast when the PUT fails', async () => {
+            // Arrange
+            mockLlmService.setProactiveReaction.mockReturnValue(
+                throwError(() => new Error('offline')),
+            );
+            const toastService = TestBed.inject(ToastShowService);
+            const showErrorSpy = vi.spyOn(toastService, 'showError');
+            const proactiveMessage: IProactiveMessage = {
+                messageId: 'proactive-reaction-2',
+                content: 'Eine Verfügbarkeit fehlt.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            };
+            signalRService.proactiveMessage$.next(proactiveMessage);
+            const appended = component.messages.find((m) => m.id === 'proactive-reaction-2')!;
+
+            // Act
+            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Dismissed);
+
+            // Assert
+            expect(
+                component.messages.find((m) => m.id === 'proactive-reaction-2')?.proactiveReaction,
+            ).toBeUndefined();
+            expect(component.pendingReactionMessageId()).toBeNull();
+            expect(showErrorSpy).toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
+
+            // Act: retry succeeds after the transient failure
+            mockLlmService.setProactiveReaction.mockReturnValue(of(void 0));
+            const current = component.messages.find((m) => m.id === 'proactive-reaction-2')!;
+            await component.submitProactiveReaction(current, PROACTIVE_REACTION.Dismissed);
+
+            // Assert
+            expect(
+                component.messages.find((m) => m.id === 'proactive-reaction-2')?.proactiveReaction,
+            ).toBe(PROACTIVE_REACTION.Dismissed);
         });
 
         it('leaves messageKind unset for a regular conversation reply', async () => {

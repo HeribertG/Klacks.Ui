@@ -37,11 +37,13 @@ import {
   faStop,
   faSpinner,
   faThumbsDown,
+  faThumbsUp,
   faCheck,
   faBell,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
@@ -72,6 +74,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { PROACTIVE_REACTION, ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
@@ -98,6 +101,7 @@ const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';
 const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-offline';
 const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
 const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
+const PROACTIVE_REACTION_ERROR_KEY = 'assistant-chat.error.generic';
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
@@ -171,10 +175,14 @@ export class AssistantChatComponent {
   faStop = faStop;
   faSpinner = faSpinner;
   faThumbsDown = faThumbsDown;
+  faThumbsUp = faThumbsUp;
   faCheck = faCheck;
   faBell = faBell;
 
+  readonly proactiveReactions = PROACTIVE_REACTION;
+
   correctionMenuMessageId = signal<string | null>(null);
+  readonly pendingReactionMessageId = signal<string | null>(null);
 
   inputText = signal('');
   isProcessing = signal(false);
@@ -904,6 +912,25 @@ export class AssistantChatComponent {
           });
         },
       });
+  }
+
+  async submitProactiveReaction(message: ChatMessage, reaction: ProactiveReaction): Promise<void> {
+    if (message.messageKind !== 'proactive' || message.proactiveReaction) return;
+    if (this.pendingReactionMessageId() !== null) return;
+
+    this.pendingReactionMessageId.set(message.id);
+    this.cdr.detectChanges();
+    try {
+      await firstValueFrom(this.assistantService.setProactiveReaction(message.id, reaction));
+      this.orchestrator.updateMessage(message.id, { proactiveReaction: reaction });
+    } catch {
+      this.toastShowService.showError(
+        this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
+      );
+    } finally {
+      this.pendingReactionMessageId.set(null);
+      this.cdr.detectChanges();
+    }
   }
 
   toggleModelDropdown(): void {

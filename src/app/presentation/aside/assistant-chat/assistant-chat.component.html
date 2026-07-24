@@ -229,6 +229,34 @@
             }
           </div>
           }
+
+          <!-- Reaction actions for proactive messages -->
+          @if (message.messageKind === 'proactive') {
+          <div class="proactive-reactions">
+            <button
+              type="button"
+              class="proactive-reaction-btn"
+              [class.selected]="message.proactiveReaction === proactiveReactions.Helpful"
+              [disabled]="!!message.proactiveReaction || pendingReactionMessageId() !== null"
+              (click)="submitProactiveReaction(message, proactiveReactions.Helpful)"
+              [attr.aria-label]="'assistant-chat.proactive.reaction-helpful' | translate"
+            >
+              <fa-icon [icon]="faThumbsUp"></fa-icon>
+              {{ "assistant-chat.proactive.reaction-helpful" | translate }}
+            </button>
+            <button
+              type="button"
+              class="proactive-reaction-btn"
+              [class.selected]="message.proactiveReaction === proactiveReactions.Dismissed"
+              [disabled]="!!message.proactiveReaction || pendingReactionMessageId() !== null"
+              (click)="submitProactiveReaction(message, proactiveReactions.Dismissed)"
+              [attr.aria-label]="'assistant-chat.proactive.reaction-dismissed' | translate"
+            >
+              <fa-icon [icon]="faTimes"></fa-icon>
+              {{ "assistant-chat.proactive.reaction-dismissed" | translate }}
+            </button>
+          </div>
+          }
         </div>
       </div>
       }

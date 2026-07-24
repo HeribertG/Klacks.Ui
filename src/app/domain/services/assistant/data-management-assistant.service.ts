@@ -18,6 +18,8 @@ import {
   IRejectProposalResponse,
   IKlacksyModelCheckResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
+import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
@@ -48,6 +50,7 @@ export interface IConversation {
 })
 export class DataManagementAssistantService {
   private dataAssistantService = inject(DataAssistantService);
+  private dataProactiveMessageService = inject(DataProactiveMessageService);
   private dataAssistantStreamService = inject(DataAssistantStreamService);
   private pageContextService = inject(AssistantPageContextService);
   private eventBus = inject(EVENT_BUS_TOKEN);
@@ -379,6 +382,10 @@ export class DataManagementAssistantService {
 
   submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {
     return this.dataAssistantService.submitCorrection(request);
+  }
+
+  setProactiveReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {
+    return this.dataProactiveMessageService.setReaction(messageId, reaction);
   }
 
   generateSkillProposals(trajectories?: number): Observable<IGenerateProposalsResponse> {
