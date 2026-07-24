@@ -39,10 +39,17 @@
       class="assistant-btn-container"
       (click)="onToggleAssistant()"
     >
-      <app-icon-mml
-        id="header-assistant-button"
-        class="assistant-btn"
-      ></app-icon-mml>
+      @if (isTourActive()) {
+        <app-icon-logo
+          id="header-assistant-button"
+          class="assistant-btn assistant-btn-logo"
+        ></app-icon-logo>
+      } @else {
+        <app-icon-mml
+          id="header-assistant-button"
+          class="assistant-btn"
+        ></app-icon-mml>
+      }
       @if (proactiveInboxService.hasUnread()) {
         <span
           id="header-assistant-unread-badge"
