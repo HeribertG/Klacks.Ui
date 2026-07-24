@@ -186,7 +186,7 @@ export class AssistantChatComponent {
 
   correctionMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
-  readonly inboxHeadingVisible = signal(false);
+  readonly inboxHeadingMessageId = signal<string | null>(null);
   private inboxLoadRequested = false;
 
   inputText = signal('');
@@ -409,8 +409,8 @@ export class AssistantChatComponent {
     const freshItems = items.filter((item) => !knownIds.has(item.id));
     if (freshItems.length > 0) {
       const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
-      this.messages = [...inboxMessages, ...this.messages];
-      this.inboxHeadingVisible.set(true);
+      this.messages = [...this.messages, ...inboxMessages];
+      this.inboxHeadingMessageId.set(inboxMessages[0].id);
       this.shouldScrollToBottom = true;
     }
     this.markInboxRead();
@@ -1580,7 +1580,7 @@ export class AssistantChatComponent {
 
   clearChat(): void {
     this.isTourStationPending = false;
-    this.inboxHeadingVisible.set(false);
+    this.inboxHeadingMessageId.set(null);
     this.orchestrator.clearMessages();
     this.toastShowService.dismissInteractiveReplies();
 

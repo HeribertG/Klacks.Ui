@@ -1785,7 +1785,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
         });
 
-        it('loads unread messages on aside open, prepends them and marks all read', () => {
+        it('loads unread messages on aside open, appends them at the end and marks all read', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
 
@@ -1795,10 +1795,53 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockProactiveInboxService.loadUnreadMessages).toHaveBeenCalledTimes(1);
-            expect(component.messages[0].id).toBe('inbox-1');
-            expect(component.messages[0].messageKind).toBe('proactive');
-            expect(component.inboxHeadingVisible()).toBe(true);
+            const lastMessage = component.messages[component.messages.length - 1];
+            expect(lastMessage.id).toBe('inbox-1');
+            expect(lastMessage.messageKind).toBe('proactive');
+            expect(component.inboxHeadingMessageId()).toBe('inbox-1');
             expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+        });
+
+        it('appends inbox messages after an existing conversation with the heading anchored at the block start', () => {
+            // Arrange
+            component.orchestrator.addMessage({
+                id: 'user-1',
+                sender: 'user',
+                content: 'Wie viele Ferientage habe ich noch?',
+                timestamp: new Date(),
+            });
+            component.orchestrator.addMessage({
+                id: 'assistant-1',
+                sender: 'assistant',
+                content: 'Du hast noch 12 Ferientage.',
+                timestamp: new Date(),
+            });
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([
+                    inboxItem({ id: 'inbox-a', content: 'Erste Inbox-Nachricht.' }),
+                    inboxItem({ id: 'inbox-b', content: 'Zweite Inbox-Nachricht.' }),
+                ]),
+            );
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+            fixture.detectChanges();
+
+            // Assert
+            const ids = component.messages.map((m) => m.id);
+            const inboxStart = ids.indexOf('inbox-a');
+            expect(ids.indexOf('user-1')).toBeGreaterThanOrEqual(0);
+            expect(ids.indexOf('user-1')).toBeLessThan(inboxStart);
+            expect(ids.indexOf('assistant-1')).toBeLessThan(inboxStart);
+            expect(ids.slice(-2)).toEqual(['inbox-a', 'inbox-b']);
+            expect(component.inboxHeadingMessageId()).toBe('inbox-a');
+
+            const messagesElement: HTMLElement = fixture.nativeElement.querySelector('.messages');
+            const children = Array.from(messagesElement.children);
+            const headingIndex = children.findIndex((el) => el.classList.contains('inbox-heading'));
+            expect(headingIndex).toBe(inboxStart);
+            expect(children[headingIndex + 1].textContent).toContain('Erste Inbox-Nachricht.');
         });
 
         it('does not fetch twice while the aside stays open, but refetches after reopening', () => {
@@ -1826,7 +1869,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
 
             // Assert
-            expect(component.inboxHeadingVisible()).toBe(false);
+            expect(component.inboxHeadingMessageId()).toBeNull();
             expect(mockProactiveInboxService.markAllRead).not.toHaveBeenCalled();
         });
 
@@ -1846,7 +1889,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(1);
-            expect(component.inboxHeadingVisible()).toBe(false);
+            expect(component.inboxHeadingMessageId()).toBeNull();
             expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
         });
 
@@ -1918,13 +1961,13 @@ describe('AssistantChatComponent', () => {
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
             asideService.show();
             fixture.detectChanges();
-            expect(component.inboxHeadingVisible()).toBe(true);
+            expect(component.inboxHeadingMessageId()).toBe('inbox-1');
 
             // Act
             component.clearChat();
 
             // Assert
-            expect(component.inboxHeadingVisible()).toBe(false);
+            expect(component.inboxHeadingMessageId()).toBeNull();
         });
     });
 });

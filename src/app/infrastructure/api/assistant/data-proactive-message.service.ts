@@ -10,6 +10,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
@@ -32,43 +33,53 @@ export class DataProactiveMessageService {
 
   setReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {
     const request: ISetProactiveReactionRequest = { reaction };
-    return this.httpClient.put<void>(
-      `${this.baseUrl}proactive-messages/${messageId}/reaction`,
-      request,
-      { context: new HttpContext().set(SKIP_LOADING, true) },
-    );
+    return this.httpClient
+      .put<void>(
+        `${this.baseUrl}proactive-messages/${messageId}/reaction`,
+        request,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
   }
 
   getUnreadMessages(take: number): Observable<IProactiveInboxItem[]> {
     const params = new HttpParams()
       .set('unreadOnly', true)
       .set('take', take);
-    return this.httpClient.get<IProactiveInboxItem[]>(
-      `${this.baseUrl}proactive-messages`,
-      { params, context: new HttpContext().set(SKIP_LOADING, true) },
-    );
+    return this.httpClient
+      .get<IProactiveInboxItem[]>(
+        `${this.baseUrl}proactive-messages`,
+        { params, context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
   }
 
   getUnreadCount(): Observable<IProactiveUnreadCount> {
-    return this.httpClient.get<IProactiveUnreadCount>(
-      `${this.baseUrl}proactive-messages/unread-count`,
-      { context: new HttpContext().set(SKIP_LOADING, true) },
-    );
+    return this.httpClient
+      .get<IProactiveUnreadCount>(
+        `${this.baseUrl}proactive-messages/unread-count`,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
   }
 
   markRead(messageId: string): Observable<void> {
-    return this.httpClient.put<void>(
-      `${this.baseUrl}proactive-messages/${messageId}/read`,
-      null,
-      { context: new HttpContext().set(SKIP_LOADING, true) },
-    );
+    return this.httpClient
+      .put<void>(
+        `${this.baseUrl}proactive-messages/${messageId}/read`,
+        null,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
   }
 
   markAllRead(): Observable<void> {
-    return this.httpClient.put<void>(
-      `${this.baseUrl}proactive-messages/read-all`,
-      null,
-      { context: new HttpContext().set(SKIP_LOADING, true) },
-    );
+    return this.httpClient
+      .put<void>(
+        `${this.baseUrl}proactive-messages/read-all`,
+        null,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
   }
 }

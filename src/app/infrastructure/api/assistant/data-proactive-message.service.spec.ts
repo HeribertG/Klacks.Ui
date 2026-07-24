@@ -96,4 +96,34 @@ describe('DataProactiveMessageService', () => {
     expect(req.request.body).toBeNull();
     req.flush(null);
   });
+
+  it('getUnreadMessages retries three times on failure', () => {
+    let receivedError: unknown;
+    service.getUnreadMessages(50).subscribe({
+      error: (error) => {
+        receivedError = error;
+      },
+    });
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const req = httpMock.expectOne((candidate) => candidate.url === apiUrl);
+      req.error(new ProgressEvent('error'));
+    }
+    expect(receivedError).toBeDefined();
+  });
+
+  it('markAllRead retries three times on failure', () => {
+    let receivedError: unknown;
+    service.markAllRead().subscribe({
+      error: (error) => {
+        receivedError = error;
+      },
+    });
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const req = httpMock.expectOne(`${apiUrl}/read-all`);
+      req.error(new ProgressEvent('error'));
+    }
+    expect(receivedError).toBeDefined();
+  });
 });
