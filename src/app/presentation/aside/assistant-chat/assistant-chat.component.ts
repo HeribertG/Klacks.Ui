@@ -56,7 +56,7 @@ import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
-import { IconLogoComponent } from '../../icons/icon-logo.component';
+import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
@@ -123,7 +123,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
-    IconLogoComponent,
+    IconMMLComponent,
     IconUserComponent,
     PlanExecutionPanelComponent,
   ],
