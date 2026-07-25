@@ -10,7 +10,9 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { DataManagementSchedulingRuleService } from '../scheduling/data-management-scheduling-rule.service';
+import { DataManagementIndividualPeriodService } from '../scheduling/data-management-individual-period.service';
 import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
+import { IIndividualPeriod } from '../../models/scheduling/individual-period.model';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -38,6 +40,7 @@ export class DataManagementContractService {
     DataManagementCalendarSelectionService
   );
   private schedulingRuleService = inject(DataManagementSchedulingRuleService);
+  private individualPeriodService = inject(DataManagementIndividualPeriodService);
   private destroy$ = new Subject<void>();
 
   constructor() {}
@@ -94,6 +97,7 @@ export class DataManagementContractService {
   }
   public availableCalendars: ICalendarSelection[] = [];
   public availableSchedulingRules: ISchedulingRule[] = [];
+  public availableIndividualPeriods: IIndividualPeriod[] = [];
 
   private editContractDummy: IContract | undefined;
 
@@ -104,6 +108,7 @@ export class DataManagementContractService {
     await this.readContracts();
     await this.loadCalendarSelections();
     await this.loadSchedulingRules();
+    await this.loadIndividualPeriods();
 
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
@@ -133,6 +138,15 @@ export class DataManagementContractService {
     } catch (error) {
       console.error('Error loading scheduling rules:', error);
       this.availableSchedulingRules = [];
+    }
+  }
+
+  public async loadIndividualPeriods(): Promise<void> {
+    try {
+      this.availableIndividualPeriods = await this.individualPeriodService.readSelectableIndividualPeriods();
+    } catch (error) {
+      console.error('Error loading individual periods:', error);
+      this.availableIndividualPeriods = [];
     }
   }
 

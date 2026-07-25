@@ -1,0 +1,216 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+
+<!-- Individual Period Modal -->
+<ng-template #periodModal id="individual-period-modal-template" let-modal>
+  <div id="individual-period-modal-header" class="modal-header" data-klacksy-target="individual-period-form">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ "setting.individualPeriod.headline-modal" | translate }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="individual-period-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="individual-period-modal-body" class="modal-body">
+    @if (editingIndividualPeriod) {
+      <div id="individual-period-modal-name-row" class="row-line-modal-inline">
+        <div class="model-field model-field-wide">
+          <label for="individualPeriodName">{{
+            "setting.individualPeriod.name-modal" | translate
+          }}</label>
+          <input
+            type="text"
+            [formField]="individualPeriodForm.name"
+            class="form-control"
+            id="individualPeriodName"
+            data-klacksy-target="individual-period-form.name"
+            aria-label="individualPeriodName"
+          />
+        </div>
+      </div>
+
+      <div id="individual-period-modal-periods-row" class="container-table">
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th class="table-header" style="width: 160px">
+                {{ "setting.individualPeriod.periods-table.from" | translate }}
+              </th>
+              <th class="table-header" style="width: 160px">
+                {{ "setting.individualPeriod.periods-table.until" | translate }}
+              </th>
+              <th class="table-header" style="width: 160px">
+                {{ "setting.individualPeriod.periods-table.fullHours" | translate }}
+              </th>
+              <th
+                class="table-header action"
+                style="width: 60px; max-width: 60px; min-width: 60px"
+              ></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows; track $index; let i = $index) {
+              <tr class="table-row">
+                <td class="table-cell cell-center-vertical">
+                  <app-date-input
+                    id="individualPeriodFromDate-{{ i }}"
+                    [value]="toNgbDate(row.fromDate)"
+                    (valueChange)="onFromDateChange(i, $event)"
+                    inputName="individualPeriodFromDate-{{ i }}"
+                    inputId="individualPeriodFromDate-{{ i }}"
+                    inputWidth="small-width"
+                    [showLabel]="false"
+                  ></app-date-input>
+                </td>
+                <td class="table-cell cell-center-vertical">
+                  <app-date-input
+                    id="individualPeriodUntilDate-{{ i }}"
+                    [value]="toNgbDate(row.untilDate)"
+                    (valueChange)="onUntilDateChange(i, $event)"
+                    inputName="individualPeriodUntilDate-{{ i }}"
+                    inputId="individualPeriodUntilDate-{{ i }}"
+                    inputWidth="small-width"
+                    [showLabel]="false"
+                  ></app-date-input>
+                </td>
+                <td class="table-cell cell-center-vertical">
+                  <input
+                    type="number"
+                    step="0.25"
+                    class="form-control"
+                    id="individualPeriodFullHours-{{ i }}"
+                    name="individualPeriodFullHours-{{ i }}"
+                    aria-label="fullHours"
+                    [ngModel]="row.fullHours"
+                    (ngModelChange)="onFullHoursChange(i, $event)"
+                  />
+                </td>
+                <td class="table-cell cell-right cell-center-vertical">
+                  <div id="delete-individual-period-row-{{ i }}" class="icon" (click)="removeRow(i)">
+                    <app-icon-trash-red></app-icon-trash-red>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div id="individual-period-modal-add-row" class="add-row">
+        <span
+          id="individual-period-add-row-btn"
+          class="add-button"
+          (click)="addRow()"
+          >{{ "setting.individualPeriod.periods-table.add-row" | translate }}</span
+        >
+      </div>
+
+      @if (getValidationErrors().length > 0) {
+        <div id="individual-period-modal-validation-row" class="row-line-modal-inline">
+          <div
+            id="individual-period-modal-validation-section"
+            class="validation-errors-section"
+          >
+            <div
+              id="individual-period-modal-validation-alert"
+              class="alert alert-danger"
+            >
+              <strong>{{ "validation.errors" | translate }}:</strong>
+              <ul id="individual-period-modal-validation-list">
+                @for (error of getValidationErrors(); track error) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <div id="individual-period-modal-footer" class="modal-footer">
+    <span
+      id="individual-period-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="individual-period-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      [disabled]="!isFormValid()"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [addLabel]="'setting.individualPeriod.add' | translate"
+  [showHeader]="filteredIndividualPeriods().length > 0"
+  [showSearchInHeader]="true"
+  [searchPlaceholderKey]="'placeholder.search-individual-period-name'"
+  idPrefix="individual-periods"
+  (addClick)="onClickAdd()"
+  (headerSearchChange)="searchTerm.set($event)"
+>
+  <div header id="individual-periods-table-header" class="first custom-control-inline">
+    <label id="individual-periods-header-name" style="width: 250px">{{
+      "setting.individualPeriod.name-modal" | translate
+    }}</label>
+  </div>
+  <div rows>
+    @for (
+      period of filteredIndividualPeriods();
+      track period.id || $index;
+      let i = $index
+    ) {
+      <div id="individual-period-row-form-{{ period.id || i }}">
+        <div
+          id="individual-period-row-container-{{ period.id || i }}"
+          class="first custom-control-inline"
+        >
+          <div id="individual-period-row-name-group-{{ period.id || i }}" class="form-group">
+            <input
+              id="individual-period-row-name-{{ period.id || i }}"
+              type="text"
+              [value]="period.name"
+              name="individualPeriodName-{{ i }}"
+              class="form-control attribute-name"
+              aria-label="name"
+              (click)="onClickEdit(period)"
+              readonly
+            />
+          </div>
+          <span
+            id="individual-period-row-delete-{{ period.id || i }}"
+            class="delete-button"
+            type="button"
+            (click)="openDeleteIndividualPeriod(period)"
+            ><app-icon-trash-red
+          /></span>
+        </div>
+      </div>
+    }
+  </div>
+</app-settings-list-card>

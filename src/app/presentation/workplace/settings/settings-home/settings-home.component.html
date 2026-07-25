@@ -186,6 +186,18 @@
       ></app-contracts>
     </div>
 
+    <div id="settings-home-individual-periods-row" class="container-profilline">
+      <app-individual-periods
+        id="settings-individual-periods"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-individual-periods')"
+        data-klacksy-target="individual-periods"
+        data-klacksy-label-key="settings.individualPeriods"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      ></app-individual-periods>
+    </div>
+
     <div id="settings-home-state-countries-row" class="container-profilline">
       <app-state
         id="settings-state"

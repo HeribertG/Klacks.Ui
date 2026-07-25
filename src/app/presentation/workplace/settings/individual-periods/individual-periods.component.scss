@@ -1,0 +1,28 @@
+@use 'sass:color';
+@use '../../../../../assets/standard-styles/standard-grid.scss';
+@use '../../../../../assets/standard-styles/standard-card-interior.scss';
+@use '../../../../../assets/standard-styles/standard-controls.scss';
+@use '../../../../../assets/standard-styles/standard-modal.scss';
+@use '../../../../../assets/standard-styles/settings-list-card-modal.scss';
+@use '../../../../../assets/standard-styles/colors.scss' as colors;
+
+.icon {
+  cursor: pointer;
+}
+
+.add-row {
+  padding-top: 5px;
+  padding-bottom: 15px;
+  text-align: center;
+}
+
+.add-button {
+  font-size: 13px;
+  text-decoration: underline;
+  color: colors.$standartGreenColor;
+  cursor: pointer;
+
+  &:hover {
+    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+  }
+}

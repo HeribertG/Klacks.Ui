@@ -39,6 +39,7 @@ describe('ContractsComponent', () => {
     calendarSelection: undefined,
     calendarSelectionId: 'cal-1',
     schedulingRuleId: undefined,
+    individualPeriodId: undefined,
     workOnMonday: true,
     workOnTuesday: true,
     workOnWednesday: true,
@@ -53,6 +54,8 @@ describe('ContractsComponent', () => {
     mockDataManagementContractService = {
       contracts: [],
       availableCalendars: [],
+      availableSchedulingRules: [],
+      availableIndividualPeriods: [],
       init: vi.fn().mockResolvedValue(undefined),
       createContract: vi.fn(),
       prepareContractForEdit: vi.fn(),
@@ -60,6 +63,7 @@ describe('ContractsComponent', () => {
       deleteContract: vi.fn().mockResolvedValue(true),
       readContracts: vi.fn().mockResolvedValue([]),
       validateContract: vi.fn().mockReturnValue([]),
+      loadIndividualPeriods: vi.fn().mockResolvedValue(undefined),
       isRead: signal(false),
     };
 

@@ -26,6 +26,7 @@ export interface IContract {
   calendarSelection: ICalendarSelection | undefined;
   calendarSelectionId: string | undefined;
   schedulingRuleId: string | undefined;
+  individualPeriodId: string | undefined;
   workOnMonday: boolean;
   workOnTuesday: boolean;
   workOnWednesday: boolean;
@@ -54,6 +55,7 @@ export class Contract implements IContract {
   calendarSelection: ICalendarSelection | undefined = undefined;
   calendarSelectionId: string | undefined = undefined;
   schedulingRuleId: string | undefined = undefined;
+  individualPeriodId: string | undefined = undefined;
   workOnMonday = true;
   workOnTuesday = true;
   workOnWednesday = true;

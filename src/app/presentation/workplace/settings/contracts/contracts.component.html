@@ -317,6 +317,50 @@
             </div>
           </div>
         </div>
+
+        @if (paymentInterval() === PaymentInterval.Individual) {
+          <div id="contract-modal-individual-period" class="selection-section">
+            <span class="selection-label">{{
+              "setting.contract.individualPeriodSelection-modal" | translate
+            }}</span>
+            <div class="selector-container">
+              <div ngbDropdown #individualPeriodDropdown="ngbDropdown">
+                <button
+                  class="btn btn-sm btn-selector"
+                  id="contract-individual-period-dropdown"
+                  ngbDropdownToggle
+                  aria-label="individual period selection"
+                  type="button"
+                >
+                  <span class="selector-name">{{
+                    getSelectedIndividualPeriodName()
+                  }}</span>
+                </button>
+                <div ngbDropdownMenu class="selector-dropdown-menu">
+                  <button
+                    ngbDropdownItem
+                    (click)="onIndividualPeriodSelectionChange('')"
+                    [class.active]="!individualPeriodId()"
+                  >
+                    {{ "setting.contract.noIndividualPeriod" | translate }}
+                  </button>
+                  @for (
+                    individualPeriod of dataManagementContractService.availableIndividualPeriods;
+                    track individualPeriod.id
+                  ) {
+                    <button
+                      ngbDropdownItem
+                      (click)="onIndividualPeriodSelectionChange(individualPeriod.id!)"
+                      [class.active]="individualPeriodId() === individualPeriod.id"
+                    >
+                      {{ individualPeriod.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Calendar & Scheduling Rule Selection -->

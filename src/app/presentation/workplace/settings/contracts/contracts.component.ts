@@ -128,7 +128,10 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   validUntil = signal<NgbDateStruct | null | undefined>(undefined);
   calendarSelectionId = signal<string | undefined>(undefined);
   schedulingRuleId = signal<string | undefined>(undefined);
+  individualPeriodId = signal<string | undefined>(undefined);
   paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
+
+  public readonly PaymentInterval = PaymentInterval;
 
   paymentIntervalOptions = [
     PaymentInterval.Weekly,
@@ -179,6 +182,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.validUntil.set(contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined);
     this.calendarSelectionId.set(contract.calendarSelectionId);
     this.schedulingRuleId.set(contract.schedulingRuleId);
+    this.individualPeriodId.set(contract.individualPeriodId);
     this.paymentInterval.set(contract.paymentInterval);
   }
 
@@ -263,6 +267,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.originalContract = null;
     this.isNewContract = true;
 
+    void this.dataManagementContractService.loadIndividualPeriods();
+
     setTimeout(() => {
       this.ngbModal.open(this.contractModal(), {
         ariaLabelledBy: 'modal-title',
@@ -279,6 +285,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.initFormSignals(clonedContract);
     this.originalContract = contract;
     this.isNewContract = false;
+
+    void this.dataManagementContractService.loadIndividualPeriods();
 
     this.ngbModal.open(this.contractModal(), {
       ariaLabelledBy: 'modal-title',
@@ -428,6 +436,24 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     return rule?.name || this.translate.instant('setting.contract.noSchedulingRule');
   }
 
+  onIndividualPeriodSelectionChange(id: string): void {
+    this.individualPeriodId.set(id || undefined);
+    if (this.editingContract) {
+      this.editingContract.individualPeriodId = id || undefined;
+    }
+  }
+
+  getSelectedIndividualPeriodName(): string {
+    const selectedId = this.individualPeriodId();
+    if (!selectedId) {
+      return this.translate.instant('setting.contract.noIndividualPeriod');
+    }
+    const period = this.dataManagementContractService.availableIndividualPeriods.find(
+      (p) => p.id === selectedId
+    );
+    return period?.name || this.translate.instant('setting.contract.noIndividualPeriod');
+  }
+
   isFormValid(): boolean {
     if (!this.editingContract) return false;
     this.applySignalsToContract();
@@ -486,6 +512,12 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.paymentInterval.set(value);
     if (this.editingContract) {
       this.editingContract.paymentInterval = value;
+    }
+    if (value !== PaymentInterval.Individual) {
+      this.individualPeriodId.set(undefined);
+      if (this.editingContract) {
+        this.editingContract.individualPeriodId = undefined;
+      }
     }
   }
 
