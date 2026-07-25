@@ -1130,6 +1130,30 @@ describe('AssistantChatComponent', () => {
                 const result = component.formatMessage('Single line');
                 expect(result).toBe('Single line');
             });
+
+            it('should render a GFM table as <table> instead of raw pipe text', () => {
+                const content = '| Gruppe | Kunden |\n|---|---|\n| Zürich | 300 |\n| Bern | 197 |';
+                const result = component.formatMessage(content);
+                expect(result).toBe(
+                    '<table><thead><tr><th>Gruppe</th><th>Kunden</th></tr></thead><tbody>' +
+                        '<tr><td>Zürich</td><td>300</td></tr><tr><td>Bern</td><td>197</td></tr></tbody></table>',
+                );
+            });
+
+            it('should combine a table with surrounding text', () => {
+                const content = 'Vorschau:\n\n| A | B |\n|---|---|\n| 1 | 2 |\n\nFertig';
+                const result = component.formatMessage(content);
+                expect(result).toContain('Vorschau:');
+                expect(result).toContain('<table>');
+                expect(result).toContain('<td>1</td><td>2</td>');
+                expect(result).toContain('Fertig');
+            });
+
+            it('should not render a plain line containing a pipe as a table', () => {
+                const result = component.formatMessage('Kosten: 10 | 20');
+                expect(result).not.toContain('<table>');
+                expect(result).toContain('Kosten: 10 | 20');
+            });
         });
 
         describe('formatMessage - Suggestions/Replies marker stripping', () => {

@@ -1527,8 +1527,9 @@ export class AssistantChatComponent {
       }
     };
 
-    for (const line of escaped.split('\n')) {
-      const trimmed = line.trim();
+    const lines = escaped.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
 
       if (/^-{3,}$/.test(trimmed)) {
         flushText();
@@ -1543,6 +1544,21 @@ export class AssistantChatComponent {
         closeList();
         const level = Math.min(heading[1].length + 1, 6);
         blocks.push(`<h${level}>${heading[2]}</h${level}>`);
+        continue;
+      }
+
+      if (this.isTableRow(trimmed) && this.isTableRow(lines[i + 1]?.trim()) && this.isTableSeparatorRow(lines[i + 1].trim())) {
+        flushText();
+        closeList();
+        const headerCells = this.parseTableRow(trimmed);
+        const bodyRows: string[][] = [];
+        let j = i + 2;
+        while (j < lines.length && this.isTableRow(lines[j].trim()) && !this.isTableSeparatorRow(lines[j].trim())) {
+          bodyRows.push(this.parseTableRow(lines[j].trim()));
+          j++;
+        }
+        blocks.push(this.buildTableHtml(headerCells, bodyRows));
+        i = j - 1;
         continue;
       }
 
@@ -1567,7 +1583,7 @@ export class AssistantChatComponent {
         continue;
       }
 
-      textBuffer.push(line);
+      textBuffer.push(lines[i]);
     }
 
     flushText();
@@ -1578,6 +1594,30 @@ export class AssistantChatComponent {
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
       .replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+  }
+
+  private static readonly TABLE_SEPARATOR_CELL_REGEX = /^:?-+:?$/;
+
+  private isTableRow(line: string | undefined): boolean {
+    return !!line && line.startsWith('|') && line.length > 1;
+  }
+
+  private isTableSeparatorRow(line: string): boolean {
+    const cells = this.parseTableRow(line);
+    return cells.length > 0 && cells.every((cell) => AssistantChatComponent.TABLE_SEPARATOR_CELL_REGEX.test(cell));
+  }
+
+  private parseTableRow(line: string): string[] {
+    let inner = line;
+    if (inner.startsWith('|')) inner = inner.slice(1);
+    if (inner.endsWith('|')) inner = inner.slice(0, -1);
+    return inner.split('|').map((cell) => cell.trim());
+  }
+
+  private buildTableHtml(headerCells: string[], bodyRows: string[][]): string {
+    const headerHtml = headerCells.map((cell) => `<th>${cell}</th>`).join('');
+    const bodyHtml = bodyRows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`).join('');
+    return `<table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
   }
 
   private static readonly EMOJI_REGEX = /\p{Extended_Pictographic}/gu;
