@@ -13,7 +13,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { LoginComponent } from './login.component';
 import { AuthService } from '../auth.service';
-import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
+import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -102,7 +102,7 @@ describe('LoginComponent', () => {
                     useValue: userAdministrationServiceSpy,
                 },
                 { provide: ToastShowService, useValue: toastServiceSpy },
-                { provide: DataSyncNotificationService, useValue: syncNotificationServiceSpy },
+                { provide: SyncNotificationToastService, useValue: syncNotificationServiceSpy },
                 { provide: SignalRService, useValue: signalRServiceSpy },
                 { provide: AssistantSignalRService, useValue: assistantSignalRServiceSpy },
                 { provide: LanguageConfigService, useValue: languageConfigServiceSpy },

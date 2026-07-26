@@ -51,7 +51,7 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';

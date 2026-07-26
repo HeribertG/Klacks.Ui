@@ -38,7 +38,7 @@ import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.i
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {

@@ -18,9 +18,9 @@ import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/sch
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surface-template.component';
+import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
-import { GridDoubleClickEvent } from './grid-template-events.directive';
+import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 
 @Injectable()
 export class GridScheduleEventsService {

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingMetricsComponent } from './klacksy-training-metrics.component';
-import { KlacksyTrainingService } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 
 describe('KlacksyTrainingMetricsComponent', () => {
   let fixture: ComponentFixture<KlacksyTrainingMetricsComponent>;
@@ -16,7 +16,7 @@ describe('KlacksyTrainingMetricsComponent', () => {
     ])) };
     TestBed.configureTestingModule({
       imports: [KlacksyTrainingMetricsComponent, TranslateModule.forRoot()],
-      providers: [{ provide: KlacksyTrainingService, useValue: service }]
+      providers: [{ provide: DataKlacksyTrainingService, useValue: service }]
     });
     fixture = TestBed.createComponent(KlacksyTrainingMetricsComponent);
     fixture.detectChanges();

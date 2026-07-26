@@ -8,7 +8,7 @@ import { IUiActionConfig, IUiActionContext, IUiActionStep } from '../../interfac
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { Group, IGroup } from '../../models/group/group-class';

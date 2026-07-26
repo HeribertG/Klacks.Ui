@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { form, FormField } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { KlacksyTrainingService, NavigationFeedbackDto } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService, NavigationFeedbackDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
@@ -19,7 +19,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KlacksyTrainingFeedbackReviewComponent implements OnInit {
-  private readonly service = inject(KlacksyTrainingService);
+  private readonly service = inject(DataKlacksyTrainingService);
   private readonly formModel = signal<{ locale: string }>({ locale: DomainMessages.DEFAULT_LANG });
   protected readonly localeForm = form(this.formModel);
   protected readonly items = signal<NavigationFeedbackDto[]>([]);

@@ -9,7 +9,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService, NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 import { KlacksyTrainingSynonymEditorComponent } from '../klacksy-training-synonym-editor/klacksy-training-synonym-editor.component';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -22,7 +22,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KlacksyTrainingReviewComponent implements OnInit {
-  private readonly service = inject(KlacksyTrainingService);
+  private readonly service = inject(DataKlacksyTrainingService);
   private readonly formModel = signal<{ status: string; locale: string }>({ status: '', locale: DomainMessages.DEFAULT_LANG });
   protected readonly filterForm = form(this.formModel);
   protected readonly targets = signal<NavigationTargetDto[]>([]);

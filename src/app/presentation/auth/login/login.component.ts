@@ -24,7 +24,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
+import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
@@ -70,7 +70,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private assistantSignalRService = inject(AssistantSignalRService);
   private dataOAuth2Service = inject(DataOAuth2Service);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly syncNotificationService = inject(DataSyncNotificationService);
+  private readonly syncNotificationService = inject(SyncNotificationToastService);
   private readonly authorizationService = inject(AuthorizationService);
 
   public loginFormModel = signal<LoginFormModel>({ username: '', password: '' });

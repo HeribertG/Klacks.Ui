@@ -15,7 +15,7 @@ import { AssistantFunctionExecutionService } from 'src/app/domain/services/assis
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 
 describe('ChatFunctionExecutionService navigate_to chain', () => {
   let service: ChatFunctionExecutionService;

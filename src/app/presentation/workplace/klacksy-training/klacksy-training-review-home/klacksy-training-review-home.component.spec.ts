@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { KlacksyTrainingReviewHomeComponent } from './klacksy-training-review-home.component';
-import { KlacksyTrainingService } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 
 describe('KlacksyTrainingReviewHomeComponent', () => {
   let fixture: ComponentFixture<KlacksyTrainingReviewHomeComponent>;
@@ -20,7 +20,7 @@ describe('KlacksyTrainingReviewHomeComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [KlacksyTrainingReviewHomeComponent, TranslateModule.forRoot()],
-      providers: [{ provide: KlacksyTrainingService, useValue: trainingServiceStub }]
+      providers: [{ provide: DataKlacksyTrainingService, useValue: trainingServiceStub }]
     });
     fixture = TestBed.createComponent(KlacksyTrainingReviewHomeComponent);
   });

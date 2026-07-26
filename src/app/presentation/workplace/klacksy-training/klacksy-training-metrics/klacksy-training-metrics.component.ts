@@ -5,7 +5,7 @@
  */
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService, NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 
 @Component({
   selector: 'app-klacksy-training-metrics',
@@ -16,7 +16,7 @@ import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/se
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KlacksyTrainingMetricsComponent implements OnInit {
-  private readonly service = inject(KlacksyTrainingService);
+  private readonly service = inject(DataKlacksyTrainingService);
   protected readonly all = signal<NavigationTargetDto[]>([]);
   protected readonly counts = computed(() => {
     const m = { total: 0, pending: 0, generated: 0, reviewed: 0, needsReview: 0, obsolete: 0 };

@@ -7,7 +7,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 export interface NavigationTargetDto {
   targetId: string;
@@ -28,9 +28,9 @@ export interface NavigationFeedbackDto {
 }
 
 @Injectable({ providedIn: 'root' })
-export class KlacksyTrainingService {
+export class DataKlacksyTrainingService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.baseUrl.replace('backend/', '')}admin/klacksy-training`;
+  private readonly base = `${getApiRootUrl()}admin/klacksy-training`;
 
   listTargets(status?: string, locale?: string): Observable<NavigationTargetDto[]> {
     const params: Record<string, string> = {};

@@ -22,7 +22,7 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { EXPLAIN_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES } from 'src/app/domain/constants/page-explain-icons.constants';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 
 @Injectable()

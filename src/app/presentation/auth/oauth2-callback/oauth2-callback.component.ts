@@ -12,7 +12,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
+import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyToken } from 'src/app/domain/models/authentification-class';
@@ -74,7 +74,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
   private toastService = inject(ToastShowService);
-  private readonly syncNotificationService = inject(DataSyncNotificationService);
+  private readonly syncNotificationService = inject(SyncNotificationToastService);
   private readonly authorizationService = inject(AuthorizationService);
 
   isLoading = signal(true);

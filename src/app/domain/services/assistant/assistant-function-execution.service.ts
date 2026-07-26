@@ -12,7 +12,7 @@ import {
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { KLACKSY_PAGE_KEYS_BY_KEY } from 'src/app/domain/constants/klacksy-page-keys';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 
 @Injectable()
 export class AssistantFunctionExecutionService {

@@ -14,7 +14,7 @@ import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-acti
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { ONBOARDING_NAV_ICON, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import {
   EXPLAIN_PAGE_SKILL_PREFIX,

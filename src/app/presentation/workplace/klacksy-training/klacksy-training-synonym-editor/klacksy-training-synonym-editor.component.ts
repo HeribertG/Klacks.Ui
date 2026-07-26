@@ -8,7 +8,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService, NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 import { TrashIconRedComponent } from '../../../icons/trash-icon-red.component';
 
 @Component({
@@ -24,7 +24,7 @@ export class KlacksyTrainingSynonymEditorComponent {
   readonly locale = input.required<string>();
   readonly saved = output<void>();
 
-  private readonly service = inject(KlacksyTrainingService);
+  private readonly service = inject(DataKlacksyTrainingService);
 
   private readonly formModel = signal<{ newSynonym: string }>({ newSynonym: '' });
   protected readonly synonymForm = form(this.formModel);

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { KlacksyTrainingSynonymEditorComponent } from './klacksy-training-synonym-editor.component';
-import { KlacksyTrainingService } from '../../../../core/services/klacksy-training.service';
+import { DataKlacksyTrainingService } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 
 describe('KlacksyTrainingSynonymEditorComponent', () => {
   let fixture: ComponentFixture<KlacksyTrainingSynonymEditorComponent>;
@@ -14,7 +14,7 @@ describe('KlacksyTrainingSynonymEditorComponent', () => {
     service = { updateSynonyms: vi.fn().mockReturnValue(of(true)) };
     TestBed.configureTestingModule({
       imports: [KlacksyTrainingSynonymEditorComponent, FormsModule, TranslateModule.forRoot()],
-      providers: [{ provide: KlacksyTrainingService, useValue: service }]
+      providers: [{ provide: DataKlacksyTrainingService, useValue: service }]
     });
     fixture = TestBed.createComponent(KlacksyTrainingSynonymEditorComponent);
     fixture.componentRef.setInput('target', { targetId: 't', route: '/', labelKey: 'l', synonyms: { de: ['one'] }, synonymStatus: 'generated', obsolete: false });

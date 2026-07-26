@@ -18,14 +18,14 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { GridSurfaceTemplateComponent } from '../../body/grid-surface-template/grid-surface-template.component';
+import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-import { BaseCanvasManagerService } from './canvas-manager.service';
+import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 
 export interface FillHandleDragContext {
   gridSurface: GridSurfaceTemplateComponent;

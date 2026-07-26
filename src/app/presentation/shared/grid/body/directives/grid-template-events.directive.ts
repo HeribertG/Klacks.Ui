@@ -37,8 +37,8 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surface-template.component';
 import { GridSelectionModeEnum } from '../../enums/divers';
-import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
-import { GridScheduleEventsService } from './grid-schedule-events.service';
+import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
+import { GridScheduleEventsService } from 'src/app/presentation/workplace/schedule/services/grid-schedule-events.service';
 
 export interface GridDoubleClickEvent {
   row: number;

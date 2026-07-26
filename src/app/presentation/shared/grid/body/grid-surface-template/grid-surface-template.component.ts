@@ -29,7 +29,7 @@ import {
   GridRightClickEvent,
   GridDoubleClickEvent,
 } from '../directives/grid-template-events.directive';
-import { GridScheduleEventsService } from '../directives/grid-schedule-events.service';
+import { GridScheduleEventsService } from 'src/app/presentation/workplace/schedule/services/grid-schedule-events.service';
 import {
   CellInputEventsDirective,
   CellInputRightClickEvent,
@@ -40,7 +40,7 @@ import { MyPosition } from '../../classes/position';
 import { TooltipService } from '../../../tooltip/tooltip.service';
 import { TestAccessibilityService } from '../../services/grid-test-accessibility/test-accessibility.service';
 import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
-import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
+import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridCellInputController } from './grid-cell-input.controller';
