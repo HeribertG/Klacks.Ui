@@ -31,6 +31,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
+import { decodeJwtPayload } from 'src/app/shared/helpers/jwt.helper';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -429,22 +430,18 @@ export class DataManagementAssistantService {
   }
 
   private getUserContext(): any {
-    try {
-      const token = this.localStorageService.get(StorageKeys.TOKEN);
-      if (!token) return null;
+    const token = this.localStorageService.get(StorageKeys.TOKEN);
+    if (!token) return null;
 
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload));
+    const decoded = decodeJwtPayload(token);
+    if (!decoded) return null;
 
-      return {
-        userId: decoded.sub || decoded.userId,
-        userName: decoded.name || decoded.userName,
-        roles: decoded.roles || [],
-        permissions: decoded.permissions || [],
-      };
-    } catch {
-      return null;
-    }
+    return {
+      userId: decoded.sub || decoded.userId,
+      userName: decoded.name || decoded.userName,
+      roles: decoded.roles || [],
+      permissions: decoded.permissions || [],
+    };
   }
 
   getHelp(): Observable<any> {

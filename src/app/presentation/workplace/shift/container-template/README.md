@@ -59,7 +59,7 @@ Hauptkomponente für die Zuweisung von Shifts zu Container-Vorlagen.
   - `hasTemplateChanges`: Vergleicht `editTemplates` mit `editTemplatesDummy` (gespeicherte Tasks)
   - `hasUnsavedTasks`: Prüft auf neue Tasks mit nur `tmpId` (noch nie gespeichert)
 - **tmpId System** für neue Tasks:
-  - Verwendet `newGuid()` für eindeutige temporäre IDs
+  - Verwendet `crypto.randomUUID()` für eindeutige temporäre IDs
   - Alle CRUD-Operationen unterstützen `id || tmpId` Fallback
   - Verhindert Massenlöschung von neuen Tasks
 - **Position Tracking**:

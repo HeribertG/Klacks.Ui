@@ -4,12 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient, HttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { KlacksTranslateLoader } from './klacks-translate-loader';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 describe('KlacksTranslateLoader', () => {
   let loader: KlacksTranslateLoader;
   let httpTestingController: HttpTestingController;
-  const apiUrl = environment.baseUrl.replace('backend/', '');
+  const apiUrl = getApiRootUrl();
 
   beforeEach(() => {
     TestBed.configureTestingModule({
