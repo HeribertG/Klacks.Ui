@@ -5,9 +5,10 @@
  * Returns raw audio Blobs without managing playback state.
  * @param request - Contains the text to synthesize, locale, and optional provider/voice IDs
  */
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const TTS_SYNTHESIZE_ENDPOINT = 'tts/synthesize';
 const TTS_VOICES_ENDPOINT = 'tts/voices';
@@ -33,67 +34,41 @@ export interface TtsTestResult {
 
 @Injectable({ providedIn: 'root' })
 export class DataTtsService {
+  private http = inject(HttpClient);
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
   async synthesize(request: TtsSynthesizeRequest): Promise<Blob | null> {
     try {
-      const token = localStorage.getItem(StorageKeys.TOKEN);
-
-      const response = await fetch(`${this.baseUrl}${TTS_SYNTHESIZE_ENDPOINT}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(request),
-      });
-
-      if (!response.ok) return null;
-      return await response.blob();
+      return await firstValueFrom(
+        this.http.post(`${this.baseUrl}${TTS_SYNTHESIZE_ENDPOINT}`, request, {
+          responseType: 'blob',
+        })
+      );
     } catch {
       return null;
     }
   }
 
   async testConnection(providerId: string): Promise<TtsTestResult> {
-    const token = localStorage.getItem(StorageKeys.TOKEN);
-
     try {
-      const response = await fetch(`${this.baseUrl}${TTS_TEST_ENDPOINT}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ providerId }),
-      });
-
-      if (!response.ok) {
-        return { success: false, error: `HTTP ${response.status}` };
-      }
-
-      return (await response.json()) as TtsTestResult;
+      return await firstValueFrom(
+        this.http.post<TtsTestResult>(`${this.baseUrl}${TTS_TEST_ENDPOINT}`, { providerId })
+      );
     } catch (err) {
+      if (err instanceof HttpErrorResponse) {
+        return { success: false, error: `HTTP ${err.status}` };
+      }
       return { success: false, error: err instanceof Error ? err.message : 'Network error' };
     }
   }
 
   async getVoices(providerId?: string): Promise<TtsVoiceDto[]> {
     try {
-      const token = localStorage.getItem(StorageKeys.TOKEN);
       const url = providerId
         ? `${this.baseUrl}${TTS_VOICES_ENDPOINT}?providerId=${providerId}`
         : `${this.baseUrl}${TTS_VOICES_ENDPOINT}`;
 
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!response.ok) return [];
-      return (await response.json()) as TtsVoiceDto[];
+      return await firstValueFrom(this.http.get<TtsVoiceDto[]>(url));
     } catch {
       return [];
     }

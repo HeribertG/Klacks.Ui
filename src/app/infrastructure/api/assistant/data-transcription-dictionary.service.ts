@@ -4,9 +4,10 @@
  * HTTP client for transcription dictionary CRUD operations.
  * @param baseUrl - Base URL for the assistant API endpoints
  */
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const DICTIONARY_ENDPOINT = 'transcription/dictionary';
 
@@ -21,25 +22,15 @@ export interface DictionaryEntry {
 
 @Injectable({ providedIn: 'root' })
 export class DataTranscriptionDictionaryService {
+  private http = inject(HttpClient);
   private readonly baseUrl =
     environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
-  private getHeaders(): Record<string, string> {
-    const token = localStorage.getItem(StorageKeys.TOKEN);
-    return {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-  }
-
   async getAll(): Promise<DictionaryEntry[]> {
     try {
-      const response = await fetch(`${this.baseUrl}${DICTIONARY_ENDPOINT}`, {
-        method: 'GET',
-        headers: this.getHeaders(),
-      });
-      if (!response.ok) return [];
-      return (await response.json()) as DictionaryEntry[];
+      return await firstValueFrom(
+        this.http.get<DictionaryEntry[]>(`${this.baseUrl}${DICTIONARY_ENDPOINT}`)
+      );
     } catch {
       return [];
     }
@@ -49,13 +40,9 @@ export class DataTranscriptionDictionaryService {
     entry: Omit<DictionaryEntry, 'id'>,
   ): Promise<DictionaryEntry | null> {
     try {
-      const response = await fetch(`${this.baseUrl}${DICTIONARY_ENDPOINT}`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(entry),
-      });
-      if (!response.ok) return null;
-      return (await response.json()) as DictionaryEntry;
+      return await firstValueFrom(
+        this.http.post<DictionaryEntry>(`${this.baseUrl}${DICTIONARY_ENDPOINT}`, entry)
+      );
     } catch {
       return null;
     }
@@ -63,15 +50,10 @@ export class DataTranscriptionDictionaryService {
 
   async update(entry: DictionaryEntry): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}${DICTIONARY_ENDPOINT}/${entry.id}`,
-        {
-          method: 'PUT',
-          headers: this.getHeaders(),
-          body: JSON.stringify(entry),
-        },
+      await firstValueFrom(
+        this.http.put<void>(`${this.baseUrl}${DICTIONARY_ENDPOINT}/${entry.id}`, entry)
       );
-      return response.ok;
+      return true;
     } catch {
       return false;
     }
@@ -79,14 +61,10 @@ export class DataTranscriptionDictionaryService {
 
   async delete(id: string): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}${DICTIONARY_ENDPOINT}/${id}`,
-        {
-          method: 'DELETE',
-          headers: this.getHeaders(),
-        },
+      await firstValueFrom(
+        this.http.delete<void>(`${this.baseUrl}${DICTIONARY_ENDPOINT}/${id}`)
       );
-      return response.ok;
+      return true;
     } catch {
       return false;
     }

@@ -4,9 +4,10 @@
  * HTTP client for custom STT provider CRUD operations.
  * @param baseUrl - Base URL for the assistant API endpoints
  */
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const CUSTOM_STT_ENDPOINT = 'stt/providers/custom';
 
@@ -23,25 +24,15 @@ export interface CustomSttProvider {
 
 @Injectable({ providedIn: 'root' })
 export class DataCustomSttProviderService {
+  private http = inject(HttpClient);
   private readonly baseUrl =
     environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
-  private getHeaders(): Record<string, string> {
-    const token = localStorage.getItem(StorageKeys.TOKEN);
-    return {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-  }
-
   async getAll(): Promise<CustomSttProvider[]> {
     try {
-      const response = await fetch(`${this.baseUrl}${CUSTOM_STT_ENDPOINT}`, {
-        method: 'GET',
-        headers: this.getHeaders(),
-      });
-      if (!response.ok) return [];
-      return (await response.json()) as CustomSttProvider[];
+      return await firstValueFrom(
+        this.http.get<CustomSttProvider[]>(`${this.baseUrl}${CUSTOM_STT_ENDPOINT}`)
+      );
     } catch {
       return [];
     }
@@ -51,13 +42,9 @@ export class DataCustomSttProviderService {
     provider: Omit<CustomSttProvider, 'id' | 'isSystem'>,
   ): Promise<CustomSttProvider | null> {
     try {
-      const response = await fetch(`${this.baseUrl}${CUSTOM_STT_ENDPOINT}`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(provider),
-      });
-      if (!response.ok) return null;
-      return (await response.json()) as CustomSttProvider;
+      return await firstValueFrom(
+        this.http.post<CustomSttProvider>(`${this.baseUrl}${CUSTOM_STT_ENDPOINT}`, provider)
+      );
     } catch {
       return null;
     }
@@ -65,15 +52,10 @@ export class DataCustomSttProviderService {
 
   async update(provider: CustomSttProvider): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}${CUSTOM_STT_ENDPOINT}/${provider.id}`,
-        {
-          method: 'PUT',
-          headers: this.getHeaders(),
-          body: JSON.stringify(provider),
-        },
+      await firstValueFrom(
+        this.http.put<void>(`${this.baseUrl}${CUSTOM_STT_ENDPOINT}/${provider.id}`, provider)
       );
-      return response.ok;
+      return true;
     } catch {
       return false;
     }
@@ -81,14 +63,10 @@ export class DataCustomSttProviderService {
 
   async delete(id: string): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}${CUSTOM_STT_ENDPOINT}/${id}`,
-        {
-          method: 'DELETE',
-          headers: this.getHeaders(),
-        },
+      await firstValueFrom(
+        this.http.delete<void>(`${this.baseUrl}${CUSTOM_STT_ENDPOINT}/${id}`)
       );
-      return response.ok;
+      return true;
     } catch {
       return false;
     }
