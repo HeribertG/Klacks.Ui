@@ -33,6 +33,7 @@ import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EMOJI_CATEGORIES, EMOJI_NAMES, EmojiCategory } from 'src/app/domain/constants/emoji-data';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
@@ -140,15 +141,13 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
         this.cdr.markForCheck();
       });
 
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'qualifications')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (x === ModalType.Delete && this.modalService.componentContext === 'qualifications') {
-          this.executeDelete(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.executeDelete(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
 
     this.unregisterRefresh = this.refreshRegistry.register(this);

@@ -29,6 +29,7 @@ import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
@@ -137,18 +138,13 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'llm-models')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'llm-models'
-        ) {
-          this.deleteModel(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteModel(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

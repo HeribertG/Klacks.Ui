@@ -32,6 +32,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
@@ -121,18 +122,13 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
         this.cdr.markForCheck();
       });
 
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'absence-detail')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'absence-detail'
-        ) {
-          this.deleteAbsenceDetail(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteAbsenceDetail(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

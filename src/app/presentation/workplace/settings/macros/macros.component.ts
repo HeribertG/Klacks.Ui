@@ -13,6 +13,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
@@ -60,18 +61,13 @@ export class MacrosComponent implements AfterViewInit, OnDestroy, IRefreshable {
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'macros')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'macros'
-        ) {
-          this.deleteMacro(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteMacro(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
 
     this.unregisterRefresh = this.refreshRegistry.register(this);

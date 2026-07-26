@@ -16,6 +16,7 @@ import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
 @Component({
@@ -64,18 +65,13 @@ export class ReportsComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'reports')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'reports'
-        ) {
-          this.deleteReport(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteReport(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

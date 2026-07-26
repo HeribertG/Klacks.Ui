@@ -32,6 +32,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { DataManagementIndividualPeriodService } from 'src/app/domain/services/scheduling/data-management-individual-period.service';
 import { IIndividualPeriod, IPeriod, Period } from 'src/app/domain/models/scheduling/individual-period.model';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
@@ -114,18 +115,13 @@ export class IndividualPeriodsComponent implements OnInit, AfterViewInit, OnDest
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'individual-periods')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'individual-periods'
-        ) {
-          this.deleteIndividualPeriod(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteIndividualPeriod(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

@@ -42,6 +42,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 interface CalendarSelectionFormModel {
@@ -147,18 +148,13 @@ export class CalendarSelectionComponent
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, COMPONENT_CONTEXT)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === COMPONENT_CONTEXT
-        ) {
-          this.deleteCalendarSelection(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteCalendarSelection(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

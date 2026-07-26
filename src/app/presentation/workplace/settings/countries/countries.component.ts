@@ -13,6 +13,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { CountriesHeaderComponent } from './countries-header/countries-header.component';
 import { CountriesRowComponent } from './countries-row/countries-row.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
@@ -52,18 +53,13 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
   });
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'countries')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'countries'
-        ) {
-          this.deleteCountry(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteCountry(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

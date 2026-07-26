@@ -42,6 +42,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -105,18 +106,13 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, PERSONAL_ACCESS_TOKENS_CONTEXT)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === PERSONAL_ACCESS_TOKENS_CONTEXT
-        ) {
-          this.revokeToken(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.revokeToken(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

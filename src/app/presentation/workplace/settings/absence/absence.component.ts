@@ -33,6 +33,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
@@ -43,7 +44,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
-
+
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 interface AbsenceFormModel {
   name: string;
@@ -179,18 +180,13 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
         this.cdr.markForCheck();
       });
 
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, 'absence')
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'absence'
-        ) {
-          this.deleteAbsence(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.deleteAbsence(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 

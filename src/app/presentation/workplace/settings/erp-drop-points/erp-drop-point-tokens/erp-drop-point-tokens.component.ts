@@ -35,6 +35,7 @@ import {
   ERP_IMPORT_TOKEN_EXPIRY,
 } from 'src/app/domain/models/settings/erp-import-token';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 
 interface ErpImportTokenFormModel {
   name: string;
@@ -90,18 +91,13 @@ export class ErpDropPointTokensComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    deleteConfirmations(this.modalService, ERP_DROP_POINT_TOKENS_CONTEXT)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === ERP_DROP_POINT_TOKENS_CONTEXT
-        ) {
-          this.revokeToken(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((id) => {
+        this.revokeToken(id);
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
+        this.cdr.markForCheck();
       });
   }
 
