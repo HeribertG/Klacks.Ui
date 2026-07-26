@@ -10,7 +10,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 export interface SendInvitationResponse {
   result: string;
@@ -19,7 +19,7 @@ export interface SendInvitationResponse {
 @Injectable({ providedIn: 'root' })
 export class DataMessagingInvitationService {
   private httpClient = inject(HttpClient);
-  private readonly pluginBaseUrl = environment.baseUrl.replace('backend/', '') + 'messaging/onboarding/';
+  private readonly pluginBaseUrl = getApiRootUrl() + 'messaging/onboarding/';
 
   public sendTelegramInvitation(clientId: string): Observable<SendInvitationResponse> {
     return this.httpClient.post<SendInvitationResponse>(

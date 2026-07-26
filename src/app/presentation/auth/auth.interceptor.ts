@@ -14,6 +14,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -73,7 +74,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private isInternalRequest(url: string): boolean {
-    const apiRoot = environment.baseUrl.replace('backend/', '');
+    const apiRoot = getApiRootUrl();
     return url.startsWith(environment.baseUrl) || url.startsWith(apiRoot) || url.startsWith('/api/');
   }
 }

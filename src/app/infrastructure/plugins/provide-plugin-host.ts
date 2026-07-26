@@ -30,7 +30,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { VoiceModeAdapterService } from './voice-mode-adapter.service';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 export function providePluginHost(): Provider[] {
   return [
@@ -67,7 +67,7 @@ export function providePluginHost(): Provider[] {
     },
     {
       provide: PLUGIN_API_BASE_URL,
-      useValue: environment.baseUrl.replace('backend/', ''),
+      useValue: getApiRootUrl(),
     },
     {
       provide: PLUGIN_GROUP_SELECTION,

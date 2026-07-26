@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -208,10 +209,7 @@ export class TimeRangeService {
   }
 
   parseTimeToMinutes(timeString: string | undefined): number {
-    if (!timeString) return 0;
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
-    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+    return timeString ? timeToMinutes(timeString) : 0;
   }
 
   getEffectiveStartMinutes(item: IContainerTemplateItem): number {

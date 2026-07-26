@@ -3,6 +3,7 @@
 import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { WorkChangeValidation, WorkTimeContext } from 'src/app/domain/models/workchange/work-change';
+import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 export enum CorrectionMode {
   AtStart = 0,
@@ -21,11 +22,7 @@ export class WorkChangeLogicService {
   private readonly MINUTES_PER_DAY = 24 * 60;
 
   parseTimeToMinutes(time: string): number {
-    if (!time) return 0;
-    const parts = time.split(':');
-    const hours = parseInt(parts[0]) || 0;
-    const minutes = parseInt(parts[1]) || 0;
-    return hours * 60 + minutes;
+    return time ? timeToMinutes(time) : 0;
   }
 
   ownTimeToMinutes(ownTime: OwnTime): number {

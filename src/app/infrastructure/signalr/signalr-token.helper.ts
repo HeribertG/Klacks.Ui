@@ -10,8 +10,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { environment } from 'src/environments/environment';
 import { DataAuthService } from '../api/data-auth.service';
-
-const TOKEN_EXPIRY_BUFFER_MS = 30000;
+import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
 
 export class SignalRTokenHelper {
   constructor(
@@ -20,15 +19,7 @@ export class SignalRTokenHelper {
   ) {}
 
   isTokenExpired(token: string): boolean {
-    try {
-      const payload = token.split('.')[1];
-      if (!payload) return true;
-      const decoded = JSON.parse(atob(payload));
-      if (!decoded.exp) return false;
-      return Date.now() > decoded.exp * 1000 - TOKEN_EXPIRY_BUFFER_MS;
-    } catch {
-      return true;
-    }
+    return isJwtExpired(token);
   }
 
   async attemptTokenRefresh(): Promise<void> {

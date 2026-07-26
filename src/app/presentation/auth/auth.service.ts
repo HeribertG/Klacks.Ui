@@ -9,6 +9,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from 'src/app/shared/helpers/date.helper';
+import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
@@ -45,7 +46,6 @@ const REALTIME_CONNECTION_SERVICES: ProviderToken<{
   providedIn: 'root',
 })
 export class AuthService {
-  private static readonly TOKEN_EXPIRY_BUFFER_MS = 30000;
 
   private startupRefreshPromise: Promise<void> | null = null;
 
@@ -387,19 +387,7 @@ export class AuthService {
   }
 
   private isAccessTokenExpired(token: string): boolean {
-    try {
-      const payload = token.split('.')[1];
-      if (!payload) {
-        return true;
-      }
-      const decoded = JSON.parse(atob(payload));
-      if (!decoded.exp) {
-        return false;
-      }
-      return Date.now() > decoded.exp * 1000 - AuthService.TOKEN_EXPIRY_BUFFER_MS;
-    } catch {
-      return true;
-    }
+    return isJwtExpired(token);
   }
 
   async refreshToken(): Promise<boolean> {

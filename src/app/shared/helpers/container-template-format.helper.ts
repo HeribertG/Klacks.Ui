@@ -11,7 +11,6 @@ import {
   IContainerTemplateItem,
 } from 'src/app/domain/models/container/container-template-class';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
-import { newGuid } from './guid.helper';
 
 const MINUTES_PER_HOUR = 60;
 
@@ -53,7 +52,7 @@ export function convertShiftToContainerTemplateItem(
   shift: IShift,
 ): IContainerTemplateItem {
   return {
-    tmpId: newGuid(),
+    tmpId: crypto.randomUUID(),
     shiftId: shift.id!,
     shift: shift,
     startItem: shift.startShift,

@@ -7,14 +7,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, retry, map } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { MarketplacePlugin, MarketplacePluginSearchResult } from 'src/app/domain/models/plugins/marketplace-plugin';
 
 @Injectable({ providedIn: 'root' })
 export class DataFeaturePluginService {
   private httpClient = inject(HttpClient);
-  private readonly apiUrl = environment.baseUrl.replace('backend/', '');
+  private readonly apiUrl = getApiRootUrl();
 
   getPlugins(): Observable<FeaturePluginInfo[]> {
     return this.httpClient.get<FeaturePluginInfo[]>(`${this.apiUrl}plugins/features`).pipe(retry(3));

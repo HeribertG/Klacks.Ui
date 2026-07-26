@@ -10,6 +10,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { IAssistantChatRequest } from './data-assistant.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 export interface StreamCallbacks {
   onStreamStart?: (conversationId: string) => void;
@@ -52,7 +53,7 @@ export class DataAssistantStreamService {
     signal: AbortSignal,
   ): Promise<void> {
     try {
-      const token = localStorage.getItem('JWT_TOKEN');
+      const token = localStorage.getItem(StorageKeys.TOKEN);
 
       const response = await fetch(`${this.baseUrl}chat/stream`, {
         method: 'POST',

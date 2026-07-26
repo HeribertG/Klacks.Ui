@@ -8,15 +8,10 @@
  * @param containerTimeUntil - Container end time in HH:mm or HH:mm:ss format
  */
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
-
-const MINUTES_PER_HOUR = 60;
+import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 function parseTimeToMinutes(time: string | undefined | null): number {
-  if (!time) return 0;
-  const parts = time.split(':');
-  const hours = parseInt(parts[0] || '0', 10);
-  const minutes = parseInt(parts[1] || '0', 10);
-  return hours * MINUTES_PER_HOUR + minutes;
+  return time ? timeToMinutes(time) : 0;
 }
 
 function getItemStartMinutes(item: IContainerTemplateItem): number {

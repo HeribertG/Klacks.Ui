@@ -11,7 +11,6 @@ import { Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import { CutTimeParams } from './cut-parameter-state';
 
 @Injectable({
@@ -176,7 +175,7 @@ export class CutByTimeService {
     }
 
     copiedShift.parentId = selectedShift.id;
-    copiedShift.id = newGuid();
+    copiedShift.id = crypto.randomUUID();
     copiedShift.isNew = true;
 
     if (selectedShift.cuttingAfterMidnight) {

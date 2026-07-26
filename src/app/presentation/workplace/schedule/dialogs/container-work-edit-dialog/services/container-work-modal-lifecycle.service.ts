@@ -24,6 +24,7 @@ import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-abse
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
+import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerWorkOptions } from '../open-container-work-options';
 const DEFAULT_TIME_FROM_HOURS = '06';
@@ -534,8 +535,7 @@ export class ContainerWorkModalLifecycleService {
   }
 
   private parseTimeToMinutes(time: string): number {
-    const parts = time.split(':');
-    return (parseInt(parts[0] || '0', 10) * MINUTES_PER_HOUR) + parseInt(parts[1] || '0', 10);
+    return timeToMinutes(time);
   }
 
   private subtractMinutes(time: string, minutes: number): string {

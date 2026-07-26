@@ -6,6 +6,7 @@ import {
   NgbDateParserFormatter,
 } from '@ng-bootstrap/ng-bootstrap';
 import { isNumeric } from '../../shared/helpers/number.helper';
+import { padZero } from '../../shared/helpers/string.helper';
 
 @Injectable()
 export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
@@ -38,15 +39,9 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
 
   format(date: NgbDateStruct): string {
     return date
-      ? `${isNumeric(date.day) ? this.padNumber(date.day!) : ''}.${
-          isNumeric(date.month) ? this.padNumber(date.month!) : ''
+      ? `${isNumeric(date.day) ? padZero(date.day!.toString(), 2) : ''}.${
+          isNumeric(date.month) ? padZero(date.month!.toString(), 2) : ''
         }.${date.year}`
       : '';
-  }
-  private padNumber(value: number): string {
-    if (value.toString().length === 1) {
-      return '0' + value.toString();
-    }
-    return value.toString();
   }
 }

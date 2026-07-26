@@ -10,6 +10,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
+import { triggerBlobDownload } from 'src/app/shared/helpers/file-download.helper';
 
 @Injectable({ providedIn: 'root' })
 export class AssetDownloadService {
@@ -18,18 +19,6 @@ export class AssetDownloadService {
   downloadAsset(assetPath: string, fileName: string, mimeType: string): Observable<void> {
     return this.http
       .get(assetPath, { responseType: 'text' })
-      .pipe(map(content => this.saveAsFile(content, fileName, mimeType)));
-  }
-
-  private saveAsFile(content: string, fileName: string, mimeType: string): void {
-    const blob = new Blob([content], { type: mimeType });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+      .pipe(map(content => triggerBlobDownload(new Blob([content], { type: mimeType }), fileName)));
   }
 }

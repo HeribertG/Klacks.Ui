@@ -3,14 +3,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { LanguagePluginInfo } from 'src/app/domain/models/settings/language-plugin';
 import { MarketplacePackage, MarketplaceSearchResult } from 'src/app/domain/models/settings/marketplace-package';
 
 @Injectable({ providedIn: 'root' })
 export class DataLanguagePluginService {
   private httpClient = inject(HttpClient);
-  private readonly apiUrl = environment.baseUrl.replace('backend/', '');
+  private readonly apiUrl = getApiRootUrl();
 
   getPlugins(): Observable<LanguagePluginInfo[]> {
     return this.httpClient.get<LanguagePluginInfo[]>(`${this.apiUrl}config/language-plugins`).pipe(retry(3));

@@ -25,7 +25,6 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ContainerTemplatePdfExportService } from './container-template-pdf-export.service';
 import { ContainerTemplateRouteService } from './container-template-route.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import {
   timeToString,
   timeToMinutes,
@@ -194,7 +193,7 @@ export class ContainerTemplateShiftOperationsService {
     endTime: string,
   ): IContainerTemplateItem {
     return {
-      tmpId: newGuid(),
+      tmpId: crypto.randomUUID(),
       shiftId: undefined,
       absenceId: absence.id,
       absence: absence,

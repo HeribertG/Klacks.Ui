@@ -3,7 +3,7 @@
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader } from '@ngx-translate/core';
 import { Observable, forkJoin, map, of, catchError } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
@@ -13,7 +13,7 @@ export class KlacksTranslateLoader implements TranslateLoader {
   private readonly apiUrl: string;
 
   constructor(private httpClient: HttpClient) {
-    this.apiUrl = environment.baseUrl.replace('backend/', '');
+    this.apiUrl = getApiRootUrl();
   }
 
   getTranslation(lang: string): Observable<Record<string, string>> {
