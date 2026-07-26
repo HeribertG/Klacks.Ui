@@ -24,12 +24,6 @@ export enum CreateEntriesEnum {
   delete = 3,
 }
 
-export enum ReminderTypeEnum {
-  firstReminder = 1000,
-  secondReminder = 1001,
-  thirdReminder = 1002,
-}
-
 export enum TemplateTypeEnum {
   memberInvoice = 0,
   workshopInvoice = 200,

@@ -65,32 +65,6 @@ export class Absence implements IAbsence {
   isUnpaid = false;
 }
 
-export interface IAbsenceReason {
-  id: string | undefined;
-  name: string;
-  description: string;
-  backgroundColor: string;
-  defaultLength: number;
-  defaultValue: number;
-  withSaturday: boolean;
-  withSunday: boolean;
-  withHoliday: boolean;
-  isWork: boolean;
-}
-
-export class AbsenceReason implements IAbsenceReason {
-  id = undefined;
-  name = '';
-  description = '';
-  backgroundColor = '';
-  defaultLength = 0;
-  defaultValue = 0;
-  withSaturday = false;
-  withSunday = false;
-  withHoliday = false;
-  isWork = false;
-}
-
 export class CalendarHeaderDayRank {
   backColor = '';
   name = '';

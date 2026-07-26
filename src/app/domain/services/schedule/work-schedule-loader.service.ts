@@ -626,19 +626,6 @@ export class WorkScheduleLoaderService {
     this.updateClientNeededRows();
   }
 
-  private calculatePeriodDates(workFilter: IWorkFilter): {
-    startDate: string;
-    endDate: string;
-  } {
-    const periodStartDate = this.calculatePeriodStartDate(workFilter);
-    const periodEndDate = this.calculatePeriodEndDate(workFilter);
-
-    return {
-      startDate: formatDateOnly(periodStartDate),
-      endDate: formatDateOnly(periodEndDate),
-    };
-  }
-
   private mergeClientAvailabilities(
     availabilities: Record<string, Record<string, string>> | null | undefined,
   ): void {
