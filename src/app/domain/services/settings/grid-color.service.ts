@@ -11,6 +11,7 @@ import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GridThemeService } from './grid-theme.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -122,7 +123,7 @@ export class GridColorService {
 
     if (changed) {
       this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      resetSignalAfterDelay(this.isReset);
     }
   }
 
@@ -178,7 +179,7 @@ export class GridColorService {
         this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
         this.isReset.set(true);
-        setTimeout(() => this.isReset.set(false), 100);
+        resetSignalAfterDelay(this.isReset);
       }
     });
   }

@@ -1,8 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable, signal } from '@angular/core';
-import { lastValueFrom, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import {
   CalendarRule,
   CalendarRulesFilter,
@@ -15,6 +14,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +22,6 @@ import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/dat
 export class DataManagementCalendarRulesService {
   public dataCalendarRuleService = inject(DataCalendarRuleService);
   private eventBus = inject(EVENT_BUS_TOKEN);
-  private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
   public isPageRead = signal(false);
@@ -42,7 +41,6 @@ export class DataManagementCalendarRulesService {
   /* #region   temporary check is Filter dirty */
   public init(): void {
     this.dataCalendarRuleService.readRuleTokenList(true)
-      .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         this.currentFilter.list = x;
         this.filteredRulesToken = x;
@@ -50,7 +48,7 @@ export class DataManagementCalendarRulesService {
           new Set(x.map((x) => x.country))
         );
         this.isRead.set(true);
-        setTimeout(() => this.isRead.set(false), 100);
+        resetSignalAfterDelay(this.isRead);
       });
   }
   public setTemporaryFilter(): void {
@@ -104,13 +102,10 @@ export class DataManagementCalendarRulesService {
     this.currentFilter.list[index].select = value.select;
   }
 
-  private static readonly READ_RESET_DELAY = 100;
-
   readPage(language: string) {
     this.currentFilter.language = language;
     this.dataCalendarRuleService
       .readTruncatedCalendarRule(this.currentFilter)
-      .pipe(takeUntil(this.destroy$))
       .subscribe((x: TruncatedCalendarRule | undefined) => {
         if (x) {
           this.listWrapper = x;
@@ -123,10 +118,7 @@ export class DataManagementCalendarRulesService {
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
           this.isPageRead.set(true);
-          setTimeout(
-            () => this.isPageRead.set(false),
-            DataManagementCalendarRulesService.READ_RESET_DELAY
-          );
+          resetSignalAfterDelay(this.isPageRead);
         }
       });
   }
@@ -168,7 +160,6 @@ export class DataManagementCalendarRulesService {
 
   readCalendarRuleList(value: boolean): void {
     this.dataCalendarRuleService.readRuleTokenList(value)
-      .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         this.currentFilter.list = x;
       });
@@ -184,10 +175,5 @@ export class DataManagementCalendarRulesService {
       return true;
     }
     return false;
-  }
-
-  public destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -8,6 +8,7 @@ import { IBreakFilter, IBreakPlaceholder } from 'src/app/domain/models/break/bre
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +47,7 @@ export class BreakPlaceholderScheduleLoaderService {
       .subscribe((clients) => {
         this.clients = clients;
         this._isLoaded.set(true);
-        setTimeout(() => this._isLoaded.set(false), 100);
+        resetSignalAfterDelay(this._isLoaded);
       });
   }
 

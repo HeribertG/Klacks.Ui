@@ -13,8 +13,7 @@ import { DataManagementSchedulingRuleService } from '../scheduling/data-manageme
 import { DataManagementIndividualPeriodService } from '../scheduling/data-management-individual-period.service';
 import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
 import { IIndividualPeriod } from '../../models/scheduling/individual-period.model';
-import { lastValueFrom, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
@@ -27,6 +26,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule/schedule-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +41,6 @@ export class DataManagementContractService {
   );
   private schedulingRuleService = inject(DataManagementSchedulingRuleService);
   private individualPeriodService = inject(DataManagementIndividualPeriodService);
-  private destroy$ = new Subject<void>();
 
   constructor() {}
 
@@ -111,7 +110,6 @@ export class DataManagementContractService {
     await this.loadIndividualPeriods();
 
     this.translate.onLangChange
-      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.updateEmptyPlaceholder();
       });
@@ -152,7 +150,7 @@ export class DataManagementContractService {
 
   fireIsReadEvent() {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   /* #endregion   init */
@@ -264,7 +262,7 @@ export class DataManagementContractService {
     setTimeout(() => {
       this.isReset.set(true);
       this._showProgressSpinner.set(false);
-      setTimeout(() => this.isReset.set(false), 100);
+      resetSignalAfterDelay(this.isReset);
     }, 200);
   }
 
@@ -537,9 +535,4 @@ export class DataManagementContractService {
   }
 
   /* #endregion   Utility methods */
-
-  public destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

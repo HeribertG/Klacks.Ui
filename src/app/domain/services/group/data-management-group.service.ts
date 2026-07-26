@@ -41,6 +41,7 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -302,7 +303,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   fireIsReadEvent() {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   /* #region   edit Group */
@@ -371,7 +372,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     setTimeout(() => {
       this.isReset.set(true);
       this._showProgressSpinner.set(false);
-      setTimeout(() => this.isReset.set(false), 100);
+      resetSignalAfterDelay(this.isReset);
     }, 200);
   }
 

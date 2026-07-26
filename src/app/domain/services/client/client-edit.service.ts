@@ -30,6 +30,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -588,7 +589,7 @@ export class ClientEditService {
     if (this.editClientDummy) {
       this.isReset.set(true);
       this.prepareClient(cloneObject<IClient>(this.editClientDummy));
-      setTimeout(() => this.isReset.set(false), 100);
+      resetSignalAfterDelay(this.isReset);
     }
   }
 

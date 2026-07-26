@@ -19,6 +19,7 @@ import { CounterRuleApiService } from 'src/app/infrastructure/api/scheduling/cou
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +44,7 @@ export class DataManagementCounterRuleService {
 
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   async readRules(): Promise<ICounterRule[]> {

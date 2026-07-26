@@ -4,6 +4,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { AbsenceDetail, IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -19,11 +20,9 @@ export class DataManagementAbsenceDetailService {
   public isRead = signal(false);
   public absenceDetails = signal<IAbsenceDetail[]>([]);
 
-  private static readonly READ_RESET_DELAY = 100;
-
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), DataManagementAbsenceDetailService.READ_RESET_DELAY);
+    resetSignalAfterDelay(this.isRead);
   }
 
   async readAbsenceDetails(): Promise<IAbsenceDetail[]> {

@@ -28,6 +28,7 @@ import { Break } from '../../models/break/break-class';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -586,12 +587,12 @@ export class ScheduleEntryCrudService {
 
   public triggerScheduleRefresh(): void {
     this.scheduleRefreshed.set(true);
-    setTimeout(() => this.scheduleRefreshed.set(false), 100);
+    resetSignalAfterDelay(this.scheduleRefreshed);
   }
 
   private triggerShiftScheduleRefresh(): void {
     this.shiftScheduleRefreshed.set(true);
-    setTimeout(() => this.shiftScheduleRefreshed.set(false), 100);
+    resetSignalAfterDelay(this.shiftScheduleRefreshed);
   }
 
   private mergeOverlappingDateRanges(sortedTimestamps: number[]): { start: Date; end: Date }[] {

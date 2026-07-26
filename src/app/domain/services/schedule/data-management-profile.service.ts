@@ -14,6 +14,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -64,7 +65,7 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       .subscribe({
         next: () => {
           this.isReset.set(true);
-          setTimeout(() => this.isReset.set(false), 100);
+          resetSignalAfterDelay(this.isReset);
           this.eventBus.emit(DomainEventType.SUCCESS, {
             message: DomainMessages.REGISTER_CHANGE_PASSWORD,
             context: DomainMessages.REGISTER_CHANGE_PASSWORD_HEADER
@@ -98,7 +99,7 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       this.changePasswordWrapper!.oldPassword = '';
       this.changePasswordWrapper!.password = '';
       this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      resetSignalAfterDelay(this.isReset);
     }
   }
 

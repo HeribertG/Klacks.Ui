@@ -18,7 +18,7 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
-import { newGuid } from 'src/app/shared/helpers/guid.helper';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -85,7 +85,7 @@ export class DataManagementShiftCutService
 
   addCutShift(shift: Shift): void {
     if (!shift.id || (shift as any).isNew) {
-      (shift as any).__tempId = newGuid();
+      (shift as any).__tempId = crypto.randomUUID();
     }
     this.cutShifts = [...this.cutShifts, shift];
   }
@@ -107,7 +107,7 @@ export class DataManagementShiftCutService
 
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   private isCutShifts_Dirty(): boolean {
@@ -290,7 +290,7 @@ export class DataManagementShiftCutService
 
   private fireIsResetEvent(): void {
     this.isReset.set(true);
-    setTimeout(() => this.isReset.set(false), 100);
+    resetSignalAfterDelay(this.isReset);
   }
 
   goBack(): string {

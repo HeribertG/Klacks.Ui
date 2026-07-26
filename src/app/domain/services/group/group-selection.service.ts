@@ -16,6 +16,7 @@ import { DataManagementShiftService } from '../shift/data-management-shift.servi
 import { DataManagementClientService } from '../client/data-management-client.service';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -70,7 +71,7 @@ export class GroupSelectionService {
 
   private triggerSelectedGroupChanged(): void {
     this.selectedGroupChanged.set(true);
-    setTimeout(() => this.selectedGroupChanged.set(false), 100);
+    resetSignalAfterDelay(this.selectedGroupChanged);
 
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity() as EntityName) {
       case EntityName.CLIENT:

@@ -1,8 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable, signal } from '@angular/core';
-import { lastValueFrom, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import {
   Absence,
   AbsenceFilter,
@@ -16,6 +15,7 @@ import { ILoadable, IRefreshable } from 'src/app/domain/interfaces/manageable.in
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +30,6 @@ export class DataManagementAbsenceService implements ILoadable, IRefreshable {
   public dataAbsenceService = inject(DataAbsenceService);
   private dataLoadFileService = inject(DataLoadFileService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
-  private destroy$ = new Subject<void>();
 
   constructor() {
     // Selbst-Registrierung für die absence Route
@@ -51,8 +50,6 @@ export class DataManagementAbsenceService implements ILoadable, IRefreshable {
   public listWrapper: TruncatedAbsence | undefined;
   public currentFilter: AbsenceFilter = new AbsenceFilter();
   public restoreSearch = signal('');
-
-  private static readonly READ_RESET_DELAY = 100;
 
   private currentFilterDummy: AbsenceFilter | undefined;
   private temporaryFilterDummy: AbsenceFilter | undefined;
@@ -81,7 +78,6 @@ export class DataManagementAbsenceService implements ILoadable, IRefreshable {
 
     this.dataAbsenceService
       .readTruncatedAbsence(this.currentFilter)
-      .pipe(takeUntil(this.destroy$))
       .subscribe((x: TruncatedAbsence | undefined) => {
         if (x) {
           this.listWrapper = x;
@@ -93,10 +89,7 @@ export class DataManagementAbsenceService implements ILoadable, IRefreshable {
           this.firstItem = x.firstItemOnPage;
           this._showProgressSpinner.set(false);
           this.isRead.set(true);
-          setTimeout(
-            () => this.isRead.set(false),
-            DataManagementAbsenceService.READ_RESET_DELAY
-          );
+          resetSignalAfterDelay(this.isRead);
         }
       });
   }
@@ -114,10 +107,5 @@ export class DataManagementAbsenceService implements ILoadable, IRefreshable {
   async updateAbsence(item: IAbsence, language: string): Promise<void> {
     await lastValueFrom(this.dataAbsenceService.updateAbsence(item));
     this.readPage(language);
-  }
-
-  public destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -10,8 +10,7 @@ import {
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
-import { lastValueFrom, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -25,7 +24,6 @@ export class DataManagementCalendarSelectionService {
   private localStorageService = inject(LocalStorageService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private translate = inject(TranslateService);
-  private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
   public isChanged = signal(false);
@@ -45,7 +43,6 @@ export class DataManagementCalendarSelectionService {
     this.calendarsSelections.push(this.emptyCalendarSelection());
 
     this.translate.onLangChange
-      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.updateEmptyPlaceholder();
       });
@@ -80,7 +77,6 @@ export class DataManagementCalendarSelectionService {
     });
     this.dataCalendarSelectionService
       .addCalendarSelection(value)
-      .pipe(takeUntil(this.destroy$))
       .subscribe(async (x: CalendarSelection | undefined) => {
         if (x) {
           await this.readData();
@@ -169,7 +165,6 @@ export class DataManagementCalendarSelectionService {
   getCalendarSelection(id: string) {
     this.dataCalendarSelectionService
       .getCalendarSelection(id)
-      .pipe(takeUntil(this.destroy$))
       .subscribe((calendarSelection: CalendarSelection | undefined) => {
         if (calendarSelection) {
           this.currentCalendarSelection = calendarSelection;
@@ -281,10 +276,5 @@ export class DataManagementCalendarSelectionService {
 
       return nameA.localeCompare(nameB);
     });
-  }
-
-  public destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

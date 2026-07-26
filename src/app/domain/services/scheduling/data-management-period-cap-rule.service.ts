@@ -17,6 +17,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 const MIN_CUSTOM_PERIOD_WEEKS = 1;
 const MAX_CUSTOM_PERIOD_WEEKS = 104;
@@ -44,7 +45,7 @@ export class DataManagementPeriodCapRuleService {
 
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   async readRules(): Promise<IPeriodCapRule[]> {

@@ -20,6 +20,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -113,7 +114,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
             this._showProgressSpinner.set(false);
             this.isRead.set(true);
 
-            setTimeout(() => this.isRead.set(false), 100);
+            resetSignalAfterDelay(this.isRead);
 
             if (this._autoLoadEnabled && this.hasMoreRows) {
               setTimeout(() => this.autoLoadNextChunk(), 100);
@@ -150,7 +151,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
 
           this._isLoadingMore.set(false);
           this.isRead.set(true);
-          setTimeout(() => this.isRead.set(false), 100);
+          resetSignalAfterDelay(this.isRead);
 
           if (this._autoLoadEnabled && this.hasMoreRows) {
             setTimeout(() => this.autoLoadNextChunk(), 50);
@@ -189,7 +190,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
 
           this._isLoadingMore.set(false);
           this.isRead.set(true);
-          setTimeout(() => this.isRead.set(false), 100);
+          resetSignalAfterDelay(this.isRead);
 
           if (this._autoLoadEnabled && this.hasMoreRows) {
             setTimeout(() => this.autoLoadNextChunk(), 50);

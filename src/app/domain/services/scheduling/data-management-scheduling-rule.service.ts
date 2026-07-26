@@ -8,6 +8,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +32,7 @@ export class DataManagementSchedulingRuleService {
 
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   async readRules(): Promise<ISchedulingRule[]> {

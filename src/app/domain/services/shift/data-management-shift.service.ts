@@ -27,6 +27,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -139,7 +140,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     this.initCount += hit;
     if (this.initCount === this.initFinished) {
       this.initIsRead.set(true);
-      setTimeout(() => this.initIsRead.set(false), 100);
+      resetSignalAfterDelay(this.initIsRead);
     }
   }
 
@@ -210,7 +211,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   fireIsReadEvent() {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   /* #endregion all shift */
@@ -255,7 +256,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
     setTimeout(() => {
       this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      resetSignalAfterDelay(this.isReset);
     }, 200);
   }
 
@@ -408,7 +409,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
       result = this.isValidate();
     }
     this.makeValidation.set(true);
-    setTimeout(() => this.makeValidation.set(false), 100);
+    resetSignalAfterDelay(this.makeValidation);
     return result;
   }
 

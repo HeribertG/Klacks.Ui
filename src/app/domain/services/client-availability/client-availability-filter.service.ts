@@ -7,6 +7,7 @@
  */
 import { Injectable, signal } from '@angular/core';
 import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 const ALL_GROUPS_VIRTUAL_ID = 'all-groups-virtual';
 
@@ -47,6 +48,6 @@ export class ClientAvailabilityFilterService {
 
   public notifyClientsChanged(): void {
     this.clientsChanged.set(true);
-    setTimeout(() => this.clientsChanged.set(false), 100);
+    resetSignalAfterDelay(this.clientsChanged);
   }
 }

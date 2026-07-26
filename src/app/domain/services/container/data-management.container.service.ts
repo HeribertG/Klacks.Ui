@@ -42,6 +42,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/shared/helpers/object.helper';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -363,7 +364,7 @@ export class DataManagementContainerService
     }
 
     this.isReset.set(true);
-    setTimeout(() => this.isReset.set(false), 100);
+    resetSignalAfterDelay(this.isReset);
   }
 
   loadTemplates(containerId: string): Observable<void> {
@@ -404,7 +405,7 @@ export class DataManagementContainerService
 
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   getCurrentTemplates(): IContainerTemplate[] {

@@ -16,6 +16,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 const MIN_MONTH = 1;
 const MAX_MONTH = 12;
@@ -45,7 +46,7 @@ export class DataManagementRestrictedTimeWindowRuleService {
 
   private fireIsReadEvent(): void {
     this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+    resetSignalAfterDelay(this.isRead);
   }
 
   async readRules(): Promise<IRestrictedTimeWindowRule[]> {
