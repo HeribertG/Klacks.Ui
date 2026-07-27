@@ -254,25 +254,6 @@ export class WorkChangeLogicService {
     return { isValid: false, changeTime: 0, errorKey: 'dialog.replacement.error.outsideWork' };
   }
 
-  validateOnCall(
-    wcStartTime: OwnTime,
-    wcEndTime: OwnTime
-  ): WorkChangeValidation {
-    const startMinutes = this.ownTimeToMinutes(wcStartTime);
-    const endMinutes = this.ownTimeToMinutes(wcEndTime);
-
-    let durationMinutes = endMinutes - startMinutes;
-    if (durationMinutes < 0) {
-      durationMinutes += this.MINUTES_PER_DAY;
-    }
-
-    if (durationMinutes <= 0) {
-      return { isValid: false, changeTime: 0, errorKey: 'dialog.oncall.error.zeroTime' };
-    }
-
-    return { isValid: true, changeTime: durationMinutes / 60 };
-  }
-
   getDefaultTimesForMode(
     mode: CorrectionMode,
     workContext: WorkTimeContext

@@ -327,61 +327,6 @@ describe('WorkChangeLogicService', () => {
     });
   });
 
-  describe('validateOnCall', () => {
-    it('should compute positive raw hours for a normal range', () => {
-      // Arrange
-      const wcStartTime = OwnTime.forTime('18', '00');
-      const wcEndTime = OwnTime.forTime('22', '00');
-
-      // Act
-      const result = service.validateOnCall(wcStartTime, wcEndTime);
-
-      // Assert
-      expect(result.isValid).toBe(true);
-      expect(result.changeTime).toBe(4);
-    });
-
-    it('should add a full day when the range crosses midnight', () => {
-      // Arrange
-      const wcStartTime = OwnTime.forTime('18', '00');
-      const wcEndTime = OwnTime.forTime('08', '00');
-
-      // Act
-      const result = service.validateOnCall(wcStartTime, wcEndTime);
-
-      // Assert
-      expect(result.isValid).toBe(true);
-      expect(result.changeTime).toBe(14);
-    });
-
-    it('should reject a zero-length range', () => {
-      // Arrange
-      const wcStartTime = OwnTime.forTime('08', '00');
-      const wcEndTime = OwnTime.forTime('08', '00');
-
-      // Act
-      const result = service.validateOnCall(wcStartTime, wcEndTime);
-
-      // Assert
-      expect(result.isValid).toBe(false);
-      expect(result.changeTime).toBe(0);
-      expect(result.errorKey).toBe('dialog.oncall.error.zeroTime');
-    });
-
-    it('should not constrain the range to the work boundaries', () => {
-      // Arrange: entirely outside a hypothetical 08:00-16:00 shift
-      const wcStartTime = OwnTime.forTime('20', '00');
-      const wcEndTime = OwnTime.forTime('23', '30');
-
-      // Act
-      const result = service.validateOnCall(wcStartTime, wcEndTime);
-
-      // Assert
-      expect(result.isValid).toBe(true);
-      expect(result.changeTime).toBe(3.5);
-    });
-  });
-
   describe('getDefaultTimesForMode', () => {
     it('should return correct defaults for AtStart', () => {
       // Arrange

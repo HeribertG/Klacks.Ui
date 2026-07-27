@@ -11,7 +11,7 @@
  *
  * @relations
  * - Used by: ScheduleSectionComponent
- * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent, TravelDialogComponent, BriefingDialogComponent, OnCallDialogComponent, ContainerWorkEditDialogComponent, ContainerSplitDialogComponent
+ * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent, TravelDialogComponent, BriefingDialogComponent, ContainerWorkEditDialogComponent, ContainerSplitDialogComponent
  * - Uses: ScheduleDataService for entry lookup
  */
 import { Injectable } from '@angular/core';
@@ -23,7 +23,6 @@ import { ExpensesDialogComponent } from '../../dialogs/expenses-dialog/expenses-
 import { ContainerWorkEditDialogComponent } from '../../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
 import { TravelDialogComponent } from '../../dialogs/travel-dialog/travel-dialog.component';
 import { BriefingDialogComponent } from '../../dialogs/briefing-dialog/briefing-dialog.component';
-import { OnCallDialogComponent } from '../../dialogs/oncall-dialog/oncall-dialog.component';
 import { ContainerSplitDialogComponent } from '../../dialogs/container-split-dialog/container-split-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -38,7 +37,6 @@ export class ScheduleDialogService {
   private containerWorkEditDialog: ContainerWorkEditDialogComponent | null = null;
   private travelDialog: TravelDialogComponent | null = null;
   private briefingDialog: BriefingDialogComponent | null = null;
-  private onCallDialog: OnCallDialogComponent | null = null;
   private containerSplitDialog: ContainerSplitDialogComponent | null = null;
 
   setDialogs(
@@ -49,7 +47,6 @@ export class ScheduleDialogService {
     containerWorkEditDialog: ContainerWorkEditDialogComponent,
     travelDialog: TravelDialogComponent,
     briefingDialog: BriefingDialogComponent,
-    onCallDialog: OnCallDialogComponent,
     containerSplitDialog: ContainerSplitDialogComponent,
   ): void {
     this.correctionDialog = correctionDialog;
@@ -59,7 +56,6 @@ export class ScheduleDialogService {
     this.containerWorkEditDialog = containerWorkEditDialog;
     this.travelDialog = travelDialog;
     this.briefingDialog = briefingDialog;
-    this.onCallDialog = onCallDialog;
     this.containerSplitDialog = containerSplitDialog;
   }
 
@@ -96,17 +92,6 @@ export class ScheduleDialogService {
     }
   }
 
-  openOnCallDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
-    if (!this.onCallDialog) return;
-
-    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
-    const date = dataService.getDateForColumn(column);
-
-    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
-      this.onCallDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
-    }
-  }
-
   openReplacementDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
     if (!this.replacementDialog) return;
 
@@ -137,7 +122,6 @@ export class ScheduleDialogService {
       const isCorrection = entry.workChangeType === 0 || entry.workChangeType === 1;
       const isTravel = entry.workChangeType === 4 || entry.workChangeType === 5 || entry.workChangeType === 6;
       const isBriefing = entry.workChangeType === 7 || entry.workChangeType === 8;
-      const isOnCall = entry.workChangeType === 10 || entry.workChangeType === 11;
 
       if (isCorrection && this.correctionDialog) {
         this.correctionDialog.openEdit(entry.id, date);
@@ -145,8 +129,6 @@ export class ScheduleDialogService {
         this.travelDialog.openEdit(entry.id, date);
       } else if (isBriefing && this.briefingDialog) {
         this.briefingDialog.openEdit(entry.id, date);
-      } else if (isOnCall && this.onCallDialog) {
-        this.onCallDialog.openEdit(entry.id, date);
       } else if (this.replacementDialog) {
         this.replacementDialog.openEdit(entry.id, entry.clientId, date);
       }

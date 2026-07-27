@@ -97,13 +97,6 @@ export class ScheduleMenuDispatcherService {
         dataService,
         host.contextMenuEntry ?? undefined,
       ),
-    onCall: (dataService, _k, host) =>
-      this.facade.dialog.openOnCallDialog(
-        host.contextMenuRow,
-        host.contextMenuColumn,
-        dataService,
-        host.contextMenuEntry ?? undefined,
-      ),
     replacement: (dataService, _k, host) =>
       this.facade.dialog.openReplacementDialog(
         host.contextMenuRow,

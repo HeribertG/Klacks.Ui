@@ -889,12 +889,6 @@ export class ScheduleDataService extends BaseDataService {
     if (type === 7 || type === 8) {
       return this.translateService.instant('workChange.tooltip.briefing');
     }
-    if (type === 10) {
-      return this.translateService.instant('workChange.tooltip.oncallPresence');
-    }
-    if (type === 11) {
-      return this.translateService.instant('workChange.tooltip.oncallStandby');
-    }
     return this.translateService.instant('workChange.tooltip.correction');
   }
 
@@ -925,10 +919,6 @@ export class ScheduleDataService extends BaseDataService {
         return 'workChange.abbr.briefing';
       case 8:
         return 'workChange.abbr.debriefing';
-      case 10:
-        return 'workChange.abbr.oncallPresence';
-      case 11:
-        return 'workChange.abbr.oncallStandby';
       default:
         return 'workChange.abbr.correction';
     }

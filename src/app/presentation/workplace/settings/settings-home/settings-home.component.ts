@@ -64,7 +64,6 @@ import { UpdatesSettingComponent } from '../updates-setting/updates-setting.comp
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { IndividualPeriodsComponent } from '../individual-periods/individual-periods.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
-import { OnCallSettingsComponent } from '../on-call-settings/on-call-settings.component';
 import { CompensatoryRestSettingsComponent } from '../compensatory-rest-settings/compensatory-rest-settings.component';
 import { SurchargeModeSettingsComponent } from '../surcharge-mode-settings/surcharge-mode-settings.component';
 import { OvertimeSettingsComponent } from '../overtime-settings/overtime-settings.component';
@@ -140,7 +139,6 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     QualificationsComponent,
     IndividualPeriodsComponent,
     PersonalAccessTokensComponent,
-    OnCallSettingsComponent,
     CompensatoryRestSettingsComponent,
     SurchargeModeSettingsComponent,
     OvertimeSettingsComponent,

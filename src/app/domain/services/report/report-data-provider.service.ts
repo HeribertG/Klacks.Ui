@@ -644,8 +644,6 @@ export class ReportDataProviderService {
       case WorkChangeType.CorrectionStart:
       case WorkChangeType.CorrectionEnd:
         return 'workChange.abbr.correction';
-      case WorkChangeType.OnCallPresence: return 'workChange.abbr.oncallPresence';
-      case WorkChangeType.OnCallStandby: return 'workChange.abbr.oncallStandby';
       default:
         return entry.replaceClientId
           ? 'workChange.abbr.replacement'

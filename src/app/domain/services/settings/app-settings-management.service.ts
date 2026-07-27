@@ -3,7 +3,7 @@
 /**
  * Central store for all key-value application settings persisted through the generic
  * GeneralSettings endpoint. Loads the flat setting list into strongly typed sub-group
- * signals (contact, email, imap, work, scheduling defaults, on-call, compensatory rest,
+ * signals (contact, email, imap, work, scheduling defaults, compensatory rest,
  * surcharge modes, overtime, compliance enforcement, etc.), tracks per-group dirtiness
  * against an original snapshot, and debounces an auto-save that writes only changed keys.
  */
@@ -20,7 +20,6 @@ import {
   IWorkSettings,
   ISchedulingDefaultSettings,
   IDataRetentionSettings,
-  IOnCallSettings,
   ICompensatoryRestSettings,
   ISurchargeModeSettings,
   IOvertimeSettings,
@@ -32,7 +31,6 @@ import {
   WorkSettings,
   SchedulingDefaultSettings,
   DataRetentionSettings,
-  OnCallSettings,
   CompensatoryRestSettings,
   SurchargeModeSettings,
   OvertimeSettings,
@@ -88,7 +86,6 @@ interface SettingsModels {
   erpImportCronTimeZone: string;
   speech: ISpeechSettings;
   holisticHarmonizer: IHolisticHarmonizerSettings;
-  onCall: IOnCallSettings;
   compensatoryRest: ICompensatoryRestSettings;
   surchargeMode: ISurchargeModeSettings;
   overtime: IOvertimeSettings;
@@ -231,17 +228,6 @@ export class AppSettingsManagementService {
       : ['Saturday', 'Sunday'])],
     [AppSetting.CALENDAR_WEEK_START_DAY, (v, m) => (m.schedulingDefaults.weekStartDay = v || 'Monday')],
 
-    [AppSetting.WORKTIME_ONCALL_ENABLED, (v, m) => (m.onCall.onCallEnabled = v === 'true')],
-    [AppSetting.WORKTIME_ONCALL_PRESENCE_COUNTS_PERCENT, (v, m) => {
-      const parsed = parseInt(v, 10);
-      m.onCall.onCallPresenceCountsPercent = Number.isNaN(parsed) ? 100 : parsed;
-    }],
-    [AppSetting.WORKTIME_ONCALL_STANDBY_COUNTS_PERCENT, (v, m) => {
-      const parsed = parseInt(v, 10);
-      m.onCall.onCallStandbyCountsPercent = Number.isNaN(parsed) ? 0 : parsed;
-    }],
-    [AppSetting.WORKTIME_ONCALL_INCLUDE_IN_PERIOD_CAPS, (v, m) => (m.onCall.onCallIncludeInPeriodCaps = v === 'true')],
-
     [AppSetting.COMPLIANCE_COMPENSATORY_REST_ENABLED, (v, m) => (m.compensatoryRest.compensatoryRestEnabled = v === 'true')],
     [AppSetting.COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS, (v, m) => {
       const parsed = parseInt(v, 10);
@@ -308,7 +294,6 @@ export class AppSettingsManagementService {
   public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
   public holisticHarmonizerSettings = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
-  public onCallSettings = signal<IOnCallSettings>(new OnCallSettings());
   public compensatoryRestSettings = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
   public surchargeModeSettings = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
   public overtimeSettings = signal<IOvertimeSettings>(new OvertimeSettings());
@@ -328,7 +313,6 @@ export class AppSettingsManagementService {
   private erpImportCronTimeZoneOriginal = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
   private holisticHarmonizerSettingsOriginal = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
-  private onCallSettingsOriginal = signal<IOnCallSettings>(new OnCallSettings());
   private compensatoryRestSettingsOriginal = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
   private surchargeModeSettingsOriginal = signal<ISurchargeModeSettings>(new SurchargeModeSettings());
   private overtimeSettingsOriginal = signal<IOvertimeSettings>(new OvertimeSettings());
@@ -358,7 +342,6 @@ export class AppSettingsManagementService {
       this.erpImportCronTimeZone();
       this.speechSettings();
       this.holisticHarmonizerSettings();
-      this.onCallSettings();
       this.compensatoryRestSettings();
       this.surchargeModeSettings();
       this.overtimeSettings();
@@ -434,7 +417,6 @@ export class AppSettingsManagementService {
       erpImportCronTimeZone: ErpImportScheduleDefaults.CronTimeZone,
       speech: new SpeechSettings(),
       holisticHarmonizer: new HolisticHarmonizerSettings(),
-      onCall: new OnCallSettings(),
       compensatoryRest: new CompensatoryRestSettings(),
       surchargeMode: new SurchargeModeSettings(),
       overtime: new OvertimeSettings(),
@@ -462,7 +444,6 @@ export class AppSettingsManagementService {
     this.erpImportCronTimeZone.set(models.erpImportCronTimeZone);
     this.speechSettings.set(models.speech);
     this.holisticHarmonizerSettings.set(models.holisticHarmonizer);
-    this.onCallSettings.set(models.onCall);
     this.compensatoryRestSettings.set(models.compensatoryRest);
     this.surchargeModeSettings.set(models.surchargeMode);
     this.overtimeSettings.set(models.overtime);
@@ -482,7 +463,6 @@ export class AppSettingsManagementService {
     this.erpImportCronTimeZoneOriginal.set(models.erpImportCronTimeZone);
     this.speechSettingsOriginal.set(cloneObject(models.speech));
     this.holisticHarmonizerSettingsOriginal.set(cloneObject(models.holisticHarmonizer));
-    this.onCallSettingsOriginal.set(cloneObject(models.onCall));
     this.compensatoryRestSettingsOriginal.set(cloneObject(models.compensatoryRest));
     this.surchargeModeSettingsOriginal.set(cloneObject(models.surchargeMode));
     this.overtimeSettingsOriginal.set(cloneObject(models.overtime));
@@ -608,11 +588,6 @@ export class AppSettingsManagementService {
     { key: AppSetting.CALENDAR_WEEKEND_DAYS, getCurrent: () => this.schedulingDefaultSettings().weekendDays.join(','), getOriginal: () => this.schedulingDefaultSettingsOriginal().weekendDays.join(',') },
     { key: AppSetting.CALENDAR_WEEK_START_DAY, getCurrent: () => this.schedulingDefaultSettings().weekStartDay, getOriginal: () => this.schedulingDefaultSettingsOriginal().weekStartDay },
 
-    { key: AppSetting.WORKTIME_ONCALL_ENABLED, getCurrent: () => String(this.onCallSettings().onCallEnabled), getOriginal: () => String(this.onCallSettingsOriginal().onCallEnabled) },
-    { key: AppSetting.WORKTIME_ONCALL_PRESENCE_COUNTS_PERCENT, getCurrent: () => this.onCallSettings().onCallPresenceCountsPercent.toString(), getOriginal: () => this.onCallSettingsOriginal().onCallPresenceCountsPercent.toString() },
-    { key: AppSetting.WORKTIME_ONCALL_STANDBY_COUNTS_PERCENT, getCurrent: () => this.onCallSettings().onCallStandbyCountsPercent.toString(), getOriginal: () => this.onCallSettingsOriginal().onCallStandbyCountsPercent.toString() },
-    { key: AppSetting.WORKTIME_ONCALL_INCLUDE_IN_PERIOD_CAPS, getCurrent: () => String(this.onCallSettings().onCallIncludeInPeriodCaps), getOriginal: () => String(this.onCallSettingsOriginal().onCallIncludeInPeriodCaps) },
-
     { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_ENABLED, getCurrent: () => String(this.compensatoryRestSettings().compensatoryRestEnabled), getOriginal: () => String(this.compensatoryRestSettingsOriginal().compensatoryRestEnabled) },
     { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS, getCurrent: () => this.compensatoryRestSettings().compensatoryRestDeadlineDays.toString(), getOriginal: () => this.compensatoryRestSettingsOriginal().compensatoryRestDeadlineDays.toString() },
     { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN, getCurrent: () => String(this.compensatoryRestSettings().compensatoryRestAutoPlan), getOriginal: () => String(this.compensatoryRestSettingsOriginal().compensatoryRestAutoPlan) },
@@ -733,7 +708,6 @@ export class AppSettingsManagementService {
       this.erpImportCronTimeZoneOriginal.set(this.erpImportCronTimeZone());
       this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
       this.holisticHarmonizerSettingsOriginal.set(cloneObject(this.holisticHarmonizerSettings()));
-      this.onCallSettingsOriginal.set(cloneObject(this.onCallSettings()));
       this.compensatoryRestSettingsOriginal.set(cloneObject(this.compensatoryRestSettings()));
       this.surchargeModeSettingsOriginal.set(cloneObject(this.surchargeModeSettings()));
       this.overtimeSettingsOriginal.set(cloneObject(this.overtimeSettings()));
@@ -770,7 +744,6 @@ export class AppSettingsManagementService {
       this.erpImportCronTimeZone() !== this.erpImportCronTimeZoneOriginal() ||
       !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal()) ||
       !compareComplexObjects(this.holisticHarmonizerSettings(), this.holisticHarmonizerSettingsOriginal()) ||
-      !compareComplexObjects(this.onCallSettings(), this.onCallSettingsOriginal()) ||
       !compareComplexObjects(this.compensatoryRestSettings(), this.compensatoryRestSettingsOriginal()) ||
       !compareComplexObjects(this.surchargeModeSettings(), this.surchargeModeSettingsOriginal()) ||
       !compareComplexObjects(this.overtimeSettings(), this.overtimeSettingsOriginal()) ||

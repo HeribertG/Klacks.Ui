@@ -186,20 +186,6 @@ export class WorkSettings implements IWorkSettings {
   dayVisibleAfter = 3;
 }
 
-export interface IOnCallSettings {
-  onCallEnabled: boolean;
-  onCallPresenceCountsPercent: number;
-  onCallStandbyCountsPercent: number;
-  onCallIncludeInPeriodCaps: boolean;
-}
-
-export class OnCallSettings implements IOnCallSettings {
-  onCallEnabled = false;
-  onCallPresenceCountsPercent = 100;
-  onCallStandbyCountsPercent = 0;
-  onCallIncludeInPeriodCaps = false;
-}
-
 export interface ICompensatoryRestSettings {
   compensatoryRestEnabled: boolean;
   compensatoryRestDeadlineDays: number;

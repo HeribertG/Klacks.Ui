@@ -67,7 +67,6 @@ import { ExpensesDialogComponent } from '../dialogs/expenses-dialog/expenses-dia
 import { ContainerWorkEditDialogComponent } from '../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
 import { TravelDialogComponent } from '../dialogs/travel-dialog/travel-dialog.component';
 import { BriefingDialogComponent } from '../dialogs/briefing-dialog/briefing-dialog.component';
-import { OnCallDialogComponent } from '../dialogs/oncall-dialog/oncall-dialog.component';
 import { ContainerSplitDialogComponent } from '../dialogs/container-split-dialog/container-split-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
@@ -117,7 +116,6 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     ContainerWorkEditDialogComponent,
     TravelDialogComponent,
     BriefingDialogComponent,
-    OnCallDialogComponent,
     ContainerSplitDialogComponent,
   ],
   providers: [
@@ -166,7 +164,6 @@ export class ScheduleSectionComponent
   readonly containerWorkEditDialog = viewChild.required(ContainerWorkEditDialogComponent);
   readonly travelDialog = viewChild.required(TravelDialogComponent);
   readonly briefingDialog = viewChild.required(BriefingDialogComponent);
-  readonly onCallDialog = viewChild.required(OnCallDialogComponent);
   readonly containerSplitDialog = viewChild.required(ContainerSplitDialogComponent);
 
   horizontalSize = input(200);
@@ -231,7 +228,7 @@ export class ScheduleSectionComponent
     if (tableSurface) {
       tableSurface.drawSchedule.showFillHandle = true;
     }
-    this.facade.dialog.setDialogs(this.correctionDialog(), this.replacementDialog(), this.workEditDialog(), this.expensesDialog(), this.containerWorkEditDialog(), this.travelDialog(), this.briefingDialog(), this.onCallDialog(), this.containerSplitDialog());
+    this.facade.dialog.setDialogs(this.correctionDialog(), this.replacementDialog(), this.workEditDialog(), this.expensesDialog(), this.containerWorkEditDialog(), this.travelDialog(), this.briefingDialog(), this.containerSplitDialog());
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
     this.splitEl().dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {

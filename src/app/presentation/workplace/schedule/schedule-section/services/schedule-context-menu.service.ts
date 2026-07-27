@@ -148,7 +148,6 @@ export class ScheduleContextMenuService {
             menuData.list.push(...MenuDataTemplate.correction());
             menuData.list.push(...MenuDataTemplate.travel());
             menuData.list.push(...MenuDataTemplate.briefingDebriefing());
-            menuData.list.push(...MenuDataTemplate.onCall());
             menuData.list.push(...MenuDataTemplate.replacement());
             menuData.list.push(...MenuDataTemplate.expenses());
             if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
