@@ -59,7 +59,7 @@ describe('ScheduleCellDropHandlerService', () => {
   let dataManagement: {
     deleteWorkScheduleEntry: ReturnType<typeof vi.fn>;
     addWorkScheduleEntry: ReturnType<typeof vi.fn>;
-    shiftSchedules: { shiftId: string; date: Date; workTime: number; startShift: string; endShift: string }[];
+    reassignWorkScheduleEntry: ReturnType<typeof vi.fn>;
     visibleStartDate: Date | null;
     visibleEndDate: Date | null;
     currentFilter: { paymentInterval: number };
@@ -70,9 +70,7 @@ describe('ScheduleCellDropHandlerService', () => {
     dataManagement = {
       deleteWorkScheduleEntry: vi.fn(),
       addWorkScheduleEntry: vi.fn().mockResolvedValue(undefined),
-      shiftSchedules: [
-        { shiftId: 'shift-id', date: SOURCE_DATE, workTime: 8, startShift: '06:00:00', endShift: '14:00:00' },
-      ],
+      reassignWorkScheduleEntry: vi.fn().mockResolvedValue(undefined),
       visibleStartDate: visibleStart,
       visibleEndDate: visibleEnd,
       currentFilter: { paymentInterval: 2 },
@@ -129,7 +127,7 @@ describe('ScheduleCellDropHandlerService', () => {
     expect(scheduleEntryCrud.addBreakScheduleEntry).not.toHaveBeenCalled();
   });
 
-  it('move Work calls addWorkScheduleEntry on target client first, then delete on source', async () => {
+  it('move Work reassigns the existing entry to the target client in place', async () => {
     const result: ScheduleCellDropResult = {
       source: workSource,
       action: 'move',
@@ -141,27 +139,12 @@ describe('ScheduleCellDropHandlerService', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(dataManagement.addWorkScheduleEntry).toHaveBeenCalledWith({
-      clientId: 'client-target',
-      date: SOURCE_DATE,
-      shiftId: 'shift-id',
-      workTime: 8,
-      startTime: '06:00:00',
-      endTime: '14:00:00',
-    });
-    expect(dataManagement.deleteWorkScheduleEntry).toHaveBeenCalled();
-  });
-
-  it('move Work without matching shift skips both add and delete', () => {
-    dataManagement.shiftSchedules = [];
-    const result: ScheduleCellDropResult = {
-      source: workSource,
-      action: 'move',
-      targetClientId: 'client-target',
-    };
-
-    service.handleDrop(result);
-
+    expect(dataManagement.reassignWorkScheduleEntry).toHaveBeenCalledWith(
+      workSource.sourceId,
+      workSource.clientId,
+      'client-target',
+      SOURCE_DATE,
+    );
     expect(dataManagement.addWorkScheduleEntry).not.toHaveBeenCalled();
     expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
   });
@@ -169,12 +152,11 @@ describe('ScheduleCellDropHandlerService', () => {
   it('move Work without targetClientId is a no-op', () => {
     service.handleDrop({ source: workSource, action: 'move' });
 
-    expect(dataManagement.addWorkScheduleEntry).not.toHaveBeenCalled();
-    expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
+    expect(dataManagement.reassignWorkScheduleEntry).not.toHaveBeenCalled();
   });
 
-  it('move Work skips delete if add rejects', async () => {
-    dataManagement.addWorkScheduleEntry.mockRejectedValueOnce(new Error('add failed'));
+  it('move Work shows an error toast if reassign rejects', async () => {
+    dataManagement.reassignWorkScheduleEntry.mockRejectedValueOnce(new Error('reassign failed'));
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     service.handleDrop({ source: workSource, action: 'move', targetClientId: 'client-target' });

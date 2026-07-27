@@ -3,8 +3,9 @@
 /**
  * Executes the action chosen by ScheduleCellDragDropService when a drag ends:
  * delete (drop outside the table) or move (drop on another client row).
- * Move is implemented as add-on-target + delete-source on the frontend.
- * @param dataManagement - DataManagementScheduleService used for add/delete calls
+ * Work moves reassign the existing entity in place (preserves WorkChange/Expenses
+ * children); Break moves are implemented as add-on-target + delete-source.
+ * @param dataManagement - DataManagementScheduleService used for add/delete/reassign calls
  * @param scheduleEntryCrud - ScheduleEntryCrudService used for Break add
  */
 import { inject, Injectable } from '@angular/core';
@@ -67,24 +68,8 @@ export class ScheduleCellDropHandlerService {
   }
 
   private moveWork(src: ScheduleCellDragSource, targetClientId: string): void {
-    const shift = this.dataManagement.shiftSchedules.find(
-      (s) => s.shiftId === src.entryId && this.isSameDay(new Date(s.date), src.date),
-    );
-    if (!shift) {
-      this.toastShowService.showError(this.translateService.instant('schedule.moveWork.shiftNotFound'));
-      return;
-    }
-
     this.dataManagement
-      .addWorkScheduleEntry({
-        clientId: targetClientId,
-        date: src.date,
-        shiftId: shift.shiftId,
-        workTime: shift.workTime,
-        startTime: shift.startShift,
-        endTime: shift.endShift,
-      })
-      .then(() => this.deleteEntry(src))
+      .reassignWorkScheduleEntry(src.sourceId, src.clientId, targetClientId, src.date)
       .catch(() => this.toastShowService.showError(this.translateService.instant('schedule.moveWork.moveFailed')));
   }
 
@@ -119,13 +104,5 @@ export class ScheduleCellDropHandlerService {
     const description: IMultiLanguage = {};
     description[language as keyof IMultiLanguage] = abbreviation;
     return description as MultiLanguage;
-  }
-
-  private isSameDay(a: Date, b: Date): boolean {
-    return (
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate()
-    );
   }
 }

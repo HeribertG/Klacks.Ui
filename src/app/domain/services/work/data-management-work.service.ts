@@ -103,6 +103,31 @@ export class DataManagementWorkService {
     });
   }
 
+  reassignWorkClient(workId: string, targetClientId: string): Promise<IWork> {
+    return new Promise((resolve, reject) => {
+      this.dataSchedule.getWork(workId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (work) => {
+            work.clientId = targetClientId;
+            this.dataSchedule.updateWork(work as Work)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                next: (response) => resolve(response),
+                error: (err) => {
+                  console.error('Error reassigning work entry to client:', err);
+                  reject(err);
+                },
+              });
+          },
+          error: (err) => {
+            console.error('Error fetching work entry for reassignment:', err);
+            reject(err);
+          },
+        });
+    });
+  }
+
   deleteWorkById(workId: string, periodStart: string, periodEnd: string): Promise<IWork> {
     return new Promise((resolve, reject) => {
       this.dataSchedule.deleteWork(workId, periodStart, periodEnd)

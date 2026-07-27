@@ -408,6 +408,15 @@ export class DataManagementScheduleService implements ILoadable {
     return this.scheduleEntryCrud.addWorkScheduleEntry(params, this.workFilter);
   }
 
+  reassignWorkScheduleEntry(
+    workId: string,
+    sourceClientId: string,
+    targetClientId: string,
+    date: Date,
+  ): Promise<void> {
+    return this.scheduleEntryCrud.reassignWorkScheduleEntry(workId, sourceClientId, targetClientId, date);
+  }
+
   deleteWorkScheduleEntry(
     id: string,
     sourceId: string,

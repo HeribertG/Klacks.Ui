@@ -202,6 +202,12 @@ export class ScheduleEntryCrudService {
     });
   }
 
+  async reassignWorkScheduleEntry(workId: string, sourceClientId: string, targetClientId: string, date: Date): Promise<void> {
+    const response = await this.workCrud.reassignWorkClient(workId, targetClientId);
+    this.applySingleClientDeleteResponse(response, targetClientId, date);
+    await this.refreshClientScheduleForDays(sourceClientId, date);
+  }
+
   async bulkAddWorkScheduleEntries(entries: ScheduleCellParams[], workFilter: IWorkFilter): Promise<void> {
     if (entries.length === 0) return;
 
