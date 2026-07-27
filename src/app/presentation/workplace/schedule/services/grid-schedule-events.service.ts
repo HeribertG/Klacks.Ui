@@ -21,6 +21,7 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
 @Injectable()
 export class GridScheduleEventsService {
@@ -217,7 +218,7 @@ export class GridScheduleEventsService {
     const sourceCanvas = this.gridSurface.canvasRef()?.nativeElement;
     if (!sourceCanvas) return null;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = DrawHelper.pixelRatio();
     const headerHeight = this.gridSettings.hasHeader ? this.gridSettings.cellHeaderHeight : 0;
     const cssX = (column - this.scrollService.horizontalScrollPosition) * cellWidth;
     const cssY = headerHeight + (row - this.scrollService.verticalScrollPosition) * cellHeight;
