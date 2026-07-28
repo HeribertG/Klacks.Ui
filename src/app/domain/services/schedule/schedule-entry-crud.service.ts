@@ -204,8 +204,16 @@ export class ScheduleEntryCrudService {
 
   async reassignWorkScheduleEntry(workId: string, sourceClientId: string, targetClientId: string, date: Date): Promise<void> {
     const response = await this.workCrud.reassignWorkClient(workId, targetClientId);
-    this.applySingleClientDeleteResponse(response, targetClientId, date);
-    await this.refreshClientScheduleForDays(sourceClientId, date);
+
+    if (response.work.periodHours) {
+      this.workScheduleLoader.periodHours.set(targetClientId, response.work.periodHours);
+    }
+
+    const startDate = addDays(date, -1);
+    const endDate = addDays(date, 1);
+    this.workScheduleLoader.replaceClientEntriesForDays(targetClientId, startDate, endDate, response.work.scheduleEntries ?? []);
+    this.workScheduleLoader.replaceClientEntriesForDays(sourceClientId, startDate, endDate, response.sourceScheduleEntries);
+    this.triggerScheduleRefresh();
   }
 
   async bulkAddWorkScheduleEntries(entries: ScheduleCellParams[], workFilter: IWorkFilter): Promise<void> {

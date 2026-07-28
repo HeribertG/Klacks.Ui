@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { BulkDeleteWorksRequest } from '../dtos/bulk-delete-works-request.dto';
 import { BulkAddWorksRequest } from '../dtos/bulk-add-works-request.dto';
 import { BulkWorksResponse } from '../dtos/bulk-works-response.dto';
+import { ReassignWorkClientResponse } from '../dtos/reassign-work-client-response.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,12 @@ export class DataScheduleService {
     this.setCorrectDate(value);
     return this.httpClient
       .put<IWork>(`${environment.baseUrl}Works/`, value)
+      .pipe(retry(3));
+  }
+
+  reassignWorkClient(id: string, targetClientId: string) {
+    return this.httpClient
+      .post<ReassignWorkClientResponse>(`${environment.baseUrl}Works/${id}/ReassignClient`, { targetClientId })
       .pipe(retry(3));
   }
 

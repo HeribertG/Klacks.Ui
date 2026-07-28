@@ -91,6 +91,7 @@ describe('ScheduleEntryCrudService', () => {
     deleteWorkById: ReturnType<typeof vi.fn>;
     bulkDeleteWorks: ReturnType<typeof vi.fn>;
     bulkCreateWorks: ReturnType<typeof vi.fn>;
+    reassignWorkClient: ReturnType<typeof vi.fn>;
   };
 
   let availableShiftsCalcMock: {
@@ -136,6 +137,10 @@ describe('ScheduleEntryCrudService', () => {
         affectedShifts: [],
       }),
       bulkCreateWorks: vi.fn().mockResolvedValue({ periodHours: {} }),
+      reassignWorkClient: vi.fn().mockResolvedValue({
+        work: { clientId: 'client-2', periodHours: { hours: 8 }, scheduleEntries: [{ clientId: 'client-2' }] },
+        sourceScheduleEntries: [{ clientId: 'client-1' }],
+      }),
     };
 
     availableShiftsCalcMock = {
@@ -373,6 +378,44 @@ describe('ScheduleEntryCrudService', () => {
 
       // Assert
       expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(0);
+    });
+  });
+
+  describe('reassignWorkScheduleEntry', () => {
+    it('should call reassignWorkClient with workId and targetClientId', async () => {
+      // Act
+      await service.reassignWorkScheduleEntry('work-123', 'client-1', 'client-2', new Date('2025-01-15'));
+
+      // Assert
+      expect(workCrudMock.reassignWorkClient).toHaveBeenCalledWith('work-123', 'client-2');
+    });
+
+    it('should apply periodHours and scheduleEntries for the target client from a single response', async () => {
+      // Act
+      await service.reassignWorkScheduleEntry('work-123', 'client-1', 'client-2', new Date('2025-01-15'));
+
+      // Assert
+      expect(workScheduleLoaderMock.periodHours.get('client-2')).toEqual({ hours: 8 });
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).toHaveBeenCalledWith(
+        'client-2',
+        expect.any(Date),
+        expect.any(Date),
+        [{ clientId: 'client-2' }],
+      );
+    });
+
+    it('should apply sourceScheduleEntries for the source client without an extra HTTP call', async () => {
+      // Act
+      await service.reassignWorkScheduleEntry('work-123', 'client-1', 'client-2', new Date('2025-01-15'));
+
+      // Assert
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).toHaveBeenCalledWith(
+        'client-1',
+        expect.any(Date),
+        expect.any(Date),
+        [{ clientId: 'client-1' }],
+      );
+      expect(dataWorkScheduleMock.getWorkSchedule).not.toHaveBeenCalled();
     });
   });
 

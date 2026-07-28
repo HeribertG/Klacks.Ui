@@ -12,6 +12,7 @@ import {
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
 import { BulkAddWorksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-works-request.dto';
 import { BulkWorksResponse } from 'src/app/infrastructure/api/dtos/bulk-works-response.dto';
+import { ReassignWorkClientResponse } from 'src/app/infrastructure/api/dtos/reassign-work-client-response.dto';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
@@ -103,25 +104,14 @@ export class DataManagementWorkService {
     });
   }
 
-  reassignWorkClient(workId: string, targetClientId: string): Promise<IWork> {
+  reassignWorkClient(workId: string, targetClientId: string): Promise<ReassignWorkClientResponse> {
     return new Promise((resolve, reject) => {
-      this.dataSchedule.getWork(workId)
+      this.dataSchedule.reassignWorkClient(workId, targetClientId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (work) => {
-            work.clientId = targetClientId;
-            this.dataSchedule.updateWork(work as Work)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe({
-                next: (response) => resolve(response),
-                error: (err) => {
-                  console.error('Error reassigning work entry to client:', err);
-                  reject(err);
-                },
-              });
-          },
+          next: (response) => resolve(response),
           error: (err) => {
-            console.error('Error fetching work entry for reassignment:', err);
+            console.error('Error reassigning work entry to client:', err);
             reject(err);
           },
         });
