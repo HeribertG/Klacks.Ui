@@ -3290,6 +3290,7 @@
   "assistant.proactive.lockConflict": "Eine Buchung am {{date}} ist gesperrt und konnte nicht automatisch angepasst werden.",
   "assistant.proactive.muteSuggestion": "Du hast diese Art von Hinweisen mehrmals ausgeblendet. Soll ich sie künftig stummschalten?",
   "assistant.proactive.scenarioPending": "Das Szenario für {{group}} wartet seit {{hours}} h auf eine Entscheidung.",
+  "assistant.proactive.planPausedForApproval": "Ein Plan wartet auf deine Freigabe: Schritt {{step}} von {{total}} ({{skill}}).",
   "assistant.proactive.availabilityGap": "{{name}} hat für {{from}}–{{until}} noch keine Verfügbarkeiten erfasst.",
   "assistant.proactive.clientMissingAddress": "{{name}} hat keine Adresse hinterlegt.",
   "assistant.proactive.clientMissingContact": "{{name}} hat weder E-Mail noch Telefonnummer hinterlegt.",

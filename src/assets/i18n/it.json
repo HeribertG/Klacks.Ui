@@ -3282,6 +3282,7 @@
   "assistant.proactive.lockConflict": "Una registrazione del {{date}} è bloccata e non è stato possibile modificarla automaticamente.",
   "assistant.proactive.muteSuggestion": "Hai nascosto questo tipo di suggerimento più volte. Vuoi che lo disattivi in futuro?",
   "assistant.proactive.scenarioPending": "Lo scenario di {{group}} attende una decisione da {{hours}} h.",
+  "assistant.proactive.planPausedForApproval": "Un piano attende la tua approvazione: passo {{step}} di {{total}} ({{skill}}).",
   "assistant.proactive.availabilityGap": "{{name}} non ha ancora registrato disponibilità per {{from}}–{{until}}.",
   "assistant.proactive.clientMissingAddress": "{{name}} non ha un indirizzo registrato.",
   "assistant.proactive.clientMissingContact": "{{name}} non ha né un indirizzo e-mail né un numero di telefono registrati.",
