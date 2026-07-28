@@ -64,6 +64,7 @@ import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { PlanExecutionPanelComponent } from './plan-execution-panel/plan-execution-panel.component';
+import { GoalCandidatesPanelComponent } from './goal-candidates-panel/goal-candidates-panel.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
@@ -126,6 +127,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     IconMMLComponent,
     IconUserComponent,
     PlanExecutionPanelComponent,
+    GoalCandidatesPanelComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],

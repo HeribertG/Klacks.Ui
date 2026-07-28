@@ -1,0 +1,38 @@
+@if (hasCandidates()) {
+  <div class="goal-candidates-panel" data-klacksy-target="goal-candidates-panel">
+    <div class="goal-candidates-header">
+      <span class="goal-candidates-title">{{ 'assistant-chat.goal-candidates.heading' | translate }}</span>
+    </div>
+    <p class="goal-candidates-hint">{{ 'assistant-chat.goal-candidates.hint' | translate }}</p>
+
+    <ul class="goal-candidate-list">
+      @for (candidate of candidates(); track candidate.id) {
+        <li class="goal-candidate" data-klacksy-target="goal-candidates-panel.item">
+          <div class="goal-candidate-title">{{ candidate.title }}</div>
+          <p class="goal-candidate-rationale">{{ candidate.rationale }}</p>
+          <div class="goal-candidate-confidence">
+            {{ 'assistant-chat.goal-candidates.confidence-caption' | translate : { value: (confidenceLabelKey(candidate.confidence) | translate) } }}
+          </div>
+          <div class="goal-candidate-actions">
+            <button
+              type="button"
+              class="btn btn-sm goal-candidate-approve"
+              data-klacksy-target="goal-candidates-panel.approve"
+              [disabled]="isPending(candidate.id)"
+              (click)="onApprove(candidate.id)">
+              {{ 'assistant-chat.goal-candidates.approve-button' | translate }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm goal-candidate-reject"
+              data-klacksy-target="goal-candidates-panel.reject"
+              [disabled]="isPending(candidate.id)"
+              (click)="onReject(candidate.id)">
+              {{ 'assistant-chat.goal-candidates.reject-button' | translate }}
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+}

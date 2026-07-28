@@ -1,0 +1,73 @@
+.goal-candidates-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-top: 1px solid var(--standartBorderColor, #ddd);
+  background-color: var(--standartBackgroundColor, #fafafa);
+  font-size: 13px;
+}
+
+.goal-candidates-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.goal-candidates-title {
+  font-weight: 600;
+}
+
+.goal-candidates-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--colorMuted, #6c757d);
+}
+
+.goal-candidate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-candidate {
+  padding: 8px 0;
+  border-top: 1px solid var(--standartBorderColor, #ddd);
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.goal-candidate-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.goal-candidate-rationale {
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+  color: var(--colorHeadline);
+}
+
+.goal-candidate-confidence {
+  font-size: 11px;
+  color: var(--colorMuted, #6c757d);
+  margin-bottom: 8px;
+}
+
+.goal-candidate-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.goal-candidate-approve,
+.goal-candidate-reject {
+  font-size: 12px;
+}

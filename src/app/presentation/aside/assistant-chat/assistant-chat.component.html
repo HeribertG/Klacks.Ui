@@ -136,6 +136,11 @@
   ></app-plan-execution-panel>
   }
 
+  <!-- Klacksy self-proposed goal candidates (hidden during the setup tour; empty state handled inside) -->
+  @if (!isTourActive()) {
+  <app-goal-candidates-panel></app-goal-candidates-panel>
+  }
+
   <!-- Messages Area -->
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
