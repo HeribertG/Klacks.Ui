@@ -198,6 +198,18 @@
       ></app-individual-periods>
     </div>
 
+    <div id="settings-home-monthly-target-hours-row" class="container-profilline">
+      <app-monthly-target-hours
+        id="settings-monthly-target-hours"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-monthly-target-hours')"
+        data-klacksy-target="monthly-target-hours"
+        data-klacksy-label-key="settings.monthlyTargetHours"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
+      ></app-monthly-target-hours>
+    </div>
+
     <div id="settings-home-state-countries-row" class="container-profilline">
       <app-state
         id="settings-state"

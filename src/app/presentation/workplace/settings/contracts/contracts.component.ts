@@ -131,6 +131,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   schedulingRuleId = signal<string | undefined>(undefined);
   individualPeriodId = signal<string | undefined>(undefined);
   paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
+  percent = signal<number | undefined>(undefined);
 
   public readonly PaymentInterval = PaymentInterval;
 
@@ -139,6 +140,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     PaymentInterval.Biweekly,
     PaymentInterval.Monthly,
     PaymentInterval.Individual,
+    PaymentInterval.MonthlyTargetHours,
   ];
 
   private paymentIntervalLabelKeys: Record<PaymentInterval, string> = {
@@ -146,6 +148,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     [PaymentInterval.Biweekly]: 'settings.work.payment-biweekly',
     [PaymentInterval.Monthly]: 'settings.work.payment-monthly',
     [PaymentInterval.Individual]: 'settings.work.payment-individual',
+    [PaymentInterval.MonthlyTargetHours]: 'settings.work.payment-monthly-target-hours',
   };
 
   searchTerm = signal('');
@@ -185,6 +188,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.schedulingRuleId.set(contract.schedulingRuleId);
     this.individualPeriodId.set(contract.individualPeriodId);
     this.paymentInterval.set(contract.paymentInterval);
+    this.percent.set(contract.percent);
   }
 
   private applySignalsToContract(): void {
@@ -211,6 +215,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
       ? transformNgbDateStructToDate(validUntilValue)
       : undefined;
     this.editingContract.paymentInterval = this.paymentInterval();
+    this.editingContract.percent = this.percent();
   }
 
   private isReadEffect = effect(() => {
@@ -514,6 +519,20 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
       if (this.editingContract) {
         this.editingContract.individualPeriodId = undefined;
       }
+    }
+    if (value !== PaymentInterval.MonthlyTargetHours) {
+      this.percent.set(undefined);
+      if (this.editingContract) {
+        this.editingContract.percent = undefined;
+      }
+    }
+  }
+
+  onPercentChange(value: number | string | null | undefined): void {
+    const parsed = value === null || value === undefined || value === '' ? undefined : Number(value);
+    this.percent.set(parsed);
+    if (this.editingContract) {
+      this.editingContract.percent = parsed;
     }
   }
 

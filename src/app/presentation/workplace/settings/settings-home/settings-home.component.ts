@@ -63,6 +63,7 @@ import { ExportFormatOverridesSettingComponent } from '../export-format-override
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { IndividualPeriodsComponent } from '../individual-periods/individual-periods.component';
+import { MonthlyTargetHoursComponent } from '../monthly-target-hours/monthly-target-hours.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
 import { CompensatoryRestSettingsComponent } from '../compensatory-rest-settings/compensatory-rest-settings.component';
 import { SurchargeModeSettingsComponent } from '../surcharge-mode-settings/surcharge-mode-settings.component';
@@ -138,6 +139,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     UpdatesSettingComponent,
     QualificationsComponent,
     IndividualPeriodsComponent,
+    MonthlyTargetHoursComponent,
     PersonalAccessTokensComponent,
     CompensatoryRestSettingsComponent,
     SurchargeModeSettingsComponent,

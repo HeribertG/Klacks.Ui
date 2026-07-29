@@ -7,6 +7,7 @@ export enum PaymentInterval {
   Biweekly = 1,
   Monthly = 2,
   Individual = 3,
+  MonthlyTargetHours = 4,
 }
 
 export interface IContract {
@@ -21,6 +22,7 @@ export interface IContract {
   saRate: number;
   soRate: number;
   paymentInterval: PaymentInterval;
+  percent: number | undefined;
   validFrom: Date;
   validUntil: Date | undefined;
   calendarSelection: ICalendarSelection | undefined;
@@ -49,6 +51,7 @@ export class Contract implements IContract {
   saRate = 0;
   soRate = 0;
   paymentInterval = PaymentInterval.Monthly;
+  percent: number | undefined = undefined;
 
   validFrom = new Date();
   validUntil: Date | undefined = undefined;

@@ -98,6 +98,7 @@ export class EditGroupItemComponent
     [PaymentInterval.Biweekly]: 'settings.work.payment-biweekly',
     [PaymentInterval.Monthly]: 'settings.work.payment-monthly',
     [PaymentInterval.Individual]: 'settings.work.payment-individual',
+    [PaymentInterval.MonthlyTargetHours]: 'settings.work.payment-monthly-target-hours',
   };
 
   ngOnInit(): void {

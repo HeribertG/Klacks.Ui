@@ -34,6 +34,7 @@ describe('ContractsComponent', () => {
     saRate: 0.1,
     soRate: 0.1,
     paymentInterval: PaymentInterval.Monthly,
+    percent: undefined,
     validFrom: new Date(2024, 0, 1),
     validUntil: new Date(2024, 11, 31),
     calendarSelection: undefined,

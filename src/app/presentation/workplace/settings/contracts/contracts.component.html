@@ -361,6 +361,29 @@
             </div>
           </div>
         }
+
+        @if (paymentInterval() === PaymentInterval.MonthlyTargetHours) {
+          <div id="contract-modal-percent" class="selection-section">
+            <span class="selection-label">{{
+              "setting.contract.percent-modal" | translate
+            }}</span>
+            <div class="selector-container">
+              <input
+                type="number"
+                step="1"
+                min="0"
+                class="form-control"
+                id="contract-percent"
+                name="contractPercent"
+                data-klacksy-target="contract-form.percent"
+                aria-label="contract percent"
+                [placeholder]="'setting.contract.percent-placeholder' | translate"
+                [ngModel]="percent()"
+                (ngModelChange)="onPercentChange($event)"
+              />
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Calendar & Scheduling Rule Selection -->
