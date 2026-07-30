@@ -26,15 +26,28 @@ describe('GoalCandidatesPanelComponent', () => {
   let onboardingServiceMock: { isTourActive: WritableSignal<boolean> };
   let toastShowServiceMock: { showError: ReturnType<typeof vi.fn> };
 
-  const candidateOne: IGoalCandidate = {
+  const legacyCandidate: IGoalCandidate = {
     id: 'candidate-1',
+    goalType: null,
+    titleKey: null,
+    rationaleKey: null,
+    rationaleParams: null,
     title: 'Reduce overtime in the kitchen team',
     rationale: 'Overtime hours exceeded the target for three consecutive periods.',
-    confidence: 'Low',
-    signalSource: 'target-hours-drift',
+    confidence: 'low',
+    signalSource: 'target_hours_drift',
     status: 'proposed',
     createdUtc: '2026-07-24T06:00:00Z',
     decidedUtc: null,
+  };
+
+  const catalogueCandidate: IGoalCandidate = {
+    ...legacyCandidate,
+    id: 'candidate-2',
+    goalType: 'target_hours_drift',
+    titleKey: 'assistant-chat.goal-candidates.type.targetHoursDrift.title',
+    rationaleKey: 'assistant-chat.goal-candidates.type.targetHoursDrift.rationale',
+    rationaleParams: { count: '7', days: '7' },
   };
 
   beforeEach(async () => {
@@ -134,25 +147,53 @@ describe('GoalCandidatesPanelComponent', () => {
     expect(goalCandidatesServiceMock.reject).not.toHaveBeenCalled();
   });
 
-  it('renders the full title, rationale and both action buttons for a proposed candidate', async () => {
-    goalCandidatesServiceMock.candidates.set([candidateOne]);
+  it('falls back to the stored text for a candidate without catalogue keys', async () => {
+    goalCandidatesServiceMock.candidates.set([legacyCandidate]);
 
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
     const host: HTMLElement = fixture.nativeElement;
-    expect(host.textContent).toContain(candidateOne.title);
-    expect(host.textContent).toContain(candidateOne.rationale);
+    expect(host.textContent).toContain(legacyCandidate.title);
+    expect(host.textContent).toContain(legacyCandidate.rationale);
     expect(host.querySelector('.goal-candidate-approve')).toBeTruthy();
     expect(host.querySelector('.goal-candidate-reject')).toBeTruthy();
   });
 
-  it('maps a known confidence value to its translation key', () => {
-    expect(component.confidenceLabelKey('Low')).toBe('assistant-chat.goal-candidates.confidence.low');
+  it('renders a catalogue candidate from its i18n keys instead of the stored English text', async () => {
+    goalCandidatesServiceMock.candidates.set([catalogueCandidate]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('.goal-candidate-title')?.textContent).toContain(catalogueCandidate.titleKey);
+    expect(host.querySelector('.goal-candidate-rationale')?.textContent).toContain(catalogueCandidate.rationaleKey);
+    expect(host.textContent).not.toContain(catalogueCandidate.title);
   });
 
-  it('falls back to unknown for an unrecognized confidence value', () => {
-    expect(component.confidenceLabelKey('Bogus')).toBe('assistant-chat.goal-candidates.confidence.unknown');
+  it('maps a committed confidence value to its translation key', () => {
+    expect(component.confidenceLabelKey('low')).toBe('assistant-chat.goal-candidates.confidence.low');
+    expect(component.hasConfidenceLabel('low')).toBe(true);
+    expect(component.hasConfidenceLabel('high')).toBe(true);
+  });
+
+  it('shows no confidence line when the model committed to nothing', async () => {
+    expect(component.hasConfidenceLabel('unknown')).toBe(false);
+    expect(component.hasConfidenceLabel('bogus')).toBe(false);
+
+    goalCandidatesServiceMock.candidates.set([{ ...catalogueCandidate, confidence: 'unknown' }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.goal-candidate-confidence')).toBeNull();
+  });
+
+  it('passes the rationale parameters through and keeps the reference stable', () => {
+    expect(component.rationaleParams(catalogueCandidate)).toEqual({ count: '7', days: '7' });
+    expect(component.rationaleParams(legacyCandidate)).toBe(component.rationaleParams(legacyCandidate));
   });
 });

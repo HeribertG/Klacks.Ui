@@ -8,11 +8,25 @@
     <ul class="goal-candidate-list">
       @for (candidate of candidates(); track candidate.id) {
         <li class="goal-candidate" data-klacksy-target="goal-candidates-panel.item">
-          <div class="goal-candidate-title">{{ candidate.title }}</div>
-          <p class="goal-candidate-rationale">{{ candidate.rationale }}</p>
-          <div class="goal-candidate-confidence">
-            {{ 'assistant-chat.goal-candidates.confidence-caption' | translate : { value: (confidenceLabelKey(candidate.confidence) | translate) } }}
+          <div class="goal-candidate-title">
+            @if (candidate.titleKey) {
+              {{ candidate.titleKey | translate }}
+            } @else {
+              {{ candidate.title }}
+            }
           </div>
+          <p class="goal-candidate-rationale">
+            @if (candidate.rationaleKey) {
+              {{ candidate.rationaleKey | translate : rationaleParams(candidate) }}
+            } @else {
+              {{ candidate.rationale }}
+            }
+          </p>
+          @if (hasConfidenceLabel(candidate.confidence)) {
+            <div class="goal-candidate-confidence">
+              {{ confidenceLabelKey(candidate.confidence) | translate }}
+            </div>
+          }
           <div class="goal-candidate-actions">
             <button
               type="button"

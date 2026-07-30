@@ -2,8 +2,13 @@
 
 /**
  * Side panel listing Klacksy's self-proposed goal candidates (Phase 2): each candidate
- * as a row with title, full rationale text and Approve/Reject actions. Approving or
- * rejecting only records a decision - no plan is created and nothing is executed.
+ * as a row with title, rationale and Approve/Reject actions. Title and rationale are
+ * rendered from the i18n keys the server derives from its goal-type catalogue, so they
+ * appear in the user's own language; candidates stored before that catalogue existed carry
+ * no keys and fall back to their stored English text. Approving records the decision and lets
+ * the server draft a plan from it; that plan then runs unattended when the candidate's own
+ * confidence is high and the configured autonomy allows it, so the panel must say so rather
+ * than promise a further confirmation step.
  * Loads the proposed candidates once the aside becomes visible (skipped while the setup
  * tour is running, mirroring the neighboring proactive-inbox load gate).
  */
@@ -14,6 +19,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { GOAL_CANDIDATE_CONFIDENCE } from 'src/app/domain/constants/goal-candidate.constants';
+import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
 import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -22,7 +28,14 @@ const CONFIDENCE_I18N_PREFIX = 'assistant-chat.goal-candidates.confidence.';
 const LOAD_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.load-error';
 const APPROVE_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.approve-error';
 const REJECT_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.reject-error';
-const KNOWN_CONFIDENCE_VALUES: readonly string[] = Object.values(GOAL_CANDIDATE_CONFIDENCE);
+
+// Only a self-assessment the model actually committed to is worth showing; 'unknown' is the
+// server's fallback for a missing or unparsable value and says nothing a reader can act on.
+const LABELLED_CONFIDENCE_VALUES: readonly string[] = [
+  GOAL_CANDIDATE_CONFIDENCE.High,
+  GOAL_CANDIDATE_CONFIDENCE.Low,
+];
+const NO_RATIONALE_PARAMS: Record<string, string> = {};
 
 @Component({
   selector: 'app-goal-candidates-panel',
@@ -60,11 +73,16 @@ export class GoalCandidatesPanelComponent {
     });
   }
 
+  public hasConfidenceLabel(confidence: string): boolean {
+    return LABELLED_CONFIDENCE_VALUES.includes(confidence?.toLowerCase());
+  }
+
   public confidenceLabelKey(confidence: string): string {
-    const normalized = KNOWN_CONFIDENCE_VALUES.includes(confidence)
-      ? confidence
-      : GOAL_CANDIDATE_CONFIDENCE.Unknown;
-    return `${CONFIDENCE_I18N_PREFIX}${normalized.toLowerCase()}`;
+    return `${CONFIDENCE_I18N_PREFIX}${confidence?.toLowerCase()}`;
+  }
+
+  public rationaleParams(candidate: IGoalCandidate): Record<string, string> {
+    return candidate.rationaleParams ?? NO_RATIONALE_PARAMS;
   }
 
   public onApprove(id: string): void {

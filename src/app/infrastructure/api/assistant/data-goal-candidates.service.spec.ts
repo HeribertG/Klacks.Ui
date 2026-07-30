@@ -16,10 +16,14 @@ describe('DataGoalCandidatesService', () => {
   const mockCandidates: IGoalCandidate[] = [
     {
       id: 'candidate-1',
-      title: 'Reduce overtime in the kitchen team',
-      rationale: 'Overtime hours exceeded the target for three consecutive periods.',
-      confidence: 'Low',
-      signalSource: 'target-hours-drift',
+      goalType: 'target_hours_drift',
+      titleKey: 'assistant-chat.goal-candidates.type.targetHoursDrift.title',
+      rationaleKey: 'assistant-chat.goal-candidates.type.targetHoursDrift.rationale',
+      rationaleParams: { count: '3', days: '7' },
+      title: 'Reduce deviations from contractual hours',
+      rationale: 'A deviation was reported 3 time(s) in the last 7 days.',
+      confidence: 'low',
+      signalSource: 'target_hours_drift',
       status: 'proposed',
       createdUtc: '2026-07-24T06:00:00Z',
       decidedUtc: null,
