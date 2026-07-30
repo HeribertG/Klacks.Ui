@@ -1,12 +1,14 @@
-@use '../../../../../assets/standard-styles/standard-grid.scss';
-@use '../../../../../assets/standard-styles/standard-card-interior.scss';
-@use '../../../../../assets/standard-styles/standard-controls.scss';
-@use '../../../../../assets/standard-styles/settings-list-card-modal.scss';
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
 
 .year-header {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
 .year-button {
@@ -23,6 +25,8 @@
 .info-text {
   font-size: 11px;
   opacity: 0.75;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
 .month-column {
@@ -31,4 +35,8 @@
 
 .hours-column {
   width: 120px;
+}
+
+.row-line-single {
+  padding-left: 30px;
 }
