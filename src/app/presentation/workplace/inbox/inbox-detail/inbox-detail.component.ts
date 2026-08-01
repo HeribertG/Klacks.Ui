@@ -5,7 +5,7 @@ import { Component, inject, computed, effect, signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import DOMPurify from 'dompurify';
+import { sanitizeStoredHtml } from 'src/app/shared/helpers/html-sanitizer.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faLanguage } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +14,7 @@ import { TranslationService } from 'src/app/domain/services/translation/translat
 import { ITranslatedEmail } from 'src/app/domain/models/email/received-email.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-closed.component';
-
+
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
   selector: 'app-inbox-detail',
@@ -71,7 +71,7 @@ export class InboxDetailComponent {
     const bodyHtml = useTranslated ? t!.bodyHtml : e.bodyHtml;
     const bodyText = useTranslated ? t!.bodyText : e.bodyText;
     if (bodyHtml) {
-      const cleanHtml = DOMPurify.sanitize(bodyHtml);
+      const cleanHtml = sanitizeStoredHtml(bodyHtml);
       return this.sanitizer.bypassSecurityTrustHtml(cleanHtml);
     }
     if (bodyText) {

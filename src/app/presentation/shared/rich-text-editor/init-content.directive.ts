@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Directive, ElementRef, inject, effect, input } from '@angular/core';
-import DOMPurify from 'dompurify';
+import { sanitizeStoredHtml } from 'src/app/shared/helpers/html-sanitizer.helper';
 
 @Directive({
   selector: '[appInitContent]',
@@ -21,7 +21,7 @@ export class InitContentDirective {
   private updateContent(): void {
     const appInitContent = this.appInitContent();
     const rawContent = appInitContent !== undefined ? appInitContent : '';
-    const newContent = DOMPurify.sanitize(rawContent);
+    const newContent = sanitizeStoredHtml(rawContent);
     const currentContent = this.el.nativeElement.innerHTML;
 
     if (newContent !== currentContent) {

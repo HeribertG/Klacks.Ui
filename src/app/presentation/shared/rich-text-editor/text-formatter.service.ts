@@ -11,9 +11,8 @@ export class TextFormatterService {
       return '';
     }
 
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    return parsed.body.textContent || '';
   }
 
   textToHtml(text: string): string {
@@ -29,25 +28,5 @@ export class TextFormatterService {
       return false;
     }
     return /<[a-z][\s\S]*>/i.test(text);
-  }
-
-  sanitizeHtml(html: string): string {
-    if (!html) {
-      return '';
-    }
-
-    const div = document.createElement('div');
-    div.innerHTML = html;
-
-    const allowedTags = ['B', 'I', 'U', 'STRONG', 'EM', 'BR', 'P', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3'];
-    const elements = div.querySelectorAll('*');
-
-    elements.forEach((element) => {
-      if (!allowedTags.includes(element.tagName)) {
-        element.replaceWith(document.createTextNode(element.textContent || ''));
-      }
-    });
-
-    return div.innerHTML;
   }
 }
