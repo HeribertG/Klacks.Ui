@@ -48,6 +48,10 @@ const LOCALE_NAMES: Record<string, string> = {
 const MIN_PHRASE_LEN_LOCALES = new Set(['ja', 'ko', 'zh-CN', 'zh-TW', 'th']);
 const MIN_PHRASE_LEN = 4;
 
+// Marker SettingsEncryptionService puts in front of DataProtection-encrypted values. Such a value is
+// useless outside the API process, so it must never travel to a provider as a credential.
+const ENCRYPTED_PREFIX = 'ENC:';
+
 const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe';
 const DB_HOST = process.env.KLACKS_DB_HOST ?? 'localhost';
 const DB_PORT = process.env.KLACKS_DB_PORT ?? '5434';
@@ -96,6 +100,14 @@ function resolveConfig(): LlmConfig {
   if (!key || !url) {
     const dbProvider = fetchProviderFromDb(providerId);
     if (!key && dbProvider?.apiKey) {
+      if (dbProvider.apiKey.startsWith(ENCRYPTED_PREFIX)) {
+        throw new Error(
+          `The ApiKey of provider '${providerId}' is stored encrypted (${ENCRYPTED_PREFIX}… DataProtection ` +
+          'blob) and can only be decrypted by the API itself. Reading it straight from the database and ' +
+          'sending it as a bearer token yields HTTP 401 on every request. Pass a plaintext key instead:\n' +
+          '  SYNONYM_LLM_API_KEY=sk-… npx tsx tools/generate-skill-synonyms.ts',
+        );
+      }
       key = dbProvider.apiKey;
       console.log(`[generate-skill-synonyms] Using ApiKey from llm_providers (${providerId})`);
     }
@@ -345,6 +357,10 @@ async function run(): Promise<void> {
   console.log(`[generate-skill-synonyms] Core skills with synonyms: ${coreSkills.length}`);
   console.log(`[generate-skill-synonyms] Locales: ${ACTIVE_LOCALES.join(', ')}`);
   if (DRY_RUN) console.log('[generate-skill-synonyms] DRY RUN — no LLM calls, coverage plan only.');
+
+  // Resolve the credential once up front. Without this the same unusable key is discovered inside
+  // every batch of every locale, turning one configuration problem into a hundred identical errors.
+  if (!DRY_RUN) resolveConfig();
 
   const results = await runPool(ACTIVE_LOCALES, loc => processLocale(loc, coreSkills), DRY_RUN ? ACTIVE_LOCALES.length : CONCURRENCY);
 
