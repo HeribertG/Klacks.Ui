@@ -96,13 +96,6 @@ export class UserAdministrationManagementService {
       .addAccount(account)
       .pipe(
         takeUntil(this.destroy$),
-        retry({
-          count: this.MAX_RETRIES,
-          delay: (error, retryCount) => {
-            console.warn(`Retry ${retryCount} for addAccount:`, error);
-            return timer(this.RETRY_DELAY_MS * retryCount);
-          },
-        }),
         tap((result) => {
           if (result?.id) {
             this.eventBus.emit(DomainEventType.INFO, {
@@ -183,13 +176,6 @@ export class UserAdministrationManagementService {
       .deleteAccount(id)
       .pipe(
         takeUntil(this.destroy$),
-        retry({
-          count: this.MAX_RETRIES,
-          delay: (error, retryCount) => {
-            console.warn(`Retry ${retryCount} for deleteAccount:`, error);
-            return timer(this.RETRY_DELAY_MS * retryCount);
-          },
-        }),
         catchError((error) => {
           console.error('Failed to delete account:', error);
           this.eventBus.emit(DomainEventType.ERROR, {
@@ -213,13 +199,6 @@ export class UserAdministrationManagementService {
       .updateAccount(account)
       .pipe(
         takeUntil(this.destroy$),
-        retry({
-          count: this.MAX_RETRIES,
-          delay: (error, retryCount) => {
-            console.warn(`Retry ${retryCount} for updateAccount:`, error);
-            return timer(this.RETRY_DELAY_MS * retryCount);
-          },
-        }),
         catchError((error) => {
           console.error('Failed to update account:', error);
           this.eventBus.emit(DomainEventType.ERROR, {
@@ -252,13 +231,6 @@ export class UserAdministrationManagementService {
       .changeRole(changeRole)
       .pipe(
         takeUntil(this.destroy$),
-        retry({
-          count: this.MAX_RETRIES,
-          delay: (error, retryCount) => {
-            console.warn(`Retry ${retryCount} for updateAccountRole:`, error);
-            return timer(this.RETRY_DELAY_MS * retryCount);
-          },
-        }),
         catchError((error) => {
           console.error('Failed to update account role:', error);
           this.eventBus.emit(DomainEventType.ERROR, {
@@ -282,16 +254,6 @@ export class UserAdministrationManagementService {
       .ChangePassword(passwordChange)
       .pipe(
         takeUntil(this.destroy$),
-        retry({
-          count: this.MAX_RETRIES,
-          delay: (error, retryCount) => {
-            console.warn(
-              `Retry ${retryCount} for sendPasswordResetEmail:`,
-              error
-            );
-            return timer(this.RETRY_DELAY_MS * retryCount);
-          },
-        }),
         catchError((error) => {
           console.error('Failed to send password reset:', error);
           this.eventBus.emit(DomainEventType.INFO, {
@@ -324,16 +286,6 @@ export class UserAdministrationManagementService {
       .requestPasswordReset(email)
       .pipe(
         takeUntil(this.destroy$),
-        retry({
-          count: this.MAX_RETRIES,
-          delay: (error, retryCount) => {
-            console.warn(
-              `Retry ${retryCount} for requestPasswordReset:`,
-              error
-            );
-            return timer(this.RETRY_DELAY_MS * retryCount);
-          },
-        }),
         catchError((error) => {
           console.error('Failed to request password reset:', error);
           this.eventBus.emit(DomainEventType.INFO, {

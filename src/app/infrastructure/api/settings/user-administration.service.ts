@@ -32,9 +32,10 @@ export class UserAdministrationService {
   }
 
   updateAccount(value: IAuthentication): Observable<IAuthentication> {
-    return this.httpClient
-      .put<IAuthentication>(`${environment.baseUrl}Accounts/`, value)
-      .pipe(retry(3));
+    return this.httpClient.put<IAuthentication>(
+      `${environment.baseUrl}Accounts/`,
+      value
+    );
   }
 
   addAccount(value: IAuthentication): Observable<IAuthentication> {
@@ -42,18 +43,16 @@ export class UserAdministrationService {
 
     this.copyAccountData(value);
 
-    return this.httpClient
-      .post<IAuthentication>(
-        `${environment.baseUrl}Accounts/RegisterUser/`,
-        value
-      )
-      .pipe(retry(1));
+    return this.httpClient.post<IAuthentication>(
+      `${environment.baseUrl}Accounts/RegisterUser/`,
+      value
+    );
   }
 
   deleteAccount(id: string): Observable<IAuthentication> {
-    return this.httpClient
-      .delete<IAuthentication>(`${environment.baseUrl}Accounts/` + id)
-      .pipe(retry(3));
+    return this.httpClient.delete<IAuthentication>(
+      `${environment.baseUrl}Accounts/` + id
+    );
   }
 
   generateUsername(firstName: string, lastName: string): Observable<string> {

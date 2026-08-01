@@ -78,14 +78,14 @@ export class DataUpdateService {
   }
 
   triggerUpdate(): Observable<IUpdateTriggerResult> {
-    return this.httpClient.post<IUpdateTriggerResult>(`${this.baseUrl}/Trigger`, {}).pipe(retry(1));
+    return this.httpClient.post<IUpdateTriggerResult>(`${this.baseUrl}/Trigger`, {});
   }
 
   rollbackUpdate(): Observable<IUpdateTriggerResult> {
-    return this.httpClient.post<IUpdateTriggerResult>(`${this.baseUrl}/Rollback`, {}).pipe(retry(1));
+    return this.httpClient.post<IUpdateTriggerResult>(`${this.baseUrl}/Rollback`, {});
   }
 
   cancelUpdate(id: string): Observable<void> {
-    return this.httpClient.post<void>(`${this.baseUrl}/${id}/Cancel`, {}).pipe(retry(1));
+    return this.httpClient.post<void>(`${this.baseUrl}/${id}/Cancel`, {});
   }
 }
