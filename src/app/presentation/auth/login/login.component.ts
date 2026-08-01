@@ -30,6 +30,7 @@ import { UserAdministrationService } from 'src/app/infrastructure/api/settings/u
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -61,6 +62,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private auth = inject(AuthService);
   private languageConfigService = inject(LanguageConfigService);
   private localStorageService = inject(LocalStorageService);
+  private oauth2HandshakeStorage = inject(OAuth2HandshakeStorageService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
   private modalService = inject(NgbModal);
@@ -119,8 +121,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.localStorageService.set('oauth2_state', response.state);
-          this.localStorageService.set('oauth2_redirect_uri', redirectUri);
+          this.oauth2HandshakeStorage.start(response.state, redirectUri);
           window.location.href = response.authorizationUrl;
         },
         error: () => {

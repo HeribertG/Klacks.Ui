@@ -9,6 +9,7 @@ import { DataOAuth2Service } from 'src/app/infrastructure/api/data-oauth2.servic
 import { AuthService } from '../auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -71,6 +72,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private authService = inject(AuthService);
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
+  private oauth2HandshakeStorage = inject(OAuth2HandshakeStorageService);
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
   private toastService = inject(ToastShowService);
@@ -99,10 +101,10 @@ export class OAuth2CallbackComponent implements OnInit {
       return;
     }
 
-    const savedState = this.localStorageService.get('oauth2_state');
-    const savedRedirectUri = this.localStorageService.get('oauth2_redirect_uri');
+    const { state: savedState, redirectUri: savedRedirectUri } =
+      this.oauth2HandshakeStorage.consume();
 
-    if (savedState !== state) {
+    if (!savedState || savedState !== state) {
       this.error.set('Invalid state parameter');
       this.isLoading.set(false);
       return;
@@ -119,8 +121,6 @@ export class OAuth2CallbackComponent implements OnInit {
 
       if (token && token.token) {
         this.storeToken(token, state);
-        this.localStorageService.remove('oauth2_state');
-        this.localStorageService.remove('oauth2_redirect_uri');
         this.signalRService.resetAuthFailure();
         this.signalRService.startConnection();
         this.assistantSignalRService.startConnection();
