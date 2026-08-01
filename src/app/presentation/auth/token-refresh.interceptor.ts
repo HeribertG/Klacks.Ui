@@ -27,6 +27,9 @@ const REFRESH_FAILED = 'failed';
  * performs the refresh, all others wait for its outcome. On success the waiters
  * replay with the new token; on failure they are released (so their observables
  * complete and the loading spinner is not leaked) and the user is logged out.
+ * Completing without an error is deliberate and covered by tests: the user is
+ * redirected to the login page anyway, so error handlers would only produce
+ * noise for components that are about to be destroyed.
  * A per-request retry flag (`TOKEN_REFRESH_RETRIED`) prevents infinite refresh
  * loops, and a token-comparison shortcut prevents a second refresh attempt with
  * an already-rotated (and now invalid) refresh token.

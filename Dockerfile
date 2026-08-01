@@ -5,8 +5,10 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies (legacy-peer-deps for ngx-codemirror@20 which has no v22 yet)
-RUN npm install --legacy-peer-deps
+# Install dependencies from the lockfile only, so the image is reproducible.
+# --legacy-peer-deps is passed explicitly (ngx-codemirror@20 has no v22 release yet)
+# because .npmrc is not copied into the build context.
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
