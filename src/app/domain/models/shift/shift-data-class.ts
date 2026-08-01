@@ -50,8 +50,11 @@ export class ShiftData {
   HolidayNextDay = 0;
   NightRate = 0.1;
   HolidayRate = 0.15;
-  SaRate = 0.1;
-  SoRate = 0.1;
+  We1Rate = 0.1;
+  We2Rate = 0.1;
+  We3Rate = 0;
+  NightStart = '23:00';
+  NightEnd = '06:00';
   GuaranteedHours = 160.0;
   FullTime = 180.0;
 
@@ -61,8 +64,9 @@ export class ShiftData {
     HolidayNextDay: { min: -2, max: 1, decimals: 0 },
     NightRate: { min: 0, max: 1, decimals: 2, step: 0.01 },
     HolidayRate: { min: 0, max: 1, decimals: 2, step: 0.01 },
-    SaRate: { min: 0, max: 1, decimals: 2, step: 0.01 },
-    SoRate: { min: 0, max: 1, decimals: 2, step: 0.01 },
+    We1Rate: { min: 0, max: 1, decimals: 2, step: 0.01 },
+    We2Rate: { min: 0, max: 1, decimals: 2, step: 0.01 },
+    We3Rate: { min: 0, max: 1, decimals: 2, step: 0.01 },
     GuaranteedHours: { min: 0, max: 220, decimals: 1 },
     FullTime: { min: 0, max: 220, decimals: 1 },
   };

@@ -47,8 +47,11 @@ interface ContractFormModel {
   name: string;
   nightRate: number;
   holidayRate: number;
-  saRate: number;
-  soRate: number;
+  we1Rate: number;
+  we2Rate: number;
+  we3Rate: number;
+  nightStart: string;
+  nightEnd: string;
 }
 
 @Component({
@@ -90,12 +93,17 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
+  private weRateNullTracking = { we1Rate: false, we2Rate: false, we3Rate: false, nightStart: false, nightEnd: false };
+
   private formModel = signal<ContractFormModel>({
     name: '',
     nightRate: 0,
     holidayRate: 0,
-    saRate: 0,
-    soRate: 0,
+    we1Rate: 0,
+    we2Rate: 0,
+    we3Rate: 0,
+    nightStart: '',
+    nightEnd: '',
   });
 
   contractForm = form(this.formModel, f => {
@@ -108,14 +116,16 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
       ...current,
       nightRate: Math.max(0, Math.min(100, current.nightRate)),
       holidayRate: Math.max(0, Math.min(100, current.holidayRate)),
-      saRate: Math.max(0, Math.min(100, current.saRate)),
-      soRate: Math.max(0, Math.min(100, current.soRate)),
+      we1Rate: Math.max(0, Math.min(100, current.we1Rate)),
+      we2Rate: Math.max(0, Math.min(100, current.we2Rate)),
+      we3Rate: Math.max(0, Math.min(100, current.we3Rate)),
     };
     if (
       clamped.nightRate !== current.nightRate ||
       clamped.holidayRate !== current.holidayRate ||
-      clamped.saRate !== current.saRate ||
-      clamped.soRate !== current.soRate
+      clamped.we1Rate !== current.we1Rate ||
+      clamped.we2Rate !== current.we2Rate ||
+      clamped.we3Rate !== current.we3Rate
     ) {
       this.formModel.set(clamped);
     }
@@ -171,12 +181,22 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   message = DomainMessages.DELETE_ENTRY;
 
   private initFormSignals(contract: IContract): void {
+    this.weRateNullTracking = {
+      we1Rate: contract.we1Rate === null,
+      we2Rate: contract.we2Rate === null,
+      we3Rate: contract.we3Rate === null,
+      nightStart: contract.nightStart === null,
+      nightEnd: contract.nightEnd === null,
+    };
     this.formModel.set({
       name: contract.name || '',
       nightRate: contract.nightRate ?? 0,
       holidayRate: contract.holidayRate ?? 0,
-      saRate: contract.saRate ?? 0,
-      soRate: contract.soRate ?? 0,
+      we1Rate: contract.we1Rate ?? 0,
+      we2Rate: contract.we2Rate ?? 0,
+      we3Rate: contract.we3Rate ?? 0,
+      nightStart: contract.nightStart ?? '',
+      nightEnd: contract.nightEnd ?? '',
     });
     this.guaranteedHours.set(transformNumberToOwnTime(contract.guaranteedHours ?? 0, true));
     this.minimumHours.set(transformNumberToOwnTime(contract.minimumHours ?? 0, true));
@@ -197,8 +217,11 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.editingContract.name = formData.name;
     this.editingContract.nightRate = formData.nightRate;
     this.editingContract.holidayRate = formData.holidayRate;
-    this.editingContract.saRate = formData.saRate;
-    this.editingContract.soRate = formData.soRate;
+    this.editingContract.we1Rate = (this.weRateNullTracking.we1Rate && formData.we1Rate === 0) ? null : formData.we1Rate;
+    this.editingContract.we2Rate = (this.weRateNullTracking.we2Rate && formData.we2Rate === 0) ? null : formData.we2Rate;
+    this.editingContract.we3Rate = (this.weRateNullTracking.we3Rate && formData.we3Rate === 0) ? null : formData.we3Rate;
+    this.editingContract.nightStart = (this.weRateNullTracking.nightStart && formData.nightStart === '') ? null : (formData.nightStart || null);
+    this.editingContract.nightEnd = (this.weRateNullTracking.nightEnd && formData.nightEnd === '') ? null : (formData.nightEnd || null);
     this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.guaranteedHours());
     this.editingContract.minimumHours = transformOwnTimeToNumber(this.minimumHours());
     this.editingContract.maximumHours = transformOwnTimeToNumber(this.maximumHours());

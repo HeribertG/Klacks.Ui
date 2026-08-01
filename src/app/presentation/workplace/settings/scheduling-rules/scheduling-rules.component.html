@@ -270,25 +270,60 @@
     </div>
 
     <div id="scheduling-rule-modal-rates-row-2" class="row-line-modal-inline rule-config-row">
-      <div id="scheduling-rule-modal-sa-rate-item" class="rule-config-item">
-        <label for="ruleSaRate">{{ 'setting.schedulingRule.saRate' | translate }}</label>
+      <div id="scheduling-rule-modal-we1-rate-item" class="rule-config-item">
+        <label for="ruleWe1Rate">{{ 'setting.schedulingRule.we1Rate' | translate }}</label>
         <input
           type="number"
-          [formField]="ruleForm.saRate"
+          [formField]="ruleForm.we1Rate"
           class="form-control rule-input"
-          id="ruleSaRate"
-          aria-label="ruleSaRate"
+          id="ruleWe1Rate"
+          aria-label="ruleWe1Rate"
         />
       </div>
 
-      <div id="scheduling-rule-modal-so-rate-item" class="rule-config-item">
-        <label for="ruleSoRate">{{ 'setting.schedulingRule.soRate' | translate }}</label>
+      <div id="scheduling-rule-modal-we2-rate-item" class="rule-config-item">
+        <label for="ruleWe2Rate">{{ 'setting.schedulingRule.we2Rate' | translate }}</label>
         <input
           type="number"
-          [formField]="ruleForm.soRate"
+          [formField]="ruleForm.we2Rate"
           class="form-control rule-input"
-          id="ruleSoRate"
-          aria-label="ruleSoRate"
+          id="ruleWe2Rate"
+          aria-label="ruleWe2Rate"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-we3-rate-item" class="rule-config-item">
+        <label for="ruleWe3Rate">{{ 'setting.schedulingRule.we3Rate' | translate }}</label>
+        <input
+          type="number"
+          [formField]="ruleForm.we3Rate"
+          class="form-control rule-input"
+          id="ruleWe3Rate"
+          aria-label="ruleWe3Rate"
+        />
+      </div>
+    </div>
+
+    <div id="scheduling-rule-modal-night-window-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-night-start-item" class="rule-config-item">
+        <label for="ruleNightStart">{{ 'setting.schedulingRule.nightStart' | translate }}</label>
+        <input
+          type="time"
+          [formField]="ruleForm.nightStart"
+          class="form-control rule-input"
+          id="ruleNightStart"
+          aria-label="ruleNightStart"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-night-end-item" class="rule-config-item">
+        <label for="ruleNightEnd">{{ 'setting.schedulingRule.nightEnd' | translate }}</label>
+        <input
+          type="time"
+          [formField]="ruleForm.nightEnd"
+          class="form-control rule-input"
+          id="ruleNightEnd"
+          aria-label="ruleNightEnd"
         />
       </div>
     </div>

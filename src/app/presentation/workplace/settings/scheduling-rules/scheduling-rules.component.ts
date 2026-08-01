@@ -61,8 +61,11 @@ interface SchedulingRuleFormModel {
   vacationDaysPerYear: number;
   nightRate: number;
   holidayRate: number;
-  saRate: number;
-  soRate: number;
+  we1Rate: number;
+  we2Rate: number;
+  we3Rate: number;
+  nightStart: string;
+  nightEnd: string;
 }
 
 @Component({
@@ -124,9 +127,20 @@ export class SchedulingRulesComponent
     vacationDaysPerYear: 0,
     nightRate: 0,
     holidayRate: 0,
-    saRate: 0,
-    soRate: 0,
+    we1Rate: 0,
+    we2Rate: 0,
+    we3Rate: 0,
+    nightStart: '',
+    nightEnd: '',
   });
+
+  private weRateNullTracking = {
+    we1Rate: false,
+    we2Rate: false,
+    we3Rate: false,
+    nightStart: false,
+    nightEnd: false,
+  };
 
   ruleForm = form(this.formModel, f => {
     debounce(f.name, 300);
@@ -189,6 +203,14 @@ export class SchedulingRulesComponent
   }
 
   private initFormSignals(rule: ISchedulingRule): void {
+    this.weRateNullTracking = {
+      we1Rate: rule.we1Rate == null,
+      we2Rate: rule.we2Rate == null,
+      we3Rate: rule.we3Rate == null,
+      nightStart: rule.nightStart == null,
+      nightEnd: rule.nightEnd == null,
+    };
+
     this.formModel.set({
       name: rule.name || '',
       maxWorkDays: rule.maxWorkDays ?? 0,
@@ -207,8 +229,11 @@ export class SchedulingRulesComponent
       vacationDaysPerYear: rule.vacationDaysPerYear ?? 0,
       nightRate: rule.nightRate ?? 0,
       holidayRate: rule.holidayRate ?? 0,
-      saRate: rule.saRate ?? 0,
-      soRate: rule.soRate ?? 0,
+      we1Rate: rule.we1Rate ?? 0,
+      we2Rate: rule.we2Rate ?? 0,
+      we3Rate: rule.we3Rate ?? 0,
+      nightStart: rule.nightStart ?? '',
+      nightEnd: rule.nightEnd ?? '',
     });
   }
 
@@ -232,8 +257,11 @@ export class SchedulingRulesComponent
     this.editingRule.vacationDaysPerYear = formData.vacationDaysPerYear;
     this.editingRule.nightRate = formData.nightRate;
     this.editingRule.holidayRate = formData.holidayRate;
-    this.editingRule.saRate = formData.saRate;
-    this.editingRule.soRate = formData.soRate;
+    this.editingRule.we1Rate = (this.weRateNullTracking.we1Rate && formData.we1Rate === 0) ? null : formData.we1Rate;
+    this.editingRule.we2Rate = (this.weRateNullTracking.we2Rate && formData.we2Rate === 0) ? null : formData.we2Rate;
+    this.editingRule.we3Rate = (this.weRateNullTracking.we3Rate && formData.we3Rate === 0) ? null : formData.we3Rate;
+    this.editingRule.nightStart = (this.weRateNullTracking.nightStart && formData.nightStart === '') ? null : (formData.nightStart || null);
+    this.editingRule.nightEnd = (this.weRateNullTracking.nightEnd && formData.nightEnd === '') ? null : (formData.nightEnd || null);
   }
 
   private openModal(): void {

@@ -19,8 +19,11 @@ export interface ISchedulingRule {
   vacationDaysPerYear: number | null;
   nightRate: number | null;
   holidayRate: number | null;
-  saRate: number | null;
-  soRate: number | null;
+  we1Rate: number | null;
+  we2Rate: number | null;
+  we3Rate: number | null;
+  nightStart: string | null;
+  nightEnd: string | null;
   workOnMonday: boolean | null;
   workOnTuesday: boolean | null;
   workOnWednesday: boolean | null;
@@ -50,8 +53,11 @@ export class SchedulingRule implements ISchedulingRule {
   vacationDaysPerYear: number | null = null;
   nightRate: number | null = null;
   holidayRate: number | null = null;
-  saRate: number | null = null;
-  soRate: number | null = null;
+  we1Rate: number | null = null;
+  we2Rate: number | null = null;
+  we3Rate: number | null = null;
+  nightStart: string | null = null;
+  nightEnd: string | null = null;
   workOnMonday: boolean | null = null;
   workOnTuesday: boolean | null = null;
   workOnWednesday: boolean | null = null;

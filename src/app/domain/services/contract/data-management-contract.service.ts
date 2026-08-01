@@ -169,8 +169,9 @@ export class DataManagementContractService {
         for (const contract of result) {
           contract.nightRate = (contract.nightRate ?? 0) * 100;
           contract.holidayRate = (contract.holidayRate ?? 0) * 100;
-          contract.saRate = (contract.saRate ?? 0) * 100;
-          contract.soRate = (contract.soRate ?? 0) * 100;
+          contract.we1Rate = contract.we1Rate == null ? null : contract.we1Rate * 100;
+          contract.we2Rate = contract.we2Rate == null ? null : contract.we2Rate * 100;
+          contract.we3Rate = contract.we3Rate == null ? null : contract.we3Rate * 100;
         }
         this.contracts.push(...result);
       }
@@ -201,8 +202,9 @@ export class DataManagementContractService {
       if (result) {
         result.nightRate = (result.nightRate ?? 0) * 100;
         result.holidayRate = (result.holidayRate ?? 0) * 100;
-        result.saRate = (result.saRate ?? 0) * 100;
-        result.soRate = (result.soRate ?? 0) * 100;
+        result.we1Rate = result.we1Rate == null ? null : result.we1Rate * 100;
+        result.we2Rate = result.we2Rate == null ? null : result.we2Rate * 100;
+        result.we3Rate = result.we3Rate == null ? null : result.we3Rate * 100;
         this.prepareContract(result);
       }
     } catch (error) {
@@ -230,8 +232,11 @@ export class DataManagementContractService {
     newContract.fullTime = sched.fullTime;
     newContract.nightRate = this.settingsService.nightRate;
     newContract.holidayRate = this.settingsService.holidayRate;
-    newContract.saRate = this.settingsService.saRate;
-    newContract.soRate = this.settingsService.soRate;
+    newContract.we1Rate = this.settingsService.saRate;
+    newContract.we2Rate = this.settingsService.soRate;
+    newContract.we3Rate = this.settingsService.appSettings.surchargeModeSettings().we3Rate * 100;
+    newContract.nightStart = this.settingsService.appSettings.surchargeModeSettings().nightStart;
+    newContract.nightEnd = this.settingsService.appSettings.surchargeModeSettings().nightEnd;
     newContract.paymentInterval = work.paymentInterval;
     newContract.validFrom = new Date();
     newContract.validUntil = undefined;
@@ -294,8 +299,9 @@ export class DataManagementContractService {
       const contractToSave = { ...this.editContract };
       contractToSave.nightRate = (contractToSave.nightRate ?? 0) / 100;
       contractToSave.holidayRate = (contractToSave.holidayRate ?? 0) / 100;
-      contractToSave.saRate = (contractToSave.saRate ?? 0) / 100;
-      contractToSave.soRate = (contractToSave.soRate ?? 0) / 100;
+      contractToSave.we1Rate = contractToSave.we1Rate == null ? null : contractToSave.we1Rate / 100;
+      contractToSave.we2Rate = contractToSave.we2Rate == null ? null : contractToSave.we2Rate / 100;
+      contractToSave.we3Rate = contractToSave.we3Rate == null ? null : contractToSave.we3Rate / 100;
 
       const action = contractToSave.id
         ? this.dataContractService.updateContract(contractToSave)

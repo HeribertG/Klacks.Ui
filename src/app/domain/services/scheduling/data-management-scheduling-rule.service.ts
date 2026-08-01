@@ -97,8 +97,12 @@ export class DataManagementSchedulingRuleService {
     rule.vacationDaysPerYear = work.vacationDaysPerYear;
     rule.nightRate = this.settingsService.nightRateRaw;
     rule.holidayRate = this.settingsService.holidayRateRaw;
-    rule.saRate = this.settingsService.saRateRaw;
-    rule.soRate = this.settingsService.soRateRaw;
+    const surcharge = this.settingsService.appSettings.surchargeModeSettings();
+    rule.we1Rate = this.settingsService.saRateRaw;
+    rule.we2Rate = this.settingsService.soRateRaw;
+    rule.we3Rate = surcharge.we3Rate;
+    rule.nightStart = surcharge.nightStart;
+    rule.nightEnd = surcharge.nightEnd;
     rule.workOnMonday = sched.workOnMonday;
     rule.workOnTuesday = sched.workOnTuesday;
     rule.workOnWednesday = sched.workOnWednesday;

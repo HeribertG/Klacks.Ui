@@ -118,8 +118,8 @@ export class PropertyGridComponent implements OnInit {
     if (key === 'Weekday') return 'weekday';
     if (key === 'Holiday' || key === 'HolidayNextDay') return 'holiday';
 
-    // Zeit-Eingaben für FromHour und UntilHour
-    if (key === 'FromHour' || key === 'UntilHour') return 'time';
+    // Zeit-Eingaben für FromHour, UntilHour, NightStart und NightEnd
+    if (key === 'FromHour' || key === 'UntilHour' || key === 'NightStart' || key === 'NightEnd') return 'time';
 
     const type = typeof value;
     return type;

@@ -167,8 +167,11 @@ export class MacroRowComponent implements OnDestroy {
     'import holidaynextday',
     'import nightrate',
     'import holidayrate',
-    'import sarate',
-    'import sorate',
+    'import we1rate',
+    'import we2rate',
+    'import we3rate',
+    'import nightstart',
+    'import nightend',
     'import guaranteedhours',
     'import fulltime'
   ];

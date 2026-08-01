@@ -19,8 +19,11 @@ export interface IContract {
   fullTime: number;
   nightRate: number;
   holidayRate: number;
-  saRate: number;
-  soRate: number;
+  we1Rate: number | null;
+  we2Rate: number | null;
+  we3Rate: number | null;
+  nightStart: string | null;
+  nightEnd: string | null;
   paymentInterval: PaymentInterval;
   percent: number | undefined;
   validFrom: Date;
@@ -48,8 +51,11 @@ export class Contract implements IContract {
   fullTime = 0;
   nightRate = 0;
   holidayRate = 0;
-  saRate = 0;
-  soRate = 0;
+  we1Rate: number | null = null;
+  we2Rate: number | null = null;
+  we3Rate: number | null = null;
+  nightStart: string | null = null;
+  nightEnd: string | null = null;
   paymentInterval = PaymentInterval.Monthly;
   percent: number | undefined = undefined;
 
