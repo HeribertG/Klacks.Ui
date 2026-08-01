@@ -13,7 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../../models/create-messaging-provider.model';
 
-const PROVIDER_TYPES = ['Telegram', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
+const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
 
 type ProviderConfigFields = Record<string, string>;
 
@@ -23,11 +23,19 @@ const TELEGRAM_WEBHOOK_PATH = '/api/messaging/webhook/telegram';
 const SLACK_WEBHOOK_PATH = '/api/messaging/webhook/slack';
 const VIBER_WEBHOOK_PATH = '/api/messaging/webhook/viber';
 const LINE_WEBHOOK_PATH = '/api/messaging/webhook/line';
+const WHATSAPP_WEBHOOK_PATH = '/api/messaging/webhook/whatsapp';
 
 const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string; labelEn: string; type: string; placeholder: string; readonly?: boolean; autoFill?: () => string }[]> = {
   Telegram: [
     { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11' },
     { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: TELEGRAM_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${TELEGRAM_WEBHOOK_PATH}` },
+  ],
+  WhatsApp: [
+    { key: 'AccessToken', labelDe: 'Access-Token', labelEn: 'Access Token', type: 'password', placeholder: 'EAAG...' },
+    { key: 'PhoneNumberId', labelDe: 'Telefonnummer-ID', labelEn: 'Phone Number ID', type: 'text', placeholder: '123456789012345' },
+    { key: 'AppSecret', labelDe: 'App-Secret', labelEn: 'App Secret', type: 'password', placeholder: 'abc123def456...' },
+    { key: 'VerifyToken', labelDe: 'Verify-Token', labelEn: 'Verify Token', type: 'password', placeholder: 'klacks-webhook-2026' },
+    { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: WHATSAPP_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${WHATSAPP_WEBHOOK_PATH}` },
   ],
   Signal: [
     { key: 'SignalNumber', labelDe: 'Signal-Nummer', labelEn: 'Signal Number', type: 'tel', placeholder: '+49171...' },

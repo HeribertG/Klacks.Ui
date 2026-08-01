@@ -171,6 +171,7 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
 
   private static readonly MANUAL_MAP: Record<string, string> = {
     Telegram: 'messaging-telegram-manual',
+    WhatsApp: 'messaging-whatsapp-manual',
     Signal: 'messaging-signal-manual',
     SMS: 'messaging-sms-manual',
     Threema: 'messaging-threema-manual',

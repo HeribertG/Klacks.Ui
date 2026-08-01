@@ -1,0 +1,219 @@
+<h2>WhatsApp einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über WhatsApp mit Klacks zu senden und zu empfangen, benötigen Sie ein
+Meta-Entwicklerkonto und eine Meta-App mit aktiviertem WhatsApp-Produkt. Klacks verwendet
+die <strong>WhatsApp Cloud API</strong> der Meta-Business-Plattform für den Versand und
+<strong>Meta-Webhooks</strong> für den Empfang.
+</p>
+
+<p>
+<em>Hinweis: Für die Einrichtung und zum Testen fallen keine Kosten an. Beim Anlegen der
+App stellt Meta automatisch eine kostenlose <strong>Test-Telefonnummer</strong> bereit.</em>
+</p>
+
+<p>
+<strong>Wichtig — die Absendernummer ist nicht Ihre private Nummer.</strong>
+Eine Telefonnummer, die bereits in der normalen WhatsApp-App verwendet wird, kann nicht für
+die Cloud API registriert werden, und eine registrierte Nummer lässt sich nicht mehr mit
+WhatsApp Messenger nutzen. Verwenden Sie deshalb die von Meta bereitgestellte Test-Nummer
+oder eine eigene, ausschliesslich geschäftlich genutzte Nummer. Ihr privates WhatsApp auf
+dem Mobiltelefon dient als <strong>Empfänger</strong> zum Testen — nicht als Absender.
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Meta-App erstellen</h3>
+<ol>
+  <li>Öffnen Sie <strong>developers.facebook.com/apps</strong> und klicken Sie auf <strong>Create app</strong>.</li>
+  <li>Wählen Sie als Anwendungsfall <strong>Other</strong> und als App-Typ <strong>Business</strong>.</li>
+  <li>Klicken Sie im Dashboard beim Produkt <strong>WhatsApp</strong> auf <strong>Set up</strong>.
+    Dabei wird automatisch eine Test-Telefonnummer erzeugt und registriert.</li>
+  <li>Wechseln Sie in der linken Navigation zu <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Notieren Sie sich die <strong>Phone number ID</strong> und erzeugen Sie über
+    <strong>Generate access token</strong> ein Zugriffstoken.</li>
+  <li>Notieren Sie sich unter <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    das <strong>App Secret</strong> — es wird für die Signaturprüfung eingehender Nachrichten benötigt.</li>
+</ol>
+
+<p>
+<strong>Achtung — zwei ähnliche IDs:</strong> Im API-Setup-Panel stehen die
+<strong>Phone number ID</strong> und die <strong>WhatsApp Business Account ID</strong> direkt
+untereinander. Klacks benötigt die <strong>Phone number ID</strong>. Mit der falschen ID
+meldet der Verbindungstest trotzdem Erfolg, aber jeder Versand schlägt fehl.
+</p>
+
+<p>
+<strong>Achtung — Token-Laufzeit:</strong> Das über <em>Generate access token</em> erzeugte
+Token ist ein temporäres Test-Token und läuft nach kurzer Zeit ab. Für den Dauerbetrieb
+erzeugen Sie im Meta-Business-Manager ein permanentes Token über einen Systembenutzer.
+</p>
+
+<hr>
+
+<h3>Schritt 2 — Empfängernummer freischalten</h3>
+<p>
+Die Test-Nummer darf nur an vorher freigeschaltete Empfänger senden. Fügen Sie im
+<strong>API Setup</strong>-Panel unter <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong> Ihre WhatsApp-Nummer hinzu. Meta sendet einen
+Bestätigungscode an diese Nummer, den Sie eingeben müssen.
+</p>
+
+<p>
+Ohne diesen Schritt lehnt Meta jeden Versand an diese Nummer ab. Sobald Sie später eine
+eigene, verifizierte Geschäftsnummer verwenden, entfällt die Freischaltung.
+</p>
+
+<hr>
+
+<h3>Schritt 3 — WhatsApp in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-Token</td><td>Zugriffstoken aus dem API-Setup-Panel</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>Telefonnummer-ID</td><td>Phone number ID der Absendernummer — nicht die Business-Account-ID</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-Secret</td><td>App Secret aus den App-Einstellungen — für die Signaturprüfung eingehender Nachrichten</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-Token</td><td>Frei wählbare Zeichenfolge, die Sie sich selbst ausdenken. Sie tragen denselben Wert in Schritt 5 bei Meta ein</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wird automatisch ausgefüllt — diese URL tragen Sie in Schritt 5 als Callback-URL bei Meta ein</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 4 — Das 24-Stunden-Fenster</h3>
+<p>
+WhatsApp unterscheidet sich hier grundlegend von Telegram oder Slack. Freie Textnachrichten
+darf ein Unternehmen nur senden, solange ein <strong>Kundendienst-Fenster</strong> offen ist.
+Dieses Fenster öffnet <em>der Empfänger</em>, indem er Ihre WhatsApp-Nummer anschreibt. Es
+bleibt 24 Stunden offen und verlängert sich mit jeder weiteren Nachricht des Empfängers.
+</p>
+
+<p>
+Ausserhalb dieses Fensters lässt Meta ausschliesslich vorab genehmigte
+<strong>Nachrichtenvorlagen</strong> zu. Klacks versendet derzeit ausschliesslich freie
+Textnachrichten und kann damit <strong>keine Konversation von sich aus eröffnen</strong>.
+</p>
+
+<p>
+<strong>Was das für Sie bedeutet:</strong> Bitten Sie Ihre Mitarbeitenden einmalig, eine
+Nachricht an die Klacks-WhatsApp-Nummer zu senden. Danach ist der Versand für 24 Stunden
+möglich, und jede Antwort verlängert das Fenster. Ist es geschlossen, meldet der Versand
+einen Fehler — das ist kein Konfigurationsproblem, sondern eine Vorgabe von WhatsApp.
+</p>
+
+<p>
+Wenn Sie Mitarbeitende unabhängig von diesem Fenster erreichen müssen, sind
+<strong>Telegram</strong> oder <strong>Signal</strong> die besseren Anbieter — dort gibt es
+diese Einschränkung nicht.
+</p>
+
+<hr>
+
+<h3>Schritt 5 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der WhatsApp-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten über WhatsApp versenden. Verwenden Sie den Namen des Mitarbeiters:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+</pre>
+
+<p>
+Als Empfänger dient die <strong>Telefonnummer</strong> im internationalen Format ohne
+führende Null und ohne Pluszeichen (z.B. <code>41791234567</code> für <code>079 123 45 67</code>).
+Der Versand ist für Sie vollständig transparent — Sie arbeiten mit Namen, Klacksy kümmert
+sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Die WhatsApp-Nummer muss mit dem entsprechenden
+Klacks-Kontakt verknüpft sein (unter Adresse &rarr; Kontaktdaten), und das
+24-Stunden-Fenster aus Schritt 4 muss offen sein.</p>
+
+<hr>
+
+<h3>Schritt 6 — Eingehende Nachrichten empfangen (Webhooks)</h3>
+<p>
+Um eingehende WhatsApp-Nachrichten in Klacks anzuzeigen, muss der Webhook der Meta-App
+konfiguriert werden. Speichern und aktivieren Sie den Anbieter in Klacks, <em>bevor</em> Sie
+die Callback-URL eintragen — Meta prüft die URL sofort mit einer Verifizierungsanfrage, die
+Klacks anhand des Verify-Tokens automatisch beantwortet.
+</p>
+
+<ol>
+  <li>Öffnen Sie Ihre Meta-App und navigieren Sie zu <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Klicken Sie bei <strong>Webhook</strong> auf <strong>Edit</strong> und tragen Sie ein:
+    <ul>
+      <li><strong>Callback URL</strong>: die in Klacks angezeigte Webhook-URL
+        <pre>https://{ihre-domain}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: exakt derselbe Wert, den Sie in Schritt 3 im Feld
+        <strong>Verify-Token</strong> eingetragen haben</li>
+    </ul>
+  </li>
+  <li>Klicken Sie auf <strong>Verify and save</strong>.</li>
+  <li>Abonnieren Sie unter <strong>Webhook fields</strong> das Feld <code>messages</code>.</li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.
+    Klacks prüft dabei die Signatur jeder Anfrage (<code>X-Hub-Signature-256</code>) mit dem
+    hinterlegten App-Secret.</li>
+</ol>
+
+<p>
+Die Callback-URL muss von aussen über <strong>HTTPS</strong> erreichbar sein. Bei einer
+Installation im Firmennetz ohne öffentliche Adresse funktioniert der Versand, aber es
+können keine Nachrichten empfangen werden.
+</p>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Access-Token abgelaufen</td>
+    <td>Temporäre Test-Token laufen nach kurzer Zeit ab — im API-Setup-Panel neu erzeugen oder ein permanentes Token einrichten</td>
+  </tr>
+  <tr>
+    <td>Verbindungstest erfolgreich, aber jeder Versand scheitert</td>
+    <td>Business-Account-ID statt Telefonnummer-ID eingetragen</td>
+    <td>Im API-Setup-Panel die <strong>Phone number ID</strong> übernehmen, nicht die WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Fehler mit Hinweis auf 24 Stunden oder erneute Kontaktaufnahme</td>
+    <td>Das Kundendienst-Fenster ist geschlossen</td>
+    <td>Der Empfänger muss zuerst eine Nachricht an Ihre WhatsApp-Nummer senden — siehe Schritt 4</td>
+  </tr>
+  <tr>
+    <td>Versand an eine bestimmte Nummer schlägt fehl</td>
+    <td>Empfänger bei der Test-Nummer nicht freigeschaltet</td>
+    <td>Nummer unter <strong>Manage phone number list</strong> hinzufügen und per Code bestätigen</td>
+  </tr>
+  <tr>
+    <td>Webhook-Verifizierung schlägt fehl</td>
+    <td>Verify-Token stimmt nicht überein oder Anbieter in Klacks nicht gespeichert/aktiviert</td>
+    <td>Anbieter zuerst in Klacks speichern und aktivieren, dann denselben Verify-Token bei Meta eintragen</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook-Feld <code>messages</code> nicht abonniert oder App-Secret falsch</td>
+    <td>Unter Configuration das Feld <code>messages</code> abonnieren und das App-Secret prüfen</td>
+  </tr>
+</table>
