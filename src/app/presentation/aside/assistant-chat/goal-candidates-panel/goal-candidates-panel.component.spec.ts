@@ -11,6 +11,7 @@ import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 
 describe('GoalCandidatesPanelComponent', () => {
   let fixture: ComponentFixture<GoalCandidatesPanelComponent>;
@@ -25,6 +26,8 @@ describe('GoalCandidatesPanelComponent', () => {
   let asideServiceMock: { isVisible: WritableSignal<boolean> };
   let onboardingServiceMock: { isTourActive: WritableSignal<boolean> };
   let toastShowServiceMock: { showError: ReturnType<typeof vi.fn> };
+  let eventBusMock: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
+  let targetRequested$: Subject<{ target: string }>;
 
   const legacyCandidate: IGoalCandidate = {
     id: 'candidate-1',
@@ -62,6 +65,12 @@ describe('GoalCandidatesPanelComponent', () => {
     asideServiceMock = { isVisible: signal(true) };
     onboardingServiceMock = { isTourActive: signal(false) };
     toastShowServiceMock = { showError: vi.fn() };
+    targetRequested$ = new Subject<{ target: string }>();
+    eventBusMock = {
+      emit: vi.fn(),
+      on: vi.fn().mockReturnValue(targetRequested$.asObservable()),
+      onAny: vi.fn().mockReturnValue(of()),
+    };
 
     await TestBed.configureTestingModule({
       imports: [GoalCandidatesPanelComponent, TranslateModule.forRoot()],
@@ -70,6 +79,7 @@ describe('GoalCandidatesPanelComponent', () => {
         { provide: AsideService, useValue: asideServiceMock },
         { provide: OnboardingService, useValue: onboardingServiceMock },
         { provide: ToastShowService, useValue: toastShowServiceMock },
+        { provide: EVENT_BUS_TOKEN, useValue: eventBusMock },
       ],
     }).compileComponents();
 
@@ -195,5 +205,57 @@ describe('GoalCandidatesPanelComponent', () => {
   it('passes the rationale parameters through and keeps the reference stable', () => {
     expect(component.rationaleParams(catalogueCandidate)).toEqual({ count: '7', days: '7' });
     expect(component.rationaleParams(legacyCandidate)).toBe(component.rationaleParams(legacyCandidate));
+  });
+
+  describe('collapse/expand', () => {
+    beforeEach(async () => {
+      goalCandidatesServiceMock.candidates.set([legacyCandidate]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    });
+
+    it('starts expanded and hides the list while keeping the header after toggling', () => {
+      const host: HTMLElement = fixture.nativeElement;
+      expect(component.isExpanded()).toBe(true);
+      expect(host.querySelector('.goal-candidate-list')).toBeTruthy();
+
+      component.toggleExpanded();
+      fixture.detectChanges();
+
+      expect(component.isExpanded()).toBe(false);
+      expect(host.querySelector('.goal-candidates-header')).toBeTruthy();
+      expect(host.querySelector('.goal-candidate-list')).toBeNull();
+    });
+
+    it('shows the list again after toggling twice', () => {
+      component.toggleExpanded();
+      component.toggleExpanded();
+      fixture.detectChanges();
+
+      expect(component.isExpanded()).toBe(true);
+      expect(fixture.nativeElement.querySelector('.goal-candidate-list')).toBeTruthy();
+    });
+
+    it('re-expands automatically when Klacksy requests a target inside the panel', () => {
+      component.toggleExpanded();
+      fixture.detectChanges();
+      expect(component.isExpanded()).toBe(false);
+
+      targetRequested$.next({ target: 'goal-candidates-panel.approve' });
+      fixture.detectChanges();
+
+      expect(component.isExpanded()).toBe(true);
+    });
+
+    it('ignores target requests for unrelated panels', () => {
+      component.toggleExpanded();
+      fixture.detectChanges();
+
+      targetRequested$.next({ target: 'some-other-panel.item' });
+      fixture.detectChanges();
+
+      expect(component.isExpanded()).toBe(false);
+    });
   });
 });

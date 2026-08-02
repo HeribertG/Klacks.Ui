@@ -16,6 +16,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { GOAL_CANDIDATE_CONFIDENCE } from 'src/app/domain/constants/goal-candidate.constants';
@@ -23,11 +25,14 @@ import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interfa
 import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 
 const CONFIDENCE_I18N_PREFIX = 'assistant-chat.goal-candidates.confidence.';
 const LOAD_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.load-error';
 const APPROVE_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.approve-error';
 const REJECT_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.reject-error';
+const KLACKSY_TARGET_PREFIX = 'goal-candidates-panel';
 
 // Only a self-assessment the model actually committed to is worth showing; 'unknown' is the
 // server's fallback for a missing or unparsable value and says nothing a reader can act on.
@@ -40,7 +45,7 @@ const NO_RATIONALE_PARAMS: Record<string, string> = {};
 @Component({
   selector: 'app-goal-candidates-panel',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, FontAwesomeModule],
   templateUrl: './goal-candidates-panel.component.html',
   styleUrls: ['./goal-candidates-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,12 +56,17 @@ export class GoalCandidatesPanelComponent {
   private onboarding = inject(OnboardingService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private readonly destroyRef = inject(DestroyRef);
 
   private loadRequested = false;
 
+  readonly faChevronDown = faChevronDown;
+  readonly faChevronUp = faChevronUp;
+
   public readonly candidates = this.goalCandidatesService.candidates;
   public readonly hasCandidates = this.goalCandidatesService.hasCandidates;
+  public readonly isExpanded = signal<boolean>(true);
   private readonly pendingDecisionId = signal<string | null>(null);
 
   constructor() {
@@ -71,6 +81,19 @@ export class GoalCandidatesPanelComponent {
       this.loadRequested = true;
       this.loadCandidates();
     });
+
+    this.eventBus
+      .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ target }) => {
+        if (target.startsWith(KLACKSY_TARGET_PREFIX)) {
+          this.isExpanded.set(true);
+        }
+      });
+  }
+
+  public toggleExpanded(): void {
+    this.isExpanded.update((expanded) => !expanded);
   }
 
   public hasConfidenceLabel(confidence: string): boolean {

@@ -4,20 +4,25 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { KlacksyNavigationService } from './klacksy-navigation.service';
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 describe('KlacksyNavigationService', () => {
   let router: { navigateByUrl: ReturnType<typeof vi.fn> };
   let telemetry: { trackTargetMiss: ReturnType<typeof vi.fn> };
+  let eventBus: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
   let service: KlacksyNavigationService;
 
   beforeEach(() => {
     router = { navigateByUrl: vi.fn().mockResolvedValue(true) };
     telemetry = { trackTargetMiss: vi.fn() };
+    eventBus = { emit: vi.fn(), on: vi.fn(), onAny: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
         KlacksyNavigationService,
         { provide: Router, useValue: router },
-        { provide: KlacksyTelemetryService, useValue: telemetry }
+        { provide: KlacksyTelemetryService, useValue: telemetry },
+        { provide: EVENT_BUS_TOKEN, useValue: eventBus }
       ]
     });
     service = TestBed.inject(KlacksyNavigationService);
@@ -69,6 +74,19 @@ describe('KlacksyNavigationService', () => {
     expect(shellScrollTopSets).toBe(0);
     expect(shell.scrollIntoView).not.toHaveBeenCalled();
     expect(el.scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('emits a target-requested event before looking up the marker, so a collapsed panel can expand', async () => {
+    const el = document.createElement('div');
+    el.setAttribute('data-klacksy-target', 'goal-candidates-panel.approve');
+    el.scrollIntoView = vi.fn();
+    document.body.appendChild(el);
+
+    await service.navigateAndScroll('/', 'goal-candidates-panel.approve');
+
+    expect(eventBus.emit).toHaveBeenCalledWith(DomainEventType.KLACKSY_TARGET_REQUESTED, {
+      target: 'goal-candidates-panel.approve',
+    });
   });
 
   it('falls back gracefully when target missing', async () => {

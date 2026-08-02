@@ -147,10 +147,22 @@
       @for (message of messages; track message.id) {
       @if (message.id === inboxHeadingMessageId()) {
       <div class="inbox-heading" role="heading" aria-level="2">
-        <fa-icon [icon]="faBell"></fa-icon>
-        <span>{{ "assistant-chat.proactive.inbox-heading" | translate }}</span>
+        <button
+          type="button"
+          class="inbox-heading-toggle"
+          (click)="toggleInboxExpanded()"
+          [attr.aria-expanded]="inboxExpanded()"
+        >
+          <fa-icon [icon]="faBell"></fa-icon>
+          <span>{{ "assistant-chat.proactive.inbox-heading" | translate }}</span>
+          <fa-icon
+            class="inbox-heading-chevron"
+            [icon]="inboxExpanded() ? faChevronUp : faChevronDown"
+          ></fa-icon>
+        </button>
       </div>
       }
+      @if (!isInboxMessage(message) || inboxExpanded()) {
       <div
         class="message-wrapper"
         [class.user]="message.sender === 'user'"
@@ -295,6 +307,7 @@
           }
         </div>
       </div>
+      }
       }
 
       <!-- Processing indicator -->

@@ -10,6 +10,7 @@ export enum DomainEventType {
   SKILL_UI_ACTION = 'domain:skill-ui-action',
   ADDRESS_VALIDATION_FAILED = 'domain:address-validation-failed',
   ADDRESS_VALIDATION_NO_LLM = 'domain:address-validation-no-llm',
+  KLACKSY_TARGET_REQUESTED = 'domain:klacksy-target-requested',
 }
 
 export interface ErrorEvent {
@@ -54,4 +55,8 @@ export interface AddressValidationFailedEvent {
   country: string;
   state: string;
   suggestions: { displayName: string; latitude: number; longitude: number }[];
+}
+
+export interface KlacksyTargetRequestedEvent {
+  target: string;
 }

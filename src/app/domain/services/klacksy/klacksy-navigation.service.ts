@@ -12,6 +12,8 @@ import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 export interface NavigationResult {
   success: boolean;
@@ -22,6 +24,7 @@ export interface NavigationResult {
 export class KlacksyNavigationService {
   private readonly router = inject(Router);
   private readonly telemetry = inject(KlacksyTelemetryService);
+  private readonly eventBus = inject(EVENT_BUS_TOKEN);
   // Worst-case wait until we conclude the target marker is missing. The
   // MutationObserver resolves immediately the moment the element appears, so
   // this timeout only fires when the target is genuinely absent. 1500 ms keeps
@@ -51,7 +54,7 @@ export class KlacksyNavigationService {
     this.pulseNavIconForRoute(route);
     if (!target) return { success: true };
 
-    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS);
+    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS, target);
     if (!el) {
       this.telemetry.trackTargetMiss(route, target);
       return { success: false, reason: 'target-not-found' };
@@ -99,7 +102,7 @@ export class KlacksyNavigationService {
   // explanation walks through the page section by section. No layout re-anchoring here:
   // the next queued section would fight the previous target's re-anchor loop.
   async scrollToTargetOnPage(target: string): Promise<NavigationResult> {
-    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS);
+    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS, target);
     if (!el) {
       this.telemetry.trackTargetMiss(this.router.url, target);
       return { success: false, reason: 'target-not-found' };
@@ -191,7 +194,10 @@ export class KlacksyNavigationService {
     }
   }
 
-  private waitForElement(selector: string, timeoutMs: number): Promise<Element | null> {
+  private waitForElement(selector: string, timeoutMs: number, target?: string): Promise<Element | null> {
+    if (target) {
+      this.eventBus.emit(DomainEventType.KLACKSY_TARGET_REQUESTED, { target });
+    }
     return new Promise((resolve) => {
       const existing = document.querySelector(selector);
       if (existing) return resolve(existing);

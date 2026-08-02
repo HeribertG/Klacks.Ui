@@ -11,11 +11,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   margin-bottom: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--colorHeadline);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focusBorderColor);
+    outline-offset: 2px;
+  }
 }
 
 .goal-candidates-title {
   font-weight: 600;
+}
+
+.goal-candidates-chevron {
+  margin-left: 8px;
 }
 
 .goal-candidates-hint {

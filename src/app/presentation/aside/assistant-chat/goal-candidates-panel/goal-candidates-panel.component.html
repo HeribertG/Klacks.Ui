@@ -1,8 +1,19 @@
 @if (hasCandidates()) {
   <div class="goal-candidates-panel" data-klacksy-target="goal-candidates-panel">
-    <div class="goal-candidates-header">
+    <button
+      type="button"
+      class="goal-candidates-header"
+      (click)="toggleExpanded()"
+      [attr.aria-expanded]="isExpanded()"
+    >
       <span class="goal-candidates-title">{{ 'assistant-chat.goal-candidates.heading' | translate }}</span>
-    </div>
+      <fa-icon
+        class="goal-candidates-chevron"
+        [icon]="isExpanded() ? faChevronUp : faChevronDown"
+      ></fa-icon>
+    </button>
+
+    @if (isExpanded()) {
     <p class="goal-candidates-hint">{{ 'assistant-chat.goal-candidates.hint' | translate }}</p>
 
     <ul class="goal-candidate-list">
@@ -48,5 +59,6 @@
         </li>
       }
     </ul>
+    }
   </div>
 }

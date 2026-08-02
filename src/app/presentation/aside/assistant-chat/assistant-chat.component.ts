@@ -33,6 +33,7 @@ import {
   faUser,
   faTimes,
   faChevronDown,
+  faChevronUp,
   faVolumeHigh,
   faStop,
   faSpinner,
@@ -183,6 +184,7 @@ export class AssistantChatComponent {
   faUser = faUser;
   faTimes = faTimes;
   faChevronDown = faChevronDown;
+  faChevronUp = faChevronUp;
   faVolumeHigh = faVolumeHigh;
   faStop = faStop;
   faSpinner = faSpinner;
@@ -199,6 +201,8 @@ export class AssistantChatComponent {
   readonly pendingReactionMessageId = signal<string | null>(null);
   readonly pendingMuteMessageId = signal<string | null>(null);
   readonly inboxHeadingMessageId = signal<string | null>(null);
+  readonly inboxExpanded = signal<boolean>(true);
+  private readonly inboxMessageIds = signal<ReadonlySet<string>>(new Set());
   private inboxLoadRequested = false;
 
   inputText = signal('');
@@ -423,6 +427,8 @@ export class AssistantChatComponent {
       const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
       this.messages = [...this.messages, ...inboxMessages];
       this.inboxHeadingMessageId.set(inboxMessages[0].id);
+      this.inboxMessageIds.set(new Set(inboxMessages.map((message) => message.id)));
+      this.inboxExpanded.set(true);
       this.shouldScrollToBottom = true;
     }
     this.markInboxRead();
@@ -548,6 +554,14 @@ export class AssistantChatComponent {
 
   isMuteSuggestion(message: ChatMessage): boolean {
     return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
+  }
+
+  toggleInboxExpanded(): void {
+    this.inboxExpanded.update((expanded) => !expanded);
+  }
+
+  isInboxMessage(message: ChatMessage): boolean {
+    return this.inboxMessageIds().has(message.id);
   }
 
   onProactiveActionClick(message: ChatMessage): void {
@@ -1697,6 +1711,8 @@ export class AssistantChatComponent {
   clearChat(): void {
     this.isTourStationPending = false;
     this.inboxHeadingMessageId.set(null);
+    this.inboxMessageIds.set(new Set());
+    this.inboxExpanded.set(true);
     this.orchestrator.clearMessages();
     this.toastShowService.dismissInteractiveReplies();
 

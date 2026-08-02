@@ -1996,6 +1996,57 @@ describe('AssistantChatComponent', () => {
             // Assert
             expect(component.inboxHeadingMessageId()).toBeNull();
         });
+
+        it('collapses the inbox messages but keeps the heading when toggled', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([inboxItem({ id: 'inbox-a' }), inboxItem({ id: 'inbox-b' })]),
+            );
+            asideService.show();
+            fixture.detectChanges();
+            expect(component.inboxExpanded()).toBe(true);
+
+            // Act
+            component.toggleInboxExpanded();
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.inboxExpanded()).toBe(false);
+            const host: HTMLElement = fixture.nativeElement;
+            expect(host.querySelector('.inbox-heading')).toBeTruthy();
+            expect(host.textContent).not.toContain(inboxItem().content);
+        });
+
+        it('shows the inbox messages again after toggling twice', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-a' })]));
+            asideService.show();
+            fixture.detectChanges();
+
+            // Act
+            component.toggleInboxExpanded();
+            component.toggleInboxExpanded();
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.inboxExpanded()).toBe(true);
+            expect(fixture.nativeElement.textContent).toContain(inboxItem().content);
+        });
+
+        it('resets to expanded when the chat is cleared', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-a' })]));
+            asideService.show();
+            fixture.detectChanges();
+            component.toggleInboxExpanded();
+            expect(component.inboxExpanded()).toBe(false);
+
+            // Act
+            component.clearChat();
+
+            // Assert
+            expect(component.inboxExpanded()).toBe(true);
+        });
     });
 
     describe('proactive one-click action and mute suggestion (phases 4+5)', () => {

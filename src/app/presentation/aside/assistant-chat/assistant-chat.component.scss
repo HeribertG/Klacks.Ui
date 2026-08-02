@@ -715,16 +715,39 @@
 }
 
 .inbox-heading {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   margin: 16px 0 6px;
-  padding: 4px 10px;
   border-radius: 10px;
   background: rgba(colors.$CurrentGreyColor, 0.15);
   color: var(--colorLabel);
   font-size: 11px;
   font-weight: 600;
+}
+
+.inbox-heading-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(colors.$CurrentGreyColor, 0.15);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focusBorderColor);
+    outline-offset: 2px;
+  }
+}
+
+.inbox-heading-chevron {
+  margin-left: auto;
 }
 
 .proactive-reactions {
