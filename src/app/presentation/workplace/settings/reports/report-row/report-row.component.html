@@ -281,6 +281,14 @@
                 {{ "setting.report.preview.generate" | translate }}
               </button>
 
+              <button
+                class="btn btn-secondary"
+                (click)="exportCsv()"
+                [disabled]="!canGeneratePreview"
+              >
+                {{ "setting.report.preview.exportCsv" | translate }}
+              </button>
+
               @if (previewSource()) {
                 <button class="btn btn-secondary" (click)="openPreviewInNewTab()">
                   {{ "setting.report.preview.openInTab" | translate }}

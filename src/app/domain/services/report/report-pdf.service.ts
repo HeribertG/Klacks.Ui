@@ -17,7 +17,7 @@ import { environment } from 'src/environments/environment';
 import { ReportTemplate, PAGE_SIZE_FORMATS, ReportPageSize } from '../../models/report/report-template.model';
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
 import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
-import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/report-data-source.model';
+import { resolveReportFieldLabel } from '../../helpers/report-field-label.helper';
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 import { PdfRenderContext } from './pdf-render-context.interface';
 import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
@@ -1020,20 +1020,7 @@ export class ReportPdfService {
   }
 
   private translateFieldName(field: ReportField, template: ReportTemplate, withPrefix = true): string {
-    const sourceId = template.sourceId ?? 'schedule';
-    const dataSetIds = template.dataSetIds ?? ['work'];
-    const allFields = getAllFieldsForDataSets(sourceId, dataSetIds);
-    const def = allFields.find(f => f.key === field.dataBinding);
-    if (def) {
-      const label = this.translate.instant(def.i18nKey);
-      if (withPrefix) {
-        const prefixMap = getFieldPrefixMap(sourceId, dataSetIds, k => this.translate.instant(k));
-        const prefix = prefixMap.get(field.dataBinding);
-        return prefix ? `${prefix}.${label}` : label;
-      }
-      return label;
-    }
-    return field.name;
+    return resolveReportFieldLabel(field, template, key => this.translate.instant(key), withPrefix);
   }
 
   private applyTextColor(doc: jsPDF, hex: string | undefined): void {

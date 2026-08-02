@@ -3379,6 +3379,8 @@
   "setting.report.designer.groupSubtotals": "Zwischensummen",
   "setting.report.designer.groupSubtotal": "Zwischensumme",
   "setting.report.designer.groupEmpty": "(ohne Wert)",
+  "setting.report.preview.exportCsv": "Als CSV exportieren",
+  "setting.report.error.export": "Der Export konnte nicht erstellt werden.",
   "assistant.proactive.targetHoursDrift": "Bei {{name}} weichen die Stunden im Zeitraum {{period}} um {{hours}} h vom Soll ab.",
   "assistant.proactive.periodCloseDue": "Die Abrechnungsperiode für {{group}} endet am {{date}} (in {{days}} Tag(en)) und ist noch offen.",
   "assistant.proactive.periodOverdue": "Die Periode der Gruppe {{group}} endete am {{periodEnd}} vor {{days}} Tagen und ist noch nicht abgeschlossen.",

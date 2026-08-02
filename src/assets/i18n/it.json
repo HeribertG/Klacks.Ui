@@ -3371,6 +3371,8 @@
   "setting.report.designer.groupSubtotals": "Subtotali",
   "setting.report.designer.groupSubtotal": "Subtotale",
   "setting.report.designer.groupEmpty": "(senza valore)",
+  "setting.report.preview.exportCsv": "Esporta come CSV",
+  "setting.report.error.export": "Impossibile creare l’esportazione.",
   "assistant.proactive.targetHoursDrift": "Le ore di {{name}} si discostano dall'obiettivo di {{hours}} h nel periodo {{period}}.",
   "assistant.proactive.periodCloseDue": "Il periodo di conteggio di {{group}} termina il {{date}} (tra {{days}} giorno/i) ed è ancora aperto.",
   "assistant.proactive.periodOverdue": "Il periodo del gruppo {{group}} è terminato il {{periodEnd}}, {{days}} giorni fa, e non è ancora stato chiuso.",

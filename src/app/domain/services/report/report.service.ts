@@ -22,6 +22,10 @@ export class ReportService {
     triggerBlobDownload(new Blob([content], { type: 'application/json' }), fileName);
   }
 
+  downloadCsv(blob: Blob, fileName: string): void {
+    triggerBlobDownload(blob, fileName);
+  }
+
   createPreviewUrl(blob: Blob): string {
     return window.URL.createObjectURL(blob);
   }

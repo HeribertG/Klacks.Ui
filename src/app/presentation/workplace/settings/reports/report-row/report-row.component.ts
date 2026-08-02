@@ -19,8 +19,9 @@ import { DataManagementReportService } from 'src/app/domain/services/report/data
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
+import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
-import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
+import { ReportDataProviderService, ReportData, ReportDataProvider } from 'src/app/domain/services/report/report-data-provider.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
 import { ReportDesignerComponent } from '../report-designer/report-designer.component';
@@ -86,6 +87,7 @@ export class ReportRowComponent {
   private reportDefaults = inject(ReportDefaultsService);
   private transferService = inject(ReportTemplateTransferService);
   private templateResolver = inject(ReportTemplateResolverService);
+  private csvService = inject(ReportCsvService);
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
@@ -465,30 +467,13 @@ export class ReportRowComponent {
     if (!this.canGeneratePreview) return;
 
     this.isGenerating.set(true);
-    const fromDate = this.toLocalDateString(transformNgbDateStructToDate(this.previewFromDate ?? undefined));
-    const toDate = this.toLocalDateString(transformNgbDateStructToDate(this.previewToDate ?? undefined));
 
     try {
-      const provider = this.dataProviderService.getProvider(this.editSourceId, this.editDataSetIds);
-      const data = await provider.fetchData({
-        groupId: this.previewGroupId || undefined,
-        startDate: fromDate || undefined,
-        endDate: toDate || undefined,
-        clientId: this.previewClientId || undefined,
-      });
-
+      const { provider, data, fromDate, toDate } = await this.fetchPreviewData();
       const selectedGroup = this.groups.find(g => g.id === this.previewGroupId);
 
       const pdfContext: ReportGenerationContext = {
-        template: {
-          ...this.editTemplate,
-          name: this.editName.trim(),
-          sourceId: this.editSourceId,
-          dataSetIds: [...this.editDataSetIds],
-          mergeRows: this.editTemplate.mergeRows,
-          showFullPeriod: this.editTemplate.showFullPeriod,
-          pageSetup: this.buildPageSetup()
-        },
+        template: this.buildPreviewTemplate(),
         provider,
         data,
         groupName: selectedGroup?.name ?? '',
@@ -501,6 +486,61 @@ export class ReportRowComponent {
       this.showPreview(blob);
     } catch {
       this.toast.showError(this.translate.instant('setting.report.error.preview'), REPORT_TOAST_NAME);
+    } finally {
+      this.isGenerating.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  /**
+   * Fetches the rows for the current preview parameters, shared by the PDF and CSV paths.
+   */
+  private async fetchPreviewData(): Promise<{
+    provider: ReportDataProvider;
+    data: ReportData;
+    fromDate?: string;
+    toDate?: string;
+  }> {
+    const fromDate = this.toLocalDateString(transformNgbDateStructToDate(this.previewFromDate ?? undefined));
+    const toDate = this.toLocalDateString(transformNgbDateStructToDate(this.previewToDate ?? undefined));
+
+    const provider = this.dataProviderService.getProvider(this.editSourceId, this.editDataSetIds);
+    const data = await provider.fetchData({
+      groupId: this.previewGroupId || undefined,
+      startDate: fromDate || undefined,
+      endDate: toDate || undefined,
+      clientId: this.previewClientId || undefined,
+    });
+
+    return { provider, data, fromDate, toDate };
+  }
+
+  private buildPreviewTemplate(): ReportTemplate {
+    return {
+      ...this.editTemplate,
+      name: this.editName.trim(),
+      sourceId: this.editSourceId,
+      dataSetIds: [...this.editDataSetIds],
+      mergeRows: this.editTemplate.mergeRows,
+      showFullPeriod: this.editTemplate.showFullPeriod,
+      pageSetup: this.buildPageSetup(),
+    };
+  }
+
+  /**
+   * Exports the same data the preview would render, as CSV instead of PDF.
+   */
+  async exportCsv(): Promise<void> {
+    if (!this.canGeneratePreview) return;
+
+    this.isGenerating.set(true);
+    try {
+      const { provider, data } = await this.fetchPreviewData();
+      const template = this.buildPreviewTemplate();
+      const content = this.csvService.buildCsv(template, provider, data);
+      this.reportService.downloadCsv(this.csvService.buildBlob(content), this.csvService.buildFileName(template));
+    } catch {
+      this.toast.showError(this.translate.instant('setting.report.error.export'), REPORT_TOAST_NAME);
     } finally {
       this.isGenerating.set(false);
       this.cdr.markForCheck();
