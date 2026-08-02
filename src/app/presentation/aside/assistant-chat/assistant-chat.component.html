@@ -144,25 +144,7 @@
   <!-- Messages Area -->
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
-      @for (message of messages; track message.id) {
-      @if (message.id === inboxHeadingMessageId()) {
-      <div class="inbox-heading" role="heading" aria-level="2">
-        <button
-          type="button"
-          class="inbox-heading-toggle"
-          (click)="toggleInboxExpanded()"
-          [attr.aria-expanded]="inboxExpanded()"
-        >
-          <fa-icon [icon]="faBell"></fa-icon>
-          <span>{{ "assistant-chat.proactive.inbox-heading" | translate }}</span>
-          <fa-icon
-            class="inbox-heading-chevron"
-            [icon]="inboxExpanded() ? faChevronUp : faChevronDown"
-          ></fa-icon>
-        </button>
-      </div>
-      }
-      @if (!isInboxMessage(message) || inboxExpanded()) {
+      <ng-template #messageTpl let-message="message">
       <div
         class="message-wrapper"
         [class.user]="message.sender === 'user'"
@@ -307,6 +289,35 @@
           }
         </div>
       </div>
+      </ng-template>
+
+      @for (message of messages; track message.id) {
+      @if (message.id === inboxHeadingMessageId()) {
+      <div class="inbox-heading" role="heading" aria-level="2">
+        <button
+          type="button"
+          class="inbox-heading-toggle"
+          (click)="toggleInboxExpanded()"
+          [attr.aria-expanded]="inboxExpanded()"
+        >
+          <fa-icon [icon]="faBell"></fa-icon>
+          <span>{{ "assistant-chat.proactive.inbox-heading" | translate }}</span>
+          <fa-icon
+            class="inbox-heading-chevron"
+            [icon]="inboxExpanded() ? faChevronUp : faChevronDown"
+          ></fa-icon>
+        </button>
+      </div>
+      @if (inboxExpanded()) {
+      <div class="inbox-scroll-container">
+        @for (inboxMsg of inboxMessages(); track inboxMsg.id) {
+        <ng-container [ngTemplateOutlet]="messageTpl" [ngTemplateOutletContext]="{ message: inboxMsg }"></ng-container>
+        }
+      </div>
+      }
+      }
+      @if (!isInboxMessage(message)) {
+      <ng-container [ngTemplateOutlet]="messageTpl" [ngTemplateOutletContext]="{ message: message }"></ng-container>
       }
       }
 

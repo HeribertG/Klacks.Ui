@@ -21,7 +21,7 @@ import {
   afterEveryRender,
   viewChild
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -122,6 +122,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
   standalone: true,
   imports: [
     DatePipe,
+    NgTemplateOutlet,
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
@@ -203,6 +204,10 @@ export class AssistantChatComponent {
   readonly inboxHeadingMessageId = signal<string | null>(null);
   readonly inboxExpanded = signal<boolean>(true);
   private readonly inboxMessageIds = signal<ReadonlySet<string>>(new Set());
+  readonly inboxMessages = computed(() => {
+    const ids = this.inboxMessageIds();
+    return this.orchestrator.messages().filter((message) => ids.has(message.id));
+  });
   private inboxLoadRequested = false;
 
   inputText = signal('');

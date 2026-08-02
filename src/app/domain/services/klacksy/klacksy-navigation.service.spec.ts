@@ -89,6 +89,40 @@ describe('KlacksyNavigationService', () => {
     });
   });
 
+  it('scrolls a nested scrollable list even when the panel around it has no overflow of its own', async () => {
+    // Mirrors goal-candidates-panel: .chat-container-integrated (overflow:hidden) wraps
+    // the panel directly (no overflow), which wraps .goal-candidate-list (overflow:auto).
+    const shell = document.createElement('div');
+    shell.style.overflowY = 'hidden';
+    shell.scrollIntoView = vi.fn();
+
+    const panel = document.createElement('div');
+
+    const list = document.createElement('ul');
+    list.style.overflowY = 'auto';
+    let listScrollTopSets = 0;
+    Object.defineProperty(list, 'scrollTop', {
+      get: () => 0,
+      set: () => { listScrollTopSets++; },
+    });
+
+    const el = document.createElement('li');
+    el.setAttribute('data-klacksy-target', 'goal-candidates-panel.approve');
+    el.scrollIntoView = vi.fn();
+
+    list.appendChild(el);
+    panel.appendChild(list);
+    shell.appendChild(panel);
+    document.body.appendChild(shell);
+
+    const result = await service.navigateAndScroll('/', 'goal-candidates-panel.approve');
+
+    expect(result.success).toBe(true);
+    expect(listScrollTopSets).toBe(1);
+    expect(shell.scrollIntoView).not.toHaveBeenCalled();
+    expect(el.scrollIntoView).not.toHaveBeenCalled();
+  });
+
   it('falls back gracefully when target missing', async () => {
     const result = await service.navigateAndScroll('/settings', 'nonexistent');
     expect(result.success).toBe(false);
