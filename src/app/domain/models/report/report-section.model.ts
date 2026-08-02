@@ -14,13 +14,19 @@ export interface ReportSection {
   showFullPeriod?: boolean;
   widthPercent?: number;
   title?: string;
+  groupBy?: string;
+  groupSubtotals?: boolean;
 }
 
 export enum ReportSectionType {
   Header = 0,
   WorkTable = 1,
   ExpensesTable = 2,
-  Footer = 3
+  Footer = 3,
+  GroupHeader = 4,
+  GroupFooter = 5,
+  PageHeader = 6,
+  PageFooter = 7
 }
 
 export const DEFAULT_SECTIONS: ReportSection[] = [

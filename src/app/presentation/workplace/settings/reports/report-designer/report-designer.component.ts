@@ -121,6 +121,32 @@ export class ReportDesignerComponent {
     };
   }
 
+  /**
+   * Columns a table can be grouped by. Numeric columns are excluded because
+   * grouping by a measured value produces one group per row.
+   */
+  getGroupableFields(section: ReportSection): ReportField[] {
+    return section.fields.filter(
+      f => f.type !== ReportFieldType.Number
+        && f.type !== ReportFieldType.Currency
+        && f.type !== ReportFieldType.Image
+        && f.type !== ReportFieldType.Formula
+    );
+  }
+
+  setGroupBy(section: ReportSection, dataBinding: string): void {
+    section.groupBy = dataBinding || undefined;
+    if (!section.groupBy) {
+      section.groupSubtotals = undefined;
+    }
+    this.emitChange();
+  }
+
+  toggleGroupSubtotals(section: ReportSection, value: boolean): void {
+    section.groupSubtotals = value;
+    this.emitChange();
+  }
+
   distributeColumnWidths(section: ReportSection): void {
     if (section.fields.length === 0) {
       return;

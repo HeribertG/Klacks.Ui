@@ -37,6 +37,9 @@ const PAGE_NUMBER_BASELINE_MM = 6;
 const PAGE_PLACEHOLDER = '{{page}}';
 const PAGES_PLACEHOLDER = '{{pages}}';
 const TRUTHY_CONDITION_RESULTS = ['1', 'true', 'wahr', 'yes'];
+const GROUP_HEADER_FILL: [number, number, number] = [222, 230, 238];
+const GROUP_FOOTER_FILL: [number, number, number] = [240, 240, 240];
+const SUBTOTAL_DECIMALS = 2;
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
@@ -477,6 +480,8 @@ export class ReportPdfService {
     const shouldMerge = (ctx.template.mergeRows || sectionShowFullPeriod) && ctx.template.sourceId === 'schedule';
     if (shouldMerge) {
       this.buildMergedRows(resolvedRows, fields, bodyData);
+    } else if (section.groupBy) {
+      this.buildGroupedRows(section, fields, resolvedRows, bodyData);
     } else {
       for (const { row } of resolvedRows) {
         bodyData.push(row);
@@ -524,6 +529,8 @@ export class ReportPdfService {
         );
 
         if (data.section !== 'body') return;
+        // Group captions and subtotal rows are arrays, not resolved data rows.
+        if (Array.isArray(data.row.raw)) return;
         const colIndex = data.column.index;
         if (colIndex < 0 || colIndex >= fields.length) return;
         this.applyStyleConditions(fields[colIndex], data.row.raw, data.cell, ctx.provider);
@@ -660,6 +667,88 @@ export class ReportPdfService {
         bodyData.push(merged);
       }
     }
+  }
+
+  /**
+   * Emits the rows grouped by the configured column, with a group caption before each
+   * block and an optional subtotal row that sums the numeric columns of that block.
+   */
+  private buildGroupedRows(
+    section: ReportSection,
+    fields: ReportField[],
+    resolvedRows: { row: any }[],
+    bodyData: any[]
+  ): void {
+    const groupBinding = section.groupBy!;
+    const groupField = fields.find(f => f.dataBinding === groupBinding);
+    const groups = new Map<string, any[]>();
+
+    for (const { row } of resolvedRows) {
+      const key = String(row[groupBinding] ?? '');
+      const bucket = groups.get(key);
+      if (bucket) {
+        bucket.push(row);
+      } else {
+        groups.set(key, [row]);
+      }
+    }
+
+    const numericFields = fields.filter(
+      f => f.type === ReportFieldType.Number || f.type === ReportFieldType.Currency
+    );
+
+    for (const [key, groupRows] of groups) {
+      bodyData.push([{
+        content: this.buildGroupCaption(groupField, key, groupRows.length),
+        colSpan: fields.length,
+        styles: {
+          fontStyle: 'bold',
+          fillColor: GROUP_HEADER_FILL,
+          halign: this.resolveHalign(TextAlignment.Left),
+        },
+      }]);
+
+      bodyData.push(...groupRows);
+
+      if (section.groupSubtotals && numericFields.length > 0) {
+        bodyData.push(this.buildSubtotalRow(fields, numericFields, groupRows));
+      }
+    }
+  }
+
+  private buildGroupCaption(groupField: ReportField | undefined, key: string, count: number): string {
+    const label = groupField?.name?.trim();
+    const value = key.length > 0 ? key : this.translate.instant('setting.report.designer.groupEmpty');
+    const caption = label ? `${label}: ${value}` : value;
+    return `${caption}  (${count})`;
+  }
+
+  private buildSubtotalRow(fields: ReportField[], numericFields: ReportField[], groupRows: any[]): any[] {
+    const label = this.translate.instant('setting.report.designer.groupSubtotal');
+    const row: any[] = fields.map(() => ({ content: '', styles: { fillColor: GROUP_FOOTER_FILL } }));
+
+    row[0] = {
+      content: label,
+      styles: { fontStyle: 'bold', fillColor: GROUP_FOOTER_FILL, halign: this.resolveHalign(TextAlignment.Left) },
+    };
+
+    for (const field of numericFields) {
+      const index = fields.indexOf(field);
+      if (index <= 0) {
+        continue;
+      }
+      const sum = groupRows.reduce((total, row) => total + (parseFloat(row[field.dataBinding]) || 0), 0);
+      row[index] = {
+        content: sum.toFixed(SUBTOTAL_DECIMALS),
+        styles: {
+          fontStyle: 'bold',
+          fillColor: GROUP_FOOTER_FILL,
+          halign: this.resolveHalign(field.style.alignment),
+        },
+      };
+    }
+
+    return row;
   }
 
   private buildFreeTextRows(

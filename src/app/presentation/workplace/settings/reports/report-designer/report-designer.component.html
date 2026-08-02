@@ -877,6 +877,37 @@
                   {{ "setting.report.field.showFullPeriod" | translate }}
                 </label>
               }
+
+              @if (getGroupableFields(section).length > 0) {
+                <label class="section-group-by">
+                  {{ "setting.report.designer.groupBy" | translate }}
+                  <select
+                    class="tb-select"
+                    [value]="section.groupBy ?? ''"
+                    (change)="setGroupBy(section, $any($event.target).value)"
+                  >
+                    <option value="">
+                      {{ "setting.report.designer.groupNone" | translate }}
+                    </option>
+                    @for (field of getGroupableFields(section); track field.dataBinding) {
+                      <option [value]="field.dataBinding">
+                        {{ field.name || field.dataBinding }}
+                      </option>
+                    }
+                  </select>
+                </label>
+
+                @if (section.groupBy) {
+                  <label class="section-group-subtotals">
+                    <input
+                      type="checkbox"
+                      [checked]="section.groupSubtotals"
+                      (change)="toggleGroupSubtotals(section, $any($event.target).checked)"
+                    />
+                    {{ "setting.report.designer.groupSubtotals" | translate }}
+                  </label>
+                }
+              }
               <span class="table-section-spacer"></span>
               @if (section.fields.length > 0) {
                 <span

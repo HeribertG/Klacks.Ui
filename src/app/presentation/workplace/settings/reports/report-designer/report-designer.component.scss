@@ -1192,3 +1192,14 @@
   font-size: 11px;
   white-space: nowrap;
 }
+
+.section-group-by,
+.section-group-subtotals {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--colorLabel);
+  margin: 0;
+  white-space: nowrap;
+}
