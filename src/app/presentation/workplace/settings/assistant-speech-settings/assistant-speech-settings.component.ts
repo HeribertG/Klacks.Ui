@@ -179,7 +179,22 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
     await this.loadVoices(this.ttsProvider);
     await this.loadCustomSttProviders();
+    await this.loadTranscriptionModels();
 
+    const dictEntries = await this.dataDictionaryService.getAll();
+    this.dictionaryEntries.set(dictEntries.map((e) => ({ ...e, language: e.language ?? '' })));
+  }
+
+  onEngineChanged(): void {
+    this.applyEngineKeyToField();
+    this.onSettingChanged();
+  }
+
+  isCustomStt(): boolean {
+    return SttEngine.isCustom(this.sttEngine);
+  }
+
+  private async loadTranscriptionModels(): Promise<void> {
     try {
       const [models, providers] = await Promise.all([
         firstValueFrom(this.dataAssistantService.getModels()),
@@ -197,18 +212,6 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     } catch {
       this.transcriptionModels.set([]);
     }
-
-    const dictEntries = await this.dataDictionaryService.getAll();
-    this.dictionaryEntries.set(dictEntries.map((e) => ({ ...e, language: e.language ?? '' })));
-  }
-
-  onEngineChanged(): void {
-    this.applyEngineKeyToField();
-    this.onSettingChanged();
-  }
-
-  isCustomStt(): boolean {
-    return SttEngine.isCustom(this.sttEngine);
   }
 
   private async loadCustomSttProviders(): Promise<void> {
@@ -436,6 +439,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       const sorted = this.sortModelsByScore(response.models);
       this.modelCheckResults.set(sorted);
       this.recommendedModelIds.set(this.computeRecommendedIds(sorted));
+      await this.loadTranscriptionModels();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       this.modelCheckError.set(message);

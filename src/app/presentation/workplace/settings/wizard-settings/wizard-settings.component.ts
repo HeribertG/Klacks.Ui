@@ -43,6 +43,10 @@ export class WizardSettingsComponent implements OnInit {
     this.llmModelId.set(this.appSettingsService.holisticHarmonizerSettings().llmModelId);
     this.isInitialized = true;
 
+    await this.loadLlmModels();
+  }
+
+  private async loadLlmModels(): Promise<void> {
     try {
       const [models, providers] = await Promise.all([
         firstValueFrom(this.dataAssistantService.getModels()),
@@ -86,6 +90,7 @@ export class WizardSettingsComponent implements OnInit {
     try {
       const response = await this.dataHolisticHarmonizerService.checkAllModels();
       this.checkResults.set(response.models);
+      await this.loadLlmModels();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       this.checkError.set(message);
