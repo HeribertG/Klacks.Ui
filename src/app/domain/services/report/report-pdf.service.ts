@@ -18,10 +18,11 @@ import { ReportTemplate, PAGE_SIZE_FORMATS, ReportPageSize } from '../../models/
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
 import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
 import { resolveReportFieldLabel } from '../../helpers/report-field-label.helper';
+import { selectRowsForSection } from '../../helpers/report-section-rows.helper';
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 import { PdfRenderContext } from './pdf-render-context.interface';
 import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
-import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
+import { IScheduleCell } from '../../models/schedule/work-schedule-class';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportFontService } from './report-font.service';
@@ -213,7 +214,7 @@ export class ReportPdfService {
     headerContext: ReportHeaderContext
   ): any[] {
     if (template.sourceId !== 'schedule') return rows;
-    const filtered = this.filterRowsBySectionType(section, rows);
+    const filtered = selectRowsForSection(section, rows, template.sourceId);
     const sectionFlag = section.showFullPeriod;
     const effectiveFlag = sectionFlag ?? template.showFullPeriod;
     if (!effectiveFlag) return filtered;
@@ -239,16 +240,6 @@ export class ReportPdfService {
     return yPos + fontSize * 0.5 + 2;
   }
 
-  private filterRowsBySectionType(section: ReportSection, rows: any[]): any[] {
-    const hasExpenseFields = section.fields.some(f => f.dataBinding?.startsWith('expense.'));
-    if (hasExpenseFields) {
-      return rows.filter(r => r.entryType === WorkScheduleEntryType.Expenses);
-    }
-    if (section.type === ReportSectionType.ExpensesTable) {
-      return rows.filter(r => r.entryType === WorkScheduleEntryType.Expenses);
-    }
-    return rows.filter(r => r.entryType !== WorkScheduleEntryType.Expenses);
-  }
 
   private async preloadImages(template: ReportTemplate, existingCache?: Map<string, string>): Promise<Map<string, string>> {
     const cache = new Map<string, string>();

@@ -17,6 +17,7 @@ import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/r
 import { ReportField, ReportFieldType } from 'src/app/domain/models/report/report-field.model';
 import { ReportXlsxRequest, ReportXlsxSheet } from 'src/app/domain/models/report/report-xlsx.model';
 import { resolveReportFieldLabel } from 'src/app/domain/helpers/report-field-label.helper';
+import { selectRowsForSection } from 'src/app/domain/helpers/report-section-rows.helper';
 import { buildParameterVariables } from 'src/app/domain/helpers/report-parameter.helper';
 import { ReportData, ReportDataProvider } from './report-data-provider.service';
 import { FormulaEvaluationService } from './formula-evaluation.service';
@@ -74,7 +75,8 @@ export class ReportXlsxService {
     index: number
   ): ReportXlsxSheet {
     const fields = [...section.fields].sort((a, b) => a.sortOrder - b.sortOrder);
-    const visibleRows = this.rowFilterService.filterRows(section, rows, provider, parameterContext);
+    const sectionRows = selectRowsForSection(section, rows, template.sourceId);
+    const visibleRows = this.rowFilterService.filterRows(section, sectionRows, provider, parameterContext);
     const groupColumnIndex = section.groupBy
       ? fields.findIndex(f => f.dataBinding === section.groupBy)
       : -1;

@@ -15,6 +15,7 @@ import { ReportTemplate } from 'src/app/domain/models/report/report-template.mod
 import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { ReportField, ReportFieldType } from 'src/app/domain/models/report/report-field.model';
 import { resolveReportFieldLabel } from 'src/app/domain/helpers/report-field-label.helper';
+import { selectRowsForSection } from 'src/app/domain/helpers/report-section-rows.helper';
 import { ReportData, ReportDataProvider } from './report-data-provider.service';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportParameterContext, ReportRowFilterService } from './report-row-filter.service';
@@ -79,7 +80,8 @@ export class ReportCsvService {
     parameterContext: ReportParameterContext | undefined
   ): string {
     const fields = [...section.fields].sort((a, b) => a.sortOrder - b.sortOrder);
-    const visibleRows = this.rowFilterService.filterRows(section, rows, provider, parameterContext);
+    const sectionRows = selectRowsForSection(section, rows, template.sourceId);
+    const visibleRows = this.rowFilterService.filterRows(section, sectionRows, provider, parameterContext);
     const lines: string[] = [];
 
     if (section.title?.trim()) {
