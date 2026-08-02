@@ -192,3 +192,36 @@ input {
   font-size: 13px;
   color: var(--colorLabel);
 }
+
+.history-section {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 140px auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.history-date {
+  color: var(--colorLabel);
+}
+
+.history-user {
+  color: var(--colorSubHeadline);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-empty {
+  font-size: 13px;
+  color: var(--colorLabel);
+}

@@ -23,9 +23,10 @@ import {
   AVAILABLE_FONTS,
   TextAlignment,
 } from 'src/app/domain/models/report/report-field.model';
-import { REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
+import { PAGE_LAYOUT_FIELD_KEYS, REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
 import { BorderLineStyle } from 'src/app/domain/models/report/cell-border-style.model';
 import { PropertyGridComponent } from 'src/app/presentation/workplace/settings/macros/property-grid/property-grid.component';
+import { StyleConditionsComponent } from './style-conditions/style-conditions.component';
 
 import { ReportDesignerFieldService } from './report-designer-field.service';
 import { ReportDesignerBorderService } from './report-designer-border.service';
@@ -50,7 +51,7 @@ interface FieldPaletteGroup {
   templateUrl: './report-designer.component.html',
   styleUrls: ['./report-designer.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent],
+  imports: [TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent, StyleConditionsComponent],
   providers: [ReportDesignerFieldService, ReportDesignerBorderService, ReportDesignerFormulaService, ReportDesignerImageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -68,6 +69,7 @@ export class ReportDesignerComponent {
 
   activeField: ReportField | null = null;
   fieldPrefixMap = new Map<string, string>();
+  showStyleConditions = false;
 
   constructor() {
     effect(() => {
@@ -443,7 +445,9 @@ export class ReportDesignerComponent {
   }
 
   getAvailableFooterFields(): DataBindingDefinition[] {
-    return this.activeDataSets.flatMap(ds => ds.footerFields);
+    return this.activeDataSets
+      .flatMap(ds => ds.footerFields)
+      .filter(field => !PAGE_LAYOUT_FIELD_KEYS.includes(field.key));
   }
 
   addTableFooterField(section: ReportSection, binding: DataBindingDefinition): void {

@@ -340,8 +340,28 @@
                 }
               </select>
             }
+
+            <span class="tb-separator"></span>
+            <button
+              class="tb-btn"
+              [class.active]="showStyleConditions"
+              [title]="'setting.report.designer.conditionToggle' | translate"
+              (click)="showStyleConditions = !showStyleConditions"
+            >
+              {{ "setting.report.designer.conditionToggleShort" | translate }}
+              @if (activeField.styleConditions?.length) {
+                ({{ activeField.styleConditions?.length }})
+              }
+            </button>
           }
         </div>
+
+        @if (showStyleConditions && isBodyTableField(activeField)) {
+          <app-style-conditions
+            [field]="activeField"
+            (fieldChange)="emitChange()"
+          ></app-style-conditions>
+        }
       }
 
       <!-- Header Section -->

@@ -1,0 +1,76 @@
+<div class="style-conditions">
+  <div class="conditions-hint">
+    {{ "setting.report.designer.conditionHint" | translate }}
+  </div>
+
+  @for (condition of conditions; track $index) {
+    <div class="condition-row">
+      <input
+        type="text"
+        class="condition-expression"
+        [ngModel]="condition.expression"
+        (ngModelChange)="setExpression(condition, $event)"
+        [placeholder]="'setting.report.designer.conditionPlaceholder' | translate"
+      />
+
+      <label class="condition-color">
+        <span>{{ "setting.report.designer.conditionTextColor" | translate }}</span>
+        <input
+          type="color"
+          [ngModel]="condition.textColor || '#000000'"
+          (ngModelChange)="setTextColor(condition, $event)"
+        />
+      </label>
+
+      <label class="condition-color">
+        <span>{{ "setting.report.designer.conditionFillColor" | translate }}</span>
+        <input
+          type="color"
+          [ngModel]="condition.backgroundColor || '#ffffff'"
+          (ngModelChange)="setBackgroundColor(condition, $event)"
+        />
+      </label>
+
+      <button
+        type="button"
+        class="condition-btn"
+        [class.active]="condition.backgroundColor === undefined"
+        [title]="'setting.report.designer.conditionNoFill' | translate"
+        (click)="clearBackground(condition)"
+      >
+        &#8709;
+      </button>
+
+      <button
+        type="button"
+        class="condition-btn"
+        [class.active]="condition.bold"
+        (click)="toggleBold(condition)"
+      >
+        <b>B</b>
+      </button>
+
+      <button
+        type="button"
+        class="condition-btn italic"
+        [class.active]="condition.italic"
+        (click)="toggleItalic(condition)"
+      >
+        <i>I</i>
+      </button>
+
+      <button
+        type="button"
+        class="condition-btn remove"
+        [title]="'setting.report.designer.conditionRemove' | translate"
+        (click)="removeCondition($index)"
+      >
+        &#10005;
+      </button>
+    </div>
+  }
+
+  <button type="button" class="condition-add" (click)="addCondition()">
+    + {{ "setting.report.designer.conditionAdd" | translate }}
+  </button>
+</div>

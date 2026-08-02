@@ -1,0 +1,76 @@
+.style-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--colorLine);
+  border-radius: 4px;
+  background: var(--backgroundColorSubCards);
+}
+
+.conditions-hint {
+  font-size: 11px;
+  color: var(--colorSubHeadline);
+}
+
+.condition-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.condition-expression {
+  flex: 1 1 220px;
+  min-width: 160px;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.condition-color {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--colorLabel);
+  margin: 0;
+
+  input {
+    width: 28px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--colorLine);
+  }
+}
+
+.condition-btn {
+  min-width: 24px;
+  height: 22px;
+  border: 1px solid var(--colorLine);
+  background: var(--backgroundColorCard);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+
+  &.active {
+    background: var(--backgroundColorHover);
+    font-weight: 600;
+  }
+
+  &.remove {
+    color: #c00000;
+  }
+}
+
+.condition-add {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--colorLabel);
+}

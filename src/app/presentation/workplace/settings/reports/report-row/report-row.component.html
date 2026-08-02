@@ -298,6 +298,40 @@
           </div>
         </ng-template>
       </li>
+      @if (!isNew) {
+        <li ngbNavItem>
+          <button ngbNavLink (click)="loadVersions()">
+            {{ "setting.report.tab.history" | translate }}
+          </button>
+          <ng-template ngbNavContent>
+            <div class="history-section">
+              @if (isLoadingVersions()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              } @else {
+                @for (version of versions(); track $index) {
+                  <div class="history-row">
+                    <span class="history-date">{{ formatVersionDate(version) }}</span>
+                    <span class="history-name">{{ version.name }}</span>
+                    <span class="history-user">{{ version.savedBy }}</span>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      (click)="restoreVersion(version)"
+                    >
+                      {{ "setting.report.restoreVersion" | translate }}
+                    </button>
+                  </div>
+                } @empty {
+                  <div class="history-empty">
+                    {{ "setting.report.noVersions" | translate }}
+                  </div>
+                }
+              }
+            </div>
+          </ng-template>
+        </li>
+      }
+
       <li ngbNavItem>
         <button ngbNavLink>
           {{ "setting.report.tab.manual" | translate }}

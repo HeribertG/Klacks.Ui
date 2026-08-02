@@ -121,6 +121,13 @@ const CONTAINER_TEMPLATE_FOOTER_FIELDS: DataBindingDefinition[] = [
   { key: 'ct.totalCount', label: 'Anzahl Einträge', i18nKey: 'setting.report.field.ctTotalCount', type: ReportFieldType.Number, category: FieldCategory.Footer, defaultWidth: 25 },
 ];
 
+const COMMON_FOOTER_FIELDS: DataBindingDefinition[] = [
+  { key: 'report.pageNumber', label: 'Seitenzahl', i18nKey: 'setting.report.field.pageNumber', type: ReportFieldType.PageNumber, category: FieldCategory.Footer, defaultWidth: 25 },
+  { key: 'report.signature', label: 'Unterschrift', i18nKey: 'setting.report.field.signature', type: ReportFieldType.Signature, category: FieldCategory.Footer, defaultWidth: 50 },
+];
+
+export const PAGE_LAYOUT_FIELD_KEYS: readonly string[] = COMMON_FOOTER_FIELDS.map(f => f.key);
+
 export const REPORT_DATA_SOURCES: ReportDataSource[] = [
   {
     id: 'schedule',
@@ -137,6 +144,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
           FOOTER_FIELDS.find(f => f.key === 'sum.hours')!,
           FOOTER_FIELDS.find(f => f.key === 'sum.surcharges')!,
           FOOTER_FIELDS.find(f => f.key === 'sum.workDays')!,
+          ...COMMON_FOOTER_FIELDS,
         ],
       },
       {
@@ -147,6 +155,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         footerFields: [
           FOOTER_FIELDS.find(f => f.key === 'sum.hours')!,
           FOOTER_FIELDS.find(f => f.key === 'sum.surcharges')!,
+          ...COMMON_FOOTER_FIELDS,
         ],
       },
       {
@@ -156,6 +165,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         tableFields: WORK_TABLE_FIELDS,
         footerFields: [
           FOOTER_FIELDS.find(f => f.key === 'sum.hours')!,
+          ...COMMON_FOOTER_FIELDS,
         ],
       },
       {
@@ -165,6 +175,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         tableFields: EXPENSES_TABLE_FIELDS,
         footerFields: [
           FOOTER_FIELDS.find(f => f.key === 'sum.expenses')!,
+          ...COMMON_FOOTER_FIELDS,
         ],
       },
     ],
@@ -179,7 +190,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.absences',
         headerFields: [...CLIENT_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
         tableFields: ABSENCE_TABLE_FIELDS,
-        footerFields: ABSENCE_FOOTER_FIELDS,
+        footerFields: [...ABSENCE_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
       },
     ],
   },
@@ -193,7 +204,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.clients',
         headerFields: [...COMMON_HEADER_FIELDS],
         tableFields: CLIENT_LIST_TABLE_FIELDS,
-        footerFields: CLIENT_LIST_FOOTER_FIELDS,
+        footerFields: [...CLIENT_LIST_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
       },
     ],
   },
@@ -207,7 +218,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.addressDetails',
         headerFields: [...CLIENT_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
         tableFields: ADDRESS_DETAIL_TABLE_FIELDS,
-        footerFields: [],
+        footerFields: [...COMMON_FOOTER_FIELDS],
       },
     ],
   },
@@ -221,7 +232,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.groups',
         headerFields: [...COMMON_HEADER_FIELDS],
         tableFields: GROUP_TABLE_FIELDS,
-        footerFields: GROUP_FOOTER_FIELDS,
+        footerFields: [...GROUP_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
       },
     ],
   },
@@ -235,7 +246,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.shifts',
         headerFields: [...COMMON_HEADER_FIELDS],
         tableFields: SHIFT_TABLE_FIELDS,
-        footerFields: SHIFT_FOOTER_FIELDS,
+        footerFields: [...SHIFT_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
       },
     ],
   },
@@ -249,7 +260,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.containerItems',
         headerFields: [...COMMON_HEADER_FIELDS],
         tableFields: CONTAINER_TEMPLATE_TABLE_FIELDS,
-        footerFields: CONTAINER_TEMPLATE_FOOTER_FIELDS,
+        footerFields: [...CONTAINER_TEMPLATE_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
       },
     ],
   },

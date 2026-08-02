@@ -34,9 +34,14 @@ import { ReportDataProviderService, ReportData } from 'src/app/domain/services/r
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { ReportType } from 'src/app/domain/models/report/report-template.model';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
+import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
+import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+
+const ABSENCE_SOURCE_ID = 'absence-gantt';
+const ABSENCE_DATA_SET_ID = 'absences';
 
 @Component({
   selector: 'app-absence-gantt-grid',
@@ -72,6 +77,8 @@ export class AbsenceGanttGridComponent
   private reportPdfService = inject(ReportPdfService);
   private reportDataProvider = inject(ReportDataProviderService);
   private reportService = inject(ReportService);
+  private templateResolver = inject(ReportTemplateResolverService);
+  private reportDefaults = inject(ReportDefaultsService);
   private textFormatterService = inject(TextFormatterService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -231,17 +238,20 @@ export class AbsenceGanttGridComponent
     const clientName = this.getClientName();
     const client = this.getSelectedClient();
 
-    const templates = this.reportManagement.getTemplatesByType(ReportType.Absence);
-    const template = templates.length > 0 ? templates[0] : this.reportManagement.createDefaultTemplate(ReportType.Absence);
+    const template = this.templateResolver.resolveForSource(
+      this.reportManagement.reportTemplateList(),
+      ABSENCE_SOURCE_ID,
+      this.reportDefaults.getDefaultTemplateId(ABSENCE_SOURCE_ID)
+    ) ?? this.reportManagement.createDefaultTemplate(ReportType.Absence);
 
     if (!template.sourceId) {
-      template.sourceId = 'absence-gantt';
-      template.dataSetIds = ['absences'];
+      template.sourceId = ABSENCE_SOURCE_ID;
+      template.dataSetIds = [ABSENCE_DATA_SET_ID];
     }
 
     const provider = this.reportDataProvider.getProvider(
-      template.sourceId ?? 'absence-gantt',
-      template.dataSetIds ?? ['absences']
+      template.sourceId ?? ABSENCE_SOURCE_ID,
+      template.dataSetIds ?? [ABSENCE_DATA_SET_ID]
     );
 
     const rows = this.selectedRowData.map(bp => ({

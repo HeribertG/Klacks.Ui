@@ -13,11 +13,12 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgbModal, NgbModalRef, NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReportTemplate, ReportType, ReportOrientation, ReportPageSize, ReportMargins, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
+import { ReportTemplate, ReportTemplateVersion, ReportType, ReportOrientation, ReportPageSize, ReportMargins, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
+import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -33,6 +34,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { DownloadIconComponent } from 'src/app/presentation/icons/download-icon.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
@@ -83,12 +85,14 @@ export class ReportRowComponent {
   private dataManagementReportService = inject(DataManagementReportService);
   private reportDefaults = inject(ReportDefaultsService);
   private transferService = inject(ReportTemplateTransferService);
+  private templateResolver = inject(ReportTemplateResolverService);
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
   private clientService = inject(DataClientService);
   private sanitizer = inject(DomSanitizer);
   private toast = inject(ToastShowService);
+  private reportApi = inject(DataReportApiService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
@@ -101,6 +105,8 @@ export class ReportRowComponent {
   previewSource = signal<SafeResourceUrl | null>(null);
   isSaving = signal(false);
   isGenerating = signal(false);
+  isLoadingVersions = signal(false);
+  versions = signal<ReportTemplateVersion[]>([]);
 
   editName = '';
   editDescription = '';
@@ -190,6 +196,51 @@ export class ReportRowComponent {
     this.deleteReport();
   }
 
+  /**
+   * Loads the stored snapshots on demand; the template list does not carry them.
+   */
+  async loadVersions(): Promise<void> {
+    const id = this.editTemplate.id;
+    if (!id || this.isLoadingVersions()) {
+      return;
+    }
+
+    this.isLoadingVersions.set(true);
+    try {
+      const full = await this.reportApi.getTemplateById(id);
+      this.versions.set([...(full.versions ?? [])].reverse());
+    } catch {
+      this.versions.set([]);
+      this.toast.showError(this.translate.instant('setting.report.error.versions'), REPORT_TOAST_NAME);
+    } finally {
+      this.isLoadingVersions.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  /**
+   * Copies a snapshot into the editor. Nothing is stored until the user saves.
+   */
+  restoreVersion(version: ReportTemplateVersion): void {
+    this.editName = version.name;
+    this.editOrientation = version.pageSetup?.orientation ?? this.editOrientation;
+    this.editPageSize = version.pageSetup?.size ?? this.editPageSize;
+    this.editMargins = { ...(version.pageSetup?.margins ?? this.editMargins) };
+    this.editTemplate = {
+      ...this.editTemplate,
+      name: version.name,
+      pageSetup: this.buildPageSetup(),
+      sections: structuredClone(version.sections ?? []),
+    };
+    this.toast.showInfo(this.translate.instant('setting.report.versionRestored'), REPORT_TOAST_NAME);
+    this.cdr.markForCheck();
+  }
+
+  formatVersionDate(version: ReportTemplateVersion): string {
+    const date = new Date(version.savedAt);
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+  }
+
   onExportClick(event: Event): void {
     event.stopPropagation();
     const template = this.data();
@@ -270,6 +321,7 @@ export class ReportRowComponent {
     this.loadManual();
 
     this.showDiscardConfirm.set(false);
+    this.versions.set([]);
     this.savedSnapshot = this.buildSnapshot();
 
     this.modalRef = this.modalService.open(this.contentTemplate(), {
@@ -370,6 +422,7 @@ export class ReportRowComponent {
         ...this.editTemplate,
         name: this.editName.trim(),
         description: this.editDescription.trim(),
+        type: this.templateResolver.resolveReportType(this.editSourceId, this.editTemplate.type),
         sourceId: this.editSourceId,
         dataSetIds: [...this.editDataSetIds],
         mergeRows: this.editTemplate.mergeRows,

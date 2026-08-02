@@ -17,6 +17,16 @@ export interface ReportTemplate {
   createdAt?: Date;
   updatedAt?: Date;
   isLocal?: boolean;
+  versions?: ReportTemplateVersion[];
+}
+
+/** Snapshot of a template taken before it was overwritten. */
+export interface ReportTemplateVersion {
+  savedAt: string;
+  savedBy?: string;
+  name: string;
+  pageSetup: ReportPageSetup;
+  sections: ReportSection[];
 }
 
 export enum ReportType {

@@ -18,6 +18,19 @@ export interface ReportField {
   additionalBindings?: string[];
   bindingSeparator?: string;
   sortDirection?: 'asc' | 'desc';
+  styleConditions?: StyleCondition[];
+}
+
+/**
+ * Conditional formatting rule. The expression is evaluated per row with the
+ * Klacks script engine and has to emit a truthy value via `output 1, <expression>`.
+ */
+export interface StyleCondition {
+  expression: string;
+  textColor?: string;
+  backgroundColor?: string;
+  bold?: boolean;
+  italic?: boolean;
 }
 
 export interface HeaderRow {
@@ -35,7 +48,9 @@ export enum ReportFieldType {
   Boolean = 4,
   Time = 5,
   Image = 6,
-  Formula = 7
+  Formula = 7,
+  Signature = 8,
+  PageNumber = 9
 }
 
 export enum TextAlignment {

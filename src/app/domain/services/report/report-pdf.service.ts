@@ -26,8 +26,17 @@ import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportFontService } from './report-font.service';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
+import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 
 const DEFAULT_PDF_FONT = 'helvetica';
+const SIGNATURE_DEFAULT_WIDTH_MM = 60;
+const SIGNATURE_LINE_OFFSET_MM = 4;
+const SIGNATURE_LINE_WIDTH_MM = 0.2;
+const SIGNATURE_CAPTION_FACTOR = 0.45;
+const PAGE_NUMBER_BASELINE_MM = 6;
+const PAGE_PLACEHOLDER = '{{page}}';
+const PAGES_PLACEHOLDER = '{{pages}}';
+const TRUTHY_CONDITION_RESULTS = ['1', 'true', 'wahr', 'yes'];
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
@@ -90,6 +99,8 @@ export class ReportPdfService {
 
       this.renderPage(doc, template, provider, clientRows, headerContext, imageCache);
     }
+
+    this.renderPageNumbers(doc, template);
 
     return doc.output('blob');
   }
@@ -511,6 +522,11 @@ export class ReportPdfService {
           content,
           data.cell.styles.font || DEFAULT_PDF_FONT
         );
+
+        if (data.section !== 'body') return;
+        const colIndex = data.column.index;
+        if (colIndex < 0 || colIndex >= fields.length) return;
+        this.applyStyleConditions(fields[colIndex], data.row.raw, data.cell, ctx.provider);
       },
       didDrawCell: hasBorders ? (data: any) => {
         if (data.section !== 'body') return;
@@ -771,7 +787,13 @@ export class ReportPdfService {
 
     section.fields
       .sort((a, b) => a.sortOrder - b.sortOrder)
+      .filter(field => field.type !== ReportFieldType.PageNumber)
       .forEach(field => {
+        if (field.type === ReportFieldType.Signature) {
+          yPos = this.renderSignature(ctx, field, yPos);
+          return;
+        }
+
         let value: string;
         if (field.type === ReportFieldType.Formula && field.formula) {
           try {
@@ -800,6 +822,112 @@ export class ReportPdfService {
 
         yPos += field.style.fontSize * 0.5 + 2;
       });
+  }
+
+  /**
+   * Draws a signature line with its caption underneath.
+   */
+  private renderSignature(ctx: PdfRenderContext, field: ReportField, yPos: number): number {
+    const lineWidth = Math.min(ctx.contentWidth, (field.width || SIGNATURE_DEFAULT_WIDTH_MM));
+    const lineX = this.isRtl ? ctx.marginLeft + ctx.contentWidth - lineWidth : ctx.marginLeft;
+    const lineY = yPos + SIGNATURE_LINE_OFFSET_MM;
+
+    ctx.doc.setDrawColor(0);
+    ctx.doc.setLineWidth(SIGNATURE_LINE_WIDTH_MM);
+    ctx.doc.line(lineX, lineY, lineX + lineWidth, lineY);
+
+    const caption = field.name?.trim() || this.translate.instant('setting.report.field.signature');
+    ctx.doc.setFontSize(field.style.fontSize);
+    ctx.doc.setFont(
+      this.fontService.resolveFontFamily(ctx.doc, caption, field.style.fontFamily || DEFAULT_PDF_FONT),
+      this.getJsPdfFontStyle(field.style.bold, field.style.italic)
+    );
+    this.applyTextColor(ctx.doc, field.style.textColor);
+    ctx.doc.text(caption, lineX, lineY + field.style.fontSize * SIGNATURE_CAPTION_FACTOR);
+
+    return lineY + field.style.fontSize * SIGNATURE_CAPTION_FACTOR + SIGNATURE_LINE_OFFSET_MM;
+  }
+
+  /**
+   * Writes the page number on every page after all pages exist.
+   * Uses the field format when set, otherwise the translated default pattern.
+   */
+  private renderPageNumbers(doc: jsPDF, template: ReportTemplate): void {
+    const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);
+    const field = footerSection?.fields.find(f => f.type === ReportFieldType.PageNumber);
+    if (!footerSection?.visible || !field) {
+      return;
+    }
+
+    const pattern = field.format?.trim() || this.translate.instant('setting.report.field.pageNumberFormat');
+    const total = doc.getNumberOfPages();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margins = template.pageSetup.margins;
+
+    for (let page = 1; page <= total; page++) {
+      doc.setPage(page);
+      const text = pattern
+        .replace(PAGE_PLACEHOLDER, String(page))
+        .replace(PAGES_PLACEHOLDER, String(total));
+
+      doc.setFontSize(field.style.fontSize);
+      doc.setFont(
+        this.fontService.resolveFontFamily(doc, text, field.style.fontFamily || DEFAULT_PDF_FONT),
+        this.getJsPdfFontStyle(field.style.bold, field.style.italic)
+      );
+      this.applyTextColor(doc, field.style.textColor);
+
+      const textWidth = doc.getTextWidth(text);
+      const x = this.resolvePageNumberX(field.style.alignment, margins.left, pageWidth - margins.right, textWidth);
+      doc.text(text, x, pageHeight - margins.bottom + PAGE_NUMBER_BASELINE_MM);
+    }
+  }
+
+  private resolvePageNumberX(alignment: number, left: number, right: number, textWidth: number): number {
+    const effective = this.resolveHalign(alignment);
+    if (effective === 'center') {
+      return left + (right - left - textWidth) / 2;
+    }
+    return effective === 'right' ? right - textWidth : left;
+  }
+
+  /**
+   * Applies conditional formatting to a table cell.
+   * Each condition is evaluated with the row values; the first match wins per property.
+   */
+  private applyStyleConditions(field: ReportField, row: any, cell: any, provider: ReportDataProvider): void {
+    if (!field.styleConditions?.length) {
+      return;
+    }
+
+    const variables = provider.buildFormulaVariables ? provider.buildFormulaVariables(row) : {};
+    for (const condition of field.styleConditions) {
+      if (!condition.expression?.trim() || !this.isConditionTrue(condition.expression, variables)) {
+        continue;
+      }
+      if (condition.textColor) {
+        cell.styles.textColor = this.hexToRgbArray(condition.textColor);
+      }
+      if (condition.backgroundColor) {
+        cell.styles.fillColor = this.hexToRgbArray(condition.backgroundColor);
+      }
+      if (condition.bold !== undefined || condition.italic !== undefined) {
+        cell.styles.fontStyle = this.getJsPdfFontStyle(
+          condition.bold ?? field.style.bold,
+          condition.italic ?? field.style.italic
+        );
+      }
+    }
+  }
+
+  private isConditionTrue(expression: string, variables: ExternalVariables): boolean {
+    try {
+      const result = this.formulaService.evaluateFormula(expression, variables).trim().toLowerCase();
+      return TRUTHY_CONDITION_RESULTS.includes(result);
+    } catch {
+      return false;
+    }
   }
 
   private translateFieldName(field: ReportField, template: ReportTemplate, withPrefix = true): string {
