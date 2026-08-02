@@ -3405,6 +3405,8 @@
   "setting.report.designer.rowFilterPlaceholder": "output 1, hours > 0",
   "setting.report.designer.rowFilterHint": "Seules les lignes acceptées par l’expression sont imprimées. Les paramètres s’appellent param_<clé>.",
   "setting.report.error.rowFilter": "Un filtre de lignes n’a pas pu être évalué — toutes les lignes ont été imprimées.",
+  "setting.report.designer.rowFilterUnknownParameter": "Paramètre inconnu :",
+  "setting.report.parameter.invalidKeys": "Veuillez d’abord corriger les clés de paramètre invalides.",
   "assistant.proactive.targetHoursDrift": "Les heures de {{name}} s'écartent de l'objectif de {{hours}} h sur la période {{period}}.",
   "assistant.proactive.periodCloseDue": "La période de décompte de {{group}} se termine le {{date}} (dans {{days}} jour(s)) et est encore ouverte.",
   "assistant.proactive.periodOverdue": "La période du groupe {{group}} s'est terminée le {{periodEnd}}, il y a {{days}} jours, et n'est pas encore clôturée.",

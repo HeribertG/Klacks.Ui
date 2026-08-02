@@ -22,7 +22,7 @@ import { ReportTemplateResolverService } from 'src/app/domain/services/report/re
 import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
 import { ReportParameterContext, ReportRowFilterService } from 'src/app/domain/services/report/report-row-filter.service';
 import { ReportParameter, ReportParameterType, ReportParameterValues } from 'src/app/domain/models/report/report-parameter.model';
-import { applyParameterBindings, findMissingRequiredParameters } from 'src/app/domain/helpers/report-parameter.helper';
+import { applyParameterBindings, findMissingRequiredParameters, findParameterKeyProblem } from 'src/app/domain/helpers/report-parameter.helper';
 import { ReportParametersComponent } from '../report-parameters/report-parameters.component';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportDataProviderService, ReportData, ReportDataProvider } from 'src/app/domain/services/report/report-data-provider.service';
@@ -428,6 +428,10 @@ export class ReportRowComponent {
       return;
     }
 
+    if (!this.hasValidParameterKeys()) {
+      return;
+    }
+
     this.isSaving.set(true);
 
     try {
@@ -544,6 +548,26 @@ export class ReportRowComponent {
   }
 
   /**
+   * Refuses to store parameters whose key is unusable. A malformed key would end up as the
+   * script variable param_ and every filter referring to it would quietly never match.
+   */
+  private hasValidParameterKeys(): boolean {
+    const broken = this.editParameters.filter((parameter, index) =>
+      findParameterKeyProblem(
+        parameter.key,
+        this.editParameters.filter((_, i) => i !== index).map(p => p.key)
+      ) !== undefined
+    );
+
+    if (broken.length === 0) {
+      return true;
+    }
+
+    this.toast.showError(this.translate.instant('setting.report.parameter.invalidKeys'), REPORT_TOAST_NAME);
+    return false;
+  }
+
+  /**
    * Reports the parameters that have to be filled before the report can run.
    */
   private hasAllRequiredParameters(): boolean {
@@ -568,6 +592,10 @@ export class ReportRowComponent {
     if (this.rowFilterService.hadEvaluationError) {
       this.toast.showError(this.translate.instant('setting.report.error.rowFilter'), REPORT_TOAST_NAME);
     }
+  }
+
+  get parameterKeys(): string[] {
+    return this.editParameters.map(p => p.key).filter(key => key.length > 0);
   }
 
   get parameterContext(): ReportParameterContext {

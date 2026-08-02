@@ -147,6 +147,22 @@ describe('report-parameter.helper', () => {
       expect(result.startDate).toBe('2026-05-01');
     });
 
+    it('accepts a German date and converts it to the provider format', () => {
+      const parameters = [parameter({ key: 'from', bindsTo: ReportParameterBinding.StartDate })];
+
+      const result = applyParameterBindings(parameters, { from: '5.1.2026' }, { startDate: '2026-01-01' });
+
+      expect(result.startDate).toBe('2026-01-05');
+    });
+
+    it('keeps the original date when the parameter is not a readable date', () => {
+      const parameters = [parameter({ key: 'from', bindsTo: ReportParameterBinding.StartDate })];
+
+      const result = applyParameterBindings(parameters, { from: 'nächster Montag' }, { startDate: '2026-01-01' });
+
+      expect(result.startDate).toBe('2026-01-01');
+    });
+
     it('leaves the arguments untouched for unbound or empty parameters', () => {
       const parameters = [
         parameter({ key: 'x' }),

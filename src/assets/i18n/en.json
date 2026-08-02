@@ -3413,6 +3413,8 @@
   "setting.report.designer.rowFilterPlaceholder": "output 1, hours > 0",
   "setting.report.designer.rowFilterHint": "Only rows the expression accepts are printed. Parameters are named param_<key>.",
   "setting.report.error.rowFilter": "A row filter could not be evaluated — all rows were printed.",
+  "setting.report.designer.rowFilterUnknownParameter": "Unknown parameter:",
+  "setting.report.parameter.invalidKeys": "Please correct the invalid parameter keys first.",
   "assistant.proactive.targetHoursDrift": "{{name}}'s hours deviate from target by {{hours}} h in {{period}}.",
   "assistant.proactive.periodCloseDue": "The accounting period for {{group}} ends on {{date}} (in {{days}} day(s)) and is still open.",
   "assistant.proactive.periodOverdue": "The period of group {{group}} ended on {{periodEnd}}, {{days}} days ago, and has not been closed yet.",

@@ -29,6 +29,29 @@ export function toParameterVariableName(key: string): string {
   return `${PARAMETER_VARIABLE_PREFIX}${key}`;
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const GERMAN_DATE = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
+
+/**
+ * Brings a bound date value into the form the data providers expect.
+ * A value in any other shape is rejected rather than passed on, because the provider
+ * would silently return nothing for it.
+ */
+export function normaliseDateValue(value: string): string | undefined {
+  const trimmed = (value ?? '').trim();
+  if (ISO_DATE.test(trimmed)) {
+    return trimmed;
+  }
+
+  const german = GERMAN_DATE.exec(trimmed);
+  if (german) {
+    const [, day, month, year] = german;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+
+  return undefined;
+}
+
 /**
  * Turns the entered values into script variables, converting them to the declared type
  * so a numeric comparison does not silently compare strings.
@@ -137,10 +160,10 @@ export function applyParameterBindings(
         result.clientId = value;
         break;
       case ReportParameterBinding.StartDate:
-        result.startDate = value;
+        result.startDate = normaliseDateValue(value) ?? result.startDate;
         break;
       case ReportParameterBinding.EndDate:
-        result.endDate = value;
+        result.endDate = normaliseDateValue(value) ?? result.endDate;
         break;
       default:
         break;

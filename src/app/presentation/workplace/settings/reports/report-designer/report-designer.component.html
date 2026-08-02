@@ -892,6 +892,7 @@
                   class="filter-status"
                   [class.status-valid]="getRowFilterStatus(section) === 'valid'"
                   [class.status-error]="getRowFilterStatus(section) === 'error'"
+                  [class.status-warning]="getRowFilterStatus(section) === 'unknownParameter'"
                 >
                   @switch (getRowFilterStatus(section)) {
                     @case ('valid') {
@@ -899,6 +900,10 @@
                     }
                     @case ('error') {
                       {{ "setting.report.designer.formulaError" | translate }}
+                    }
+                    @case ('unknownParameter') {
+                      {{ "setting.report.designer.rowFilterUnknownParameter" | translate }}
+                      {{ findUnknownParameterReference(section.rowFilter ?? '') }}
                     }
                   }
                 </span>

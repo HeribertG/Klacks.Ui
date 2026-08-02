@@ -33,6 +33,7 @@ import { ReportDesignerBorderService } from './report-designer-border.service';
 import { ReportDesignerFormulaService } from './report-designer-formula.service';
 import { ReportDesignerImageService } from './report-designer-image.service';
 import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
+import { toParameterVariableName } from 'src/app/domain/helpers/report-parameter.helper';
 
 const COLUMN_WIDTH_TOTAL_PERCENT = 100;
 const MIN_SECTION_WIDTH_PERCENT = 10;
@@ -61,6 +62,7 @@ export class ReportDesignerComponent {
   readonly sourceId = input('schedule');
   readonly dataSetIds = input<string[]>(['work']);
   readonly imagePreviewCache = input(new Map<string, string>());
+  readonly parameterKeys = input<string[]>([]);
 
   translate = inject(TranslateService);
   protected fieldService = inject(ReportDesignerFieldService);
@@ -145,12 +147,25 @@ export class ReportDesignerComponent {
    * Status of a row filter expression, shown next to the input so a typo is visible
    * at design time instead of producing a report without rows.
    */
-  getRowFilterStatus(section: ReportSection): 'empty' | 'valid' | 'error' {
+  getRowFilterStatus(section: ReportSection): 'empty' | 'valid' | 'error' | 'unknownParameter' {
     const expression = section.rowFilter?.trim();
     if (!expression) {
       return 'empty';
     }
-    return this.formulaEvaluation.validateFormula(expression).valid ? 'valid' : 'error';
+    if (!this.formulaEvaluation.validateFormula(expression).valid) {
+      return 'error';
+    }
+    return this.findUnknownParameterReference(expression) ? 'unknownParameter' : 'valid';
+  }
+
+  /**
+   * Finds a param_* reference the template does not declare. The syntax check cannot see
+   * this, so a renamed parameter would leave a green marker next to a dead filter.
+   */
+  findUnknownParameterReference(expression: string): string | undefined {
+    const known = new Set(this.parameterKeys().map(key => toParameterVariableName(key)));
+    const referenced = expression.match(/param_[A-Za-z0-9_]+/g) ?? [];
+    return referenced.find(name => !known.has(name));
   }
 
   setGroupBy(section: ReportSection, dataBinding: string): void {
