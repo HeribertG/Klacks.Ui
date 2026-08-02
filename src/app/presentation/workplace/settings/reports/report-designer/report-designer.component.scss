@@ -1170,3 +1170,25 @@
   background: var(--backgroundColorFocus);
   border-radius: 3px;
 }
+
+.page-geometry {
+  font-size: 11px;
+  color: var(--colorSubHeadline);
+  margin-bottom: 8px;
+}
+
+.width-sum {
+  font-size: 11px;
+  color: var(--colorLabel);
+  white-space: nowrap;
+}
+
+.width-sum-exceeds {
+  color: #cc0000;
+  font-weight: 600;
+}
+
+.distribute-widths {
+  font-size: 11px;
+  white-space: nowrap;
+}

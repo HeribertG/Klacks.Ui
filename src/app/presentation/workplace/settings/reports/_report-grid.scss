@@ -1,0 +1,29 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+// Shared column layout for the report list header and its rows.
+
+.report-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 2.2fr) minmax(120px, 1.2fr) 90px 120px 72px;
+  align-items: center;
+  column-gap: 12px;
+  padding-inline: 30px;
+}
+
+.report-header-row {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+  padding-block: 4px;
+}
+
+@media (max-width: 1100px) {
+  .report-grid {
+    grid-template-columns: minmax(140px, 2fr) minmax(100px, 1fr) 80px 72px;
+  }
+
+  #report-header-changed,
+  .report-cell-changed {
+    display: none;
+  }
+}

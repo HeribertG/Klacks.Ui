@@ -3,23 +3,40 @@
   [addLabel]="'setting.report.add' | translate"
   [showAddButton]="true"
   [showHeader]="true"
+  [showSearchInHeader]="true"
   idPrefix="reports"
   (addClick)="onClickAdd()"
+  (headerSearchChange)="onSearchChange($event)"
 >
+  <div headerAction class="header-actions">
+    <label class="import-button" for="reports-import-input">
+      {{ "setting.report.import" | translate }}
+    </label>
+    <input
+      id="reports-import-input"
+      type="file"
+      accept="application/json,.json"
+      class="import-input"
+      (change)="onImportFile($event)"
+    />
+  </div>
+
   <app-report-header header></app-report-header>
 
   <div rows>
-    @for (r of dataManagementReportService.reportTemplateList(); track r.id || $index; let i = $index) {
-      @if (!r.isDeleted) {
-        <app-report-row
-          [id]="'report-row-' + i"
-          [data]="r"
-          (isDeleteEvent)="openDeleteReport(i)"
-          (cancelNewEvent)="cancelNewReport(i)"
-          (duplicateEvent)="duplicateReport(i)"
-        >
-        </app-report-row>
-      }
+    @for (r of visibleReports(); track r.id || $index) {
+      <app-report-row
+        [id]="'report-row-' + $index"
+        [data]="r"
+        (isDeleteEvent)="openDeleteReport(r)"
+        (cancelNewEvent)="cancelNewReport(r)"
+        (duplicateEvent)="duplicateReport(r)"
+      >
+      </app-report-row>
+    } @empty {
+      <div class="empty-hint">
+        {{ "setting.report.emptyList" | translate }}
+      </div>
     }
   </div>
 </app-settings-list-card>

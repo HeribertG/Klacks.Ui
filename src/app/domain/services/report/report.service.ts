@@ -18,6 +18,10 @@ export class ReportService {
     triggerBlobDownload(blob, fileName);
   }
 
+  downloadJson(content: string, fileName: string): void {
+    triggerBlobDownload(new Blob([content], { type: 'application/json' }), fileName);
+  }
+
   createPreviewUrl(blob: Blob): string {
     return window.URL.createObjectURL(blob);
   }

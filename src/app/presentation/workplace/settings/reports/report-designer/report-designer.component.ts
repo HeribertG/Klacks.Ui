@@ -13,7 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 
-import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { PageGeometry, ReportTemplate, resolvePageGeometry } from 'src/app/domain/models/report/report-template.model';
 import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import {
   ReportField,
@@ -31,6 +31,9 @@ import { ReportDesignerFieldService } from './report-designer-field.service';
 import { ReportDesignerBorderService } from './report-designer-border.service';
 import { ReportDesignerFormulaService } from './report-designer-formula.service';
 import { ReportDesignerImageService } from './report-designer-image.service';
+
+const COLUMN_WIDTH_TOTAL_PERCENT = 100;
+const MIN_SECTION_WIDTH_PERCENT = 10;
 
 interface FieldPaletteGroup {
   id: string;
@@ -97,6 +100,40 @@ export class ReportDesignerComponent {
     { value: BorderLineStyle.Dashed, labelKey: 'setting.report.designer.borderDashed' },
     { value: BorderLineStyle.Double, labelKey: 'setting.report.designer.borderDouble' },
   ];
+
+  get pageGeometry(): PageGeometry {
+    return resolvePageGeometry(this.template().pageSetup);
+  }
+
+  /**
+   * Sum of the column widths of a table, in percent of the table width and in millimetres.
+   * A sum above 100 percent means the columns are scaled down in the PDF.
+   */
+  getColumnWidthSummary(section: ReportSection): { percent: number; mm: number; exceeds: boolean } {
+    const percent = section.fields.reduce((sum, field) => sum + (field.width || 0), 0);
+    const tableWidthMm = this.pageGeometry.usableWidthMm * (this.clampSectionWidth(section.widthPercent) / 100);
+    return {
+      percent: Math.round(percent),
+      mm: Math.round(tableWidthMm),
+      exceeds: percent > COLUMN_WIDTH_TOTAL_PERCENT,
+    };
+  }
+
+  distributeColumnWidths(section: ReportSection): void {
+    if (section.fields.length === 0) {
+      return;
+    }
+    const even = COLUMN_WIDTH_TOTAL_PERCENT / section.fields.length;
+    for (const field of section.fields) {
+      field.width = Math.round(even * 10) / 10;
+    }
+    this.emitChange();
+  }
+
+  private clampSectionWidth(value: number | undefined): number {
+    if (value === undefined || value === null) return COLUMN_WIDTH_TOTAL_PERCENT;
+    return Math.min(COLUMN_WIDTH_TOTAL_PERCENT, Math.max(MIN_SECTION_WIDTH_PERCENT, value));
+  }
 
   get activeDataSets(): ReportDataSet[] {
     const source = REPORT_DATA_SOURCES.find(s => s.id === this.sourceId());
@@ -400,7 +437,7 @@ export class ReportDesignerComponent {
     if (Number.isNaN(parsed)) {
       section.widthPercent = undefined;
     } else {
-      section.widthPercent = Math.min(100, Math.max(10, parsed));
+      section.widthPercent = this.clampSectionWidth(parsed);
     }
     this.emitChange();
   }

@@ -17,6 +17,7 @@ import { ReportTemplate, ReportType, ReportOrientation, ReportPageSize, ReportMa
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
+import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -30,6 +31,7 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
+import { DownloadIconComponent } from 'src/app/presentation/icons/download-icon.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -63,7 +65,7 @@ const FALLBACK_PREVIEW_CONFIG: SourcePreviewConfig = { needsGroup: false, needsD
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent],
+  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, DownloadIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent {
@@ -80,6 +82,7 @@ export class ReportRowComponent {
   private reportService = inject(ReportService);
   private dataManagementReportService = inject(DataManagementReportService);
   private reportDefaults = inject(ReportDefaultsService);
+  private transferService = inject(ReportTemplateTransferService);
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
@@ -92,6 +95,8 @@ export class ReportRowComponent {
   private modalRef: NgbModalRef | null = null;
   private previewUrl: string | null = null;
   private loadedManualLang: string | null = null;
+  private savedSnapshot = '';
+  showDiscardConfirm = signal(false);
   manualContent = signal('');
   previewSource = signal<SafeResourceUrl | null>(null);
   isSaving = signal(false);
@@ -145,6 +150,53 @@ export class ReportRowComponent {
 
   get isNameValid(): boolean {
     return this.editName.trim().length > 0;
+  }
+
+  get sourceLabelKey(): string {
+    const sourceId = this.data().sourceId || DEFAULT_SOURCE_ID;
+    return REPORT_DATA_SOURCES.find(s => s.id === sourceId)?.i18nKey ?? '';
+  }
+
+  get isDefaultTemplate(): boolean {
+    const template = this.data();
+    if (!template.id) {
+      return false;
+    }
+    const sourceId = template.sourceId || DEFAULT_SOURCE_ID;
+    return this.reportDefaults.defaults()[sourceId] === template.id;
+  }
+
+  get changedAtLabel(): string {
+    const raw = this.data().updatedAt ?? this.data().createdAt;
+    if (!raw) {
+      return '';
+    }
+    const date = raw instanceof Date ? raw : new Date(raw);
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+  }
+
+  onRowSpace(event: Event): void {
+    event.preventDefault();
+    this.openModal();
+  }
+
+  onDuplicateClick(event: Event): void {
+    event.stopPropagation();
+    this.duplicateReport();
+  }
+
+  onDeleteClick(event: Event): void {
+    event.stopPropagation();
+    this.deleteReport();
+  }
+
+  onExportClick(event: Event): void {
+    event.stopPropagation();
+    const template = this.data();
+    this.reportService.downloadJson(
+      this.transferService.toJson(template),
+      this.transferService.buildFileName(template)
+    );
   }
 
   get sourcePreviewConfig(): SourcePreviewConfig {
@@ -217,6 +269,9 @@ export class ReportRowComponent {
     this.loadPreviewClients();
     this.loadManual();
 
+    this.showDiscardConfirm.set(false);
+    this.savedSnapshot = this.buildSnapshot();
+
     this.modalRef = this.modalService.open(this.contentTemplate(), {
       size: 'xl',
       backdrop: 'static',
@@ -239,6 +294,46 @@ export class ReportRowComponent {
       this.modalRef.dismiss('Cancel click');
       this.modalRef = null;
     }
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return this.buildSnapshot() !== this.savedSnapshot;
+  }
+
+  /**
+   * Closes the modal, but asks first when the designer holds unsaved work.
+   */
+  requestClose(): void {
+    if (this.hasUnsavedChanges) {
+      this.showDiscardConfirm.set(true);
+      return;
+    }
+    this.closeModal();
+  }
+
+  discardChanges(): void {
+    this.showDiscardConfirm.set(false);
+    this.closeModal();
+  }
+
+  keepEditing(): void {
+    this.showDiscardConfirm.set(false);
+  }
+
+  private buildSnapshot(): string {
+    return JSON.stringify({
+      name: this.editName,
+      description: this.editDescription,
+      orientation: this.editOrientation,
+      pageSize: this.editPageSize,
+      margins: this.editMargins,
+      sourceId: this.editSourceId,
+      dataSetIds: this.editDataSetIds,
+      isDefault: this.editIsDefault,
+      mergeRows: this.editTemplate.mergeRows ?? false,
+      showFullPeriod: this.editTemplate.showFullPeriod ?? false,
+      sections: this.editTemplate.sections,
+    });
   }
 
   onTemplateChange(template: ReportTemplate): void {
@@ -290,6 +385,7 @@ export class ReportRowComponent {
       }
 
       await this.applyDefaultState();
+      this.savedSnapshot = this.buildSnapshot();
       this.toast.showSuccess(this.translate.instant('setting.report.saved'), REPORT_TOAST_NAME);
 
       if (closeAfterSave && this.modalRef) {

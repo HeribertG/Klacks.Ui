@@ -15,7 +15,7 @@
       type="button"
       class="close"
       aria-label="Close"
-      (click)="modal.dismiss('Cross click')"
+      (click)="requestClose()"
     >
       <span
         aria-hidden="true"
@@ -312,10 +312,21 @@
   </div>
 
   <div class="modal-footer">
+    @if (showDiscardConfirm()) {
+      <span class="discard-question">{{
+        "setting.report.discardQuestion" | translate
+      }}</span>
+      <button type="button" class="btn btn-outline-danger" (click)="discardChanges()">
+        {{ "setting.report.discardConfirm" | translate }}
+      </button>
+      <button type="button" class="btn save-btn" (click)="keepEditing()">
+        {{ "setting.report.discardCancel" | translate }}
+      </button>
+    } @else {
     <span
       type="button"
       class="link-button red-font"
-      (click)="modal.dismiss('Cancel click')"
+      (click)="requestClose()"
       >{{ 'cancel' | translate }}</span
     >
     <button
@@ -340,32 +351,64 @@
       }
       {{ 'setting.macro.save-close-btn' | translate }}
     </button>
+    }
   </div>
 </ng-template>
 
-<div class="first custom-control-inline">
-  <div class="form-group">
-    <input
-      type="text"
-      [value]="data().name"
-      class="form-control attribute-name"
-      aria-label="name"
-      (click)="openModal()"
-      readonly
-    />
-  </div>
+<div
+  class="report-grid report-row"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="data().name"
+  (click)="openModal()"
+  (keydown.enter)="openModal()"
+  (keydown.space)="onRowSpace($event)"
+>
+  <span class="report-cell-name">{{ data().name }}</span>
 
-  @if (!isNew) {
-    <span
-      class="duplicate-button"
+  <span class="report-cell-source">{{ sourceLabelKey | translate }}</span>
+
+  <span class="report-cell-default">
+    @if (isDefaultTemplate) {
+      <span class="default-badge">{{
+        "setting.report.header.default" | translate
+      }}</span>
+    }
+  </span>
+
+  <span class="report-cell-changed">{{ changedAtLabel }}</span>
+
+  <span class="report-cell-actions">
+    @if (!isNew) {
+      <button
+        type="button"
+        class="row-icon-button"
+        [title]="'setting.report.export' | translate"
+        [attr.aria-label]="'setting.report.export' | translate"
+        (click)="onExportClick($event)"
+      >
+        <app-download-icon />
+      </button>
+
+      <button
+        type="button"
+        class="row-icon-button"
+        [title]="'setting.report.duplicate' | translate"
+        [attr.aria-label]="'setting.report.duplicate' | translate"
+        (click)="onDuplicateClick($event)"
+      >
+        <app-icon-copy-grey />
+      </button>
+    }
+
+    <button
       type="button"
-      [title]="'setting.report.duplicate' | translate"
-      (click)="duplicateReport()"
-      ><app-icon-copy-grey
-    /></span>
-  }
-
-  <span class="delete-button" type="button" (click)="deleteReport()"
-    ><app-icon-trash-red /></span
-  >
+      class="row-icon-button"
+      [title]="'setting.report.delete' | translate"
+      [attr.aria-label]="'setting.report.delete' | translate"
+      (click)="onDeleteClick($event)"
+    >
+      <app-icon-trash-red />
+    </button>
+  </span>
 </div>

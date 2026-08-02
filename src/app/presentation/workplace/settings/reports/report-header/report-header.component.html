@@ -1,4 +1,7 @@
-<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
-<div id="report-header-container" class="first custom-control-inline">
-  <label id="report-header-name" style="width: 380px">{{ 'setting.report.header.name' | translate }}</label>
+<div id="report-header-container" class="report-grid report-header-row">
+  <span id="report-header-name">{{ 'setting.report.header.name' | translate }}</span>
+  <span id="report-header-source">{{ 'setting.report.header.source' | translate }}</span>
+  <span id="report-header-default">{{ 'setting.report.header.default' | translate }}</span>
+  <span id="report-header-changed">{{ 'setting.report.header.changed' | translate }}</span>
+  <span id="report-header-actions" aria-hidden="true"></span>
 </div>
