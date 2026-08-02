@@ -3407,6 +3407,7 @@
   "setting.report.error.rowFilter": "Non è stato possibile valutare un filtro righe — sono state stampate tutte le righe.",
   "setting.report.designer.rowFilterUnknownParameter": "Parametro sconosciuto:",
   "setting.report.parameter.invalidKeys": "Correggere prima le chiavi dei parametri non valide.",
+  "setting.report.preview.exportXlsx": "Esporta come Excel",
   "assistant.proactive.targetHoursDrift": "Le ore di {{name}} si discostano dall'obiettivo di {{hours}} h nel periodo {{period}}.",
   "assistant.proactive.periodCloseDue": "Il periodo di conteggio di {{group}} termina il {{date}} (tra {{days}} giorno/i) ed è ancora aperto.",
   "assistant.proactive.periodOverdue": "Il periodo del gruppo {{group}} è terminato il {{periodEnd}}, {{days}} giorni fa, e non è ancora stato chiuso.",

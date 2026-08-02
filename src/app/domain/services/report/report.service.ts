@@ -26,6 +26,10 @@ export class ReportService {
     triggerBlobDownload(blob, fileName);
   }
 
+  downloadXlsx(blob: Blob, fileName: string): void {
+    triggerBlobDownload(blob, fileName);
+  }
+
   createPreviewUrl(blob: Blob): string {
     return window.URL.createObjectURL(blob);
   }

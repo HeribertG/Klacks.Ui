@@ -3415,6 +3415,7 @@
   "setting.report.error.rowFilter": "Ein Zeilenfilter konnte nicht ausgewertet werden — es wurden alle Zeilen gedruckt.",
   "setting.report.designer.rowFilterUnknownParameter": "Unbekannter Parameter:",
   "setting.report.parameter.invalidKeys": "Bitte zuerst die fehlerhaften Parameter-Schlüssel korrigieren.",
+  "setting.report.preview.exportXlsx": "Als Excel exportieren",
   "assistant.proactive.targetHoursDrift": "Bei {{name}} weichen die Stunden im Zeitraum {{period}} um {{hours}} h vom Soll ab.",
   "assistant.proactive.periodCloseDue": "Die Abrechnungsperiode für {{group}} endet am {{date}} (in {{days}} Tag(en)) und ist noch offen.",
   "assistant.proactive.periodOverdue": "Die Periode der Gruppe {{group}} endete am {{periodEnd}} vor {{days}} Tagen und ist noch nicht abgeschlossen.",

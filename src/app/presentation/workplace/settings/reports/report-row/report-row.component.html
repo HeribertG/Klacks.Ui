@@ -360,6 +360,14 @@
                 {{ "setting.report.preview.exportCsv" | translate }}
               </button>
 
+              <button
+                class="btn btn-secondary"
+                (click)="exportXlsx()"
+                [disabled]="!canGeneratePreview"
+              >
+                {{ "setting.report.preview.exportXlsx" | translate }}
+              </button>
+
               @if (previewSource()) {
                 <button class="btn btn-secondary" (click)="openPreviewInNewTab()">
                   {{ "setting.report.preview.openInTab" | translate }}

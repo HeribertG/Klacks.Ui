@@ -20,6 +20,8 @@ import { ReportDefaultsService } from 'src/app/domain/services/report/report-def
 import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
+import { ReportXlsxService } from 'src/app/domain/services/report/report-xlsx.service';
+import { DataReportExportService } from 'src/app/infrastructure/api/report/data-report-export.service';
 import { ReportParameterContext, ReportRowFilterService } from 'src/app/domain/services/report/report-row-filter.service';
 import { ReportParameter, ReportParameterType, ReportParameterValues } from 'src/app/domain/models/report/report-parameter.model';
 import { applyParameterBindings, findMissingRequiredParameters, findParameterKeyProblem } from 'src/app/domain/helpers/report-parameter.helper';
@@ -92,6 +94,8 @@ export class ReportRowComponent {
   private transferService = inject(ReportTemplateTransferService);
   private templateResolver = inject(ReportTemplateResolverService);
   private csvService = inject(ReportCsvService);
+  private xlsxService = inject(ReportXlsxService);
+  private exportApi = inject(DataReportExportService);
   private rowFilterService = inject(ReportRowFilterService);
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
@@ -642,6 +646,30 @@ export class ReportRowComponent {
       this.cdr.markForCheck();
     }
   }
+
+  /**
+   * Exports the same data as XLSX. The workbook is built on the server, because the frontend
+   * has no spreadsheet library and the values need their type back to stay computable.
+   */
+  async exportXlsx(): Promise<void> {
+    if (!this.canGeneratePreview || !this.hasAllRequiredParameters()) return;
+
+    this.isGenerating.set(true);
+    try {
+      const { provider, data } = await this.fetchPreviewData();
+      const template = this.buildPreviewTemplate();
+      const request = this.xlsxService.buildRequest(template, provider, data, this.parameterContext);
+      const blob = await this.exportApi.downloadXlsx(request);
+      this.warnOnFilterError();
+      this.reportService.downloadXlsx(blob, `${request.fileName}.xlsx`);
+    } catch {
+      this.toast.showError(this.translate.instant('setting.report.error.export'), REPORT_TOAST_NAME);
+    } finally {
+      this.isGenerating.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
 
   openPreviewInNewTab(): void {
     if (this.previewUrl) {
