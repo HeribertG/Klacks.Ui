@@ -32,6 +32,7 @@ import { ReportDesignerFieldService } from './report-designer-field.service';
 import { ReportDesignerBorderService } from './report-designer-border.service';
 import { ReportDesignerFormulaService } from './report-designer-formula.service';
 import { ReportDesignerImageService } from './report-designer-image.service';
+import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
 
 const COLUMN_WIDTH_TOTAL_PERCENT = 100;
 const MIN_SECTION_WIDTH_PERCENT = 10;
@@ -66,6 +67,7 @@ export class ReportDesignerComponent {
   protected borderService = inject(ReportDesignerBorderService);
   protected formulaSvc = inject(ReportDesignerFormulaService);
   private imageService = inject(ReportDesignerImageService);
+  private formulaEvaluation = inject(FormulaEvaluationService);
 
   activeField: ReportField | null = null;
   fieldPrefixMap = new Map<string, string>();
@@ -132,6 +134,23 @@ export class ReportDesignerComponent {
         && f.type !== ReportFieldType.Image
         && f.type !== ReportFieldType.Formula
     );
+  }
+
+  setRowFilter(section: ReportSection, expression: string): void {
+    section.rowFilter = expression.trim().length > 0 ? expression : undefined;
+    this.emitChange();
+  }
+
+  /**
+   * Status of a row filter expression, shown next to the input so a typo is visible
+   * at design time instead of producing a report without rows.
+   */
+  getRowFilterStatus(section: ReportSection): 'empty' | 'valid' | 'error' {
+    const expression = section.rowFilter?.trim();
+    if (!expression) {
+      return 'empty';
+    }
+    return this.formulaEvaluation.validateFormula(expression).valid ? 'valid' : 'error';
   }
 
   setGroupBy(section: ReportSection, dataBinding: string): void {

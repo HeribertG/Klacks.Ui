@@ -20,6 +20,10 @@ import { ReportDefaultsService } from 'src/app/domain/services/report/report-def
 import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
+import { ReportParameterContext, ReportRowFilterService } from 'src/app/domain/services/report/report-row-filter.service';
+import { ReportParameter, ReportParameterType, ReportParameterValues } from 'src/app/domain/models/report/report-parameter.model';
+import { applyParameterBindings, findMissingRequiredParameters } from 'src/app/domain/helpers/report-parameter.helper';
+import { ReportParametersComponent } from '../report-parameters/report-parameters.component';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportDataProviderService, ReportData, ReportDataProvider } from 'src/app/domain/services/report/report-data-provider.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -68,7 +72,7 @@ const FALLBACK_PREVIEW_CONFIG: SourcePreviewConfig = { needsGroup: false, needsD
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, DownloadIconComponent],
+  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, DownloadIconComponent, ReportParametersComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent {
@@ -88,6 +92,7 @@ export class ReportRowComponent {
   private transferService = inject(ReportTemplateTransferService);
   private templateResolver = inject(ReportTemplateResolverService);
   private csvService = inject(ReportCsvService);
+  private rowFilterService = inject(ReportRowFilterService);
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
@@ -116,6 +121,9 @@ export class ReportRowComponent {
   editMargins: ReportMargins = { ...DEFAULT_PAGE_SETUP.margins };
   readonly marginSides: (keyof ReportMargins)[] = ['top', 'bottom', 'left', 'right'];
   editIsDefault = false;
+  editParameters: ReportParameter[] = [];
+  parameterValues: ReportParameterValues = {};
+  readonly ReportParameterType = ReportParameterType;
   editTemplate: ReportTemplate = {
     name: '',
     description: '',
@@ -300,6 +308,8 @@ export class ReportRowComponent {
     this.editOrientation = template.pageSetup?.orientation ?? ReportOrientation.Landscape;
     this.editPageSize = template.pageSetup?.size ?? ReportPageSize.A4;
     this.editMargins = { ...(template.pageSetup?.margins ?? DEFAULT_PAGE_SETUP.margins) };
+    this.editParameters = structuredClone(template.parameters ?? []);
+    this.parameterValues = this.buildDefaultParameterValues(this.editParameters);
     this.editSourceId = template.sourceId || DEFAULT_SOURCE_ID;
     this.editDataSetIds = template.dataSetIds?.length ? [...template.dataSetIds] : [DEFAULT_DATA_SET_ID];
     this.editTemplate = {
@@ -387,6 +397,7 @@ export class ReportRowComponent {
       mergeRows: this.editTemplate.mergeRows ?? false,
       showFullPeriod: this.editTemplate.showFullPeriod ?? false,
       sections: this.editTemplate.sections,
+      parameters: this.editParameters,
     });
   }
 
@@ -429,7 +440,8 @@ export class ReportRowComponent {
         dataSetIds: [...this.editDataSetIds],
         mergeRows: this.editTemplate.mergeRows,
         showFullPeriod: this.editTemplate.showFullPeriod,
-        pageSetup: this.buildPageSetup()
+        pageSetup: this.buildPageSetup(),
+        parameters: [...this.editParameters],
       };
 
       if (this.isNew) {
@@ -464,7 +476,7 @@ export class ReportRowComponent {
   }
 
   async generatePreview(): Promise<void> {
-    if (!this.canGeneratePreview) return;
+    if (!this.canGeneratePreview || !this.hasAllRequiredParameters()) return;
 
     this.isGenerating.set(true);
 
@@ -480,9 +492,11 @@ export class ReportRowComponent {
         startDate: data.metadata?.['startDate'] ?? fromDate,
         endDate: data.metadata?.['endDate'] ?? toDate,
         imageCache: this.imageCache,
+        parameterValues: this.parameterValues,
       };
 
       const blob = await this.reportPdfService.generatePdf(pdfContext);
+      this.warnOnFilterError();
       this.showPreview(blob);
     } catch {
       this.toast.showError(this.translate.instant('setting.report.error.preview'), REPORT_TOAST_NAME);
@@ -505,12 +519,13 @@ export class ReportRowComponent {
     const toDate = this.toLocalDateString(transformNgbDateStructToDate(this.previewToDate ?? undefined));
 
     const provider = this.dataProviderService.getProvider(this.editSourceId, this.editDataSetIds);
-    const data = await provider.fetchData({
+    const fetchParams = applyParameterBindings(this.editParameters, this.parameterValues, {
       groupId: this.previewGroupId || undefined,
       startDate: fromDate || undefined,
       endDate: toDate || undefined,
       clientId: this.previewClientId || undefined,
     });
+    const data = await provider.fetchData(fetchParams);
 
     return { provider, data, fromDate, toDate };
   }
@@ -524,20 +539,73 @@ export class ReportRowComponent {
       mergeRows: this.editTemplate.mergeRows,
       showFullPeriod: this.editTemplate.showFullPeriod,
       pageSetup: this.buildPageSetup(),
+      parameters: [...this.editParameters],
     };
+  }
+
+  /**
+   * Reports the parameters that have to be filled before the report can run.
+   */
+  private hasAllRequiredParameters(): boolean {
+    const missing = findMissingRequiredParameters(this.editParameters, this.parameterValues);
+    if (missing.length === 0) {
+      return true;
+    }
+
+    const names = missing.map(p => p.label || p.key).join(', ');
+    this.toast.showError(
+      `${this.translate.instant('setting.report.parameter.missing')}: ${names}`,
+      REPORT_TOAST_NAME
+    );
+    return false;
+  }
+
+  /**
+   * A filter expression that cannot be evaluated keeps every row, which would look like
+   * a working report. Say so once instead.
+   */
+  private warnOnFilterError(): void {
+    if (this.rowFilterService.hadEvaluationError) {
+      this.toast.showError(this.translate.instant('setting.report.error.rowFilter'), REPORT_TOAST_NAME);
+    }
+  }
+
+  get parameterContext(): ReportParameterContext {
+    return { parameters: this.editParameters, values: this.parameterValues };
+  }
+
+  onParametersChange(parameters: ReportParameter[]): void {
+    this.editParameters = parameters;
+    this.parameterValues = {
+      ...this.buildDefaultParameterValues(parameters),
+      ...this.parameterValues,
+    };
+  }
+
+  setParameterValue(key: string, value: string): void {
+    this.parameterValues = { ...this.parameterValues, [key]: value };
+  }
+
+  private buildDefaultParameterValues(parameters: ReportParameter[]): ReportParameterValues {
+    const values: ReportParameterValues = {};
+    for (const parameter of parameters) {
+      values[parameter.key] = parameter.defaultValue ?? '';
+    }
+    return values;
   }
 
   /**
    * Exports the same data the preview would render, as CSV instead of PDF.
    */
   async exportCsv(): Promise<void> {
-    if (!this.canGeneratePreview) return;
+    if (!this.canGeneratePreview || !this.hasAllRequiredParameters()) return;
 
     this.isGenerating.set(true);
     try {
       const { provider, data } = await this.fetchPreviewData();
       const template = this.buildPreviewTemplate();
-      const content = this.csvService.buildCsv(template, provider, data);
+      const content = this.csvService.buildCsv(template, provider, data, this.parameterContext);
+      this.warnOnFilterError();
       this.reportService.downloadCsv(this.csvService.buildBlob(content), this.csvService.buildFileName(template));
     } catch {
       this.toast.showError(this.translate.instant('setting.report.error.export'), REPORT_TOAST_NAME);

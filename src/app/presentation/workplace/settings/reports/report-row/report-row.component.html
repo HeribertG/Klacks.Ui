@@ -210,6 +210,18 @@
 
       <li ngbNavItem>
         <button ngbNavLink>
+          {{ "setting.report.tab.parameters" | translate }}
+        </button>
+        <ng-template ngbNavContent>
+          <app-report-parameters
+            [parameters]="editParameters"
+            (parametersChange)="onParametersChange($event)"
+          ></app-report-parameters>
+        </ng-template>
+      </li>
+
+      <li ngbNavItem>
+        <button ngbNavLink>
           {{ "setting.report.tab.preview" | translate }}
         </button>
         <ng-template ngbNavContent>
@@ -266,6 +278,64 @@
                   >
                   </app-date-input>
                 </div>
+              </div>
+            }
+
+            @if (editParameters.length > 0) {
+              <div class="preview-parameters">
+                <div class="preview-parameters-title">
+                  {{ "setting.report.tab.parameters" | translate }}
+                </div>
+
+                @for (parameter of editParameters; track parameter.key) {
+                  <div class="mb-3">
+                    <label class="form-label">
+                      {{ parameter.label || parameter.key }}
+                      @if (parameter.required) {
+                        <span class="required-marker">*</span>
+                      }
+                    </label>
+
+                    @switch (parameter.type) {
+                      @case (ReportParameterType.Choice) {
+                        <select
+                          class="form-select"
+                          [ngModel]="parameterValues[parameter.key] ?? ''"
+                          (ngModelChange)="setParameterValue(parameter.key, $event)"
+                        >
+                          <option value=""></option>
+                          @for (choice of parameter.choices ?? []; track choice) {
+                            <option [value]="choice">{{ choice }}</option>
+                          }
+                        </select>
+                      }
+                      @case (ReportParameterType.Boolean) {
+                        <select
+                          class="form-select"
+                          [ngModel]="parameterValues[parameter.key] ?? ''"
+                          (ngModelChange)="setParameterValue(parameter.key, $event)"
+                        >
+                          <option value="true">{{ "general.yes" | translate }}</option>
+                          <option value="false">{{ "general.no" | translate }}</option>
+                        </select>
+                      }
+                      @default {
+                        <input
+                          class="form-control"
+                          [type]="
+                            parameter.type === ReportParameterType.Number
+                              ? 'number'
+                              : parameter.type === ReportParameterType.Date
+                                ? 'date'
+                                : 'text'
+                          "
+                          [ngModel]="parameterValues[parameter.key] ?? ''"
+                          (ngModelChange)="setParameterValue(parameter.key, $event)"
+                        />
+                      }
+                    }
+                  </div>
+                }
               </div>
             }
 

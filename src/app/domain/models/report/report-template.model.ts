@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ReportSection } from './report-section.model';
+import { ReportParameter } from './report-parameter.model';
 
 export interface ReportTemplate {
   id?: string;
@@ -18,6 +19,7 @@ export interface ReportTemplate {
   updatedAt?: Date;
   isLocal?: boolean;
   versions?: ReportTemplateVersion[];
+  parameters?: ReportParameter[];
 }
 
 /** Snapshot of a template taken before it was overwritten. */

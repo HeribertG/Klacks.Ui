@@ -17,6 +17,8 @@ import { ReportField, ReportFieldType } from 'src/app/domain/models/report/repor
 import { resolveReportFieldLabel } from 'src/app/domain/helpers/report-field-label.helper';
 import { ReportData, ReportDataProvider } from './report-data-provider.service';
 import { FormulaEvaluationService } from './formula-evaluation.service';
+import { ReportParameterContext, ReportRowFilterService } from './report-row-filter.service';
+import { buildParameterVariables } from 'src/app/domain/helpers/report-parameter.helper';
 import { CSV_LINE_BREAK, CSV_UTF8_BOM, buildCsvRow, escapeCsvValue } from 'src/app/domain/helpers/csv.helper';
 
 const LINE_BREAK = CSV_LINE_BREAK;
@@ -30,17 +32,25 @@ type ReportRow = Record<string, unknown>;
 export class ReportCsvService {
   private translate = inject(TranslateService);
   private formulaService = inject(FormulaEvaluationService);
+  private rowFilterService = inject(ReportRowFilterService);
 
   /**
    * Builds one CSV per table section, separated by a blank line when a report has several.
    * The byte order mark makes spreadsheet tools read the file as UTF-8.
    */
-  buildCsv(template: ReportTemplate, provider: ReportDataProvider, data: ReportData): string {
+  buildCsv(
+    template: ReportTemplate,
+    provider: ReportDataProvider,
+    data: ReportData,
+    parameterContext?: ReportParameterContext
+  ): string {
     const sections = (template.sections ?? [])
       .filter(s => s.visible && s.fields.length > 0 && this.isTableSection(s))
       .sort((a, b) => a.sortOrder - b.sortOrder);
 
-    const blocks = sections.map(section => this.buildSectionBlock(template, section, provider, data.rows ?? []));
+    const blocks = sections.map(section =>
+      this.buildSectionBlock(template, section, provider, data.rows ?? [], parameterContext)
+    );
     return UTF8_BOM + blocks.filter(block => block.length > 0).join(LINE_BREAK + LINE_BREAK) + LINE_BREAK;
   }
 
@@ -65,9 +75,11 @@ export class ReportCsvService {
     template: ReportTemplate,
     section: ReportSection,
     provider: ReportDataProvider,
-    rows: ReportRow[]
+    rows: ReportRow[],
+    parameterContext: ReportParameterContext | undefined
   ): string {
     const fields = [...section.fields].sort((a, b) => a.sortOrder - b.sortOrder);
+    const visibleRows = this.rowFilterService.filterRows(section, rows, provider, parameterContext);
     const lines: string[] = [];
 
     if (section.title?.trim()) {
@@ -76,8 +88,8 @@ export class ReportCsvService {
 
     lines.push(buildCsvRow(fields.map(f => this.label(f, template))));
 
-    for (const row of rows) {
-      lines.push(buildCsvRow(fields.map(f => this.resolveValue(f, row, provider))));
+    for (const row of visibleRows) {
+      lines.push(buildCsvRow(fields.map(f => this.resolveValue(f, row, provider, parameterContext))));
     }
 
     return lines.join(LINE_BREAK);
@@ -87,9 +99,17 @@ export class ReportCsvService {
     return resolveReportFieldLabel(field, template, key => this.translate.instant(key), false);
   }
 
-  private resolveValue(field: ReportField, row: ReportRow, provider: ReportDataProvider): string {
+  private resolveValue(
+    field: ReportField,
+    row: ReportRow,
+    provider: ReportDataProvider,
+    parameterContext: ReportParameterContext | undefined
+  ): string {
     if (field.type === ReportFieldType.Formula && field.formula) {
-      const variables = provider.buildFormulaVariables ? provider.buildFormulaVariables(row) : {};
+      const variables = {
+        ...(provider.buildFormulaVariables ? provider.buildFormulaVariables(row) : {}),
+        ...buildParameterVariables(parameterContext?.parameters, parameterContext?.values),
+      };
       try {
         return this.formulaService.evaluateFormula(field.formula, variables);
       } catch {

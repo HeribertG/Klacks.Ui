@@ -878,6 +878,32 @@
                 </label>
               }
 
+              <label class="section-row-filter">
+                {{ "setting.report.designer.rowFilter" | translate }}
+                <input
+                  type="text"
+                  class="tb-select"
+                  [value]="section.rowFilter ?? ''"
+                  (input)="setRowFilter(section, $any($event.target).value)"
+                  [placeholder]="'setting.report.designer.rowFilterPlaceholder' | translate"
+                  [title]="'setting.report.designer.rowFilterHint' | translate"
+                />
+                <span
+                  class="filter-status"
+                  [class.status-valid]="getRowFilterStatus(section) === 'valid'"
+                  [class.status-error]="getRowFilterStatus(section) === 'error'"
+                >
+                  @switch (getRowFilterStatus(section)) {
+                    @case ('valid') {
+                      &#10003;
+                    }
+                    @case ('error') {
+                      {{ "setting.report.designer.formulaError" | translate }}
+                    }
+                  }
+                </span>
+              </label>
+
               @if (getGroupableFields(section).length > 0) {
                 <label class="section-group-by">
                   {{ "setting.report.designer.groupBy" | translate }}

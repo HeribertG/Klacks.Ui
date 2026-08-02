@@ -1203,3 +1203,31 @@
   margin: 0;
   white-space: nowrap;
 }
+
+.section-row-filter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--colorLabel);
+  margin: 0;
+  white-space: nowrap;
+
+  input {
+    min-width: 180px;
+    font-family: monospace;
+    font-size: 11px;
+  }
+}
+
+.filter-status {
+  font-size: 11px;
+
+  &.status-valid {
+    color: #1bc5bd;
+  }
+
+  &.status-error {
+    color: #c00000;
+  }
+}

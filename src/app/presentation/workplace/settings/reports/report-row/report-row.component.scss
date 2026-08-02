@@ -225,3 +225,21 @@ input {
   font-size: 13px;
   color: var(--colorLabel);
 }
+
+.preview-parameters {
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.preview-parameters-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--colorLabel);
+  margin-bottom: 8px;
+}
+
+.required-marker {
+  color: #c00000;
+  margin-inline-start: 2px;
+}

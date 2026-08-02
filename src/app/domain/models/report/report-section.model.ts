@@ -16,6 +16,7 @@ export interface ReportSection {
   title?: string;
   groupBy?: string;
   groupSubtotals?: boolean;
+  rowFilter?: string;
 }
 
 export enum ReportSectionType {

@@ -125,6 +125,23 @@ describe('ReportTemplateTransferService', () => {
       ]);
     });
 
+    it('carries parameters and row filters through the round trip', () => {
+      const template = buildTemplate();
+      template.parameters = [
+        { key: 'minHours', label: 'Mindeststunden', type: 1, required: true, defaultValue: '8', bindsTo: 0 },
+      ];
+      template.sections[0].rowFilter = 'output 1, hours > param_minHours';
+      template.sections[0].groupBy = 'entry.shiftName';
+      template.sections[0].groupSubtotals = true;
+
+      const imported = service.parseJson(service.toJson(template));
+
+      expect(imported.parameters).toEqual(template.parameters);
+      expect(imported.sections[0].rowFilter).toBe('output 1, hours > param_minHours');
+      expect(imported.sections[0].groupBy).toBe('entry.shiftName');
+      expect(imported.sections[0].groupSubtotals).toBe(true);
+    });
+
     it('accepts a bare template object without the file envelope', () => {
       const bare = JSON.stringify({ name: 'Direkt', sections: [], pageSetup: undefined });
       const imported = service.parseJson(bare);

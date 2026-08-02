@@ -25,6 +25,9 @@ import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportFontService } from './report-font.service';
+import { ReportRowFilterService, ReportParameterContext } from './report-row-filter.service';
+import { ReportParameterValues } from '../../models/report/report-parameter.model';
+import { buildParameterVariables } from '../../helpers/report-parameter.helper';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
 import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 
@@ -49,6 +52,7 @@ export interface ReportGenerationContext {
   startDate: string;
   endDate: string;
   imageCache?: Map<string, string>;
+  parameterValues?: ReportParameterValues;
 }
 
 @Injectable()
@@ -57,6 +61,7 @@ export class ReportPdfService {
   private http = inject(HttpClient);
   private formulaService = inject(FormulaEvaluationService);
   private fontService = inject(ReportFontService);
+  private rowFilterService = inject(ReportRowFilterService);
 
   private get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
@@ -79,6 +84,11 @@ export class ReportPdfService {
       this.collectTemplateFontFamilies(template)
     );
 
+    const parameterContext: ReportParameterContext = {
+      parameters: template.parameters,
+      values: context.parameterValues,
+    };
+
     const clients = data.clients?.length ? data.clients : [null];
     const allRows = data.rows;
 
@@ -100,7 +110,7 @@ export class ReportPdfService {
         metadata: data.metadata,
       };
 
-      this.renderPage(doc, template, provider, clientRows, headerContext, imageCache);
+      this.renderPage(doc, template, provider, clientRows, headerContext, imageCache, parameterContext);
     }
 
     this.renderPageNumbers(doc, template);
@@ -154,14 +164,15 @@ export class ReportPdfService {
     provider: ReportDataProvider,
     rows: any[],
     headerContext: ReportHeaderContext,
-    imageCache: Map<string, string>
+    imageCache: Map<string, string>,
+    parameterContext: ReportParameterContext
   ): void {
     let yPos = template.pageSetup.margins.top;
     const marginLeft = template.pageSetup.margins.left;
     const pageWidth = doc.internal.pageSize.getWidth();
     const contentWidth = pageWidth - marginLeft - template.pageSetup.margins.right;
 
-    const ctx: PdfRenderContext = { doc, template, provider, headerContext, imageCache, marginLeft, contentWidth };
+    const ctx: PdfRenderContext = { doc, template, provider, headerContext, imageCache, marginLeft, contentWidth, parameterContext };
 
     const headerSection = template.sections.find(s => s.type === ReportSectionType.Header);
     if (headerSection?.visible && headerSection.fields.length > 0) {
@@ -176,7 +187,12 @@ export class ReportPdfService {
     let lastEffectiveRows = rows;
     for (const section of bodySections) {
       if (!section.visible || section.fields.length === 0) continue;
-      const sectionRows = this.resolveSectionRows(template, section, rows, headerContext);
+      const sectionRows = this.rowFilterService.filterRows(
+        section,
+        this.resolveSectionRows(template, section, rows, headerContext),
+        provider,
+        parameterContext
+      );
       lastEffectiveRows = sectionRows;
       if (sectionRows.length > 0) {
         yPos = this.renderTable(ctx, section, sectionRows, yPos);
@@ -448,7 +464,7 @@ export class ReportPdfService {
     const columnStyles = this.buildColumnStyles(fields, tableWidth);
 
     const compiledFormulas = this.compileTableFormulas(fields);
-    const resolvedRows = this.resolveTableRows(fields, rows, ctx.provider, compiledFormulas);
+    const resolvedRows = this.resolveTableRows(fields, rows, ctx.provider, compiledFormulas, ctx.parameterContext);
 
     const sortFields = fields
       .filter(f => f.sortDirection === 'asc' || f.sortDirection === 'desc')
@@ -489,7 +505,7 @@ export class ReportPdfService {
     }
 
     this.buildFreeTextRows(section, fields, 'after', bodyData);
-    const foot = this.buildTableFooter(section, fields, rows, ctx.provider, ctx.template);
+    const foot = this.buildTableFooter(section, fields, rows, ctx.provider, ctx.template, ctx.parameterContext);
     const hasBorders = fields.some(f => f.style.cellBorder);
 
     autoTable(ctx.doc, {
@@ -533,7 +549,7 @@ export class ReportPdfService {
         if (Array.isArray(data.row.raw)) return;
         const colIndex = data.column.index;
         if (colIndex < 0 || colIndex >= fields.length) return;
-        this.applyStyleConditions(fields[colIndex], data.row.raw, data.cell, ctx.provider);
+        this.applyStyleConditions(fields[colIndex], data.row.raw, data.cell, ctx.provider, ctx.parameterContext);
       },
       didDrawCell: hasBorders ? (data: any) => {
         if (data.section !== 'body') return;
@@ -589,13 +605,15 @@ export class ReportPdfService {
     fields: ReportField[],
     rows: any[],
     provider: ReportDataProvider,
-    compiledFormulas: Map<string, CompiledScript>
+    compiledFormulas: Map<string, CompiledScript>,
+    parameterContext: ReportParameterContext | undefined
   ): { row: Record<string, string>; sourceEntry: any }[] {
     const resolvedRows: { row: Record<string, string>; sourceEntry: any }[] = [];
+    const parameterVars = buildParameterVariables(parameterContext?.parameters, parameterContext?.values);
     for (const entry of rows) {
       const row: Record<string, string> = {};
       const formulaVars = compiledFormulas.size > 0 && provider.buildFormulaVariables
-        ? provider.buildFormulaVariables(entry) : undefined;
+        ? { ...provider.buildFormulaVariables(entry), ...parameterVars } : undefined;
 
       fields.forEach(f => {
         if (f.type === ReportFieldType.Formula && f.formula) {
@@ -777,13 +795,18 @@ export class ReportPdfService {
     fields: ReportField[],
     rows: any[],
     provider: ReportDataProvider,
-    template: ReportTemplate
+    template: ReportTemplate,
+    parameterContext: ReportParameterContext | undefined
   ): any[][] | undefined {
     if (!section.tableFooterFields || section.tableFooterFields.length === 0) return undefined;
 
     const footRow: any[] = fields.map(() => '');
     const footerFormulaVars = provider.buildFooterFormulaVariables
-      ? provider.buildFooterFormulaVariables(rows) : undefined;
+      ? {
+          ...provider.buildFooterFormulaVariables(rows),
+          ...buildParameterVariables(parameterContext?.parameters, parameterContext?.values),
+        }
+      : undefined;
 
     for (const footerField of section.tableFooterFields) {
       const targetColumn = FOOTER_TO_COLUMN_MAP[footerField.dataBinding];
@@ -872,7 +895,11 @@ export class ReportPdfService {
     yPos += 5;
 
     const sectionFooterFormulaVars = ctx.provider.buildFooterFormulaVariables
-      ? ctx.provider.buildFooterFormulaVariables(rows) : undefined;
+      ? {
+          ...ctx.provider.buildFooterFormulaVariables(rows),
+          ...buildParameterVariables(ctx.parameterContext?.parameters, ctx.parameterContext?.values),
+        }
+      : undefined;
 
     section.fields
       .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -985,12 +1012,18 @@ export class ReportPdfService {
    * Applies conditional formatting to a table cell.
    * Each condition is evaluated with the row values; the first match wins per property.
    */
-  private applyStyleConditions(field: ReportField, row: any, cell: any, provider: ReportDataProvider): void {
+  private applyStyleConditions(
+    field: ReportField,
+    row: any,
+    cell: any,
+    provider: ReportDataProvider,
+    parameterContext: ReportParameterContext | undefined
+  ): void {
     if (!field.styleConditions?.length) {
       return;
     }
 
-    const variables = provider.buildFormulaVariables ? provider.buildFormulaVariables(row) : {};
+    const variables = this.rowFilterService.buildVariables(row, provider, parameterContext);
     for (const condition of field.styleConditions) {
       if (!condition.expression?.trim() || !this.isConditionTrue(condition.expression, variables)) {
         continue;
