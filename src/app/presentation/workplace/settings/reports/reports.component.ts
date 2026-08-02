@@ -1,8 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Lists all report templates and handles creating, duplicating and deleting them.
+ * @param reportRows - Rendered rows, used to open the modal of a freshly created template
+ * @param pendingOpenReport - Template whose modal opens as soon as its row exists
+ */
+
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, DestroyRef, AfterViewInit, viewChildren, effect } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
@@ -13,11 +18,13 @@ import { ReportPdfService } from 'src/app/domain/services/report/report-pdf.serv
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
-import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+
+const REPORT_TOAST_NAME = 'report-template';
 
 @Component({
   selector: 'app-reports',
@@ -45,9 +52,10 @@ export class ReportsComponent implements AfterViewInit {
   private modalService = inject(ModalService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
+  private toast = inject(ToastShowService);
 
   message = DomainMessages.DELETE_ENTRY;
-  private reportToDeleteIndex: number | null = null;
   private pendingOpenReport: ReportTemplate | null = null;
 
   constructor() {
@@ -60,6 +68,12 @@ export class ReportsComponent implements AfterViewInit {
         }
         this.pendingOpenReport = null;
         this.cdr.markForCheck();
+      }
+    });
+
+    effect(() => {
+      if (this.dataManagementReportService.error()) {
+        this.showError('setting.report.error.load');
       }
     });
   }
@@ -75,27 +89,39 @@ export class ReportsComponent implements AfterViewInit {
       });
   }
 
-  async onClickAdd(): Promise<void> {
-    const template = this.dataManagementReportService.createDefaultTemplate(ReportType.Schedule);
-    (template as any).isDirty = CreateEntriesEnum.new;
-    (template as any).isLocal = true; // Mark as not yet saved to server
+  onClickAdd(): void {
+    const template = this.dataManagementReportService.createDefaultTemplate(
+      ReportType.Schedule,
+      this.translate.instant('setting.report.defaultName')
+    );
+    template.isLocal = true;
 
     this.pendingOpenReport = template;
     this.dataManagementReportService.reportTemplateList.update(list => [...list, template]);
   }
 
   cancelNewReport(index: number): void {
-    const reports = this.dataManagementReportService.reportTemplateList();
-    const report = reports[index];
-    if (report && (report as any).isDirty === CreateEntriesEnum.new && (report as any).isLocal) {
-      this.dataManagementReportService.reportTemplateList.update(list =>
-        list.filter((_, i) => i !== index)
-      );
+    const report = this.dataManagementReportService.reportTemplateList()[index];
+    if (report?.isLocal) {
+      this.removeAt(index);
     }
   }
 
-  onReportChanged(_index: number): void {
-    // Trigger change detection if needed
+  async duplicateReport(index: number): Promise<void> {
+    const report = this.dataManagementReportService.reportTemplateList()[index];
+    if (!report || report.isLocal || !report.id) {
+      return;
+    }
+
+    const copyName = this.translate.instant('setting.report.copyName', { name: report.name });
+    try {
+      await this.dataManagementReportService.duplicateTemplate(report, copyName);
+      this.toast.showSuccess(this.translate.instant('setting.report.duplicated'), REPORT_TOAST_NAME);
+    } catch {
+      this.showError('setting.report.error.duplicate');
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   openDeleteReport(index: number): void {
@@ -115,24 +141,36 @@ export class ReportsComponent implements AfterViewInit {
     const index = parseInt(indexStr, 10);
     const reports = this.dataManagementReportService.reportTemplateList();
 
-    if (index >= 0 && index < reports.length) {
-      const report = reports[index];
-
-      if (report) {
-        if ((report as any).isDirty === CreateEntriesEnum.new || (report as any).isLocal) {
-          // Local only, just remove from list
-          this.dataManagementReportService.reportTemplateList.update(list =>
-            list.filter((_, i) => i !== index)
-          );
-        } else if (report.id) {
-          // Delete from server
-          try {
-            await this.dataManagementReportService.deleteTemplate(report.id);
-          } catch (err) {
-            console.error('Failed to delete report:', err);
-          }
-        }
-      }
+    if (index < 0 || index >= reports.length) {
+      return;
     }
+
+    const report = reports[index];
+    if (!report) {
+      return;
+    }
+
+    if (report.isLocal || !report.id) {
+      this.removeAt(index);
+      return;
+    }
+
+    try {
+      await this.dataManagementReportService.deleteTemplate(report.id);
+    } catch {
+      this.showError('setting.report.error.delete');
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  private removeAt(index: number): void {
+    this.dataManagementReportService.reportTemplateList.update(list =>
+      list.filter((_, i) => i !== index)
+    );
+  }
+
+  private showError(messageKey: string): void {
+    this.toast.showError(this.translate.instant(messageKey), REPORT_TOAST_NAME);
   }
 }

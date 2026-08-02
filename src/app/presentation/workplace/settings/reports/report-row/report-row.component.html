@@ -41,7 +41,17 @@
               <label class="form-label">{{
                 "setting.report.field.name" | translate
               }}</label>
-              <input type="text" class="form-control" [(ngModel)]="editName" />
+              <input
+                type="text"
+                class="form-control"
+                [class.is-invalid]="!isNameValid"
+                [(ngModel)]="editName"
+              />
+              @if (!isNameValid) {
+                <div class="invalid-feedback d-block">
+                  {{ "setting.report.error.nameRequired" | translate }}
+                </div>
+              }
             </div>
 
             <div class="mb-3">
@@ -88,6 +98,29 @@
                 <option [ngValue]="ReportPageSize.B5">B5 (JIS)</option>
                 <option [ngValue]="ReportPageSize.Letter">Letter</option>
               </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{{
+                "setting.report.field.margins" | translate
+              }}</label>
+              <div class="margin-grid">
+                @for (side of marginSides; track side) {
+                  <div class="margin-field">
+                    <span class="margin-label">{{
+                      "setting.report.margin." + side | translate
+                    }}</span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      min="0"
+                      max="60"
+                      [ngModel]="editMargins[side]"
+                      (ngModelChange)="onMarginChange(side, $event)"
+                    />
+                  </div>
+                }
+              </div>
             </div>
           </div>
         </ng-template>
@@ -139,6 +172,21 @@
                 </div>
               </div>
             }
+
+            <div class="default-template-option form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="{{ id() }}-is-default"
+                [(ngModel)]="editIsDefault"
+              />
+              <label class="form-check-label" for="{{ id() }}-is-default">
+                {{ "setting.report.useAsDefault" | translate }}
+              </label>
+              <div class="form-text">
+                {{ "setting.report.useAsDefaultHint" | translate }}
+              </div>
+            </div>
           </div>
         </ng-template>
       </li>
@@ -221,16 +269,32 @@
               </div>
             }
 
-            <button
-              class="btn btn-primary"
-              (click)="generatePreview()"
-              [disabled]="!canGeneratePreview"
-            >
-              @if (isGenerating) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
+            <div class="preview-actions">
+              <button
+                class="btn btn-primary"
+                (click)="generatePreview()"
+                [disabled]="!canGeneratePreview"
+              >
+                @if (isGenerating()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                {{ "setting.report.preview.generate" | translate }}
+              </button>
+
+              @if (previewSource()) {
+                <button class="btn btn-secondary" (click)="openPreviewInNewTab()">
+                  {{ "setting.report.preview.openInTab" | translate }}
+                </button>
               }
-              {{ "setting.report.preview.generate" | translate }}
-            </button>
+            </div>
+
+            @if (previewSource()) {
+              <iframe
+                class="preview-frame"
+                [src]="previewSource()"
+                [title]="'setting.report.tab.preview' | translate"
+              ></iframe>
+            }
           </div>
         </ng-template>
       </li>
@@ -258,9 +322,9 @@
       type="button"
       class="btn save-btn"
       (click)="saveReport()"
-      [disabled]="isSaving"
+      [disabled]="isSaving() || !isNameValid"
     >
-      @if (isSaving) {
+      @if (isSaving()) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
       {{ 'general.save' | translate }}
@@ -269,9 +333,9 @@
       type="button"
       class="btn save-btn"
       (click)="saveReport(true)"
-      [disabled]="isSaving"
+      [disabled]="isSaving() || !isNameValid"
     >
-      @if (isSaving) {
+      @if (isSaving()) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
       {{ 'setting.macro.save-close-btn' | translate }}
@@ -290,6 +354,16 @@
       readonly
     />
   </div>
+
+  @if (!isNew) {
+    <span
+      class="duplicate-button"
+      type="button"
+      [title]="'setting.report.duplicate' | translate"
+      (click)="duplicateReport()"
+      ><app-icon-copy-grey
+    /></span>
+  }
 
   <span class="delete-button" type="button" (click)="deleteReport()"
     ><app-icon-trash-red /></span

@@ -24,7 +24,10 @@ import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-bo
 import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
+import { ReportFontService } from './report-font.service';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
+
+const DEFAULT_PDF_FONT = 'helvetica';
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
@@ -41,6 +44,7 @@ export class ReportPdfService {
   private translate = inject(TranslateService);
   private http = inject(HttpClient);
   private formulaService = inject(FormulaEvaluationService);
+  private fontService = inject(ReportFontService);
 
   private get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
@@ -57,6 +61,11 @@ export class ReportPdfService {
     });
 
     const imageCache = await this.preloadImages(template, context.imageCache);
+    await this.fontService.registerFontsForTexts(
+      doc,
+      this.collectRenderTexts(template, data, context),
+      this.collectTemplateFontFamilies(template)
+    );
 
     const clients = data.clients?.length ? data.clients : [null];
     const allRows = data.rows;
@@ -83,6 +92,46 @@ export class ReportPdfService {
     }
 
     return doc.output('blob');
+  }
+
+  /**
+   * Gathers every string that can end up in the PDF so the matching fonts are loaded up front.
+   * The data is serialised as a whole because field values are resolved lazily during rendering.
+   */
+  private collectRenderTexts(
+    template: ReportTemplate,
+    data: ReportData,
+    context: ReportGenerationContext
+  ): string[] {
+    const texts: string[] = [
+      template.name ?? '',
+      context.groupName ?? '',
+      JSON.stringify(data.rows ?? []),
+      JSON.stringify(data.clients ?? []),
+      JSON.stringify(data.metadata ?? {}),
+    ];
+
+    for (const section of template.sections ?? []) {
+      if (section.title) {
+        texts.push(section.title);
+      }
+      for (const row of section.freeTextRows ?? []) {
+        texts.push(row.text ?? '');
+      }
+      for (const field of [...section.fields, ...(section.tableFooterFields ?? [])]) {
+        texts.push(field.name ?? '');
+        texts.push(this.translateFieldName(field, template));
+      }
+    }
+
+    return texts;
+  }
+
+  private collectTemplateFontFamilies(template: ReportTemplate): string[] {
+    return (template.sections ?? [])
+      .flatMap(section => [...section.fields, ...(section.tableFooterFields ?? [])])
+      .map(field => field.style?.fontFamily)
+      .filter((family): family is string => !!family);
   }
 
   private renderPage(
@@ -150,7 +199,7 @@ export class ReportPdfService {
 
   private renderSectionTitle(ctx: PdfRenderContext, title: string, tableWidth: number, yPos: number): number {
     const fontSize = 11;
-    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.setFont(this.fontService.resolveFontFamily(ctx.doc, title, DEFAULT_PDF_FONT), 'bold');
     ctx.doc.setFontSize(fontSize);
     this.applyTextColor(ctx.doc, '#000000');
 
@@ -283,7 +332,7 @@ export class ReportPdfService {
     if (!value) return { xOffset, height: 0 };
 
     doc.setFontSize(field.style.fontSize);
-    const fontFamily = field.style.fontFamily || 'helvetica';
+    const fontFamily = this.fontService.resolveFontFamily(doc, value, field.style.fontFamily || DEFAULT_PDF_FONT);
     const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);
     doc.setFont(fontFamily, fontStyle);
     this.applyTextColor(doc, field.style.textColor);
@@ -344,7 +393,10 @@ export class ReportPdfService {
         const value = ctx.provider.resolveHeaderValue(field, ctx.headerContext);
         if (value) {
           ctx.doc.setFontSize(field.style.fontSize);
-          ctx.doc.setFont(field.style.fontFamily || 'helvetica', this.getJsPdfFontStyle(field.style.bold, field.style.italic));
+          ctx.doc.setFont(
+            this.fontService.resolveFontFamily(ctx.doc, value, field.style.fontFamily || DEFAULT_PDF_FONT),
+            this.getJsPdfFontStyle(field.style.bold, field.style.italic)
+          );
           totalWidth += ctx.doc.getTextWidth(value) + 2;
         }
       }
@@ -452,6 +504,14 @@ export class ReportPdfService {
         fillColor: [245, 245, 245],
       },
       theme: 'grid',
+      didParseCell: (data: any) => {
+        const content = Array.isArray(data.cell.text) ? data.cell.text.join(' ') : String(data.cell.text ?? '');
+        data.cell.styles.font = this.fontService.resolveFontFamily(
+          ctx.doc,
+          content,
+          data.cell.styles.font || DEFAULT_PDF_FONT
+        );
+      },
       didDrawCell: hasBorders ? (data: any) => {
         if (data.section !== 'body') return;
         const colIndex = data.column.index;
@@ -722,13 +782,13 @@ export class ReportPdfService {
         } else {
           value = ctx.provider.resolveFooterValue(field, rows);
         }
+        const fullText = `${this.translateFieldName(field, ctx.template)}: ${value}`;
         ctx.doc.setFontSize(field.style.fontSize);
-        const fontFamily = field.style.fontFamily || 'helvetica';
+        const fontFamily = this.fontService.resolveFontFamily(ctx.doc, fullText, field.style.fontFamily || DEFAULT_PDF_FONT);
         const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);
         ctx.doc.setFont(fontFamily, fontStyle);
         this.applyTextColor(ctx.doc, field.style.textColor);
 
-        const fullText = `${this.translateFieldName(field, ctx.template)}: ${value}`;
         const footerX = this.isRtl
           ? ctx.marginLeft + ctx.contentWidth - ctx.doc.getTextWidth(fullText)
           : ctx.marginLeft;

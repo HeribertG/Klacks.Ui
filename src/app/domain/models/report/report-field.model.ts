@@ -60,6 +60,7 @@ export const AVAILABLE_FONTS = [
   { value: 'helvetica', label: 'Helvetica' },
   { value: 'times', label: 'Times' },
   { value: 'courier', label: 'Courier' },
+  { value: 'NotoSans', label: 'Noto Sans (Unicode)' },
 ];
 
 export const DEFAULT_FIELD_STYLE: FieldStyle = {

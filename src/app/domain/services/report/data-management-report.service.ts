@@ -15,7 +15,7 @@ export class DataManagementReportService {
   error = signal<string | null>(null);
 
   constructor() {
-    this.loadTemplates();
+    this.loadTemplates().catch(() => undefined);
   }
 
   async loadTemplates(): Promise<void> {
@@ -25,25 +25,12 @@ export class DataManagementReportService {
     try {
       const templates = await this.apiService.getAllTemplates();
       this.reportTemplateList.set(templates);
-      await this.ensureDefaultTemplates(templates);
     } catch (err) {
       this.error.set('Failed to load report templates');
       console.error('Error loading templates:', err);
+      throw err;
     } finally {
       this.isLoading.set(false);
-    }
-  }
-
-  private async ensureDefaultTemplates(templates: ReportTemplate[]): Promise<void> {
-    const hasAbsence = templates.some(
-      t => t.type === ReportType.Absence || t.sourceId === 'absence-gantt'
-    );
-    if (!hasAbsence) {
-      try {
-        await this.addTemplate(this.createDefaultAbsenceTemplate());
-      } catch {
-        // ignore - template creation is best-effort
-      }
     }
   }
 
@@ -81,6 +68,19 @@ export class DataManagementReportService {
     }
   }
 
+  /**
+   * Creates a server-side copy of a template.
+   * @param source - Template to copy
+   * @param copyName - Name of the copy, already localised by the caller
+   */
+  async duplicateTemplate(source: ReportTemplate, copyName: string): Promise<ReportTemplate> {
+    const copy: ReportTemplate = {
+      ...structuredClone({ ...source, id: undefined, createdAt: undefined, updatedAt: undefined }),
+      name: copyName,
+    };
+    return this.addTemplate(copy);
+  }
+
   async deleteTemplate(id: string): Promise<void> {
     try {
       await this.apiService.deleteTemplate(id);
@@ -91,12 +91,12 @@ export class DataManagementReportService {
     }
   }
 
-  createDefaultTemplate(type: ReportType = ReportType.Schedule): ReportTemplate {
+  createDefaultTemplate(type: ReportType = ReportType.Schedule, name = 'New Report Template'): ReportTemplate {
     if (type === ReportType.Absence) {
       return this.createDefaultAbsenceTemplate();
     }
     return {
-      name: 'New Report Template',
+      name,
       description: '',
       type: type,
       pageSetup: { ...DEFAULT_PAGE_SETUP },
