@@ -2,7 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -77,6 +78,9 @@ import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-do
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
 import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { SETTINGS_TARGET_SECTIONS } from './settings-target-sections.constants';
 
 @Component({
   selector: 'app-settings-home',
@@ -164,6 +168,9 @@ export class SettingsHomeComponent implements OnInit {
   public featurePluginState = inject(FeaturePluginStateService);
   public messagingPluginName = MESSAGING_PLUGIN_NAME;
 
+  private eventBus = inject(EVENT_BUS_TOKEN);
+  private readonly destroyRef = inject(DestroyRef);
+
   sections: Record<string, boolean> = {
     general: true,
     users: true,
@@ -187,6 +194,18 @@ export class SettingsHomeComponent implements OnInit {
 
   get switchboardService(): WorkplaceStateService {
     return this.workplaceStateService;
+  }
+
+  constructor() {
+    this.eventBus
+      .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ target }) => {
+        const section = SETTINGS_TARGET_SECTIONS[target];
+        if (section) {
+          this.sections[section] = true;
+        }
+      });
   }
 
   ngOnInit(): void {
