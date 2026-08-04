@@ -1591,6 +1591,7 @@
   "setting.report.image.height": "Höhe",
   "setting.report.image.manager": "Bild-Manager",
   "setting.report.designer.headerFields": "Header-Felder",
+  "setting.report.designer.tableFields": "Tabellenfelder",
   "setting.report.designer.workFields": "Arbeitsfelder",
   "setting.report.designer.expensesFields": "Spesenfelder",
   "setting.report.designer.footerFields": "Fusszeile-Felder",

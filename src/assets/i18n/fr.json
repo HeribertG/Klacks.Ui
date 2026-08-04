@@ -1584,6 +1584,7 @@
   "setting.report.designer.editFormula": "Modifier la formule",
   "setting.report.designer.noFormula": "Aucune formule définie",
   "setting.report.designer.headerFields": "Champs d'en-tête",
+  "setting.report.designer.tableFields": "Champs de tableau",
   "setting.report.designer.workFields": "Champs de travail",
   "setting.report.designer.expensesFields": "Champs de dépenses",
   "setting.report.designer.footerFields": "Champs de pied de page",

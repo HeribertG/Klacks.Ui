@@ -9,8 +9,13 @@
   (headerSearchChange)="onSearchChange($event)"
 >
   <div headerAction class="header-actions">
-    <label class="import-button" for="reports-import-input">
-      {{ "setting.report.import" | translate }}
+    <label
+      class="import-button"
+      for="reports-import-input"
+      [ngbTooltip]="'setting.report.import' | translate"
+      [attr.aria-label]="'setting.report.import' | translate"
+    >
+      <app-icon-fp-import />
     </label>
     <input
       id="reports-import-input"

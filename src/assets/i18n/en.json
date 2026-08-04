@@ -1584,6 +1584,7 @@
   "setting.report.designer.editFormula": "Edit Formula",
   "setting.report.designer.noFormula": "No formula defined",
   "setting.report.designer.headerFields": "Header Fields",
+  "setting.report.designer.tableFields": "Table Fields",
   "setting.report.designer.workFields": "Work Fields",
   "setting.report.designer.expensesFields": "Expenses Fields",
   "setting.report.designer.footerFields": "Footer Fields",

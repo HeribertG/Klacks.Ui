@@ -1584,6 +1584,7 @@
   "setting.report.designer.editFormula": "Modifica formula",
   "setting.report.designer.noFormula": "Nessuna formula definita",
   "setting.report.designer.headerFields": "Campi intestazione",
+  "setting.report.designer.tableFields": "Campi tabella",
   "setting.report.designer.workFields": "Campi lavoro",
   "setting.report.designer.expensesFields": "Campi spese",
   "setting.report.designer.footerFields": "Campi piè di pagina",

@@ -9,10 +9,12 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, computed, inject, DestroyRef, AfterViewInit, signal, viewChildren, effect } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ReportRowComponent } from './report-row/report-row.component';
 import { ReportHeaderComponent } from './report-header/report-header.component';
+import { IconFpImportComponent } from 'src/app/presentation/icons/icon-fp-import.component';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportPdfService } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportService } from 'src/app/domain/services/report/report.service';
@@ -37,9 +39,11 @@ const DELETE_FILING_MARKER = 'pending';
   standalone: true,
   imports: [
     TranslateModule,
+    NgbTooltipModule,
     SettingsListCardComponent,
     ReportHeaderComponent,
     ReportRowComponent,
+    IconFpImportComponent,
   ],
   providers: [
     DataManagementReportService,
