@@ -18,6 +18,7 @@ import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
+import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
 import { ReportXlsxService } from 'src/app/domain/services/report/report-xlsx.service';
 import { DataReportExportService } from 'src/app/infrastructure/api/report/data-report-export.service';
@@ -38,6 +39,7 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
+import { IconExportComponent } from 'src/app/presentation/icons/icon-export.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
@@ -72,7 +74,7 @@ const FALLBACK_PREVIEW_CONFIG: SourcePreviewConfig = { needsGroup: false, needsD
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, ReportParametersComponent],
+  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, IconExportComponent, ReportParametersComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent {
@@ -87,6 +89,7 @@ export class ReportRowComponent {
   private manualLoader = inject(ManualLoaderService);
   private modalService = inject(NgbModal);
   private reportService = inject(ReportService);
+  private transferService = inject(ReportTemplateTransferService);
   private dataManagementReportService = inject(DataManagementReportService);
   private reportDefaults = inject(ReportDefaultsService);
   private templateResolver = inject(ReportTemplateResolverService);
@@ -167,6 +170,25 @@ export class ReportRowComponent {
 
   get isNameValid(): boolean {
     return this.editName.trim().length > 0;
+  }
+
+  onExportClick(event: Event): void {
+    event.stopPropagation();
+    this.exportTemplate();
+  }
+
+  /**
+   * Downloads the template as the same JSON file format the header's import accepts.
+   */
+  private exportTemplate(): void {
+    try {
+      const template = this.data();
+      const content = this.transferService.toJson(template);
+      this.reportService.downloadJson(content, this.transferService.buildFileName(template));
+      this.toast.showSuccess(this.translate.instant('setting.report.exported'), REPORT_TOAST_NAME);
+    } catch {
+      this.toast.showError(this.translate.instant('setting.report.error.export'), REPORT_TOAST_NAME);
+    }
   }
 
   onDuplicateClick(event: Event): void {

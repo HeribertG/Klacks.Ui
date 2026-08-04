@@ -3342,6 +3342,7 @@
   "setting.report.discardConfirm": "Annulla modifiche",
   "setting.report.discardCancel": "Continua a modificare",
   "setting.report.export": "Esporta modello",
+  "setting.report.exported": "Modello esportato",
   "setting.report.import": "Importa modello",
   "setting.report.imported": "Modello importato",
   "setting.report.error.import": "Il file non contiene un modello di report valido.",

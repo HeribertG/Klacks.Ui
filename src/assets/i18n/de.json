@@ -3350,6 +3350,7 @@
   "setting.report.discardConfirm": "Verwerfen",
   "setting.report.discardCancel": "Weiter bearbeiten",
   "setting.report.export": "Vorlage exportieren",
+  "setting.report.exported": "Vorlage exportiert",
   "setting.report.import": "Vorlage importieren",
   "setting.report.imported": "Vorlage importiert",
   "setting.report.error.import": "Die Datei enthält keine gültige Report-Vorlage.",

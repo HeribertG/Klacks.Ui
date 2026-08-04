@@ -3350,6 +3350,7 @@
   "setting.report.discardConfirm": "Discard",
   "setting.report.discardCancel": "Keep editing",
   "setting.report.export": "Export template",
+  "setting.report.exported": "Template exported",
   "setting.report.import": "Import template",
   "setting.report.imported": "Template imported",
   "setting.report.error.import": "The file does not contain a valid report template.",

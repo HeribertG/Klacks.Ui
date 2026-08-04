@@ -488,6 +488,14 @@
     />
   </div>
 
+  <span
+    class="export-button"
+    type="button"
+    [title]="'setting.report.export' | translate"
+    (click)="onExportClick($event)"
+    ><app-icon-export
+  /></span>
+
   @if (!isNew) {
     <span
       class="duplicate-button"
