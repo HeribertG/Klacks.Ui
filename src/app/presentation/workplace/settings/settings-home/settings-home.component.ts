@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Component, ChangeDetectionStrategy, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -170,6 +170,7 @@ export class SettingsHomeComponent implements OnInit {
 
   private eventBus = inject(EVENT_BUS_TOKEN);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   sections: Record<string, boolean> = {
     general: true,
@@ -204,6 +205,7 @@ export class SettingsHomeComponent implements OnInit {
         const section = SETTINGS_TARGET_SECTIONS[target];
         if (section) {
           this.sections[section] = true;
+          this.changeDetectorRef.markForCheck();
         }
       });
   }

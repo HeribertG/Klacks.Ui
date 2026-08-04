@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
@@ -71,5 +72,15 @@ describe('SettingsHomeComponent', () => {
     targetRequested$.next({ target: 'goal-candidates-panel.approve' });
 
     expect(component.sections['communication']).toBe(false);
+  });
+
+  it('marks the component for check so the OnPush view actually renders the expanded section', () => {
+    component.sections['communication'] = false;
+    const changeDetectorRef = (component as unknown as { changeDetectorRef: ChangeDetectorRef }).changeDetectorRef;
+    const markForCheckSpy = vi.spyOn(changeDetectorRef, 'markForCheck');
+
+    targetRequested$.next({ target: 'reports' });
+
+    expect(markForCheckSpy).toHaveBeenCalled();
   });
 });

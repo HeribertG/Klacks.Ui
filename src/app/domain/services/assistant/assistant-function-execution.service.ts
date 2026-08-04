@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, Observable, of } from 'rxjs';
+import { firstValueFrom, from, Observable, of } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import {
   IAssistantFunctionCall,
@@ -71,12 +71,14 @@ export class AssistantFunctionExecutionService {
         Object.entries(queryParams).map(([key, value]) => [key, String(value)])
       ).toString();
       const url = queryString ? `${route}?${queryString}` : route;
-      void this.klacksyNavigation.navigateAndScroll(url, scrollTarget);
-      return of({
-        id: call.id,
-        success: true,
-        result: { action: 'navigated', navigated: true, route },
-      });
+      return from(
+        this.klacksyNavigation.navigateAndScroll(url, scrollTarget).then((navResult) => ({
+          id: call.id,
+          success: navResult.success,
+          result: { action: 'navigated', navigated: navResult.success, route },
+          error: navResult.success ? undefined : navResult.reason,
+        }))
+      );
     } catch (error: any) {
       return of({ id: call.id, success: false, error: error.message });
     }
