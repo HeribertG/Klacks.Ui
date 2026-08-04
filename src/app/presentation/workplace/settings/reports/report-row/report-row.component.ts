@@ -17,7 +17,6 @@ import { ReportTemplate, ReportTemplateVersion, ReportType, ReportOrientation, R
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
-import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
 import { ReportXlsxService } from 'src/app/domain/services/report/report-xlsx.service';
@@ -39,7 +38,6 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
-import { DownloadIconComponent } from 'src/app/presentation/icons/download-icon.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
@@ -74,7 +72,7 @@ const FALLBACK_PREVIEW_CONFIG: SourcePreviewConfig = { needsGroup: false, needsD
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, DownloadIconComponent, ReportParametersComponent],
+  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent, IconCopyGreyComponent, ReportParametersComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent {
@@ -91,7 +89,6 @@ export class ReportRowComponent {
   private reportService = inject(ReportService);
   private dataManagementReportService = inject(DataManagementReportService);
   private reportDefaults = inject(ReportDefaultsService);
-  private transferService = inject(ReportTemplateTransferService);
   private templateResolver = inject(ReportTemplateResolverService);
   private csvService = inject(ReportCsvService);
   private xlsxService = inject(ReportXlsxService);
@@ -172,34 +169,6 @@ export class ReportRowComponent {
     return this.editName.trim().length > 0;
   }
 
-  get sourceLabelKey(): string {
-    const sourceId = this.data().sourceId || DEFAULT_SOURCE_ID;
-    return REPORT_DATA_SOURCES.find(s => s.id === sourceId)?.i18nKey ?? '';
-  }
-
-  get isDefaultTemplate(): boolean {
-    const template = this.data();
-    if (!template.id) {
-      return false;
-    }
-    const sourceId = template.sourceId || DEFAULT_SOURCE_ID;
-    return this.reportDefaults.defaults()[sourceId] === template.id;
-  }
-
-  get changedAtLabel(): string {
-    const raw = this.data().updatedAt ?? this.data().createdAt;
-    if (!raw) {
-      return '';
-    }
-    const date = raw instanceof Date ? raw : new Date(raw);
-    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString();
-  }
-
-  onRowSpace(event: Event): void {
-    event.preventDefault();
-    this.openModal();
-  }
-
   onDuplicateClick(event: Event): void {
     event.stopPropagation();
     this.duplicateReport();
@@ -253,15 +222,6 @@ export class ReportRowComponent {
   formatVersionDate(version: ReportTemplateVersion): string {
     const date = new Date(version.savedAt);
     return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
-  }
-
-  onExportClick(event: Event): void {
-    event.stopPropagation();
-    const template = this.data();
-    this.reportService.downloadJson(
-      this.transferService.toJson(template),
-      this.transferService.buildFileName(template)
-    );
   }
 
   get sourcePreviewConfig(): SourcePreviewConfig {

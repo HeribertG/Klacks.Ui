@@ -1,2 +1,17 @@
 @use "../../../../../../assets/standard-styles/colors.scss";
-@use "../report-grid" as *;
+
+.first {
+  margin-inline-start: 30px;
+  padding-inline-end: -30px;
+}
+
+label {
+  width: 100px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.gap {
+  margin-inline-end: 30px;
+}
