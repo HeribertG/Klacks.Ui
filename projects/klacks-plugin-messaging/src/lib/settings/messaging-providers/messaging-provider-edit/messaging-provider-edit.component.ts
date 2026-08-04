@@ -79,6 +79,7 @@ const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string;
     { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: 'xoxb-123456789-...' },
     { key: 'SigningSecret', labelDe: 'Signing-Secret', labelEn: 'Signing Secret', type: 'password', placeholder: 'abc123def456...' },
     { key: 'DefaultChannel', labelDe: 'Standard-Kanal', labelEn: 'Default Channel', type: 'text', placeholder: '#general' },
+    { key: 'ChannelId', labelDe: 'Kanal-ID (zum Mitlesen)', labelEn: 'Channel ID (for reading)', type: 'text', placeholder: 'C01234ABCDE' },
     { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: SLACK_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${SLACK_WEBHOOK_PATH}` },
   ],
 };
