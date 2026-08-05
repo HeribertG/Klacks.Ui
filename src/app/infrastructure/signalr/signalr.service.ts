@@ -13,6 +13,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { SignalRConstants } from './signalr.constants';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
+import { IWorksBulkCreatedNotification } from 'src/app/domain/interfaces/works-bulk-created-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
 import {
@@ -57,6 +58,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   ];
 
   public workCreated$ = new Subject<IWorkNotification>();
+  public worksBulkCreated$ = new Subject<IWorksBulkCreatedNotification>();
   public workUpdated$ = new Subject<IWorkNotification>();
   public workDeleted$ = new Subject<IWorkNotification>();
   public scheduleUpdated$ = new Subject<IScheduleNotification>();
@@ -200,6 +202,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       // ignored: stop is best-effort during teardown
     }
     this.workCreated$.complete();
+    this.worksBulkCreated$.complete();
     this.workUpdated$.complete();
     this.workDeleted$.complete();
     this.scheduleUpdated$.complete();
@@ -220,6 +223,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     };
 
     hub.on(SignalRConstants.Events.WorkCreated, onPush(this.workCreated$));
+    hub.on(SignalRConstants.Events.WorksBulkCreated, onPush(this.worksBulkCreated$));
     hub.on(SignalRConstants.Events.WorkUpdated, onPush(this.workUpdated$));
     hub.on(SignalRConstants.Events.WorkDeleted, onPush(this.workDeleted$));
     hub.on(SignalRConstants.Events.ScheduleUpdated, onPush(this.scheduleUpdated$));

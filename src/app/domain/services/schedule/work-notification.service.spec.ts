@@ -9,6 +9,7 @@ import { DataManagementScheduleService } from './data-management-schedule.servic
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IWorkNotification } from '../../interfaces/work-notification.interface';
+import { IWorksBulkCreatedNotification } from '../../interfaces/works-bulk-created-notification.interface';
 import { IShiftStatsNotification } from '../../interfaces/shift-stats-notification.interface';
 
 describe('WorkNotificationService', () => {
@@ -31,6 +32,7 @@ describe('WorkNotificationService', () => {
   };
 
   let workCreated$: Subject<IWorkNotification>;
+  let worksBulkCreated$: Subject<IWorksBulkCreatedNotification>;
   let workUpdated$: Subject<IWorkNotification>;
   let workDeleted$: Subject<IWorkNotification>;
   let shiftStatsUpdated$: Subject<IShiftStatsNotification>;
@@ -38,6 +40,7 @@ describe('WorkNotificationService', () => {
   beforeEach(() => {
     // Arrange
     workCreated$ = new Subject<IWorkNotification>();
+    worksBulkCreated$ = new Subject<IWorksBulkCreatedNotification>();
     workUpdated$ = new Subject<IWorkNotification>();
     workDeleted$ = new Subject<IWorkNotification>();
     shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
@@ -45,6 +48,7 @@ describe('WorkNotificationService', () => {
 
     const signalRServiceMock = {
       workCreated$: workCreated$.asObservable(),
+      worksBulkCreated$: worksBulkCreated$.asObservable(),
       workUpdated$: workUpdated$.asObservable(),
       workDeleted$: workDeleted$.asObservable(),
       shiftStatsUpdated$: shiftStatsUpdated$.asObservable(),
@@ -83,9 +87,85 @@ describe('WorkNotificationService', () => {
 
   afterEach(() => {
     workCreated$.complete();
+    worksBulkCreated$.complete();
     workUpdated$.complete();
     workDeleted$.complete();
     shiftStatsUpdated$.complete();
+  });
+
+  describe('handleWorksBulkNotification', () => {
+    const bulkWork = (workId: string, clientId: string, shiftId: string): IWorkNotification => ({
+      workId,
+      clientId,
+      shiftId,
+      currentDate: new Date(),
+      operationType: 'created',
+      sourceConnectionId: 'other-connection',
+    });
+
+    const bulk = (works: IWorkNotification[], analyseToken?: string | null): IWorksBulkCreatedNotification => ({
+      works,
+      startDate: new Date(),
+      endDate: new Date(),
+      sourceConnectionId: 'other-connection',
+      analyseToken,
+    });
+
+    it('should refresh the schedule for a batch of created works', async () => {
+      // Arrange
+      const notification = bulk([
+        bulkWork('work-1', 'client-1', 'shift-1'),
+        bulkWork('work-2', 'client-1', 'shift-2'),
+      ]);
+
+      // Act
+      worksBulkCreated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      // Assert
+      expect(dataManagementMock.refreshClientScheduleForDateRange).toHaveBeenCalled();
+    });
+
+    it('should mark every affected shift of the batch', async () => {
+      // Arrange
+      const notification = bulk([
+        bulkWork('work-1', 'client-1', 'shift-1'),
+        bulkWork('work-2', 'client-1', 'shift-2'),
+      ]);
+
+      // Act
+      worksBulkCreated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Assert
+      expect(service.affectedShifts().has('shift-1')).toBe(true);
+      expect(service.affectedShifts().has('shift-2')).toBe(true);
+    });
+
+    it('should ignore a batch of a different scenario', async () => {
+      // Arrange
+      const notification = bulk([bulkWork('work-1', 'client-1', 'shift-1')], 'other-scenario-token');
+
+      // Act
+      worksBulkCreated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      // Assert
+      expect(dataManagementMock.refreshClientScheduleForDateRange).not.toHaveBeenCalled();
+      expect(service.affectedShifts().has('shift-1')).toBe(false);
+    });
+
+    it('should not refresh anything for an empty batch', async () => {
+      // Arrange
+      const notification = bulk([]);
+
+      // Act
+      worksBulkCreated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      // Assert
+      expect(dataManagementMock.refreshClientScheduleForDateRange).not.toHaveBeenCalled();
+    });
   });
 
   describe('handleWorkNotification', () => {

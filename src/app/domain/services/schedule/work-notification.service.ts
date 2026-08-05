@@ -4,6 +4,7 @@ import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
+import { IWorksBulkCreatedNotification } from 'src/app/domain/interfaces/works-bulk-created-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
@@ -39,6 +40,10 @@ export class WorkNotificationService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => this.handleWorkNotification(notification));
 
+    this.signalRService.worksBulkCreated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notification) => this.handleWorksBulkNotification(notification));
+
     this.signalRService.workUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => this.handleWorkNotification(notification));
@@ -70,6 +75,39 @@ export class WorkNotificationService {
     }
 
     this.markShiftAsAffected(notification.shiftId);
+  }
+
+  /**
+   * Handles a batch of created works. Applying a wizard result would otherwise fire the single-work
+   * handler hundreds of times; the pending-refresh debounce already collapses those into one range
+   * refresh per client, so the only per-work work left here is queueing the range and collecting the
+   * affected shifts. The update signal is set once for the whole batch.
+   */
+  private handleWorksBulkNotification(notification: IWorksBulkCreatedNotification): void {
+    if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+      return;
+    }
+
+    const affectedShiftIds = new Set<string>();
+    let lastDisplayedWorkId: string | null = null;
+
+    for (const work of notification.works) {
+      if (this.isClientDisplayed(work.clientId)) {
+        this.queueRefresh(work.clientId, new Date(work.currentDate));
+        lastDisplayedWorkId = work.workId;
+      }
+
+      affectedShiftIds.add(work.shiftId);
+    }
+
+    for (const shiftId of affectedShiftIds) {
+      this.markShiftAsAffected(shiftId);
+    }
+
+    if (lastDisplayedWorkId !== null) {
+      this.scheduleUpdateSignal.set(lastDisplayedWorkId);
+      setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
+    }
   }
 
   private queueRefresh(clientId: string, date: Date): void {
