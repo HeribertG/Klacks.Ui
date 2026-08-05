@@ -76,7 +76,8 @@
     </button>
   }
 
-  @if (isWizardDropdownMode()) {
+  @if (canUseAutofill()) {
+    @if (isWizardDropdownMode()) {
     <div ngbDropdown class="wizard-dropdown">
       <button
         id="schedule-wizard-btn"
@@ -119,6 +120,7 @@
         <app-icon-wizard />
       }
     </button>
+    }
   }
 
   <app-wizard-dialog #wizardDialog />

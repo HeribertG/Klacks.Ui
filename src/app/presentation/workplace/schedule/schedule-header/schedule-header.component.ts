@@ -182,6 +182,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
   readonly isAutoWizardRunning = this.autoWizardOrchestrator.isRunning;
 
+  /** Every autofill endpoint (Wizard 1-4, Recovery) requires the admin role server-side. */
+  readonly canUseAutofill = computed(() => this.authorizationService.isAdmin);
+
   constructor() {
     this.scheduleSignalR.thoroughRecalculationCompleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
