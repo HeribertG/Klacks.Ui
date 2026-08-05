@@ -9,6 +9,7 @@
  */
 
 import { readStaleWizardResult } from 'src/app/domain/models/schedule/stale-wizard-result.model';
+import { readAutofillRunConflict } from 'src/app/domain/models/schedule/autofill-run-conflict.model';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -128,7 +129,13 @@ export class HarmonizerDialogComponent {
       return;
     }
     this.harmonizerService.start(request).catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err);
+      // The same selection is already being harmonized; a second run would only compete with it.
+      const conflict = readAutofillRunConflict(err);
+      const message = conflict
+        ? this.translate.instant('harmonizer.error.runConflict')
+        : err instanceof Error
+          ? err.message
+          : String(err);
       console.error('[Harmonizer] start() failed:', err);
       this._localError.set(message);
     });

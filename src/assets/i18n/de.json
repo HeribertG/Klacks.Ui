@@ -3622,5 +3622,6 @@
   "setting.restrictedTimeWindowRule.validation.dayRange": "Der Tag muss zwischen 1 und 31 liegen.",
   "setting.restrictedTimeWindowRule.validation.dailyWindowEqual": "Tägl. Beginn und Ende dürfen nicht identisch sein.",
   "harmonizer.error.staleResult": "Der Plan wurde seit dem Lauf geändert. Bitte den Lauf wiederholen.",
+  "harmonizer.error.runConflict": "Für dieselbe Auswahl läuft bereits ein Durchgang. Bitte warte, bis er fertig ist.",
   "autoWizard.toast.partialResult": "Teilergebnis „{{name}}“ wurde behalten."
 }

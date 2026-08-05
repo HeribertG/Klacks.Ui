@@ -3622,5 +3622,6 @@
   "setting.restrictedTimeWindowRule.validation.dayRange": "The day must be between 1 and 31.",
   "setting.restrictedTimeWindowRule.validation.dailyWindowEqual": "Daily start and end must not be identical.",
   "harmonizer.error.staleResult": "The schedule changed since this run started. Please run the wizard again.",
+  "harmonizer.error.runConflict": "A run for the same selection is already in progress. Please wait for it to finish.",
   "autoWizard.toast.partialResult": "The partial result “{{name}}” was kept."
 }
