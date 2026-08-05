@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { readStaleWizardResult } from 'src/app/domain/models/schedule/stale-wizard-result.model';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -188,5 +189,43 @@ describe('DataHarmonizerService', () => {
     await Promise.all([service.stopConnection(), service.stopConnection()]);
 
     expect(connection.stopCalls).toBeGreaterThanOrEqual(1);
+  });
+
+  it('surfaces the 409 stale-result conflict as a recognisable error', async () => {
+    await startJob();
+
+    const promise = service.applyAsScenario('job-1', null);
+    await tick();
+    httpMock.expectOne((req) => req.url.endsWith('Harmonizer/ApplyAsScenario')).flush(
+      {
+        errorCode: 'staleWizardResult',
+        expectedWorkCount: 4,
+        actualWorkCount: 5,
+        expectedBreakCount: 1,
+        actualBreakCount: 1,
+        placementChanged: false,
+      },
+      { status: 409, statusText: 'Conflict' },
+    );
+
+    const error = await promise.catch((e: unknown) => e);
+    const stale = readStaleWizardResult(error);
+    expect(stale).not.toBeNull();
+    expect(stale?.expectedWorkCount).toBe(4);
+    expect(stale?.actualWorkCount).toBe(5);
+  });
+
+  it('does not mistake another 409 for a stale result', async () => {
+    await startJob();
+
+    const promise = service.applyAsScenario('job-1', null);
+    await tick();
+    httpMock.expectOne((req) => req.url.endsWith('Harmonizer/ApplyAsScenario')).flush(
+      { title: 'Conflict', detail: 'something else' },
+      { status: 409, statusText: 'Conflict' },
+    );
+
+    const error = await promise.catch((e: unknown) => e);
+    expect(readStaleWizardResult(error)).toBeNull();
   });
 });
