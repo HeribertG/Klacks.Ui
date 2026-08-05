@@ -176,6 +176,7 @@ export class HolisticHarmonizerDialogComponent {
   }
 
   private modalRef: NgbModalRef | null = null;
+  private startPromise: Promise<string> | null = null;
 
   open(): void {
     this._applyPhase.set(null);
@@ -202,9 +203,9 @@ export class HolisticHarmonizerDialogComponent {
       return;
     }
 
-    this.holisticHarmonizerService.start(request).catch((err: unknown) => {
+    this.startPromise = this.holisticHarmonizerService.start(request);
+    this.startPromise.catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
-      console.error('[HolisticHarmonizer] start() failed:', err);
       this._localError.set(message);
     });
   }
@@ -219,6 +220,7 @@ export class HolisticHarmonizerDialogComponent {
   }
 
   async onApply(): Promise<void> {
+    if (this._applyPhase() !== null) return;
     const jobId = this.holisticHarmonizerService.currentJobId();
     if (!jobId) return;
     this._applyPhase.set('applying');
@@ -250,9 +252,25 @@ export class HolisticHarmonizerDialogComponent {
 
   private cancelIfRunning(): void {
     const jobId = this.holisticHarmonizerService.currentJobId();
-    if (jobId && this.holisticHarmonizerService.status() === 'running') {
-      void this.holisticHarmonizerService.cancel(jobId);
+    const isRunning = this.holisticHarmonizerService.status() === 'running';
+
+    if (isRunning && jobId) {
+      this.holisticHarmonizerService.cancel(jobId).catch(() => undefined);
+      void this.holisticHarmonizerService.stopConnection();
+      return;
     }
+
+    if (isRunning && this.startPromise) {
+      // Dismissed while the start round-trip was still in flight: without this the server keeps
+      // burning its LLM budget on a job nobody is listening to any more.
+      this.startPromise
+        .then((startedJobId) => this.holisticHarmonizerService.cancel(startedJobId))
+        .catch(() => undefined)
+        .then(() => this.holisticHarmonizerService.stopConnection())
+        .catch(() => undefined);
+      return;
+    }
+
     void this.holisticHarmonizerService.stopConnection();
   }
 
