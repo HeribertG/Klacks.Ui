@@ -184,6 +184,20 @@ export class AutoWizardOrchestratorService {
         : this.translateService.instant('autoWizard.toast.failedUnknown');
     const message = this.translateService.instant('autoWizard.toast.failed', { reason });
     this.toastShowService.showError(message, TOAST_CONTEXT);
+
+    // A later stage failing does not mean the earlier ones produced nothing - point the operator at
+    // the scenario that survived and reload the list so it is actually visible.
+    const partial = this.dataAutoWizardService.partialResult();
+    if (partial?.partialScenarioName) {
+      this.toastShowService.showInfo(
+        this.translateService.instant('autoWizard.toast.partialResult', {
+          name: partial.partialScenarioName,
+        }),
+        TOAST_CONTEXT,
+      );
+      this.dataManagementSchedule.readDatas();
+    }
+
     this.dataAutoWizardService.status.set('idle');
   }
 }

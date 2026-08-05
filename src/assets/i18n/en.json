@@ -3620,5 +3620,7 @@
   "setting.restrictedTimeWindowRule.header.appliesToGroupTag": "Applies to group tag",
   "setting.restrictedTimeWindowRule.validation.monthRange": "The month must be between 1 and 12.",
   "setting.restrictedTimeWindowRule.validation.dayRange": "The day must be between 1 and 31.",
-  "setting.restrictedTimeWindowRule.validation.dailyWindowEqual": "Daily start and end must not be identical."
+  "setting.restrictedTimeWindowRule.validation.dailyWindowEqual": "Daily start and end must not be identical.",
+  "harmonizer.error.staleResult": "The schedule changed since this run started. Please run the wizard again.",
+  "autoWizard.toast.partialResult": "The partial result “{{name}}” was kept."
 }

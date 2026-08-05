@@ -9,6 +9,7 @@
  * @param fitnessDeltaPercent - Fitness improvement after - before, in percent
  */
 
+import { readStaleWizardResult } from 'src/app/domain/models/schedule/stale-wizard-result.model';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -244,7 +245,13 @@ export class HolisticHarmonizerDialogComponent {
       this._applyPhase.set('applied');
       this.dataManagementSchedule.readDatas();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
+      // The plan moved while the run was going; applying anyway would overwrite those edits.
+      const stale = readStaleWizardResult(err);
+      const message = stale
+        ? this.translate.instant('harmonizer.error.staleResult')
+        : err instanceof Error
+          ? err.message
+          : String(err);
       this._localError.set(message);
       this._applyPhase.set(null);
     }

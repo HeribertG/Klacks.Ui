@@ -3612,5 +3612,7 @@
   "setting.restrictedTimeWindowRule.header.appliesToGroupTag": "Si applica al tag di gruppo",
   "setting.restrictedTimeWindowRule.validation.monthRange": "Il mese deve essere compreso tra 1 e 12.",
   "setting.restrictedTimeWindowRule.validation.dayRange": "Il giorno deve essere compreso tra 1 e 31.",
-  "setting.restrictedTimeWindowRule.validation.dailyWindowEqual": "L'inizio e la fine giornalieri non devono essere identici."
+  "setting.restrictedTimeWindowRule.validation.dailyWindowEqual": "L'inizio e la fine giornalieri non devono essere identici.",
+  "harmonizer.error.staleResult": "Il piano è cambiato dall'avvio dell'esecuzione. Si prega di ripetere l'esecuzione.",
+  "autoWizard.toast.partialResult": "Il risultato parziale “{{name}}” è stato mantenuto."
 }
