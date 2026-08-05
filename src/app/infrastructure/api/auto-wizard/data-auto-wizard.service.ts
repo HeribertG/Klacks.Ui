@@ -48,6 +48,19 @@ export interface AutoWizardResult {
   qualificationGaps?: QualificationGapDetail[];
 }
 
+/**
+ * Reported when the chain stopped. A later stage failing does not mean the earlier ones produced
+ * nothing - the partial scenario is kept and named here so the operator can still use it.
+ */
+export interface AutoWizardJobFailure {
+  jobId: string;
+  failedStage: string;
+  reason: string;
+  partialScenarioId: string | null;
+  partialScenarioToken: string | null;
+  partialScenarioName: string | null;
+}
+
 export interface AutoWizardCancelResponse {
   cancelled: boolean;
 }
@@ -69,6 +82,8 @@ export class DataAutoWizardService implements OnDestroy {
   readonly status = signal<AutoWizardStatus>('idle');
   readonly result = signal<AutoWizardResult | null>(null);
   readonly failureReason = signal<string | null>(null);
+  /** Scenario an aborted chain still produced, if any. */
+  readonly partialResult = signal<AutoWizardJobFailure | null>(null);
   readonly currentJobId = signal<string | null>(null);
 
   private hubConnection: signalR.HubConnection | null = null;
@@ -139,6 +154,7 @@ export class DataAutoWizardService implements OnDestroy {
   private resetState(): void {
     this.result.set(null);
     this.failureReason.set(null);
+    this.partialResult.set(null);
     this.currentJobId.set(null);
   }
 
@@ -265,8 +281,12 @@ export class DataAutoWizardService implements OnDestroy {
       this.status.set('completed');
     });
 
-    connection.on(AutoWizardSignalRConstants.Events.OnFailed, (reason: string) => {
-      this.failureReason.set(this.normaliseReason(reason));
+    connection.on(AutoWizardSignalRConstants.Events.OnFailed, (failure: AutoWizardJobFailure) => {
+      if (failure.jobId !== this.currentJobId()) {
+        return;
+      }
+      this.partialResult.set(failure.partialScenarioId ? failure : null);
+      this.failureReason.set(this.normaliseReason(failure.reason));
       this.status.set('failed');
     });
   }

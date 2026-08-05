@@ -218,4 +218,54 @@ describe('DataAutoWizardService', () => {
     expect(service.status()).toBe('failed');
     expect(service.failureReason()).toContain('no longer tracked');
   });
+
+  it('keeps the partial scenario a failed chain still produced', async () => {
+    const connection = await startJob();
+
+    connection.emit('OnFailed', {
+      jobId: 'job-1',
+      failedStage: 'HolisticHarmonizer',
+      reason: 'model unreachable',
+      partialScenarioId: 'scenario-2',
+      partialScenarioToken: 'token-2',
+      partialScenarioName: 'Auto Harmonizer',
+    });
+
+    expect(service.status()).toBe('failed');
+    expect(service.failureReason()).toContain('model unreachable');
+    expect(service.partialResult()?.partialScenarioName).toBe('Auto Harmonizer');
+  });
+
+  it('reports no partial result when the first stage already failed', async () => {
+    const connection = await startJob();
+
+    connection.emit('OnFailed', {
+      jobId: 'job-1',
+      failedStage: 'Wizard',
+      reason: 'Wizard stage did not produce a result.',
+      partialScenarioId: null,
+      partialScenarioToken: null,
+      partialScenarioName: null,
+    });
+
+    expect(service.status()).toBe('failed');
+    expect(service.partialResult()).toBeNull();
+  });
+
+  it('ignores a failure carrying a foreign jobId', async () => {
+    const connection = await startJob();
+
+    connection.emit('OnFailed', {
+      jobId: 'other-job',
+      failedStage: 'Wizard',
+      reason: 'not our run',
+      partialScenarioId: null,
+      partialScenarioToken: null,
+      partialScenarioName: null,
+    });
+
+    expect(service.status()).toBe('running');
+    expect(service.failureReason()).toBeNull();
+  });
 });
+
