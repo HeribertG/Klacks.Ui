@@ -88,4 +88,8 @@ export class DataUpdateService {
   cancelUpdate(id: string): Observable<void> {
     return this.httpClient.post<void>(`${this.baseUrl}/${id}/Cancel`, {});
   }
+
+  deleteHistoryEntry(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

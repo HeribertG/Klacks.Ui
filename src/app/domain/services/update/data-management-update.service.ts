@@ -47,4 +47,8 @@ export class DataManagementUpdateService {
   cancelUpdate(id: string): Observable<void> {
     return this.api.cancelUpdate(id);
   }
+
+  deleteHistoryEntry(id: string): Observable<void> {
+    return this.api.deleteHistoryEntry(id);
+  }
 }

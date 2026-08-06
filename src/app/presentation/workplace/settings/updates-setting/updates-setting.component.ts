@@ -19,6 +19,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -29,15 +30,28 @@ import {
 } from 'src/app/infrastructure/api/settings/data-update.service';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
 
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
+const ACTIVE_HISTORY_STATUSES = ['Pending', 'Running'];
+const RETRYABLE_HISTORY_STATUSES = ['Failed', 'Cancelled', 'RollbackFailed'];
+const RETRYABLE_OPERATION_TYPES = ['Update', 'Rollback'];
 
 @Component({
   selector: 'app-updates-setting',
   templateUrl: './updates-setting.component.html',
   styleUrls: ['./updates-setting.component.scss'],
   standalone: true,
-  imports: [DatePipe, FormsModule, TranslateModule, TimeInputComponent],
+  imports: [
+    DatePipe,
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    TimeInputComponent,
+    TrashIconRedComponent,
+    IconRefreshGreyComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UpdatesSettingComponent implements OnInit, OnDestroy {
@@ -85,6 +99,32 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
 
   public async rollback(): Promise<void> {
     await this.runAction(() => firstValueFrom(this.dataUpdateService.rollbackUpdate()));
+  }
+
+  public canDeleteHistoryEntry(item: IUpdateHistoryItem): boolean {
+    return !ACTIVE_HISTORY_STATUSES.includes(item.status);
+  }
+
+  public canContinueHistoryEntry(item: IUpdateHistoryItem): boolean {
+    return RETRYABLE_HISTORY_STATUSES.includes(item.status) && RETRYABLE_OPERATION_TYPES.includes(item.operationType);
+  }
+
+  public async deleteHistoryEntry(item: IUpdateHistoryItem): Promise<void> {
+    this.busy.set(true);
+    try {
+      await firstValueFrom(this.dataUpdateService.deleteHistoryEntry(item.id));
+      this.reload();
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  public async continueHistoryEntry(item: IUpdateHistoryItem): Promise<void> {
+    if (item.operationType === 'Rollback') {
+      await this.rollback();
+    } else {
+      await this.triggerNow();
+    }
   }
 
   public onConfigChange(): void {

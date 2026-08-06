@@ -169,6 +169,7 @@
           <th>{{ 'settings.updates.history.target' | translate }}</th>
           <th>{{ 'settings.updates.history.status' | translate }}</th>
           <th>{{ 'settings.updates.history.requested' | translate }}</th>
+          <th>{{ 'settings.updates.history.action' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -178,6 +179,32 @@
             <td>{{ item.targetVersion }}</td>
             <td>{{ item.status }}</td>
             <td>{{ item.requestedAt | date: 'short' }}</td>
+            <td class="history-action-cell">
+              @if (canContinueHistoryEntry(item)) {
+                <button
+                  type="button"
+                  class="btn-icon"
+                  [disabled]="busy()"
+                  [ngbTooltip]="'settings.updates.history.continue.tooltip' | translate"
+                  [attr.aria-label]="'settings.updates.history.continue.tooltip' | translate"
+                  (click)="continueHistoryEntry(item)"
+                >
+                  <app-icon-refresh-grey />
+                </button>
+              }
+              @if (canDeleteHistoryEntry(item)) {
+                <button
+                  type="button"
+                  class="btn-icon"
+                  [disabled]="busy()"
+                  [ngbTooltip]="'settings.updates.history.delete.tooltip' | translate"
+                  [attr.aria-label]="'settings.updates.history.delete.tooltip' | translate"
+                  (click)="deleteHistoryEntry(item)"
+                >
+                  <app-icon-trash-red />
+                </button>
+              }
+            </td>
           </tr>
         }
       </tbody>
