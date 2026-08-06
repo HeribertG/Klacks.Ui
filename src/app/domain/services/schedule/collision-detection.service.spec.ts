@@ -278,6 +278,108 @@ describe('CollisionDetectionService', () => {
       expect(entry.commentParams).toEqual({ hours: '11' });
     });
 
+    it('should retract a week-scoped entry when another day of the same week is re-checked', () => {
+      // Arrange: weekly violation anchored on Monday 2026-03-09
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [createValidation({
+          clientId: 'client-1',
+          date: '2026-03-09',
+          comment: 'schedule.error-list.weekly-overtime',
+        })],
+      });
+      flushAndTick();
+      expect(service.errorEntries().length).toBe(1);
+
+      // Act: Wednesday of the same week is re-checked and no longer reports the violation
+      scheduleValidationsDetected$.next({
+        isFullRefresh: false,
+        checkedClientId: 'client-1',
+        checkedDate: '2026-03-11',
+        entries: [],
+      });
+      flushAndTick();
+
+      // Assert
+      expect(service.errorEntries().length).toBe(0);
+    });
+
+    it('should retract a week-scoped entry when the re-checked day is a Sunday', () => {
+      // Arrange: Sunday 2026-03-15 still belongs to the week starting Monday 2026-03-09
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [createValidation({
+          clientId: 'client-1',
+          date: '2026-03-09',
+          comment: 'schedule.error-list.min-rest-days',
+        })],
+      });
+      flushAndTick();
+
+      // Act
+      scheduleValidationsDetected$.next({
+        isFullRefresh: false,
+        checkedClientId: 'client-1',
+        checkedDate: '2026-03-15',
+        entries: [],
+      });
+      flushAndTick();
+
+      // Assert
+      expect(service.errorEntries().length).toBe(0);
+    });
+
+    it('should retract a consecutive-days entry anchored on another day of the same week', () => {
+      // Arrange: run starting Tuesday 2026-03-10, reported on its start day
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [createValidation({
+          clientId: 'client-1',
+          date: '2026-03-10',
+          comment: 'schedule.error-list.consecutive-days',
+        })],
+      });
+      flushAndTick();
+
+      // Act: a different day of the same ISO week is re-checked
+      scheduleValidationsDetected$.next({
+        isFullRefresh: false,
+        checkedClientId: 'client-1',
+        checkedDate: '2026-03-13',
+        entries: [],
+      });
+      flushAndTick();
+
+      // Assert
+      expect(service.errorEntries().length).toBe(0);
+    });
+
+    it('should keep a week-scoped entry belonging to a different week', () => {
+      // Arrange: violation of the previous week, anchored on Monday 2026-03-02
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [createValidation({
+          clientId: 'client-1',
+          date: '2026-03-02',
+          comment: 'schedule.error-list.weekly-overtime',
+        })],
+      });
+      flushAndTick();
+
+      // Act: a day of the following week is re-checked
+      scheduleValidationsDetected$.next({
+        isFullRefresh: false,
+        checkedClientId: 'client-1',
+        checkedDate: '2026-03-11',
+        entries: [],
+      });
+      flushAndTick();
+
+      // Assert
+      expect(service.errorEntries().length).toBe(1);
+      expect(service.errorEntries()[0].date).toBe('2026-03-02');
+    });
+
     it('should map info entries as type info', () => {
       // Arrange
       const notification: IScheduleValidationListNotification = {

@@ -29,7 +29,11 @@ import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/s
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import {
+  formatDateOnly,
+  isoWeekMondayOf,
+} from 'src/app/shared/helpers/date.helper';
+import { WEEK_SCOPED_VALIDATION_KEYS } from 'src/app/domain/constants/schedule-validation-keys.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -307,12 +311,21 @@ export class CollisionDetectionService implements OnDestroy {
   }
 
   private removeValidationsForClientDate(clientId: string, date: string): void {
+    // The single check re-evaluates the edited day plus the week-scoped rules of that day's ISO week.
+    // Those entries can carry any date of the week, so matching the checked day alone would leave them
+    // behind as stale entries once the violation is resolved. Deliberately not filtered by type: after
+    // the compliance escalation the same violation can arrive as warning or as error.
+    const weekMonday = isoWeekMondayOf(date);
     const keysToRemove: string[] = [];
     for (const [key, validation] of this.validations) {
-      if (
-        validation.date === date &&
-        validation.clientId === clientId
-      ) {
+      if (validation.clientId !== clientId) {
+        continue;
+      }
+      const matchesCheckedDay = validation.date === date;
+      const matchesCheckedWeek =
+        WEEK_SCOPED_VALIDATION_KEYS.includes(validation.comment) &&
+        isoWeekMondayOf(validation.date) === weekMonday;
+      if (matchesCheckedDay || matchesCheckedWeek) {
         keysToRemove.push(key);
       }
     }

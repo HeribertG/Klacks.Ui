@@ -341,6 +341,27 @@ export function formatDateOnly(date: Date): string {
 }
 
 /**
+ * Returns the Monday of the ISO week containing the given date-only string. Mirrors the backend's
+ * ScheduleValidationBuilder.IsoWeekOf, which anchors weekly violations on Monday. The string is parsed
+ * component-wise on purpose: new Date('yyyy-MM-dd') is read as UTC and would shift the weekday in
+ * negative-offset time zones.
+ *
+ * @param dateOnly - Date in format "yyyy-MM-dd"
+ * @returns Monday of that ISO week in format "yyyy-MM-dd", or an empty string if unparsable
+ */
+export function isoWeekMondayOf(dateOnly: string): string {
+  const [year, month, day] = dateOnly.split('-').map((part) => parseInt(part, 10));
+  if (!year || !month || !day) {
+    return '';
+  }
+
+  const date = new Date(year, month - 1, day);
+  const offsetFromMonday = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - offsetFromMonday);
+  return formatDateOnly(date);
+}
+
+/**
  * Gets all date keys between two dates (inclusive).
  *
  * @param startDate - Start date
