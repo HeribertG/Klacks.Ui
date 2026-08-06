@@ -515,16 +515,13 @@
                 >
                   {{ "setting.contract.noSchedulingRule" | translate }}
                 </button>
-                @for (
-                  rule of dataManagementContractService.availableSchedulingRules;
-                  track rule.id
-                ) {
+                @for (rule of schedulingRuleOptions(); track rule.id) {
                   <button
                     ngbDropdownItem
                     (click)="onSchedulingRuleSelectionChange(rule.id)"
                     [class.active]="schedulingRuleId() === rule.id"
                   >
-                    {{ rule.name }}
+                    {{ schedulingRuleOptionLabel(rule) }}
                   </button>
                 }
               </div>

@@ -981,6 +981,7 @@
   "setting.contract.paymentInterval-modal": "Zahlungsintervall",
   "setting.contract.schedulingRuleSelection-modal": "Planungsregeln",
   "setting.contract.noSchedulingRule": "Keine Planungsregel",
+  "setting.contract.schedulingRuleInactiveIndustry": "{{name}} (inaktive Branche)",
   "setting.contract.individualPeriodSelection-modal": "Individuelle Periode",
   "setting.contract.percent-modal": "Pensum (%)",
   "setting.contract.percent-placeholder": "100",

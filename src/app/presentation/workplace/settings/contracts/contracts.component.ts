@@ -27,6 +27,7 @@ import { ContractHeaderComponent } from './contract-header/contract-header.compo
 import { ContractRowComponent } from './contract-row/contract-row.component';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { IContract, PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
@@ -139,6 +140,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   validUntil = signal<NgbDateStruct | null | undefined>(undefined);
   calendarSelectionId = signal<string | undefined>(undefined);
   schedulingRuleId = signal<string | undefined>(undefined);
+  schedulingRuleOptions = signal<ISchedulingRule[]>([]);
+  ruleIdOutsideActiveIndustries = signal<string | undefined>(undefined);
   individualPeriodId = signal<string | undefined>(undefined);
   paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
   percent = signal<number | undefined>(undefined);
@@ -206,6 +209,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.validUntil.set(contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined);
     this.calendarSelectionId.set(contract.calendarSelectionId);
     this.schedulingRuleId.set(contract.schedulingRuleId);
+    void this.refreshSchedulingRuleOptions(contract.schedulingRuleId);
     this.individualPeriodId.set(contract.individualPeriodId);
     this.paymentInterval.set(contract.paymentInterval);
     this.percent.set(contract.percent);
@@ -449,15 +453,36 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     }
   }
 
+  /**
+   * Keeps the rule a contract already references selectable. Once its industry is deactivated the
+   * filtered list no longer contains it, and showing "no rule" would make the next save drop the
+   * assignment without anyone noticing.
+   * @param assignedRuleId - Rule referenced by the contract being opened
+   */
+  private async refreshSchedulingRuleOptions(assignedRuleId: string | undefined): Promise<void> {
+    const pulledIn =
+      await this.dataManagementContractService.ensureAssignedSchedulingRuleIsSelectable(assignedRuleId);
+    this.ruleIdOutsideActiveIndustries.set(pulledIn?.id);
+    this.schedulingRuleOptions.set([
+      ...this.dataManagementContractService.availableSchedulingRules,
+    ]);
+  }
+
+  schedulingRuleOptionLabel(rule: ISchedulingRule): string {
+    return rule.id === this.ruleIdOutsideActiveIndustries()
+      ? this.translate.instant('setting.contract.schedulingRuleInactiveIndustry', { name: rule.name })
+      : rule.name;
+  }
+
   getSelectedSchedulingRuleName(): string {
     const selectedId = this.schedulingRuleId();
     if (!selectedId) {
       return this.translate.instant('setting.contract.noSchedulingRule');
     }
-    const rule = this.dataManagementContractService.availableSchedulingRules.find(
-      (r) => r.id === selectedId
-    );
-    return rule?.name || this.translate.instant('setting.contract.noSchedulingRule');
+    const rule = this.schedulingRuleOptions().find((r) => r.id === selectedId);
+    return rule
+      ? this.schedulingRuleOptionLabel(rule)
+      : this.translate.instant('setting.contract.noSchedulingRule');
   }
 
   onIndividualPeriodSelectionChange(id: string): void {

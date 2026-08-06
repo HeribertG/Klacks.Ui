@@ -76,6 +76,21 @@ export class DataManagementSchedulingRuleService {
     }
   }
 
+  /**
+   * Loads a single rule regardless of the active-industries filter. Needed wherever an already
+   * assigned rule must stay visible after its industry was deactivated - the selectable list would
+   * no longer contain it, and treating it as "no rule" silently drops the assignment on save.
+   * @param id - Identifier of the assigned rule
+   */
+  async readRuleById(id: string): Promise<ISchedulingRule | undefined> {
+    try {
+      return await this.apiService.getById(id);
+    } catch (error) {
+      console.error('Error loading assigned scheduling rule:', error);
+      return undefined;
+    }
+  }
+
   createRule(): SchedulingRule {
     const rule = new SchedulingRule();
     const sched = this.settingsService.appSettings.schedulingDefaultSettings();

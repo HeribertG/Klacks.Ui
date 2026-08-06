@@ -139,6 +139,32 @@ export class DataManagementContractService {
     }
   }
 
+  /**
+   * Makes sure a rule already assigned to a contract stays selectable even when the active-industries
+   * filter no longer returns it. Without this the edit form shows "no rule" for a contract that does
+   * have one, and saving that form silently clears the assignment.
+   * @param schedulingRuleId - Rule referenced by the contract being edited
+   * @returns The rule that had to be pulled in because the filter excluded it, otherwise undefined
+   */
+  public async ensureAssignedSchedulingRuleIsSelectable(
+    schedulingRuleId: string | undefined
+  ): Promise<ISchedulingRule | undefined> {
+    if (!schedulingRuleId) {
+      return undefined;
+    }
+    if (this.availableSchedulingRules.some((rule) => rule.id === schedulingRuleId)) {
+      return undefined;
+    }
+
+    const assigned = await this.schedulingRuleService.readRuleById(schedulingRuleId);
+    if (!assigned) {
+      return undefined;
+    }
+
+    this.availableSchedulingRules = [...this.availableSchedulingRules, assigned];
+    return assigned;
+  }
+
   public async loadIndividualPeriods(): Promise<void> {
     try {
       this.availableIndividualPeriods = await this.individualPeriodService.readSelectableIndividualPeriods();
