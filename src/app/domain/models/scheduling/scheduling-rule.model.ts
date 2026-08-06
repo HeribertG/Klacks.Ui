@@ -3,6 +3,8 @@
 export interface ISchedulingRule {
   id: string;
   name: string;
+  industry: string;
+  importSourceKey: string;
   maxWorkDays: number | null;
   minRestDays: number | null;
   minPauseHours: number | null;
@@ -66,4 +68,6 @@ export class SchedulingRule implements ISchedulingRule {
   workOnSaturday: boolean | null = null;
   workOnSunday: boolean | null = null;
   performsShiftWork: boolean | null = null;
+  industry = '';
+  importSourceKey = '';
 }

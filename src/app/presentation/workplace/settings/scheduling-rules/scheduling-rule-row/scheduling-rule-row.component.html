@@ -15,6 +15,10 @@
       />
     </div>
 
+    <span id="scheduling-rule-row-origin-{{ data().id }}" class="rule-origin">
+      {{ originKey() | translate }}
+    </span>
+
     <span id="scheduling-rule-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
   </div>
 </form>
