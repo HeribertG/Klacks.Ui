@@ -34,6 +34,9 @@ const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
 const ISO_DATE_LENGTH = 10;
 
+// The backend answers a seal that would pass over unresolved errors with 409.
+const HTTP_STATUS_CONFLICT = 409;
+
 interface PeriodGroup {
   intervalKey: string;
   periods: UsedPeriod[];
@@ -314,7 +317,7 @@ export class PeriodsTabComponent implements OnInit {
     return row.totalWorkCount - row.sealedWorkCount + row.totalBreakCount - row.sealedBreakCount;
   }
 
-  private executeBulkSeal(period: UsedPeriod): void {
+  private executeBulkSeal(period: UsedPeriod, acknowledgeViolations = false): void {
     const bounds = this.getPeriodBounds(period);
     this.bulkLoading.set(true);
     this.api
@@ -323,6 +326,7 @@ export class PeriodsTabComponent implements OnInit {
         endDate: bounds.end,
         groupId: period.groupId,
         reason: null,
+        acknowledgeViolations,
       })
       .subscribe({
         next: (count) => {
@@ -333,10 +337,30 @@ export class PeriodsTabComponent implements OnInit {
           this.loadSummary();
         },
         error: (err) => {
-          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
           this.bulkLoading.set(false);
+          if (err?.status === HTTP_STATUS_CONFLICT && !acknowledgeViolations) {
+            this.openViolationConfirmation(() => this.executeBulkSeal(period, true));
+            return;
+          }
+          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
         },
       });
+  }
+
+  /**
+   * Second confirmation, shown only when the backend refused because the period still holds errors.
+   * Closing over a known violation stays possible - it must not happen unnoticed, because the seal
+   * makes those days unwritable.
+   */
+  private openViolationConfirmation(onConfirm: () => void): void {
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translate.instant('periodClosing.confirm.violationsTitle'),
+      message: this.translate.instant('periodClosing.confirm.violationsBody'),
+      confirmText: this.translate.instant('periodClosing.action.sealAnyway'),
+      cancelText: this.translate.instant('periodClosing.action.cancel'),
+      onConfirm,
+    });
   }
 
   private executeBulkUnseal(period: UsedPeriod, reason: string): void {
