@@ -127,6 +127,7 @@ describe('PeriodsTabComponent', () => {
         endDate: PERIOD.endDate,
         groupId: null,
         reason: null,
+        acknowledgeViolations: false,
       });
     });
 
@@ -153,6 +154,7 @@ describe('PeriodsTabComponent', () => {
         endDate: UNSEALED_DAY.date,
         groupId: null,
         reason: null,
+        acknowledgeViolations: false,
       });
     });
 

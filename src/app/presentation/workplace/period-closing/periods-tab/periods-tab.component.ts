@@ -388,7 +388,7 @@ export class PeriodsTabComponent implements OnInit {
       });
   }
 
-  private sealDay(date: string): void {
+  private sealDay(date: string, acknowledgeViolations = false): void {
     const period = this.selectedPeriod();
     if (!period) {
       return;
@@ -400,6 +400,7 @@ export class PeriodsTabComponent implements OnInit {
         endDate: date,
         groupId: period.groupId,
         reason: null,
+        acknowledgeViolations,
       })
       .subscribe({
         next: () => {
@@ -407,8 +408,12 @@ export class PeriodsTabComponent implements OnInit {
           this.loadSummary();
         },
         error: (err) => {
-          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
           this.sealingDay.set(null);
+          if (err?.status === HTTP_STATUS_CONFLICT && !acknowledgeViolations) {
+            this.openViolationConfirmation(() => this.sealDay(date, true));
+            return;
+          }
+          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
         },
       });
   }
