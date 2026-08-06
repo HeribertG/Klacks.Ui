@@ -34,8 +34,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
 
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
-const ACTIVE_HISTORY_STATUSES = ['Pending', 'Running'];
-const RETRYABLE_HISTORY_STATUSES = ['Failed', 'Cancelled', 'RollbackFailed'];
+const CONTINUABLE_HISTORY_STATUSES = ['Pending', 'Failed', 'Cancelled', 'RollbackFailed'];
 const RETRYABLE_OPERATION_TYPES = ['Update', 'Rollback'];
 
 @Component({
@@ -101,12 +100,8 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
     await this.runAction(() => firstValueFrom(this.dataUpdateService.rollbackUpdate()));
   }
 
-  public canDeleteHistoryEntry(item: IUpdateHistoryItem): boolean {
-    return !ACTIVE_HISTORY_STATUSES.includes(item.status);
-  }
-
   public canContinueHistoryEntry(item: IUpdateHistoryItem): boolean {
-    return RETRYABLE_HISTORY_STATUSES.includes(item.status) && RETRYABLE_OPERATION_TYPES.includes(item.operationType);
+    return CONTINUABLE_HISTORY_STATUSES.includes(item.status) && RETRYABLE_OPERATION_TYPES.includes(item.operationType);
   }
 
   public async deleteHistoryEntry(item: IUpdateHistoryItem): Promise<void> {

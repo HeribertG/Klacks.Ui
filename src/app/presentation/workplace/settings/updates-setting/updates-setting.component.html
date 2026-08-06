@@ -192,18 +192,16 @@
                   <app-icon-refresh-grey />
                 </button>
               }
-              @if (canDeleteHistoryEntry(item)) {
-                <button
-                  type="button"
-                  class="btn-icon"
-                  [disabled]="busy()"
-                  [ngbTooltip]="'settings.updates.history.delete.tooltip' | translate"
-                  [attr.aria-label]="'settings.updates.history.delete.tooltip' | translate"
-                  (click)="deleteHistoryEntry(item)"
-                >
-                  <app-icon-trash-red />
-                </button>
-              }
+              <button
+                type="button"
+                class="btn-icon"
+                [disabled]="busy()"
+                [ngbTooltip]="'settings.updates.history.delete.tooltip' | translate"
+                [attr.aria-label]="'settings.updates.history.delete.tooltip' | translate"
+                (click)="deleteHistoryEntry(item)"
+              >
+                <app-icon-trash-red />
+              </button>
             </td>
           </tr>
         }
