@@ -843,6 +843,7 @@
   "schedule.error-list.rest-violation": "Temps de repos seulement {{actualHours}}h au lieu de {{requiredHours}}h ({{endTime}} à {{startTime}})",
   "schedule.error-list.overtime": "Durée de travail journalière {{actualHours}}h dépasse le maximum de {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} jours de travail consécutifs (max. {{maxDays}})",
+  "schedule.error-list.holiday-work": "Travail un jour férié légal ({{holiday}})",
   "schedule.error-list.weekly-overtime": "Durée de travail hebdomadaire {{actualHours}}h dépasse le maximum de {{maxHours}}h",
   "schedule.error-list.period-cap": "Heures de la période {{actualHours}}h dépassent le plafond de {{capHours}}h ({{period}})",
   "schedule.error-list.period-cap-overtime": "Les heures supplémentaires {{actualHours}}h dépassent le plafond d'heures supplémentaires de {{capHours}}h ({{period}})",

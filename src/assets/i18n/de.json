@@ -844,6 +844,7 @@
   "schedule.error-list.rest-violation": "Ruhezeit nur {{actualHours}}h statt {{requiredHours}}h ({{endTime}} bis {{startTime}})",
   "schedule.error-list.overtime": "Tagesarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} aufeinanderfolgende Arbeitstage (max. {{maxDays}})",
+  "schedule.error-list.holiday-work": "Arbeit an gesetzlichem Feiertag ({{holiday}})",
   "schedule.error-list.weekly-overtime": "Wochenarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
   "schedule.error-list.period-cap": "Periodenstunden {{actualHours}}h überschreiten die Obergrenze von {{capHours}}h ({{period}})",
   "schedule.error-list.period-cap-overtime": "Überstunden {{actualHours}}h überschreiten die Überstunden-Obergrenze von {{capHours}}h ({{period}})",
