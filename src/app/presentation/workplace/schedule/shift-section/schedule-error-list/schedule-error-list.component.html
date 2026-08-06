@@ -52,7 +52,9 @@
         </tr>
       </thead>
       <tbody>
-        @for (entry of filteredEntries(); track entry.clientId + '|' + entry.date + '|' + entry.type) {
+        <!-- The comment belongs in the key: one client can have several different violations on the
+             same day at the same severity, and without it they collapsed into a single tracked row. -->
+        @for (entry of filteredEntries(); track entry.clientId + '|' + entry.date + '|' + entry.type + '|' + entry.comment) {
           <tr class="table-row" (click)="onRowClick(entry)">
             <td class="table-cell col-icon cell-center">
               <fa-icon [icon]="getEntryIcon(entry.type)" [class]="'icon-' + entry.type"></fa-icon>

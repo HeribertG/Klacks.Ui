@@ -340,6 +340,11 @@ export class CollisionDetectionService implements OnDestroy {
       : `${workId2}_${workId1}`;
   }
 
+  /**
+   * Identity of a validation entry. Two findings of the same kind for the same client on the same day
+   * are deliberately collapsed into one: the backend can report the same rule repeatedly for one day
+   * (once per offending block), and the list names the rule and the day, not the individual block.
+   */
   private buildValidationKey(entry: IScheduleValidationNotification): string {
     return `${entry.type}_${entry.clientId}_${entry.date}_${entry.comment}`;
   }
