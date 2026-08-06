@@ -4,6 +4,7 @@ import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IWorkNotification } from './work-notification.interface';
 import { IWorksBulkCreatedNotification } from './works-bulk-created-notification.interface';
+import { IWizard4CandidateNotification } from './wizard4-candidate-notification.interface';
 import { IScheduleNotification } from './schedule-notification.interface';
 import { IShiftStatsNotification } from './shift-stats-notification.interface';
 import {
@@ -18,6 +19,7 @@ import { IScheduleValidationListNotification } from './schedule-validation-list-
 export interface IScheduleSignalR {
   workCreated$: Observable<IWorkNotification>;
   worksBulkCreated$: Observable<IWorksBulkCreatedNotification>;
+  wizard4CandidatesChanged$: Observable<IWizard4CandidateNotification>;
   workUpdated$: Observable<IWorkNotification>;
   workDeleted$: Observable<IWorkNotification>;
   scheduleUpdated$: Observable<IScheduleNotification>;

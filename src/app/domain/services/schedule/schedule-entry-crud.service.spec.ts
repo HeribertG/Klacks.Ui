@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   ScheduleEntryCrudService,
@@ -160,6 +161,8 @@ describe('ScheduleEntryCrudService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        // AnalyseScenarioService listens for background-optimiser candidates on connect.
+        { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>() } },
         ScheduleEntryCrudService,
         { provide: DataWorkScheduleService, useValue: dataWorkScheduleMock },
         { provide: DataWorkChangeService, useValue: workChangeServiceMock },

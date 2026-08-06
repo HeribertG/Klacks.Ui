@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
+import { IWizard4CandidateNotification } from 'src/app/domain/interfaces/wizard4-candidate-notification.interface';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AnalyseScenarioStatus, IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
@@ -26,12 +28,19 @@ function createScenario(overrides: Partial<IAnalyseScenario> = {}): IAnalyseScen
 describe('AnalyseScenarioService', () => {
   let service: AnalyseScenarioService;
 
+  let wizard4CandidatesChanged$: Subject<IWizard4CandidateNotification>;
+
   beforeEach(() => {
+    wizard4CandidatesChanged$ = new Subject<IWizard4CandidateNotification>();
     // Arrange
     TestBed.configureTestingModule({
       providers: [
         AnalyseScenarioService,
-        { provide: DataAnalyseScenarioService, useValue: {} },
+        { provide: DataAnalyseScenarioService, useValue: { getByGroup: () => of([]) } },
+        {
+          provide: SCHEDULE_SIGNALR,
+          useValue: { wizard4CandidatesChanged$ },
+        },
       ],
     });
     service = TestBed.inject(AnalyseScenarioService);
@@ -121,4 +130,53 @@ describe('AnalyseScenarioService', () => {
       });
     });
   });
+
+  describe('wizard4 candidates', () => {
+    it('should count only the candidates of the background optimiser', () => {
+      // Arrange
+      service.scenarios.set([
+        makeScenario({ id: 'a', createdByUser: 'wizard4' }),
+        makeScenario({ id: 'b', createdByUser: 'anna' }),
+        makeScenario({ id: 'c', createdByUser: 'wizard4' }),
+      ]);
+
+      // Act
+      const count = service.wizard4CandidateCount();
+
+      // Assert
+      expect(count).toBe(2);
+    });
+
+    it('should reload the list when the optimiser reports a change', () => {
+      // The optimiser creates, replaces and expires candidates on its own; without the reload the list
+      // would keep offering a scenario that is already gone.
+      // Arrange
+      const loadSpy = vi.spyOn(service, 'loadScenarios').mockImplementation(() => {});
+
+      // Act
+      wizard4CandidatesChanged$.next({
+        scenarioId: 'a',
+        groupId: null,
+        fromDate: '2026-08-01',
+        untilDate: '2026-08-31',
+        changeKind: 'Superseded',
+      });
+
+      // Assert
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
+  function makeScenario(overrides: Partial<IAnalyseScenario>): IAnalyseScenario {
+    return {
+      id: 'id',
+      name: 'name',
+      fromDate: '2026-08-01',
+      untilDate: '2026-08-31',
+      token: 'token',
+      createdByUser: 'anna',
+      status: AnalyseScenarioStatus.Active,
+      ...overrides,
+    };
+  }
 });

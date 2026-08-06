@@ -6,6 +6,7 @@ export const SignalRConstants = {
   Events: {
     WorkCreated: 'WorkCreated',
     WorksBulkCreated: 'WorksBulkCreated',
+    Wizard4CandidatesChanged: 'Wizard4CandidatesChanged',
     WorkUpdated: 'WorkUpdated',
     WorkDeleted: 'WorkDeleted',
     ScheduleUpdated: 'ScheduleUpdated',

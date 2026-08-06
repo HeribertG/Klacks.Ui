@@ -4,49 +4,128 @@
     <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
   </div>
   <div class="modal-body">
-    <p class="recovery-description">{{ 'recovery.dialog.description' | translate }}</p>
+    @if (result(); as outcome) {
+      <p class="recovery-description">
+        {{ 'recovery.dialog.reviewIntro' | translate: { covered: outcome.covered.length, uncovered: outcome.uncovered.length } }}
+      </p>
 
-    <div class="mb-3">
-      <label class="form-label" for="recovery-client">{{ 'recovery.dialog.employee' | translate }}</label>
-      <select id="recovery-client" class="form-select" [formField]="recoveryForm.selectedClientId">
-        <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
-        @for (client of clients(); track client.id) {
-          <option [value]="client.id">{{ clientLabel(client) }}</option>
-        }
-      </select>
-    </div>
+      @if (outcome.covered.length > 0) {
+        <h6 class="recovery-section-title">{{ 'recovery.dialog.coveredTitle' | translate }}</h6>
+        <ul class="recovery-list">
+          @for (slot of outcome.covered; track slot.shiftId + slot.date) {
+            <li class="recovery-list-item">
+              <span class="recovery-date">{{ slot.date }}</span>
+              <span class="recovery-name">{{ slot.replacementName }}</span>
+              <span class="recovery-tier badge text-bg-light">{{ tierKey(slot.tier) | translate }}</span>
+            </li>
+          }
+        </ul>
+      }
 
-    <div class="mb-3">
-      <label class="form-label" for="recovery-date">{{ 'recovery.dialog.date' | translate }}</label>
-      <input id="recovery-date" type="date" class="form-control" [formField]="recoveryForm.selectedDate" />
-    </div>
+      @if (outcome.uncovered.length > 0) {
+        <h6 class="recovery-section-title">{{ 'recovery.dialog.uncoveredTitle' | translate }}</h6>
+        <ul class="recovery-list">
+          @for (slot of outcome.uncovered; track slot.shiftId + slot.date) {
+            <li class="recovery-list-item recovery-uncovered">
+              <span class="recovery-date">{{ slot.date }}</span>
+              <span class="recovery-reason">{{ uncoveredReasonKey(slot.reason) | translate }}</span>
+            </li>
+          }
+        </ul>
+      }
 
-    <div class="mb-3">
-      <label class="form-label" for="recovery-absence">{{ 'recovery.dialog.absenceType' | translate }}</label>
-      <select id="recovery-absence" class="form-select" [formField]="recoveryForm.selectedAbsenceId">
-        <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
-        @for (absence of absences(); track absence.id) {
-          <option [value]="absence.id">{{ absenceLabel(absence) }}</option>
-        }
-      </select>
-    </div>
+      @if (outcome.complianceWarnings.length > 0) {
+        <h6 class="recovery-section-title">{{ 'recovery.dialog.warningsTitle' | translate }}</h6>
+        <ul class="recovery-list">
+          @for (warning of outcome.complianceWarnings; track warning.clientId + warning.date + warning.comment) {
+            <li class="recovery-list-item recovery-warning">
+              <span class="recovery-date">{{ warning.date }}</span>
+              <span class="recovery-name">{{ warning.clientName }}</span>
+              <span class="recovery-reason">{{ warning.comment | translate: warning.commentParams }}</span>
+            </li>
+          }
+        </ul>
+      }
 
-    <p class="recovery-hint text-muted">{{ 'recovery.dialog.proposeOnlyHint' | translate }}</p>
+      <p class="recovery-hint text-muted">{{ 'recovery.dialog.proposeOnlyHint' | translate }}</p>
+    } @else {
+      <p class="recovery-description">{{ 'recovery.dialog.description' | translate }}</p>
+
+      <div class="mb-3">
+        <label class="form-label" for="recovery-client">{{ 'recovery.dialog.employee' | translate }}</label>
+        <select id="recovery-client" class="form-select" [formField]="recoveryForm.selectedClientId">
+          <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
+          @for (client of clients(); track client.id) {
+            <option [value]="client.id">{{ clientLabel(client) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col mb-3">
+          <label class="form-label" for="recovery-date">{{ 'recovery.dialog.date' | translate }}</label>
+          <input id="recovery-date" type="date" class="form-control" [formField]="recoveryForm.selectedDate" />
+        </div>
+        <div class="col mb-3">
+          <label class="form-label" for="recovery-until-date">{{ 'recovery.dialog.untilDate' | translate }}</label>
+          <input
+            id="recovery-until-date"
+            type="date"
+            class="form-control"
+            [formField]="recoveryForm.selectedUntilDate"
+          />
+          <div class="form-text">{{ 'recovery.dialog.untilDateHint' | translate }}</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="recovery-absence">{{ 'recovery.dialog.absenceType' | translate }}</label>
+        <select id="recovery-absence" class="form-select" [formField]="recoveryForm.selectedAbsenceId">
+          <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
+          @for (absence of absences(); track absence.id) {
+            <option [value]="absence.id">{{ absenceLabel(absence) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-check mb-3">
+        <input
+          id="recovery-override"
+          type="checkbox"
+          class="form-check-input"
+          [formField]="recoveryForm.overrideBlock"
+        />
+        <label class="form-check-label" for="recovery-override">
+          {{ 'recovery.dialog.overrideBlock' | translate }}
+        </label>
+        <div class="form-text">{{ 'recovery.dialog.overrideBlockHint' | translate }}</div>
+      </div>
+
+      <p class="recovery-hint text-muted">{{ 'recovery.dialog.proposeOnlyHint' | translate }}</p>
+    }
+
+    @if (localError(); as error) {
+      <div class="alert alert-danger mt-3 mb-0">{{ error }}</div>
+    }
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="onClose()">
-      {{ 'recovery.dialog.close' | translate }}
-    </button>
-    <button
-      type="button"
-      class="btn btn-primary"
-      [disabled]="!canSubmit()"
-      (click)="onSubmit()"
-    >
-      @if (isSubmitting()) {
-        <span class="spinner-border spinner-border-sm me-1"></span>
-      }
-      {{ 'recovery.dialog.propose' | translate }}
-    </button>
+    @if (result()) {
+      <button type="button" class="btn btn-secondary" (click)="onBackToForm()">
+        {{ 'recovery.dialog.back' | translate }}
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onClose()">
+        {{ 'recovery.dialog.done' | translate }}
+      </button>
+    } @else {
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        {{ 'recovery.dialog.close' | translate }}
+      </button>
+      <button type="button" class="btn btn-primary" [disabled]="!canSubmit()" (click)="onSubmit()">
+        @if (isSubmitting()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ 'recovery.dialog.propose' | translate }}
+      </button>
+    }
   </div>
 </ng-template>

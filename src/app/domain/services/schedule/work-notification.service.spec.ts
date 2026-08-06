@@ -53,6 +53,8 @@ describe('WorkNotificationService', () => {
       workDeleted$: workDeleted$.asObservable(),
       shiftStatsUpdated$: shiftStatsUpdated$.asObservable(),
       scheduleUpdated$: scheduleUpdated$.asObservable(),
+      // AnalyseScenarioService listens here for background-optimiser candidates on construction.
+      wizard4CandidatesChanged$: new Subject<never>(),
     };
 
     dataManagementMock = {

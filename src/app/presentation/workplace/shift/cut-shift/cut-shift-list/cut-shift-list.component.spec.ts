@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
+import { Subject } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CutShiftListComponent } from './cut-shift-list.component';
@@ -31,6 +33,8 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
         TestBed.configureTestingModule({
             imports: [CutShiftListComponent],
             providers: [
+                // AnalyseScenarioService listens here for background-optimiser candidates on construction.
+                { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>() } },
                 provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: NgbModal, useValue: mockModalService },

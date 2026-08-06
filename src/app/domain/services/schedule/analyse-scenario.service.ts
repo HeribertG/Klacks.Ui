@@ -8,13 +8,16 @@
  * @param activeToken - The token of the active scenario for API calls
  */
 
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, map, tap } from 'rxjs';
 import {
   AnalyseScenarioStatus,
   IAnalyseScenario,
   ICreateAnalyseScenarioRequest,
+  isWizard4Candidate,
 } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';
 
 @Injectable({
@@ -22,13 +25,29 @@ import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/
 })
 export class AnalyseScenarioService {
   private dataService = inject(DataAnalyseScenarioService);
+  private signalRService = inject(SCHEDULE_SIGNALR);
+  private destroyRef = inject(DestroyRef);
+
+  private _lastLoadedGroupId: string | undefined;
 
   public activeScenario = signal<IAnalyseScenario | null>(null);
   public scenarios = signal<IAnalyseScenario[]>([]);
   public isScenarioMode = computed(() => this.activeScenario() !== null);
   public activeToken = computed(() => this.activeScenario()?.token ?? null);
 
+  /** Suggestions of the background optimiser among the loaded scenarios, for the badge in the toolbar. */
+  public wizard4CandidateCount = computed(() => this.scenarios().filter(isWizard4Candidate).length);
+
+  constructor() {
+    // The optimiser creates, replaces and expires candidates on its own schedule. Without this the
+    // list would keep offering a scenario that is already gone until the next manual reload.
+    this.signalRService.wizard4CandidatesChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadScenarios(this._lastLoadedGroupId));
+  }
+
   loadScenarios(groupId?: string): void {
+    this._lastLoadedGroupId = groupId;
     this.dataService.getByGroup(groupId).subscribe(scenarios => {
       this.scenarios.set(scenarios.filter(s => s.status === AnalyseScenarioStatus.Active));
     });

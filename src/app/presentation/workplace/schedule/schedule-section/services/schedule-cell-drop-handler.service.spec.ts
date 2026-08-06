@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ScheduleCellDropHandlerService } from './schedule-cell-drop-handler.service';
@@ -82,6 +83,8 @@ describe('ScheduleCellDropHandlerService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        // AnalyseScenarioService listens for background-optimiser candidates on connect.
+        { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>() } },
         ScheduleCellDropHandlerService,
         BaseSettingsService,
         { provide: DataManagementScheduleService, useValue: dataManagement },

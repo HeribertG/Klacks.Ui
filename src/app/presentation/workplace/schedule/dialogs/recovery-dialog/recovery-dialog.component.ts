@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dialog for the reactive recovery flow. The dispatcher marks an employee absent on a day with an absence
- * type; the deterministic recovery engine proposes a rule-compliant replacement as an isolated, propose-only
- * scenario which is then selected for human review. The dialog never accepts the scenario.
+ * Dialog for the reactive recovery flow. The dispatcher marks an employee absent - a single day or a
+ * range - with an absence type; the deterministic recovery engine proposes a rule-compliant replacement as
+ * an isolated, propose-only scenario. The dialog then shows WHAT was proposed instead of a toast with two
+ * numbers: which slot got whom, how far the engine had to search, what stayed open and why. The dialog
+ * never accepts the scenario; a person decides.
  * @param clients - Visible schedule employees to pick the absent one from
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
  */
@@ -12,7 +14,10 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { DataRecoveryService } from 'src/app/infrastructure/api/schedule/data-recovery.service';
+import {
+  DataRecoveryService,
+  ICoverAbsenceOutcome,
+} from 'src/app/infrastructure/api/schedule/data-recovery.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
@@ -50,11 +55,23 @@ export class RecoveryDialogComponent {
   protected readonly absences = signal<IAbsence[]>([]);
   protected readonly isSubmitting = signal(false);
 
+  /** Result of the last run; while it is set the dialog shows the review step instead of the form. */
+  protected readonly result = signal<ICoverAbsenceOutcome | null>(null);
+  protected readonly localError = signal<string | null>(null);
+
   private readonly formModel = signal<{
     selectedClientId: string;
     selectedAbsenceId: string;
     selectedDate: string;
-  }>({ selectedClientId: '', selectedAbsenceId: '', selectedDate: '' });
+    selectedUntilDate: string;
+    overrideBlock: boolean;
+  }>({
+    selectedClientId: '',
+    selectedAbsenceId: '',
+    selectedDate: '',
+    selectedUntilDate: '',
+    overrideBlock: false,
+  });
   protected readonly recoveryForm = form(this.formModel);
 
   async open(): Promise<void> {
@@ -63,10 +80,14 @@ export class RecoveryDialogComponent {
     this.absences.set(this.absenceLookup.absences());
 
     const start = this.dataManagementSchedule.periodStartDate;
+    this.result.set(null);
+    this.localError.set(null);
     this.formModel.set({
       selectedClientId: '',
       selectedAbsenceId: '',
       selectedDate: start ? this.toIsoDate(start) : '',
+      selectedUntilDate: '',
+      overrideBlock: false,
     });
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), { centered: true, size: 'md' });
@@ -81,8 +102,32 @@ export class RecoveryDialogComponent {
   }
 
   protected canSubmit(): boolean {
-    const { selectedClientId, selectedAbsenceId, selectedDate } = this.formModel();
-    return !!selectedClientId && !!selectedAbsenceId && !!selectedDate && !this.isSubmitting();
+    const { selectedClientId, selectedAbsenceId, selectedDate, selectedUntilDate } = this.formModel();
+    if (!selectedClientId || !selectedAbsenceId || !selectedDate || this.isSubmitting()) {
+      return false;
+    }
+
+    // An empty end means a single day; a filled one must not lie before the start.
+    return !selectedUntilDate || selectedUntilDate >= selectedDate;
+  }
+
+  /** Translation key for the reason a slot stayed open, so the review shows prose, not an engine token. */
+  protected uncoveredReasonKey(reason: string): string {
+    switch (reason) {
+      case 'locked':
+        return 'recovery.dialog.reason.locked';
+      case 'blocked':
+        return 'recovery.dialog.reason.blocked';
+      case 'non-critical':
+        return 'recovery.dialog.reason.nonCritical';
+      default:
+        return 'recovery.dialog.reason.noCandidate';
+    }
+  }
+
+  /** Translation key for how far the engine had to search to fill a slot. */
+  protected tierKey(tier: number): string {
+    return `recovery.dialog.tier.${tier}`;
   }
 
   async onSubmit(): Promise<void> {
@@ -96,8 +141,10 @@ export class RecoveryDialogComponent {
       return;
     }
 
-    const { selectedClientId, selectedAbsenceId, selectedDate } = this.formModel();
+    const { selectedClientId, selectedAbsenceId, selectedDate, selectedUntilDate, overrideBlock } =
+      this.formModel();
     this.isSubmitting.set(true);
+    this.localError.set(null);
     try {
       const outcome = await firstValueFrom(
         this.recoveryService.coverAbsence({
@@ -105,6 +152,8 @@ export class RecoveryDialogComponent {
           date: selectedDate,
           groupId,
           absenceId: selectedAbsenceId,
+          untilDate: selectedUntilDate || undefined,
+          overrideBlock: overrideBlock || undefined,
         }),
       );
 
@@ -124,17 +173,11 @@ export class RecoveryDialogComponent {
       this.analyseScenarioService.selectScenario(newScenario);
       this.dataManagementSchedule.readDatas();
 
-      this.toastShowService.showSuccess(
-        this.translateService.instant('recovery.dialog.proposed', {
-          covered: outcome.covered.length,
-          uncovered: outcome.uncovered.length,
-        }),
-        '',
-      );
-
-      this.modalRef?.close();
-    } catch {
-      this.toastShowService.showError(this.translateService.instant('recovery.dialog.failed'));
+      // Stay open and show what was proposed. Closing on a toast with two numbers left the dispatcher
+      // to hunt through the schedule for what actually changed and what is still uncovered.
+      this.result.set(outcome);
+    } catch (err: unknown) {
+      this.localError.set(this.errorMessage(err));
     } finally {
       this.isSubmitting.set(false);
     }
@@ -142,6 +185,29 @@ export class RecoveryDialogComponent {
 
   onClose(): void {
     this.modalRef?.close();
+  }
+
+  /** Back to the form to try another day or another absence without reopening the dialog. */
+  protected onBackToForm(): void {
+    this.result.set(null);
+    this.localError.set(null);
+  }
+
+  /**
+   * The controller answers with ProblemDetails, so the reason is in `detail`. Showing it beats a generic
+   * message: a refused range or a blocking rule is something the dispatcher can act on.
+   */
+  private errorMessage(err: unknown): string {
+    const body = (err as { error?: { detail?: unknown; message?: unknown } } | null)?.error;
+    if (typeof body?.detail === 'string' && body.detail.length > 0) {
+      return body.detail;
+    }
+
+    if (typeof body?.message === 'string' && body.message.length > 0) {
+      return body.message;
+    }
+
+    return this.translateService.instant('recovery.dialog.failed');
   }
 
   private toIsoDate(date: Date): string {

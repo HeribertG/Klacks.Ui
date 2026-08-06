@@ -94,6 +94,8 @@ describe('CollisionDetectionService', () => {
           useValue: {
             collisionsDetected$: collisionsDetected$.asObservable(),
             scheduleValidationsDetected$: scheduleValidationsDetected$.asObservable(),
+            // AnalyseScenarioService listens here for background-optimiser candidates on construction.
+            wizard4CandidatesChanged$: new Subject<never>(),
           },
         },
         { provide: DataManagementScheduleService, useValue: dataManagementMock },
