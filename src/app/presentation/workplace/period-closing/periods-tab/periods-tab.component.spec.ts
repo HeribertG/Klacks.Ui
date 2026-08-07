@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { PeriodsTabComponent } from './periods-tab.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
@@ -128,6 +128,7 @@ describe('PeriodsTabComponent', () => {
         groupId: null,
         reason: null,
         acknowledgeViolations: false,
+        acknowledgedErrorCount: null,
       });
     });
 
@@ -136,6 +137,78 @@ describe('PeriodsTabComponent', () => {
 
       expect(modalService.openModal).toHaveBeenCalledTimes(1);
       expect(api.seal).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('violation re-confirmation', () => {
+    function conflict(currentErrorCount?: number) {
+      return throwError(() => ({ status: 409, error: currentErrorCount === undefined ? {} : { currentErrorCount } }));
+    }
+
+    it('confirms the exact error count the backend reported', () => {
+      api.seal.mockReturnValueOnce(conflict(3));
+
+      component.onBulkSeal();
+      lastModalOptions().onConfirm();
+      lastModalOptions().onConfirm();
+
+      expect(api.seal).toHaveBeenLastCalledWith(
+        expect.objectContaining({ acknowledgeViolations: true, acknowledgedErrorCount: 3 })
+      );
+    });
+
+    it('asks again with the new count when errors appeared after the confirmation', () => {
+      api.seal.mockReturnValueOnce(conflict(3)).mockReturnValueOnce(conflict(5));
+
+      component.onBulkSeal();
+      lastModalOptions().onConfirm();
+      lastModalOptions().onConfirm();
+      lastModalOptions().onConfirm();
+
+      expect(api.seal).toHaveBeenLastCalledWith(
+        expect.objectContaining({ acknowledgeViolations: true, acknowledgedErrorCount: 5 })
+      );
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+    });
+
+    it('stops retrying when the refusal repeats the very count that was confirmed', () => {
+      api.seal.mockReturnValue(conflict(3));
+
+      component.onBulkSeal();
+      lastModalOptions().onConfirm();
+      lastModalOptions().onConfirm();
+
+      expect(api.seal).toHaveBeenCalledTimes(2);
+      expect(toastShowService.showError).toHaveBeenCalled();
+    });
+
+    it('confirms the legacy way when the refusal carries no count', () => {
+      api.seal.mockReturnValueOnce(conflict());
+
+      component.onBulkSeal();
+      lastModalOptions().onConfirm();
+      lastModalOptions().onConfirm();
+
+      expect(api.seal).toHaveBeenLastCalledWith(
+        expect.objectContaining({ acknowledgeViolations: true, acknowledgedErrorCount: null })
+      );
+    });
+
+    it('re-confirms a single day seal with the reported count', () => {
+      api.seal.mockReturnValueOnce(conflict(2));
+      const event = { target: { checked: true } } as unknown as Event;
+
+      component.onDaySealToggle(UNSEALED_DAY, event);
+      lastModalOptions().onConfirm();
+      lastModalOptions().onConfirm();
+
+      expect(api.seal).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          startDate: UNSEALED_DAY.date,
+          acknowledgeViolations: true,
+          acknowledgedErrorCount: 2,
+        })
+      );
     });
   });
 
@@ -155,6 +228,7 @@ describe('PeriodsTabComponent', () => {
         groupId: null,
         reason: null,
         acknowledgeViolations: false,
+        acknowledgedErrorCount: null,
       });
     });
 

@@ -11,4 +11,11 @@ export interface SealRequest {
    * accident - sealing is what makes those days unwritable.
    */
   acknowledgeViolations?: boolean;
+  /**
+   * Number of errors the confirmation was issued for. The backend re-reads the findings and refuses
+   * again when the period meanwhile holds more of them, so a confirmation never seals over errors
+   * that appeared after it was given. Null keeps the legacy behaviour of sealing on the confirmation
+   * alone.
+   */
+  acknowledgedErrorCount?: number | null;
 }

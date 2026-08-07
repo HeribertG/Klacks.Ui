@@ -36,6 +36,11 @@
  * shown but deliberately NOT persisted until the user either sets up a rule with Klacksy or
  * explicitly forces activation, since persisting it with nothing behind it would hide every
  * industry preset and leave all selection lists empty without warning.
+ * @param migrationService - Supplies the contracts left behind on rules of a now inactive
+ * industry. The list is computed by the backend from the persisted ACTIVE_INDUSTRIES value,
+ * so it is reloaded on card load and again only after a selection was actually written; a
+ * selection that is deliberately not persisted (nothing picked yet, or the custom gate
+ * blocking) must not refresh it, or the panel would describe the previous setting.
  */
 
 import {
@@ -69,6 +74,8 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { DataManagementIndustryMigrationService } from 'src/app/domain/services/scheduling/data-management-industry-migration.service';
+import { IndustryMigrationPanelComponent } from './industry-migration-panel/industry-migration-panel.component';
 
 const ACTIVE_INDUSTRIES_MANUAL_NAME = 'active-industries-manual';
 const NO_PROFILE_SELECTED = '';
@@ -121,7 +128,16 @@ const IDLE_PREVIEW_STATE: IndustryPreviewState = { status: 'idle' };
   templateUrl: './active-industries-settings.component.html',
   styleUrls: ['./active-industries-settings.component.scss'],
   standalone: true,
-  imports: [FormsModule, FormField, TranslateModule, NgbModule, IconAngleDownComponent, IconAngleRightComponent, FallbackPipe],
+  imports: [
+    FormsModule,
+    FormField,
+    TranslateModule,
+    NgbModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+    FallbackPipe,
+    IndustryMigrationPanelComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActiveIndustriesSettingsComponent implements OnInit {
@@ -132,6 +148,7 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private asideService = inject(AsideService);
   private conversationOrchestrator = inject(ConversationOrchestratorService);
+  private migrationService = inject(DataManagementIndustryMigrationService);
 
   public isDataLoaded = signal(false);
 
@@ -186,6 +203,8 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
       this.isDataLoaded.set(true);
     }
 
+    void this.migrationService.load();
+
     this.currentLang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     this.loadManual();
     this.translate.onLangChange
@@ -206,7 +225,7 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
 
   forceActivateCustomPlanningRule(): void {
     this.customGateStatus.set('idle');
-    this.syncToService(this.formModel());
+    this.persistSelection(this.formModel());
   }
 
   isIndustryExpanded(slug: string): boolean {
@@ -297,7 +316,7 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
 
     if (selectedOption !== CUSTOM_PLANNING_RULE_SLUG) {
       this.customGateStatus.set('idle');
-      this.syncToService(data);
+      this.persistSelection(data);
       return;
     }
 
@@ -326,7 +345,7 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
 
     if (customSchedulingRuleCount > NO_CUSTOM_SCHEDULING_RULES) {
       this.customGateStatus.set('idle');
-      this.syncToService(this.formModel());
+      this.persistSelection(this.formModel());
       return;
     }
 
@@ -346,17 +365,35 @@ export class ActiveIndustriesSettingsComponent implements OnInit {
     return KNOWN_OPTION_SLUGS.has(tokens[0]) ? tokens[0] : NO_PROFILE_SELECTED;
   }
 
-  private syncToService(data: ActiveIndustriesFormModel): void {
-    const selectedOption = data.selectedOption;
-    if (selectedOption === NO_PROFILE_SELECTED) {
+  private persistSelection(data: ActiveIndustriesFormModel): void {
+    if (!this.syncToService(data)) {
       return;
     }
 
+    void this.refreshMigrationListAfterSave();
+  }
+
+  private async refreshMigrationListAfterSave(): Promise<void> {
+    await this.dataManagementSettingsService.appSettings.saveImmediately();
+    await this.migrationService.load();
+  }
+
+  private syncToService(data: ActiveIndustriesFormModel): boolean {
+    const selectedOption = data.selectedOption;
+    if (selectedOption === NO_PROFILE_SELECTED) {
+      return false;
+    }
+
     const svc = this.dataManagementSettingsService;
+    if (svc.appSettings.activeIndustriesSettings().activeIndustry === selectedOption) {
+      return false;
+    }
+
     svc.appSettings.activeIndustriesSettings.update((s) => ({
       ...s,
       activeIndustry: selectedOption,
     }));
     svc.settingsChangeTrigger.update((v) => v + 1);
+    return true;
   }
 }

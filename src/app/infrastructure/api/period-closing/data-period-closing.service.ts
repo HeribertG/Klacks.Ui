@@ -27,11 +27,11 @@ export class DataPeriodClosingService {
   private readonly base = `${environment.baseUrl}PeriodClosing`;
 
   seal(request: SealRequest): Observable<number> {
-    return this.httpClient.post<number>(`${this.base}/Seal`, request).pipe(retry(3));
+    return this.httpClient.post<number>(`${this.base}/Seal`, request);
   }
 
   unseal(request: UnsealRequest): Observable<number> {
-    return this.httpClient.post<number>(`${this.base}/Unseal`, request).pipe(retry(3));
+    return this.httpClient.post<number>(`${this.base}/Unseal`, request);
   }
 
   getSealedPeriods(from: string, to: string, groupId: string | null): Observable<SealedPeriodSummary[]> {

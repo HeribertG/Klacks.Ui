@@ -277,6 +277,7 @@ export interface IComplianceEnforcementSettings {
   enforcementCounterRule: ComplianceEnforcementRuleMode;
   enforcementCompensatoryRest: ComplianceEnforcementRuleMode;
   enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode;
+  enforcementHolidayWork: ComplianceEnforcementRuleMode;
   rosterPublicationMinLeadDays: number;
   rosterPublicationCountWorkdaysOnly: boolean;
 }
@@ -295,6 +296,7 @@ export class ComplianceEnforcementSettings implements IComplianceEnforcementSett
   enforcementCounterRule: ComplianceEnforcementRuleMode = '';
   enforcementCompensatoryRest: ComplianceEnforcementRuleMode = '';
   enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode = '';
+  enforcementHolidayWork: ComplianceEnforcementRuleMode = '';
   rosterPublicationMinLeadDays = 0;
   rosterPublicationCountWorkdaysOnly = false;
 }

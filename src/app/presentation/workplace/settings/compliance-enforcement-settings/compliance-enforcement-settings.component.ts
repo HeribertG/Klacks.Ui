@@ -3,7 +3,7 @@
 /**
  * Settings card for compliance enforcement and roster publication rules.
  * Edits the global default enforcement mode, the supervisor-override flag,
- * a tri-state per-rule mode for each of the eleven compliance rules
+ * a tri-state per-rule mode for each of the twelve compliance rules
  * (empty string = inherit the default, otherwise warn or block) and the
  * roster publication lead-time settings.
  * @param dataManagementSettingsService - Facade exposing the complianceEnforcementSettings signal and change triggers.
@@ -50,6 +50,7 @@ interface ComplianceEnforcementFormModel {
   enforcementCounterRule: ComplianceEnforcementRuleMode;
   enforcementCompensatoryRest: ComplianceEnforcementRuleMode;
   enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode;
+  enforcementHolidayWork: ComplianceEnforcementRuleMode;
   rosterPublicationMinLeadDays: number;
   rosterPublicationCountWorkdaysOnly: boolean;
 }
@@ -88,6 +89,7 @@ export class ComplianceEnforcementSettingsComponent implements OnInit, OnDestroy
     enforcementCounterRule: '',
     enforcementCompensatoryRest: '',
     enforcementRestrictedTimeWindow: '',
+    enforcementHolidayWork: '',
     rosterPublicationMinLeadDays: 0,
     rosterPublicationCountWorkdaysOnly: false,
   });
@@ -157,6 +159,7 @@ export class ComplianceEnforcementSettingsComponent implements OnInit, OnDestroy
       enforcementCounterRule: compliance.enforcementCounterRule,
       enforcementCompensatoryRest: compliance.enforcementCompensatoryRest,
       enforcementRestrictedTimeWindow: compliance.enforcementRestrictedTimeWindow,
+      enforcementHolidayWork: compliance.enforcementHolidayWork,
       rosterPublicationMinLeadDays: compliance.rosterPublicationMinLeadDays,
       rosterPublicationCountWorkdaysOnly: compliance.rosterPublicationCountWorkdaysOnly,
     });
@@ -179,6 +182,7 @@ export class ComplianceEnforcementSettingsComponent implements OnInit, OnDestroy
       enforcementCounterRule: data.enforcementCounterRule,
       enforcementCompensatoryRest: data.enforcementCompensatoryRest,
       enforcementRestrictedTimeWindow: data.enforcementRestrictedTimeWindow,
+      enforcementHolidayWork: data.enforcementHolidayWork,
       rosterPublicationMinLeadDays: clampLeadDays(data.rosterPublicationMinLeadDays),
       rosterPublicationCountWorkdaysOnly: data.rosterPublicationCountWorkdaysOnly,
     }));

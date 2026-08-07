@@ -349,6 +349,27 @@
             </option>
           </select>
         </div>
+        <div class="rule-row">
+          <label class="rule-name" for="ceHolidayWork">{{
+            "setting.complianceEnforcement.rule.holidayWork" | translate
+          }}</label>
+          <select
+            class="form-select rule-select"
+            [formField]="complianceForm.enforcementHolidayWork"
+            aria-label="ceHolidayWork"
+            id="ceHolidayWork"
+          >
+            <option value="">
+              {{ "setting.complianceEnforcement.mode.inherit" | translate }}
+            </option>
+            <option value="warn">
+              {{ "setting.complianceEnforcement.mode.warn" | translate }}
+            </option>
+            <option value="block">
+              {{ "setting.complianceEnforcement.mode.block" | translate }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div

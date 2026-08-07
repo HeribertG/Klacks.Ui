@@ -272,6 +272,7 @@ export class AppSettingsManagementService {
     [AppSetting.COMPLIANCE_ENFORCEMENT_COUNTER_RULE, (v, m) => (m.complianceEnforcement.enforcementCounterRule = (v ?? '') as ComplianceEnforcementRuleMode)],
     [AppSetting.COMPLIANCE_ENFORCEMENT_COMPENSATORY_REST, (v, m) => (m.complianceEnforcement.enforcementCompensatoryRest = (v ?? '') as ComplianceEnforcementRuleMode)],
     [AppSetting.COMPLIANCE_ENFORCEMENT_RESTRICTED_TIME_WINDOW, (v, m) => (m.complianceEnforcement.enforcementRestrictedTimeWindow = (v ?? '') as ComplianceEnforcementRuleMode)],
+    [AppSetting.COMPLIANCE_ENFORCEMENT_HOLIDAY_WORK, (v, m) => (m.complianceEnforcement.enforcementHolidayWork = (v ?? '') as ComplianceEnforcementRuleMode)],
     [AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, (v, m) => {
       const parsed = parseInt(v, 10);
       m.complianceEnforcement.rosterPublicationMinLeadDays = Number.isNaN(parsed) ? 0 : parsed;
@@ -629,6 +630,7 @@ export class AppSettingsManagementService {
     { key: AppSetting.COMPLIANCE_ENFORCEMENT_COUNTER_RULE, getCurrent: () => this.complianceEnforcementSettings().enforcementCounterRule, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementCounterRule },
     { key: AppSetting.COMPLIANCE_ENFORCEMENT_COMPENSATORY_REST, getCurrent: () => this.complianceEnforcementSettings().enforcementCompensatoryRest, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementCompensatoryRest },
     { key: AppSetting.COMPLIANCE_ENFORCEMENT_RESTRICTED_TIME_WINDOW, getCurrent: () => this.complianceEnforcementSettings().enforcementRestrictedTimeWindow, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementRestrictedTimeWindow },
+    { key: AppSetting.COMPLIANCE_ENFORCEMENT_HOLIDAY_WORK, getCurrent: () => this.complianceEnforcementSettings().enforcementHolidayWork, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementHolidayWork },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, getCurrent: () => this.complianceEnforcementSettings().rosterPublicationMinLeadDays.toString(), getOriginal: () => this.complianceEnforcementSettingsOriginal().rosterPublicationMinLeadDays.toString() },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, getCurrent: () => String(this.complianceEnforcementSettings().rosterPublicationCountWorkdaysOnly), getOriginal: () => String(this.complianceEnforcementSettingsOriginal().rosterPublicationCountWorkdaysOnly) },
 
