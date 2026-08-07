@@ -15,6 +15,7 @@ describe('DataManagementProactiveInboxService', () => {
     getUnreadCount: ReturnType<typeof vi.fn>;
     markRead: ReturnType<typeof vi.fn>;
     markAllRead: ReturnType<typeof vi.fn>;
+    markManyRead: ReturnType<typeof vi.fn>;
   };
   let inboxChanged$: Subject<IProactiveInboxChanged>;
 
@@ -25,6 +26,7 @@ describe('DataManagementProactiveInboxService', () => {
       getUnreadCount: vi.fn().mockReturnValue(of({ count: 0 })),
       markRead: vi.fn().mockReturnValue(of(void 0)),
       markAllRead: vi.fn().mockReturnValue(of(void 0)),
+      markManyRead: vi.fn().mockReturnValue(of(void 0)),
     };
 
     TestBed.configureTestingModule({
@@ -92,6 +94,15 @@ describe('DataManagementProactiveInboxService', () => {
 
     expect(dataServiceMock.markAllRead).toHaveBeenCalledTimes(1);
     expect(service.unreadCount()).toBe(0);
+  });
+
+  it('markManyRead forwards exactly the given ids and leaves the count to a refresh', () => {
+    inboxChanged$.next({ unreadCount: 63 });
+
+    service.markManyRead(['a', 'b']).subscribe();
+
+    expect(dataServiceMock.markManyRead).toHaveBeenCalledWith(['a', 'b']);
+    expect(service.unreadCount()).toBe(63);
   });
 
   it('markRead decrements the unread count but never below zero', () => {

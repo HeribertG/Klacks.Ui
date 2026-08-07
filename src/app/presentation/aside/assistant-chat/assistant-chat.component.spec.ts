@@ -119,6 +119,7 @@ describe('AssistantChatComponent', () => {
             loadUnreadMessages: vi.fn().mockReturnValue(of([])),
             markRead: vi.fn().mockReturnValue(of(void 0)),
             markAllRead: vi.fn().mockReturnValue(of(void 0)),
+            markManyRead: vi.fn().mockReturnValue(of(void 0)),
         };
 
         mockPlanService = {
@@ -1606,23 +1607,41 @@ describe('AssistantChatComponent', () => {
 
     describe('proactive background messages', () => {
         let signalRService: AssistantSignalRService;
+        let asideService: AsideService;
+
+        const proactiveRow = (overrides: Partial<IProactiveInboxItem> = {}): IProactiveInboxItem => ({
+            id: 'proactive-1',
+            content: 'Bei Anton Heinz weichen die Stunden im Zeitraum 2026-07 um -170.0 h vom Soll ab.',
+            contentParams: {},
+            severity: 'high',
+            reaction: null,
+            createdUtc: new Date().toISOString(),
+            readAtUtc: null,
+            ...overrides,
+        });
+
+        const deliver = (...rows: IProactiveInboxItem[]): void => {
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of(rows));
+            asideService.hide();
+            fixture.detectChanges();
+            asideService.show();
+            fixture.detectChanges();
+        };
 
         beforeEach(() => {
             fixture.detectChanges();
             signalRService = TestBed.inject(AssistantSignalRService);
+            asideService = TestBed.inject(AsideService);
         });
 
-        it('tags a message pushed via proactiveMessage$ with messageKind "proactive"', () => {
-            // Arrange
-            const proactiveMessage: IProactiveMessage = {
-                messageId: 'proactive-1',
-                content: 'Bei Anton Heinz weichen die Stunden im Zeitraum 2026-07 um -170.0 h vom Soll ab.',
-                timestamp: new Date().toISOString(),
-                messageType: 'proactive',
-            };
+        afterEach(() => {
+            asideService.hide();
+            fixture.detectChanges();
+        });
 
+        it('tags a proactive inbox row with messageKind "proactive"', () => {
             // Act
-            signalRService.proactiveMessage$.next(proactiveMessage);
+            deliver(proactiveRow());
 
             // Assert
             const appended = component.messages.find((m) => m.id === 'proactive-1');
@@ -1650,13 +1669,7 @@ describe('AssistantChatComponent', () => {
 
         it('records a helpful reaction and locks both reaction buttons', async () => {
             // Arrange
-            const proactiveMessage: IProactiveMessage = {
-                messageId: 'proactive-reaction-1',
-                content: 'Eine Periode ist überfällig.',
-                timestamp: new Date().toISOString(),
-                messageType: 'proactive',
-            };
-            signalRService.proactiveMessage$.next(proactiveMessage);
+            deliver(proactiveRow({ id: 'proactive-reaction-1', content: 'Eine Periode ist überfällig.' }));
             const appended = component.messages.find((m) => m.id === 'proactive-reaction-1')!;
 
             // Act
@@ -1685,13 +1698,7 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const request$ = new Subject<void>();
             mockLlmService.setProactiveReaction.mockReturnValue(request$.asObservable());
-            const proactiveMessage: IProactiveMessage = {
-                messageId: 'proactive-reaction-pending',
-                content: 'Eine Schicht ist unbesetzt.',
-                timestamp: new Date().toISOString(),
-                messageType: 'proactive',
-            };
-            signalRService.proactiveMessage$.next(proactiveMessage);
+            deliver(proactiveRow({ id: 'proactive-reaction-pending', content: 'Eine Schicht ist unbesetzt.' }));
             const appended = component.messages.find((m) => m.id === 'proactive-reaction-pending')!;
 
             // Act
@@ -1734,13 +1741,7 @@ describe('AssistantChatComponent', () => {
             );
             const toastService = TestBed.inject(ToastShowService);
             const showErrorSpy = vi.spyOn(toastService, 'showError');
-            const proactiveMessage: IProactiveMessage = {
-                messageId: 'proactive-reaction-2',
-                content: 'Eine Verfügbarkeit fehlt.',
-                timestamp: new Date().toISOString(),
-                messageType: 'proactive',
-            };
-            signalRService.proactiveMessage$.next(proactiveMessage);
+            deliver(proactiveRow({ id: 'proactive-reaction-2', content: 'Eine Verfügbarkeit fehlt.' }));
             const appended = component.messages.find((m) => m.id === 'proactive-reaction-2')!;
 
             // Act
@@ -1826,7 +1827,7 @@ describe('AssistantChatComponent', () => {
             expect(lastMessage.id).toBe('inbox-1');
             expect(lastMessage.messageKind).toBe('proactive');
             expect(component.inboxHeadingMessageId()).toBe('inbox-1');
-            expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+            expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-1']);
         });
 
         it('appends inbox messages after an existing conversation with the heading anchored at the block start', () => {
@@ -1897,10 +1898,10 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.inboxHeadingMessageId()).toBeNull();
-            expect(mockProactiveInboxService.markAllRead).not.toHaveBeenCalled();
+            expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
         });
 
-        it('does not duplicate an entry already shown via live push but still marks it read', () => {
+        it('renders a row pushed while the aside was closed exactly once, inside the block', () => {
             // Arrange
             signalRService.proactiveMessage$.next({
                 messageId: 'inbox-dup',
@@ -1910,14 +1911,256 @@ describe('AssistantChatComponent', () => {
             });
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-dup' })]));
 
+            // Assert - the push payload alone never enters the conversation
+            expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(0);
+            expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
+
             // Act
             asideService.show();
             fixture.detectChanges();
 
             // Assert
             expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(1);
-            expect(component.inboxHeadingMessageId()).toBeNull();
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-dup']);
+            expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-dup']);
+        });
+
+        it('renders a live push through the inbox reload, into the block, never from the push payload', async () => {
+            // Arrange
+            vi.useFakeTimers();
+            try {
+                mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-away' })]));
+                asideService.show();
+                fixture.detectChanges();
+                mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                    of([
+                        inboxItem({ id: 'inbox-away' }),
+                        inboxItem({ id: 'live-1', content: 'Bei Sarah Hofmann weichen die Stunden ab.' }),
+                    ]),
+                );
+
+                // Act
+                signalRService.proactiveMessage$.next({
+                    messageId: 'live-1',
+                    content: 'PUSH-NUTZLAST DIE NIE GERENDERT WERDEN DARF',
+                    timestamp: new Date().toISOString(),
+                    messageType: 'proactive',
+                });
+                await vi.advanceTimersByTimeAsync(400);
+                fixture.detectChanges();
+
+                // Assert
+                expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-away', 'live-1']);
+                expect(component.inboxHeadingMessageId()).toBe('inbox-away');
+                const rendered = component.messages.find((m) => m.id === 'live-1')!;
+                expect(rendered.content).toBe('Bei Sarah Hofmann weichen die Stunden ab.');
+
+                const messagesElement: HTMLElement = fixture.nativeElement.querySelector('.messages');
+                const inboxBlock: HTMLElement = messagesElement.querySelector('.inbox-scroll-container')!;
+                expect(inboxBlock.textContent).toContain('Sarah Hofmann');
+                expect(messagesElement.textContent).not.toContain('PUSH-NUTZLAST');
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('collapses several pushes in a row into a single inbox reload', async () => {
+            // Arrange
+            vi.useFakeTimers();
+            try {
+                asideService.show();
+                fixture.detectChanges();
+                expect(mockProactiveInboxService.loadUnreadMessages).toHaveBeenCalledTimes(1);
+
+                // Act
+                for (const messageId of ['storm-1', 'storm-2', 'storm-3']) {
+                    signalRService.proactiveMessage$.next({
+                        messageId,
+                        content: 'Bei einem Mitarbeitenden weichen die Stunden ab.',
+                        timestamp: new Date().toISOString(),
+                        messageType: 'proactive',
+                    });
+                }
+                await vi.advanceTimersByTimeAsync(400);
+
+                // Assert
+                expect(mockProactiveInboxService.loadUnreadMessages).toHaveBeenCalledTimes(2);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('only refreshes the badge when a push arrives while the aside is closed', async () => {
+            // Arrange
+            vi.useFakeTimers();
+            try {
+                // Act
+                signalRService.proactiveMessage$.next({
+                    messageId: 'closed-1',
+                    content: 'Bei Amalia Mendel weichen die Stunden ab.',
+                    timestamp: new Date().toISOString(),
+                    messageType: 'proactive',
+                });
+                await vi.advanceTimersByTimeAsync(400);
+
+                // Assert
+                expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
+                expect(mockProactiveInboxService.loadUnreadMessages).not.toHaveBeenCalled();
+                expect(component.messages.some((m) => m.id === 'closed-1')).toBe(false);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('reloads the inbox on a silent unread-count signal while the aside is open', async () => {
+            // Arrange
+            vi.useFakeTimers();
+            try {
+                asideService.show();
+                fixture.detectChanges();
+                mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'silent-1' })]));
+
+                // Act
+                signalRService.proactiveInboxChanged$.next({ unreadCount: 1 });
+                await vi.advanceTimersByTimeAsync(400);
+                fixture.detectChanges();
+
+                // Assert
+                expect(component.inboxMessages().map((m) => m.id)).toEqual(['silent-1']);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('renders an onboarding prompt inline and outside the block', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-away-3' })]));
+            asideService.show();
+            fixture.detectChanges();
+
+            // Act
+            signalRService.onboardingPrompt$.next({
+                messageId: 'onboarding-1',
+                content: 'Willkommen! Soll ich dich durch die Einrichtung führen?',
+                timestamp: new Date().toISOString(),
+                messageType: 'onboarding',
+            });
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.isInboxMessage(component.messages.find((m) => m.id === 'onboarding-1')!)).toBe(false);
+        });
+
+        it('does not mark unread rows read while the block is collapsed', async () => {
+            // Arrange
+            vi.useFakeTimers();
+            try {
+                mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-collapse' })]));
+                asideService.show();
+                fixture.detectChanges();
+                component.toggleInboxExpanded();
+                mockProactiveInboxService.markManyRead.mockClear();
+                mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                    of([inboxItem({ id: 'inbox-collapse' }), inboxItem({ id: 'inbox-while-collapsed' })]),
+                );
+
+                // Act
+                signalRService.proactiveMessage$.next({
+                    messageId: 'inbox-while-collapsed',
+                    content: 'Bei Olivia Dietrich weichen die Stunden ab.',
+                    timestamp: new Date().toISOString(),
+                    messageType: 'proactive',
+                });
+                await vi.advanceTimersByTimeAsync(400);
+
+                // Assert
+                expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
+                expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
+
+                // Act
+                component.toggleInboxExpanded();
+
+                // Assert
+                expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith([
+                    'inbox-collapse',
+                    'inbox-while-collapsed',
+                ]);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('reports only the fetched page as read, never the whole inbox', () => {
+            // Arrange - 63 unread rows exist, the listing is capped at 50
+            const page = Array.from({ length: 50 }, (_, index) => inboxItem({ id: `row-${index}` }));
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of(page));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(page.map((row) => row.id));
+            expect(mockProactiveInboxService.markAllRead).not.toHaveBeenCalled();
+            expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
+        });
+
+        it('offers a mark-all-read button in the heading that stays disabled without unread rows', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-mark' })]));
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert - nothing unread reported, button is inert
+            const button: HTMLButtonElement = fixture.nativeElement.querySelector('.inbox-heading-action');
+            expect(button).toBeTruthy();
+            expect(button.disabled).toBe(true);
+
+            // Act
+            mockProactiveInboxService.hasUnread.set(true);
+            fixture.detectChanges();
+            expect(button.disabled).toBe(false);
+            button.click();
+
+            // Assert
             expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+        });
+
+        it('keeps the mark-all-read button separate from the collapse control', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-controls' })]));
+            mockProactiveInboxService.hasUnread.set(true);
+            asideService.show();
+            fixture.detectChanges();
+
+            // Act
+            const heading: HTMLElement = fixture.nativeElement.querySelector('.inbox-heading');
+            const markAllButton = heading.querySelectorAll('button')[1] as HTMLButtonElement;
+            markAllButton.click();
+            fixture.detectChanges();
+
+            // Assert - marking read must not collapse the block
+            expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+            expect(component.inboxExpanded()).toBe(true);
+            expect(heading.querySelector('.inbox-heading-chevron')).toBeTruthy();
+        });
+
+        it('keeps earlier block members and the anchor when a second load adds new unread entries', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-first' })]));
+            asideService.show();
+            fixture.detectChanges();
+            asideService.hide();
+            fixture.detectChanges();
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-second' })]));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.inboxHeadingMessageId()).toBe('inbox-first');
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-first', 'inbox-second']);
         });
 
         it('locks the reaction buttons for entries the user already reacted to', () => {
@@ -2050,46 +2293,60 @@ describe('AssistantChatComponent', () => {
     });
 
     describe('proactive one-click action and mute suggestion (phases 4+5)', () => {
-        let signalRService: AssistantSignalRService;
+        let asideService: AsideService;
         let navigationService: KlacksyNavigationService;
 
-        const proactiveWithAction = (overrides: Partial<IProactiveMessage> = {}): IProactiveMessage => ({
-            messageId: 'proactive-action-1',
+        const proactiveWithAction = (overrides: Partial<IProactiveInboxItem> = {}): IProactiveInboxItem => ({
+            id: 'proactive-action-1',
             content: 'Eine Schicht am 2026-08-03 ist noch unbesetzt.',
-            timestamp: new Date().toISOString(),
-            messageType: 'proactive',
+            contentParams: {},
+            severity: 'high',
+            reaction: null,
+            createdUtc: new Date().toISOString(),
+            readAtUtc: null,
             kind: 'unstaffed_shift',
             actionRoute: '/workplace/schedule',
             actionParams: { groupId: 'g-1', period: '2026-08' },
             ...overrides,
         });
 
-        const muteSuggestion = (overrides: Partial<IProactiveMessage> = {}): IProactiveMessage => ({
-            messageId: 'mute-suggestion-1',
+        const muteSuggestion = (overrides: Partial<IProactiveInboxItem> = {}): IProactiveInboxItem => ({
+            id: 'mute-suggestion-1',
             content: 'i18n:assistant.proactive.muteSuggestion',
-            timestamp: new Date().toISOString(),
-            messageType: 'proactive',
-            kind: PROACTIVE_TRIGGER_KIND.MuteSuggestion,
             contentParams: { kind: 'unstaffed_shift' },
+            severity: 'low',
+            reaction: null,
+            createdUtc: new Date().toISOString(),
+            readAtUtc: null,
+            kind: PROACTIVE_TRIGGER_KIND.MuteSuggestion,
             actionRoute: null,
             actionParams: null,
             ...overrides,
         });
 
+        const deliver = (...rows: IProactiveInboxItem[]): void => {
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of(rows));
+            asideService.hide();
+            fixture.detectChanges();
+            asideService.show();
+            fixture.detectChanges();
+        };
+
         beforeEach(() => {
             fixture.detectChanges();
-            signalRService = TestBed.inject(AssistantSignalRService);
+            asideService = TestBed.inject(AsideService);
             navigationService = TestBed.inject(KlacksyNavigationService);
             vi.spyOn(navigationService, 'navigateAndScroll').mockResolvedValue({ success: true });
         });
 
+        afterEach(() => {
+            asideService.hide();
+            fixture.detectChanges();
+        });
+
         it('navigates to the action route with query params and keeps the aside open', () => {
             // Arrange
-            const asideService = TestBed.inject(AsideService);
-            asideService.show();
-            fixture.detectChanges();
-            signalRService.proactiveMessage$.next(proactiveWithAction());
-            fixture.detectChanges();
+            deliver(proactiveWithAction());
 
             // Act
             const actionButton: HTMLButtonElement = fixture.nativeElement.querySelector('.proactive-action-btn');
@@ -2101,14 +2358,11 @@ describe('AssistantChatComponent', () => {
                 '/workplace/schedule?groupId=g-1&period=2026-08',
             );
             expect(asideService.isVisible()).toBe(true);
-            asideService.hide();
         });
 
         it('navigates without a query string when the action has no params', () => {
             // Arrange
-            signalRService.proactiveMessage$.next(
-                proactiveWithAction({ messageId: 'proactive-action-2', actionParams: null }),
-            );
+            deliver(proactiveWithAction({ id: 'proactive-action-2', actionParams: null }));
             const message = component.messages.find((m) => m.id === 'proactive-action-2')!;
 
             // Act
@@ -2120,13 +2374,16 @@ describe('AssistantChatComponent', () => {
 
         it('renders the show-me button only for proactive messages carrying an action route', () => {
             // Arrange
-            signalRService.proactiveMessage$.next(proactiveWithAction());
-            signalRService.proactiveMessage$.next({
-                messageId: 'proactive-no-action',
-                content: 'Eine Periode ist überfällig.',
-                timestamp: new Date().toISOString(),
-                messageType: 'proactive',
-            });
+            deliver(
+                proactiveWithAction(),
+                proactiveWithAction({
+                    id: 'proactive-no-action',
+                    content: 'Eine Periode ist überfällig.',
+                    kind: null,
+                    actionRoute: null,
+                    actionParams: null,
+                }),
+            );
 
             // Act
             fixture.detectChanges();
@@ -2138,7 +2395,7 @@ describe('AssistantChatComponent', () => {
 
         it('renders the mute button instead of the reaction pair for mute suggestions', () => {
             // Arrange
-            signalRService.proactiveMessage$.next(muteSuggestion());
+            deliver(muteSuggestion());
 
             // Act
             fixture.detectChanges();
@@ -2156,7 +2413,7 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const toastService = TestBed.inject(ToastShowService);
             const showInfoSpy = vi.spyOn(toastService, 'showInfo');
-            signalRService.proactiveMessage$.next(muteSuggestion());
+            deliver(muteSuggestion());
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
 
             // Act
@@ -2181,7 +2438,7 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const request$ = new Subject<void>();
             mockLlmService.muteTriggerKind.mockReturnValue(request$.asObservable());
-            signalRService.proactiveMessage$.next(muteSuggestion({ messageId: 'mute-suggestion-pending' }));
+            deliver(muteSuggestion({ id: 'mute-suggestion-pending' }));
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-pending')!;
 
             // Act
@@ -2203,7 +2460,7 @@ describe('AssistantChatComponent', () => {
             mockLlmService.muteTriggerKind.mockReturnValue(throwError(() => new Error('offline')));
             const toastService = TestBed.inject(ToastShowService);
             const showErrorSpy = vi.spyOn(toastService, 'showError');
-            signalRService.proactiveMessage$.next(muteSuggestion({ messageId: 'mute-suggestion-error' }));
+            deliver(muteSuggestion({ id: 'mute-suggestion-error' }));
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-error')!;
 
             // Act
@@ -2230,9 +2487,7 @@ describe('AssistantChatComponent', () => {
 
         it('does not send a mute request when the target kind is missing from the content params', async () => {
             // Arrange
-            signalRService.proactiveMessage$.next(
-                muteSuggestion({ messageId: 'mute-suggestion-no-target', contentParams: {} }),
-            );
+            deliver(muteSuggestion({ id: 'mute-suggestion-no-target', contentParams: {} }));
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-no-target')!;
 
             // Act
@@ -2244,7 +2499,6 @@ describe('AssistantChatComponent', () => {
 
         it('maps kind, action route and params for inbox items and renders the action button', () => {
             // Arrange
-            const asideService = TestBed.inject(AsideService);
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
                 of([
                     {
@@ -2278,7 +2532,6 @@ describe('AssistantChatComponent', () => {
 
         it('maps the mute target kind for inbox mute suggestions and renders the mute button', () => {
             // Arrange
-            const asideService = TestBed.inject(AsideService);
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
                 of([
                     {

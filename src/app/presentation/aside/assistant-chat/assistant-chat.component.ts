@@ -40,13 +40,14 @@ import {
   faThumbsDown,
   faThumbsUp,
   faCheck,
+  faCheckDouble,
   faBell,
   faBellSlash,
   faArrowRight,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject, debounceTime } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
@@ -142,6 +143,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 export class AssistantChatComponent {
   private readonly messagesContainer = viewChild.required<ElementRef>('messagesContainer');
   private readonly chatInput = viewChild<ElementRef<HTMLTextAreaElement>>('chatInput');
+  private readonly inboxScrollContainer = viewChild<ElementRef<HTMLElement>>('inboxScrollContainer');
 
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
@@ -160,7 +162,7 @@ export class AssistantChatComponent {
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
-  private proactiveInboxService = inject(DataManagementProactiveInboxService);
+  readonly proactiveInboxService = inject(DataManagementProactiveInboxService);
   readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
@@ -175,6 +177,7 @@ export class AssistantChatComponent {
   private eventBus = inject(EVENT_BUS_TOKEN);
 
   private shouldScrollToBottom = true;
+  private shouldScrollInboxToBottom = false;
   private pendingGreetingMessageId: string | null = null;
   private pendingGreetingOptions: ISuggestedReply[] = [];
   private greetingSpoken = false;
@@ -194,6 +197,7 @@ export class AssistantChatComponent {
   faCheck = faCheck;
   faBell = faBell;
   faBellSlash = faBellSlash;
+  faCheckDouble = faCheckDouble;
   faArrowRight = faArrowRight;
 
   readonly proactiveReactions = PROACTIVE_REACTION;
@@ -201,6 +205,7 @@ export class AssistantChatComponent {
   correctionMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
   readonly pendingMuteMessageId = signal<string | null>(null);
+  readonly inboxBlockId = 'assistant-chat-inbox-block';
   readonly inboxHeadingMessageId = signal<string | null>(null);
   readonly inboxExpanded = signal<boolean>(true);
   private readonly inboxMessageIds = signal<ReadonlySet<string>>(new Set());
@@ -209,6 +214,7 @@ export class AssistantChatComponent {
     return this.orchestrator.messages().filter((message) => ids.has(message.id));
   });
   private inboxLoadRequested = false;
+  private readonly inboxReloadRequests$ = new Subject<void>();
 
   inputText = signal('');
   isProcessing = signal(false);
@@ -246,7 +252,7 @@ export class AssistantChatComponent {
 
   conversationId = '';
   private currentStreamController: AbortController | null = null;
-  private pendingProactiveChatMessages: IProactiveMessage[] = [];
+  private pendingOnboardingPrompts: IProactiveMessage[] = [];
   private currentRawStream = '';
   private streamBuffer = '';
   private streamRafHandle: number | null = null;
@@ -261,6 +267,7 @@ export class AssistantChatComponent {
   private static readonly INVOKE_BLOCK_REGEX = /<\s*invoke\b[\s\S]*?<\s*\/\s*invoke\s*>/gi;
   private static readonly INVOKE_TRAILING_REGEX = /<\s*invoke\b[\s\S]*$/i;
   private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
+  private static readonly INBOX_RELOAD_DEBOUNCE_MS = 250;
   private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
 
   @HostListener('document:click', ['$event'])
@@ -278,6 +285,10 @@ export class AssistantChatComponent {
       if (this.shouldScrollToBottom) {
         this.scrollToBottom();
         this.shouldScrollToBottom = false;
+      }
+      if (this.shouldScrollInboxToBottom) {
+        this.scrollInboxToBottom();
+        this.shouldScrollInboxToBottom = false;
       }
     });
 
@@ -337,35 +348,41 @@ export class AssistantChatComponent {
       this.addWelcomeMessage(currentLang);
     }
 
+    // A live push carries no content of its own: the trigger pipeline persists the inbox row
+    // before it delivers (AgentTriggerService), so the row — not the push payload — is the single
+    // source. The push only says "the inbox changed", the reload renders it.
     this.assistantSignalR.proactiveMessage$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((msg) => {
-        this.ngZone.run(() => {
-          if (this.onboarding.isTourActive()) {
-            this.pendingProactiveChatMessages.push(msg);
-            return;
-          }
-          this.appendProactiveChatMessage(msg);
-        });
-      });
+      .subscribe(() => this.ngZone.run(() => this.onProactivePushReceived()));
+
+    this.assistantSignalR.proactiveInboxChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.ngZone.run(() => this.onInboxUnreadCountChanged()));
+
+    this.inboxReloadRequests$
+      .pipe(
+        debounceTime(AssistantChatComponent.INBOX_RELOAD_DEBOUNCE_MS),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.loadProactiveInbox());
 
     this.assistantSignalR.onboardingPrompt$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => {
         this.ngZone.run(() => {
           if (this.onboarding.isTourActive()) {
-            this.pendingProactiveChatMessages.push(msg);
+            this.pendingOnboardingPrompts.push(msg);
             return;
           }
-          this.appendProactiveChatMessage(msg);
+          this.appendOnboardingPromptMessage(msg);
         });
       });
 
     effect(() => {
-      if (!this.onboarding.isTourActive() && this.pendingProactiveChatMessages.length > 0) {
-        const queued = this.pendingProactiveChatMessages;
-        this.pendingProactiveChatMessages = [];
-        queued.forEach((msg) => this.appendProactiveChatMessage(msg));
+      if (!this.onboarding.isTourActive() && this.pendingOnboardingPrompts.length > 0) {
+        const queued = this.pendingOnboardingPrompts;
+        this.pendingOnboardingPrompts = [];
+        queued.forEach((msg) => this.appendOnboardingPromptMessage(msg));
       }
     });
 
@@ -412,6 +429,25 @@ export class AssistantChatComponent {
     });
   }
 
+  private onProactivePushReceived(): void {
+    if (this.canPresentInbox()) {
+      this.inboxReloadRequests$.next();
+      return;
+    }
+    // The live-push branch sends no unread-count signal, so the badge would miss this row.
+    this.proactiveInboxService.refreshUnreadCount();
+  }
+
+  private onInboxUnreadCountChanged(): void {
+    if (this.canPresentInbox()) {
+      this.inboxReloadRequests$.next();
+    }
+  }
+
+  private canPresentInbox(): boolean {
+    return this.asideService.isVisible() && !this.onboarding.isTourActive();
+  }
+
   private loadProactiveInbox(): void {
     this.proactiveInboxService
       .loadUnreadMessages()
@@ -431,12 +467,20 @@ export class AssistantChatComponent {
     if (freshItems.length > 0) {
       const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
       this.messages = [...this.messages, ...inboxMessages];
-      this.inboxHeadingMessageId.set(inboxMessages[0].id);
-      this.inboxMessageIds.set(new Set(inboxMessages.map((message) => message.id)));
-      this.inboxExpanded.set(true);
+      if (this.inboxHeadingMessageId() === null) {
+        this.inboxHeadingMessageId.set(inboxMessages[0].id);
+        this.inboxExpanded.set(true);
+      }
+      this.addToInboxBlock(inboxMessages.map((message) => message.id));
       this.shouldScrollToBottom = true;
+      this.shouldScrollInboxToBottom = true;
     }
-    this.markInboxRead();
+    if (this.inboxExpanded()) {
+      this.markInboxRead(items.map((item) => item.id));
+      return;
+    }
+    // Collapsed block: nothing was shown, so nothing is read — the badge has to carry the news.
+    this.proactiveInboxService.refreshUnreadCount();
   }
 
   private toInboxChatMessage(item: IProactiveInboxItem): ChatMessage {
@@ -477,11 +521,19 @@ export class AssistantChatComponent {
       : undefined;
   }
 
-  private markInboxRead(): void {
+  // Only what was rendered counts as read: the listing is capped, so marking everything unread
+  // would silently swallow the rows beyond that page.
+  private markInboxRead(messageIds: readonly string[]): void {
+    if (messageIds.length === 0) {
+      return;
+    }
     this.proactiveInboxService
-      .markAllRead()
+      .markManyRead(messageIds)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ error: () => undefined });
+      .subscribe({
+        next: () => this.proactiveInboxService.refreshUnreadCount(),
+        error: () => undefined,
+      });
   }
 
   private restartGuidedTour(): void {
@@ -542,7 +594,7 @@ export class AssistantChatComponent {
     return stripped;
   }
 
-  private appendProactiveChatMessage(msg: IProactiveMessage): void {
+  private appendOnboardingPromptMessage(msg: IProactiveMessage): void {
     const content = this.resolveProactiveContent(msg.content, msg.contentParams);
     this.orchestrator.addMessage({
       id: msg.messageId,
@@ -557,12 +609,26 @@ export class AssistantChatComponent {
     this.cdr.detectChanges();
   }
 
+  private addToInboxBlock(messageIds: readonly string[]): void {
+    this.inboxMessageIds.update((ids) => new Set([...ids, ...messageIds]));
+  }
+
   isMuteSuggestion(message: ChatMessage): boolean {
     return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
   }
 
+  markWholeInboxRead(): void {
+    this.proactiveInboxService
+      .markAllRead()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ error: () => undefined });
+  }
+
   toggleInboxExpanded(): void {
     this.inboxExpanded.update((expanded) => !expanded);
+    if (this.inboxExpanded()) {
+      this.markInboxRead([...this.inboxMessageIds()]);
+    }
   }
 
   isInboxMessage(message: ChatMessage): boolean {
@@ -627,6 +693,13 @@ export class AssistantChatComponent {
     if (messagesContainer?.nativeElement) {
       messagesContainer.nativeElement.scrollTop =
         messagesContainer.nativeElement.scrollHeight;
+    }
+  }
+
+  private scrollInboxToBottom(): void {
+    const inboxContainer = this.inboxScrollContainer();
+    if (inboxContainer?.nativeElement) {
+      inboxContainer.nativeElement.scrollTop = inboxContainer.nativeElement.scrollHeight;
     }
   }
 

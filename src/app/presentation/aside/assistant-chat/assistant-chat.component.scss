@@ -715,6 +715,8 @@
 }
 
 .inbox-heading {
+  display: flex;
+  align-items: center;
   margin: 16px 0 6px;
   border-radius: 10px;
   background: rgba(colors.$CurrentGreyColor, 0.15);
@@ -726,14 +728,16 @@
 .inbox-heading-toggle {
   display: flex;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   gap: 6px;
   padding: 4px 10px;
   border: none;
-  border-radius: 10px;
+  border-radius: 10px 0 0 10px;
   background: transparent;
   color: inherit;
   font: inherit;
+  text-align: left;
   cursor: pointer;
 
   &:hover {
@@ -746,8 +750,34 @@
   }
 }
 
+.inbox-heading-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: rgba(colors.$CurrentGreyColor, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focusBorderColor);
+    outline-offset: 2px;
+  }
+}
+
 .inbox-heading-chevron {
-  margin-left: auto;
+  border-radius: 0 10px 10px 0;
 }
 
 .inbox-scroll-container {

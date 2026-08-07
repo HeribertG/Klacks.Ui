@@ -299,17 +299,39 @@
           class="inbox-heading-toggle"
           (click)="toggleInboxExpanded()"
           [attr.aria-expanded]="inboxExpanded()"
+          [attr.aria-controls]="inboxBlockId"
         >
           <fa-icon [icon]="faBell"></fa-icon>
           <span>{{ "assistant-chat.proactive.inbox-heading" | translate }}</span>
-          <fa-icon
-            class="inbox-heading-chevron"
-            [icon]="inboxExpanded() ? faChevronUp : faChevronDown"
-          ></fa-icon>
+        </button>
+        <button
+          type="button"
+          class="inbox-heading-action"
+          [disabled]="!proactiveInboxService.hasUnread()"
+          (click)="markWholeInboxRead()"
+          [attr.aria-label]="'assistant-chat.proactive.mark-all-read' | translate"
+          [title]="'assistant-chat.proactive.mark-all-read' | translate"
+        >
+          <fa-icon [icon]="faCheckDouble"></fa-icon>
+        </button>
+        <button
+          type="button"
+          class="inbox-heading-action inbox-heading-chevron"
+          (click)="toggleInboxExpanded()"
+          [attr.aria-expanded]="inboxExpanded()"
+          [attr.aria-controls]="inboxBlockId"
+          [attr.aria-label]="
+            (inboxExpanded()
+              ? 'assistant-chat.proactive.inbox-collapse'
+              : 'assistant-chat.proactive.inbox-expand'
+            ) | translate
+          "
+        >
+          <fa-icon [icon]="inboxExpanded() ? faChevronUp : faChevronDown"></fa-icon>
         </button>
       </div>
       @if (inboxExpanded()) {
-      <div class="inbox-scroll-container">
+      <div class="inbox-scroll-container" [id]="inboxBlockId" #inboxScrollContainer>
         @for (inboxMsg of inboxMessages(); track inboxMsg.id) {
         <ng-container [ngTemplateOutlet]="messageTpl" [ngTemplateOutletContext]="{ message: inboxMsg }"></ng-container>
         }

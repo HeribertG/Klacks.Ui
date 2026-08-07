@@ -53,6 +53,10 @@ export class DataManagementProactiveInboxService implements OnDestroy {
       .pipe(tap(() => this.unreadCount.update((count) => Math.max(0, count - 1))));
   }
 
+  markManyRead(messageIds: readonly string[]): Observable<void> {
+    return this.dataProactiveMessageService.markManyRead(messageIds);
+  }
+
   markAllRead(): Observable<void> {
     return this.dataProactiveMessageService
       .markAllRead()
