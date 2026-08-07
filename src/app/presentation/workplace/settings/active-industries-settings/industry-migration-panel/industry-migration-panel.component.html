@@ -1,0 +1,135 @@
+@if (migrationService.status() === 'loading') {
+  <div id="industry-migration-loading-row" class="row-line-single">
+    <p class="hint-text">{{ "setting.activeIndustries.migration.loading" | translate }}</p>
+  </div>
+}
+
+@if (migrationService.status() === 'error') {
+  <div id="industry-migration-error-row" class="row-line-single">
+    <p id="industry-migration-error" class="validation-error">
+      {{ "setting.activeIndustries.migration.error" | translate }}
+    </p>
+  </div>
+}
+
+@if (migrationService.hasSaveError()) {
+  <div id="industry-migration-save-error-row" class="row-line-single">
+    <p id="industry-migration-save-error" class="validation-error">
+      {{ "setting.activeIndustries.migration.saveError" | translate }}
+    </p>
+  </div>
+}
+
+@if (migrationService.lastMigratedCount() !== null) {
+  <div id="industry-migration-done-row" class="row-line-single">
+    <p id="industry-migration-done" class="migration-done">
+      {{
+        "setting.activeIndustries.migration.done"
+          | translate: { count: migrationService.lastMigratedCount() }
+      }}
+    </p>
+  </div>
+}
+
+@if (migrationService.hasCandidates()) {
+  <div id="industry-migration-panel" class="migration-panel">
+    <div id="industry-migration-warning-row" class="migration-warning-row">
+      <p id="industry-migration-warning" class="migration-warning">
+        {{
+          "setting.activeIndustries.migration.warning"
+            | translate: { count: migrationService.candidateCount() }
+        }}
+      </p>
+      <button
+        type="button"
+        id="industry-migration-toggle-btn"
+        class="migration-toggle-btn"
+        [attr.aria-expanded]="isExpanded()"
+        [attr.aria-label]="'setting.activeIndustries.migration.toggleAriaLabel' | translate"
+        (click)="toggleList()"
+      >
+        @if (isExpanded()) {
+          <app-icon-angle-down aria-hidden="true" />
+        } @else {
+          <app-icon-angle-right aria-hidden="true" />
+        }
+      </button>
+    </div>
+
+    @if (isExpanded()) {
+      <div id="industry-migration-list" class="migration-list">
+        <p class="hint-text">{{ "setting.activeIndustries.migration.hint" | translate }}</p>
+
+        <div id="industry-migration-header-row" class="migration-row migration-header-row">
+          <span class="migration-cell migration-cell-contract">{{
+            "setting.activeIndustries.migration.column.contract" | translate
+          }}</span>
+          <span class="migration-cell migration-cell-clients">{{
+            "setting.activeIndustries.migration.column.clients" | translate
+          }}</span>
+          <span class="migration-cell migration-cell-current">{{
+            "setting.activeIndustries.migration.column.currentRule" | translate
+          }}</span>
+          <span class="migration-cell migration-cell-target">{{
+            "setting.activeIndustries.migration.column.targetRule" | translate
+          }}</span>
+        </div>
+
+        @for (candidate of migrationService.candidates(); track candidate.contractId) {
+          <div [id]="'industry-migration-row-' + candidate.contractId" class="migration-row">
+            <span class="migration-cell migration-cell-contract">{{ candidate.contractName }}</span>
+            <span class="migration-cell migration-cell-clients">{{
+              candidate.affectedClientCount
+            }}</span>
+            <span class="migration-cell migration-cell-current">
+              {{ candidate.schedulingRuleName }}
+              <span class="migration-industry"
+                >({{ migrationService.industryLabel(candidate.industry) }})</span
+              >
+            </span>
+            <span class="migration-cell migration-cell-target">
+              <select
+                class="form-select migration-target-select"
+                [id]="'industry-migration-target-' + candidate.contractId"
+                [attr.aria-label]="
+                  'setting.activeIndustries.migration.column.targetRule' | translate
+                "
+                [value]="migrationService.targetRuleId(candidate.contractId)"
+                (change)="onTargetChange(candidate.contractId, $any($event.target).value)"
+              >
+                <option [value]="migrationService.noTargetSelected">
+                  {{ "setting.activeIndustries.migration.target.placeholder" | translate }}
+                </option>
+                @for (rule of migrationService.selectableRules(); track rule.id) {
+                  <option
+                    [value]="rule.id"
+                    [selected]="rule.id === migrationService.targetRuleId(candidate.contractId)"
+                  >
+                    {{ rule.name }}
+                  </option>
+                }
+              </select>
+              @if (candidate.suggestedRuleId) {
+                <span class="migration-suggested">{{
+                  "setting.activeIndustries.migration.suggested" | translate
+                }}</span>
+              }
+            </span>
+          </div>
+        }
+
+        <div id="industry-migration-actions" class="migration-actions">
+          <button
+            type="button"
+            id="industry-migration-apply-btn"
+            class="btn btn-primary"
+            [disabled]="!migrationService.canApply()"
+            (click)="onApply()"
+          >
+            {{ "setting.activeIndustries.migration.apply" | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,110 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.row-line-single {
+  margin-top: 5px;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+.hint-text {
+  max-width: 640px;
+  margin-top: 5px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.validation-error {
+  display: block;
+  color: var(--standartRedColor);
+}
+
+.migration-panel {
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  margin-top: 10px;
+}
+
+.migration-warning-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-inline-start: 3px solid var(--standartRedColor);
+}
+
+.migration-warning {
+  margin: 0;
+  font-weight: 600;
+}
+
+.migration-done {
+  margin: 0;
+  padding: 8px 12px;
+  font-weight: 600;
+  border-inline-start: 3px solid var(--standartTextColor);
+}
+
+.migration-toggle-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  color: inherit;
+}
+
+.migration-list {
+  margin-top: 5px;
+}
+
+.migration-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.migration-header-row {
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.migration-cell {
+  display: block;
+}
+
+.migration-cell-contract {
+  flex: 2 1 0;
+  min-width: 0;
+}
+
+.migration-cell-clients {
+  flex: 0 0 80px;
+}
+
+.migration-cell-current {
+  flex: 2 1 0;
+  min-width: 0;
+}
+
+.migration-cell-target {
+  flex: 2 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.migration-industry {
+  opacity: 0.75;
+}
+
+.migration-suggested {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.migration-actions {
+  margin-top: 10px;
+}

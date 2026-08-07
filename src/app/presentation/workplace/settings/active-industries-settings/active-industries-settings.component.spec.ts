@@ -11,6 +11,7 @@ import { DataManagementIndustryTemplateService } from 'src/app/domain/services/s
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { DataManagementIndustryMigrationService } from 'src/app/domain/services/scheduling/data-management-industry-migration.service';
 import { ActiveIndustriesSettings, IActiveIndustriesSettings } from 'src/app/domain/models/settings/app-settings.model';
 import { IIndustryTemplate } from 'src/app/domain/models/settings/industry-template.interface';
 
@@ -24,6 +25,8 @@ describe('ActiveIndustriesSettingsComponent', () => {
   let getCustomRulesSummarySpy: ReturnType<typeof vi.fn>;
   let asideShowSpy: ReturnType<typeof vi.fn>;
   let submitTextSpy: ReturnType<typeof vi.fn>;
+  let migrationLoadSpy: ReturnType<typeof vi.fn>;
+  let saveImmediatelySpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     activeIndustriesSignal = signal<IActiveIndustriesSettings>(new ActiveIndustriesSettings());
@@ -33,11 +36,34 @@ describe('ActiveIndustriesSettingsComponent', () => {
     getCustomRulesSummarySpy = vi.fn().mockReturnValue(of({ customSchedulingRuleCount: 0 }));
     asideShowSpy = vi.fn();
     submitTextSpy = vi.fn().mockResolvedValue(undefined);
+    migrationLoadSpy = vi.fn().mockResolvedValue(undefined);
+    saveImmediatelySpy = vi.fn().mockResolvedValue(undefined);
 
     const mockSettings = {
       isReset: isResetSignal,
       settingsChangeTrigger: triggerSignal,
-      appSettings: { activeIndustriesSettings: activeIndustriesSignal },
+      appSettings: {
+        activeIndustriesSettings: activeIndustriesSignal,
+        saveImmediately: saveImmediatelySpy,
+      },
+    };
+
+    const mockMigrationService = {
+      load: migrationLoadSpy,
+      status: signal('idle'),
+      candidates: signal([]),
+      selectableRules: signal([]),
+      candidateCount: signal(0),
+      hasCandidates: signal(false),
+      hasSaveError: signal(false),
+      lastMigratedCount: signal(null),
+      isApplying: signal(false),
+      canApply: signal(false),
+      noTargetSelected: '',
+      targetRuleId: vi.fn().mockReturnValue(''),
+      setTarget: vi.fn(),
+      industryLabel: vi.fn().mockImplementation((industry: string) => industry),
+      applyMigrations: vi.fn().mockResolvedValue(false),
     };
 
     const mockManualLoader = {
@@ -65,6 +91,7 @@ describe('ActiveIndustriesSettingsComponent', () => {
         { provide: DataManagementIndustryTemplateService, useValue: mockIndustryTemplateService },
         { provide: AsideService, useValue: mockAsideService },
         { provide: ConversationOrchestratorService, useValue: mockConversationOrchestrator },
+        { provide: DataManagementIndustryMigrationService, useValue: mockMigrationService },
       ],
     }).compileComponents();
 
@@ -128,6 +155,39 @@ describe('ActiveIndustriesSettingsComponent', () => {
     component.formModel.set({ selectedOption: '' });
     TestBed.tick();
     expect(triggerSignal()).toBe(triggerBefore);
+    expect(saveImmediatelySpy).not.toHaveBeenCalled();
+  });
+
+  it('loads the industry migration list when the card opens', () => {
+    fixture.detectChanges();
+    expect(migrationLoadSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('writes the selection before reloading the migration list, which the backend derives from it', async () => {
+    fixture.detectChanges();
+    migrationLoadSpy.mockClear();
+
+    component.formModel.set({ selectedOption: 'logistics' });
+    TestBed.tick();
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    expect(saveImmediatelySpy).toHaveBeenCalledTimes(1);
+    expect(migrationLoadSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reload the migration list when the custom gate blocks persisting', async () => {
+    getCustomRulesSummarySpy.mockReturnValue(of({ customSchedulingRuleCount: 0 }));
+    fixture.detectChanges();
+    migrationLoadSpy.mockClear();
+
+    fixture.nativeElement.querySelector('#ai-custom').click();
+    fixture.detectChanges();
+    TestBed.tick();
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    expect(component.isCustomGateBlocked()).toBe(true);
+    expect(saveImmediatelySpy).not.toHaveBeenCalled();
+    expect(migrationLoadSpy).not.toHaveBeenCalled();
   });
 
   it('lazily loads and caches the preview for an industry on first expand', () => {

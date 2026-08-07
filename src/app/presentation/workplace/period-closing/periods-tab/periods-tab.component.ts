@@ -5,6 +5,9 @@
  * Shows all days in the period with seal checkboxes and bulk actions.
  * Seal and unseal always require an explicit confirmation dialog; the
  * unseal confirmation additionally warns when an export already exists.
+ * A seal refused over open errors is re-offered for confirmation carrying the
+ * error count the backend reported, and is asked again whenever that count grew
+ * in the meantime instead of silently sealing over the new findings.
  * @param api - PeriodClosing API service for seal/unseal/summary
  * @param toastShowService - Toast notifications
  * @param translate - i18n service
@@ -40,6 +43,14 @@ const HTTP_STATUS_CONFLICT = 409;
 interface PeriodGroup {
   intervalKey: string;
   periods: UsedPeriod[];
+}
+
+/**
+ * Body of the 409 the seal endpoint answers with while the period still holds errors. The count is
+ * what the confirmation is issued for, so the retry can tell the backend which state was confirmed.
+ */
+interface SealConflictBody {
+  currentErrorCount?: number;
 }
 
 @Component({
@@ -317,7 +328,7 @@ export class PeriodsTabComponent implements OnInit {
     return row.totalWorkCount - row.sealedWorkCount + row.totalBreakCount - row.sealedBreakCount;
   }
 
-  private executeBulkSeal(period: UsedPeriod, acknowledgeViolations = false): void {
+  private executeBulkSeal(period: UsedPeriod, acknowledgeViolations = false, acknowledgedErrorCount: number | null = null): void {
     const bounds = this.getPeriodBounds(period);
     this.bulkLoading.set(true);
     this.api
@@ -327,6 +338,7 @@ export class PeriodsTabComponent implements OnInit {
         groupId: period.groupId,
         reason: null,
         acknowledgeViolations,
+        acknowledgedErrorCount,
       })
       .subscribe({
         next: (count) => {
@@ -338,13 +350,39 @@ export class PeriodsTabComponent implements OnInit {
         },
         error: (err) => {
           this.bulkLoading.set(false);
-          if (err?.status === HTTP_STATUS_CONFLICT && !acknowledgeViolations) {
-            this.openViolationConfirmation(() => this.executeBulkSeal(period, true));
+          const retryCount = this.errorCountToReconfirm(err, acknowledgeViolations, acknowledgedErrorCount);
+          if (retryCount !== undefined) {
+            this.openViolationConfirmation(() => this.executeBulkSeal(period, true, retryCount));
             return;
           }
           this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
         },
       });
+  }
+
+  /**
+   * Decides whether a failed seal should be re-offered for confirmation, and with which error count.
+   * Returns undefined when it must not: anything but a 409, or a repeated refusal reporting the very
+   * count that was just confirmed - retrying that would loop forever. A 409 without a machine-readable
+   * count comes from a backend that does not re-check and is confirmed the legacy way (count null).
+   * @param err - the failed HTTP response
+   * @param acknowledgeViolations - whether this attempt already carried a confirmation
+   * @param acknowledgedErrorCount - the count that confirmation was issued for
+   */
+  private errorCountToReconfirm(
+    err: { status?: number; error?: SealConflictBody } | null | undefined,
+    acknowledgeViolations: boolean,
+    acknowledgedErrorCount: number | null
+  ): number | null | undefined {
+    if (err?.status !== HTTP_STATUS_CONFLICT) {
+      return undefined;
+    }
+    const reported = err?.error?.currentErrorCount;
+    const currentErrorCount = typeof reported === 'number' ? reported : null;
+    if (!acknowledgeViolations) {
+      return currentErrorCount;
+    }
+    return currentErrorCount !== null && currentErrorCount !== acknowledgedErrorCount ? currentErrorCount : undefined;
   }
 
   /**
@@ -388,7 +426,7 @@ export class PeriodsTabComponent implements OnInit {
       });
   }
 
-  private sealDay(date: string, acknowledgeViolations = false): void {
+  private sealDay(date: string, acknowledgeViolations = false, acknowledgedErrorCount: number | null = null): void {
     const period = this.selectedPeriod();
     if (!period) {
       return;
@@ -401,6 +439,7 @@ export class PeriodsTabComponent implements OnInit {
         groupId: period.groupId,
         reason: null,
         acknowledgeViolations,
+        acknowledgedErrorCount,
       })
       .subscribe({
         next: () => {
@@ -409,8 +448,9 @@ export class PeriodsTabComponent implements OnInit {
         },
         error: (err) => {
           this.sealingDay.set(null);
-          if (err?.status === HTTP_STATUS_CONFLICT && !acknowledgeViolations) {
-            this.openViolationConfirmation(() => this.sealDay(date, true));
+          const retryCount = this.errorCountToReconfirm(err, acknowledgeViolations, acknowledgedErrorCount);
+          if (retryCount !== undefined) {
+            this.openViolationConfirmation(() => this.sealDay(date, true, retryCount));
             return;
           }
           this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
