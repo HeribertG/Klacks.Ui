@@ -2,7 +2,8 @@
 
 /**
  * Admin Updates card: shows current/available version, recent operation history, lets the admin
- * configure auto-update behaviour and trigger an update or rollback.
+ * configure auto-update behaviour and trigger an update or rollback. History rows that no updater
+ * ever claimed are flagged as waiting for the update service instead of showing a bare Pending.
  * @param status - Current version and active/last operation state
  * @param config - Auto-update configuration (channel, schedule, retention)
  * @param history - Recent update operation history
@@ -23,6 +24,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import {
   IUpdateConfig,
@@ -69,6 +71,7 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
   private dataUpdateService = inject(DataManagementUpdateService);
   private settingsService = inject(DataManagementSettingsService);
   private dataWhisperPluginService = inject(DataWhisperPluginService);
+  private queueHealth = inject(UpdateQueueHealthService);
   private destroy$ = new Subject<void>();
 
   public readonly channels = UPDATE_CHANNELS;
@@ -113,7 +116,15 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
     await this.runAction(() => firstValueFrom(this.dataUpdateService.rollbackUpdate()));
   }
 
+  public isAwaitingUpdater(item: IUpdateHistoryItem): boolean {
+    return this.queueHealth.isAwaitingUpdater(item);
+  }
+
   public canContinueHistoryEntry(item: IUpdateHistoryItem): boolean {
+    if (this.isAwaitingUpdater(item)) {
+      return false;
+    }
+
     return CONTINUABLE_HISTORY_STATUSES.includes(item.status) && RETRYABLE_OPERATION_TYPES.includes(item.operationType);
   }
 

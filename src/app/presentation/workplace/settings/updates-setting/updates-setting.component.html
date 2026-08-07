@@ -177,7 +177,15 @@
           <tr>
             <td>{{ item.operationType }}</td>
             <td>{{ item.targetVersion }}</td>
-            <td>{{ item.status }}</td>
+            <td>
+              @if (isAwaitingUpdater(item)) {
+                <span class="status-failed">{{
+                  "settings.updates.history.status-awaiting" | translate
+                }}</span>
+              } @else {
+                {{ item.status }}
+              }
+            </td>
             <td>{{ item.requestedAt | date: 'short' }}</td>
             <td class="history-action-cell">
               @if (canContinueHistoryEntry(item)) {

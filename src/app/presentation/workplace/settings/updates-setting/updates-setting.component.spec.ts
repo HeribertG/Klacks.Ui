@@ -101,7 +101,7 @@ describe('UpdatesSettingComponent', () => {
       fromVersion: '',
       targetVersion: 'large-v3-turbo',
       containsMigrations: false,
-      requestedAt: '2026-08-06T00:00:00Z',
+      requestedAt: new Date().toISOString(),
     })).toBe(true);
   });
 
@@ -154,5 +154,67 @@ describe('UpdatesSettingComponent', () => {
     expect(mockUpdate.deleteHistoryEntry).toHaveBeenCalledWith('3');
     expect(mockUpdate.triggerUpdate).toHaveBeenCalled();
     expect(component.actionMessage()).toBe('Update enqueued.');
+  });
+
+  it('marks a long-queued row that no updater claimed as awaiting the update service', () => {
+    fixture.detectChanges();
+    expect(component.isAwaitingUpdater({
+      id: '4',
+      operationType: 'WhisperInstall',
+      status: 'Pending',
+      channel: 'Stable',
+      fromVersion: '',
+      targetVersion: 'large-v3-turbo',
+      containsMigrations: false,
+      requestedAt: new Date(Date.now() - 600000).toISOString(),
+    })).toBe(true);
+  });
+
+  it('renders the waiting status and no retry button for an unclaimed row', () => {
+    mockUpdate.getHistory!.mockReturnValue(of([{
+      id: '7',
+      operationType: 'WhisperInstall',
+      status: 'Pending',
+      channel: 'Stable',
+      fromVersion: '',
+      targetVersion: 'large-v3-turbo',
+      containsMigrations: false,
+      requestedAt: new Date(Date.now() - 600000).toISOString(),
+    }]));
+    fixture.detectChanges();
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.textContent).toContain('settings.updates.history.status-awaiting');
+    expect(element.querySelector('app-icon-refresh-grey')).toBeFalsy();
+    expect(element.querySelector('app-icon-trash-red')).toBeTruthy();
+  });
+
+  it('stops offering a retry on a row that is only waiting for the update service', () => {
+    fixture.detectChanges();
+    expect(component.canContinueHistoryEntry({
+      id: '6',
+      operationType: 'WhisperInstall',
+      status: 'Pending',
+      channel: 'Stable',
+      fromVersion: '',
+      targetVersion: 'large-v3-turbo',
+      containsMigrations: false,
+      requestedAt: new Date(Date.now() - 600000).toISOString(),
+    })).toBe(false);
+  });
+
+  it('leaves a claimed row untouched however long it runs', () => {
+    fixture.detectChanges();
+    expect(component.isAwaitingUpdater({
+      id: '5',
+      operationType: 'Update',
+      status: 'Running',
+      channel: 'Stable',
+      fromVersion: '1.0.0',
+      targetVersion: '1.2.0',
+      containsMigrations: false,
+      requestedAt: new Date(Date.now() - 600000).toISOString(),
+      startedAt: new Date(Date.now() - 590000).toISOString(),
+    })).toBe(false);
   });
 });

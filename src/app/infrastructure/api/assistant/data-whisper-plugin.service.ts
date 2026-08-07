@@ -40,6 +40,7 @@ export interface WhisperOperationInfo {
   modelAlias: string | null;
   message: string | null;
   requestedAt: string;
+  startedAt: string | null;
   completedAt: string | null;
 }
 

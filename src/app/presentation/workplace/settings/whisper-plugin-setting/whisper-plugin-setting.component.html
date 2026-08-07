@@ -15,7 +15,11 @@
           "setting.speech.whisper-plugin.status-label" | translate
         }}</span>
         @if (s.activeOperation; as op) {
-          @if (op.operationType === OperationTypes.Install) {
+          @if (awaitingUpdater()) {
+            <span class="hint-text status-failed">{{
+              "setting.speech.whisper-plugin.status-awaiting-updater" | translate
+            }}</span>
+          } @else if (op.operationType === OperationTypes.Install) {
             <span class="hint-text">{{
               "setting.speech.whisper-plugin.status-installing"
                 | translate: { status: op.status }
@@ -59,9 +63,18 @@
     </div>
 
     @if (s.activeOperation) {
-      <div class="info-text">
-        {{ "setting.speech.whisper-plugin.install-hint" | translate }}
-      </div>
+      @if (awaitingUpdater()) {
+        <div class="info-text status-failed">
+          {{
+            "setting.speech.whisper-plugin.awaiting-updater-hint"
+              | translate: { minutes: waitingMinutes() }
+          }}
+        </div>
+      } @else {
+        <div class="info-text">
+          {{ "setting.speech.whisper-plugin.install-hint" | translate }}
+        </div>
+      }
     }
 
     @if (s.otherOperationActive) {
@@ -93,7 +106,17 @@
     </div>
 
     <div id="whisper-plugin-setting-actions" class="row-line actions-row">
-      @if (!s.installed) {
+      @if (awaitingUpdater()) {
+        <button
+          type="button"
+          id="whisper-plugin-discard-btn"
+          class="btn btn-outline-secondary firstColumn"
+          [disabled]="busy()"
+          (click)="discardRequest()"
+        >
+          {{ "setting.speech.whisper-plugin.discard-request" | translate }}
+        </button>
+      } @else if (!s.installed) {
         <button
           type="button"
           id="whisper-plugin-install-btn"
