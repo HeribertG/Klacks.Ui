@@ -14,7 +14,7 @@
 
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import { catchError, map, Observable, Subject, switchMap, tap, throwError } from 'rxjs';
+import { catchError, finalize, map, Observable, Subject, switchMap, tap, throwError } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataAgentPlanService, ICreatePlanRequest } from 'src/app/infrastructure/api/assistant/data-agent-plan.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
@@ -42,6 +42,10 @@ export class DataManagementAgentPlanService implements OnDestroy {
   public readonly activePlan = signal<IAgentPlan | null>(null);
   public readonly totalSteps = signal<number>(0);
   public readonly isLoading = signal<boolean>(false);
+  // Cleared in finalize, not in tap: the caller lives in the aside, which can close
+  // mid-request. That cancels the subscription without success or error, and a flag
+  // cleared only on those two paths would stay set for the rest of the session —
+  // leaving the panel's Approve and Abort buttons permanently disabled.
   public readonly isApproving = signal<boolean>(false);
   public readonly isAborting = signal<boolean>(false);
 
@@ -81,22 +85,18 @@ export class DataManagementAgentPlanService implements OnDestroy {
   approve(planId: string): Observable<IAgentPlan> {
     this.isApproving.set(true);
     return this.dataAgentPlanService.approve(planId).pipe(
-      tap((plan) => {
-        this.activePlan.set(plan);
-        this.isApproving.set(false);
-      }),
-      catchError((error: unknown) => this.recoverAfterConflict(planId, error, this.isApproving)),
+      tap((plan) => this.activePlan.set(plan)),
+      catchError((error: unknown) => this.recoverAfterConflict(planId, error)),
+      finalize(() => this.isApproving.set(false)),
     );
   }
 
   abort(planId: string): Observable<IAgentPlan> {
     this.isAborting.set(true);
     return this.dataAgentPlanService.abort(planId).pipe(
-      tap((plan) => {
-        this.activePlan.set(plan);
-        this.isAborting.set(false);
-      }),
-      catchError((error: unknown) => this.recoverAfterConflict(planId, error, this.isAborting)),
+      tap((plan) => this.activePlan.set(plan)),
+      catchError((error: unknown) => this.recoverAfterConflict(planId, error)),
+      finalize(() => this.isAborting.set(false)),
     );
   }
 
@@ -128,12 +128,7 @@ export class DataManagementAgentPlanService implements OnDestroy {
     this.totalSteps.set(0);
   }
 
-  private recoverAfterConflict(
-    planId: string,
-    error: unknown,
-    requestFlag: ReturnType<typeof signal<boolean>>,
-  ): Observable<IAgentPlan> {
-    requestFlag.set(false);
+  private recoverAfterConflict(planId: string, error: unknown): Observable<IAgentPlan> {
     if (error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict) {
       return this.selectPlan(planId).pipe(switchMap(() => throwError(() => error)));
     }

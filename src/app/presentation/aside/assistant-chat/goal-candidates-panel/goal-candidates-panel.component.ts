@@ -18,7 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { GOAL_CANDIDATE_CONFIDENCE } from 'src/app/domain/constants/goal-candidate.constants';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
@@ -127,20 +127,17 @@ export class GoalCandidatesPanelComponent {
       .subscribe({ error: () => this.showError(LOAD_ERROR_I18N_KEY) });
   }
 
+  // Deliberately not bound to the component lifetime: this panel lives in the aside, and
+  // closing the aside mid-request would cancel the decision after the row already looks
+  // decided. The reset runs in finalize so a cancelled request cannot strand the buttons.
   private decide(id: string, action: () => Observable<void>, errorKey: string): void {
     if (this.pendingDecisionId() !== null) {
       return;
     }
     this.pendingDecisionId.set(id);
     action()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.pendingDecisionId.set(null),
-        error: () => {
-          this.pendingDecisionId.set(null);
-          this.showError(errorKey);
-        },
-      });
+      .pipe(finalize(() => this.pendingDecisionId.set(null)))
+      .subscribe({ error: () => this.showError(errorKey) });
   }
 
   private showError(errorKey: string): void {

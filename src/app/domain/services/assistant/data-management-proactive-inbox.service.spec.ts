@@ -16,6 +16,7 @@ describe('DataManagementProactiveInboxService', () => {
     markRead: ReturnType<typeof vi.fn>;
     markAllRead: ReturnType<typeof vi.fn>;
     markManyRead: ReturnType<typeof vi.fn>;
+    setReaction: ReturnType<typeof vi.fn>;
   };
   let inboxChanged$: Subject<IProactiveInboxChanged>;
 
@@ -27,6 +28,7 @@ describe('DataManagementProactiveInboxService', () => {
       markRead: vi.fn().mockReturnValue(of(void 0)),
       markAllRead: vi.fn().mockReturnValue(of(void 0)),
       markManyRead: vi.fn().mockReturnValue(of(void 0)),
+      setReaction: vi.fn().mockReturnValue(of(void 0)),
     };
 
     TestBed.configureTestingModule({
@@ -174,6 +176,72 @@ describe('DataManagementProactiveInboxService', () => {
       expect(service.inboxHeadingMessageId()).toBeNull();
       expect(service.inboxMessageIds().size).toBe(0);
       expect(service.inboxExpanded()).toBe(true);
+    });
+  });
+
+  describe('hiding rows', () => {
+    it('starts with nothing hidden', () => {
+      expect(service.hiddenMessageIds().size).toBe(0);
+    });
+
+    it('markHidden hides without calling the server', () => {
+      service.markHidden(['a', 'b']);
+
+      expect([...service.hiddenMessageIds()].sort()).toEqual(['a', 'b']);
+      expect(dataServiceMock.markManyRead).not.toHaveBeenCalled();
+      expect(dataServiceMock.setReaction).not.toHaveBeenCalled();
+    });
+
+    it('markHidden unions ids across repeated calls', () => {
+      service.markHidden(['a']);
+      service.markHidden(['b']);
+
+      expect([...service.hiddenMessageIds()].sort()).toEqual(['a', 'b']);
+    });
+
+    it('hideMessages marks the rows read so a reload cannot bring them back', () => {
+      service.hideMessages(['a', 'b']);
+
+      expect([...service.hiddenMessageIds()].sort()).toEqual(['a', 'b']);
+      expect(dataServiceMock.markManyRead).toHaveBeenCalledWith(['a', 'b']);
+    });
+
+    it('hideMessages keeps the row hidden even when the server call fails', () => {
+      dataServiceMock.markManyRead.mockReturnValue(throwError(() => new Error('offline')));
+
+      service.hideMessages(['a']);
+
+      expect(service.hiddenMessageIds().has('a')).toBe(true);
+    });
+
+    it('hideMessages ignores an empty list', () => {
+      service.hideMessages([]);
+
+      expect(dataServiceMock.markManyRead).not.toHaveBeenCalled();
+    });
+
+    it('dismissMessage hides the row and records the dismissal', () => {
+      service.dismissMessage('a');
+
+      expect(service.hiddenMessageIds().has('a')).toBe(true);
+      expect(dataServiceMock.setReaction).toHaveBeenCalledWith('a', 'dismissed');
+      expect(dataServiceMock.markManyRead).toHaveBeenCalledWith(['a']);
+    });
+
+    it('dismissMessage still hides the row when recording the reaction fails', () => {
+      dataServiceMock.setReaction.mockReturnValue(throwError(() => new Error('offline')));
+
+      service.dismissMessage('a');
+
+      expect(service.hiddenMessageIds().has('a')).toBe(true);
+    });
+
+    it('resetInboxBlock clears the hidden set as well', () => {
+      service.hideMessages(['a']);
+
+      service.resetInboxBlock();
+
+      expect(service.hiddenMessageIds().size).toBe(0);
     });
   });
 });

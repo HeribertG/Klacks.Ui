@@ -115,6 +115,9 @@ describe('AssistantChatComponent', () => {
         const inboxHeadingMessageIdSig = signal<string | null>(null);
         const inboxExpandedSig = signal<boolean>(true);
         const inboxMessageIdsSig = signal<ReadonlySet<string>>(new Set());
+        const hiddenMessageIdsSig = signal<ReadonlySet<string>>(new Set());
+        const hide = (messageIds: readonly string[]): void =>
+            hiddenMessageIdsSig.update((ids) => new Set([...ids, ...messageIds]));
         mockProactiveInboxService = {
             unreadCount: signal(0),
             hasUnread: signal(false),
@@ -126,9 +129,13 @@ describe('AssistantChatComponent', () => {
             inboxHeadingMessageId: inboxHeadingMessageIdSig,
             inboxExpanded: inboxExpandedSig,
             inboxMessageIds: inboxMessageIdsSig,
+            hiddenMessageIds: hiddenMessageIdsSig,
             addToInboxBlock: vi.fn((messageIds: readonly string[]) =>
                 inboxMessageIdsSig.update((ids) => new Set([...ids, ...messageIds])),
             ),
+            markHidden: vi.fn((messageIds: readonly string[]) => hide(messageIds)),
+            hideMessages: vi.fn((messageIds: readonly string[]) => hide(messageIds)),
+            dismissMessage: vi.fn((messageId: string) => hide([messageId])),
             setInboxHeadingIfUnset: vi.fn((messageId: string) => {
                 if (inboxHeadingMessageIdSig() !== null) return;
                 inboxHeadingMessageIdSig.set(messageId);
@@ -138,6 +145,7 @@ describe('AssistantChatComponent', () => {
             resetInboxBlock: vi.fn(() => {
                 inboxHeadingMessageIdSig.set(null);
                 inboxMessageIdsSig.set(new Set());
+                hiddenMessageIdsSig.set(new Set());
                 inboxExpandedSig.set(true);
             }),
         };
@@ -1714,6 +1722,86 @@ describe('AssistantChatComponent', () => {
             ).toBe(PROACTIVE_REACTION.Helpful);
         });
 
+        it('takes a dismissed row out of the block instead of only greying its button', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'keep-me' }), proactiveRow({ id: 'drop-me' }));
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['keep-me', 'drop-me']);
+            const dismissed = component.messages.find((m) => m.id === 'drop-me')!;
+
+            // Act
+            component.dismissProactiveMessage(dismissed);
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith('drop-me');
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['keep-me']);
+            expect(component.isHiddenProactiveMessage(dismissed)).toBe(true);
+        });
+
+        it('moves the heading down rather than losing the block when the anchor row goes', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'anchor' }), proactiveRow({ id: 'second' }));
+            expect(component.inboxAnchorMessageId()).toBe('anchor');
+            const anchor = component.messages.find((m) => m.id === 'anchor')!;
+
+            // Act
+            component.dismissProactiveMessage(anchor);
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.inboxAnchorMessageId()).toBe('second');
+        });
+
+        it('empties the whole block and drops the heading when hiding everything', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'first' }), proactiveRow({ id: 'second' }));
+
+            // Act
+            component.hideWholeInbox();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.hideMessages).toHaveBeenCalledWith(['first', 'second']);
+            expect(component.inboxMessages()).toEqual([]);
+            expect(component.inboxAnchorMessageId()).toBeNull();
+        });
+
+        it('hides a proactive message that never joined the inbox block', () => {
+            // Arrange - the push channel can deliver messageType 'proactive' straight into the
+            // conversation, so those rows carry the dismiss button without being block members
+            const pushed: IProactiveMessage = {
+                messageId: 'pushed-proactive',
+                content: 'Eine Schicht ist unbesetzt.',
+                timestamp: new Date().toISOString(),
+                messageType: 'proactive',
+            };
+            signalRService.onboardingPrompt$.next(pushed);
+            fixture.detectChanges();
+            const appended = component.messages.find((m) => m.id === 'pushed-proactive')!;
+            expect(appended.messageKind).toBe('proactive');
+            expect(component.isInboxMessage(appended)).toBe(false);
+
+            // Act
+            component.dismissProactiveMessage(appended);
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.isHiddenProactiveMessage(appended)).toBe(true);
+            expect(fixture.nativeElement.textContent).not.toContain('Eine Schicht ist unbesetzt.');
+        });
+
+        it('never shows a row the server already reports as dismissed', () => {
+            // Act
+            deliver(
+                proactiveRow({ id: 'fresh' }),
+                proactiveRow({ id: 'already-dismissed', reaction: PROACTIVE_REACTION.Dismissed }),
+            );
+
+            // Assert
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['fresh']);
+            expect(mockProactiveInboxService.markHidden).toHaveBeenCalledWith(['already-dismissed']);
+        });
+
         it('ignores a second click while a reaction request is still pending', async () => {
             // Arrange
             const request$ = new Subject<void>();
@@ -2125,44 +2213,48 @@ describe('AssistantChatComponent', () => {
             expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
         });
 
-        it('offers a mark-all-read button in the heading that stays disabled without unread rows', () => {
-            // Arrange
+        it('offers a hide-all button in the heading that is live while rows are showing', () => {
+            // Arrange - the rows are marked read on display, so an unread-based guard would
+            // leave this button dead on arrival
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-mark' })]));
             asideService.show();
             fixture.detectChanges();
 
-            // Assert - nothing unread reported, button is inert
+            // Assert
             const button: HTMLButtonElement = fixture.nativeElement.querySelector('.inbox-heading-action');
             expect(button).toBeTruthy();
-            expect(button.disabled).toBe(true);
+            expect(button.disabled).toBe(false);
 
             // Act
-            mockProactiveInboxService.hasUnread.set(true);
-            fixture.detectChanges();
-            expect(button.disabled).toBe(false);
             button.click();
+            fixture.detectChanges();
 
             // Assert
-            expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+            expect(mockProactiveInboxService.hideMessages).toHaveBeenCalledWith(['inbox-mark']);
+            expect(component.inboxMessages()).toEqual([]);
         });
 
-        it('keeps the mark-all-read button separate from the collapse control', () => {
+        it('keeps the hide-all button separate from the collapse control', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-controls' })]));
-            mockProactiveInboxService.hasUnread.set(true);
             asideService.show();
             fixture.detectChanges();
 
-            // Act
+            // Assert - three distinct controls, the chevron among them
             const heading: HTMLElement = fixture.nativeElement.querySelector('.inbox-heading');
-            const markAllButton = heading.querySelectorAll('button')[1] as HTMLButtonElement;
-            markAllButton.click();
+            expect(heading.querySelectorAll('button').length).toBe(3);
+            expect(heading.querySelector('.inbox-heading-chevron')).toBeTruthy();
+
+            // Act
+            const hideAllButton = heading.querySelectorAll('button')[1] as HTMLButtonElement;
+            hideAllButton.click();
             fixture.detectChanges();
 
-            // Assert - marking read must not collapse the block
-            expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
+            // Assert - hiding empties the block rather than collapsing it
+            expect(mockProactiveInboxService.hideMessages).toHaveBeenCalledTimes(1);
+            expect(mockProactiveInboxService.toggleInboxExpanded).not.toHaveBeenCalled();
             expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
-            expect(heading.querySelector('.inbox-heading-chevron')).toBeTruthy();
+            expect(fixture.nativeElement.querySelector('.inbox-heading')).toBeNull();
         });
 
         it('keeps earlier block members and the anchor when a second load adds new unread entries', () => {
@@ -2180,6 +2272,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-first');
+            expect(component.inboxAnchorMessageId()).toBe('inbox-first');
             expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-first', 'inbox-second']);
         });
 
@@ -2460,7 +2553,7 @@ describe('AssistantChatComponent', () => {
             expect(actionButtons.length).toBe(1);
         });
 
-        it('renders the mute button instead of the reaction pair for mute suggestions', () => {
+        it('replaces the helpful button with the mute button but keeps a way to hide the row', () => {
             // Arrange
             deliver(muteSuggestion());
 
@@ -2470,10 +2563,20 @@ describe('AssistantChatComponent', () => {
             // Assert
             const muteButtons = fixture.nativeElement.querySelectorAll('.proactive-mute-btn');
             expect(muteButtons.length).toBe(1);
-            const reactionButtons = fixture.nativeElement.querySelectorAll(
-                '.proactive-reactions .proactive-reaction-btn:not(.proactive-mute-btn)',
+            const otherButtons: HTMLButtonElement[] = Array.from(
+                fixture.nativeElement.querySelectorAll(
+                    '.proactive-reactions .proactive-reaction-btn:not(.proactive-mute-btn)',
+                ),
             );
-            expect(reactionButtons.length).toBe(0);
+            expect(otherButtons.length).toBe(1);
+
+            // Act - the dismiss button must work here too, or a muted suggestion stays forever
+            otherButtons[0].click();
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith('mute-suggestion-1');
+            expect(component.inboxMessages()).toEqual([]);
         });
 
         it('mutes the suggested kind from the content params, locks the button and confirms via toast', async () => {

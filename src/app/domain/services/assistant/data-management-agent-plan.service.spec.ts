@@ -132,6 +132,30 @@ describe('DataManagementAgentPlanService', () => {
     });
   });
 
+  describe('a request the caller abandons', () => {
+    it('clears isApproving when the aside closes mid-request', () => {
+      dataAgentPlanServiceSpy.approve.mockReturnValue(new Subject<IAgentPlan>());
+
+      const subscription = service.approve('plan-1').subscribe();
+      expect(service.isApproving()).toBe(true);
+
+      subscription.unsubscribe();
+
+      expect(service.isApproving()).toBe(false);
+    });
+
+    it('clears isAborting when the aside closes mid-request', () => {
+      dataAgentPlanServiceSpy.abort.mockReturnValue(new Subject<IAgentPlan>());
+
+      const subscription = service.abort('plan-1').subscribe();
+      expect(service.isAborting()).toBe(true);
+
+      subscription.unsubscribe();
+
+      expect(service.isAborting()).toBe(false);
+    });
+  });
+
   describe('refreshActivePlan', () => {
     it('picks the first non-terminal plan and sets it active', () => {
       const finishedPlan = makePlan({ id: 'plan-0', status: PlanStatus.Completed });

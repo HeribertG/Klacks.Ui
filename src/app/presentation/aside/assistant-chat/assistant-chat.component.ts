@@ -40,7 +40,7 @@ import {
   faThumbsDown,
   faThumbsUp,
   faCheck,
-  faCheckDouble,
+  faEyeSlash,
   faBell,
   faBellSlash,
   faArrowRight,
@@ -197,7 +197,7 @@ export class AssistantChatComponent {
   faCheck = faCheck;
   faBell = faBell;
   faBellSlash = faBellSlash;
-  faCheckDouble = faCheckDouble;
+  faEyeSlash = faEyeSlash;
   faArrowRight = faArrowRight;
 
   readonly proactiveReactions = PROACTIVE_REACTION;
@@ -208,8 +208,14 @@ export class AssistantChatComponent {
   readonly inboxBlockId = 'assistant-chat-inbox-block';
   readonly inboxMessages = computed(() => {
     const ids = this.proactiveInboxService.inboxMessageIds();
-    return this.orchestrator.messages().filter((message) => ids.has(message.id));
+    const hidden = this.proactiveInboxService.hiddenMessageIds();
+    return this.orchestrator
+      .messages()
+      .filter((message) => ids.has(message.id) && !hidden.has(message.id));
   });
+  // The heading rides on the first row still showing, so hiding the row it used to sit
+  // above moves it down instead of taking the whole block with it.
+  readonly inboxAnchorMessageId = computed(() => this.inboxMessages()[0]?.id ?? null);
   private inboxLoadRequested = false;
   private readonly inboxReloadRequests$ = new Subject<void>();
 
@@ -466,6 +472,13 @@ export class AssistantChatComponent {
       this.messages = [...this.messages, ...inboxMessages];
       this.proactiveInboxService.setInboxHeadingIfUnset(inboxMessages[0].id);
       this.proactiveInboxService.addToInboxBlock(inboxMessages.map((message) => message.id));
+      // A row the user dismissed earlier must not come back as a dead one whose buttons
+      // are already spent.
+      this.proactiveInboxService.markHidden(
+        inboxMessages
+          .filter((message) => message.proactiveReaction === PROACTIVE_REACTION.Dismissed)
+          .map((message) => message.id),
+      );
       this.shouldScrollToBottom = true;
       this.shouldScrollInboxToBottom = true;
     }
@@ -607,11 +620,16 @@ export class AssistantChatComponent {
     return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
   }
 
-  markWholeInboxRead(): void {
-    this.proactiveInboxService
-      .markAllRead()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ error: () => undefined });
+  hideWholeInbox(): void {
+    this.proactiveInboxService.hideMessages(this.inboxMessages().map((message) => message.id));
+  }
+
+  dismissProactiveMessage(message: ChatMessage): void {
+    this.proactiveInboxService.dismissMessage(message.id);
+  }
+
+  isHiddenProactiveMessage(message: ChatMessage): boolean {
+    return this.proactiveInboxService.hiddenMessageIds().has(message.id);
   }
 
   toggleInboxExpanded(): void {

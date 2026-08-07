@@ -273,18 +273,16 @@
               <fa-icon [icon]="faThumbsUp"></fa-icon>
               {{ "assistant-chat.proactive.reaction-helpful" | translate }}
             </button>
+            }
             <button
               type="button"
               class="proactive-reaction-btn"
-              [class.selected]="message.proactiveReaction === proactiveReactions.Dismissed"
-              [disabled]="!!message.proactiveReaction || pendingReactionMessageId() !== null"
-              (click)="submitProactiveReaction(message, proactiveReactions.Dismissed)"
+              (click)="dismissProactiveMessage(message)"
               [attr.aria-label]="'assistant-chat.proactive.reaction-dismissed' | translate"
             >
               <fa-icon [icon]="faTimes"></fa-icon>
               {{ "assistant-chat.proactive.reaction-dismissed" | translate }}
             </button>
-            }
           </div>
           }
         </div>
@@ -292,7 +290,7 @@
       </ng-template>
 
       @for (message of messages; track message.id) {
-      @if (message.id === proactiveInboxService.inboxHeadingMessageId()) {
+      @if (message.id === inboxAnchorMessageId()) {
       <div class="inbox-heading" role="heading" aria-level="2">
         <button
           type="button"
@@ -307,12 +305,11 @@
         <button
           type="button"
           class="inbox-heading-action"
-          [disabled]="!proactiveInboxService.hasUnread()"
-          (click)="markWholeInboxRead()"
-          [attr.aria-label]="'assistant-chat.proactive.mark-all-read' | translate"
-          [title]="'assistant-chat.proactive.mark-all-read' | translate"
+          (click)="hideWholeInbox()"
+          [attr.aria-label]="'assistant-chat.proactive.hide-all' | translate"
+          [title]="'assistant-chat.proactive.hide-all' | translate"
         >
-          <fa-icon [icon]="faCheckDouble"></fa-icon>
+          <fa-icon [icon]="faEyeSlash"></fa-icon>
         </button>
         <button
           type="button"
@@ -338,7 +335,7 @@
       </div>
       }
       }
-      @if (!isInboxMessage(message)) {
+      @if (!isInboxMessage(message) && !isHiddenProactiveMessage(message)) {
       <ng-container [ngTemplateOutlet]="messageTpl" [ngTemplateOutletContext]="{ message: message }"></ng-container>
       }
       }
