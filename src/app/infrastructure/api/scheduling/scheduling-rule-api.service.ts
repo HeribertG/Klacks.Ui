@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
+import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.model';
 
 @Injectable({
   providedIn: 'root'
@@ -36,5 +37,18 @@ export class SchedulingRuleApiService {
 
   delete(id: string): Promise<ISchedulingRule> {
     return firstValueFrom(this.http.delete<ISchedulingRule>(`${environment.baseUrl}schedulingrules/${id}`).pipe(retry(3)));
+  }
+
+  getHolidayWorkExemptions(): Promise<IHolidayWorkExemption[]> {
+    return firstValueFrom(this.http.get<IHolidayWorkExemption[]>(`${environment.baseUrl}schedulingrules/HolidayWorkExemptions`).pipe(retry(3)));
+  }
+
+  createHolidayWorkExemption(exemption: IHolidayWorkExemption): Promise<IHolidayWorkExemption> {
+    const { id: _id, importSourceKey: _importSourceKey, ...payload } = exemption;
+    return firstValueFrom(this.http.post<IHolidayWorkExemption>(`${environment.baseUrl}schedulingrules/HolidayWorkExemptions`, payload).pipe(retry(3)));
+  }
+
+  deleteHolidayWorkExemption(id: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${environment.baseUrl}schedulingrules/HolidayWorkExemptions/${id}`).pipe(retry(3)));
   }
 }

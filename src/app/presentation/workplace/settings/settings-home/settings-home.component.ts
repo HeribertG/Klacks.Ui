@@ -73,6 +73,7 @@ import { ComplianceEnforcementSettingsComponent } from '../compliance-enforcemen
 import { CounterRulesComponent } from '../counter-rules/counter-rules.component';
 import { PeriodCapRulesComponent } from '../period-cap-rules/period-cap-rules.component';
 import { RestrictedTimeWindowRulesComponent } from '../restricted-time-window-rules/restricted-time-window-rules.component';
+import { HolidayWorkExemptionsComponent } from '../holiday-work-exemptions/holiday-work-exemptions.component';
 import { ActiveIndustriesSettingsComponent } from '../active-industries-settings/active-industries-settings.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
@@ -152,6 +153,7 @@ import { SETTINGS_TARGET_SECTIONS } from './settings-target-sections.constants';
     CounterRulesComponent,
     PeriodCapRulesComponent,
     RestrictedTimeWindowRulesComponent,
+    HolidayWorkExemptionsComponent,
     ActiveIndustriesSettingsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

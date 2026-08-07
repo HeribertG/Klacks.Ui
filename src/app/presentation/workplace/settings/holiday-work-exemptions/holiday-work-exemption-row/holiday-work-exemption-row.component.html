@@ -1,0 +1,33 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="holiday-work-exemption-row-form-{{ data().id }}">
+  <div id="holiday-work-exemption-row-container-{{ data().id }}" class="first custom-control-inline">
+    <div id="holiday-work-exemption-row-description-group-{{ data().id }}" class="form-group">
+      <input
+        id="holiday-work-exemption-row-description-{{ data().id }}"
+        type="text"
+        [value]="data().description"
+        name="data.description"
+        class="form-control attribute-name"
+        aria-label="description"
+        readonly
+      />
+    </div>
+
+    <span id="holiday-work-exemption-row-scope-{{ data().id }}" class="exemption-scope">
+      {{ scopeLabel() }}
+    </span>
+
+    @if (isImported()) {
+      <span
+        id="holiday-work-exemption-row-imported-{{ data().id }}"
+        class="exemption-imported"
+        [title]="'setting.holidayWorkExemption.importedHint' | translate"
+      >
+        {{ 'setting.holidayWorkExemption.imported' | translate }}
+      </span>
+    }
+
+    <span id="holiday-work-exemption-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+  </div>
+</form>

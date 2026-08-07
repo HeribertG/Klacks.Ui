@@ -28,6 +28,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'counter-rules': 'compliance',
   'period-cap-rules': 'compliance',
   'restricted-time-window-rules': 'compliance',
+  'holiday-work-exemptions': 'compliance',
   'absence-types': 'absence',
   'absence-detail': 'absence',
   'calendar-rules': 'absence',

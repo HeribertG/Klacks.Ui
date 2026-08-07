@@ -1,0 +1,122 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<!-- Holiday Work Exemption Modal -->
+<ng-template #exemptionModal id="holiday-work-exemption-modal-template" let-modal>
+  <div id="holiday-work-exemption-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ 'setting.holidayWorkExemption.headline-modal' | translate }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="holiday-work-exemption-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="holiday-work-exemption-modal-body" class="modal-body">
+    <div id="holiday-work-exemption-modal-intro" class="exemption-intro">
+      {{ 'setting.holidayWorkExemption.intro' | translate }}
+    </div>
+
+    <div id="holiday-work-exemption-modal-description-row" class="row-line-modal-inline">
+      <div id="holiday-work-exemption-modal-description-section" class="exemption-description-section">
+        <label for="exemptionDescription">{{ 'setting.holidayWorkExemption.description' | translate }}</label>
+        <input
+          type="text"
+          [formField]="exemptionForm.description"
+          class="form-control"
+          id="exemptionDescription"
+          aria-label="exemptionDescription"
+        />
+      </div>
+    </div>
+
+    <div id="holiday-work-exemption-modal-scope-row" class="row-line-modal-inline">
+      <div id="holiday-work-exemption-modal-scope-section" class="exemption-scope-section">
+        <label for="exemptionScope">{{ 'setting.holidayWorkExemption.scope' | translate }}</label>
+        <select
+          id="exemptionScope"
+          class="form-control"
+          aria-label="exemptionScope"
+          [value]="exemptionForm.schedulingRuleId().value()"
+          (change)="onScopeChange($any($event.target).value)"
+        >
+          <option [value]="globalScopeValue">
+            {{ 'setting.holidayWorkExemption.scope.global' | translate }}
+          </option>
+          @for (rule of dataManagementService.selectableRules; track rule.id) {
+            <option [value]="rule.id">{{ rule.name }}</option>
+          }
+        </select>
+        <div id="holiday-work-exemption-modal-scope-hint" class="exemption-hint">
+          {{ 'setting.holidayWorkExemption.scope-hint' | translate }}
+        </div>
+      </div>
+    </div>
+
+    @if (!isFormValid()) {
+      <div id="holiday-work-exemption-modal-validation-row" class="row-line-modal-inline">
+        <div id="holiday-work-exemption-modal-validation-alert" class="alert alert-danger">
+          {{ 'setting.holidayWorkExemption.description-required' | translate }}
+        </div>
+      </div>
+    }
+  </div>
+
+  <div id="holiday-work-exemption-modal-footer" class="modal-footer">
+    <span
+      id="holiday-work-exemption-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="holiday-work-exemption-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      [disabled]="!isFormValid()"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="'setting.holidayWorkExemption.headline' | translate"
+  [addLabel]="'setting.holidayWorkExemption.add' | translate"
+  [showHeader]="true"
+  idPrefix="holiday-work-exemptions"
+  (addClick)="onClickAdd()"
+>
+  <app-holiday-work-exemption-header header id="holiday-work-exemptions-table-header"></app-holiday-work-exemption-header>
+  <div rows #containerBox>
+    @for (exemption of dataManagementService.exemptions; track exemption.id || $index; let i = $index) {
+      <app-holiday-work-exemption-row
+        [id]="'holiday-work-exemption-row-' + i"
+        [data]="exemption"
+        [scopeLabel]="scopeLabelOf(exemption)"
+        (isDeleteEvent)="openDeleteExemption(i)"
+      />
+    } @empty {
+      <div id="holiday-work-exemptions-empty" class="exemption-empty">
+        {{ 'setting.holidayWorkExemption.empty' | translate }}
+      </div>
+    }
+  </div>
+</app-settings-list-card>
