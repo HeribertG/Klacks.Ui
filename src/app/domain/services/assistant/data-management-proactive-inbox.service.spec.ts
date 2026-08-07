@@ -123,4 +123,57 @@ describe('DataManagementProactiveInboxService', () => {
 
     expect(service.unreadCount()).toBe(3);
   });
+
+  describe('inbox block state', () => {
+    it('starts with no heading, an empty block and expanded true', () => {
+      expect(service.inboxHeadingMessageId()).toBeNull();
+      expect(service.inboxMessageIds().size).toBe(0);
+      expect(service.inboxExpanded()).toBe(true);
+    });
+
+    it('addToInboxBlock unions ids across repeated calls instead of replacing them', () => {
+      service.addToInboxBlock(['a', 'b']);
+      service.addToInboxBlock(['b', 'c']);
+
+      expect([...service.inboxMessageIds()].sort()).toEqual(['a', 'b', 'c']);
+    });
+
+    it('setInboxHeadingIfUnset anchors the heading and expands the block on first call', () => {
+      service.setInboxHeadingIfUnset('first-msg');
+
+      expect(service.inboxHeadingMessageId()).toBe('first-msg');
+      expect(service.inboxExpanded()).toBe(true);
+    });
+
+    it('setInboxHeadingIfUnset never moves an already-anchored heading', () => {
+      service.setInboxHeadingIfUnset('first-msg');
+
+      service.setInboxHeadingIfUnset('second-msg');
+
+      expect(service.inboxHeadingMessageId()).toBe('first-msg');
+    });
+
+    it('toggleInboxExpanded flips the expanded flag', () => {
+      expect(service.inboxExpanded()).toBe(true);
+
+      service.toggleInboxExpanded();
+      expect(service.inboxExpanded()).toBe(false);
+
+      service.toggleInboxExpanded();
+      expect(service.inboxExpanded()).toBe(true);
+    });
+
+    it('resetInboxBlock clears the heading and the block, and re-expands it', () => {
+      service.setInboxHeadingIfUnset('first-msg');
+      service.addToInboxBlock(['first-msg', 'second-msg']);
+      service.toggleInboxExpanded();
+      expect(service.inboxExpanded()).toBe(false);
+
+      service.resetInboxBlock();
+
+      expect(service.inboxHeadingMessageId()).toBeNull();
+      expect(service.inboxMessageIds().size).toBe(0);
+      expect(service.inboxExpanded()).toBe(true);
+    });
+  });
 });

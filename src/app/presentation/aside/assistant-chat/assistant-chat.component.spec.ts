@@ -112,6 +112,9 @@ describe('AssistantChatComponent', () => {
     let mockProactiveInboxService: any;
 
     beforeEach(async () => {
+        const inboxHeadingMessageIdSig = signal<string | null>(null);
+        const inboxExpandedSig = signal<boolean>(true);
+        const inboxMessageIdsSig = signal<ReadonlySet<string>>(new Set());
         mockProactiveInboxService = {
             unreadCount: signal(0),
             hasUnread: signal(false),
@@ -120,6 +123,23 @@ describe('AssistantChatComponent', () => {
             markRead: vi.fn().mockReturnValue(of(void 0)),
             markAllRead: vi.fn().mockReturnValue(of(void 0)),
             markManyRead: vi.fn().mockReturnValue(of(void 0)),
+            inboxHeadingMessageId: inboxHeadingMessageIdSig,
+            inboxExpanded: inboxExpandedSig,
+            inboxMessageIds: inboxMessageIdsSig,
+            addToInboxBlock: vi.fn((messageIds: readonly string[]) =>
+                inboxMessageIdsSig.update((ids) => new Set([...ids, ...messageIds])),
+            ),
+            setInboxHeadingIfUnset: vi.fn((messageId: string) => {
+                if (inboxHeadingMessageIdSig() !== null) return;
+                inboxHeadingMessageIdSig.set(messageId);
+                inboxExpandedSig.set(true);
+            }),
+            toggleInboxExpanded: vi.fn(() => inboxExpandedSig.update((expanded) => !expanded)),
+            resetInboxBlock: vi.fn(() => {
+                inboxHeadingMessageIdSig.set(null);
+                inboxMessageIdsSig.set(new Set());
+                inboxExpandedSig.set(true);
+            }),
         };
 
         mockPlanService = {
@@ -1826,7 +1846,7 @@ describe('AssistantChatComponent', () => {
             const lastMessage = component.messages[component.messages.length - 1];
             expect(lastMessage.id).toBe('inbox-1');
             expect(lastMessage.messageKind).toBe('proactive');
-            expect(component.inboxHeadingMessageId()).toBe('inbox-1');
+            expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-1');
             expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-1']);
         });
 
@@ -1863,7 +1883,7 @@ describe('AssistantChatComponent', () => {
             expect(ids.indexOf('user-1')).toBeLessThan(inboxStart);
             expect(ids.indexOf('assistant-1')).toBeLessThan(inboxStart);
             expect(ids.slice(-2)).toEqual(['inbox-a', 'inbox-b']);
-            expect(component.inboxHeadingMessageId()).toBe('inbox-a');
+            expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-a');
 
             const messagesElement: HTMLElement = fixture.nativeElement.querySelector('.messages');
             const children = Array.from(messagesElement.children);
@@ -1897,7 +1917,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
 
             // Assert
-            expect(component.inboxHeadingMessageId()).toBeNull();
+            expect(component.proactiveInboxService.inboxHeadingMessageId()).toBeNull();
             expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
         });
 
@@ -1951,7 +1971,7 @@ describe('AssistantChatComponent', () => {
 
                 // Assert
                 expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-away', 'live-1']);
-                expect(component.inboxHeadingMessageId()).toBe('inbox-away');
+                expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-away');
                 const rendered = component.messages.find((m) => m.id === 'live-1')!;
                 expect(rendered.content).toBe('Bei Sarah Hofmann weichen die Stunden ab.');
 
@@ -2141,7 +2161,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert - marking read must not collapse the block
             expect(mockProactiveInboxService.markAllRead).toHaveBeenCalledTimes(1);
-            expect(component.inboxExpanded()).toBe(true);
+            expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
             expect(heading.querySelector('.inbox-heading-chevron')).toBeTruthy();
         });
 
@@ -2159,7 +2179,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
 
             // Assert
-            expect(component.inboxHeadingMessageId()).toBe('inbox-first');
+            expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-first');
             expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-first', 'inbox-second']);
         });
 
@@ -2231,13 +2251,13 @@ describe('AssistantChatComponent', () => {
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
             asideService.show();
             fixture.detectChanges();
-            expect(component.inboxHeadingMessageId()).toBe('inbox-1');
+            expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-1');
 
             // Act
             component.clearChat();
 
             // Assert
-            expect(component.inboxHeadingMessageId()).toBeNull();
+            expect(component.proactiveInboxService.inboxHeadingMessageId()).toBeNull();
         });
 
         it('collapses the inbox messages but keeps the heading when toggled', () => {
@@ -2247,14 +2267,14 @@ describe('AssistantChatComponent', () => {
             );
             asideService.show();
             fixture.detectChanges();
-            expect(component.inboxExpanded()).toBe(true);
+            expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
 
             // Act
             component.toggleInboxExpanded();
             fixture.detectChanges();
 
             // Assert
-            expect(component.inboxExpanded()).toBe(false);
+            expect(component.proactiveInboxService.inboxExpanded()).toBe(false);
             const host: HTMLElement = fixture.nativeElement;
             expect(host.querySelector('.inbox-heading')).toBeTruthy();
             expect(host.textContent).not.toContain(inboxItem().content);
@@ -2272,7 +2292,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
 
             // Assert
-            expect(component.inboxExpanded()).toBe(true);
+            expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
             expect(fixture.nativeElement.textContent).toContain(inboxItem().content);
         });
 
@@ -2282,13 +2302,60 @@ describe('AssistantChatComponent', () => {
             asideService.show();
             fixture.detectChanges();
             component.toggleInboxExpanded();
-            expect(component.inboxExpanded()).toBe(false);
+            expect(component.proactiveInboxService.inboxExpanded()).toBe(false);
 
             // Act
             component.clearChat();
 
             // Assert
-            expect(component.inboxExpanded()).toBe(true);
+            expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
+        });
+
+        it('keeps an already-grouped inbox message classified as inbox after the aside closes and reopens (component destroy + recreate)', () => {
+            // Arrange - populate the block in a first component instance. aside.component.html
+            // puts <app-assistant-chat /> behind an @if, so closing the aside destroys this
+            // component outright and reopening creates a brand new instance.
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-survivor' })]));
+            asideService.show();
+            fixture.detectChanges();
+            const firstInstanceMessage = component.messages.find((m) => m.id === 'inbox-survivor')!;
+            expect(component.isInboxMessage(firstInstanceMessage)).toBe(true);
+            const survivingMessages = component.messages;
+
+            // Act - destroy the first instance (aside closes) ...
+            asideService.hide();
+            fixture.detectChanges();
+            fixture.destroy();
+
+            // ... nothing new is unread on reopen, inbox-survivor was already marked read ...
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([]));
+
+            // ... and create a fresh instance (aside reopens).
+            const fixture2 = TestBed.createComponent(AssistantChatComponent);
+            const component2 = fixture2.componentInstance;
+            // ConversationOrchestratorService is mocked at the component level in this spec (see
+            // overrideComponent above), so the fresh instance gets its own empty mock instead of
+            // the real root-scoped singleton, which in prod would already hold these messages.
+            // Seed it manually to bridge that test-harness gap; DataManagementProactiveInboxService
+            // stays the same module-level mock instance across both fixtures, which is exactly the
+            // production fix under test: the inbox block state is root-scoped, not component-local.
+            component2.orchestrator.replaceMessages(survivingMessages);
+            asideService.show();
+            fixture2.detectChanges();
+
+            // Assert - the surviving message is still grouped in the inbox block, not a loose bubble.
+            const revivedMessage = component2.messages.find((m) => m.id === 'inbox-survivor')!;
+            expect(revivedMessage).toBeTruthy();
+            expect(component2.isInboxMessage(revivedMessage)).toBe(true);
+
+            const messagesElement: HTMLElement = fixture2.nativeElement.querySelector('.messages');
+            expect(messagesElement.querySelector('.inbox-heading')).toBeTruthy();
+
+            // Hand the shared fixture/component references over to the surviving instance so the
+            // describe-level afterEach (asideService.hide() + detectChanges()) runs against a live
+            // fixture instead of the one just destroyed above.
+            fixture = fixture2;
+            component = component2;
         });
     });
 

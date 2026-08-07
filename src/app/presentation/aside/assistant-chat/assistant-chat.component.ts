@@ -206,11 +206,8 @@ export class AssistantChatComponent {
   readonly pendingReactionMessageId = signal<string | null>(null);
   readonly pendingMuteMessageId = signal<string | null>(null);
   readonly inboxBlockId = 'assistant-chat-inbox-block';
-  readonly inboxHeadingMessageId = signal<string | null>(null);
-  readonly inboxExpanded = signal<boolean>(true);
-  private readonly inboxMessageIds = signal<ReadonlySet<string>>(new Set());
   readonly inboxMessages = computed(() => {
-    const ids = this.inboxMessageIds();
+    const ids = this.proactiveInboxService.inboxMessageIds();
     return this.orchestrator.messages().filter((message) => ids.has(message.id));
   });
   private inboxLoadRequested = false;
@@ -467,15 +464,12 @@ export class AssistantChatComponent {
     if (freshItems.length > 0) {
       const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
       this.messages = [...this.messages, ...inboxMessages];
-      if (this.inboxHeadingMessageId() === null) {
-        this.inboxHeadingMessageId.set(inboxMessages[0].id);
-        this.inboxExpanded.set(true);
-      }
-      this.addToInboxBlock(inboxMessages.map((message) => message.id));
+      this.proactiveInboxService.setInboxHeadingIfUnset(inboxMessages[0].id);
+      this.proactiveInboxService.addToInboxBlock(inboxMessages.map((message) => message.id));
       this.shouldScrollToBottom = true;
       this.shouldScrollInboxToBottom = true;
     }
-    if (this.inboxExpanded()) {
+    if (this.proactiveInboxService.inboxExpanded()) {
       this.markInboxRead(items.map((item) => item.id));
       return;
     }
@@ -609,10 +603,6 @@ export class AssistantChatComponent {
     this.cdr.detectChanges();
   }
 
-  private addToInboxBlock(messageIds: readonly string[]): void {
-    this.inboxMessageIds.update((ids) => new Set([...ids, ...messageIds]));
-  }
-
   isMuteSuggestion(message: ChatMessage): boolean {
     return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
   }
@@ -625,14 +615,14 @@ export class AssistantChatComponent {
   }
 
   toggleInboxExpanded(): void {
-    this.inboxExpanded.update((expanded) => !expanded);
-    if (this.inboxExpanded()) {
-      this.markInboxRead([...this.inboxMessageIds()]);
+    this.proactiveInboxService.toggleInboxExpanded();
+    if (this.proactiveInboxService.inboxExpanded()) {
+      this.markInboxRead([...this.proactiveInboxService.inboxMessageIds()]);
     }
   }
 
   isInboxMessage(message: ChatMessage): boolean {
-    return this.inboxMessageIds().has(message.id);
+    return this.proactiveInboxService.inboxMessageIds().has(message.id);
   }
 
   onProactiveActionClick(message: ChatMessage): void {
@@ -1788,9 +1778,7 @@ export class AssistantChatComponent {
 
   clearChat(): void {
     this.isTourStationPending = false;
-    this.inboxHeadingMessageId.set(null);
-    this.inboxMessageIds.set(new Set());
-    this.inboxExpanded.set(true);
+    this.proactiveInboxService.resetInboxBlock();
     this.orchestrator.clearMessages();
     this.toastShowService.dismissInteractiveReplies();
 
