@@ -9,11 +9,13 @@ import { UpdatesSettingComponent } from './updates-setting.component';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
+import { DataWhisperPluginService } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
 
 describe('UpdatesSettingComponent', () => {
   let component: UpdatesSettingComponent;
   let fixture: ComponentFixture<UpdatesSettingComponent>;
   let mockUpdate: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
+  let mockWhisperPlugin: Partial<Record<keyof DataWhisperPluginService, ReturnType<typeof vi.fn>>>;
   let updateConfigSignal: ReturnType<typeof signal<UpdateConfigSettings>>;
   let triggerSignal: ReturnType<typeof signal<number>>;
 
@@ -28,6 +30,12 @@ describe('UpdatesSettingComponent', () => {
       getHistory: vi.fn().mockReturnValue(of([])),
       triggerUpdate: vi.fn().mockReturnValue(of({ enqueued: true, reason: 'Update enqueued.' })),
       rollbackUpdate: vi.fn().mockReturnValue(of({ enqueued: true, reason: 'Rollback enqueued.' })),
+      deleteHistoryEntry: vi.fn().mockReturnValue(of(true)),
+    };
+
+    mockWhisperPlugin = {
+      install: vi.fn().mockResolvedValue({ enqueued: true, operationId: 'op-1', reason: 'Install enqueued.' }),
+      uninstall: vi.fn().mockResolvedValue({ enqueued: true, operationId: 'op-2', reason: 'Uninstall enqueued.' }),
     };
 
     updateConfigSignal = signal(new UpdateConfigSettings());
@@ -42,6 +50,7 @@ describe('UpdatesSettingComponent', () => {
       providers: [
         { provide: DataManagementUpdateService, useValue: mockUpdate },
         { provide: DataManagementSettingsService, useValue: mockSettings },
+        { provide: DataWhisperPluginService, useValue: mockWhisperPlugin },
       ],
     }).compileComponents();
 
@@ -78,6 +87,71 @@ describe('UpdatesSettingComponent', () => {
   it('triggers an update and stores the action message', async () => {
     fixture.detectChanges();
     await component.triggerNow();
+    expect(mockUpdate.triggerUpdate).toHaveBeenCalled();
+    expect(component.actionMessage()).toBe('Update enqueued.');
+  });
+
+  it('allows continuing a Pending WhisperInstall history entry', () => {
+    fixture.detectChanges();
+    expect(component.canContinueHistoryEntry({
+      id: '1',
+      operationType: 'WhisperInstall',
+      status: 'Pending',
+      channel: 'Stable',
+      fromVersion: '',
+      targetVersion: 'large-v3-turbo',
+      containsMigrations: false,
+      requestedAt: '2026-08-06T00:00:00Z',
+    })).toBe(true);
+  });
+
+  it('deletes the stale Pending row first, then re-issues the model install', async () => {
+    fixture.detectChanges();
+    await component.continueHistoryEntry({
+      id: '1',
+      operationType: 'WhisperInstall',
+      status: 'Pending',
+      channel: 'Stable',
+      fromVersion: '',
+      targetVersion: 'large-v3-turbo',
+      containsMigrations: false,
+      requestedAt: '2026-08-06T00:00:00Z',
+    });
+    expect(mockUpdate.deleteHistoryEntry).toHaveBeenCalledWith('1');
+    expect(mockWhisperPlugin.install).toHaveBeenCalledWith('large-v3-turbo');
+    expect(component.actionMessage()).toBe('Install enqueued.');
+  });
+
+  it('re-issues the uninstall when continuing a Failed WhisperUninstall entry without deleting first', async () => {
+    fixture.detectChanges();
+    await component.continueHistoryEntry({
+      id: '2',
+      operationType: 'WhisperUninstall',
+      status: 'Failed',
+      channel: 'Stable',
+      fromVersion: '',
+      targetVersion: '',
+      containsMigrations: false,
+      requestedAt: '2026-08-06T00:00:00Z',
+    });
+    expect(mockUpdate.deleteHistoryEntry).not.toHaveBeenCalled();
+    expect(mockWhisperPlugin.uninstall).toHaveBeenCalled();
+    expect(component.actionMessage()).toBe('Uninstall enqueued.');
+  });
+
+  it('deletes the stale Pending row first, then re-triggers a plain Update entry', async () => {
+    fixture.detectChanges();
+    await component.continueHistoryEntry({
+      id: '3',
+      operationType: 'Update',
+      status: 'Pending',
+      channel: 'Stable',
+      fromVersion: '1.0.0',
+      targetVersion: '1.2.0',
+      containsMigrations: false,
+      requestedAt: '2026-08-06T00:00:00Z',
+    });
+    expect(mockUpdate.deleteHistoryEntry).toHaveBeenCalledWith('3');
     expect(mockUpdate.triggerUpdate).toHaveBeenCalled();
     expect(component.actionMessage()).toBe('Update enqueued.');
   });
