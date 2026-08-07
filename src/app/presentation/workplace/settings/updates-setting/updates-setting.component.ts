@@ -32,10 +32,20 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
+import {
+  DataWhisperPluginService,
+  WhisperModelAlias,
+  WhisperOperationTypes,
+} from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
 
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
 const CONTINUABLE_HISTORY_STATUSES = ['Pending', 'Failed', 'Cancelled', 'RollbackFailed'];
-const RETRYABLE_OPERATION_TYPES = ['Update', 'Rollback'];
+const RETRYABLE_OPERATION_TYPES = [
+  'Update',
+  'Rollback',
+  WhisperOperationTypes.Install,
+  WhisperOperationTypes.Uninstall,
+];
 
 @Component({
   selector: 'app-updates-setting',
@@ -56,6 +66,7 @@ const RETRYABLE_OPERATION_TYPES = ['Update', 'Rollback'];
 export class UpdatesSettingComponent implements OnInit, OnDestroy {
   private dataUpdateService = inject(DataManagementUpdateService);
   private settingsService = inject(DataManagementSettingsService);
+  private dataWhisperPluginService = inject(DataWhisperPluginService);
   private destroy$ = new Subject<void>();
 
   public readonly channels = UPDATE_CHANNELS;
@@ -115,10 +126,31 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
   }
 
   public async continueHistoryEntry(item: IUpdateHistoryItem): Promise<void> {
-    if (item.operationType === 'Rollback') {
-      await this.rollback();
-    } else {
-      await this.triggerNow();
+    this.busy.set(true);
+    try {
+      if (item.status === 'Pending') {
+        // The single-active-operation guard on the backend treats this row itself as the active
+        // operation, so re-enqueuing without removing it first would always be rejected.
+        await firstValueFrom(this.dataUpdateService.deleteHistoryEntry(item.id));
+      }
+      const result = await this.reissue(item);
+      this.actionMessage.set(result.reason);
+    } finally {
+      this.busy.set(false);
+      this.reload();
+    }
+  }
+
+  private reissue(item: IUpdateHistoryItem): Promise<{ reason: string }> {
+    switch (item.operationType) {
+      case 'Rollback':
+        return firstValueFrom(this.dataUpdateService.rollbackUpdate());
+      case WhisperOperationTypes.Install:
+        return this.dataWhisperPluginService.install(item.targetVersion as WhisperModelAlias);
+      case WhisperOperationTypes.Uninstall:
+        return this.dataWhisperPluginService.uninstall();
+      default:
+        return firstValueFrom(this.dataUpdateService.triggerUpdate());
     }
   }
 
