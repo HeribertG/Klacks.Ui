@@ -17,6 +17,7 @@ import {
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -36,6 +37,7 @@ import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refres
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
 const CONTINUABLE_HISTORY_STATUSES = ['Pending', 'Failed', 'Cancelled', 'RollbackFailed'];
 const RETRYABLE_OPERATION_TYPES = ['Update', 'Rollback'];
+const DELETE_BLOCKED_MESSAGE_KEY = 'settings.updates.history.delete.blocked';
 
 @Component({
   selector: 'app-updates-setting',
@@ -108,7 +110,14 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
     this.busy.set(true);
     try {
       await firstValueFrom(this.dataUpdateService.deleteHistoryEntry(item.id));
+      this.actionMessage.set('');
       this.reload();
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict) {
+        this.actionMessage.set(DELETE_BLOCKED_MESSAGE_KEY);
+        return;
+      }
+      throw error;
     } finally {
       this.busy.set(false);
     }

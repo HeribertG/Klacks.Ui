@@ -1964,6 +1964,7 @@
   "settings.updates.history.requested": "Richiesto",
   "settings.updates.history.action": "Azione",
   "settings.updates.history.delete.tooltip": "Elimina voce cronologia",
+  "settings.updates.history.delete.blocked": "Questa voce non può essere eliminata mentre l'operazione è ancora in corso.",
   "settings.updates.history.continue.tooltip": "Riprova",
   "setting.tab.settings": "Impostazioni",
   "setting.tab.list": "Elenco",

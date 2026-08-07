@@ -1964,6 +1964,7 @@
   "settings.updates.history.requested": "Requested",
   "settings.updates.history.action": "Action",
   "settings.updates.history.delete.tooltip": "Delete history entry",
+  "settings.updates.history.delete.blocked": "This entry cannot be deleted while the operation is still running.",
   "settings.updates.history.continue.tooltip": "Retry",
   "setting.tab.settings": "Settings",
   "setting.tab.list": "List",
