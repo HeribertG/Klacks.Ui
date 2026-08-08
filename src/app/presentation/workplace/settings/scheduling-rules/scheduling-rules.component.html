@@ -333,42 +333,39 @@
       <div class="rule-workdays-section">
         <label for="scheduling-rule-workdays">{{ 'setting.schedulingRule.workDays' | translate }}</label>
         <div class="workdays-inline">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnMonday" />
-            {{ 'settings.work.monday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnTuesday" />
-            {{ 'settings.work.tuesday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnWednesday" />
-            {{ 'settings.work.wednesday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnThursday" />
-            {{ 'settings.work.thursday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnFriday" />
-            {{ 'settings.work.friday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnSaturday" />
-            {{ 'settings.work.saturday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingRule.workOnSunday" />
-            {{ 'settings.work.sunday' | translate }}
-          </label>
+          @for (option of workDayOptions; track option.field) {
+            <label class="checkbox-label" [title]="triStateTooltipKey(option.field) | translate">
+              <input
+                id="scheduling-rule-modal-{{ option.field }}"
+                type="checkbox"
+                class="tri-state-checkbox"
+                [checked]="isTriStateChecked(option.field)"
+                [indeterminate]="isTriStateUnset(option.field)"
+                (change)="cycleTriState(option.field, $event.currentTarget)"
+                [attr.aria-label]="option.labelKey | translate"
+              />
+              {{ option.labelKey | translate }}
+            </label>
+          }
+        </div>
+        <div id="scheduling-rule-modal-workdays-legend" class="tri-state-legend">
+          {{ 'setting.schedulingRule.triState-legend' | translate }}
         </div>
       </div>
     </div>
 
     <!-- Shift Work -->
     <div id="scheduling-rule-modal-shift-work-row" class="row-line-modal-inline rule-workdays-row">
-      <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="editingRule.performsShiftWork" />
+      <label class="checkbox-label" [title]="triStateTooltipKey(shiftWorkField) | translate">
+        <input
+          id="scheduling-rule-modal-performs-shift-work"
+          type="checkbox"
+          class="tri-state-checkbox"
+          [checked]="isTriStateChecked(shiftWorkField)"
+          [indeterminate]="isTriStateUnset(shiftWorkField)"
+          (change)="cycleTriState(shiftWorkField, $event.currentTarget)"
+          [attr.aria-label]="'setting.schedulingRule.performsShiftWork' | translate"
+        />
         {{ 'setting.schedulingRule.performsShiftWork' | translate }}
       </label>
     </div>

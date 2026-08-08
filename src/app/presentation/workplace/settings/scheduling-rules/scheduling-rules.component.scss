@@ -60,3 +60,17 @@
   display: flex;
   gap: 16px;
 }
+
+.tri-state-checkbox {
+  cursor: pointer;
+}
+
+input[type="checkbox"].tri-state-checkbox:indeterminate {
+  outline: 1px solid grey;
+}
+
+.tri-state-legend {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--colorLabel);
+}

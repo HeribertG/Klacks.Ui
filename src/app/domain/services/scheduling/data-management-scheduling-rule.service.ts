@@ -91,6 +91,12 @@ export class DataManagementSchedulingRuleService {
     }
   }
 
+  /**
+   * Creates a new rule pre-filled with the company-wide scheduling defaults.
+   * The nullable day-of-week and shift-work flags are deliberately left null:
+   * on a rule, null means "not prescribed" and falls back to the contract,
+   * whereas false is a hard override that blocks the day for every bound contract.
+   */
   createRule(): SchedulingRule {
     const rule = new SchedulingRule();
     const sched = this.settingsService.appSettings.schedulingDefaultSettings();
@@ -118,14 +124,6 @@ export class DataManagementSchedulingRuleService {
     rule.we3Rate = surcharge.we3Rate;
     rule.nightStart = surcharge.nightStart;
     rule.nightEnd = surcharge.nightEnd;
-    rule.workOnMonday = sched.workOnMonday;
-    rule.workOnTuesday = sched.workOnTuesday;
-    rule.workOnWednesday = sched.workOnWednesday;
-    rule.workOnThursday = sched.workOnThursday;
-    rule.workOnFriday = sched.workOnFriday;
-    rule.workOnSaturday = sched.workOnSaturday;
-    rule.workOnSunday = sched.workOnSunday;
-    rule.performsShiftWork = sched.performsShiftWork;
     return rule;
   }
 

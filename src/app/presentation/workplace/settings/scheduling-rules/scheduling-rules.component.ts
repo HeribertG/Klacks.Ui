@@ -2,8 +2,9 @@
 
 /**
  * Settings component for managing scheduling rules via a modal form.
- * Uses signalForm for scalar fields (name, numeric limits, rates) and
- * ngModel for boolean day-of-week checkboxes.
+ * Uses signalForm for scalar fields (name, numeric limits, rates) and tri-state
+ * checkboxes for the nullable day-of-week and shift-work flags, where the
+ * indeterminate state means "not prescribed by this rule - the contract decides".
  */
 import {
   Component, ChangeDetectionStrategy,
@@ -20,7 +21,6 @@ import {
 } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -43,29 +43,52 @@ import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
+type SchedulingRuleTriStateField =
+  | 'workOnMonday'
+  | 'workOnTuesday'
+  | 'workOnWednesday'
+  | 'workOnThursday'
+  | 'workOnFriday'
+  | 'workOnSaturday'
+  | 'workOnSunday'
+  | 'performsShiftWork';
+
+interface WorkDayOption {
+  readonly field: SchedulingRuleTriStateField;
+  readonly labelKey: string;
+}
+
 interface SchedulingRuleFormModel {
   name: string;
-  maxWorkDays: number;
-  minRestDays: number;
-  minPauseHours: number;
-  maxOptimalGap: number;
-  maxDailyHours: number;
-  maxWeeklyHours: number;
-  maxConsecutiveDays: number;
-  defaultWorkingHours: number;
-  overtimeThreshold: number;
-  guaranteedHours: number;
-  maximumHours: number;
-  minimumHours: number;
-  fullTimeHours: number;
-  vacationDaysPerYear: number;
-  nightRate: number;
-  holidayRate: number;
-  we1Rate: number;
-  we2Rate: number;
-  we3Rate: number;
-  nightStart: string;
-  nightEnd: string;
+  maxWorkDays: number | null;
+  minRestDays: number | null;
+  minPauseHours: number | null;
+  maxOptimalGap: number | null;
+  maxDailyHours: number | null;
+  maxWeeklyHours: number | null;
+  maxConsecutiveDays: number | null;
+  defaultWorkingHours: number | null;
+  overtimeThreshold: number | null;
+  guaranteedHours: number | null;
+  maximumHours: number | null;
+  minimumHours: number | null;
+  fullTimeHours: number | null;
+  vacationDaysPerYear: number | null;
+  nightRate: number | null;
+  holidayRate: number | null;
+  we1Rate: number | null;
+  we2Rate: number | null;
+  we3Rate: number | null;
+  nightStart: string | null;
+  nightEnd: string | null;
+  workOnMonday: boolean | null;
+  workOnTuesday: boolean | null;
+  workOnWednesday: boolean | null;
+  workOnThursday: boolean | null;
+  workOnFriday: boolean | null;
+  workOnSaturday: boolean | null;
+  workOnSunday: boolean | null;
+  performsShiftWork: boolean | null;
 }
 
 @Component({
@@ -75,7 +98,6 @@ interface SchedulingRuleFormModel {
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
     FormField,
     NgbModule,
     SpinnerModule,
@@ -111,42 +133,101 @@ export class SchedulingRulesComponent
 
   private formModel = signal<SchedulingRuleFormModel>({
     name: '',
-    maxWorkDays: 0,
-    minRestDays: 0,
-    minPauseHours: 0,
-    maxOptimalGap: 0,
-    maxDailyHours: 0,
-    maxWeeklyHours: 0,
-    maxConsecutiveDays: 0,
-    defaultWorkingHours: 0,
-    overtimeThreshold: 0,
-    guaranteedHours: 0,
-    maximumHours: 0,
-    minimumHours: 0,
-    fullTimeHours: 0,
-    vacationDaysPerYear: 0,
-    nightRate: 0,
-    holidayRate: 0,
-    we1Rate: 0,
-    we2Rate: 0,
-    we3Rate: 0,
-    nightStart: '',
-    nightEnd: '',
+    maxWorkDays: null,
+    minRestDays: null,
+    minPauseHours: null,
+    maxOptimalGap: null,
+    maxDailyHours: null,
+    maxWeeklyHours: null,
+    maxConsecutiveDays: null,
+    defaultWorkingHours: null,
+    overtimeThreshold: null,
+    guaranteedHours: null,
+    maximumHours: null,
+    minimumHours: null,
+    fullTimeHours: null,
+    vacationDaysPerYear: null,
+    nightRate: null,
+    holidayRate: null,
+    we1Rate: null,
+    we2Rate: null,
+    we3Rate: null,
+    nightStart: null,
+    nightEnd: null,
+    workOnMonday: null,
+    workOnTuesday: null,
+    workOnWednesday: null,
+    workOnThursday: null,
+    workOnFriday: null,
+    workOnSaturday: null,
+    workOnSunday: null,
+    performsShiftWork: null,
   });
-
-  private weRateNullTracking = {
-    we1Rate: false,
-    we2Rate: false,
-    we3Rate: false,
-    nightStart: false,
-    nightEnd: false,
-  };
 
   ruleForm = form(this.formModel, f => {
     debounce(f.name, 300);
   });
 
   message = DomainMessages.DELETE_ENTRY;
+
+  readonly workDayOptions: readonly WorkDayOption[] = [
+    { field: 'workOnMonday', labelKey: 'settings.work.monday' },
+    { field: 'workOnTuesday', labelKey: 'settings.work.tuesday' },
+    { field: 'workOnWednesday', labelKey: 'settings.work.wednesday' },
+    { field: 'workOnThursday', labelKey: 'settings.work.thursday' },
+    { field: 'workOnFriday', labelKey: 'settings.work.friday' },
+    { field: 'workOnSaturday', labelKey: 'settings.work.saturday' },
+    { field: 'workOnSunday', labelKey: 'settings.work.sunday' },
+  ];
+
+  readonly shiftWorkField: SchedulingRuleTriStateField = 'performsShiftWork';
+
+  private static readonly TRI_STATE_TOOLTIP_KEYS: Record<string, string> = {
+    unset: 'setting.schedulingRule.triState-unset',
+    enabled: 'setting.schedulingRule.triState-enabled',
+    disabled: 'setting.schedulingRule.triState-disabled',
+  };
+
+  isTriStateChecked(field: SchedulingRuleTriStateField): boolean {
+    return this.formModel()[field] === true;
+  }
+
+  isTriStateUnset(field: SchedulingRuleTriStateField): boolean {
+    return this.formModel()[field] == null;
+  }
+
+  triStateTooltipKey(field: SchedulingRuleTriStateField): string {
+    if (this.isTriStateUnset(field)) {
+      return SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS['unset'];
+    }
+    return this.isTriStateChecked(field)
+      ? SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS['enabled']
+      : SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS['disabled'];
+  }
+
+  cycleTriState(field: SchedulingRuleTriStateField, target?: EventTarget | null): void {
+    if (!this.editingRule) {
+      return;
+    }
+
+    const current = this.formModel()[field];
+    const next = current == null ? true : current ? false : null;
+    this.formModel.update(model => ({ ...model, [field]: next }));
+    this.editingRule[field] = next;
+
+    const checkbox = target as HTMLInputElement | null;
+    if (!checkbox) {
+      return;
+    }
+
+    const applyDomState = (): void => {
+      checkbox.checked = next === true;
+      checkbox.indeterminate = next == null;
+    };
+
+    applyDomState();
+    queueMicrotask(applyDomState);
+  }
 
   private isReadEffect = effect(() => {
     if (this.dataManagementService.isRead()) {
@@ -203,37 +284,37 @@ export class SchedulingRulesComponent
   }
 
   private initFormSignals(rule: ISchedulingRule): void {
-    this.weRateNullTracking = {
-      we1Rate: rule.we1Rate == null,
-      we2Rate: rule.we2Rate == null,
-      we3Rate: rule.we3Rate == null,
-      nightStart: rule.nightStart == null,
-      nightEnd: rule.nightEnd == null,
-    };
-
     this.formModel.set({
       name: rule.name || '',
-      maxWorkDays: rule.maxWorkDays ?? 0,
-      minRestDays: rule.minRestDays ?? 0,
-      minPauseHours: rule.minPauseHours ?? 0,
-      maxOptimalGap: rule.maxOptimalGap ?? 0,
-      maxDailyHours: rule.maxDailyHours ?? 0,
-      maxWeeklyHours: rule.maxWeeklyHours ?? 0,
-      maxConsecutiveDays: rule.maxConsecutiveDays ?? 0,
-      defaultWorkingHours: rule.defaultWorkingHours ?? 0,
-      overtimeThreshold: rule.overtimeThreshold ?? 0,
-      guaranteedHours: rule.guaranteedHours ?? 0,
-      maximumHours: rule.maximumHours ?? 0,
-      minimumHours: rule.minimumHours ?? 0,
-      fullTimeHours: rule.fullTimeHours ?? 0,
-      vacationDaysPerYear: rule.vacationDaysPerYear ?? 0,
-      nightRate: rule.nightRate ?? 0,
-      holidayRate: rule.holidayRate ?? 0,
-      we1Rate: rule.we1Rate ?? 0,
-      we2Rate: rule.we2Rate ?? 0,
-      we3Rate: rule.we3Rate ?? 0,
-      nightStart: rule.nightStart ?? '',
-      nightEnd: rule.nightEnd ?? '',
+      maxWorkDays: rule.maxWorkDays,
+      minRestDays: rule.minRestDays,
+      minPauseHours: rule.minPauseHours,
+      maxOptimalGap: rule.maxOptimalGap,
+      maxDailyHours: rule.maxDailyHours,
+      maxWeeklyHours: rule.maxWeeklyHours,
+      maxConsecutiveDays: rule.maxConsecutiveDays,
+      defaultWorkingHours: rule.defaultWorkingHours,
+      overtimeThreshold: rule.overtimeThreshold,
+      guaranteedHours: rule.guaranteedHours,
+      maximumHours: rule.maximumHours,
+      minimumHours: rule.minimumHours,
+      fullTimeHours: rule.fullTimeHours,
+      vacationDaysPerYear: rule.vacationDaysPerYear,
+      nightRate: rule.nightRate,
+      holidayRate: rule.holidayRate,
+      we1Rate: rule.we1Rate,
+      we2Rate: rule.we2Rate,
+      we3Rate: rule.we3Rate,
+      nightStart: rule.nightStart,
+      nightEnd: rule.nightEnd,
+      workOnMonday: rule.workOnMonday,
+      workOnTuesday: rule.workOnTuesday,
+      workOnWednesday: rule.workOnWednesday,
+      workOnThursday: rule.workOnThursday,
+      workOnFriday: rule.workOnFriday,
+      workOnSaturday: rule.workOnSaturday,
+      workOnSunday: rule.workOnSunday,
+      performsShiftWork: rule.performsShiftWork,
     });
   }
 
@@ -257,11 +338,19 @@ export class SchedulingRulesComponent
     this.editingRule.vacationDaysPerYear = formData.vacationDaysPerYear;
     this.editingRule.nightRate = formData.nightRate;
     this.editingRule.holidayRate = formData.holidayRate;
-    this.editingRule.we1Rate = (this.weRateNullTracking.we1Rate && formData.we1Rate === 0) ? null : formData.we1Rate;
-    this.editingRule.we2Rate = (this.weRateNullTracking.we2Rate && formData.we2Rate === 0) ? null : formData.we2Rate;
-    this.editingRule.we3Rate = (this.weRateNullTracking.we3Rate && formData.we3Rate === 0) ? null : formData.we3Rate;
-    this.editingRule.nightStart = (this.weRateNullTracking.nightStart && formData.nightStart === '') ? null : (formData.nightStart || null);
-    this.editingRule.nightEnd = (this.weRateNullTracking.nightEnd && formData.nightEnd === '') ? null : (formData.nightEnd || null);
+    this.editingRule.we1Rate = formData.we1Rate;
+    this.editingRule.we2Rate = formData.we2Rate;
+    this.editingRule.we3Rate = formData.we3Rate;
+    this.editingRule.nightStart = formData.nightStart || null;
+    this.editingRule.nightEnd = formData.nightEnd || null;
+    this.editingRule.workOnMonday = formData.workOnMonday;
+    this.editingRule.workOnTuesday = formData.workOnTuesday;
+    this.editingRule.workOnWednesday = formData.workOnWednesday;
+    this.editingRule.workOnThursday = formData.workOnThursday;
+    this.editingRule.workOnFriday = formData.workOnFriday;
+    this.editingRule.workOnSaturday = formData.workOnSaturday;
+    this.editingRule.workOnSunday = formData.workOnSunday;
+    this.editingRule.performsShiftWork = formData.performsShiftWork;
   }
 
   private openModal(): void {
