@@ -16,6 +16,19 @@
 
 <hr>
 
+<h3>Jours de travail (jours de la semaine) &amp; travail posté</h3>
+<p>Les sept jours de la semaine et le <strong>travail posté</strong> ont trois états. Un clic sur la case fait alterner entre eux : non défini, oui, non.</p>
+<table>
+  <tr><th>État</th><th>Case</th><th>Signification</th></tr>
+  <tr><td><strong>Non défini</strong></td><td>trait horizontal</td><td>Cette règle ne définit rien - le contrat décide. C'est le cas normal.</td></tr>
+  <tr><td><strong>Oui</strong></td><td>coche</td><td>Défini par cette règle : le travail a lieu ce jour-là, même si le contrat ne le prévoit pas.</td></tr>
+  <tr><td><strong>Non</strong></td><td>vide</td><td>Défini par cette règle : aucun travail n'a lieu ce jour-là. Cela vaut pour chaque contrat auquel la règle est attribuée - même si le contrat prévoit expressément ce jour.</td></tr>
+</table>
+<p><strong>Attention :</strong> "Non" est un blocage explicite et non un état neutre. Définir certains jours sur "oui" ne bloque pas les autres : pour chaque jour laissé sur "non défini", le contrat continue de s'appliquer. Pour exclure un jour, il faut le définir expressément sur "non".</p>
+<p>Le <strong>travail posté</strong> suit la même logique : "non défini" reprend la valeur du contrat, tandis que "oui" et "non" la définissent par cette règle.</p>
+
+<hr>
+
 <h3>Limites d'heures</h3>
 <table>
   <tr><th>Champ</th><th>Description</th></tr>
