@@ -21,6 +21,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IClientBreak } from 'src/app/domain/models/client/i-client-break';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
@@ -42,6 +43,8 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 
 const ABSENCE_SOURCE_ID = 'absence-gantt';
 const ABSENCE_DATA_SET_ID = 'absences';
+const YEAR_START_SUFFIX = '-01-01T00:00:00';
+const YEAR_END_SUFFIX = '-12-31T00:00:00';
 
 @Component({
   selector: 'app-absence-gantt-grid',
@@ -79,6 +82,7 @@ export class AbsenceGanttGridComponent
   private reportService = inject(ReportService);
   private templateResolver = inject(ReportTemplateResolverService);
   private reportDefaults = inject(ReportDefaultsService);
+  private absenceLookup = inject(AbsenceLookupService);
   private textFormatterService = inject(TextFormatterService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -235,6 +239,8 @@ export class AbsenceGanttGridComponent
       return;
     }
 
+    await this.absenceLookup.loadIfNeeded();
+
     const clientName = this.getClientName();
     const client = this.getSelectedClient();
 
@@ -259,18 +265,21 @@ export class AbsenceGanttGridComponent
       clientId: client?.id,
       clientName: client?.name ?? '',
       clientFirstName: client?.firstName ?? '',
-      absence: this.absence.find(a => a.id === bp.absenceId),
+      absence: this.absenceLookup.findAbsenceForEntryId(bp.absenceId),
     }));
 
-    const data: ReportData = { rows };
+    const data: ReportData = client
+      ? { rows, clients: [this.toReportClient(client)] }
+      : { rows };
+    const year = this.dataManagementBreak.breakFilter.currentYear;
 
     const context: ReportGenerationContext = {
       template,
       provider,
       data,
       groupName: '',
-      startDate: '',
-      endDate: '',
+      startDate: `${year}${YEAR_START_SUFFIX}`,
+      endDate: `${year}${YEAR_END_SUFFIX}`,
     };
 
     const blob = await this.reportPdfService.generatePdf(context);
@@ -280,10 +289,19 @@ export class AbsenceGanttGridComponent
     this.exportPDF.emit();
   }
 
-  private getSelectedClient(): { id?: string; name?: string; firstName?: string } | undefined {
+  private toReportClient(client: IClientBreak): Record<string, unknown> {
+    return {
+      id: client.id,
+      idNumber: client.idNumber,
+      company: client.company,
+      name: client.name,
+      firstName: client.firstName,
+    };
+  }
+
+  private getSelectedClient(): IClientBreak | undefined {
     if (this.selectedRow() >= 0 && this.selectedRow() < this.dataManagementBreak.clients.length) {
-      const c = this.dataManagementBreak.clients[this.selectedRow()];
-      return { id: c.id, name: c.name, firstName: c.firstName };
+      return this.dataManagementBreak.clients[this.selectedRow()];
     }
     return undefined;
   }
