@@ -130,7 +130,18 @@ input {
 .export-button,
 .duplicate-button {
   cursor: pointer;
-  margin-right: 6px;
+  margin-inline-end: 6px;
+}
+
+.duplicate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
+.first.custom-control-inline span.delete-button {
+  margin-inline-start: 0;
 }
 
 .discard-question {
