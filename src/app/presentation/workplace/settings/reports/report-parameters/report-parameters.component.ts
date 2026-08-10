@@ -21,13 +21,14 @@ import {
   findParameterKeyProblem,
   toParameterVariableName,
 } from 'src/app/domain/helpers/report-parameter.helper';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 const CHOICE_SEPARATOR = ',';
 
 @Component({
   selector: 'app-report-parameters',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, TrashIconRedComponent],
   templateUrl: './report-parameters.component.html',
   styleUrls: ['./report-parameters.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

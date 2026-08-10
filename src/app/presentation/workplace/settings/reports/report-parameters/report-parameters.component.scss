@@ -1,3 +1,6 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
 .report-parameters {
   display: flex;
   flex-direction: column;
@@ -23,48 +26,30 @@
 .parameter-line {
   display: flex;
   gap: 10px;
-  align-items: flex-end;
+  align-items: flex-start;
   flex-wrap: wrap;
 }
 
 .parameter-field {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: 11px;
-  color: var(--colorLabel);
-  margin: 0;
+  min-width: 170px;
 
-  input,
-  select {
-    font-size: 13px;
-    padding: 2px 6px;
-    min-width: 150px;
-  }
-
-  &.wide input {
-    min-width: 320px;
+  &.wide {
+    min-width: 340px;
+    flex: 1;
   }
 }
 
 .parameter-check {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--colorLabel);
-  margin: 0 0 4px 0;
+  justify-content: flex-end;
+  padding-bottom: 6px;
 }
 
 .parameter-remove {
   margin-inline-start: auto;
-  border: 1px solid var(--colorLine);
-  background: var(--backgroundColorCard);
-  border-radius: 3px;
+  align-self: center;
   cursor: pointer;
-  color: #c00000;
-  height: 24px;
-  min-width: 26px;
 }
 
 .parameter-footer {
@@ -77,17 +62,18 @@
   border-radius: 3px;
 }
 
-.parameter-error {
-  color: #c00000;
+.add-row {
+  padding-top: 5px;
+  text-align: center;
 }
 
-.parameter-add {
-  align-self: flex-start;
-  border: none;
-  background: none;
-  padding: 0;
-  font-size: 12px;
+.add-button {
+  font-size: 13px;
   text-decoration: underline;
+  color: colors.$standartGreenColor;
   cursor: pointer;
-  color: var(--colorLabel);
+
+  &:hover {
+    opacity: 0.8;
+  }
 }

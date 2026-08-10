@@ -124,3 +124,38 @@
   <tr><td>Container Template</td><td>Vorlage für Container-Reports</td></tr>
 </table>
 <p><em>Die Datenquelle wird im Tab «Datenquelle» gewählt und bestimmt die verfügbaren Felder.</em></p>
+<hr>
+
+<h3>Parameter</h3>
+<p>Parameter werden beim Ausführen eines Reports abgefragt. Ihre Werte stehen in Zeilenfiltern und Formeln zur Verfügung und können zusätzlich die Abfrage der Datenquelle einschränken. Angelegt werden sie im Tab <em>Parameter</em>.</p>
+<table>
+  <tr><th>Feld</th><th>Bedeutung</th></tr>
+  <tr><td>Schlüssel</td><td>Technischer Name. Muss mit einem Buchstaben beginnen und darf nur Buchstaben, Ziffern und Unterstriche enthalten. Pro Report eindeutig.</td></tr>
+  <tr><td>Bezeichnung</td><td>Beschriftung, die beim Ausführen angezeigt wird.</td></tr>
+  <tr><td>Typ</td><td>Text, Zahl, Datum, Ja/Nein oder Auswahl.</td></tr>
+  <tr><td>Standardwert</td><td>Wird verwendet, wenn beim Ausführen nichts eingegeben wird.</td></tr>
+  <tr><td>Auswahlwerte</td><td>Nur beim Typ «Auswahl»: die zulässigen Werte, durch Komma getrennt.</td></tr>
+  <tr><td>Wirkt auf</td><td>Legt fest, ob der Wert zusätzlich an die Datenquelle übergeben wird.</td></tr>
+  <tr><td>Pflichtfeld</td><td>Der Report kann ohne einen Wert nicht ausgeführt werden.</td></tr>
+</table>
+
+<h3>Parameter in Filtern und Formeln</h3>
+<p>Jeder Parameter ist im Skript unter dem Schlüssel mit dem Präfix <code>param_</code> verfügbar — aus dem Schlüssel <code>region</code> wird also <code>param_region</code>. Das Präfix verhindert, dass ein Parameter einen gleichnamigen Zeilenwert verdeckt. Der aktuelle Name wird unter jedem Parameter angezeigt.</p>
+<p>Der Wert wird vor der Auswertung in den gewählten Typ umgewandelt:</p>
+<ul>
+  <li><strong>Zahl:</strong> als Zahl; eine ungültige Eingabe wird zu <code>0</code></li>
+  <li><strong>Ja/Nein:</strong> wahr bei <code>1</code>, <code>true</code>, <code>wahr</code> oder <code>yes</code>, sonst falsch</li>
+  <li><strong>Text, Datum, Auswahl:</strong> als Text</li>
+</ul>
+
+<h3>Parameter an die Datenquelle binden</h3>
+<p>Über <em>Wirkt auf</em> schränkt ein Parameter zusätzlich ein, welche Daten überhaupt geladen werden:</p>
+<table>
+  <tr><th>Einstellung</th><th>Wirkung</th></tr>
+  <tr><td>nur Filter und Formeln</td><td>Der Wert wird ausschliesslich im Skript verwendet (Standard).</td></tr>
+  <tr><td>Gruppe der Abfrage</td><td>Der Wert ersetzt die Gruppe, für die Daten geladen werden.</td></tr>
+  <tr><td>Person der Abfrage</td><td>Der Wert ersetzt die Person, für die Daten geladen werden.</td></tr>
+  <tr><td>Startdatum der Abfrage</td><td>Der Wert ersetzt den Beginn des Zeitraums.</td></tr>
+  <tr><td>Enddatum der Abfrage</td><td>Der Wert ersetzt das Ende des Zeitraums.</td></tr>
+</table>
+<p><em>Gebundene Datumswerte müssen als JJJJ-MM-TT oder TT.MM.JJJJ eingegeben werden. Ein Wert in anderer Form wird ignoriert, damit die Abfrage nicht unbemerkt leer bleibt. Ein leerer Wert lässt die ursprüngliche Einstellung unverändert.</em></p>

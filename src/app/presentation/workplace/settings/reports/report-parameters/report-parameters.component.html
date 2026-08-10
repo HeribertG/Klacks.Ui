@@ -1,3 +1,6 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+
 <div class="report-parameters">
   <div class="parameters-hint">
     {{ "setting.report.parameter.hint" | translate }}
@@ -6,103 +9,140 @@
   @for (parameter of parameters(); track $index) {
     <div class="parameter-card">
       <div class="parameter-line">
-        <label class="parameter-field">
-          <span>{{ "setting.report.parameter.key" | translate }}</span>
+        <div class="parameter-field">
+          <label class="form-label" [for]="'report-parameter-key-' + $index">{{
+            "setting.report.parameter.key" | translate
+          }}</label>
           <input
             type="text"
+            class="form-control"
+            [id]="'report-parameter-key-' + $index"
             [ngModel]="parameter.key"
             (ngModelChange)="setKey(parameter, $event)"
             [class.is-invalid]="keyProblem(parameter, $index)"
           />
-        </label>
+          @if (keyProblem(parameter, $index); as problem) {
+            <div class="invalid-feedback d-block">{{ problem | translate }}</div>
+          }
+        </div>
 
-        <label class="parameter-field">
-          <span>{{ "setting.report.parameter.label" | translate }}</span>
+        <div class="parameter-field">
+          <label class="form-label" [for]="'report-parameter-label-' + $index">{{
+            "setting.report.parameter.label" | translate
+          }}</label>
           <input
             type="text"
+            class="form-control"
+            [id]="'report-parameter-label-' + $index"
             [ngModel]="parameter.label"
             (ngModelChange)="setLabel(parameter, $event)"
           />
-        </label>
+        </div>
 
-        <label class="parameter-field">
-          <span>{{ "setting.report.parameter.type" | translate }}</span>
+        <div class="parameter-field">
+          <label class="form-label" [for]="'report-parameter-type-' + $index">{{
+            "setting.report.parameter.type" | translate
+          }}</label>
           <select
+            class="form-select"
+            [id]="'report-parameter-type-' + $index"
             [ngModel]="parameter.type"
             (ngModelChange)="setType(parameter, $event)"
           >
             @for (option of typeOptions; track option.value) {
-              <option [ngValue]="option.value">{{ option.labelKey | translate }}</option>
+              <option [ngValue]="option.value">
+                {{ option.labelKey | translate }}
+              </option>
             }
           </select>
-        </label>
+        </div>
 
-        <button
-          type="button"
+        <span
           class="parameter-remove"
           [title]="'setting.report.parameter.remove' | translate"
           (click)="removeParameter($index)"
-        >
-          &#10005;
-        </button>
+          ><app-icon-trash-red
+        /></span>
       </div>
 
       <div class="parameter-line">
-        <label class="parameter-field">
-          <span>{{ "setting.report.parameter.defaultValue" | translate }}</span>
+        <div class="parameter-field">
+          <label class="form-label" [for]="'report-parameter-default-' + $index">{{
+            "setting.report.parameter.defaultValue" | translate
+          }}</label>
           <input
             type="text"
+            class="form-control"
+            [id]="'report-parameter-default-' + $index"
             [ngModel]="parameter.defaultValue ?? ''"
             (ngModelChange)="setDefaultValue(parameter, $event)"
           />
-        </label>
+        </div>
 
-        <label class="parameter-field">
-          <span>{{ "setting.report.parameter.binding" | translate }}</span>
+        <div class="parameter-field">
+          <label class="form-label" [for]="'report-parameter-binding-' + $index">{{
+            "setting.report.parameter.binding" | translate
+          }}</label>
           <select
+            class="form-select"
+            [id]="'report-parameter-binding-' + $index"
             [ngModel]="parameter.bindsTo ?? ReportParameterBinding.None"
             (ngModelChange)="setBinding(parameter, $event)"
           >
             @for (option of bindingOptions; track option.value) {
-              <option [ngValue]="option.value">{{ option.labelKey | translate }}</option>
+              <option [ngValue]="option.value">
+                {{ option.labelKey | translate }}
+              </option>
             }
           </select>
-        </label>
+        </div>
 
-        <label class="parameter-check">
-          <input
-            type="checkbox"
-            [ngModel]="parameter.required"
-            (ngModelChange)="setRequired(parameter, $event)"
-          />
-          {{ "setting.report.parameter.required" | translate }}
-        </label>
+        <div class="parameter-field parameter-check">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [id]="'report-parameter-required-' + $index"
+              [ngModel]="parameter.required"
+              (ngModelChange)="setRequired(parameter, $event)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'report-parameter-required-' + $index"
+              >{{ "setting.report.parameter.required" | translate }}</label
+            >
+          </div>
+        </div>
       </div>
 
       @if (parameter.type === ReportParameterType.Choice) {
         <div class="parameter-line">
-          <label class="parameter-field wide">
-            <span>{{ "setting.report.parameter.choices" | translate }}</span>
+          <div class="parameter-field wide">
+            <label class="form-label" [for]="'report-parameter-choices-' + $index">{{
+              "setting.report.parameter.choices" | translate
+            }}</label>
             <input
               type="text"
+              class="form-control"
+              [id]="'report-parameter-choices-' + $index"
               [ngModel]="choicesText(parameter)"
               (ngModelChange)="setChoices(parameter, $event)"
-              [placeholder]="'setting.report.parameter.choicesPlaceholder' | translate"
+              [placeholder]="
+                'setting.report.parameter.choicesPlaceholder' | translate
+              "
             />
-          </label>
+          </div>
         </div>
       }
 
-      <div class="parameter-footer">
-        @if (keyProblem(parameter, $index); as problem) {
-          <span class="parameter-error">{{ problem | translate }}</span>
-        } @else {
+      @if (!keyProblem(parameter, $index)) {
+        <div class="parameter-footer">
           <span class="parameter-variable">
             {{ "setting.report.parameter.variable" | translate }}
             <code>{{ variableName(parameter) }}</code>
           </span>
-        }
-      </div>
+        </div>
+      }
     </div>
   } @empty {
     <div class="parameters-empty">
@@ -110,7 +150,9 @@
     </div>
   }
 
-  <button type="button" class="parameter-add" (click)="addParameter()">
-    + {{ "setting.report.parameter.add" | translate }}
-  </button>
+  <div class="add-row">
+    <span class="add-button" (click)="addParameter()">{{
+      "setting.report.parameter.add" | translate
+    }}</span>
+  </div>
 </div>

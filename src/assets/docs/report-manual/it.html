@@ -124,3 +124,38 @@
   <tr><td>Modello contenitore</td><td>Modello per report contenitore</td></tr>
 </table>
 <p><em>La fonte dati viene selezionata nella scheda «Fonte dati» e determina i campi disponibili.</em></p>
+<hr>
+
+<h3>Parametri</h3>
+<p>I parametri vengono richiesti all'esecuzione di un report. I loro valori sono disponibili nei filtri di riga e nelle formule e possono inoltre restringere la query della sorgente dati. Si definiscono nella scheda <em>Parametri</em>.</p>
+<table>
+  <tr><th>Campo</th><th>Significato</th></tr>
+  <tr><td>Chiave</td><td>Nome tecnico. Deve iniziare con una lettera e può contenere solo lettere, cifre e trattini bassi. Univoco per report.</td></tr>
+  <tr><td>Denominazione</td><td>Etichetta mostrata all'esecuzione.</td></tr>
+  <tr><td>Tipo</td><td>Testo, Numero, Data, Sì/No o Elenco.</td></tr>
+  <tr><td>Valore predefinito</td><td>Usato quando all'esecuzione non viene inserito nulla.</td></tr>
+  <tr><td>Valori dell'elenco</td><td>Solo per il tipo «Elenco»: i valori ammessi, separati da virgole.</td></tr>
+  <tr><td>Agisce su</td><td>Determina se il valore viene passato anche alla sorgente dati.</td></tr>
+  <tr><td>Campo obbligatorio</td><td>Il report non può essere eseguito senza un valore.</td></tr>
+</table>
+
+<h3>Parametri nei filtri e nelle formule</h3>
+<p>Ogni parametro è disponibile nello script con la sua chiave preceduta dal prefisso <code>param_</code>: la chiave <code>region</code> diventa quindi <code>param_region</code>. Il prefisso impedisce che un parametro nasconda un valore di riga con lo stesso nome. Il nome attuale è indicato sotto ogni parametro.</p>
+<p>Prima della valutazione il valore viene convertito nel tipo scelto:</p>
+<ul>
+  <li><strong>Numero:</strong> come numero; un inserimento non valido diventa <code>0</code></li>
+  <li><strong>Sì/No:</strong> vero per <code>1</code>, <code>true</code>, <code>wahr</code> o <code>yes</code>, altrimenti falso</li>
+  <li><strong>Testo, Data, Elenco:</strong> come testo</li>
+</ul>
+
+<h3>Collegare un parametro alla sorgente dati</h3>
+<p>Con <em>Agisce su</em> un parametro restringe quali dati vengono caricati:</p>
+<table>
+  <tr><th>Impostazione</th><th>Effetto</th></tr>
+  <tr><td>solo filtri e formule</td><td>Il valore viene usato solo nello script (predefinito).</td></tr>
+  <tr><td>gruppo della query</td><td>Il valore sostituisce il gruppo per cui i dati vengono caricati.</td></tr>
+  <tr><td>persona della query</td><td>Il valore sostituisce la persona per cui i dati vengono caricati.</td></tr>
+  <tr><td>data di inizio della query</td><td>Il valore sostituisce l'inizio del periodo.</td></tr>
+  <tr><td>data di fine della query</td><td>Il valore sostituisce la fine del periodo.</td></tr>
+</table>
+<p><em>Le date collegate devono essere inserite come AAAA-MM-GG oppure GG.MM.AAAA. Un valore in un'altra forma viene ignorato, affinché la query non risulti vuota senza preavviso. Un valore vuoto lascia invariata l'impostazione originale.</em></p>

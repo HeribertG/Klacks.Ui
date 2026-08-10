@@ -124,3 +124,38 @@
   <tr><td>Modèle de conteneur</td><td>Modèle pour rapports conteneur</td></tr>
 </table>
 <p><em>La source de données est sélectionnée dans l'onglet « Source de données » et détermine les champs disponibles.</em></p>
+<hr>
+
+<h3>Paramètres</h3>
+<p>Les paramètres sont demandés lors de l'exécution d'un rapport. Leurs valeurs sont disponibles dans les filtres de lignes et les formules, et peuvent en plus restreindre la requête de la source de données. Ils se définissent dans l'onglet <em>Paramètres</em>.</p>
+<table>
+  <tr><th>Champ</th><th>Signification</th></tr>
+  <tr><td>Clé</td><td>Nom technique. Doit commencer par une lettre et ne peut contenir que des lettres, des chiffres et des traits de soulignement. Unique par rapport.</td></tr>
+  <tr><td>Désignation</td><td>Libellé affiché lors de l'exécution.</td></tr>
+  <tr><td>Type</td><td>Texte, Nombre, Date, Oui/Non ou Liste.</td></tr>
+  <tr><td>Valeur par défaut</td><td>Utilisée lorsque rien n'est saisi à l'exécution.</td></tr>
+  <tr><td>Valeurs de la liste</td><td>Uniquement pour le type « Liste » : les valeurs autorisées, séparées par des virgules.</td></tr>
+  <tr><td>Agit sur</td><td>Détermine si la valeur est également transmise à la source de données.</td></tr>
+  <tr><td>Champ obligatoire</td><td>Le rapport ne peut pas être exécuté sans valeur.</td></tr>
+</table>
+
+<h3>Paramètres dans les filtres et les formules</h3>
+<p>Chaque paramètre est disponible dans le script sous sa clé précédée du préfixe <code>param_</code> — la clé <code>region</code> devient donc <code>param_region</code>. Le préfixe empêche qu'un paramètre masque une valeur de ligne portant le même nom. Le nom actuel est affiché sous chaque paramètre.</p>
+<p>La valeur est convertie dans le type choisi avant l'évaluation :</p>
+<ul>
+  <li><strong>Nombre :</strong> comme nombre ; une saisie invalide devient <code>0</code></li>
+  <li><strong>Oui/Non :</strong> vrai pour <code>1</code>, <code>true</code>, <code>wahr</code> ou <code>yes</code>, faux sinon</li>
+  <li><strong>Texte, Date, Liste :</strong> comme texte</li>
+</ul>
+
+<h3>Lier un paramètre à la source de données</h3>
+<p>Le réglage <em>Agit sur</em> permet à un paramètre de restreindre les données chargées :</p>
+<table>
+  <tr><th>Réglage</th><th>Effet</th></tr>
+  <tr><td>filtres et formules uniquement</td><td>La valeur n'est utilisée que dans le script (par défaut).</td></tr>
+  <tr><td>groupe de la requête</td><td>La valeur remplace le groupe pour lequel les données sont chargées.</td></tr>
+  <tr><td>personne de la requête</td><td>La valeur remplace la personne pour laquelle les données sont chargées.</td></tr>
+  <tr><td>date de début de la requête</td><td>La valeur remplace le début de la période.</td></tr>
+  <tr><td>date de fin de la requête</td><td>La valeur remplace la fin de la période.</td></tr>
+</table>
+<p><em>Les dates liées doivent être saisies au format AAAA-MM-JJ ou JJ.MM.AAAA. Une valeur d'une autre forme est ignorée, afin que la requête ne renvoie pas silencieusement un résultat vide. Une valeur vide laisse le réglage d'origine inchangé.</em></p>

@@ -124,3 +124,38 @@
   <tr><td>Container Template</td><td>Template for container reports</td></tr>
 </table>
 <p><em>The data source is selected in the "Data Source" tab and determines the available fields.</em></p>
+<hr>
+
+<h3>Parameters</h3>
+<p>Parameters are asked for when a report is run. Their values are available to row filters and formulas, and can additionally narrow down the data source query. They are defined on the <em>Parameters</em> tab.</p>
+<table>
+  <tr><th>Field</th><th>Meaning</th></tr>
+  <tr><td>Key</td><td>Technical name. Has to start with a letter and may only contain letters, digits and underscores. Unique per report.</td></tr>
+  <tr><td>Label</td><td>Caption shown when the report is run.</td></tr>
+  <tr><td>Type</td><td>Text, Number, Date, Yes/No or Choice.</td></tr>
+  <tr><td>Default value</td><td>Used when nothing is entered at run time.</td></tr>
+  <tr><td>Choices</td><td>Only for type "Choice": the permitted values, separated by commas.</td></tr>
+  <tr><td>Applies to</td><td>Decides whether the value is also passed to the data source.</td></tr>
+  <tr><td>Required</td><td>The report cannot be run without a value.</td></tr>
+</table>
+
+<h3>Parameters in filters and formulas</h3>
+<p>Every parameter is available in the script under its key with the prefix <code>param_</code> — the key <code>region</code> becomes <code>param_region</code>. The prefix keeps a parameter from shadowing a row value of the same name. The current name is shown below each parameter.</p>
+<p>The value is converted to the selected type before evaluation:</p>
+<ul>
+  <li><strong>Number:</strong> as a number; invalid input becomes <code>0</code></li>
+  <li><strong>Yes/No:</strong> true for <code>1</code>, <code>true</code>, <code>wahr</code> or <code>yes</code>, false otherwise</li>
+  <li><strong>Text, Date, Choice:</strong> as text</li>
+</ul>
+
+<h3>Binding a parameter to the data source</h3>
+<p><em>Applies to</em> lets a parameter narrow down which data is loaded in the first place:</p>
+<table>
+  <tr><th>Setting</th><th>Effect</th></tr>
+  <tr><td>filters and formulas only</td><td>The value is used in the script only (default).</td></tr>
+  <tr><td>query group</td><td>The value replaces the group data is loaded for.</td></tr>
+  <tr><td>query person</td><td>The value replaces the person data is loaded for.</td></tr>
+  <tr><td>query start date</td><td>The value replaces the start of the period.</td></tr>
+  <tr><td>query end date</td><td>The value replaces the end of the period.</td></tr>
+</table>
+<p><em>Bound date values have to be entered as YYYY-MM-DD or DD.MM.YYYY. A value in any other shape is ignored, so the query does not silently come back empty. An empty value leaves the original setting untouched.</em></p>
