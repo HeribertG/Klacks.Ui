@@ -6,7 +6,10 @@ export interface ISuggestedReply {
 }
 
 export interface ISuggestedRepliesConfig {
-  selectionMode: 'single' | 'multi' | 'date';
+  selectionMode: 'single' | 'multi' | 'date' | 'number';
   prompt?: string;
   options: ISuggestedReply[];
+  min?: number;
+  max?: number;
+  step?: number;
 }
