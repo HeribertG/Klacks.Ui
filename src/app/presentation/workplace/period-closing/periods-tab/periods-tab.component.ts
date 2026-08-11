@@ -18,6 +18,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute } from '@angular/router';
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -62,6 +63,7 @@ interface SealConflictBody {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodsTabComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   private api = inject(DataPeriodClosingService);
   private shiftScheduleApi = inject(DataShiftScheduleService);
   private toastShowService = inject(ToastShowService);
@@ -148,12 +150,41 @@ export class PeriodsTabComponent implements OnInit {
         this.usedPeriods.set(periods);
         this.loadingPeriods.set(false);
         if (periods.length > 0 && !this.selectedPeriodKey()) {
-          this.selectedPeriodKey.set(this.periodKey(periods[0]));
+          this.selectedPeriodKey.set(this.periodKey(this.resolveRequestedPeriod(periods) ?? periods[0]));
           this.loadSummary();
         }
       },
       error: () => this.loadingPeriods.set(false),
     });
+  }
+
+  /**
+   * Picks the period a one-click action asked for. Proactive period messages
+   * (period_overdue, period_close_due) link here with the reported group and its period end,
+   * so the page must open on that period instead of the newest one.
+   * @param periods - Periods returned by the backend, newest first
+   */
+  private resolveRequestedPeriod(periods: UsedPeriod[]): UsedPeriod | null {
+    const params = this.route.snapshot.queryParamMap;
+    const groupId = params.get('groupId');
+    const date = params.get('date');
+    if (!groupId && !date) {
+      return null;
+    }
+
+    const ofGroup = groupId ? periods.filter((period) => period.groupId === groupId) : periods;
+    if (ofGroup.length === 0) {
+      return null;
+    }
+    if (!date) {
+      return ofGroup[0];
+    }
+    return ofGroup.find((period) => this.covers(period, date)) ?? ofGroup[0];
+  }
+
+  private covers(period: UsedPeriod, isoDate: string): boolean {
+    const { start, end } = this.getPeriodBounds(period);
+    return start <= isoDate && isoDate <= end;
   }
 
   onPeriodChange(key: string): void {

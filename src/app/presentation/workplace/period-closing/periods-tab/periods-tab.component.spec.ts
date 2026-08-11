@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { PeriodsTabComponent } from './periods-tab.component';
@@ -57,7 +58,24 @@ const EXPORT_LOG: ExportLog = {
   exportedByName: 'Test User',
 };
 
+const GROUP_PERIOD: UsedPeriod = {
+  startDate: '2026-07-01',
+  endDate: '2026-07-31',
+  paymentInterval: 1,
+  groupId: 'group-bern',
+  groupName: 'Bern',
+};
+
+const NEWER_GROUP_PERIOD: UsedPeriod = {
+  startDate: '2026-08-01',
+  endDate: '2026-08-31',
+  paymentInterval: 1,
+  groupId: 'group-bern',
+  groupName: 'Bern',
+};
+
 describe('PeriodsTabComponent', () => {
+  let queryParams: Record<string, string>;
   let fixture: ComponentFixture<PeriodsTabComponent>;
   let component: PeriodsTabComponent;
   let api: {
@@ -81,6 +99,7 @@ describe('PeriodsTabComponent', () => {
   }
 
   beforeEach(() => {
+    queryParams = {};
     api = {
       getUsedPeriods: vi.fn().mockReturnValue(of([PERIOD])),
       getSealedPeriods: vi.fn().mockReturnValue(of([SEALED_DAY, UNSEALED_DAY])),
@@ -106,6 +125,10 @@ describe('PeriodsTabComponent', () => {
         { provide: DataShiftScheduleService, useValue: shiftScheduleApi },
         { provide: ModalService, useValue: modalService },
         { provide: ToastShowService, useValue: toastShowService },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: { get: (key: string) => queryParams[key] ?? null } } },
+        },
       ],
     });
     fixture = TestBed.createComponent(PeriodsTabComponent);
@@ -354,6 +377,40 @@ describe('PeriodsTabComponent', () => {
 
     it('loads the export log together with the period summary', () => {
       expect(api.getExportLog).toHaveBeenCalledWith(PERIOD.startDate, PERIOD.endDate);
+    });
+  });
+
+  describe('one-click action preselection', () => {
+    function recreate(): PeriodsTabComponent {
+      const created = TestBed.createComponent(PeriodsTabComponent);
+      created.detectChanges();
+      return created.componentInstance;
+    }
+
+    it('opens the period of the reported group that covers the reported date', () => {
+      queryParams = { groupId: 'group-bern', date: '2026-07-31' };
+      api.getUsedPeriods.mockReturnValue(of([NEWER_GROUP_PERIOD, GROUP_PERIOD, PERIOD]));
+
+      const created = recreate();
+
+      expect(created.selectedPeriod()).toEqual(GROUP_PERIOD);
+    });
+
+    it('falls back to the newest period when the group has none', () => {
+      queryParams = { groupId: 'group-unknown', date: '2026-07-31' };
+      api.getUsedPeriods.mockReturnValue(of([NEWER_GROUP_PERIOD, PERIOD]));
+
+      const created = recreate();
+
+      expect(created.selectedPeriod()).toEqual(NEWER_GROUP_PERIOD);
+    });
+
+    it('keeps the newest period without query params', () => {
+      api.getUsedPeriods.mockReturnValue(of([NEWER_GROUP_PERIOD, GROUP_PERIOD]));
+
+      const created = recreate();
+
+      expect(created.selectedPeriod()).toEqual(NEWER_GROUP_PERIOD);
     });
   });
 });
