@@ -2,7 +2,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { PeriodsTabComponent } from './periods-tab.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
@@ -76,6 +76,7 @@ const NEWER_GROUP_PERIOD: UsedPeriod = {
 
 describe('PeriodsTabComponent', () => {
   let queryParams: Record<string, string>;
+  let queryParamMap$: BehaviorSubject<unknown>;
   let fixture: ComponentFixture<PeriodsTabComponent>;
   let component: PeriodsTabComponent;
   let api: {
@@ -100,6 +101,7 @@ describe('PeriodsTabComponent', () => {
 
   beforeEach(() => {
     queryParams = {};
+    queryParamMap$ = new BehaviorSubject<unknown>({ get: (key: string) => queryParams[key] ?? null });
     api = {
       getUsedPeriods: vi.fn().mockReturnValue(of([PERIOD])),
       getSealedPeriods: vi.fn().mockReturnValue(of([SEALED_DAY, UNSEALED_DAY])),
@@ -127,7 +129,10 @@ describe('PeriodsTabComponent', () => {
         { provide: ToastShowService, useValue: toastShowService },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { queryParamMap: { get: (key: string) => queryParams[key] ?? null } } },
+          useValue: {
+            snapshot: { queryParamMap: { get: (key: string) => queryParams[key] ?? null } },
+            queryParamMap: queryParamMap$.asObservable(),
+          },
         },
       ],
     });
@@ -409,6 +414,18 @@ describe('PeriodsTabComponent', () => {
       api.getUsedPeriods.mockReturnValue(of([NEWER_GROUP_PERIOD, GROUP_PERIOD]));
 
       const created = recreate();
+
+      expect(created.selectedPeriod()).toEqual(NEWER_GROUP_PERIOD);
+    });
+
+    it('switches to the group of a second reminder without a reload', () => {
+      queryParams = { groupId: 'group-bern', date: '2026-07-31' };
+      api.getUsedPeriods.mockReturnValue(of([NEWER_GROUP_PERIOD, GROUP_PERIOD, PERIOD]));
+      const created = recreate();
+      expect(created.selectedPeriod()).toEqual(GROUP_PERIOD);
+
+      queryParams = { groupId: 'group-bern', date: '2026-08-15' };
+      queryParamMap$.next({ get: (key: string) => queryParams[key] ?? null });
 
       expect(created.selectedPeriod()).toEqual(NEWER_GROUP_PERIOD);
     });

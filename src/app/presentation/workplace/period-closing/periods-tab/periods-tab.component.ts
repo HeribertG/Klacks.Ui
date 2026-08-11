@@ -14,13 +14,14 @@
  * @param modalService - Global confirmation modal service
  */
 
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, skip } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
@@ -64,6 +65,7 @@ interface SealConflictBody {
 })
 export class PeriodsTabComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   private api = inject(DataPeriodClosingService);
   private shiftScheduleApi = inject(DataShiftScheduleService);
   private toastShowService = inject(ToastShowService);
@@ -141,6 +143,24 @@ export class PeriodsTabComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUsedPeriods();
+    this.setupActionQueryParamReaction();
+  }
+
+  /**
+   * A second period reminder while this page is already open reuses the component, so ngOnInit
+   * never runs again. Without this the page would stay on the group picked by the first message.
+   */
+  private setupActionQueryParamReaction(): void {
+    this.route.queryParamMap
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const requested = this.resolveRequestedPeriod(this.usedPeriods());
+        if (!requested) {
+          return;
+        }
+        this.selectedPeriodKey.set(this.periodKey(requested));
+        this.loadSummary();
+      });
   }
 
   loadUsedPeriods(): void {

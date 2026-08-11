@@ -20,6 +20,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   inject,
   OnInit,
   OnDestroy,
@@ -28,6 +29,7 @@ import {
   runInInjectionContext,
   EffectRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import {
@@ -57,7 +59,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { ActivatedRoute } from '@angular/router';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, skip } from 'rxjs';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
@@ -139,6 +141,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private dataGroupService = inject(DataGroupService);
   private dataClientService = inject(DataClientService);
   private searchStateService = inject(SearchStateService);
+  private destroyRef = inject(DestroyRef);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -161,8 +164,31 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     this.setupEffects();
+    this.setupActionQueryParamReaction();
 
     void this.finalizeHolidays(holidayListPromise);
+  }
+
+  /**
+   * A second one-click action while the page is already open reuses this component, so ngOnInit
+   * never runs again and the snapshot read there would keep showing the first client. Reacting to
+   * the query-param stream is what makes the next message land on the next person.
+   */
+  private setupActionQueryParamReaction(): void {
+    this.route.queryParamMap
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => void this.reapplyActionQueryParams());
+  }
+
+  private async reapplyActionQueryParams(): Promise<void> {
+    const params = this.route.snapshot.queryParamMap;
+    if (!params.get('clientId') && !params.get('groupId')) {
+      return;
+    }
+
+    await this.applyGroupQueryParam();
+    await this.applyClientQueryParam();
+    this.dataManagementSchedule.readDatas();
   }
 
   private async applyGroupQueryParam(): Promise<void> {

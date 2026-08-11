@@ -4,7 +4,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { describe, it, expect, vi } from 'vitest';
 import { ScheduleHomeComponent } from './schedule-home.component';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
@@ -33,6 +33,13 @@ describe('ScheduleHomeComponent', () => {
   let mockDataClientService: any;
   let mockGroupSelectionService: any;
   let mockSearchStateService: any;
+  let queryParamMap$: BehaviorSubject<any>;
+  let activatedRoute: any;
+
+  function navigateTo(queryParams: Record<string, string>): void {
+    activatedRoute.snapshot.queryParamMap = convertToParamMap(queryParams);
+    queryParamMap$.next(activatedRoute.snapshot.queryParamMap);
+  }
 
   function setup(queryParams: Record<string, string>): void {
     workFilter = { searchString: '', selectedGroup: 'a-group-outside-the-drift-client' };
@@ -40,14 +47,20 @@ describe('ScheduleHomeComponent', () => {
     mockGroupSelectionService = { clearSelection: vi.fn(), selectedGroup: undefined };
     mockSearchStateService = { setRestoreSearch: vi.fn() };
 
+    queryParamMap$ = new BehaviorSubject<any>(convertToParamMap(queryParams));
+    activatedRoute = {
+      snapshot: { queryParamMap: convertToParamMap(queryParams) },
+      queryParamMap: queryParamMap$.asObservable(),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         ScheduleHomeComponent,
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(queryParams) } } },
+        { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: DataClientService, useValue: mockDataClientService },
         { provide: GroupSelectionService, useValue: mockGroupSelectionService },
         { provide: SearchStateService, useValue: mockSearchStateService },
-        { provide: DataManagementScheduleService, useValue: { workFilter } },
+        { provide: DataManagementScheduleService, useValue: { workFilter, readDatas: vi.fn() } },
         { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
         { provide: SavebarService, useValue: {} },
         { provide: LayoutService, useValue: {} },
@@ -124,6 +137,45 @@ describe('ScheduleHomeComponent', () => {
       // Assert
       expect(workFilter.searchString).toBe('');
       expect(mockSearchStateService.setRestoreSearch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('a second one-click action while the page stays open', () => {
+    async function setupReaction(): Promise<void> {
+      setup({ clientId });
+      mockDataClientService.getClient.mockReturnValue(of({ idNumber: 1148, name: 'Ackermann', firstName: 'Clara' }));
+      await applyClientQueryParam();
+      (component as unknown as { setupActionQueryParamReaction(): void }).setupActionQueryParamReaction();
+    }
+
+    it('scopes the schedule to the client of the next message', async () => {
+      // Arrange
+      await setupReaction();
+      mockDataClientService.getClient.mockReturnValue(of({ idNumber: 4711, name: 'Koch', firstName: 'Isabella' }));
+
+      // Act
+      navigateTo({ clientId: 'second-client-id' });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Assert
+      expect(mockDataClientService.getClient).toHaveBeenLastCalledWith('second-client-id');
+      expect(workFilter.searchString).toBe('4711');
+      expect(mockSearchStateService.setRestoreSearch).toHaveBeenLastCalledWith('4711');
+    });
+
+    it('leaves the filter alone when the next navigation carries no action params', async () => {
+      // Arrange
+      await setupReaction();
+      mockDataClientService.getClient.mockClear();
+
+      // Act
+      navigateTo({});
+      await Promise.resolve();
+
+      // Assert
+      expect(mockDataClientService.getClient).not.toHaveBeenCalled();
+      expect(workFilter.searchString).toBe('1148');
     });
   });
 });
