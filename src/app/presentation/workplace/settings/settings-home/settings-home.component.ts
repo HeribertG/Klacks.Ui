@@ -82,6 +82,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 import { SETTINGS_TARGET_SECTIONS } from './settings-target-sections.constants';
+import { SETTINGS_EXPERT_MODE_TARGETS } from './settings-expert-mode-targets.constants';
 
 @Component({
   selector: 'app-settings-home',
@@ -191,6 +192,8 @@ export class SettingsHomeComponent implements OnInit {
     system: true,
   };
 
+  isChecked = this.localStorageService.get(StorageKeys.SETTINGS_EXPERT_MODE) === 'true';
+
   get settingsService(): DataManagementSettingsService {
     return this.dataManagementSettingsService;
   }
@@ -206,6 +209,9 @@ export class SettingsHomeComponent implements OnInit {
       .subscribe(({ target }) => {
         const section = SETTINGS_TARGET_SECTIONS[target];
         if (section) {
+          if (SETTINGS_EXPERT_MODE_TARGETS.has(target)) {
+            this.setExpertMode(true);
+          }
           this.sections[section] = true;
           this.changeDetectorRef.markForCheck();
         }
@@ -233,6 +239,15 @@ export class SettingsHomeComponent implements OnInit {
 
   collapseAll(): void {
     Object.keys(this.sections).forEach(key => this.sections[key] = false);
+  }
+
+  onComplexModeChecked(): void {
+    this.setExpertMode(this.isChecked);
+  }
+
+  private setExpertMode(enabled: boolean): void {
+    this.isChecked = enabled;
+    this.localStorageService.set(StorageKeys.SETTINGS_EXPERT_MODE, String(enabled));
   }
 
   onIsChanging(event: any): void {

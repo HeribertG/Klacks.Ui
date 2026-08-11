@@ -2,6 +2,23 @@
   <div id="settings-home-headline" class="container-headline">
     {{ "setting.title" | translate }}
     <div class="headline-actions">
+      <div class="main-switch-wrapper">
+        <label class="main-switch" for="settings-expert-mode-toggle">
+          <input
+            type="checkbox"
+            name="isChecked"
+            aria-labelledby="settings-expert-mode-label"
+            id="settings-expert-mode-toggle"
+            [(ngModel)]="isChecked"
+            (change)="onComplexModeChecked()"
+          />
+          <div class="slider round"></div>
+        </label>
+        <em id="settings-expert-mode-label">{{
+          "shift.edit-shift.main.complex-mode" | translate
+        }}</em>
+      </div>
+
       <button class="headline-action-button" (click)="expandAll()">
         <app-expand-all-grey></app-expand-all-grey>
       </button>
@@ -55,39 +72,41 @@
       </app-owner-address>
     </div>
 
-    <div id="settings-home-data-retention-row" class="container-profilline">
-      <app-data-retention-setting
-        id="settings-data-retention"
-        class="container-setting-small first border-right-card border-bottom-card"
-        data-klacksy-target="data-retention"
-        data-klacksy-label-key="settings.dataRetention"
-        data-klacksy-category="settings.admin"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-data-retention-setting>
+    @if (isChecked) {
+      <div id="settings-home-data-retention-row" class="container-profilline">
+        <app-data-retention-setting
+          id="settings-data-retention"
+          class="container-setting-small first border-right-card border-bottom-card"
+          data-klacksy-target="data-retention"
+          data-klacksy-label-key="settings.dataRetention"
+          data-klacksy-category="settings.admin"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-data-retention-setting>
 
-      <app-export-formats-setting
-        id="settings-export-formats"
-        class="container-setting-small border-right-card border-bottom-card"
-        data-klacksy-target="export-formats"
-        data-klacksy-label-key="settings.exportFormats"
-        data-klacksy-category="settings.admin"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-export-formats-setting>
-    </div>
+        <app-export-formats-setting
+          id="settings-export-formats"
+          class="container-setting-small border-right-card border-bottom-card"
+          data-klacksy-target="export-formats"
+          data-klacksy-label-key="settings.exportFormats"
+          data-klacksy-category="settings.admin"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-export-formats-setting>
+      </div>
 
-    <div id="settings-home-export-format-overrides-row" class="container-profilline">
-      <app-export-format-overrides-setting
-        id="settings-export-format-overrides"
-        class="container-setting-small first border-right-card border-bottom-card"
-        data-klacksy-target="export-format-overrides"
-        data-klacksy-label-key="settings.exportFormatOverrides"
-        data-klacksy-category="settings.admin"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-export-format-overrides-setting>
-    </div>
+      <div id="settings-home-export-format-overrides-row" class="container-profilline">
+        <app-export-format-overrides-setting
+          id="settings-export-format-overrides"
+          class="container-setting-small first border-right-card border-bottom-card"
+          data-klacksy-target="export-format-overrides"
+          data-klacksy-label-key="settings.exportFormatOverrides"
+          data-klacksy-category="settings.admin"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-export-format-overrides-setting>
+      </div>
+    }
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -133,15 +152,17 @@
         data-klacksy-route="/workplace/settings"
       ></app-group-scope>
 
-      <app-identity-providers
-        id="settings-identity-providers"
-        class="container-setting-small border-right-card border-bottom-card"
-        (click)="isfocused('app-identity-providers')"
-        data-klacksy-target="identity-providers"
-        data-klacksy-label-key="settings.identityProviders"
-        data-klacksy-category="settings.admin"
-        data-klacksy-route="/workplace/settings"
-      ></app-identity-providers>
+      @if (isChecked) {
+        <app-identity-providers
+          id="settings-identity-providers"
+          class="container-setting-small border-right-card border-bottom-card"
+          (click)="isfocused('app-identity-providers')"
+          data-klacksy-target="identity-providers"
+          data-klacksy-label-key="settings.identityProviders"
+          data-klacksy-category="settings.admin"
+          data-klacksy-route="/workplace/settings"
+        ></app-identity-providers>
+      }
     </div>
   }
 
@@ -349,93 +370,95 @@
       </app-active-industries-settings>
     </div>
 
-    <div id="settings-home-compensatory-rest-row" class="container-profilline">
-      <app-compensatory-rest-settings
-        id="settings-compensatory-rest"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-compensatory-rest-settings')"
-        data-klacksy-target="compensatory-rest"
-        data-klacksy-label-key="settings.compensatoryRest"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-compensatory-rest-settings>
-    </div>
+    @if (isChecked) {
+      <div id="settings-home-compensatory-rest-row" class="container-profilline">
+        <app-compensatory-rest-settings
+          id="settings-compensatory-rest"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-compensatory-rest-settings')"
+          data-klacksy-target="compensatory-rest"
+          data-klacksy-label-key="settings.compensatoryRest"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-compensatory-rest-settings>
+      </div>
 
-    <div id="settings-home-surcharge-mode-row" class="container-profilline">
-      <app-surcharge-mode-settings
-        id="settings-surcharge-mode"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-surcharge-mode-settings')"
-        data-klacksy-target="surcharge-mode"
-        data-klacksy-label-key="settings.surchargeMode"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-surcharge-mode-settings>
-    </div>
+      <div id="settings-home-surcharge-mode-row" class="container-profilline">
+        <app-surcharge-mode-settings
+          id="settings-surcharge-mode"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-surcharge-mode-settings')"
+          data-klacksy-target="surcharge-mode"
+          data-klacksy-label-key="settings.surchargeMode"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-surcharge-mode-settings>
+      </div>
 
-    <div id="settings-home-overtime-row" class="container-profilline">
-      <app-overtime-settings
-        id="settings-overtime"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-overtime-settings')"
-        data-klacksy-target="overtime"
-        data-klacksy-label-key="settings.overtime"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-overtime-settings>
-    </div>
+      <div id="settings-home-overtime-row" class="container-profilline">
+        <app-overtime-settings
+          id="settings-overtime"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-overtime-settings')"
+          data-klacksy-target="overtime"
+          data-klacksy-label-key="settings.overtime"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-overtime-settings>
+      </div>
 
-    <div id="settings-home-compliance-enforcement-row" class="container-profilline">
-      <app-compliance-enforcement-settings
-        id="settings-compliance-enforcement"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-compliance-enforcement-settings')"
-        data-klacksy-target="compliance-enforcement"
-        data-klacksy-label-key="settings.complianceEnforcement"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-compliance-enforcement-settings>
-    </div>
+      <div id="settings-home-compliance-enforcement-row" class="container-profilline">
+        <app-compliance-enforcement-settings
+          id="settings-compliance-enforcement"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-compliance-enforcement-settings')"
+          data-klacksy-target="compliance-enforcement"
+          data-klacksy-label-key="settings.complianceEnforcement"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-compliance-enforcement-settings>
+      </div>
 
-    <div id="settings-home-counter-rules-row" class="container-profilline">
-      <app-counter-rules
-        id="settings-counter-rules"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-counter-rules')"
-        data-klacksy-target="counter-rules"
-        data-klacksy-label-key="settings.counterRule"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      ></app-counter-rules>
-    </div>
+      <div id="settings-home-counter-rules-row" class="container-profilline">
+        <app-counter-rules
+          id="settings-counter-rules"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-counter-rules')"
+          data-klacksy-target="counter-rules"
+          data-klacksy-label-key="settings.counterRule"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        ></app-counter-rules>
+      </div>
 
-    <div id="settings-home-period-cap-rules-row" class="container-profilline">
-      <app-period-cap-rules
-        id="settings-period-cap-rules"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-period-cap-rules')"
-        data-klacksy-target="period-cap-rules"
-        data-klacksy-label-key="settings.periodCapRule"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      ></app-period-cap-rules>
-    </div>
+      <div id="settings-home-period-cap-rules-row" class="container-profilline">
+        <app-period-cap-rules
+          id="settings-period-cap-rules"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-period-cap-rules')"
+          data-klacksy-target="period-cap-rules"
+          data-klacksy-label-key="settings.periodCapRule"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        ></app-period-cap-rules>
+      </div>
 
-    <div id="settings-home-restricted-time-window-rules-row" class="container-profilline">
-      <app-restricted-time-window-rules
-        id="settings-restricted-time-window-rules"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-restricted-time-window-rules')"
-        data-klacksy-target="restricted-time-window-rules"
-        data-klacksy-label-key="settings.restrictedTimeWindowRule"
-        data-klacksy-category="settings.scheduling"
-        data-klacksy-route="/workplace/settings"
-      ></app-restricted-time-window-rules>
-    </div>
+      <div id="settings-home-restricted-time-window-rules-row" class="container-profilline">
+        <app-restricted-time-window-rules
+          id="settings-restricted-time-window-rules"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-restricted-time-window-rules')"
+          data-klacksy-target="restricted-time-window-rules"
+          data-klacksy-label-key="settings.restrictedTimeWindowRule"
+          data-klacksy-category="settings.scheduling"
+          data-klacksy-route="/workplace/settings"
+        ></app-restricted-time-window-rules>
+      </div>
+    }
 
     <div id="settings-home-holiday-work-exemptions-row" class="container-profilline">
       <app-holiday-work-exemptions
@@ -819,156 +842,162 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('externalServices')"
-    (keydown.enter)="toggleSection('externalServices')"
-  >
-    <span>{{ "setting.section.externalServices" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["externalServices"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
-
-  @if (sections["externalServices"]) {
-    <div id="settings-home-openroute-deepl-row" class="container-profilline">
-      <app-openroute
-        id="settings-openroute"
-        class="container-setting-small first border-right-card border-bottom-card"
-        (click)="isfocused('app-openroute')"
-        data-klacksy-target="openroute"
-        data-klacksy-label-key="settings.openroute"
-        data-klacksy-category="settings.integrations"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-openroute>
-
-      <app-deepl
-        id="settings-deepl"
-        class="container-setting-small border-right-card border-bottom-card"
-        (click)="isfocused('app-deepl')"
-        data-klacksy-target="deepl"
-        data-klacksy-label-key="settings.deepl"
-        data-klacksy-category="settings.integrations"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-deepl>
+  @if (isChecked) {
+    <div
+      class="section-header first"
+      tabindex="0"
+      role="button"
+      (click)="toggleSection('externalServices')"
+      (keydown.enter)="toggleSection('externalServices')"
+    >
+      <span>{{ "setting.section.externalServices" | translate }}</span>
+      <button class="section-toggle-button">
+        @if (sections["externalServices"]) {
+          <app-icon-angle-down></app-icon-angle-down>
+        } @else {
+          <app-icon-angle-right></app-icon-angle-right>
+        }
+      </button>
     </div>
 
-    @if (featurePluginState.isPluginEnabled(messagingPluginName)) {
-      <div
-        id="settings-home-messaging-providers-row"
-        class="container-profilline"
-      >
-        <lib-messaging-providers
-          id="settings-messaging-providers"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('lib-messaging-providers')"
-          data-klacksy-target="messaging-providers"
-          data-klacksy-label-key="settings.messagingProviders"
+    @if (sections["externalServices"]) {
+      <div id="settings-home-openroute-deepl-row" class="container-profilline">
+        <app-openroute
+          id="settings-openroute"
+          class="container-setting-small first border-right-card border-bottom-card"
+          (click)="isfocused('app-openroute')"
+          data-klacksy-target="openroute"
+          data-klacksy-label-key="settings.openroute"
           data-klacksy-category="settings.integrations"
           data-klacksy-route="/workplace/settings"
         >
-        </lib-messaging-providers>
+        </app-openroute>
+
+        <app-deepl
+          id="settings-deepl"
+          class="container-setting-small border-right-card border-bottom-card"
+          (click)="isfocused('app-deepl')"
+          data-klacksy-target="deepl"
+          data-klacksy-label-key="settings.deepl"
+          data-klacksy-category="settings.integrations"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-deepl>
       </div>
-      <div id="settings-home-owner-messengers-row" class="container-profilline">
-        <lib-owner-messengers
-          id="settings-owner-messengers"
+
+      @if (featurePluginState.isPluginEnabled(messagingPluginName)) {
+        <div
+          id="settings-home-messaging-providers-row"
+          class="container-profilline"
+        >
+          <lib-messaging-providers
+            id="settings-messaging-providers"
+            class="container-profile first border-right-card border-bottom-card"
+            (click)="isfocused('lib-messaging-providers')"
+            data-klacksy-target="messaging-providers"
+            data-klacksy-label-key="settings.messagingProviders"
+            data-klacksy-category="settings.integrations"
+            data-klacksy-route="/workplace/settings"
+          >
+          </lib-messaging-providers>
+        </div>
+        <div id="settings-home-owner-messengers-row" class="container-profilline">
+          <lib-owner-messengers
+            id="settings-owner-messengers"
+            class="container-profile first border-right-card border-bottom-card"
+            (click)="isfocused('lib-owner-messengers')"
+            data-klacksy-target="owner-messengers"
+            data-klacksy-label-key="settings.ownerMessengers"
+            data-klacksy-category="settings.integrations"
+            data-klacksy-route="/workplace/settings"
+          >
+          </lib-owner-messengers>
+        </div>
+      }
+    }
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  @if (isChecked) {
+    <div
+      class="section-header first"
+      tabindex="0"
+      role="button"
+      (click)="toggleSection('erp')"
+      (keydown.enter)="toggleSection('erp')"
+    >
+      <span>{{ "setting.section.erp" | translate }}</span>
+      <button class="section-toggle-button">
+        @if (sections["erp"]) {
+          <app-icon-angle-down></app-icon-angle-down>
+        } @else {
+          <app-icon-angle-right></app-icon-angle-right>
+        }
+      </button>
+    </div>
+
+    @if (sections["erp"]) {
+      <div id="settings-home-erp-drop-points-row" class="container-profilline">
+        <app-erp-drop-points
+          id="settings-erp-drop-points"
           class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('lib-owner-messengers')"
-          data-klacksy-target="owner-messengers"
-          data-klacksy-label-key="settings.ownerMessengers"
+          (click)="isfocused('app-erp-drop-points')"
+          data-klacksy-target="erp-drop-points"
+          data-klacksy-label-key="settings.erpDropPoints"
           data-klacksy-category="settings.integrations"
           data-klacksy-route="/workplace/settings"
         >
-        </lib-owner-messengers>
+        </app-erp-drop-points>
       </div>
     }
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('erp')"
-    (keydown.enter)="toggleSection('erp')"
-  >
-    <span>{{ "setting.section.erp" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["erp"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
-
-  @if (sections["erp"]) {
-    <div id="settings-home-erp-drop-points-row" class="container-profilline">
-      <app-erp-drop-points
-        id="settings-erp-drop-points"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-erp-drop-points')"
-        data-klacksy-target="erp-drop-points"
-        data-klacksy-label-key="settings.erpDropPoints"
-        data-klacksy-category="settings.integrations"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-erp-drop-points>
-    </div>
-  }
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('plugins')"
-    (keydown.enter)="toggleSection('plugins')"
-  >
-    <span>{{ "setting.section.plugins" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["plugins"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
-
-  @if (sections["plugins"]) {
-    <div id="settings-home-language-plugins-row" class="container-profilline">
-      <app-language-plugins
-        id="settings-language-plugins"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-language-plugins')"
-        data-klacksy-target="language-plugins"
-        data-klacksy-label-key="settings.languagePlugins"
-        data-klacksy-category="settings.admin"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-language-plugins>
+  @if (isChecked) {
+    <div
+      class="section-header first"
+      tabindex="0"
+      role="button"
+      (click)="toggleSection('plugins')"
+      (keydown.enter)="toggleSection('plugins')"
+    >
+      <span>{{ "setting.section.plugins" | translate }}</span>
+      <button class="section-toggle-button">
+        @if (sections["plugins"]) {
+          <app-icon-angle-down></app-icon-angle-down>
+        } @else {
+          <app-icon-angle-right></app-icon-angle-right>
+        }
+      </button>
     </div>
 
-    <div id="settings-home-feature-plugins-row" class="container-profilline">
-      <app-feature-plugins
-        id="settings-feature-plugins"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-feature-plugins')"
-        data-klacksy-target="feature-plugins"
-        data-klacksy-label-key="settings.featurePlugins"
-        data-klacksy-category="settings.admin"
-        data-klacksy-route="/workplace/settings"
-      >
-      </app-feature-plugins>
-    </div>
+    @if (sections["plugins"]) {
+      <div id="settings-home-language-plugins-row" class="container-profilline">
+        <app-language-plugins
+          id="settings-language-plugins"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-language-plugins')"
+          data-klacksy-target="language-plugins"
+          data-klacksy-label-key="settings.languagePlugins"
+          data-klacksy-category="settings.admin"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-language-plugins>
+      </div>
+
+      <div id="settings-home-feature-plugins-row" class="container-profilline">
+        <app-feature-plugins
+          id="settings-feature-plugins"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-feature-plugins')"
+          data-klacksy-target="feature-plugins"
+          data-klacksy-label-key="settings.featurePlugins"
+          data-klacksy-category="settings.admin"
+          data-klacksy-route="/workplace/settings"
+        >
+        </app-feature-plugins>
+      </div>
+    }
   }
 
   <div

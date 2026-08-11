@@ -1,4 +1,5 @@
 @use "../../../../../assets/standard-styles/standard-home-page.scss";
+@use "../../../../../assets/standard-styles/toggle-switch.scss";
 
 .container-owner-address {
   height: auto;
@@ -20,6 +21,10 @@
   gap: 4px;
   margin-inline-start: auto;
   padding-inline-end: 10px;
+}
+
+.main-switch-wrapper {
+  margin-inline-end: 20px;
 }
 
 .headline-action-button {

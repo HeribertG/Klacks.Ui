@@ -14,6 +14,7 @@ export class StorageKeys {
   public static readonly WIZARD_AUCTION_RATIO = 'wizard.auctionRatio';
   public static readonly DASHBOARD_SECTION_VISIBILITY = 'dashboard.sectionVisibility';
   public static readonly DASHBOARD_SECTION_ORDER = 'dashboard.sectionOrder';
+  public static readonly SETTINGS_EXPERT_MODE = 'settings.expertMode';
   public static readonly RETURN_URL = 'klacks.returnUrl';
   public static readonly CONTAINER_LOCK_INSTANCE_ID = 'klacks.containerLock.instanceId';
 }

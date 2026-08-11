@@ -8,6 +8,7 @@ import { SettingsHomeComponent } from './settings-home.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -19,6 +20,12 @@ describe('SettingsHomeComponent', () => {
   let component: SettingsHomeComponent;
   let eventBusMock: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
   let targetRequested$: Subject<{ target: string }>;
+  let localStorageMock: { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
+
+  const createComponent = (): void => {
+    fixture = TestBed.createComponent(SettingsHomeComponent);
+    component = fixture.componentInstance;
+  };
 
   beforeEach(async () => {
     targetRequested$ = new Subject<{ target: string }>();
@@ -27,6 +34,8 @@ describe('SettingsHomeComponent', () => {
       on: vi.fn().mockReturnValue(targetRequested$.asObservable()),
       onAny: vi.fn().mockReturnValue(new Subject()),
     };
+
+    localStorageMock = { get: vi.fn().mockReturnValue('1'), set: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [SettingsHomeComponent],
@@ -39,7 +48,7 @@ describe('SettingsHomeComponent', () => {
           },
         },
         { provide: WorkplaceStateService, useValue: { setActiveManagerByRoute: vi.fn() } },
-        { provide: LocalStorageService, useValue: { get: vi.fn().mockReturnValue('1') } },
+        { provide: LocalStorageService, useValue: localStorageMock },
         { provide: SavebarService, useValue: { setSavebarVisibility: vi.fn() } },
         { provide: FeaturePluginStateService, useValue: {} },
         { provide: LayoutService, useValue: { setContainerToNormalSize: vi.fn() } },
@@ -50,8 +59,7 @@ describe('SettingsHomeComponent', () => {
       .overrideComponent(SettingsHomeComponent, { set: { imports: [], template: '' } })
       .compileComponents();
 
-    fixture = TestBed.createComponent(SettingsHomeComponent);
-    component = fixture.componentInstance;
+    createComponent();
   });
 
   it('starts with every section expanded', () => {
@@ -82,5 +90,38 @@ describe('SettingsHomeComponent', () => {
     targetRequested$.next({ target: 'reports' });
 
     expect(markForCheckSpy).toHaveBeenCalled();
+  });
+
+  it('keeps expert mode off when local storage holds no stored choice', () => {
+    expect(component.isChecked).toBe(false);
+  });
+
+  it('restores the stored expert mode choice', () => {
+    localStorageMock.get.mockReturnValue('true');
+
+    createComponent();
+
+    expect(component.isChecked).toBe(true);
+  });
+
+  it('persists the expert mode choice when the switch is toggled', () => {
+    component.isChecked = true;
+
+    component.onComplexModeChecked();
+
+    expect(localStorageMock.set).toHaveBeenCalledWith(StorageKeys.SETTINGS_EXPERT_MODE, 'true');
+  });
+
+  it('turns expert mode on when Klacksy requests a target that only exists in expert mode', () => {
+    targetRequested$.next({ target: 'counter-rules' });
+
+    expect(component.isChecked).toBe(true);
+    expect(component.sections['compliance']).toBe(true);
+  });
+
+  it('leaves expert mode untouched for targets that are always visible', () => {
+    targetRequested$.next({ target: 'reports' });
+
+    expect(component.isChecked).toBe(false);
   });
 });
