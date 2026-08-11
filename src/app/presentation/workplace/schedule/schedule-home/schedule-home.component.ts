@@ -59,6 +59,8 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-
 import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -135,6 +137,8 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private dataGroupService = inject(DataGroupService);
+  private dataClientService = inject(DataClientService);
+  private searchStateService = inject(SearchStateService);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -152,6 +156,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
 
     await this.applyGroupQueryParam();
     await this.allScheduleStateService.initializeWorkplaceState();
+    await this.applyClientQueryParam();
     this.isInitialized = true;
     this.cdr.markForCheck();
 
@@ -173,6 +178,36 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
       }
     } catch {
       // ignore: invalid id or no permission → fall back to current selection
+    }
+  }
+
+  /**
+   * Scopes the schedule to a single employee when the page is opened through a
+   * one-click action carrying a clientId (proactive assistant messages, skills).
+   * Runs after initializeWorkplaceState so the restored filter cannot overwrite
+   * the scope, and before isInitialized so the grid's first read already carries it.
+   *
+   * The id number lands in the global search box on purpose: the same field the user
+   * would have typed into, so the filter is visible and one click on the X clears it.
+   * A numeric search matches IdNumber exactly, so namesakes cannot dilute the result.
+   * Any group selection is dropped because the backend ANDs group and search — a
+   * client outside the selected group would otherwise yield an empty grid.
+   */
+  private async applyClientQueryParam(): Promise<void> {
+    const clientId = this.route.snapshot.queryParamMap.get('clientId');
+    if (!clientId) return;
+
+    try {
+      const client = await lastValueFrom(this.dataClientService.getClient(clientId));
+      const searchString = client?.idNumber ? String(client.idNumber) : '';
+      if (!searchString) return;
+
+      this.groupSelectionService.clearSelection();
+      this.dataManagementSchedule.workFilter.selectedGroup = undefined;
+      this.dataManagementSchedule.workFilter.searchString = searchString;
+      this.searchStateService.setRestoreSearch(searchString);
+    } catch {
+      // ignore: invalid id or no permission → fall back to the unfiltered schedule
     }
   }
 
