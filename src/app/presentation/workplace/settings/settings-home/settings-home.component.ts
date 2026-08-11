@@ -82,7 +82,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 import { SETTINGS_TARGET_SECTIONS } from './settings-target-sections.constants';
-import { SETTINGS_EXPERT_MODE_TARGETS } from './settings-expert-mode-targets.constants';
+import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from './settings-expert-mode.constants';
 
 @Component({
   selector: 'app-settings-home',
@@ -209,7 +209,7 @@ export class SettingsHomeComponent implements OnInit {
       .subscribe(({ target }) => {
         const section = SETTINGS_TARGET_SECTIONS[target];
         if (section) {
-          if (SETTINGS_EXPERT_MODE_TARGETS.has(target)) {
+          if (SETTINGS_EXPERT_MODE_SECTIONS.has(section) || SETTINGS_EXPERT_MODE_CARD_TARGETS.has(target)) {
             this.setExpertMode(true);
           }
           this.sections[section] = true;

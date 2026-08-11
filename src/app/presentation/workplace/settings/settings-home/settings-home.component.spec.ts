@@ -74,6 +74,19 @@ describe('SettingsHomeComponent', () => {
     expect(component.sections['communication']).toBe(true);
   });
 
+  it.each(['individual-periods', 'monthly-target-hours'])(
+    'routes %s to the work section it now lives in',
+    (target) => {
+      component.sections['work'] = false;
+      component.sections['organization'] = false;
+
+      targetRequested$.next({ target });
+
+      expect(component.sections['work']).toBe(true);
+      expect(component.sections['organization']).toBe(false);
+    },
+  );
+
   it('ignores target requests for pages other than settings', () => {
     component.sections['communication'] = false;
 
@@ -112,16 +125,30 @@ describe('SettingsHomeComponent', () => {
     expect(localStorageMock.set).toHaveBeenCalledWith(StorageKeys.SETTINGS_EXPERT_MODE, 'true');
   });
 
-  it('turns expert mode on when Klacksy requests a target that only exists in expert mode', () => {
-    targetRequested$.next({ target: 'counter-rules' });
+  it.each([
+    ['counter-rules', 'compliance'],
+    ['active-industries', 'compliance'],
+    ['holiday-work-exemptions', 'compliance'],
+    ['individual-periods', 'work'],
+    ['llm-models', 'llm'],
+    ['klacksy-autonomy', 'klacksy'],
+    ['updates', 'system'],
+    ['email-config', 'communication'],
+    ['imap-setting', 'communication'],
+    ['data-retention', 'general'],
+  ])('turns expert mode on for %s, which only renders in expert mode', (target, section) => {
+    targetRequested$.next({ target });
 
     expect(component.isChecked).toBe(true);
-    expect(component.sections['compliance']).toBe(true);
+    expect(component.sections[section]).toBe(true);
   });
 
-  it('leaves expert mode untouched for targets that are always visible', () => {
-    targetRequested$.next({ target: 'reports' });
+  it.each(['reports', 'spam-rules', 'branches', 'grid-color', 'user-management'])(
+    'leaves expert mode untouched for %s, which is always visible',
+    (target) => {
+      targetRequested$.next({ target });
 
-    expect(component.isChecked).toBe(false);
-  });
+      expect(component.isChecked).toBe(false);
+    },
+  );
 });
