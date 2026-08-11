@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
@@ -14,6 +14,7 @@ import { FeaturePluginStateService } from 'src/app/application/services/feature-
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 
 describe('SettingsHomeComponent', () => {
   let fixture: ComponentFixture<SettingsHomeComponent>;
@@ -21,6 +22,7 @@ describe('SettingsHomeComponent', () => {
   let eventBusMock: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
   let targetRequested$: Subject<{ target: string }>;
   let localStorageMock: { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
+  let tourActive: WritableSignal<boolean>;
 
   const createComponent = (): void => {
     fixture = TestBed.createComponent(SettingsHomeComponent);
@@ -36,6 +38,7 @@ describe('SettingsHomeComponent', () => {
     };
 
     localStorageMock = { get: vi.fn().mockReturnValue('1'), set: vi.fn() };
+    tourActive = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [SettingsHomeComponent],
@@ -54,6 +57,7 @@ describe('SettingsHomeComponent', () => {
         { provide: LayoutService, useValue: { setContainerToNormalSize: vi.fn() } },
         { provide: SearchService, useValue: { setSearchVisibility: vi.fn() } },
         { provide: EVENT_BUS_TOKEN, useValue: eventBusMock },
+        { provide: OnboardingService, useValue: { isTourActive: () => tourActive() } },
       ],
     })
       .overrideComponent(SettingsHomeComponent, { set: { imports: [], template: '' } })
@@ -113,6 +117,32 @@ describe('SettingsHomeComponent', () => {
     localStorageMock.get.mockReturnValue('true');
 
     createComponent();
+
+    expect(component.isChecked).toBe(true);
+  });
+
+  it('forces expert mode on while the onboarding tour is being offered or run', () => {
+    tourActive.set(true);
+
+    createComponent();
+
+    expect(component.isChecked).toBe(true);
+  });
+
+  it('persists the tour-driven expert mode so the tour does not reshape the page mid-run', () => {
+    tourActive.set(true);
+
+    createComponent();
+    fixture.detectChanges();
+
+    expect(localStorageMock.set).toHaveBeenCalledWith(StorageKeys.SETTINGS_EXPERT_MODE, 'true');
+  });
+
+  it('turns expert mode on when the tour state arrives after the page was opened', () => {
+    expect(component.isChecked).toBe(false);
+
+    tourActive.set(true);
+    fixture.detectChanges();
 
     expect(component.isChecked).toBe(true);
   });

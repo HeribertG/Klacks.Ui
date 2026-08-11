@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, effect, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
@@ -165,6 +166,7 @@ export class SettingsHomeComponent implements OnInit {
   private dataManagementSettingsService = inject(DataManagementSettingsService);
 
   private localStorageService = inject(LocalStorageService);
+  private onboardingService = inject(OnboardingService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
@@ -192,7 +194,9 @@ export class SettingsHomeComponent implements OnInit {
     system: true,
   };
 
-  isChecked = this.localStorageService.get(StorageKeys.SETTINGS_EXPERT_MODE) === 'true';
+  isChecked =
+    this.onboardingService.isTourActive() ||
+    this.localStorageService.get(StorageKeys.SETTINGS_EXPERT_MODE) === 'true';
 
   get settingsService(): DataManagementSettingsService {
     return this.dataManagementSettingsService;
@@ -216,6 +220,13 @@ export class SettingsHomeComponent implements OnInit {
           this.changeDetectorRef.markForCheck();
         }
       });
+
+    effect(() => {
+      if (this.onboardingService.isTourActive()) {
+        this.setExpertMode(true);
+        this.changeDetectorRef.markForCheck();
+      }
+    });
   }
 
   ngOnInit(): void {
