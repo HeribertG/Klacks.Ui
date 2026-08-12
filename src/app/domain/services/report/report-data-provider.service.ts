@@ -18,8 +18,25 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+import { Filter } from 'src/app/domain/models/client/filter';
+import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
+import { GroupFilter } from 'src/app/domain/models/group/group-class';
+import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+
+const REPORT_MAX_ROWS = 10000;
+
+const FULL_LIST_PAGINATION = {
+  numberOfItemsPerPage: REPORT_MAX_ROWS,
+  requiredPage: 0,
+  numberOfItemOnPreviousPage: undefined,
+  firstItemOnLastPage: undefined,
+  isPreviousPage: undefined,
+  isNextPage: undefined,
+} as const;
+
 export interface ReportFetchParams {
   groupId?: string;
   startDate?: string;
@@ -27,6 +44,10 @@ export interface ReportFetchParams {
   clientId?: string;
   year?: number;
   containerId?: string;
+  clientFilter?: Filter;
+  clientSelection?: IClientExportSelection;
+  groupFilter?: GroupFilter;
+  shiftFilter?: ShiftFilter;
 }
 
 export interface ReportData {
@@ -50,6 +71,7 @@ export interface ReportDataProvider {
   resolveFooterValue(field: ReportField, rows: any[]): string;
   buildFormulaVariables?(row: any): ExternalVariables;
   buildFooterFormulaVariables?(rows: any[]): ExternalVariables;
+  collectResolvedLabelTexts?(): string[];
 }
 
 @Injectable()
@@ -71,10 +93,33 @@ export class ReportDataProviderService {
       case 'all-address/clients': return this.allAddressProvider();
       case 'edit-address/details': return this.editAddressProvider();
       case 'group/groups': return this.groupProvider();
-      case 'shift-table/shifts': return this.shiftProvider();
+      case 'shift-table/shifts': return this.shiftProvider(ShiftFilterType.Original);
+      case 'shift-table-cut/shifts': return this.shiftProvider(ShiftFilterType.Shift);
+      case 'shift-table-container/shifts': return this.shiftProvider(ShiftFilterType.Container);
       case 'container-template/items': return this.containerTemplateProvider();
       default: return this.scheduleProvider(['work']);
     }
+  }
+
+  private applyClientSelection(rows: any[], selection?: IClientExportSelection): any[] {
+    if (!selection || selection.selection.length === 0) {
+      return rows;
+    }
+    if (!selection.selectAll && !selection.invertedSelection) {
+      return rows.filter(r => selection.selection.includes(r.id));
+    }
+    if (selection.invertedSelection) {
+      return rows.filter(r => !selection.selection.includes(r.id));
+    }
+    return rows;
+  }
+
+  private translatedWeekdayLabels(): string[] {
+    return ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'].map(d => this.translate.instant(d));
+  }
+
+  private translatedLabels(keys: string[]): string[] {
+    return keys.map(k => this.translate.instant(k));
   }
 
   private mapDataSetIdsToEntryTypes(ids: string[]): number[] {
@@ -177,6 +222,26 @@ export class ReportDataProviderService {
             .reduce((s, e) => s + (e.amount ?? 0), 0),
         };
       },
+      collectResolvedLabelTexts: () => [
+        ...this.translatedWeekdayLabels(),
+        ...this.translatedLabels([
+          'general.yes',
+          'general.no',
+          'schedule.entryType.work',
+          'schedule.entryType.workChange',
+          'schedule.entryType.break',
+          'schedule.entryType.expenses',
+          'workChange.abbr.expenses',
+          'workChange.abbr.reimbursement',
+          'workChange.abbr.briefing',
+          'workChange.abbr.debriefing',
+          'workChange.abbr.travelStart',
+          'workChange.abbr.travelEnd',
+          'workChange.abbr.travelWithin',
+          'workChange.abbr.replacement',
+          'workChange.abbr.correction',
+        ]),
+      ],
     };
   }
 
@@ -200,7 +265,7 @@ export class ReportDataProviderService {
             searchString: '',
             orderBy: 'name',
             sortOrder: 'asc',
-            numberOfItemsPerPage: 10000,
+            numberOfItemsPerPage: REPORT_MAX_ROWS,
             requiredPage: 0,
             numberOfItemOnPreviousPage: undefined,
             firstItemOnLastPage: undefined,
@@ -287,17 +352,13 @@ export class ReportDataProviderService {
   private allAddressProvider(): ReportDataProvider {
     return {
       fetchData: async (params) => {
-        const response = await firstValueFrom(
-          this.clientService.readClientList({
+        const filter = params.clientFilter
+          ? { ...params.clientFilter, ...FULL_LIST_PAGINATION }
+          : {
             searchString: '',
             orderBy: 'name',
             sortOrder: 'asc',
-            numberOfItemsPerPage: 10000,
-            requiredPage: 0,
-            numberOfItemOnPreviousPage: undefined,
-            firstItemOnLastPage: undefined,
-            isPreviousPage: undefined,
-            isNextPage: undefined,
+            ...FULL_LIST_PAGINATION,
             scopeFromFlag: undefined,
             scopeUntilFlag: undefined,
             scopeFrom: undefined,
@@ -325,9 +386,10 @@ export class ReportDataProviderService {
             employee: true,
             externEmp: true,
             customer: true,
-          } as any)
-        );
-        return { rows: response.clients, metadata: { totalCount: response.maxItems } };
+          };
+        const response = await firstValueFrom(this.clientService.readClientList(filter as any));
+        const rows = this.applyClientSelection(response.clients, params.clientSelection);
+        return { rows, metadata: { totalCount: rows.length } };
       },
       resolveFieldValue: (field, row) => {
         switch (field.dataBinding) {
@@ -359,6 +421,8 @@ export class ReportDataProviderService {
       buildFooterFormulaVariables: (rows: any[]) => ({
         totalRows: rows.length,
       }),
+      collectResolvedLabelTexts: () =>
+        this.translatedLabels(['general.male', 'general.female']),
     };
   }
 
@@ -388,30 +452,38 @@ export class ReportDataProviderService {
         return this.resolveCommonHeaderValue(field, context) ?? '';
       },
       resolveFooterValue: () => '',
+      buildFormulaVariables: (row: any) => ({
+        type: row.type ?? 0,
+        zip: row.zip ?? '',
+        city: row.city ?? '',
+        country: row.country ?? '',
+        validFrom: row.validFrom ?? '',
+      }),
+      buildFooterFormulaVariables: (rows: any[]) => ({
+        totalRows: rows.length,
+      }),
+      collectResolvedLabelTexts: () =>
+        this.translatedLabels(['address.type.company', 'address.type.invoice', 'address.type.home']),
     };
   }
 
   private groupProvider(): ReportDataProvider {
     return {
       fetchData: async (params) => {
-        const response = await firstValueFrom(
-          this.groupService.readGroupList({
+        const filter = params.groupFilter
+          ? { ...params.groupFilter, ...FULL_LIST_PAGINATION }
+          : {
             searchString: '',
             orderBy: 'name',
             sortOrder: 'asc',
-            numberOfItemsPerPage: 10000,
-            requiredPage: 0,
-            numberOfItemOnPreviousPage: undefined,
-            firstItemOnLastPage: undefined,
-            isPreviousPage: undefined,
-            isNextPage: undefined,
+            ...FULL_LIST_PAGINATION,
             activeDateRange: true,
             formerDateRange: false,
             futureDateRange: false,
             showDeleteEntries: false,
             selectedGroup: params.groupId,
-          } as any)
-        );
+          };
+        const response = await firstValueFrom(this.groupService.readGroupList(filter as any));
         return { rows: response.groups, metadata: { totalCount: response.maxItems } };
       },
       resolveFieldValue: (field, row) => {
@@ -442,27 +514,23 @@ export class ReportDataProviderService {
     };
   }
 
-  private shiftProvider(): ReportDataProvider {
+  private shiftProvider(filterType: ShiftFilterType): ReportDataProvider {
     return {
-      fetchData: async () => {
-        const response = await firstValueFrom(
-          this.shiftService.readShiftList({
+      fetchData: async (params) => {
+        const filter = params.shiftFilter
+          ? { ...params.shiftFilter, ...FULL_LIST_PAGINATION, filterType }
+          : {
             searchString: '',
             orderBy: 'name',
             sortOrder: 'asc',
-            numberOfItemsPerPage: 10000,
-            requiredPage: 0,
-            numberOfItemOnPreviousPage: undefined,
-            firstItemOnLastPage: undefined,
-            isPreviousPage: undefined,
-            isNextPage: undefined,
+            ...FULL_LIST_PAGINATION,
             activeDateRange: true,
             formerDateRange: false,
             futureDateRange: false,
             showDeleteEntries: false,
-            filterType: 0,
-          } as any)
-        );
+            filterType,
+          };
+        const response = await firstValueFrom(this.shiftService.readShiftList(filter as any));
         return { rows: response.shifts, metadata: { totalCount: response.maxItems } };
       },
       resolveFieldValue: (field, row) => {
@@ -485,6 +553,17 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'shift.totalCount') return rows.length.toString();
         return '';
       },
+      buildFormulaVariables: (row: any) => ({
+        name: row.name ?? '',
+        abbreviation: row.abbreviation ?? '',
+        workTime: row.workTime ?? 0,
+        startShift: row.startShift ?? '',
+        endShift: row.endShift ?? '',
+      }),
+      buildFooterFormulaVariables: (rows: any[]) => ({
+        totalRows: rows.length,
+        totalWorkTime: rows.reduce((s: number, r: any) => s + (r.workTime ?? 0), 0),
+      }),
     };
   }
 
@@ -525,6 +604,7 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'ct.totalCount') return rows.length.toString();
         return '';
       },
+      collectResolvedLabelTexts: () => this.translatedWeekdayLabels(),
     };
   }
 

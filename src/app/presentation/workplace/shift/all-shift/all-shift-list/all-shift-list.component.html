@@ -11,6 +11,22 @@
       </button>
     </div>
     }
+    @if (currentPrintSourceId(); as printSourceId) {
+    @if (quickPrintAction.hasDefault(printSourceId)) {
+    <div class="actions">
+      <button
+        id="shift-quick-print-btn"
+        type="button"
+        class="btn btn-outline-secondary"
+        [disabled]="isQuickPrinting()"
+        [ngbTooltip]="'report.quickPrint.tooltip' | translate"
+        (click)="onClickQuickPrint(printSourceId)"
+      >
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </button>
+    </div>
+    }
+    }
   </div>
   <div class="container-line"></div>
   <div class="container-table" #shiftTableContainer>

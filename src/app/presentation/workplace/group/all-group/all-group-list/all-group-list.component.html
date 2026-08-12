@@ -12,6 +12,22 @@
       </button>
     </div>
 
+    @if (quickPrintAction.hasDefault('group')) {
+    <div
+      id="all-group-list-quick-print-button"
+      class="btn ownStyle-button"
+      role="button"
+      aria-label="pdf"
+      [class.disabled]="isQuickPrinting"
+      (click)="onClickQuickPrint()"
+      placement="top"
+      ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
+      autoClose="true"
+    >
+      <app-icon-pdf-icon></app-icon-pdf-icon>
+    </div>
+    }
+
     <div
       id="all-group-list-tree-toggle"
       class="btn ownStyle-button"

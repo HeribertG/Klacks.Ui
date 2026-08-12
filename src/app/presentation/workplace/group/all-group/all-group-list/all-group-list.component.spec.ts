@@ -11,6 +11,7 @@ import { TableResizeService } from 'src/app/presentation/services/table-resize.s
 import { AllGroupStateService } from '../services/all-group-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
@@ -29,6 +30,7 @@ describe('AllGroupListComponent', () => {
     let mockLoadingIndicator: ILoadingIndicator;
     let mockRegistry: any;
     let mockFilterStorage: any;
+    let mockQuickPrintActionService: any;
     let sortingService: TableSortingService;
 
     beforeEach(async () => {
@@ -78,6 +80,12 @@ describe('AllGroupListComponent', () => {
             navigateToEditGroup: vi.fn()
         };
 
+        mockQuickPrintActionService = {
+            ensureDefaultsLoaded: vi.fn().mockResolvedValue(undefined),
+            hasDefault: vi.fn().mockReturnValue(false),
+            print: vi.fn().mockResolvedValue(undefined)
+        };
+
         mockLoadingIndicator = {
             showProgressSpinner: false,
             interceptorSuppressed: false
@@ -119,6 +127,7 @@ describe('AllGroupListComponent', () => {
                 { provide: TableResizeService, useValue: mockTableResizeService },
                 { provide: AllGroupStateService, useValue: mockAllGroupStateService },
                 { provide: NavigationService, useValue: mockNavigationService },
+                { provide: QuickPrintActionService, useValue: mockQuickPrintActionService },
                 { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
                 { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
                 { provide: FILTER_STORAGE_TOKEN, useValue: mockFilterStorage },

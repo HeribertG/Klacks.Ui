@@ -51,6 +51,11 @@ input[type="checkbox"]:indeterminate {
   height: 34px;
 }
 
+.ownStyle-button.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 #myGridTable thead th {
   background: var(--backgroundColorHeaderNav);
 }

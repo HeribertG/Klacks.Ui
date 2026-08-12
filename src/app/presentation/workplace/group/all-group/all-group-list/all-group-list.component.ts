@@ -36,6 +36,7 @@ import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.componen
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import {
   ModalService,
@@ -43,6 +44,7 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllGroupStateService } from '../services/all-group-state.service';
@@ -63,6 +65,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     IconCopyGreyComponent,
     TrashIconRedComponent,
     IconTreeComponent,
+    PdfIconComponent,
     ResizeTableDirective,
     PaginationComponent,
   ],
@@ -77,6 +80,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public dataManagementGroupService = inject(DataManagementGroupService);
   public sortingService = inject(TableSortingService);
+  public quickPrintAction = inject(QuickPrintActionService);
   private spinnerService = inject(SpinnerService);
   private navigationService = inject(NavigationService);
   private modalService = inject(ModalService);
@@ -100,6 +104,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   isAuthorised = false;
   monthList = [];
   isFirstRead = true;
+  isQuickPrinting = false;
 
   resizeWindow: (() => void) | undefined;
 
@@ -123,6 +128,9 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dataManagementGroupService.currentFilter.requiredPage + 1;
     }
     this.readPage();
+    this.cdr.markForCheck();
+
+    await this.quickPrintAction.ensureDefaultsLoaded();
     this.cdr.markForCheck();
   }
 
@@ -187,6 +195,26 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickToggle() {
     this.switchToTree.emit();
+  }
+
+  async onClickQuickPrint(): Promise<void> {
+    if (this.isQuickPrinting) {
+      return;
+    }
+
+    this.isQuickPrinting = true;
+    this.cdr.markForCheck();
+
+    try {
+      await this.quickPrintAction.print({
+        sourceId: 'group',
+        fallbackDataSetIds: ['groups'],
+        params: { groupFilter: this.dataManagementGroupService.currentFilter },
+      });
+    } finally {
+      this.isQuickPrinting = false;
+      this.cdr.markForCheck();
+    }
   }
 
   /* #endregion   header */

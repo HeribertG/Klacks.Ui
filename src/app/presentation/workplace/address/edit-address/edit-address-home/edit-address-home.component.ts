@@ -7,6 +7,7 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  signal,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -39,6 +40,10 @@ import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { TranslateService } from '@ngx-translate/core';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
+import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -55,7 +60,9 @@ import { TranslateService } from '@ngx-translate/core';
     NoteComponent,
     ClientImageComponent,
     EditAddressNavComponent,
-    ClientMessengerContactsComponent
+    ClientMessengerContactsComponent,
+    NgbTooltipModule,
+    PdfIconComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -65,7 +72,9 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   public featurePluginState = inject(FeaturePluginStateService);
+  public quickPrintAction = inject(QuickPrintActionService);
   public readonly messagingPluginName = MESSAGING_PLUGIN_NAME;
+  public readonly quickPrintSourceId = 'edit-address';
   private urlParameterService = inject(UrlParameterService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
@@ -80,6 +89,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private destroy$ = new Subject<void>();
 
   isReadOnly = false;
+  isQuickPrinting = signal(false);
   private returnUrl: string | null = null;
 
   ngOnInit(): void {
@@ -88,6 +98,8 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
     this.workplaceStateService.setActiveManagerByRoute('edit-address');
 
     this.savebarService.setSavebarVisibility(true);
+
+    void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
 
     this.subscribeToAddressValidation();
     this.subscribeToSkillExecuted();
@@ -131,6 +143,27 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
   canDeactivate(): boolean {
     return true;
+  }
+
+  async onClickQuickPrint(): Promise<void> {
+    const clientId = this.dataManagementClientService.editClient()?.id;
+    if (!clientId || this.isQuickPrinting()) {
+      return;
+    }
+
+    this.isQuickPrinting.set(true);
+    this.cdr.markForCheck();
+    try {
+      const request: QuickPrintRequest = {
+        sourceId: this.quickPrintSourceId,
+        fallbackDataSetIds: ['details'],
+        params: { clientId },
+      };
+      await this.quickPrintAction.print(request);
+    } finally {
+      this.isQuickPrinting.set(false);
+      this.cdr.markForCheck();
+    }
   }
 
   private subscribeToAddressValidation(): void {

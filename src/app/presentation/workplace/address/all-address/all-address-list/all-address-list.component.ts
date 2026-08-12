@@ -28,10 +28,11 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
-import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -42,6 +43,8 @@ import { AllAddressStateService } from '../services/all-address-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
+import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -52,9 +55,11 @@ import { AssistantPageContextService } from 'src/app/domain/services/assistant/a
     CommonModule,
     TranslateModule,
     NgbPaginationModule,
+    NgbTooltipModule,
     TrashIconRedComponent,
     PencilIconGreyComponent,
     ExcelComponent,
+    PdfIconComponent,
     IconEyeGreyComponent,
     ResizeTableDirective,
     PaginationComponent,
@@ -73,6 +78,7 @@ export class AllAddressListComponent
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
   public sortingService = inject(TableSortingService);
+  public quickPrintAction = inject(QuickPrintActionService);
 
   private injector = inject(Injector);
   private localStorageService = inject(LocalStorageService);
@@ -100,6 +106,8 @@ export class AllAddressListComponent
   public realRow = -1;
 
   public headerCheckBoxValue = signal(false);
+  public isQuickPrinting = signal(false);
+  public readonly quickPrintSourceId = 'all-address';
 
   // Private properties
   private effects: EffectRef[] = [];
@@ -130,6 +138,9 @@ export class AllAddressListComponent
         this.dataManagementClientService.currentFilter.requiredPage + 1;
     }
     this.readPage();
+    this.cdr.markForCheck();
+
+    await this.quickPrintAction.ensureDefaultsLoaded();
     this.cdr.markForCheck();
   }
 
@@ -257,6 +268,33 @@ export class AllAddressListComponent
       this.checkBoxIndeterminate
     ) {
       this.dataManagementClientService.exportExcel(index);
+    }
+  }
+
+  async onClickQuickPrint(): Promise<void> {
+    const hasSelection =
+      this.dataManagementClientService.headerCheckBoxValue() ||
+      this.checkBoxIndeterminate;
+    if (this.isQuickPrinting() || !hasSelection) {
+      return;
+    }
+
+    this.isQuickPrinting.set(true);
+    this.cdr.markForCheck();
+    try {
+      const request: QuickPrintRequest = {
+        sourceId: this.quickPrintSourceId,
+        fallbackDataSetIds: ['clients'],
+        params: {
+          clientFilter: this.dataManagementClientService.currentFilter,
+          clientSelection:
+            this.dataManagementClientService.clientListService.buildExportSelection(),
+        },
+      };
+      await this.quickPrintAction.print(request);
+    } finally {
+      this.isQuickPrinting.set(false);
+      this.cdr.markForCheck();
     }
   }
 

@@ -8,6 +8,7 @@ import {
   EXPENSES_TABLE_FIELDS,
   FOOTER_FIELDS,
 } from './report-field.model';
+import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 
 export interface ReportDataSource {
   id: string;
@@ -251,6 +252,34 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
     ],
   },
   {
+    id: 'shift-table-cut',
+    path: 'workplace/shift/all-shift/shift-table',
+    i18nKey: 'setting.report.source.shiftTableCut',
+    dataSets: [
+      {
+        id: 'shifts',
+        i18nKey: 'setting.report.dataset.shifts',
+        headerFields: [...COMMON_HEADER_FIELDS],
+        tableFields: SHIFT_TABLE_FIELDS,
+        footerFields: [...SHIFT_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
+      },
+    ],
+  },
+  {
+    id: 'shift-table-container',
+    path: 'workplace/shift/all-shift/shift-table',
+    i18nKey: 'setting.report.source.shiftTableContainer',
+    dataSets: [
+      {
+        id: 'shifts',
+        i18nKey: 'setting.report.dataset.shifts',
+        headerFields: [...COMMON_HEADER_FIELDS],
+        tableFields: SHIFT_TABLE_FIELDS,
+        footerFields: [...SHIFT_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
+      },
+    ],
+  },
+  {
     id: 'container-template',
     path: 'workplace/shift/container-template',
     i18nKey: 'setting.report.source.containerTemplate',
@@ -265,6 +294,12 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
     ],
   },
 ];
+
+export const SHIFT_FILTER_TYPE_TO_REPORT_SOURCE: Readonly<Record<number, string>> = {
+  [ShiftFilterType.Original]: 'shift-table',
+  [ShiftFilterType.Shift]: 'shift-table-cut',
+  [ShiftFilterType.Container]: 'shift-table-container',
+};
 
 export function getDataSource(sourceId: string): ReportDataSource | undefined {
   return REPORT_DATA_SOURCES.find(s => s.id === sourceId);

@@ -6,6 +6,19 @@ export interface FormulaVariableDefinition {
   type: 'number' | 'string' | 'boolean' | 'date';
 }
 
+const SHIFT_FORMULA_VARIABLES: FormulaVariableDefinition[] = [
+  { name: 'name', i18nKey: 'setting.report.field.shiftName', type: 'string' },
+  { name: 'abbreviation', i18nKey: 'setting.report.field.shiftAbbreviation', type: 'string' },
+  { name: 'workTime', i18nKey: 'setting.report.field.shiftWorkTime', type: 'number' },
+  { name: 'startShift', i18nKey: 'setting.report.field.shiftStartShift', type: 'string' },
+  { name: 'endShift', i18nKey: 'setting.report.field.shiftEndShift', type: 'string' },
+];
+
+const SHIFT_FOOTER_FORMULA_VARIABLES: FormulaVariableDefinition[] = [
+  { name: 'totalRows', i18nKey: 'setting.report.formula.var.totalRows', type: 'number' },
+  { name: 'totalWorkTime', i18nKey: 'setting.report.formula.var.totalWorkTime', type: 'number' },
+];
+
 export const FORMULA_VARIABLES: Record<string, Record<string, FormulaVariableDefinition[]>> = {
   'schedule': {
     'work': [
@@ -58,6 +71,18 @@ export const FORMULA_VARIABLES: Record<string, Record<string, FormulaVariableDef
       { name: 'parentName', i18nKey: 'setting.report.formula.var.parentName', type: 'string' },
     ],
   },
+  'edit-address': {
+    'details': [
+      { name: 'type', i18nKey: 'setting.report.field.addressType', type: 'number' },
+      { name: 'zip', i18nKey: 'setting.report.field.addressZip', type: 'string' },
+      { name: 'city', i18nKey: 'setting.report.field.addressCity', type: 'string' },
+      { name: 'country', i18nKey: 'setting.report.field.addressCountry', type: 'string' },
+      { name: 'validFrom', i18nKey: 'setting.report.field.addressValidFrom', type: 'string' },
+    ],
+  },
+  'shift-table': { 'shifts': SHIFT_FORMULA_VARIABLES },
+  'shift-table-cut': { 'shifts': SHIFT_FORMULA_VARIABLES },
+  'shift-table-container': { 'shifts': SHIFT_FORMULA_VARIABLES },
 };
 
 export const FOOTER_FORMULA_VARIABLES: Record<string, Record<string, FormulaVariableDefinition[]>> = {
@@ -94,6 +119,14 @@ export const FOOTER_FORMULA_VARIABLES: Record<string, Record<string, FormulaVari
       { name: 'totalRows', i18nKey: 'setting.report.formula.var.totalRows', type: 'number' },
     ],
   },
+  'edit-address': {
+    'details': [
+      { name: 'totalRows', i18nKey: 'setting.report.formula.var.totalRows', type: 'number' },
+    ],
+  },
+  'shift-table': { 'shifts': SHIFT_FOOTER_FORMULA_VARIABLES },
+  'shift-table-cut': { 'shifts': SHIFT_FOOTER_FORMULA_VARIABLES },
+  'shift-table-container': { 'shifts': SHIFT_FOOTER_FORMULA_VARIABLES },
 };
 
 export function getFormulaVariables(sourceId: string, dataSetIds: string[]): FormulaVariableDefinition[] {

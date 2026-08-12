@@ -13,6 +13,7 @@ import {
   IClientAttribute,
 } from 'src/app/domain/models/client/client-class';
 import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
+import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -84,21 +85,30 @@ export class ClientListService {
     return this.dataClientService.deleteClient(key);
   }
 
-  public exportExcel(currentFilter: Filter) {
-    const filter = new ExportClient();
-    filter.filter = currentFilter;
-    filter.selectAll = !this.checkBoxIndeterminate();
-
+  public buildExportSelection(): IClientExportSelection {
+    let invertedSelection = false;
     if (this.headerCheckBoxValue() === true) {
       const tmp = this.checkedArray().find((x) => x.checked === false);
       if (tmp) {
-        filter.invertedSelection = true;
+        invertedSelection = true;
       }
     }
 
-    this.checkedArray().forEach((x) => {
-      return filter.selection.push(x.id);
-    });
+    return {
+      selectAll: !this.checkBoxIndeterminate(),
+      invertedSelection,
+      selection: this.checkedArray().map((x) => x.id),
+    };
+  }
+
+  public exportExcel(currentFilter: Filter) {
+    const filter = new ExportClient();
+    filter.filter = currentFilter;
+
+    const exportSelection = this.buildExportSelection();
+    filter.selectAll = exportSelection.selectAll;
+    filter.invertedSelection = exportSelection.invertedSelection;
+    filter.selection = exportSelection.selection;
 
     this.eventBus.emit(DomainEventType.INFO, {
       message: DomainMessages.PLEASE_BE_PATIENT_EXCEL,

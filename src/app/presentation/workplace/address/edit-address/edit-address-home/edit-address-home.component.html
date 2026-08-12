@@ -1,6 +1,20 @@
 <div id="edit-address-home-container" class="container-edit-address" data-klacksy-target="client-detail">
   <div id="edit-address-home-headline" class="container-headline">
-    {{ "address.edit-address.home.header" | translate }}
+    <span>{{ "address.edit-address.home.header" | translate }}</span>
+    @if (quickPrintAction.hasDefault(quickPrintSourceId) && dataManagementClientService.editClient()?.id) {
+    <div class="headline-actions">
+      <button
+        id="edit-address-quick-print-btn"
+        type="button"
+        class="headline-action-button"
+        [disabled]="isQuickPrinting()"
+        [ngbTooltip]="'report.quickPrint.tooltip' | translate"
+        (click)="onClickQuickPrint()"
+      >
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </button>
+    </div>
+    }
   </div>
 
   <div class="container-profilline" data-klacksy-target="address-persona">

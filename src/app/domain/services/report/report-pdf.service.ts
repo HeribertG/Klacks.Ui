@@ -134,6 +134,7 @@ export class ReportPdfService {
       JSON.stringify(data.rows ?? []),
       JSON.stringify(data.clients ?? []),
       JSON.stringify(data.metadata ?? {}),
+      ...(context.provider.collectResolvedLabelTexts?.() ?? []),
     ];
 
     for (const section of template.sections ?? []) {

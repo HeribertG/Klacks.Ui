@@ -17,7 +17,33 @@
         {{ "new-address" | translate }}
       </button>
     </div>
-    } @if (!(dataManagementClientService.headerCheckBoxValue() ||
+    } @if (quickPrintAction.hasDefault(quickPrintSourceId)) { @if
+    (!(dataManagementClientService.headerCheckBoxValue() ||
+    checkBoxIndeterminate)) {
+    <div>
+      <button
+        class="btn ownStyle-button-disabled"
+        role="button"
+        aria-label="pdf"
+      >
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </button>
+    </div>
+    } @else {
+    <div
+      id="quick-print-button"
+      class="btn ownStyle-button"
+      role="button"
+      aria-label="pdf"
+      [class.disabled]="isQuickPrinting()"
+      (click)="onClickQuickPrint()"
+      placement="top"
+      ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
+      autoClose="true"
+    >
+      <app-icon-pdf-icon></app-icon-pdf-icon>
+    </div>
+    } } @if (!(dataManagementClientService.headerCheckBoxValue() ||
     checkBoxIndeterminate)) {
     <div>
       <button

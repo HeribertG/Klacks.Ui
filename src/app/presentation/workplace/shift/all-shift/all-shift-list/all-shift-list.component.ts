@@ -12,7 +12,8 @@ import {
   ElementRef,
   AfterViewInit,
   OnDestroy,
-  viewChild
+  viewChild,
+  signal
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -41,6 +42,9 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { AllShiftStateService } from '../services/all-shift-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
+import { SHIFT_FILTER_TYPE_TO_REPORT_SOURCE } from 'src/app/domain/models/report/report-data-source.model';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -55,7 +59,8 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     TranslateModule,
     OriginalTableComponent,
     ShiftTableComponent,
-    PaginationComponent
+    PaginationComponent,
+    PdfIconComponent
 ],
   providers: [ShiftTableResizeService, AllShiftStateService, TableSortingService],
 })
@@ -66,6 +71,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
   public sortingService = inject(TableSortingService);
+  public quickPrintAction = inject(QuickPrintActionService);
   private tableResizeService = inject(ShiftTableResizeService);
   private allShiftStateService = inject(AllShiftStateService);
   private localStorageService = inject(LocalStorageService);
@@ -88,11 +94,13 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   numberOfItemsPerPageMap = new Map();
 
   hoveredRowId?: string;
+  isQuickPrinting = signal(false);
   private destroy$ = new Subject<void>();
   private isRecalculating = false;
 
   async ngOnInit(): Promise<void> {
     this.tableResizeService.setRowHeights(90, 82);
+    void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
     this.dataManagementShiftService.init();
     await this.allShiftStateService.initializeWorkplaceState();
     const baseCallback = this.dataManagementShiftService.onExternalFilterChange;
@@ -150,6 +158,30 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAddShift(): void {
     this.navigationService.navigateToNewShift();
+  }
+
+  currentPrintSourceId(): string | undefined {
+    return SHIFT_FILTER_TYPE_TO_REPORT_SOURCE[
+      this.dataManagementShiftService.currentFilter.filterType
+    ];
+  }
+
+  async onClickQuickPrint(sourceId: string): Promise<void> {
+    if (this.isQuickPrinting()) {
+      return;
+    }
+
+    this.isQuickPrinting.set(true);
+    try {
+      await this.quickPrintAction.print({
+        sourceId,
+        fallbackDataSetIds: ['shifts'],
+        params: { shiftFilter: this.dataManagementShiftService.currentFilter },
+      });
+    } finally {
+      this.isQuickPrinting.set(false);
+      this.cdr.markForCheck();
+    }
   }
 
   onClickHeader(orderBy: string): void {
