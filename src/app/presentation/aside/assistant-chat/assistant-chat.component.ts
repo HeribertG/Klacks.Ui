@@ -181,6 +181,9 @@ export class AssistantChatComponent {
   private pendingGreetingMessageId: string | null = null;
   private pendingGreetingOptions: ISuggestedReply[] = [];
   private greetingSpoken = false;
+  private welcomeMessageId: string | null = null;
+  private welcomeRequestedWithoutApiKey = false;
+  private readonly pendingWelcomeLang = signal<string | null>(null);
 
   faMicrophone = faMicrophone;
   faMicrophoneSlash = faMicrophoneSlash;
@@ -380,6 +383,13 @@ export class AssistantChatComponent {
           this.appendOnboardingPromptMessage(msg);
         });
       });
+
+    effect(() => {
+      if (!this.assistantProviderService.providersInitialized()) return;
+      const lang = this.pendingWelcomeLang();
+      if (lang === null) return;
+      this.addWelcomeMessage(lang);
+    });
 
     effect(() => {
       if (!this.onboarding.isTourActive() && this.pendingOnboardingPrompts.length > 0) {
@@ -1212,29 +1222,59 @@ export class AssistantChatComponent {
     }
   }
 
+  /**
+   * Greeting and action toast stay silent until the provider list is known: without a configured
+   * API key Klacksy cannot answer anything, so an inviting greeting would be misleading. The
+   * welcome request itself still runs — it is the only source of the onboarding state, which the
+   * fresh-install case (no key yet) needs most.
+   */
   private addWelcomeMessage(langCode: string): void {
-    const placeholder = this.buildFallbackWelcome();
-    const messageId = this.generateMessageId();
+    if (!this.assistantProviderService.providersInitialized()) {
+      this.pendingWelcomeLang.set(langCode);
+      return;
+    }
+    this.pendingWelcomeLang.set(null);
 
-    this.orchestrator.addMessage({
-      id: messageId,
-      sender: 'assistant',
-      content: placeholder.content,
-      formattedContent: this.formatMessage(placeholder.content),
-      timestamp: new Date(),
-      suggestions: placeholder.suggestions,
-    });
-    this.shouldScrollToBottom = true;
-    this.showActionsAsToast(placeholder.suggestions);
+    const canGreet = this.hasAnyApiKey();
+    if (!canGreet && this.welcomeRequestedWithoutApiKey) return;
+    this.welcomeRequestedWithoutApiKey = !canGreet;
+
+    const messageId = canGreet ? this.generateMessageId() : null;
+    this.welcomeMessageId = messageId;
+
+    if (messageId) {
+      const placeholder = this.buildFallbackWelcome();
+      this.orchestrator.addMessage({
+        id: messageId,
+        sender: 'assistant',
+        content: placeholder.content,
+        formattedContent: this.formatMessage(placeholder.content),
+        timestamp: new Date(),
+        suggestions: placeholder.suggestions,
+      });
+      this.shouldScrollToBottom = true;
+      this.showActionsAsToast(placeholder.suggestions);
+    }
 
     this.welcomeGreetingService.fetchWelcome()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => this.applyWelcomeResponse(messageId, response, langCode),
+        next: (response) => {
+          if (!messageId) {
+            this.applyWelcomeOnboarding(response);
+            return;
+          }
+          this.applyWelcomeResponse(messageId, response, langCode);
+        },
         error: () => {
           /* keep the i18n fallback already shown */
         },
       });
+  }
+
+  private hasAnyApiKey(): boolean {
+    const providers = this.assistantProviderService.getCurrentProviders();
+    return !!providers && providers.some((provider) => provider.hasApiKey);
   }
 
   private buildFallbackWelcome(): { content: string; suggestions: string[] } {
@@ -1282,6 +1322,10 @@ export class AssistantChatComponent {
       this.pendingGreetingOptions = greetingOptions;
     }
 
+    this.applyWelcomeOnboarding(response);
+  }
+
+  private applyWelcomeOnboarding(response: IWelcomeResponse): void {
     this.onboarding.applyWelcome(response.onboarding);
     this.maybeOfferOnboarding();
   }
@@ -1593,9 +1637,12 @@ export class AssistantChatComponent {
   }
 
   private updateWelcomeMessage(langCode: string): void {
-    const current = this.orchestrator.messages();
-    if (current.length > 0 && current[0].sender === 'assistant') {
-      this.orchestrator.replaceMessages(current.slice(1));
+    const previousWelcomeId = this.welcomeMessageId;
+    if (previousWelcomeId) {
+      const current = this.orchestrator.messages();
+      if (current.some((message) => message.id === previousWelcomeId)) {
+        this.orchestrator.replaceMessages(current.filter((message) => message.id !== previousWelcomeId));
+      }
     }
     this.addWelcomeMessage(langCode);
   }

@@ -811,6 +811,65 @@ describe('AssistantChatComponent', () => {
         });
     });
 
+    describe('welcome gating without api key', () => {
+        function createComponentWithProviders(providers: IAssistantProvider[], providersInitialized: boolean) {
+            mockLlmProviderService.getCurrentProviders.mockReturnValue(providers);
+            mockLlmProviderService.providersInitialized.set(providersInitialized);
+            const localFixture = TestBed.createComponent(AssistantChatComponent);
+            localFixture.detectChanges();
+            return localFixture;
+        }
+
+        it('should not add a welcome message when no provider has an api key', () => {
+            // Arrange
+            const toastService = TestBed.inject(ToastShowService);
+            const showSpy = vi.spyOn(toastService, 'showInteractiveReply');
+            const providersWithoutKey = mockProviders.map((p) => ({ ...p, hasApiKey: false }));
+
+            // Act
+            const localFixture = createComponentWithProviders(providersWithoutKey, true);
+
+            // Assert
+            expect(localFixture.componentInstance.messages.length).toBe(0);
+            expect(showSpy).not.toHaveBeenCalled();
+        });
+
+        it('should add the welcome message when at least one provider has an api key', () => {
+            // Act
+            const localFixture = createComponentWithProviders(mockProviders, true);
+
+            // Assert
+            expect(localFixture.componentInstance.messages.length).toBe(1);
+            expect(localFixture.componentInstance.messages[0].content).toContain('👋');
+        });
+
+        it('should defer the welcome message until the provider list is loaded', () => {
+            // Arrange
+            const localFixture = createComponentWithProviders(mockProviders, false);
+            expect(localFixture.componentInstance.messages.length).toBe(0);
+
+            // Act
+            mockLlmProviderService.providersInitialized.set(true);
+            localFixture.detectChanges();
+
+            // Assert
+            expect(localFixture.componentInstance.messages.length).toBe(1);
+        });
+
+        it('should keep the deferred welcome message suppressed when the loaded providers have no key', () => {
+            // Arrange
+            const providersWithoutKey = mockProviders.map((p) => ({ ...p, hasApiKey: false }));
+            const localFixture = createComponentWithProviders(providersWithoutKey, false);
+
+            // Act
+            mockLlmProviderService.providersInitialized.set(true);
+            localFixture.detectChanges();
+
+            // Assert
+            expect(localFixture.componentInstance.messages.length).toBe(0);
+        });
+    });
+
     describe('onboarding tour back navigation', () => {
         let toastService: ToastShowService;
         let showSpy: any;
