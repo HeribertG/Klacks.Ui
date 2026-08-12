@@ -31,7 +31,8 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IOnboardingAskField, ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATION_TITLE, ONBOARDING_STATIONS, ONBOARDING_TOUR_CHOICE } from 'src/app/domain/constants/onboarding-stations';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { IOnboardingState } from 'src/app/domain/models/assistant/welcome.interface';
+import { IOnboardingState, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
@@ -867,6 +868,72 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(localFixture.componentInstance.messages.length).toBe(0);
+        });
+
+        it('should suppress the greeting when only the provider of the selected model lacks a key', () => {
+            // Arrange: selected model gpt-4 belongs to openai, which has no key here
+            const providers = [
+                { ...mockProviders[0], hasApiKey: false },
+                { ...mockProviders[1], hasApiKey: true },
+            ];
+
+            // Act
+            const localFixture = createComponentWithProviders(providers, true);
+            localFixture.componentInstance.currentModel.set('gpt-4');
+            localFixture.detectChanges();
+
+            // Assert
+            expect(localFixture.componentInstance.hasNoApiKey()).toBe(true);
+            expect(localFixture.componentInstance.messages.length).toBe(0);
+        });
+
+        it('should still apply the onboarding state while the greeting is suppressed', () => {
+            // Arrange
+            const onboardingService = TestBed.inject(OnboardingService);
+            const applySpy = vi.spyOn(onboardingService, 'applyWelcome');
+            const welcomeService = TestBed.inject(WelcomeGreetingService);
+            vi.spyOn(welcomeService, 'fetchWelcome').mockReturnValue(
+                of({
+                    greetingKey: 'klacksy.welcome.greeting.morning.0',
+                    greetingVariantIndex: 0,
+                    weekdayKey: 'klacksy.welcome.weekday.3',
+                    weatherKey: '',
+                    displayName: 'admin',
+                    suggestionKeys: ['klacksy.welcome.suggestion.manage_providers'],
+                    onboarding: {
+                        shouldOffer: true,
+                        showCard: true,
+                        status: 'not_started',
+                        completedStations: [],
+                    },
+                } as IWelcomeResponse),
+            );
+            applySpy.mockClear();
+            const providersWithoutKey = mockProviders.map((p) => ({ ...p, hasApiKey: false }));
+
+            // Act
+            const localFixture = createComponentWithProviders(providersWithoutKey, true);
+
+            // Assert
+            expect(applySpy).toHaveBeenCalled();
+            expect(localFixture.componentInstance.messages.length).toBe(0);
+        });
+
+        it('should keep foreign messages on a language switch while the greeting is suppressed', () => {
+            // Arrange
+            const providersWithoutKey = mockProviders.map((p) => ({ ...p, hasApiKey: false }));
+            const localFixture = createComponentWithProviders(providersWithoutKey, true);
+            const instance = localFixture.componentInstance as any;
+            instance.postKlacksyMessage('LLM is offline');
+            expect(localFixture.componentInstance.messages.length).toBe(1);
+
+            // Act
+            instance.updateWelcomeMessage('fr');
+            localFixture.detectChanges();
+
+            // Assert
+            expect(localFixture.componentInstance.messages.length).toBe(1);
+            expect(localFixture.componentInstance.messages[0].content).toBe('LLM is offline');
         });
     });
 

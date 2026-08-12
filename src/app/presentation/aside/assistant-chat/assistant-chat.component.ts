@@ -236,17 +236,9 @@ export class AssistantChatComponent {
     () => !this.assistantService.modelsInitialized() || !this.assistantProviderService.providersInitialized(),
   );
 
-  readonly hasNoApiKey = computed(() => {
-    if (this.isInitializing()) return false;
-    const providers = this.assistantProviderService.getCurrentProviders();
-    if (!providers || providers.length === 0) return true;
-    const currentModelInfo = this.availableModels().find((m) => m.modelId === this.currentModel());
-    if (currentModelInfo) {
-      const provider = providers.find((p) => p.providerId === currentModelInfo.providerId);
-      return !provider?.hasApiKey;
-    }
-    return !providers.some((p) => p.hasApiKey);
-  });
+  readonly hasNoApiKey = computed(() =>
+    this.isInitializing() ? false : this.noApiKeyForSelectedModel(),
+  );
 
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
   readonly displayedTourProgress = computed(() => {
@@ -1235,7 +1227,7 @@ export class AssistantChatComponent {
     }
     this.pendingWelcomeLang.set(null);
 
-    const canGreet = this.hasAnyApiKey();
+    const canGreet = !this.noApiKeyForSelectedModel();
     if (!canGreet && this.welcomeRequestedWithoutApiKey) return;
     this.welcomeRequestedWithoutApiKey = !canGreet;
 
@@ -1272,9 +1264,20 @@ export class AssistantChatComponent {
       });
   }
 
-  private hasAnyApiKey(): boolean {
+  /**
+   * Single source for both the warning banner and the greeting gate, so the two can never
+   * disagree: whenever the banner is up, greeting and toast stay away. Unlike hasNoApiKey it
+   * carries no isInitializing() guard — callers decide themselves how to treat an unknown state.
+   */
+  private noApiKeyForSelectedModel(): boolean {
     const providers = this.assistantProviderService.getCurrentProviders();
-    return !!providers && providers.some((provider) => provider.hasApiKey);
+    if (!providers || providers.length === 0) return true;
+    const currentModelInfo = this.availableModels().find((m) => m.modelId === this.currentModel());
+    if (currentModelInfo) {
+      const provider = providers.find((p) => p.providerId === currentModelInfo.providerId);
+      return !provider?.hasApiKey;
+    }
+    return !providers.some((p) => p.hasApiKey);
   }
 
   private buildFallbackWelcome(): { content: string; suggestions: string[] } {
