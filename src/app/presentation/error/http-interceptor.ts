@@ -8,11 +8,12 @@ import {
   HttpHandler,
   HttpEvent,
   HttpErrorResponse,
+  HttpResponse,
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -64,6 +65,11 @@ export class ResponseInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
+      tap((event) => {
+        if (event instanceof HttpResponse) {
+          this.backendAvailabilityService.reportReachable(event.url);
+        }
+      }),
       catchError((error: HttpErrorResponse) => {
         this.resetUIState();
         return this.handleSpecificErrors(error, req);

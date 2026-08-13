@@ -5,7 +5,7 @@ export const environment = {
   production: true,
   baseUrl: '/api/backend/',
   baseAssistantUrl: '/api/backend/assistant/',
-  healthUrl: '/health',
+  healthUrl: '/api/backend/health',
   
   // Production specific settings
   enableDebugMode: false,

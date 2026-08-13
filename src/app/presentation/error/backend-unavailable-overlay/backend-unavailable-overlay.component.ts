@@ -26,17 +26,25 @@ export class BackendUnavailableOverlayComponent {
 
   constructor() {
     effect(() => {
-      if (this.backendAvailability.isUnavailable()) {
+      const unavailable = this.backendAvailability.isUnavailable();
+      this.clearHintTimer();
+      if (unavailable) {
         this.hintTimer = setTimeout(() => this.showReloadHint.set(true), RELOAD_HINT_DELAY_MS);
-      } else if (this.hintTimer) {
-        clearTimeout(this.hintTimer);
-        this.hintTimer = null;
-        this.showReloadHint.set(false);
+        return;
       }
+      this.showReloadHint.set(false);
     });
   }
 
   reload(): void {
     window.location.reload();
+  }
+
+  private clearHintTimer(): void {
+    if (!this.hintTimer) {
+      return;
+    }
+    clearTimeout(this.hintTimer);
+    this.hintTimer = null;
   }
 }
