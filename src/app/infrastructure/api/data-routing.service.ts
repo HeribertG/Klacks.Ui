@@ -3,12 +3,13 @@
 /**
  * Service for fetching route geometries for map display.
  * @param coordinates - List of coordinates with name, lat/lon
- * Uses OpenRouteService (if API key is available), otherwise OSRM as fallback.
+ * Routes are requested through the backend proxy, which holds the OpenRouteService API key.
+ * When the proxy reports no route (key not configured, service unavailable), OSRM is used instead.
  */
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map, catchError, of } from 'rxjs';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, switchMap, catchError, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface RouteCoordinate {
   lat: number;
@@ -28,67 +29,39 @@ interface OsrmResponse {
   }[];
 }
 
-interface OrsDirectionsResponse {
-  features: {
-    geometry: {
-      coordinates: [number, number][];
-    };
-  }[];
-}
-
 const OSRM_ROUTE_URL = 'https://router.project-osrm.org/route/v1/driving/';
-const ORS_DIRECTIONS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
+const ROUTING_DIRECTIONS_PATH = 'Routing/Directions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataRoutingService {
   private httpClient = inject(HttpClient);
-  private appSettingsService = inject(AppSettingsManagementService);
 
   getRoute(coordinates: RouteCoordinateWithName[]): Observable<RouteCoordinate[]> {
     if (coordinates.length < 2) {
       return of(coordinates.map((c) => ({ lat: c.lat, lon: c.lon })));
     }
 
-    const apiKey = this.appSettingsService.openRouteServiceApiKey();
-
-    if (apiKey) {
-      return this.getOpenRouteServiceRoute(coordinates, apiKey).pipe(
-        catchError(() => this.getOsrmRoute(coordinates))
-      );
-    }
-
-    return this.getOsrmRoute(coordinates);
+    return this.getProxiedRoute(coordinates).pipe(
+      switchMap((route) =>
+        route.length > 0 ? of(route) : this.getOsrmRoute(coordinates)
+      ),
+      catchError(() => this.getOsrmRoute(coordinates))
+    );
   }
 
-  private getOpenRouteServiceRoute(
-    coordinates: RouteCoordinateWithName[],
-    apiKey: string
+  private getProxiedRoute(
+    coordinates: RouteCoordinateWithName[]
   ): Observable<RouteCoordinate[]> {
-    const body = {
-      coordinates: coordinates.map((c) => [c.lon, c.lat]),
-    };
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: apiKey,
-    });
+    const body = coordinates.map((c) => ({ lat: c.lat, lon: c.lon }));
 
     return this.httpClient
-      .post<OrsDirectionsResponse>(ORS_DIRECTIONS_URL, body, { headers })
-      .pipe(
-        map((data) => {
-          if (!data.features || data.features.length === 0) {
-            throw new Error('No route found');
-          }
-
-          return data.features[0].geometry.coordinates.map((coord) => ({
-            lon: coord[0],
-            lat: coord[1],
-          }));
-        })
-      );
+      .post<RouteCoordinate[] | null>(
+        `${environment.baseUrl}${ROUTING_DIRECTIONS_PATH}`,
+        body
+      )
+      .pipe(map((route) => route ?? []));
   }
 
   private getOsrmRoute(
