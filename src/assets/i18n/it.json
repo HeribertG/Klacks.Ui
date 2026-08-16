@@ -3491,6 +3491,7 @@
   "assistant.proactive.contractExpiringSoon": "Il contratto di {{name}} scade il {{date}} (tra {{days}} giorno/i) — senza seguito.",
   "assistant.proactive.workDroppedByErpImport": "L'incarico di {{employee}} del {{date}} è stato annullato perché l'ordine corrispondente è stato sostituito da un'importazione ERP. Si prega di ripianificare.",
   "assistant.proactive.orderImportFailed": "L'importazione ERP del file {{file}} non è riuscita: {{reason}}",
+  "assistant.proactive.escalationStageAlert": "{{employee}} non è disponibile per il turno del {{date}}. Rispondi entro le {{dueTime}} se puoi coprirlo.",
   "group.validation.has-planned-works": "Questo gruppo non può essere eliminato perché esistono voci di lavoro pianificate.",
   "group.validation.works-exist-after-valid-until": "La data di fine validità non può essere impostata perché esistono voci di lavoro dopo quella data.",
   "group.validation.member-has-planned-works": "Questo dipendente non può essere rimosso dal gruppo perché ha voci di lavoro pianificate in questo gruppo.",
