@@ -1,0 +1,77 @@
+<div id="escalation-roster-admin-container">
+  <div id="escalation-roster-header" class="container-header">
+    {{ 'setting.escalation-roster.title' | translate }}
+  </div>
+
+  <div class="form-group">
+    <label for="escalation-roster-group-select">{{ 'setting.escalation-roster.group-label' | translate }}</label>
+    <select
+      id="escalation-roster-group-select"
+      class="form-control default-width"
+      [ngModel]="selectedGroupId()"
+      (ngModelChange)="onGroupChange($event)"
+    >
+      <option value="">{{ 'setting.escalation-roster.group-placeholder' | translate }}</option>
+      @for (group of groups(); track group.id) {
+        <option [value]="group.id">{{ group.name }}</option>
+      }
+    </select>
+  </div>
+
+  @if (isLoadingGroups() || isLoadingRoster()) {
+    <app-spinner></app-spinner>
+  }
+
+  @if (selectedGroupId() && !isLoadingRoster()) {
+    @if (activeEntries().length === 0 && orphanedEntries().length === 0) {
+      <p class="escalation-roster-empty">{{ 'setting.escalation-roster.empty' | translate }}</p>
+    }
+
+    @if (activeEntries().length > 0) {
+      <ul id="escalation-roster-active-list" class="escalation-roster-list">
+        @for (entry of activeEntries(); track entry.id; let i = $index; let isFirst = $first; let isLast = $last) {
+          <li class="escalation-roster-row">
+            <span class="escalation-roster-rank">{{ i + 1 }}</span>
+            <span class="escalation-roster-name">{{ entry.displayName }}</span>
+            @if (entry.hasOverride) {
+              <span class="escalation-roster-override-badge">{{ 'setting.escalation-roster.override-badge' | translate }}</span>
+            }
+            <div class="escalation-roster-actions">
+              <button
+                type="button"
+                class="escalation-roster-move-btn"
+                [disabled]="isFirst || isSaving()"
+                [attr.aria-label]="'setting.escalation-roster.move-up' | translate"
+                (click)="moveUp(i)"
+              >
+                <app-icon-angle-up></app-icon-angle-up>
+              </button>
+              <button
+                type="button"
+                class="escalation-roster-move-btn"
+                [disabled]="isLast || isSaving()"
+                [attr.aria-label]="'setting.escalation-roster.move-down' | translate"
+                (click)="moveDown(i)"
+              >
+                <app-icon-angle-down></app-icon-angle-down>
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (orphanedEntries().length > 0) {
+      <div class="escalation-roster-orphaned-heading">
+        {{ 'setting.escalation-roster.orphaned-heading' | translate }}
+      </div>
+      <ul id="escalation-roster-orphaned-list" class="escalation-roster-list escalation-roster-orphaned">
+        @for (entry of orphanedEntries(); track entry.id) {
+          <li class="escalation-roster-row">
+            <span class="escalation-roster-name">{{ entry.displayName }}</span>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

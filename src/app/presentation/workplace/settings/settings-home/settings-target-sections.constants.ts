@@ -7,6 +7,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'export-formats': 'general',
   'export-format-overrides': 'general',
   'user-management': 'users',
+  'escalation-roster': 'users',
   'group-scope': 'users',
   'identity-providers': 'users',
   'branches': 'organization',

@@ -30,6 +30,7 @@ import { EmailSettingComponent } from '../email-setting/email-setting.component'
 import { GridColorComponent } from '../grid-color/grid-color.component';
 import { MacrosComponent } from '../macros/macros.component';
 import { UserAdministrationComponent } from '../user-administration/user-administration.component';
+import { EscalationRosterAdministrationComponent } from '../escalation-roster-administration/escalation-roster-administration.component';
 import { GroupScopeComponent } from '../group-scope/group-scope.component';
 import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
@@ -110,6 +111,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     GridColorComponent,
     MacrosComponent,
     UserAdministrationComponent,
+    EscalationRosterAdministrationComponent,
     GroupScopeComponent,
     ContractsComponent,
     LLMModelsComponent,
