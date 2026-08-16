@@ -175,14 +175,28 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
         `${user.firstName} ${user.lastName}`.trim() || user.email;
       this.modalService.deleteMessageTitle =
         this.translate.instant('DELETE_USER_TITLE');
-      this.modalService.deleteMessage = this.translate.instant(
+      this.modalService.deleteMessage = `${this.translate.instant(
         'DELETE_USER_CONFIRMATION',
         { userName }
-      );
+      )} ${this.translate.instant('DELETE_USER_DEACTIVATE_HINT')}`;
       this.modalService.deleteMessageOkButton =
         this.translate.instant('DELETE');
       this.modalService.Filing = user.id.toString();
       this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  onDeactivate(index: number): void {
+    const user = this.userAdminService.accountsList()[index];
+    if (user?.id) {
+      this.userAdminService.deactivateAccount(user.id);
+    }
+  }
+
+  onReactivate(index: number): void {
+    const user = this.userAdminService.accountsList()[index];
+    if (user?.id) {
+      this.userAdminService.reactivateAccount(user.id);
     }
   }
 

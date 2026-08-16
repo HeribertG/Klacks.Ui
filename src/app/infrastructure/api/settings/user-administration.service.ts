@@ -55,6 +55,20 @@ export class UserAdministrationService {
     );
   }
 
+  deactivateAccount(id: string): Observable<IAuthentication> {
+    return this.httpClient.put<IAuthentication>(
+      `${environment.baseUrl}Accounts/${id}/Deactivate`,
+      {}
+    );
+  }
+
+  reactivateAccount(id: string): Observable<IAuthentication> {
+    return this.httpClient.put<IAuthentication>(
+      `${environment.baseUrl}Accounts/${id}/Reactivate`,
+      {}
+    );
+  }
+
   generateUsername(firstName: string, lastName: string): Observable<string> {
     return this.httpClient
       .get(`${environment.baseUrl}Accounts/GenerateUsername`, {

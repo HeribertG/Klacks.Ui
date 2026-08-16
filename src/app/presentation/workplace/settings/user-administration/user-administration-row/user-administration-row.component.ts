@@ -36,6 +36,8 @@ export class UserAdministrationRowComponent {
   readonly user = input<IAuthentication | undefined>(undefined);
   readonly enabled = input<boolean | undefined>(undefined);
   readonly isDeleteEvent = output<void>();
+  readonly isDeactivateEvent = output<void>();
+  readonly isReactivateEvent = output<void>();
   readonly isRoleChangeEvent = output<RoleChangeEvent>();
   readonly isSentToEvent = output<string>();
   readonly isEditEvent = output<IAuthentication>();
@@ -100,8 +102,20 @@ export class UserAdministrationRowComponent {
     return this.user()?.email || '';
   }
 
+  get isDeactivated(): boolean {
+    return Boolean(this.user()?.deactivatedAt);
+  }
+
   onDelete(): void {
     this.isDeleteEvent.emit();
+  }
+
+  onDeactivate(): void {
+    this.isDeactivateEvent.emit();
+  }
+
+  onReactivate(): void {
+    this.isReactivateEvent.emit();
   }
 
   onClickSentTo(): void {

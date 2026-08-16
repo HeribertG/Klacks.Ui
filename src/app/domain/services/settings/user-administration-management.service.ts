@@ -192,6 +192,52 @@ export class UserAdministrationManagementService {
       });
   }
 
+  deactivateAccount(id: string): void {
+    this.isLoading.set(true);
+
+    this.userAdministrationService
+      .deactivateAccount(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((error) => {
+          console.error('Failed to deactivate account:', error);
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: '',
+            code: 'ACCOUNT_DEACTIVATE_ERROR',
+            context: 'UserAdministrationManagementService.deactivateAccount',
+          });
+          return of(null);
+        }),
+        finalize(() => this.isLoading.set(false))
+      )
+      .subscribe(() => {
+        this.loadAccountsList();
+      });
+  }
+
+  reactivateAccount(id: string): void {
+    this.isLoading.set(true);
+
+    this.userAdministrationService
+      .reactivateAccount(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((error) => {
+          console.error('Failed to reactivate account:', error);
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: '',
+            code: 'ACCOUNT_REACTIVATE_ERROR',
+            context: 'UserAdministrationManagementService.reactivateAccount',
+          });
+          return of(null);
+        }),
+        finalize(() => this.isLoading.set(false))
+      )
+      .subscribe(() => {
+        this.loadAccountsList();
+      });
+  }
+
   updateAccount(account: IAuthentication): void {
     this.isLoading.set(true);
 

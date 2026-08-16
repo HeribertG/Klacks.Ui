@@ -39,6 +39,7 @@ describe('UserAdministrationComponent', () => {
             appName: undefined,
             mailSuccess: false,
             modelState: undefined,
+            deactivatedAt: null,
         },
         {
             id: '2',
@@ -55,6 +56,7 @@ describe('UserAdministrationComponent', () => {
             appName: undefined,
             mailSuccess: false,
             modelState: undefined,
+            deactivatedAt: null,
         },
         {
             id: '3',
@@ -71,6 +73,7 @@ describe('UserAdministrationComponent', () => {
             appName: undefined,
             mailSuccess: false,
             modelState: undefined,
+            deactivatedAt: null,
         },
     ];
 
@@ -86,6 +89,8 @@ describe('UserAdministrationComponent', () => {
             loadAccounts: vi.fn(),
             addAccount: vi.fn(),
             deleteAccount: vi.fn(),
+            deactivateAccount: vi.fn(),
+            reactivateAccount: vi.fn(),
             updateAccountRole: vi.fn(),
             requestPasswordReset: vi.fn(),
             accountsList: signal([...mockUsers]),
@@ -440,6 +445,44 @@ describe('UserAdministrationComponent', () => {
 
             // Assert
             expect(mockUserAdminService.deleteAccount).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Deactivation', () => {
+        it('should deactivate directly without a confirmation modal', () => {
+            // Deactivating is reversible, so it deliberately carries no destructive-confirm step;
+            // only the irreversible deletion does.
+            component.onDeactivate(1);
+
+            expect(mockUserAdminService.deactivateAccount).toHaveBeenCalledWith('2');
+            expect(mockModalService.openModel).not.toHaveBeenCalled();
+        });
+
+        it('should reactivate directly', () => {
+            const deactivatedUser: IAuthentication = {
+                ...mockUsers[1],
+                deactivatedAt: '2026-08-15T10:00:00Z',
+            };
+            mockUserAdminService.accountsList.set([deactivatedUser]);
+
+            component.onReactivate(0);
+
+            expect(mockUserAdminService.reactivateAccount).toHaveBeenCalledWith('2');
+        });
+
+        it('should not deactivate a user without an ID', () => {
+            const userWithoutId: IAuthentication = { ...mockUsers[0], id: undefined };
+            mockUserAdminService.accountsList.set([userWithoutId]);
+
+            component.onDeactivate(0);
+
+            expect(mockUserAdminService.deactivateAccount).not.toHaveBeenCalled();
+        });
+
+        it('should point the delete confirmation at deactivation as the milder option', () => {
+            component.onDelete(0);
+
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('DELETE_USER_DEACTIVATE_HINT');
         });
     });
 

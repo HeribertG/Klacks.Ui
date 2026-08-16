@@ -216,6 +216,8 @@
               onRoleChange($event.account, $event.roleName, $event.isSelected)
             "
             (isDeleteEvent)="onDelete(i)"
+            (isDeactivateEvent)="onDeactivate(i)"
+            (isReactivateEvent)="onReactivate(i)"
             (isEditEvent)="onEdit($event, content)"
           >
           </app-user-administration-row>

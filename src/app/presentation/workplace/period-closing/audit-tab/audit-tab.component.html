@@ -21,11 +21,9 @@
       <dl class="detail-list">
         <dt>{{ 'periodClosing.modal.action' | translate }}</dt>
         <dd>
-          @if (entry.action === PeriodAuditAction.Seal) {
-            <span class="badge badge-seal">{{ 'periodClosing.audit.action.seal' | translate }}</span>
-          } @else {
-            <span class="badge badge-unseal">{{ 'periodClosing.audit.action.unseal' | translate }}</span>
-          }
+          <span class="badge" [ngClass]="auditActionDisplay(entry.action).badgeClass">
+            {{ auditActionDisplay(entry.action).labelKey | translate }}
+          </span>
         </dd>
 
         <dt>{{ 'periodClosing.modal.performedAt' | translate }}</dt>
@@ -194,11 +192,9 @@
                     {{ e.performedAt | date:'dd.MM.yyyy, HH:mm' }}
                   </td>
                   <td [id]="'audit-log-cell-action-' + i" class="table-cell">
-                    @if (e.action === PeriodAuditAction.Seal) {
-                      <span class="badge badge-seal">{{ 'periodClosing.audit.action.seal' | translate }}</span>
-                    } @else {
-                      <span class="badge badge-unseal">{{ 'periodClosing.audit.action.unseal' | translate }}</span>
-                    }
+                    <span class="badge" [ngClass]="auditActionDisplay(e.action).badgeClass">
+                      {{ auditActionDisplay(e.action).labelKey | translate }}
+                    </span>
                   </td>
                   <td [id]="'audit-log-cell-user-' + i" class="table-cell">
                     {{ displayUser(e.performedByName, e.performedBy) }}

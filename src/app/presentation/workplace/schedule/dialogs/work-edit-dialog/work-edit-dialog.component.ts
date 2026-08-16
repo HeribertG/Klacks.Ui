@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Dialog for editing the start time, end time and description of an existing work entry.
+ * @param options.workId - ID of the work entry being edited
+ * @param options.lockLevel - Lock level of the loaded entry, carried unchanged into the update so an
+ *   edit can never unseal a confirmed/approved entry (only the seal actions may change it)
+ * @param options.surcharges - Surcharge value of the loaded entry, carried unchanged into the update
+ *   so an edit can never silently zero it out
+ */
 import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
@@ -17,6 +25,18 @@ interface WorkEditValidation {
   isValid: boolean;
   durationMinutes: number;
   errorKey?: string;
+}
+
+export interface IOpenWorkEditOptions {
+  workId: string;
+  clientId: string;
+  shiftId: string;
+  currentDate: Date;
+  workStartTime: string;
+  workEndTime: string;
+  information: string | null;
+  lockLevel: number;
+  surcharges: number;
 }
 
 @Component({
@@ -46,6 +66,9 @@ export class WorkEditDialogComponent {
   originalStartTime: OwnTime = OwnTime.forTime('00', '00');
   duration: OwnTime = OwnTime.forDuration('00', '00');
 
+  private lockLevel = 0;
+  private surcharges = 0;
+
   private formModel = signal<{ description: string }>({ description: '' });
   protected workEditForm = form(this.formModel);
 
@@ -55,24 +78,18 @@ export class WorkEditDialogComponent {
 
   private readonly MAX_DURATION_MINUTES = 20 * 60;
 
-  open(
-    workId: string,
-    clientId: string,
-    shiftId: string,
-    currentDate: Date,
-    workStartTime: string,
-    workEndTime: string,
-    information: string | null,
-  ): void {
-    this.workId = workId;
-    this.clientId = clientId;
-    this.shiftId = shiftId;
-    this.currentDate = currentDate;
-    this.originalCurrentDate = new Date(currentDate);
-    this.startTime = this.parseTimeString(workStartTime);
-    this.endTime = this.parseTimeString(workEndTime);
-    this.originalStartTime = this.parseTimeString(workStartTime);
-    this.formModel.set({ description: information || '' });
+  open(options: IOpenWorkEditOptions): void {
+    this.workId = options.workId;
+    this.clientId = options.clientId;
+    this.shiftId = options.shiftId;
+    this.currentDate = options.currentDate;
+    this.originalCurrentDate = new Date(options.currentDate);
+    this.startTime = this.parseTimeString(options.workStartTime);
+    this.endTime = this.parseTimeString(options.workEndTime);
+    this.originalStartTime = this.parseTimeString(options.workStartTime);
+    this.lockLevel = options.lockLevel;
+    this.surcharges = options.surcharges;
+    this.formModel.set({ description: options.information || '' });
     this.recalculate();
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), {
@@ -160,7 +177,8 @@ export class WorkEditDialogComponent {
     work.endTime = this.ownTimeToString(this.endTime);
     work.workTime = this.validation.durationMinutes / 60;
     work.information = this.formModel().description || undefined;
-    work.surcharges = 0;
+    work.lockLevel = this.lockLevel;
+    work.surcharges = this.surcharges;
 
     if (this.workScheduleLoader.startDate && this.workScheduleLoader.endDate) {
       work.periodStart = formatDateOnly(this.workScheduleLoader.startDate);

@@ -149,6 +149,26 @@
   color: #fff;
 }
 
+.badge-approve-day {
+  background-color: var(--standartBlueColor, #4a7fd6);
+  color: #fff;
+}
+
+.badge-confirm-work {
+  background-color: var(--standartTealColor, #1a9e8f);
+  color: #fff;
+}
+
+.badge-confirm-break {
+  background-color: var(--standartPurpleColor, #7d5fc4);
+  color: #fff;
+}
+
+.badge-unknown {
+  background-color: var(--standartGreyColor, #6c757d);
+  color: #fff;
+}
+
 .empty-state {
   margin: 12px 0 8px;
   font-weight: 500;

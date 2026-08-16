@@ -3,6 +3,9 @@
 export enum PeriodAuditAction {
   Seal = 0,
   Unseal = 1,
+  ApproveDay = 2,
+  ConfirmWork = 3,
+  ConfirmBreak = 4,
 }
 
 export interface PeriodAuditLog {

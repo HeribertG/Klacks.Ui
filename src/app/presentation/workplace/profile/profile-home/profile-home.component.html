@@ -30,6 +30,16 @@
     >
     </app-profile-microphone-test>
   </div>
+  @if (featurePluginState.isPluginEnabled(messagingPluginName)) {
+    <div id="profile-home-messenger-row" class="container-profilline">
+      <lib-user-messengers
+        id="profile-user-messengers"
+        data-klacksy-target="profile-messengers"
+        class="container-profile-small container-profile-login-margin first border-right-card border-bottom-card"
+      >
+      </lib-user-messengers>
+    </div>
+  }
 
   <div class="bottom-border-space"></div>
 </div>

@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Audit tab: lists seal/unseal events and export runs for the selected date range.
- * Displays two compact tables inside sub-sections; clicking a row opens a detail
- * modal with all fields that are hidden in the row view.
+ * Audit tab: lists period-audit events (seal, unseal, day approval, work/break
+ * confirmation) and export runs for the selected date range. Displays two compact
+ * tables inside sub-sections; clicking a row opens a detail modal with all fields
+ * that are hidden in the row view.
  */
 
 import {
@@ -36,6 +37,24 @@ import {
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
 
+interface AuditActionDisplay {
+  labelKey: string;
+  badgeClass: string;
+}
+
+const UNKNOWN_AUDIT_ACTION_DISPLAY: AuditActionDisplay = {
+  labelKey: 'periodClosing.audit.action.unknown',
+  badgeClass: 'badge-unknown',
+};
+
+const AUDIT_ACTION_DISPLAY: Record<PeriodAuditAction, AuditActionDisplay> = {
+  [PeriodAuditAction.Seal]: { labelKey: 'periodClosing.audit.action.seal', badgeClass: 'badge-seal' },
+  [PeriodAuditAction.Unseal]: { labelKey: 'periodClosing.audit.action.unseal', badgeClass: 'badge-unseal' },
+  [PeriodAuditAction.ApproveDay]: { labelKey: 'periodClosing.audit.action.approveDay', badgeClass: 'badge-approve-day' },
+  [PeriodAuditAction.ConfirmWork]: { labelKey: 'periodClosing.audit.action.confirmWork', badgeClass: 'badge-confirm-work' },
+  [PeriodAuditAction.ConfirmBreak]: { labelKey: 'periodClosing.audit.action.confirmBreak', badgeClass: 'badge-confirm-break' },
+};
+
 @Component({
   selector: 'app-audit-tab',
   templateUrl: './audit-tab.component.html',
@@ -55,8 +74,6 @@ export class AuditTabComponent implements OnInit {
   public exportEntries = signal<ExportLog[]>([]);
   public selectedAudit = signal<PeriodAuditLog | null>(null);
   public selectedExport = signal<ExportLog | null>(null);
-
-  public readonly PeriodAuditAction = PeriodAuditAction;
 
   private readonly auditModalTemplate = viewChild<TemplateRef<unknown>>('auditDetailModal');
   private readonly exportModalTemplate = viewChild<TemplateRef<unknown>>('exportDetailModal');
@@ -99,6 +116,10 @@ export class AuditTabComponent implements OnInit {
 
   displayUser(name: string | null | undefined, fallback: string): string {
     return name && name.trim().length > 0 ? name : fallback;
+  }
+
+  auditActionDisplay(action: PeriodAuditAction): AuditActionDisplay {
+    return AUDIT_ACTION_DISPLAY[action] ?? UNKNOWN_AUDIT_ACTION_DISPLAY;
   }
 
   formatRange(start: string, end: string): string {

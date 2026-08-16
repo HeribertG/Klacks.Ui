@@ -1,6 +1,10 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div id="user-admin-row-container-{{ user()!.id }}" class="first custom-control-inline">
+<div
+  id="user-admin-row-container-{{ user()!.id }}"
+  class="first custom-control-inline"
+  [class.deactivated]="isDeactivated"
+>
   <div id="user-admin-row-name-group-{{ user()!.id }}" class="form-group">
     <input
       id="user-admin-row-name-{{ user()!.id }}"
@@ -82,9 +86,38 @@
       </select>
     }
   </div>
-  <div id="user-admin-row-delete-group-{{ user()!.id }}">
+  <div id="user-admin-row-actions-group-{{ user()!.id }}" class="actions-group">
+    @if (isDeactivated) {
+    <span id="user-admin-row-state-{{ user()!.id }}" class="deactivated-badge">{{ 'setting.user-admin.row.deactivated' | translate }}</span>
+    }
     @if (enabled()) {
-    <span id="user-admin-row-delete-{{ user()!.id }}" class="delete-button" type="button" (click)="onDelete()"><app-icon-trash-red /></span>
+      @if (isDeactivated) {
+      <span
+        id="user-admin-row-reactivate-{{ user()!.id }}"
+        class="state-action"
+        type="button"
+        [title]="'setting.user-admin.row.reactivate-hint' | translate"
+        (click)="onReactivate()"
+        >{{ 'setting.user-admin.row.reactivate' | translate }}</span
+      >
+      } @else {
+      <span
+        id="user-admin-row-deactivate-{{ user()!.id }}"
+        class="state-action"
+        type="button"
+        [title]="'setting.user-admin.row.deactivate-hint' | translate"
+        (click)="onDeactivate()"
+        >{{ 'setting.user-admin.row.deactivate' | translate }}</span
+      >
+      }
+    <span
+      id="user-admin-row-delete-{{ user()!.id }}"
+      class="delete-button"
+      type="button"
+      [title]="'setting.user-admin.row.delete-hint' | translate"
+      (click)="onDelete()"
+      ><app-icon-trash-red
+    /></span>
     }
   </div>
 </div>

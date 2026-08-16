@@ -144,15 +144,17 @@ export class ScheduleDialogService {
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
-      this.workEditDialog.open(
-        entry.sourceId,
-        entry.clientId,
-        entry.entryId,
-        date,
-        entry.startTime,
-        entry.endTime,
-        entry.information,
-      );
+      this.workEditDialog.open({
+        workId: entry.sourceId,
+        clientId: entry.clientId,
+        shiftId: entry.entryId,
+        currentDate: date,
+        workStartTime: entry.startTime,
+        workEndTime: entry.endTime,
+        information: entry.information,
+        lockLevel: entry.lockLevel,
+        surcharges: entry.surcharges ?? 0,
+      });
     }
   }
 

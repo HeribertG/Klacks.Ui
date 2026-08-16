@@ -18,11 +18,15 @@ import { ProfileDataEditComponent } from '../profile-data-edit/profile-data-edit
 import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile-custom-setting.component';
 import { ProfileMicrophoneTestComponent } from '../profile-microphone-test/profile-microphone-test.component';
 
+import { UserMessengersComponent } from 'klacks-plugin-messaging';
+
 import { DataManagementProfileService } from 'src/app/domain/services/schedule/data-management-profile.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 
 @Component({
   selector: 'app-profile-home',
@@ -34,7 +38,8 @@ import { SearchService } from 'src/app/application/services/search.service';
     ProfilePictureComponent,
     ProfileDataEditComponent,
     ProfileCustomSettingComponent,
-    ProfileMicrophoneTestComponent
+    ProfileMicrophoneTestComponent,
+    UserMessengersComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -47,6 +52,9 @@ export class ProfileHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  public featurePluginState = inject(FeaturePluginStateService);
+
+  readonly messagingPluginName = MESSAGING_PLUGIN_NAME;
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();

@@ -1,0 +1,90 @@
+<div id="user-messengers-card" class="container-dashboard">
+  <div id="user-messengers-header" class="container-header">
+    {{ 'settings.user-messengers.title' | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div id="user-messengers-body">
+    <p id="user-messengers-intro" class="user-messenger-intro">
+      {{ 'settings.user-messengers.intro' | translate }}
+    </p>
+
+    @if (contacts().length === 0 && !isLoading()) {
+      <p id="user-messengers-empty" class="user-messenger-empty">
+        {{ 'settings.user-messengers.state.empty' | translate }}
+      </p>
+    }
+
+    @for (contact of contacts(); track contact.id) {
+      <div class="row-line user-messenger-row">
+        <div class="channel-col">
+          <span class="user-messenger-channel">{{ channelLabel(contact) }}</span>
+          @if (contact.isPreferred) {
+            <span
+              class="user-messenger-preferred"
+              [title]="'settings.user-messengers.badge.preferred-hint' | translate"
+              >{{ 'settings.user-messengers.badge.preferred' | translate }}</span
+            >
+          }
+        </div>
+
+        <div class="value-col">
+          <span class="user-messenger-value">{{ contact.value }}</span>
+        </div>
+
+        <div class="action-col">
+          <span
+            class="del-button"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'settings.user-messengers.action.delete' | translate"
+            (click)="onDelete(contact)"
+            (keydown.enter)="onDelete(contact)"
+            >&minus;</span
+          >
+        </div>
+      </div>
+    }
+
+    @if (pairingCode(); as issued) {
+      <div id="user-messengers-code-box" class="user-messenger-code-box">
+        <div class="user-messenger-code-headline">
+          {{ 'settings.user-messengers.code.headline' | translate }}
+        </div>
+        <div class="user-messenger-code-line">
+          <code id="user-messengers-code" class="user-messenger-code">{{ issued.code }}</code>
+          <button
+            id="user-messengers-copy-btn"
+            type="button"
+            class="btn copy-btn"
+            (click)="onCopyCode()"
+          >
+            {{ 'settings.user-messengers.action.copy' | translate }}
+          </button>
+        </div>
+        <div class="user-messenger-code-instruction">
+          {{ 'settings.user-messengers.code.instruction' | translate }}
+        </div>
+        <div class="user-messenger-code-expiry">
+          {{ 'settings.user-messengers.code.valid-until' | translate }}
+          {{ issued.expiresAt | date: 'short' }}
+        </div>
+      </div>
+    }
+
+    <div class="row-line user-messenger-actions">
+      <button
+        id="user-messengers-create-code-btn"
+        type="button"
+        class="btn save-btn"
+        [disabled]="isIssuingCode() || isLoading()"
+        (click)="onCreatePairingCode()"
+      >
+        {{ 'settings.user-messengers.action.create-code' | translate }}
+      </button>
+    </div>
+
+    <div class="bottom-border-space"></div>
+  </div>
+</div>
