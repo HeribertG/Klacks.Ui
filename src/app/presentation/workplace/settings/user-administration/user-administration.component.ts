@@ -45,6 +45,7 @@ interface UserFormModel {
   lastName: string;
   userName: string;
   email: string;
+  phoneNumber: string;
 }
 
 @Component({
@@ -91,6 +92,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     lastName: '',
     userName: '',
     email: '',
+    phoneNumber: '',
   });
 
   userForm = form(this.formModel, f => {
@@ -98,6 +100,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     debounce(f.lastName, 300);
     debounce(f.userName, 300);
     debounce(f.email, 300);
+    debounce(f.phoneNumber, 300);
   });
 
   isFormValid = computed(() => {
@@ -226,6 +229,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
       lastName: '',
       userName: '',
       email: '',
+      phoneNumber: '',
     });
 
     this.ngbModal.open(content, { size: 'md', centered: true }).result.then(
@@ -253,6 +257,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
       lastName: user.lastName || '',
       userName: user.userName || '',
       email: user.email || '',
+      phoneNumber: user.phoneNumber || '',
     });
 
     this.ngbModal.open(content, { size: 'md', centered: true }).result.then(
@@ -263,6 +268,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
           this.newUser.lastName = formData.lastName;
           this.newUser.userName = formData.userName;
           this.newUser.email = formData.email;
+          this.newUser.phoneNumber = formData.phoneNumber || null;
           this.userAdminService.updateAccount(this.newUser);
         }
       },

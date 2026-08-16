@@ -1999,6 +1999,7 @@
   "setting.user-admin.header.visa": "Supervisor",
   "setting.user-admin.headline": "Gestion des utilisateurs",
   "setting.user-admin.modal-email": "Email",
+  "setting.user-admin.modal-phone": "Numéro de téléphone",
   "setting.export-format-overrides.headline": "Corrections des formats d'export (overrides support)",
   "setting.export-format-overrides.description": "Si un client signale un format d'export défectueux, le support peut fournir un patch JSON. Collé ici, il s'applique immédiatement sans mise à jour. Utilisez l'aperçu pour télécharger un fichier de test avec le patch et le vérifier avant d'activer l'override.",
   "setting.export-format-overrides.format-label": "Format",

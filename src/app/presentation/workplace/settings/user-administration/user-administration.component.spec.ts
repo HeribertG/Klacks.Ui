@@ -40,6 +40,7 @@ describe('UserAdministrationComponent', () => {
             mailSuccess: false,
             modelState: undefined,
             deactivatedAt: null,
+            phoneNumber: null,
         },
         {
             id: '2',
@@ -57,6 +58,7 @@ describe('UserAdministrationComponent', () => {
             mailSuccess: false,
             modelState: undefined,
             deactivatedAt: null,
+            phoneNumber: null,
         },
         {
             id: '3',
@@ -74,6 +76,7 @@ describe('UserAdministrationComponent', () => {
             mailSuccess: false,
             modelState: undefined,
             deactivatedAt: null,
+            phoneNumber: null,
         },
     ];
 
@@ -88,6 +91,7 @@ describe('UserAdministrationComponent', () => {
         const userAdminServiceSpy = {
             loadAccounts: vi.fn(),
             addAccount: vi.fn(),
+            updateAccount: vi.fn(),
             deleteAccount: vi.fn(),
             deactivateAccount: vi.fn(),
             reactivateAccount: vi.fn(),
@@ -227,6 +231,65 @@ describe('UserAdministrationComponent', () => {
 
             // Assert
             expect(mockUserAdminService.addAccount).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Edit User Modal', () => {
+        let mockModalRef: any;
+
+        beforeEach(() => {
+            mockModalRef = {
+                result: Promise.resolve(),
+                close: vi.fn(),
+                dismiss: vi.fn(),
+            };
+            (component as any).ngbModal = mockNgbModal;
+            mockNgbModal.open.mockReturnValue(mockModalRef);
+        });
+
+        it('seeds the phone number field from the edited user', () => {
+            // Arrange
+            const userWithPhone: IAuthentication = { ...mockUsers[0], phoneNumber: '+41 79 123 45 67' };
+            const mockContent = {};
+
+            // Act
+            component.onEdit(userWithPhone, mockContent);
+
+            // Assert
+            expect(component.formModel().phoneNumber).toBe('+41 79 123 45 67');
+        });
+
+        it('sends the edited phone number through on save', async () => {
+            // Arrange
+            const mockContent = {};
+            component.onEdit(mockUsers[0], mockContent);
+
+            (component as any).formModel.update((model: any) => ({ ...model, phoneNumber: '+41 79 999 88 77' }));
+
+            // Act
+            await mockModalRef.result;
+
+            // Assert
+            expect(mockUserAdminService.updateAccount).toHaveBeenCalledWith(
+                expect.objectContaining({ phoneNumber: '+41 79 999 88 77' }),
+            );
+        });
+
+        it('sends null when the phone number field is cleared', async () => {
+            // Arrange
+            const userWithPhone: IAuthentication = { ...mockUsers[0], phoneNumber: '+41 79 123 45 67' };
+            const mockContent = {};
+            component.onEdit(userWithPhone, mockContent);
+
+            (component as any).formModel.update((model: any) => ({ ...model, phoneNumber: '' }));
+
+            // Act
+            await mockModalRef.result;
+
+            // Assert
+            expect(mockUserAdminService.updateAccount).toHaveBeenCalledWith(
+                expect.objectContaining({ phoneNumber: null }),
+            );
         });
     });
 

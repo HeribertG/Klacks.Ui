@@ -54,6 +54,7 @@ export interface IAuthentication {
   appName: string | undefined;
   modelState: IModelStateDictionary | undefined;
   deactivatedAt: string | null | undefined;
+  phoneNumber: string | null | undefined;
 }
 
 export class Authentication implements IAuthentication {
@@ -72,6 +73,7 @@ export class Authentication implements IAuthentication {
   appName = undefined;
   modelState: ModelStateDictionary | undefined = undefined;
   deactivatedAt: string | null | undefined = null;
+  phoneNumber: string | null | undefined = undefined;
 }
 
 export interface IMyToken {

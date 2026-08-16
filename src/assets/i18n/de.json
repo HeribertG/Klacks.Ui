@@ -1999,6 +1999,7 @@
   "setting.user-admin.header.visa": "Supervisor",
   "setting.user-admin.headline": "Benutzerverwaltung",
   "setting.user-admin.modal-email": "Email",
+  "setting.user-admin.modal-phone": "Telefonnummer",
   "setting.user-admin.modal-firstname": "Vorname",
   "setting.user-admin.modal-name": "Nachname",
   "setting.user-admin.modal-question": "Wollen sie wirklich die Zugangdaten ändern!",

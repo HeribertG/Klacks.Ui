@@ -101,6 +101,20 @@
       />
     </div>
 
+    @if (isEditMode) {
+      <div id="user-admin-modal-phone-row" class="row-line firstColumn-email">
+        <label for="setting-user-phone">{{ 'setting.user-admin.modal-phone' | translate }}</label>
+
+        <input
+          type="tel"
+          [formField]="userForm.phoneNumber"
+          class="form-control"
+          id="setting-user-phone"
+          aria-label="phoneNumber"
+        />
+      </div>
+    }
+
     <p></p>
     <p></p>
     <p></p>
