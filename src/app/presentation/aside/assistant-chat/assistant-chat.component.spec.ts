@@ -2064,6 +2064,38 @@ describe('AssistantChatComponent', () => {
             expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-1']);
         });
 
+        it('passes severity through to the chat message and renders the urgent badge for high severity', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ severity: 'high' })]));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+            fixture.detectChanges();
+
+            // Assert
+            const lastMessage = component.messages[component.messages.length - 1];
+            expect(lastMessage.proactiveSeverity).toBe('high');
+
+            const badge: HTMLElement | null = fixture.nativeElement.querySelector('.system-notice-badge.severity-high');
+            expect(badge).not.toBeNull();
+        });
+
+        it('does not mark a proactive message as urgent for medium severity', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ severity: 'medium' })]));
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+            fixture.detectChanges();
+
+            // Assert
+            const lastMessage = component.messages[component.messages.length - 1];
+            expect(lastMessage.proactiveSeverity).toBe('medium');
+            expect(fixture.nativeElement.querySelector('.system-notice-badge.severity-high')).toBeNull();
+        });
+
         it('appends inbox messages after an existing conversation with the heading anchored at the block start', () => {
             // Arrange
             component.orchestrator.addMessage({

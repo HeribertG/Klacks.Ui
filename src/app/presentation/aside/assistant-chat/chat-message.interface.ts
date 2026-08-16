@@ -25,6 +25,8 @@ export interface ChatMessage {
   proactiveReaction?: ProactiveReaction;
   /** Trigger kind of a proactive message (e.g. unstaffed_shift, mute_suggestion). */
   proactiveKind?: string;
+  /** Severity the backend assigned ("high" | "medium" | "low"); drives the urgent badge/accent. */
+  proactiveSeverity?: string;
   /** Frontend route offered as one-click action on a proactive message. */
   proactiveActionRoute?: string;
   /** Query params for the one-click action route. */

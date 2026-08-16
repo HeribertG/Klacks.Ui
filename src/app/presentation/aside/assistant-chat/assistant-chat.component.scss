@@ -335,6 +335,11 @@
         background: var(--backgroundColorSubCards);
         border-color: var(--gridColorLine);
       }
+
+      &.severity-high {
+        border-color: var(--standartRedColor);
+        border-width: 1px 1px 1px 3px;
+      }
     }
   }
 }
@@ -405,6 +410,11 @@
 
     fa-icon {
       font-size: 10px;
+    }
+
+    &.severity-high {
+      background: rgba(colors.$standartRedColor, 0.15);
+      color: var(--standartRedColor);
     }
   }
 

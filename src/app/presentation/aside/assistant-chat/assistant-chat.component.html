@@ -165,11 +165,17 @@
             [class.user]="message.sender === 'user'"
             [class.assistant]="message.sender === 'assistant'"
             [class.system-notice]="!!message.messageKind"
+            [class.severity-high]="message.proactiveSeverity === proactiveSeverities.High"
           >
             @if (message.messageKind) {
-            <div class="system-notice-badge">
-              <fa-icon [icon]="faBell"></fa-icon>
-              <span>{{ "assistant-chat.system-notice.badge" | translate }}</span>
+            <div class="system-notice-badge" [class.severity-high]="message.proactiveSeverity === proactiveSeverities.High">
+              <fa-icon [icon]="message.proactiveSeverity === proactiveSeverities.High ? faTriangleExclamation : faBell"></fa-icon>
+              <span>{{
+                (message.proactiveSeverity === proactiveSeverities.High
+                  ? "assistant-chat.system-notice.badge-urgent"
+                  : "assistant-chat.system-notice.badge"
+                ) | translate
+              }}</span>
             </div>
             }
             <div

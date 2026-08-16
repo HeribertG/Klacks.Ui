@@ -44,6 +44,7 @@ import {
   faBell,
   faBellSlash,
   faArrowRight,
+  faTriangleExclamation,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -82,6 +83,7 @@ import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.i
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { PROACTIVE_REACTION, ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
+import { PROACTIVE_SEVERITY } from 'src/app/domain/constants/proactive-severity.constants';
 import {
   MUTE_SUGGESTION_KIND_PARAM,
   PROACTIVE_TRIGGER_KIND,
@@ -202,8 +204,10 @@ export class AssistantChatComponent {
   faBellSlash = faBellSlash;
   faEyeSlash = faEyeSlash;
   faArrowRight = faArrowRight;
+  faTriangleExclamation = faTriangleExclamation;
 
   readonly proactiveReactions = PROACTIVE_REACTION;
+  readonly proactiveSeverities = PROACTIVE_SEVERITY;
 
   correctionMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
@@ -502,6 +506,7 @@ export class AssistantChatComponent {
       timestamp: new Date(item.createdUtc),
       messageKind: 'proactive',
       proactiveReaction: this.toProactiveReaction(item.reaction),
+      proactiveSeverity: item.severity ?? undefined,
       ...this.toProactiveActionFields(item.kind, item.actionRoute, item.actionParams, item.contentParams),
     };
   }

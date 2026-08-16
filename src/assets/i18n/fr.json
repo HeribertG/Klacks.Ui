@@ -2313,6 +2313,7 @@
   "assistant-chat.proactive.curiosity.weekend": "Quand le planning est enfin bouclé, comment aimes-tu passer un week-end libre ?",
   "assistant-chat.proactive.curiosity.cooking": "Pensée comme ça, tant que c'est calme : tu aimes cuisiner, ou plutôt team plats à emporter ?",
   "assistant-chat.system-notice.badge": "Info",
+  "assistant-chat.system-notice.badge-urgent": "Urgent",
   "assistant-chat.onboarding.offer.accept": "Oui, allons-y",
   "assistant-chat.onboarding.offer.snooze": "Plus tard",
   "assistant-chat.onboarding.offer.dismiss": "Non merci",
