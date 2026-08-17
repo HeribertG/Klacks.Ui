@@ -10,6 +10,7 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
@@ -30,6 +31,8 @@ import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../icons/icon-logo.component';
 import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/signalr-status-indicator.component';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
+import { DataManagementEscalationChainService } from 'src/app/domain/services/assistant/data-management-escalation-chain.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 
 @Component({
   selector: 'app-header',
@@ -54,6 +57,8 @@ export class HeaderComponent {
   public dataManagementGroupService = inject(DataManagementGroupService);
   public searchService = inject(SearchService);
   public proactiveInboxService = inject(DataManagementProactiveInboxService);
+  public escalationChainService = inject(DataManagementEscalationChainService);
+  public authorizationService = inject(AuthorizationService);
 
   private auth = inject(AuthService);
   private navigationService = inject(NavigationService);
@@ -63,6 +68,7 @@ export class HeaderComponent {
 
   public authorised = signal<boolean>(false);
   public readonly version = signal<string>('');
+  public readonly faTriangleExclamation = faTriangleExclamation;
 
   public readonly isFloatingMode = computed<boolean>(() => {
     const mode = this.appSettings.speechSettings().outputMode;
@@ -102,6 +108,10 @@ export class HeaderComponent {
 
   onClickDashboard(): void {
     this.navigationService.navigateToDashboard();
+  }
+
+  onClickEscalations(): void {
+    this.navigationService.navigateToEscalations();
   }
 
   async onClickLogOut(): Promise<void> {

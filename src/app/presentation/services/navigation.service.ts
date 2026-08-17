@@ -67,6 +67,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/settings']);
   }
 
+  navigateToEscalations(): void {
+    this.router.navigate(['/workplace/escalations']);
+  }
+
   navigateToRoot(): Promise<boolean> {
     return this.router.navigate(['/']);
   }

@@ -33,6 +33,25 @@
 
   <app-signalr-status-indicator></app-signalr-status-indicator>
 
+  @if (authorizationService.isAdmin && escalationChainService.hasRunning()) {
+    <span
+      id="header-escalation-button-container"
+      class="escalation-btn-container"
+      (click)="onClickEscalations()"
+    >
+      <fa-icon
+        id="header-escalation-button"
+        class="escalation-btn"
+        [icon]="faTriangleExclamation"
+      ></fa-icon>
+      <span
+        id="header-escalation-badge"
+        class="escalation-badge"
+        [title]="'escalation.intervention.badge-tooltip' | translate"
+      >{{ escalationChainService.runningCount() }}</span>
+    </span>
+  }
+
   @if (!hideAssistantButton()) {
     <span
       id="header-assistant-button-container"

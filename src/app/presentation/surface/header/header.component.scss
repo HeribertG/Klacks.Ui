@@ -91,3 +91,38 @@ app-group-select {
   border-radius: 8px;
   padding: 0 4px;
 }
+
+.escalation-btn-container {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+  margin-top: 20px;
+  margin-inline-end: 30px;
+}
+
+.escalation-btn {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  color: var(--standartRedColor);
+
+  &:hover {
+    color: color.adjust(colors.$standartRedColor, $lightness: -10%);
+  }
+}
+
+.escalation-badge {
+  position: absolute;
+  top: -8px;
+  inset-inline-end: -10px;
+  background-color: var(--standartRedColor);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 4px;
+}

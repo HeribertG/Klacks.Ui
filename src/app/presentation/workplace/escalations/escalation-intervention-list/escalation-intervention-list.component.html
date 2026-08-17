@@ -1,0 +1,90 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="escalation-intervention-container">
+  <div id="escalation-intervention-header" class="container-header">
+    {{ 'escalation.intervention.title' | translate }}
+  </div>
+
+  @if (escalationChainService.runningChains().length === 0) {
+    <p id="escalation-intervention-empty" class="escalation-intervention-empty">
+      {{ 'escalation.intervention.empty' | translate }}
+    </p>
+  }
+
+  <ul id="escalation-intervention-list" class="escalation-intervention-list">
+    @for (chain of escalationChainService.runningChains(); track chain.id) {
+      <li class="escalation-intervention-card">
+        <div class="escalation-intervention-card-header">
+          <span class="escalation-intervention-client">{{ chain.absentClientName }}</span>
+          <span class="escalation-intervention-deadline">
+            {{ 'escalation.intervention.deadline-in' | translate: { minutes: minutesUntil(chain.deadlineUtc) } }}
+          </span>
+        </div>
+
+        <ul class="escalation-intervention-stage-list">
+          @for (stage of chain.stages; track stage.rank) {
+            <li class="escalation-intervention-stage" [class]="'stage-status-' + stage.status.toLowerCase()">
+              <span class="escalation-intervention-stage-rank">{{ stage.rank }}</span>
+              <span class="escalation-intervention-stage-name">{{ stage.userDisplayName }}</span>
+              <span class="escalation-intervention-stage-status">
+                {{ 'escalation.intervention.stage-status.' + stage.status.toLowerCase() | translate }}
+              </span>
+            </li>
+          }
+        </ul>
+
+        <div class="escalation-intervention-actions">
+          @if (chain.canAcknowledge) {
+            <button
+              type="button"
+              class="btn escalation-intervention-acknowledge-btn"
+              (click)="onAcknowledge(chain)"
+            >
+              {{ 'escalation.intervention.acknowledge' | translate }}
+            </button>
+          }
+          <button
+            type="button"
+            class="link-button red-font escalation-intervention-cancel-btn"
+            (click)="onCancelClick(chain)"
+          >
+            {{ 'escalation.intervention.cancel' | translate }}
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</div>
+
+<ng-template #cancelReasonModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ 'escalation.intervention.cancel-modal-title' | translate }}
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="escalation-cancel-reason">{{ 'escalation.intervention.cancel-reason-label' | translate }}</label>
+      <textarea
+        id="escalation-cancel-reason"
+        class="form-control"
+        rows="3"
+        [formField]="cancelForm.reason"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <span
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+    >{{ 'escalation.intervention.cancel-modal-dismiss' | translate }}</span>
+    <button
+      type="button"
+      class="btn save-btn"
+      [disabled]="!isCancelReasonValid()"
+      (click)="modal.close()"
+    >
+      {{ 'escalation.intervention.cancel-modal-confirm' | translate }}
+    </button>
+  </div>
+</ng-template>

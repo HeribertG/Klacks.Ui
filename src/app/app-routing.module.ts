@@ -115,6 +115,14 @@ const routes: Routes = [
         canActivate: [AdminGuard],
       },
       {
+        path: 'escalations',
+        loadComponent: () =>
+          import('./presentation/workplace/escalations/escalation-intervention-list/escalation-intervention-list.component').then(
+            (m) => m.EscalationInterventionListComponent,
+          ),
+        canActivate: [AdminGuard],
+      },
+      {
         path: 'group',
         loadComponent: () =>
           import('./presentation/workplace/group/all-group/all-group-home/all-group-home.component').then(
