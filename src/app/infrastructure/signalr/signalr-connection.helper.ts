@@ -61,7 +61,11 @@ export class SignalRConnectionHelper {
   private healthCheckTimer: ReturnType<typeof setInterval> | null = null;
   private watchdogTimer: ReturnType<typeof setInterval> | null = null;
 
-  private static readonly SERVER_TIMEOUT_MS = 20000;
+  // Server-side KeepAliveInterval is unconfigured in Program.cs (AddSignalR() has no HubOptions),
+  // so it stays at the ASP.NET default of 15s. A 20s client timeout left only a 5s margin instead
+  // of the SignalR-recommended 2x server interval, so any GC pause, thread-pool pressure, or brief
+  // server hiccup killed the connection as a false-positive "server timeout".
+  private static readonly SERVER_TIMEOUT_MS = 30000;
   private static readonly KEEP_ALIVE_INTERVAL_MS = 10000;
   private static readonly HEALTH_CHECK_INTERVAL_MS = 30000;
   private static readonly WATCHDOG_INTERVAL_MS = 30000;
@@ -244,13 +248,27 @@ export class SignalRConnectionHelper {
       }
     }
 
-    const [validation, backendReady] = await Promise.all([
+    const [initialValidation, backendReady] = await Promise.all([
       this.tokenHelper.validateTokenWithBackend(token),
       this.probeBackend(),
     ]);
 
+    let validation = initialValidation;
     if (validation === 'rejected') {
-      console.warn('[SignalR] token rejected by backend - stale credentials, giving up until re-login');
+      // A stale-but-refreshable token also validates as 'rejected' here, so one refresh
+      // attempt is given before treating this as a genuinely revoked session - otherwise a
+      // single transient rejection forces AuthFailed (and, via app.component's watcher, a
+      // full logout) even though a plain refresh would have recovered it.
+      console.warn('[SignalR] token rejected by backend - attempting refresh before giving up');
+      await this.tokenHelper.attemptTokenRefresh();
+      const refreshedToken = this.localStorage.get(StorageKeys.TOKEN);
+      validation = refreshedToken
+        ? await this.tokenHelper.validateTokenWithBackend(refreshedToken)
+        : 'rejected';
+    }
+
+    if (validation === 'rejected') {
+      console.warn('[SignalR] token rejected by backend after refresh - stale credentials, giving up until re-login');
       this.stopWatchdog();
       this.transitionTo('AuthFailed');
       return;

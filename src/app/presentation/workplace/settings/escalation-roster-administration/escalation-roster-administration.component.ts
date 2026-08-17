@@ -116,7 +116,9 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
           this.newAbsenceEnd.set('');
           this.newAbsenceReason.set('');
           this.loadAbsencePeriods(userId);
-          this.loadRoster(this.selectedGroupId());
+          if (this.selectedGroupId()) {
+            this.loadRoster(this.selectedGroupId());
+          }
         },
         error: () => this.emitError('ESCALATION_ROSTER_ABSENCE_SAVE_ERROR'),
       });
@@ -131,7 +133,9 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
       .subscribe({
         next: () => {
           this.loadAbsencePeriods(userId);
-          this.loadRoster(this.selectedGroupId());
+          if (this.selectedGroupId()) {
+            this.loadRoster(this.selectedGroupId());
+          }
         },
         error: () => this.emitError('ESCALATION_ROSTER_ABSENCE_DELETE_ERROR'),
       });
