@@ -17,6 +17,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
+import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -56,6 +57,8 @@ interface UserFormModel {
   imports: [
     FormsModule,
     FormField,
+    CdkDropList,
+    CdkDrag,
     TranslateModule,
     NgbModule,
     SpinnerModule,
@@ -307,5 +310,11 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
 
   reload(): void {
     this.userAdminService.loadAccounts();
+  }
+
+  onDrop(event: CdkDragDrop<IAuthentication[]>): void {
+    const reordered = [...this.userAdminService.accountsList()];
+    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+    this.userAdminService.reorderAccounts(reordered.map((a) => a.id!));
   }
 }

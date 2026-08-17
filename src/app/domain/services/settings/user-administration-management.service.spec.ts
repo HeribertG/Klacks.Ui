@@ -23,7 +23,8 @@ describe('UserAdministrationManagementService', () => {
             deleteAccount: vi.fn(),
             changeRole: vi.fn(),
             ChangePassword: vi.fn(),
-            requestPasswordReset: vi.fn()
+            requestPasswordReset: vi.fn(),
+            reorderAccounts: vi.fn()
         };
 
         mockEventBus = {
@@ -56,8 +57,9 @@ describe('UserAdministrationManagementService', () => {
     });
 
     describe('loadAccountsList', () => {
-        it('should load and sort accounts list', async () => {
-            // Arrange
+        it('should load accounts in the order the backend returns them (AppUser.DisplayOrder)', async () => {
+            // Arrange - deliberately NOT alphabetical, to prove there is no client-side re-sort:
+            // the escalation roster's wake-up order relies on this being the true display order.
             const mockAccounts: IAuthentication[] = [
                 { id: '2', firstName: 'Bob', lastName: 'Smith', email: 'bob@test.com' } as IAuthentication,
                 { id: '1', firstName: 'Alice', lastName: 'Johnson', email: 'alice@test.com' } as IAuthentication,
@@ -74,8 +76,8 @@ describe('UserAdministrationManagementService', () => {
             await new Promise(resolve => setTimeout(resolve, 50));
             const accounts = service.accountsList();
             expect(accounts.length).toBe(2);
-            expect(accounts[0].firstName).toBe('Alice');
-            expect(accounts[1].firstName).toBe('Bob');
+            expect(accounts[0].firstName).toBe('Bob');
+            expect(accounts[1].firstName).toBe('Alice');
         });
 
         it('should emit error event on load failure', async () => {
@@ -248,6 +250,45 @@ describe('UserAdministrationManagementService', () => {
 
             await new Promise(resolve => setTimeout(resolve, 3510));
             expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'PASSWORD_RESET_EMAIL_ERROR' }));
+        });
+    });
+
+    describe('reorderAccounts', () => {
+        const initialAccounts: IAuthentication[] = [
+            { id: '1', firstName: 'Alice', lastName: 'A' } as IAuthentication,
+            { id: '2', firstName: 'Bob', lastName: 'B' } as IAuthentication,
+            { id: '3', firstName: 'Carol', lastName: 'C' } as IAuthentication,
+        ];
+
+        it('optimistically reorders the local list and persists via the API', async () => {
+            mockUserAdministrationService.readAccountsList.mockReturnValue(of(initialAccounts));
+            service = TestBed.inject(UserAdministrationManagementService);
+            service.loadAccounts();
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            mockUserAdministrationService.reorderAccounts.mockReturnValue(of({}));
+
+            service.reorderAccounts(['3', '1', '2']);
+
+            expect(service.accountsList().map(a => a.id)).toEqual(['3', '1', '2']);
+            expect(mockUserAdministrationService.reorderAccounts).toHaveBeenCalledWith(['3', '1', '2']);
+        });
+
+        it('rolls back to the previous order and emits an error on failure', async () => {
+            mockUserAdministrationService.readAccountsList.mockReturnValue(of(initialAccounts));
+            service = TestBed.inject(UserAdministrationManagementService);
+            service.loadAccounts();
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            mockUserAdministrationService.reorderAccounts.mockReturnValue(throwError(() => new Error('Reorder failed')));
+
+            service.reorderAccounts(['3', '1', '2']);
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(service.accountsList().map(a => a.id)).toEqual(['1', '2', '3']);
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
+                code: 'ACCOUNTS_REORDER_ERROR',
+            }));
         });
     });
 

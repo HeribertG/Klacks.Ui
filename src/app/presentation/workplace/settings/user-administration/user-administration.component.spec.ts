@@ -97,6 +97,7 @@ describe('UserAdministrationComponent', () => {
             reactivateAccount: vi.fn(),
             updateAccountRole: vi.fn(),
             requestPasswordReset: vi.fn(),
+            reorderAccounts: vi.fn(),
             accountsList: signal([...mockUsers]),
             currentAccountId: signal('current-user-id'),
             generatedUsername: signal('')
@@ -611,6 +612,19 @@ describe('UserAdministrationComponent', () => {
 
             // Assert
             expect(mockUserAdminService.requestPasswordReset).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Reordering', () => {
+        it('reorders the accounts list and persists the new order', () => {
+            const event = {
+                previousIndex: 0,
+                currentIndex: 2,
+            } as any;
+
+            component.onDrop(event);
+
+            expect(mockUserAdminService.reorderAccounts).toHaveBeenCalledWith(['2', '3', '1']);
         });
     });
 

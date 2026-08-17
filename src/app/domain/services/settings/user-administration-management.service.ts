@@ -75,18 +75,34 @@ export class UserAdministrationManagementService {
       )
       .subscribe((accounts) => {
         if (accounts) {
-          const sortedAccounts = this.sortAccounts(accounts);
-          this.accountsList.set(sortedAccounts);
+          // Order comes from the backend (AppUser.DisplayOrder) - do not re-sort client-side,
+          // the escalation roster's wake-up order relies on this being the true display order.
+          this.accountsList.set(accounts);
         }
       });
   }
 
-  private sortAccounts(accounts: IAuthentication[]): IAuthentication[] {
-    return [...accounts].sort((a, b) => {
-      const nameA = `${a.lastName} ${a.firstName}`;
-      const nameB = `${b.lastName} ${b.firstName}`;
-      return nameA.localeCompare(nameB);
-    });
+  reorderAccounts(orderedUserIds: string[]): void {
+    const previousOrder = this.accountsList();
+    const byId = new Map(previousOrder.map((a) => [a.id, a]));
+    const reordered = orderedUserIds
+      .map((id) => byId.get(id))
+      .filter((a): a is IAuthentication => Boolean(a));
+    this.accountsList.set(reordered);
+
+    this.userAdministrationService
+      .reorderAccounts(orderedUserIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: () => {
+          this.accountsList.set(previousOrder);
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: '',
+            code: 'ACCOUNTS_REORDER_ERROR',
+            context: 'UserAdministrationManagementService.reorderAccounts',
+          });
+        },
+      });
   }
 
   addAccount(account: IAuthentication): void {

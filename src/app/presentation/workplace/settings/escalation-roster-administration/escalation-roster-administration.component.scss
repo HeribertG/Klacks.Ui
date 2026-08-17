@@ -1,6 +1,5 @@
-#escalation-roster-admin-container {
-  padding: 12px;
-}
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 .escalation-roster-empty {
   color: var(--colorLabel);
@@ -15,58 +14,113 @@
 }
 
 .escalation-roster-row {
+  border-bottom: 1px solid var(--gridColorLine);
+  padding: 6px 8px;
+}
+
+.escalation-roster-row-main {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--gridColorLine);
-}
-
-.escalation-roster-rank {
-  min-width: 20px;
-  font-weight: 600;
-  color: var(--colorLabel);
+  cursor: pointer;
 }
 
 .escalation-roster-name {
   flex: 1;
 }
 
-.escalation-roster-override-badge {
+.escalation-roster-badge {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
   border-radius: 10px;
+  white-space: nowrap;
+}
+
+.escalation-roster-badge-warning {
+  border: 1px solid var(--standartRedColor);
+  color: var(--standartRedColor);
+}
+
+.escalation-roster-badge-absent {
   background: rgba(0, 0, 0, 0.08);
   color: var(--colorLabel);
 }
 
-.escalation-roster-actions {
-  display: flex;
-  gap: 4px;
+.escalation-roster-manage-link {
+  font-size: 12px;
+  text-decoration: underline;
+  color: colors.$standartBlueColor;
+  white-space: nowrap;
 }
 
-.escalation-roster-move-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 2px 4px;
+.escalation-roster-absence-editor {
+  margin: 8px 0 12px 0;
+  padding: 10px 12px;
+  background: var(--backgroundColorSubCards, rgba(0, 0, 0, 0.03));
+  border-radius: 4px;
+}
 
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
+.escalation-roster-absence-empty {
+  color: var(--colorLabel);
+  font-size: 12px;
+  margin: 0 0 8px 0;
+}
+
+.escalation-roster-absence-list {
+  list-style: none;
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+
+.escalation-roster-absence-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.escalation-roster-absence-reason {
+  flex: 1;
+  color: var(--colorLabel);
+  font-style: italic;
+}
+
+.escalation-roster-absence-delete {
+  font-size: 12px;
+  text-decoration: underline;
+  color: var(--standartRedColor);
+  cursor: pointer;
+}
+
+.escalation-roster-absence-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .form-group {
+    margin: 0;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--colorLabel);
+  }
+
+  input {
+    height: 30px;
   }
 }
 
-.escalation-roster-orphaned-heading {
-  margin-top: 16px;
-  font-size: 12px;
-  color: var(--colorLabel);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.escalation-roster-orphaned {
-  opacity: 0.6;
+.escalation-roster-permanent-link {
+  display: block;
+  font-size: 11px;
+  text-decoration: underline;
+  color: colors.$standartBlueColor;
+  cursor: pointer;
+  margin-top: 2px;
 }

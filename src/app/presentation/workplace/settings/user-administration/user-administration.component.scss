@@ -86,3 +86,18 @@ label {
   padding: 20px 30px;
 }
 
+.cdk-drag-preview {
+  opacity: 0.9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background-color: var(--backgroundColorCard);
+  border-radius: 4px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms ease;
+}
+
