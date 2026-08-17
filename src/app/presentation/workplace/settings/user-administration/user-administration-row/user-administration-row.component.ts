@@ -8,10 +8,12 @@ import {
   output,
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { IconGripVerticalComponent } from 'src/app/presentation/icons/icon-grip-vertical.component';
 
 export interface RoleChangeEvent {
   account: IAuthentication;
@@ -29,7 +31,7 @@ interface UserRoleModel {
   templateUrl: './user-administration-row.component.html',
   styleUrls: ['./user-administration-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormField, TrashIconRedComponent],
+  imports: [TranslateModule, FormField, CdkDragHandle, TrashIconRedComponent, IconGripVerticalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdministrationRowComponent {

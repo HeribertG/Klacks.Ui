@@ -93,6 +93,12 @@ export class UserAdministrationService {
       .pipe();
   }
 
+  reorderAccounts(orderedUserIds: string[]) {
+    return this.httpClient
+      .put(`${environment.baseUrl}Accounts/Reorder`, { orderedUserIds })
+      .pipe();
+  }
+
   ChangePassword(value: ChangePassword): Observable<ResponseAuthentication> {
     return this.httpClient
       .put<ResponseAuthentication>(

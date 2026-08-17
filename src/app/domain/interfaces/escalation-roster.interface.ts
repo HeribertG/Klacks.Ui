@@ -1,15 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-export interface IEscalationRosterEntry {
-  id: string;
+export interface IEscalationRosterMember {
   userId: string;
   displayName: string;
-  effectiveRank: number | null;
-  hasOverride: boolean;
-  isOrphaned: boolean;
+  hasPhoneNumber: boolean;
+  isCurrentlyAbsent: boolean;
 }
 
-export interface IReorderEscalationRosterRequest {
-  groupId: string;
-  orderedUserIds: string[];
+export interface IUserAbsencePeriod {
+  id: string;
+  appUserId: string;
+  startDate: string;
+  endDate: string;
+  reason: string | null;
 }

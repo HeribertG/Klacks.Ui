@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="escalation-roster-admin-container">
   <div id="escalation-roster-header" class="container-header">
     {{ 'setting.escalation-roster.title' | translate }}
@@ -14,63 +16,105 @@
         (ngModelChange)="onGroupChange($event)"
       >
         <option value="">{{ 'setting.escalation-roster.group-placeholder' | translate }}</option>
-        @for (group of groups(); track group.id) {
-          <option [value]="group.id">{{ group.name }}</option>
+        @for (root of roots(); track root.id) {
+          <option [value]="root.id">{{ root.name }}</option>
         }
       </select>
     </div>
 
-    @if (isLoadingGroups() || isLoadingRoster()) {
+    @if (isLoadingRoots() || isLoadingRoster()) {
       <app-spinner></app-spinner>
     }
 
     @if (selectedGroupId() && !isLoadingRoster()) {
-      @if (activeEntries().length === 0 && orphanedEntries().length === 0) {
+      @if (members().length === 0) {
         <p class="escalation-roster-empty">{{ 'setting.escalation-roster.empty' | translate }}</p>
       }
 
-      @if (activeEntries().length > 0) {
-        <ul id="escalation-roster-active-list" class="escalation-roster-list">
-          @for (entry of activeEntries(); track entry.id; let i = $index; let isFirst = $first; let isLast = $last) {
+      @if (members().length > 0) {
+        <ul id="escalation-roster-member-list" class="escalation-roster-list">
+          @for (member of members(); track member.userId) {
             <li class="escalation-roster-row">
-              <span class="escalation-roster-rank">{{ i + 1 }}</span>
-              <span class="escalation-roster-name">{{ entry.displayName }}</span>
-              @if (entry.hasOverride) {
-                <span class="escalation-roster-override-badge">{{ 'setting.escalation-roster.override-badge' | translate }}</span>
-              }
-              <div class="escalation-roster-actions">
-                <button
-                  type="button"
-                  class="escalation-roster-move-btn"
-                  [disabled]="isFirst || isSaving()"
-                  [attr.aria-label]="'setting.escalation-roster.move-up' | translate"
-                  (click)="moveUp(i)"
-                >
-                  <app-icon-angle-up></app-icon-angle-up>
-                </button>
-                <button
-                  type="button"
-                  class="escalation-roster-move-btn"
-                  [disabled]="isLast || isSaving()"
-                  [attr.aria-label]="'setting.escalation-roster.move-down' | translate"
-                  (click)="moveDown(i)"
-                >
-                  <app-icon-angle-down></app-icon-angle-down>
-                </button>
+              <div class="escalation-roster-row-main" (click)="toggleAbsenceEditor(member.userId)">
+                <span class="escalation-roster-name">{{ member.displayName }}</span>
+                @if (!member.hasPhoneNumber) {
+                  <span class="escalation-roster-badge escalation-roster-badge-warning">{{ 'setting.escalation-roster.phone-missing' | translate }}</span>
+                }
+                @if (member.isCurrentlyAbsent) {
+                  <span class="escalation-roster-badge escalation-roster-badge-absent">{{ 'setting.escalation-roster.currently-absent' | translate }}</span>
+                }
+                <span class="escalation-roster-manage-link">{{ 'setting.escalation-roster.manage-absence' | translate }}</span>
               </div>
-            </li>
-          }
-        </ul>
-      }
 
-      @if (orphanedEntries().length > 0) {
-        <div class="escalation-roster-orphaned-heading">
-          {{ 'setting.escalation-roster.orphaned-heading' | translate }}
-        </div>
-        <ul id="escalation-roster-orphaned-list" class="escalation-roster-list escalation-roster-orphaned">
-          @for (entry of orphanedEntries(); track entry.id) {
-            <li class="escalation-roster-row">
-              <span class="escalation-roster-name">{{ entry.displayName }}</span>
+              @if (expandedUserId() === member.userId) {
+                <div class="escalation-roster-absence-editor">
+                  @if (isLoadingAbsences()) {
+                    <app-spinner></app-spinner>
+                  } @else {
+                    @if (absencePeriods().length === 0) {
+                      <p class="escalation-roster-absence-empty">{{ 'setting.escalation-roster.absence-empty' | translate }}</p>
+                    }
+                    <ul class="escalation-roster-absence-list">
+                      @for (period of absencePeriods(); track period.id) {
+                        <li class="escalation-roster-absence-row">
+                          <span>{{ period.startDate }} – {{ period.endDate }}</span>
+                          @if (period.reason) {
+                            <span class="escalation-roster-absence-reason">{{ period.reason }}</span>
+                          }
+                          <span
+                            class="escalation-roster-absence-delete"
+                            type="button"
+                            (click)="deleteAbsencePeriod(period.id)"
+                            >{{ 'setting.escalation-roster.absence-delete' | translate }}</span
+                          >
+                        </li>
+                      }
+                    </ul>
+                  }
+
+                  <div class="escalation-roster-absence-form">
+                    <div class="form-group">
+                      <label [for]="'escalation-roster-absence-from-' + member.userId">{{ 'setting.escalation-roster.absence-from' | translate }}</label>
+                      <input
+                        type="date"
+                        [id]="'escalation-roster-absence-from-' + member.userId"
+                        class="form-control"
+                        [ngModel]="newAbsenceStart()"
+                        (ngModelChange)="newAbsenceStart.set($event)"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label [for]="'escalation-roster-absence-until-' + member.userId">{{ 'setting.escalation-roster.absence-until' | translate }}</label>
+                      <input
+                        type="date"
+                        [id]="'escalation-roster-absence-until-' + member.userId"
+                        class="form-control"
+                        [ngModel]="newAbsenceEnd()"
+                        (ngModelChange)="newAbsenceEnd.set($event)"
+                      />
+                      <span class="escalation-roster-permanent-link" type="button" (click)="fillPermanentEndDate()">{{ 'setting.escalation-roster.absence-permanent' | translate }}</span>
+                    </div>
+                    <div class="form-group">
+                      <label [for]="'escalation-roster-absence-reason-' + member.userId">{{ 'setting.escalation-roster.absence-reason' | translate }}</label>
+                      <input
+                        type="text"
+                        [id]="'escalation-roster-absence-reason-' + member.userId"
+                        class="form-control"
+                        [ngModel]="newAbsenceReason()"
+                        (ngModelChange)="newAbsenceReason.set($event)"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      class="btn save-btn"
+                      [disabled]="!newAbsenceStart() || !newAbsenceEnd() || isSavingAbsence()"
+                      (click)="addAbsencePeriod()"
+                    >
+                      {{ 'setting.escalation-roster.absence-add' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
             </li>
           }
         </ul>

@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Admin view of a group's escalation call list: pick a group, see the derived/overridden order,
- * and move active planners up or down (persisted as EscalationRosterEntry.OverrideRank).
+ * Admin view of a root group's escalation call list: pick a root, see who is currently visible and
+ * reachable, and manage each member's absence periods. Wake-up order itself comes from
+ * AppUser.DisplayOrder (maintained in the user administration list, not here).
  */
 import {
   Component,
@@ -11,7 +12,6 @@ import {
   OnDestroy,
   inject,
   signal,
-  computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,43 +19,48 @@ import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
-import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
+import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { DataEscalationRosterService } from 'src/app/infrastructure/api/assistant/data-escalation-roster.service';
-import { GroupFilter, IGroup } from 'src/app/domain/models/group/group-class';
-import { IEscalationRosterEntry } from 'src/app/domain/interfaces/escalation-roster.interface';
+import { DataUserAbsencePeriodService } from 'src/app/infrastructure/api/settings/data-user-absence-period.service';
+import { IGroup } from 'src/app/domain/models/group/group-class';
+import { IEscalationRosterMember, IUserAbsencePeriod } from 'src/app/domain/interfaces/escalation-roster.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
-const GROUP_LIST_PAGE_SIZE = 1000;
+const PERMANENT_ABSENCE_END_DATE = '9999-12-31';
 
 @Component({
   selector: 'app-escalation-roster-administration',
   templateUrl: './escalation-roster-administration.component.html',
   styleUrls: ['./escalation-roster-administration.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, SpinnerModule, IconAngleUpComponent, IconAngleDownComponent],
+  imports: [FormsModule, TranslateModule, SpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EscalationRosterAdministrationComponent implements OnInit, OnDestroy {
-  private dataGroupService = inject(DataGroupService);
+  private groupVisibilityService = inject(DataGroupVisibilityService);
   private rosterService = inject(DataEscalationRosterService);
+  private absencePeriodService = inject(DataUserAbsencePeriodService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private ngUnsubscribe = new Subject<void>();
 
-  readonly groups = signal<IGroup[]>([]);
+  readonly roots = signal<IGroup[]>([]);
   readonly selectedGroupId = signal<string>('');
-  readonly entries = signal<IEscalationRosterEntry[]>([]);
-  readonly isLoadingGroups = signal<boolean>(false);
+  readonly members = signal<IEscalationRosterMember[]>([]);
+  readonly isLoadingRoots = signal<boolean>(false);
   readonly isLoadingRoster = signal<boolean>(false);
-  readonly isSaving = signal<boolean>(false);
 
-  readonly activeEntries = computed(() => this.entries().filter((e) => !e.isOrphaned));
-  readonly orphanedEntries = computed(() => this.entries().filter((e) => e.isOrphaned));
+  readonly expandedUserId = signal<string>('');
+  readonly absencePeriods = signal<IUserAbsencePeriod[]>([]);
+  readonly isLoadingAbsences = signal<boolean>(false);
+  readonly isSavingAbsence = signal<boolean>(false);
+
+  readonly newAbsenceStart = signal<string>('');
+  readonly newAbsenceEnd = signal<string>('');
+  readonly newAbsenceReason = signal<string>('');
 
   ngOnInit(): void {
-    this.loadGroups();
+    this.loadRoots();
   }
 
   ngOnDestroy(): void {
@@ -65,46 +70,90 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
 
   onGroupChange(groupId: string): void {
     this.selectedGroupId.set(groupId);
+    this.collapseAbsenceEditor();
     if (groupId) {
       this.loadRoster(groupId);
     } else {
-      this.entries.set([]);
+      this.members.set([]);
     }
   }
 
-  moveUp(index: number): void {
-    this.swapActive(index, index - 1);
-  }
-
-  moveDown(index: number): void {
-    this.swapActive(index, index + 1);
-  }
-
-  private swapActive(index: number, targetIndex: number): void {
-    const active = [...this.activeEntries()];
-    if (targetIndex < 0 || targetIndex >= active.length) {
+  toggleAbsenceEditor(userId: string): void {
+    if (this.expandedUserId() === userId) {
+      this.collapseAbsenceEditor();
       return;
     }
 
-    [active[index], active[targetIndex]] = [active[targetIndex], active[index]];
-    this.entries.set([...active, ...this.orphanedEntries()]);
-    this.saveOrder(active.map((e) => e.userId));
+    this.expandedUserId.set(userId);
+    this.newAbsenceStart.set('');
+    this.newAbsenceEnd.set('');
+    this.newAbsenceReason.set('');
+    this.loadAbsencePeriods(userId);
   }
 
-  private loadGroups(): void {
-    this.isLoadingGroups.set(true);
-    const filter = new GroupFilter();
-    filter.numberOfItemsPerPage = GROUP_LIST_PAGE_SIZE;
+  fillPermanentEndDate(): void {
+    this.newAbsenceEnd.set(PERMANENT_ABSENCE_END_DATE);
+  }
 
-    this.dataGroupService
-      .readGroupList(filter)
+  addAbsencePeriod(): void {
+    const userId = this.expandedUserId();
+    const start = this.newAbsenceStart();
+    const end = this.newAbsenceEnd();
+    if (!userId || !start || !end) {
+      return;
+    }
+
+    this.isSavingAbsence.set(true);
+    this.absencePeriodService
+      .create(userId, start, end, this.newAbsenceReason().trim() || null)
       .pipe(
         takeUntil(this.ngUnsubscribe),
-        finalize(() => this.isLoadingGroups.set(false)),
+        finalize(() => this.isSavingAbsence.set(false)),
       )
       .subscribe({
-        next: (result) => this.groups.set(result.groups),
-        error: () => this.emitError('ESCALATION_ROSTER_LOAD_GROUPS_ERROR'),
+        next: () => {
+          this.newAbsenceStart.set('');
+          this.newAbsenceEnd.set('');
+          this.newAbsenceReason.set('');
+          this.loadAbsencePeriods(userId);
+          this.loadRoster(this.selectedGroupId());
+        },
+        error: () => this.emitError('ESCALATION_ROSTER_ABSENCE_SAVE_ERROR'),
+      });
+  }
+
+  deleteAbsencePeriod(id: string): void {
+    const userId = this.expandedUserId();
+
+    this.absencePeriodService
+      .delete(id)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: () => {
+          this.loadAbsencePeriods(userId);
+          this.loadRoster(this.selectedGroupId());
+        },
+        error: () => this.emitError('ESCALATION_ROSTER_ABSENCE_DELETE_ERROR'),
+      });
+  }
+
+  private collapseAbsenceEditor(): void {
+    this.expandedUserId.set('');
+    this.absencePeriods.set([]);
+  }
+
+  private loadRoots(): void {
+    this.isLoadingRoots.set(true);
+
+    this.groupVisibilityService
+      .getRoots()
+      .pipe(
+        takeUntil(this.ngUnsubscribe),
+        finalize(() => this.isLoadingRoots.set(false)),
+      )
+      .subscribe({
+        next: (result) => this.roots.set(result),
+        error: () => this.emitError('ESCALATION_ROSTER_LOAD_ROOTS_ERROR'),
       });
   }
 
@@ -118,26 +167,23 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
         finalize(() => this.isLoadingRoster.set(false)),
       )
       .subscribe({
-        next: (result) => this.entries.set(result),
+        next: (result) => this.members.set(result),
         error: () => this.emitError('ESCALATION_ROSTER_LOAD_ERROR'),
       });
   }
 
-  private saveOrder(orderedUserIds: string[]): void {
-    const groupId = this.selectedGroupId();
-    if (!groupId) {
-      return;
-    }
+  private loadAbsencePeriods(userId: string): void {
+    this.isLoadingAbsences.set(true);
 
-    this.isSaving.set(true);
-    this.rosterService
-      .setOrder(groupId, orderedUserIds)
+    this.absencePeriodService
+      .getByUser(userId)
       .pipe(
         takeUntil(this.ngUnsubscribe),
-        finalize(() => this.isSaving.set(false)),
+        finalize(() => this.isLoadingAbsences.set(false)),
       )
       .subscribe({
-        error: () => this.emitError('ESCALATION_ROSTER_SAVE_ERROR'),
+        next: (result) => this.absencePeriods.set(result),
+        error: () => this.emitError('ESCALATION_ROSTER_LOAD_ABSENCE_ERROR'),
       });
   }
 

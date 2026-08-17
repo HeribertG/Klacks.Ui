@@ -31,6 +31,17 @@ select {
   align-items: center;
 }
 
+.drag-handle {
+  display: inline-flex;
+  align-items: center;
+  cursor: grab;
+  margin-inline-end: 10px;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .delete-button {
   margin-top: 5px;
   margin-inline-start: 20px;

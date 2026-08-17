@@ -214,13 +214,18 @@
 <div class="standard-tab-body">
   @if (activeTab() === 'users') {
     <form id="user-administration-form">
-      <div id="user-administration-box" class="container-box">
+      <div
+        id="user-administration-box"
+        class="container-box"
+        cdkDropList
+        (cdkDropListDropped)="onDrop($event)"
+      >
         <app-user-administration-header
           id="user-administration-table-header"
         ></app-user-administration-header>
         @for (c of userAdminService.accountsList(); track c.id || c.userName ||
         $index; let i = $index) {
-        <div [id]="'user-administration-row-wrapper-' + i">
+        <div [id]="'user-administration-row-wrapper-' + i" cdkDrag>
           <app-user-administration-row
             [id]="'user-administration-row-' + i"
             [user]="c"

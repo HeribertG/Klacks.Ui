@@ -5,6 +5,14 @@
   class="first custom-control-inline"
   [class.deactivated]="isDeactivated"
 >
+  <span
+    id="user-admin-row-drag-handle-{{ user()!.id }}"
+    class="drag-handle"
+    cdkDragHandle
+    [attr.aria-label]="'setting.user-admin.row.drag-handle' | translate"
+    ><app-icon-grip-vertical
+  /></span>
+
   <div id="user-admin-row-name-group-{{ user()!.id }}" class="form-group">
     <input
       id="user-admin-row-name-{{ user()!.id }}"
