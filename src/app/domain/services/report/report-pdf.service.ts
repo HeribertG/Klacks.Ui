@@ -318,6 +318,10 @@ export class ReportPdfService {
       return this.renderHeaderImage(doc, field, imageCache, xOffset, yPos);
     }
 
+    if (field.type === ReportFieldType.Image && field.dataBinding) {
+      return this.renderDynamicHeaderImage(doc, field, provider, headerContext, xOffset, yPos);
+    }
+
     if (field.dataBinding) {
       return this.renderHeaderText(doc, field, provider, headerContext, xOffset, yPos);
     }
@@ -334,6 +338,28 @@ export class ReportPdfService {
   ): { xOffset: number; height: number } {
     const imgData = imageCache.get(field.imageUrl!);
     if (!imgData) return { xOffset, height: 0 };
+
+    const imgWidth = field.width || 30;
+    const imgHeight = field.height || imgWidth * 0.5;
+    const imgFormat = imgData.startsWith('data:image/jpeg') ? 'JPEG' : 'PNG';
+    doc.addImage(imgData, imgFormat, xOffset, yPos, imgWidth, imgHeight);
+    return { xOffset: xOffset + imgWidth + 2, height: imgHeight };
+  }
+
+  /**
+   * Renders an Image-type field whose picture comes from the fetched record itself
+   * (e.g. a client photo) instead of an admin-uploaded, template-level file.
+   */
+  private renderDynamicHeaderImage(
+    doc: jsPDF,
+    field: ReportField,
+    provider: ReportDataProvider,
+    headerContext: ReportHeaderContext,
+    xOffset: number,
+    yPos: number
+  ): { xOffset: number; height: number } {
+    const imgData = provider.resolveHeaderValue(field, headerContext);
+    if (!imgData || !imgData.startsWith('data:image')) return { xOffset, height: 0 };
 
     const imgWidth = field.width || 30;
     const imgHeight = field.height || imgWidth * 0.5;
@@ -359,7 +385,7 @@ export class ReportPdfService {
     doc.setFont(fontFamily, fontStyle);
     this.applyTextColor(doc, field.style.textColor);
 
-    if (field.dataBinding === 'report.customText' && value.includes('\n')) {
+    if (value.includes('\n')) {
       return this.renderMultilineHeaderText(doc, field, value, xOffset, yPos);
     }
 
@@ -411,6 +437,8 @@ export class ReportPdfService {
     for (const field of zoneFields) {
       if (field.type === ReportFieldType.Image && field.imageUrl && ctx.imageCache.has(field.imageUrl)) {
         totalWidth += (field.width || 30) + 2;
+      } else if (field.type === ReportFieldType.Image && field.dataBinding) {
+        totalWidth += (field.width || 30) + 2;
       } else if (field.dataBinding) {
         const value = ctx.provider.resolveHeaderValue(field, ctx.headerContext);
         if (value) {
@@ -419,7 +447,8 @@ export class ReportPdfService {
             this.fontService.resolveFontFamily(ctx.doc, value, field.style.fontFamily || DEFAULT_PDF_FONT),
             this.getJsPdfFontStyle(field.style.bold, field.style.italic)
           );
-          totalWidth += ctx.doc.getTextWidth(value) + 2;
+          const widestLine = Math.max(...value.split('\n').map(l => ctx.doc.getTextWidth(l)));
+          totalWidth += widestLine + 2;
         }
       }
     }

@@ -44,6 +44,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print.service';
+import { EditAddressCardVisibilityService } from '../edit-address-card-visibility.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -73,6 +74,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   public authorizationService = inject(AuthorizationService);
   public featurePluginState = inject(FeaturePluginStateService);
   public quickPrintAction = inject(QuickPrintActionService);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
   public readonly messagingPluginName = MESSAGING_PLUGIN_NAME;
   public readonly quickPrintSourceId = 'edit-address';
   private urlParameterService = inject(UrlParameterService);
@@ -157,7 +159,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
       const request: QuickPrintRequest = {
         sourceId: this.quickPrintSourceId,
         fallbackDataSetIds: ['details'],
-        params: { clientId },
+        params: { clientId, cardVisibility: this.cardVisibility.snapshot() },
       };
       await this.quickPrintAction.print(request);
     } finally {

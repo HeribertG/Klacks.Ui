@@ -176,7 +176,7 @@
 </ng-template>
 
 <form>
-  <app-expandable-card [headerTitle]="headerTitle">
+  <app-expandable-card [headerTitle]="headerTitle" (expandedChange)="onExpandedChange($event)">
 
     <div headerActions class="header-actions">
       @if (isCustomerWithCoordinates()) {

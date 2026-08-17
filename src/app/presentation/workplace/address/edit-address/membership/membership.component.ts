@@ -19,6 +19,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { toNumber } from 'src/app/shared/helpers/number.helper';
+import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 @Component({
   selector: 'app-membership',
@@ -48,6 +49,11 @@ export class MembershipComponent {
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
+
+  onExpandedChange(isExpanded: boolean): void {
+    this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Membership, isExpanded);
+  }
 
   constructor() {
     effect(() => {

@@ -34,6 +34,7 @@ import { TextFormatterService } from 'src/app/presentation/shared/rich-text-edit
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 @Component({
   selector: 'app-note',
@@ -75,8 +76,13 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
   private isInitializing = false;
   private destroy$ = new Subject<void>();
+
+  onExpandedChange(isExpanded: boolean): void {
+    this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Note, isExpanded);
+  }
 
   public sortedAnnotations: IAnnotation[] = [];
 

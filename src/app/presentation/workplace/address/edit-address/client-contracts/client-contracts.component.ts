@@ -27,6 +27,7 @@ import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 @Component({
   selector: 'app-client-contracts',
@@ -73,6 +74,11 @@ export class ClientContractsComponent implements OnInit {
   public sortingService = inject(TableSortingService);
 
   private cdr = inject(ChangeDetectorRef);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
+
+  onExpandedChange(isExpanded: boolean): void {
+    this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Contracts, isExpanded);
+  }
 
   constructor() {
     effect(() => {

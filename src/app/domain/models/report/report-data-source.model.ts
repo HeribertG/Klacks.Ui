@@ -79,6 +79,18 @@ const ADDRESS_DETAIL_TABLE_FIELDS: DataBindingDefinition[] = [
   { key: 'address.validFrom', label: 'Gültig ab', i18nKey: 'setting.report.field.addressValidFrom', type: ReportFieldType.Date, category: FieldCategory.WorkTable, defaultWidth: 15 },
 ];
 
+const CLIENT_DETAIL_HEADER_FIELDS: DataBindingDefinition[] = [
+  { key: 'client.photo', label: 'Foto', i18nKey: 'setting.report.field.clientPhoto', type: ReportFieldType.Image, category: FieldCategory.Header, defaultWidth: 30 },
+  { key: 'client.phones', label: 'Telefonnummern', i18nKey: 'setting.report.field.clientPhones', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 40 },
+  { key: 'client.emails', label: 'E-Mails', i18nKey: 'setting.report.field.clientEmails', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 40 },
+  { key: 'client.employmentType', label: 'Anstellungstyp', i18nKey: 'setting.report.field.clientEmploymentType', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 30 },
+  { key: 'client.entryDate', label: 'Eintrittsdatum', i18nKey: 'setting.report.field.clientEntryDate', type: ReportFieldType.Date, category: FieldCategory.Header, defaultWidth: 25 },
+  { key: 'client.contractsSummary', label: 'Verträge', i18nKey: 'setting.report.field.clientContractsSummary', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+  { key: 'client.groupsSummary', label: 'Zugewiesene Gruppen', i18nKey: 'setting.report.field.clientGroupsSummary', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+  { key: 'client.qualificationsSummary', label: 'Qualifikationen', i18nKey: 'setting.report.field.clientQualificationsSummary', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+  { key: 'client.notesSummary', label: 'Notizen', i18nKey: 'setting.report.field.clientNotesSummary', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+];
+
 const GROUP_TABLE_FIELDS: DataBindingDefinition[] = [
   { key: 'group.name', label: 'Name', i18nKey: 'setting.report.field.groupTableName', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 25 },
   { key: 'group.description', label: 'Beschreibung', i18nKey: 'setting.report.field.groupDescription', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 25 },
@@ -217,7 +229,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
       {
         id: 'details',
         i18nKey: 'setting.report.dataset.addressDetails',
-        headerFields: [...CLIENT_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
+        headerFields: [...CLIENT_HEADER_FIELDS, ...CLIENT_DETAIL_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
         tableFields: ADDRESS_DETAIL_TABLE_FIELDS,
         footerFields: [...COMMON_FOOTER_FIELDS],
       },

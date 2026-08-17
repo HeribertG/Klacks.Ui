@@ -24,6 +24,7 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 @Component({
   selector: 'app-client-image',
@@ -54,6 +55,11 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private injector = inject(Injector);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
+
+  onExpandedChange(isExpanded: boolean): void {
+    this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Image, isExpanded);
+  }
 
   private effects: EffectRef[] = [];
 

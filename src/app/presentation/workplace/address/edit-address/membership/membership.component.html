@@ -2,7 +2,8 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <form id="membership-form" data-klacksy-target="employee-membership">
   <app-expandable-card
-    [headerTitle]="'address.edit-address.membership.header' | translate">
+    [headerTitle]="'address.edit-address.membership.header' | translate"
+    (expandedChange)="onExpandedChange($event)">
 
     <div>
     @if (dataManagementClientService.editClient() !== undefined) {

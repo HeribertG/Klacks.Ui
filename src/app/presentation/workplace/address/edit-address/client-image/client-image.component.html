@@ -3,7 +3,8 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="client-image-form" #imageForm="ngForm">
   <app-expandable-card
-    [headerTitle]="'address.edit-address.client-image.headline' | translate">
+    [headerTitle]="'address.edit-address.client-image.headline' | translate"
+    (expandedChange)="onExpandedChange($event)">
 
   <div>
     @if (isLoading()) {

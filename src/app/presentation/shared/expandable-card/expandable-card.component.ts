@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectorRef, Component, Input, OnInit, AfterViewInit, inject,
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, AfterViewInit, Output, inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -23,6 +23,7 @@ export class ExpandableCardComponent implements OnInit, AfterViewInit {
   @Input() headerTitle = '';
   @Input() initiallyExpanded = true;
   @Input() showExpandButton = true;
+  @Output() expandedChange = new EventEmitter<boolean>();
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -39,12 +40,16 @@ export class ExpandableCardComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.isExpanded = false;
         this.cdr.markForCheck();
+        this.expandedChange.emit(false);
       }, 0);
+    } else {
+      this.expandedChange.emit(true);
     }
   }
 
   toggle(): void {
     this.isExpanded = !this.isExpanded;
+    this.expandedChange.emit(this.isExpanded);
   }
 
   get displayStyle(): string {

@@ -2,7 +2,8 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="client-groups-form">
   <app-expandable-card
-    [headerTitle]="'address.edit-address.client-groups.header' | translate">
+    [headerTitle]="'address.edit-address.client-groups.header' | translate"
+    (expandedChange)="onExpandedChange($event)">
 
     <div headerActions>
       @if (!isDisabled()) {

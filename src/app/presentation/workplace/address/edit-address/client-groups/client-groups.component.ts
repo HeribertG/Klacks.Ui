@@ -26,6 +26,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 @Component({
   selector: 'app-client-groups',
@@ -54,6 +55,11 @@ export class ClientGroupsComponent implements OnInit {
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   public sortingService = inject(TableSortingService);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
+
+  onExpandedChange(isExpanded: boolean): void {
+    this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Groups, isExpanded);
+  }
 
   public faCalendar = faCalendar;
   public highlightRowId: string | undefined = undefined;

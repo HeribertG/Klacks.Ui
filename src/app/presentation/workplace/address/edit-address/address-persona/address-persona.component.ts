@@ -64,6 +64,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-location-pin.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
+import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 interface AddressPersonaFormModel {
   company: string;
@@ -117,9 +118,14 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   private cdr = inject(ChangeDetectorRef);
   private appSettingsService = inject(AppSettingsManagementService);
   private weekConfiguration = inject(WeekConfigurationService);
+  private cardVisibility = inject(EditAddressCardVisibilityService);
 
   readonly isReadOnly = input(false);
   readonly isChangingEvent = output<boolean>();
+
+  onExpandedChange(isExpanded: boolean): void {
+    this.cardVisibility.setExpanded(EDIT_ADDRESS_CARD_KEYS.Persona, isExpanded);
+  }
 
   public faCalendar = faCalendar;
   public faStreetView = faStreetView;

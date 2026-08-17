@@ -53,6 +53,8 @@ export enum ReportFieldType {
   PageNumber = 9
 }
 
+export const STATIC_IMAGE_DATA_BINDING = 'report.image';
+
 export enum TextAlignment {
   Left = 0,
   Center = 1,

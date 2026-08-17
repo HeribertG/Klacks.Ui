@@ -396,7 +396,7 @@
                   >
                     @for (field of row.left; track $index) {
                       @if (field.dataBinding) {
-                        @if (field.type === ReportFieldType.Image) {
+                        @if (field.type === ReportFieldType.Image && field.dataBinding === staticImageBinding) {
                           @if (field.imageUrl) {
                             <div
                               class="zone-chip image-chip"
@@ -534,7 +534,7 @@
                   >
                     @for (field of row.center; track $index) {
                       @if (field.dataBinding) {
-                        @if (field.type === ReportFieldType.Image) {
+                        @if (field.type === ReportFieldType.Image && field.dataBinding === staticImageBinding) {
                           @if (field.imageUrl) {
                             <div
                               class="zone-chip image-chip"
@@ -669,7 +669,7 @@
                   >
                     @for (field of row.right; track $index) {
                       @if (field.dataBinding) {
-                        @if (field.type === ReportFieldType.Image) {
+                        @if (field.type === ReportFieldType.Image && field.dataBinding === staticImageBinding) {
                           @if (field.imageUrl) {
                             <div
                               class="zone-chip image-chip"

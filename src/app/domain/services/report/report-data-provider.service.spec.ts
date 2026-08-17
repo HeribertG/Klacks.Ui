@@ -12,19 +12,32 @@ import { DataClientService } from 'src/app/infrastructure/api/client/data-client
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
+import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
+import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+
+const PHONE_TYPE = 1;
+const EMAIL_TYPE = 4;
 
 describe('ReportDataProviderService', () => {
   let service: ReportDataProviderService;
   let shiftService: { readShiftList: ReturnType<typeof vi.fn> };
-  let clientService: { readClientList: ReturnType<typeof vi.fn> };
+  let clientService: { readClientList: ReturnType<typeof vi.fn>; getClient: ReturnType<typeof vi.fn> };
   let groupService: { readGroupList: ReturnType<typeof vi.fn> };
+  let qualificationService: { getQualificationList: ReturnType<typeof vi.fn> };
+  let contractService: { getList: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     shiftService = { readShiftList: vi.fn(() => of({ shifts: [{ name: 'A' }], maxItems: 1 })) };
-    clientService = { readClientList: vi.fn(() => of({ clients: [], maxItems: 0 })) };
+    clientService = {
+      readClientList: vi.fn(() => of({ clients: [], maxItems: 0 })),
+      getClient: vi.fn(() => of({ addresses: [] })),
+    };
     groupService = { readGroupList: vi.fn(() => of({ groups: [], maxItems: 0 })) };
+    qualificationService = { getQualificationList: vi.fn(() => of([])) };
+    contractService = { getList: vi.fn(() => of([])) };
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -36,7 +49,15 @@ describe('ReportDataProviderService', () => {
         { provide: DataGroupService, useValue: groupService },
         { provide: DataShiftService, useValue: shiftService },
         { provide: DataContainerTemplateService, useValue: {} },
+        { provide: DataQualificationService, useValue: qualificationService },
+        { provide: DataContractService, useValue: contractService },
         { provide: AbsenceLookupService, useValue: {} },
+        {
+          provide: ClientConfigService, useValue: {
+            communicationTypePhoneList: () => [{ type: PHONE_TYPE, category: 0 }],
+            communicationTypeEmailList: () => [{ type: EMAIL_TYPE, category: 1 }],
+          }
+        },
       ],
     });
     service = TestBed.inject(ReportDataProviderService);
@@ -170,10 +191,186 @@ describe('ReportDataProviderService', () => {
     expect(allAddress.collectResolvedLabelTexts!()).toEqual(['general.male', 'general.female']);
 
     const editAddress = service.getProvider('edit-address', ['details']);
-    expect(editAddress.collectResolvedLabelTexts!()).toEqual([
-      'address.type.company',
-      'address.type.invoice',
-      'address.type.home',
-    ]);
+    expect(editAddress.collectResolvedLabelTexts!()).toEqual(
+      expect.arrayContaining([
+        'address.type.company',
+        'address.type.invoice',
+        'address.type.home',
+        'address.edit-address.membership.type.employee',
+        'address.edit-address.qualifications.level.1',
+        'general.yes',
+        'general.no',
+      ])
+    );
+  });
+
+  describe('edit-address header fields', () => {
+    // Mirrors the real GET Clients/{id} response: communications carry only a numeric `type`
+    // (isPhone/isEmail are populated client-side by CommunicationService, never by the API), and
+    // clientContracts carry only `contractId` — the `contract` navigation is never populated.
+    const client = {
+      type: 0,
+      addresses: [],
+      communications: [
+        { type: PHONE_TYPE, value: '0791111111' },
+        { type: EMAIL_TYPE, value: 'a@klacks.ch' },
+      ],
+      membership: { validFrom: new Date('2020-01-15') },
+      clientContracts: [
+        { contractId: 'ct1', fromDate: new Date('2020-01-15'), untilDate: undefined, isActive: true },
+        { contractId: undefined, fromDate: new Date('2020-01-01'), isActive: false },
+      ],
+      groupItems: [
+        { groupName: 'Team A', validFrom: new Date('2020-01-15'), validUntil: undefined },
+      ],
+      qualifications: [
+        { qualificationId: 'q1', level: 3 },
+      ],
+      annotations: [
+        { note: 'Wichtige Notiz' },
+        { note: '  ' },
+      ],
+      clientImage: { imageData: 'AAAA', contentType: 'image/png' },
+    };
+
+    const contractCatalog = [{ id: 'ct1', name: 'Vollzeit' }];
+    const qualificationCatalog = [{ id: 'q1', name: { de: 'Erste Hilfe' } }];
+
+    function resolveAll(bindings: string[]): Record<string, string> {
+      const provider = service.getProvider('edit-address', ['details']);
+      const result: Record<string, string> = {};
+      for (const dataBinding of bindings) {
+        result[dataBinding] = provider.resolveHeaderValue(
+          { dataBinding } as never,
+          { client, metadata: { qualifications: qualificationCatalog, contracts: contractCatalog } } as never
+        );
+      }
+      return result;
+    }
+
+    it('fetches the client together with the qualification and contract catalogs', async () => {
+      const provider = service.getProvider('edit-address', ['details']);
+      clientService.getClient.mockReturnValue(of(client));
+      qualificationService.getQualificationList.mockReturnValue(of(qualificationCatalog));
+      contractService.getList.mockReturnValue(of(contractCatalog));
+
+      const data = await provider.fetchData({ clientId: 'c1' });
+
+      expect(clientService.getClient).toHaveBeenCalledWith('c1');
+      expect(qualificationService.getQualificationList).toHaveBeenCalled();
+      expect(contractService.getList).toHaveBeenCalled();
+      expect(data.metadata?.['qualifications']).toEqual(qualificationCatalog);
+      expect(data.metadata?.['contracts']).toEqual(contractCatalog);
+    });
+
+    it('resolves phones, emails, employment type and entry date from the real DTO shape (type-based, not isPhone/isEmail)', () => {
+      const values = resolveAll(['client.phones', 'client.emails', 'client.employmentType', 'client.entryDate']);
+      expect(values['client.phones']).toBe('079 111 11 11');
+      expect(values['client.emails']).toBe('a@klacks.ch');
+      expect(values['client.employmentType']).toBe('address.edit-address.membership.type.employee');
+      expect(values['client.entryDate']).not.toBe('');
+    });
+
+    it('builds multi-line summaries for contracts, groups, qualifications and notes', () => {
+      const values = resolveAll([
+        'client.contractsSummary',
+        'client.groupsSummary',
+        'client.qualificationsSummary',
+        'client.notesSummary',
+      ]);
+      expect(values['client.contractsSummary']).toContain('Vollzeit');
+      expect(values['client.contractsSummary'].split('\n')).toHaveLength(2);
+      expect(values['client.groupsSummary']).toContain('Team A');
+      expect(values['client.qualificationsSummary']).toContain('Erste Hilfe');
+      expect(values['client.notesSummary']).toContain('Wichtige Notiz');
+    });
+
+    it('resolves the contract name via the contractId lookup, not via a populated contract navigation', () => {
+      const values = resolveAll(['client.contractsSummary']);
+      expect(values['client.contractsSummary']).toContain('Vollzeit: 15.01.2020 (');
+    });
+
+    it('prefixes each summary with its translated label so stacked blocks stay distinguishable', () => {
+      const values = resolveAll(['client.contractsSummary', 'client.groupsSummary', 'client.qualificationsSummary', 'client.notesSummary']);
+      expect(values['client.contractsSummary'].split('\n')[0]).toBe('setting.report.field.clientContractsSummary:');
+      expect(values['client.groupsSummary'].split('\n')[0]).toBe('setting.report.field.clientGroupsSummary:');
+      expect(values['client.qualificationsSummary'].split('\n')[0]).toBe('setting.report.field.clientQualificationsSummary:');
+      expect(values['client.notesSummary'].split('\n')[0]).toBe('setting.report.field.clientNotesSummary:');
+    });
+
+    it('omits the label entirely when a summary has no content', () => {
+      const emptyClient = { ...client, clientContracts: [], groupItems: [], qualifications: [], annotations: [] };
+      const provider = service.getProvider('edit-address', ['details']);
+      const value = provider.resolveHeaderValue(
+        { dataBinding: 'client.contractsSummary' } as never,
+        { client: emptyClient, metadata: { qualifications: [], contracts: [] } } as never
+      );
+      expect(value).toBe('');
+    });
+
+    it('resolves the client photo as a base64 data URI', () => {
+      const values = resolveAll(['client.photo']);
+      expect(values['client.photo']).toBe('data:image/png;base64,AAAA');
+    });
+
+    function resolveWithVisibility(bindings: string[], cardVisibility: Record<string, boolean>): Record<string, string> {
+      const provider = service.getProvider('edit-address', ['details']);
+      const result: Record<string, string> = {};
+      for (const dataBinding of bindings) {
+        result[dataBinding] = provider.resolveHeaderValue(
+          { dataBinding } as never,
+          { client, metadata: { qualifications: qualificationCatalog, contracts: contractCatalog, cardVisibility } } as never
+        );
+      }
+      return result;
+    }
+
+    it('hides address rows when the persona card is collapsed', async () => {
+      const provider = service.getProvider('edit-address', ['details']);
+      clientService.getClient.mockReturnValue(of({ ...client, addresses: [{ zip: '8000' }] }));
+      qualificationService.getQualificationList.mockReturnValue(of([]));
+      contractService.getList.mockReturnValue(of([]));
+
+      const data = await provider.fetchData({ clientId: 'c1', cardVisibility: { persona: false } });
+
+      expect(data.rows).toEqual([]);
+    });
+
+    it('keeps address rows when the persona card is expanded (or unspecified)', async () => {
+      const provider = service.getProvider('edit-address', ['details']);
+      clientService.getClient.mockReturnValue(of({ ...client, addresses: [{ zip: '8000' }] }));
+      qualificationService.getQualificationList.mockReturnValue(of([]));
+      contractService.getList.mockReturnValue(of([]));
+
+      const data = await provider.fetchData({ clientId: 'c1' });
+
+      expect(data.rows).toEqual([{ zip: '8000' }]);
+    });
+
+    it('empties phones/emails/photo/summaries for collapsed cards but keeps them for expanded ones', () => {
+      const values = resolveWithVisibility(
+        ['client.phones', 'client.emails', 'client.photo', 'client.employmentType', 'client.entryDate',
+          'client.contractsSummary', 'client.groupsSummary', 'client.qualificationsSummary', 'client.notesSummary'],
+        { persona: false, membership: false, contracts: false, groups: true, qualifications: false, note: false, image: false }
+      );
+      expect(values['client.phones']).toBe('');
+      expect(values['client.emails']).toBe('');
+      expect(values['client.photo']).toBe('');
+      expect(values['client.employmentType']).toBe('');
+      expect(values['client.entryDate']).toBe('');
+      expect(values['client.contractsSummary']).toBe('');
+      expect(values['client.groupsSummary']).toContain('Team A');
+      expect(values['client.qualificationsSummary']).toBe('');
+      expect(values['client.notesSummary']).toBe('');
+    });
+
+    it('always resolves the client name regardless of the persona card visibility', () => {
+      const provider = service.getProvider('edit-address', ['details']);
+      const value = provider.resolveHeaderValue(
+        { dataBinding: 'client.name' } as never,
+        { client: { ...client, name: 'Muster' }, metadata: { cardVisibility: { persona: false } } } as never
+      );
+      expect(value).toBe('Muster');
+    });
   });
 });

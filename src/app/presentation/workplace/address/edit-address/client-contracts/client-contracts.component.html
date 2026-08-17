@@ -2,7 +2,8 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <form id="client-contracts-form">
   <app-expandable-card
-    [headerTitle]="'address.edit-address.contracts.header' | translate">
+    [headerTitle]="'address.edit-address.contracts.header' | translate"
+    (expandedChange)="onExpandedChange($event)">
 
     <div headerActions>
       @if (!isDisabled()) {

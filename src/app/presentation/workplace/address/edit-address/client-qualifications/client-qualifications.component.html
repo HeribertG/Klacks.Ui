@@ -2,7 +2,8 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="client-qualifications-form">
   <app-expandable-card
-    [headerTitle]="'address.edit-address.qualifications.header' | translate">
+    [headerTitle]="'address.edit-address.qualifications.header' | translate"
+    (expandedChange)="onExpandedChange($event)">
 
     <div headerActions class="header-actions">
       @if (hasMasterQualifications()) {

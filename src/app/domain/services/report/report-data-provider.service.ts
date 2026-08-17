@@ -15,14 +15,22 @@ import { DataClientService } from 'src/app/infrastructure/api/client/data-client
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
+import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
+import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { Filter } from 'src/app/domain/models/client/filter';
 import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
 import { GroupFilter } from 'src/app/domain/models/group/group-class';
 import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
+import { IClient, ICommunication, IClientContract } from 'src/app/domain/models/client/client-class';
+import { IQualification } from 'src/app/domain/models/settings/qualification';
+import { IContract } from 'src/app/domain/models/contract/contract-class';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
@@ -48,6 +56,7 @@ export interface ReportFetchParams {
   clientSelection?: IClientExportSelection;
   groupFilter?: GroupFilter;
   shiftFilter?: ShiftFilter;
+  cardVisibility?: Record<string, boolean>;
 }
 
 export interface ReportData {
@@ -83,6 +92,9 @@ export class ReportDataProviderService {
   private groupService = inject(DataGroupService);
   private shiftService = inject(DataShiftService);
   private containerTemplateService = inject(DataContainerTemplateService);
+  private qualificationService = inject(DataQualificationService);
+  private contractService = inject(DataContractService);
+  private clientConfigService = inject(ClientConfigService);
   private absenceLookup = inject(AbsenceLookupService);
 
   getProvider(sourceId: string, dataSetIds: string[]): ReportDataProvider {
@@ -427,14 +439,22 @@ export class ReportDataProviderService {
   }
 
   private editAddressProvider(): ReportDataProvider {
+    const isCardVisible = (cardVisibility: Record<string, boolean> | undefined, card: string): boolean =>
+      cardVisibility?.[card] !== false;
+
     return {
       fetchData: async (params) => {
         if (!params.clientId) return { rows: [] };
-        const client = await firstValueFrom(this.clientService.getClient(params.clientId));
+        const [client, qualifications, contracts] = await Promise.all([
+          firstValueFrom(this.clientService.getClient(params.clientId)),
+          firstValueFrom(this.qualificationService.getQualificationList()),
+          firstValueFrom(this.contractService.getList()),
+        ]);
+        const cardVisibility = params.cardVisibility;
         return {
-          rows: client.addresses ?? [],
+          rows: isCardVisible(cardVisibility, 'persona') ? (client.addresses ?? []) : [],
           clients: [client],
-          metadata: { client },
+          metadata: { client, qualifications, contracts, cardVisibility },
         };
       },
       resolveFieldValue: (field, row) => {
@@ -449,7 +469,27 @@ export class ReportDataProviderService {
         }
       },
       resolveHeaderValue: (field, context) => {
-        return this.resolveCommonHeaderValue(field, context) ?? '';
+        const client = context.client as IClient | undefined;
+        const qualifications = (context.metadata?.['qualifications'] as IQualification[] | undefined) ?? [];
+        const contracts = (context.metadata?.['contracts'] as IContract[] | undefined) ?? [];
+        const cardVisibility = context.metadata?.['cardVisibility'] as Record<string, boolean> | undefined;
+        const visible = (card: string) => isCardVisible(cardVisibility, card);
+        switch (field.dataBinding) {
+          case 'client.photo': return visible('image') ? this.resolveClientPhoto(client) : '';
+          case 'client.phones': return visible('persona') ? this.joinCommunications(client, true) : '';
+          case 'client.emails': return visible('persona') ? this.joinCommunications(client, false) : '';
+          case 'client.employmentType': return visible('membership') ? this.resolveEmploymentType(client?.type) : '';
+          case 'client.entryDate': return visible('membership') ? this.formatDate(client?.membership?.validFrom) : '';
+          case 'client.contractsSummary':
+            return visible('contracts') ? this.withSummaryLabel('setting.report.field.clientContractsSummary', this.buildContractsSummary(client, contracts)) : '';
+          case 'client.groupsSummary':
+            return visible('groups') ? this.withSummaryLabel('setting.report.field.clientGroupsSummary', this.buildGroupsSummary(client)) : '';
+          case 'client.qualificationsSummary':
+            return visible('qualifications') ? this.withSummaryLabel('setting.report.field.clientQualificationsSummary', this.buildQualificationsSummary(client, qualifications)) : '';
+          case 'client.notesSummary':
+            return visible('note') ? this.withSummaryLabel('setting.report.field.clientNotesSummary', this.buildNotesSummary(client)) : '';
+          default: return this.resolveCommonHeaderValue(field, context) ?? '';
+        }
       },
       resolveFooterValue: () => '',
       buildFormulaVariables: (row: any) => ({
@@ -463,7 +503,21 @@ export class ReportDataProviderService {
         totalRows: rows.length,
       }),
       collectResolvedLabelTexts: () =>
-        this.translatedLabels(['address.type.company', 'address.type.invoice', 'address.type.home']),
+        this.translatedLabels([
+          'address.type.company',
+          'address.type.invoice',
+          'address.type.home',
+          'address.edit-address.membership.type.employee',
+          'address.edit-address.membership.type.externEmp',
+          'address.edit-address.membership.type.customer',
+          'address.edit-address.qualifications.level.1',
+          'address.edit-address.qualifications.level.2',
+          'address.edit-address.qualifications.level.3',
+          'address.edit-address.qualifications.level.4',
+          'address.edit-address.qualifications.level.5',
+          'general.yes',
+          'general.no',
+        ]),
     };
   }
 
@@ -682,6 +736,86 @@ export class ReportDataProviderService {
       case 2: return this.translate.instant('address.type.home');
       default: return '';
     }
+  }
+
+  private withSummaryLabel(i18nKey: string, body: string): string {
+    return body ? `${this.translate.instant(i18nKey)}:\n${body}` : '';
+  }
+
+  private resolveClientPhoto(client: IClient | undefined): string {
+    const image = client?.clientImage;
+    if (!image?.imageData || !image.contentType) return '';
+    return `data:${image.contentType};base64,${image.imageData}`;
+  }
+
+  private joinCommunications(client: IClient | undefined, wantPhone: boolean): string {
+    const wantedTypes = new Set(
+      (wantPhone
+        ? this.clientConfigService.communicationTypePhoneList()
+        : this.clientConfigService.communicationTypeEmailList()
+      ).map(t => t.type)
+    );
+    const list = (client?.communications ?? []).filter((c: ICommunication) => wantedTypes.has(c.type));
+    const values = list.map((c: ICommunication) => wantPhone ? formatPhoneNumber(c.value) : c.value);
+    return values.filter(Boolean).join(', ');
+  }
+
+  private resolveEmploymentType(type: number | string | undefined): string {
+    switch (Number(type)) {
+      case 0: return this.translate.instant('address.edit-address.membership.type.employee');
+      case 1: return this.translate.instant('address.edit-address.membership.type.externEmp');
+      case 2: return this.translate.instant('address.edit-address.membership.type.customer');
+      default: return '';
+    }
+  }
+
+  private buildContractsSummary(client: IClient | undefined, contracts: IContract[]): string {
+    const clientContracts = client?.clientContracts ?? [];
+    return clientContracts
+      .filter((c: IClientContract) => !!c.contractId)
+      .map((c: IClientContract) => {
+        const name = contracts.find(x => x.id === c.contractId)?.name ?? '';
+        const from = this.formatDate(c.fromDate);
+        const until = c.untilDate ? this.formatDate(c.untilDate) : '';
+        const period = until ? `${from} – ${until}` : from;
+        const active = c.isActive ? this.translate.instant('general.yes') : this.translate.instant('general.no');
+        return `${name}: ${period} (${active})`;
+      })
+      .join('\n');
+  }
+
+  private buildGroupsSummary(client: IClient | undefined): string {
+    const groups = client?.groupItems ?? [];
+    return groups
+      .filter(g => !!g.groupName)
+      .map(g => {
+        const from = this.formatDate(g.validFrom);
+        const until = g.validUntil ? this.formatDate(g.validUntil) : '';
+        const period = until ? `${from} – ${until}` : from;
+        return `${g.groupName}: ${period}`;
+      })
+      .join('\n');
+  }
+
+  private buildQualificationsSummary(client: IClient | undefined, qualifications: IQualification[]): string {
+    const items = client?.qualifications ?? [];
+    const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
+    return items
+      .filter(q => !!q.qualificationId)
+      .map(q => {
+        const qualification = qualifications.find(x => x.id === q.qualificationId);
+        const name = qualification ? getLocalizedValue(qualification.name, lang) : '';
+        const level = this.translate.instant(`address.edit-address.qualifications.level.${q.level}`);
+        return `${name} (${level})`;
+      })
+      .join('\n');
+  }
+
+  private buildNotesSummary(client: IClient | undefined): string {
+    const notes = (client?.annotations ?? [])
+      .map(a => a.note?.trim())
+      .filter((n): n is string => !!n);
+    return notes.join('\n');
   }
 
   private getEntryTypeLabel(type: number): string {

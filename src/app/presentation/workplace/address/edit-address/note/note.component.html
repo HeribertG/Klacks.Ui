@@ -3,7 +3,8 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="note-form">
   <app-expandable-card
-    [headerTitle]="'address.edit-address.note.header' | translate">
+    [headerTitle]="'address.edit-address.note.header' | translate"
+    (expandedChange)="onExpandedChange($event)">
 
     <div headerActions>
       @if (!isDisabled()) {

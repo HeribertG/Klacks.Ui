@@ -22,6 +22,7 @@ import {
   FieldCategory,
   AVAILABLE_FONTS,
   TextAlignment,
+  STATIC_IMAGE_DATA_BINDING,
 } from 'src/app/domain/models/report/report-field.model';
 import { PAGE_LAYOUT_FIELD_KEYS, REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
 import { BorderLineStyle } from 'src/app/domain/models/report/cell-border-style.model';
@@ -90,6 +91,7 @@ export class ReportDesignerComponent {
   ReportSectionType = ReportSectionType;
   ReportFieldType = ReportFieldType;
   FieldCategory = FieldCategory;
+  staticImageBinding = STATIC_IMAGE_DATA_BINDING;
   BorderLineStyle = BorderLineStyle;
   availableFonts = AVAILABLE_FONTS;
   separatorOptions = [
