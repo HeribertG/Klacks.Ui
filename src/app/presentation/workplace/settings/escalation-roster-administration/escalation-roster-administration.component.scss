@@ -1,6 +1,5 @@
-#escalation-roster-admin-container {
-  padding: 12px;
-}
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 .escalation-roster-empty {
   color: var(--colorLabel);
