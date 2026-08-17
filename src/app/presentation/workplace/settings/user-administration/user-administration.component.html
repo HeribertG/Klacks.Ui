@@ -4,7 +4,7 @@
   <div id="user-admin-modal-form">
     <div id="user-admin-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title-user">
-        {{ 'setting.user-admin.modal-title-user' | translate }}
+        {{ (isEditMode ? 'setting.user-admin.modal-title-user-edit' : 'setting.user-admin.modal-title-user') | translate }}
       </div>
       <div
         id="user-admin-modal-close-btn"
@@ -102,7 +102,7 @@
     </div>
 
     @if (isEditMode) {
-      <div id="user-admin-modal-phone-row" class="row-line firstColumn-email">
+      <div id="user-admin-modal-phone-row" class="row-line firstColumn-phone">
         <label for="setting-user-phone">{{ 'setting.user-admin.modal-phone' | translate }}</label>
 
         <input

@@ -102,7 +102,12 @@ export class SignalRConnectionHelper {
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
-    this.startWatchdog();
+    // Deliberately NOT starting the watchdog here: this class is constructed the moment
+    // anything injects the owning facade (e.g. AuthService.stopRealtimeAndClearSession()
+    // calling Injector.get() on a hub service that was never connected, such as while
+    // sitting on the login page). Watchdog-in-constructor turned a teardown call into a
+    // fresh reconnect loop. The watchdog now only starts once a real connection attempt
+    // is made (startConnection()) or after a recovered AuthFailed (resetAuthFailure()).
   }
 
   async startConnection(
@@ -116,6 +121,7 @@ export class SignalRConnectionHelper {
       await this._pendingStart;
       return;
     }
+    this.startWatchdog();
     this.transitionTo('Connecting');
     this._pendingStart = (async () => {
       try {
@@ -129,6 +135,7 @@ export class SignalRConnectionHelper {
 
   async stopConnection(): Promise<void> {
     this.stopHealthCheck();
+    this.stopWatchdog();
     if (this._hubConnection) {
       try {
         await this._hubConnection.stop();

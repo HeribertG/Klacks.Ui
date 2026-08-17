@@ -2029,6 +2029,7 @@
   "setting.user-admin.modal-question": "Do you really want to change the access credentials?",
   "setting.user-admin.modal-save": "Add User",
   "setting.user-admin.modal-title-user": "Add New User",
+  "setting.user-admin.modal-title-user-edit": "Edit User",
   "setting.user-admin.modal-user-name": "Username",
   "setting.user-admin.new": "Add New Credentials",
   "setting.user-admin.password-reset": "Reset Password",

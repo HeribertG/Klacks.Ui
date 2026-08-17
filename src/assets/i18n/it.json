@@ -2064,6 +2064,7 @@
   "setting.user-admin.modal-question": "Vuoi davvero modificare le credenziali di accesso?",
   "setting.user-admin.modal-save": "Aggiungi Utente",
   "setting.user-admin.modal-title-user": "Aggiungi Nuovo Utente",
+  "setting.user-admin.modal-title-user-edit": "Modifica Utente",
   "setting.user-admin.modal-user-name": "Username",
   "setting.user-admin.new": "Aggiungi Nuove Credenziali",
   "setting.user-admin.password-reset": "Reimposta password",

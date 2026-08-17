@@ -2029,6 +2029,7 @@
   "setting.user-admin.modal-question": "Wollen sie wirklich die Zugangdaten ändern!",
   "setting.user-admin.modal-save": "User erfassen",
   "setting.user-admin.modal-title-user": "Neuer User erfassen",
+  "setting.user-admin.modal-title-user-edit": "User bearbeiten",
   "setting.user-admin.modal-user-name": "Username",
   "setting.user-admin.new": "Neue Zugangsdaten erfassen",
   "setting.user-admin.password-reset": "Passwort zurücksetzen",
