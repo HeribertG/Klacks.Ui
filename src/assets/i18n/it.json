@@ -2552,6 +2552,8 @@
   "assistant-chat.goal-candidates.type.clientMissingCoreData.rationale": "Un indirizzo o un contatto mancante è stato segnalato {{count}} volte negli ultimi {{days}} giorni.",
   "assistant-chat.goal-candidates.type.planPausedForApproval.title": "Approvare più rapidamente le attività in attesa",
   "assistant-chat.goal-candidates.type.planPausedForApproval.rationale": "Un'attività era in attesa di approvazione {{count}} volte negli ultimi {{days}} giorni.",
+  "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Ridurre le escalation di assenza non confermate",
+  "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Una fase di escalation ha dovuto svegliare qualcuno {{count}} volte negli ultimi {{days}} giorni perché una segnalazione di assenza non è stata confermata in tempo.",
   "autoWizard.tooltip": "AutoWizard - esegui plan + harmonizer + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "Menu AutoWizard",
   "autoWizard.menu.plan": "Plan",

@@ -2553,6 +2553,8 @@
   "assistant-chat.goal-candidates.type.clientMissingCoreData.rationale": "In den letzten {{days}} Tagen wurden {{count}}-mal fehlende Adress- oder Kontaktangaben gemeldet.",
   "assistant-chat.goal-candidates.type.planPausedForApproval.title": "Wartende Aufgaben schneller freigeben",
   "assistant-chat.goal-candidates.type.planPausedForApproval.rationale": "In den letzten {{days}} Tagen wartete {{count}}-mal eine Aufgabe auf eine Freigabe.",
+  "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Nicht bestätigte Ausfall-Eskalationen reduzieren",
+  "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "In den letzten {{days}} Tagen musste {{count}}-mal eine Eskalationsstufe jemanden wecken, weil eine Ausfallmeldung nicht rechtzeitig bestätigt wurde.",
   "autoWizard.tooltip": "AutoWizard - Plan + Harmonizer + Holistic Harmonizer ausführen",
   "autoWizard.dropdown.tooltip": "AutoWizard-Menü",
   "autoWizard.menu.plan": "Plan",

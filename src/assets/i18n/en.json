@@ -2553,6 +2553,8 @@
   "assistant-chat.goal-candidates.type.clientMissingCoreData.rationale": "A missing address or contact detail was reported {{count}} time(s) in the last {{days}} days.",
   "assistant-chat.goal-candidates.type.planPausedForApproval.title": "Approve waiting tasks faster",
   "assistant-chat.goal-candidates.type.planPausedForApproval.rationale": "A task was waiting for approval {{count}} time(s) in the last {{days}} days.",
+  "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Reduce unacknowledged absence escalations",
+  "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "An escalation stage had to wake someone up {{count}} time(s) in the last {{days}} days because an absence report was not acknowledged in time.",
   "autoWizard.tooltip": "AutoWizard - run plan + harmonizer + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "AutoWizard menu",
   "autoWizard.menu.plan": "Plan",
