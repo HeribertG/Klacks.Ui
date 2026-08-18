@@ -1894,7 +1894,7 @@
   "setting.individualPeriod.validation.fromDateRequired": "La date de début est requise",
   "setting.individualPeriod.validation.invalidDateRange": "La date de fin doit être postérieure à la date de début",
   "setting.individualPeriod.validation.fullHoursPositive": "Les heures pleines ne doivent pas être négatives",
-  "setting.monthlyTargetHours.empty-means-no-override": "Un champ vide signifie aucun remplacement : les heures du contrat s'appliquent pour ce mois.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Une valeur s'applique aux collaborateurs sans contrat ainsi qu'aux contrats avec l'intervalle de paiement « Mensuel (tableau des heures cibles) ». Un champ vide signifie aucun remplacement : les heures du contrat s'appliquent, ou celles des paramètres pour les collaborateurs sans contrat.",
   "setting.monthlyTargetHours.previous-year": "Année précédente",
   "setting.monthlyTargetHours.next-year": "Année suivante",
   "setting.monthlyTargetHours.save-failed": "Les heures cibles n'ont pas pu être enregistrées",

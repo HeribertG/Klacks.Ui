@@ -2,8 +2,10 @@
 
 /**
  * Settings card for the company-wide monthly target hours table. Shows the twelve months of one
- * year directly in the card; the year is switched in the card header. An empty hours field means
- * the month has no override and the contract target applies. Changes are saved immediately.
+ * year directly in the card; the year is switched in the card header. A filled month applies to
+ * employees without a contract and to contracts on the monthly target hours payment interval; an
+ * empty field means no override, so the contract target applies, or the settings target for
+ * employees without a contract. Changes are saved immediately.
  */
 import {
   Component,

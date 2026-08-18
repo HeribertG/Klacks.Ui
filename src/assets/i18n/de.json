@@ -1894,7 +1894,7 @@
   "setting.individualPeriod.validation.fromDateRequired": "Von-Datum ist erforderlich",
   "setting.individualPeriod.validation.invalidDateRange": "Bis-Datum muss nach dem Von-Datum liegen",
   "setting.individualPeriod.validation.fullHoursPositive": "Volle Stunden dürfen nicht negativ sein",
-  "setting.monthlyTargetHours.empty-means-no-override": "Leeres Feld bedeutet keine Überschreibung: für diesen Monat gilt die Sollzeit aus dem Vertrag.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Ein eingetragener Wert gilt für Mitarbeitende ohne Vertrag sowie für Verträge mit Zahlungsintervall «Monatlich (Sollstunden-Tabelle)». Leeres Feld bedeutet keine Überschreibung: es gilt die Sollzeit aus dem Vertrag bzw. ohne Vertrag aus den Einstellungen.",
   "setting.monthlyTargetHours.previous-year": "Vorheriges Jahr",
   "setting.monthlyTargetHours.next-year": "Nächstes Jahr",
   "setting.monthlyTargetHours.save-failed": "Sollstunden konnten nicht gespeichert werden",

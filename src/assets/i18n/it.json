@@ -1894,7 +1894,7 @@
   "setting.individualPeriod.validation.fromDateRequired": "La data di inizio è obbligatoria",
   "setting.individualPeriod.validation.invalidDateRange": "La data di fine deve essere successiva alla data di inizio",
   "setting.individualPeriod.validation.fullHoursPositive": "Le ore piene non devono essere negative",
-  "setting.monthlyTargetHours.empty-means-no-override": "Un campo vuoto significa nessuna sostituzione: per quel mese valgono le ore del contratto.",
+  "setting.monthlyTargetHours.empty-means-no-override": "Un valore si applica ai collaboratori senza contratto e ai contratti con intervallo di pagamento «Mensile (tabella ore previste)». Un campo vuoto significa nessuna sostituzione: valgono le ore del contratto oppure, senza contratto, quelle delle impostazioni.",
   "setting.monthlyTargetHours.previous-year": "Anno precedente",
   "setting.monthlyTargetHours.next-year": "Anno successivo",
   "setting.monthlyTargetHours.save-failed": "Non è stato possibile salvare le ore previste",

@@ -1894,7 +1894,7 @@
   "setting.individualPeriod.validation.fromDateRequired": "From date is required",
   "setting.individualPeriod.validation.invalidDateRange": "Until date must be after the from date",
   "setting.individualPeriod.validation.fullHoursPositive": "Full hours must not be negative",
-  "setting.monthlyTargetHours.empty-means-no-override": "An empty field means no override: the contract target applies for that month.",
+  "setting.monthlyTargetHours.empty-means-no-override": "A value applies to employees without a contract and to contracts on the 'Monthly (target hours table)' payment interval. An empty field means no override: the contract target applies, or the settings target for employees without a contract.",
   "setting.monthlyTargetHours.previous-year": "Previous year",
   "setting.monthlyTargetHours.next-year": "Next year",
   "setting.monthlyTargetHours.save-failed": "Target hours could not be saved",
