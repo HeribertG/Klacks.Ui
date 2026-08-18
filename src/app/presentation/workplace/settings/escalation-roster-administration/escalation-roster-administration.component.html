@@ -7,43 +7,38 @@
 
   <div id="escalation-roster-line" class="container-line"></div>
   <div id="escalation-roster-box" class="container-box first">
-    <div class="form-group">
-      <label for="escalation-roster-group-select">{{ 'setting.escalation-roster.group-label' | translate }}</label>
-      <select
-        id="escalation-roster-group-select"
-        class="form-control default-width"
-        [ngModel]="selectedGroupId()"
-        (ngModelChange)="onGroupChange($event)"
-      >
-        <option value="">{{ 'setting.escalation-roster.group-placeholder' | translate }}</option>
-        @for (root of roots(); track root.id) {
-          <option [value]="root.id">{{ root.name }}</option>
-        }
-      </select>
-    </div>
-
-    @if (isLoadingRoots() || isLoadingRoster()) {
+    @if (isLoadingRoster()) {
       <app-spinner></app-spinner>
     }
 
-    @if (selectedGroupId() && !isLoadingRoster()) {
+    @if (!isLoadingRoster()) {
       @if (members().length === 0) {
         <p class="escalation-roster-empty">{{ 'setting.escalation-roster.empty' | translate }}</p>
       }
 
       @if (members().length > 0) {
-        <ul id="escalation-roster-member-list" class="escalation-roster-list">
+        <ul
+          id="escalation-roster-member-list"
+          class="escalation-roster-list"
+          cdkDropList
+          (cdkDropListDropped)="onDrop($event)"
+        >
           @for (member of members(); track member.userId) {
-            <li class="escalation-roster-row">
-              <div class="escalation-roster-row-main" (click)="toggleAbsenceEditor(member.userId)">
-                <span class="escalation-roster-name">{{ member.displayName }}</span>
-                @if (!member.hasPhoneNumber) {
-                  <span class="escalation-roster-badge escalation-roster-badge-warning">{{ 'setting.escalation-roster.phone-missing' | translate }}</span>
-                }
-                @if (member.isCurrentlyAbsent) {
-                  <span class="escalation-roster-badge escalation-roster-badge-absent">{{ 'setting.escalation-roster.currently-absent' | translate }}</span>
-                }
-                <span class="escalation-roster-manage-link">{{ 'setting.escalation-roster.manage-absence' | translate }}</span>
+            <li class="escalation-roster-row" cdkDrag>
+              <div class="escalation-roster-row-header">
+                <span
+                  class="escalation-roster-drag-handle"
+                  cdkDragHandle
+                  [attr.aria-label]="'setting.escalation-roster.drag-handle' | translate"
+                  >⠿</span
+                >
+                <div class="escalation-roster-row-main" (click)="toggleAbsenceEditor(member.userId)">
+                  <span class="escalation-roster-name">{{ member.displayName }}</span>
+                  @if (member.isCurrentlyAbsent) {
+                    <span class="escalation-roster-badge escalation-roster-badge-absent">{{ 'setting.escalation-roster.currently-absent' | translate }}</span>
+                  }
+                  <span class="escalation-roster-manage-link">{{ 'setting.escalation-roster.manage-absence' | translate }}</span>
+                </div>
               </div>
 
               @if (expandedUserId() === member.userId) {
@@ -104,14 +99,17 @@
                         (ngModelChange)="newAbsenceReason.set($event)"
                       />
                     </div>
-                    <button
-                      type="button"
-                      class="btn save-btn"
-                      [disabled]="!newAbsenceStart() || !newAbsenceEnd() || isSavingAbsence()"
-                      (click)="addAbsencePeriod()"
-                    >
-                      {{ 'setting.escalation-roster.absence-add' | translate }}
-                    </button>
+                    <div class="form-group">
+                      <label class="escalation-roster-add-button-spacer" aria-hidden="true">&nbsp;</label>
+                      <button
+                        type="button"
+                        class="btn save-btn"
+                        [disabled]="!newAbsenceStart() || !newAbsenceEnd() || isSavingAbsence()"
+                        (click)="addAbsencePeriod()"
+                      >
+                        {{ 'setting.escalation-roster.absence-add' | translate }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               }

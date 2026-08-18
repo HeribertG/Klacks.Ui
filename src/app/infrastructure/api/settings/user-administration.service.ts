@@ -49,12 +49,6 @@ export class UserAdministrationService {
     );
   }
 
-  deleteAccount(id: string): Observable<IAuthentication> {
-    return this.httpClient.delete<IAuthentication>(
-      `${environment.baseUrl}Accounts/` + id
-    );
-  }
-
   deactivateAccount(id: string): Observable<IAuthentication> {
     return this.httpClient.put<IAuthentication>(
       `${environment.baseUrl}Accounts/${id}/Deactivate`,
@@ -62,12 +56,6 @@ export class UserAdministrationService {
     );
   }
 
-  reactivateAccount(id: string): Observable<IAuthentication> {
-    return this.httpClient.put<IAuthentication>(
-      `${environment.baseUrl}Accounts/${id}/Reactivate`,
-      {}
-    );
-  }
 
   generateUsername(firstName: string, lastName: string): Observable<string> {
     return this.httpClient
@@ -90,12 +78,6 @@ export class UserAdministrationService {
   changeRole(value: ChangeRole) {
     return this.httpClient
       .put(`${environment.baseUrl}Accounts/ChangeRoleUser`, value)
-      .pipe();
-  }
-
-  reorderAccounts(orderedUserIds: string[]) {
-    return this.httpClient
-      .put(`${environment.baseUrl}Accounts/Reorder`, { orderedUserIds })
       .pipe();
   }
 

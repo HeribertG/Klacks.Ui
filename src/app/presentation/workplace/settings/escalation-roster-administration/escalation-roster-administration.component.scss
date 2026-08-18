@@ -18,15 +18,37 @@
   padding: 6px 8px;
 }
 
+.escalation-roster-row-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.escalation-roster-drag-handle {
+  cursor: grab;
+  color: var(--colorLabel);
+  user-select: none;
+}
+
 .escalation-roster-row-main {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
   cursor: pointer;
 }
 
 .escalation-roster-name {
-  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartGreenColor);
+  white-space: nowrap;
 }
 
 .escalation-roster-badge {
@@ -53,6 +75,7 @@
   text-decoration: underline;
   color: colors.$standartBlueColor;
   white-space: nowrap;
+  margin-inline-start: auto;
 }
 
 .escalation-roster-absence-editor {
@@ -97,7 +120,7 @@
 
 .escalation-roster-absence-form {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
 

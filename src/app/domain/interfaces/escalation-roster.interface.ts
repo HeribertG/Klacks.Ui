@@ -3,7 +3,6 @@
 export interface IEscalationRosterMember {
   userId: string;
   displayName: string;
-  hasPhoneNumber: boolean;
   isCurrentlyAbsent: boolean;
 }
 

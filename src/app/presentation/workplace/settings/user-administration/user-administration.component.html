@@ -217,15 +217,13 @@
       <div
         id="user-administration-box"
         class="container-box"
-        cdkDropList
-        (cdkDropListDropped)="onDrop($event)"
       >
         <app-user-administration-header
           id="user-administration-table-header"
         ></app-user-administration-header>
         @for (c of userAdminService.accountsList(); track c.id || c.userName ||
         $index; let i = $index) {
-        <div [id]="'user-administration-row-wrapper-' + i" cdkDrag>
+        <div [id]="'user-administration-row-wrapper-' + i">
           <app-user-administration-row
             [id]="'user-administration-row-' + i"
             [user]="c"
@@ -234,9 +232,7 @@
             (isRoleChangeEvent)="
               onRoleChange($event.account, $event.roleName, $event.isSelected)
             "
-            (isDeleteEvent)="onDelete(i)"
             (isDeactivateEvent)="onDeactivate(i)"
-            (isReactivateEvent)="onReactivate(i)"
             (isEditEvent)="onEdit($event, content)"
           >
           </app-user-administration-row>

@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * API service for a root group's escalation call list (admin card, read-only).
- * @param groupId - Any group id in the target group's subtree; the backend resolves it to its root
+ * API service for the escalation roster: reads the flat, group-agnostic admin member list and
+ * persists the admin's drag'n'drop wake-up order.
  */
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IEscalationRosterMember } from 'src/app/domain/interfaces/escalation-roster.interface';
@@ -18,11 +18,15 @@ export class DataEscalationRosterService {
   private readonly baseUrl =
     environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
-  getRoster(groupId: string): Observable<IEscalationRosterMember[]> {
-    const params = new HttpParams().set('groupId', groupId);
+  getRoster(): Observable<IEscalationRosterMember[]> {
     return this.httpClient.get<IEscalationRosterMember[]>(
       `${this.baseUrl}escalation-roster`,
-      { params },
     );
+  }
+
+  reorderRoster(orderedUserIds: string[]): Observable<unknown> {
+    return this.httpClient.put(`${this.baseUrl}escalation-roster/Reorder`, {
+      orderedUserIds,
+    });
   }
 }

@@ -8,12 +8,10 @@ import {
   output,
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
-import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { IconGripVerticalComponent } from 'src/app/presentation/icons/icon-grip-vertical.component';
 
 export interface RoleChangeEvent {
   account: IAuthentication;
@@ -31,15 +29,13 @@ interface UserRoleModel {
   templateUrl: './user-administration-row.component.html',
   styleUrls: ['./user-administration-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormField, CdkDragHandle, TrashIconRedComponent, IconGripVerticalComponent],
+  imports: [TranslateModule, FormField, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdministrationRowComponent {
   readonly user = input<IAuthentication | undefined>(undefined);
   readonly enabled = input<boolean | undefined>(undefined);
-  readonly isDeleteEvent = output<void>();
   readonly isDeactivateEvent = output<void>();
-  readonly isReactivateEvent = output<void>();
   readonly isRoleChangeEvent = output<RoleChangeEvent>();
   readonly isSentToEvent = output<string>();
   readonly isEditEvent = output<IAuthentication>();
@@ -104,20 +100,8 @@ export class UserAdministrationRowComponent {
     return this.user()?.email || '';
   }
 
-  get isDeactivated(): boolean {
-    return Boolean(this.user()?.deactivatedAt);
-  }
-
-  onDelete(): void {
-    this.isDeleteEvent.emit();
-  }
-
   onDeactivate(): void {
     this.isDeactivateEvent.emit();
-  }
-
-  onReactivate(): void {
-    this.isReactivateEvent.emit();
   }
 
   onClickSentTo(): void {

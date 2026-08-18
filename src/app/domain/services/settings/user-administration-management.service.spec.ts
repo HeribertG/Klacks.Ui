@@ -20,11 +20,10 @@ describe('UserAdministrationManagementService', () => {
         mockUserAdministrationService = {
             readAccountsList: vi.fn(),
             addAccount: vi.fn(),
-            deleteAccount: vi.fn(),
+            deactivateAccount: vi.fn(),
             changeRole: vi.fn(),
             ChangePassword: vi.fn(),
-            requestPasswordReset: vi.fn(),
-            reorderAccounts: vi.fn()
+            requestPasswordReset: vi.fn()
         };
 
         mockEventBus = {
@@ -138,29 +137,29 @@ describe('UserAdministrationManagementService', () => {
         });
     });
 
-    describe('deleteAccount', () => {
-        it('should delete account and reload list', async () => {
+    describe('deactivateAccount', () => {
+        it('should deactivate account and reload list', async () => {
             service = TestBed.inject(UserAdministrationManagementService);
 
-            mockUserAdministrationService.deleteAccount.mockReturnValue(of({} as IAuthentication));
+            mockUserAdministrationService.deactivateAccount.mockReturnValue(of({} as IAuthentication));
 
-            service.deleteAccount('123');
+            service.deactivateAccount('123');
 
             await new Promise(resolve => setTimeout(resolve, 110));
-            expect(mockUserAdministrationService.deleteAccount).toHaveBeenCalledWith('123');
+            expect(mockUserAdministrationService.deactivateAccount).toHaveBeenCalledWith('123');
             expect(mockUserAdministrationService.readAccountsList).toHaveBeenCalled();
         });
 
-        it('should emit error event on delete failure', async () => {
+        it('should emit error event on deactivate failure', async () => {
             service = TestBed.inject(UserAdministrationManagementService);
 
-            mockUserAdministrationService.deleteAccount.mockReturnValue(throwError(() => new Error('Delete failed')));
+            mockUserAdministrationService.deactivateAccount.mockReturnValue(throwError(() => new Error('Deactivate failed')));
 
-            service.deleteAccount('123');
+            service.deactivateAccount('123');
 
             await new Promise(resolve => setTimeout(resolve, 3510));
             expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
-                code: 'ACCOUNT_DELETE_ERROR',
+                code: 'ACCOUNT_DEACTIVATE_ERROR',
             }));
         });
     });
@@ -253,57 +252,19 @@ describe('UserAdministrationManagementService', () => {
         });
     });
 
-    describe('reorderAccounts', () => {
-        const initialAccounts: IAuthentication[] = [
-            { id: '1', firstName: 'Alice', lastName: 'A' } as IAuthentication,
-            { id: '2', firstName: 'Bob', lastName: 'B' } as IAuthentication,
-            { id: '3', firstName: 'Carol', lastName: 'C' } as IAuthentication,
-        ];
-
-        it('optimistically reorders the local list and persists via the API', async () => {
-            mockUserAdministrationService.readAccountsList.mockReturnValue(of(initialAccounts));
-            service = TestBed.inject(UserAdministrationManagementService);
-            service.loadAccounts();
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            mockUserAdministrationService.reorderAccounts.mockReturnValue(of({}));
-
-            service.reorderAccounts(['3', '1', '2']);
-
-            expect(service.accountsList().map(a => a.id)).toEqual(['3', '1', '2']);
-            expect(mockUserAdministrationService.reorderAccounts).toHaveBeenCalledWith(['3', '1', '2']);
-        });
-
-        it('rolls back to the previous order and emits an error on failure', async () => {
-            mockUserAdministrationService.readAccountsList.mockReturnValue(of(initialAccounts));
-            service = TestBed.inject(UserAdministrationManagementService);
-            service.loadAccounts();
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            mockUserAdministrationService.reorderAccounts.mockReturnValue(throwError(() => new Error('Reorder failed')));
-
-            service.reorderAccounts(['3', '1', '2']);
-
-            await new Promise(resolve => setTimeout(resolve, 50));
-            expect(service.accountsList().map(a => a.id)).toEqual(['1', '2', '3']);
-            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
-                code: 'ACCOUNTS_REORDER_ERROR',
-            }));
-        });
-    });
 
     describe('isLoading signal', () => {
         it('should set isLoading to true during operations', async () => {
             service = TestBed.inject(UserAdministrationManagementService);
 
             let wasLoadingSet = false;
-            mockUserAdministrationService.deleteAccount.mockImplementation(() => {
+            mockUserAdministrationService.deactivateAccount.mockImplementation(() => {
                 wasLoadingSet = service.isLoading();
                 return of({} as IAuthentication);
             });
 
             expect(service.isLoading()).toBe(false);
-            service.deleteAccount('123');
+            service.deactivateAccount('123');
 
             await new Promise(resolve => setTimeout(resolve, 60));
             expect(wasLoadingSet).toBe(true);

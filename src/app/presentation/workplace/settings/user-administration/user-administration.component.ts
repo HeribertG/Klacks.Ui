@@ -17,7 +17,6 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
-import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -57,8 +56,6 @@ interface UserFormModel {
   imports: [
     FormsModule,
     FormField,
-    CdkDropList,
-    CdkDrag,
     TranslateModule,
     NgbModule,
     SpinnerModule,
@@ -83,8 +80,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
-  message = DomainMessages.DELETE_ENTRY;
-  pendingDeleteIndex = -1;
+  pendingDeactivateIndex = -1;
   isEditMode = false;
 
   readonly activeTab = signal<'users' | 'manual'>('users');
@@ -169,10 +165,10 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     this.userAdminService.updateAccountRole(account, roleName, isSelected);
   }
 
-  onDelete(index: number): void {
+  onDeactivate(index: number): void {
     const user = this.userAdminService.accountsList()[index];
     if (user?.id) {
-      this.pendingDeleteIndex = index;
+      this.pendingDeactivateIndex = index;
 
       this.modalService.Filing = '';
       this.modalService.componentContext = 'user-administration';
@@ -181,28 +177,14 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
         `${user.firstName} ${user.lastName}`.trim() || user.email;
       this.modalService.deleteMessageTitle =
         this.translate.instant('DELETE_USER_TITLE');
-      this.modalService.deleteMessage = `${this.translate.instant(
+      this.modalService.deleteMessage = this.translate.instant(
         'DELETE_USER_CONFIRMATION',
         { userName }
-      )} ${this.translate.instant('DELETE_USER_DEACTIVATE_HINT')}`;
+      );
       this.modalService.deleteMessageOkButton =
         this.translate.instant('DELETE');
       this.modalService.Filing = user.id.toString();
       this.modalService.openModel(ModalType.Delete);
-    }
-  }
-
-  onDeactivate(index: number): void {
-    const user = this.userAdminService.accountsList()[index];
-    if (user?.id) {
-      this.userAdminService.deactivateAccount(user.id);
-    }
-  }
-
-  onReactivate(index: number): void {
-    const user = this.userAdminService.accountsList()[index];
-    if (user?.id) {
-      this.userAdminService.reactivateAccount(user.id);
     }
   }
 
@@ -286,13 +268,13 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
         if (
           x === ModalType.Delete &&
           this.modalService.componentContext === 'user-administration' &&
-          this.pendingDeleteIndex >= 0
+          this.pendingDeactivateIndex >= 0
         ) {
-          const user = this.userAdminService.accountsList()[this.pendingDeleteIndex];
+          const user = this.userAdminService.accountsList()[this.pendingDeactivateIndex];
           if (user?.id) {
-            this.userAdminService.deleteAccount(user.id);
+            this.userAdminService.deactivateAccount(user.id);
           }
-          this.pendingDeleteIndex = -1;
+          this.pendingDeactivateIndex = -1;
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
           this.cdr.markForCheck();
@@ -310,11 +292,5 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
 
   reload(): void {
     this.userAdminService.loadAccounts();
-  }
-
-  onDrop(event: CdkDragDrop<IAuthentication[]>): void {
-    const reordered = [...this.userAdminService.accountsList()];
-    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
-    this.userAdminService.reorderAccounts(reordered.map((a) => a.id!));
   }
 }

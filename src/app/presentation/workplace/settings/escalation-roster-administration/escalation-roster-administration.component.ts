@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Admin view of a root group's escalation call list: pick a root, see who is currently visible and
- * reachable, and manage each member's absence periods. Wake-up order itself comes from
- * AppUser.DisplayOrder (maintained in the user administration list, not here).
+ * Admin view of the escalation roster: one flat list of every user with any group visibility and a
+ * phone number, drag'n'drop for their wake-up order, and each member's absence periods. Deliberately
+ * NOT group-scoped - which group(s) a member is actually called for is decided by their own
+ * GroupVisibility rows at escalation time, not by anything picked on this page.
  */
 import {
   Component,
@@ -14,15 +15,14 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { DataEscalationRosterService } from 'src/app/infrastructure/api/assistant/data-escalation-roster.service';
 import { DataUserAbsencePeriodService } from 'src/app/infrastructure/api/settings/data-user-absence-period.service';
-import { IGroup } from 'src/app/domain/models/group/group-class';
 import { IEscalationRosterMember, IUserAbsencePeriod } from 'src/app/domain/interfaces/escalation-roster.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
@@ -34,20 +34,16 @@ const PERMANENT_ABSENCE_END_DATE = '9999-12-31';
   templateUrl: './escalation-roster-administration.component.html',
   styleUrls: ['./escalation-roster-administration.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, SpinnerModule],
+  imports: [FormsModule, CdkDropList, CdkDrag, TranslateModule, SpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EscalationRosterAdministrationComponent implements OnInit, OnDestroy {
-  private groupVisibilityService = inject(DataGroupVisibilityService);
   private rosterService = inject(DataEscalationRosterService);
   private absencePeriodService = inject(DataUserAbsencePeriodService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private ngUnsubscribe = new Subject<void>();
 
-  readonly roots = signal<IGroup[]>([]);
-  readonly selectedGroupId = signal<string>('');
   readonly members = signal<IEscalationRosterMember[]>([]);
-  readonly isLoadingRoots = signal<boolean>(false);
   readonly isLoadingRoster = signal<boolean>(false);
 
   readonly expandedUserId = signal<string>('');
@@ -60,7 +56,7 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
   readonly newAbsenceReason = signal<string>('');
 
   ngOnInit(): void {
-    this.loadRoots();
+    this.loadRoster();
   }
 
   ngOnDestroy(): void {
@@ -68,14 +64,21 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
     this.ngUnsubscribe.complete();
   }
 
-  onGroupChange(groupId: string): void {
-    this.selectedGroupId.set(groupId);
-    this.collapseAbsenceEditor();
-    if (groupId) {
-      this.loadRoster(groupId);
-    } else {
-      this.members.set([]);
-    }
+  onDrop(event: CdkDragDrop<IEscalationRosterMember[]>): void {
+    const previousOrder = this.members();
+    const reordered = [...previousOrder];
+    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+    this.members.set(reordered);
+
+    this.rosterService
+      .reorderRoster(reordered.map((member) => member.userId))
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        error: () => {
+          this.members.set(previousOrder);
+          this.emitError('ESCALATION_ROSTER_REORDER_ERROR');
+        },
+      });
   }
 
   toggleAbsenceEditor(userId: string): void {
@@ -116,9 +119,7 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
           this.newAbsenceEnd.set('');
           this.newAbsenceReason.set('');
           this.loadAbsencePeriods(userId);
-          if (this.selectedGroupId()) {
-            this.loadRoster(this.selectedGroupId());
-          }
+          this.loadRoster();
         },
         error: () => this.emitError('ESCALATION_ROSTER_ABSENCE_SAVE_ERROR'),
       });
@@ -133,9 +134,7 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
       .subscribe({
         next: () => {
           this.loadAbsencePeriods(userId);
-          if (this.selectedGroupId()) {
-            this.loadRoster(this.selectedGroupId());
-          }
+          this.loadRoster();
         },
         error: () => this.emitError('ESCALATION_ROSTER_ABSENCE_DELETE_ERROR'),
       });
@@ -146,26 +145,11 @@ export class EscalationRosterAdministrationComponent implements OnInit, OnDestro
     this.absencePeriods.set([]);
   }
 
-  private loadRoots(): void {
-    this.isLoadingRoots.set(true);
-
-    this.groupVisibilityService
-      .getRoots()
-      .pipe(
-        takeUntil(this.ngUnsubscribe),
-        finalize(() => this.isLoadingRoots.set(false)),
-      )
-      .subscribe({
-        next: (result) => this.roots.set(result),
-        error: () => this.emitError('ESCALATION_ROSTER_LOAD_ROOTS_ERROR'),
-      });
-  }
-
-  private loadRoster(groupId: string): void {
+  private loadRoster(): void {
     this.isLoadingRoster.set(true);
 
     this.rosterService
-      .getRoster(groupId)
+      .getRoster()
       .pipe(
         takeUntil(this.ngUnsubscribe),
         finalize(() => this.isLoadingRoster.set(false)),

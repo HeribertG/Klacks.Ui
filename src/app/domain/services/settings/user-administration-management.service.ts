@@ -75,33 +75,8 @@ export class UserAdministrationManagementService {
       )
       .subscribe((accounts) => {
         if (accounts) {
-          // Order comes from the backend (AppUser.DisplayOrder) - do not re-sort client-side,
-          // the escalation roster's wake-up order relies on this being the true display order.
           this.accountsList.set(accounts);
         }
-      });
-  }
-
-  reorderAccounts(orderedUserIds: string[]): void {
-    const previousOrder = this.accountsList();
-    const byId = new Map(previousOrder.map((a) => [a.id, a]));
-    const reordered = orderedUserIds
-      .map((id) => byId.get(id))
-      .filter((a): a is IAuthentication => Boolean(a));
-    this.accountsList.set(reordered);
-
-    this.userAdministrationService
-      .reorderAccounts(orderedUserIds)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        error: () => {
-          this.accountsList.set(previousOrder);
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: '',
-            code: 'ACCOUNTS_REORDER_ERROR',
-            context: 'UserAdministrationManagementService.reorderAccounts',
-          });
-        },
       });
   }
 
@@ -185,29 +160,6 @@ export class UserAdministrationManagementService {
     }
   }
 
-  deleteAccount(id: string): void {
-    this.isLoading.set(true);
-
-    this.userAdministrationService
-      .deleteAccount(id)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('Failed to delete account:', error);
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: '',
-            code: 'ACCOUNT_DELETE_ERROR',
-            context: 'UserAdministrationManagementService.deleteAccount',
-          });
-          return of(null);
-        }),
-        finalize(() => this.isLoading.set(false))
-      )
-      .subscribe(() => {
-        this.loadAccountsList();
-      });
-  }
-
   deactivateAccount(id: string): void {
     this.isLoading.set(true);
 
@@ -221,29 +173,6 @@ export class UserAdministrationManagementService {
             message: '',
             code: 'ACCOUNT_DEACTIVATE_ERROR',
             context: 'UserAdministrationManagementService.deactivateAccount',
-          });
-          return of(null);
-        }),
-        finalize(() => this.isLoading.set(false))
-      )
-      .subscribe(() => {
-        this.loadAccountsList();
-      });
-  }
-
-  reactivateAccount(id: string): void {
-    this.isLoading.set(true);
-
-    this.userAdministrationService
-      .reactivateAccount(id)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('Failed to reactivate account:', error);
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: '',
-            code: 'ACCOUNT_REACTIVATE_ERROR',
-            context: 'UserAdministrationManagementService.reactivateAccount',
           });
           return of(null);
         }),

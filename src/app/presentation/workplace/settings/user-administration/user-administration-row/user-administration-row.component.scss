@@ -31,52 +31,10 @@ select {
   align-items: center;
 }
 
-.drag-handle {
-  display: inline-flex;
-  align-items: center;
-  cursor: grab;
-  margin-inline-end: 10px;
-
-  &:active {
-    cursor: grabbing;
-  }
-}
-
 .delete-button {
   margin-top: 5px;
   margin-inline-start: 20px;
   color: var(--standartRedColor);
-}
-
-.state-action {
-  font-weight: 500;
-  font-size: 13px;
-  text-decoration: underline;
-  color: colors.$standartBlueColor;
-  cursor: pointer;
-  white-space: nowrap;
-  margin-inline-start: 20px;
-}
-
-.deactivated-badge {
-  font-weight: 600;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  margin-inline-start: 20px;
-  padding: 2px 8px;
-  border: 1px solid var(--standartRedColor);
-  border-radius: 10px;
-  color: var(--standartRedColor);
-}
-
-.deactivated {
-  input,
-  select {
-    opacity: 0.55;
-    font-style: italic;
-  }
 }
 
 .send-to {

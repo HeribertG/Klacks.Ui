@@ -6,30 +6,21 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { EscalationRosterAdministrationComponent } from './escalation-roster-administration.component';
-import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { DataEscalationRosterService } from 'src/app/infrastructure/api/assistant/data-escalation-roster.service';
 import { DataUserAbsencePeriodService } from 'src/app/infrastructure/api/settings/data-user-absence-period.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IEscalationRosterMember, IUserAbsencePeriod } from 'src/app/domain/interfaces/escalation-roster.interface';
-import { IGroup } from 'src/app/domain/models/group/group-class';
 
 describe('EscalationRosterAdministrationComponent', () => {
     let component: EscalationRosterAdministrationComponent;
     let fixture: ComponentFixture<EscalationRosterAdministrationComponent>;
-    let mockGroupVisibilityService: any;
     let mockRosterService: any;
     let mockAbsenceService: any;
     let mockEventBus: any;
 
-    const roots: IGroup[] = [
-        { id: 'root-1', name: 'Root One' } as IGroup,
-        { id: 'root-2', name: 'Root Two' } as IGroup,
-    ];
-
     const member = (overrides: Partial<IEscalationRosterMember> = {}): IEscalationRosterMember => ({
         userId: 'user-1',
         displayName: 'Alice',
-        hasPhoneNumber: true,
         isCurrentlyAbsent: false,
         ...overrides,
     });
@@ -44,8 +35,7 @@ describe('EscalationRosterAdministrationComponent', () => {
     });
 
     beforeEach(async () => {
-        mockGroupVisibilityService = { getRoots: vi.fn(() => of(roots)) };
-        mockRosterService = { getRoster: vi.fn(() => of([])) };
+        mockRosterService = { getRoster: vi.fn(() => of([])), reorderRoster: vi.fn(() => of({})) };
         mockAbsenceService = {
             getByUser: vi.fn(() => of([])),
             create: vi.fn(() => of(period())),
@@ -56,7 +46,6 @@ describe('EscalationRosterAdministrationComponent', () => {
         await TestBed.configureTestingModule({
             imports: [EscalationRosterAdministrationComponent, TranslateModule.forRoot()],
             providers: [
-                { provide: DataGroupVisibilityService, useValue: mockGroupVisibilityService },
                 { provide: DataEscalationRosterService, useValue: mockRosterService },
                 { provide: DataUserAbsencePeriodService, useValue: mockAbsenceService },
                 { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
@@ -67,40 +56,66 @@ describe('EscalationRosterAdministrationComponent', () => {
         component = fixture.componentInstance;
     });
 
-    it('loads roots on init', () => {
-        fixture.detectChanges();
-
-        expect(mockGroupVisibilityService.getRoots).toHaveBeenCalledTimes(1);
-        expect(component.roots()).toEqual(roots);
-    });
-
-    it('loads the roster when a root is selected', () => {
+    it('loads the roster on init, without any group id', () => {
         const members = [member({ userId: 'user-a', displayName: 'Alice' })];
         mockRosterService.getRoster.mockReturnValue(of(members));
+
         fixture.detectChanges();
 
-        component.onGroupChange('root-1');
-
-        expect(mockRosterService.getRoster).toHaveBeenCalledWith('root-1');
+        expect(mockRosterService.getRoster).toHaveBeenCalledWith();
         expect(component.members()).toEqual(members);
     });
 
-    it('clears the roster when the selection is cleared', () => {
-        mockRosterService.getRoster.mockReturnValue(of([member()]));
+    it('emits an error event when loading the roster fails', () => {
+        mockRosterService.getRoster.mockReturnValue(throwError(() => new Error('boom')));
+
         fixture.detectChanges();
-        component.onGroupChange('root-1');
-        expect(component.members().length).toBe(1);
 
-        component.onGroupChange('');
+        expect(mockEventBus.emit).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({ code: 'ESCALATION_ROSTER_LOAD_ERROR' }),
+        );
+    });
 
-        expect(component.members()).toEqual([]);
+    describe('reordering', () => {
+        it('reorders the local list and persists the new order', () => {
+            const members = [
+                member({ userId: 'user-a', displayName: 'Alice' }),
+                member({ userId: 'user-b', displayName: 'Bob' }),
+                member({ userId: 'user-c', displayName: 'Carol' }),
+            ];
+            mockRosterService.getRoster.mockReturnValue(of(members));
+            fixture.detectChanges();
+
+            component.onDrop({ previousIndex: 0, currentIndex: 2 } as any);
+
+            expect(component.members().map((m) => m.userId)).toEqual(['user-b', 'user-c', 'user-a']);
+            expect(mockRosterService.reorderRoster).toHaveBeenCalledWith(['user-b', 'user-c', 'user-a']);
+        });
+
+        it('rolls back to the previous order and emits an error on failure', () => {
+            const members = [
+                member({ userId: 'user-a', displayName: 'Alice' }),
+                member({ userId: 'user-b', displayName: 'Bob' }),
+            ];
+            mockRosterService.getRoster.mockReturnValue(of(members));
+            mockRosterService.reorderRoster.mockReturnValue(throwError(() => new Error('boom')));
+            fixture.detectChanges();
+
+            component.onDrop({ previousIndex: 0, currentIndex: 1 } as any);
+
+            expect(component.members().map((m) => m.userId)).toEqual(['user-a', 'user-b']);
+            expect(mockEventBus.emit).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ code: 'ESCALATION_ROSTER_REORDER_ERROR' }),
+            );
+        });
     });
 
     describe('absence editor', () => {
         beforeEach(() => {
             mockRosterService.getRoster.mockReturnValue(of([member({ userId: 'user-a' })]));
             fixture.detectChanges();
-            component.onGroupChange('root-1');
         });
 
         it('expands and loads absence periods for the selected member', () => {
@@ -140,7 +155,7 @@ describe('EscalationRosterAdministrationComponent', () => {
 
             expect(mockAbsenceService.create).toHaveBeenCalledWith('user-a', '2026-09-01', '2026-09-10', 'Ferien');
             expect(mockAbsenceService.getByUser).toHaveBeenCalledWith('user-a');
-            expect(mockRosterService.getRoster).toHaveBeenCalledWith('root-1');
+            expect(mockRosterService.getRoster).toHaveBeenCalledWith();
         });
 
         it('does nothing when start or end date is missing', () => {
@@ -159,29 +174,7 @@ describe('EscalationRosterAdministrationComponent', () => {
             component.deleteAbsencePeriod('period-1');
 
             expect(mockAbsenceService.delete).toHaveBeenCalledWith('period-1');
-            expect(mockRosterService.getRoster).toHaveBeenCalledWith('root-1');
+            expect(mockRosterService.getRoster).toHaveBeenCalledWith();
         });
-    });
-
-    it('emits an error event when loading roots fails', () => {
-        mockGroupVisibilityService.getRoots.mockReturnValue(throwError(() => new Error('boom')));
-        fixture.detectChanges();
-
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-            expect.anything(),
-            expect.objectContaining({ code: 'ESCALATION_ROSTER_LOAD_ROOTS_ERROR' }),
-        );
-    });
-
-    it('emits an error event when loading the roster fails', () => {
-        mockRosterService.getRoster.mockReturnValue(throwError(() => new Error('boom')));
-        fixture.detectChanges();
-
-        component.onGroupChange('root-1');
-
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-            expect.anything(),
-            expect.objectContaining({ code: 'ESCALATION_ROSTER_LOAD_ERROR' }),
-        );
     });
 });
