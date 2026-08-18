@@ -7,6 +7,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   AfterViewInit,
   Component,
@@ -57,7 +58,8 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
-import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
+import { DataMessagingInvitationService, TelegramInvitationResult } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
@@ -111,6 +113,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   public featurePluginState = inject(FeaturePluginStateService);
   private authorizationService = inject(AuthorizationService);
   private messagingInvitationService = inject(DataMessagingInvitationService);
+  private toastShowService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
   private locale = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
@@ -148,6 +151,8 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   public isPhoneValueSeals = false;
+
+  private telegramProviderActive = signal(false);
 
   public isCompanyValid: boolean | undefined;
   public isFirstNameValid: boolean | undefined;
@@ -284,6 +289,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
     this.newAddressString = DomainMessages.NEW_ADDRESS;
     void this.appSettingsService.loadSettingsAsync();
+    this.loadTelegramProviderAvailability();
   }
 
   ngAfterViewInit(): void {
@@ -339,6 +345,8 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
       && !!client.id
       && client.type === EntityTypeEnum.employee
       && this.featurePluginState.isPluginEnabled('messaging')
+      && this.telegramProviderActive()
+      && !this.isDisabled()
     );
   }
 
@@ -347,12 +355,40 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     if (!client?.id) return;
     this.messagingInvitationService.sendTelegramInvitation(client.id).subscribe({
       next: (resp) => {
-        console.info('Telegram invitation result:', resp.result);
+        const key = this.telegramInvitationResultKey(resp.result);
+        if (resp.result === TelegramInvitationResult.Success) {
+          this.toastShowService.showSuccess(this.translateService.instant(key), '');
+        } else {
+          this.toastShowService.showError(this.translateService.instant(key));
+        }
       },
-      error: (err) => {
-        console.error('Telegram invitation failed', err);
+      error: (err: HttpErrorResponse) => {
+        const key = this.telegramInvitationResultKey(err.error?.result);
+        this.toastShowService.showError(this.translateService.instant(key));
       },
     });
+  }
+
+  private loadTelegramProviderAvailability(): void {
+    this.messagingInvitationService.isTelegramProviderActive().subscribe({
+      next: (active) => {
+        this.telegramProviderActive.set(active);
+        this.cdr.markForCheck();
+      },
+      error: () => this.telegramProviderActive.set(false),
+    });
+  }
+
+  private telegramInvitationResultKey(result: string | undefined): string {
+    switch (result) {
+      case TelegramInvitationResult.Success: return 'messaging.sendTelegramInvitation.success';
+      case TelegramInvitationResult.AlreadyLinked: return 'messaging.sendTelegramInvitation.alreadyLinked';
+      case TelegramInvitationResult.NoContactChannel: return 'messaging.sendTelegramInvitation.noContactChannel';
+      case TelegramInvitationResult.SendFailed: return 'messaging.sendTelegramInvitation.sendFailed';
+      case TelegramInvitationResult.NotEmployee: return 'messaging.sendTelegramInvitation.notEmployee';
+      case TelegramInvitationResult.NoTelegramProvider: return 'messaging.sendTelegramInvitation.noProvider';
+      default: return 'messaging.sendTelegramInvitation.error';
+    }
   }
 
   isCustomerWithCoordinates(): boolean {

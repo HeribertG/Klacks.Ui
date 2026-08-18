@@ -9,22 +9,44 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 export interface SendInvitationResponse {
   result: string;
 }
 
+interface MessagingProviderSummary {
+  providerType: string;
+  isEnabled: boolean;
+}
+
+const TELEGRAM_PROVIDER_TYPE = 'Telegram';
+
+export const TelegramInvitationResult = {
+  Success: 'Success',
+  NotEmployee: 'NotEmployee',
+  NoContactChannel: 'NoContactChannel',
+  AlreadyLinked: 'AlreadyLinked',
+  SendFailed: 'SendFailed',
+  NoTelegramProvider: 'NoTelegramProvider',
+} as const;
+
 @Injectable({ providedIn: 'root' })
 export class DataMessagingInvitationService {
   private httpClient = inject(HttpClient);
-  private readonly pluginBaseUrl = getApiRootUrl() + 'messaging/onboarding/';
+  private readonly baseUrl = getApiRootUrl() + 'messaging/';
 
   public sendTelegramInvitation(clientId: string): Observable<SendInvitationResponse> {
     return this.httpClient.post<SendInvitationResponse>(
-      `${this.pluginBaseUrl}telegram/send/${clientId}`,
+      `${this.baseUrl}onboarding/telegram/send/${clientId}`,
       {}
     );
+  }
+
+  public isTelegramProviderActive(): Observable<boolean> {
+    return this.httpClient
+      .get<MessagingProviderSummary[]>(`${this.baseUrl}providers`)
+      .pipe(map((providers) => providers.some((p) => p.isEnabled && p.providerType === TELEGRAM_PROVIDER_TYPE)));
   }
 }
