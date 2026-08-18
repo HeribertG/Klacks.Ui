@@ -6,15 +6,18 @@
       <div class="container-header-modal modal-title" id="modal-title-user">
         {{ (isEditMode ? 'setting.user-admin.modal-title-user-edit' : 'setting.user-admin.modal-title-user') | translate }}
       </div>
+      <span class="filler"></span>
       <div
         id="user-admin-modal-close-btn"
         type="button"
         class="close"
+        aria-label="Close"
         (click)="modal.dismiss('Cross click')"
       >
         <span
           aria-hidden="true"
           style="
+            font-size: 13px;
             border: 1px transparent solid;
             color: var(--colorWorkplaceHeadline);
           "
