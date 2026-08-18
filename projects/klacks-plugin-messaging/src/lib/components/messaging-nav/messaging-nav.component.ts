@@ -25,6 +25,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataMessagingService } from '../../services/data-messaging.service';
 import { MessagingProvider } from '../../models/messaging-provider.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
+import { MessageScope } from '../../enums/message-scope.enum';
 
 @Component({
   selector: 'lib-messaging-nav',
@@ -39,7 +40,7 @@ import { MessageDirection } from '../../enums/message-direction.enum';
 })
 export class MessagingNavComponent implements OnInit, OnDestroy {
   @Input() hasMore = false;
-  @Output() filterChanged = new EventEmitter<{ direction?: MessageDirection; providerIds?: string[]; showAll?: boolean }>();
+  @Output() filterChanged = new EventEmitter<{ direction?: MessageDirection; scope?: MessageScope; providerIds?: string[]; showAll?: boolean }>();
 
   private dataService = inject(DataMessagingService);
   private cdr = inject(ChangeDetectorRef);
@@ -47,11 +48,14 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
   providers = signal<MessagingProvider[]>([]);
   selectedProviders = signal<Set<string>>(new Set());
   selectedDirection = signal<MessageDirection | undefined>(undefined);
+  selectedScope = signal<MessageScope | undefined>(undefined);
   showAllValue = false;
 
   directionValue: MessageDirection | undefined = undefined;
+  scopeValue: MessageScope | undefined = undefined;
 
   MessageDirection = MessageDirection;
+  MessageScope = MessageScope;
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -76,6 +80,11 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
     this.emitFilter();
   }
 
+  onScopeChange(): void {
+    this.selectedScope.set(this.scopeValue);
+    this.emitFilter();
+  }
+
   onProviderToggle(providerId: string): void {
     const current = new Set(this.selectedProviders());
     if (current.has(providerId)) {
@@ -90,6 +99,8 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
   onResetFilter(): void {
     this.directionValue = undefined;
     this.selectedDirection.set(undefined);
+    this.scopeValue = undefined;
+    this.selectedScope.set(undefined);
     this.selectedProviders.set(new Set());
     this.showAllValue = false;
     this.emitFilter();
@@ -109,6 +120,7 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
       : undefined;
     this.filterChanged.emit({
       direction: this.selectedDirection(),
+      scope: this.selectedScope(),
       providerIds,
       showAll: this.showAllValue,
     });

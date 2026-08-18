@@ -22,8 +22,11 @@ import {
 } from 'klacks-plugin-contracts';
 import { MessagingChatComponent } from './messaging-chat.component';
 import { DataMessagingService } from '../../services/data-messaging.service';
+import { DataMessengerContactService } from '../../services/data-messenger-contact.service';
 import { MessagingProvider } from '../../models/messaging-provider.model';
+import { MessengerContact } from '../../models/messenger-contact.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
+import { MessengerType } from '../../enums/messenger-type.enum';
 
 function makeProvider(id: string, name: string): MessagingProvider {
   return {
@@ -37,6 +40,10 @@ function makeProvider(id: string, name: string): MessagingProvider {
   };
 }
 
+function makeContact(type: MessengerType, value: string): MessengerContact {
+  return { id: `mc-${value}`, clientId: 'client-1', type, value };
+}
+
 describe('MessagingChatComponent', () => {
   let dataServiceSpy: {
     getProviders: ReturnType<typeof vi.fn>;
@@ -47,6 +54,7 @@ describe('MessagingChatComponent', () => {
     sendBroadcast: ReturnType<typeof vi.fn>;
     sendBroadcastToIdNumbers: ReturnType<typeof vi.fn>;
   };
+  let messengerContactServiceSpy: { getByClient: ReturnType<typeof vi.fn> };
   let toastSpy: { showSuccess: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
   let groupSelectionSpy: { selectedGroupId: ReturnType<typeof signal<string | null>>; clearSelection: ReturnType<typeof vi.fn> };
 
@@ -65,12 +73,14 @@ describe('MessagingChatComponent', () => {
       sendBroadcast: vi.fn().mockReturnValue(of({ broadcastId: 'b-1', total: 1, sent: 1, failed: 0, skippedNoContact: 0 })),
       sendBroadcastToIdNumbers: vi.fn().mockReturnValue(of({ broadcastId: 'b-2', total: 1, sent: 1, failed: 0, skippedNoContact: 0 })),
     };
+    messengerContactServiceSpy = { getByClient: vi.fn().mockReturnValue(of([])) };
     toastSpy = { showSuccess: vi.fn(), showError: vi.fn() };
     groupSelectionSpy = { selectedGroupId: signal<string | null>(null), clearSelection: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: DataMessagingService, useValue: dataServiceSpy },
+        { provide: DataMessengerContactService, useValue: messengerContactServiceSpy },
         { provide: PLUGIN_EVENT_STREAM, useValue: new Subject<unknown>().asObservable() },
         {
           provide: PLUGIN_VOICE_SERVICE,
@@ -175,17 +185,18 @@ describe('MessagingChatComponent', () => {
     expect(component.canMultiClientSend()).toBe(true);
   });
 
-  it('sends a direct message to the selected contact and clears the input', () => {
+  it('sends a direct message to the resolved messenger contact and clears the input', () => {
     const component = createComponent();
+    component.availableProviders.set([makeProvider('p-1', 'telegram-main')]);
     component.selectedContact.set('alice');
-    component.selectedProvider.set('telegram-main');
+    component.clientMessengerContacts.set([makeContact(MessengerType.Telegram, 'chat-123')]);
     component.inputText = '  hello  ';
 
     component.sendMessage();
 
     expect(dataServiceSpy.sendMessage).toHaveBeenCalledWith({
       provider: 'telegram-main',
-      recipient: 'alice',
+      recipient: 'chat-123',
       content: 'hello',
       contentType: 'text',
     });
@@ -198,6 +209,38 @@ describe('MessagingChatComponent', () => {
     component.sendMessage();
 
     expect(dataServiceSpy.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('shows an error and does not send when the contact has no messenger address for any available provider', () => {
+    const component = createComponent();
+    component.availableProviders.set([makeProvider('p-1', 'telegram-main')]);
+    component.selectedContact.set('alice');
+    component.clientMessengerContacts.set([]);
+    component.inputText = 'hello';
+
+    component.sendMessage();
+
+    expect(dataServiceSpy.sendMessage).not.toHaveBeenCalled();
+    expect(toastSpy.showError).toHaveBeenCalledWith('messaging.chat.no-provider-contact');
+  });
+
+  it('shows an error and does not send when more than one available provider matches the contact', () => {
+    const component = createComponent();
+    component.availableProviders.set([
+      makeProvider('p-1', 'telegram-main'),
+      { ...makeProvider('p-2', 'sms-main'), providerType: 'Sms' },
+    ]);
+    component.selectedContact.set('alice');
+    component.clientMessengerContacts.set([
+      makeContact(MessengerType.Telegram, 'chat-123'),
+      makeContact(MessengerType.Sms, '+41791234567'),
+    ]);
+    component.inputText = 'hello';
+
+    component.sendMessage();
+
+    expect(dataServiceSpy.sendMessage).not.toHaveBeenCalled();
+    expect(toastSpy.showError).toHaveBeenCalledWith('messaging.chat.provider-required');
   });
 
   it('routes to the broadcast send when in broadcast mode with eligible recipients', () => {
@@ -263,7 +306,7 @@ describe('MessagingChatComponent', () => {
 
     component.applyFilter({ direction: MessageDirection.Outbound, providerIds: ['p-1'], showAll: false });
 
-    expect(dataServiceSpy.getMessages).toHaveBeenCalledWith('p-1', MessageDirection.Outbound, undefined, 50, 0);
+    expect(dataServiceSpy.getMessages).toHaveBeenCalledWith('p-1', MessageDirection.Outbound, undefined, undefined, 50, 0);
   });
 
   it('requests the full page size when showAll is enabled', () => {
@@ -271,12 +314,14 @@ describe('MessagingChatComponent', () => {
 
     component.applyFilter({ showAll: true });
 
-    expect(dataServiceSpy.getMessages).toHaveBeenCalledWith(undefined, undefined, undefined, 10000, 0);
+    expect(dataServiceSpy.getMessages).toHaveBeenCalledWith(undefined, undefined, undefined, undefined, 10000, 0);
   });
 
   it('sends the message on Enter without shift', () => {
     const component = createComponent();
+    component.availableProviders.set([makeProvider('p-1', 'telegram-main')]);
     component.selectedContact.set('alice');
+    component.clientMessengerContacts.set([makeContact(MessengerType.Telegram, 'chat-123')]);
     component.inputText = 'hi';
     const event = new KeyboardEvent('keydown', { key: 'Enter' });
     const preventDefault = vi.spyOn(event, 'preventDefault');
@@ -307,9 +352,11 @@ describe('MessagingChatComponent', () => {
 
   it('clearContact resets the contact, provider and multi-client selections and reloads messages', () => {
     const component = createComponent();
+    component.availableProviders.set([makeProvider('p-1', 'telegram-main')]);
     component.selectedContact.set('alice');
-    component.selectedProvider.set('telegram-main');
+    component.clientMessengerContacts.set([makeContact(MessengerType.Telegram, 'chat-123')]);
     component.selectedIdNumbers.set([1]);
+    expect(component.selectedProvider()).toBe('telegram-main');
     dataServiceSpy.getMessages.mockClear();
 
     component.clearContact();

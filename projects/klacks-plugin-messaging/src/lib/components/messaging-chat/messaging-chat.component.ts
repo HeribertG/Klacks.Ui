@@ -30,7 +30,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMicrophone, faMicrophoneSlash, faPaperPlane, faChevronUp, faChevronDown, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
 import { DataMessagingService, BroadcastPreview } from '../../services/data-messaging.service';
+import { DataMessengerContactService } from '../../services/data-messenger-contact.service';
 import { MessagingProvider } from '../../models/messaging-provider.model';
+import { MessengerContact } from '../../models/messenger-contact.model';
+import { messengerTypeFromProviderType } from '../../enums/messenger-type.enum';
 import {
   PLUGIN_EVENT_STREAM,
   PLUGIN_VOICE_SERVICE,
@@ -42,6 +45,7 @@ import { effect, EffectRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Message } from '../../models/message.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
+import { MessageScope } from '../../enums/message-scope.enum';
 
 @Component({
   selector: 'lib-messaging-chat',
@@ -59,6 +63,7 @@ import { MessageDirection } from '../../enums/message-direction.enum';
 })
 export class MessagingChatComponent implements OnInit, OnDestroy {
   private dataService = inject(DataMessagingService);
+  private messengerContactService = inject(DataMessengerContactService);
   private pluginEvents = inject(PLUGIN_EVENT_STREAM);
   private cdr = inject(ChangeDetectorRef);
   public speechService = inject(PLUGIN_SPEECH_SERVICE);
@@ -73,8 +78,10 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   messages = signal<Message[]>([]);
   isLoading = signal(false);
   selectedContact = signal<string | null>(null);
-  selectedProvider = signal<string | null>(null);
+  selectedClientId = signal<string | null>(null);
+  clientMessengerContacts = signal<MessengerContact[]>([]);
   selectedDirection = signal<MessageDirection | undefined>(undefined);
+  selectedScope = signal<MessageScope | undefined>(undefined);
   selectedProviderIds = signal<string[]>([]);
   showAll = signal<boolean>(false);
   hasMore = signal<boolean>(false);
@@ -85,6 +92,28 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   selectedIdNumbers = signal<number[] | null>(null);
   multiClientPreview = signal<BroadcastPreview | null>(null);
   multiClientLoading = signal<boolean>(false);
+
+  private sendTargetMatches = computed<{ provider: MessagingProvider; contact: MessengerContact }[]>(() => {
+    const contacts = this.clientMessengerContacts();
+    if (!contacts.length) return [];
+
+    const selectedIds = this.selectedProviderIds();
+    const candidates = selectedIds.length > 0
+      ? this.availableProviders().filter(p => selectedIds.includes(p.id))
+      : this.availableProviders();
+
+    return candidates
+      .map(provider => ({
+        provider,
+        contact: contacts.find(c => c.type === messengerTypeFromProviderType(provider.providerType)),
+      }))
+      .filter((m): m is { provider: MessagingProvider; contact: MessengerContact } => !!m.contact);
+  });
+  private resolvedSendTarget = computed<{ provider: MessagingProvider; contact: MessengerContact } | null>(() => {
+    const matches = this.sendTargetMatches();
+    return matches.length === 1 ? matches[0] : null;
+  });
+  selectedProvider = computed<string | null>(() => this.resolvedSendTarget()?.provider.displayName ?? null);
 
   selectedGroupId = this.groupSelection.selectedGroupId;
   isBroadcastMode = computed<boolean>(() => !!this.selectedGroupId() && !this.selectedContact());
@@ -291,10 +320,11 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
       ? this.selectedProviderIds()[0]
       : undefined;
     const direction = this.selectedDirection();
+    const scope = this.selectedScope();
     const sender = this.selectedContact() ?? undefined;
     const pageSize = this.showAll() ? this.showAllPageSize : this.defaultPageSize;
 
-    this.dataService.getMessages(providerId, direction, sender, pageSize, 0)
+    this.dataService.getMessages(providerId, direction, sender, scope, pageSize, 0)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
         next: (msgs) => {
@@ -328,12 +358,22 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const target = this.resolvedSendTarget();
+    if (!target) {
+      this.toast.showError(this.translate.instant(
+        this.sendTargetMatches().length > 1
+          ? 'messaging.chat.provider-required'
+          : 'messaging.chat.no-provider-contact'
+      ));
+      return;
+    }
+
     const content = this.inputText.trim();
     this.inputText = '';
 
     this.dataService.sendMessage({
-      provider: this.selectedProvider() ?? '',
-      recipient: this.selectedContact()!,
+      provider: target.provider.name,
+      recipient: target.contact.value,
       content,
       contentType: 'text',
     }).pipe(takeUntil(this.ngUnsubscribe))
@@ -396,22 +436,44 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
 
   setMultiClientMode(idNumbers: number[]): void {
     this.selectedContact.set(null);
+    this.selectedClientId.set(null);
+    this.clientMessengerContacts.set([]);
     this.selectedIdNumbers.set(idNumbers);
     this.multiClientPreview.set(null);
     this.loadMultiClientPreview(idNumbers);
     this.loadMessages();
   }
 
+  selectClient(displayName: string, clientId: string): void {
+    this.selectedContact.set(displayName);
+    this.selectedClientId.set(clientId);
+    this.clientMessengerContacts.set([]);
+    this.messengerContactService.getByClient(clientId)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (contacts) => {
+          this.clientMessengerContacts.set(contacts);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.cdr.markForCheck();
+        },
+      });
+    this.loadMessages();
+  }
+
   clearContact(): void {
     this.selectedContact.set(null);
-    this.selectedProvider.set(null);
+    this.selectedClientId.set(null);
+    this.clientMessengerContacts.set([]);
     this.selectedIdNumbers.set(null);
     this.multiClientPreview.set(null);
     this.loadMessages();
   }
 
-  applyFilter(filter: { direction?: MessageDirection; providerIds?: string[]; showAll?: boolean }): void {
+  applyFilter(filter: { direction?: MessageDirection; scope?: MessageScope; providerIds?: string[]; showAll?: boolean }): void {
     this.selectedDirection.set(filter.direction);
+    this.selectedScope.set(filter.scope);
     if (filter.providerIds) {
       this.selectedProviderIds.set(filter.providerIds);
     }

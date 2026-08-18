@@ -51,7 +51,7 @@ describe('DataMessagingService', () => {
   });
 
   it('adds providerId, direction and sender params only when provided', () => {
-    service.getMessages('provider-1', MessageDirection.Inbound, 'alice', 20, 10).subscribe();
+    service.getMessages('provider-1', MessageDirection.Inbound, 'alice', undefined, 20, 10).subscribe();
 
     const req = httpMock.expectOne(
       (r) => r.url === `${API_BASE_URL}messaging/messages`,

@@ -40,6 +40,48 @@
       </label>
     </li>
 
+    <li class="list-group-item-divider"></li>
+
+    <li class="list-group-item-label">
+      {{ "messaging.nav.scope" | translate }}
+    </li>
+    <li class="list-group-item-action">
+      <label class="radio-label">
+        <input
+          type="radio"
+          name="scope"
+          [value]="undefined"
+          [(ngModel)]="scopeValue"
+          (ngModelChange)="onScopeChange()"
+        />
+        {{ "messaging.nav.scope.all" | translate }}
+      </label>
+    </li>
+    <li class="list-group-item-action">
+      <label class="radio-label">
+        <input
+          type="radio"
+          name="scope"
+          [value]="MessageScope.Client"
+          [(ngModel)]="scopeValue"
+          (ngModelChange)="onScopeChange()"
+        />
+        {{ "messaging.nav.scope.client" | translate }}
+      </label>
+    </li>
+    <li class="list-group-item-action">
+      <label class="radio-label">
+        <input
+          type="radio"
+          name="scope"
+          [value]="MessageScope.Internal"
+          [(ngModel)]="scopeValue"
+          (ngModelChange)="onScopeChange()"
+        />
+        {{ "messaging.nav.scope.internal" | translate }}
+      </label>
+    </li>
+
     @if (providers().length > 1) {
       <li class="list-group-item-divider"></li>
 

@@ -57,7 +57,7 @@ export class MessagingInboxComponent implements OnInit, OnDestroy {
   loadMessages(): void {
     this.isLoading.set(true);
     const direction = this.selectedDirection();
-    this.dataService.getMessages(undefined, direction, undefined, 50, 0)
+    this.dataService.getMessages(undefined, direction, undefined, undefined, 50, 0)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (messages) => {

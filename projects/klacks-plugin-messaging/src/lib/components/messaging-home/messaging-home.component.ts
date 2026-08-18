@@ -12,6 +12,7 @@ import { PLUGIN_WORKPLACE_HOST, PLUGIN_GROUP_SELECTION, IPluginClient } from 'kl
 import { MessagingChatComponent } from '../messaging-chat/messaging-chat.component';
 import { MessagingNavComponent } from '../messaging-nav/messaging-nav.component';
 import { MessageDirection } from '../../enums/message-direction.enum';
+import { MessageScope } from '../../enums/message-scope.enum';
 
 @Component({
   selector: 'lib-messaging-home',
@@ -58,15 +59,17 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onFilterChanged(filter: { direction?: MessageDirection; providerIds?: string[] }): void {
+  onFilterChanged(filter: { direction?: MessageDirection; scope?: MessageScope; providerIds?: string[] }): void {
     this.messagingChat.applyFilter(filter);
   }
 
   private onClientSelected(client: IPluginClient): void {
+    if (!client.id) {
+      return;
+    }
     const displayName = `${client.idNumber}, ${client.firstName} ${client.name}`.trim();
     this.groupSelection.clearSelection();
-    this.messagingChat.selectedContact.set(displayName);
-    this.messagingChat.loadMessages();
+    this.messagingChat.selectClient(displayName, client.id);
   }
 
   private onClientIdNumbersSelected(idNumbers: number[]): void {

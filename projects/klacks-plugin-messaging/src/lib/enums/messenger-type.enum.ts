@@ -19,6 +19,20 @@ export enum MessengerType {
   Sms = 12,
 }
 
+/**
+ * Resolves a MessagingProvider.providerType string (e.g. "telegram") to the matching MessengerType
+ * enum member, case-insensitively. Mirrors the backend's Enum.TryParse<MessengerType>(providerType,
+ * ignoreCase: true) resolution exactly - derived from the enum itself rather than a hand-typed
+ * switch, so a plugin adding a new MessengerType needs no matching change here.
+ */
+export function messengerTypeFromProviderType(providerType: string): MessengerType | undefined {
+  const normalized = providerType.toLowerCase();
+  const entry = Object.entries(MessengerType).find(
+    ([key, value]) => typeof value === 'number' && key.toLowerCase() === normalized,
+  );
+  return entry ? (entry[1] as MessengerType) : undefined;
+}
+
 export const MESSENGER_TYPE_LABELS: Record<MessengerType, string> = {
   [MessengerType.Telegram]: 'Telegram',
   [MessengerType.WhatsApp]: 'WhatsApp',

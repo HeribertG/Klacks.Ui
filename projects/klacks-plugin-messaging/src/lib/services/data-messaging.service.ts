@@ -13,6 +13,7 @@ import { Message } from '../models/message.model';
 import { CreateMessagingProvider } from '../models/create-messaging-provider.model';
 import { SendMessage } from '../models/send-message.model';
 import { MessageDirection } from '../enums/message-direction.enum';
+import { MessageScope } from '../enums/message-scope.enum';
 
 @Injectable({ providedIn: 'root' })
 export class DataMessagingService {
@@ -43,13 +44,14 @@ export class DataMessagingService {
     return this.httpClient.post<{ success: boolean }>(`${this.apiUrl}messaging/providers/${id}/test`, {});
   }
 
-  getMessages(providerId?: string, direction?: MessageDirection, sender?: string, count = 50, offset = 0): Observable<Message[]> {
+  getMessages(providerId?: string, direction?: MessageDirection, sender?: string, scope?: MessageScope, count = 50, offset = 0): Observable<Message[]> {
     let params = new HttpParams()
       .set('count', count.toString())
       .set('offset', offset.toString());
     if (providerId) params = params.set('providerId', providerId);
     if (direction !== undefined) params = params.set('direction', direction.toString());
     if (sender) params = params.set('sender', sender);
+    if (scope !== undefined) params = params.set('scope', scope.toString());
 
     return this.httpClient.get<Message[]>(`${this.apiUrl}messaging/messages`, { params }).pipe(retry(3));
   }

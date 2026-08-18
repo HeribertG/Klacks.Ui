@@ -6,6 +6,7 @@
  */
 
 export interface IPluginClient {
+  id: string | undefined;
   idNumber: number;
   firstName: string;
   name: string;
