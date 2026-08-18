@@ -118,6 +118,19 @@
       </div>
     }
 
+    @if (canSendUserTelegramInvite()) {
+      <div id="user-admin-modal-telegram-invite-row" class="row-line firstColumn-phone">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="sendUserTelegramInvite()"
+          ngbTooltip="{{ 'messaging.sendUserTelegramInvite' | translate }}"
+        >
+          {{ 'messaging.sendUserTelegramInvite' | translate }}
+        </button>
+      </div>
+    }
+
     <p></p>
     <p></p>
     <p></p>

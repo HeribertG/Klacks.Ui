@@ -39,6 +39,11 @@ import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
+import { AdminInviteResult, DataUserMessengerContactService } from 'src/app/infrastructure/api/messaging/data-user-messenger-contact.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 interface UserFormModel {
   firstName: string;
@@ -76,12 +81,18 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   private cdr = inject(ChangeDetectorRef);
   private refreshRegistry = inject(DataRefreshRegistry);
   private manualLoaderService = inject(ManualLoaderService);
+  private featurePluginState = inject(FeaturePluginStateService);
+  private messagingInvitationService = inject(DataMessagingInvitationService);
+  private userMessengerContactService = inject(DataUserMessengerContactService);
+  private toastShowService = inject(ToastShowService);
   private unregisterRefresh?: () => void;
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
   pendingDeactivateIndex = -1;
   isEditMode = false;
+
+  private telegramProviderActive = signal(false);
 
   readonly activeTab = signal<'users' | 'manual'>('users');
   readonly manualContent = signal<string>('');
@@ -136,6 +147,57 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
           this.loadManual();
         }
       });
+    this.loadTelegramProviderAvailability();
+  }
+
+  private loadTelegramProviderAvailability(): void {
+    this.messagingInvitationService.isTelegramProviderActive().subscribe({
+      next: (active) => {
+        this.telegramProviderActive.set(active);
+        this.cdr.markForCheck();
+      },
+      error: () => this.telegramProviderActive.set(false),
+    });
+  }
+
+  canSendUserTelegramInvite(): boolean {
+    return (
+      this.isEditMode
+      && !!this.newUser?.id
+      && this.featurePluginState.isPluginEnabled('messaging')
+      && this.telegramProviderActive()
+    );
+  }
+
+  sendUserTelegramInvite(): void {
+    const userId = this.newUser?.id;
+    if (!userId) return;
+    this.userMessengerContactService.sendAdminInvite(userId).subscribe({
+      next: (resp) => {
+        const key = this.userInviteResultKey(resp.result);
+        if (resp.result === AdminInviteResult.Success) {
+          this.toastShowService.showSuccess(this.translate.instant(key), '');
+        } else {
+          this.toastShowService.showError(this.translate.instant(key));
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        const key = this.userInviteResultKey(err.error?.result);
+        this.toastShowService.showError(this.translate.instant(key));
+      },
+    });
+  }
+
+  private userInviteResultKey(result: string | undefined): string {
+    switch (result) {
+      case AdminInviteResult.Success: return 'messaging.sendUserTelegramInvite.success';
+      case AdminInviteResult.AlreadyLinked: return 'messaging.sendUserTelegramInvite.alreadyLinked';
+      case AdminInviteResult.UserNotFound: return 'messaging.sendUserTelegramInvite.userNotFound';
+      case AdminInviteResult.NoEmail: return 'messaging.sendUserTelegramInvite.noEmail';
+      case AdminInviteResult.SendFailed: return 'messaging.sendUserTelegramInvite.sendFailed';
+      case AdminInviteResult.NoTelegramProvider: return 'messaging.sendUserTelegramInvite.noProvider';
+      default: return 'messaging.sendUserTelegramInvite.error';
+    }
   }
 
   setTab(tab: 'users' | 'manual'): void {
