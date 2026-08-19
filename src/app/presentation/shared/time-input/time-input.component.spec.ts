@@ -277,9 +277,9 @@ describe('TimeInputComponent', () => {
             expect(component.valueChange.emit).toHaveBeenCalled();
         });
 
-        it('should not allow hours above 23 for time mode', () => {
+        it('should normalise 24 to midnight and clamp anything above it for time mode', () => {
             const invalidHours = [
-                { input: '24', expected: '23' },
+                { input: '24', expected: '00' },
                 { input: '50', expected: '23' },
                 { input: '100', expected: '23' },
             ];

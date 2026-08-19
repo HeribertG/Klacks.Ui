@@ -54,7 +54,11 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { IOpenContainerWorkOptions } from './open-container-work-options';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import {
+  absenceDurationMinutes,
+  formatTime,
+  timeToMinutes,
+} from 'src/app/shared/helpers/time-format.helper';
 import {
   formatClientWithAddress,
   formatWorkTime,
@@ -336,16 +340,7 @@ export class ContainerWorkEditDialogComponent {
   }
 
   private breakDurationMinutes(start: string, end: string): number {
-    const toMinutes = (hm: string): number => {
-      const parts = hm.split(':');
-      return (parseInt(parts[0] || '0', 10) * 60) + parseInt(parts[1] || '0', 10);
-    };
-    const s = toMinutes(start);
-    const e = toMinutes(end);
-    if (s === e) {
-      return 0;
-    }
-    return e > s ? e - s : (1440 - s) + e;
+    return absenceDurationMinutes(timeToMinutes(start), timeToMinutes(end));
   }
 
   getConnectedDropLists(): string[] {

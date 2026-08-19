@@ -33,6 +33,13 @@ import { DataManagementScheduleNoteService } from 'src/app/domain/services/sched
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { ScheduleDataService } from './schedule-data.service';
 
+/** Both bounds equal means no times were recorded; the duration carries the truth instead. */
+const NO_TIMES_RECORDED = '00:00:00';
+
+/** A whole day is booked as this exact pair, never as equal bounds. */
+const FULL_DAY_START = '00:00:00';
+const FULL_DAY_END = '23:59:00';
+
 @Injectable()
 export class ScheduleEntryActionsService {
   private translateService = inject(TranslateService);
@@ -119,6 +126,7 @@ export class ScheduleEntryActionsService {
     breakEntry.currentDate = targetDate;
     breakEntry.startTime = startTime;
     breakEntry.endTime = endTime;
+    breakEntry.workTime = this.calculateBreakWorkTime(selectedItem);
     breakEntry.periodStart = periodStart;
     breakEntry.periodEnd = periodEnd;
     breakEntry.paymentInterval = this.dataManagement.currentFilter.paymentInterval;
@@ -199,10 +207,30 @@ export class ScheduleEntryActionsService {
       };
     }
 
+    if (item.isDetail && item.mode === AbsenceDetailMode.Duration && item.duration) {
+      return {
+        startTime: NO_TIMES_RECORDED,
+        endTime: NO_TIMES_RECORDED
+      };
+    }
+
     return {
-      startTime: '00:00:00',
-      endTime: '23:59:00'
+      startTime: FULL_DAY_START,
+      endTime: FULL_DAY_END
     };
+  }
+
+  /**
+   * Hours to credit for a break created from an absence menu item.
+   * A detail recorded in duration mode carries its length in `duration` and no times at all;
+   * without this the duration was dropped and the entry was booked as a full day instead.
+   */
+  private calculateBreakWorkTime(item: AbsenceMenuItem | undefined): number {
+    if (item?.isDetail && item.mode === AbsenceDetailMode.Duration && item.duration) {
+      return item.duration;
+    }
+
+    return 0;
   }
 
   confirmWork(row: number, column: number, dataService: ScheduleDataService): void {
@@ -255,7 +283,8 @@ export class ScheduleEntryActionsService {
     const absenceId = selectedItem?.absenceId ?? bp.absenceId;
     const { startTime, endTime } = selectedItem
       ? this.calculateBreakTimes(selectedItem)
-      : { startTime: '00:00:00', endTime: '23:59:00' };
+      : { startTime: FULL_DAY_START, endTime: FULL_DAY_END };
+    const workTime = this.calculateBreakWorkTime(selectedItem);
     const description = selectedItem?.description ? { ...selectedItem.description } : undefined;
 
     const from = new Date(bp.from);
@@ -270,7 +299,7 @@ export class ScheduleEntryActionsService {
         clientId: bp.clientId,
         absenceId,
         date: new Date(current),
-        workTime: 0,
+        workTime,
         startTime,
         endTime,
         description,

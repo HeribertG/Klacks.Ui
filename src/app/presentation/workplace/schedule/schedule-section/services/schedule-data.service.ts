@@ -47,7 +47,8 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
-import { formatTime, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { parseAvailabilityRanges } from 'src/app/shared/helpers/availability-range.helper';
 
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 const GROUP_PERIOD_RESTRICTED_COLOR = 'rgba(70, 130, 180, 0.25)';
@@ -1000,21 +1001,7 @@ export class ScheduleDataService extends BaseDataService {
       ?.get(formatDateOnly(date));
     if (!availability) return [];
 
-    const ranges: { startMinutes: number; endMinutes: number }[] = [];
-    const dayMinutes = 24 * 60;
-    for (const raw of availability.split(',')) {
-      const [startStr, endStr] = raw.trim().split('-');
-      if (!startStr || !endStr) continue;
-      const start = timeToMinutes(startStr);
-      let end = timeToMinutes(endStr);
-      if (end === start) {
-        end = dayMinutes;
-      }
-      if (end > start) {
-        ranges.push({ startMinutes: start, endMinutes: end });
-      }
-    }
-    return ranges;
+    return parseAvailabilityRanges(availability);
   }
 
   private applyAvailabilityHighlighting(
