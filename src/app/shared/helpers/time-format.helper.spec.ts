@@ -8,6 +8,9 @@ import {
     timeToMinutes,
     calculateDurationInMinutes,
     formatTimeFromMinutes,
+    workingTimeDurationMinutes,
+    absenceDurationMinutes,
+    isFullDayMarker,
 } from './time-format.helper';
 
 describe('Time Format Helper', () => {
@@ -152,8 +155,8 @@ describe('Time Format Helper', () => {
             expect(result).toBe(1);
         });
 
-        it('should return 0 for same start and end time', () => {
-            // Arrange - same time means 0 duration
+        it('should treat same start and end time as a full day', () => {
+            // Arrange - equal bounds mean a full round of the clock for working time
             const start = '00:00:00';
             const end = '00:00:00';
 
@@ -161,7 +164,7 @@ describe('Time Format Helper', () => {
             const result = calculateDurationInMinutes(start, end);
 
             // Assert
-            expect(result).toBe(0);
+            expect(result).toBe(1440);
         });
 
         it('should calculate 2 minutes duration', () => {
@@ -759,6 +762,57 @@ describe('Time Format Helper', () => {
             // Assert
             expect(durationMinutes).toBe(510); // 8.5 hours
             expect(workTime).toBe(8.5);
+        });
+    });
+    describe('workingTimeDurationMinutes', () => {
+        it('should treat equal bounds as a full day', () => {
+            expect(workingTimeDurationMinutes(420, 420)).toBe(1440);
+        });
+
+        it('should treat midnight to midnight as a full day', () => {
+            expect(workingTimeDurationMinutes(0, 0)).toBe(1440);
+        });
+
+        it('should wrap past midnight', () => {
+            expect(workingTimeDurationMinutes(1320, 360)).toBe(480);
+        });
+
+        it('should measure an ordinary span', () => {
+            expect(workingTimeDurationMinutes(480, 930)).toBe(450);
+        });
+    });
+
+    describe('absenceDurationMinutes', () => {
+        it('should credit nothing when no times were recorded', () => {
+            expect(absenceDurationMinutes(0, 0)).toBe(0);
+            expect(absenceDurationMinutes(720, 720)).toBe(0);
+        });
+
+        it('should credit a full day for the 00:00-23:59 booking marker', () => {
+            expect(absenceDurationMinutes(0, 1439)).toBe(1440);
+        });
+
+        it('should still wrap a real midnight span', () => {
+            expect(absenceDurationMinutes(1320, 360)).toBe(480);
+        });
+
+        it('should disagree with working time only on equal bounds', () => {
+            expect(workingTimeDurationMinutes(720, 720)).toBe(1440);
+            expect(absenceDurationMinutes(720, 720)).toBe(0);
+        });
+    });
+
+    describe('isFullDayMarker', () => {
+        it('should recognise exactly 00:00-23:59', () => {
+            expect(isFullDayMarker(0, 1439)).toBe(true);
+        });
+
+        it('should not swallow a span starting late at night', () => {
+            expect(isFullDayMarker(1434, 1439)).toBe(false);
+        });
+
+        it('should not treat equal bounds as the marker', () => {
+            expect(isFullDayMarker(0, 0)).toBe(false);
         });
     });
 });

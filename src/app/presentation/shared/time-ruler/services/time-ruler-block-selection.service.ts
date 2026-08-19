@@ -88,10 +88,10 @@ export class TimeRulerBlockSelectionService {
     let maxY = -Infinity;
 
     for (const item of items) {
+      if (!this.timeRangeService.hasExplicitTimes(item)) continue;
+
       const effectiveStart = this.timeRangeService.getEffectiveStartMinutes(item);
       const effectiveEnd = this.timeRangeService.getEffectiveEndMinutes(item);
-
-      if (effectiveStart === 0 && effectiveEnd === 0) continue;
 
       const startY =
         ((effectiveStart - range.displayFromMinutes) / range.totalMinutes) * height;

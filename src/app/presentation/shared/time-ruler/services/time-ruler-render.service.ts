@@ -439,12 +439,12 @@ export class TimeRulerRenderService {
       return null;
     }
 
-    const bodyStartMinutes = this.timeRangeService.getShiftStartMinutes(item);
-    const bodyEndMinutes = this.timeRangeService.getShiftEndMinutes(item);
-
-    if (bodyStartMinutes === 0 && bodyEndMinutes === 0) {
+    if (!this.timeRangeService.hasExplicitTimes(item)) {
       return null;
     }
+
+    const bodyStartMinutes = this.timeRangeService.getShiftStartMinutes(item);
+    const bodyEndMinutes = this.timeRangeService.getShiftEndMinutes(item);
 
     const startY =
       ((bodyStartMinutes - range.displayFromMinutes) / range.totalMinutes) *

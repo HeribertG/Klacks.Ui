@@ -6,6 +6,10 @@ import { IShift } from '../shift/shift-class';
 import { IBaseFilter } from '../general-class';
 import { IPeriodHours, IScheduleCell, IScheduleQualification } from './work-schedule-class';
 
+const HOURS_PER_DAY = 24;
+const LAST_CLOCK_HOUR = HOURS_PER_DAY - 1;
+const MAX_DURATION_HOURS = 999;
+
 export interface IWork {
   client?: IClient;
   clientId: string;
@@ -181,9 +185,21 @@ export class OwnTime implements IOwnTime {
 
   set isDuration(value: boolean) {
     this.pIsDuration = value;
-    if (!value && parseInt(this.pHours) > 23) {
-      this.pHours = '23';
+    if (!value && parseInt(this.pHours) > LAST_CLOCK_HOUR) {
+      this.pHours = this.formatHours(this.pHours);
     }
+  }
+
+  /**
+   * Maps an entered hour onto the 0-23 clock. Entering 24 means midnight and normalises to 0,
+   * so a duty meant as 06:00-24:00 is stored as 06:00-00:00 and measures 18 hours under the
+   * equal-bounds-wrap rule, instead of being silently clamped to 23:00 and losing an hour.
+   */
+  private normaliseClockHours(value: number): number {
+    if (value === HOURS_PER_DAY) {
+      return 0;
+    }
+    return Math.min(value, LAST_CLOCK_HOUR);
   }
 
   public toString(): string {
@@ -199,8 +215,9 @@ export class OwnTime implements IOwnTime {
 
     const numValue = parseInt(value) || 0;
 
-    const maxHours = this.pIsDuration ? 999 : 23;
-    const clampedValue = Math.min(numValue, maxHours);
+    const clampedValue = this.pIsDuration
+      ? Math.min(numValue, MAX_DURATION_HOURS)
+      : this.normaliseClockHours(numValue);
 
     if (!this.pIsDuration) {
       return clampedValue.toString().padStart(2, '0');

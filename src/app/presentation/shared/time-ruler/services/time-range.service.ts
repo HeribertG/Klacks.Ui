@@ -130,68 +130,83 @@ export class TimeRangeService {
     return { increment: this.MINUTES_PER_DAY, showHalfHourLabels: false };
   }
 
-  getShiftStartMinutes(item: IShift | IContainerTemplateItem): number {
+  private extractStartTimeString(
+    item: IShift | IContainerTemplateItem
+  ): string | undefined {
     const isContainerItem = 'shiftId' in item;
 
     if (isContainerItem) {
-      const timeString = item.absenceId
+      return item.absenceId
         ? item.startItem
         : (item.timeRangeStartItem || item.startItem);
-      if (!timeString) return 0;
-
-      const time = this.parseTimeString(timeString);
-      if (!time) return 0;
-
-      return time.hours * this.MINUTES_PER_HOUR + time.minutes;
-    } else {
-      const shift = item as IShift;
-      const timeString = shift.startShift;
-      if (!timeString) return 0;
-
-      const time = this.parseTimeString(timeString);
-      if (!time) return 0;
-
-      return time.hours * this.MINUTES_PER_HOUR + time.minutes;
     }
+
+    return (item as IShift).startShift;
   }
 
-  getShiftEndMinutes(item: IShift | IContainerTemplateItem): number {
+  private extractEndTimeString(
+    item: IShift | IContainerTemplateItem
+  ): string | undefined {
     const isContainerItem = 'shiftId' in item;
 
     if (isContainerItem) {
-      const timeString = item.absenceId
+      return item.absenceId
         ? item.endItem
         : (item.timeRangeEndItem || item.endItem);
-      if (!timeString) return 0;
-
-      const time = this.parseTimeString(timeString);
-      if (!time) return 0;
-
-      let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
-
-      const startMinutes = this.getShiftStartMinutes(item);
-      if (minutes < startMinutes) {
-        minutes += this.MINUTES_PER_DAY;
-      }
-
-      return minutes;
-    } else {
-      const shift = item as IShift;
-      const timeString = shift.endShift;
-      if (!timeString) return 0;
-
-      const time = this.parseTimeString(timeString);
-      if (!time) return 0;
-
-      let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
-
-      const startMinutes = this.getShiftStartMinutes(item);
-      if (minutes < startMinutes) {
-        minutes += this.MINUTES_PER_DAY;
-      }
-
-      return minutes;
     }
+
+    return (item as IShift).endShift;
+  }
+
+  /**
+   * Whether both bounds are actually set and parseable. Callers must ask this instead of
+   * testing for zero minutes: since equal bounds now mean a full day, a start and an end of
+   * zero is a valid 00:00-00:00 duty, no longer distinguishable from an unset pair by value.
+   */
+  hasExplicitTimes(item: IShift | IContainerTemplateItem): boolean {
+    const startString = this.extractStartTimeString(item);
+    const endString = this.extractEndTimeString(item);
+
+    if (!startString || !endString) {
+      return false;
+    }
+
+    return (
+      this.parseTimeString(startString) !== null &&
+      this.parseTimeString(endString) !== null
+    );
+  }
+
+  getShiftStartMinutes(item: IShift | IContainerTemplateItem): number {
+    const timeString = this.extractStartTimeString(item);
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+  }
+
+  /**
+   * End of the span in minutes, wrapping past midnight. An end not greater than the start
+   * wraps, so a 07:00-07:00 duty spans the full 1440 minutes instead of collapsing to a
+   * zero-height block that can be neither seen nor clicked.
+   */
+  getShiftEndMinutes(item: IShift | IContainerTemplateItem): number {
+    const timeString = this.extractEndTimeString(item);
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+
+    const startMinutes = this.getShiftStartMinutes(item);
+    if (minutes <= startMinutes) {
+      minutes += this.MINUTES_PER_DAY;
+    }
+
+    return minutes;
   }
 
   parseTimeString(

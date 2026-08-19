@@ -7,6 +7,10 @@
  * Used across the application for consistent time display and conversion.
  */
 
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
+const MINUTES_PER_DAY = HOURS_PER_DAY * MINUTES_PER_HOUR;
+
 /**
  * Formats a time string from "HH:mm:ss" to "HH:mm"
  *
@@ -131,14 +135,80 @@ export function calculateDurationInMinutes(
     return 0;
   }
 
-  const start = timeToMinutes(startTime);
-  const end = timeToMinutes(endTime);
+  return workingTimeDurationMinutes(
+    timeToMinutes(startTime),
+    timeToMinutes(endTime)
+  );
+}
 
-  if (end >= start) {
-    return end - start;
-  } else {
-    return 24 * 60 - start + end;
+/**
+ * Duration of a working-time span in minutes, wrapping past midnight.
+ * Equal bounds mean a full day, so a 07:00-07:00 duty is 1440 minutes rather than zero.
+ * Use this for duties, shifts and container working time.
+ *
+ * @param startMinutes - Start of the span in minutes since midnight
+ * @param endMinutes - End of the span in minutes since midnight
+ * @returns Duration in minutes, always greater than zero
+ *
+ * @example
+ * workingTimeDurationMinutes(420, 420) // 1440
+ * workingTimeDurationMinutes(1320, 360) // 480
+ */
+export function workingTimeDurationMinutes(
+  startMinutes: number,
+  endMinutes: number
+): number {
+  if (endMinutes > startMinutes) {
+    return endMinutes - startMinutes;
   }
+  return MINUTES_PER_DAY - startMinutes + endMinutes;
+}
+
+/**
+ * Duration of an absence or break recording in minutes, wrapping past midnight.
+ * Equal bounds mean no times were recorded and yield zero, per the owner ruling of
+ * 2026-08-19. A genuine full-day absence is booked as 00:00-23:59, not 00:00-00:00.
+ *
+ * @param startMinutes - Start of the span in minutes since midnight
+ * @param endMinutes - End of the span in minutes since midnight
+ * @returns Duration in minutes, zero when both bounds are equal
+ *
+ * @example
+ * absenceDurationMinutes(720, 720) // 0
+ * absenceDurationMinutes(1320, 360) // 480
+ */
+export function absenceDurationMinutes(
+  startMinutes: number,
+  endMinutes: number
+): number {
+  if (isFullDayMarker(startMinutes, endMinutes)) {
+    return MINUTES_PER_DAY;
+  }
+  if (endMinutes >= startMinutes) {
+    return endMinutes - startMinutes;
+  }
+  return MINUTES_PER_DAY - startMinutes + endMinutes;
+}
+
+/**
+ * Whether a span is the full-day booking marker 00:00-23:59. Absences and breaks covering a
+ * whole day are booked in this form, never as 00:00-00:00, which keeps the equal-bounds case
+ * free for working time. Replaces the previous "23.9 hours or more counts as a full day",
+ * which also swallowed a genuine span starting at 23:54.
+ *
+ * @param startMinutes - Start of the span in minutes since midnight
+ * @param endMinutes - End of the span in minutes since midnight
+ * @returns true only for exactly 00:00-23:59
+ *
+ * @example
+ * isFullDayMarker(0, 1439)    // true
+ * isFullDayMarker(1434, 1439) // false
+ */
+export function isFullDayMarker(
+  startMinutes: number,
+  endMinutes: number
+): boolean {
+  return startMinutes === 0 && endMinutes === MINUTES_PER_DAY - 1;
 }
 
 /**
@@ -153,7 +223,7 @@ export function calculateDurationInMinutes(
  * formatTimeFromMinutes(1500) // "01:00:00" (next day)
  */
 export function formatTimeFromMinutes(minutes: number): string {
-  const totalMinutes = minutes % (24 * 60);
+  const totalMinutes = minutes % MINUTES_PER_DAY;
   const hours = Math.floor(totalMinutes / 60);
   const mins = totalMinutes % 60;
   return timeToString(hours, mins);

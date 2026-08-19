@@ -19,6 +19,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { workingTimeDurationMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
 
 interface WorkEditValidation {
@@ -76,7 +77,7 @@ export class WorkEditDialogComponent {
 
   private modalRef: NgbModalRef | null = null;
 
-  private readonly MAX_DURATION_MINUTES = 20 * 60;
+  private readonly MAX_DURATION_MINUTES = 24 * 60;
 
   open(options: IOpenWorkEditOptions): void {
     this.workId = options.workId;
@@ -124,12 +125,7 @@ export class WorkEditDialogComponent {
     const startMinutes = this.startTime.toMinutes();
     const endMinutes = this.endTime.toMinutes();
 
-    let durationMinutes: number;
-    if (endMinutes >= startMinutes) {
-      durationMinutes = endMinutes - startMinutes;
-    } else {
-      durationMinutes = 24 * 60 - startMinutes + endMinutes;
-    }
+    const durationMinutes = workingTimeDurationMinutes(startMinutes, endMinutes);
 
     const hours = Math.floor(durationMinutes / 60);
     const minutes = durationMinutes % 60;

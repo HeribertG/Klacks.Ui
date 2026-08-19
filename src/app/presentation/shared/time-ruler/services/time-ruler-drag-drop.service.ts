@@ -135,12 +135,12 @@ export class TimeRulerDragDropService {
       return false;
     }
 
-    const startMinutes = this.timeRangeService.getShiftStartMinutes(item);
-    const endMinutes = this.timeRangeService.getShiftEndMinutes(item);
-
-    if (startMinutes === 0 && endMinutes === 0) {
+    if (!this.timeRangeService.hasExplicitTimes(item)) {
       return false;
     }
+
+    const startMinutes = this.timeRangeService.getShiftStartMinutes(item);
+    const endMinutes = this.timeRangeService.getShiftEndMinutes(item);
 
     this._dragState.isDragging = true;
     this._dragState.draggedShift = item;
