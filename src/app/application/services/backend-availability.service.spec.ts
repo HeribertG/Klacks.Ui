@@ -28,7 +28,7 @@ describe('BackendAvailabilityService', () => {
   };
 
   const newServiceInstance = (): BackendAvailabilityService => {
-    const instance = new BackendAvailabilityService();
+    const instance = TestBed.runInInjectionContext(() => new BackendAvailabilityService());
     (instance as unknown as { reloadPage: () => void }).reloadPage = () => {
       reloadCount++;
     };

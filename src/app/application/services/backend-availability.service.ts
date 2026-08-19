@@ -7,32 +7,33 @@
  * health endpoint itself has failed AND the outage has outlasted the grace period. The grace
  * period is long while the backend has never answered in this browser tab, because then it is
  * simply still booting, and short once it has answered, because from then on an outage is a real
- * fault the user needs to hear about quickly. That "has answered" mark is kept in session storage
- * so it survives a reload: without it every F5 during an outage would look like a fresh start and
- * make the user stare at a dead page for the full startup grace period. Only responses from the
+ * fault the user needs to hear about quickly. That "has answered" mark is kept by
+ * BackendAnsweredStorageService so it survives a reload: without it every F5 during an outage
+ * would look like a fresh start and make the user stare at a dead page for the full startup
+ * grace period. Only responses from the
  * API count as an answer — assets such as the i18n bundles come from the web server and say
  * nothing about the backend. Only one poll loop ever runs at a time. The page is reloaded on
  * recovery only if the overlay was actually shown, because an unexplained reload during startup
  * looks like a defect.
  * @param url - Response URL reported to reportReachable, matched against the configured API base
  */
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { BackendAnsweredStorageService } from 'src/app/infrastructure/storage/backend-answered-storage.service';
 
 const PROBE_TIMEOUT_MS = 3000;
 const STARTUP_GRACE_PERIOD_MS = 45000;
 const OUTAGE_GRACE_PERIOD_MS = 10000;
 const PROBE_INTERVAL_BEFORE_OVERLAY_MS = 1000;
 const PROBE_INTERVAL_AFTER_OVERLAY_MS = 2000;
-const BACKEND_ANSWERED_STORAGE_KEY = 'klacks.backend-has-answered';
-const BACKEND_ANSWERED_STORAGE_VALUE = 'true';
 
 @Injectable({ providedIn: 'root' })
 export class BackendAvailabilityService {
+  private readonly answeredStorage = inject(BackendAnsweredStorageService);
   private readonly unavailableSignal = signal(false);
   private pollInProgress = false;
   private overlayWasShown = false;
-  private backendHasAnswered = this.readAnsweredMark();
+  private backendHasAnswered = this.answeredStorage.isMarked();
 
   readonly isUnavailable = this.unavailableSignal.asReadonly();
 
@@ -88,19 +89,7 @@ export class BackendAvailabilityService {
 
   private markBackendAnswered(): void {
     this.backendHasAnswered = true;
-    try {
-      sessionStorage.setItem(BACKEND_ANSWERED_STORAGE_KEY, BACKEND_ANSWERED_STORAGE_VALUE);
-    } catch {
-      return;
-    }
-  }
-
-  private readAnsweredMark(): boolean {
-    try {
-      return sessionStorage.getItem(BACKEND_ANSWERED_STORAGE_KEY) === BACKEND_ANSWERED_STORAGE_VALUE;
-    } catch {
-      return false;
-    }
+    this.answeredStorage.mark();
   }
 
   private wait(delayMs: number): Promise<void> {
