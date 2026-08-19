@@ -14,7 +14,9 @@
  * API count as an answer — assets such as the i18n bundles come from the web server and say
  * nothing about the backend. Only one poll loop ever runs at a time. The page is reloaded on
  * recovery only if the overlay was actually shown, because an unexplained reload during startup
- * looks like a defect.
+ * looks like a defect. While a poll loop runs the outage is public knowledge, so error toasts and
+ * the loading spinner can stay silent instead of drowning the user in noise about a backend that
+ * is simply gone.
  * @param url - Response URL reported to reportReachable, matched against the configured API base
  */
 import { Injectable, inject, signal } from '@angular/core';
@@ -31,11 +33,12 @@ const PROBE_INTERVAL_AFTER_OVERLAY_MS = 2000;
 export class BackendAvailabilityService {
   private readonly answeredStorage = inject(BackendAnsweredStorageService);
   private readonly unavailableSignal = signal(false);
-  private pollInProgress = false;
+  private readonly outageSuspectedSignal = signal(false);
   private overlayWasShown = false;
   private backendHasAnswered = this.answeredStorage.isMarked();
 
   readonly isUnavailable = this.unavailableSignal.asReadonly();
+  readonly isOutageSuspected = this.outageSuspectedSignal.asReadonly();
 
   reportReachable(url: string | null): void {
     if (url && url.includes(environment.baseUrl)) {
@@ -44,14 +47,14 @@ export class BackendAvailabilityService {
   }
 
   reportUnavailable(): void {
-    if (this.pollInProgress) {
+    if (this.outageSuspectedSignal()) {
       return;
     }
     void this.pollUntilHealthy();
   }
 
   private async pollUntilHealthy(): Promise<void> {
-    this.pollInProgress = true;
+    this.outageSuspectedSignal.set(true);
     const outageStartedAt = performance.now();
     while (!(await this.probeHealth())) {
       if (performance.now() - outageStartedAt >= this.gracePeriodMs()) {
@@ -74,7 +77,7 @@ export class BackendAvailabilityService {
   }
 
   private endOutage(): void {
-    this.pollInProgress = false;
+    this.outageSuspectedSignal.set(false);
     this.markBackendAnswered();
     if (this.overlayWasShown) {
       this.reloadPage();

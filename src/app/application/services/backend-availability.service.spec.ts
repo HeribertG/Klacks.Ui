@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { BackendAvailabilityService } from './backend-availability.service';
 import { environment } from 'src/environments/environment';
@@ -192,6 +194,26 @@ describe('BackendAvailabilityService', () => {
 
       expect(reloadCount).toBe(1);
       expect(sessionStorage.getItem(ANSWERED_STORAGE_KEY)).toBe('true');
+    });
+  });
+
+  describe('outage suspicion for toasts and spinner', () => {
+    it('is suspected from the first failed report until the backend answers again', async () => {
+      fetchMock.mockResolvedValue({ ok: false });
+      expect(service.isOutageSuspected()).toBe(false);
+
+      service.reportUnavailable();
+      expect(service.isOutageSuspected()).toBe(true);
+
+      await advance(PROBE_INTERVAL_BEFORE_OVERLAY_MS);
+      expect(service.isOutageSuspected()).toBe(true);
+
+      fetchMock.mockResolvedValue({ ok: true });
+      await advance(PROBE_INTERVAL_BEFORE_OVERLAY_MS);
+
+      expect(service.isOutageSuspected()).toBe(false);
+      expect(service.isUnavailable()).toBe(false);
+      expect(reloadCount).toBe(0);
     });
   });
 });

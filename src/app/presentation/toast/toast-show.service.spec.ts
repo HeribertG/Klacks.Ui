@@ -3,6 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ToastShowService } from './toast-show.service';
 import { ToastService } from './toast.service';
+import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 
 describe('ToastShowService', () => {
   let service: ToastShowService;
@@ -153,6 +154,31 @@ describe('ToastShowService', () => {
 
       expect(before).not.toBe(after);
       expect(after.length).toBe(1);
+    });
+  });
+
+  describe('during a suspected backend outage', () => {
+    beforeEach(() => {
+      const backendAvailability = TestBed.inject(BackendAvailabilityService);
+      vi.spyOn(backendAvailability, 'isOutageSuspected').mockReturnValue(true);
+    });
+
+    it('should swallow error toasts', () => {
+      service.showError('Something failed', 'ERROR_NAME');
+
+      expect(toastService.toasts().length).toBe(0);
+    });
+
+    it('should still show info toasts', () => {
+      service.showInfo('Information message', 'INFO_NAME');
+
+      expect(toastService.toasts().length).toBe(1);
+    });
+
+    it('should still show success toasts', () => {
+      service.showSuccess('Operation completed', 'Success');
+
+      expect(toastService.toasts().length).toBe(1);
     });
   });
 });

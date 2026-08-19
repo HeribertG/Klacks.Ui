@@ -1882,6 +1882,7 @@
   "setting.qualifications.modal.category-others": "Sonstiges",
   "qualification.filter.all-categories": "Alle Kategorien",
   "setting.qualifications.error.load": "Fehler beim Laden der Qualifikationen",
+  "setting.qualifications.error.loadCountries": "Fehler beim Laden der Länder",
   "setting.qualifications.error.save": "Fehler beim Speichern der Qualifikation",
   "setting.qualifications.error.delete": "Fehler beim Löschen der Qualifikation",
   "setting.individualPeriod.add": "+ Neue individuelle Periode",

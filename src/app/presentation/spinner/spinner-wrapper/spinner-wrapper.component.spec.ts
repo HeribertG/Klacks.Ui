@@ -3,6 +3,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SpinnerWrapperComponent } from './spinner-wrapper.component';
 import { SpinnerService } from '../spinner.service';
+import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 
 describe('SpinnerWrapperComponent', () => {
     let component: SpinnerWrapperComponent;
@@ -50,5 +51,19 @@ describe('SpinnerWrapperComponent', () => {
         // Assert
         const spinnerElement = fixture.nativeElement.querySelector('.loading-indicator');
         expect(spinnerElement).toBeTruthy();
+    });
+
+    it('should not show spinner while a backend outage is suspected even though the spinner is on', () => {
+        // Arrange
+        const backendAvailability = TestBed.inject(BackendAvailabilityService);
+        vi.spyOn(backendAvailability, 'isOutageSuspected').mockReturnValue(true);
+        spinnerService.showProgressSpinner = true;
+
+        // Act
+        fixture.detectChanges();
+
+        // Assert
+        const spinnerElement = fixture.nativeElement.querySelector('.loading-indicator');
+        expect(spinnerElement).toBeFalsy();
     });
 });

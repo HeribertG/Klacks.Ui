@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject,
+import { Component, computed, inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { SpinnerService } from '../spinner.service';
+import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 
 import { SpinnerComponent } from '../spinner.component';
 
@@ -17,4 +18,9 @@ import { SpinnerComponent } from '../spinner.component';
 })
 export class SpinnerWrapperComponent {
   spinnerService = inject(SpinnerService);
+  private readonly backendAvailability = inject(BackendAvailabilityService);
+
+  readonly showSpinner = computed(
+    () => this.spinnerService.showSpinner() && !this.backendAvailability.isOutageSuspected()
+  );
 }

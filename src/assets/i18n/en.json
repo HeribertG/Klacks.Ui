@@ -1882,6 +1882,7 @@
   "setting.qualifications.modal.category-others": "Others",
   "qualification.filter.all-categories": "All categories",
   "setting.qualifications.error.load": "Error loading qualifications",
+  "setting.qualifications.error.loadCountries": "Error loading countries",
   "setting.qualifications.error.save": "Error saving qualification",
   "setting.qualifications.error.delete": "Error deleting qualification",
   "setting.individualPeriod.add": "+ New Individual Period",

@@ -175,7 +175,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
           this.cdr.markForCheck();
         },
         error: () => {
-          this.toastService.showError('setting.qualifications.error.load');
+          this.toastService.showError(this.translate.instant('setting.qualifications.error.load'));
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -193,7 +193,9 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
           this.cdr.markForCheck();
         },
         error: () => {
-          this.toastService.showError('setting.qualifications.error.load');
+          this.toastService.showError(
+            this.translate.instant('setting.qualifications.error.loadCountries')
+          );
         },
       });
   }

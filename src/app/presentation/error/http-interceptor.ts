@@ -21,6 +21,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataTranslationService } from 'src/app/infrastructure/api/translation/data-translation.service';
 import { firstValueFrom } from 'rxjs';
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -32,6 +33,9 @@ export class ResponseInterceptor implements HttpInterceptor {
   private translateService = inject(TranslateService);
   private dataTranslationService = inject(DataTranslationService);
   private backendAvailabilityService = inject(BackendAvailabilityService);
+
+  private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
+  private static readonly API_PATH_PREFIX = '/api/';
 
   private static readonly ERROR_PATTERNS = {
     POSTCODE: 'PostcodeCh',
@@ -89,6 +93,11 @@ export class ResponseInterceptor implements HttpInterceptor {
   ): Observable<never> {
     const url = error.url || '';
     const method = req.method.toUpperCase();
+
+    if (this.isBackendUnreachable(error)) {
+      this.backendAvailabilityService.reportUnavailable();
+      return throwError(() => error);
+    }
 
     if (url.includes('Addresses/Validate')) {
       return throwError(() => error);
@@ -463,11 +472,6 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private handleGenericError(error: HttpErrorResponse): Observable<never> {
-    if (this.isBackendUnreachable(error)) {
-      this.backendAvailabilityService.reportUnavailable();
-      return throwError(() => error);
-    }
-
     switch (error.status) {
       case 401: // wird vom TokenRefreshInterceptor behandelt
         break;
@@ -496,10 +500,39 @@ export class ResponseInterceptor implements HttpInterceptor {
     return throwError(() => error);
   }
 
-  // Status 0 or "Unknown Error" typically mean the backend is not reachable yet (e.g. still
-  // starting up / migrating a freshly installed database), not a genuine request failure.
+  // Status 0 means the connection itself failed, which only happens when nothing answers at all.
+  // Behind a reverse proxy the API is never silent: the proxy answers for it with a gateway status,
+  // so those count as unreachable too - but only for our own API, never for a foreign host.
+  // 503 is deliberately absent: the API itself returns it when a downstream service such as the
+  // marketplace is unavailable, and treating that as a dead backend would hide the real error and
+  // reload the page in a loop.
   private isBackendUnreachable(error: HttpErrorResponse): boolean {
-    return error.status === 0 || error.statusText === 'Unknown Error';
+    return error.status === 0 || this.isGatewayFailure(error);
+  }
+
+  private isGatewayFailure(error: HttpErrorResponse): boolean {
+    return (
+      ResponseInterceptor.GATEWAY_FAILURE_STATUS_CODES.includes(error.status) &&
+      this.isOwnApiUrl(error.url || '')
+    );
+  }
+
+  private isOwnApiUrl(url: string): boolean {
+    if (!url) {
+      return false;
+    }
+    if (url.startsWith(environment.baseUrl)) {
+      return true;
+    }
+    try {
+      const target = new URL(url, window.location.origin);
+      return (
+        target.origin === window.location.origin &&
+        target.pathname.startsWith(ResponseInterceptor.API_PATH_PREFIX)
+      );
+    } catch {
+      return false;
+    }
   }
 
   private isSpecific500Error(url: string): boolean {

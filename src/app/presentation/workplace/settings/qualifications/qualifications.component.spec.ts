@@ -53,7 +53,7 @@ describe('QualificationsComponent', () => {
     };
 
     const translateServiceSpy = {
-      instant: vi.fn().mockReturnValue(''),
+      instant: vi.fn((key: string) => key),
       get: vi.fn().mockReturnValue(of('')),
       onTranslationChange: of(),
       onLangChange: of(),

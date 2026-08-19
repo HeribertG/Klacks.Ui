@@ -1882,6 +1882,7 @@
   "setting.qualifications.modal.category-others": "Altro",
   "qualification.filter.all-categories": "Tutte le categorie",
   "setting.qualifications.error.load": "Errore durante il caricamento delle qualifiche",
+  "setting.qualifications.error.loadCountries": "Errore durante il caricamento dei paesi",
   "setting.qualifications.error.save": "Errore durante il salvataggio della qualifica",
   "setting.qualifications.error.delete": "Errore durante l'eliminazione della qualifica",
   "setting.individualPeriod.add": "+ Nuovo periodo individuale",

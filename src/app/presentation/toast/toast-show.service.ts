@@ -6,11 +6,16 @@
  * @param showError - Shows an error toast (auto-hide 8s)
  * @param showSuccess - Shows a success toast (auto-hide 2s)
  * @param showInteractiveReply - Shows an interactive toast with single/multi-select options
+ *
+ * Error toasts are swallowed while the backend is known to be down: every pending request fails at
+ * once there, and a stack of identical failures tells the user nothing the outage overlay does not
+ * say better.
  */
 
 import { inject, Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ToastService } from './toast.service';
+import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { IToast } from './toast.interface';
@@ -26,6 +31,7 @@ const INTERACTIVE_REPLY_DEFAULTS = {
 })
 export class ToastShowService {
   private readonly toastService = inject(ToastService);
+  private readonly backendAvailability = inject(BackendAvailabilityService);
   private readonly interactiveReplyShown = new Subject<void>();
   readonly interactiveReplyShown$ = this.interactiveReplyShown.asObservable();
 
@@ -47,6 +53,10 @@ export class ToastShowService {
   }
 
   showError(message: string, errorName = '', additionalMessage = '', icon = ''): void {
+    if (this.backendAvailability.isOutageSuspected()) {
+      return;
+    }
+
     if (errorName) {
       const existing = this.toastService.toasts().find((x) => x.name === errorName);
       this.toastService.remove(existing);
