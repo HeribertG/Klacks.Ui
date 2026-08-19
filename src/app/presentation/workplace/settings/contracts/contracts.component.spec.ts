@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter, signal, WritableSignal } from '@angular/core';
+import { EmbeddedViewRef, EventEmitter, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { of, Subject } from 'rxjs';
@@ -343,6 +343,50 @@ describe('ContractsComponent', () => {
 
       expect(component.percent()).toBe(60);
       expect(component.editingContract!.percent).toBe(60);
+    });
+
+    describe('rendered in the modal template', () => {
+      let modalView: EmbeddedViewRef<unknown>;
+
+      const queryModal = <T extends Element>(selector: string): T | null => {
+        for (const node of modalView.rootNodes as Element[]) {
+          if (typeof node.querySelector !== 'function') continue;
+          if (node.matches?.(selector)) return node as unknown as T;
+          const hit = node.querySelector(selector);
+          if (hit) return hit as T;
+        }
+        return null;
+      };
+
+      const renderModal = () => {
+        fixture.detectChanges();
+        const viewContainer = fixture.debugElement.injector.get(ViewContainerRef);
+        modalView = viewContainer.createEmbeddedView(component.contractModal(), {
+          $implicit: { close: () => undefined, dismiss: () => undefined },
+        });
+        fixture.detectChanges();
+      };
+
+      afterEach(() => modalView.destroy());
+
+      it('hides min/max/full-time when guaranteed hours are inherited', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+        renderModal();
+
+        expect(queryModal('#contract-modal-guaranteed-hours-item')).not.toBeNull();
+        expect(queryModal('#contract-modal-min-hours-item')).toBeNull();
+        expect(queryModal('#contract-modal-max-hours-item')).toBeNull();
+        expect(queryModal('#contract-modal-fulltime-item')).toBeNull();
+      });
+
+      it('shows min/max/full-time when guaranteed hours are explicit', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+        renderModal();
+
+        expect(queryModal('#contract-modal-min-hours-item')).not.toBeNull();
+        expect(queryModal('#contract-modal-max-hours-item')).not.toBeNull();
+        expect(queryModal('#contract-modal-fulltime-item')).not.toBeNull();
+      });
     });
   });
 
