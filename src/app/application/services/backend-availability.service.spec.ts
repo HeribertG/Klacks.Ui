@@ -12,6 +12,7 @@ const PROBE_INTERVAL_AFTER_OVERLAY_MS = 2000;
 const CLOCK_STEP_MS = 500;
 const MEASURED_SLOWEST_BACKEND_START_MS = 41000;
 const BACKEND_READY_AT_MS = 20000;
+const ANSWERED_STORAGE_KEY = 'klacks.backend-has-answered';
 
 describe('BackendAvailabilityService', () => {
   let service: BackendAvailabilityService;
@@ -26,8 +27,17 @@ describe('BackendAvailabilityService', () => {
     }
   };
 
+  const newServiceInstance = (): BackendAvailabilityService => {
+    const instance = new BackendAvailabilityService();
+    (instance as unknown as { reloadPage: () => void }).reloadPage = () => {
+      reloadCount++;
+    };
+    return instance;
+  };
+
   beforeEach(() => {
     now = 0;
+    sessionStorage.clear();
     vi.useFakeTimers();
     vi.spyOn(performance, 'now').mockImplementation(() => now);
 
@@ -44,6 +54,7 @@ describe('BackendAvailabilityService', () => {
   });
 
   afterEach(() => {
+    sessionStorage.clear();
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
@@ -86,6 +97,12 @@ describe('BackendAvailabilityService', () => {
       await advance(OUTAGE_GRACE_PERIOD_MS + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
 
       expect(service.isUnavailable()).toBe(false);
+    });
+
+    it('does not remember an asset response for the next page load', () => {
+      service.reportReachable(ASSET_RESPONSE_URL);
+
+      expect(sessionStorage.getItem(ANSWERED_STORAGE_KEY)).toBeNull();
     });
   });
 
@@ -133,6 +150,48 @@ describe('BackendAvailabilityService', () => {
       await advance(PROBE_INTERVAL_AFTER_OVERLAY_MS);
 
       expect(reloadCount).toBe(1);
+    });
+
+    it('remembers the answer for the next page load', () => {
+      expect(sessionStorage.getItem(ANSWERED_STORAGE_KEY)).toBe('true');
+    });
+  });
+
+  describe('across a page reload within the same tab', () => {
+    it('uses the short outage grace period although the new instance never saw an answer', async () => {
+      service.reportReachable(BACKEND_RESPONSE_URL);
+
+      const afterReload = newServiceInstance();
+      fetchMock.mockResolvedValue({ ok: false });
+
+      afterReload.reportUnavailable();
+      await advance(OUTAGE_GRACE_PERIOD_MS + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
+
+      expect(afterReload.isUnavailable()).toBe(true);
+    });
+
+    it('keeps the long startup grace period when the tab never got an answer', async () => {
+      const freshTab = newServiceInstance();
+      fetchMock.mockResolvedValue({ ok: false });
+
+      freshTab.reportUnavailable();
+      await advance(MEASURED_SLOWEST_BACKEND_START_MS);
+
+      expect(freshTab.isUnavailable()).toBe(false);
+    });
+
+    it('remembers the recovery that happened while the overlay was shown', async () => {
+      fetchMock.mockResolvedValue({ ok: false });
+
+      service.reportUnavailable();
+      await advance(STARTUP_GRACE_PERIOD_MS + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
+      expect(service.isUnavailable()).toBe(true);
+
+      fetchMock.mockResolvedValue({ ok: true });
+      await advance(PROBE_INTERVAL_AFTER_OVERLAY_MS);
+
+      expect(reloadCount).toBe(1);
+      expect(sessionStorage.getItem(ANSWERED_STORAGE_KEY)).toBe('true');
     });
   });
 });
