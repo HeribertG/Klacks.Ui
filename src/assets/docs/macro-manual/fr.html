@@ -125,6 +125,7 @@ IMPORT montant, rabais
   <tr><td>nightend</td><td>String ("HH:MM")</td><td>Fin de la plage de nuit, ex. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Heures mensuelles garanties du Contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Heures temps plein du Contract</td></tr>
+  <tr><td>percent</td><td>Decimal</td><td>Taux d'occupation en pourcent du Contract (100 = temps plein)</td></tr>
   <tr><td>weekendday1</td><td>Integer</td><td>Jour de la semaine ISO du 1er jour de week-end configuré (0 = non configuré)</td></tr>
   <tr><td>weekendday2</td><td>Integer</td><td>Jour de la semaine ISO du 2e jour de week-end configuré</td></tr>
   <tr><td>weekendday3</td><td>Integer</td><td>Jour de la semaine ISO du 3e jour de week-end configuré</td></tr>
@@ -134,6 +135,11 @@ IMPORT montant, rabais
 ont été remplacées par les trois variables neutres vis-à-vis du pays <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
 qui, combinées à <code>weekendday1-3</code>, représentent des jours de week-end quelconques (ex. vendredi/samedi
 au lieu de samedi/dimanche).</em></p>
+
+<p><em><code>percent</code> fournit le taux d'occupation contractuel en pourcent (100 = temps plein,
+50 = mi-temps). Les macros d'absence l'utilisent pour mettre à l'échelle leur crédit journalier
+(ex. vacances) au lieu de dériver un ratio de <code>guaranteedhours</code> / <code>fulltime</code>,
+qui ne fonctionne plus dès que les heures cibles varient selon le mois.</em></p>
 
 <hr>
 

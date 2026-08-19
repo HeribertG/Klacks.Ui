@@ -121,6 +121,7 @@ IMPORT betrag, rabatt
   <tr><td>nightend</td><td>String ("HH:MM")</td><td>Ende des Nachtfensters, z.B. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Garantierte Monatsstunden aus Contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Vollzeit-Stunden aus Contract</td></tr>
+  <tr><td>percent</td><td>Decimal</td><td>Pensum in Prozent aus Contract (100 = Vollzeit)</td></tr>
   <tr><td>weekendday1</td><td>Integer</td><td>ISO-Wochentag des 1. konfigurierten Wochenendtags (0 = nicht konfiguriert)</td></tr>
   <tr><td>weekendday2</td><td>Integer</td><td>ISO-Wochentag des 2. konfigurierten Wochenendtags</td></tr>
   <tr><td>weekendday3</td><td>Integer</td><td>ISO-Wochentag des 3. konfigurierten Wochenendtags</td></tr>
@@ -130,6 +131,11 @@ IMPORT betrag, rabatt
 wurden durch die drei länderneutralen <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code> ersetzt,
 die zusammen mit <code>weekendday1-3</code> beliebige Wochenend-Tage abbilden (z.B. Freitag/Samstag statt
 Samstag/Sonntag).</em></p>
+
+<p><em><code>percent</code> liefert das vertragliche Pensum in Prozent (100 = Vollzeit, 50 = halbes
+Pensum). Abwesenheits-Macros skalieren damit ihre Tagesgutschrift (z.B. Ferien), statt das
+Verhältnis aus <code>guaranteedhours</code> / <code>fulltime</code> abzuleiten, das bei monatlich
+wechselnden Sollstunden bricht.</em></p>
 
 <hr>
 

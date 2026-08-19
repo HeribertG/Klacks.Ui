@@ -42,6 +42,10 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import {
+  MACRO_AUTO_IMPORTS,
+  MACRO_IMPORT_PREFIX,
+} from 'src/app/domain/constants/macro-external-variables.constants';
 interface MacroFormModel {
   name: string;
   type: string;
@@ -158,29 +162,13 @@ export class MacroRowComponent implements OnDestroy {
     );
   }
 
-  private readonly AUTO_IMPORTS = [
-    'import hour',
-    'import fromhour',
-    'import untilhour',
-    'import weekday',
-    'import holiday',
-    'import holidaynextday',
-    'import nightrate',
-    'import holidayrate',
-    'import we1rate',
-    'import we2rate',
-    'import we3rate',
-    'import nightstart',
-    'import nightend',
-    'import guaranteedhours',
-    'import fulltime'
-  ];
+  private readonly AUTO_IMPORTS = MACRO_AUTO_IMPORTS;
 
   private stripImports(code: string): string {
     if (!code) return '';
     return code
       .split('\n')
-      .filter(line => !line.trim().toLowerCase().startsWith('import '))
+      .filter(line => !line.trim().toLowerCase().startsWith(MACRO_IMPORT_PREFIX))
       .join('\n')
       .trim();
   }
@@ -420,7 +408,11 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   private buildExternalVariables(): ExternalVariables {
-    return { ...this.shiftData };
+    const variables: ExternalVariables = {};
+    for (const [key, value] of Object.entries(this.shiftData)) {
+      variables[key.toLowerCase()] = value;
+    }
+    return variables;
   }
 
   loadManual(): void {

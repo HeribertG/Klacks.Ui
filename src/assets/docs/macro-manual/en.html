@@ -122,6 +122,7 @@ IMPORT amount, discount
   <tr><td>nightend</td><td>String ("HH:MM")</td><td>End of the night window, e.g. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Guaranteed monthly hours from Contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Full-time hours from Contract</td></tr>
+  <tr><td>percent</td><td>Decimal</td><td>Workload share in percent from Contract (100 = full-time)</td></tr>
   <tr><td>weekendday1</td><td>Integer</td><td>ISO weekday of the 1st configured weekend day (0 = not configured)</td></tr>
   <tr><td>weekendday2</td><td>Integer</td><td>ISO weekday of the 2nd configured weekend day</td></tr>
   <tr><td>weekendday3</td><td>Integer</td><td>ISO weekday of the 3rd configured weekend day</td></tr>
@@ -131,6 +132,11 @@ IMPORT amount, discount
 rate) have been replaced by the three country-neutral <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
 which together with <code>weekendday1-3</code> can represent arbitrary weekend days (e.g. Friday/Saturday
 instead of Saturday/Sunday).</em></p>
+
+<p><em><code>percent</code> provides the contractual workload share in percent (100 = full-time,
+50 = half workload). Absence macros scale their daily credit (e.g. vacation) with it instead of
+deriving a ratio from <code>guaranteedhours</code> / <code>fulltime</code>, which breaks once the
+target hours vary per month.</em></p>
 
 <hr>
 

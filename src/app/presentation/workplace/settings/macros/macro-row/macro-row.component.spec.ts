@@ -549,4 +549,43 @@ describe('MacroRowComponent', () => {
       expect(completeSpy).toHaveBeenCalled();
     });
   });
+
+  describe('import round-trip', () => {
+    it('should preserve percent and weekend day imports across load and save', () => {
+      // Arrange - shape of the seeded absence macros after the percent migration
+      fixture.componentRef.setInput('data', {
+        ...mockMacro,
+        content: 'import percent\nimport weekendday1\n\noutput 1, percent * weekendday1',
+      } as IMacro);
+      fixture.detectChanges();
+
+      // Act
+      (component as unknown as { commitFormToData: () => void }).commitFormToData();
+
+      // Assert - saving must not strip imports the script body still relies on
+      const saved = component.data().content ?? '';
+      expect(saved).toContain('import percent');
+      expect(saved).toContain('import weekendday1');
+      expect(saved).toContain('import weekendday2');
+      expect(saved).toContain('import weekendday3');
+      expect(saved).toContain('output 1, percent * weekendday1');
+    });
+
+    it('should send lowercase external variable names including the new variables to the test run', () => {
+      // Act
+      const externals = (
+        component as unknown as { buildExternalVariables: () => Record<string, unknown> }
+      ).buildExternalVariables();
+
+      // Assert
+      for (const key of Object.keys(externals)) {
+        expect(key).toBe(key.toLowerCase());
+      }
+      expect(externals['percent']).toBe(100);
+      expect(externals['weekendday1']).toBe(6);
+      expect(externals['weekendday2']).toBe(7);
+      expect(externals['weekendday3']).toBe(0);
+      expect(externals['hour']).toBe(8);
+    });
+  });
 });

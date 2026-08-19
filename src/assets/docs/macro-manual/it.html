@@ -123,6 +123,7 @@ IMPORT importo, sconto
   <tr><td>nightend</td><td>String ("HH:MM")</td><td>Fine della finestra notturna, es. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Ore mensili garantite dal Contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Ore a tempo pieno dal Contract</td></tr>
+  <tr><td>percent</td><td>Decimal</td><td>Grado di occupazione in percento dal Contract (100 = tempo pieno)</td></tr>
   <tr><td>weekendday1</td><td>Integer</td><td>Giorno della settimana ISO del 1° giorno di fine settimana configurato (0 = non configurato)</td></tr>
   <tr><td>weekendday2</td><td>Integer</td><td>Giorno della settimana ISO del 2° giorno di fine settimana configurato</td></tr>
   <tr><td>weekendday3</td><td>Integer</td><td>Giorno della settimana ISO del 3° giorno di fine settimana configurato</td></tr>
@@ -132,6 +133,11 @@ IMPORT importo, sconto
 sono state sostituite dalle tre variabili neutre rispetto al paese <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
 che insieme a <code>weekendday1-3</code> permettono di rappresentare giorni di fine settimana
 qualsiasi (es. venerdì/sabato invece di sabato/domenica).</em></p>
+
+<p><em><code>percent</code> fornisce il grado di occupazione contrattuale in percento (100 = tempo
+pieno, 50 = mezzo tempo). Le macro di assenza lo usano per scalare il loro accredito giornaliero
+(es. vacanze) invece di derivare un rapporto da <code>guaranteedhours</code> / <code>fulltime</code>,
+che non funziona più quando le ore obiettivo variano di mese in mese.</em></p>
 
 <hr>
 

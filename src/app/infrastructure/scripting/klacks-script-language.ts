@@ -4,6 +4,7 @@ import { StreamLanguage, StringStream, syntaxHighlighting, HighlightStyle } from
 import { tags } from '@lezer/highlight';
 import { StateEffect, StateField } from '@codemirror/state';
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view';
+import { MACRO_EXTERNAL_VARIABLES } from 'src/app/domain/constants/macro-external-variables.constants';
 
 const keywords = new Set([
   'if', 'then', 'else', 'endif', 'end',
@@ -37,12 +38,7 @@ const constants = new Set([
   'vbcrlf', 'vbtab', 'vbcr', 'vblf'
 ]);
 
-const externalVariables = new Set([
-  'hour', 'fromhour', 'untilhour',
-  'weekday', 'holiday', 'holidaynextday',
-  'nightrate', 'holidayrate', 'weekendrate',
-  'guaranteedhours', 'fulltime'
-]);
+export const externalVariables = new Set<string>(MACRO_EXTERNAL_VARIABLES);
 
 interface KlacksScriptState {
   tokenize: (stream: StringStream, state: KlacksScriptState) => string | null;
