@@ -160,7 +160,7 @@
         </div>
       </div>
 
-      @if (macroManagementService.macroList().length > 0) {
+      @if (selectableMacros().length > 0) {
         <div id="absence-modal-macro-row" class="row-line">
           <label for="macro-list">{{
             "shift.edit-shift.special-feature.sum-macro.list" | translate
@@ -172,7 +172,7 @@
             aria-label="macro-list"
           >
             <option value="">---</option>
-            @for (item of macroManagementService.macroList(); track item.id) {
+            @for (item of selectableMacros(); track item.id) {
               <option [value]="item.id">
                 {{ item.name }}
               </option>

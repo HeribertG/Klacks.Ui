@@ -4,6 +4,7 @@
 import {
   AfterViewInit,
   Component, ChangeDetectionStrategy,
+  computed,
   effect,
   OnDestroy,
   OnInit,
@@ -41,6 +42,7 @@ import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
+import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
@@ -89,6 +91,17 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
   public macroManagementService = inject(MacroManagementService);
   public sortingService = inject(TableSortingService);
+
+  /**
+   * Macros an absence type may be wired to: everything except the shift-surcharge macros
+   * (category Shift, e.g. AllShift). Assigning a surcharge macro to an absence would persist
+   * its bonus sum as the break work time.
+   */
+  public selectableMacros = computed(() =>
+    this.macroManagementService
+      .macroList()
+      .filter((macro) => macro.category !== MacroCategoryEnum.Shift)
+  );
 
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);

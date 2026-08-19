@@ -14,6 +14,8 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
 import { Absence } from 'src/app/domain/models/absence/absence-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { AbsenceFilter, TruncatedAbsence } from 'src/app/domain/models/absence/absence-class';
+import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';
 
 describe('AbsenceComponent', () => {
   let component: AbsenceComponent;
@@ -95,6 +97,19 @@ describe('AbsenceComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('Selectable macros', () => {
+    it('filters shift-surcharge macros out of the absence macro dropdown', () => {
+      const shiftMacro = { id: 'm1', name: 'AllShift', category: MacroCategoryEnum.Shift } as IMacro;
+      const customMacro = { id: 'm2', name: 'Pikett custom', category: MacroCategoryEnum.Unspecified } as IMacro;
+      const vacationMacro = { id: 'm3', name: 'Vacation', category: MacroCategoryEnum.Vacation } as IMacro;
+      component.macroManagementService.macroList.set([shiftMacro, customMacro, vacationMacro]);
+
+      const result = component.selectableMacros();
+
+      expect(result.map((m) => m.id)).toEqual(['m2', 'm3']);
+    });
   });
 
   describe('Initialization', () => {
