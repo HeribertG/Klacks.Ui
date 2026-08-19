@@ -1000,6 +1000,8 @@
   "setting.contract.individualPeriodSelection-modal": "Période individuelle",
   "setting.contract.percent-modal": "Taux d'activité (%)",
   "setting.contract.percent-placeholder": "100",
+  "setting.contract.companyValue": "Valeur de l'entreprise",
+  "setting.contract.resetToCompanyValue": "Réinitialiser à la valeur de l'entreprise",
   "setting.contract.noIndividualPeriod": "Aucune période individuelle",
   "setting.contract.save": "Enregistrer",
   "setting.contract.validFrom-modal": "Valide à partir de",

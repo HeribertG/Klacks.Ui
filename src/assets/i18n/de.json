@@ -1001,6 +1001,8 @@
   "setting.contract.individualPeriodSelection-modal": "Individuelle Periode",
   "setting.contract.percent-modal": "Pensum (%)",
   "setting.contract.percent-placeholder": "100",
+  "setting.contract.companyValue": "Firmenwert",
+  "setting.contract.resetToCompanyValue": "Auf Firmenwert zurücksetzen",
   "setting.contract.noIndividualPeriod": "Keine individuelle Periode",
   "setting.contract.save": "Speichern",
   "setting.contract.validFrom-modal": "Gültig ab",

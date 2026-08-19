@@ -1001,6 +1001,8 @@
   "setting.contract.individualPeriodSelection-modal": "Individual Period",
   "setting.contract.percent-modal": "Workload (%)",
   "setting.contract.percent-placeholder": "100",
+  "setting.contract.companyValue": "Company value",
+  "setting.contract.resetToCompanyValue": "Reset to company value",
   "setting.contract.noIndividualPeriod": "No Individual Period",
   "setting.contract.save": "Save",
   "setting.contract.validFrom-modal": "Valid From",

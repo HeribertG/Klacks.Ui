@@ -1000,6 +1000,8 @@
   "setting.contract.individualPeriodSelection-modal": "Periodo individuale",
   "setting.contract.percent-modal": "Percentuale di impiego (%)",
   "setting.contract.percent-placeholder": "100",
+  "setting.contract.companyValue": "Valore aziendale",
+  "setting.contract.resetToCompanyValue": "Ripristina il valore aziendale",
   "setting.contract.noIndividualPeriod": "Nessun periodo individuale",
   "setting.contract.save": "Salva",
   "setting.contract.validFrom-modal": "Valido da",
