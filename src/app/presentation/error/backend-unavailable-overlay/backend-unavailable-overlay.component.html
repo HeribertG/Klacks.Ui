@@ -7,7 +7,9 @@
     @if (showReloadHint()) {
     <p class="backend-unavailable-hint">
       {{ 'backend-unavailable.hint' | translate }}
-      <button type="button" (click)="reload()">{{ 'error.button' | translate }}</button>
+      <button type="button" class="btn btn-primary" (click)="reload()">
+        {{ 'error.button' | translate }}
+      </button>
     </p>
     }
   </div>

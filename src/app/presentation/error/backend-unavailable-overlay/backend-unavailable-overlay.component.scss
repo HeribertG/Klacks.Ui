@@ -43,10 +43,10 @@
 
 .backend-unavailable-hint {
   font-size: 14px;
-  opacity: 0.85;
+  color: rgba(255, 255, 255, 0.85);
 
   button {
-    margin-inline-start: 8px;
+    margin-inline-start: 12px;
   }
 }
 
