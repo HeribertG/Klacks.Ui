@@ -9,6 +9,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { ContractsComponent } from './contracts.component';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
+import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IContract, PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
@@ -18,6 +20,8 @@ describe('ContractsComponent', () => {
   let component: ContractsComponent;
   let fixture: ComponentFixture<ContractsComponent>;
   let mockDataManagementContractService: Partial<DataManagementContractService>;
+  let mockMonthlyTargetHoursService: Partial<DataManagementMonthlyTargetHoursService>;
+  let mockSettingsService: Partial<DataManagementSettingsService>;
   let mockModalService: Partial<ModalService>;
   let mockNgbModal: Partial<NgbModal>;
   let mockTranslateService: Partial<TranslateService>;
@@ -68,8 +72,20 @@ describe('ContractsComponent', () => {
       readContracts: vi.fn().mockResolvedValue([]),
       validateContract: vi.fn().mockReturnValue([]),
       loadIndividualPeriods: vi.fn().mockResolvedValue(undefined),
+      ensureAssignedSchedulingRuleIsSelectable: vi.fn().mockResolvedValue(undefined),
       isRead: signal(false),
     };
+
+    mockMonthlyTargetHoursService = {
+      init: vi.fn().mockResolvedValue(undefined),
+      hoursOf: vi.fn().mockReturnValue(undefined),
+    };
+
+    mockSettingsService = {
+      appSettings: {
+        schedulingDefaultSettings: signal({ guaranteedHours: 170 }),
+      },
+    } as unknown as Partial<DataManagementSettingsService>;
 
     mockModalService = {
       resultEvent: new Subject<ModalType>(),
@@ -100,6 +116,8 @@ describe('ContractsComponent', () => {
       ],
       providers: [
         { provide: DataManagementContractService, useValue: mockDataManagementContractService },
+        { provide: DataManagementMonthlyTargetHoursService, useValue: mockMonthlyTargetHoursService },
+        { provide: DataManagementSettingsService, useValue: mockSettingsService },
         { provide: ModalService, useValue: mockModalService },
         { provide: NgbModal, useValue: mockNgbModal },
         { provide: TranslateService, useValue: mockTranslateService },
@@ -236,6 +254,130 @@ describe('ContractsComponent', () => {
       // Assert
       expect(component.validUntil()).toBeNull();
       expect(component.editingContract!.validUntil).toBeUndefined();
+    });
+  });
+
+  describe('Inherited guaranteed hours', () => {
+    it('onClickEdit with undefined guaranteedHours enters the inherited state', () => {
+      const contract = { ...mockContract, guaranteedHours: undefined };
+
+      component.onClickEdit(contract);
+
+      expect(component.guaranteedHoursInherited()).toBe(true);
+    });
+
+    it('onClickEdit with explicit zero stays explicit', () => {
+      const contract = { ...mockContract, guaranteedHours: 0 };
+
+      component.onClickEdit(contract);
+
+      expect(component.guaranteedHoursInherited()).toBe(false);
+    });
+
+    it('typing a value leaves the inherited state', () => {
+      component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+
+      component.onGuaranteedHoursChange(OwnTime.forDuration('160', '00'));
+
+      expect(component.guaranteedHoursInherited()).toBe(false);
+      expect(component.editingContract!.guaranteedHours).toBe(160);
+    });
+
+    it('resetGuaranteedHoursToCompanyValue writes undefined to the contract', () => {
+      component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+
+      component.resetGuaranteedHoursToCompanyValue();
+
+      expect(component.guaranteedHoursInherited()).toBe(true);
+      expect(component.editingContract!.guaranteedHours).toBeUndefined();
+    });
+
+    it('isFormValid keeps undefined guaranteedHours while inherited', () => {
+      component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+
+      component.isFormValid();
+
+      expect(component.editingContract!.guaranteedHours).toBeUndefined();
+    });
+
+    it('inherited display uses the monthly value of the current month scaled by percent', () => {
+      (mockMonthlyTargetHoursService.hoursOf as ReturnType<typeof vi.fn>).mockReturnValue(168);
+
+      return component.ngOnInit().then(() => {
+        component.percent.set(50);
+
+        expect(component.inheritedGuaranteedHours()).toBe(84);
+        expect(component.inheritedGuaranteedHoursDisplay()).toBe('84:00');
+      });
+    });
+
+    it('inherited display falls back to the settings value without a monthly row', async () => {
+      await component.ngOnInit();
+      component.percent.set(undefined);
+
+      expect(component.inheritedGuaranteedHours()).toBe(170);
+      expect(component.inheritedGuaranteedHoursDisplay()).toBe('170:00');
+    });
+
+    it('showPercentField is true while inherited even on the monthly interval', () => {
+      component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+
+      expect(component.showPercentField()).toBe(true);
+    });
+
+    it('showPercentField is false for an explicit contract on the monthly interval', () => {
+      component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+
+      expect(component.showPercentField()).toBe(false);
+    });
+
+    it('leaving the target-hours interval keeps percent while inherited', () => {
+      component.onClickEdit({
+        ...mockContract,
+        guaranteedHours: undefined,
+        paymentInterval: PaymentInterval.MonthlyTargetHours,
+        percent: 60,
+      });
+
+      component.onPaymentIntervalChange(PaymentInterval.Monthly);
+
+      expect(component.percent()).toBe(60);
+      expect(component.editingContract!.percent).toBe(60);
+    });
+  });
+
+  describe('onSaveModal', () => {
+    it('does not close the modal when validation fails', async () => {
+      component.editingContract = { ...mockContract };
+      (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue(['Error']);
+      const modal = { close: vi.fn(), dismiss: vi.fn() };
+
+      await component.onSaveModal(modal);
+
+      expect(modal.close).not.toHaveBeenCalled();
+      expect(mockDataManagementContractService.saveExistingContract).not.toHaveBeenCalled();
+    });
+
+    it('closes the modal when the save succeeds', async () => {
+      component.onClickEdit({ ...mockContract });
+      (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue([]);
+      const modal = { close: vi.fn(), dismiss: vi.fn() };
+
+      await component.onSaveModal(modal);
+
+      expect(mockDataManagementContractService.saveExistingContract).toHaveBeenCalled();
+      expect(modal.close).toHaveBeenCalled();
+    });
+
+    it('keeps the modal open when the service save fails', async () => {
+      component.onClickEdit({ ...mockContract });
+      (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue([]);
+      (mockDataManagementContractService.saveExistingContract as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+      const modal = { close: vi.fn(), dismiss: vi.fn() };
+
+      await component.onSaveModal(modal);
+
+      expect(modal.close).not.toHaveBeenCalled();
     });
   });
 

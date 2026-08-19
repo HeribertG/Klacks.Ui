@@ -39,7 +39,13 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
+import {
+  transformNullableNumberToOwnTime,
+  transformNumberToOwnTime,
+  transformOwnTimeToNumber,
+} from 'src/app/domain/helpers/own-time.helper';
+import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
@@ -82,6 +88,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
 
   public translate = inject(TranslateService);
   public dataManagementContractService = inject(DataManagementContractService);
+  private monthlyTargetHoursService = inject(DataManagementMonthlyTargetHoursService);
+  private settingsService = inject(DataManagementSettingsService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
@@ -133,6 +141,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   });
 
   guaranteedHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
+  guaranteedHoursInherited = signal<boolean>(false);
+  private companyMonthlyHours = signal<number | undefined>(undefined);
   minimumHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
   maximumHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
   fullTime = signal<OwnTime>(OwnTime.forDuration('00', '00'));
@@ -145,6 +155,36 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   individualPeriodId = signal<string | undefined>(undefined);
   paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
   percent = signal<number | undefined>(undefined);
+
+  private static readonly FULL_WORKLOAD_PERCENT = 100;
+
+  /**
+   * The company value an inheriting contract resolves to right now: the monthly target hours of the
+   * current month when a row exists, otherwise the guaranteed-hours default setting, scaled by the
+   * contract percent. Shown as a grey placeholder while the guaranteed-hours field is empty.
+   */
+  inheritedGuaranteedHours = computed(() => {
+    const basis =
+      this.companyMonthlyHours() ??
+      this.settingsService.appSettings.schedulingDefaultSettings().guaranteedHours;
+    const percent = this.percent() ?? ContractsComponent.FULL_WORKLOAD_PERCENT;
+    return (basis * percent) / ContractsComponent.FULL_WORKLOAD_PERCENT;
+  });
+
+  inheritedGuaranteedHoursTime = computed(() =>
+    transformNumberToOwnTime(this.inheritedGuaranteedHours(), true)
+  );
+
+  inheritedGuaranteedHoursDisplay = computed(() => {
+    const time = this.inheritedGuaranteedHoursTime();
+    return `${time.hours}:${time.minutes}`;
+  });
+
+  showPercentField = computed(
+    () =>
+      this.paymentInterval() === PaymentInterval.MonthlyTargetHours ||
+      this.guaranteedHoursInherited()
+  );
 
   public readonly PaymentInterval = PaymentInterval;
 
@@ -201,7 +241,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
       nightStart: contract.nightStart ?? '',
       nightEnd: contract.nightEnd ?? '',
     });
-    this.guaranteedHours.set(transformNumberToOwnTime(contract.guaranteedHours ?? 0, true));
+    this.guaranteedHoursInherited.set(contract.guaranteedHours == null);
+    this.guaranteedHours.set(transformNullableNumberToOwnTime(contract.guaranteedHours, true));
     this.minimumHours.set(transformNumberToOwnTime(contract.minimumHours ?? 0, true));
     this.maximumHours.set(transformNumberToOwnTime(contract.maximumHours ?? 0, true));
     this.fullTime.set(transformNumberToOwnTime(contract.fullTime ?? 0, true));
@@ -226,7 +267,9 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.editingContract.we3Rate = (this.weRateNullTracking.we3Rate && formData.we3Rate === 0) ? null : formData.we3Rate;
     this.editingContract.nightStart = (this.weRateNullTracking.nightStart && formData.nightStart === '') ? null : (formData.nightStart || null);
     this.editingContract.nightEnd = (this.weRateNullTracking.nightEnd && formData.nightEnd === '') ? null : (formData.nightEnd || null);
-    this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.guaranteedHours());
+    this.editingContract.guaranteedHours = this.guaranteedHoursInherited()
+      ? undefined
+      : transformOwnTimeToNumber(this.guaranteedHours());
     this.editingContract.minimumHours = transformOwnTimeToNumber(this.minimumHours());
     this.editingContract.maximumHours = transformOwnTimeToNumber(this.maximumHours());
     this.editingContract.fullTime = transformOwnTimeToNumber(this.fullTime());
@@ -259,6 +302,17 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error initializing contracts:', error);
+    }
+
+    try {
+      await this.monthlyTargetHoursService.init();
+      const now = new Date();
+      this.companyMonthlyHours.set(
+        this.monthlyTargetHoursService.hoursOf(now.getFullYear(), now.getMonth() + 1)
+      );
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error loading monthly target hours:', error);
     }
   }
 
@@ -359,19 +413,21 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   }
 
   async onSaveModal(modal: any): Promise<void> {
-    await this.saveContract();
-    modal.close();
+    const saved = await this.saveContract();
+    if (saved) {
+      modal.close();
+    }
   }
 
-  private async saveContract(): Promise<void> {
+  private async saveContract(): Promise<boolean> {
     if (!this.editingContract || this.isSaving) {
-      return;
+      return false;
     }
 
     this.applySignalsToContract();
 
     if (!this.isFormValid()) {
-      return;
+      return false;
     }
 
     this.isSaving = true;
@@ -379,12 +435,12 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     try {
       if (this.originalContract) {
         Object.assign(this.originalContract, this.editingContract);
-        await this.dataManagementContractService.saveExistingContract(
+        return await this.dataManagementContractService.saveExistingContract(
           this.originalContract
         );
       } else {
         this.dataManagementContractService.contracts.push(this.editingContract);
-        await this.dataManagementContractService.saveExistingContract(
+        const saved = await this.dataManagementContractService.saveExistingContract(
           this.editingContract
         );
         this.originalContract = this.editingContract;
@@ -400,6 +456,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
             }, 100);
           });
         }
+        return saved;
       }
     } catch (error) {
       console.error('Error saving contract:', error);
@@ -412,6 +469,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
           reloadError
         );
       }
+      return false;
     } finally {
       this.isSaving = false;
       this.cdr.markForCheck();
@@ -520,9 +578,18 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   }
 
   onGuaranteedHoursChange(value: OwnTime): void {
+    this.guaranteedHoursInherited.set(false);
     this.guaranteedHours.set(value);
     if (this.editingContract) {
       this.editingContract.guaranteedHours = transformOwnTimeToNumber(value);
+    }
+  }
+
+  resetGuaranteedHoursToCompanyValue(): void {
+    this.guaranteedHoursInherited.set(true);
+    this.guaranteedHours.set(OwnTime.forDuration('00', '00'));
+    if (this.editingContract) {
+      this.editingContract.guaranteedHours = undefined;
     }
   }
 
@@ -568,7 +635,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
         this.editingContract.individualPeriodId = undefined;
       }
     }
-    if (value !== PaymentInterval.MonthlyTargetHours) {
+    if (value !== PaymentInterval.MonthlyTargetHours && !this.guaranteedHoursInherited()) {
       this.percent.set(undefined);
       if (this.editingContract) {
         this.editingContract.percent = undefined;

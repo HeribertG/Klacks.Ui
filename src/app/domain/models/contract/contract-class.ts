@@ -13,7 +13,7 @@ export enum PaymentInterval {
 export interface IContract {
   id: string | undefined;
   name: string;
-  guaranteedHours: number;
+  guaranteedHours: number | undefined;
   maximumHours: number;
   minimumHours: number;
   fullTime: number;
@@ -45,7 +45,7 @@ export interface IContract {
 export class Contract implements IContract {
   id: string | undefined = '';
   name = '';
-  guaranteedHours = 0;
+  guaranteedHours: number | undefined = undefined;
   maximumHours = 0;
   minimumHours = 0;
   fullTime = 0;

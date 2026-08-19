@@ -55,17 +55,54 @@
           id="contract-modal-guaranteed-hours-item"
           class="hours-config-item"
         >
-          <app-time-input
-            id="contract-modal-guaranteed-hours-input"
-            [label]="'setting.contract.guaranteedHours-modal' | translate"
-            [value]="guaranteedHours()"
-            (valueChange)="onGuaranteedHoursChange($event)"
-            hoursName="guaranteedHoursHours"
-            minutesName="guaranteedHoursMinutes"
-            hoursId="guaranteedHours"
-            [forDuration]="true"
-            labelAlign="left"
-          ></app-time-input>
+          <div class="guaranteed-hours-row">
+            <app-time-input
+              id="contract-modal-guaranteed-hours-input"
+              [label]="'setting.contract.guaranteedHours-modal' | translate"
+              [value]="guaranteedHours()"
+              (valueChange)="onGuaranteedHoursChange($event)"
+              hoursName="guaranteedHoursHours"
+              minutesName="guaranteedHoursMinutes"
+              hoursId="guaranteedHours"
+              [forDuration]="true"
+              labelAlign="left"
+              [showEmpty]="guaranteedHoursInherited()"
+              [hoursPlaceholder]="
+                guaranteedHoursInherited()
+                  ? inheritedGuaranteedHoursTime().hours
+                  : 'hh'
+              "
+              [minutesPlaceholder]="
+                guaranteedHoursInherited()
+                  ? inheritedGuaranteedHoursTime().minutes
+                  : 'mm'
+              "
+            ></app-time-input>
+            @if (!guaranteedHoursInherited()) {
+              <button
+                type="button"
+                id="contract-modal-guaranteed-hours-reset-btn"
+                class="reset-inherit-btn"
+                (click)="resetGuaranteedHoursToCompanyValue()"
+                [title]="'setting.contract.resetToCompanyValue' | translate"
+                [attr.aria-label]="
+                  'setting.contract.resetToCompanyValue' | translate
+                "
+              >
+                &times;
+              </button>
+            }
+          </div>
+          @if (guaranteedHoursInherited()) {
+            <div
+              id="contract-modal-guaranteed-hours-inherited-hint"
+              class="inherited-hint"
+            >
+              &rarr; {{ inheritedGuaranteedHoursDisplay() }} ({{
+                "setting.contract.companyValue" | translate
+              }})
+            </div>
+          }
         </div>
 
         <div id="contract-modal-min-hours-item" class="hours-config-item">
@@ -418,7 +455,7 @@
           </div>
         }
 
-        @if (paymentInterval() === PaymentInterval.MonthlyTargetHours) {
+        @if (showPercentField()) {
           <div id="contract-modal-percent" class="selection-section">
             <span class="selection-label">{{
               "setting.contract.percent-modal" | translate

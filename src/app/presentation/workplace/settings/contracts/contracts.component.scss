@@ -78,6 +78,35 @@
   }
 }
 
+.guaranteed-hours-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.reset-inherit-btn {
+  border: none;
+  background: transparent;
+  color: var(--colorPlaceholder);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--standartTextColor);
+  }
+}
+
+.inherited-hint {
+  color: var(--colorPlaceholder);
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
 .contract-name-section {
   margin-inline-start: 30px;
   width: 250px;

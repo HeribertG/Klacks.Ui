@@ -13,6 +13,10 @@
     &::placeholder {
       color: var(--colorPlaceholder);
     }
+
+    &.inherited-placeholder::placeholder {
+      font-style: italic;
+    }
   }
 }
 

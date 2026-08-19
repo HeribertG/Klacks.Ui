@@ -11,6 +11,7 @@ import { DataManagementSettingsService } from '../settings/data-management-setti
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
+import { Contract, IContract } from '../../models/contract/contract-class';
 
 function rule(id: string, name: string): ISchedulingRule {
   return { id, name } as ISchedulingRule;
@@ -84,5 +85,36 @@ describe('DataManagementContractService - assigned scheduling rule', () => {
     // Assert
     expect(pulledIn).toBeUndefined();
     expect(service.availableSchedulingRules.length).toBe(1);
+  });
+
+  describe('validateContract with inheriting guaranteed hours', () => {
+    function contract(guaranteedHours: number | undefined): IContract {
+      return {
+        ...new Contract(),
+        name: 'Contract',
+        guaranteedHours,
+        minimumHours: 160,
+        maximumHours: 200,
+        validFrom: new Date(2026, 0, 1),
+      };
+    }
+
+    it('undefined guaranteedHours produces no bound errors', () => {
+      const errors = service.validateContract(contract(undefined));
+
+      expect(errors).toEqual([]);
+    });
+
+    it('explicit zero still violates the minimum-hours bound', () => {
+      const errors = service.validateContract(contract(0));
+
+      expect(errors.length).toBe(1);
+    });
+
+    it('explicit value above maximum is still rejected', () => {
+      const errors = service.validateContract(contract(250));
+
+      expect(errors.length).toBe(1);
+    });
   });
 });

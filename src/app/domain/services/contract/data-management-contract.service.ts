@@ -252,7 +252,7 @@ export class DataManagementContractService {
     newContract.name = '';
     const sched = this.settingsService.appSettings.schedulingDefaultSettings();
     const work = this.settingsService.appSettings.workSettings();
-    newContract.guaranteedHours = sched.guaranteedHours;
+    newContract.guaranteedHours = undefined;
     newContract.maximumHours = sched.maximumHours;
     newContract.minimumHours = sched.minimumHours;
     newContract.fullTime = sched.fullTime;
@@ -431,20 +431,23 @@ export class DataManagementContractService {
       return false;
     }
 
+    const guaranteedHours = this.editContract.guaranteedHours;
+    const guaranteedHoursOk =
+      guaranteedHours == null ||
+      (guaranteedHours >= 0 &&
+        guaranteedHours <= this.editContract.maximumHours &&
+        guaranteedHours >= this.editContract.minimumHours);
+
     if (
       this.editContract.name &&
       this.editContract.name.trim() !== '' &&
       this.editContract.name !== this.emptyPlaceholder &&
       this.editContract.validFrom &&
-      this.editContract.guaranteedHours >= 0 &&
+      guaranteedHoursOk &&
       this.editContract.maximumHours >= 0 &&
       this.editContract.minimumHours >= 0 &&
       this.editContract.minimumHours <=
-        this.editContract.maximumHours &&
-      this.editContract.guaranteedHours <=
-        this.editContract.maximumHours &&
-      this.editContract.guaranteedHours >=
-        this.editContract.minimumHours
+        this.editContract.maximumHours
     ) {
       // Check date range if validUntil is set
       if (
@@ -485,7 +488,7 @@ export class DataManagementContractService {
       );
     }
 
-    if (contract.guaranteedHours < 0) {
+    if (contract.guaranteedHours != null && contract.guaranteedHours < 0) {
       errors.push(
         this.translate.instant(
           'setting.contract.validation.guaranteedHoursNegative'
@@ -511,7 +514,10 @@ export class DataManagementContractService {
       );
     }
 
-    if (contract.guaranteedHours > contract.maximumHours) {
+    if (
+      contract.guaranteedHours != null &&
+      contract.guaranteedHours > contract.maximumHours
+    ) {
       errors.push(
         this.translate.instant(
           'setting.contract.validation.guaranteedGreaterThanMax'
@@ -519,7 +525,10 @@ export class DataManagementContractService {
       );
     }
 
-    if (contract.guaranteedHours < contract.minimumHours) {
+    if (
+      contract.guaranteedHours != null &&
+      contract.guaranteedHours < contract.minimumHours
+    ) {
       errors.push(
         this.translate.instant(
           'setting.contract.validation.guaranteedLessThanMin'

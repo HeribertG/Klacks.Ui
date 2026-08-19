@@ -31,6 +31,13 @@ export class TimeInputComponent {
   readonly hoursMaxLength = input(3);
   readonly hoursPlaceholder = input('hh');
   readonly minutesPlaceholder = input('mm');
+
+  /**
+   * When true the inputs render empty and only show their placeholders (italic), so an
+   * inherited value can be displayed as a grey hint instead of an explicit 00:00. Typing
+   * still emits normal value changes; the parent decides when to leave the empty state.
+   */
+  readonly showEmpty = input(false);
   @Input() showLabel = true;
   @Input() forDuration = true;
   readonly labelAlign = input<'left' | 'center' | 'right'>('left');

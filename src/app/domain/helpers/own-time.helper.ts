@@ -92,6 +92,37 @@ export function transformOwnTimeToNumber(value: OwnTime): number {
 }
 
 /**
+ * Transforms OwnTime to a nullable decimal number for fields where "empty" is a
+ * meaningful state (e.g., inherited contract hours).
+ *
+ * @param value - OwnTime object, or undefined for the inherited/empty state
+ * @returns Decimal hours, or undefined when no value is present
+ */
+export function transformOwnTimeToNullableNumber(
+  value: OwnTime | undefined
+): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+  return transformOwnTimeToNumber(value);
+}
+
+/**
+ * Transforms a nullable decimal number to OwnTime, mapping undefined/null to the
+ * neutral 00:00 duration so widgets always receive a valid OwnTime instance.
+ *
+ * @param value - Decimal hours, or undefined/null for the inherited/empty state
+ * @param isDuration - Whether this represents a duration (default: false)
+ * @returns OwnTime object
+ */
+export function transformNullableNumberToOwnTime(
+  value: number | undefined | null,
+  isDuration = false
+): OwnTime {
+  return transformNumberToOwnTime(value ?? 0, isDuration);
+}
+
+/**
  * Transforms decimal number to OwnTime.
  *
  * @param value - Decimal hours (e.g., 14.5)

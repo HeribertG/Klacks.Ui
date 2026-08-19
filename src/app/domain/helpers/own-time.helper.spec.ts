@@ -7,9 +7,52 @@ import {
     transformOwnTimeToString,
     transformOwnTimeToNumber,
     transformNumberToOwnTime,
+    transformOwnTimeToNullableNumber,
+    transformNullableNumberToOwnTime,
 } from './own-time.helper';
 
 describe('OwnTime Helper', () => {
+    describe('transformOwnTimeToNullableNumber', () => {
+        it('should return undefined for undefined input', () => {
+            expect(transformOwnTimeToNullableNumber(undefined)).toBeUndefined();
+        });
+
+        it('should convert a real OwnTime to its decimal value', () => {
+            const result = transformOwnTimeToNullableNumber(new OwnTime('160', '30', true));
+
+            expect(result).toBe(160.5);
+        });
+
+        it('should keep an explicit zero as 0, not undefined', () => {
+            const result = transformOwnTimeToNullableNumber(new OwnTime('00', '00', true));
+
+            expect(result).toBe(0);
+        });
+    });
+
+    describe('transformNullableNumberToOwnTime', () => {
+        it('should map undefined to the neutral 00:00 duration', () => {
+            const result = transformNullableNumberToOwnTime(undefined, true);
+
+            expect(result.hours).toBe('00');
+            expect(result.minutes).toBe('00');
+        });
+
+        it('should map null to the neutral 00:00 duration', () => {
+            const result = transformNullableNumberToOwnTime(null, true);
+
+            expect(result.hours).toBe('00');
+            expect(result.minutes).toBe('00');
+        });
+
+        it('should convert a real number like transformNumberToOwnTime', () => {
+            const result = transformNullableNumberToOwnTime(170.25, true);
+
+            expect(result.hours).toBe('170');
+            expect(result.minutes).toBe('15');
+        });
+    });
+
     describe('transformNumberToOwnTime (Dezimal-Stunden → OwnTime)', () => {
         it('should convert 160 hours to OwnTime', () => {
             // Arrange

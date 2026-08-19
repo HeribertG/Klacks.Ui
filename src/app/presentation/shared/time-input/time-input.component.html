@@ -14,7 +14,7 @@
   }
   <div class="row-line-inline-simple">
     <input
-      [value]="partialHours ?? value.hours"
+      [value]="showEmpty() ? '' : partialHours ?? value.hours"
       [id]="hoursId()"
       [name]="hoursName() || 'hours'"
       (input)="onHoursInputChange($event)"
@@ -23,6 +23,7 @@
       (keyup)="onInputKeyUp($event)"
       [disabled]="disabled()"
       class="form-control time-hour hours"
+      [class.inherited-placeholder]="showEmpty()"
       type="text"
       inputmode="numeric"
       [attr.maxlength]="hoursMaxLength()"
@@ -32,7 +33,7 @@
     <input
       #minutesInput
       [id]="minutesId()"
-      [value]="partialMinutes !== null ? partialMinutes : value.minutes"
+      [value]="showEmpty() ? '' : partialMinutes !== null ? partialMinutes : value.minutes"
       [name]="minutesName() || 'minutes'"
       (input)="onMinutesInputChange($event)"
       (focus)="onFocus($event)"
@@ -40,6 +41,7 @@
       (keyup)="onInputKeyUp($event)"
       [disabled]="disabled()"
       class="form-control time-minute minutes"
+      [class.inherited-placeholder]="showEmpty()"
       type="text"
       inputmode="numeric"
       maxlength="2"
