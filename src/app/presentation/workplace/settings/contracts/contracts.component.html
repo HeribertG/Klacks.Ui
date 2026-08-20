@@ -145,6 +145,13 @@
               hoursId="fullTime"
               [forDuration]="true"
               labelAlign="right"
+              [showEmpty]="fullTimeIsEmpty()"
+              [hoursPlaceholder]="
+                fullTimeIsEmpty() ? companyFullTimeTime().hours : 'hh'
+              "
+              [minutesPlaceholder]="
+                fullTimeIsEmpty() ? companyFullTimeTime().minutes : 'mm'
+              "
             ></app-time-input>
           </div>
         }

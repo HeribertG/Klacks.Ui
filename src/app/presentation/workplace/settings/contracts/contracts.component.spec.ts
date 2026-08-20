@@ -83,7 +83,7 @@ describe('ContractsComponent', () => {
 
     mockSettingsService = {
       appSettings: {
-        schedulingDefaultSettings: signal({ guaranteedHours: 170 }),
+        schedulingDefaultSettings: signal({ guaranteedHours: 170, fullTime: 190 }),
       },
     } as unknown as Partial<DataManagementSettingsService>;
 
@@ -387,6 +387,45 @@ describe('ContractsComponent', () => {
         expect(queryModal('#contract-modal-max-hours-item')).not.toBeNull();
         expect(queryModal('#contract-modal-fulltime-item')).not.toBeNull();
       });
+
+      it('shows the company default as a grey placeholder when full-time is empty', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 0 });
+        renderModal();
+
+        const hoursInput = queryModal<HTMLInputElement>('#fullTime');
+        expect(hoursInput).not.toBeNull();
+        expect(hoursInput!.placeholder).toBe('190');
+        expect(hoursInput!.classList.contains('inherited-placeholder')).toBe(true);
+        expect(hoursInput!.value).toBe('');
+      });
+
+      it('shows the contract value, not the company placeholder, when full-time is set', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 180 });
+        renderModal();
+
+        const hoursInput = queryModal<HTMLInputElement>('#fullTime');
+        expect(hoursInput).not.toBeNull();
+        expect(hoursInput!.classList.contains('inherited-placeholder')).toBe(false);
+        expect(hoursInput!.value).toBe('180');
+      });
+    });
+  });
+
+  describe('Full-time placeholder', () => {
+    it('fullTimeIsEmpty is true when the contract full-time is zero', () => {
+      component.onClickEdit({ ...mockContract, fullTime: 0 });
+
+      expect(component.fullTimeIsEmpty()).toBe(true);
+    });
+
+    it('fullTimeIsEmpty is false when the contract full-time is set', () => {
+      component.onClickEdit({ ...mockContract, fullTime: 180 });
+
+      expect(component.fullTimeIsEmpty()).toBe(false);
+    });
+
+    it('companyFullTimeTime reflects the company-wide default setting', () => {
+      expect(component.companyFullTimeTime()).toEqual(OwnTime.forDuration('190', '00'));
     });
   });
 
