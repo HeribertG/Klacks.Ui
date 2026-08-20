@@ -114,6 +114,7 @@ const INDUSTRY_OPTIONS: IndustryOption[] = [
   { slug: IndustrySlugs.Security, labelKey: 'setting.activeIndustries.security' },
   { slug: IndustrySlugs.Facility, labelKey: 'setting.activeIndustries.facility' },
   { slug: IndustrySlugs.Logistics, labelKey: 'setting.activeIndustries.logistics' },
+  { slug: IndustrySlugs.Hospitality, labelKey: 'setting.activeIndustries.hospitality' },
 ];
 
 const KNOWN_OPTION_SLUGS = new Set<string>([
