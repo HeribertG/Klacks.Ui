@@ -180,6 +180,16 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     return `${time.hours}:${time.minutes}`;
   });
 
+  fullTimeIsEmpty = computed(() => transformOwnTimeToNumber(this.fullTime()) === 0);
+
+  /**
+   * The company-wide full-time default, shown as a grey placeholder while the contract's own
+   * full-time field is empty (0).
+   */
+  companyFullTimeTime = computed(() =>
+    transformNumberToOwnTime(this.settingsService.appSettings.schedulingDefaultSettings().fullTime, true)
+  );
+
   showPercentField = computed(
     () =>
       this.paymentInterval() === PaymentInterval.MonthlyTargetHours ||

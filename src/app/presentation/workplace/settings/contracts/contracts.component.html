@@ -105,47 +105,56 @@
           }
         </div>
 
-        <div id="contract-modal-min-hours-item" class="hours-config-item">
-          <app-time-input
-            id="contract-modal-min-hours-input"
-            [label]="'setting.contract.minHours-modal' | translate"
-            [value]="minimumHours()"
-            (valueChange)="onMinimumHoursChange($event)"
-            hoursName="minHoursHours"
-            minutesName="minHoursMinutes"
-            hoursId="minHours"
-            [forDuration]="true"
-            labelAlign="center"
-          ></app-time-input>
-        </div>
+        @if (!guaranteedHoursInherited()) {
+          <div id="contract-modal-min-hours-item" class="hours-config-item">
+            <app-time-input
+              id="contract-modal-min-hours-input"
+              [label]="'setting.contract.minHours-modal' | translate"
+              [value]="minimumHours()"
+              (valueChange)="onMinimumHoursChange($event)"
+              hoursName="minHoursHours"
+              minutesName="minHoursMinutes"
+              hoursId="minHours"
+              [forDuration]="true"
+              labelAlign="center"
+            ></app-time-input>
+          </div>
 
-        <div id="contract-modal-max-hours-item" class="hours-config-item">
-          <app-time-input
-            id="contract-modal-max-hours-input"
-            [label]="'setting.contract.maxHours-modal' | translate"
-            [value]="maximumHours()"
-            (valueChange)="onMaximumHoursChange($event)"
-            hoursName="maxHoursHours"
-            minutesName="maxHoursMinutes"
-            hoursId="maxHours"
-            [forDuration]="true"
-            labelAlign="center"
-          ></app-time-input>
-        </div>
+          <div id="contract-modal-max-hours-item" class="hours-config-item">
+            <app-time-input
+              id="contract-modal-max-hours-input"
+              [label]="'setting.contract.maxHours-modal' | translate"
+              [value]="maximumHours()"
+              (valueChange)="onMaximumHoursChange($event)"
+              hoursName="maxHoursHours"
+              minutesName="maxHoursMinutes"
+              hoursId="maxHours"
+              [forDuration]="true"
+              labelAlign="center"
+            ></app-time-input>
+          </div>
 
-        <div id="contract-modal-fulltime-item" class="hours-config-item">
-          <app-time-input
-            id="contract-modal-fulltime-input"
-            [label]="'setting.contract.fullTime-modal' | translate"
-            [value]="fullTime()"
-            (valueChange)="onFullTimeChange($event)"
-            hoursName="fullTimeHours"
-            minutesName="fullTimeMinutes"
-            hoursId="fullTime"
-            [forDuration]="true"
-            labelAlign="right"
-          ></app-time-input>
-        </div>
+          <div id="contract-modal-fulltime-item" class="hours-config-item">
+            <app-time-input
+              id="contract-modal-fulltime-input"
+              [label]="'setting.contract.fullTime-modal' | translate"
+              [value]="fullTime()"
+              (valueChange)="onFullTimeChange($event)"
+              hoursName="fullTimeHours"
+              minutesName="fullTimeMinutes"
+              hoursId="fullTime"
+              [forDuration]="true"
+              labelAlign="right"
+              [showEmpty]="fullTimeIsEmpty()"
+              [hoursPlaceholder]="
+                fullTimeIsEmpty() ? companyFullTimeTime().hours : 'hh'
+              "
+              [minutesPlaceholder]="
+                fullTimeIsEmpty() ? companyFullTimeTime().minutes : 'mm'
+              "
+            ></app-time-input>
+          </div>
+        }
       </div>
 
       <!-- Rate Configuration -->

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter, signal, WritableSignal } from '@angular/core';
+import { EmbeddedViewRef, EventEmitter, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { of, Subject } from 'rxjs';
@@ -83,7 +83,7 @@ describe('ContractsComponent', () => {
 
     mockSettingsService = {
       appSettings: {
-        schedulingDefaultSettings: signal({ guaranteedHours: 170 }),
+        schedulingDefaultSettings: signal({ guaranteedHours: 170, fullTime: 190 }),
       },
     } as unknown as Partial<DataManagementSettingsService>;
 
@@ -343,6 +343,89 @@ describe('ContractsComponent', () => {
 
       expect(component.percent()).toBe(60);
       expect(component.editingContract!.percent).toBe(60);
+    });
+
+    describe('rendered in the modal template', () => {
+      let modalView: EmbeddedViewRef<unknown>;
+
+      const queryModal = <T extends Element>(selector: string): T | null => {
+        for (const node of modalView.rootNodes as Element[]) {
+          if (typeof node.querySelector !== 'function') continue;
+          if (node.matches?.(selector)) return node as unknown as T;
+          const hit = node.querySelector(selector);
+          if (hit) return hit as T;
+        }
+        return null;
+      };
+
+      const renderModal = () => {
+        fixture.detectChanges();
+        const viewContainer = fixture.debugElement.injector.get(ViewContainerRef);
+        modalView = viewContainer.createEmbeddedView(component.contractModal(), {
+          $implicit: { close: () => undefined, dismiss: () => undefined },
+        });
+        fixture.detectChanges();
+      };
+
+      afterEach(() => modalView.destroy());
+
+      it('hides min/max/full-time when guaranteed hours are inherited', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+        renderModal();
+
+        expect(queryModal('#contract-modal-guaranteed-hours-item')).not.toBeNull();
+        expect(queryModal('#contract-modal-min-hours-item')).toBeNull();
+        expect(queryModal('#contract-modal-max-hours-item')).toBeNull();
+        expect(queryModal('#contract-modal-fulltime-item')).toBeNull();
+      });
+
+      it('shows min/max/full-time when guaranteed hours are explicit', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+        renderModal();
+
+        expect(queryModal('#contract-modal-min-hours-item')).not.toBeNull();
+        expect(queryModal('#contract-modal-max-hours-item')).not.toBeNull();
+        expect(queryModal('#contract-modal-fulltime-item')).not.toBeNull();
+      });
+
+      it('shows the company default as a grey placeholder when full-time is empty', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 0 });
+        renderModal();
+
+        const hoursInput = queryModal<HTMLInputElement>('#fullTime');
+        expect(hoursInput).not.toBeNull();
+        expect(hoursInput!.placeholder).toBe('190');
+        expect(hoursInput!.classList.contains('inherited-placeholder')).toBe(true);
+        expect(hoursInput!.value).toBe('');
+      });
+
+      it('shows the contract value, not the company placeholder, when full-time is set', () => {
+        component.onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 180 });
+        renderModal();
+
+        const hoursInput = queryModal<HTMLInputElement>('#fullTime');
+        expect(hoursInput).not.toBeNull();
+        expect(hoursInput!.classList.contains('inherited-placeholder')).toBe(false);
+        expect(hoursInput!.value).toBe('180');
+      });
+    });
+  });
+
+  describe('Full-time placeholder', () => {
+    it('fullTimeIsEmpty is true when the contract full-time is zero', () => {
+      component.onClickEdit({ ...mockContract, fullTime: 0 });
+
+      expect(component.fullTimeIsEmpty()).toBe(true);
+    });
+
+    it('fullTimeIsEmpty is false when the contract full-time is set', () => {
+      component.onClickEdit({ ...mockContract, fullTime: 180 });
+
+      expect(component.fullTimeIsEmpty()).toBe(false);
+    });
+
+    it('companyFullTimeTime reflects the company-wide default setting', () => {
+      expect(component.companyFullTimeTime()).toEqual(OwnTime.forDuration('190', '00'));
     });
   });
 
