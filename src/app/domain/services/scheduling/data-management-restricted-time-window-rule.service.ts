@@ -15,7 +15,6 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 const MIN_MONTH = 1;
@@ -149,14 +148,6 @@ export class DataManagementRestrictedTimeWindowRuleService {
       errors.push(
         this.translate.instant(
           'setting.restrictedTimeWindowRule.validation.dayRange'
-        )
-      );
-    }
-
-    if (formatTime(rule.dailyStart) === formatTime(rule.dailyEnd)) {
-      errors.push(
-        this.translate.instant(
-          'setting.restrictedTimeWindowRule.validation.dailyWindowEqual'
         )
       );
     }

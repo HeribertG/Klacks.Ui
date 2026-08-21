@@ -4,7 +4,7 @@
  * Settings card for compensatory rest (Ersatzruhe) compliance defaults with a
  * settings tab (form) and a help tab (localized manual).
  * @param formModel - Local signal holding the editable compensatory rest values
- * (compensatoryRestEnabled, compensatoryRestDeadlineDays, compensatoryRestAutoPlan)
+ * (compensatoryRestEnabled, compensatoryRestDeadlineDays)
  * that are loaded from and synced back to the shared app settings store.
  * @param activeTab - Currently visible card tab ('settings' form or 'manual' help).
  * @param manualContent - Localized help HTML rendered in the manual tab.
@@ -33,7 +33,6 @@ const COMPENSATORY_REST_MANUAL_NAME = 'compensatory-rest-manual';
 interface CompensatoryRestFormModel {
   compensatoryRestEnabled: boolean;
   compensatoryRestDeadlineDays: number;
-  compensatoryRestAutoPlan: boolean;
 }
 
 @Component({
@@ -58,7 +57,6 @@ export class CompensatoryRestSettingsComponent implements OnInit {
   public formModel = signal<CompensatoryRestFormModel>({
     compensatoryRestEnabled: false,
     compensatoryRestDeadlineDays: 0,
-    compensatoryRestAutoPlan: false,
   });
 
   compensatoryRestForm = form(this.formModel);
@@ -105,7 +103,6 @@ export class CompensatoryRestSettingsComponent implements OnInit {
     this.formModel.set({
       compensatoryRestEnabled: rest.compensatoryRestEnabled,
       compensatoryRestDeadlineDays: rest.compensatoryRestDeadlineDays,
-      compensatoryRestAutoPlan: rest.compensatoryRestAutoPlan,
     });
   }
 
@@ -115,7 +112,6 @@ export class CompensatoryRestSettingsComponent implements OnInit {
       ...s,
       compensatoryRestEnabled: data.compensatoryRestEnabled,
       compensatoryRestDeadlineDays: this.normalizeDeadlineDays(data.compensatoryRestDeadlineDays),
-      compensatoryRestAutoPlan: data.compensatoryRestAutoPlan,
     }));
     svc.settingsChangeTrigger.update(v => v + 1);
   }

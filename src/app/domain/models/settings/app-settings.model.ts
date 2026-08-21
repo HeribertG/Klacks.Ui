@@ -189,13 +189,11 @@ export class WorkSettings implements IWorkSettings {
 export interface ICompensatoryRestSettings {
   compensatoryRestEnabled: boolean;
   compensatoryRestDeadlineDays: number;
-  compensatoryRestAutoPlan: boolean;
 }
 
 export class CompensatoryRestSettings implements ICompensatoryRestSettings {
   compensatoryRestEnabled = false;
   compensatoryRestDeadlineDays = 0;
-  compensatoryRestAutoPlan = false;
 }
 
 export type SurchargeRateMode = 'multiplier' | 'fixedperhour' | 'fixedpershift';

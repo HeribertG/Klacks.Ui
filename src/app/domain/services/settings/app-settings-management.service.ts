@@ -233,8 +233,6 @@ export class AppSettingsManagementService {
       const parsed = parseInt(v, 10);
       m.compensatoryRest.compensatoryRestDeadlineDays = Number.isNaN(parsed) ? 0 : parsed;
     }],
-    [AppSetting.COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN, (v, m) => (m.compensatoryRest.compensatoryRestAutoPlan = v === 'true')],
-
     [AppSetting.WORK_WE3_RATE, (v, m) => (m.surchargeMode.we3Rate = parseFloat(v) || 0)],
     [AppSetting.SURCHARGE_NIGHT_RATE_MODE, (v, m) => (m.surchargeMode.nightRateMode = (v || 'multiplier') as SurchargeRateMode)],
     [AppSetting.SURCHARGE_HOLIDAY_RATE_MODE, (v, m) => (m.surchargeMode.holidayRateMode = (v || 'multiplier') as SurchargeRateMode)],
@@ -591,8 +589,6 @@ export class AppSettingsManagementService {
 
     { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_ENABLED, getCurrent: () => String(this.compensatoryRestSettings().compensatoryRestEnabled), getOriginal: () => String(this.compensatoryRestSettingsOriginal().compensatoryRestEnabled) },
     { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS, getCurrent: () => this.compensatoryRestSettings().compensatoryRestDeadlineDays.toString(), getOriginal: () => this.compensatoryRestSettingsOriginal().compensatoryRestDeadlineDays.toString() },
-    { key: AppSetting.COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN, getCurrent: () => String(this.compensatoryRestSettings().compensatoryRestAutoPlan), getOriginal: () => String(this.compensatoryRestSettingsOriginal().compensatoryRestAutoPlan) },
-
     { key: AppSetting.WORK_WE3_RATE, getCurrent: () => this.surchargeModeSettings().we3Rate.toString(), getOriginal: () => this.surchargeModeSettingsOriginal().we3Rate.toString() },
     { key: AppSetting.SURCHARGE_NIGHT_RATE_MODE, getCurrent: () => this.surchargeModeSettings().nightRateMode, getOriginal: () => this.surchargeModeSettingsOriginal().nightRateMode },
     { key: AppSetting.SURCHARGE_HOLIDAY_RATE_MODE, getCurrent: () => this.surchargeModeSettings().holidayRateMode, getOriginal: () => this.surchargeModeSettingsOriginal().holidayRateMode },
