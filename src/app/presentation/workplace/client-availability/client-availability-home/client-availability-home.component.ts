@@ -209,7 +209,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
   private async loadClients(): Promise<void> {
     this.filterService.startDate = this.calculation.formatDateOnly(this.calculation.startDate);
-    this.filterService.endDate = this.getEndDate();
+    this.filterService.endDate = this.calculation.getEndDate();
     const filter = this.filterService.buildFilter();
     const response = await firstValueFrom(
       this.dataClientAvailability.getClients(filter)
@@ -248,14 +248,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
   private async loadAvailabilityData(): Promise<void> {
     const startDate = this.calculation.formatDateOnly(this.calculation.startDate);
-    const endDate = this.getEndDate();
+    const endDate = this.calculation.getEndDate();
     await this.dataManagement.readDataAsync(startDate, endDate);
-  }
-
-  private getEndDate(): string {
-    const end = new Date(this.calculation.startDate);
-    end.setDate(end.getDate() + this.calculation.daysInView - 1);
-    return this.calculation.formatDateOnly(end);
   }
 
   private async applyCalendarSelection(): Promise<void> {

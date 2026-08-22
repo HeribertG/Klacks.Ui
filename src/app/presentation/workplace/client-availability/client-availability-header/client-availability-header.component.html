@@ -64,5 +64,20 @@
       <ngx-slider [value]="hourGrouping" [options]="groupingOptions()" [manualRefresh]="sliderRefresh" (userChangeEnd)="onGroupingChanged($event)"></ngx-slider>
     </div>
 
+    @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
+      <button
+        id="client-availability-quick-print-button"
+        class="btn btn-sm quick-print-button"
+        [class.disabled]="isQuickPrinting()"
+        [disabled]="isQuickPrinting()"
+        aria-label="pdf"
+        (click)="onClickQuickPrint()"
+        placement="top"
+        ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
+        autoClose="true"
+      >
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </button>
+    }
   </div>
 </div>

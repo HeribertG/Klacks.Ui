@@ -30,11 +30,12 @@ import { DrawAvailabilityRowHeaderService } from '../services/draw-availability-
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter/client-filter.component';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
-import { RenderAvailabilityGridService } from '../services/render-availability-grid';
+import { RenderAvailabilityGridService, AvailabilityCalculationService } from '../services/render-availability-grid';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { firstValueFrom } from 'rxjs';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 
 @Component({
   selector: 'app-client-availability-row-header',
@@ -55,12 +56,15 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
   private rowHeaderIcons = inject(RowHeaderIconsService);
   private dataClientAvailability = inject(DataClientAvailabilityService);
   private router = inject(Router);
+  private calculation = inject(AvailabilityCalculationService);
+  private quickPrintAction = inject(QuickPrintActionService);
 
   public filterService = inject(ClientAvailabilityFilterService);
 
   private effects: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
   private contextMenuRow = -1;
+  private readonly clientAvailabilityReportSourceId = 'edit-client-availability';
 
   contextMenu = viewChild<ContextMenuComponent>('contextMenu');
 
@@ -82,6 +86,8 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
     this.destroyFilter();
 
     this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
+
+    void this.quickPrintAction.ensureDefaultsLoaded();
   }
 
   ngAfterViewInit(): void {
@@ -166,6 +172,9 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
     this.contextMenuRow = row;
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.goToAddress());
+    if (this.quickPrintAction.hasDefault(this.clientAvailabilityReportSourceId)) {
+      menuData.list.push(...MenuDataTemplate.clientAvailabilityReport());
+    }
     menu.menuData = menuData;
     menu.openMenu({ clientX: event.clientX, clientY: event.clientY } as MouseEvent);
   }
@@ -179,6 +188,23 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
       if (this.contextMenuRow >= 0 && this.contextMenuRow < clients.length) {
         this.router.navigate(['/workplace/edit-address', clients[this.contextMenuRow].id], {
           queryParams: { returnUrl: '/workplace/client-availability' },
+        });
+      }
+    }
+
+    if (keys[0] === 'clientAvailabilityReport') {
+      this.contextMenu()?.closeMenu(true);
+      const clients = this.renderGrid.getClients();
+      if (this.contextMenuRow >= 0 && this.contextMenuRow < clients.length) {
+        const clientId = clients[this.contextMenuRow].id;
+        void this.quickPrintAction.print({
+          sourceId: this.clientAvailabilityReportSourceId,
+          fallbackDataSetIds: ['details'],
+          params: {
+            clientId,
+            startDate: this.calculation.formatDateOnly(this.calculation.startDate),
+            endDate: this.calculation.getEndDate(),
+          },
         });
       }
     }

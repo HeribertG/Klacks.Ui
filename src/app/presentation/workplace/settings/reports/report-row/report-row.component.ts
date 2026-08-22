@@ -65,6 +65,8 @@ const SOURCE_PREVIEW_CONFIGS: Readonly<Record<string, SourcePreviewConfig>> = {
   group: { needsGroup: false, needsDateRange: false, needsClient: false },
   'shift-table': { needsGroup: false, needsDateRange: false, needsClient: false },
   'container-template': { needsGroup: false, needsDateRange: false, needsClient: false },
+  'client-availability': { needsGroup: false, needsDateRange: true, needsClient: false },
+  'edit-client-availability': { needsGroup: false, needsDateRange: true, needsClient: true },
 };
 
 const FALLBACK_PREVIEW_CONFIG: SourcePreviewConfig = { needsGroup: false, needsDateRange: true, needsClient: false };

@@ -125,6 +125,12 @@ export class AvailabilityCalculationService {
     return `${y}-${m}-${d}`;
   }
 
+  public getEndDate(): string {
+    const end = new Date(this.startDate);
+    end.setDate(end.getDate() + this.daysInView - 1);
+    return this.formatDateOnly(end);
+  }
+
   public formatWeekdayOnly(date: Date): string {
     return this.translateService.instant(WEEKDAY_KEYS[date.getDay()]);
   }

@@ -70,6 +70,21 @@ const CLIENT_LIST_FOOTER_FIELDS: DataBindingDefinition[] = [
   { key: 'client.totalCount', label: 'Anzahl Adressen', i18nKey: 'setting.report.field.clientTotalCount', type: ReportFieldType.Number, category: FieldCategory.Footer, defaultWidth: 25 },
 ];
 
+const CLIENT_AVAILABILITY_LIST_TABLE_FIELDS: DataBindingDefinition[] = [
+  CLIENT_LIST_TABLE_FIELDS.find(f => f.key === 'client.list.firstName')!,
+  CLIENT_LIST_TABLE_FIELDS.find(f => f.key === 'client.list.name')!,
+  CLIENT_LIST_TABLE_FIELDS.find(f => f.key === 'client.list.company')!,
+  { key: 'availability.totalHours', label: 'Gesamtstunden', i18nKey: 'setting.report.field.availabilityTotalHours', type: ReportFieldType.Number, category: FieldCategory.WorkTable, defaultWidth: 15 },
+  { key: 'availability.daysWithAvailability', label: 'Tage mit Verfügbarkeit', i18nKey: 'setting.report.field.availabilityDaysWithAvailability', type: ReportFieldType.Number, category: FieldCategory.WorkTable, defaultWidth: 20 },
+];
+
+const CLIENT_AVAILABILITY_DETAIL_TABLE_FIELDS: DataBindingDefinition[] = [
+  { key: 'availability.date', label: 'Datum', i18nKey: 'setting.report.field.availabilityDate', type: ReportFieldType.Date, category: FieldCategory.WorkTable, defaultWidth: 15 },
+  { key: 'availability.weekday', label: 'Wochentag', i18nKey: 'setting.report.field.availabilityWeekday', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 12 },
+  { key: 'availability.ranges', label: 'Zeitbereiche', i18nKey: 'setting.report.field.availabilityRanges', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 30 },
+  { key: 'availability.hours', label: 'Stunden', i18nKey: 'setting.report.field.availabilityHours', type: ReportFieldType.Number, category: FieldCategory.WorkTable, defaultWidth: 10 },
+];
+
 const ADDRESS_DETAIL_TABLE_FIELDS: DataBindingDefinition[] = [
   { key: 'address.type', label: 'Typ', i18nKey: 'setting.report.field.addressType', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 15 },
   { key: 'address.street', label: 'Strasse', i18nKey: 'setting.report.field.addressStreet', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 25 },
@@ -231,6 +246,34 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         i18nKey: 'setting.report.dataset.addressDetails',
         headerFields: [...CLIENT_HEADER_FIELDS, ...CLIENT_DETAIL_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
         tableFields: ADDRESS_DETAIL_TABLE_FIELDS,
+        footerFields: [...COMMON_FOOTER_FIELDS],
+      },
+    ],
+  },
+  {
+    id: 'client-availability',
+    path: 'workplace/client-availability',
+    i18nKey: 'setting.report.source.clientAvailability',
+    dataSets: [
+      {
+        id: 'clients',
+        i18nKey: 'setting.report.dataset.clientAvailabilityClients',
+        headerFields: [...COMMON_HEADER_FIELDS],
+        tableFields: CLIENT_AVAILABILITY_LIST_TABLE_FIELDS,
+        footerFields: [...CLIENT_LIST_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
+      },
+    ],
+  },
+  {
+    id: 'edit-client-availability',
+    path: 'workplace/client-availability',
+    i18nKey: 'setting.report.source.editClientAvailability',
+    dataSets: [
+      {
+        id: 'details',
+        i18nKey: 'setting.report.dataset.clientAvailabilityDetails',
+        headerFields: [...CLIENT_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
+        tableFields: CLIENT_AVAILABILITY_DETAIL_TABLE_FIELDS,
         footerFields: [...COMMON_FOOTER_FIELDS],
       },
     ],

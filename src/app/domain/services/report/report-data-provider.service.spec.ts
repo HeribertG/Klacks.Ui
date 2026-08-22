@@ -14,6 +14,7 @@ import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.se
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
+import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
@@ -28,6 +29,11 @@ describe('ReportDataProviderService', () => {
   let groupService: { readGroupList: ReturnType<typeof vi.fn> };
   let qualificationService: { getQualificationList: ReturnType<typeof vi.fn> };
   let contractService: { getList: ReturnType<typeof vi.fn> };
+  let clientAvailabilityService: {
+    getClients: ReturnType<typeof vi.fn>;
+    getAvailabilityRanges: ReturnType<typeof vi.fn>;
+    getAvailabilityTotals: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     shiftService = { readShiftList: vi.fn(() => of({ shifts: [{ name: 'A' }], maxItems: 1 })) };
@@ -38,6 +44,11 @@ describe('ReportDataProviderService', () => {
     groupService = { readGroupList: vi.fn(() => of({ groups: [], maxItems: 0 })) };
     qualificationService = { getQualificationList: vi.fn(() => of([])) };
     contractService = { getList: vi.fn(() => of([])) };
+    clientAvailabilityService = {
+      getClients: vi.fn(() => of({ clients: [], totalCount: 0 })),
+      getAvailabilityRanges: vi.fn(() => of([])),
+      getAvailabilityTotals: vi.fn(() => of([])),
+    };
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -51,6 +62,7 @@ describe('ReportDataProviderService', () => {
         { provide: DataContainerTemplateService, useValue: {} },
         { provide: DataQualificationService, useValue: qualificationService },
         { provide: DataContractService, useValue: contractService },
+        { provide: DataClientAvailabilityService, useValue: clientAvailabilityService },
         { provide: AbsenceLookupService, useValue: {} },
         {
           provide: ClientConfigService, useValue: {
@@ -371,6 +383,153 @@ describe('ReportDataProviderService', () => {
         { client: { ...client, name: 'Muster' }, metadata: { cardVisibility: { persona: false } } } as never
       );
       expect(value).toBe('Muster');
+    });
+  });
+
+  describe('client availability providers', () => {
+    it('falls back to a default filter when the screen filter is missing so the designer preview still loads rows', async () => {
+      clientAvailabilityService.getClients.mockReturnValue(
+        of({
+          clients: [
+            { id: 'a', name: 'Muster', firstName: 'Anna', company: '', legalEntity: false, idNumber: 1, groupIds: [] },
+          ],
+          totalCount: 1,
+        })
+      );
+
+      const provider = service.getProvider('client-availability', ['clients']);
+
+      const data = await provider.fetchData({
+        startDate: '2026-03-01',
+        endDate: '2026-03-31',
+        groupId: 'group-1',
+      });
+
+      expect(clientAvailabilityService.getClients).toHaveBeenCalledWith(
+        expect.objectContaining({
+          searchString: '',
+          startDate: '2026-03-01',
+          endDate: '2026-03-31',
+          selectedGroup: 'group-1',
+          startRow: 0,
+          rowCount: 10000,
+        })
+      );
+      expect(clientAvailabilityService.getAvailabilityTotals).toHaveBeenCalledWith(
+        '2026-03-01',
+        '2026-03-31',
+        ['a']
+      );
+      expect(data.rows).toEqual([
+        expect.objectContaining({ id: 'a', totalHours: 0, daysWithAvailability: 0 }),
+      ]);
+    });
+
+    it('prints the availability list along the screen filter with full pagination and merges the totals', async () => {
+      const screenFilter = {
+        searchString: 'meier',
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        orderBy: 'name',
+        sortOrder: 'asc',
+        showEmployees: true,
+        showExtern: false,
+        individualSort: false,
+        startRow: 40,
+        rowCount: 20,
+      };
+      clientAvailabilityService.getClients.mockReturnValue(
+        of({
+          clients: [
+            { id: 'a', name: 'Muster', firstName: 'Anna', company: '', legalEntity: false, idNumber: 1, groupIds: [] },
+            { id: 'b', name: 'Beispiel', firstName: 'Ben', company: '', legalEntity: false, idNumber: 2, groupIds: [] },
+          ],
+          totalCount: 2,
+        })
+      );
+      clientAvailabilityService.getAvailabilityTotals.mockReturnValue(
+        of([{ clientId: 'a', totalHours: 12.5, daysWithAvailability: 3 }])
+      );
+
+      const provider = service.getProvider('client-availability', ['clients']);
+      const data = await provider.fetchData({ clientAvailabilityFilter: screenFilter as never });
+
+      expect(clientAvailabilityService.getClients).toHaveBeenCalledWith(
+        expect.objectContaining({ searchString: 'meier', startRow: 0, rowCount: 10000 })
+      );
+      expect(clientAvailabilityService.getAvailabilityTotals).toHaveBeenCalledWith(
+        '2026-01-01',
+        '2026-01-31',
+        ['a', 'b']
+      );
+      expect(data.rows).toEqual([
+        expect.objectContaining({ id: 'a', totalHours: 12.5, daysWithAvailability: 3 }),
+        expect.objectContaining({ id: 'b', totalHours: 0, daysWithAvailability: 0 }),
+      ]);
+      expect(screenFilter.startRow).toBe(40);
+      expect(screenFilter.rowCount).toBe(20);
+    });
+
+    it('resolves availability list field values and the client total count footer', () => {
+      const provider = service.getProvider('client-availability', ['clients']);
+      const row = { firstName: 'Anna', name: 'Muster', company: 'Klacks AG', totalHours: 8.5, daysWithAvailability: 2 };
+
+      expect(provider.resolveFieldValue({ dataBinding: 'client.list.name' } as never, row)).toBe('Muster');
+      expect(provider.resolveFieldValue({ dataBinding: 'availability.totalHours' } as never, row)).toBe('08:30');
+      expect(provider.resolveFieldValue({ dataBinding: 'availability.daysWithAvailability' } as never, row)).toBe('2');
+      expect(provider.resolveFooterValue({ dataBinding: 'client.totalCount' } as never, [row, row])).toBe('2');
+    });
+
+    it('returns no availability detail rows when the client id is missing', async () => {
+      const provider = service.getProvider('edit-client-availability', ['details']);
+
+      const data = await provider.fetchData({ startDate: '2026-01-01', endDate: '2026-01-31' });
+
+      expect(data.rows).toEqual([]);
+      expect(clientAvailabilityService.getAvailabilityRanges).not.toHaveBeenCalled();
+      expect(clientService.getClient).not.toHaveBeenCalled();
+    });
+
+    it('fetches the availability detail sorted by date together with the client', async () => {
+      const client = { id: 'c1', name: 'Muster' };
+      clientService.getClient.mockReturnValue(of(client));
+      clientAvailabilityService.getAvailabilityRanges.mockReturnValue(
+        of([
+          { clientId: 'c1', date: '2026-01-03', ranges: '08:00-12:00' },
+          { clientId: 'c1', date: '2026-01-01', ranges: '14:00-18:00' },
+        ])
+      );
+
+      const provider = service.getProvider('edit-client-availability', ['details']);
+      const data = await provider.fetchData({ clientId: 'c1', startDate: '2026-01-01', endDate: '2026-01-31' });
+
+      expect(clientAvailabilityService.getAvailabilityRanges).toHaveBeenCalledWith('2026-01-01', '2026-01-31', ['c1']);
+      expect(clientService.getClient).toHaveBeenCalledWith('c1');
+      expect(data.rows.map((r: { date: string }) => r.date)).toEqual(['2026-01-01', '2026-01-03']);
+      expect(data.metadata?.['client']).toEqual(client);
+    });
+
+    it('converts the range string into hours for the detail rows', () => {
+      const provider = service.getProvider('edit-client-availability', ['details']);
+      const row = { clientId: 'c1', date: '2026-01-05', ranges: '08:00-12:00,14:00-18:00' };
+
+      expect(provider.resolveFieldValue({ dataBinding: 'availability.hours' } as never, row)).toBe('08:00');
+      expect(provider.resolveFieldValue({ dataBinding: 'availability.ranges' } as never, row)).toBe('08:00-12:00,14:00-18:00');
+    });
+
+    it('offers footer formula variables for both availability providers', () => {
+      const listProvider = service.getProvider('client-availability', ['clients']);
+      expect(listProvider.buildFooterFormulaVariables!([{ totalHours: 4 }, { totalHours: 6 }])).toEqual(
+        expect.objectContaining({ totalRows: 2 })
+      );
+
+      const detailProvider = service.getProvider('edit-client-availability', ['details']);
+      expect(
+        detailProvider.buildFooterFormulaVariables!([
+          { clientId: 'c1', date: '2026-01-01', ranges: '08:00-12:00' },
+          { clientId: 'c1', date: '2026-01-02', ranges: '13:00-17:30' },
+        ])
+      ).toEqual(expect.objectContaining({ totalRows: 2, totalHours: 8.5 }));
     });
   });
 });

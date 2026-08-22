@@ -309,6 +309,16 @@ export class MenuDataTemplate {
     return [item];
   }
 
+  public static clientAvailabilityReport(): MenuItem[] {
+    const item = new MenuItem(
+      'clientAvailabilityReport',
+      DomainMessages.CLIENT_AVAILABILITY_REPORT,
+      false
+    );
+    item.svgIcon = PdfIconComponent.getSvg();
+    return [item];
+  }
+
   public static sendStaffSchedule(): MenuItem[] {
     const item = new MenuItem(
       'sendStaffSchedule',

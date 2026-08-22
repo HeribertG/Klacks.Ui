@@ -50,6 +50,25 @@
   }
 }
 
+.quick-print-button {
+  display: flex;
+  align-items: center;
+  border: none;
+  background-color: transparent;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.4;
+  }
+}
+
 .dropdown-menu {
   background-color: var(--backgroundColoPagination);
 }

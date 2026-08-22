@@ -3,12 +3,13 @@
 import {
   Component, DestroyRef, EventEmitter, inject, OnInit, output, signal, WritableSignal,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   computed,
   input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSliderModule, Options, ChangeContext } from '@angular-slider/ngx-slider';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
@@ -19,9 +20,13 @@ import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/perio
 import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
+import { AvailabilityCalculationService } from '../services/render-availability-grid';
+import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 
 const GROUPING_LABEL_KEYS = [
   'client-availability.grouping.1h',
@@ -40,12 +45,14 @@ const GROUPING_LABEL_KEYS = [
     FormsModule,
     NgxSliderModule,
     NgbDropdownModule,
+    NgbTooltipModule,
     TranslateModule,
     PeriodCalendarMonthlyComponent,
     PeriodCalendarWeeklyComponent,
     PeriodCalendarBiweeklyComponent,
     IconAngleLeftComponent,
     IconAngleRightComponent,
+    PdfIconComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -56,6 +63,11 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   private gridSettingsService = inject(GridSettingsService);
   private calendarUtil = inject(CalendarUtilService);
   private directionService = inject(DirectionService);
+  private calculation = inject(AvailabilityCalculationService);
+  private filterService = inject(ClientAvailabilityFilterService);
+  private cdr = inject(ChangeDetectorRef);
+
+  public quickPrintAction = inject(QuickPrintActionService);
 
   readonly isRtl = computed(() => this.directionService.direction() === 'rtl');
 
@@ -70,7 +82,10 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   groupingOptions: WritableSignal<Options> = signal({});
   sliderRefresh = new EventEmitter<void>();
 
-  ngOnInit(): void {
+  public isQuickPrinting = signal(false);
+  public readonly quickPrintSourceId = 'client-availability';
+
+  async ngOnInit(): Promise<void> {
     this.currentWeek = this.calendarUtil.getISO8601WeekNumber(new Date());
     this.groupingOptions.set(this.buildGroupingOptions());
 
@@ -86,6 +101,29 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
     this.translateService.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rebuildOptions);
+
+    await this.quickPrintAction.ensureDefaultsLoaded();
+    this.cdr.markForCheck();
+  }
+
+  async onClickQuickPrint(): Promise<void> {
+    if (this.isQuickPrinting()) {
+      return;
+    }
+
+    this.isQuickPrinting.set(true);
+    try {
+      const filter = this.filterService.buildFilter();
+      filter.startDate = this.calculation.formatDateOnly(this.calculation.startDate);
+      filter.endDate = this.calculation.getEndDate();
+      await this.quickPrintAction.print({
+        sourceId: this.quickPrintSourceId,
+        fallbackDataSetIds: ['clients'],
+        params: { clientAvailabilityFilter: filter },
+      });
+    } finally {
+      this.isQuickPrinting.set(false);
+    }
   }
 
   private buildGroupingOptions(): Options {

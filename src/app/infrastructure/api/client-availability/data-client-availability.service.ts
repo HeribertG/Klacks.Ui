@@ -8,6 +8,8 @@ import { IClientAvailability } from 'src/app/domain/models/client-availability/c
 import { IClientAvailabilityBulkRequest } from 'src/app/domain/models/client-availability/client-availability-bulk-request.interface';
 import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
 import { IClientAvailabilityClientResponse } from 'src/app/domain/models/client-availability/client-availability-client-response.interface';
+import { IClientAvailabilityRange } from 'src/app/domain/models/client-availability/client-availability-range.interface';
+import { IClientAvailabilityTotal } from 'src/app/domain/models/client-availability/client-availability-total.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +44,31 @@ export class DataClientAvailabilityService {
       .post<IClientAvailabilityClientResponse>(
         `${environment.baseUrl}ClientAvailabilities/Clients`,
         filter
+      )
+      .pipe(retry(3));
+  }
+
+  getAvailabilityRanges(startDate: string, endDate: string, clientIds: string[]) {
+    let params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    for (const clientId of clientIds) {
+      params = params.append('clientIds', clientId);
+    }
+
+    return this.httpClient
+      .get<IClientAvailabilityRange[]>(
+        `${environment.baseUrl}ClientAvailabilities/Ranges`,
+        { params }
+      )
+      .pipe(retry(3));
+  }
+
+  getAvailabilityTotals(startDate: string, endDate: string, clientIds: string[]) {
+    return this.httpClient
+      .post<IClientAvailabilityTotal[]>(
+        `${environment.baseUrl}ClientAvailabilities/Totals`,
+        { startDate, endDate, clientIds }
       )
       .pipe(retry(3));
   }

@@ -17,7 +17,8 @@ import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.se
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
-import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
+import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
+import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
@@ -29,6 +30,8 @@ import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
 import { IClient, ICommunication, IClientContract } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { IContract } from 'src/app/domain/models/contract/contract-class';
+import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
+import { IClientAvailabilityRange } from 'src/app/domain/models/client-availability/client-availability-range.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 
@@ -57,6 +60,7 @@ export interface ReportFetchParams {
   groupFilter?: GroupFilter;
   shiftFilter?: ShiftFilter;
   cardVisibility?: Record<string, boolean>;
+  clientAvailabilityFilter?: IClientAvailabilityClientFilter;
 }
 
 export interface ReportData {
@@ -96,6 +100,7 @@ export class ReportDataProviderService {
   private contractService = inject(DataContractService);
   private clientConfigService = inject(ClientConfigService);
   private absenceLookup = inject(AbsenceLookupService);
+  private dataClientAvailability = inject(DataClientAvailabilityService);
 
   getProvider(sourceId: string, dataSetIds: string[]): ReportDataProvider {
     if (sourceId === 'schedule') return this.scheduleProvider(dataSetIds);
@@ -104,6 +109,8 @@ export class ReportDataProviderService {
       case 'absence-gantt/absences': return this.absenceProvider();
       case 'all-address/clients': return this.allAddressProvider();
       case 'edit-address/details': return this.editAddressProvider();
+      case 'client-availability/clients': return this.clientAvailabilityListProvider();
+      case 'edit-client-availability/details': return this.editClientAvailabilityProvider();
       case 'group/groups': return this.groupProvider();
       case 'shift-table/shifts': return this.shiftProvider(ShiftFilterType.Original);
       case 'shift-table-cut/shifts': return this.shiftProvider(ShiftFilterType.Shift);
@@ -521,6 +528,107 @@ export class ReportDataProviderService {
     };
   }
 
+  private clientAvailabilityListProvider(): ReportDataProvider {
+    return {
+      fetchData: async (params) => {
+        const filter: IClientAvailabilityClientFilter = params.clientAvailabilityFilter
+          ? { ...params.clientAvailabilityFilter, startRow: 0, rowCount: REPORT_MAX_ROWS }
+          : {
+            searchString: '',
+            startDate: params.startDate ?? '',
+            endDate: params.endDate ?? '',
+            selectedGroup: params.groupId,
+            orderBy: 'name',
+            sortOrder: 'asc',
+            showEmployees: true,
+            showExtern: true,
+            individualSort: false,
+            startRow: 0,
+            rowCount: REPORT_MAX_ROWS,
+          };
+        const response = await firstValueFrom(this.dataClientAvailability.getClients(filter));
+        const clientIds = response.clients.map(c => c.id);
+        const totals = clientIds.length > 0
+          ? await firstValueFrom(this.dataClientAvailability.getAvailabilityTotals(filter.startDate, filter.endDate, clientIds))
+          : [];
+        const totalsByClientId = new Map(totals.map(t => [t.clientId, t]));
+        const rows = response.clients.map(client => {
+          const total = totalsByClientId.get(client.id);
+          return {
+            ...client,
+            totalHours: total?.totalHours ?? 0,
+            daysWithAvailability: total?.daysWithAvailability ?? 0,
+          };
+        });
+        return { rows, metadata: { totalCount: rows.length } };
+      },
+      resolveFieldValue: (field, row) => {
+        switch (field.dataBinding) {
+          case 'client.list.firstName': return row.firstName ?? '';
+          case 'client.list.name': return row.name ?? '';
+          case 'client.list.company': return row.company ?? '';
+          case 'availability.totalHours': return hoursToHHMM(row.totalHours ?? 0);
+          case 'availability.daysWithAvailability': return (row.daysWithAvailability ?? 0).toString();
+          default: return '';
+        }
+      },
+      resolveHeaderValue: (field, context) => {
+        return this.resolveCommonHeaderValue(field, context) ?? '';
+      },
+      resolveFooterValue: (field, rows) => {
+        if (field.dataBinding === 'client.totalCount') return rows.length.toString();
+        return '';
+      },
+      buildFormulaVariables: (row: any) => ({
+        name: row.name ?? '',
+        firstName: row.firstName ?? '',
+        company: row.company ?? '',
+        totalHours: row.totalHours ?? 0,
+        daysWithAvailability: row.daysWithAvailability ?? 0,
+      }),
+      buildFooterFormulaVariables: (rows: any[]) => ({
+        totalRows: rows.length,
+      }),
+    };
+  }
+
+  private editClientAvailabilityProvider(): ReportDataProvider {
+    return {
+      fetchData: async (params) => {
+        if (!params.clientId || !params.startDate || !params.endDate) return { rows: [] };
+        const [ranges, client] = await Promise.all([
+          firstValueFrom(this.dataClientAvailability.getAvailabilityRanges(params.startDate, params.endDate, [params.clientId])),
+          firstValueFrom(this.clientService.getClient(params.clientId)),
+        ]);
+        const rows = [...ranges].sort((a, b) => a.date.localeCompare(b.date));
+        return { rows, clients: [client], metadata: { client } };
+      },
+      resolveFieldValue: (field, row: IClientAvailabilityRange) => {
+        switch (field.dataBinding) {
+          case 'availability.date': return this.formatDate(row.date);
+          case 'availability.weekday': return this.resolveWeekday(new Date(row.date).getDay());
+          case 'availability.ranges': return row.ranges ?? '';
+          case 'availability.hours': return hoursToHHMM(this.computeHoursFromRanges(row.ranges));
+          default: return '';
+        }
+      },
+      resolveHeaderValue: (field, context) => {
+        return this.resolveCommonHeaderValue(field, context) ?? '';
+      },
+      resolveFooterValue: () => '',
+      buildFormulaVariables: (row: IClientAvailabilityRange) => ({
+        date: row.date ?? '',
+        ranges: row.ranges ?? '',
+        hours: this.computeHoursFromRanges(row.ranges),
+      }),
+      buildFooterFormulaVariables: (rows: IClientAvailabilityRange[]) => ({
+        totalRows: rows.length,
+        totalHours: rows.reduce((s, r) => s + this.computeHoursFromRanges(r.ranges), 0),
+      }),
+      collectResolvedLabelTexts: () => this.translatedWeekdayLabels(),
+    };
+  }
+
   private groupProvider(): ReportDataProvider {
     return {
       fetchData: async (params) => {
@@ -719,6 +827,16 @@ export class ReportDataProviderService {
   private resolveWeekday(dayIndex: number): string {
     const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
     return this.translate.instant(days[dayIndex] ?? '');
+  }
+
+  private computeHoursFromRanges(ranges: string): number {
+    if (!ranges) return 0;
+    return ranges.split(',').reduce((sum, part) => {
+      const [start, end] = part.split('-');
+      if (!start || !end) return sum;
+      const minutes = timeToMinutes(end) - timeToMinutes(start);
+      return minutes > 0 ? sum + minutes / 60 : sum;
+    }, 0);
   }
 
   private resolveGender(gender: number | string): string {
