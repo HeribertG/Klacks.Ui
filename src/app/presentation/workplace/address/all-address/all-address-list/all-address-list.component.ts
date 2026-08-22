@@ -9,6 +9,7 @@ import {
   Injector,
   OnDestroy,
   OnInit,
+  computed,
   effect,
   inject,
   runInInjectionContext,
@@ -109,6 +110,12 @@ export class AllAddressListComponent
   public isQuickPrinting = signal(false);
   public readonly quickPrintSourceId = 'all-address';
 
+  public hasSelection = computed(() =>
+    this.dataManagementClientService.clientListService
+      .checkedArray()
+      .some((c) => c.checked)
+  );
+
   // Private properties
   private effects: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
@@ -199,17 +206,14 @@ export class AllAddressListComponent
       const isChecked = value.currentTarget.checked;
       const tmpClient =
         this.dataManagementClientService.listWrapper()!.clients[i];
-      const tmpCheckBoxValue =
-        this.dataManagementClientService.findCheckBoxValue(tmpClient.id!);
 
-      if (tmpCheckBoxValue) {
-        tmpCheckBoxValue.checked = isChecked;
-      } else {
-        const c = new CheckBoxValue();
-        c.id = tmpClient.id!;
-        c.checked = isChecked;
-        this.dataManagementClientService.addCheckBoxValueToArray(c);
-      }
+      this.dataManagementClientService.removeCheckBoxValueToArray(
+        tmpClient.id!
+      );
+      const c = new CheckBoxValue();
+      c.id = tmpClient.id!;
+      c.checked = isChecked;
+      this.dataManagementClientService.addCheckBoxValueToArray(c);
     } finally {
       this.checkBoxIndeterminate =
         this.dataManagementClientService.checkBoxIndeterminate();
@@ -263,19 +267,13 @@ export class AllAddressListComponent
   }
 
   onClickExportExcel(index: number): void {
-    if (
-      this.dataManagementClientService.headerCheckBoxValue() ||
-      this.checkBoxIndeterminate
-    ) {
+    if (this.hasSelection()) {
       this.dataManagementClientService.exportExcel(index);
     }
   }
 
   async onClickQuickPrint(): Promise<void> {
-    const hasSelection =
-      this.dataManagementClientService.headerCheckBoxValue() ||
-      this.checkBoxIndeterminate;
-    if (this.isQuickPrinting() || !hasSelection) {
+    if (this.isQuickPrinting() || !this.hasSelection()) {
       return;
     }
 

@@ -7,59 +7,40 @@
     <span class="filler"></span>
 
     @if (authorizationService.isAdmin) {
-    <div class="tree-actions">
-      <button
-        id="new-address-button"
-        class="btn new-btn"
-        (click)="onAddAddress()"
-        tabindex="0"
-      >
-        {{ "new-address" | translate }}
-      </button>
-    </div>
-    } @if (quickPrintAction.hasDefault(quickPrintSourceId)) { @if
-    (!(dataManagementClientService.headerCheckBoxValue() ||
-    checkBoxIndeterminate)) {
-    <div>
-      <button
-        class="btn ownStyle-button-disabled"
+      <div class="tree-actions">
+        <button
+          id="new-address-button"
+          class="btn new-btn"
+          (click)="onAddAddress()"
+          tabindex="0"
+        >
+          {{ "new-address" | translate }}
+        </button>
+      </div>
+    }
+    @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
+      <div
+        id="quick-print-button"
+        class="btn"
+        [class.ownStyle-button]="hasSelection()"
+        [class.ownStyle-button-disabled]="!hasSelection()"
+        [class.disabled]="isQuickPrinting()"
         role="button"
         aria-label="pdf"
+        (click)="onClickQuickPrint()"
+        placement="top"
+        ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
+        autoClose="true"
       >
         <app-icon-pdf-icon></app-icon-pdf-icon>
-      </button>
-    </div>
-    } @else {
-    <div
-      id="quick-print-button"
-      class="btn ownStyle-button"
-      role="button"
-      aria-label="pdf"
-      [class.disabled]="isQuickPrinting()"
-      (click)="onClickQuickPrint()"
-      placement="top"
-      ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
-      autoClose="true"
-    >
-      <app-icon-pdf-icon></app-icon-pdf-icon>
-    </div>
-    } } @if (!(dataManagementClientService.headerCheckBoxValue() ||
-    checkBoxIndeterminate)) {
-    <div>
-      <button
-        class="btn ownStyle-button-disabled"
-        role="button"
-        aria-label="excel"
-      >
-        <app-excel-icon></app-excel-icon>
-      </button>
-    </div>
-    } @if (dataManagementClientService.headerCheckBoxValue() ||
-    checkBoxIndeterminate) {
+      </div>
+    }
     <div>
       <div
         tabindex="0"
-        class="btn ownStyle-button"
+        class="btn"
+        [class.ownStyle-button]="hasSelection()"
+        [class.ownStyle-button-disabled]="!hasSelection()"
         role="button"
         data-bs-toggle="dropdown"
         aria-label="excel"
@@ -68,7 +49,6 @@
         <app-excel-icon></app-excel-icon>
       </div>
     </div>
-    }
   </div>
 
   <div class="container-subline">
@@ -134,7 +114,8 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.company" | translate
+                  "address.all-address.all-address-list.table.company"
+                    | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -150,7 +131,8 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.firstname" | translate
+                  "address.all-address.all-address-list.table.firstname"
+                    | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -166,7 +148,8 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.lastname" | translate
+                  "address.all-address.all-address-list.table.lastname"
+                    | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -182,110 +165,114 @@
         </tr>
       </thead>
       <tbody>
-        @for (data of dataManagementClientService.listWrapper()?.clients; track
-        data.id; let i = $index) {
-        <tr
-          [id]="'client-row-' + i"
-          class="table-row"
-          (click)="onClickedRow(data)"
-          [class.active]="data.id === highlightRowId"
-        >
-          <td class="table-cell">
-            <input
-              type="checkbox"
-              [checked]="checkBoxValue(i)"
-              (change)="onChangeCheckBox(i, $event)"
-              name="checkbox"
-              class="checkbox"
-              aria-label="checkbox"
-            />
-          </td>
-          <td class="table-cell">{{ data.typeAbbreviation }}</td>
-          <td
-            [ngClass]="{
-              'table-cell': data.isDeleted === false,
-              'table-cell-delete': data.isDeleted === true
-            }"
+        @for (
+          data of dataManagementClientService.listWrapper()?.clients;
+          track data.id;
+          let i = $index
+        ) {
+          <tr
+            [id]="'client-row-' + i"
+            class="table-row"
+            (click)="onClickedRow(data)"
+            [class.active]="data.id === highlightRowId"
           >
-            {{ data.idNumber }}
-          </td>
-          <td
-            [ngClass]="{
-              'table-cell': data.isDeleted === false,
-              'table-cell-delete': data.isDeleted === true
-            }"
-          >
-            {{ data.company }}
-          </td>
-          <td
-            [id]="'client-firstname-' + i"
-            [ngClass]="{
-              'table-cell': data.isDeleted === false,
-              'table-cell-delete': data.isDeleted === true
-            }"
-          >
-            {{ data.firstName }}
-          </td>
-          <td
-            [id]="'client-lastname-' + i"
-            [ngClass]="{
-              'table-cell': data.isDeleted === false,
-              'table-cell-delete': data.isDeleted === true
-            }"
-          >
-            {{ data.name }}
-          </td>
+            <td class="table-cell">
+              <input
+                type="checkbox"
+                [checked]="checkBoxValue(i)"
+                (change)="onChangeCheckBox(i, $event)"
+                name="checkbox"
+                class="checkbox"
+                aria-label="checkbox"
+              />
+            </td>
+            <td class="table-cell">{{ data.typeAbbreviation }}</td>
+            <td
+              [ngClass]="{
+                'table-cell': data.isDeleted === false,
+                'table-cell-delete': data.isDeleted === true,
+              }"
+            >
+              {{ data.idNumber }}
+            </td>
+            <td
+              [ngClass]="{
+                'table-cell': data.isDeleted === false,
+                'table-cell-delete': data.isDeleted === true,
+              }"
+            >
+              {{ data.company }}
+            </td>
+            <td
+              [id]="'client-firstname-' + i"
+              [ngClass]="{
+                'table-cell': data.isDeleted === false,
+                'table-cell-delete': data.isDeleted === true,
+              }"
+            >
+              {{ data.firstName }}
+            </td>
+            <td
+              [id]="'client-lastname-' + i"
+              [ngClass]="{
+                'table-cell': data.isDeleted === false,
+                'table-cell-delete': data.isDeleted === true,
+              }"
+            >
+              {{ data.name }}
+            </td>
 
-          <td class="table-cell cell-right">
-            @if (authorizationService.isAdmin) {
-            <div>
-              <div
-                [id]="'client-edit-button-' + i"
-                class="icon icon-padding"
-                (click)="onClickEdit(data)"
-              >
-                <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
-              </div>
+            <td class="table-cell cell-right">
+              @if (authorizationService.isAdmin) {
+                <div>
+                  <div
+                    [id]="'client-edit-button-' + i"
+                    class="icon icon-padding"
+                    (click)="onClickEdit(data)"
+                  >
+                    <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
+                  </div>
 
-              @if (!data.isDeleted) {
-              <div
-                [id]="'client-delete-button-' + i"
-                class="icon"
-                (click)="open(data)"
-              >
-                <app-icon-trash-red></app-icon-trash-red>
-              </div>
+                  @if (!data.isDeleted) {
+                    <div
+                      [id]="'client-delete-button-' + i"
+                      class="icon"
+                      (click)="open(data)"
+                    >
+                      <app-icon-trash-red></app-icon-trash-red>
+                    </div>
+                  }
+                </div>
               }
-            </div>
-            } @if (!authorizationService.isAdmin) {
-            <div>
-              <div
-                [id]="'client-view-button-' + i"
-                class="icon icon-padding"
-                (click)="onClickEdit(data)"
-              >
-                <app-icon-eye-grey></app-icon-eye-grey>
-              </div>
-            </div>
-            }
-          </td>
-        </tr>
+              @if (!authorizationService.isAdmin) {
+                <div>
+                  <div
+                    [id]="'client-view-button-' + i"
+                    class="icon icon-padding"
+                    (click)="onClickEdit(data)"
+                  >
+                    <app-icon-eye-grey></app-icon-eye-grey>
+                  </div>
+                </div>
+              }
+            </td>
+          </tr>
         }
       </tbody>
     </table>
   </div>
 
   @if (dataManagementClientService.paginationDataService()) {
-  <app-pagination
-    [dataService]="dataManagementClientService.paginationDataService()!"
-    [(page)]="page"
-    [numberOfItemsPerPage]="
-      dataManagementClientService.currentFilter.numberOfItemsPerPage
-    "
-    (pageChange)="onPageChange($event)"
-    (numberOfItemsPerPageChange)="onItemsPerPageChange($event)"
-    (rowSizeChange)="onChangeRowSize($event)"
-  >
-  </app-pagination>
+    <app-pagination
+      [dataService]="dataManagementClientService.paginationDataService()!"
+      [(page)]="page"
+      [numberOfItemsPerPage]="
+        dataManagementClientService.currentFilter.numberOfItemsPerPage
+      "
+      (pageChange)="onPageChange($event)"
+      (numberOfItemsPerPageChange)="onItemsPerPageChange($event)"
+      (rowSizeChange)="onChangeRowSize($event)"
+    >
+    </app-pagination>
   }
 </form>
