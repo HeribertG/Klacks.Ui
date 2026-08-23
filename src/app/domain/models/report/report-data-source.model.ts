@@ -119,6 +119,33 @@ const GROUP_FOOTER_FIELDS: DataBindingDefinition[] = [
   { key: 'group.totalCount', label: 'Anzahl Gruppen', i18nKey: 'setting.report.field.groupTotalCount', type: ReportFieldType.Number, category: FieldCategory.Footer, defaultWidth: 25 },
 ];
 
+const GROUP_DETAIL_HEADER_FIELDS: DataBindingDefinition[] = [
+  { key: 'group.name', label: 'Name', i18nKey: 'setting.report.field.groupTableName', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 40 },
+  { key: 'group.description', label: 'Beschreibung', i18nKey: 'setting.report.field.groupDescription', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+  { key: 'group.validFrom', label: 'Gültig ab', i18nKey: 'setting.report.field.groupValidFrom', type: ReportFieldType.Date, category: FieldCategory.Header, defaultWidth: 25 },
+  { key: 'group.validUntil', label: 'Gültig bis', i18nKey: 'setting.report.field.groupValidUntil', type: ReportFieldType.Date, category: FieldCategory.Header, defaultWidth: 25 },
+  { key: 'group.path', label: 'Gruppenpfad', i18nKey: 'setting.report.field.groupPath', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+  { key: 'group.paymentInterval', label: 'Abrechnungsintervall', i18nKey: 'setting.report.field.groupPaymentInterval', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 30 },
+  { key: 'group.calendarName', label: 'Kalender', i18nKey: 'setting.report.field.groupCalendarName', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 30 },
+  { key: 'group.clientsCount', label: 'Adressen', i18nKey: 'setting.report.field.groupClientsCount', type: ReportFieldType.Number, category: FieldCategory.Header, defaultWidth: 15 },
+  { key: 'group.shiftsCount', label: 'Schichten', i18nKey: 'setting.report.field.groupShiftsCount', type: ReportFieldType.Number, category: FieldCategory.Header, defaultWidth: 15 },
+  { key: 'group.membersSummary', label: 'Zusammensetzung', i18nKey: 'setting.report.field.groupMembersSummary', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+  { key: 'group.subGroupsSummary', label: 'Untergruppen', i18nKey: 'setting.report.field.groupSubGroupsSummary', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 60 },
+];
+
+const GROUP_MEMBER_TABLE_FIELDS: DataBindingDefinition[] = [
+  { key: 'groupMember.idNumber', label: 'Nr.', i18nKey: 'setting.report.field.groupMemberIdNumber', type: ReportFieldType.Number, category: FieldCategory.WorkTable, defaultWidth: 12 },
+  { key: 'groupMember.company', label: 'Firma', i18nKey: 'setting.report.field.groupMemberCompany', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 25 },
+  { key: 'groupMember.firstName', label: 'Vorname', i18nKey: 'setting.report.field.groupMemberFirstName', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 20 },
+  { key: 'groupMember.name', label: 'Name', i18nKey: 'setting.report.field.groupMemberName', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 20 },
+  { key: 'groupMember.validFrom', label: 'Gültig ab', i18nKey: 'setting.report.field.groupMemberValidFrom', type: ReportFieldType.Date, category: FieldCategory.WorkTable, defaultWidth: 11 },
+  { key: 'groupMember.validUntil', label: 'Gültig bis', i18nKey: 'setting.report.field.groupMemberValidUntil', type: ReportFieldType.Date, category: FieldCategory.WorkTable, defaultWidth: 12 },
+];
+
+const GROUP_MEMBER_FOOTER_FIELDS: DataBindingDefinition[] = [
+  { key: 'groupMember.totalCount', label: 'Anzahl Mitglieder', i18nKey: 'setting.report.field.groupMemberTotalCount', type: ReportFieldType.Number, category: FieldCategory.Footer, defaultWidth: 25 },
+];
+
 const SHIFT_TABLE_FIELDS: DataBindingDefinition[] = [
   { key: 'shift.name', label: 'Name', i18nKey: 'setting.report.field.shiftName', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 20 },
   { key: 'shift.abbreviation', label: 'Abkürzung', i18nKey: 'setting.report.field.shiftAbbreviation', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 12 },
@@ -289,6 +316,20 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
         headerFields: [...COMMON_HEADER_FIELDS],
         tableFields: GROUP_TABLE_FIELDS,
         footerFields: [...GROUP_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
+      },
+    ],
+  },
+  {
+    id: 'edit-group',
+    path: 'workplace/edit-group',
+    i18nKey: 'setting.report.source.editGroup',
+    dataSets: [
+      {
+        id: 'details',
+        i18nKey: 'setting.report.dataset.groupDetails',
+        headerFields: [...GROUP_DETAIL_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
+        tableFields: GROUP_MEMBER_TABLE_FIELDS,
+        footerFields: [...GROUP_MEMBER_FOOTER_FIELDS, ...COMMON_FOOTER_FIELDS],
       },
     ],
   },

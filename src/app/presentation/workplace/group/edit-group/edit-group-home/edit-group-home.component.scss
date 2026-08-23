@@ -1,1 +1,36 @@
 @use "../../../../../../assets/standard-styles/standard-home-page.scss";
+
+.container-headline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.headline-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+  padding-inline-end: 10px;
+}
+
+.headline-action-button {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: var(--backgroundColorSubCards);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sanitizeStoredHtml } from './html-sanitizer.helper';
+import { htmlToPlainText, sanitizeStoredHtml } from './html-sanitizer.helper';
 
 describe('sanitizeStoredHtml', () => {
   describe('formatting that must survive', () => {
@@ -98,5 +98,31 @@ describe('sanitizeStoredHtml', () => {
     it('leaves plain text untouched', () => {
       expect(sanitizeStoredHtml('just text')).toBe('just text');
     });
+  });
+});
+
+describe('htmlToPlainText', () => {
+  it('turns block elements into separate lines', () => {
+    expect(htmlToPlainText('<p>First</p><p>Second</p>')).toBe('First\nSecond');
+  });
+
+  it('turns line breaks into newlines', () => {
+    expect(htmlToPlainText('a<br>b')).toBe('a\nb');
+  });
+
+  it('strips markup and keeps the text content', () => {
+    expect(htmlToPlainText('<p><strong>Bold</strong> and <em>italic</em></p>')).toBe('Bold and italic');
+  });
+
+  it('drops empty lines produced by nested block elements', () => {
+    expect(htmlToPlainText('<div><p>Only</p></div>')).toBe('Only');
+  });
+
+  it('leaves plain text untouched', () => {
+    expect(htmlToPlainText('just text')).toBe('just text');
+  });
+
+  it('returns an empty string for empty input', () => {
+    expect(htmlToPlainText('')).toBe('');
   });
 });

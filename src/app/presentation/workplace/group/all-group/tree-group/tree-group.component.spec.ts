@@ -15,6 +15,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Group } from 'src/app/domain/models/group/group-class';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 
 describe('TreeGroupComponent - Drag and Drop', () => {
     let component: TreeGroupComponent;
@@ -84,6 +85,12 @@ describe('TreeGroupComponent - Drag and Drop', () => {
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 
+        const quickPrintActionServiceSpy = {
+            ensureDefaultsLoaded: vi.fn().mockResolvedValue(undefined),
+            hasDefault: vi.fn().mockReturnValue(false),
+            print: vi.fn().mockResolvedValue(undefined),
+        };
+
         dataManagementGroupServiceSpy.isRead.mockReturnValue(false);
         dataManagementGroupServiceSpy.showTree.mockReturnValue(true);
         dataManagementGroupServiceSpy.deleteGroup.mockReturnValue(of(undefined));
@@ -99,6 +106,7 @@ describe('TreeGroupComponent - Drag and Drop', () => {
                 { provide: NavigationService, useValue: navigationServiceSpy },
                 { provide: ModalService, useValue: modalServiceSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
+                { provide: QuickPrintActionService, useValue: quickPrintActionServiceSpy },
             ],
         }).compileComponents();
 

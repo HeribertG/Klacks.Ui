@@ -1,13 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Host page of the group edit view, composing the group cards and the quick print action.
+ * @param quickPrintSourceId - Report data source printed by the headline PDF button
+ * @param editGroupId - Id of the currently edited group, mirrored as a signal so the
+ * OnPush template re-evaluates once the group has been loaded
+ */
 
 import {
+  ChangeDetectorRef,
   Component,
+  effect,
   inject,
   OnInit,
+  signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { EditGroupItemComponent } from '../edit-group-item/edit-group-item.component';
@@ -29,7 +41,9 @@ import { SearchService } from 'src/app/application/services/search.service';
     EditGroupItemComponent,
     EditGroupMembersComponent,
     EditGroupNavComponent,
-    EditGroupParentComponent
+    EditGroupParentComponent,
+    NgbTooltipModule,
+    PdfIconComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -43,9 +57,47 @@ export class EditGroupHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  private cdr = inject(ChangeDetectorRef);
+
+  public quickPrintAction = inject(QuickPrintActionService);
+  public readonly quickPrintSourceId = 'edit-group';
+
+  public isQuickPrinting = signal(false);
+  public editGroupId = signal<string | undefined>(undefined);
+
+  constructor() {
+    effect(() => {
+      this.dataManagementGroupService.isReset();
+      this.dataManagementGroupService.initIsRead();
+      this.editGroupId.set(this.dataManagementGroupService.editGroup?.id);
+    });
+  }
+
+  async onClickQuickPrint(): Promise<void> {
+    const groupId = this.dataManagementGroupService.editGroup?.id;
+    if (!groupId || this.isQuickPrinting()) {
+      return;
+    }
+
+    this.isQuickPrinting.set(true);
+    this.cdr.markForCheck();
+    try {
+      await this.quickPrintAction.print({
+        sourceId: this.quickPrintSourceId,
+        fallbackDataSetIds: ['details'],
+        params: { groupId },
+        groupName: this.dataManagementGroupService.editGroup?.name ?? '',
+      });
+    } finally {
+      this.isQuickPrinting.set(false);
+      this.cdr.markForCheck();
+    }
+  }
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
+
+    void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
     
     // Hide search for edit pages
     this.searchService.setSearchVisibility(false);

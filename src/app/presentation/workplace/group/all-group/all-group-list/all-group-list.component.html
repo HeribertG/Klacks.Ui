@@ -194,6 +194,19 @@
 
           <td [id]="'all-group-list-cell-actions-' + i" class="table-cell cell-right">
             <div>
+              @if (quickPrintAction.hasDefault(detailQuickPrintSourceId)) {
+              <div
+                [id]="'all-group-list-print-' + i"
+                class="icon icon-padding"
+                role="button"
+                placement="top"
+                ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
+                (click)="onClickQuickPrintDetail(data, $event)"
+              >
+                <app-icon-pdf-icon></app-icon-pdf-icon>
+              </div>
+              }
+
               <div [id]="'all-group-list-edit-' + i" class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
               </div>

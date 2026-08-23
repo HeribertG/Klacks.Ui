@@ -13,6 +13,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  signal,
   ChangeDetectionStrategy,
   output
 } from '@angular/core';
@@ -40,6 +41,8 @@ import {
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from '@angular/cdk/drag-drop';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 
 @Component({
   selector: 'app-tree-group',
@@ -64,12 +67,14 @@ import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from
     CdkDrag,
     CdkDropList,
     CdkDropListGroup,
+    PdfIconComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TreeGroupComponent implements OnInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
+  public quickPrintAction = inject(QuickPrintActionService);
   private navigationService = inject(NavigationService);
   private injector = inject(Injector);
   private modalService = inject(ModalService);
@@ -90,10 +95,35 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   private readonly SCROLL_ZONE_SIZE = 100;
   private readonly SCROLL_SPEED = 10;
 
+  public isQuickPrinting = signal(false);
+  public readonly quickPrintSourceId = 'edit-group';
+
   ngOnInit(): void {
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
     this.readSignals();
+
+    void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
+  }
+
+  async onClickQuickPrint(node: Group): Promise<void> {
+    if (!node.id || this.isQuickPrinting()) {
+      return;
+    }
+
+    this.isQuickPrinting.set(true);
+    this.cdr.markForCheck();
+    try {
+      await this.quickPrintAction.print({
+        sourceId: this.quickPrintSourceId,
+        fallbackDataSetIds: ['details'],
+        params: { groupId: node.id },
+        groupName: node.name,
+      });
+    } finally {
+      this.isQuickPrinting.set(false);
+      this.cdr.markForCheck();
+    }
   }
 
   ngOnDestroy(): void {

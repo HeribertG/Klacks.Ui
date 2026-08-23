@@ -25,7 +25,11 @@ import { ClientConfigService } from 'src/app/domain/services/client/client-confi
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { Filter } from 'src/app/domain/models/client/filter';
 import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
-import { GroupFilter } from 'src/app/domain/models/group/group-class';
+import { GroupFilter, IGroup, IGroupItem } from 'src/app/domain/models/group/group-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { htmlToPlainText } from 'src/app/shared/helpers/html-sanitizer.helper';
 import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
 import { IClient, ICommunication, IClientContract } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
@@ -38,6 +42,16 @@ import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const REPORT_MAX_ROWS = 10000;
+
+const GROUP_PATH_SEPARATOR = ' > ';
+
+const PAYMENT_INTERVAL_LABEL_KEYS: Readonly<Record<PaymentInterval, string>> = {
+  [PaymentInterval.Weekly]: 'settings.work.payment-weekly',
+  [PaymentInterval.Biweekly]: 'settings.work.payment-biweekly',
+  [PaymentInterval.Monthly]: 'settings.work.payment-monthly',
+  [PaymentInterval.Individual]: 'settings.work.payment-individual',
+  [PaymentInterval.MonthlyTargetHours]: 'settings.work.payment-monthly-target-hours',
+};
 
 const FULL_LIST_PAGINATION = {
   numberOfItemsPerPage: REPORT_MAX_ROWS,
@@ -101,6 +115,7 @@ export class ReportDataProviderService {
   private clientConfigService = inject(ClientConfigService);
   private absenceLookup = inject(AbsenceLookupService);
   private dataClientAvailability = inject(DataClientAvailabilityService);
+  private calendarSelectionService = inject(DataCalendarSelectionService);
 
   getProvider(sourceId: string, dataSetIds: string[]): ReportDataProvider {
     if (sourceId === 'schedule') return this.scheduleProvider(dataSetIds);
@@ -112,6 +127,7 @@ export class ReportDataProviderService {
       case 'client-availability/clients': return this.clientAvailabilityListProvider();
       case 'edit-client-availability/details': return this.editClientAvailabilityProvider();
       case 'group/groups': return this.groupProvider();
+      case 'edit-group/details': return this.editGroupProvider();
       case 'shift-table/shifts': return this.shiftProvider(ShiftFilterType.Original);
       case 'shift-table-cut/shifts': return this.shiftProvider(ShiftFilterType.Shift);
       case 'shift-table-container/shifts': return this.shiftProvider(ShiftFilterType.Container);
@@ -406,8 +422,13 @@ export class ReportDataProviderService {
             externEmp: true,
             customer: true,
           };
-        const response = await firstValueFrom(this.clientService.readClientList(filter as any));
-        const rows = this.applyClientSelection(response.clients, params.clientSelection);
+        const [response, typeTemplates] = await Promise.all([
+          firstValueFrom(this.clientService.readClientList(filter as any)),
+          firstValueFrom(this.clientService.readClientTypeTemplateList()),
+        ]);
+        const typeNameByType = new Map(typeTemplates.map(t => [t.type, t.name]));
+        const rows = this.applyClientSelection(response.clients, params.clientSelection)
+          .map((row: any) => ({ ...row, typeName: typeNameByType.get(row.type) ?? '' }));
         return { rows, metadata: { totalCount: rows.length } };
       },
       resolveFieldValue: (field, row) => {
@@ -417,7 +438,7 @@ export class ReportDataProviderService {
           case 'client.list.firstName': return row.firstName ?? '';
           case 'client.list.name': return row.name ?? '';
           case 'client.list.gender': return this.resolveGender(row.gender);
-          case 'client.list.type': return row.typeAbbreviation ?? row.type?.toString() ?? '';
+          case 'client.list.type': return row.typeName ?? '';
           case 'client.list.birthdate': return this.formatDate(row.birthdate);
           default: return '';
         }
@@ -676,6 +697,168 @@ export class ReportDataProviderService {
     };
   }
 
+  private editGroupProvider(): ReportDataProvider {
+    return {
+      fetchData: async (params) => {
+        const groupId = params.groupId ?? (await this.resolveFallbackGroupId());
+        if (!groupId) return { rows: [] };
+
+        const [group, path, calendars] = await Promise.all([
+          firstValueFrom(this.groupService.getGroup(groupId)),
+          firstValueFrom(this.groupService.getPathToNode(groupId)).catch(() => [] as IGroup[]),
+          firstValueFrom(this.calendarSelectionService.getList()).catch(() => [] as ICalendarSelection[]),
+        ]);
+        const treeNode = await this.resolveGroupTreeNode(group);
+
+        const rows = [...(group.groupItems ?? [])].sort((a, b) =>
+          `${a.client?.name ?? ''} ${a.client?.firstName ?? ''}`.localeCompare(`${b.client?.name ?? ''} ${b.client?.firstName ?? ''}`)
+        );
+        return {
+          rows,
+          metadata: { group, path, calendars, treeNode, totalCount: rows.length },
+        };
+      },
+      resolveFieldValue: (field, row: IGroupItem) => {
+        switch (field.dataBinding) {
+          case 'groupMember.idNumber': return row.client?.idNumber?.toString() ?? '';
+          case 'groupMember.company': return row.client?.company ?? '';
+          case 'groupMember.firstName': return row.client?.firstName ?? '';
+          case 'groupMember.name': return row.client?.name ?? '';
+          case 'groupMember.validFrom': return this.formatDate(row.validFrom);
+          case 'groupMember.validUntil': return this.formatDate(row.validUntil);
+          default: return '';
+        }
+      },
+      resolveHeaderValue: (field, context) => {
+        const group = context.metadata?.['group'] as IGroup | undefined;
+        const path = (context.metadata?.['path'] as IGroup[] | undefined) ?? [];
+        const calendars = (context.metadata?.['calendars'] as ICalendarSelection[] | undefined) ?? [];
+        const treeNode = context.metadata?.['treeNode'] as IGroup | undefined;
+        switch (field.dataBinding) {
+          case 'group.name': return group?.name ?? '';
+          case 'group.description': return this.withSummaryLabel('setting.report.field.groupDescription', htmlToPlainText(group?.description ?? ''));
+          case 'group.validFrom': return this.withInlineLabel('setting.report.field.groupValidFrom', this.formatDate(group?.validFrom));
+          case 'group.validUntil': return this.withInlineLabel('setting.report.field.groupValidUntil', this.formatDate(group?.validUntil));
+          case 'group.path': return this.withInlineLabel('setting.report.field.groupPath', this.buildGroupPath(path, group));
+          case 'group.paymentInterval': return this.withInlineLabel('setting.report.field.groupPaymentInterval', this.resolvePaymentInterval(group?.paymentInterval));
+          case 'group.calendarName': return this.withInlineLabel('setting.report.field.groupCalendarName', calendars.find(c => c.id === group?.calendarSelectionId)?.name ?? '');
+          case 'group.clientsCount': return this.withInlineLabel('setting.report.field.groupClientsCount', (group?.clientsCount ?? 0).toString());
+          case 'group.shiftsCount':
+            return treeNode
+              ? this.withInlineLabel('setting.report.field.groupShiftsCount', (treeNode.shiftsCount ?? 0).toString())
+              : '';
+          case 'group.membersSummary':
+            return this.withSummaryLabel('setting.report.field.groupMembersSummary', this.buildGroupMembersSummary(treeNode));
+          case 'group.subGroupsSummary':
+            return this.withSummaryLabel('setting.report.field.groupSubGroupsSummary', this.buildSubGroupsSummary(treeNode));
+          default: return this.resolveCommonHeaderValue(field, context) ?? '';
+        }
+      },
+      resolveFooterValue: (field, rows) => {
+        if (field.dataBinding === 'groupMember.totalCount') return rows.length.toString();
+        return '';
+      },
+      buildFormulaVariables: (row: IGroupItem) => ({
+        idNumber: row.client?.idNumber ?? 0,
+        company: row.client?.company ?? '',
+        firstName: row.client?.firstName ?? '',
+        name: row.client?.name ?? '',
+      }),
+      buildFooterFormulaVariables: (rows: IGroupItem[]) => ({
+        totalRows: rows.length,
+      }),
+      collectResolvedLabelTexts: () =>
+        this.translatedLabels([
+          ...Object.values(PAYMENT_INTERVAL_LABEL_KEYS),
+          'setting.report.field.groupDescription',
+          'setting.report.field.groupValidFrom',
+          'setting.report.field.groupValidUntil',
+          'setting.report.field.groupPath',
+          'setting.report.field.groupPaymentInterval',
+          'setting.report.field.groupCalendarName',
+          'setting.report.field.groupClientsCount',
+          'setting.report.field.groupShiftsCount',
+          'setting.report.field.groupMembersSummary',
+          'setting.report.field.groupSubGroupsSummary',
+          'setting.report.field.groupMemberEmployees',
+          'setting.report.field.groupMemberExternEmps',
+          'setting.report.field.groupMemberCustomers',
+        ]),
+    };
+  }
+
+  private async resolveFallbackGroupId(): Promise<string | undefined> {
+    const filter = {
+      searchString: '',
+      orderBy: 'name',
+      sortOrder: 'asc',
+      ...FULL_LIST_PAGINATION,
+      numberOfItemsPerPage: 1,
+      activeDateRange: true,
+      formerDateRange: false,
+      futureDateRange: false,
+      showDeleteEntries: false,
+      selectedGroup: undefined,
+    };
+    try {
+      const response = await firstValueFrom(this.groupService.readGroupList(filter as any));
+      return response.groups?.[0]?.id;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private async resolveGroupTreeNode(group: IGroup): Promise<IGroup | undefined> {
+    const rootId = group.root ?? group.id;
+    if (!rootId) return undefined;
+    try {
+      const tree = await firstValueFrom(this.groupService.getGroupTree(rootId));
+      return this.findGroupInTree(tree.nodes ?? [], group.id);
+    } catch {
+      return undefined;
+    }
+  }
+
+  private findGroupInTree(nodes: IGroup[], id: string | undefined): IGroup | undefined {
+    if (!id) return undefined;
+    for (const node of nodes) {
+      if (node.id === id) return node;
+      const found = this.findGroupInTree(node.children ?? [], id);
+      if (found) return found;
+    }
+    return undefined;
+  }
+
+  private buildGroupPath(path: IGroup[], group: IGroup | undefined): string {
+    const names = path.map(p => p.name).filter(Boolean);
+    if (names.length === 0) {
+      return group?.name ?? '';
+    }
+    return names.join(GROUP_PATH_SEPARATOR);
+  }
+
+  private resolvePaymentInterval(interval: PaymentInterval | undefined): string {
+    const key = PAYMENT_INTERVAL_LABEL_KEYS[interval ?? PaymentInterval.Monthly];
+    return key ? this.translate.instant(key) : '';
+  }
+
+  private buildGroupMembersSummary(treeNode: IGroup | undefined): string {
+    if (!treeNode) return '';
+    const parts: string[] = [
+      `${this.translate.instant('setting.report.field.groupMemberEmployees')}: ${treeNode.employeesCount ?? 0}`,
+      `${this.translate.instant('setting.report.field.groupMemberExternEmps')}: ${treeNode.externEmpsCount ?? 0}`,
+      `${this.translate.instant('setting.report.field.groupMemberCustomers')}: ${treeNode.customersCount ?? 0}`,
+    ];
+    return parts.join('\n');
+  }
+
+  private buildSubGroupsSummary(treeNode: IGroup | undefined): string {
+    return (treeNode?.children ?? [])
+      .filter(child => !!child.name)
+      .map(child => `${child.name} (${child.clientsCount ?? 0})`)
+      .join('\n');
+  }
+
   private shiftProvider(filterType: ShiftFilterType): ReportDataProvider {
     return {
       fetchData: async (params) => {
@@ -858,6 +1041,10 @@ export class ReportDataProviderService {
 
   private withSummaryLabel(i18nKey: string, body: string): string {
     return body ? `${this.translate.instant(i18nKey)}:\n${body}` : '';
+  }
+
+  private withInlineLabel(i18nKey: string, value: string): string {
+    return value ? `${this.translate.instant(i18nKey)}: ${value}` : '';
   }
 
   private resolveClientPhoto(client: IClient | undefined): string {

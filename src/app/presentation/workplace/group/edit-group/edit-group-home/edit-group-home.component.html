@@ -1,6 +1,20 @@
 <div id="edit-group-home-container" class="container-dashboard" data-klacksy-target="group-detail">
   <div id="edit-group-home-headline" class="container-headline">
-    {{ "group.edit-group.edit-group-home.header" | translate }}
+    <span>{{ "group.edit-group.edit-group-home.header" | translate }}</span>
+    @if (quickPrintAction.hasDefault(quickPrintSourceId) && editGroupId()) {
+    <div class="headline-actions">
+      <button
+        id="edit-group-quick-print-btn"
+        type="button"
+        class="headline-action-button"
+        [disabled]="isQuickPrinting()"
+        [ngbTooltip]="'report.quickPrint.tooltip' | translate"
+        (click)="onClickQuickPrint()"
+      >
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </button>
+    </div>
+    }
   </div>
 
   <div id="edit-group-item-container" class="container-profilline" data-klacksy-target="group-item">

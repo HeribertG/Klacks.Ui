@@ -58,16 +58,21 @@ export function formatPhoneNumber(value: string): string {
   const digits = unformatPhoneNumber(value);
 
   if (!hasCross) {
-    return formatWithRules(digits, FORMAT_RULES_WITHOUT_CROSS, FORMAT_RULES_WITHOUT_CROSS_FALLBACK);
+    // The leading group of a number without a country code IS the area code
+    // (e.g. "044" in "044 123 45 67") - wrap it in parentheses. A number with
+    // a country code has no equivalent unambiguous group to bracket, so it is
+    // left as plain space-grouped digits.
+    return formatWithRules(digits, FORMAT_RULES_WITHOUT_CROSS, FORMAT_RULES_WITHOUT_CROSS_FALLBACK, true);
   }
 
-  return '+' + formatWithRules(digits, FORMAT_RULES_WITH_CROSS, FORMAT_RULES_WITH_CROSS_FALLBACK);
+  return '+' + formatWithRules(digits, FORMAT_RULES_WITH_CROSS, FORMAT_RULES_WITH_CROSS_FALLBACK, false);
 }
 
 function formatWithRules(
   value: string,
   rules: readonly FormatRule[],
-  fallbackGroups: readonly number[]
+  fallbackGroups: readonly number[],
+  wrapAreaCode: boolean
 ): string {
   if (value.length === 0) {
     return '';
@@ -78,16 +83,16 @@ function formatWithRules(
   );
   const groups = matchedRule ? matchedRule.groups : fallbackGroups;
 
-  return applyGroupPattern(value, groups);
+  return applyGroupPattern(value, groups, wrapAreaCode);
 }
 
-function applyGroupPattern(value: string, groups: readonly number[]): string {
+function applyGroupPattern(value: string, groups: readonly number[], wrapAreaCode: boolean): string {
   const regexParts = groups.map(size => `(\\d{0,${size}})`).join('');
   const pattern = new RegExp(`^${regexParts}`);
 
   const replacementParts: string[] = [];
   for (let i = 1; i <= groups.length; i++) {
-    replacementParts.push(`$${i}`);
+    replacementParts.push(wrapAreaCode && i === 1 ? `($${i})` : `$${i}`);
   }
 
   const formatted = value.replace(pattern, replacementParts.join(' '));

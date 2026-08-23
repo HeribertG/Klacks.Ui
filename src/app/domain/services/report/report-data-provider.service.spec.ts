@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { ReportDataProviderService } from './report-data-provider.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
@@ -15,9 +15,11 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+import { getAllFieldsForDataSet } from 'src/app/domain/models/report/report-data-source.model';
 
 const PHONE_TYPE = 1;
 const EMAIL_TYPE = 4;
@@ -25,8 +27,18 @@ const EMAIL_TYPE = 4;
 describe('ReportDataProviderService', () => {
   let service: ReportDataProviderService;
   let shiftService: { readShiftList: ReturnType<typeof vi.fn> };
-  let clientService: { readClientList: ReturnType<typeof vi.fn>; getClient: ReturnType<typeof vi.fn> };
-  let groupService: { readGroupList: ReturnType<typeof vi.fn> };
+  let clientService: {
+    readClientList: ReturnType<typeof vi.fn>;
+    getClient: ReturnType<typeof vi.fn>;
+    readClientTypeTemplateList: ReturnType<typeof vi.fn>;
+  };
+  let groupService: {
+    readGroupList: ReturnType<typeof vi.fn>;
+    getGroup: ReturnType<typeof vi.fn>;
+    getPathToNode: ReturnType<typeof vi.fn>;
+    getGroupTree: ReturnType<typeof vi.fn>;
+  };
+  let calendarSelectionService: { getList: ReturnType<typeof vi.fn> };
   let qualificationService: { getQualificationList: ReturnType<typeof vi.fn> };
   let contractService: { getList: ReturnType<typeof vi.fn> };
   let clientAvailabilityService: {
@@ -40,8 +52,19 @@ describe('ReportDataProviderService', () => {
     clientService = {
       readClientList: vi.fn(() => of({ clients: [], maxItems: 0 })),
       getClient: vi.fn(() => of({ addresses: [] })),
+      readClientTypeTemplateList: vi.fn(() => of([
+        { type: 0, name: 'Mitarbeiter' },
+        { type: 1, name: 'Extern' },
+        { type: 2, name: 'Kunde' },
+      ])),
     };
-    groupService = { readGroupList: vi.fn(() => of({ groups: [], maxItems: 0 })) };
+    groupService = {
+      readGroupList: vi.fn(() => of({ groups: [], maxItems: 0 })),
+      getGroup: vi.fn(() => of({ id: 'g1', name: 'Nord', groupItems: [] })),
+      getPathToNode: vi.fn(() => of([])),
+      getGroupTree: vi.fn(() => of({ rootId: 'g1', nodes: [] })),
+    };
+    calendarSelectionService = { getList: vi.fn(() => of([])) };
     qualificationService = { getQualificationList: vi.fn(() => of([])) };
     contractService = { getList: vi.fn(() => of([])) };
     clientAvailabilityService = {
@@ -63,6 +86,7 @@ describe('ReportDataProviderService', () => {
         { provide: DataQualificationService, useValue: qualificationService },
         { provide: DataContractService, useValue: contractService },
         { provide: DataClientAvailabilityService, useValue: clientAvailabilityService },
+        { provide: DataCalendarSelectionService, useValue: calendarSelectionService },
         { provide: AbsenceLookupService, useValue: {} },
         {
           provide: ClientConfigService, useValue: {
@@ -157,6 +181,18 @@ describe('ReportDataProviderService', () => {
       clientSelection: { selectAll: true, invertedSelection: false, selection: [] },
     });
     expect(all.rows.length).toBe(3);
+  });
+
+  it('resolves the client type via the type-template lookup, not typeAbbreviation or the raw number', async () => {
+    clientService.readClientList.mockReturnValue(
+      of({ clients: [{ id: 'a', type: 1 }, { id: 'b', type: 2 }], maxItems: 2 })
+    );
+    const provider = service.getProvider('all-address', ['clients']);
+
+    const { rows } = await provider.fetchData({});
+
+    expect(provider.resolveFieldValue({ dataBinding: 'client.list.type' } as never, rows[0])).toBe('Extern');
+    expect(provider.resolveFieldValue({ dataBinding: 'client.list.type' } as never, rows[1])).toBe('Kunde');
   });
 
   it('prints the group list along the screen filter with full pagination', async () => {
@@ -277,7 +313,7 @@ describe('ReportDataProviderService', () => {
 
     it('resolves phones, emails, employment type and entry date from the real DTO shape (type-based, not isPhone/isEmail)', () => {
       const values = resolveAll(['client.phones', 'client.emails', 'client.employmentType', 'client.entryDate']);
-      expect(values['client.phones']).toBe('079 111 11 11');
+      expect(values['client.phones']).toBe('(079) 111 11 11');
       expect(values['client.emails']).toBe('a@klacks.ch');
       expect(values['client.employmentType']).toBe('address.edit-address.membership.type.employee');
       expect(values['client.entryDate']).not.toBe('');
@@ -530,6 +566,155 @@ describe('ReportDataProviderService', () => {
           { clientId: 'c1', date: '2026-01-02', ranges: '13:00-17:30' },
         ])
       ).toEqual(expect.objectContaining({ totalRows: 2, totalHours: 8.5 }));
+    });
+  });
+
+  describe('group detail report', () => {
+    const groupWithMembers = {
+      id: 'g1',
+      root: 'root1',
+      name: 'Nord',
+      description: '<p>Erste Zeile</p><p>Zweite Zeile</p>',
+      validFrom: '2026-01-01',
+      validUntil: '2026-12-31',
+      paymentInterval: 2,
+      calendarSelectionId: 'cal1',
+      clientsCount: 2,
+      shiftsCount: 0,
+      groupItems: [
+        { id: 'i2', clientId: 'c2', validFrom: '2026-02-01', client: { idNumber: 22, company: 'B AG', firstName: 'Bea', name: 'Zwahlen' } },
+        { id: 'i1', clientId: 'c1', validFrom: '2026-01-01', client: { idNumber: 11, company: 'A AG', firstName: 'Anna', name: 'Aebi' } },
+      ],
+    };
+
+    it('lists the group members sorted by name and counts them in the footer', async () => {
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const { rows } = await provider.fetchData({ groupId: 'g1' });
+
+      expect(groupService.getGroup).toHaveBeenCalledWith('g1');
+      expect(rows.map((r: { client: { name: string } }) => r.client.name)).toEqual(['Aebi', 'Zwahlen']);
+      expect(provider.resolveFieldValue({ dataBinding: 'groupMember.idNumber' } as never, rows[0])).toBe('11');
+      expect(provider.resolveFieldValue({ dataBinding: 'groupMember.company' } as never, rows[0])).toBe('A AG');
+      expect(provider.resolveFieldValue({ dataBinding: 'groupMember.firstName' } as never, rows[0])).toBe('Anna');
+      expect(provider.resolveFooterValue({ dataBinding: 'groupMember.totalCount' } as never, rows)).toBe('2');
+    });
+
+    it('falls back to the first group when no group is supplied, so the designer preview is never empty', async () => {
+      groupService.readGroupList.mockReturnValue(of({ groups: [{ id: 'first' }], maxItems: 1 }));
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const { rows } = await provider.fetchData({});
+
+      expect(groupService.readGroupList).toHaveBeenCalled();
+      expect(groupService.getGroup).toHaveBeenCalledWith('first');
+      expect(rows.length).toBe(2);
+    });
+
+    it('renders the rich text description as plain lines instead of markup', async () => {
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const data = await provider.fetchData({ groupId: 'g1' });
+      const value = provider.resolveHeaderValue(
+        { dataBinding: 'group.description' } as never,
+        { metadata: data.metadata }
+      );
+
+      expect(value).not.toContain('<p>');
+      expect(value).toContain('Erste Zeile');
+      expect(value).toContain('Zweite Zeile');
+    });
+
+    it('resolves the calendar name through the calendar list because the navigation is never populated', async () => {
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      calendarSelectionService.getList.mockReturnValue(of([{ id: 'cal1', name: 'Schweiz' }]));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const data = await provider.fetchData({ groupId: 'g1' });
+
+      expect(
+        provider.resolveHeaderValue({ dataBinding: 'group.calendarName' } as never, { metadata: data.metadata })
+      ).toContain('Schweiz');
+    });
+
+    it('takes the shift and member type counts from the tree node, the only endpoint that populates them', async () => {
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      groupService.getGroupTree.mockReturnValue(of({
+        rootId: 'root1',
+        nodes: [{
+          id: 'root1',
+          name: 'Root',
+          children: [{ id: 'g1', name: 'Nord', shiftsCount: 7, employeesCount: 5, externEmpsCount: 2, customersCount: 1, clientsCount: 8, children: [{ id: 'g2', name: 'Nord-Ost', clientsCount: 3 }] }],
+        }],
+      }));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const data = await provider.fetchData({ groupId: 'g1' });
+      const context = { metadata: data.metadata };
+
+      expect(groupService.getGroupTree).toHaveBeenCalledWith('root1');
+      expect(provider.resolveHeaderValue({ dataBinding: 'group.shiftsCount' } as never, context)).toContain('7');
+      expect(provider.resolveHeaderValue({ dataBinding: 'group.membersSummary' } as never, context)).toContain('5');
+      expect(provider.resolveHeaderValue({ dataBinding: 'group.subGroupsSummary' } as never, context)).toContain('Nord-Ost');
+    });
+
+    it('keeps working when the tree lookup fails so a print never dies on the optional counts', async () => {
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      groupService.getGroupTree.mockReturnValue(throwError(() => new Error('tree unavailable')));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const data = await provider.fetchData({ groupId: 'g1' });
+
+      expect(data.rows.length).toBe(2);
+      expect(
+        provider.resolveHeaderValue({ dataBinding: 'group.subGroupsSummary' } as never, { metadata: data.metadata })
+      ).toBe('');
+    });
+
+    it('omits the shift count instead of printing a false zero when the tree node is unreachable', async () => {
+      groupService.getGroup.mockReturnValue(of({ ...groupWithMembers, shiftsCount: 0 }));
+      groupService.getGroupTree.mockReturnValue(of({ rootId: 'root1', nodes: [] }));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const data = await provider.fetchData({ groupId: 'g1' });
+
+      expect(
+        provider.resolveHeaderValue({ dataBinding: 'group.shiftsCount' } as never, { metadata: data.metadata })
+      ).toBe('');
+      expect(
+        provider.resolveHeaderValue({ dataBinding: 'group.membersSummary' } as never, { metadata: data.metadata })
+      ).toBe('');
+    });
+
+    it('declares every data binding the seeded backend template prints', () => {
+      const seededBindings = [
+        'report.customText', 'group.name', 'group.path', 'group.validFrom', 'group.validUntil',
+        'group.paymentInterval', 'group.calendarName', 'group.clientsCount', 'group.shiftsCount',
+        'group.description', 'group.membersSummary', 'group.subGroupsSummary',
+        'groupMember.idNumber', 'groupMember.company', 'groupMember.firstName', 'groupMember.name',
+        'groupMember.validFrom', 'groupMember.validUntil', 'groupMember.totalCount',
+        'report.pageNumber',
+      ];
+      const declared = getAllFieldsForDataSet('edit-group', 'details').map(f => f.key);
+
+      for (const binding of seededBindings) {
+        expect(declared, `missing catalog entry for ${binding}`).toContain(binding);
+      }
+    });
+
+    it('builds the group path from the ancestor list', async () => {
+      groupService.getGroup.mockReturnValue(of(groupWithMembers));
+      groupService.getPathToNode.mockReturnValue(of([{ name: 'Schweiz' }, { name: 'Nord' }]));
+      const provider = service.getProvider('edit-group', ['details']);
+
+      const data = await provider.fetchData({ groupId: 'g1' });
+
+      expect(
+        provider.resolveHeaderValue({ dataBinding: 'group.path' } as never, { metadata: data.metadata })
+      ).toContain('Schweiz > Nord');
     });
   });
 });

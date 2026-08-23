@@ -80,6 +80,14 @@ export const FORMULA_VARIABLES: Record<string, Record<string, FormulaVariableDef
       { name: 'validFrom', i18nKey: 'setting.report.field.addressValidFrom', type: 'string' },
     ],
   },
+  'edit-group': {
+    'details': [
+      { name: 'idNumber', i18nKey: 'setting.report.field.groupMemberIdNumber', type: 'number' },
+      { name: 'company', i18nKey: 'setting.report.field.groupMemberCompany', type: 'string' },
+      { name: 'firstName', i18nKey: 'setting.report.field.groupMemberFirstName', type: 'string' },
+      { name: 'name', i18nKey: 'setting.report.field.groupMemberName', type: 'string' },
+    ],
+  },
   'shift-table': { 'shifts': SHIFT_FORMULA_VARIABLES },
   'shift-table-cut': { 'shifts': SHIFT_FORMULA_VARIABLES },
   'shift-table-container': { 'shifts': SHIFT_FORMULA_VARIABLES },
@@ -120,6 +128,11 @@ export const FOOTER_FORMULA_VARIABLES: Record<string, Record<string, FormulaVari
     ],
   },
   'edit-address': {
+    'details': [
+      { name: 'totalRows', i18nKey: 'setting.report.formula.var.totalRows', type: 'number' },
+    ],
+  },
+  'edit-group': {
     'details': [
       { name: 'totalRows', i18nKey: 'setting.report.formula.var.totalRows', type: 'number' },
     ],

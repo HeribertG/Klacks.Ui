@@ -49,3 +49,29 @@ export function sanitizeStoredHtml(html: string): string {
     ALLOW_DATA_ATTR: false,
   });
 }
+
+const LINE_BREAKING_TAGS = 'br, p, div, li, tr, h1, h2, h3, h4, h5, h6';
+
+/**
+ * Converts stored rich text HTML into plain text for outputs that cannot render markup,
+ * such as the PDF report renderer. Block level elements become line breaks so a multi
+ * paragraph description keeps its structure instead of collapsing into one line.
+ *
+ * @param html - Rich text HTML from the backend, may already be plain text
+ * @returns Plain text with one line per block element and no empty lines
+ */
+export function htmlToPlainText(html: string): string {
+  if (!html) {
+    return '';
+  }
+
+  const parsed = new DOMParser().parseFromString(sanitizeStoredHtml(html), 'text/html');
+  parsed.body.querySelectorAll(LINE_BREAKING_TAGS).forEach(element => element.insertAdjacentText('afterend', '\n'));
+
+  return (parsed.body.textContent ?? '')
+    .replace(/\u00a0/g, ' ')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .join('\n');
+}
