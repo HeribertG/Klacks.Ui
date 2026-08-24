@@ -18,8 +18,7 @@ import { WorkplaceStateService } from '../../application/services/workplace-stat
 import { ToastShowService } from '../toast/toast-show.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TranslateService } from '@ngx-translate/core';
-import { DataTranslationService } from 'src/app/infrastructure/api/translation/data-translation.service';
-import { firstValueFrom } from 'rxjs';
+import { TranslationService } from 'src/app/domain/services/translation/translation.service';
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { environment } from 'src/environments/environment';
 
@@ -31,7 +30,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
-  private dataTranslationService = inject(DataTranslationService);
+  private translationService = inject(TranslationService);
   private backendAvailabilityService = inject(BackendAvailabilityService);
 
   private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
@@ -263,15 +262,17 @@ export class ResponseInterceptor implements HttpInterceptor {
       return;
     }
 
-    try {
-      const response = await firstValueFrom(
-        this.dataTranslationService.translateToAll(errorMessage, 'en')
-      );
-      const translated = response[currentLang as keyof typeof response] || errorMessage;
-      this.toastShowService.showError(translated, messageKey);
-    } catch {
-      this.toastShowService.showError(errorMessage, messageKey);
+    if (this.translationService.isConfigured === null) {
+      await this.translationService.checkStatus();
     }
+
+    if (this.translationService.isConfigured === false) {
+      this.toastShowService.showError(errorMessage, messageKey);
+      return;
+    }
+
+    const translated = await this.translationService.translateToMultiLanguage(errorMessage, 'en');
+    this.toastShowService.showError(translated?.[currentLang] || errorMessage, messageKey);
   }
 
   private static readonly ENTITY_INFO_MAP: readonly { pattern: string; name: string; key: string }[] = [
