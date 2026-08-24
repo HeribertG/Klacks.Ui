@@ -98,7 +98,7 @@ describe('GanttPdfExportService', () => {
             setFont: vi.fn(),
             text: vi.fn(),
             addPage: vi.fn(),
-            save: vi.fn()
+            output: vi.fn().mockReturnValue(new Blob())
         };
 
         // Mock jsPDF constructor - need to mock the actual jsPDF import
@@ -314,18 +314,16 @@ describe('GanttPdfExportService', () => {
             expect(mockPdf.text).toHaveBeenCalledWith(expect.stringContaining('Year: 2024'), expect.any(Number), expect.any(Number));
         });
 
-        it('should save PDF with timestamp in filename', async () => {
-            const mockDate = new Date('2024-03-15T10:30:00');
-            vi.useFakeTimers();
-            vi.setSystemTime(mockDate);
+        it('should open the generated PDF blob in a new tab', async () => {
+            const openSpy = vi.spyOn(window, 'open').mockReturnValue({} as Window);
 
-            await service.exportTest2DDrawing();
+            try {
+                await service.exportTest2DDrawing();
 
-            // Use the actual timestamp from the mocked date
-            const expectedTimestamp = mockDate.getTime();
-            expect(mockPdf.save).toHaveBeenCalledWith(`gantt-real-data-${expectedTimestamp}.pdf`);
-
-            vi.useRealTimers();
+                expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('blob:'), '_blank');
+            } finally {
+                openSpy.mockRestore();
+            }
         });
 
         it('should use year from break filter for config', async () => {

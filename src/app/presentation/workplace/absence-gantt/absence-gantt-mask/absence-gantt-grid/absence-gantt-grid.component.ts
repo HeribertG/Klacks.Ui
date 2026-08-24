@@ -284,7 +284,7 @@ export class AbsenceGanttGridComponent
 
     const blob = await this.reportPdfService.generatePdf(context);
     const fileName = `absence-report-${clientName}-${new Date().getTime()}.pdf`;
-    this.reportService.downloadPdf(blob, fileName);
+    this.reportService.openPdfPreview(blob, fileName);
 
     this.exportPDF.emit();
   }

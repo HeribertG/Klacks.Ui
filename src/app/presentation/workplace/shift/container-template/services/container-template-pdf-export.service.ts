@@ -16,6 +16,7 @@ import {
 } from 'src/app/domain/models/container/container-template-class';
 import { RoutePdfExportService } from './route-pdf-export.service';
 import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
+import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 
 export type { RouteInfo, RouteLocation } from './route-pdf-export.service';
 
@@ -140,7 +141,8 @@ export class ContainerTemplatePdfExportService {
     const sanitizedName = containerName
       .replace(/[^a-z0-9]/gi, '_')
       .toLowerCase();
-    pdf.save(`container-template-${sanitizedName}-${weekday}-${timestamp}.pdf`);
+    const fileName = `container-template-${sanitizedName}-${weekday}-${timestamp}.pdf`;
+    openBlobInNewTab(pdf.output('blob'), fileName);
   }
 
   async exportRouteToPdf(

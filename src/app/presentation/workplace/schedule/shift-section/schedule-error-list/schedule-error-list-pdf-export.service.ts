@@ -9,6 +9,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 
 const PDF_MARGIN = 20;
 const PDF_TITLE_FONT_SIZE = 16;
@@ -43,7 +44,8 @@ export class ScheduleErrorListPdfExportService {
     this.renderTable(pdf, entries);
     this.renderPageNumbers(pdf);
 
-    pdf.save(`schedule-error-list-${new Date().getTime()}.pdf`);
+    const fileName = `schedule-error-list-${new Date().getTime()}.pdf`;
+    openBlobInNewTab(pdf.output('blob'), fileName);
   }
 
   private renderHeader(pdf: jsPDF): void {

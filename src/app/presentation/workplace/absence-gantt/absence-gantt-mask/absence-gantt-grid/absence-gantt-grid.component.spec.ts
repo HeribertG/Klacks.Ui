@@ -121,7 +121,7 @@ describe('AbsenceGanttGridComponent PDF export', () => {
         add: {
           providers: [
             { provide: ReportPdfService, useValue: { generatePdf } },
-            { provide: ReportService, useValue: { downloadPdf: vi.fn() } },
+            { provide: ReportService, useValue: { openPdfPreview: vi.fn() } },
             { provide: DataManagementReportService, useValue: { reportTemplateList: () => [], createDefaultTemplate: () => template } },
           ],
         },

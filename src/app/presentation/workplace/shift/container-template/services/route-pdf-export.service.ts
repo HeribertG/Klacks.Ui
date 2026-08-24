@@ -17,6 +17,7 @@ import {
 } from 'src/app/domain/models/container/container-template-class';
 import { MapRenderingService } from './map-rendering.service';
 import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
+import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 
 export type RouteInfo = IRouteInfo;
 export type RouteLocation = IRouteLocation;
@@ -230,7 +231,8 @@ export class RoutePdfExportService {
     const sanitizedName = containerName
       .replace(/[^a-z0-9]/gi, '_')
       .toLowerCase();
-    pdf.save(`route-${sanitizedName}-${weekday}-${timestamp}.pdf`);
+    const fileName = `route-${sanitizedName}-${weekday}-${timestamp}.pdf`;
+    openBlobInNewTab(pdf.output('blob'), fileName);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

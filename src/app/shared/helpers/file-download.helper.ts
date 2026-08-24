@@ -3,8 +3,9 @@
 /**
  * File Download Helper
  *
- * Pure functions for triggering browser blob downloads and extracting
- * file names from content-disposition response headers.
+ * Pure functions for triggering browser blob downloads, opening blobs in a
+ * new tab, and extracting file names from content-disposition response
+ * headers.
  */
 
 export const CONTENT_DISPOSITION_HEADER = 'content-disposition';
@@ -26,6 +27,22 @@ export function triggerBlobDownload(blob: Blob, fileName: string): void {
   a.click();
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
+}
+
+/**
+ * Opens the given blob in a new browser tab. Falls back to a download under
+ * fallbackFileName when the tab could not be opened (e.g. popup blocker).
+ *
+ * @param blob - Binary content to display
+ * @param fallbackFileName - File name used for the download fallback
+ */
+export function openBlobInNewTab(blob: Blob, fallbackFileName: string): void {
+  const url = window.URL.createObjectURL(blob);
+  const opened = window.open(url, '_blank');
+  if (!opened) {
+    window.URL.revokeObjectURL(url);
+    triggerBlobDownload(blob, fallbackFileName);
+  }
 }
 
 /**

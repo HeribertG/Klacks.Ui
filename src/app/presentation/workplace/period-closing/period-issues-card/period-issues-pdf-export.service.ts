@@ -15,6 +15,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
+import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 
 const PDF_MARGIN = 20;
 const PDF_TITLE_FONT_SIZE = 16;
@@ -60,7 +61,8 @@ export class PeriodIssuesPdfExportService {
     this.renderTable(pdf, issues);
     this.renderPageNumbers(pdf);
 
-    pdf.save(`period-issues-${new Date().getTime()}.pdf`);
+    const fileName = `period-issues-${new Date().getTime()}.pdf`;
+    openBlobInNewTab(pdf.output('blob'), fileName);
   }
 
   private renderHeader(

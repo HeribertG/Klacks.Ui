@@ -7,6 +7,7 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
+import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -238,7 +239,7 @@ export class ShiftPdfExportService {
     }
 
     const fileName = `shift-schedule-${new Date().getTime()}.pdf`;
-    pdf.save(fileName);
+    openBlobInNewTab(pdf.output('blob'), fileName);
   }
 
   private buildTitle(): string {
