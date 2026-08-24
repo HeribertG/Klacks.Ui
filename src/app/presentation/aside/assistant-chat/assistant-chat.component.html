@@ -280,15 +280,50 @@
               {{ "assistant-chat.proactive.reaction-helpful" | translate }}
             </button>
             }
-            <button
-              type="button"
-              class="proactive-reaction-btn"
-              (click)="dismissProactiveMessage(message)"
-              [attr.aria-label]="'assistant-chat.proactive.reaction-dismissed' | translate"
-            >
-              <fa-icon [icon]="faTimes"></fa-icon>
-              {{ "assistant-chat.proactive.reaction-dismissed" | translate }}
-            </button>
+            <div class="proactive-dismiss-controls">
+              <button
+                type="button"
+                class="proactive-reaction-btn"
+                [attr.aria-expanded]="dismissMenuMessageId() === message.id"
+                (click)="toggleDismissMenu(message.id)"
+                [attr.aria-label]="'assistant-chat.proactive.reaction-dismissed' | translate"
+              >
+                <fa-icon [icon]="faTimes"></fa-icon>
+                {{ "assistant-chat.proactive.reaction-dismissed" | translate }}
+              </button>
+              @if (dismissMenuMessageId() === message.id) {
+              <div class="proactive-dismiss-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="dismissProactiveMessage(message, proactiveRejectReasons.GenerallyUnwanted)"
+                >
+                  {{ "assistant-chat.proactive.reject-reason.generally-unwanted" | translate }}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="dismissProactiveMessage(message, proactiveRejectReasons.WrongThisTime)"
+                >
+                  {{ "assistant-chat.proactive.reject-reason.wrong-this-time" | translate }}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="dismissProactiveMessage(message, proactiveRejectReasons.AlreadyHandled)"
+                >
+                  {{ "assistant-chat.proactive.reject-reason.already-handled" | translate }}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  (click)="dismissProactiveMessage(message, proactiveRejectReasons.NoReason)"
+                >
+                  {{ "assistant-chat.proactive.reject-reason.no-reason" | translate }}
+                </button>
+              </div>
+              }
+            </div>
           </div>
           }
         </div>

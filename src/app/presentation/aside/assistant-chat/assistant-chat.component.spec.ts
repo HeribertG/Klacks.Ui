@@ -37,7 +37,10 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
-import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+    PROACTIVE_REACTION,
+    PROACTIVE_REJECT_REASON,
+} from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 
@@ -1855,13 +1858,82 @@ describe('AssistantChatComponent', () => {
             const dismissed = component.messages.find((m) => m.id === 'drop-me')!;
 
             // Act
-            component.dismissProactiveMessage(dismissed);
+            component.dismissProactiveMessage(dismissed, PROACTIVE_REJECT_REASON.AlreadyHandled);
             fixture.detectChanges();
 
             // Assert
-            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith('drop-me');
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'drop-me',
+                PROACTIVE_REJECT_REASON.AlreadyHandled,
+            );
             expect(component.inboxMessages().map((m) => m.id)).toEqual(['keep-me']);
             expect(component.isHiddenProactiveMessage(dismissed)).toBe(true);
+        });
+
+        it('opens the reason menu on the dismiss button instead of hiding the row straight away', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'ask-why' }));
+
+            // Act
+            component.toggleDismissMenu('ask-why');
+            fixture.detectChanges();
+
+            // Assert - the row is still there; only picking a reason removes it
+            expect(component.dismissMenuMessageId()).toBe('ask-why');
+            expect(mockProactiveInboxService.dismissMessage).not.toHaveBeenCalled();
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['ask-why']);
+            const menuItems = fixture.nativeElement.querySelectorAll(
+                '.proactive-dismiss-menu [role="menuitem"]',
+            );
+            expect(menuItems.length).toBe(4);
+        });
+
+        it('closes the reason menu again when the same dismiss button is pressed twice', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'ask-why' }));
+            component.toggleDismissMenu('ask-why');
+
+            // Act
+            component.toggleDismissMenu('ask-why');
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.dismissMenuMessageId()).toBeNull();
+            expect(fixture.nativeElement.querySelector('.proactive-dismiss-menu')).toBeNull();
+        });
+
+        it('passes the picked reason on and closes the menu', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'unwanted' }));
+            const message = component.messages.find((m) => m.id === 'unwanted')!;
+            component.toggleDismissMenu('unwanted');
+
+            // Act
+            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.GenerallyUnwanted);
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'unwanted',
+                PROACTIVE_REJECT_REASON.GenerallyUnwanted,
+            );
+            expect(component.dismissMenuMessageId()).toBeNull();
+            expect(component.isHiddenProactiveMessage(message)).toBe(true);
+        });
+
+        it('dismissing without a reason is a choice of its own, not an omitted field', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'silent' }));
+            const message = component.messages.find((m) => m.id === 'silent')!;
+
+            // Act
+            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
+
+            // Assert
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'silent',
+                PROACTIVE_REJECT_REASON.NoReason,
+            );
         });
 
         it('moves the heading down rather than losing the block when the anchor row goes', () => {
@@ -1871,7 +1943,7 @@ describe('AssistantChatComponent', () => {
             const anchor = component.messages.find((m) => m.id === 'anchor')!;
 
             // Act
-            component.dismissProactiveMessage(anchor);
+            component.dismissProactiveMessage(anchor, PROACTIVE_REJECT_REASON.NoReason);
             fixture.detectChanges();
 
             // Assert
@@ -1908,7 +1980,7 @@ describe('AssistantChatComponent', () => {
             expect(component.isInboxMessage(appended)).toBe(false);
 
             // Act
-            component.dismissProactiveMessage(appended);
+            component.dismissProactiveMessage(appended, PROACTIVE_REJECT_REASON.WrongThisTime);
             fixture.detectChanges();
 
             // Assert
@@ -2728,12 +2800,24 @@ describe('AssistantChatComponent', () => {
             );
             expect(otherButtons.length).toBe(1);
 
-            // Act - the dismiss button must work here too, or a muted suggestion stays forever
+            // Act - the dismiss route must stay reachable here too, or a muted suggestion stays
+            // forever. Since the reject-reason menu it now takes two clicks: open, then pick.
             otherButtons[0].click();
+            fixture.detectChanges();
+            const reasonItems: HTMLButtonElement[] = Array.from(
+                fixture.nativeElement.querySelectorAll(
+                    '.proactive-dismiss-menu [role="menuitem"]',
+                ),
+            );
+            expect(reasonItems.length).toBe(4);
+            reasonItems[reasonItems.length - 1].click();
             fixture.detectChanges();
 
             // Assert
-            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith('mute-suggestion-1');
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'mute-suggestion-1',
+                PROACTIVE_REJECT_REASON.NoReason,
+            );
             expect(component.inboxMessages()).toEqual([]);
         });
 

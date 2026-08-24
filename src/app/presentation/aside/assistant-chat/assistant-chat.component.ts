@@ -82,7 +82,12 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
-import { PROACTIVE_REACTION, ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+  PROACTIVE_REACTION,
+  PROACTIVE_REJECT_REASON,
+  ProactiveReaction,
+  ProactiveRejectReason,
+} from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_SEVERITY } from 'src/app/domain/constants/proactive-severity.constants';
 import {
   MUTE_SUGGESTION_KIND_PARAM,
@@ -207,9 +212,11 @@ export class AssistantChatComponent {
   faTriangleExclamation = faTriangleExclamation;
 
   readonly proactiveReactions = PROACTIVE_REACTION;
+  readonly proactiveRejectReasons = PROACTIVE_REJECT_REASON;
   readonly proactiveSeverities = PROACTIVE_SEVERITY;
 
   correctionMenuMessageId = signal<string | null>(null);
+  readonly dismissMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
   readonly pendingMuteMessageId = signal<string | null>(null);
   readonly inboxBlockId = 'assistant-chat-inbox-block';
@@ -631,8 +638,22 @@ export class AssistantChatComponent {
     this.proactiveInboxService.hideMessages(this.inboxMessages().map((message) => message.id));
   }
 
-  dismissProactiveMessage(message: ChatMessage): void {
-    this.proactiveInboxService.dismissMessage(message.id);
+  toggleDismissMenu(messageId: string): void {
+    const current = this.dismissMenuMessageId();
+    this.dismissMenuMessageId.set(current === messageId ? null : messageId);
+  }
+
+  /**
+   * Hide the message and say why. The reason is what turns a dismissal into feedback Klacksy can act
+   * on, so the menu offers "no reason" as a fourth choice rather than letting the button dismiss
+   * silently: a user who does not want to explain still closes the row in one further click, and the
+   * backend can tell that answer apart from a client that never asked.
+   * @param message - The proactive message being dismissed
+   * @param rejectReason - The reason the user picked
+   */
+  dismissProactiveMessage(message: ChatMessage, rejectReason: ProactiveRejectReason): void {
+    this.dismissMenuMessageId.set(null);
+    this.proactiveInboxService.dismissMessage(message.id, rejectReason);
   }
 
   isHiddenProactiveMessage(message: ChatMessage): boolean {
