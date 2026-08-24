@@ -3578,6 +3578,7 @@
   "assistant.proactive.openOrder": "Une commande du {{date}} (dans {{days}} jour(s)) n'est toujours pas scellée.",
   "assistant.proactive.uncutFulldayShift": "Un service de 24 heures le {{date}} (dans {{days}} jour(s)) n'a pas encore été scindé en service de jour et de nuit.",
   "assistant.proactive.emptyContainer": "Le conteneur {{name}} du {{date}} n'a pas encore de modèle de créneaux.",
+  "assistant.proactive.dailyDigest": "Résumé quotidien : {{totalCount}} constat(s) ouvert(s) - {{highCount}} haute, {{mediumCount}} moyenne, {{lowCount}} basse priorité ({{newCount}} nouveau(x) depuis hier).",
   "escalation.intervention.badge-tooltip": "Escalades en cours",
   "escalation.intervention.title": "Escalades en cours",
   "escalation.intervention.empty": "Aucune escalade en cours actuellement.",
