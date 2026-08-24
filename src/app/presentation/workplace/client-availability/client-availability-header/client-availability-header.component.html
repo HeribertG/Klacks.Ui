@@ -60,10 +60,6 @@
   </div>
 
   <div class="header-right">
-    <div class="grouping-slider">
-      <ngx-slider [value]="hourGrouping" [options]="groupingOptions()" [manualRefresh]="sliderRefresh" (userChangeEnd)="onGroupingChanged($event)"></ngx-slider>
-    </div>
-
     @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
       <button
         id="client-availability-quick-print-button"
@@ -79,5 +75,13 @@
         <app-icon-pdf-icon></app-icon-pdf-icon>
       </button>
     }
+    <div class="grouping-slider">
+      <ngx-slider
+        [value]="hourGrouping"
+        [options]="groupingOptions()"
+        [manualRefresh]="sliderRefresh"
+        (userChangeEnd)="onGroupingChanged($event)"
+      ></ngx-slider>
+    </div>
   </div>
 </div>
