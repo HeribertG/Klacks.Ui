@@ -13,7 +13,6 @@ import {
   IClient,
   IFilter,
   ICommunicationType,
-  IClientAttribute,
   ILastChangeMetaData,
   IAddress,
   IExportClient,
@@ -39,14 +38,6 @@ export interface IClientForReplacement {
 })
 export class DataClientService {
   private httpClient = inject(HttpClient);
-
-  readClientTypeTemplateList() {
-    return this.httpClient
-      .get<
-        IClientAttribute[]
-      >(`${environment.baseUrl}Clients/GetClientTypeTemplate`)
-      .pipe(retry(3));
-  }
 
   readClientList(filter: IFilter) {
     const mappedFilter = ClientDataMapper.mapFilterDates(filter);

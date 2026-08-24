@@ -105,7 +105,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   monthList = [];
   isFirstRead = true;
   isQuickPrinting = false;
-  readonly detailQuickPrintSourceId = 'edit-group';
 
   resizeWindow: (() => void) | undefined;
 
@@ -211,28 +210,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         sourceId: 'group',
         fallbackDataSetIds: ['groups'],
         params: { groupFilter: this.dataManagementGroupService.currentFilter },
-      });
-    } finally {
-      this.isQuickPrinting = false;
-      this.cdr.markForCheck();
-    }
-  }
-
-  async onClickQuickPrintDetail(group: IGroup, event: Event): Promise<void> {
-    event.stopPropagation();
-    if (!group.id || this.isQuickPrinting) {
-      return;
-    }
-
-    this.isQuickPrinting = true;
-    this.cdr.markForCheck();
-
-    try {
-      await this.quickPrintAction.print({
-        sourceId: this.detailQuickPrintSourceId,
-        fallbackDataSetIds: ['details'],
-        params: { groupId: group.id },
-        groupName: group.name,
       });
     } finally {
       this.isQuickPrinting = false;

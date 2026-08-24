@@ -111,6 +111,7 @@ export class AllAddressListComponent
   public readonly quickPrintSourceId = 'all-address';
 
   public hasSelection = computed(() =>
+    this.dataManagementClientService.clientListService.headerCheckBoxValue() ||
     this.dataManagementClientService.clientListService
       .checkedArray()
       .some((c) => c.checked)

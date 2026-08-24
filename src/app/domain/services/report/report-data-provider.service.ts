@@ -23,6 +23,7 @@ import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { Filter } from 'src/app/domain/models/client/filter';
 import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
 import { GroupFilter, IGroup, IGroupItem } from 'src/app/domain/models/group/group-class';
@@ -422,13 +423,8 @@ export class ReportDataProviderService {
             externEmp: true,
             customer: true,
           };
-        const [response, typeTemplates] = await Promise.all([
-          firstValueFrom(this.clientService.readClientList(filter as any)),
-          firstValueFrom(this.clientService.readClientTypeTemplateList()),
-        ]);
-        const typeNameByType = new Map(typeTemplates.map(t => [t.type, t.name]));
-        const rows = this.applyClientSelection(response.clients, params.clientSelection)
-          .map((row: any) => ({ ...row, typeName: typeNameByType.get(row.type) ?? '' }));
+        const response = await firstValueFrom(this.clientService.readClientList(filter as any));
+        const rows = this.applyClientSelection(response.clients, params.clientSelection);
         return { rows, metadata: { totalCount: rows.length } };
       },
       resolveFieldValue: (field, row) => {
@@ -438,7 +434,7 @@ export class ReportDataProviderService {
           case 'client.list.firstName': return row.firstName ?? '';
           case 'client.list.name': return row.name ?? '';
           case 'client.list.gender': return this.resolveGender(row.gender);
-          case 'client.list.type': return row.typeName ?? '';
+          case 'client.list.type': return this.resolveClientType(row.type);
           case 'client.list.birthdate': return this.formatDate(row.birthdate);
           default: return '';
         }
@@ -506,6 +502,7 @@ export class ReportDataProviderService {
           case 'client.photo': return visible('image') ? this.resolveClientPhoto(client) : '';
           case 'client.phones': return visible('persona') ? this.joinCommunications(client, true) : '';
           case 'client.emails': return visible('persona') ? this.joinCommunications(client, false) : '';
+          case 'client.birthdate': return visible('persona') ? this.formatDate(client?.birthdate) : '';
           case 'client.employmentType': return visible('membership') ? this.resolveEmploymentType(client?.type) : '';
           case 'client.entryDate': return visible('membership') ? this.formatDate(client?.membership?.validFrom) : '';
           case 'client.contractsSummary':
@@ -532,9 +529,10 @@ export class ReportDataProviderService {
       }),
       collectResolvedLabelTexts: () =>
         this.translatedLabels([
-          'address.type.company',
-          'address.type.invoice',
-          'address.type.home',
+          'ADDRES_TYPE0_NAME',
+          'ADDRES_TYPE1_NAME',
+          'ADDRES_TYPE2_NAME',
+          'ADDRES_TYPE_UNDEFINED',
           'address.edit-address.membership.type.employee',
           'address.edit-address.membership.type.externEmp',
           'address.edit-address.membership.type.customer',
@@ -1030,12 +1028,21 @@ export class ReportDataProviderService {
     }
   }
 
+  private resolveClientType(type: number): string {
+    switch (Number(type)) {
+      case EntityTypeEnum.employee: return this.translate.instant('address.edit-address.membership.type.employee');
+      case EntityTypeEnum.externEmp: return this.translate.instant('address.edit-address.membership.type.externEmp');
+      case EntityTypeEnum.customer: return this.translate.instant('address.edit-address.membership.type.customer');
+      default: return '';
+    }
+  }
+
   private resolveAddressType(type: number): string {
     switch (type) {
-      case 0: return this.translate.instant('address.type.company');
-      case 1: return this.translate.instant('address.type.invoice');
-      case 2: return this.translate.instant('address.type.home');
-      default: return '';
+      case 0: return this.translate.instant('ADDRES_TYPE0_NAME');
+      case 1: return this.translate.instant('ADDRES_TYPE1_NAME');
+      case 2: return this.translate.instant('ADDRES_TYPE2_NAME');
+      default: return this.translate.instant('ADDRES_TYPE_UNDEFINED');
     }
   }
 
@@ -1061,8 +1068,16 @@ export class ReportDataProviderService {
       ).map(t => t.type)
     );
     const list = (client?.communications ?? []).filter((c: ICommunication) => wantedTypes.has(c.type));
-    const values = list.map((c: ICommunication) => wantPhone ? formatPhoneNumber(c.value) : c.value);
+    const values = list.map((c: ICommunication) => wantPhone ? this.formatPhoneWithPrefix(c) : c.value);
     return values.filter(Boolean).join(', ');
+  }
+
+  private formatPhoneWithPrefix(c: ICommunication): string {
+    if (!c.prefix) {
+      return formatPhoneNumber(c.value);
+    }
+    const number = formatPhoneNumber(c.value).replace(/[()]/g, '');
+    return `(${c.prefix}) ${number}`;
   }
 
   private resolveEmploymentType(type: number | string | undefined): string {

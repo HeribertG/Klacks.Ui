@@ -30,7 +30,6 @@ describe('ReportDataProviderService', () => {
   let clientService: {
     readClientList: ReturnType<typeof vi.fn>;
     getClient: ReturnType<typeof vi.fn>;
-    readClientTypeTemplateList: ReturnType<typeof vi.fn>;
   };
   let groupService: {
     readGroupList: ReturnType<typeof vi.fn>;
@@ -52,11 +51,6 @@ describe('ReportDataProviderService', () => {
     clientService = {
       readClientList: vi.fn(() => of({ clients: [], maxItems: 0 })),
       getClient: vi.fn(() => of({ addresses: [] })),
-      readClientTypeTemplateList: vi.fn(() => of([
-        { type: 0, name: 'Mitarbeiter' },
-        { type: 1, name: 'Extern' },
-        { type: 2, name: 'Kunde' },
-      ])),
     };
     groupService = {
       readGroupList: vi.fn(() => of({ groups: [], maxItems: 0 })),
@@ -183,7 +177,7 @@ describe('ReportDataProviderService', () => {
     expect(all.rows.length).toBe(3);
   });
 
-  it('resolves the client type via the type-template lookup, not typeAbbreviation or the raw number', async () => {
+  it('resolves the client type locally via EntityTypeEnum, not typeAbbreviation or the raw number', async () => {
     clientService.readClientList.mockReturnValue(
       of({ clients: [{ id: 'a', type: 1 }, { id: 'b', type: 2 }], maxItems: 2 })
     );
@@ -191,8 +185,10 @@ describe('ReportDataProviderService', () => {
 
     const { rows } = await provider.fetchData({});
 
-    expect(provider.resolveFieldValue({ dataBinding: 'client.list.type' } as never, rows[0])).toBe('Extern');
-    expect(provider.resolveFieldValue({ dataBinding: 'client.list.type' } as never, rows[1])).toBe('Kunde');
+    expect(provider.resolveFieldValue({ dataBinding: 'client.list.type' } as never, rows[0]))
+      .toBe('address.edit-address.membership.type.externEmp');
+    expect(provider.resolveFieldValue({ dataBinding: 'client.list.type' } as never, rows[1]))
+      .toBe('address.edit-address.membership.type.customer');
   });
 
   it('prints the group list along the screen filter with full pagination', async () => {
@@ -241,9 +237,9 @@ describe('ReportDataProviderService', () => {
     const editAddress = service.getProvider('edit-address', ['details']);
     expect(editAddress.collectResolvedLabelTexts!()).toEqual(
       expect.arrayContaining([
-        'address.type.company',
-        'address.type.invoice',
-        'address.type.home',
+        'ADDRES_TYPE0_NAME',
+        'ADDRES_TYPE1_NAME',
+        'ADDRES_TYPE2_NAME',
         'address.edit-address.membership.type.employee',
         'address.edit-address.qualifications.level.1',
         'general.yes',
@@ -258,6 +254,7 @@ describe('ReportDataProviderService', () => {
     // clientContracts carry only `contractId` — the `contract` navigation is never populated.
     const client = {
       type: 0,
+      birthdate: new Date('1990-05-12T12:00:00Z'),
       addresses: [],
       communications: [
         { type: PHONE_TYPE, value: '0791111111' },
@@ -317,6 +314,27 @@ describe('ReportDataProviderService', () => {
       expect(values['client.emails']).toBe('a@klacks.ch');
       expect(values['client.employmentType']).toBe('address.edit-address.membership.type.employee');
       expect(values['client.entryDate']).not.toBe('');
+    });
+
+    it('resolves the client birthdate as a formatted date', () => {
+      const values = resolveAll(['client.birthdate']);
+      expect(values['client.birthdate']).toBe('12.05.1990');
+    });
+
+    it('wraps the country prefix in parentheses instead of the area code when a phone has a prefix', () => {
+      const clientWithPrefix = {
+        ...client,
+        communications: [
+          { type: PHONE_TYPE, value: '0791111111', prefix: '+41' },
+          { type: EMAIL_TYPE, value: 'a@klacks.ch' },
+        ],
+      };
+      const provider = service.getProvider('edit-address', ['details']);
+      const value = provider.resolveHeaderValue(
+        { dataBinding: 'client.phones' } as never,
+        { client: clientWithPrefix, metadata: { qualifications: qualificationCatalog, contracts: contractCatalog } } as never
+      );
+      expect(value).toBe('(+41) 079 111 11 11');
     });
 
     it('builds multi-line summaries for contracts, groups, qualifications and notes', () => {
@@ -397,12 +415,13 @@ describe('ReportDataProviderService', () => {
 
     it('empties phones/emails/photo/summaries for collapsed cards but keeps them for expanded ones', () => {
       const values = resolveWithVisibility(
-        ['client.phones', 'client.emails', 'client.photo', 'client.employmentType', 'client.entryDate',
+        ['client.phones', 'client.emails', 'client.birthdate', 'client.photo', 'client.employmentType', 'client.entryDate',
           'client.contractsSummary', 'client.groupsSummary', 'client.qualificationsSummary', 'client.notesSummary'],
         { persona: false, membership: false, contracts: false, groups: true, qualifications: false, note: false, image: false }
       );
       expect(values['client.phones']).toBe('');
       expect(values['client.emails']).toBe('');
+      expect(values['client.birthdate']).toBe('');
       expect(values['client.photo']).toBe('');
       expect(values['client.employmentType']).toBe('');
       expect(values['client.entryDate']).toBe('');

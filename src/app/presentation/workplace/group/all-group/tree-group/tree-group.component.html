@@ -160,18 +160,6 @@
 
           @if (authorizationService.isAuthorised) {
           <div class="tree-node-actions" [id]="'tree-node-actions-' + node.id">
-            @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
-            <button
-              class="tree-action-btn"
-              [id]="'tree-node-print-btn-' + node.id"
-              [disabled]="isQuickPrinting()"
-              placement="top"
-              ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
-              (click)="onClickQuickPrint(node)"
-            >
-              <app-icon-pdf-icon></app-icon-pdf-icon>
-            </button>
-            }
             <button class="tree-action-btn" [id]="'tree-node-edit-btn-' + node.id" (click)="editNode(node)">
               <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
             </button>
@@ -187,18 +175,6 @@
           </div>
           } @if (!authorizationService.isAuthorised) {
           <div class="tree-node-actions" [id]="'tree-node-actions-' + node.id">
-            @if (quickPrintAction.hasDefault(quickPrintSourceId)) {
-            <button
-              class="tree-action-btn"
-              [id]="'tree-node-print-btn-' + node.id"
-              [disabled]="isQuickPrinting()"
-              placement="top"
-              ngbTooltip="{{ 'report.quickPrint.tooltip' | translate }}"
-              (click)="onClickQuickPrint(node)"
-            >
-              <app-icon-pdf-icon></app-icon-pdf-icon>
-            </button>
-            }
             <button class="tree-action-btn" [id]="'tree-node-view-btn-' + node.id" (click)="editNode(node)">
               <app-icon-eye-grey></app-icon-eye-grey>
             </button>
