@@ -40,3 +40,7 @@
 .row-line-single {
   padding-left: 30px;
 }
+
+:host ::ng-deep .container-box {
+  margin-bottom: 30px;
+}

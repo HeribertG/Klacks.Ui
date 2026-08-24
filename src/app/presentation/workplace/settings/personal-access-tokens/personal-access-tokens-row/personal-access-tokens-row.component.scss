@@ -4,6 +4,8 @@
 
 span {
   font-size: 13px;
+  color: var(--gridColorText);
+  font-weight: 500;
   margin-inline-end: 15px;
   overflow: hidden;
   text-overflow: ellipsis;

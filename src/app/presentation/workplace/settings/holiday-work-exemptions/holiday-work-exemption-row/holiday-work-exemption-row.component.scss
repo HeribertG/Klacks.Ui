@@ -4,10 +4,13 @@
 
 .exemption-scope {
   align-self: center;
-  margin-left: 0.75rem;
   font-size: 0.8125rem;
   opacity: 0.7;
   white-space: nowrap;
+}
+
+.col-scope {
+  width: 100px;
 }
 
 .exemption-imported {

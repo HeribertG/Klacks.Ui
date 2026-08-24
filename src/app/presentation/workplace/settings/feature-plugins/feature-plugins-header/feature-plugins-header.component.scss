@@ -5,8 +5,8 @@
 }
 
 .custom-control-inline {
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   display: flex;
   align-items: center;
 }
@@ -17,6 +17,8 @@ label {
   font-size: 13px;
   margin-bottom: 0;
   margin-inline-end: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .col-name {
@@ -40,5 +42,10 @@ label {
 }
 
 .col-status {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.col-actions {
   flex: 1;
 }

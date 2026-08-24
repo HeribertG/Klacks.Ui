@@ -5,8 +5,29 @@
 }
 
 label {
-  width: 100px;
   font-weight: 500;
   font-size: 13px;
   color: var(--colorLabel);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.counter-rule-header-event-type {
+  width: 220px;
+}
+
+.counter-rule-header-period {
+  width: 120px;
+}
+
+.counter-rule-header-threshold {
+  width: 110px;
+}
+
+.counter-rule-header-hours-threshold {
+  width: 130px;
+}
+
+.counter-rule-header-enforcement {
+  width: 130px;
 }

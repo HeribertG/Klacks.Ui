@@ -12,6 +12,10 @@
   margin-inline-start: 60px;
 }
 
+:host ::ng-deep .container-box {
+  margin-bottom: 30px;
+}
+
 .info-text {
   margin-inline-start: 30px;
   margin-top: 10px;

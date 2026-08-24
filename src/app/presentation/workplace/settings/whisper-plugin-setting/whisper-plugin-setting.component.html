@@ -11,7 +11,7 @@
   @if (status(); as s) {
     <div id="whisper-plugin-setting-status" class="row-line">
       <div class="form-group firstColumn">
-        <span class="field-label">{{
+        <span class="selection-label">{{
           "setting.speech.whisper-plugin.status-label" | translate
         }}</span>
         @if (s.activeOperation; as op) {
@@ -44,7 +44,7 @@
 
       @if (!s.activeOperation && s.lastOperation) {
         <div class="form-group secondColumn">
-          <span class="field-label">{{
+          <span class="selection-label">{{
             "setting.speech.whisper-plugin.last-operation" | translate
           }}</span>
           <span
@@ -84,7 +84,7 @@
     }
 
     <div id="whisper-plugin-setting-models" class="model-block firstColumn">
-      <span class="field-label">{{
+      <span class="selection-label">{{
         "setting.speech.whisper-plugin.model-label" | translate
       }}</span>
       @for (option of modelOptions; track option.value) {

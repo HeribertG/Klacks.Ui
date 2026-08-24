@@ -9,4 +9,15 @@ label {
   font-weight: 500;
   font-size: 13px;
   color: var(--colorLabel);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.col-scope {
+  width: 100px;
+}
+
+.col-imported {
+  width: 120px;
+  margin-left: 0.5rem;
 }

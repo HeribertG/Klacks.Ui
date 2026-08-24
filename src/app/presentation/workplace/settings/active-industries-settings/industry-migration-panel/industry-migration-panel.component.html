@@ -1,6 +1,6 @@
 @if (migrationService.status() === 'loading') {
   <div id="industry-migration-loading-row" class="row-line-single">
-    <p class="hint-text">{{ "setting.activeIndustries.migration.loading" | translate }}</p>
+    <p class="text-muted">{{ "setting.activeIndustries.migration.loading" | translate }}</p>
   </div>
 }
 
@@ -58,7 +58,7 @@
 
     @if (isExpanded()) {
       <div id="industry-migration-list" class="migration-list">
-        <p class="hint-text">{{ "setting.activeIndustries.migration.hint" | translate }}</p>
+        <p class="text-muted">{{ "setting.activeIndustries.migration.hint" | translate }}</p>
 
         <div id="industry-migration-header-row" class="migration-row migration-header-row">
           <span class="migration-cell migration-cell-contract">{{

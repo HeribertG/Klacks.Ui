@@ -43,7 +43,7 @@
   @if (isDataLoaded()) {
     <form id="active-industries-settings-form">
       <div id="active-industries-hint-row" class="row-line-single">
-        <p class="hint-text">
+        <p class="text-muted">
           {{ "setting.activeIndustries.hint" | translate }}
         </p>
       </div>
@@ -93,7 +93,7 @@
               <h4 class="industry-preview-panel-heading">{{ option.labelKey | translate }}</h4>
               @switch (preview.status) {
                 @case ('loading') {
-                  <p class="hint-text">{{ "setting.activeIndustries.preview.loading" | translate }}</p>
+                  <p class="text-muted">{{ "setting.activeIndustries.preview.loading" | translate }}</p>
                 }
                 @case ('error') {
                   <p class="validation-error">{{ "setting.activeIndustries.preview.error" | translate }}</p>
@@ -141,7 +141,7 @@
                                     </div>
                                   }
                                 } @else {
-                                  <p class="hint-text rule-detail-empty">{{ "setting.activeIndustries.preview.rule.noDetails" | translate }}</p>
+                                  <p class="text-muted rule-detail-empty">{{ "setting.activeIndustries.preview.rule.noDetails" | translate }}</p>
                                 }
                               }
                             </li>
@@ -168,7 +168,7 @@
                       }
                     </div>
                   } @else {
-                    <p class="hint-text">{{ "setting.activeIndustries.preview.empty" | translate }}</p>
+                    <p class="text-muted">{{ "setting.activeIndustries.preview.empty" | translate }}</p>
                   }
                 }
               }
@@ -196,7 +196,7 @@
           <div id="active-industries-custom-panel" class="custom-option-panel">
             @if (isCustomGateBlocked()) {
               <div id="active-industries-custom-gate-warning" class="custom-gate-warning-panel">
-                <p class="hint-text">
+                <p class="text-muted">
                   {{ "setting.activeIndustries.custom.gateWarning" | translate }}
                 </p>
                 <div class="custom-gate-actions">
@@ -219,7 +219,7 @@
                 </div>
               </div>
             } @else {
-              <p class="hint-text">
+              <p class="text-muted">
                 {{ "setting.activeIndustries.custom.description" | translate }}
               </p>
               <button
