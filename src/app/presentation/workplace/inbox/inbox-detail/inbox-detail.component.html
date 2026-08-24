@@ -34,6 +34,14 @@
       >
         <app-icon-eye-closed [disabled]="!email()!.isRead" aria-hidden="true"></app-icon-eye-closed>
       </button>
+      <button
+        type="button"
+        class="action-button action-button--icon"
+        (click)="onPrint()"
+        [attr.aria-label]="'inbox.detail.print' | translate"
+      >
+        <app-icon-pdf-icon aria-hidden="true"></app-icon-pdf-icon>
+      </button>
       @if (isTrashFolder()) {
         <button
           type="button"

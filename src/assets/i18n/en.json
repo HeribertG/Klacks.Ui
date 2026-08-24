@@ -2898,6 +2898,7 @@
   "inbox.detail.delete": "Delete",
   "inbox.detail.restore": "Restore",
   "inbox.detail.permanently-delete": "Permanently delete",
+  "inbox.detail.print": "Print",
   "inbox.detail.from": "From:",
   "inbox.detail.to": "To:",
   "inbox.detail.date": "Date:",

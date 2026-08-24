@@ -14,6 +14,8 @@ import { TranslationService } from 'src/app/domain/services/translation/translat
 import { ITranslatedEmail } from 'src/app/domain/models/email/received-email.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-closed.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { InboxEmailPdfExportService } from '../services/inbox-email-pdf-export.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({
@@ -21,7 +23,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
   templateUrl: './inbox-detail.component.html',
   styleUrls: ['./inbox-detail.component.scss'],
   standalone: true,
-  imports: [DatePipe, TranslateModule, FontAwesomeModule, TrashIconRedComponent, IconEyeClosedComponent],
+  imports: [DatePipe, TranslateModule, FontAwesomeModule, TrashIconRedComponent, IconEyeClosedComponent, PdfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxDetailComponent {
@@ -31,6 +33,7 @@ export class InboxDetailComponent {
   translationService = inject(TranslationService);
   private sanitizer = inject(DomSanitizer);
   private translateService = inject(TranslateService);
+  private inboxEmailPdfExportService = inject(InboxEmailPdfExportService);
 
   email = this.inboxService.selectedEmail;
   isTrashFolder = this.inboxService.isTrashFolder;
@@ -56,18 +59,20 @@ export class InboxDetailComponent {
     });
   }
 
+  private useTranslated = computed(() => !!this.translatedResult() && !this.showOriginal());
+
   displaySubject = computed(() => {
     const e = this.email();
     if (!e) return undefined;
     const t = this.translatedResult();
-    return t && !this.showOriginal() ? t.subject : e.subject;
+    return this.useTranslated() ? t!.subject : e.subject;
   });
 
   sanitizedBody = computed<SafeHtml | undefined>(() => {
     const e = this.email();
     if (!e) return undefined;
     const t = this.translatedResult();
-    const useTranslated = !!t && !this.showOriginal();
+    const useTranslated = this.useTranslated();
     const bodyHtml = useTranslated ? t!.bodyHtml : e.bodyHtml;
     const bodyText = useTranslated ? t!.bodyText : e.bodyText;
     if (bodyHtml) {
@@ -107,6 +112,25 @@ export class InboxDetailComponent {
 
   onToggleTranslation(): void {
     this.showOriginal.update((v) => !v);
+  }
+
+  onPrint(): void {
+    const e = this.email();
+    if (!e) return;
+
+    const t = this.translatedResult();
+    const useTranslated = this.useTranslated();
+
+    this.inboxEmailPdfExportService.exportEmail({
+      subject: useTranslated ? t!.subject : e.subject,
+      bodyHtml: useTranslated ? t!.bodyHtml : e.bodyHtml,
+      bodyText: useTranslated ? t!.bodyText : e.bodyText,
+      fromName: e.fromName,
+      fromAddress: e.fromAddress,
+      toAddress: e.toAddress,
+      receivedDate: e.receivedDate,
+      folder: e.folder,
+    });
   }
 
   onDelete(): void {
