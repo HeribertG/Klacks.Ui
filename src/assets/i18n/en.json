@@ -3612,6 +3612,7 @@
   "assistant.proactive.lockConflict": "A booking on {{date}} is locked and could not be adjusted automatically.",
   "assistant.proactive.muteSuggestion": "You have dismissed this type of hint several times. Should I mute it from now on?",
   "assistant.proactive.scenarioPending": "The scenario for {{group}} has been awaiting a decision for {{hours}} h.",
+  "assistant.proactive.scenarioPrepared": "Klacksy has prepared a scenario for {{from}}. It is waiting for your decision.",
   "assistant.proactive.planPausedForApproval": "A plan is waiting for your approval: step {{step}} of {{total}} ({{skill}}).",
   "assistant.proactive.availabilityGap": "{{name}} has no availabilities recorded for {{from}}–{{until}} yet.",
   "assistant.proactive.clientMissingAddress": "{{name}} has no address on file.",

@@ -3604,6 +3604,7 @@
   "assistant.proactive.lockConflict": "Une saisie du {{date}} est verrouillée et n'a pas pu être ajustée automatiquement.",
   "assistant.proactive.muteSuggestion": "Tu as masqué ce type d'indication plusieurs fois. Veux-tu que je le désactive à l'avenir ?",
   "assistant.proactive.scenarioPending": "Le scénario de {{group}} attend une décision depuis {{hours}} h.",
+  "assistant.proactive.scenarioPrepared": "Klacksy a préparé un scénario pour le {{from}}. Il attend votre décision.",
   "assistant.proactive.planPausedForApproval": "Un plan attend ton approbation : étape {{step}} sur {{total}} ({{skill}}).",
   "assistant.proactive.availabilityGap": "{{name}} n'a pas encore saisi de disponibilités pour {{from}}–{{until}}.",
   "assistant.proactive.clientMissingAddress": "{{name}} n'a pas encore d'adresse enregistrée.",
