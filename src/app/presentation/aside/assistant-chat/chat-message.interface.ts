@@ -35,4 +35,8 @@ export interface ChatMessage {
   proactiveMuteTargetKind?: string;
   /** Set after the user muted the suggested trigger kind; locks the mute button. */
   proactiveMuted?: boolean;
+  /** Set after the user delegated ("mach du") this finding; locks the delegate button. */
+  proactiveDelegated?: boolean;
+  /** Whether this message reported a condition-ledger finding the delegate button can act on. */
+  proactiveCanDelegate?: boolean;
 }

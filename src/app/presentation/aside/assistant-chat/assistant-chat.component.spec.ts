@@ -37,7 +37,10 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
-import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+    PROACTIVE_REACTION,
+    PROACTIVE_REJECT_REASON,
+} from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 
@@ -175,6 +178,7 @@ describe('AssistantChatComponent', () => {
             warmupCache: vi.fn(),
             setProactiveReaction: vi.fn().mockReturnValue(of(void 0)),
             muteTriggerKind: vi.fn().mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true })),
+            delegateCondition: vi.fn().mockReturnValue(of(void 0)),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
             availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
@@ -1855,13 +1859,82 @@ describe('AssistantChatComponent', () => {
             const dismissed = component.messages.find((m) => m.id === 'drop-me')!;
 
             // Act
-            component.dismissProactiveMessage(dismissed);
+            component.dismissProactiveMessage(dismissed, PROACTIVE_REJECT_REASON.AlreadyHandled);
             fixture.detectChanges();
 
             // Assert
-            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith('drop-me');
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'drop-me',
+                PROACTIVE_REJECT_REASON.AlreadyHandled,
+            );
             expect(component.inboxMessages().map((m) => m.id)).toEqual(['keep-me']);
             expect(component.isHiddenProactiveMessage(dismissed)).toBe(true);
+        });
+
+        it('opens the reason menu on the dismiss button instead of hiding the row straight away', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'ask-why' }));
+
+            // Act
+            component.toggleDismissMenu('ask-why');
+            fixture.detectChanges();
+
+            // Assert - the row is still there; only picking a reason removes it
+            expect(component.dismissMenuMessageId()).toBe('ask-why');
+            expect(mockProactiveInboxService.dismissMessage).not.toHaveBeenCalled();
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['ask-why']);
+            const menuItems = fixture.nativeElement.querySelectorAll(
+                '.proactive-dismiss-menu [role="menuitem"]',
+            );
+            expect(menuItems.length).toBe(4);
+        });
+
+        it('closes the reason menu again when the same dismiss button is pressed twice', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'ask-why' }));
+            component.toggleDismissMenu('ask-why');
+
+            // Act
+            component.toggleDismissMenu('ask-why');
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.dismissMenuMessageId()).toBeNull();
+            expect(fixture.nativeElement.querySelector('.proactive-dismiss-menu')).toBeNull();
+        });
+
+        it('passes the picked reason on and closes the menu', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'unwanted' }));
+            const message = component.messages.find((m) => m.id === 'unwanted')!;
+            component.toggleDismissMenu('unwanted');
+
+            // Act
+            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.GenerallyUnwanted);
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'unwanted',
+                PROACTIVE_REJECT_REASON.GenerallyUnwanted,
+            );
+            expect(component.dismissMenuMessageId()).toBeNull();
+            expect(component.isHiddenProactiveMessage(message)).toBe(true);
+        });
+
+        it('dismissing without a reason is a choice of its own, not an omitted field', () => {
+            // Arrange
+            deliver(proactiveRow({ id: 'silent' }));
+            const message = component.messages.find((m) => m.id === 'silent')!;
+
+            // Act
+            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
+
+            // Assert
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'silent',
+                PROACTIVE_REJECT_REASON.NoReason,
+            );
         });
 
         it('moves the heading down rather than losing the block when the anchor row goes', () => {
@@ -1871,7 +1944,7 @@ describe('AssistantChatComponent', () => {
             const anchor = component.messages.find((m) => m.id === 'anchor')!;
 
             // Act
-            component.dismissProactiveMessage(anchor);
+            component.dismissProactiveMessage(anchor, PROACTIVE_REJECT_REASON.NoReason);
             fixture.detectChanges();
 
             // Assert
@@ -1908,7 +1981,7 @@ describe('AssistantChatComponent', () => {
             expect(component.isInboxMessage(appended)).toBe(false);
 
             // Act
-            component.dismissProactiveMessage(appended);
+            component.dismissProactiveMessage(appended, PROACTIVE_REJECT_REASON.WrongThisTime);
             fixture.detectChanges();
 
             // Assert
@@ -2728,12 +2801,24 @@ describe('AssistantChatComponent', () => {
             );
             expect(otherButtons.length).toBe(1);
 
-            // Act - the dismiss button must work here too, or a muted suggestion stays forever
+            // Act - the dismiss route must stay reachable here too, or a muted suggestion stays
+            // forever. Since the reject-reason menu it now takes two clicks: open, then pick.
             otherButtons[0].click();
+            fixture.detectChanges();
+            const reasonItems: HTMLButtonElement[] = Array.from(
+                fixture.nativeElement.querySelectorAll(
+                    '.proactive-dismiss-menu [role="menuitem"]',
+                ),
+            );
+            expect(reasonItems.length).toBe(4);
+            reasonItems[reasonItems.length - 1].click();
             fixture.detectChanges();
 
             // Assert
-            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith('mute-suggestion-1');
+            expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
+                'mute-suggestion-1',
+                PROACTIVE_REJECT_REASON.NoReason,
+            );
             expect(component.inboxMessages()).toEqual([]);
         });
 
@@ -2823,6 +2908,125 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockLlmService.muteTriggerKind).not.toHaveBeenCalled();
+        });
+
+        describe('delegate ("mach du", Etappe 4e)', () => {
+            const delegableMessage = (overrides: Partial<IProactiveInboxItem> = {}): IProactiveInboxItem =>
+                proactiveWithAction({
+                    id: 'delegable-1',
+                    kind: 'open_order',
+                    actionRoute: null,
+                    actionParams: null,
+                    canDelegate: true,
+                    ...overrides,
+                });
+
+            it('renders the delegate button only when the message can be delegated', () => {
+                // Arrange
+                deliver(delegableMessage(), proactiveWithAction({ id: 'not-delegable-1', canDelegate: false }));
+
+                // Act
+                fixture.detectChanges();
+
+                // Assert
+                const delegateButtons = fixture.nativeElement.querySelectorAll('.proactive-delegate-btn');
+                expect(delegateButtons.length).toBe(1);
+            });
+
+            it('delegates Prepare for the message, locks the button and confirms via toast', async () => {
+                // Arrange
+                const toastService = TestBed.inject(ToastShowService);
+                const showInfoSpy = vi.spyOn(toastService, 'showInfo');
+                deliver(delegableMessage());
+                const appended = component.messages.find((m) => m.id === 'delegable-1')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(mockLlmService.delegateCondition).toHaveBeenCalledWith('delegable-1', 1);
+                const updated = component.messages.find((m) => m.id === 'delegable-1')!;
+                expect(updated.proactiveDelegated).toBe(true);
+                expect(component.pendingDelegateMessageId()).toBeNull();
+                expect(showInfoSpy).toHaveBeenCalled();
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.delegate-confirmed');
+
+                // Act again on the already-delegated message
+                await component.submitDelegate(updated);
+
+                // Assert: locked, no second call
+                expect(mockLlmService.delegateCondition).toHaveBeenCalledTimes(1);
+            });
+
+            it('ignores a second click while a delegate request is still pending', async () => {
+                // Arrange
+                const request$ = new Subject<void>();
+                mockLlmService.delegateCondition.mockReturnValue(request$.asObservable());
+                deliver(delegableMessage({ id: 'delegable-pending' }));
+                const appended = component.messages.find((m) => m.id === 'delegable-pending')!;
+
+                // Act
+                const firstCall = component.submitDelegate(appended);
+                expect(component.pendingDelegateMessageId()).toBe('delegable-pending');
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(mockLlmService.delegateCondition).toHaveBeenCalledTimes(1);
+
+                request$.next();
+                request$.complete();
+                await firstCall;
+                expect(component.pendingDelegateMessageId()).toBeNull();
+            });
+
+            it('shows a dedicated error toast when the delegating user lacks the rights (403)', async () => {
+                // Arrange
+                mockLlmService.delegateCondition.mockReturnValue(
+                    throwError(() => new HttpErrorResponse({ status: 403 })),
+                );
+                const toastService = TestBed.inject(ToastShowService);
+                const showErrorSpy = vi.spyOn(toastService, 'showError');
+                deliver(delegableMessage({ id: 'delegable-forbidden' }));
+                const appended = component.messages.find((m) => m.id === 'delegable-forbidden')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(showErrorSpy).toHaveBeenCalled();
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.delegate-forbidden');
+                expect(
+                    component.messages.find((m) => m.id === 'delegable-forbidden')?.proactiveDelegated,
+                ).toBeUndefined();
+            });
+
+            it('shows the generic error toast for a non-403 failure', async () => {
+                // Arrange
+                mockLlmService.delegateCondition.mockReturnValue(throwError(() => new Error('offline')));
+                const toastService = TestBed.inject(ToastShowService);
+                const showErrorSpy = vi.spyOn(toastService, 'showError');
+                deliver(delegableMessage({ id: 'delegable-error' }));
+                const appended = component.messages.find((m) => m.id === 'delegable-error')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(showErrorSpy).toHaveBeenCalled();
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
+            });
+
+            it('does not send a delegate request when the message cannot be delegated', async () => {
+                // Arrange
+                deliver(delegableMessage({ id: 'delegable-none', canDelegate: false }));
+                const appended = component.messages.find((m) => m.id === 'delegable-none')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(mockLlmService.delegateCondition).not.toHaveBeenCalled();
+            });
         });
 
         it('maps kind, action route and params for inbox items and renders the action button', () => {

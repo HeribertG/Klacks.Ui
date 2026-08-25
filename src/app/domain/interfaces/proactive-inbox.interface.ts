@@ -11,6 +11,8 @@ export interface IProactiveInboxItem {
   kind?: string | null;
   actionRoute?: string | null;
   actionParams?: Record<string, string> | null;
+  /** Whether this message reported a condition-ledger finding the "mach du" delegate action can act on. */
+  canDelegate?: boolean;
 }
 
 export interface IProactiveUnreadCount {

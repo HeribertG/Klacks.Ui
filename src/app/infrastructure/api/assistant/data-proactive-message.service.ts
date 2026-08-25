@@ -5,6 +5,7 @@
  * inbox (unread listing, unread count, mark-as-read).
  * @param messageId - Identifier of the proactive message dispatch (Guid)
  * @param reaction - Chosen reaction value, helpful or dismissed
+ * @param rejectReason - Why the message was dismissed; omitted when no reason was picked, and rejected by the API when sent with a helpful reaction
  * @param take - Maximum number of unread messages to fetch
  * @param messageIds - Ids of the messages the client actually rendered
  */
@@ -14,7 +15,10 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
-import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+  ProactiveReaction,
+  ProactiveRejectReason,
+} from 'src/app/domain/constants/proactive-reaction.constants';
 import {
   IProactiveInboxItem,
   IProactiveUnreadCount,
@@ -22,6 +26,7 @@ import {
 
 export interface ISetProactiveReactionRequest {
   reaction: ProactiveReaction;
+  rejectReason?: ProactiveRejectReason;
 }
 
 @Injectable({
@@ -32,8 +37,14 @@ export class DataProactiveMessageService {
   private readonly baseUrl =
     environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
-  setReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {
-    const request: ISetProactiveReactionRequest = { reaction };
+  setReaction(
+    messageId: string,
+    reaction: ProactiveReaction,
+    rejectReason?: ProactiveRejectReason,
+  ): Observable<void> {
+    const request: ISetProactiveReactionRequest = rejectReason
+      ? { reaction, rejectReason }
+      : { reaction };
     return this.httpClient
       .put<void>(
         `${this.baseUrl}proactive-messages/${messageId}/reaction`,
@@ -89,6 +100,16 @@ export class DataProactiveMessageService {
       .put<void>(
         `${this.baseUrl}proactive-messages/read-all`,
         null,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
+  }
+
+  delegateCondition(messageId: string, maxAction: number): Observable<void> {
+    return this.httpClient
+      .put<void>(
+        `${this.baseUrl}proactive-messages/${messageId}/delegate`,
+        { maxAction },
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
       .pipe(retry(3));

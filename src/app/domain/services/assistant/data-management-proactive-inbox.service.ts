@@ -20,7 +20,10 @@ import { takeUntil } from 'rxjs/operators';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
-import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
+import {
+  PROACTIVE_REACTION,
+  ProactiveRejectReason,
+} from 'src/app/domain/constants/proactive-reaction.constants';
 
 const UNREAD_MESSAGES_TAKE = 50;
 
@@ -130,10 +133,11 @@ export class DataManagementProactiveInboxService implements OnDestroy {
    * aside can close mid-flight, and a request cancelled then would leave the row
    * hidden locally but unread on the server.
    * @param messageId - Id of the message the user dismissed
+   * @param rejectReason - Why it was dismissed; omitted when the user picked no reason
    */
-  dismissMessage(messageId: string): void {
+  dismissMessage(messageId: string, rejectReason?: ProactiveRejectReason): void {
     this.dataProactiveMessageService
-      .setReaction(messageId, PROACTIVE_REACTION.Dismissed)
+      .setReaction(messageId, PROACTIVE_REACTION.Dismissed, rejectReason)
       .pipe(takeUntil(this.destroy$))
       .subscribe({ error: () => undefined });
     this.hideMessages([messageId]);

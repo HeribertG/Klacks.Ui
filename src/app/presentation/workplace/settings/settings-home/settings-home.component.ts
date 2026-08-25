@@ -58,6 +58,7 @@ import { AssistantPersonalitySettingsComponent } from '../assistant-personality-
 import { AssistantSkillProposalsComponent } from '../assistant-skill-proposals/assistant-skill-proposals.component';
 import { AssistantSkillRelationsComponent } from '../assistant-skill-relations/assistant-skill-relations.component';
 import { KlacksyAutonomySettingsComponent } from '../klacksy-autonomy-settings/klacksy-autonomy-settings.component';
+import { KlacksyProactiveGovernanceComponent } from '../klacksy-proactive-governance/klacksy-proactive-governance.component';
 import { WizardSettingsComponent } from '../wizard-settings/wizard-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
@@ -140,6 +141,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     AssistantSkillProposalsComponent,
     AssistantSkillRelationsComponent,
     KlacksyAutonomySettingsComponent,
+    KlacksyProactiveGovernanceComponent,
     WizardSettingsComponent,
     CalendarSelectionComponent,
     DataRetentionSettingComponent,

@@ -224,8 +224,14 @@ describe('DataManagementProactiveInboxService', () => {
       service.dismissMessage('a');
 
       expect(service.hiddenMessageIds().has('a')).toBe(true);
-      expect(dataServiceMock.setReaction).toHaveBeenCalledWith('a', 'dismissed');
+      expect(dataServiceMock.setReaction).toHaveBeenCalledWith('a', 'dismissed', undefined);
       expect(dataServiceMock.markManyRead).toHaveBeenCalledWith(['a']);
+    });
+
+    it('dismissMessage forwards the reject reason the user picked', () => {
+      service.dismissMessage('a', 'alreadyHandled');
+
+      expect(dataServiceMock.setReaction).toHaveBeenCalledWith('a', 'dismissed', 'alreadyHandled');
     });
 
     it('dismissMessage still hides the row when recording the reaction fails', () => {
