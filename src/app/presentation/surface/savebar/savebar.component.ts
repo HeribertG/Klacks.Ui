@@ -5,7 +5,7 @@
  * @param showSaveButtons - controls visibility of save button
  * @param showSaveAndCloseButton - controls visibility of save-and-close button
  */
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -20,7 +20,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
   imports: [TranslateModule],
   template: `
     @if (savebarService.showSavebar()) {
-    <div class="footer custom-control-inline">
+    <div class="footer custom-control-inline" [class.full-width]="fullWidth()">
       @if (showGoBackButton()) {
       <span
         type="button"
@@ -85,6 +85,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SavebarComponent {
+  public fullWidth = input(false);
   public workplaceStateService = inject(WorkplaceStateService);
   public savebarService = inject(SavebarService);
   private analyseScenarioService = inject(AnalyseScenarioService);

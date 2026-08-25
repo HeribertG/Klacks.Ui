@@ -7,7 +7,7 @@
 
   <app-main></app-main>
 
-  <app-savebar></app-savebar>
+  <app-savebar [fullWidth]="layoutService.isFullWidth()"></app-savebar>
 
-  <app-footer></app-footer>
+  <app-footer [class.full-width]="layoutService.isFullWidth()"></app-footer>
 </div>

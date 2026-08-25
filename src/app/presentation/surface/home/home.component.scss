@@ -64,6 +64,14 @@ app-footer {
   background-color: var(--backgroundColorHeaderNav);
 }
 
+app-footer.full-width {
+  max-width: none;
+}
+
+.footer.full-width {
+  max-width: none;
+}
+
 .link-button {
   font-size: 13px;
   text-decoration: underline;

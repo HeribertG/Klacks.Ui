@@ -1,5 +1,51 @@
 <footer class="app-footer">
-  <a [routerLink]="['/imprint']">{{ "legal.imprint-link" | translate }}</a>
-  <span class="separator">|</span>
-  <a [routerLink]="['/privacy']">{{ "legal.privacy-link" | translate }}</a>
+  <div class="footer-legal">
+    <a [routerLink]="['/imprint']">{{ "legal.imprint-link" | translate }}</a>
+    <span class="separator">|</span>
+    <a [routerLink]="['/privacy']">{{ "legal.privacy-link" | translate }}</a>
+  </div>
+  <div class="footer-extras">
+    <button
+      type="button"
+      id="footer-donation-link"
+      class="footer-link-button"
+      (click)="openDonation()"
+    >{{ "footer.donation-link" | translate }}</button>
+    <span class="separator">|</span>
+    <a
+      id="footer-docs-link"
+      href="https://klacks-software.ch/docs/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >{{ "footer.docs-link" | translate }}</a>
+  </div>
 </footer>
+
+<ng-template #donationModal let-modal role="dialog">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ "donation.title" | translate }}
+    </div>
+  </div>
+  <div class="modal-body">
+    <p>{{ "donation.text" | translate }}</p>
+    <div class="form-group">
+      <label for="donation-iban">{{ "donation.iban-label" | translate }}</label>
+      <input
+        id="donation-iban"
+        type="text"
+        class="form-control"
+        [value]="'donation.iban' | translate"
+        readonly
+      />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      id="modal-donation-close"
+      class="btn save-btn-ok"
+      (click)="modal.close()"
+    >{{ "donation.close" | translate }}</button>
+  </div>
+</ng-template>

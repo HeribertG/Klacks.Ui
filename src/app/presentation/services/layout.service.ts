@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 export enum ContainerSize {
   NORMAL = '1445px',
@@ -13,11 +13,14 @@ export enum ContainerSize {
 export class LayoutService {
   private readonly CONTAINER_ID = 'main_container';
 
+  public readonly isFullWidth = signal(false);
+
   setContainerSize(size: ContainerSize): void {
     const containerWrapper = document.getElementById(this.CONTAINER_ID);
     if (containerWrapper) {
       containerWrapper.style.setProperty('max-width', size);
     }
+    this.isFullWidth.set(size === ContainerSize.FULL);
   }
 
   setContainerToNormalSize(): void {
