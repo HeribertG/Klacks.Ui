@@ -22,7 +22,17 @@ export const environment = {
   apiTimeout: 15000, // 15 seconds
   enableMockData: false,
   enableConsoleLogging: false,
-  enableAngularDevTools: false
+  enableAngularDevTools: false,
+
+  // Donation payment providers (Phase 2).
+  // Alle Werte leer/false lassen, um die jeweilige Zahlweise im Spenden-Dialog auszublenden.
+  donation: {
+    paypalMeBaseUrl: '', // z. B. 'https://paypal.me/deinname'
+    stripePaymentLinks: [] as { currency: 'CHF' | 'EUR'; amount: number; url: string }[],
+    stripePublishableKey: '', // öffentlicher Stripe-Key, z. B. 'pk_live_...'
+    twintEnabled: false,
+    twintLinkUrl: '', // z. B. Payrexx/RaiseNow-Zahlungs-Link
+  }
 };
 
 /*

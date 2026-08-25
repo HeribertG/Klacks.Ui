@@ -1,4 +1,5 @@
 @use "../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../assets/standard-styles/colors.scss" as colors;
 
 .app-footer {
   position: relative;
@@ -45,4 +46,116 @@
 .separator {
   margin: 0 8px;
   color: #ced4da;
+}
+
+.donation-currency {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.donation-currency-btn,
+.donation-amount-btn,
+.donation-copy-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background-color: var(--backgroundColorCard);
+  color: var(--colorHeadline);
+  cursor: pointer;
+  font-size: 13px;
+
+  &:hover {
+    background-color: var(--backgroundColorHover);
+  }
+
+  &.active {
+    border-color: colors.$standartBlueColor;
+    background-color: var(--backgroundColorHover);
+  }
+}
+
+.donation-currency-btn {
+  flex: 1;
+}
+
+.donation-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.donation-amount-btn {
+  min-width: 64px;
+}
+
+.donation-custom {
+  margin-bottom: 12px;
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--colorLabel);
+  }
+}
+
+.donation-qr {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+
+  img {
+    width: 200px;
+    height: 200px;
+    border: 1px solid var(--cardBorderColor);
+    border-radius: 4px;
+  }
+}
+
+.donation-iban {
+  margin-bottom: 12px;
+}
+
+.donation-copy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.donation-psp {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.donation-psp-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background-color: var(--backgroundColorCard);
+  color: var(--colorHeadline);
+  cursor: pointer;
+  font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--backgroundColorHover);
+  }
+}
+
+.donation-twint-info {
+  font-size: 12px;
+  color: var(--colorLabel);
+}
+
+.donation-error {
+  font-size: 12px;
+  color: red;
 }

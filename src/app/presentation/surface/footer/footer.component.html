@@ -27,9 +27,55 @@
       {{ "donation.title" | translate }}
     </div>
   </div>
-  <div class="modal-body">
+  <div class="modal-body donation-body">
     <p>{{ "donation.text" | translate }}</p>
-    <div class="form-group">
+
+    <div class="donation-currency">
+      <button
+        type="button"
+        class="donation-currency-btn"
+        [class.active]="donationCurrency() === 'CHF'"
+        (click)="selectCurrency('CHF')"
+      >CHF – {{ "donation.switzerland" | translate }}</button>
+      <button
+        type="button"
+        class="donation-currency-btn"
+        [class.active]="donationCurrency() === 'EUR'"
+        (click)="selectCurrency('EUR')"
+      >EUR – {{ "donation.europe" | translate }}</button>
+    </div>
+
+    <div class="donation-amounts">
+      @for (amount of amountOptions; track amount) {
+        <button
+          type="button"
+          class="donation-amount-btn"
+          [class.active]="isSelectedAmount(amount)"
+          (click)="selectAmount(amount)"
+        >{{ amount }} {{ donationCurrency() }}</button>
+      }
+    </div>
+
+    <div class="donation-custom">
+      <label for="donation-custom-amount">{{ "donation.custom-amount" | translate }}</label>
+      <input
+        id="donation-custom-amount"
+        type="number"
+        min="0.01"
+        step="0.01"
+        class="form-control"
+        [value]="customAmount()"
+        (input)="onCustomAmount($any($event.target).value)"
+      />
+    </div>
+
+    <div class="donation-qr">
+      @if (qrDataUrl()) {
+        <img [src]="qrDataUrl()" [alt]="'donation.qr-alt' | translate" />
+      }
+    </div>
+
+    <div class="form-group donation-iban">
       <label for="donation-iban">{{ "donation.iban-label" | translate }}</label>
       <input
         id="donation-iban"
@@ -39,6 +85,58 @@
         readonly
       />
     </div>
+
+    <div class="donation-copy">
+      <button type="button" class="donation-copy-btn" (click)="copyIban()">
+        {{ copiedKey() === 'IBAN' ? ("donation.copied" | translate) : ("donation.copy-iban" | translate) }}
+      </button>
+      <button type="button" class="donation-copy-btn" (click)="copyAmount()">
+        {{ copiedKey() === 'AMOUNT' ? ("donation.copied" | translate) : ("donation.copy-amount" | translate) }}
+      </button>
+      <button type="button" class="donation-copy-btn" (click)="copyPurpose()">
+        {{ copiedKey() === 'PURPOSE' ? ("donation.copied" | translate) : ("donation.copy-purpose" | translate) }}
+      </button>
+    </div>
+
+    @if (donationConfig.paypalMeEnabled || donationConfig.stripeCheckoutEnabled || stripeLinkUrl() || donationConfig.twintEnabled) {
+      <div class="donation-psp">
+        @if (donationConfig.paypalMeEnabled) {
+          <a
+            class="donation-psp-btn"
+            [href]="paypalUrl()"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ "donation.paypal" | translate }}</a>
+        }
+        @if (donationConfig.stripeCheckoutEnabled) {
+          <button type="button" class="donation-psp-btn" (click)="openDonationCheckout()">
+            {{ "donation.card" | translate }}
+          </button>
+        } @else if (stripeLinkUrl()) {
+          <a
+            class="donation-psp-btn"
+            [href]="stripeLinkUrl()"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ "donation.card" | translate }}</a>
+        }
+        @if (donationConfig.twintEnabled) {
+          @if (twintLinkUrl()) {
+            <a
+              class="donation-psp-btn"
+              [href]="twintLinkUrl()"
+              target="_blank"
+              rel="noopener noreferrer"
+            >{{ "donation.twint" | translate }}</a>
+          } @else {
+            <div class="donation-twint-info">{{ "donation.twint-info" | translate }}</div>
+          }
+        }
+        @if (checkoutError()) {
+          <div class="donation-error">{{ checkoutError() }}</div>
+        }
+      </div>
+    }
   </div>
   <div class="modal-footer">
     <button

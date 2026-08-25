@@ -19,5 +19,15 @@ export const environment = {
   enableConsoleLogging: false,
   
   // Production tools (disabled for performance)
-  enableAngularDevTools: false
+  enableAngularDevTools: false,
+
+  // Donation payment providers (Phase 2).
+  // Alle Werte leer/false lassen, um die jeweilige Zahlweise im Spenden-Dialog auszublenden.
+  donation: {
+    paypalMeBaseUrl: '',
+    stripePaymentLinks: [] as { currency: 'CHF' | 'EUR'; amount: number; url: string }[],
+    stripePublishableKey: '',
+    twintEnabled: false,
+    twintLinkUrl: '',
+  }
 };
