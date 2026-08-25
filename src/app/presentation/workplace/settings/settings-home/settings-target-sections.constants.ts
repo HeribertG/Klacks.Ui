@@ -51,6 +51,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'assistant-skill-proposals': 'klacksy',
   'assistant-skill-relations': 'klacksy',
   'klacksy-autonomy': 'klacksy',
+  'klacksy-proactive-governance': 'klacksy',
   'openroute': 'externalServices',
   'deepl': 'externalServices',
   'messaging-providers': 'externalServices',

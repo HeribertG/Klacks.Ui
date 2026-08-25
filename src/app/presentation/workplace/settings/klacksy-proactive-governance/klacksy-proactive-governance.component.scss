@@ -1,0 +1,92 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+
+:host {
+  display: block;
+  padding-bottom: 35px;
+}
+
+.saving-indicator {
+  margin-inline-start: 12px;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--standartTextColor);
+}
+
+.governance-hint,
+.governance-warning {
+  margin-block: 8px;
+  margin-inline-start: 30px;
+  padding-inline-end: 30px;
+  font-size: 13px;
+  color: var(--standartTextColor);
+}
+
+.governance-warning {
+  color: var(--standartRedColor);
+  font-weight: 600;
+}
+
+.kill-switch {
+  margin-block: 12px;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding: 10px 12px;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 6px;
+
+  &.active {
+    border-color: var(--standartRedColor);
+    background-color: rgba(colors.$standartRedColor, 0.12);
+  }
+}
+
+.kill-switch-text {
+  display: flex;
+  flex-direction: column;
+  margin-inline-start: 8px;
+}
+
+.kill-switch-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kill-switch-description {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.table-scroll {
+  margin-inline-start: 30px;
+  padding-inline-end: 30px;
+  overflow-x: auto;
+}
+
+.table-governance {
+  min-width: 900px;
+  font-size: 13px;
+  color: var(--standartTextColor);
+
+  th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+.kind-cell {
+  white-space: nowrap;
+}
+
+.pinned-badge {
+  margin-inline-start: 8px;
+  padding: 1px 6px;
+  border: 1px solid var(--standartRedColor);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--standartRedColor);
+}
+
+.number-cell {
+  width: 80px;
+}

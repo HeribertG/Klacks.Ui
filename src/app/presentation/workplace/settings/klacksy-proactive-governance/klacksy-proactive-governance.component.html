@@ -1,0 +1,154 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.proactiveGovernance.headline" | translate }}
+    @if (savingKind() !== null) {
+      <span class="saving-indicator">{{ "setting.proactiveGovernance.saving" | translate }}</span>
+    }
+  </div>
+  <div class="container-line"></div>
+
+  @if (isLoading()) {
+    <div class="governance-hint">{{ "setting.proactiveGovernance.loading" | translate }}</div>
+  } @else {
+    <p class="governance-hint">{{ "setting.proactiveGovernance.intro" | translate }}</p>
+
+    <div class="kill-switch" [class.active]="killSwitchActive()">
+      <label class="checkbox-label">
+        <input
+          id="proactive-governance-kill-switch"
+          type="checkbox"
+          [checked]="killSwitchActive()"
+          [disabled]="savingKind() !== null"
+          (change)="onToggleKillSwitch($any($event.target).checked)"
+        />
+        <span class="kill-switch-text">
+          <span class="kill-switch-label">{{
+            "setting.proactiveGovernance.kill-switch" | translate
+          }}</span>
+          <span class="kill-switch-description">{{
+            "setting.proactiveGovernance.kill-switch-description" | translate
+          }}</span>
+        </span>
+      </label>
+    </div>
+
+    @if (killSwitchActive()) {
+      <p class="governance-warning">
+        {{ "setting.proactiveGovernance.kill-switch-active-note" | translate }}
+      </p>
+    }
+
+    <div class="table-scroll">
+      <table class="table table-borderless table-governance">
+        <thead>
+          <tr>
+            <th scope="col">{{ "setting.proactiveGovernance.column-kind" | translate }}</th>
+            <th scope="col">{{ "setting.proactiveGovernance.column-max-action" | translate }}</th>
+            <th scope="col">{{ "setting.proactiveGovernance.column-enabled" | translate }}</th>
+            <th scope="col">{{ "setting.proactiveGovernance.column-owner" | translate }}</th>
+            <th scope="col">{{ "setting.proactiveGovernance.column-daily-budget" | translate }}</th>
+            <th scope="col">{{ "setting.proactiveGovernance.column-window-limit" | translate }}</th>
+            <th scope="col">{{ "setting.proactiveGovernance.column-window-minutes" | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules(); track rule.triggerKind) {
+            <tr class="table-row">
+              <td class="table-cell kind-cell">
+                {{ labelKeyFor(rule.triggerKind) | translate }}
+                @if (rule.maxAction !== rule.effectiveMaxAction) {
+                  <span class="pinned-badge">{{
+                    "setting.proactiveGovernance.pinned-to-hint" | translate
+                  }}</span>
+                }
+              </td>
+              <td class="table-cell">
+                <select
+                  class="form-select"
+                  [id]="'proactive-governance-max-action-' + rule.triggerKind"
+                  [disabled]="savingKind() !== null"
+                  (change)="onChangeMaxAction(rule, $any($event.target).value)"
+                >
+                  @for (maxAction of maxActions; track maxAction.value) {
+                    <option [value]="maxAction.value" [selected]="maxAction.value === rule.maxAction">
+                      {{ maxAction.labelKey | translate }}
+                    </option>
+                  }
+                </select>
+              </td>
+              <td class="table-cell">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [id]="'proactive-governance-enabled-' + rule.triggerKind"
+                    [checked]="rule.enabled"
+                    [disabled]="savingKind() !== null"
+                    (change)="onToggleEnabled(rule, $any($event.target).checked)"
+                  />
+                </label>
+              </td>
+              <td class="table-cell">
+                <select
+                  class="form-select"
+                  [id]="'proactive-governance-owner-' + rule.triggerKind"
+                  [disabled]="savingKind() !== null"
+                  (change)="onChangeResponsibleOwner(rule, $any($event.target).value)"
+                >
+                  <option value="" [selected]="rule.responsibleOwnerUserId === null">
+                    {{ "setting.proactiveGovernance.owner-none" | translate }}
+                  </option>
+                  @for (account of accounts(); track account.id) {
+                    <option
+                      [value]="account.id"
+                      [selected]="account.id === rule.responsibleOwnerUserId"
+                    >
+                      {{ account.firstName }} {{ account.lastName }}
+                    </option>
+                  }
+                </select>
+              </td>
+              <td class="table-cell">
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="form-control number-cell"
+                  [id]="'proactive-governance-daily-budget-' + rule.triggerKind"
+                  [value]="rule.dailyActionBudget"
+                  [disabled]="savingKind() !== null"
+                  (change)="onChangeDailyActionBudget(rule, $any($event.target).value)"
+                />
+              </td>
+              <td class="table-cell">
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="form-control number-cell"
+                  [id]="'proactive-governance-window-limit-' + rule.triggerKind"
+                  [value]="rule.windowActionLimit"
+                  [disabled]="savingKind() !== null"
+                  (change)="onChangeWindowActionLimit(rule, $any($event.target).value)"
+                />
+              </td>
+              <td class="table-cell">
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  class="form-control number-cell"
+                  [id]="'proactive-governance-window-minutes-' + rule.triggerKind"
+                  [value]="rule.windowMinutes"
+                  [disabled]="savingKind() !== null"
+                  (change)="onChangeWindowMinutes(rule, $any($event.target).value)"
+                />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="governance-hint">{{ "setting.proactiveGovernance.owner-note" | translate }}</p>
+  }
+</div>
