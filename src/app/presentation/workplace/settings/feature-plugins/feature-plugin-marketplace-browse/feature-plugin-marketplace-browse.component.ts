@@ -13,11 +13,14 @@ import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/dat
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MarketplacePlugin } from 'src/app/domain/models/plugins/marketplace-plugin';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
+import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
+
+const PAGE_SIZE = 12;
 
 @Component({
   selector: 'app-feature-plugin-marketplace-browse',
   standalone: true,
-  imports: [TranslateModule, FormsModule, SearchInputComponent],
+  imports: [TranslateModule, FormsModule, SearchInputComponent, SimplePaginationComponent],
   templateUrl: './feature-plugin-marketplace-browse.component.html',
   styleUrls: ['./feature-plugin-marketplace-browse.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,9 +34,12 @@ export class FeaturePluginMarketplaceBrowseComponent {
   installedNames = input<Set<string>>(new Set());
   installed = output<string>();
 
+  private allPlugins: MarketplacePlugin[] = [];
   plugins: MarketplacePlugin[] = [];
   isLoading = false;
   searchTerm = '';
+  currentPage = 1;
+  pageSize = PAGE_SIZE;
   totalCount = 0;
   installingName = '';
 
@@ -43,14 +49,26 @@ export class FeaturePluginMarketplaceBrowseComponent {
       const result = await firstValueFrom(
         this.dataService.searchMarketplace(this.searchTerm)
       );
-      this.plugins = result.items;
-      this.totalCount = result.totalCount;
+      this.allPlugins = result.items;
+      this.totalCount = this.allPlugins.length;
+      this.currentPage = 1;
+      this.updatePage();
     } catch {
       this.toastService.showError('settings.feature-plugins.marketplace.error.search');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
     }
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePage();
+  }
+
+  private updatePage(): void {
+    const start = (this.currentPage - 1) * this.pageSize;
+    this.plugins = this.allPlugins.slice(start, start + this.pageSize);
   }
 
   async onInstall(name: string): Promise<void> {

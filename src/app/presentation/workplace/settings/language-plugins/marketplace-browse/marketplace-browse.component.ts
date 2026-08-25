@@ -14,11 +14,12 @@ import { DataLanguagePluginService } from 'src/app/infrastructure/api/settings/d
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MarketplacePackage } from 'src/app/domain/models/settings/marketplace-package';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
+import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 
 @Component({
   selector: 'app-marketplace-browse',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe, FormsModule, SearchInputComponent],
+  imports: [TranslateModule, DecimalPipe, FormsModule, SearchInputComponent, SimplePaginationComponent],
   templateUrl: './marketplace-browse.component.html',
   styleUrls: ['./marketplace-browse.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

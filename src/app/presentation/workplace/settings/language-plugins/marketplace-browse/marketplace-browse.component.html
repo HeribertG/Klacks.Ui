@@ -49,5 +49,13 @@
         </div>
       }
     </div>
+
+    <app-simple-pagination
+      id="marketplace-pagination"
+      [collectionSize]="totalCount"
+      [pageSize]="pageSize"
+      [(page)]="currentPage"
+      (pageChange)="onPageChange($event)"
+    ></app-simple-pagination>
   }
 </div>
