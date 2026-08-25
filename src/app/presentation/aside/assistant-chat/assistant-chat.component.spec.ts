@@ -178,6 +178,7 @@ describe('AssistantChatComponent', () => {
             warmupCache: vi.fn(),
             setProactiveReaction: vi.fn().mockReturnValue(of(void 0)),
             muteTriggerKind: vi.fn().mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true })),
+            delegateCondition: vi.fn().mockReturnValue(of(void 0)),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
             availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
@@ -2907,6 +2908,125 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockLlmService.muteTriggerKind).not.toHaveBeenCalled();
+        });
+
+        describe('delegate ("mach du", Etappe 4e)', () => {
+            const delegableMessage = (overrides: Partial<IProactiveInboxItem> = {}): IProactiveInboxItem =>
+                proactiveWithAction({
+                    id: 'delegable-1',
+                    kind: 'open_order',
+                    actionRoute: null,
+                    actionParams: null,
+                    canDelegate: true,
+                    ...overrides,
+                });
+
+            it('renders the delegate button only when the message can be delegated', () => {
+                // Arrange
+                deliver(delegableMessage(), proactiveWithAction({ id: 'not-delegable-1', canDelegate: false }));
+
+                // Act
+                fixture.detectChanges();
+
+                // Assert
+                const delegateButtons = fixture.nativeElement.querySelectorAll('.proactive-delegate-btn');
+                expect(delegateButtons.length).toBe(1);
+            });
+
+            it('delegates Prepare for the message, locks the button and confirms via toast', async () => {
+                // Arrange
+                const toastService = TestBed.inject(ToastShowService);
+                const showInfoSpy = vi.spyOn(toastService, 'showInfo');
+                deliver(delegableMessage());
+                const appended = component.messages.find((m) => m.id === 'delegable-1')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(mockLlmService.delegateCondition).toHaveBeenCalledWith('delegable-1', 1);
+                const updated = component.messages.find((m) => m.id === 'delegable-1')!;
+                expect(updated.proactiveDelegated).toBe(true);
+                expect(component.pendingDelegateMessageId()).toBeNull();
+                expect(showInfoSpy).toHaveBeenCalled();
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.delegate-confirmed');
+
+                // Act again on the already-delegated message
+                await component.submitDelegate(updated);
+
+                // Assert: locked, no second call
+                expect(mockLlmService.delegateCondition).toHaveBeenCalledTimes(1);
+            });
+
+            it('ignores a second click while a delegate request is still pending', async () => {
+                // Arrange
+                const request$ = new Subject<void>();
+                mockLlmService.delegateCondition.mockReturnValue(request$.asObservable());
+                deliver(delegableMessage({ id: 'delegable-pending' }));
+                const appended = component.messages.find((m) => m.id === 'delegable-pending')!;
+
+                // Act
+                const firstCall = component.submitDelegate(appended);
+                expect(component.pendingDelegateMessageId()).toBe('delegable-pending');
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(mockLlmService.delegateCondition).toHaveBeenCalledTimes(1);
+
+                request$.next();
+                request$.complete();
+                await firstCall;
+                expect(component.pendingDelegateMessageId()).toBeNull();
+            });
+
+            it('shows a dedicated error toast when the delegating user lacks the rights (403)', async () => {
+                // Arrange
+                mockLlmService.delegateCondition.mockReturnValue(
+                    throwError(() => new HttpErrorResponse({ status: 403 })),
+                );
+                const toastService = TestBed.inject(ToastShowService);
+                const showErrorSpy = vi.spyOn(toastService, 'showError');
+                deliver(delegableMessage({ id: 'delegable-forbidden' }));
+                const appended = component.messages.find((m) => m.id === 'delegable-forbidden')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(showErrorSpy).toHaveBeenCalled();
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.delegate-forbidden');
+                expect(
+                    component.messages.find((m) => m.id === 'delegable-forbidden')?.proactiveDelegated,
+                ).toBeUndefined();
+            });
+
+            it('shows the generic error toast for a non-403 failure', async () => {
+                // Arrange
+                mockLlmService.delegateCondition.mockReturnValue(throwError(() => new Error('offline')));
+                const toastService = TestBed.inject(ToastShowService);
+                const showErrorSpy = vi.spyOn(toastService, 'showError');
+                deliver(delegableMessage({ id: 'delegable-error' }));
+                const appended = component.messages.find((m) => m.id === 'delegable-error')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(showErrorSpy).toHaveBeenCalled();
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
+            });
+
+            it('does not send a delegate request when the message cannot be delegated', async () => {
+                // Arrange
+                deliver(delegableMessage({ id: 'delegable-none', canDelegate: false }));
+                const appended = component.messages.find((m) => m.id === 'delegable-none')!;
+
+                // Act
+                await component.submitDelegate(appended);
+
+                // Assert
+                expect(mockLlmService.delegateCondition).not.toHaveBeenCalled();
+            });
         });
 
         it('maps kind, action route and params for inbox items and renders the action button', () => {

@@ -396,6 +396,10 @@ export class DataManagementAssistantService {
     return this.dataTriggerPreferenceService.muteKind(triggerKind);
   }
 
+  delegateCondition(messageId: string, maxAction: number): Observable<void> {
+    return this.dataProactiveMessageService.delegateCondition(messageId, maxAction);
+  }
+
   generateSkillProposals(trajectories?: number): Observable<IGenerateProposalsResponse> {
     return this.dataAssistantService.generateSkillProposals(trajectories);
   }

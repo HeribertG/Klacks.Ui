@@ -45,6 +45,7 @@ import {
   faBellSlash,
   faArrowRight,
   faTriangleExclamation,
+  faHandshake,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -89,6 +90,7 @@ import {
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_SEVERITY } from 'src/app/domain/constants/proactive-severity.constants';
+import { PROACTIVE_MAX_ACTION } from 'src/app/domain/constants/proactive-max-action.constants';
 import {
   MUTE_SUGGESTION_KIND_PARAM,
   PROACTIVE_TRIGGER_KIND,
@@ -121,6 +123,8 @@ const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-pr
 const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
 const PROACTIVE_REACTION_ERROR_KEY = 'assistant-chat.error.generic';
 const PROACTIVE_MUTE_CONFIRMED_KEY = 'assistant-chat.proactive.mute-confirmed';
+const PROACTIVE_DELEGATE_CONFIRMED_KEY = 'assistant-chat.proactive.delegate-confirmed';
+const PROACTIVE_DELEGATE_FORBIDDEN_KEY = 'assistant-chat.proactive.delegate-forbidden';
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
@@ -210,6 +214,7 @@ export class AssistantChatComponent {
   faEyeSlash = faEyeSlash;
   faArrowRight = faArrowRight;
   faTriangleExclamation = faTriangleExclamation;
+  faHandshake = faHandshake;
 
   readonly proactiveReactions = PROACTIVE_REACTION;
   readonly proactiveRejectReasons = PROACTIVE_REJECT_REASON;
@@ -219,6 +224,7 @@ export class AssistantChatComponent {
   readonly dismissMenuMessageId = signal<string | null>(null);
   readonly pendingReactionMessageId = signal<string | null>(null);
   readonly pendingMuteMessageId = signal<string | null>(null);
+  readonly pendingDelegateMessageId = signal<string | null>(null);
   readonly inboxBlockId = 'assistant-chat-inbox-block';
   readonly inboxMessages = computed(() => {
     const ids = this.proactiveInboxService.inboxMessageIds();
@@ -514,6 +520,7 @@ export class AssistantChatComponent {
       messageKind: 'proactive',
       proactiveReaction: this.toProactiveReaction(item.reaction),
       proactiveSeverity: item.severity ?? undefined,
+      proactiveCanDelegate: item.canDelegate ?? false,
       ...this.toProactiveActionFields(item.kind, item.actionRoute, item.actionParams, item.contentParams),
     };
   }
@@ -708,6 +715,38 @@ export class AssistantChatComponent {
       );
     } finally {
       this.pendingMuteMessageId.set(null);
+      this.cdr.detectChanges();
+    }
+  }
+
+  /**
+   * "Mach du": grants Klacksy a one-off Prepare-level permission for this one finding, ahead of
+   * whatever the trigger kind's own governance currently allows (Etappe 4e). Only ever advances
+   * Prepare in this stage - Execute has no effect before Etappe 5's autonomy gate exists, so the
+   * button does not offer it.
+   * @param message - The proactive message reporting the finding to delegate
+   */
+  async submitDelegate(message: ChatMessage): Promise<void> {
+    if (message.messageKind !== 'proactive' || message.proactiveDelegated) return;
+    if (!message.proactiveCanDelegate) return;
+    if (this.pendingDelegateMessageId() !== null) return;
+
+    this.pendingDelegateMessageId.set(message.id);
+    this.cdr.detectChanges();
+    try {
+      await firstValueFrom(this.assistantService.delegateCondition(message.id, PROACTIVE_MAX_ACTION.Prepare));
+      this.orchestrator.updateMessage(message.id, { proactiveDelegated: true });
+      this.toastShowService.showInfo(
+        this.translateService.instant(PROACTIVE_DELEGATE_CONFIRMED_KEY),
+      );
+    } catch (error) {
+      const key =
+        error instanceof HttpErrorResponse && error.status === HttpStatusCode.Forbidden
+          ? PROACTIVE_DELEGATE_FORBIDDEN_KEY
+          : PROACTIVE_REACTION_ERROR_KEY;
+      this.toastShowService.showError(this.translateService.instant(key));
+    } finally {
+      this.pendingDelegateMessageId.set(null);
       this.cdr.detectChanges();
     }
   }

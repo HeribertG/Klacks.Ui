@@ -280,6 +280,19 @@
               {{ "assistant-chat.proactive.reaction-helpful" | translate }}
             </button>
             }
+            @if (message.proactiveCanDelegate) {
+            <button
+              type="button"
+              class="proactive-reaction-btn proactive-delegate-btn"
+              [class.selected]="message.proactiveDelegated"
+              [disabled]="!!message.proactiveDelegated || pendingDelegateMessageId() !== null"
+              (click)="submitDelegate(message)"
+              [attr.aria-label]="'assistant-chat.proactive.delegate' | translate"
+            >
+              <fa-icon [icon]="faHandshake"></fa-icon>
+              {{ "assistant-chat.proactive.delegate" | translate }}
+            </button>
+            }
             <div class="proactive-dismiss-controls">
               <button
                 type="button"

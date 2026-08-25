@@ -104,4 +104,14 @@ export class DataProactiveMessageService {
       )
       .pipe(retry(3));
   }
+
+  delegateCondition(messageId: string, maxAction: number): Observable<void> {
+    return this.httpClient
+      .put<void>(
+        `${this.baseUrl}proactive-messages/${messageId}/delegate`,
+        { maxAction },
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
+  }
 }
