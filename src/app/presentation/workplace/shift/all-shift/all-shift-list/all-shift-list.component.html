@@ -14,7 +14,12 @@
     @if (authorizationService.isAdmin &&
     dataManagementShiftService.currentFilter.filterType === 1){
     <div class="actions">
-      <button id="shift-create-plannable-btn" class="btn new-btn" (click)="onAddPlannableShift()">
+      <button
+        id="shift-create-plannable-btn"
+        class="btn new-btn"
+        (click)="onAddPlannableShift()"
+        [ngbTooltip]="'new-plannable-work-tooltip' | translate"
+      >
         {{ "new-plannable-work" | translate }}
       </button>
     </div>
