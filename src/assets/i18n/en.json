@@ -502,6 +502,7 @@
   "new-address": "+ Add Address",
   "new-group": "+ Create Group",
   "new-work": "+ New Order",
+  "new-work-tooltip": "This shift is linked to a client and an order.",
   "new-plannable-work": "+ New Service",
   "new-plannable-work-tooltip": "This shift has no client ordering or paying for it. It is for general work that is not tied to a specific client.",
   "none": "<None>",

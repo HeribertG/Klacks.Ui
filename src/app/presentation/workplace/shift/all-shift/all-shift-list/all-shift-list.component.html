@@ -6,7 +6,12 @@
     @if (authorizationService.isAdmin &&
     dataManagementShiftService.currentFilter.filterType === 0){
     <div class="actions">
-      <button id="shift-create-btn" class="btn new-btn" (click)="onAddShift()">
+      <button
+        id="shift-create-btn"
+        class="btn new-btn"
+        (click)="onAddShift()"
+        [ngbTooltip]="'new-work-tooltip' | translate"
+      >
         {{ "new-work" | translate }}
       </button>
     </div>

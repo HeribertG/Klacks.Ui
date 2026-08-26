@@ -502,6 +502,7 @@
   "new-address": "+ Adresse erfassen",
   "new-group": "+ Gruppe erfassen",
   "new-work": "+ neue Bestellung",
+  "new-work-tooltip": "Dieser Dienst wird einem Client und einer Bestellung zugeordnet.",
   "new-plannable-work": "+ neuer Dienst",
   "new-plannable-work-tooltip": "Dieser Dienst hat keinen Client, der ihn beauftragt oder bezahlt. Er ist für allgemeine, nicht client-spezifische Arbeit gedacht.",
   "none": "<Kein>",

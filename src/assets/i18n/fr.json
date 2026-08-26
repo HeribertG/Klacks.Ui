@@ -501,6 +501,7 @@
   "new-address": "Ajouter une adresse",
   "new-group": "+ Créer un groupe",
   "new-work": "+ Nouvelle commande",
+  "new-work-tooltip": "Ce service est lié à un client et à une commande.",
   "new-plannable-work": "+ Nouveau service",
   "new-plannable-work-tooltip": "Ce service n'a pas de client qui le commande ou le paie. Il est destiné à un travail général, non spécifique à un client.",
   "none": "<Aucune>",
