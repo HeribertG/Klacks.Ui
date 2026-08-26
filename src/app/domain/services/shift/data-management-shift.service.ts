@@ -73,6 +73,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public makeValidation = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
+  public pendingClientlessCreation = signal(false);
 
   public listWrapper: ITruncatedShift | undefined;
   public currentFilter: ShiftFilter = new ShiftFilter();
@@ -242,6 +243,8 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     value.quantity = 1;
     value.sumEmployees = 1;
     value.status = 0;
+    value.isClientless = this.pendingClientlessCreation();
+    this.pendingClientlessCreation.set(false);
 
     return value;
   }
