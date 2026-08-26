@@ -14,6 +14,9 @@ import { DonationQrService } from 'src/app/application/services/donation-qr.serv
 import { DonationCheckoutService } from 'src/app/application/services/donation-checkout.service';
 import { DonationConfigService, DonationCurrency } from 'src/app/application/services/donation-config.service';
 
+const MAX_DONATION_AMOUNT = 999999999.99;
+const COPY_FEEDBACK_DURATION_MS = 2000;
+
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
@@ -101,7 +104,7 @@ export class FooterComponent {
 
   effectiveAmount(): number {
     const parsed = Number(this.customAmount().replace(',', '.'));
-    if (Number.isFinite(parsed) && parsed > 0 && parsed <= 999999999.99) {
+    if (Number.isFinite(parsed) && parsed > 0 && parsed <= MAX_DONATION_AMOUNT) {
       return parsed;
     }
     return this.selectedAmount();
@@ -145,7 +148,7 @@ export class FooterComponent {
         this.copyTextFallback(text);
       }
       this.copiedKey.set(key);
-      setTimeout(() => this.copiedKey.set(''), 2000);
+      setTimeout(() => this.copiedKey.set(''), COPY_FEEDBACK_DURATION_MS);
     } catch {
       /* clipboard unavailable - ignore */
     }
