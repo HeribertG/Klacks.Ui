@@ -2599,6 +2599,8 @@
   "assistant-chat.plan-execution.approve-error": "L'approbation a échoué. Veuillez réessayer.",
   "assistant-chat.plan-execution.abort-error": "L'annulation a échoué. Veuillez réessayer.",
   "assistant-chat.plan-execution.abort-conflict": "Le statut du plan a changé entre-temps. État rechargé.",
+  "assistant-chat.autonomy-status.on": "Klacksy agit de façon autonome : ACTIVÉ",
+  "assistant-chat.autonomy-status.off": "Klacksy agit de façon autonome : DÉSACTIVÉ",
   "assistant-chat.goal-candidates.heading": "Suggestions d'objectifs de Klacksy",
   "assistant-chat.goal-candidates.hint": "En acceptant, Klacksy rédige un projet de plan. Si Klacksy considère l'objectif comme clairement étayé et qu'il est autorisé à agir seul, il exécute ensuite le plan sans nouvelle demande.",
   "assistant-chat.goal-candidates.approve-button": "Accepter",

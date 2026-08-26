@@ -2599,6 +2599,8 @@
   "assistant-chat.plan-execution.approve-error": "Approvazione non riuscita. Riprova.",
   "assistant-chat.plan-execution.abort-error": "Interruzione non riuscita. Riprova.",
   "assistant-chat.plan-execution.abort-conflict": "Lo stato del piano è cambiato nel frattempo. Stato ricaricato.",
+  "assistant-chat.autonomy-status.on": "Klacksy agisce in autonomia: ON",
+  "assistant-chat.autonomy-status.off": "Klacksy agisce in autonomia: OFF",
   "assistant-chat.goal-candidates.heading": "Suggerimenti di obiettivi di Klacksy",
   "assistant-chat.goal-candidates.hint": "Accettando, Klacksy redige una bozza di piano. Se Klacksy ritiene l'obiettivo chiaramente fondato ed è autorizzato ad agire autonomamente, esegue poi il piano senza ulteriori richieste.",
   "assistant-chat.goal-candidates.approve-button": "Accetta",

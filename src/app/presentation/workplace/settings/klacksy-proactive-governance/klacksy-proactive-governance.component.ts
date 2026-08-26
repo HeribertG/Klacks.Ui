@@ -6,7 +6,7 @@
  * way the other assistant cards do, and reloads the whole picture from the answer so the effective
  * ceiling stays truthful when the master off switch is on. Loads the account list itself, because the
  * Klacksy settings section has no neighbour that would do it.
- * @param governance - Signal holding the current rules and master off switch state
+ * @param governance - Shared service signal holding the current rules and master off switch state
  * @param isLoading - Signal set while the initial GET is running
  * @param savingKind - Finding type whose row is currently being saved, or null
  */
@@ -18,7 +18,6 @@ import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/pr
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { IProactiveGovernanceRule } from 'src/app/domain/models/assistant/proactive-governance-rule.interface';
 import { IProactiveGovernanceUpdate } from 'src/app/domain/models/assistant/proactive-governance-update.interface';
-import { IProactiveGovernance } from 'src/app/domain/models/assistant/proactive-governance.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PROACTIVE_MAX_ACTIONS } from './proactive-max-action.constants';
 
@@ -38,7 +37,7 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
 
-  readonly governance = signal<IProactiveGovernance | null>(null);
+  readonly governance = this.proactiveGovernanceService.governance;
   readonly isLoading = signal(true);
   readonly savingKind = signal<string | null>(null);
 
@@ -51,7 +50,7 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.userAdministrationManagementService.loadAccounts();
     try {
-      this.governance.set(await firstValueFrom(this.proactiveGovernanceService.get()));
+      await firstValueFrom(this.proactiveGovernanceService.get());
     } catch {
       this.showError('setting.proactiveGovernance.load-failed');
     } finally {
@@ -143,11 +142,11 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
 
     this.savingKind.set(rowKey);
     try {
-      this.governance.set(await firstValueFrom(this.proactiveGovernanceService.update(update)));
+      await firstValueFrom(this.proactiveGovernanceService.update(update));
     } catch {
       this.showError('setting.proactiveGovernance.save-failed');
       try {
-        this.governance.set(await firstValueFrom(this.proactiveGovernanceService.get()));
+        await firstValueFrom(this.proactiveGovernanceService.get());
       } catch {
         this.showError('setting.proactiveGovernance.load-failed');
       }

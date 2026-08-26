@@ -2600,6 +2600,8 @@
   "assistant-chat.plan-execution.approve-error": "Freigabe fehlgeschlagen. Bitte erneut versuchen.",
   "assistant-chat.plan-execution.abort-error": "Abbrechen fehlgeschlagen. Bitte erneut versuchen.",
   "assistant-chat.plan-execution.abort-conflict": "Der Plan hat zwischenzeitlich den Status geändert. Zustand neu geladen.",
+  "assistant-chat.autonomy-status.on": "Klacksy handelt autonom: AN",
+  "assistant-chat.autonomy-status.off": "Klacksy handelt autonom: AUS",
   "assistant-chat.goal-candidates.heading": "Zielvorschläge von Klacksy",
   "assistant-chat.goal-candidates.hint": "Beim Annehmen erstellt Klacksy einen Plan-Entwurf. Wenn Klacksy das Ziel für klar belegt hält und selbstständiges Arbeiten erlaubt ist, führt Klacksy den Plan anschließend ohne weitere Rückfrage aus.",
   "assistant-chat.goal-candidates.approve-button": "Annehmen",

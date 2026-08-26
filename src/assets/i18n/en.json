@@ -2600,6 +2600,8 @@
   "assistant-chat.plan-execution.approve-error": "Approving the plan failed. Please try again.",
   "assistant-chat.plan-execution.abort-error": "Aborting the plan failed. Please try again.",
   "assistant-chat.plan-execution.abort-conflict": "The plan already changed status in the meantime. State reloaded.",
+  "assistant-chat.autonomy-status.on": "Klacksy acts autonomously: ON",
+  "assistant-chat.autonomy-status.off": "Klacksy acts autonomously: OFF",
   "assistant-chat.goal-candidates.heading": "Klacksy's goal suggestions",
   "assistant-chat.goal-candidates.hint": "Approving lets Klacksy draft a plan. If Klacksy considers the goal clearly supported and is allowed to work on its own, it then runs the plan without asking again.",
   "assistant-chat.goal-candidates.approve-button": "Approve",

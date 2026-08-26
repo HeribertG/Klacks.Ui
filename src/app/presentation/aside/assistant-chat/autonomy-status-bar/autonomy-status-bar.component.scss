@@ -1,0 +1,41 @@
+@use "../../../../../assets/standard-styles/colors" as colors;
+
+.autonomy-status {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--cardBorderColor);
+  background: var(--backgroundColorHeaderNav);
+  color: var(--standartTextColor);
+  font-size: 12px;
+}
+
+.autonomy-status.autonomy-stopped {
+  border-inline-start: 4px solid var(--standartRedColor);
+  background: rgba(colors.$standartRedColor, 0.12);
+}
+
+.autonomy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.autonomy-label {
+  font-weight: 600;
+}
+
+.autonomy-status.autonomy-stopped .autonomy-label {
+  color: var(--standartRedColor);
+}
+
+.autonomy-saving {
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+.autonomy-hint {
+  margin: 4px 0 0;
+  color: var(--standartRedColor);
+}
