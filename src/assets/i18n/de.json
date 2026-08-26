@@ -2458,6 +2458,8 @@
   "assistant-chat.proactive.mute-kind": "Diese Hinweise stummschalten",
   "assistant-chat.proactive.reaction-dismissed": "Ausblenden",
   "assistant-chat.proactive.reaction-helpful": "Hilfreich",
+  "assistant-chat.proactive.reaction-helpful-confirmed": "Als hilfreich vermerkt",
+  "assistant-chat.proactive.reaction-helpful-tooltip": "Gibt Klacksy Rückmeldung, dass dieser Hinweis nützlich war – das beeinflusst, wie oft Klacksy diese Art Hinweis künftig zeigt",
   "assistant-chat.error.generic": "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
   "assistant-chat.error.microphone-permission": "Mikrofon-Berechtigung erforderlich! Bitte erlauben Sie den Zugriff auf das Mikrofon in den Browser-Einstellungen.",
   "assistant-chat.error.microphone-access": "Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.",

@@ -2458,6 +2458,8 @@
   "assistant-chat.proactive.mute-kind": "Mute these hints",
   "assistant-chat.proactive.reaction-dismissed": "Dismiss",
   "assistant-chat.proactive.reaction-helpful": "Helpful",
+  "assistant-chat.proactive.reaction-helpful-confirmed": "Marked as helpful",
+  "assistant-chat.proactive.reaction-helpful-tooltip": "Lets Klacksy know this hint was useful – this affects how often it shows this kind of hint in the future",
   "assistant-chat.error.generic": "Sorry, an error occurred. Please try again.",
   "assistant-chat.error.microphone-permission": "Microphone permission required! Please allow microphone access in your browser settings.",
   "assistant-chat.error.microphone-access": "Error accessing microphone. Check your browser settings.",
