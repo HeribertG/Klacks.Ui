@@ -501,6 +501,7 @@
   "new-address": "Ajouter une adresse",
   "new-group": "+ Créer un groupe",
   "new-work": "+ Nouvelle commande",
+  "new-plannable-work": "+ Nouveau service sans commande",
   "none": "<Aucune>",
   "pagination.auto": "Auto",
   "pagination.line": "Nombre de lignes : ",

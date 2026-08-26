@@ -502,6 +502,7 @@
   "new-address": "+ Add Address",
   "new-group": "+ Create Group",
   "new-work": "+ New Order",
+  "new-plannable-work": "+ New Service without Order",
   "none": "<None>",
   "pagination.auto": "Auto",
   "pagination.line": "Number of Lines: ",

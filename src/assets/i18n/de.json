@@ -502,6 +502,7 @@
   "new-address": "+ Adresse erfassen",
   "new-group": "+ Gruppe erfassen",
   "new-work": "+ neue Bestellung",
+  "new-plannable-work": "+ neuer Dienst ohne Bestellung",
   "none": "<Kein>",
   "pagination.auto": "Auto",
   "pagination.line": "Anzahl Zeilen: ",
