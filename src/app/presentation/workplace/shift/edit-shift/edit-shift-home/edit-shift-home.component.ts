@@ -86,7 +86,8 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   get isNavVisible(): boolean {
     return (
       this.dataManagementShiftService.editShift?.status !== ShiftStatus.SplitShift &&
-      !this.isContainer
+      !this.isContainer &&
+      !this.isClientless
     );
   }
 
@@ -94,6 +95,10 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
     return (
       this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
     );
+  }
+
+  get isClientless(): boolean {
+    return !!this.dataManagementShiftService.editShift?.isClientless;
   }
 
   ngOnInit(): void {

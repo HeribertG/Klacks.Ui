@@ -51,7 +51,7 @@
     }
   </div>
 
-  @if (!isContainer) {
+  @if (!isContainer && !isClientless) {
     <div class="container-profilline" data-klacksy-target="shift-address">
       <app-edit-shift-address
         (isChangingEvent)="onIsChanging($event)"

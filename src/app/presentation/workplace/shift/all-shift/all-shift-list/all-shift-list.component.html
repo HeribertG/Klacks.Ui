@@ -11,6 +11,14 @@
       </button>
     </div>
     }
+    @if (authorizationService.isAdmin &&
+    dataManagementShiftService.currentFilter.filterType === 1){
+    <div class="actions">
+      <button id="shift-create-plannable-btn" class="btn new-btn" (click)="onAddPlannableShift()">
+        {{ "new-work" | translate }}
+      </button>
+    </div>
+    }
     @if (currentPrintSourceId(); as printSourceId) {
     @if (quickPrintAction.hasDefault(printSourceId)) {
     <div class="actions">

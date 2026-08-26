@@ -160,6 +160,11 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navigationService.navigateToNewShift();
   }
 
+  onAddPlannableShift(): void {
+    this.dataManagementShiftService.pendingClientlessCreation.set(true);
+    this.navigationService.navigateToNewShift();
+  }
+
   currentPrintSourceId(): string | undefined {
     return SHIFT_FILTER_TYPE_TO_REPORT_SOURCE[
       this.dataManagementShiftService.currentFilter.filterType

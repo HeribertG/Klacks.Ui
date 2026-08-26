@@ -70,6 +70,7 @@ export interface IShift {
   client?: IClient | undefined;
   addressName: string | undefined;
   isNew?: boolean;
+  isClientless?: boolean;
   defaultExpenses: IShiftExpense[];
   requiredQualifications: IShiftRequiredQualification[];
 }
@@ -115,6 +116,7 @@ export class Shift implements IShift {
   shiftType: ShiftType = ShiftType.IsTask;
   groups: Group[] = [];
   clientId: string | undefined = undefined;
+  isClientless?: boolean = false;
   client?: IClient | undefined = undefined;
   addressName: string | undefined = undefined;
   isNew?: boolean = false;
