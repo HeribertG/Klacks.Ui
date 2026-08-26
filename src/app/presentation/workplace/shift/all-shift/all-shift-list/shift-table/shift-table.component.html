@@ -89,6 +89,16 @@
       </td>
       <td colspan="2" class="table-cell-small-border">
         <p>{{ data.name }}</p>
+        @if (attributionFor(data); as attribution) { @if (attribution.handledAtUtc) {
+        <span class="klacksy-resolved-badge">{{
+          'assistant.proactive.containerAutoResolved'
+            | translate: { date: attribution.handledAtUtc | date: 'dd.MM.yyyy' }
+        }}</span>
+        } @else {
+        <span class="klacksy-resolved-badge">{{
+          'assistant.proactive.containerAutoResolvedUndated' | translate
+        }}</span>
+        } }
       </td>
 
       <td colspan="5" class="table-cell-small-border">

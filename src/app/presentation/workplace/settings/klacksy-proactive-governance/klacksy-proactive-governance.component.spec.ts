@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { KlacksyProactiveGovernanceComponent } from './klacksy-proactive-governance.component';
-import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
+import { DataProactiveGovernanceService } from 'src/app/infrastructure/api/assistant/data-proactive-governance.service';
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IProactiveGovernance } from 'src/app/domain/models/assistant/proactive-governance.interface';
@@ -15,7 +15,7 @@ import { IProactiveGovernanceRule } from 'src/app/domain/models/assistant/proact
 describe('KlacksyProactiveGovernanceComponent', () => {
   let component: KlacksyProactiveGovernanceComponent;
   let fixture: ComponentFixture<KlacksyProactiveGovernanceComponent>;
-  let mockGovernanceService: {
+  let mockDataGovernanceService: {
     get: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
   };
@@ -44,7 +44,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
   });
 
   beforeEach(async () => {
-    mockGovernanceService = {
+    mockDataGovernanceService = {
       get: vi.fn().mockReturnValue(of(governance())),
       update: vi.fn().mockReturnValue(of(governance({ killSwitchActive: true }))),
     };
@@ -54,7 +54,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
     await TestBed.configureTestingModule({
       imports: [KlacksyProactiveGovernanceComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: ProactiveGovernanceService, useValue: mockGovernanceService },
+        { provide: DataProactiveGovernanceService, useValue: mockDataGovernanceService },
         { provide: UserAdministrationManagementService, useValue: mockUserAdmin },
         { provide: ToastShowService, useValue: mockToast },
       ],
@@ -72,7 +72,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(mockGovernanceService.get).toHaveBeenCalled();
+    expect(mockDataGovernanceService.get).toHaveBeenCalled();
     expect(mockUserAdmin.loadAccounts).toHaveBeenCalled();
     expect(component.rules().length).toBe(1);
     expect(component.isLoading()).toBe(false);
@@ -88,7 +88,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onToggleKillSwitch(true);
 
-    expect(mockGovernanceService.update).toHaveBeenCalledWith({ killSwitch: true });
+    expect(mockDataGovernanceService.update).toHaveBeenCalledWith({ killSwitch: true });
     expect(component.killSwitchActive()).toBe(true);
   });
 
@@ -98,7 +98,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onChangeMaxAction(rule(), '1');
 
-    expect(mockGovernanceService.update).toHaveBeenCalledWith({
+    expect(mockDataGovernanceService.update).toHaveBeenCalledWith({
       triggerKind: 'unstaffed_shift',
       maxAction: 1,
     });
@@ -110,7 +110,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onChangeMaxAction(rule({ maxAction: 1 }), '1');
 
-    expect(mockGovernanceService.update).not.toHaveBeenCalled();
+    expect(mockDataGovernanceService.update).not.toHaveBeenCalled();
   });
 
   it('sends an explicit clear flag when the accountable person is removed', async () => {
@@ -119,7 +119,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onChangeResponsibleOwner(rule({ responsibleOwnerUserId: 'someone' }), '');
 
-    expect(mockGovernanceService.update).toHaveBeenCalledWith({
+    expect(mockDataGovernanceService.update).toHaveBeenCalledWith({
       triggerKind: 'unstaffed_shift',
       clearResponsibleOwner: true,
     });
@@ -131,7 +131,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onChangeResponsibleOwner(rule(), 'user-1');
 
-    expect(mockGovernanceService.update).toHaveBeenCalledWith({
+    expect(mockDataGovernanceService.update).toHaveBeenCalledWith({
       triggerKind: 'unstaffed_shift',
       responsibleOwnerUserId: 'user-1',
     });
@@ -140,17 +140,17 @@ describe('KlacksyProactiveGovernanceComponent', () => {
   it('reloads the stored truth when a rejected change comes back', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
-    mockGovernanceService.update.mockReturnValue(throwError(() => new Error('rejected')));
+    mockDataGovernanceService.update.mockReturnValue(throwError(() => new Error('rejected')));
 
     await component.onChangeMaxAction(rule(), '1');
 
     expect(mockToast.showError).toHaveBeenCalled();
-    expect(mockGovernanceService.get).toHaveBeenCalledTimes(2);
+    expect(mockDataGovernanceService.get).toHaveBeenCalledTimes(2);
     expect(component.rules()[0].maxAction).toBe(0);
   });
 
   it('preselects the stored ladder step in the dropdown', async () => {
-    mockGovernanceService.get.mockReturnValue(
+    mockDataGovernanceService.get.mockReturnValue(
       of(governance({ rules: [rule({ maxAction: 1, maxActionName: 'Prepare', effectiveMaxAction: 1 })] }))
     );
 
@@ -166,7 +166,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
   it('preselects the stored accountable person in the dropdown', async () => {
     mockUserAdmin.accountsList.set([{ id: 'user-1', firstName: 'Ada', lastName: 'Lovelace' }]);
-    mockGovernanceService.get.mockReturnValue(
+    mockDataGovernanceService.get.mockReturnValue(
       of(governance({ rules: [rule({ responsibleOwnerUserId: 'user-1' })] }))
     );
 
@@ -186,7 +186,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onChangeDailyActionBudget(rule(), '5');
 
-    expect(mockGovernanceService.update).not.toHaveBeenCalled();
+    expect(mockDataGovernanceService.update).not.toHaveBeenCalled();
   });
 
   it('persists a changed daily budget', async () => {
@@ -195,7 +195,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     await component.onChangeDailyActionBudget(rule(), '9');
 
-    expect(mockGovernanceService.update).toHaveBeenCalledWith({
+    expect(mockDataGovernanceService.update).toHaveBeenCalledWith({
       triggerKind: 'unstaffed_shift',
       dailyActionBudget: 9,
     });

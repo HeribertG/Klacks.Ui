@@ -1,0 +1,35 @@
+@if (canRender()) {
+  <div
+    class="autonomy-status"
+    [class.autonomy-stopped]="!autonomyEnabled()"
+    role="status"
+    aria-live="polite"
+  >
+    <label class="autonomy-toggle">
+      <input
+        id="klacksy-autonomy-switch"
+        type="checkbox"
+        [checked]="autonomyEnabled()"
+        [disabled]="isSaving()"
+        (change)="onToggleAutonomy($any($event.target).checked)"
+      />
+      <span class="autonomy-label">{{
+        (autonomyEnabled()
+          ? "assistant-chat.autonomy-status.on"
+          : "assistant-chat.autonomy-status.off"
+        ) | translate
+      }}</span>
+      @if (isSaving()) {
+        <span class="autonomy-saving">{{
+          "setting.proactiveGovernance.saving" | translate
+        }}</span>
+      }
+    </label>
+
+    @if (!autonomyEnabled()) {
+      <p class="autonomy-hint">
+        {{ "setting.proactiveGovernance.kill-switch-active-note" | translate }}
+      </p>
+    }
+  </div>
+}

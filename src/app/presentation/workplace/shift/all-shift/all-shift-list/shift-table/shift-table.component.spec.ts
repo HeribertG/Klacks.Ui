@@ -169,4 +169,92 @@ describe('ShiftTableComponent', () => {
             expect(result).toBe('');
         });
     });
+
+    describe('attributionFor', () => {
+        const handledAtUtc = '2026-08-26T10:00:00Z';
+
+        // The rendered assertions check WHICH key the template picks, not the text it produces:
+        // TranslateModule.forRoot() carries no loader, so ngx-translate echoes the key and drops the
+        // interpolated date. That is the convention every other spec here follows, and the branch choice
+        // is the part this component owns - formatting the date is the date pipe's job, not ours.
+        const attributionOf = (entityId: string, stamped = true) =>
+            new Map([
+                [entityId, { entityId, handledAtUtc: stamped ? handledAtUtc : null, triggerKind: 'empty_container' }]
+            ]);
+
+        const containerWithId = (id: string) => {
+            const shift = new Shift();
+            shift.id = id;
+            return shift;
+        };
+
+        it('should return the attribution of a container in container mode', () => {
+            component.tableMode = 'container';
+            fixture.componentRef.setInput('attributions', attributionOf('container-1'));
+
+            expect(component.attributionFor(containerWithId('container-1'))?.triggerKind).toBe('empty_container');
+        });
+
+        it('should return undefined for a shift that has no attribution', () => {
+            component.tableMode = 'container';
+            fixture.componentRef.setInput('attributions', attributionOf('container-1'));
+
+            expect(component.attributionFor(containerWithId('container-2'))).toBeUndefined();
+        });
+
+        it('should return undefined in cut mode even when an attribution exists', () => {
+            component.tableMode = 'cut';
+            fixture.componentRef.setInput('attributions', attributionOf('container-1'));
+
+            expect(component.attributionFor(containerWithId('container-1'))).toBeUndefined();
+        });
+
+        it('should return undefined when no attributions were loaded', () => {
+            component.tableMode = 'container';
+
+            expect(component.attributionFor(containerWithId('container-1'))).toBeUndefined();
+        });
+
+        it('should return undefined for a shift without an id', () => {
+            component.tableMode = 'container';
+            fixture.componentRef.setInput('attributions', attributionOf('container-1'));
+
+            const shift = new Shift();
+            shift.id = undefined;
+
+            expect(component.attributionFor(shift)).toBeUndefined();
+        });
+
+        it('should render the dated badge for an attributed container row', () => {
+            component.tableMode = 'container';
+            fixture.componentRef.setInput('shifts', [containerWithId('container-1')]);
+            fixture.componentRef.setInput('attributions', attributionOf('container-1'));
+            fixture.detectChanges();
+
+            const badge = fixture.nativeElement.querySelector('.klacksy-resolved-badge');
+
+            expect(badge).not.toBeNull();
+            expect(badge.textContent.trim()).toBe('assistant.proactive.containerAutoResolved');
+        });
+
+        it('should render the undated badge when the attribution carries no timestamp', () => {
+            component.tableMode = 'container';
+            fixture.componentRef.setInput('shifts', [containerWithId('container-1')]);
+            fixture.componentRef.setInput('attributions', attributionOf('container-1', false));
+            fixture.detectChanges();
+
+            const badge = fixture.nativeElement.querySelector('.klacksy-resolved-badge');
+
+            expect(badge).not.toBeNull();
+            expect(badge.textContent.trim()).toBe('assistant.proactive.containerAutoResolvedUndated');
+        });
+
+        it('should render no badge for a container row without an attribution', () => {
+            component.tableMode = 'container';
+            fixture.componentRef.setInput('shifts', [containerWithId('container-1')]);
+            fixture.detectChanges();
+
+            expect(fixture.nativeElement.querySelector('.klacksy-resolved-badge')).toBeNull();
+        });
+    });
 });

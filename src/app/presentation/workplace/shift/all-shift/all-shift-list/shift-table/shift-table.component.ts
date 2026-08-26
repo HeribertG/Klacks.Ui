@@ -15,6 +15,7 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
 
 @Component({
   selector: 'app-shift-table',
@@ -38,6 +39,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 export class ShiftTableComponent {
   private textFormatterService = inject(TextFormatterService);
   readonly shifts = input<IShift[]>();
+  readonly attributions = input<ReadonlyMap<string, IProactiveShiftAttribution> | null>(null);
   @Input() sortingService!: TableSortingService;
   @Input() tableMode: 'cut' | 'container' = 'cut';
   readonly editClicked = output<Shift>();
@@ -50,6 +52,19 @@ export class ShiftTableComponent {
   hoveredRowId?: string;
 
   formatTime = formatTime;
+
+  /**
+   * The "Klacksy's remediation was applied here" marker for one row, or undefined when there is none.
+   * Gated on the container mode because containers are the only shifts this view ever attributes, and a
+   * stale map from a previous container page must not bleed into the cut view.
+   */
+  attributionFor(data: IShift): IProactiveShiftAttribution | undefined {
+    if (this.tableMode !== 'container' || !data.id) {
+      return undefined;
+    }
+
+    return this.attributions()?.get(data.id);
+  }
 
   onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;
