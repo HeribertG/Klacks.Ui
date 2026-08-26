@@ -3652,6 +3652,8 @@
   "assistant.proactive.uncutFulldayShift": "Ein 24-Stunden-Dienst am {{date}} (in {{days}} Tag(en)) ist noch nicht in Tag- und Nachtdienst aufgeteilt.",
   "assistant.proactive.emptyContainer": "Container {{name}} am {{date}} hat noch keine Slot-Vorlage hinterlegt.",
   "assistant.proactive.dailyDigest": "Tages-Digest: {{totalCount}} offene Feststellung(en) - {{highCount}} hoch, {{mediumCount}} mittel, {{lowCount}} niedrig priorisiert ({{newCount}} neu seit gestern).",
+  "assistant.proactive.containerAutoResolved": "Von Klacksy behoben am {{date}}",
+  "assistant.proactive.containerAutoResolvedUndated": "Von Klacksy behoben",
   "escalation.intervention.badge-tooltip": "Laufende Eskalationen",
   "escalation.intervention.title": "Laufende Eskalationen",
   "escalation.intervention.empty": "Aktuell läuft keine Eskalation.",

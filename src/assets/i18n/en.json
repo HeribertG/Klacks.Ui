@@ -3652,6 +3652,8 @@
   "assistant.proactive.uncutFulldayShift": "A 24-hour duty on {{date}} (in {{days}} day(s)) has not been split into day and night shifts yet.",
   "assistant.proactive.emptyContainer": "Container {{name}} on {{date}} has no slot template yet.",
   "assistant.proactive.dailyDigest": "Daily digest: {{totalCount}} open finding(s) - {{highCount}} high, {{mediumCount}} medium, {{lowCount}} low priority ({{newCount}} new since yesterday).",
+  "assistant.proactive.containerAutoResolved": "Resolved by Klacksy on {{date}}",
+  "assistant.proactive.containerAutoResolvedUndated": "Resolved by Klacksy",
   "escalation.intervention.badge-tooltip": "Running escalations",
   "escalation.intervention.title": "Running escalations",
   "escalation.intervention.empty": "No escalation is currently running.",

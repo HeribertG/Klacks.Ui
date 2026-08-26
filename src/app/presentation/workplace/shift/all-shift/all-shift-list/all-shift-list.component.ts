@@ -28,6 +28,9 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { DataProactiveAttributionService } from 'src/app/infrastructure/api/assistant/data-proactive-attribution.service';
+import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
+import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
@@ -79,6 +82,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private toastService = inject(ToastShowService);
   private dataShiftService = inject(DataShiftService);
+  private dataProactiveAttributionService = inject(DataProactiveAttributionService);
   private cdr = inject(ChangeDetectorRef);
 
   selectedRowId?: string;
@@ -95,8 +99,10 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   hoveredRowId?: string;
   isQuickPrinting = signal(false);
+  readonly proactiveAttributions = signal<ReadonlyMap<string, IProactiveShiftAttribution>>(new Map());
   private destroy$ = new Subject<void>();
   private isRecalculating = false;
+  private proactiveAttributionRequest = 0;
 
   async ngOnInit(): Promise<void> {
     this.tableResizeService.setRowHeights(90, 82);
@@ -108,6 +114,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (baseCallback) {
         baseCallback();
       }
+      this.readProactiveAttributions();
       this.cdr.markForCheck();
     };
     this.visibleRow = visibleShiftRow(true);
@@ -333,10 +340,12 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.allShiftStateService.saveCurrentFilter();
-
+    // Own teardown first: saveCurrentFilter reaches into another service, and if it ever throws, the
+    // subscriptions below would never be released. Persisting the filter is the less critical of the two.
     this.destroy$.next();
     this.destroy$.complete();
+
+    this.allShiftStateService.saveCurrentFilter();
   }
 
   private setupTableResize(): void {
@@ -441,6 +450,44 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
       }, 300);
     }
+  }
+
+  /**
+   * Reloads which of the containers now on screen Klacksy's remediation already handled.
+   *
+   * Hangs off onExternalFilterChange rather than off readPage because the view radio in the nav bar
+   * calls the service directly and never goes through this component - hooking readPage would miss
+   * exactly the moment the user switches to the container view. The service fires the callback after
+   * every read, so pagination, search and the resize-driven reads are covered by the same hook.
+   *
+   * Only the container view can show the marker at all: containers appear under no other filter. Every
+   * other view clears the map instead of keeping a stale one from the last container page.
+   */
+  private readProactiveAttributions(): void {
+    const request = ++this.proactiveAttributionRequest;
+
+    if (this.dataManagementShiftService.currentFilter.filterType !== ShiftFilterType.Container) {
+      this.proactiveAttributions.set(new Map());
+      return;
+    }
+
+    const entityIds = this.dataManagementShiftService.shifts
+      .map((shift) => shift.id)
+      .filter((id): id is string => !!id);
+
+    this.dataProactiveAttributionService
+      .getByEntityIds(entityIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((attributions) => {
+        if (request !== this.proactiveAttributionRequest) {
+          return;
+        }
+
+        this.proactiveAttributions.set(
+          new Map(attributions.map((attribution) => [attribution.entityId, attribution]))
+        );
+        this.cdr.markForCheck();
+      });
   }
 
   private recalculateTableHeight(): void {
