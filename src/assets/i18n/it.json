@@ -2501,6 +2501,8 @@
   "assistant-chat.proactive.reject-reason.no-reason": "Nascondi senza motivo",
   "assistant-chat.proactive.reaction-dismissed": "Nascondi",
   "assistant-chat.proactive.reaction-helpful": "Utile",
+  "assistant-chat.proactive.reaction-helpful-confirmed": "Segnalato come utile",
+  "assistant-chat.proactive.reaction-helpful-tooltip": "Segnala a Klacksy che questo suggerimento è stato utile – questo influenza quanto spesso questo tipo di suggerimento verrà mostrato in futuro",
   "assistant-chat.error.generic": "Spiacenti, si è verificato un errore. Riprova.",
   "assistant-chat.error.microphone-permission": "Autorizzazione microfono richiesta! Consenti l'accesso al microfono nelle impostazioni del browser.",
   "assistant-chat.error.microphone-access": "Errore di accesso al microfono. Controlla le impostazioni del browser.",

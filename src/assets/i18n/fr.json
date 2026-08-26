@@ -2501,6 +2501,8 @@
   "assistant-chat.proactive.reject-reason.no-reason": "Masquer sans raison",
   "assistant-chat.proactive.reaction-dismissed": "Masquer",
   "assistant-chat.proactive.reaction-helpful": "Utile",
+  "assistant-chat.proactive.reaction-helpful-confirmed": "Marqué comme utile",
+  "assistant-chat.proactive.reaction-helpful-tooltip": "Indique à Klacksy que cette indication était utile – cela influence la fréquence future de ce type d'indication",
   "assistant-chat.error.generic": "Désolé, une erreur s'est produite. Veuillez réessayer.",
   "assistant-chat.error.microphone-permission": "Autorisation de microphone requise! Veuillez autoriser l'accès au microphone dans les paramètres de votre navigateur.",
   "assistant-chat.error.microphone-access": "Erreur d'accès au microphone. Vérifiez les paramètres de votre navigateur.",

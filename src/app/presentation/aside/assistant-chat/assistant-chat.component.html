@@ -268,6 +268,12 @@
               {{ "assistant-chat.proactive.mute-kind" | translate }}
             </button>
             } @else {
+            @if (message.proactiveReaction === proactiveReactions.Helpful) {
+            <span class="proactive-reaction-thanks" [attr.aria-label]="'assistant-chat.proactive.reaction-helpful-confirmed' | translate">
+              <fa-icon [icon]="faCheck"></fa-icon>
+              {{ "assistant-chat.proactive.reaction-helpful-confirmed" | translate }}
+            </span>
+            } @else {
             <button
               type="button"
               class="proactive-reaction-btn"
@@ -275,6 +281,7 @@
               [disabled]="!!message.proactiveReaction || pendingReactionMessageId() !== null"
               (click)="submitProactiveReaction(message, proactiveReactions.Helpful)"
               [attr.aria-label]="'assistant-chat.proactive.reaction-helpful' | translate"
+              [title]="'assistant-chat.proactive.reaction-helpful-tooltip' | translate"
             >
               <fa-icon [icon]="faThumbsUp"></fa-icon>
               {{ "assistant-chat.proactive.reaction-helpful" | translate }}

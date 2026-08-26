@@ -872,6 +872,15 @@
   }
 }
 
+.proactive-reaction-thanks {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--colorLabel);
+  font-style: italic;
+  font-size: 11px;
+}
+
 .suggestion-btn {
   background: var(--backgroundColorFocus);
   color: var(--standartTextColor);
