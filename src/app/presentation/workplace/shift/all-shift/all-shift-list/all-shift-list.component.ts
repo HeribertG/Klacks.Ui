@@ -103,20 +103,15 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private isRecalculating = false;
   private proactiveAttributionRequest = 0;
+  private baseFilterChangeCallback?: () => void;
+  private filterChangeWrapper?: () => void;
 
   async ngOnInit(): Promise<void> {
     this.tableResizeService.setRowHeights(90, 82);
     void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
     this.dataManagementShiftService.init();
     await this.allShiftStateService.initializeWorkplaceState();
-    const baseCallback = this.dataManagementShiftService.onExternalFilterChange;
-    this.dataManagementShiftService.onExternalFilterChange = () => {
-      if (baseCallback) {
-        baseCallback();
-      }
-      this.readProactiveAttributions();
-      this.cdr.markForCheck();
-    };
+    this.wrapFilterChangeCallback();
     this.visibleRow = visibleShiftRow(true);
 
     this.sortingService.initialize({
@@ -350,7 +345,45 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
 
+    this.unwrapFilterChangeCallback();
     this.allShiftStateService.saveCurrentFilter();
+  }
+
+  /**
+   * Takes over the shared callback slot, keeping the previous occupant so it can be handed back.
+   *
+   * Capture and wrap belong together and therefore live in one method: the slot sits on a root-scoped
+   * singleton, so wrapping without remembering what was there would make the teardown below write
+   * undefined into it and break the callback for every later consumer - worse than not unwrapping at all.
+   */
+  private wrapFilterChangeCallback(): void {
+    this.baseFilterChangeCallback = this.dataManagementShiftService.onExternalFilterChange;
+    this.filterChangeWrapper = () => {
+      this.baseFilterChangeCallback?.();
+      this.readProactiveAttributions();
+      this.cdr.markForCheck();
+    };
+    this.dataManagementShiftService.onExternalFilterChange = this.filterChangeWrapper;
+  }
+
+  /**
+   * Hands the shared slot back, but only while it still holds OUR wrapper.
+   *
+   * Leaving the wrapper behind would let a dead component answer a later reload - the refresh coordinator
+   * keeps this service as the active manager until another workplace list is opened, and takeUntil does
+   * not help, because that subscription is built after destroy$ has already completed.
+   *
+   * The identity check is the other half: we only hand back a slot we still own. Whoever occupies it by
+   * then put it there after us and is presumably using it, so overwriting would repeat the same mistake
+   * in the other direction. (Whether Angular's own lifecycle actually produces that overlap here is not
+   * measured - the check costs one comparison and does not depend on the answer.)
+   */
+  private unwrapFilterChangeCallback(): void {
+    if (this.dataManagementShiftService.onExternalFilterChange !== this.filterChangeWrapper) {
+      return;
+    }
+
+    this.dataManagementShiftService.onExternalFilterChange = this.baseFilterChangeCallback;
   }
 
   private setupTableResize(): void {

@@ -173,6 +173,38 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
     expect(mockAttributionService.getByEntityIds).toHaveBeenCalledTimes(1);
   });
 
+  // The callback slot lives on a root-scoped singleton, so a wrapper left behind outlives the component
+  // and would answer a later reload from a dead instance - a real HTTP lookup nobody is waiting for.
+  // Drives the real wrap rather than planting the private field, so it covers the PAIR: dropping the
+  // capture would leave the slot holding undefined after destroy, which is worse than never unwrapping.
+  it('hands the shared callback slot back on destroy and stops answering it', () => {
+    const baseCallback = vi.fn();
+    mockShiftService.onExternalFilterChange = baseCallback;
+
+    (component as any).wrapFilterChangeCallback();
+    expect(mockShiftService.onExternalFilterChange).not.toBe(baseCallback);
+
+    component.ngOnDestroy();
+    mockShiftService.onExternalFilterChange();
+
+    expect(mockShiftService.onExternalFilterChange).toBe(baseCallback);
+    expect(mockAttributionService.getByEntityIds).not.toHaveBeenCalled();
+  });
+
+  // Angular may build the next instance before destroying this one; restoring blindly would then tear
+  // out a wrapper that is already in use.
+  it('leaves the shared callback slot alone when a newer instance already took it over', () => {
+    const baseCallback = vi.fn();
+    const newerWrapper = vi.fn();
+    mockShiftService.onExternalFilterChange = baseCallback;
+    (component as any).wrapFilterChangeCallback();
+    mockShiftService.onExternalFilterChange = newerWrapper;
+
+    component.ngOnDestroy();
+
+    expect(mockShiftService.onExternalFilterChange).toBe(newerWrapper);
+  });
+
   // The race the request counter exists for: paging fast enough that an earlier page's answer lands
   // after a later one. Without the guard the stale answer wins simply by arriving last.
   it('ignores an earlier response that arrives after a later one', () => {
