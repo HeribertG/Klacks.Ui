@@ -2360,7 +2360,7 @@
   "shift.edit-shift.main.from": "Date de début",
   "shift.edit-shift.main.header": "Général",
   "shift.edit-shift.main.is-container": "Est un conteneur",
-  "shift.edit-shift.main.lock-tooltip": "Après verrouillage, la commande est immutable et prête pour la planification.",
+  "shift.edit-shift.main.lock-tooltip": "Après verrouillage, la commande est immuable et prête pour la planification.",
   "shift.edit-shift.main.name": "Nom",
   "shift.edit-shift.main.until": "Date de fin",
   "shift.edit-shift.special-feature.briefing": "Briefing",
