@@ -1,0 +1,36 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="learned-capabilities-row-container-{{ data().id }}" class="first custom-control-inline learned-capabilities-row">
+  <span
+    id="learned-capabilities-row-name-{{ data().id }}"
+    class="learned-capabilities-cell learned-capabilities-cell-name"
+    [title]="data().name"
+    (click)="onClickEdit()"
+    >{{ data().name }}
+    @if (data().needsFirstUse) {
+      <span class="needs-first-use-badge">{{ 'setting.klacksyLearning.capabilities.needsFirstUse' | translate }}</span>
+    }</span
+  >
+  <span
+    id="learned-capabilities-row-goal-{{ data().id }}"
+    class="learned-capabilities-cell learned-capabilities-cell-goal"
+    [title]="data().goal"
+    (click)="onClickEdit()"
+    >{{ data().goal }}</span
+  >
+  <span
+    id="learned-capabilities-row-steps-{{ data().id }}"
+    class="learned-capabilities-cell learned-capabilities-cell-steps"
+    [title]="stepsText()"
+    (click)="onClickEdit()"
+    >{{ stepsText() }}</span
+  >
+  <span
+    id="learned-capabilities-row-quote-{{ data().id }}"
+    class="learned-capabilities-cell learned-capabilities-cell-quote"
+    (click)="onClickEdit()"
+    >{{ quoteText() }}</span
+  >
+
+  <span id="learned-capabilities-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+</div>

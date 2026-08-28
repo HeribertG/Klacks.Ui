@@ -1,0 +1,57 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+.learned-phrases-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.learned-phrases-cell {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.learned-phrases-cell-phrase {
+  width: 280px;
+  color: var(--standartTextColor);
+}
+
+.learned-phrases-cell-skill {
+  width: 180px;
+}
+
+.learned-phrases-cell-language {
+  width: 90px;
+}
+
+.learned-phrases-cell-source {
+  width: 120px;
+}
+
+.learned-phrases-cell-quote {
+  width: 80px;
+}
+
+.learned-phrases-cell-uses {
+  width: 100px;
+}
+
+.approve-slot {
+  display: inline-block;
+  width: 24px;
+  margin-inline-start: 20px;
+  text-align: center;
+}
+
+.approve-button {
+  color: var(--standartGreenColor);
+  cursor: pointer;
+  font-size: 14px;
+}

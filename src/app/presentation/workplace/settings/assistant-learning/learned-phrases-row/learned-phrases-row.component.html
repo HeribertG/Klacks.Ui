@@ -1,0 +1,56 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="learned-phrases-row-container-{{ data().id }}" class="first custom-control-inline learned-phrases-row">
+  <span
+    id="learned-phrases-row-phrase-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-phrase"
+    [title]="data().phrase"
+    (click)="onClickEdit()"
+    >{{ data().phrase }}</span
+  >
+  <span
+    id="learned-phrases-row-skill-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-skill"
+    [title]="data().skillName"
+    (click)="onClickEdit()"
+    >{{ data().skillName }}</span
+  >
+  <span
+    id="learned-phrases-row-language-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-language"
+    (click)="onClickEdit()"
+    >{{ data().language }}</span
+  >
+  <span
+    id="learned-phrases-row-source-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-source"
+    (click)="onClickEdit()"
+    >{{ sourceLabelKey() | translate }}</span
+  >
+  <span
+    id="learned-phrases-row-quote-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-quote"
+    (click)="onClickEdit()"
+    >{{ quoteText() }}</span
+  >
+  <span
+    id="learned-phrases-row-uses-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-uses"
+    (click)="onClickEdit()"
+    >{{ usesText() }}</span
+  >
+
+  <span class="approve-slot">
+    @if (isDescription()) {
+      <span
+        id="learned-phrases-row-approve-{{ data().id }}"
+        class="approve-button"
+        type="button"
+        [title]="'setting.klacksyLearning.phrases.approve' | translate"
+        (click)="onClickApprove()"
+      ><i class="fas fa-check"></i></span>
+    }
+  </span>
+
+  <span id="learned-phrases-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+</div>

@@ -1,0 +1,44 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+.learned-capabilities-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.learned-capabilities-cell {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.learned-capabilities-cell-name {
+  width: 200px;
+  color: var(--standartTextColor);
+}
+
+.learned-capabilities-cell-goal {
+  width: 260px;
+}
+
+.learned-capabilities-cell-steps {
+  width: 300px;
+}
+
+.learned-capabilities-cell-quote {
+  width: 80px;
+}
+
+.needs-first-use-badge {
+  margin-inline-start: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--colorLabel);
+}

@@ -1,0 +1,36 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-inline-start: 30px;
+  padding-inline-end: -30px;
+}
+
+label {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.learned-phrases-header-phrase {
+  width: 280px;
+}
+
+.learned-phrases-header-skill {
+  width: 180px;
+}
+
+.learned-phrases-header-language {
+  width: 90px;
+}
+
+.learned-phrases-header-source {
+  width: 120px;
+}
+
+.learned-phrases-header-quote {
+  width: 80px;
+}
+
+.learned-phrases-header-uses {
+  width: 100px;
+}

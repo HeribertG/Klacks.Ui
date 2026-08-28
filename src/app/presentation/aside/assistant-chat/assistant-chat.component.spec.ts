@@ -34,7 +34,6 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { IOnboardingState, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import {
@@ -1807,24 +1806,6 @@ describe('AssistantChatComponent', () => {
             expect(appended?.messageKind).toBe('proactive');
         });
 
-        it('tags a message pushed via onboardingPrompt$ with messageKind "onboarding"', () => {
-            // Arrange
-            const onboardingMessage: IProactiveMessage = {
-                messageId: 'onboarding-1',
-                content: 'Möchtest du die Einrichtung fortsetzen?',
-                timestamp: new Date().toISOString(),
-                messageType: 'onboarding',
-            };
-
-            // Act
-            signalRService.onboardingPrompt$.next(onboardingMessage);
-
-            // Assert
-            const appended = component.messages.find((m) => m.id === 'onboarding-1');
-            expect(appended).toBeDefined();
-            expect(appended?.messageKind).toBe('onboarding');
-        });
-
         it('records a helpful reaction and locks both reaction buttons', async () => {
             // Arrange
             deliver(proactiveRow({ id: 'proactive-reaction-1', content: 'Eine Periode ist überfällig.' }));
@@ -1965,30 +1946,6 @@ describe('AssistantChatComponent', () => {
             expect(component.inboxAnchorMessageId()).toBeNull();
         });
 
-        it('hides a proactive message that never joined the inbox block', () => {
-            // Arrange - the push channel can deliver messageType 'proactive' straight into the
-            // conversation, so those rows carry the dismiss button without being block members
-            const pushed: IProactiveMessage = {
-                messageId: 'pushed-proactive',
-                content: 'Eine Schicht ist unbesetzt.',
-                timestamp: new Date().toISOString(),
-                messageType: 'proactive',
-            };
-            signalRService.onboardingPrompt$.next(pushed);
-            fixture.detectChanges();
-            const appended = component.messages.find((m) => m.id === 'pushed-proactive')!;
-            expect(appended.messageKind).toBe('proactive');
-            expect(component.isInboxMessage(appended)).toBe(false);
-
-            // Act
-            component.dismissProactiveMessage(appended, PROACTIVE_REJECT_REASON.WrongThisTime);
-            fixture.detectChanges();
-
-            // Assert
-            expect(component.isHiddenProactiveMessage(appended)).toBe(true);
-            expect(fixture.nativeElement.textContent).not.toContain('Eine Schicht ist unbesetzt.');
-        });
-
         it('never shows a row the server already reports as dismissed', () => {
             // Act
             deliver(
@@ -2020,25 +1977,6 @@ describe('AssistantChatComponent', () => {
             request$.complete();
             await firstCall;
             expect(component.pendingReactionMessageId()).toBeNull();
-        });
-
-        it('does not send a reaction for onboarding messages', async () => {
-            // Arrange
-            const onboardingMessage: IProactiveMessage = {
-                messageId: 'onboarding-reaction-1',
-                content: 'Möchtest du die Einrichtung fortsetzen?',
-                timestamp: new Date().toISOString(),
-                messageType: 'onboarding',
-            };
-            signalRService.onboardingPrompt$.next(onboardingMessage);
-            const appended = component.messages.find((m) => m.id === 'onboarding-reaction-1')!;
-
-            // Act
-            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
-
-            // Assert
-            expect(mockLlmService.setProactiveReaction).not.toHaveBeenCalled();
-            expect(appended.proactiveReaction).toBeUndefined();
         });
 
         it('discards the reaction, re-enables the buttons and shows an error toast when the PUT fails', async () => {
@@ -2369,25 +2307,6 @@ describe('AssistantChatComponent', () => {
             } finally {
                 vi.useRealTimers();
             }
-        });
-
-        it('renders an onboarding prompt inline and outside the block', () => {
-            // Arrange
-            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-away-3' })]));
-            asideService.show();
-            fixture.detectChanges();
-
-            // Act
-            signalRService.onboardingPrompt$.next({
-                messageId: 'onboarding-1',
-                content: 'Willkommen! Soll ich dich durch die Einrichtung führen?',
-                timestamp: new Date().toISOString(),
-                messageType: 'onboarding',
-            });
-            fixture.detectChanges();
-
-            // Assert
-            expect(component.isInboxMessage(component.messages.find((m) => m.id === 'onboarding-1')!)).toBe(false);
         });
 
         it('does not mark unread rows read while the block is collapsed', async () => {

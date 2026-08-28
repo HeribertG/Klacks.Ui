@@ -55,7 +55,7 @@ import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.comp
 import { AssistantSpeechSettingsComponent } from '../assistant-speech-settings/assistant-speech-settings.component';
 import { WhisperPluginSettingComponent } from '../whisper-plugin-setting/whisper-plugin-setting.component';
 import { AssistantPersonalitySettingsComponent } from '../assistant-personality-settings/assistant-personality-settings.component';
-import { AssistantSkillProposalsComponent } from '../assistant-skill-proposals/assistant-skill-proposals.component';
+import { AssistantLearningComponent } from '../assistant-learning/assistant-learning.component';
 import { AssistantSkillRelationsComponent } from '../assistant-skill-relations/assistant-skill-relations.component';
 import { KlacksyAutonomySettingsComponent } from '../klacksy-autonomy-settings/klacksy-autonomy-settings.component';
 import { KlacksyProactiveGovernanceComponent } from '../klacksy-proactive-governance/klacksy-proactive-governance.component';
@@ -138,7 +138,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     AssistantSpeechSettingsComponent,
     WhisperPluginSettingComponent,
     AssistantPersonalitySettingsComponent,
-    AssistantSkillProposalsComponent,
+    AssistantLearningComponent,
     AssistantSkillRelationsComponent,
     KlacksyAutonomySettingsComponent,
     KlacksyProactiveGovernanceComponent,

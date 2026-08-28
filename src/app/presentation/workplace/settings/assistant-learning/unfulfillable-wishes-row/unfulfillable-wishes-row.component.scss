@@ -1,0 +1,36 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+.unfulfillable-wishes-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.unfulfillable-wishes-cell {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.unfulfillable-wishes-cell-wish {
+  width: 380px;
+  color: var(--standartTextColor);
+}
+
+.unfulfillable-wishes-cell-count {
+  width: 90px;
+}
+
+.unfulfillable-wishes-cell-users {
+  width: 90px;
+}
+
+.unfulfillable-wishes-cell-since {
+  width: 140px;
+}

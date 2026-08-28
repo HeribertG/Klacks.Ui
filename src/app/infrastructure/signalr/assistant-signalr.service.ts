@@ -36,7 +36,6 @@ export class AssistantSignalRService implements OnDestroy {
   private readonly _connectionHelper: SignalRConnectionHelper;
 
   public proactiveMessage$ = new Subject<IProactiveMessage>();
-  public onboardingPrompt$ = new Subject<IProactiveMessage>();
   public proactiveInboxChanged$ = new Subject<IProactiveInboxChanged>();
   public incomingMessage$ = new Subject<IncomingMessage>();
   public planUpdated$ = new Subject<IAgentPlanUpdate>();
@@ -102,14 +101,6 @@ export class AssistantSignalRService implements OnDestroy {
     );
 
     hub.on(
-      AssistantSignalRConstants.Events.OnboardingPrompt,
-      (message: IProactiveMessage) => {
-        this._connectionHelper.notePush();
-        this.onboardingPrompt$.next(message);
-      },
-    );
-
-    hub.on(
       AssistantSignalRConstants.Events.ProactiveInboxChanged,
       (change: IProactiveInboxChanged) => {
         this._connectionHelper.notePush();
@@ -152,7 +143,6 @@ export class AssistantSignalRService implements OnDestroy {
       // ignored: stop is best-effort during teardown
     }
     this.proactiveMessage$.complete();
-    this.onboardingPrompt$.complete();
     this.proactiveInboxChanged$.complete();
     this.incomingMessage$.complete();
     this.planUpdated$.complete();

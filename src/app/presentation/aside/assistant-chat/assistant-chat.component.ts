@@ -81,7 +81,6 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import {
@@ -269,7 +268,6 @@ export class AssistantChatComponent {
 
   conversationId = '';
   private currentStreamController: AbortController | null = null;
-  private pendingOnboardingPrompts: IProactiveMessage[] = [];
   private currentRawStream = '';
   private streamBuffer = '';
   private streamRafHandle: number | null = null;
@@ -383,31 +381,11 @@ export class AssistantChatComponent {
       )
       .subscribe(() => this.loadProactiveInbox());
 
-    this.assistantSignalR.onboardingPrompt$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((msg) => {
-        this.ngZone.run(() => {
-          if (this.onboarding.isTourActive()) {
-            this.pendingOnboardingPrompts.push(msg);
-            return;
-          }
-          this.appendOnboardingPromptMessage(msg);
-        });
-      });
-
     effect(() => {
       if (!this.assistantProviderService.providersInitialized()) return;
       const lang = this.pendingWelcomeLang();
       if (lang === null) return;
       this.addWelcomeMessage(lang);
-    });
-
-    effect(() => {
-      if (!this.onboarding.isTourActive() && this.pendingOnboardingPrompts.length > 0) {
-        const queued = this.pendingOnboardingPrompts;
-        this.pendingOnboardingPrompts = [];
-        queued.forEach((msg) => this.appendOnboardingPromptMessage(msg));
-      }
     });
 
     effect(() => {
@@ -622,21 +600,6 @@ export class AssistantChatComponent {
       );
     }
     return stripped;
-  }
-
-  private appendOnboardingPromptMessage(msg: IProactiveMessage): void {
-    const content = this.resolveProactiveContent(msg.content, msg.contentParams);
-    this.orchestrator.addMessage({
-      id: msg.messageId,
-      sender: 'assistant',
-      content,
-      formattedContent: this.formatMessage(content),
-      timestamp: new Date(msg.timestamp),
-      messageKind: msg.messageType,
-      ...this.toProactiveActionFields(msg.kind, msg.actionRoute, msg.actionParams, msg.contentParams),
-    });
-    this.shouldScrollToBottom = true;
-    this.cdr.detectChanges();
   }
 
   isMuteSuggestion(message: ChatMessage): boolean {
