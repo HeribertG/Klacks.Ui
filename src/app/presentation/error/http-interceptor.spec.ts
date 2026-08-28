@@ -25,6 +25,10 @@ const CONNECTION_FAILED_STATUS = 0;
 const HTTP_ERROR_404_KEY = 'HTTP_ERROR_404';
 const NOT_FOUND_TOAST_NAME = '404';
 
+const KLACKSY_LEARNING_PHRASE_URL = '/api/backend/assistant/learning/phrases/1';
+const CONFLICT = { status: 409, statusText: 'Conflict' };
+const SERVER_ERROR = { status: 500, statusText: 'Internal Server Error' };
+
 describe('ResponseInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
@@ -159,6 +163,38 @@ describe('ResponseInterceptor', () => {
       expect(toastShowService.showError).toHaveBeenCalledWith(HTTP_ERROR_404_KEY, NOT_FOUND_TOAST_NAME);
       expect(backendAvailabilityService.reportUnavailable).not.toHaveBeenCalled();
       expect(captured.status).toBe(NOT_FOUND.status);
+    });
+  });
+
+  describe('klacksy learning pass-through (component already shows its own toast)', () => {
+    it('does not show a generic toast for a 409 on a learning path', () => {
+      const captured = expectRequestToFail(KLACKSY_LEARNING_PHRASE_URL);
+
+      const req = httpMock.expectOne(KLACKSY_LEARNING_PHRASE_URL);
+      req.flush(null, CONFLICT);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(CONFLICT.status);
+    });
+
+    it('still shows the generic toast for a 500 on the same learning path', () => {
+      const captured = expectRequestToFail(KLACKSY_LEARNING_PHRASE_URL);
+
+      const req = httpMock.expectOne(KLACKSY_LEARNING_PHRASE_URL);
+      req.flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+
+    it('still shows the generic toast for a 409 on an unrelated path', () => {
+      const captured = expectRequestToFail(API_REQUEST_URL);
+
+      const req = httpMock.expectOne(API_REQUEST_URL);
+      req.flush(null, CONFLICT);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(captured.status).toBe(CONFLICT.status);
     });
   });
 });

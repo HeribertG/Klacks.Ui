@@ -34,3 +34,16 @@
 .unfulfillable-wishes-cell-since {
   width: 140px;
 }
+
+.retry-slot {
+  display: inline-block;
+  width: 24px;
+  margin-inline-start: 20px;
+  text-align: center;
+}
+
+.retry-button {
+  color: var(--standartGreenColor);
+  cursor: pointer;
+  font-size: 14px;
+}

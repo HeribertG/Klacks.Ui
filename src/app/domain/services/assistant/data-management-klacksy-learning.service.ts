@@ -11,6 +11,7 @@ import {
   IApproveDescriptionProposalResponse,
   ILearnedCapability,
   ILearnedPhrase,
+  ISkillLearningRunResponse,
   IUnfulfillableWish,
   IUpdateLearnedCapabilityRequest,
   IUpdateLearnedPhraseRequest,
@@ -56,5 +57,13 @@ export class DataManagementKlacksyLearningService {
 
   dismissUnfulfillableWish(id: string): Observable<void> {
     return this.dataKlacksyLearningService.dismissUnfulfillableWish(id);
+  }
+
+  retryUnfulfillableWish(id: string): Observable<void> {
+    return this.dataKlacksyLearningService.retryUnfulfillableWish(id);
+  }
+
+  runLearning(): Observable<ISkillLearningRunResponse> {
+    return this.dataKlacksyLearningService.runLearning();
   }
 }

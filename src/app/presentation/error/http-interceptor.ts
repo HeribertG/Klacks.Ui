@@ -9,6 +9,7 @@ import {
   HttpEvent,
   HttpErrorResponse,
   HttpResponse,
+  HttpStatusCode,
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
@@ -21,6 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { TranslationService } from 'src/app/domain/services/translation/translation.service';
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { environment } from 'src/environments/environment';
+import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/klacksy-learning.constants';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -35,6 +37,11 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
   private static readonly API_PATH_PREFIX = '/api/';
+  private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
+    HttpStatusCode.BadRequest,
+    HttpStatusCode.NotFound,
+    HttpStatusCode.Conflict,
+  ];
 
   private static readonly ERROR_PATTERNS = {
     POSTCODE: 'PostcodeCh',
@@ -114,6 +121,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    if (this.isKlacksyLearningPassThroughError(url, error.status)) {
+      return throwError(() => error);
+    }
+
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
       return throwError(() => error);
@@ -162,6 +173,13 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     // Generic Error Handling
     return this.handleGenericError(error);
+  }
+
+  private isKlacksyLearningPassThroughError(url: string, status: number): boolean {
+    return (
+      KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS.some((path) => url.includes(path)) &&
+      ResponseInterceptor.KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES.includes(status)
+    );
   }
 
   private isApiError(url: string, method: string): boolean {

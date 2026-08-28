@@ -2,6 +2,10 @@
 
 export type LearnedPhraseSource = 'learned' | 'description';
 
+export type LearnedPhraseStatus = 'active' | 'pending' | 'applied_auto' | 'blocked_regression';
+
+export type UnfulfillableWishStatus = 'ready' | 'unfulfillable';
+
 export interface ILearnedPhrase {
   id: string;
   skillName: string;
@@ -11,6 +15,7 @@ export interface ILearnedPhrase {
   quote: number | null;
   uses: number | null;
   source: LearnedPhraseSource;
+  status: LearnedPhraseStatus;
 }
 
 export interface IUpdateLearnedPhraseRequest {
@@ -45,10 +50,16 @@ export interface IUpdateLearnedCapabilityRequest {
   synonyms?: Record<string, string[]>;
 }
 
+export interface ISkillLearningRunResponse {
+  started: boolean;
+  reason: string | null;
+}
+
 export interface IUnfulfillableWish {
   id: string;
   intentExcerpt: string;
   locale: string;
+  status: UnfulfillableWishStatus;
   occurrenceCount: number;
   distinctUserCount: number;
   firstSeen: string;

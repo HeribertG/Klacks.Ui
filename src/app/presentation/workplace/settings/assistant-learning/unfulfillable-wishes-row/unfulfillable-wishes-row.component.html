@@ -27,5 +27,17 @@
     >{{ data().firstSeen | date: 'shortDate' }}</span
   >
 
+  <span class="retry-slot">
+    @if (isUnfulfillable()) {
+      <span
+        id="unfulfillable-wishes-row-retry-{{ data().id }}"
+        class="retry-button"
+        type="button"
+        [title]="'setting.klacksyLearning.wishes.retry' | translate"
+        (click)="onClickRetry()"
+      ><i class="fas fa-rotate-right"></i></span>
+    }
+  </span>
+
   <span id="unfulfillable-wishes-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
 </div>

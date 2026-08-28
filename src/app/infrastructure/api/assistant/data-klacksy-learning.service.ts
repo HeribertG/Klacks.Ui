@@ -4,7 +4,8 @@
  * API service for the admin review of everything Klacksy has learned by itself.
  * Exposes the admin-only learning endpoints for learned phrases, learned capabilities and
  * unfulfillable wishes, plus the approve action of the skill-proposal endpoint that applies a
- * proposed description to the skill itself.
+ * proposed description to the skill itself, the retry action that hands a wish the loop gave up on
+ * back to it, and the trigger that starts a learning run right away.
  * @param assistantUrl - Assistant API root, shared by the learning and the skill-proposal routes
  * @param baseUrl - Assistant API root, the learning routes hang below it as "learning/..."
  */
@@ -17,12 +18,16 @@ import {
   IApproveDescriptionProposalResponse,
   ILearnedCapability,
   ILearnedPhrase,
+  ISkillLearningRunResponse,
   IUnfulfillableWish,
   IUpdateLearnedCapabilityRequest,
   IUpdateLearnedPhraseRequest,
 } from 'src/app/domain/interfaces/klacksy-learning.interface';
 import {
   KLACKSY_LEARNING_DEFAULT_PHRASE_LIMIT,
+  KLACKSY_LEARNING_RETRY_ACTION,
+  KLACKSY_LEARNING_RUN_PATH,
+  KLACKSY_LEARNING_UNFULFILLABLE_PATH,
   KLACKSY_SKILL_PROPOSAL_APPROVE_ACTION,
   KLACKSY_SKILL_PROPOSALS_PATH,
 } from 'src/app/domain/constants/klacksy-learning.constants';
@@ -75,11 +80,27 @@ export class DataKlacksyLearningService {
 
   getUnfulfillableWishes(): Observable<IUnfulfillableWish[]> {
     return this.httpClient
-      .get<IUnfulfillableWish[]>(`${this.baseUrl}unfulfillable`)
+      .get<IUnfulfillableWish[]>(`${this.baseUrl}${KLACKSY_LEARNING_UNFULFILLABLE_PATH}`)
       .pipe(retry(3));
   }
 
   dismissUnfulfillableWish(id: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.baseUrl}unfulfillable/${id}`);
+    return this.httpClient.delete<void>(
+      `${this.baseUrl}${KLACKSY_LEARNING_UNFULFILLABLE_PATH}/${id}`,
+    );
+  }
+
+  retryUnfulfillableWish(id: string): Observable<void> {
+    return this.httpClient.post<void>(
+      `${this.baseUrl}${KLACKSY_LEARNING_UNFULFILLABLE_PATH}/${id}/${KLACKSY_LEARNING_RETRY_ACTION}`,
+      {},
+    );
+  }
+
+  runLearning(): Observable<ISkillLearningRunResponse> {
+    return this.httpClient.post<ISkillLearningRunResponse>(
+      `${this.baseUrl}${KLACKSY_LEARNING_RUN_PATH}`,
+      {},
+    );
   }
 }

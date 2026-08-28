@@ -13,7 +13,11 @@ import {
   ILearnedPhrase,
   IUnfulfillableWish,
 } from 'src/app/domain/interfaces/klacksy-learning.interface';
-import { KLACKSY_LEARNING_DELETE_CONTEXT } from 'src/app/domain/constants/klacksy-learning.constants';
+import {
+  KLACKSY_LEARNING_DELETE_CONTEXT,
+  KLACKSY_LEARNING_RUN_REASON,
+  KLACKSY_LEARNING_RUN_RELOAD_DELAY_MS,
+} from 'src/app/domain/constants/klacksy-learning.constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
@@ -23,6 +27,7 @@ describe('AssistantLearningComponent', () => {
   let mockLearningService: any;
   let mockToastService: any;
   let mockModalService: any;
+  let mockTranslateService: any;
 
   const spyOnModalOpen = () =>
     vi
@@ -38,6 +43,7 @@ describe('AssistantLearningComponent', () => {
     quote: 0.83,
     uses: 12,
     source: 'learned',
+    status: 'active',
   };
 
   const descriptionPhrase: ILearnedPhrase = {
@@ -49,7 +55,39 @@ describe('AssistantLearningComponent', () => {
     quote: null,
     uses: null,
     source: 'description',
+    status: 'pending',
   };
+
+  const appliedAutoPhrase: ILearnedPhrase = {
+    id: 'proposal-2',
+    skillName: 'list_shifts',
+    language: 'und',
+    phrase: 'Lists the shifts of a single day.',
+    learnedAt: '2026-08-27T06:00:00Z',
+    quote: null,
+    uses: null,
+    source: 'description',
+    status: 'applied_auto',
+  };
+
+  const blockedPhrase: ILearnedPhrase = {
+    id: 'proposal-3',
+    skillName: 'search_clients',
+    language: 'und',
+    phrase: 'Finds clients by name or reference.',
+    learnedAt: '2026-08-27T06:00:00Z',
+    quote: null,
+    uses: null,
+    source: 'description',
+    status: 'blocked_regression',
+  };
+
+  const allPhrases: ILearnedPhrase[] = [
+    learnedPhrase,
+    descriptionPhrase,
+    appliedAutoPhrase,
+    blockedPhrase,
+  ];
 
   const capability: ILearnedCapability = {
     id: 'capability-1',
@@ -69,6 +107,7 @@ describe('AssistantLearningComponent', () => {
     id: 'cluster-1',
     intentExcerpt: 'Schick mir das als Fax',
     locale: 'de',
+    status: 'unfulfillable',
     occurrenceCount: 5,
     distinctUserCount: 3,
     firstSeen: '2026-08-20T06:00:00Z',
@@ -76,9 +115,23 @@ describe('AssistantLearningComponent', () => {
     lastError: null,
   };
 
+  const readyWish: IUnfulfillableWish = {
+    id: 'cluster-2',
+    intentExcerpt: 'Zeig mir die Dienste als Karte',
+    locale: 'de',
+    status: 'ready',
+    occurrenceCount: 4,
+    distinctUserCount: 2,
+    firstSeen: '2026-08-22T06:00:00Z',
+    lastSeen: '2026-08-27T06:00:00Z',
+    lastError: null,
+  };
+
+  const allWishes: IUnfulfillableWish[] = [wish, readyWish];
+
   beforeEach(async () => {
     const learningServiceSpy = {
-      getPhrases: vi.fn().mockReturnValue(of([learnedPhrase, descriptionPhrase])),
+      getPhrases: vi.fn().mockReturnValue(of(allPhrases)),
       updatePhrase: vi.fn().mockReturnValue(of(undefined)),
       deletePhrase: vi.fn().mockReturnValue(of(undefined)),
       approveDescriptionProposal: vi
@@ -87,13 +140,16 @@ describe('AssistantLearningComponent', () => {
       getCapabilities: vi.fn().mockReturnValue(of([capability])),
       updateCapability: vi.fn().mockReturnValue(of(undefined)),
       deleteCapability: vi.fn().mockReturnValue(of(undefined)),
-      getUnfulfillableWishes: vi.fn().mockReturnValue(of([wish])),
+      getUnfulfillableWishes: vi.fn().mockReturnValue(of(allWishes)),
       dismissUnfulfillableWish: vi.fn().mockReturnValue(of(undefined)),
+      retryUnfulfillableWish: vi.fn().mockReturnValue(of(undefined)),
+      runLearning: vi.fn().mockReturnValue(of({ started: true, reason: null })),
     };
 
     const toastServiceSpy = {
       showError: vi.fn(),
       showSuccess: vi.fn(),
+      showInfo: vi.fn(),
     };
 
     const modalServiceSpy: any = {
@@ -131,6 +187,7 @@ describe('AssistantLearningComponent', () => {
     mockLearningService = TestBed.inject(DataManagementKlacksyLearningService) as any;
     mockToastService = TestBed.inject(ToastShowService) as any;
     mockModalService = TestBed.inject(ModalService) as any;
+    mockTranslateService = TestBed.inject(TranslateService) as any;
 
     fixture = TestBed.createComponent(AssistantLearningComponent);
     component = fixture.componentInstance;
@@ -147,9 +204,9 @@ describe('AssistantLearningComponent', () => {
       expect(mockLearningService.getPhrases).toHaveBeenCalled();
       expect(mockLearningService.getCapabilities).toHaveBeenCalled();
       expect(mockLearningService.getUnfulfillableWishes).toHaveBeenCalled();
-      expect(component.phrases().length).toBe(2);
+      expect(component.phrases().length).toBe(4);
       expect(component.capabilities().length).toBe(1);
-      expect(component.wishes().length).toBe(1);
+      expect(component.wishes().length).toBe(2);
     });
 
     it('keeps the phrase list empty and reports an error when loading fails', () => {
@@ -292,7 +349,11 @@ describe('AssistantLearningComponent', () => {
       await flush();
 
       expect(mockLearningService.deletePhrase).toHaveBeenCalledWith('phrase-1');
-      expect(component.phrases().map((entry) => entry.id)).toEqual(['proposal-1']);
+      expect(component.phrases().map((entry) => entry.id)).toEqual([
+        'proposal-1',
+        'proposal-2',
+        'proposal-3',
+      ]);
     });
 
     it('deletes a capability under its own context', async () => {
@@ -318,7 +379,26 @@ describe('AssistantLearningComponent', () => {
       await flush();
 
       expect(mockLearningService.dismissUnfulfillableWish).toHaveBeenCalledWith('cluster-1');
-      expect(component.wishes().length).toBe(0);
+      expect(component.wishes().map((entry) => entry.id)).toEqual(['cluster-2']);
+    });
+
+    it('reports the stale description as information and refetches instead of removing the row', async () => {
+      mockLearningService.deletePhrase.mockReturnValue(
+        throwError(() => ({ status: 409, error: { error: 'description changed meanwhile' } })),
+      );
+      fixture.detectChanges();
+      component.onClickDeletePhrase(appliedAutoPhrase);
+
+      mockModalService.resultEvent.next(ModalType.Delete);
+      await flush();
+
+      expect(mockToastService.showInfo).toHaveBeenCalled();
+      expect(mockToastService.showError).not.toHaveBeenCalled();
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.phrases.deleteStale',
+      );
+      expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(2);
+      expect(component.phrases().length).toBe(4);
     });
 
     it('reports an error and keeps the row when deleting fails', async () => {
@@ -330,28 +410,63 @@ describe('AssistantLearningComponent', () => {
       await flush();
 
       expect(mockToastService.showError).toHaveBeenCalled();
-      expect(component.phrases().length).toBe(2);
+      expect(component.phrases().length).toBe(4);
+    });
+  });
+
+  describe('Status column', () => {
+    it('renders a status cell for every row and marks it with the class of its status', () => {
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement as HTMLElement;
+      const badgeClass = (id: string) =>
+        html.querySelector(`#learned-phrases-row-status-${id} .badge`)?.className ?? '';
+
+      expect(html.querySelectorAll('[id^="learned-phrases-row-status-"]').length).toBe(4);
+      expect(badgeClass('phrase-1')).toContain('badge-status-active');
+      expect(badgeClass('proposal-1')).toContain('badge-status-pending');
+      expect(badgeClass('proposal-2')).toContain('badge-status-applied-auto');
+      expect(badgeClass('proposal-3')).toContain('badge-status-blocked');
+    });
+
+    it('keeps the delete action on an automatically applied row so it can be reverted', () => {
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement as HTMLElement;
+      expect(html.querySelector('#learned-phrases-row-delete-proposal-2')).toBeTruthy();
     });
   });
 
   describe('Approve description sharpening', () => {
-    it('offers the approve action only on description rows', () => {
+    it('offers the approve action only on a row the regression gate blocked', () => {
       fixture.detectChanges();
 
       const html = fixture.nativeElement as HTMLElement;
-      expect(html.querySelector('#learned-phrases-row-approve-proposal-1')).toBeTruthy();
+      expect(html.querySelector('#learned-phrases-row-approve-proposal-3')).toBeTruthy();
+      expect(html.querySelector('#learned-phrases-row-approve-proposal-1')).toBeFalsy();
+      expect(html.querySelector('#learned-phrases-row-approve-proposal-2')).toBeFalsy();
       expect(html.querySelector('#learned-phrases-row-approve-phrase-1')).toBeFalsy();
     });
 
     it('approves the proposal under the id of the row and reloads the phrase list', async () => {
       fixture.detectChanges();
 
-      await component.onClickApprovePhrase(descriptionPhrase);
+      await component.onClickApprovePhrase(blockedPhrase);
 
-      expect(mockLearningService.approveDescriptionProposal).toHaveBeenCalledWith('proposal-1');
+      expect(mockLearningService.approveDescriptionProposal).toHaveBeenCalledWith('proposal-3');
       expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(2);
       expect(mockToastService.showSuccess).toHaveBeenCalled();
       expect(mockToastService.showError).not.toHaveBeenCalled();
+    });
+
+    it('ignores an approve request for a row the gate never blocked', async () => {
+      fixture.detectChanges();
+
+      await component.onClickApprovePhrase(descriptionPhrase);
+      await component.onClickApprovePhrase(appliedAutoPhrase);
+      await component.onClickApprovePhrase(learnedPhrase);
+
+      expect(mockLearningService.approveDescriptionProposal).not.toHaveBeenCalled();
     });
 
     it('reports an error and does not reload when the endpoint rejects the proposal', async () => {
@@ -360,7 +475,7 @@ describe('AssistantLearningComponent', () => {
       );
       fixture.detectChanges();
 
-      await component.onClickApprovePhrase(descriptionPhrase);
+      await component.onClickApprovePhrase(blockedPhrase);
 
       expect(mockToastService.showError).toHaveBeenCalled();
       expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(1);
@@ -372,7 +487,7 @@ describe('AssistantLearningComponent', () => {
       );
       fixture.detectChanges();
 
-      await component.onClickApprovePhrase(descriptionPhrase);
+      await component.onClickApprovePhrase(blockedPhrase);
 
       expect(mockToastService.showError).toHaveBeenCalled();
       expect(mockToastService.showSuccess).not.toHaveBeenCalled();
@@ -383,11 +498,199 @@ describe('AssistantLearningComponent', () => {
       fixture.detectChanges();
 
       await Promise.all([
-        component.onClickApprovePhrase(descriptionPhrase),
-        component.onClickApprovePhrase(descriptionPhrase),
+        component.onClickApprovePhrase(blockedPhrase),
+        component.onClickApprovePhrase(blockedPhrase),
       ]);
 
       expect(mockLearningService.approveDescriptionProposal).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Retry unfulfillable wish', () => {
+    it('offers the retry action only on a row the loop gave up on', () => {
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement as HTMLElement;
+      expect(html.querySelector('#unfulfillable-wishes-row-retry-cluster-1')).toBeTruthy();
+      expect(html.querySelector('#unfulfillable-wishes-row-retry-cluster-2')).toBeFalsy();
+    });
+
+    it('keeps the delete action on both rows', () => {
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement as HTMLElement;
+      expect(html.querySelector('#unfulfillable-wishes-row-delete-cluster-1')).toBeTruthy();
+      expect(html.querySelector('#unfulfillable-wishes-row-delete-cluster-2')).toBeTruthy();
+    });
+
+    it('retries under the id of the row and refetches the wish list', async () => {
+      fixture.detectChanges();
+
+      await component.onClickRetryWish(wish);
+
+      expect(mockLearningService.retryUnfulfillableWish).toHaveBeenCalledWith('cluster-1');
+      expect(mockLearningService.getUnfulfillableWishes).toHaveBeenCalledTimes(2);
+      expect(mockToastService.showSuccess).toHaveBeenCalled();
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.wishes.retrySuccess',
+      );
+      expect(mockToastService.showError).not.toHaveBeenCalled();
+    });
+
+    it('ignores a retry for a wish that is still waiting to be picked up', async () => {
+      fixture.detectChanges();
+
+      await component.onClickRetryWish(readyWish);
+
+      expect(mockLearningService.retryUnfulfillableWish).not.toHaveBeenCalled();
+      expect(mockLearningService.getUnfulfillableWishes).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports an error and does not refetch when the endpoint rejects the status', async () => {
+      mockLearningService.retryUnfulfillableWish.mockReturnValue(
+        throwError(() => ({ status: 400, error: { error: 'wrong status' } })),
+      );
+      fixture.detectChanges();
+
+      await component.onClickRetryWish(wish);
+
+      expect(mockToastService.showError).toHaveBeenCalled();
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.wishes.retryError',
+      );
+      expect(mockToastService.showSuccess).not.toHaveBeenCalled();
+      expect(mockLearningService.getUnfulfillableWishes).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports an error and does not refetch when the wish is gone', async () => {
+      mockLearningService.retryUnfulfillableWish.mockReturnValue(
+        throwError(() => ({ status: 404 })),
+      );
+      fixture.detectChanges();
+
+      await component.onClickRetryWish(wish);
+
+      expect(mockToastService.showError).toHaveBeenCalled();
+      expect(mockLearningService.getUnfulfillableWishes).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores a second click while a retry is still running', async () => {
+      fixture.detectChanges();
+
+      await Promise.all([component.onClickRetryWish(wish), component.onClickRetryWish(wish)]);
+
+      expect(mockLearningService.retryUnfulfillableWish).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Manual learning run', () => {
+    it('renders the run button in the card head next to the reload button', () => {
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement as HTMLElement;
+      expect(html.querySelector('#assistant-learning-run-btn')).toBeTruthy();
+      expect(html.querySelector('#assistant-learning-reload-btn')).toBeTruthy();
+    });
+
+    it('starts the run, reports it and refetches the lists after the grace period', async () => {
+      vi.useFakeTimers();
+      fixture.detectChanges();
+
+      await component.onClickRunLearning();
+
+      expect(mockLearningService.runLearning).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showSuccess).toHaveBeenCalled();
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.runStarted',
+      );
+      expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(1);
+
+      vi.advanceTimersByTime(KLACKSY_LEARNING_RUN_RELOAD_DELAY_MS);
+
+      expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(2);
+      expect(mockLearningService.getCapabilities).toHaveBeenCalledTimes(2);
+      expect(mockLearningService.getUnfulfillableWishes).toHaveBeenCalledTimes(2);
+      vi.useRealTimers();
+    });
+
+    it('shows an info toast with the mapped text when a run was already in progress', async () => {
+      mockLearningService.runLearning.mockReturnValue(
+        of({ started: false, reason: KLACKSY_LEARNING_RUN_REASON.AlreadyRunning }),
+      );
+      fixture.detectChanges();
+
+      await component.onClickRunLearning();
+
+      expect(mockToastService.showInfo).toHaveBeenCalled();
+      expect(mockToastService.showSuccess).not.toHaveBeenCalled();
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.runNotStarted.alreadyRunning',
+      );
+      expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(1);
+    });
+
+    it('falls back to the generic text for a reason it does not know', async () => {
+      mockLearningService.runLearning.mockReturnValue(
+        of({ started: false, reason: 'Something else entirely.' }),
+      );
+      fixture.detectChanges();
+
+      await component.onClickRunLearning();
+
+      expect(mockToastService.showInfo).toHaveBeenCalled();
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.runNotStarted.generic',
+      );
+    });
+
+    it('falls back to the generic text when no reason is given at all', async () => {
+      mockLearningService.runLearning.mockReturnValue(of({ started: false, reason: null }));
+      fixture.detectChanges();
+
+      await component.onClickRunLearning();
+
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
+        'setting.klacksyLearning.runNotStarted.generic',
+      );
+    });
+
+    it('reports an error and does not refetch when the run endpoint fails', async () => {
+      vi.useFakeTimers();
+      mockLearningService.runLearning.mockReturnValue(
+        throwError(() => ({ status: 500, error: 'boom' })),
+      );
+      fixture.detectChanges();
+
+      await component.onClickRunLearning();
+
+      expect(mockToastService.showError).toHaveBeenCalled();
+      expect(mockToastService.showSuccess).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(KLACKSY_LEARNING_RUN_RELOAD_DELAY_MS);
+
+      expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(1);
+      expect(component.isRunningLearning()).toBe(false);
+      vi.useRealTimers();
+    });
+
+    it('ignores a second click while a run trigger is still in flight', async () => {
+      fixture.detectChanges();
+
+      await Promise.all([component.onClickRunLearning(), component.onClickRunLearning()]);
+
+      expect(mockLearningService.runLearning).toHaveBeenCalledTimes(1);
+    });
+
+    it('disables the run button while a run trigger is in flight', () => {
+      fixture.detectChanges();
+      const html = fixture.nativeElement as HTMLElement;
+      const button = html.querySelector('#assistant-learning-run-btn') as HTMLButtonElement;
+      expect(button.disabled).toBe(false);
+
+      component.isRunningLearning.set(true);
+      fixture.detectChanges();
+
+      expect(button.disabled).toBe(true);
     });
   });
 

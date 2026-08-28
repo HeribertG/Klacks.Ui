@@ -7,6 +7,7 @@ import { DataKlacksyLearningService } from './data-klacksy-learning.service';
 import {
   ILearnedCapability,
   ILearnedPhrase,
+  ISkillLearningRunResponse,
   IUnfulfillableWish,
 } from 'src/app/domain/interfaces/klacksy-learning.interface';
 import { environment } from 'src/environments/environment';
@@ -27,6 +28,7 @@ describe('DataKlacksyLearningService', () => {
       quote: 0.83,
       uses: 12,
       source: 'learned',
+      status: 'active',
     },
     {
       id: 'proposal-1',
@@ -37,6 +39,7 @@ describe('DataKlacksyLearningService', () => {
       quote: null,
       uses: null,
       source: 'description',
+      status: 'blocked_regression',
     },
   ];
 
@@ -61,6 +64,7 @@ describe('DataKlacksyLearningService', () => {
       id: 'cluster-1',
       intentExcerpt: 'Schick mir das als Fax',
       locale: 'de',
+      status: 'unfulfillable',
       occurrenceCount: 5,
       distinctUserCount: 3,
       firstSeen: '2026-08-20T06:00:00Z',
@@ -205,5 +209,124 @@ describe('DataKlacksyLearningService', () => {
     const req = httpMock.expectOne(`${apiUrl}/unfulfillable/cluster-1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
+  });
+
+  it('retryUnfulfillableWish posts to learning/unfulfillable/{id}/retry', () => {
+    service.retryUnfulfillableWish('cluster-1').subscribe();
+
+    const req = httpMock.expectOne(`${apiUrl}/unfulfillable/cluster-1/retry`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush(null);
+  });
+
+  it('retryUnfulfillableWish does not retry and surfaces the 400 of a wish in the wrong status', () => {
+    let status = 0;
+    service.retryUnfulfillableWish('cluster-1').subscribe({
+      next: () => {
+        throw new Error('should not emit');
+      },
+      error: (error) => {
+        status = error.status;
+      },
+    });
+
+    httpMock.expectOne(`${apiUrl}/unfulfillable/cluster-1/retry`).flush(
+      { error: "Only a wish in status 'unfulfillable' can be handed back to the learning loop." },
+      { status: 400, statusText: 'Bad Request' },
+    );
+
+    expect(status).toBe(400);
+    httpMock.expectNone(`${apiUrl}/unfulfillable/cluster-1/retry`);
+  });
+
+  it('retryUnfulfillableWish surfaces the 404 of a wish that is gone', () => {
+    let status = 0;
+    service.retryUnfulfillableWish('cluster-9').subscribe({
+      next: () => {
+        throw new Error('should not emit');
+      },
+      error: (error) => {
+        status = error.status;
+      },
+    });
+
+    httpMock
+      .expectOne(`${apiUrl}/unfulfillable/cluster-9/retry`)
+      .flush(null, { status: 404, statusText: 'Not Found' });
+
+    expect(status).toBe(404);
+    httpMock.expectNone(`${apiUrl}/unfulfillable/cluster-9/retry`);
+  });
+
+  it('deletePhrase surfaces the 409 of a description that was changed meanwhile', () => {
+    let status = 0;
+    service.deletePhrase('proposal-1').subscribe({
+      next: () => {
+        throw new Error('should not emit');
+      },
+      error: (error) => {
+        status = error.status;
+      },
+    });
+
+    httpMock.expectOne(`${apiUrl}/phrases/proposal-1`).flush(
+      { error: 'The live description no longer matches what the proposal applied.' },
+      { status: 409, statusText: 'Conflict' },
+    );
+
+    expect(status).toBe(409);
+    httpMock.expectNone(`${apiUrl}/phrases/proposal-1`);
+  });
+
+  it('runLearning posts to learning/run and returns the ticket', () => {
+    const response = { started: true, reason: null };
+    let received: unknown = null;
+    service.runLearning().subscribe((result) => {
+      received = result;
+    });
+
+    const req = httpMock.expectOne(`${apiUrl}/run`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush(response);
+
+    expect(received).toEqual(response);
+  });
+
+  it('runLearning reports a refused run as started false with the reason', () => {
+    let received: ISkillLearningRunResponse | null = null;
+    service.runLearning().subscribe((result) => {
+      received = result;
+    });
+
+    httpMock
+      .expectOne(`${apiUrl}/run`)
+      .flush({ started: false, reason: 'A learning run is already in progress.' });
+
+    expect(received).toEqual({
+      started: false,
+      reason: 'A learning run is already in progress.',
+    });
+  });
+
+  it('runLearning does not retry, a second attempt would only hit the run gate', () => {
+    let status = 0;
+    service.runLearning().subscribe({
+      next: () => {
+        throw new Error('should not emit');
+      },
+      error: (error) => {
+        status = error.status;
+      },
+    });
+
+    httpMock.expectOne(`${apiUrl}/run`).flush(
+      { error: 'boom' },
+      { status: 500, statusText: 'Server Error' },
+    );
+
+    expect(status).toBe(500);
+    httpMock.expectNone(`${apiUrl}/run`);
   });
 });

@@ -266,6 +266,16 @@
   >
     <button
       headerAction
+      id="assistant-learning-run-btn"
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      [disabled]="isRunningLearning() || isLoading()"
+      (click)="onClickRunLearning()"
+    >
+      {{ "setting.klacksyLearning.runNow" | translate }}
+    </button>
+    <button
+      headerAction
       id="assistant-learning-reload-btn"
       type="button"
       class="btn btn-outline-secondary btn-sm"
@@ -335,6 +345,7 @@
           [data]="entry"
           (editEvent)="onClickShowWish($event)"
           (isDeleteEvent)="onClickDeleteWish($event)"
+          (retryEvent)="onClickRetryWish($event)"
         />
       } @empty {
         <div id="unfulfillable-wishes-empty" class="empty-hint">

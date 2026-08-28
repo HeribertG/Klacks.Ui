@@ -28,6 +28,21 @@
     >{{ sourceLabelKey() | translate }}</span
   >
   <span
+    id="learned-phrases-row-status-{{ data().id }}"
+    class="learned-phrases-cell learned-phrases-cell-status"
+    [title]="statusTitleKey() | translate"
+    (click)="onClickEdit()"
+  >
+    <span
+      class="badge"
+      [class.badge-status-active]="isActive()"
+      [class.badge-status-pending]="isPending()"
+      [class.badge-status-applied-auto]="isAppliedAuto()"
+      [class.badge-status-blocked]="isBlockedRegression()"
+      >{{ statusLabelKey() | translate }}</span
+    >
+  </span>
+  <span
     id="learned-phrases-row-quote-{{ data().id }}"
     class="learned-phrases-cell learned-phrases-cell-quote"
     (click)="onClickEdit()"
@@ -41,7 +56,7 @@
   >
 
   <span class="approve-slot">
-    @if (isDescription()) {
+    @if (isBlockedRegression()) {
       <span
         id="learned-phrases-row-approve-{{ data().id }}"
         class="approve-button"
