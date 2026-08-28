@@ -1,0 +1,357 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<ng-template #phraseModal id="assistant-learning-phrase-modal-template" let-modal>
+  <form id="assistant-learning-phrase-modal-form">
+    <div id="assistant-learning-phrase-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ "setting.klacksyLearning.phrases.edit.title" | translate }}
+      </div>
+      <span class="filler"></span>
+      <div
+        id="assistant-learning-phrase-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="assistant-learning-phrase-modal-body" class="modal-body">
+      @if (editingPhrase(); as entry) {
+        <div class="row-line-modal-inline">
+          <div class="model-field-wide">
+            <label for="assistant-learning-phrase-modal-skill">{{
+              "setting.klacksyLearning.phrases.header.skill" | translate
+            }}</label>
+            <div id="assistant-learning-phrase-modal-skill" class="readonly-value">
+              {{ entry.skillName }}
+            </div>
+          </div>
+          <div class="model-field">
+            <label for="assistant-learning-phrase-modal-language">{{
+              "setting.klacksyLearning.phrases.header.language" | translate
+            }}</label>
+            <div id="assistant-learning-phrase-modal-language" class="readonly-value">
+              {{ entry.language }}
+            </div>
+          </div>
+        </div>
+        <div class="row-line-modal-inline">
+          <div class="model-field full-width">
+            <label for="assistant-learning-phrase-modal-text">
+              @if (isDescriptionPhrase()) {
+                {{ "setting.klacksyLearning.phrases.edit.descriptionLabel" | translate }}
+              } @else {
+                {{ "setting.klacksyLearning.phrases.edit.label" | translate }}
+              }
+            </label>
+            <textarea
+              id="assistant-learning-phrase-modal-text"
+              rows="4"
+              class="form-control"
+              [formField]="phraseForm.text"
+            ></textarea>
+          </div>
+        </div>
+      }
+    </div>
+  </form>
+
+  <div id="assistant-learning-phrase-modal-footer" class="modal-footer">
+    <span
+      id="assistant-learning-phrase-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="assistant-learning-phrase-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      [disabled]="!isPhraseFormValid()"
+      (click)="onSavePhraseModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #capabilityModal id="assistant-learning-capability-modal-template" let-modal>
+  <form id="assistant-learning-capability-modal-form">
+    <div id="assistant-learning-capability-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ "setting.klacksyLearning.capabilities.edit.title" | translate }}
+      </div>
+      <span class="filler"></span>
+      <div
+        id="assistant-learning-capability-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="assistant-learning-capability-modal-body" class="modal-body">
+      @if (editingCapability(); as entry) {
+        <div class="row-line-modal-inline">
+          <div class="model-field-wide">
+            <label for="assistant-learning-capability-modal-name">{{
+              "setting.klacksyLearning.capabilities.header.name" | translate
+            }}</label>
+            <div id="assistant-learning-capability-modal-name" class="readonly-value">
+              {{ entry.name }}
+            </div>
+          </div>
+        </div>
+        <div class="row-line-modal-inline">
+          <div class="model-field full-width">
+            <label for="assistant-learning-capability-modal-steps">{{
+              "setting.klacksyLearning.capabilities.header.steps" | translate
+            }}</label>
+            <div id="assistant-learning-capability-modal-steps" class="readonly-value">
+              @for (step of entry.steps; track $index) {
+                <span class="step-chip">{{ step.skill || step.kind }}</span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="row-line-modal-inline">
+          <div class="model-field full-width">
+            <label for="assistant-learning-capability-modal-goal">{{
+              "setting.klacksyLearning.capabilities.edit.goalLabel" | translate
+            }}</label>
+            <textarea
+              id="assistant-learning-capability-modal-goal"
+              rows="4"
+              class="form-control"
+              [formField]="capabilityForm.goal"
+            ></textarea>
+          </div>
+        </div>
+      }
+    </div>
+  </form>
+
+  <div id="assistant-learning-capability-modal-footer" class="modal-footer">
+    <span
+      id="assistant-learning-capability-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="assistant-learning-capability-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      [disabled]="!isCapabilityFormValid()"
+      (click)="onSaveCapabilityModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #wishModal id="assistant-learning-wish-modal-template" let-modal>
+  <div id="assistant-learning-wish-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ "setting.klacksyLearning.wishes.detail.title" | translate }}
+    </div>
+    <span class="filler"></span>
+    <div
+      id="assistant-learning-wish-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="assistant-learning-wish-modal-body" class="modal-body">
+    @if (viewingWish(); as entry) {
+      <div class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label for="assistant-learning-wish-modal-excerpt">{{
+            "setting.klacksyLearning.wishes.header.wish" | translate
+          }}</label>
+          <div id="assistant-learning-wish-modal-excerpt" class="readonly-value">
+            {{ entry.intentExcerpt }}
+          </div>
+        </div>
+      </div>
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="assistant-learning-wish-modal-count">{{
+            "setting.klacksyLearning.wishes.header.count" | translate
+          }}</label>
+          <div id="assistant-learning-wish-modal-count" class="readonly-value">
+            {{ entry.occurrenceCount }}
+          </div>
+        </div>
+        <div class="model-field">
+          <label for="assistant-learning-wish-modal-users">{{
+            "setting.klacksyLearning.wishes.header.users" | translate
+          }}</label>
+          <div id="assistant-learning-wish-modal-users" class="readonly-value">
+            {{ entry.distinctUserCount }}
+          </div>
+        </div>
+        <div class="model-field">
+          <label for="assistant-learning-wish-modal-locale">{{
+            "setting.klacksyLearning.phrases.header.language" | translate
+          }}</label>
+          <div id="assistant-learning-wish-modal-locale" class="readonly-value">
+            {{ entry.locale }}
+          </div>
+        </div>
+      </div>
+      @if (entry.lastError) {
+        <div class="row-line-modal-inline">
+          <div class="model-field full-width">
+            <label for="assistant-learning-wish-modal-error">{{
+              "setting.klacksyLearning.wishes.detail.lastError" | translate
+            }}</label>
+            <div id="assistant-learning-wish-modal-error" class="readonly-value error-value">
+              {{ entry.lastError }}
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+  <div id="assistant-learning-wish-modal-footer" class="modal-footer">
+    <span
+      id="assistant-learning-wish-modal-close-link"
+      type="button"
+      class="link-button"
+      (click)="modal.dismiss('Close click')"
+      >{{ "close" | translate }}</span
+    >
+  </div>
+</ng-template>
+
+<div id="assistant-learning-container" class="assistant-learning">
+  <div id="assistant-learning-headline" class="container-header">
+    {{ "setting.klacksyLearning.headline" | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div id="assistant-learning-intro" class="intro-hint">
+    {{ "setting.klacksyLearning.intro" | translate }}
+  </div>
+
+  <app-settings-list-card
+    [headline]="'setting.klacksyLearning.phrases.headline' | translate"
+    idPrefix="learned-phrases"
+    [showHeader]="true"
+    [showAddButton]="false"
+  >
+    <button
+      headerAction
+      id="assistant-learning-run-btn"
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      [disabled]="isRunningLearning() || isLoading()"
+      (click)="onClickRunLearning()"
+    >
+      {{ "setting.klacksyLearning.runNow" | translate }}
+    </button>
+    <button
+      headerAction
+      id="assistant-learning-reload-btn"
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      [disabled]="isLoading()"
+      (click)="loadAll()"
+    >
+      {{ "setting.klacksyLearning.reload" | translate }}
+    </button>
+    <app-learned-phrases-header header id="learned-phrases-table-header"></app-learned-phrases-header>
+    <div rows>
+      @for (entry of phrases(); track entry.id) {
+        <app-learned-phrases-row
+          [id]="'learned-phrases-row-' + entry.id"
+          [data]="entry"
+          (editEvent)="onClickEditPhrase($event)"
+          (isDeleteEvent)="onClickDeletePhrase($event)"
+          (approveEvent)="onClickApprovePhrase($event)"
+        />
+      } @empty {
+        <div id="learned-phrases-empty" class="empty-hint">
+          {{ "setting.klacksyLearning.phrases.empty" | translate }}
+        </div>
+      }
+    </div>
+  </app-settings-list-card>
+
+  <app-settings-list-card
+    [headline]="'setting.klacksyLearning.capabilities.headline' | translate"
+    idPrefix="learned-capabilities"
+    [showHeader]="true"
+    [showAddButton]="false"
+  >
+    <app-learned-capabilities-header
+      header
+      id="learned-capabilities-table-header"
+    ></app-learned-capabilities-header>
+    <div rows>
+      @for (entry of capabilities(); track entry.id) {
+        <app-learned-capabilities-row
+          [id]="'learned-capabilities-row-' + entry.id"
+          [data]="entry"
+          (editEvent)="onClickEditCapability($event)"
+          (isDeleteEvent)="onClickDeleteCapability($event)"
+        />
+      } @empty {
+        <div id="learned-capabilities-empty" class="empty-hint">
+          {{ "setting.klacksyLearning.capabilities.empty" | translate }}
+        </div>
+      }
+    </div>
+  </app-settings-list-card>
+
+  <app-settings-list-card
+    [headline]="'setting.klacksyLearning.wishes.headline' | translate"
+    idPrefix="unfulfillable-wishes"
+    [showHeader]="true"
+    [showAddButton]="false"
+  >
+    <app-unfulfillable-wishes-header
+      header
+      id="unfulfillable-wishes-table-header"
+    ></app-unfulfillable-wishes-header>
+    <div rows>
+      @for (entry of wishes(); track entry.id) {
+        <app-unfulfillable-wishes-row
+          [id]="'unfulfillable-wishes-row-' + entry.id"
+          [data]="entry"
+          (editEvent)="onClickShowWish($event)"
+          (isDeleteEvent)="onClickDeleteWish($event)"
+          (retryEvent)="onClickRetryWish($event)"
+        />
+      } @empty {
+        <div id="unfulfillable-wishes-empty" class="empty-hint">
+          {{ "setting.klacksyLearning.wishes.empty" | translate }}
+        </div>
+      }
+    </div>
+  </app-settings-list-card>
+</div>

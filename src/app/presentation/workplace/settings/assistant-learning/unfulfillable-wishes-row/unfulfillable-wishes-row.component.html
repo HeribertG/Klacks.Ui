@@ -1,0 +1,43 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="unfulfillable-wishes-row-container-{{ data().id }}" class="first custom-control-inline unfulfillable-wishes-row">
+  <span
+    id="unfulfillable-wishes-row-wish-{{ data().id }}"
+    class="unfulfillable-wishes-cell unfulfillable-wishes-cell-wish"
+    [title]="data().intentExcerpt"
+    (click)="onClickEdit()"
+    >{{ data().intentExcerpt }}</span
+  >
+  <span
+    id="unfulfillable-wishes-row-count-{{ data().id }}"
+    class="unfulfillable-wishes-cell unfulfillable-wishes-cell-count"
+    (click)="onClickEdit()"
+    >{{ data().occurrenceCount }}</span
+  >
+  <span
+    id="unfulfillable-wishes-row-users-{{ data().id }}"
+    class="unfulfillable-wishes-cell unfulfillable-wishes-cell-users"
+    (click)="onClickEdit()"
+    >{{ data().distinctUserCount }}</span
+  >
+  <span
+    id="unfulfillable-wishes-row-since-{{ data().id }}"
+    class="unfulfillable-wishes-cell unfulfillable-wishes-cell-since"
+    (click)="onClickEdit()"
+    >{{ data().firstSeen | date: 'shortDate' }}</span
+  >
+
+  <span class="retry-slot">
+    @if (isUnfulfillable()) {
+      <span
+        id="unfulfillable-wishes-row-retry-{{ data().id }}"
+        class="retry-button"
+        type="button"
+        [title]="'setting.klacksyLearning.wishes.retry' | translate"
+        (click)="onClickRetry()"
+      ><i class="fas fa-rotate-right"></i></span>
+    }
+  </span>
+
+  <span id="unfulfillable-wishes-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+</div>

@@ -20,7 +20,7 @@ export interface ChatMessage {
   /** Set after the user submitted a correction for this assistant message. */
   correctionSubmitted?: boolean;
   /** Set when this message originated from a backend push (SignalR) instead of answering the current conversation. */
-  messageKind?: 'proactive' | 'onboarding';
+  messageKind?: 'proactive';
   /** Reaction the user chose for a proactive message; once set, the reaction buttons lock. */
   proactiveReaction?: ProactiveReaction;
   /** Trigger kind of a proactive message (e.g. unstaffed_shift, mute_suggestion). */

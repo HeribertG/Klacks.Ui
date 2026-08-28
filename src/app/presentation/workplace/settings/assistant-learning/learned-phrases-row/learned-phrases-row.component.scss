@@ -1,0 +1,100 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+$badge-active-color: #6c757d;
+$badge-pending-color: #0d6efd;
+$badge-applied-auto-color: #28a745;
+$badge-blocked-color: #d97706;
+
+.learned-phrases-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.learned-phrases-cell {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.learned-phrases-cell-phrase {
+  width: 220px;
+  color: var(--standartTextColor);
+}
+
+.learned-phrases-cell-skill {
+  width: 130px;
+}
+
+.learned-phrases-cell-language {
+  width: 90px;
+}
+
+.learned-phrases-cell-source {
+  width: 100px;
+}
+
+.learned-phrases-cell-status {
+  width: 130px;
+}
+
+.learned-phrases-cell-quote {
+  width: 80px;
+}
+
+.learned-phrases-cell-uses {
+  width: 100px;
+}
+
+.badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--colorLabel);
+}
+
+.badge-status-active {
+  background: rgba($badge-active-color, 0.12);
+  border-color: rgba($badge-active-color, 0.5);
+  color: $badge-active-color;
+}
+
+.badge-status-pending {
+  background: rgba($badge-pending-color, 0.1);
+  border-color: rgba($badge-pending-color, 0.4);
+  color: $badge-pending-color;
+}
+
+.badge-status-applied-auto {
+  background: rgba($badge-applied-auto-color, 0.12);
+  border-color: rgba($badge-applied-auto-color, 0.5);
+  color: $badge-applied-auto-color;
+}
+
+.badge-status-blocked {
+  background: rgba($badge-blocked-color, 0.12);
+  border-color: rgba($badge-blocked-color, 0.5);
+  color: $badge-blocked-color;
+}
+
+.approve-slot {
+  display: inline-block;
+  width: 24px;
+  margin-inline-start: 20px;
+  text-align: center;
+}
+
+.approve-button {
+  color: var(--standartGreenColor);
+  cursor: pointer;
+  font-size: 14px;
+}

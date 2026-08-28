@@ -1,0 +1,28 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-inline-start: 30px;
+  padding-inline-end: -30px;
+}
+
+label {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.unfulfillable-wishes-header-wish {
+  width: 380px;
+}
+
+.unfulfillable-wishes-header-count {
+  width: 90px;
+}
+
+.unfulfillable-wishes-header-users {
+  width: 90px;
+}
+
+.unfulfillable-wishes-header-since {
+  width: 140px;
+}

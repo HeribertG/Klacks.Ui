@@ -1,0 +1,28 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-inline-start: 30px;
+  padding-inline-end: -30px;
+}
+
+label {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.learned-capabilities-header-name {
+  width: 200px;
+}
+
+.learned-capabilities-header-goal {
+  width: 260px;
+}
+
+.learned-capabilities-header-steps {
+  width: 300px;
+}
+
+.learned-capabilities-header-quote {
+  width: 80px;
+}

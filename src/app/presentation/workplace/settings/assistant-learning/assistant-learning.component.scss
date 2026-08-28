@@ -1,0 +1,51 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+:host {
+  display: block;
+  padding-bottom: 35px;
+}
+
+.intro-hint {
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--colorLabel);
+}
+
+.empty-hint {
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  font-size: 13px;
+  color: var(--colorLabel);
+  text-align: center;
+}
+
+.readonly-value {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--standartTextColor);
+  white-space: pre-wrap;
+}
+
+.error-value {
+  color: var(--standartRedColor);
+}
+
+.step-chip {
+  display: inline-block;
+  margin-inline-end: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--colorLabel);
+}

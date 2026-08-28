@@ -48,7 +48,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'assistant-speech': 'klacksy',
   'whisper-plugin': 'klacksy',
   'assistant-personality': 'klacksy',
-  'assistant-skill-proposals': 'klacksy',
+  'assistant-learning': 'klacksy',
   'assistant-skill-relations': 'klacksy',
   'klacksy-autonomy': 'klacksy',
   'klacksy-proactive-governance': 'klacksy',

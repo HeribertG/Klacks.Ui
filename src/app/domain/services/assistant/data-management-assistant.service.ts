@@ -12,10 +12,6 @@ import {
   IAssistantUsage,
   ISubmitCorrectionRequest,
   ISubmitCorrectionResponse,
-  IProposedSkillChange,
-  IGenerateProposalsResponse,
-  IApproveProposalResponse,
-  IRejectProposalResponse,
   IKlacksyModelCheckResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
@@ -398,22 +394,6 @@ export class DataManagementAssistantService {
 
   delegateCondition(messageId: string, maxAction: number): Observable<void> {
     return this.dataProactiveMessageService.delegateCondition(messageId, maxAction);
-  }
-
-  generateSkillProposals(trajectories?: number): Observable<IGenerateProposalsResponse> {
-    return this.dataAssistantService.generateSkillProposals(trajectories);
-  }
-
-  getPendingSkillProposals(limit?: number): Observable<IProposedSkillChange[]> {
-    return this.dataAssistantService.getPendingSkillProposals(limit);
-  }
-
-  approveSkillProposal(id: string): Observable<IApproveProposalResponse> {
-    return this.dataAssistantService.approveSkillProposal(id);
-  }
-
-  rejectSkillProposal(id: string): Observable<IRejectProposalResponse> {
-    return this.dataAssistantService.rejectSkillProposal(id);
   }
 
   private getOrCreateConversation(conversationId: string): IConversation {
