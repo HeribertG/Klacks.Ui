@@ -78,48 +78,48 @@
 
   @if (canUseAutofill()) {
     @if (isWizardDropdownMode()) {
-    <div ngbDropdown class="wizard-dropdown">
+      <div ngbDropdown class="wizard-dropdown">
+        <button
+          id="schedule-wizard-btn"
+          type="button"
+          class="icon-button wizard-button"
+          ngbDropdownToggle
+        >
+          <app-icon-wizard />
+        </button>
+        <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
+          <button ngbDropdownItem (click)="onWizardClick()">
+            {{ "autoWizard.menu.plan" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onHarmonizerClick()">
+            {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
+            {{ "autoWizard.menu.holisticHarmonizer" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onWizard4Click()">
+            {{ "autoWizard.menu.backgroundOptimizer" | translate }}
+          </button>
+          <button ngbDropdownItem (click)="onRecoveryClick()">
+            {{ "autoWizard.menu.recovery" | translate }}
+          </button>
+        </div>
+      </div>
+    } @else {
       <button
         id="schedule-wizard-btn"
         type="button"
         class="icon-button wizard-button"
-        ngbDropdownToggle
+        [class.disabled]="isAutoWizardRunning()"
+        (click)="onAutoWizardClick()"
+        ngbTooltip="{{ 'autoWizard.tooltip' | translate }}"
       >
-        <app-icon-wizard />
+        @if (isAutoWizardRunning()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+          <app-icon-wizard />
+        }
       </button>
-      <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
-        <button ngbDropdownItem (click)="onWizardClick()">
-          {{ "autoWizard.menu.plan" | translate }}
-        </button>
-        <button ngbDropdownItem (click)="onHarmonizerClick()">
-          {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
-        </button>
-        <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
-          {{ "autoWizard.menu.holisticHarmonizer" | translate }}
-        </button>
-        <button ngbDropdownItem (click)="onWizard4Click()">
-          {{ "autoWizard.menu.backgroundOptimizer" | translate }}
-        </button>
-        <button ngbDropdownItem (click)="onRecoveryClick()">
-          {{ "autoWizard.menu.recovery" | translate }}
-        </button>
-      </div>
-    </div>
-  } @else {
-    <button
-      id="schedule-wizard-btn"
-      type="button"
-      class="icon-button wizard-button"
-      [class.disabled]="isAutoWizardRunning()"
-      (click)="onAutoWizardClick()"
-      ngbTooltip="{{ 'autoWizard.tooltip' | translate }}"
-    >
-      @if (isAutoWizardRunning()) {
-        <span class="spinner-border spinner-border-sm"></span>
-      } @else {
-        <app-icon-wizard />
-      }
-    </button>
     }
   }
 
@@ -130,16 +130,6 @@
   <app-holistic-harmonizer-dialog #holisticHarmonizerDialog />
   <app-wizard4-dialog #wizard4Dialog />
   <app-recovery-dialog #recoveryDialog />
-
-  <button
-    id="schedule-pdf-export-btn"
-    type="button"
-    class="icon-button pdf-export-button"
-    (click)="onPdfExport()"
-    ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}"
-  >
-    <app-icon-pdf-icon></app-icon-pdf-icon>
-  </button>
 
   @if (!isTimelineMode()) {
     <button
@@ -247,6 +237,16 @@
   }
 
   <span class="filler"></span>
+
+  <button
+    id="schedule-pdf-export-btn"
+    type="button"
+    class="icon-button pdf-export-button"
+    (click)="onPdfExport()"
+    ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}"
+  >
+    <app-icon-pdf-icon></app-icon-pdf-icon>
+  </button>
 
   <div class="custom-slider">
     @if (!isTimelineMode()) {
