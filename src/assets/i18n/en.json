@@ -3941,5 +3941,15 @@
   "setting.holidayWorkExemption.empty": "No exemptions — work on public holidays is reported for everyone.",
   "harmonizer.error.staleResult": "The schedule changed since this run started. Please run the wizard again.",
   "harmonizer.error.runConflict": "A run for the same selection is already in progress. Please wait for it to finish.",
-  "autoWizard.toast.partialResult": "The partial result “{{name}}” was kept."
+  "autoWizard.toast.partialResult": "The partial result “{{name}}” was kept.",
+  "setup.header": "Set Up Your Own Admin Account",
+  "setup.intro": "Before you can continue, you need to create your own admin account. The default test account will then be deactivated automatically.",
+  "setup.firstName": "First Name",
+  "setup.lastName": "Last Name",
+  "setup.email": "Email",
+  "setup.userName": "Username",
+  "setup.password": "Password",
+  "setup.submit": "Create Account",
+  "setup.success": "Your admin account has been created. Please sign in with your new credentials.",
+  "setup.error": "The account could not be created. Please check your input."
 }

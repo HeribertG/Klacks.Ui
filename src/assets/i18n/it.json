@@ -3933,5 +3933,15 @@
   "setting.holidayWorkExemption.empty": "Nessuna deroga — il lavoro nei giorni festivi viene segnalato per tutti.",
   "harmonizer.error.staleResult": "Il piano è cambiato dall'avvio dell'esecuzione. Si prega di ripetere l'esecuzione.",
   "harmonizer.error.runConflict": "È già in corso un'esecuzione per la stessa selezione. Attendi che finisca.",
-  "autoWizard.toast.partialResult": "Il risultato parziale “{{name}}” è stato mantenuto."
+  "autoWizard.toast.partialResult": "Il risultato parziale “{{name}}” è stato mantenuto.",
+  "setup.header": "Configura il tuo account amministratore",
+  "setup.intro": "Prima di continuare, devi creare il tuo account amministratore. L'account di test predefinito verrà quindi disattivato automaticamente.",
+  "setup.firstName": "Nome",
+  "setup.lastName": "Cognome",
+  "setup.email": "Email",
+  "setup.userName": "Nome utente",
+  "setup.password": "Password",
+  "setup.submit": "Crea account",
+  "setup.success": "Il tuo account amministratore è stato creato. Accedi con le nuove credenziali.",
+  "setup.error": "Impossibile creare l'account. Controlla i dati inseriti."
 }

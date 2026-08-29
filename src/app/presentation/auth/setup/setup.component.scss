@@ -1,0 +1,59 @@
+@use "../../../../assets/standard-styles/colors.scss";
+
+$setup-background: "../../../../assets/png/login-background.png" !default;
+
+.background {
+  display: flex;
+  background-image: url(#{$setup-background});
+  background-size: cover;
+  height: 100vh;
+}
+
+.container {
+  background-color: white;
+  align-self: center;
+  display: flex;
+  justify-content: flex-start space-around;
+  flex-direction: column;
+  border-radius: 5px;
+  width: 600px;
+  max-width: 600px;
+  min-width: 600px;
+  box-sizing: border-box;
+}
+
+.big-gap-top {
+  padding-top: 40px;
+}
+
+.intro {
+  padding-inline-start: 50px;
+  padding-inline-end: 50px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+input {
+  height: 40px;
+}
+
+label {
+  width: 341px;
+}
+
+.first {
+  padding-inline-start: 50px;
+  padding-inline-end: 50px;
+}
+
+.center {
+  margin-top: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.input-password {
+  border-start-start-radius: 5px !important;
+  border-end-start-radius: 5px !important;
+  width: 355px;
+}

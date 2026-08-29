@@ -3933,5 +3933,15 @@
   "setting.holidayWorkExemption.empty": "Aucune dérogation — le travail les jours fériés est signalé pour tout le monde.",
   "harmonizer.error.staleResult": "Le plan a été modifié depuis le lancement. Veuillez relancer l'assistant.",
   "harmonizer.error.runConflict": "Une exécution est déjà en cours pour la même sélection. Merci d'attendre qu'elle se termine.",
-  "autoWizard.toast.partialResult": "Le résultat partiel « {{name}} » a été conservé."
+  "autoWizard.toast.partialResult": "Le résultat partiel « {{name}} » a été conservé.",
+  "setup.header": "Configurez votre propre compte administrateur",
+  "setup.intro": "Avant de continuer, vous devez créer votre propre compte administrateur. Le compte de test par défaut sera ensuite désactivé automatiquement.",
+  "setup.firstName": "Prénom",
+  "setup.lastName": "Nom",
+  "setup.email": "Email",
+  "setup.userName": "Nom d'utilisateur",
+  "setup.password": "Mot de passe",
+  "setup.submit": "Créer le compte",
+  "setup.success": "Votre compte administrateur a été créé. Veuillez vous connecter avec vos nouveaux identifiants.",
+  "setup.error": "Le compte n'a pas pu être créé. Veuillez vérifier vos saisies."
 }

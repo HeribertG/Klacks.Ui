@@ -10,6 +10,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
 
 interface ReturnUrlPayload {
   url: string;
@@ -89,6 +90,14 @@ export class NavigationService {
 
   navigateToPageNotFound(): void {
     this.router.navigate(['/page-not-found']);
+  }
+
+  navigateToSetup(): void {
+    this.router.navigate([`/${SETUP_ROUTE_PATH}`]);
+  }
+
+  isOnSetupPage(): boolean {
+    return this.router.url.startsWith(`/${SETUP_ROUTE_PATH}`);
   }
   navigateToEditAddress(id?: string): void {
     if (id) {

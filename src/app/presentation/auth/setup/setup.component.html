@@ -1,0 +1,87 @@
+<div class="background">
+  <div class="container first border-right border-bottom">
+    <form (ngSubmit)="onSave()">
+      <p class="h4 big-gap-top center">{{ "setup.header" | translate }}</p>
+      <p class="intro">{{ "setup.intro" | translate }}</p>
+
+      <div class="form-group first big-gap-top">
+        <label class="mylabel" for="setupForm-firstName">{{
+          "setup.firstName" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          id="setupForm-firstName"
+          [formField]="setupForm.firstName"
+        />
+      </div>
+
+      <div class="form-group first">
+        <label class="mylabel" for="setupForm-lastName">{{
+          "setup.lastName" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          id="setupForm-lastName"
+          [formField]="setupForm.lastName"
+        />
+      </div>
+
+      <div class="form-group first">
+        <label class="mylabel" for="setupForm-email">{{
+          "setup.email" | translate
+        }}</label>
+        <input
+          type="email"
+          class="form-control"
+          id="setupForm-email"
+          [formField]="setupForm.email"
+        />
+      </div>
+
+      <div class="form-group first">
+        <label class="mylabel" for="setupForm-userName">{{
+          "setup.userName" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          id="setupForm-userName"
+          [formField]="setupForm.userName"
+        />
+      </div>
+
+      <div class="form-group first">
+        <div class="input-group">
+          <label class="mylabel" for="setupForm-password">{{
+            "setup.password" | translate
+          }}</label>
+          <app-password-input
+            [value]="setupFormModel().password"
+            (valueChange)="updatePassword($event)"
+            inputId="setupForm-password"
+            inputClass="input-password"
+            autocomplete="new-password"
+          />
+        </div>
+      </div>
+
+      <div class="center">
+        <button
+          type="submit"
+          class="btn btn-primary center"
+          id="setup-submit"
+          [disabled]="isSaving()"
+        >
+          @if (isSaving()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          }
+          {{ "setup.submit" | translate }}
+        </button>
+      </div>
+
+      <p></p>
+    </form>
+  </div>
+</div>

@@ -25,6 +25,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
+import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
@@ -73,6 +74,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private dataOAuth2Service = inject(DataOAuth2Service);
   private readonly destroyRef = inject(DestroyRef);
   private readonly syncNotificationService = inject(SyncNotificationToastService);
+  private readonly setupGateService = inject(SetupGateService);
   private readonly authorizationService = inject(AuthorizationService);
 
   public loginFormModel = signal<LoginFormModel>({ username: '', password: '' });
@@ -148,7 +150,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
       this.signalRService.resetAuthFailure();
       this.signalRService.startConnection();
       this.assistantSignalRService.startConnection();
-      this.navigationService.navigateAfterLogin();
+
+      const redirectedToSetup = await this.setupGateService.checkAndRedirect();
+      if (!redirectedToSetup) {
+        this.navigationService.navigateAfterLogin();
+      }
     }
 
     this.isClicked.set(false);
