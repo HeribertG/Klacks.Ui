@@ -3944,5 +3944,15 @@
   "setting.holidayWorkExemption.empty": "Keine Ausnahmen — Arbeit an gesetzlichen Feiertagen wird für alle gemeldet.",
   "harmonizer.error.staleResult": "Der Plan wurde seit dem Lauf geändert. Bitte den Lauf wiederholen.",
   "harmonizer.error.runConflict": "Für dieselbe Auswahl läuft bereits ein Durchgang. Bitte warte, bis er fertig ist.",
-  "autoWizard.toast.partialResult": "Teilergebnis „{{name}}“ wurde behalten."
+  "autoWizard.toast.partialResult": "Teilergebnis „{{name}}“ wurde behalten.",
+  "setup.header": "Eigenes Admin-Konto einrichten",
+  "setup.intro": "Bevor Sie fortfahren können, müssen Sie Ihr eigenes Admin-Konto anlegen. Das voreingestellte Test-Konto wird danach automatisch deaktiviert.",
+  "setup.firstName": "Vorname",
+  "setup.lastName": "Nachname",
+  "setup.email": "E-Mail",
+  "setup.userName": "Benutzername",
+  "setup.password": "Passwort",
+  "setup.submit": "Konto anlegen",
+  "setup.success": "Ihr Admin-Konto wurde angelegt. Bitte melden Sie sich mit den neuen Zugangsdaten an.",
+  "setup.error": "Das Konto konnte nicht angelegt werden. Bitte überprüfen Sie Ihre Eingaben."
 }

@@ -20,6 +20,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
+import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
 import { DataRefreshCoordinator } from 'src/app/application/services/data-refresh-coordinator.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
@@ -48,13 +50,14 @@ export class AppComponent implements OnInit {
   private readonly appSettings = inject(AppSettingsManagementService);
   private readonly signalRService = inject(SignalRService);
   private readonly authService = inject(AuthService);
+  private readonly setupGateService = inject(SetupGateService);
   private readonly dataRefreshCoordinator = inject(DataRefreshCoordinator);
   private readonly assistantSignalR = inject(AssistantSignalRService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   public title = 'klacks';
 
-  private readonly publicRoutes = ['/login', '/error'];
+  private readonly publicRoutes = ['/login', '/error', `/${SETUP_ROUTE_PATH}`];
 
   readonly showVoiceShell = computed<boolean>(() => {
     const mode = this.appSettings.speechSettings().outputMode;
@@ -80,6 +83,7 @@ export class AppComponent implements OnInit {
     if (this.authService.authenticated()) {
       void this.signalRService.startConnection();
       void this.assistantSignalR.startConnection();
+      void this.setupGateService.checkAndRedirect();
     }
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),

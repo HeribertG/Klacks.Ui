@@ -14,6 +14,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../auth.service';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
+import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -43,6 +44,9 @@ describe('LoginComponent', () => {
         };
         const syncNotificationServiceSpy = {
             checkAndShow: vi.fn().mockResolvedValue(undefined),
+        };
+        const setupGateServiceSpy = {
+            checkAndRedirect: vi.fn().mockResolvedValue(false),
         };
         const authorizationServiceSpy = {
             refresh: vi.fn()
@@ -103,6 +107,7 @@ describe('LoginComponent', () => {
                 },
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: SyncNotificationToastService, useValue: syncNotificationServiceSpy },
+                { provide: SetupGateService, useValue: setupGateServiceSpy },
                 { provide: SignalRService, useValue: signalRServiceSpy },
                 { provide: AssistantSignalRService, useValue: assistantSignalRServiceSpy },
                 { provide: LanguageConfigService, useValue: languageConfigServiceSpy },
@@ -180,6 +185,19 @@ describe('LoginComponent', () => {
         expect(navigationService.navigateAfterLogin).toHaveBeenCalled();
         expect(authorizationService.refresh).toHaveBeenCalled();
         expect(component.isClicked()).toBe(false);
+    });
+
+    it('should skip navigateAfterLogin when the setup gate redirects', async () => {
+        const setupGateServiceSpy = TestBed.inject(SetupGateService) as any;
+        setupGateServiceSpy.checkAndRedirect.mockResolvedValue(true);
+        component.loginFormModel.update(m => ({ ...m, username: 'admin@test.com', password: 'testpass' }));
+
+        authService.logIn.mockReturnValue(Promise.resolve(true));
+
+        await component.onSave();
+
+        expect(setupGateServiceSpy.checkAndRedirect).toHaveBeenCalled();
+        expect(navigationService.navigateAfterLogin).not.toHaveBeenCalled();
     });
 
     it('should handle failed login', async () => {

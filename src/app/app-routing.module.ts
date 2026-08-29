@@ -13,6 +13,7 @@ import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
 import { HomeComponent } from './presentation/surface/home/home.component';
 import { NoAccessComponent } from './presentation/no-access/no-access.component';
 import { PageNotFoundComponent } from './presentation/page-not-found/page-not-found.component';
+import { SETUP_ROUTE_PATH } from './domain/constants/setup.constants';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -36,6 +37,14 @@ const routes: Routes = [
     loadComponent: () =>
       import('./presentation/legal/privacy/privacy.component').then(
         (m) => m.PrivacyComponent,
+      ),
+  },
+  {
+    path: SETUP_ROUTE_PATH,
+    canActivate: [AuthGuard, AdminGuard],
+    loadComponent: () =>
+      import('./presentation/auth/setup/setup.component').then(
+        (m) => m.SetupComponent,
       ),
   },
   { path: 'error', component: ErrorComponent },

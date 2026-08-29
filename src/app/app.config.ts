@@ -46,6 +46,7 @@ import { CustomDatepickerI18n } from 'src/app/application/services/custom-datepi
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { AuthService } from './presentation/auth/auth.service';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
+import { SetupRequiredInterceptor } from './presentation/auth/setup-required.interceptor';
 import { Title } from '@angular/platform-browser';
 import { DomainEventHandler } from './presentation/handlers/domain-event.handler';
 import { EVENT_BUS_TOKEN } from './domain/interfaces/event-bus.interface';
@@ -119,6 +120,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenRefreshInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: SetupRequiredInterceptor,
       multi: true,
     },
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
