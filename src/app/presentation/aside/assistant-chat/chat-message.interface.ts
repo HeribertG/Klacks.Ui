@@ -19,6 +19,8 @@ export interface ChatMessage {
   respondedToUserMessage?: string;
   /** Set after the user submitted a correction for this assistant message. */
   correctionSubmitted?: boolean;
+  /** Set after the user marked this assistant message as helpful; locks the thumbs-up. */
+  helpfulSubmitted?: boolean;
   /** Set when this message originated from a backend push (SignalR) instead of answering the current conversation. */
   messageKind?: 'proactive';
   /** Reaction the user chose for a proactive message; once set, the reaction buttons lock. */

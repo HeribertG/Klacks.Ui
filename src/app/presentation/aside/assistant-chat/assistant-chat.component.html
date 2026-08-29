@@ -212,8 +212,26 @@
           </button>
           }
 
-          <!-- Correction (thumbs-down) for assistant messages with a referenced user message -->
+          <!-- Feedback (thumbs-up) and correction (thumbs-down) for assistant messages with a referenced user message -->
           @if (message.sender === 'assistant' && message.respondedToUserMessage && !message.isStreaming) {
+          <div class="feedback-controls">
+            @if (message.helpfulSubmitted) {
+            <span class="feedback-thanks" [attr.aria-label]="'assistant-chat.feedback.thanks' | translate">
+              <fa-icon [icon]="faCheck"></fa-icon>
+              {{ "assistant-chat.feedback.thanks" | translate }}
+            </span>
+            } @else {
+            <button
+              type="button"
+              class="feedback-btn"
+              (click)="submitHelpfulFeedback(message)"
+              [attr.aria-label]="'assistant-chat.feedback.helpful' | translate"
+              [title]="'assistant-chat.feedback.helpful' | translate"
+            >
+              <fa-icon [icon]="faThumbsUp"></fa-icon>
+            </button>
+            }
+          </div>
           <div class="correction-controls">
             @if (message.correctionSubmitted) {
             <span class="correction-thanks" [attr.aria-label]="'assistant-chat.correction.thanks' | translate">

@@ -271,6 +271,20 @@ export class DataAssistantService {
       request,
     );
   }
+
+  /**
+   * Marks the turn the given user message produced as helpful. The counterpart of submitCorrection:
+   * the request carries no verdict, because the route itself is the verdict.
+   * @param request - The user message whose answer helped
+   */
+  submitHelpfulFeedback(
+    request: ISubmitHelpfulFeedbackRequest,
+  ): Observable<ISubmitHelpfulFeedbackResponse> {
+    return this.httpClient.post<ISubmitHelpfulFeedbackResponse>(
+      `${this.baseUrl}eval/feedback`,
+      request,
+    );
+  }
 }
 
 export interface ISubmitCorrectionRequest {
@@ -280,6 +294,15 @@ export interface ISubmitCorrectionRequest {
 }
 
 export interface ISubmitCorrectionResponse {
+  found: boolean;
+  trajectoryId: string | null;
+}
+
+export interface ISubmitHelpfulFeedbackRequest {
+  userMessage: string;
+}
+
+export interface ISubmitHelpfulFeedbackResponse {
   found: boolean;
   trajectoryId: string | null;
 }

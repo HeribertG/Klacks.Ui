@@ -12,6 +12,8 @@ import {
   IAssistantUsage,
   ISubmitCorrectionRequest,
   ISubmitCorrectionResponse,
+  ISubmitHelpfulFeedbackRequest,
+  ISubmitHelpfulFeedbackResponse,
   IKlacksyModelCheckResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
@@ -382,6 +384,12 @@ export class DataManagementAssistantService {
 
   submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {
     return this.dataAssistantService.submitCorrection(request);
+  }
+
+  submitHelpfulFeedback(
+    request: ISubmitHelpfulFeedbackRequest,
+  ): Observable<ISubmitHelpfulFeedbackResponse> {
+    return this.dataAssistantService.submitHelpfulFeedback(request);
   }
 
   setProactiveReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {

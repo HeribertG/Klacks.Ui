@@ -43,6 +43,11 @@ export class LearnedCapabilitiesRowComponent {
     return `${Math.round(entry.quote * 100)}%`;
   });
 
+  readonly usesText = computed(() => {
+    const uses = this.data().uses;
+    return uses === null || uses === undefined ? KLACKSY_LEARNING_EMPTY_VALUE : `${uses}`;
+  });
+
   onClickEdit(): void {
     this.editEvent.emit(this.data());
   }

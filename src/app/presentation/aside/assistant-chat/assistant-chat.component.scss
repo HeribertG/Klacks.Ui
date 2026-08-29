@@ -667,6 +667,42 @@
   font-size: 11px;
 }
 
+.feedback-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.feedback-btn {
+  background: transparent;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+  }
+}
+
+.feedback-thanks {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mutedTextColor, #888);
+  font-style: italic;
+}
+
 .correction-btn {
   background: transparent;
   border: 1px solid var(--cardBorderColor);

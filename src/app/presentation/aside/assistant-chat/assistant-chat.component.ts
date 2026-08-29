@@ -96,7 +96,10 @@ import {
   PROACTIVE_TRIGGER_KIND,
 } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
-import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import {
+  ISubmitCorrectionRequest,
+  ISubmitHelpfulFeedbackRequest,
+} from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
@@ -1161,6 +1164,40 @@ export class AssistantChatComponent {
   toggleCorrectionMenu(messageId: string): void {
     const current = this.correctionMenuMessageId();
     this.correctionMenuMessageId.set(current === messageId ? null : messageId);
+  }
+
+  /**
+   * Records that this answer helped. The response's found flag is deliberately ignored: whether trajectory
+   * capture still had the turn to attach the mark to is nothing the user can act on. A failed request is
+   * different and is reported, because otherwise the click would do nothing visible at all.
+   * @param message - The assistant message the user gave a thumbs-up
+   */
+  submitHelpfulFeedback(message: ChatMessage): void {
+    if (!message.respondedToUserMessage || message.helpfulSubmitted) return;
+
+    const request: ISubmitHelpfulFeedbackRequest = {
+      userMessage: message.respondedToUserMessage,
+    };
+
+    this.assistantService
+      .submitHelpfulFeedback(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.ngZone.run(() => {
+            this.orchestrator.updateMessage(message.id, { helpfulSubmitted: true });
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            this.toastShowService.showError(
+              this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
+            );
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
   submitCorrection(message: ChatMessage, correctionType: CorrectionType): void {

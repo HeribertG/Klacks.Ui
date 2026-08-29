@@ -31,6 +31,12 @@
     (click)="onClickEdit()"
     >{{ quoteText() }}</span
   >
+  <span
+    id="learned-capabilities-row-uses-{{ data().id }}"
+    class="learned-capabilities-cell learned-capabilities-cell-uses"
+    (click)="onClickEdit()"
+    >{{ usesText() }}</span
+  >
 
   <span id="learned-capabilities-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
 </div>
