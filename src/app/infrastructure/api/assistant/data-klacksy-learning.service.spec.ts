@@ -16,7 +16,6 @@ describe('DataKlacksyLearningService', () => {
   let service: DataKlacksyLearningService;
   let httpMock: HttpTestingController;
   let apiUrl: string;
-  let assistantUrl: string;
 
   const mockPhrases: ILearnedPhrase[] = [
     {
@@ -81,7 +80,6 @@ describe('DataKlacksyLearningService', () => {
     service = TestBed.inject(DataKlacksyLearningService);
     httpMock = TestBed.inject(HttpTestingController);
     apiUrl = `${environment.baseAssistantUrl}learning`;
-    assistantUrl = `${environment.baseAssistantUrl}`;
   });
 
   afterEach(() => {
@@ -130,19 +128,18 @@ describe('DataKlacksyLearningService', () => {
     req.flush(null);
   });
 
-  it('approveDescriptionProposal posts to skill-proposals/{id}/approve', () => {
-    const response = { applied: true, error: null, newSkillVersion: 4 };
-    let received: unknown = null;
-    service.approveDescriptionProposal('proposal-1').subscribe((result) => {
-      received = result;
+  it('approveDescriptionProposal posts to learning/phrases/{id}/approve', () => {
+    let completed = false;
+    service.approveDescriptionProposal('proposal-1').subscribe(() => {
+      completed = true;
     });
 
-    const req = httpMock.expectOne(`${assistantUrl}skill-proposals/proposal-1/approve`);
+    const req = httpMock.expectOne(`${apiUrl}/phrases/proposal-1/approve`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({});
-    req.flush(response);
+    req.flush(null);
 
-    expect(received).toEqual(response);
+    expect(completed).toBe(true);
   });
 
   it('approveDescriptionProposal does not retry and surfaces the 400 of an unapprovable proposal', () => {
@@ -156,14 +153,14 @@ describe('DataKlacksyLearningService', () => {
       },
     });
 
-    const req = httpMock.expectOne(`${assistantUrl}skill-proposals/proposal-1/approve`);
+    const req = httpMock.expectOne(`${apiUrl}/phrases/proposal-1/approve`);
     req.flush({ error: 'Proposal is in status applied_auto, cannot approve.' }, {
       status: 400,
       statusText: 'Bad Request',
     });
 
     expect(status).toBe(400);
-    httpMock.expectNone(`${assistantUrl}skill-proposals/proposal-1/approve`);
+    httpMock.expectNone(`${apiUrl}/phrases/proposal-1/approve`);
   });
 
   it('getCapabilities gets learning/capabilities', () => {

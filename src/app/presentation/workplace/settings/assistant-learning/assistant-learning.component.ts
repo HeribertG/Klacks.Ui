@@ -385,13 +385,7 @@ export class AssistantLearningComponent implements OnInit, AfterViewInit, OnDest
     this.isApproving = true;
 
     try {
-      const result = await firstValueFrom(
-        this.learningService.approveDescriptionProposal(entry.id),
-      );
-      if (!result?.applied) {
-        this.showError(I18N.ErrorApprove);
-        return;
-      }
+      await firstValueFrom(this.learningService.approveDescriptionProposal(entry.id));
       this.showSuccess(I18N.InfoApproved);
       this.loadPhrases();
     } catch {

@@ -23,18 +23,15 @@ export const KLACKSY_LEARNING_DELETE_CONTEXT = {
   Wishes: 'klacksyLearningWishes',
 } as const;
 
-export const KLACKSY_SKILL_PROPOSALS_PATH = 'skill-proposals';
-
 /**
  * Path prefixes under the assistant base URL whose 400/404/409 responses are already handled by the
  * calling component's own toasts, so the HTTP interceptor's generic error toast must stay out of the way.
  */
 export const KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS = [
   'assistant/learning/',
-  `assistant/${KLACKSY_SKILL_PROPOSALS_PATH}/`,
 ] as const;
 
-export const KLACKSY_SKILL_PROPOSAL_APPROVE_ACTION = 'approve';
+export const KLACKSY_LEARNING_APPROVE_ACTION = 'approve';
 
 export const KLACKSY_LEARNING_DEFAULT_PHRASE_LIMIT = 50;
 

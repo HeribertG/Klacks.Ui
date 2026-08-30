@@ -8,7 +8,6 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataKlacksyLearningService } from 'src/app/infrastructure/api/assistant/data-klacksy-learning.service';
 import {
-  IApproveDescriptionProposalResponse,
   ILearnedCapability,
   ILearnedPhrase,
   ISkillLearningRunResponse,
@@ -35,7 +34,7 @@ export class DataManagementKlacksyLearningService {
     return this.dataKlacksyLearningService.deletePhrase(id);
   }
 
-  approveDescriptionProposal(id: string): Observable<IApproveDescriptionProposalResponse> {
+  approveDescriptionProposal(id: string): Observable<void> {
     return this.dataKlacksyLearningService.approveDescriptionProposal(id);
   }
 

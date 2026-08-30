@@ -134,9 +134,7 @@ describe('AssistantLearningComponent', () => {
       getPhrases: vi.fn().mockReturnValue(of(allPhrases)),
       updatePhrase: vi.fn().mockReturnValue(of(undefined)),
       deletePhrase: vi.fn().mockReturnValue(of(undefined)),
-      approveDescriptionProposal: vi
-        .fn()
-        .mockReturnValue(of({ applied: true, error: null, newSkillVersion: 4 })),
+      approveDescriptionProposal: vi.fn().mockReturnValue(of(undefined)),
       getCapabilities: vi.fn().mockReturnValue(of([capability])),
       updateCapability: vi.fn().mockReturnValue(of(undefined)),
       deleteCapability: vi.fn().mockReturnValue(of(undefined)),
@@ -481,9 +479,9 @@ describe('AssistantLearningComponent', () => {
       expect(mockLearningService.getPhrases).toHaveBeenCalledTimes(1);
     });
 
-    it('reports an error when the endpoint answers that nothing was applied', async () => {
+    it('reports an error and does not reload when the endpoint answers with a conflict', async () => {
       mockLearningService.approveDescriptionProposal.mockReturnValue(
-        of({ applied: false, error: 'Proposal not found.', newSkillVersion: null }),
+        throwError(() => ({ status: 409, error: { error: 'changed in the meantime' } })),
       );
       fixture.detectChanges();
 

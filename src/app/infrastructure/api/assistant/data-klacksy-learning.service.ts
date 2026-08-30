@@ -3,10 +3,9 @@
 /**
  * API service for the admin review of everything Klacksy has learned by itself.
  * Exposes the admin-only learning endpoints for learned phrases, learned capabilities and
- * unfulfillable wishes, plus the approve action of the skill-proposal endpoint that applies a
- * proposed description to the skill itself, the retry action that hands a wish the loop gave up on
- * back to it, and the trigger that starts a learning run right away.
- * @param assistantUrl - Assistant API root, shared by the learning and the skill-proposal routes
+ * unfulfillable wishes, plus the approve action that applies a blocked description proposal
+ * to the skill itself, the retry action that hands a wish the loop gave up on back to it,
+ * and the trigger that starts a learning run right away.
  * @param baseUrl - Assistant API root, the learning routes hang below it as "learning/..."
  */
 import { inject, Injectable } from '@angular/core';
@@ -15,7 +14,6 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import {
-  IApproveDescriptionProposalResponse,
   ILearnedCapability,
   ILearnedPhrase,
   ISkillLearningRunResponse,
@@ -24,12 +22,11 @@ import {
   IUpdateLearnedPhraseRequest,
 } from 'src/app/domain/interfaces/klacksy-learning.interface';
 import {
+  KLACKSY_LEARNING_APPROVE_ACTION,
   KLACKSY_LEARNING_DEFAULT_PHRASE_LIMIT,
   KLACKSY_LEARNING_RETRY_ACTION,
   KLACKSY_LEARNING_RUN_PATH,
   KLACKSY_LEARNING_UNFULFILLABLE_PATH,
-  KLACKSY_SKILL_PROPOSAL_APPROVE_ACTION,
-  KLACKSY_SKILL_PROPOSALS_PATH,
 } from 'src/app/domain/constants/klacksy-learning.constants';
 
 @Injectable({
@@ -37,9 +34,9 @@ import {
 })
 export class DataKlacksyLearningService {
   private httpClient = inject(HttpClient);
-  private readonly assistantUrl =
-    environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
-  private readonly baseUrl = `${this.assistantUrl}learning/`;
+  private readonly baseUrl = `${
+    environment.baseAssistantUrl || `${environment.baseUrl}assistant/`
+  }learning/`;
 
   getPhrases(limit = KLACKSY_LEARNING_DEFAULT_PHRASE_LIMIT): Observable<ILearnedPhrase[]> {
     return this.httpClient
@@ -57,9 +54,9 @@ export class DataKlacksyLearningService {
     return this.httpClient.delete<void>(`${this.baseUrl}phrases/${id}`);
   }
 
-  approveDescriptionProposal(id: string): Observable<IApproveDescriptionProposalResponse> {
-    return this.httpClient.post<IApproveDescriptionProposalResponse>(
-      `${this.assistantUrl}${KLACKSY_SKILL_PROPOSALS_PATH}/${id}/${KLACKSY_SKILL_PROPOSAL_APPROVE_ACTION}`,
+  approveDescriptionProposal(id: string): Observable<void> {
+    return this.httpClient.post<void>(
+      `${this.baseUrl}phrases/${id}/${KLACKSY_LEARNING_APPROVE_ACTION}`,
       {},
     );
   }

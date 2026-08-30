@@ -23,12 +23,6 @@ export interface IUpdateLearnedPhraseRequest {
   description?: string;
 }
 
-export interface IApproveDescriptionProposalResponse {
-  applied: boolean;
-  error: string | null;
-  newSkillVersion: number | null;
-}
-
 export interface ILearnedCapabilityStep {
   skill: string;
   kind: string;
