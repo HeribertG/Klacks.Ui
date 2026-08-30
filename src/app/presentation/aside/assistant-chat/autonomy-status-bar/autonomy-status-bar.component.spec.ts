@@ -22,6 +22,8 @@ describe('AutonomyStatusBarComponent', () => {
   let isAdmin: boolean;
 
   const governance = (killSwitchActive: boolean): IProactiveGovernance => ({
+    globalAutonomyLevel: 2,
+    globalAutonomyCap: 2,
     killSwitchActive,
     rules: [],
   });

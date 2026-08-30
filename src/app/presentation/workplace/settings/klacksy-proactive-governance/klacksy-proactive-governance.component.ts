@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Settings card deciding how far Klacksy may go on its own per finding type: report it, additionally
- * lay a ready scenario next to it, or additionally carry it out. Saves each change immediately, the
+ * Settings card deciding how far Klacksy may go on its own: a global autonomy level capping
+ * everything from above, plus per finding type report it, additionally lay a ready scenario next
+ * to it, or additionally carry it out. Saves each change immediately, the
  * way the other assistant cards do, and reloads the whole picture from the answer so the effective
  * ceiling stays truthful when the master off switch is on. Loads the account list itself, because the
  * Klacksy settings section has no neighbour that would do it.
@@ -22,6 +23,12 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { PROACTIVE_MAX_ACTIONS } from './proactive-max-action.constants';
 
 const KILL_SWITCH_ROW_KEY = '*';
+const LEVEL_ROW_KEY = 'level';
+
+interface GlobalLevelOption {
+  value: number;
+  labelKey: string;
+}
 
 @Component({
   selector: 'app-klacksy-proactive-governance',
@@ -43,9 +50,17 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
 
   readonly maxActions = PROACTIVE_MAX_ACTIONS;
   readonly rules = computed(() => this.governance()?.rules ?? []);
+  readonly globalLevel = computed(() => this.governance()?.globalAutonomyLevel ?? 0);
   readonly killSwitchActive = computed(() => this.governance()?.killSwitchActive ?? false);
   readonly isSavingKillSwitch = computed(() => this.savingKind() === KILL_SWITCH_ROW_KEY);
   readonly accounts = this.userAdministrationManagementService.accountsList;
+
+  readonly levels: GlobalLevelOption[] = [
+    { value: 0, labelKey: 'setting.proactiveGovernance.global-level-0' },
+    { value: 1, labelKey: 'setting.proactiveGovernance.global-level-1' },
+    { value: 2, labelKey: 'setting.proactiveGovernance.global-level-2' },
+    { value: 3, labelKey: 'setting.proactiveGovernance.global-level-3' },
+  ];
 
   async ngOnInit(): Promise<void> {
     this.userAdministrationManagementService.loadAccounts();
@@ -68,6 +83,14 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
 
   async onToggleKillSwitch(active: boolean): Promise<void> {
     await this.save(KILL_SWITCH_ROW_KEY, { killSwitch: active });
+  }
+
+  async onSelectLevel(level: number): Promise<void> {
+    if (level === this.globalLevel()) {
+      return;
+    }
+
+    await this.save(LEVEL_ROW_KEY, { autonomyLevel: level });
   }
 
   async onChangeMaxAction(rule: IProactiveGovernanceRule, rawValue: string): Promise<void> {

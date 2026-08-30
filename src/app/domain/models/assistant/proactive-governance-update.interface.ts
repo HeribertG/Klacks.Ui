@@ -2,6 +2,7 @@
 
 /**
  * Patch payload for the governance endpoint: only the supplied fields are written.
+ * @param autonomyLevel - New global autonomy level (0–3); caps every rule from above
  * @param triggerKind - Omitted when only the master off switch is being flipped
  * @param groupId - Restricts the rule to one group instead of the whole installation
  * @param maxAction - New ceiling for this finding type
@@ -14,6 +15,7 @@
  * @param killSwitch - New state of the master off switch
  */
 export interface IProactiveGovernanceUpdate {
+  autonomyLevel?: number;
   triggerKind?: string;
   groupId?: string | null;
   maxAction?: number;

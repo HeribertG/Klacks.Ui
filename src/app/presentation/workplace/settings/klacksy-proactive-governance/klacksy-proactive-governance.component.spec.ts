@@ -28,6 +28,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
     maxAction: 0,
     maxActionName: 'Hint',
     effectiveMaxAction: 0,
+    globalAutonomyCap: 3,
     enabled: true,
     responsibleOwnerUserId: null,
     dailyActionBudget: 5,
@@ -38,6 +39,8 @@ describe('KlacksyProactiveGovernanceComponent', () => {
   });
 
   const governance = (overrides: Partial<IProactiveGovernance> = {}): IProactiveGovernance => ({
+    globalAutonomyLevel: 2,
+    globalAutonomyCap: 2,
     killSwitchActive: false,
     rules: [rule()],
     ...overrides,
@@ -90,6 +93,45 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
     expect(mockDataGovernanceService.update).toHaveBeenCalledWith({ killSwitch: true });
     expect(component.killSwitchActive()).toBe(true);
+  });
+
+  it('renders the four global level buttons', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const buttons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll(
+      '.level-list .level-option'
+    );
+    expect(buttons.length).toBe(4);
+  });
+
+  it('persists a clicked global level immediately', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    await component.onSelectLevel(3);
+
+    expect(mockDataGovernanceService.update).toHaveBeenCalledWith({ autonomyLevel: 3 });
+  });
+
+  it('marks a rule capped by the global level instead of pinned to hint', async () => {
+    mockDataGovernanceService.get.mockReturnValue(
+      of(
+        governance({
+          rules: [
+            rule({ maxAction: 2, maxActionName: 'Execute', effectiveMaxAction: 1, globalAutonomyCap: 1 }),
+          ],
+        })
+      )
+    );
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const badge: HTMLElement = fixture.nativeElement.querySelector('.pinned-badge');
+    expect(badge.textContent).toContain('setting.proactiveGovernance.capped-by-global-level');
   });
 
   it('persists a changed ladder step for one finding type', async () => {

@@ -22,6 +22,75 @@
   color: var(--standartTextColor);
 }
 
+.governance-label {
+  margin-block: 8px;
+  margin-inline-start: 30px;
+  padding-inline-end: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--standartTextColor);
+}
+
+.level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-inline-start: 30px;
+  padding-inline-end: 30px;
+}
+
+.level-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: start;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 6px;
+  color: var(--standartTextColor);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--standartTextColor);
+  }
+
+  &.active {
+    background-color: var(--standartGreenColor);
+    border-color: var(--standartGreenColor);
+    color: var(--standartTextColor);
+    font-weight: 600;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.level-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(colors.$standartGreenColor, 0.5);
+  border: 1px solid var(--gridColorLine);
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+.level-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.level-label {
+  font-size: 13px;
+}
+
 .governance-warning {
   color: var(--standartRedColor);
   font-weight: 600;

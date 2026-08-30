@@ -12,6 +12,26 @@
   } @else {
     <p class="governance-hint">{{ "setting.proactiveGovernance.intro" | translate }}</p>
 
+    <p class="governance-label">{{ "setting.proactiveGovernance.global-level" | translate }}</p>
+    <p class="governance-hint">{{ "setting.proactiveGovernance.global-level-description" | translate }}</p>
+    <div class="level-list">
+      @for (level of levels; track level.value) {
+        <button
+          type="button"
+          class="level-option"
+          [class.active]="globalLevel() === level.value"
+          [disabled]="savingKind() !== null"
+          [id]="'proactive-governance-level-' + level.value"
+          (click)="onSelectLevel(level.value)"
+        >
+          <span class="level-badge">{{ level.value }}</span>
+          <span class="level-text">
+            <span class="level-label">{{ level.labelKey | translate }}</span>
+          </span>
+        </button>
+      }
+    </div>
+
     <div class="kill-switch" [class.active]="killSwitchActive()">
       <label class="checkbox-label">
         <input
@@ -56,7 +76,11 @@
             <tr class="table-row">
               <td class="table-cell kind-cell">
                 {{ labelKeyFor(rule.triggerKind) | translate }}
-                @if (rule.maxAction !== rule.effectiveMaxAction) {
+                @if (rule.globalAutonomyCap < rule.maxAction) {
+                  <span class="pinned-badge">{{
+                    "setting.proactiveGovernance.capped-by-global-level" | translate
+                  }}</span>
+                } @else if (rule.maxAction !== rule.effectiveMaxAction) {
                   <span class="pinned-badge">{{
                     "setting.proactiveGovernance.pinned-to-hint" | translate
                   }}</span>

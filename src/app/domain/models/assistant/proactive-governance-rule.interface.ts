@@ -6,7 +6,8 @@
  * @param groupId - Null for the installation-wide rule, set for a group scope exception
  * @param maxAction - Configured ceiling: 0 report only, 1 prepare a scenario, 2 carry out
  * @param maxActionName - Backend spelling of that ceiling
- * @param effectiveMaxAction - What actually applies once the kill switch and enabled are folded in
+ * @param effectiveMaxAction - What actually applies once the global level, the kill switch and enabled are folded in
+ * @param globalAutonomyCap - Ceiling the global autonomy level imposes on this rule
  * @param enabled - False pins the kind to reporting only; it never silences the message
  * @param responsibleOwnerUserId - Account a prepared or executed action runs under
  * @param dailyActionBudget - Actions allowed per day for this kind
@@ -20,6 +21,7 @@ export interface IProactiveGovernanceRule {
   maxAction: number;
   maxActionName: string;
   effectiveMaxAction: number;
+  globalAutonomyCap: number;
   enabled: boolean;
   responsibleOwnerUserId: string | null;
   dailyActionBudget: number;
