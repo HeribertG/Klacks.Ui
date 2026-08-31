@@ -40,6 +40,7 @@ import {
   faThumbsDown,
   faThumbsUp,
   faCheck,
+  faCheckDouble,
   faEyeSlash,
   faBell,
   faBellSlash,
@@ -213,6 +214,7 @@ export class AssistantChatComponent {
   faThumbsDown = faThumbsDown;
   faThumbsUp = faThumbsUp;
   faCheck = faCheck;
+  faCheckDouble = faCheckDouble;
   faBell = faBell;
   faBellSlash = faBellSlash;
   faEyeSlash = faEyeSlash;
@@ -229,6 +231,7 @@ export class AssistantChatComponent {
   readonly pendingReactionMessageId = signal<string | null>(null);
   readonly pendingMuteMessageId = signal<string | null>(null);
   readonly pendingDelegateMessageId = signal<string | null>(null);
+  readonly pendingAcknowledgeMessageId = signal<string | null>(null);
   readonly inboxBlockId = 'assistant-chat-inbox-block';
   readonly inboxMessages = computed(() => {
     const ids = this.proactiveInboxService.inboxMessageIds();
@@ -467,8 +470,31 @@ export class AssistantChatComponent {
     if (items.length === 0) {
       return;
     }
-    const knownIds = new Set(this.messages.map((message) => message.id));
-    const freshItems = items.filter((item) => !knownIds.has(item.id));
+    const knownMessages = new Map(this.messages.map((message) => [message.id, message]));
+    // A reminder is the same inbox row with a higher reminder count and its read state
+    // reset, so it updates the existing bubble in place instead of appending a duplicate.
+    // The order stays as rendered (by CreateTime); only the row's own fields change.
+    const remindedItems = items.filter((item) => {
+      const known = knownMessages.get(item.id);
+      return known !== undefined && (item.reminderCount ?? 0) > (known.proactiveReminderCount ?? 0);
+    });
+    for (const item of remindedItems) {
+      const refreshed = this.toInboxChatMessage(item);
+      this.orchestrator.updateMessage(item.id, {
+        content: refreshed.content,
+        formattedContent: refreshed.formattedContent,
+        proactiveReminderCount: refreshed.proactiveReminderCount,
+        proactiveAcknowledged: refreshed.proactiveAcknowledged,
+      });
+    }
+    if (remindedItems.length > 0) {
+      // A hide from before the reminder must not swallow the re-sent row for the rest
+      // of the session.
+      this.proactiveInboxService.unhideMessages(remindedItems.map((item) => item.id));
+      this.shouldScrollToBottom = true;
+      this.shouldScrollInboxToBottom = true;
+    }
+    const freshItems = items.filter((item) => !knownMessages.has(item.id));
     if (freshItems.length > 0) {
       const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
       this.messages = [...this.messages, ...inboxMessages];
@@ -504,6 +530,8 @@ export class AssistantChatComponent {
       proactiveReaction: this.toProactiveReaction(item.reaction),
       proactiveSeverity: item.severity ?? undefined,
       proactiveCanDelegate: item.canDelegate ?? false,
+      proactiveReminderCount: item.reminderCount ?? 0,
+      proactiveAcknowledged: !!item.acknowledgedAtUtc,
       ...this.toProactiveActionFields(item.kind, item.actionRoute, item.actionParams, item.contentParams),
     };
   }
@@ -1243,6 +1271,31 @@ export class AssistantChatComponent {
       );
     } finally {
       this.pendingReactionMessageId.set(null);
+      this.cdr.detectChanges();
+    }
+  }
+
+  /**
+   * "Erledigt": acknowledges the message server-side, which stops the reminder backoff
+   * for this row. Locked like the reaction buttons — one flight at a time, and a failed
+   * request only shows a toast so the button stays live for a retry.
+   * @param message - The proactive message the user marked as done
+   */
+  async submitAcknowledge(message: ChatMessage): Promise<void> {
+    if (message.messageKind !== 'proactive' || message.proactiveAcknowledged) return;
+    if (this.pendingAcknowledgeMessageId() !== null) return;
+
+    this.pendingAcknowledgeMessageId.set(message.id);
+    this.cdr.detectChanges();
+    try {
+      await firstValueFrom(this.proactiveInboxService.acknowledgeMessage(message.id));
+      this.orchestrator.updateMessage(message.id, { proactiveAcknowledged: true });
+    } catch {
+      this.toastShowService.showError(
+        this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
+      );
+    } finally {
+      this.pendingAcknowledgeMessageId.set(null);
       this.cdr.detectChanges();
     }
   }

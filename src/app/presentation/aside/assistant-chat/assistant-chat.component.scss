@@ -917,6 +917,19 @@
   font-size: 11px;
 }
 
+.proactive-reminder-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--backgroundColorFocus);
+  color: var(--colorLabel);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .suggestion-btn {
   background: var(--backgroundColorFocus);
   color: var(--standartTextColor);
