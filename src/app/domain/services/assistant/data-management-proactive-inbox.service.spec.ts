@@ -17,6 +17,7 @@ describe('DataManagementProactiveInboxService', () => {
     markAllRead: ReturnType<typeof vi.fn>;
     markManyRead: ReturnType<typeof vi.fn>;
     setReaction: ReturnType<typeof vi.fn>;
+    acknowledge: ReturnType<typeof vi.fn>;
   };
   let inboxChanged$: Subject<IProactiveInboxChanged>;
 
@@ -29,6 +30,7 @@ describe('DataManagementProactiveInboxService', () => {
       markAllRead: vi.fn().mockReturnValue(of(void 0)),
       markManyRead: vi.fn().mockReturnValue(of(void 0)),
       setReaction: vi.fn().mockReturnValue(of(void 0)),
+      acknowledge: vi.fn().mockReturnValue(of(void 0)),
     };
 
     TestBed.configureTestingModule({
@@ -248,6 +250,21 @@ describe('DataManagementProactiveInboxService', () => {
       service.resetInboxBlock();
 
       expect(service.hiddenMessageIds().size).toBe(0);
+    });
+
+    it('acknowledgeMessage forwards the id to the data service', () => {
+      service.acknowledgeMessage('a').subscribe();
+
+      expect(dataServiceMock.acknowledge).toHaveBeenCalledWith('a');
+    });
+
+    it('unhideMessages takes the ids back out of the hidden set without a server call', () => {
+      service.markHidden(['a', 'b']);
+
+      service.unhideMessages(['a']);
+
+      expect([...service.hiddenMessageIds()]).toEqual(['b']);
+      expect(dataServiceMock.markManyRead).not.toHaveBeenCalled();
     });
   });
 });

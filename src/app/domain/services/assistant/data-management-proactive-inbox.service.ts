@@ -144,6 +144,36 @@ export class DataManagementProactiveInboxService implements OnDestroy {
   }
 
   /**
+   * Record that the user handled the message, which stops the reminder backoff for it
+   * server-side. Returned cold on purpose: the component owns the pending state and the
+   * error toast, so it subscribes itself (unlike dismissMessage, where the aside closing
+   * mid-flight must not strand the row).
+   * @param messageId - Id of the message to acknowledge
+   */
+  acknowledgeMessage(messageId: string): Observable<void> {
+    return this.dataProactiveMessageService.acknowledge(messageId);
+  }
+
+  /**
+   * Take rows back out of the local hidden set without a server call, for rows that came
+   * back as a reminder: a hide from before the reminder must not swallow the re-sent row
+   * for the rest of the session.
+   * @param messageIds - Ids of the messages to show again
+   */
+  unhideMessages(messageIds: readonly string[]): void {
+    if (messageIds.length === 0) {
+      return;
+    }
+    this.hiddenMessageIdsSignal.update((ids) => {
+      const next = new Set(ids);
+      for (const id of messageIds) {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  /**
    * Record where the block started and open it, but only the first time — a later load
    * must extend the existing block, not re-expand it. Where the heading is actually
    * rendered is decided by the component from the first row still visible, so hiding

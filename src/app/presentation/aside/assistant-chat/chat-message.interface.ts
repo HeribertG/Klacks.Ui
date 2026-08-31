@@ -41,4 +41,8 @@ export interface ChatMessage {
   proactiveDelegated?: boolean;
   /** Whether this message reported a condition-ledger finding the delegate button can act on. */
   proactiveCanDelegate?: boolean;
+  /** How often this proactive message was re-sent as a reminder (0 = first delivery); drives the reminder badge. */
+  proactiveReminderCount?: number;
+  /** Set after the user acknowledged ("Erledigt") this message; locks the acknowledge button. */
+  proactiveAcknowledged?: boolean;
 }

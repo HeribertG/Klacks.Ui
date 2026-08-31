@@ -114,4 +114,14 @@ export class DataProactiveMessageService {
       )
       .pipe(retry(3));
   }
+
+  acknowledge(messageId: string): Observable<void> {
+    return this.httpClient
+      .put<void>(
+        `${this.baseUrl}proactive-messages/${messageId}/acknowledge`,
+        null,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
+  }
 }
