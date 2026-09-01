@@ -1,0 +1,151 @@
+<div id="skill-effectiveness-card" class="settings-card">
+  <div class="card-headline">
+    <span>Skill-Wirksamkeit</span>
+    <button id="skill-effectiveness-reload-btn" class="link-button" (click)="load()">
+      Neu laden
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="card-loading">Lade …</div>
+  } @else if (hasError()) {
+    <div class="card-error">Die Wirksamkeitsdaten konnten nicht geladen werden.</div>
+  } @else if (data(); as resource) {
+    <div class="card-section">
+      <h4>Goldset-Trend</h4>
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th>Goldset</th>
+            <th>Modell</th>
+            <th>Composite</th>
+            <th>Items</th>
+            <th>Zeitpunkt</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of resource.evalTrend; track $index) {
+            <tr>
+              <td>{{ run.goldset }}</td>
+              <td>{{ run.model ?? '-' }}</td>
+              <td>{{ run.compositeScore.toFixed(4) }}</td>
+              <td>{{ run.itemsPassed }}/{{ run.itemsTotal }}</td>
+              <td>{{ date(run.createTime) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-section">
+      <h4>Rezept-Funnel</h4>
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th>Rezept</th>
+            <th>Gestartet</th>
+            <th>Laufend</th>
+            <th>Vollendet</th>
+            <th>Abgebrochen</th>
+            <th>Verfallen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of resource.recipeFunnel; track row.recipeName) {
+            <tr>
+              <td>{{ row.recipeName }}</td>
+              <td>{{ row.started }}</td>
+              <td>{{ row.running }}</td>
+              <td>{{ row.completed }}</td>
+              <td>{{ row.aborted }}</td>
+              <td>{{ row.expired }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-section">
+      <h4>Fehlerklassen ({{ resource.failureSummary.totalRows }} Ausführungen)</h4>
+      <div class="failure-line">
+        Halluzinationen: {{ resource.failureSummary.notFound }} ·
+        Berechtigung: {{ resource.failureSummary.permissionDenied }} ·
+        Parameter: {{ resource.failureSummary.parameterInvalid }} ·
+        Gate-Hold: {{ resource.failureSummary.gateHold }} ·
+        UI-Kontext: {{ resource.failureSummary.uiActionContext }} ·
+        Exception: {{ resource.failureSummary.exception }}
+      </div>
+      <div class="failure-line">
+        Halluzinationsrate: {{ percent(resource.failureSummary.hallucinationRate) }}
+      </div>
+    </div>
+
+    <div class="card-section">
+      <h4>Top-Skills</h4>
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Aufrufe</th>
+            <th>Erfolgreich</th>
+            <th>Quote</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (skill of resource.topSkills; track skill.skillName) {
+            <tr>
+              <td>{{ skill.skillName }}</td>
+              <td>{{ skill.calls }}</td>
+              <td>{{ skill.successes }}</td>
+              <td>{{ percent(skill.successRate) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-section">
+      <h4>Flop-Skills</h4>
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Aufrufe</th>
+            <th>Fehlschläge</th>
+            <th>Quote</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (skill of resource.flopSkills; track skill.skillName) {
+            <tr>
+              <td>{{ skill.skillName }}</td>
+              <td>{{ skill.calls }}</td>
+              <td>{{ skill.failures }}</td>
+              <td>{{ percent(skill.successRate) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-section">
+      <h4>Herkunft des gewählten Skills</h4>
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th>Quelle</th>
+            <th>Anzahl</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of resource.chosenSourceDistribution; track row.source) {
+            <tr>
+              <td>{{ row.source }}</td>
+              <td>{{ row.count }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

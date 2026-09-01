@@ -3961,5 +3961,6 @@
   "setup.password": "Passwort",
   "setup.submit": "Konto anlegen",
   "setup.success": "Ihr Admin-Konto wurde angelegt. Bitte melden Sie sich mit den neuen Zugangsdaten an.",
-  "setup.error": "Das Konto konnte nicht angelegt werden. Bitte überprüfen Sie Ihre Eingaben."
+  "setup.error": "Das Konto konnte nicht angelegt werden. Bitte überprüfen Sie Ihre Eingaben.",
+  "settings.skillEffectiveness": "Skill-Wirksamkeit"
 }

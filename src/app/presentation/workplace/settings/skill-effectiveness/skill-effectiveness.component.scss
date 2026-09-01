@@ -1,0 +1,38 @@
+.settings-card {
+  padding: 16px;
+}
+
+.card-headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.card-section {
+  margin-top: 16px;
+}
+
+.scorecard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.scorecard-table th,
+.scorecard-table td {
+  border-bottom: 1px solid var(--colorBorderLight, #e0e0e0);
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.failure-line {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.card-loading,
+.card-error {
+  margin-top: 12px;
+  font-size: 13px;
+}

@@ -3961,5 +3961,6 @@
   "setup.password": "Password",
   "setup.submit": "Create Account",
   "setup.success": "Your admin account has been created. Please sign in with your new credentials.",
-  "setup.error": "The account could not be created. Please check your input."
+  "setup.error": "The account could not be created. Please check your input.",
+  "settings.skillEffectiveness": "Skill effectiveness"
 }
