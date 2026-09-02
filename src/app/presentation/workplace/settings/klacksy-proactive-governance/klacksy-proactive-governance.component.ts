@@ -21,14 +21,10 @@ import { IProactiveGovernanceRule } from 'src/app/domain/models/assistant/proact
 import { IProactiveGovernanceUpdate } from 'src/app/domain/models/assistant/proactive-governance-update.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PROACTIVE_MAX_ACTIONS } from './proactive-max-action.constants';
+import { PROACTIVE_AUTONOMY_LEVELS } from './proactive-autonomy-level.constants';
 
 const KILL_SWITCH_ROW_KEY = '*';
 const LEVEL_ROW_KEY = 'level';
-
-interface GlobalLevelOption {
-  value: number;
-  labelKey: string;
-}
 
 @Component({
   selector: 'app-klacksy-proactive-governance',
@@ -55,12 +51,7 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
   readonly isSavingKillSwitch = computed(() => this.savingKind() === KILL_SWITCH_ROW_KEY);
   readonly accounts = this.userAdministrationManagementService.accountsList;
 
-  readonly levels: GlobalLevelOption[] = [
-    { value: 0, labelKey: 'setting.proactiveGovernance.global-level-0' },
-    { value: 1, labelKey: 'setting.proactiveGovernance.global-level-1' },
-    { value: 2, labelKey: 'setting.proactiveGovernance.global-level-2' },
-    { value: 3, labelKey: 'setting.proactiveGovernance.global-level-3' },
-  ];
+  readonly levels = PROACTIVE_AUTONOMY_LEVELS;
 
   async ngOnInit(): Promise<void> {
     this.userAdministrationManagementService.loadAccounts();
