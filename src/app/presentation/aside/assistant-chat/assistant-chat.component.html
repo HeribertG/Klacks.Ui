@@ -233,7 +233,7 @@
             }
           </div>
           <div class="correction-controls">
-            @if (message.correctionSubmitted) {
+            @if (message.correctionSubmitted || message.notHelpfulCommentSubmitted) {
             <span class="correction-thanks" [attr.aria-label]="'assistant-chat.correction.thanks' | translate">
               <fa-icon [icon]="faCheck"></fa-icon>
               {{ "assistant-chat.correction.thanks" | translate }}
@@ -242,8 +242,10 @@
             <button
               type="button"
               class="correction-btn"
-              (click)="toggleCorrectionMenu(message.id)"
-              [attr.aria-label]="'assistant-chat.correction.flag' | translate"
+              [class.is-active]="message.notHelpfulSubmitted"
+              (click)="onNotHelpfulClick(message)"
+              [attr.aria-label]="'assistant-chat.correction.not-helpful' | translate"
+              [title]="'assistant-chat.correction.not-helpful' | translate"
             >
               <fa-icon [icon]="faThumbsDown"></fa-icon>
             </button>
@@ -258,6 +260,22 @@
               <button type="button" role="menuitem" (click)="submitCorrection(message, 'none_needed')">
                 {{ "assistant-chat.correction.none-needed" | translate }}
               </button>
+              <div class="correction-comment">
+                <input
+                  #notHelpfulComment
+                  type="text"
+                  class="correction-comment-input"
+                  [attr.placeholder]="'assistant-chat.correction.comment-placeholder' | translate"
+                  [attr.aria-label]="'assistant-chat.correction.comment-placeholder' | translate"
+                />
+                <button
+                  type="button"
+                  class="correction-comment-send"
+                  (click)="submitNotHelpfulComment(message, notHelpfulComment.value)"
+                >
+                  {{ "assistant-chat.correction.comment-send" | translate }}
+                </button>
+              </div>
             </div>
             }
             }

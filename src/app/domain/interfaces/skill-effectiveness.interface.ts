@@ -4,6 +4,7 @@
  * W6.1: shape of the aggregated "Skill-Wirksamkeit" scorecard from the admin endpoint.
  */
 export interface ISkillEffectivenessResource {
+  days: number;
   evalTrend: ISkillEffectivenessEvalRun[];
   recipeFunnel: ISkillEffectivenessRecipeFunnelRow[];
   failureSummary: ISkillEffectivenessFailureSummary;

@@ -15,7 +15,7 @@ import { DataSkillEffectivenessService } from 'src/app/infrastructure/api/assist
 export class DataManagementSkillEffectivenessService {
   private dataSkillEffectivenessService = inject(DataSkillEffectivenessService);
 
-  getSkillEffectiveness(): Observable<ISkillEffectivenessResource> {
-    return this.dataSkillEffectivenessService.getSkillEffectiveness();
+  getSkillEffectiveness(days?: number): Observable<ISkillEffectivenessResource> {
+    return this.dataSkillEffectivenessService.getSkillEffectiveness(days);
   }
 }

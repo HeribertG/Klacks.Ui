@@ -16,7 +16,7 @@ export interface StreamCallbacks {
   onStreamStart?: (conversationId: string) => void;
   onContent?: (text: string) => void;
   onFunctionCall?: (data: { functionName: string; parameters: Record<string, unknown> }) => void;
-  onFunctionResult?: (data: { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string }) => void;
+  onFunctionResult?: (data: { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string; uiActionTrackingId?: string }) => void;
   onMetadata?: (data: StreamMetadata) => void;
   onDone?: () => void;
   onError?: (message: string) => void;
@@ -149,7 +149,7 @@ export class DataAssistantStreamService {
         callbacks.onFunctionCall?.(data as { functionName: string; parameters: Record<string, unknown> });
         break;
       case 'function_result':
-        callbacks.onFunctionResult?.(data as { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string });
+        callbacks.onFunctionResult?.(data as { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string; uiActionTrackingId?: string });
         break;
       case 'metadata':
         callbacks.onMetadata?.(data as StreamMetadata);

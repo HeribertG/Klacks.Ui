@@ -16,6 +16,14 @@ import { firstValueFrom } from 'rxjs';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import {
+  UI_ACTION_RESULT_EMPTY_CONFIG_ERROR,
+  UI_ACTION_RESULT_MAX_ERROR_LENGTH,
+  UI_ACTION_RESULT_STATUS_COMPLETED,
+  UI_ACTION_RESULT_STATUS_FAILED,
+  UI_ACTION_RESULT_UNKNOWN_ERROR,
+} from 'src/app/domain/constants/ui-action-result.constants';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
@@ -33,6 +41,7 @@ export class ChatFunctionExecutionService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private onboarding = inject(OnboardingService);
   private klacksyNavigation = inject(KlacksyNavigationService);
+  private assistantService = inject(DataManagementAssistantService);
   private router = inject(Router);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
@@ -175,11 +184,27 @@ export class ChatFunctionExecutionService {
     }
   }
 
+  /**
+   * Runs one dispatched UI action and reports the real outcome back to the backend (W1.4). The
+   * backend can only book the dispatch; whether the browser carried it out is knowledge that exists
+   * here and nowhere else, so every exit of this method leaves a verdict behind.
+   * @param stepsJson - The UiActionSteps payload of the function call
+   * @param call - The raw function call, carrying parameters and the UiAction tracking id
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async executeUiActionSteps(stepsJson: string, call: any): Promise<void> {
+    const trackingId: string | undefined = call.UiActionTrackingId || call.uiActionTrackingId;
+
     try {
       const config: IUiActionConfig = JSON.parse(stepsJson);
-      if (!config.steps || config.steps.length === 0) return;
+      if (!config.steps || config.steps.length === 0) {
+        this.reportUiActionOutcome(
+          trackingId,
+          UI_ACTION_RESULT_STATUS_FAILED,
+          UI_ACTION_RESULT_EMPTY_CONFIG_ERROR,
+        );
+        return;
+      }
 
       const context = {
         params: call.Parameters || call.parameters || {},
@@ -187,15 +212,54 @@ export class ChatFunctionExecutionService {
         callId: this.generateMessageId(),
       };
 
-      await this.uiActionEngine.executeConfig(config, context);
+      const outcome = await this.uiActionEngine.executeConfig(config, context);
+      if (outcome && outcome.succeeded === false) {
+        this.reportUiActionOutcome(
+          trackingId,
+          UI_ACTION_RESULT_STATUS_FAILED,
+          outcome.error || UI_ACTION_RESULT_UNKNOWN_ERROR,
+        );
+        return;
+      }
+
+      this.reportUiActionOutcome(trackingId, UI_ACTION_RESULT_STATUS_COMPLETED);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      this.reportUiActionOutcome(
+        trackingId,
+        UI_ACTION_RESULT_STATUS_FAILED,
+        error?.message || UI_ACTION_RESULT_UNKNOWN_ERROR,
+      );
       const messages = this.orchestrator.messages();
       const lastMsg = messages[messages.length - 1];
       if (lastMsg && !lastMsg.content) {
-        this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || 'UI action execution failed' });
+        this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || UI_ACTION_RESULT_UNKNOWN_ERROR });
       }
     }
+  }
+
+  /**
+   * Fire-and-forget telemetry: a lost report costs one measurement, a thrown report would cost the
+   * user their answer, so the request can never surface here. Dispatches without a tracking id come
+   * from skills that were never booked as UiActions and have nothing to report against.
+   * @param trackingId - Tracking id the dispatch handed to the browser
+   * @param status - "completed" or "failed", the only values the backend accepts
+   * @param errorMessage - Failure detail, trimmed to what the backend stores
+   */
+  private reportUiActionOutcome(
+    trackingId: string | undefined,
+    status: string,
+    errorMessage?: string,
+  ): void {
+    if (!trackingId) return;
+
+    firstValueFrom(
+      this.assistantService.reportUiActionResult({
+        trackingId,
+        status,
+        errorMessage: errorMessage?.slice(0, UI_ACTION_RESULT_MAX_ERROR_LENGTH),
+      }),
+    ).catch(() => undefined);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

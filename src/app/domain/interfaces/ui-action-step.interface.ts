@@ -53,6 +53,17 @@ export interface IUiActionConfig {
   onError?: 'stop' | 'continue';
 }
 
+/**
+ * Outcome of one UiAction config run. Needed because a config with onError 'continue' swallows its
+ * step errors: without a returned verdict the caller cannot tell a fully executed action from one
+ * that logged three failures and carried on, and would report success for both (W1.4).
+ */
+export interface IUiActionExecutionOutcome {
+  succeeded: boolean;
+  failedStep?: UiActionType;
+  error?: string;
+}
+
 export interface IUiActionContext {
   params: Record<string, unknown>;
   results: Record<string, unknown>;

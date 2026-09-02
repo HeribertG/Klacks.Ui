@@ -9,6 +9,35 @@
   font-weight: 600;
 }
 
+.card-headline-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.day-range {
+  display: flex;
+  gap: 4px;
+}
+
+.day-range-btn {
+  background: none;
+  border: 1px solid var(--colorBorderLight, #e0e0e0);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.day-range-btn.is-active {
+  border-color: currentColor;
+  font-weight: 600;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
 .card-section {
   margin-top: 16px;
 }

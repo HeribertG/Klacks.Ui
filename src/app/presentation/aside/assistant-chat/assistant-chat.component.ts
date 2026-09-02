@@ -1212,6 +1212,73 @@ export class AssistantChatComponent {
   }
 
   /**
+   * The thumbs-down itself is the verdict (W1.8): the coarse "not helpful" is sent the moment the
+   * button is pressed, not when the user finishes picking a reason, because most users never do.
+   * The menu that opens afterwards only refines the verdict with a correction type or free text.
+   * Only closing the menu is silent - a repeated thumbs-down after a thumbs-up must reach the
+   * backend, whose handler lets the last judgement win and absorbs duplicates itself.
+   * @param message - The assistant message the user gave a thumbs-down
+   */
+  onNotHelpfulClick(message: ChatMessage): void {
+    const wasOpen = this.correctionMenuMessageId() === message.id;
+    this.toggleCorrectionMenu(message.id);
+
+    if (wasOpen || !message.respondedToUserMessage) return;
+
+    this.sendNotHelpful(message);
+  }
+
+  /**
+   * Sends the free text the user typed with the thumbs-down. The backend overwrites the comment of
+   * the same turn, so a second send simply refines the first one.
+   * @param message - The assistant message the user gave a thumbs-down
+   * @param comment - Free text; an empty box just closes the menu without a pointless request
+   */
+  submitNotHelpfulComment(message: ChatMessage, comment: string): void {
+    const trimmed = comment.trim();
+    if (!message.respondedToUserMessage || !trimmed) {
+      this.correctionMenuMessageId.set(null);
+      return;
+    }
+
+    this.sendNotHelpful(message, trimmed);
+  }
+
+  private sendNotHelpful(message: ChatMessage, comment?: string): void {
+    const request: ISubmitHelpfulFeedbackRequest = {
+      userMessage: message.respondedToUserMessage!,
+      helpful: false,
+      comment,
+    };
+
+    this.assistantService
+      .submitHelpfulFeedback(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.ngZone.run(() => {
+            this.orchestrator.updateMessage(message.id, {
+              notHelpfulSubmitted: true,
+              notHelpfulCommentSubmitted: comment ? true : message.notHelpfulCommentSubmitted,
+            });
+            if (comment) {
+              this.correctionMenuMessageId.set(null);
+            }
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            this.toastShowService.showError(
+              this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
+            );
+            this.cdr.detectChanges();
+          });
+        },
+      });
+  }
+
+  /**
    * Records that this answer helped. The response's found flag is deliberately ignored: whether trajectory
    * capture still had the turn to attach the mark to is nothing the user can act on. A failed request is
    * different and is reported, because otherwise the click would do nothing visible at all.
