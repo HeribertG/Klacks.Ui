@@ -8,11 +8,13 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ChatFunctionExecutionService } from './chat-function-execution.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
@@ -39,6 +41,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
         ChatFunctionExecutionService,
         AssistantFunctionExecutionService,
         { provide: UiActionEngineService, useValue: { executeConfig: vi.fn() } },
+        { provide: DataManagementAssistantService, useValue: { reportUiActionResult: vi.fn(() => of({ found: true, updated: true, error: null })) } },
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn() } },
         { provide: OnboardingService, useValue: { requestTourStart: vi.fn() } },

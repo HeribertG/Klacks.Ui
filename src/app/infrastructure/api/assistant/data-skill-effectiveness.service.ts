@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ISkillEffectivenessResource } from 'src/app/domain/interfaces/skill-effectiveness.interface';
+import { SKILL_EFFECTIVENESS_DEFAULT_DAYS } from 'src/app/domain/constants/skill-effectiveness.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +21,17 @@ export class DataSkillEffectivenessService {
     environment.baseAssistantUrl || `${environment.baseUrl}assistant/`
   }eval/`;
 
-  getSkillEffectiveness(): Observable<ISkillEffectivenessResource> {
+  /**
+   * Loads the scorecard for a reporting window.
+   * @param days - Length of the window in days; the backend answers 400 outside 1..365
+   */
+  getSkillEffectiveness(
+    days: number = SKILL_EFFECTIVENESS_DEFAULT_DAYS,
+  ): Observable<ISkillEffectivenessResource> {
     return this.httpClient
-      .get<ISkillEffectivenessResource>(`${this.baseUrl}skill-effectiveness`)
+      .get<ISkillEffectivenessResource>(`${this.baseUrl}skill-effectiveness`, {
+        params: { days: days.toString() },
+      })
       .pipe(retry(3));
   }
 }

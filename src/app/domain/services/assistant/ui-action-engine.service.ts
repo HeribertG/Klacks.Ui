@@ -4,7 +4,12 @@ import { inject, Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { IUiActionConfig, IUiActionContext, IUiActionStep } from '../../interfaces/ui-action-step.interface';
+import {
+  IUiActionConfig,
+  IUiActionContext,
+  IUiActionExecutionOutcome,
+  IUiActionStep,
+} from '../../interfaces/ui-action-step.interface';
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';
@@ -31,8 +36,19 @@ export class UiActionEngineService {
   // selectGroup steps need and which would otherwise burden every engine instantiation and test.
   private injector = inject(Injector);
 
-  async executeConfig(config: IUiActionConfig, context: IUiActionContext): Promise<void> {
+  /**
+   * Runs every step of a config. With onError 'stop' a failing step throws, with 'continue' the run
+   * carries on but the first failure is kept and returned, so the caller can report the honest
+   * outcome instead of assuming success (W1.4).
+   * @param config - Steps and the failure policy the backend attached to the skill
+   * @param context - Skill parameters, collected step results and the call id
+   */
+  async executeConfig(
+    config: IUiActionConfig,
+    context: IUiActionContext,
+  ): Promise<IUiActionExecutionOutcome> {
     const onError = config.onError ?? 'stop';
+    let firstFailure: IUiActionExecutionOutcome | null = null;
 
     for (const step of config.steps) {
       try {
@@ -42,8 +58,15 @@ export class UiActionEngineService {
           throw error;
         }
         console.error(`UI action step '${step.action}' failed:`, error);
+        firstFailure ??= {
+          succeeded: false,
+          failedStep: step.action,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     }
+
+    return firstFailure ?? { succeeded: true };
   }
 
   private async executeStep(step: IUiActionStep, context: IUiActionContext): Promise<void> {

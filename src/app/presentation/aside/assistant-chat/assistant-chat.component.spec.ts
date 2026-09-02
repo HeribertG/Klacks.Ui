@@ -186,6 +186,8 @@ describe('AssistantChatComponent', () => {
             setProactiveReaction: vi.fn().mockReturnValue(of(void 0)),
             muteTriggerKind: vi.fn().mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true })),
             delegateCondition: vi.fn().mockReturnValue(of(void 0)),
+            submitHelpfulFeedback: vi.fn().mockReturnValue(of({ found: true, trajectoryId: 'traj-1' })),
+            submitCorrection: vi.fn().mockReturnValue(of({ found: true, trajectoryId: 'traj-1' })),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
             availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
@@ -3134,5 +3136,82 @@ describe('AssistantChatComponent', () => {
             asideService.hide();
         });
     });
-});
 
+    describe('thumbs-down (W1.8 not helpful)', () => {
+        const USER_MESSAGE = 'Wie viele Mitarbeiter habe ich?';
+
+        const givenAssistantMessage = (): any => {
+            const message: any = {
+                id: 'msg-not-helpful',
+                sender: 'assistant',
+                content: 'Antwort',
+                timestamp: new Date(),
+                respondedToUserMessage: USER_MESSAGE,
+            };
+            component.orchestrator.addMessage(message);
+            return component.messages.find((m) => m.id === message.id)!;
+        };
+
+        it('sends helpful=false as soon as the thumbs-down opens the menu', () => {
+            const message = givenAssistantMessage();
+
+            component.onNotHelpfulClick(message);
+
+            expect(mockLlmService.submitHelpfulFeedback).toHaveBeenCalledWith({
+                userMessage: USER_MESSAGE,
+                helpful: false,
+                comment: undefined,
+            });
+            expect(component.correctionMenuMessageId()).toBe(message.id);
+        });
+
+        it('does not send again when the menu is closed', () => {
+            const message = givenAssistantMessage();
+
+            component.onNotHelpfulClick(message);
+            const updated = component.messages.find((m) => m.id === message.id)!;
+            component.onNotHelpfulClick(updated);
+
+            expect(mockLlmService.submitHelpfulFeedback).toHaveBeenCalledTimes(1);
+            expect(component.correctionMenuMessageId()).toBeNull();
+        });
+
+        it('sends the free text as comment and closes the menu', () => {
+            const message = givenAssistantMessage();
+            component.onNotHelpfulClick(message);
+            mockLlmService.submitHelpfulFeedback.mockClear();
+
+            component.submitNotHelpfulComment(message, '  falsche Gruppe  ');
+
+            expect(mockLlmService.submitHelpfulFeedback).toHaveBeenCalledWith({
+                userMessage: USER_MESSAGE,
+                helpful: false,
+                comment: 'falsche Gruppe',
+            });
+            expect(component.correctionMenuMessageId()).toBeNull();
+            expect(component.messages.find((m) => m.id === message.id)!.notHelpfulCommentSubmitted).toBe(true);
+        });
+
+        it('does not fire a request for an empty comment box', () => {
+            const message = givenAssistantMessage();
+            component.onNotHelpfulClick(message);
+            mockLlmService.submitHelpfulFeedback.mockClear();
+
+            component.submitNotHelpfulComment(message, '   ');
+
+            expect(mockLlmService.submitHelpfulFeedback).not.toHaveBeenCalled();
+            expect(component.correctionMenuMessageId()).toBeNull();
+        });
+
+        it('keeps the correction path with its own endpoint', () => {
+            const message = givenAssistantMessage();
+
+            component.submitCorrection(message, 'wrong_skill');
+
+            expect(mockLlmService.submitCorrection).toHaveBeenCalledWith({
+                userMessage: USER_MESSAGE,
+                correctionType: 'wrong_skill',
+            });
+        });
+    });
+});

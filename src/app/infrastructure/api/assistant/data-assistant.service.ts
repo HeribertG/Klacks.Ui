@@ -285,6 +285,22 @@ export class DataAssistantService {
       request,
     );
   }
+
+  /**
+   * Reports back what the browser actually did with a dispatched UI action (W1.4). Pure telemetry:
+   * it never blocks the chat, so it skips the loading indicator, and it retries because a lost
+   * report leaves the usage row stuck on "dispatched" forever.
+   * @param request - Tracking id from the dispatch plus the outcome the browser observed
+   */
+  reportUiActionResult(
+    request: IReportUiActionResultRequest,
+  ): Observable<IReportUiActionResultResponse> {
+    return this.httpClient
+      .post<IReportUiActionResultResponse>(`${this.baseUrl}eval/ui-action-result`, request, {
+        context: new HttpContext().set(SKIP_LOADING, true),
+      })
+      .pipe(retry(3));
+  }
 }
 
 export interface ISubmitCorrectionRequest {
@@ -300,6 +316,24 @@ export interface ISubmitCorrectionResponse {
 
 export interface ISubmitHelpfulFeedbackRequest {
   userMessage: string;
+
+  /** Absent means thumbs-up; false marks the turn as not helpful (W1.8). */
+  helpful?: boolean;
+
+  /** Optional free text the user typed with a thumbs-down. */
+  comment?: string;
+}
+
+export interface IReportUiActionResultRequest {
+  trackingId: string;
+  status: string;
+  errorMessage?: string;
+}
+
+export interface IReportUiActionResultResponse {
+  found: boolean;
+  updated: boolean;
+  error: string | null;
 }
 
 export interface ISubmitHelpfulFeedbackResponse {
