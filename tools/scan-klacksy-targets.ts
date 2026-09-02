@@ -44,10 +44,14 @@ const API_DEFINITIONS_DIR = resolve(UI_ROOT, '../Klacks.Api/Application/Skills/D
 const TARGETS_OUTPUT = join(API_DEFINITIONS_DIR, 'navigation-targets.json');
 const PAGE_KEYS_OUTPUT = join(API_DEFINITIONS_DIR, 'klacksy-page-keys.generated.json');
 const SKILL_SEEDS_PATH = join(API_DEFINITIONS_DIR, 'skill-seeds.json');
-const SKILL_SEEDS_NAVIGATE_DESCRIPTION_INTRO =
+// Kept short and stable on purpose: SkillSeedDescriptionQualityTests caps skill descriptions at
+// 500 chars, and the full page-key list (700+ chars) belongs in the "page" parameter description
+// instead (buildSkillParameterDescription below), not in the skill-level description.
+const SKILL_SEEDS_NAVIGATE_DESCRIPTION_DEFAULT =
   'Navigate to any page in Klacks the current user is allowed to see.';
-const SKILL_SEEDS_NAVIGATE_DESCRIPTION_OUTRO =
-  'Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.';
+// A hand-written description is only replaced when it starts with this marker, so the generator
+// never silently overwrites curated seed-hygiene text on an unrelated scan run.
+const SKILL_SEEDS_NAVIGATE_DESCRIPTION_REGENERATE_MARKER = '[[regenerate]]';
 
 const PAGE_LEVEL_CATEGORY = 'page';
 const ROUTE_LEVEL_LABEL_KEY_PREFIX = 'nav.';
@@ -93,16 +97,6 @@ function readPageKeys(): KlacksyPageKeyEntry[] {
   return entries;
 }
 
-function buildSkillDescription(pageKeys: KlacksyPageKeyEntry[]): string {
-  const parts = pageKeys.map((pk) => {
-    const annotations: string[] = [];
-    if (pk.llmHint) annotations.push(pk.llmHint);
-    if (pk.hasEntityParam) annotations.push('needs entityId');
-    return annotations.length > 0 ? `${pk.pageKey} (${annotations.join(', ')})` : pk.pageKey;
-  });
-  return `${SKILL_SEEDS_NAVIGATE_DESCRIPTION_INTRO} Pages: ${parts.join(', ')}. ${SKILL_SEEDS_NAVIGATE_DESCRIPTION_OUTRO}`;
-}
-
 function buildSkillParameterDescription(pageKeys: KlacksyPageKeyEntry[]): string {
   const hintParts = pageKeys
     .filter((pk) => pk.llmHint)
@@ -126,29 +120,29 @@ function syncSkillSeed(pageKeys: KlacksyPageKeyEntry[]): void {
     return;
   }
 
-  const newDescription = buildSkillDescription(pageKeys);
+  const snapshot = () =>
+    JSON.stringify({ description: navigateTo.description, parameters: navigateTo.parameters });
+  const before = snapshot();
+
+  const currentDescription: string = navigateTo.description ?? '';
+  if (
+    currentDescription.length === 0 ||
+    currentDescription.startsWith(SKILL_SEEDS_NAVIGATE_DESCRIPTION_REGENERATE_MARKER)
+  ) {
+    navigateTo.description = SKILL_SEEDS_NAVIGATE_DESCRIPTION_DEFAULT;
+  }
+
   const newEnumValues = pageKeys.map((pk) => pk.pageKey);
   const newParamDescription = buildSkillParameterDescription(pageKeys);
-
-  let changed = false;
-  if (navigateTo.description !== newDescription) {
-    navigateTo.description = newDescription;
-    changed = true;
-  }
   const pageParam = navigateTo.parameters?.find((p: any) => p?.name === 'page');
   if (pageParam) {
-    const currentEnum: string[] = pageParam.enumValues ?? [];
-    if (currentEnum.length !== newEnumValues.length || currentEnum.some((v, i) => v !== newEnumValues[i])) {
-      pageParam.enumValues = newEnumValues;
-      changed = true;
-    }
-    if (pageParam.description !== newParamDescription) {
-      pageParam.description = newParamDescription;
-      changed = true;
-    }
+    pageParam.enumValues = newEnumValues;
+    pageParam.description = newParamDescription;
   }
 
-  if (!changed) {
+  // Byte-compare instead of tracking a `changed` flag field-by-field, so a second, no-op run of
+  // this script is always diff-free and never bumps the version.
+  if (snapshot() === before) {
     console.log(`  skill-seeds.json/navigate_to already in sync; no changes.`);
     return;
   }
