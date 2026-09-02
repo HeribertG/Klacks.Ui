@@ -13,6 +13,12 @@ export interface IProactiveInboxItem {
   actionParams?: Record<string, string> | null;
   /** Whether this message reported a condition-ledger finding the "mach du" delegate action can act on. */
   canDelegate?: boolean;
+  /** How often the backend re-sent this row as a reminder (0 or unset = first delivery). */
+  reminderCount?: number;
+  /** When the latest reminder was sent (UTC). */
+  lastRemindedAtUtc?: string | null;
+  /** Set once the user acknowledged the message; a reminder is the same row with this still null. */
+  acknowledgedAtUtc?: string | null;
 }
 
 export interface IProactiveUnreadCount {

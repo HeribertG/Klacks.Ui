@@ -88,6 +88,15 @@ describe('DataProactiveMessageService', () => {
     req.flush(null);
   });
 
+  it('acknowledge puts to proactive-messages/{id}/acknowledge', () => {
+    service.acknowledge('dispatch-1').subscribe();
+
+    const req = httpMock.expectOne(`${apiUrl}/dispatch-1/acknowledge`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toBeNull();
+    req.flush(null);
+  });
+
   it('markManyRead puts the rendered ids to proactive-messages/read', () => {
     service.markManyRead(['dispatch-1', 'dispatch-2']).subscribe();
 

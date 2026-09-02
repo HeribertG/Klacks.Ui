@@ -1,4 +1,4 @@
-﻿<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Chat Container - Integrated -->
 <div class="chat-container-integrated">
@@ -267,6 +267,11 @@
           <!-- Reaction actions for proactive messages -->
           @if (message.messageKind === 'proactive') {
           <div class="proactive-reactions">
+            @if (message.proactiveReminderCount && message.proactiveReminderCount > 0) {
+            <span class="proactive-reminder-badge">
+              {{ "assistant-chat.proactive.reminder-badge" | translate : { count: message.proactiveReminderCount } }}
+            </span>
+            }
             @if (message.proactiveActionRoute) {
             <button
               type="button"
@@ -322,6 +327,23 @@
             >
               <fa-icon [icon]="faHandshake"></fa-icon>
               {{ "assistant-chat.proactive.delegate" | translate }}
+            </button>
+            }
+            @if (message.proactiveAcknowledged) {
+            <span class="proactive-reaction-thanks" [attr.aria-label]="'assistant-chat.proactive.acknowledge-confirmed' | translate">
+              <fa-icon [icon]="faCheck"></fa-icon>
+              {{ "assistant-chat.proactive.acknowledge-confirmed" | translate }}
+            </span>
+            } @else if (!message.proactiveReaction) {
+            <button
+              type="button"
+              class="proactive-reaction-btn proactive-acknowledge-btn"
+              [disabled]="pendingAcknowledgeMessageId() !== null"
+              (click)="submitAcknowledge(message)"
+              [attr.aria-label]="'assistant-chat.proactive.acknowledge' | translate"
+            >
+              <fa-icon [icon]="faCheckDouble"></fa-icon>
+              {{ "assistant-chat.proactive.acknowledge" | translate }}
             </button>
             }
             <div class="proactive-dismiss-controls">

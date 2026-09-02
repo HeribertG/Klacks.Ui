@@ -139,6 +139,14 @@ describe('AssistantChatComponent', () => {
             markHidden: vi.fn((messageIds: readonly string[]) => hide(messageIds)),
             hideMessages: vi.fn((messageIds: readonly string[]) => hide(messageIds)),
             dismissMessage: vi.fn((messageId: string) => hide([messageId])),
+            acknowledgeMessage: vi.fn().mockReturnValue(of(void 0)),
+            unhideMessages: vi.fn((messageIds: readonly string[]) =>
+                hiddenMessageIdsSig.update((ids) => {
+                    const next = new Set(ids);
+                    for (const id of messageIds) next.delete(id);
+                    return next;
+                }),
+            ),
             setInboxHeadingIfUnset: vi.fn((messageId: string) => {
                 if (inboxHeadingMessageIdSig() !== null) return;
                 inboxHeadingMessageIdSig.set(messageId);
@@ -2458,6 +2466,91 @@ describe('AssistantChatComponent', () => {
             );
         });
 
+        it('maps the reminder fields of an inbox entry onto the chat message', () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([inboxItem({ id: 'inbox-reminder', reminderCount: 2, acknowledgedAtUtc: '2026-07-25T06:00:00Z' })]),
+            );
+
+            // Act
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert
+            const message = component.messages.find((m) => m.id === 'inbox-reminder')!;
+            expect(message.proactiveReminderCount).toBe(2);
+            expect(message.proactiveAcknowledged).toBe(true);
+        });
+
+        it('updates a known row in place when its reminder count rises instead of appending a duplicate', () => {
+            // Arrange - the row was rendered once and then hidden
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'remind-me' })]));
+            asideService.show();
+            fixture.detectChanges();
+            component.hideWholeInbox();
+            fixture.detectChanges();
+            expect(component.inboxMessages()).toEqual([]);
+
+            // Act - the reminder is the same row, re-sent unread with a higher reminder count
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
+                of([inboxItem({ id: 'remind-me', reminderCount: 1 })]),
+            );
+            asideService.hide();
+            fixture.detectChanges();
+            asideService.show();
+            fixture.detectChanges();
+
+            // Assert - one bubble, updated in place, back out of the hidden set
+            expect(component.messages.filter((m) => m.id === 'remind-me').length).toBe(1);
+            expect(component.inboxMessages().map((m) => m.id)).toEqual(['remind-me']);
+            expect(component.messages.find((m) => m.id === 'remind-me')!.proactiveReminderCount).toBe(1);
+            expect(mockProactiveInboxService.unhideMessages).toHaveBeenCalledWith(['remind-me']);
+        });
+
+        it('acknowledges a proactive message and locks the acknowledge button', async () => {
+            // Arrange
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'ack-1' })]));
+            asideService.show();
+            fixture.detectChanges();
+            const message = component.messages.find((m) => m.id === 'ack-1')!;
+
+            // Act
+            await component.submitAcknowledge(message);
+
+            // Assert
+            expect(mockProactiveInboxService.acknowledgeMessage).toHaveBeenCalledWith('ack-1');
+            expect(component.messages.find((m) => m.id === 'ack-1')!.proactiveAcknowledged).toBe(true);
+            expect(component.pendingAcknowledgeMessageId()).toBeNull();
+
+            // Act again on the already-acknowledged message
+            await component.submitAcknowledge(component.messages.find((m) => m.id === 'ack-1')!);
+
+            // Assert: no second call
+            expect(mockProactiveInboxService.acknowledgeMessage).toHaveBeenCalledTimes(1);
+        });
+
+        it('shows an error toast and keeps the button live when acknowledging fails', async () => {
+            // Arrange
+            mockProactiveInboxService.acknowledgeMessage.mockReturnValue(
+                throwError(() => new Error('offline')),
+            );
+            const toastService = TestBed.inject(ToastShowService);
+            const showErrorSpy = vi.spyOn(toastService, 'showError');
+            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'ack-2' })]));
+            asideService.show();
+            fixture.detectChanges();
+            const message = component.messages.find((m) => m.id === 'ack-2')!;
+
+            // Act
+            await component.submitAcknowledge(message);
+
+            // Assert
+            expect(component.messages.find((m) => m.id === 'ack-2')!.proactiveAcknowledged).toBeFalsy();
+            expect(component.pendingAcknowledgeMessageId()).toBeNull();
+            expect(showErrorSpy).toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
+        });
+
         it('does not load the inbox while the setup tour is active', () => {
             // Arrange
             const onboarding = TestBed.inject(OnboardingService);
@@ -2718,11 +2811,12 @@ describe('AssistantChatComponent', () => {
                     '.proactive-reactions .proactive-reaction-btn:not(.proactive-mute-btn)',
                 ),
             );
-            expect(otherButtons.length).toBe(1);
+            // Acknowledge ("Erledigt") plus the dismiss toggle
+            expect(otherButtons.length).toBe(2);
 
             // Act - the dismiss route must stay reachable here too, or a muted suggestion stays
             // forever. Since the reject-reason menu it now takes two clicks: open, then pick.
-            otherButtons[0].click();
+            otherButtons[otherButtons.length - 1].click();
             fixture.detectChanges();
             const reasonItems: HTMLButtonElement[] = Array.from(
                 fixture.nativeElement.querySelectorAll(
@@ -2815,6 +2909,34 @@ describe('AssistantChatComponent', () => {
             expect(
                 component.messages.find((m) => m.id === 'mute-suggestion-error')?.proactiveMuted,
             ).toBe(true);
+        });
+
+        it('marks every visible message of the muted kind as acknowledged and drops its Erledigt button', async () => {
+            // Arrange: muting a kind IS an acknowledgement on the backend (F1), and nothing reloads
+            // the inbox afterwards, so the component has to apply that truth in place.
+            deliver(
+                muteSuggestion(),
+                proactiveWithAction({ id: 'unstaffed-1' }),
+                proactiveWithAction({ id: 'unstaffed-2' }),
+                proactiveWithAction({ id: 'other-kind-1', kind: 'target_hours_drift' }),
+            );
+            const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
+            expect(
+                fixture.nativeElement.querySelectorAll('.proactive-acknowledge-btn').length,
+            ).toBeGreaterThan(0);
+
+            // Act
+            await component.submitMuteSuggestion(appended);
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockLlmService.muteTriggerKind).toHaveBeenCalledWith('unstaffed_shift');
+            expect(component.messages.find((m) => m.id === 'unstaffed-1')!.proactiveAcknowledged).toBe(true);
+            expect(component.messages.find((m) => m.id === 'unstaffed-2')!.proactiveAcknowledged).toBe(true);
+            expect(
+                component.messages.find((m) => m.id === 'other-kind-1')!.proactiveAcknowledged,
+            ).toBeFalsy();
+            expect(component.messages.find((m) => m.id === 'mute-suggestion-1')!.proactiveMuted).toBe(true);
         });
 
         it('does not send a mute request when the target kind is missing from the content params', async () => {
