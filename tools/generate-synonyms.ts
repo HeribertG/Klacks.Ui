@@ -177,10 +177,48 @@ async function generatePluginsForTarget(t: TargetEntry, label: string, force: bo
   return calls;
 }
 
+/**
+ * Removes overlay entries whose target id the core manifest no longer knows. The generator only ever
+ * adds (overlay[targetId] = ...), so a target that was renamed or deleted keeps its synonyms in every
+ * plugin overlay forever; LanguagePluginContentInstaller then writes them into
+ * navigation_target_synonym on install, where NavigationTargetCacheService can no longer resolve them.
+ * Targets flagged obsolete are deliberately kept: that flag is reversible, and regenerating their
+ * translations would cost one LLM call per locale.
+ * @param manifest - Core navigation targets, the single source of truth for valid target ids
+ * @returns Number of overlay entries removed across all active plugin locales
+ */
+function prunePluginOverlays(manifest: TargetEntry[]): number {
+  const known = new Set(manifest.map(t => t.targetId));
+  let removed = 0;
+  for (const loc of ACTIVE_PLUGIN_LOCALES) {
+    const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
+    if (!existsSync(file)) continue;
+    let overlay: Record<string, unknown>;
+    try {
+      overlay = JSON.parse(readFileSync(file, 'utf8'));
+    } catch (e) {
+      console.error(`  ✗ could not read overlay ${loc}: ${e}`);
+      continue;
+    }
+    const stale = Object.keys(overlay).filter(id => !known.has(id));
+    if (!stale.length) continue;
+    for (const id of stale) delete overlay[id];
+    writeFileSync(file, JSON.stringify(overlay, null, 2) + '\n', 'utf8');
+    console.log(`  pruned ${stale.length} stale target(s) from ${loc}: ${stale.join(', ')}`);
+    removed += stale.length;
+  }
+  return removed;
+}
+
 async function run(): Promise<void> {
   const manifest: TargetEntry[] = JSON.parse(readFileSync(MANIFEST, 'utf8'));
   if (SKIP_PLUGINS) console.log('[generate-synonyms] Core-only mode (plugin locales skipped)');
   if (PLUGINS_ONLY) console.log('[generate-synonyms] Plugins-only mode (only missing plugin overlays)');
+
+  if (!SKIP_PLUGINS) {
+    const pruned = prunePluginOverlays(manifest);
+    console.log(`[generate-synonyms] Pruned ${pruned} stale overlay target(s).`);
+  }
 
   let processed = 0;
   for (const t of manifest) {
