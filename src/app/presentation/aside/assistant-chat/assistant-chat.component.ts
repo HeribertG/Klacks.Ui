@@ -692,16 +692,25 @@ export class AssistantChatComponent {
     return `${route}?${query}`;
   }
 
+  /**
+   * Mute the suggested trigger kind. Muting IS an acknowledgement on the backend (F1), which stamps
+   * every still open message of that kind as acknowledged. Nothing reloads the inbox afterwards, so
+   * the same truth is applied in place here - otherwise the settled messages would keep offering an
+   * "Erledigt" button until the next reload.
+   * @param message - The mute-suggestion message whose target kind is muted
+   */
   async submitMuteSuggestion(message: ChatMessage): Promise<void> {
     if (message.messageKind !== 'proactive' || message.proactiveMuted) return;
     if (!message.proactiveMuteTargetKind) return;
     if (this.pendingMuteMessageId() !== null) return;
 
+    const mutedKind = message.proactiveMuteTargetKind;
     this.pendingMuteMessageId.set(message.id);
     this.cdr.detectChanges();
     try {
-      await firstValueFrom(this.assistantService.muteTriggerKind(message.proactiveMuteTargetKind));
+      await firstValueFrom(this.assistantService.muteTriggerKind(mutedKind));
       this.orchestrator.updateMessage(message.id, { proactiveMuted: true });
+      this.markKindAcknowledged(mutedKind);
       this.toastShowService.showInfo(
         this.translateService.instant(PROACTIVE_MUTE_CONFIRMED_KEY),
       );
@@ -712,6 +721,14 @@ export class AssistantChatComponent {
     } finally {
       this.pendingMuteMessageId.set(null);
       this.cdr.detectChanges();
+    }
+  }
+
+  private markKindAcknowledged(triggerKind: string): void {
+    for (const candidate of this.messages) {
+      if (candidate.proactiveKind === triggerKind && !candidate.proactiveAcknowledged) {
+        this.orchestrator.updateMessage(candidate.id, { proactiveAcknowledged: true });
+      }
     }
   }
 

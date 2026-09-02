@@ -2911,6 +2911,34 @@ describe('AssistantChatComponent', () => {
             ).toBe(true);
         });
 
+        it('marks every visible message of the muted kind as acknowledged and drops its Erledigt button', async () => {
+            // Arrange: muting a kind IS an acknowledgement on the backend (F1), and nothing reloads
+            // the inbox afterwards, so the component has to apply that truth in place.
+            deliver(
+                muteSuggestion(),
+                proactiveWithAction({ id: 'unstaffed-1' }),
+                proactiveWithAction({ id: 'unstaffed-2' }),
+                proactiveWithAction({ id: 'other-kind-1', kind: 'target_hours_drift' }),
+            );
+            const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
+            expect(
+                fixture.nativeElement.querySelectorAll('.proactive-acknowledge-btn').length,
+            ).toBeGreaterThan(0);
+
+            // Act
+            await component.submitMuteSuggestion(appended);
+            fixture.detectChanges();
+
+            // Assert
+            expect(mockLlmService.muteTriggerKind).toHaveBeenCalledWith('unstaffed_shift');
+            expect(component.messages.find((m) => m.id === 'unstaffed-1')!.proactiveAcknowledged).toBe(true);
+            expect(component.messages.find((m) => m.id === 'unstaffed-2')!.proactiveAcknowledged).toBe(true);
+            expect(
+                component.messages.find((m) => m.id === 'other-kind-1')!.proactiveAcknowledged,
+            ).toBeFalsy();
+            expect(component.messages.find((m) => m.id === 'mute-suggestion-1')!.proactiveMuted).toBe(true);
+        });
+
         it('does not send a mute request when the target kind is missing from the content params', async () => {
             // Arrange
             deliver(muteSuggestion({ id: 'mute-suggestion-no-target', contentParams: {} }));
