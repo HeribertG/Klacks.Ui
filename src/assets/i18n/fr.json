@@ -3710,6 +3710,8 @@
   "assistant.proactive.nextPeriodPlanCommitted": "Le scénario généré automatiquement pour {{group}} (à partir du {{date}}) n'a introduit aucune nouvelle violation de conformité et a été automatiquement validé comme planning actif.",
   "assistant.proactive.nextPeriodAutoCommitBlocked": "L'acceptation automatique du scénario pour {{group}} (à partir du {{date}}) a été retenue : {{issues}} nouvelle(s) violation(s) de conformité ont été détectée(s). Merci de vérifier manuellement.",
   "assistant.proactive.klacksyLearnedDigest": "Klacksy a appris cette semaine : {{phrases}} nouvelles formulations, {{capabilities}} nouvelles capacités, {{unfulfillable}} souhaits encore irréalisables, {{blocked}} affinements bloqués ({{total}} au total).",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy a terminé de sceller les commandes : {{sealed}} sur {{total}} scellées, {{blocked}} bloquées, {{failed}} échouées ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "La tâche de fond pour sceller les commandes a été interrompue : {{error}} Les commandes déjà scellées le restent ; vérifie l'état actuel avec seal_open_orders (apply=false).",
   "escalation.intervention.badge-tooltip": "Escalades en cours",
   "escalation.intervention.title": "Escalades en cours",
   "escalation.intervention.empty": "Aucune escalade en cours actuellement.",

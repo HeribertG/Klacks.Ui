@@ -3718,6 +3718,8 @@
   "assistant.proactive.nextPeriodPlanCommitted": "The automatically created scenario for {{group}} (starting {{date}}) introduced no new compliance violations and was automatically committed as the live schedule.",
   "assistant.proactive.nextPeriodAutoCommitBlocked": "Automatic acceptance of the scenario for {{group}} (starting {{date}}) was withheld: {{issues}} new compliance violation(s) were found. Please review it manually.",
   "assistant.proactive.klacksyLearnedDigest": "Klacksy learned this week: {{phrases}} new phrasings, {{capabilities}} new capabilities, {{unfulfillable}} still-unfulfillable wishes, {{blocked}} blocked sharpenings ({{total}} in total).",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy finished sealing the orders: {{sealed}} of {{total}} sealed, {{blocked}} blocked, {{failed}} failed ({{duration}}s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "The background job to seal the orders was aborted: {{error}} Orders already sealed stay sealed; check the current state with seal_open_orders (apply=false).",
   "escalation.intervention.badge-tooltip": "Running escalations",
   "escalation.intervention.title": "Running escalations",
   "escalation.intervention.empty": "No escalation is currently running.",

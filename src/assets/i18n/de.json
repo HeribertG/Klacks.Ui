@@ -3718,6 +3718,8 @@
   "assistant.proactive.nextPeriodPlanCommitted": "Das automatisch erstellte Szenario für {{group}} (ab {{date}}) hat keine neuen Compliance-Verstöße verursacht und wurde automatisch als Planung übernommen.",
   "assistant.proactive.nextPeriodAutoCommitBlocked": "Die automatische Übernahme des Szenarios für {{group}} (ab {{date}}) wurde zurückgehalten: Es wurden {{issues}} neue Compliance-Verstoß/Verstöße gefunden. Bitte manuell prüfen.",
   "assistant.proactive.klacksyLearnedDigest": "Klacksy hat diese Woche dazugelernt: {{phrases}} neue Formulierungen, {{capabilities}} neue Fähigkeiten, {{unfulfillable}} noch unerfüllbare Wünsche, {{blocked}} blockierte Schärfungen ({{total}} insgesamt).",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy hat das Siegeln der Bestellungen abgeschlossen: {{sealed}} von {{total}} versiegelt, {{blocked}} blockiert, {{failed}} fehlgeschlagen ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Der Hintergrund-Auftrag zum Siegeln der Bestellungen ist abgebrochen: {{error}} Bereits versiegelte Bestellungen bleiben versiegelt; prüfe den aktuellen Stand mit seal_open_orders (apply=false).",
   "escalation.intervention.badge-tooltip": "Laufende Eskalationen",
   "escalation.intervention.title": "Laufende Eskalationen",
   "escalation.intervention.empty": "Aktuell läuft keine Eskalation.",

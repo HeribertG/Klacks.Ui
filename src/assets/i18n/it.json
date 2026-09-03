@@ -3710,6 +3710,8 @@
   "assistant.proactive.nextPeriodPlanCommitted": "Lo scenario creato automaticamente per {{group}} (a partire dal {{date}}) non ha introdotto nuove violazioni di conformità ed è stato automaticamente confermato come pianificazione attiva.",
   "assistant.proactive.nextPeriodAutoCommitBlocked": "L'accettazione automatica dello scenario per {{group}} (a partire dal {{date}}) è stata sospesa: sono state rilevate {{issues}} nuova/e violazione/i di conformità. Si prega di verificare manualmente.",
   "assistant.proactive.klacksyLearnedDigest": "Questa settimana Klacksy ha imparato: {{phrases}} nuove formulazioni, {{capabilities}} nuove capacità, {{unfulfillable}} desideri ancora non realizzabili, {{blocked}} affinamenti bloccati ({{total}} in totale).",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy ha terminato di sigillare gli ordini: {{sealed}} su {{total}} sigillati, {{blocked}} bloccati, {{failed}} falliti ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Il job in background per sigillare gli ordini è stato interrotto: {{error}} Gli ordini già sigillati restano sigillati; verifica lo stato attuale con seal_open_orders (apply=false).",
   "escalation.intervention.badge-tooltip": "Escalation in corso",
   "escalation.intervention.title": "Escalation in corso",
   "escalation.intervention.empty": "Nessuna escalation in corso al momento.",
