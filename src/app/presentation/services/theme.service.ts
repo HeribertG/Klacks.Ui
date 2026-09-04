@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service for managing the application theme.
+ * Service for managing the application theme. On first run (no theme stored yet), it
+ * adopts the browser's prefers-color-scheme once and persists it, so later OS/browser
+ * theme changes no longer affect an already-established user preference.
  * @param theme - Signal holding the current ThemeMode
  */
 import { inject, Injectable, signal } from '@angular/core';
@@ -19,20 +21,33 @@ export const AVAILABLE_THEMES: { value: ThemeMode; label: string }[] = [
   { value: 'dimmed', label: 'Dimmed' },
 ];
 
+const THEME_STORAGE_KEY = 'theme';
+
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private localStorageService = inject(LocalStorageService);
 
-  public theme = signal<ThemeMode>(
-    (this.localStorageService.get('theme') as ThemeMode) ?? 'light'
-  );
+  public theme = signal<ThemeMode>(this.resolveInitialTheme());
 
   constructor() {
     document.documentElement.setAttribute('data-theme', this.theme());
+    if (!this.localStorageService.get(THEME_STORAGE_KEY)) {
+      this.localStorageService.set(THEME_STORAGE_KEY, this.theme());
+    }
+  }
+
+  private resolveInitialTheme(): ThemeMode {
+    const stored = this.localStorageService.get(THEME_STORAGE_KEY) as ThemeMode | null;
+    if (stored) {
+      return stored;
+    }
+
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
   }
 
   setTheme(mode: ThemeMode) {
-    this.localStorageService.set('theme', mode);
+    this.localStorageService.set(THEME_STORAGE_KEY, mode);
     document.documentElement.setAttribute('data-theme', mode);
     this.theme.set(mode);
   }
