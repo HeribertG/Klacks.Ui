@@ -22,7 +22,9 @@
     <app-search></app-search>
   }
   @if (searchService.isClientSearchMode()) {
-    <app-search-client (clientSelected)="onClientSelected($event)"></app-search-client>
+    <app-search-client
+      (clientSelected)="onClientSelected($event)"
+    ></app-search-client>
   }
 
   <span id="header-version" class="version">{{ version() }}</span>
@@ -48,7 +50,8 @@
         id="header-escalation-badge"
         class="escalation-badge"
         [title]="'escalation.intervention.badge-tooltip' | translate"
-      >{{ escalationChainService.runningCount() }}</span>
+        >{{ escalationChainService.runningCount() }}</span
+      >
     </span>
   }
 
@@ -58,23 +61,18 @@
       class="assistant-btn-container"
       (click)="onToggleAssistant()"
     >
-      @if (isTourActive()) {
-        <app-icon-logo
-          id="header-assistant-button"
-          class="assistant-btn assistant-btn-logo"
-        ></app-icon-logo>
-      } @else {
-        <app-icon-mml
-          id="header-assistant-button"
-          class="assistant-btn"
-        ></app-icon-mml>
-      }
+      <app-icon-mml
+        id="header-assistant-button"
+        class="assistant-btn"
+      ></app-icon-mml>
+
       @if (proactiveInboxService.hasUnread()) {
         <span
           id="header-assistant-unread-badge"
           class="assistant-unread-badge"
           [title]="'assistant-chat.proactive.inbox-badge-tooltip' | translate"
-        >{{ proactiveInboxService.unreadCount() }}</span>
+          >{{ proactiveInboxService.unreadCount() }}</span
+        >
       }
     </span>
   }

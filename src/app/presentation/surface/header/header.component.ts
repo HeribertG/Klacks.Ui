@@ -24,7 +24,6 @@ import { AsideService } from '../../aside/aside.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
-import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
@@ -64,7 +63,6 @@ export class HeaderComponent {
   private navigationService = inject(NavigationService);
   private asideService = inject(AsideService);
   private appSettings = inject(AppSettingsManagementService);
-  private onboarding = inject(OnboardingService);
 
   public authorised = signal<boolean>(false);
   public readonly version = signal<string>('');
@@ -76,9 +74,6 @@ export class HeaderComponent {
   });
   public readonly hideAssistantButton = computed<boolean>(
     () => this.isFloatingMode() && this.asideService.isVisible(),
-  );
-  public readonly isTourActive = computed<boolean>(() =>
-    this.onboarding.isTourActive(),
   );
   public readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public readonly hasLogoImage = computed(() => !!this.logoImage());
