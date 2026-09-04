@@ -58,6 +58,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { DataMessagingInvitationService, TelegramInvitationResult } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
@@ -344,7 +345,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
       !!client
       && !!client.id
       && client.type === EntityTypeEnum.employee
-      && this.featurePluginState.isPluginEnabled('messaging')
+      && this.featurePluginState.isPluginEnabled(MESSAGING_PLUGIN_NAME)
       && this.telegramProviderActive()
       && !this.isDisabled()
     );
@@ -370,12 +371,18 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private loadTelegramProviderAvailability(): void {
-    this.messagingInvitationService.isTelegramProviderActive().subscribe({
-      next: (active) => {
-        this.telegramProviderActive.set(active);
-        this.cdr.markForCheck();
-      },
-      error: () => this.telegramProviderActive.set(false),
+    this.featurePluginState.ensureLoaded().then(() => {
+      if (!this.featurePluginState.isPluginEnabled(MESSAGING_PLUGIN_NAME)) {
+        this.telegramProviderActive.set(false);
+        return;
+      }
+      this.messagingInvitationService.isTelegramProviderActive().subscribe({
+        next: (active) => {
+          this.telegramProviderActive.set(active);
+          this.cdr.markForCheck();
+        },
+        error: () => this.telegramProviderActive.set(false),
+      });
     });
   }
 

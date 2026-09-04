@@ -41,6 +41,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 import { AdminInviteResult, DataUserMessengerContactService } from 'src/app/infrastructure/api/messaging/data-user-messenger-contact.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -151,12 +152,18 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   }
 
   private loadTelegramProviderAvailability(): void {
-    this.messagingInvitationService.isTelegramProviderActive().subscribe({
-      next: (active) => {
-        this.telegramProviderActive.set(active);
-        this.cdr.markForCheck();
-      },
-      error: () => this.telegramProviderActive.set(false),
+    this.featurePluginState.ensureLoaded().then(() => {
+      if (!this.featurePluginState.isPluginEnabled(MESSAGING_PLUGIN_NAME)) {
+        this.telegramProviderActive.set(false);
+        return;
+      }
+      this.messagingInvitationService.isTelegramProviderActive().subscribe({
+        next: (active) => {
+          this.telegramProviderActive.set(active);
+          this.cdr.markForCheck();
+        },
+        error: () => this.telegramProviderActive.set(false),
+      });
     });
   }
 
@@ -164,7 +171,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     return (
       this.isEditMode
       && !!this.newUser?.id
-      && this.featurePluginState.isPluginEnabled('messaging')
+      && this.featurePluginState.isPluginEnabled(MESSAGING_PLUGIN_NAME)
       && this.telegramProviderActive()
     );
   }

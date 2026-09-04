@@ -13,6 +13,8 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { Authentication, IAuthentication } from 'src/app/domain/models/authentification-class';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 
 describe('UserAdministrationComponent', () => {
     let component: UserAdministrationComponent;
@@ -22,6 +24,8 @@ describe('UserAdministrationComponent', () => {
     let mockModalService: any;
     let mockNgbModal: any;
     let mockTranslateService: any;
+    let mockFeaturePluginState: any;
+    let mockMessagingInvitationService: any;
 
     const mockUsers: IAuthentication[] = [
         {
@@ -123,6 +127,15 @@ describe('UserAdministrationComponent', () => {
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 
+        const featurePluginStateSpy = {
+            isPluginEnabled: vi.fn().mockReturnValue(false),
+            ensureLoaded: vi.fn().mockResolvedValue(undefined),
+        };
+
+        const messagingInvitationServiceSpy = {
+            isTelegramProviderActive: vi.fn().mockReturnValue(of(false)),
+        };
+
         await TestBed.configureTestingModule({
             imports: [UserAdministrationComponent, TranslateModule.forRoot()],
             providers: [
@@ -137,6 +150,8 @@ describe('UserAdministrationComponent', () => {
                 { provide: ModalService, useValue: modalServiceSpy },
                 { provide: NgbModal, useValue: ngbModalSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
+                { provide: FeaturePluginStateService, useValue: featurePluginStateSpy },
+                { provide: DataMessagingInvitationService, useValue: messagingInvitationServiceSpy },
             ],
         }).compileComponents();
 
@@ -145,6 +160,8 @@ describe('UserAdministrationComponent', () => {
         mockModalService = TestBed.inject(ModalService);
         mockNgbModal = TestBed.inject(NgbModal) as any;
         mockTranslateService = TestBed.inject(TranslateService) as any;
+        mockFeaturePluginState = TestBed.inject(FeaturePluginStateService) as any;
+        mockMessagingInvitationService = TestBed.inject(DataMessagingInvitationService) as any;
 
         fixture = TestBed.createComponent(UserAdministrationComponent);
         component = fixture.componentInstance;
@@ -591,6 +608,58 @@ describe('UserAdministrationComponent', () => {
             // Assert
             expect(ngUnsubscribeSpy).toHaveBeenCalled();
             expect(completeSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('Telegram Invitation Availability', () => {
+        it('does not call the messaging provider endpoint when the messaging plugin is disabled', async () => {
+            // Arrange
+            mockFeaturePluginState.isPluginEnabled.mockReturnValue(false);
+
+            // Act
+            component.ngOnInit();
+            await Promise.resolve();
+
+            // Assert
+            expect(mockMessagingInvitationService.isTelegramProviderActive).not.toHaveBeenCalled();
+        });
+
+        it('calls the messaging provider endpoint only after the plugin state confirms the plugin is enabled', async () => {
+            // Arrange
+            mockFeaturePluginState.isPluginEnabled.mockReturnValue(true);
+            mockMessagingInvitationService.isTelegramProviderActive.mockReturnValue(of(true));
+
+            // Act
+            component.ngOnInit();
+            await Promise.resolve();
+
+            // Assert
+            expect(mockMessagingInvitationService.isTelegramProviderActive).toHaveBeenCalled();
+        });
+
+        it('canSendUserTelegramInvite is false while the messaging plugin is disabled, even with an active edit', async () => {
+            // Arrange
+            mockFeaturePluginState.isPluginEnabled.mockReturnValue(false);
+            component.ngOnInit();
+            await Promise.resolve();
+            component.isEditMode = true;
+            (component as any).newUser = { id: 'user-1' };
+
+            // Assert
+            expect(component.canSendUserTelegramInvite()).toBe(false);
+        });
+
+        it('canSendUserTelegramInvite is true once the plugin is enabled and the Telegram provider is active', async () => {
+            // Arrange
+            mockFeaturePluginState.isPluginEnabled.mockReturnValue(true);
+            mockMessagingInvitationService.isTelegramProviderActive.mockReturnValue(of(true));
+            component.ngOnInit();
+            await Promise.resolve();
+            component.isEditMode = true;
+            (component as any).newUser = { id: 'user-1' };
+
+            // Assert
+            expect(component.canSendUserTelegramInvite()).toBe(true);
         });
     });
 });
