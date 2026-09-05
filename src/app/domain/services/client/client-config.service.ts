@@ -14,6 +14,8 @@ import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-e
 import { EMPTY, forkJoin, Subject, tap, catchError, retry, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +24,7 @@ export class ClientConfigService {
   private dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
+  private localStorageService = inject(LocalStorageService);
   private destroy$ = new Subject<void>();
 
   // On a cold start against an empty database the backend can still be seeding when this service
@@ -45,7 +48,9 @@ export class ClientConfigService {
   public isInit = signal(false);
 
   constructor() {
-    this.init();
+    if (this.localStorageService.get(StorageKeys.TOKEN)) {
+      this.init();
+    }
   }
 
   public init() {

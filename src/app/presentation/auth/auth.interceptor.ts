@@ -33,7 +33,6 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     const connectionId = this.signalRService.connectionId;
     const instanceId = this.getOrCreateInstanceId();
-    const selectedGroupId = this.resolveSelectedGroupId();
 
     let headers = req.headers.set('X-Instance-Id', instanceId);
 
@@ -44,6 +43,7 @@ export class AuthInterceptor implements HttpInterceptor {
         headers = headers.set('X-SignalR-ConnectionId', connectionId);
       }
 
+      const selectedGroupId = this.resolveSelectedGroupId();
       if (selectedGroupId) {
         headers = headers.set('X-Selected-Group', selectedGroupId);
       }

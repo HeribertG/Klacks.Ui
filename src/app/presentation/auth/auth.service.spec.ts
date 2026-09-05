@@ -115,6 +115,12 @@ describe('AuthService', () => {
         expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
     });
 
+    it('should skip the server-side logout call when there is no local token', () => {
+        service.logOut();
+
+        httpMock.expectNone(logoutUrl);
+    });
+
     function makeJwt(expSecondsFromNow: number): string {
         const payload = btoa(
             JSON.stringify({ exp: Math.floor(Date.now() / 1000) + expSecondsFromNow })
@@ -144,6 +150,47 @@ describe('AuthService', () => {
         await service.ensureFreshTokenAtStartup();
 
         httpMock.expectNone(refreshUrl);
+    });
+
+    it('should clear the dead session at startup when the token is expired and no refresh token exists', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+
+        await service.ensureFreshTokenAtStartup();
+
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+        httpMock.expectOne(logoutUrl).flush(null);
+    });
+
+    it('should clear the session at startup when the server rejects the refresh token as invalid', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'deadRefreshToken');
+
+        const startupPromise = service.ensureFreshTokenAtStartup();
+
+        httpMock.expectOne(refreshUrl).flush('Unauthorized', {
+            status: 401,
+            statusText: 'Unauthorized',
+        });
+        await startupPromise;
+
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+        httpMock.expectOne(logoutUrl).flush(null);
+    });
+
+    it('should keep the session at startup when the refresh attempt fails for an unrelated reason (backend unreachable)', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(-60));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'refreshToken');
+
+        const startupPromise = service.ensureFreshTokenAtStartup();
+
+        httpMock.expectOne(refreshUrl).flush('Bad Gateway', {
+            status: 502,
+            statusText: 'Bad Gateway',
+        });
+        await startupPromise;
+
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(makeJwt(-60));
+        httpMock.expectNone(logoutUrl);
     });
 
     it('should silently refresh an expired-but-renewable token at startup', async () => {
@@ -195,6 +242,7 @@ describe('AuthService', () => {
     });
 
     it('should invalidate the cached group tree on logout so the next user gets fresh scope-checked data', () => {
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
         const dataDashboardService = TestBed.inject(DataDashboardService);
 
         dataDashboardService.getClientsOverviewData().subscribe();

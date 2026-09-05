@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
 /* eslint-disable no-prototype-builtins */
 import { inject, Injectable, Injector, ProviderToken } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -98,7 +99,9 @@ export class AuthService {
    * Logs the user out. Invalidates the refresh token(s) on the server first (fire-and-forget,
    * so a failure - e.g. an already-expired access token - never blocks the client-side logout),
    * then clears all locally stored session state, tears down every realtime hub connection and
-   * drops the session-scoped draft and instance id.
+   * drops the session-scoped draft and instance id. The server call is skipped entirely when
+   * there is no local token - there is nothing to invalidate server-side, and issuing it anyway
+   * would just produce a guaranteed, meaningless 401.
    *
    * The server logout request is issued before the token is removed so the auth interceptor can
    * still attach the Authorization header and connection id. Realtime connections are stopped only
@@ -106,10 +109,12 @@ export class AuthService {
    * by the now-missing token.
    */
   logOut() {
-    this.dataAuthService.logout().subscribe({
-      next: () => undefined,
-      error: () => undefined,
-    });
+    if (this.localStorageService.get(StorageKeys.TOKEN)) {
+      this.dataAuthService.logout().subscribe({
+        next: () => undefined,
+        error: () => undefined,
+      });
+    }
 
     this.removeToken();
     this.removeStateValue();
@@ -359,9 +364,11 @@ export class AuthService {
    * Silently refreshes an expired-but-renewable access token during app bootstrap,
    * before any component or config initializer fires its first authenticated request.
    * Single-flight: concurrent callers share one refresh so the rotating refresh token
-   * is never spent twice. Does nothing when there is no token, the token is still
-   * valid, or no refresh token is stored - a failed refresh is left to the normal
-   * 401/login flow so the session is never dropped while it is still recoverable.
+   * is never spent twice. Does nothing when there is no token or the token is still
+   * valid. A refresh failure only clears the session when the server actually
+   * rejected the refresh token (400/401) - a network/server error is left to the
+   * normal 401/login flow so a still-recoverable session is never dropped just
+   * because the backend was briefly unreachable at boot.
    */
   ensureFreshTokenAtStartup(): Promise<void> {
     if (!this.startupRefreshPromise) {
@@ -380,10 +387,33 @@ export class AuthService {
       StorageKeys.TOKEN_REFRESHTOKEN
     );
     if (!refreshToken) {
+      this.logOut();
       return;
     }
 
-    await this.refreshToken();
+    if (await this.isRefreshTokenRejected(refreshToken)) {
+      this.logOut();
+    }
+  }
+
+  /**
+   * Attempts the startup refresh and reports whether the server explicitly rejected
+   * the refresh token (400/401 - definitely dead), as opposed to succeeding or failing
+   * for an unrelated reason (network error, 5xx) that should not clear the session.
+   */
+  private async isRefreshTokenRejected(refreshToken: string): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(
+        this.dataAuthService.refreshToken({ refreshToken })
+      );
+      if (response) {
+        this.storeToken(response, true);
+      }
+      return false;
+    } catch (error) {
+      const status = error instanceof HttpErrorResponse ? error.status : 0;
+      return status === 400 || status === 401;
+    }
   }
 
   private isAccessTokenExpired(token: string): boolean {
