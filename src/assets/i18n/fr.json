@@ -2475,6 +2475,7 @@
   "assistant-chat.onboarding.card.title": "Configurer Klacks",
   "assistant-chat.onboarding.card.progress": "{{done}} sur {{total}} terminés",
   "assistant-chat.onboarding.card.start": "Démarrer la configuration",
+  "assistant-chat.onboarding.header-badge.start": "Démarrer la visite",
   "assistant-chat.onboarding.card.resume": "Reprendre la configuration",
   "assistant-chat.onboarding.card.dismiss": "Masquer la configuration",
   "assistant-chat.onboarding.explain.title": "Commençons par le nom d'affichage de Klacks. Ce nom apparaît dans le titre du navigateur, l'en-tête et sur les rapports — typiquement le nom de votre entreprise ou organisation. Tout ce que nous configurons dans cette visite se retrouve plus tard via l'icône d'engrenage dans la navigation de gauche — je la fais clignoter un instant.",

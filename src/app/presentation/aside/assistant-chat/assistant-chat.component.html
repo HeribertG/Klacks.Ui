@@ -133,17 +133,22 @@
   <app-autonomy-status-bar></app-autonomy-status-bar>
   }
 
-  <!-- Klacksy AgentPlan execution panel (hidden during the setup tour) -->
-  @if (!isTourActive() && planService.hasVisiblePlan()) {
+  <!-- Klacksy AgentPlan execution panel (hidden during the setup tour; hidden in audio mode → shown as floating toast) -->
+  @if (!isTourActive() && planService.hasVisiblePlan() && !isAudioOutputMode()) {
   <app-plan-execution-panel
     (approveRequested)="onPlanApprove($event)"
     (abortRequested)="onPlanAbort($event)"
   ></app-plan-execution-panel>
   }
 
-  <!-- Klacksy self-proposed goal candidates (hidden during the setup tour; empty state handled inside) -->
-  @if (!isTourActive()) {
+  <!-- Klacksy self-proposed goal candidates (hidden during the setup tour; hidden in audio mode → shown as floating toast) -->
+  @if (!isTourActive() && !isAudioOutputMode()) {
   <app-goal-candidates-panel></app-goal-candidates-panel>
+  }
+
+  <!-- Audio-only mode: floating panels for goal candidates & plan execution (collapsed by default, stack from bottom-right) -->
+  @if (!isTourActive() && isAudioOutputMode()) {
+  <app-audio-mode-panels></app-audio-mode-panels>
   }
 
   <!-- Messages Area -->

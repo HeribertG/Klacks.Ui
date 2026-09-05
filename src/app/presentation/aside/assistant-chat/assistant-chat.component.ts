@@ -70,6 +70,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { PlanExecutionPanelComponent } from './plan-execution-panel/plan-execution-panel.component';
 import { GoalCandidatesPanelComponent } from './goal-candidates-panel/goal-candidates-panel.component';
+import { AudioModePanelsComponent } from './audio-mode-panel-toast/audio-mode-panels.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -146,6 +147,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     IconUserComponent,
     PlanExecutionPanelComponent,
     GoalCandidatesPanelComponent,
+    AudioModePanelsComponent,
     AutonomyStatusBarComponent,
   ],
   templateUrl: './assistant-chat.component.html',
@@ -182,6 +184,11 @@ export class AssistantChatComponent {
   readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
+
+  /** Whether output mode is audio-only — panels should show as floating toasts */
+  readonly isAudioOutputMode = computed(() =>
+    this.appSettings.speechSettings().outputMode === OutputMode.Audio
+  );
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
   readonly onboarding = inject(OnboardingService);

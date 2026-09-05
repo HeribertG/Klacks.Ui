@@ -1,0 +1,62 @@
+<div class="audio-mode-panels-overlay">
+  <!-- Goal Candidates Header -->
+  @if (hasCandidates()) {
+    <div class="audio-panel-card">
+      <button
+        type="button"
+        class="audio-panel-header"
+        (click)="toggleCandidates()"
+        [attr.aria-expanded]="isCandidatesExpanded()"
+      >
+        <fa-icon class="audio-panel-icon" [icon]="faBullseye"></fa-icon>
+        <span class="audio-panel-title">
+          {{ 'assistant-chat.audio-mode.goal-candidates' | translate }}
+        </span>
+        <span class="audio-panel-badge">{{ candidates().length }}</span>
+        <fa-icon
+          class="audio-panel-chevron"
+          [icon]="isCandidatesExpanded() ? faChevronUp : faChevronDown"
+        ></fa-icon>
+      </button>
+
+      @if (isCandidatesExpanded()) {
+        <div class="audio-panel-content">
+          <app-goal-candidates-panel></app-goal-candidates-panel>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Plan Execution Header -->
+  @if (hasVisiblePlan()) {
+    <div class="audio-panel-card">
+      <button
+        type="button"
+        class="audio-panel-header"
+        (click)="togglePlan()"
+        [attr.aria-expanded]="isPlanExpanded()"
+      >
+        <fa-icon class="audio-panel-icon" [icon]="faListCheck"></fa-icon>
+        <span class="audio-panel-title">
+          {{ 'assistant-chat.audio-mode.plan-execution' | translate }}
+        </span>
+        @if (plan()) {
+          <span class="audio-panel-status">{{ planStatusLabelKey() | translate }}</span>
+        }
+        <fa-icon
+          class="audio-panel-chevron"
+          [icon]="isPlanExpanded() ? faChevronUp : faChevronDown"
+        ></fa-icon>
+      </button>
+
+      @if (isPlanExpanded()) {
+        <div class="audio-panel-content">
+          <app-plan-execution-panel
+            (approveRequested)="onPlanApprove($event)"
+            (abortRequested)="onPlanAbort($event)"
+          ></app-plan-execution-panel>
+        </div>
+      }
+    </div>
+  }
+</div>
