@@ -86,6 +86,23 @@ app-group-select {
   padding: 0 4px;
 }
 
+.assistant-tour-badge {
+  position: absolute;
+  top: -10px;
+  inset-inline-end: -14px;
+  background-color: colors.$standartGreenColor;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 6px;
+  cursor: pointer;
+}
+
 .escalation-btn-container {
   position: relative;
   display: inline-flex;

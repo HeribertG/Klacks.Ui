@@ -32,6 +32,8 @@ import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/sign
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { DataManagementEscalationChainService } from 'src/app/domain/services/assistant/data-management-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { ONBOARDING_STATUS } from 'src/app/domain/constants/onboarding-stations';
 
 @Component({
   selector: 'app-header',
@@ -58,6 +60,7 @@ export class HeaderComponent {
   public proactiveInboxService = inject(DataManagementProactiveInboxService);
   public escalationChainService = inject(DataManagementEscalationChainService);
   public authorizationService = inject(AuthorizationService);
+  public onboardingService = inject(OnboardingService);
 
   private auth = inject(AuthService);
   private navigationService = inject(NavigationService);
@@ -75,6 +78,10 @@ export class HeaderComponent {
   public readonly hideAssistantButton = computed<boolean>(
     () => this.isFloatingMode() && this.asideService.isVisible(),
   );
+  public readonly showTourStartBadge = computed<boolean>(() => {
+    const state = this.onboardingService.state();
+    return !!state && state.status !== ONBOARDING_STATUS.Completed;
+  });
   public readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public readonly hasLogoImage = computed(() => !!this.logoImage());
   public readonly logoDimensions = computed(() =>
@@ -127,5 +134,11 @@ export class HeaderComponent {
 
   onToggleAssistant(): void {
     this.asideService.toggle();
+  }
+
+  onStartTour(event: MouseEvent): void {
+    event.stopPropagation();
+    this.asideService.show();
+    this.onboardingService.requestTourStart();
   }
 }
