@@ -194,5 +194,23 @@ describe('OnboardingService', () => {
 
             expect(service.tourStartRequested()).toBe(2);
         });
+
+        it('consumeTourStartRequest claims a request only once', () => {
+            service.requestTourStart();
+
+            expect(service.consumeTourStartRequest()).toBe(true);
+            expect(service.consumeTourStartRequest()).toBe(false);
+        });
+
+        it('consumeTourStartRequest claims each new request exactly once', () => {
+            service.requestTourStart();
+            expect(service.consumeTourStartRequest()).toBe(true);
+
+            expect(service.consumeTourStartRequest()).toBe(false);
+
+            service.requestTourStart();
+            expect(service.consumeTourStartRequest()).toBe(true);
+            expect(service.consumeTourStartRequest()).toBe(false);
+        });
     });
 });

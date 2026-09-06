@@ -43,6 +43,7 @@ export class OnboardingService {
 
   private readonly stateSignal = signal<IOnboardingState | null>(null);
   private readonly tourStartRequestSignal = signal(0);
+  private consumedTourStartRequest = 0;
 
   readonly state = this.stateSignal.asReadonly();
   readonly tourStartRequested = this.tourStartRequestSignal.asReadonly();
@@ -74,6 +75,18 @@ export class OnboardingService {
 
   requestTourStart(): void {
     this.tourStartRequestSignal.update((n) => n + 1);
+  }
+
+  // Recreated components (e.g. the aside's floating-mode host swap) re-run their tour-start
+  // effect on mount with the counter's current value, not just on an actual increment. This
+  // lets the effect claim a request exactly once regardless of how many components observe it.
+  consumeTourStartRequest(): boolean {
+    const current = this.tourStartRequestSignal();
+    if (current <= this.consumedTourStartRequest) {
+      return false;
+    }
+    this.consumedTourStartRequest = current;
+    return true;
   }
 
   snooze(): void {

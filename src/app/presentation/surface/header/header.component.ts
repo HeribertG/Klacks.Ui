@@ -22,8 +22,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { AsideService } from '../../aside/aside.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
@@ -65,16 +64,13 @@ export class HeaderComponent {
   private auth = inject(AuthService);
   private navigationService = inject(NavigationService);
   private asideService = inject(AsideService);
-  private appSettings = inject(AppSettingsManagementService);
+  private outputModes = inject(SpeechOutputModeService);
 
   public authorised = signal<boolean>(false);
   public readonly version = signal<string>('');
   public readonly faTriangleExclamation = faTriangleExclamation;
 
-  public readonly isFloatingMode = computed<boolean>(() => {
-    const mode = this.appSettings.speechSettings().outputMode;
-    return mode === OutputMode.Audio || mode === OutputMode.BothAuto;
-  });
+  public readonly isFloatingMode = this.outputModes.isFloatingMode;
   public readonly hideAssistantButton = computed<boolean>(
     () => this.isFloatingMode() && this.asideService.isVisible(),
   );

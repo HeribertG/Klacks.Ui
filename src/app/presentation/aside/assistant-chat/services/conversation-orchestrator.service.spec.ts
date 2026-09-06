@@ -18,6 +18,9 @@ import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/d
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
+import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -72,8 +75,25 @@ describe('ConversationOrchestratorService', () => {
   }
 
   let currentSettings: ISpeechSettings;
+  let tourActive: ReturnType<typeof signal<boolean>>;
+
+  const speechOutputModeStub = () => {
+    const effectiveMode = (): string => {
+      const mode = currentSettings.outputMode;
+      const floating = mode === OutputMode.Audio || mode === OutputMode.BothAuto;
+      return tourActive() && floating ? OutputMode.Both : mode;
+    };
+    return {
+      mode: effectiveMode,
+      isFloatingMode: () => effectiveMode() === OutputMode.Audio || effectiveMode() === OutputMode.BothAuto,
+      isAutoSpeakMode: () => effectiveMode() === OutputMode.BothAuto,
+      isAudioOnlyMode: () => effectiveMode() === OutputMode.Audio,
+      isTextOnlyMode: () => effectiveMode() === OutputMode.Text,
+    };
+  };
 
   beforeEach(() => {
+    tourActive = signal<boolean>(false);
     currentSettings = {
       sttEngine: 'stream',
       sttApiKeys: {},
@@ -152,6 +172,8 @@ describe('ConversationOrchestratorService', () => {
         { provide: WhisperStreamingService, useValue: mockWhisper },
         { provide: EarconService, useValue: mockEarcon },
         { provide: AppSettingsManagementService, useValue: { speechSettings: vi.fn(() => currentSettings) } },
+        { provide: OnboardingService, useValue: { isTourActive: tourActive } },
+        { provide: SpeechOutputModeService, useValue: speechOutputModeStub() },
       ],
     });
     service = TestBed.inject(ConversationOrchestratorService);
@@ -1081,6 +1103,45 @@ describe('ConversationOrchestratorService', () => {
     expect(mockDataStt.transcribe).toHaveBeenCalledTimes(2);
     expect(errorSpy).not.toHaveBeenCalled();
     expect(setInputText).toHaveBeenCalledWith('recovered partial');
+  });
+
+  it('ends a running voice session when the setup tour degrades the floating output mode', async () => {
+    currentSettings = { ...currentSettings, outputMode: OutputMode.Audio };
+    TestBed.tick();
+    await service.toggleVoiceMode();
+    expect(service.voiceModeEnabled()).toBe(true);
+
+    tourActive.set(true);
+    TestBed.tick();
+
+    expect(service.voiceModeEnabled()).toBe(false);
+    expect(service.state()).toBe(ConversationState.Idle);
+    expect(mockAudioCapture.stop).toHaveBeenCalled();
+  });
+
+  it('keeps a running voice session when the tour starts outside the floating output modes', async () => {
+    currentSettings = { ...currentSettings, outputMode: OutputMode.Both };
+    TestBed.tick();
+    await service.toggleVoiceMode();
+    expect(service.voiceModeEnabled()).toBe(true);
+
+    tourActive.set(true);
+    TestBed.tick();
+
+    expect(service.voiceModeEnabled()).toBe(true);
+  });
+
+  it('stops sentence-wise auto-speak when the tour degrades the both-auto output mode', () => {
+    currentSettings = { ...currentSettings, outputMode: OutputMode.BothAuto };
+    TestBed.tick();
+    service.onStreamContent('Klacksy explains the first station.');
+    expect(service.isAutoSpeakStreaming()).toBe(true);
+
+    tourActive.set(true);
+    TestBed.tick();
+
+    expect(service.isAutoSpeakStreaming()).toBe(false);
+    expect(mockAudioQueue.stop).toHaveBeenCalled();
   });
 });
 

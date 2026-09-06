@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ɵresolveComponentResources as resolveComponentResources } from '@angular/core';
 import { provideHttpClient, withXhr } from '@angular/common/http';
@@ -17,6 +17,9 @@ import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-pr
 import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
 import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
 import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
+import { AsideService } from './presentation/aside/aside.service';
+import { AppSettingsManagementService } from './domain/services/settings/app-settings-management.service';
+import { OutputMode } from './domain/constants/speech-constants';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -95,5 +98,52 @@ describe('AppComponent', () => {
 
     // Assert
     expect(compiled.querySelector('app-toasts')).not.toBeNull();
+  });
+
+  // The audio-mode panels are a fixed-position overlay. Inside the chat they were unreachable:
+  // in a floating mode the aside mounts the chat only in its hidden bootstrap host (0x0,
+  // visibility: hidden), and visibility is inherited. They must stay a sibling of the voice shell.
+  describe('audio-mode floating panels', () => {
+    let asideService: AsideService;
+    let appSettings: AppSettingsManagementService;
+
+    function panelHost(fixture: ComponentFixture<AppComponent>): Element | null {
+      return (fixture.nativeElement as HTMLElement).querySelector('app-audio-mode-panels');
+    }
+
+    beforeEach(() => {
+      asideService = TestBed.inject(AsideService);
+      appSettings = TestBed.inject(AppSettingsManagementService);
+    });
+
+    it('renders the panels at app level while the aside is open in audio-only mode', () => {
+      appSettings.speechSettings.set({ ...appSettings.speechSettings(), outputMode: OutputMode.Audio });
+      asideService.show();
+
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+
+      expect(panelHost(fixture)).not.toBeNull();
+    });
+
+    it('does not render the panels while the aside is closed', () => {
+      appSettings.speechSettings.set({ ...appSettings.speechSettings(), outputMode: OutputMode.Audio });
+      asideService.hide();
+
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+
+      expect(panelHost(fixture)).toBeNull();
+    });
+
+    it('does not render the panels in text mode', () => {
+      appSettings.speechSettings.set({ ...appSettings.speechSettings(), outputMode: OutputMode.Text });
+      asideService.show();
+
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+
+      expect(panelHost(fixture)).toBeNull();
+    });
   });
 });

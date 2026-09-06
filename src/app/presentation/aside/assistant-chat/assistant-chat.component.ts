@@ -71,7 +71,6 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { PlanExecutionPanelComponent } from './plan-execution-panel/plan-execution-panel.component';
 import { GoalCandidatesPanelComponent } from './goal-candidates-panel/goal-candidates-panel.component';
-import { AudioModePanelsComponent } from './audio-mode-panel-toast/audio-mode-panels.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -80,7 +79,7 @@ import { ToolStep } from './tool-step.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -149,7 +148,6 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     IconUserComponent,
     PlanExecutionPanelComponent,
     GoalCandidatesPanelComponent,
-    AudioModePanelsComponent,
     AutonomyStatusBarComponent,
   ],
   templateUrl: './assistant-chat.component.html',
@@ -186,11 +184,10 @@ export class AssistantChatComponent {
   readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
+  private readonly outputModes = inject(SpeechOutputModeService);
 
   /** Whether output mode is audio-only — panels should show as floating toasts */
-  readonly isAudioOutputMode = computed(() =>
-    this.appSettings.speechSettings().outputMode === OutputMode.Audio
-  );
+  readonly isAudioOutputMode = this.outputModes.isAudioOnlyMode;
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
   readonly onboarding = inject(OnboardingService);
@@ -429,7 +426,7 @@ export class AssistantChatComponent {
     });
 
     effect(() => {
-      if (this.onboarding.tourStartRequested() > 0) {
+      if (this.onboarding.tourStartRequested() > 0 && this.onboarding.consumeTourStartRequest()) {
         this.restartGuidedTour();
       }
     });
@@ -588,7 +585,7 @@ export class AssistantChatComponent {
   private restartGuidedTour(): void {
     this.onboarding.accept();
     this.maybePostLlmOfflineHint();
-    this.tourIndex = 0;
+    this.tourIndex = this.onboarding.firstPendingIndex();
     this.presentStationAtCursor();
   }
 
@@ -947,8 +944,7 @@ export class AssistantChatComponent {
     this.cdr.detectChanges();
 
     const voiceModeActive =
-      this.orchestrator.voiceModeEnabled() ||
-      this.appSettings.speechSettings().outputMode === OutputMode.BothAuto;
+      this.orchestrator.voiceModeEnabled() || this.outputModes.isAutoSpeakMode();
     this.currentStreamController = this.assistantService.sendMessageStream(
       messageText,
       this.conversationId,
@@ -1096,11 +1092,7 @@ export class AssistantChatComponent {
     if (this.orchestrator.isAutoSpeakStreaming()) {
       return;
     }
-    if (
-      message &&
-      !this.voiceModeEnabled &&
-      this.appSettings.speechSettings().outputMode === OutputMode.BothAuto
-    ) {
+    if (message && !this.voiceModeEnabled && this.outputModes.isAutoSpeakMode()) {
       this.speakMessage(message);
     }
   }
@@ -1148,8 +1140,10 @@ export class AssistantChatComponent {
   }
 
   private showActionsAsToast(suggestions?: string[], navigateTo?: string | null): void {
+    // Same reason as in showGreetingOptionsAsToast: suppress the toast during a tour, but never
+    // dismiss - the station chips are the only interactive toast up while the tour runs, and the
+    // no-api-key welcome branch reaches this method right in the middle of it.
     if (this.onboarding.isTourActive()) {
-      this.toastShowService.dismissInteractiveReplies();
       return;
     }
     const options: ISuggestedReply[] = [];
@@ -1188,8 +1182,11 @@ export class AssistantChatComponent {
 
   private showGreetingOptionsAsToast(options: ISuggestedReply[]): void {
     if (!options.length) return;
+    // The welcome response lands after the tour has already put its station chips up, and
+    // dismissing here would take those chips down: during a tour they are the only interactive
+    // toast on screen. Suppressing the greeting is enough - a greeting toast from before the tour
+    // is cleared by showStationChips/showLanguageChoiceChips anyway.
     if (this.onboarding.isTourActive()) {
-      this.toastShowService.dismissInteractiveReplies();
       return;
     }
     const config: ISuggestedRepliesConfig = {
@@ -2032,8 +2029,7 @@ export class AssistantChatComponent {
    * @param hint - Error hint emitted by the conversation orchestrator
    */
   private onVoiceErrorHint(hint: IVoiceShellErrorHint): void {
-    const mode = this.appSettings.speechSettings().outputMode;
-    if (mode === OutputMode.Audio || mode === OutputMode.BothAuto) {
+    if (this.outputModes.isFloatingMode()) {
       return;
     }
     const message = this.translateService.instant(hint.i18nKey);

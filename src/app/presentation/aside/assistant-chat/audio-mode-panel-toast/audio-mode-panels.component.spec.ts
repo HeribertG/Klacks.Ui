@@ -10,6 +10,12 @@ import { DataManagementGoalCandidatesService } from 'src/app/domain/services/ass
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
 import { IAgentPlan, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+
+const PANEL_TRANSLATIONS = {
+  'assistant-chat.audio-mode.goal-candidates': 'Zielvorschläge',
+  'assistant-chat.audio-mode.plan-execution': 'Plan-Ausführung',
+};
 
 describe('AudioModePanelsComponent', () => {
   let fixture: ComponentFixture<AudioModePanelsComponent>;
@@ -50,14 +56,15 @@ describe('AudioModePanelsComponent', () => {
 
   const samplePlan: IAgentPlan = {
     id: 'plan-1',
+    agentId: 'agent-1',
     goal: 'Test Goal',
     status: PlanStatus.Executing,
     currentStepIndex: 1,
     lastErrorMessage: null,
-    steps: [
-      { skill: 'search_employees', verifySkill: null, reversible: true, params: {} },
-      { skill: 'create_employee', verifySkill: null, reversible: false, params: {} },
-    ],
+    stepsJson: JSON.stringify([
+      { order: 0, skill: 'search_employees', verifySkill: null, reversible: true, params: {} },
+      { order: 1, skill: 'create_employee', verifySkill: null, reversible: false, params: {} },
+    ]),
   };
 
   beforeEach(async () => {
@@ -88,8 +95,13 @@ describe('AudioModePanelsComponent', () => {
       providers: [
         { provide: DataManagementGoalCandidatesService, useValue: goalCandidatesServiceMock },
         { provide: DataManagementAgentPlanService, useValue: planServiceMock },
+        { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn(), on: vi.fn(() => of(undefined)) } },
       ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('de', PANEL_TRANSLATIONS);
+    translate.use('de');
 
     fixture = TestBed.createComponent(AudioModePanelsComponent);
     component = fixture.componentInstance;

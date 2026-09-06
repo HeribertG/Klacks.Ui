@@ -146,11 +146,6 @@
   <app-goal-candidates-panel></app-goal-candidates-panel>
   }
 
-  <!-- Audio-only mode: floating panels for goal candidates & plan execution (collapsed by default, stack from bottom-right) -->
-  @if (!isTourActive() && isAudioOutputMode()) {
-  <app-audio-mode-panels></app-audio-mode-panels>
-  }
-
   <!-- Messages Area -->
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">

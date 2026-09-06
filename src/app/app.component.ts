@@ -15,9 +15,9 @@ import { AsideComponent } from './presentation/aside/aside.component';
 import { AsideService } from './presentation/aside/aside.service';
 import { VoiceShellComponent } from './presentation/voice-shell/voice-shell.component';
 import { VoiceShellInputComponent } from './presentation/voice-shell/voice-shell-input/voice-shell-input.component';
+import { AudioModePanelsComponent } from './presentation/aside/assistant-chat/audio-mode-panel-toast/audio-mode-panels.component';
 import { TooltipComponent } from './presentation/shared/tooltip/tooltip.component';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
@@ -40,6 +40,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
     AsideComponent,
     VoiceShellComponent,
     VoiceShellInputComponent,
+    AudioModePanelsComponent,
     TooltipComponent,
   ],
 })
@@ -47,7 +48,7 @@ export class AppComponent implements OnInit {
   private applicationInitService = inject(ApplicationInitService);
   private directionService = inject(DirectionService);
   private readonly asideService = inject(AsideService);
-  private readonly appSettings = inject(AppSettingsManagementService);
+  private readonly outputModes = inject(SpeechOutputModeService);
   private readonly signalRService = inject(SignalRService);
   private readonly authService = inject(AuthService);
   private readonly setupGateService = inject(SetupGateService);
@@ -59,14 +60,19 @@ export class AppComponent implements OnInit {
 
   private readonly publicRoutes = ['/login', '/error', `/${SETUP_ROUTE_PATH}`];
 
-  readonly showVoiceShell = computed<boolean>(() => {
-    const mode = this.appSettings.speechSettings().outputMode;
-    return this.asideService.isVisible() && (mode === OutputMode.Audio || mode === OutputMode.BothAuto);
-  });
+  readonly showVoiceShell = computed<boolean>(
+    () => this.asideService.isVisible() && this.outputModes.isFloatingMode(),
+  );
 
-  readonly showFloatingInput = computed<boolean>(() =>
-    this.asideService.isVisible() &&
-    this.appSettings.speechSettings().outputMode === OutputMode.BothAuto,
+  readonly showFloatingInput = computed<boolean>(
+    () => this.asideService.isVisible() && this.outputModes.isAutoSpeakMode(),
+  );
+
+  // Rendered here rather than inside the chat: in a floating mode the aside mounts the chat only
+  // in its hidden bootstrap host (0x0, visibility: hidden), and visibility is inherited, so a
+  // fixed-position overlay placed inside the chat can never become visible.
+  readonly showAudioModePanels = computed<boolean>(
+    () => this.asideService.isVisible() && this.outputModes.isAudioOnlyMode(),
   );
 
   constructor() {

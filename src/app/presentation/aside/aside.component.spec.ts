@@ -9,6 +9,7 @@ import { AsideComponent } from './aside.component';
 import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
 @Component({
@@ -21,17 +22,23 @@ class AssistantChatStubComponent {}
 
 describe('AsideComponent — panel rendering', () => {
   let isVisibleSignal: ReturnType<typeof signal<boolean>>;
+  let speechSettingsSignal: ReturnType<typeof signal>;
+  let tourActiveSignal: ReturnType<typeof signal<boolean>>;
 
   beforeEach(() => {
     isVisibleSignal = signal<boolean>(true);
+    speechSettingsSignal = signal({ outputMode: OutputMode.Text } as never);
+    tourActiveSignal = signal<boolean>(false);
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
         {
           provide: AppSettingsManagementService,
-          useValue: {
-            speechSettings: signal({ outputMode: OutputMode.Text } as never),
-          },
+          useValue: { speechSettings: speechSettingsSignal },
+        },
+        {
+          provide: OnboardingService,
+          useValue: { isTourActive: tourActiveSignal },
         },
         {
           provide: AsideService,
@@ -60,9 +67,7 @@ describe('AsideComponent — panel rendering', () => {
   });
 
   it('hides aside-panel when outputMode is audio but bootstraps assistant-chat hidden for orchestrator init', () => {
-    TestBed.overrideProvider(AppSettingsManagementService, {
-      useValue: { speechSettings: signal({ outputMode: OutputMode.Audio } as never) },
-    });
+    speechSettingsSignal.set({ outputMode: OutputMode.Audio } as never);
     const fixture = TestBed.createComponent(AsideComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
@@ -70,6 +75,19 @@ describe('AsideComponent — panel rendering', () => {
     expect(host.querySelector('.voice-bootstrap-host')).toBeTruthy();
     expect(host.querySelector('.voice-bootstrap-host app-assistant-chat')).toBeTruthy();
   });
+
+  it.each([OutputMode.Audio, OutputMode.BothAuto])(
+    'renders the aside panel while the setup tour is active even though outputMode is %s',
+    (mode) => {
+      speechSettingsSignal.set({ outputMode: mode } as never);
+      tourActiveSignal.set(true);
+      const fixture = TestBed.createComponent(AsideComponent);
+      fixture.detectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.aside-panel')).toBeTruthy();
+      expect(host.querySelector('.voice-bootstrap-host')).toBeNull();
+    },
+  );
 
   it('renders nothing when asideService.isVisible() is false', () => {
     isVisibleSignal.set(false);

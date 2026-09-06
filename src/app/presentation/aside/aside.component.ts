@@ -24,8 +24,7 @@ import { AssistantChatComponent } from './assistant-chat/assistant-chat.componen
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { ToastShowService } from '../toast/toast-show.service';
 
 @Component({
@@ -47,18 +46,13 @@ export class AsideComponent {
   private asideService = inject(AsideService);
   private elementRef = inject(ElementRef);
   private renderer = inject(Renderer2);
-  private readonly appSettings = inject(AppSettingsManagementService);
+  private readonly outputModes = inject(SpeechOutputModeService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly OutputMode = OutputMode;
-
   isVisible = this.asideService.isVisible;
 
-  readonly outputMode = computed<string>(() => this.appSettings.speechSettings().outputMode);
-  readonly isFloatingMode = computed<boolean>(
-    () => this.outputMode() === OutputMode.Audio || this.outputMode() === OutputMode.BothAuto,
-  );
+  readonly isFloatingMode = this.outputModes.isFloatingMode;
 
   constructor() {
     effect(() => {

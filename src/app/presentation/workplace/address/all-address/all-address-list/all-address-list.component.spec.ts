@@ -41,6 +41,7 @@ describe('AllAddressListComponent', () => {
             exportExcel: vi.fn(),
             findCheckBoxValue: vi.fn(),
             addCheckBoxValueToArray: vi.fn(),
+            removeCheckBoxValueToArray: vi.fn(),
             clearCheckedArray: vi.fn(),
             checkBoxIndeterminate: vi.fn(),
             getLastChangeMetaData: vi.fn(),
@@ -325,11 +326,13 @@ describe('AllAddressListComponent', () => {
                 lastItem: 0
             });
             const mockEvent = { currentTarget: { checked: true } };
-            mockDataManagementClientService.findCheckBoxValue.mockReturnValue({ id: '1', checked: false });
 
             component.onChangeCheckBox(0, mockEvent);
 
-            expect(mockDataManagementClientService.findCheckBoxValue).toHaveBeenCalled();
+            expect(mockDataManagementClientService.removeCheckBoxValueToArray).toHaveBeenCalledWith('1');
+            expect(mockDataManagementClientService.addCheckBoxValueToArray).toHaveBeenCalledWith(
+                expect.objectContaining({ id: '1', checked: true }),
+            );
         });
     });
 

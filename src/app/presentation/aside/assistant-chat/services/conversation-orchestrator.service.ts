@@ -13,7 +13,7 @@
  * @param voiceModeEnabled - Whether voice mode is active
  * @param interimText - Live transcription preview while user speaks
  */
-import { Injectable, OnDestroy, Signal, signal, computed, inject, NgZone } from '@angular/core';
+import { Injectable, OnDestroy, Signal, signal, computed, effect, inject, NgZone, untracked } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
@@ -26,7 +26,8 @@ import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.se
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TranscriptSanitizerService } from 'src/app/domain/services/speech/transcript-sanitizer.service';
-import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SttEngine, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
 
@@ -59,6 +60,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private readonly audioQueue = inject(AudioQueueService);
   private readonly earcon = inject(EarconService);
   private readonly settings = inject(AppSettingsManagementService);
+  private readonly outputModes = inject(SpeechOutputModeService);
   private readonly transcriptSanitizer = inject(TranscriptSanitizerService);
   private readonly ngZone = inject(NgZone);
 
@@ -66,6 +68,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   readonly voiceModeEnabled = signal(false);
   readonly interimText = signal('');
 
+  private floatingModeActive = false;
   private textProcessingSignal: Signal<boolean> | null = null;
   readonly isTextProcessing = computed(() => this.textProcessingSignal?.() ?? false);
 
@@ -206,6 +209,28 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   }
 
+  constructor() {
+    effect(() => {
+      const floating = this.outputModes.isFloatingMode();
+      const wasFloating = this.floatingModeActive;
+      this.floatingModeActive = floating;
+      if (wasFloating && !floating) {
+        untracked(() => this.leaveFloatingMode());
+      }
+    });
+  }
+
+  /**
+   * Silence a running voice session when the floating shell disappears — leaving the setup tour
+   * open with an invisible microphone still listening would keep speaking over the tour.
+   */
+  private leaveFloatingMode(): void {
+    this.stopAutoSpeak();
+    if (this.voiceModeEnabled()) {
+      this.endSession();
+    }
+  }
+
   /**
    * Update the speech locale used for STT and TTS after a UI language change.
    * @param locale - New speech locale (e.g. 'de', 'en')
@@ -269,8 +294,7 @@ export class ConversationOrchestratorService implements OnDestroy {
       return;
     }
 
-    const speechSettings = this.settings.speechSettings();
-    if (speechSettings.outputMode === OutputMode.Text) {
+    if (this.outputModes.isTextOnlyMode()) {
       return;
     }
 
@@ -314,10 +338,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private isAutoSpeakMode(): boolean {
-    return (
-      !this.voiceModeEnabled() &&
-      this.settings.speechSettings().outputMode === OutputMode.BothAuto
-    );
+    return !this.voiceModeEnabled() && this.outputModes.isAutoSpeakMode();
   }
 
   onStreamDone(): void {
@@ -332,7 +353,7 @@ export class ConversationOrchestratorService implements OnDestroy {
       }
     }
 
-    if (this.settings.speechSettings().outputMode === OutputMode.Text || this.pendingSentences.length === 0) {
+    if (this.outputModes.isTextOnlyMode() || this.pendingSentences.length === 0) {
       this.transitionToListening();
     }
   }
@@ -558,7 +579,7 @@ export class ConversationOrchestratorService implements OnDestroy {
    */
   private playProcessingEarconIfAudible(): void {
     if (!this.voiceModeEnabled()) return;
-    if (this.settings.speechSettings().outputMode === OutputMode.Text) return;
+    if (this.outputModes.isTextOnlyMode()) return;
     this.earcon.playProcessingEarcon();
   }
 

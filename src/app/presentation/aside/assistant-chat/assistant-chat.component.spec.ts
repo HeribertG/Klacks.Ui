@@ -781,7 +781,9 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(showSpy).not.toHaveBeenCalled();
-            expect(dismissSpy).toHaveBeenCalled();
+            // Must not dismiss: the no-api-key welcome branch reaches this method during the tour,
+            // where the only interactive toast on screen is the tour's own station chips.
+            expect(dismissSpy).not.toHaveBeenCalled();
         });
 
         it('should show the welcome action toast when the setup tour is not active', () => {
@@ -808,7 +810,9 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(showSpy).not.toHaveBeenCalled();
-            expect(dismissSpy).toHaveBeenCalled();
+            // Must not dismiss: during a tour the only interactive toast on screen is the tour's
+            // own station chips, so a dismiss here takes those chips down.
+            expect(dismissSpy).not.toHaveBeenCalled();
         });
 
         it('should show greeting options toast when the setup tour is not active', () => {
@@ -3212,6 +3216,120 @@ describe('AssistantChatComponent', () => {
                 userMessage: USER_MESSAGE,
                 correctionType: 'wrong_skill',
             });
+        });
+    });
+
+    // The aside renders the chat behind @if (isVisible() && !isFloatingMode()), so closing the
+    // panel destroys this component and reopening builds a fresh one. The header badge writes
+    // both signals in the same click handler, so a resumed tour always lands on an instance
+    // whose tour-start effect first runs with the request counter already raised.
+    describe('resuming the tour from the header badge', () => {
+        let asideService: AsideService;
+        let onboarding: OnboardingService;
+        let showSpy: any;
+
+        beforeEach(() => {
+            asideService = TestBed.inject(AsideService);
+            onboarding = TestBed.inject(OnboardingService);
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            showSpy = vi.spyOn(TestBed.inject(ToastShowService), 'showInteractiveReply');
+        });
+
+        function clickHeaderBadge(): void {
+            asideService.show();
+            onboarding.requestTourStart();
+        }
+
+        function mountFreshChat(): any {
+            const reopened = TestBed.createComponent(AssistantChatComponent);
+            reopened.detectChanges();
+            return reopened;
+        }
+
+        it('shows the station chips after the panel was closed and reopened', () => {
+            fixture.detectChanges();
+            onboarding.applyWelcome({
+                shouldOffer: false,
+                showCard: true,
+                status: 'in_progress',
+                completedStations: [],
+            });
+            fixture.destroy();
+
+            clickHeaderBadge();
+            showSpy.mockClear();
+            mountFreshChat();
+
+            expect(showSpy).toHaveBeenCalled();
+        });
+
+        it('shows the station chips on a cold start with no previous chat instance', () => {
+            fixture.destroy();
+            onboarding.applyWelcome({
+                shouldOffer: false,
+                showCard: true,
+                status: 'in_progress',
+                completedStations: [],
+            });
+
+            clickHeaderBadge();
+            showSpy.mockClear();
+            mountFreshChat();
+
+            expect(showSpy).toHaveBeenCalled();
+        });
+
+        // The welcome request is fired by the same isVisible effect that the badge click triggers,
+        // but its response only lands a moment later - after the tour has already put its station
+        // chips up.
+        it('keeps the station chips when the welcome response arrives afterwards', () => {
+            fixture.detectChanges();
+            onboarding.applyWelcome({
+                shouldOffer: false,
+                showCard: true,
+                status: 'in_progress',
+                completedStations: [],
+            });
+            const dismissSpy = vi.spyOn(TestBed.inject(ToastShowService), 'dismissInteractiveReplies');
+            (component as any).showStationChips(ONBOARDING_STATIONS[0]);
+            showSpy.mockClear();
+            dismissSpy.mockClear();
+
+            (component as any).applyWelcomeResponse('welcome-1', {
+                greetingKey: 'assistant-chat.welcome.content',
+                greetingText: 'Hallo',
+                greetingVariantIndex: 0,
+                weekdayKey: '',
+                weatherKey: '',
+                displayName: 'Admin',
+                suggestionKeys: ['assistant-chat.welcome.suggestion-1'],
+                suggestionRoutes: {},
+                onboarding: {
+                    shouldOffer: false,
+                    showCard: true,
+                    status: 'in_progress',
+                    completedStations: [],
+                },
+            }, 'de');
+
+            expect(dismissSpy).not.toHaveBeenCalled();
+            expect(showSpy).not.toHaveBeenCalled();
+            expect((component as any).isTourStationPending).toBe(true);
+        });
+
+        it('resumes at the first pending station instead of restarting at the beginning', () => {
+            fixture.destroy();
+            onboarding.applyWelcome({
+                shouldOffer: false,
+                showCard: true,
+                status: 'in_progress',
+                completedStations: ONBOARDING_STATIONS.slice(0, 3).map((station) => station.id),
+            });
+
+            clickHeaderBadge();
+            const reopened = mountFreshChat();
+
+            expect((reopened.componentInstance as any).tourIndex).toBe(3);
         });
     });
 });
