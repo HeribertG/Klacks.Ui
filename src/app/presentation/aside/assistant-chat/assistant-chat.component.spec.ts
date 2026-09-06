@@ -22,6 +22,8 @@ import { ConversationOrchestratorService, ConversationState } from './services/c
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
+import { ChatMessageComponent } from './chat-message/chat-message.component';
+import { ChatMessageActionsService } from './services/chat-message-actions.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
@@ -53,6 +55,11 @@ class MockTranslatePipe implements PipeTransform {
 describe('AssistantChatComponent', () => {
     let component: AssistantChatComponent;
     let fixture: ComponentFixture<AssistantChatComponent>;
+    // The proactive-inbox message list and its expand/hide actions moved to
+    // ChatMessageActionsService (shared with the overlay-rail inbox card, which the chat
+    // component no longer renders inline for). It is the real class here, not a mock, resolved
+    // through the root injector against the same mocked orchestrator/proactiveInboxService.
+    let messageActions: ChatMessageActionsService;
     let mockLlmService: any;
     let mockLlmProviderService: any;
     let mockSpeechService: any;
@@ -270,6 +277,46 @@ describe('AssistantChatComponent', () => {
                 { provide: LanguageMappingService, useValue: languageMappingServiceSpy },
                 { provide: SEARCH_STRATEGY, useValue: { globalSearch: vi.fn(), resetFilter: vi.fn(), restoreSearch: vi.fn(), setRestoreSearch: vi.fn() } },
                 { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn(), on: () => of(), onAny: () => of() } },
+                {
+                    // Registered at the module/root level (not via overrideComponent) so that
+                    // ChatMessageActionsService — a providedIn:'root' service resolved through the
+                    // root environment injector, not the component's element injector — sees the
+                    // same mocked orchestrator instance as the component under test.
+                    provide: ConversationOrchestratorService,
+                    useFactory: () => {
+                        const messagesSig = signal<readonly any[]>([]);
+                        return {
+                            state: signal(ConversationState.Idle),
+                            voiceModeEnabled: signal(false),
+                            interimText: signal(''),
+                            messages: messagesSig.asReadonly(),
+                            addMessage: vi.fn((msg: any) => messagesSig.update((c) => [...c, msg])),
+                            replaceMessages: vi.fn((next: readonly any[]) => messagesSig.set([...next])),
+                            updateMessage: vi.fn((id: string, patch: any) =>
+                                messagesSig.update((current) => {
+                                    const idx = current.findIndex((m: any) => m.id === id);
+                                    if (idx < 0) return current;
+                                    const out = current.slice();
+                                    out[idx] = { ...out[idx], ...patch };
+                                    return out;
+                                }),
+                            ),
+                            clearMessages: vi.fn(() => messagesSig.set([])),
+                            initialize: vi.fn(),
+                            setLocale: vi.fn(),
+                            errors$: of(),
+                            toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
+                            interrupt: vi.fn(),
+                            onStreamContent: vi.fn(),
+                            onStreamDone: vi.fn(),
+                            onStreamError: vi.fn(),
+                            onStreamFunctionCall: vi.fn(),
+                            onStreamPlanningEnded: vi.fn(),
+                            stopAutoSpeak: vi.fn(),
+                            isAutoSpeakStreaming: vi.fn(() => false),
+                        };
+                    },
+                },
             ],
         })
             .overrideComponent(AssistantChatComponent, {
@@ -282,45 +329,10 @@ describe('AssistantChatComponent', () => {
                     MockTranslatePipe,
                     IconChatComponent,
                     IconMMLComponent,
+                    ChatMessageComponent,
                 ],
                 providers: [
                     { provide: ChatFunctionExecutionService, useValue: { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) } },
-                    {
-                        provide: ConversationOrchestratorService,
-                        useFactory: () => {
-                            const messagesSig = signal<readonly any[]>([]);
-                            return {
-                                state: signal(ConversationState.Idle),
-                                voiceModeEnabled: signal(false),
-                                interimText: signal(''),
-                                messages: messagesSig.asReadonly(),
-                                addMessage: vi.fn((msg: any) => messagesSig.update((c) => [...c, msg])),
-                                replaceMessages: vi.fn((next: readonly any[]) => messagesSig.set([...next])),
-                                updateMessage: vi.fn((id: string, patch: any) =>
-                                    messagesSig.update((current) => {
-                                        const idx = current.findIndex((m: any) => m.id === id);
-                                        if (idx < 0) return current;
-                                        const out = current.slice();
-                                        out[idx] = { ...out[idx], ...patch };
-                                        return out;
-                                    }),
-                                ),
-                                clearMessages: vi.fn(() => messagesSig.set([])),
-                                initialize: vi.fn(),
-                                setLocale: vi.fn(),
-                                errors$: of(),
-                                toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
-                                interrupt: vi.fn(),
-                                onStreamContent: vi.fn(),
-                                onStreamDone: vi.fn(),
-                                onStreamError: vi.fn(),
-                                onStreamFunctionCall: vi.fn(),
-                                onStreamPlanningEnded: vi.fn(),
-                                stopAutoSpeak: vi.fn(),
-                                isAutoSpeakStreaming: vi.fn(() => false),
-                            };
-                        },
-                    },
                 ],
             },
         })
@@ -357,6 +369,7 @@ describe('AssistantChatComponent', () => {
 
         fixture = TestBed.createComponent(AssistantChatComponent);
         component = fixture.componentInstance;
+        messageActions = TestBed.inject(ChatMessageActionsService);
     });
 
     it('should create', () => {
@@ -833,6 +846,12 @@ describe('AssistantChatComponent', () => {
         function createComponentWithProviders(providers: IAssistantProvider[], providersInitialized: boolean) {
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providers);
             mockLlmProviderService.providersInitialized.set(providersInitialized);
+            // The outer beforeEach already instantiated one AssistantChatComponent (`fixture`),
+            // whose constructor can have appended a welcome message. ConversationOrchestratorService
+            // is a module-level (root-scoped) mock here — matching its real providedIn:'root' scope,
+            // now that ChatMessageActionsService also resolves it through the root injector — so that
+            // earlier instance's messages would otherwise leak into the fixture under test.
+            TestBed.inject(ConversationOrchestratorService).clearMessages();
             const localFixture = TestBed.createComponent(AssistantChatComponent);
             localFixture.detectChanges();
             return localFixture;
@@ -1850,7 +1869,7 @@ describe('AssistantChatComponent', () => {
         it('takes a dismissed row out of the block instead of only greying its button', () => {
             // Arrange
             deliver(proactiveRow({ id: 'keep-me' }), proactiveRow({ id: 'drop-me' }));
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['keep-me', 'drop-me']);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['keep-me', 'drop-me']);
             const dismissed = component.messages.find((m) => m.id === 'drop-me')!;
 
             // Act
@@ -1862,7 +1881,7 @@ describe('AssistantChatComponent', () => {
                 'drop-me',
                 PROACTIVE_REJECT_REASON.AlreadyHandled,
             );
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['keep-me']);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['keep-me']);
             expect(component.isHiddenProactiveMessage(dismissed)).toBe(true);
         });
 
@@ -1874,14 +1893,12 @@ describe('AssistantChatComponent', () => {
             component.toggleDismissMenu('ask-why');
             fixture.detectChanges();
 
-            // Assert - the row is still there; only picking a reason removes it
+            // Assert - the row is still there; only picking a reason removes it. The dismiss-reason
+            // menu's own rendering (all four reasons, DOM-level) is covered in
+            // chat-message.component.spec.ts, which owns that rendering now.
             expect(component.dismissMenuMessageId()).toBe('ask-why');
             expect(mockProactiveInboxService.dismissMessage).not.toHaveBeenCalled();
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['ask-why']);
-            const menuItems = fixture.nativeElement.querySelectorAll(
-                '.proactive-dismiss-menu [role="menuitem"]',
-            );
-            expect(menuItems.length).toBe(4);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['ask-why']);
         });
 
         it('closes the reason menu again when the same dismiss button is pressed twice', () => {
@@ -1895,7 +1912,6 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.dismissMenuMessageId()).toBeNull();
-            expect(fixture.nativeElement.querySelector('.proactive-dismiss-menu')).toBeNull();
         });
 
         it('passes the picked reason on and closes the menu', () => {
@@ -1932,32 +1948,17 @@ describe('AssistantChatComponent', () => {
             );
         });
 
-        it('moves the heading down rather than losing the block when the anchor row goes', () => {
-            // Arrange
-            deliver(proactiveRow({ id: 'anchor' }), proactiveRow({ id: 'second' }));
-            expect(component.inboxAnchorMessageId()).toBe('anchor');
-            const anchor = component.messages.find((m) => m.id === 'anchor')!;
-
-            // Act
-            component.dismissProactiveMessage(anchor, PROACTIVE_REJECT_REASON.NoReason);
-            fixture.detectChanges();
-
-            // Assert
-            expect(component.inboxAnchorMessageId()).toBe('second');
-        });
-
-        it('empties the whole block and drops the heading when hiding everything', () => {
+        it('empties the whole block when hiding everything', () => {
             // Arrange
             deliver(proactiveRow({ id: 'first' }), proactiveRow({ id: 'second' }));
 
             // Act
-            component.hideWholeInbox();
+            messageActions.hideWholeInbox();
             fixture.detectChanges();
 
             // Assert
             expect(mockProactiveInboxService.hideMessages).toHaveBeenCalledWith(['first', 'second']);
-            expect(component.inboxMessages()).toEqual([]);
-            expect(component.inboxAnchorMessageId()).toBeNull();
+            expect(messageActions.inboxMessages()).toEqual([]);
         });
 
         it('never shows a row the server already reports as dismissed', () => {
@@ -1968,7 +1969,7 @@ describe('AssistantChatComponent', () => {
             );
 
             // Assert
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['fresh']);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['fresh']);
             expect(mockProactiveInboxService.markHidden).toHaveBeenCalledWith(['already-dismissed']);
         });
 
@@ -2089,7 +2090,10 @@ describe('AssistantChatComponent', () => {
             expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-1']);
         });
 
-        it('passes severity through to the chat message and renders the urgent badge for high severity', () => {
+        // The urgent badge's own rendering (DOM-level, severity-driven) is covered in
+        // chat-message.component.spec.ts, which owns that rendering now - inbox rows no longer
+        // render inside the chat itself.
+        it('passes severity through to the chat message for high severity', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ severity: 'high' })]));
 
@@ -2101,9 +2105,6 @@ describe('AssistantChatComponent', () => {
             // Assert
             const lastMessage = component.messages[component.messages.length - 1];
             expect(lastMessage.proactiveSeverity).toBe('high');
-
-            const badge: HTMLElement | null = fixture.nativeElement.querySelector('.system-notice-badge.severity-high');
-            expect(badge).not.toBeNull();
         });
 
         it('does not mark a proactive message as urgent for medium severity', () => {
@@ -2118,10 +2119,9 @@ describe('AssistantChatComponent', () => {
             // Assert
             const lastMessage = component.messages[component.messages.length - 1];
             expect(lastMessage.proactiveSeverity).toBe('medium');
-            expect(fixture.nativeElement.querySelector('.system-notice-badge.severity-high')).toBeNull();
         });
 
-        it('appends inbox messages after an existing conversation with the heading anchored at the block start', () => {
+        it('appends inbox messages after an existing conversation with the heading id anchored at the block start', () => {
             // Arrange
             component.orchestrator.addMessage({
                 id: 'user-1',
@@ -2156,11 +2156,10 @@ describe('AssistantChatComponent', () => {
             expect(ids.slice(-2)).toEqual(['inbox-a', 'inbox-b']);
             expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-a');
 
+            // The inbox rows themselves never render in the chat's own message flow - they only
+            // ever appear as the overlay-rail inbox card (AudioModePanelsComponent).
             const messagesElement: HTMLElement = fixture.nativeElement.querySelector('.messages');
-            const children = Array.from(messagesElement.children);
-            const headingIndex = children.findIndex((el) => el.classList.contains('inbox-heading'));
-            expect(headingIndex).toBe(inboxStart);
-            expect(children[headingIndex + 1].textContent).toContain('Erste Inbox-Nachricht.');
+            expect(messagesElement.textContent).not.toContain('Erste Inbox-Nachricht.');
         });
 
         it('does not fetch twice while the aside stays open, but refetches after reopening', () => {
@@ -2212,7 +2211,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(1);
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-dup']);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['inbox-dup']);
             expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-dup']);
         });
 
@@ -2241,14 +2240,16 @@ describe('AssistantChatComponent', () => {
                 fixture.detectChanges();
 
                 // Assert
-                expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-away', 'live-1']);
+                expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['inbox-away', 'live-1']);
                 expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-away');
                 const rendered = component.messages.find((m) => m.id === 'live-1')!;
                 expect(rendered.content).toBe('Bei Sarah Hofmann weichen die Stunden ab.');
 
+                // Inbox rows never render inside the chat's own message flow anymore - only the
+                // overlay-rail inbox card shows them - so neither the live content nor the push
+                // payload that must never surface at all can appear here.
                 const messagesElement: HTMLElement = fixture.nativeElement.querySelector('.messages');
-                const inboxBlock: HTMLElement = messagesElement.querySelector('.inbox-scroll-container')!;
-                expect(inboxBlock.textContent).toContain('Sarah Hofmann');
+                expect(messagesElement.textContent).not.toContain('Sarah Hofmann');
                 expect(messagesElement.textContent).not.toContain('PUSH-NUTZLAST');
             } finally {
                 vi.useRealTimers();
@@ -2317,7 +2318,7 @@ describe('AssistantChatComponent', () => {
                 fixture.detectChanges();
 
                 // Assert
-                expect(component.inboxMessages().map((m) => m.id)).toEqual(['silent-1']);
+                expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['silent-1']);
             } finally {
                 vi.useRealTimers();
             }
@@ -2330,7 +2331,7 @@ describe('AssistantChatComponent', () => {
                 mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-collapse' })]));
                 asideService.show();
                 fixture.detectChanges();
-                component.toggleInboxExpanded();
+                messageActions.toggleInboxExpanded();
                 mockProactiveInboxService.markManyRead.mockClear();
                 mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
                     of([inboxItem({ id: 'inbox-collapse' }), inboxItem({ id: 'inbox-while-collapsed' })]),
@@ -2350,7 +2351,7 @@ describe('AssistantChatComponent', () => {
                 expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
 
                 // Act
-                component.toggleInboxExpanded();
+                messageActions.toggleInboxExpanded();
 
                 // Assert
                 expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith([
@@ -2377,51 +2378,31 @@ describe('AssistantChatComponent', () => {
             expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
         });
 
-        it('offers a hide-all button in the heading that is live while rows are showing', () => {
-            // Arrange - the rows are marked read on display, so an unread-based guard would
-            // leave this button dead on arrival
+        // The hide-all button itself now lives on the overlay-rail inbox card (see
+        // AudioModePanelsComponent's spec for the button/DOM-level coverage). What stays a
+        // chat-side concern is that the shared action it calls (messageActions.hideWholeInbox(),
+        // exercised via mockProactiveInboxService.hideMessages) is live the moment rows are
+        // showing (rows are marked read on display, so an unread-based guard would leave the
+        // button dead on arrival) and that hiding empties the block without touching expansion.
+        it('hide-all is live the moment rows are showing and empties the block without collapsing it', () => {
+            // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-mark' })]));
             asideService.show();
             fixture.detectChanges();
-
-            // Assert
-            const button: HTMLButtonElement = fixture.nativeElement.querySelector('.inbox-heading-action');
-            expect(button).toBeTruthy();
-            expect(button.disabled).toBe(false);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['inbox-mark']);
 
             // Act
-            button.click();
+            messageActions.hideWholeInbox();
             fixture.detectChanges();
 
             // Assert
             expect(mockProactiveInboxService.hideMessages).toHaveBeenCalledWith(['inbox-mark']);
-            expect(component.inboxMessages()).toEqual([]);
-        });
-
-        it('keeps the hide-all button separate from the collapse control', () => {
-            // Arrange
-            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-controls' })]));
-            asideService.show();
-            fixture.detectChanges();
-
-            // Assert - three distinct controls, the chevron among them
-            const heading: HTMLElement = fixture.nativeElement.querySelector('.inbox-heading');
-            expect(heading.querySelectorAll('button').length).toBe(3);
-            expect(heading.querySelector('.inbox-heading-chevron')).toBeTruthy();
-
-            // Act
-            const hideAllButton = heading.querySelectorAll('button')[1] as HTMLButtonElement;
-            hideAllButton.click();
-            fixture.detectChanges();
-
-            // Assert - hiding empties the block rather than collapsing it
-            expect(mockProactiveInboxService.hideMessages).toHaveBeenCalledTimes(1);
+            expect(messageActions.inboxMessages()).toEqual([]);
             expect(mockProactiveInboxService.toggleInboxExpanded).not.toHaveBeenCalled();
             expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
-            expect(fixture.nativeElement.querySelector('.inbox-heading')).toBeNull();
         });
 
-        it('keeps earlier block members and the anchor when a second load adds new unread entries', () => {
+        it('keeps earlier block members and the heading id when a second load adds new unread entries', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-first' })]));
             asideService.show();
@@ -2436,8 +2417,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-first');
-            expect(component.inboxAnchorMessageId()).toBe('inbox-first');
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['inbox-first', 'inbox-second']);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['inbox-first', 'inbox-second']);
         });
 
         it('locks the reaction buttons for entries the user already reacted to', () => {
@@ -2493,9 +2473,9 @@ describe('AssistantChatComponent', () => {
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'remind-me' })]));
             asideService.show();
             fixture.detectChanges();
-            component.hideWholeInbox();
+            messageActions.hideWholeInbox();
             fixture.detectChanges();
-            expect(component.inboxMessages()).toEqual([]);
+            expect(messageActions.inboxMessages()).toEqual([]);
 
             // Act - the reminder is the same row, re-sent unread with a higher reminder count
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
@@ -2508,7 +2488,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert - one bubble, updated in place, back out of the hidden set
             expect(component.messages.filter((m) => m.id === 'remind-me').length).toBe(1);
-            expect(component.inboxMessages().map((m) => m.id)).toEqual(['remind-me']);
+            expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['remind-me']);
             expect(component.messages.find((m) => m.id === 'remind-me')!.proactiveReminderCount).toBe(1);
             expect(mockProactiveInboxService.unhideMessages).toHaveBeenCalledWith(['remind-me']);
         });
@@ -2602,7 +2582,12 @@ describe('AssistantChatComponent', () => {
             expect(component.proactiveInboxService.inboxHeadingMessageId()).toBeNull();
         });
 
-        it('collapses the inbox messages but keeps the heading when toggled', () => {
+        // The expand/collapse flag used to gate whether the inbox block rendered inline in the
+        // chat's own message flow. It never does anymore - that flow excludes inbox rows
+        // unconditionally (isInboxMessage()) since they only render as the overlay-rail inbox
+        // card - so the flag itself still flips correctly (shared via ChatMessageActionsService,
+        // read by the card), but the chat's own rendering is now invariant to it either way.
+        it('toggles the shared expand flag without ever surfacing inbox content in the chat itself', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
                 of([inboxItem({ id: 'inbox-a' }), inboxItem({ id: 'inbox-b' })]),
@@ -2610,32 +2595,23 @@ describe('AssistantChatComponent', () => {
             asideService.show();
             fixture.detectChanges();
             expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
+            expect(fixture.nativeElement.textContent).not.toContain(inboxItem().content);
 
             // Act
-            component.toggleInboxExpanded();
+            messageActions.toggleInboxExpanded();
             fixture.detectChanges();
 
             // Assert
             expect(component.proactiveInboxService.inboxExpanded()).toBe(false);
-            const host: HTMLElement = fixture.nativeElement;
-            expect(host.querySelector('.inbox-heading')).toBeTruthy();
-            expect(host.textContent).not.toContain(inboxItem().content);
-        });
-
-        it('shows the inbox messages again after toggling twice', () => {
-            // Arrange
-            mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-a' })]));
-            asideService.show();
-            fixture.detectChanges();
+            expect(fixture.nativeElement.textContent).not.toContain(inboxItem().content);
 
             // Act
-            component.toggleInboxExpanded();
-            component.toggleInboxExpanded();
+            messageActions.toggleInboxExpanded();
             fixture.detectChanges();
 
             // Assert
             expect(component.proactiveInboxService.inboxExpanded()).toBe(true);
-            expect(fixture.nativeElement.textContent).toContain(inboxItem().content);
+            expect(fixture.nativeElement.textContent).not.toContain(inboxItem().content);
         });
 
         it('resets to expanded when the chat is cleared', () => {
@@ -2643,7 +2619,7 @@ describe('AssistantChatComponent', () => {
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-a' })]));
             asideService.show();
             fixture.detectChanges();
-            component.toggleInboxExpanded();
+            messageActions.toggleInboxExpanded();
             expect(component.proactiveInboxService.inboxExpanded()).toBe(false);
 
             // Act
@@ -2689,9 +2665,7 @@ describe('AssistantChatComponent', () => {
             const revivedMessage = component2.messages.find((m) => m.id === 'inbox-survivor')!;
             expect(revivedMessage).toBeTruthy();
             expect(component2.isInboxMessage(revivedMessage)).toBe(true);
-
-            const messagesElement: HTMLElement = fixture2.nativeElement.querySelector('.messages');
-            expect(messagesElement.querySelector('.inbox-heading')).toBeTruthy();
+            expect(messageActions.inboxMessages().map((m) => m.id)).toContain('inbox-survivor');
 
             // Hand the shared fixture/component references over to the surviving instance so the
             // describe-level afterEach (asideService.hide() + detectChanges()) runs against a live
@@ -2756,11 +2730,11 @@ describe('AssistantChatComponent', () => {
         it('navigates to the action route with query params and keeps the aside open', () => {
             // Arrange
             deliver(proactiveWithAction());
+            const message = component.messages.find((m) => m.id === 'proactive-action-1')!;
 
-            // Act
-            const actionButton: HTMLButtonElement = fixture.nativeElement.querySelector('.proactive-action-btn');
-            expect(actionButton).toBeTruthy();
-            actionButton.click();
+            // Act - the button click itself (DOM-level, via app-chat-message) is covered in
+            // chat-message.component.spec.ts, which owns that rendering now.
+            component.onProactiveActionClick(message);
 
             // Assert
             expect(navigationService.navigateAndScroll).toHaveBeenCalledWith(
@@ -2781,7 +2755,7 @@ describe('AssistantChatComponent', () => {
             expect(navigationService.navigateAndScroll).toHaveBeenCalledWith('/workplace/schedule');
         });
 
-        it('renders the show-me button only for proactive messages carrying an action route', () => {
+        it('maps the action route only for proactive messages carrying one', () => {
             // Arrange
             deliver(
                 proactiveWithAction(),
@@ -2797,40 +2771,31 @@ describe('AssistantChatComponent', () => {
             // Act
             fixture.detectChanges();
 
-            // Assert
-            const actionButtons = fixture.nativeElement.querySelectorAll('.proactive-action-btn');
-            expect(actionButtons.length).toBe(1);
+            // Assert - the button's own conditional rendering (DOM-level) is covered in
+            // chat-message.component.spec.ts, which owns that rendering now.
+            expect(component.messages.find((m) => m.id === 'proactive-action-1')?.proactiveActionRoute).toBe(
+                '/workplace/schedule',
+            );
+            expect(
+                component.messages.find((m) => m.id === 'proactive-no-action')?.proactiveActionRoute,
+            ).toBeUndefined();
         });
 
-        it('replaces the helpful button with the mute button but keeps a way to hide the row', () => {
+        // The mute button replacing the helpful button, and the dismiss-reason menu with all four
+        // reasons, are DOM-level rendering covered in chat-message.component.spec.ts, which owns
+        // that rendering now. What is still a chat-side concern: the materialized message
+        // classifies as a mute suggestion, and the dismiss route stays reachable and empties the
+        // block - the reject-reason menu takes two steps: open, then pick.
+        it('classifies a delivered mute suggestion and keeps the dismiss route reachable', () => {
             // Arrange
             deliver(muteSuggestion());
+            const message = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
+            expect(component.isMuteSuggestion(message)).toBe(true);
 
-            // Act
-            fixture.detectChanges();
-
-            // Assert
-            const muteButtons = fixture.nativeElement.querySelectorAll('.proactive-mute-btn');
-            expect(muteButtons.length).toBe(1);
-            const otherButtons: HTMLButtonElement[] = Array.from(
-                fixture.nativeElement.querySelectorAll(
-                    '.proactive-reactions .proactive-reaction-btn:not(.proactive-mute-btn)',
-                ),
-            );
-            // Acknowledge ("Erledigt") plus the dismiss toggle
-            expect(otherButtons.length).toBe(2);
-
-            // Act - the dismiss route must stay reachable here too, or a muted suggestion stays
-            // forever. Since the reject-reason menu it now takes two clicks: open, then pick.
-            otherButtons[otherButtons.length - 1].click();
-            fixture.detectChanges();
-            const reasonItems: HTMLButtonElement[] = Array.from(
-                fixture.nativeElement.querySelectorAll(
-                    '.proactive-dismiss-menu [role="menuitem"]',
-                ),
-            );
-            expect(reasonItems.length).toBe(4);
-            reasonItems[reasonItems.length - 1].click();
+            // Act - open the reason menu, then pick "no reason"
+            component.toggleDismissMenu(message.id);
+            expect(component.dismissMenuMessageId()).toBe('mute-suggestion-1');
+            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
             fixture.detectChanges();
 
             // Assert
@@ -2838,7 +2803,7 @@ describe('AssistantChatComponent', () => {
                 'mute-suggestion-1',
                 PROACTIVE_REJECT_REASON.NoReason,
             );
-            expect(component.inboxMessages()).toEqual([]);
+            expect(messageActions.inboxMessages()).toEqual([]);
         });
 
         it('mutes the suggested kind from the content params, locks the button and confirms via toast', async () => {
@@ -2917,9 +2882,11 @@ describe('AssistantChatComponent', () => {
             ).toBe(true);
         });
 
-        it('marks every visible message of the muted kind as acknowledged and drops its Erledigt button', async () => {
+        it('marks every visible message of the muted kind as acknowledged', async () => {
             // Arrange: muting a kind IS an acknowledgement on the backend (F1), and nothing reloads
-            // the inbox afterwards, so the component has to apply that truth in place.
+            // the inbox afterwards, so the component has to apply that truth in place. The
+            // Erledigt/acknowledge button's own conditional rendering is covered in
+            // chat-message.component.spec.ts, which owns that rendering now.
             deliver(
                 muteSuggestion(),
                 proactiveWithAction({ id: 'unstaffed-1' }),
@@ -2927,9 +2894,6 @@ describe('AssistantChatComponent', () => {
                 proactiveWithAction({ id: 'other-kind-1', kind: 'target_hours_drift' }),
             );
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
-            expect(
-                fixture.nativeElement.querySelectorAll('.proactive-acknowledge-btn').length,
-            ).toBeGreaterThan(0);
 
             // Act
             await component.submitMuteSuggestion(appended);
@@ -2968,7 +2932,9 @@ describe('AssistantChatComponent', () => {
                     ...overrides,
                 });
 
-            it('renders the delegate button only when the message can be delegated', () => {
+            // The delegate button's own conditional rendering (DOM-level) is covered in
+            // chat-message.component.spec.ts, which owns that rendering now.
+            it('maps proactiveCanDelegate only for messages that can be delegated', () => {
                 // Arrange
                 deliver(delegableMessage(), proactiveWithAction({ id: 'not-delegable-1', canDelegate: false }));
 
@@ -2976,8 +2942,10 @@ describe('AssistantChatComponent', () => {
                 fixture.detectChanges();
 
                 // Assert
-                const delegateButtons = fixture.nativeElement.querySelectorAll('.proactive-delegate-btn');
-                expect(delegateButtons.length).toBe(1);
+                expect(component.messages.find((m) => m.id === 'delegable-1')?.proactiveCanDelegate).toBe(true);
+                expect(
+                    component.messages.find((m) => m.id === 'not-delegable-1')?.proactiveCanDelegate,
+                ).toBe(false);
             });
 
             it('delegates Prepare for the message, locks the button and confirms via toast', async () => {
@@ -3076,7 +3044,7 @@ describe('AssistantChatComponent', () => {
             });
         });
 
-        it('maps kind, action route and params for inbox items and renders the action button', () => {
+        it('maps kind, action route and params for inbox items', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
                 of([
@@ -3104,12 +3072,10 @@ describe('AssistantChatComponent', () => {
             expect(message.proactiveKind).toBe('unstaffed_shift');
             expect(message.proactiveActionRoute).toBe('/workplace/schedule');
             expect(message.proactiveActionParams).toEqual({ groupId: 'g-9' });
-            const actionButtons = fixture.nativeElement.querySelectorAll('.proactive-action-btn');
-            expect(actionButtons.length).toBe(1);
             asideService.hide();
         });
 
-        it('maps the mute target kind for inbox mute suggestions and renders the mute button', () => {
+        it('maps the mute target kind for inbox mute suggestions', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(
                 of([
@@ -3135,8 +3101,6 @@ describe('AssistantChatComponent', () => {
             // Assert
             const message = component.messages.find((m) => m.id === 'inbox-mute-1')!;
             expect(message.proactiveMuteTargetKind).toBe('period_overdue');
-            const muteButtons = fixture.nativeElement.querySelectorAll('.proactive-mute-btn');
-            expect(muteButtons.length).toBe(1);
             asideService.hide();
         });
     });

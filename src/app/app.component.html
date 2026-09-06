@@ -6,17 +6,8 @@
   <main id="main-content" tabindex="-1">
     <router-outlet></router-outlet>
   </main>
-  <app-toasts aria-live="polite" aria-atomic="true"></app-toasts>
+  <app-overlay-rail></app-overlay-rail>
   <app-backend-unavailable-overlay></app-backend-unavailable-overlay>
   <app-aside></app-aside>
-  @if (showVoiceShell()) {
-    <app-voice-shell />
-  }
-  @if (showFloatingInput()) {
-    <app-voice-shell-input />
-  }
-  @if (showAudioModePanels()) {
-    <app-audio-mode-panels />
-  }
   <app-tooltip></app-tooltip>
 </div>

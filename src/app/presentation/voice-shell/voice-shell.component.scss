@@ -10,22 +10,13 @@
   --voice-shell-error-blink-iterations: 10;
 }
 
+/* Position, edge anchor and stacking order belong to OverlayRailComponent, which renders this
+   bubble as a flow child. The anchor formula that used to live here is now the rail's, so the
+   bubble and the toasts can no longer drift apart on wide screens. */
 .voice-shell {
-  position: fixed;
-  top: 50px;
-  right: 16px;
-  z-index: 1000;
+  position: relative;
   cursor: pointer;
   user-select: none;
-
-  /* Standard pages on wide screens: anchor to the right edge of the
-     centered 1445px container instead of the viewport edge.
-     Full-viewport pages (body.full-viewport) keep the viewport-edge default. */
-  @media screen and (min-width: 1025px) {
-    :host-context(body:not(.full-viewport)) & {
-      right: max(16px, calc((100vw - 1445px) / 2 + 16px));
-    }
-  }
 
   &.error-active::after {
     content: "";
@@ -66,7 +57,7 @@
 }
 
 .close-btn {
-  right: -4px;
+  inset-inline-end: -4px;
   background: var(--voice-shell-close-bg);
 
   &:hover {
@@ -75,7 +66,7 @@
 }
 
 .clear-btn {
-  left: -4px;
+  inset-inline-start: -4px;
   background: colors.$standartBlueColor;
 
   app-icon-trash-red {

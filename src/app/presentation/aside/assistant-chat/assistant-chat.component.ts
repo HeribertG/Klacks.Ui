@@ -21,7 +21,6 @@ import {
   afterEveryRender,
   viewChild
 } from '@angular/core';
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -31,26 +30,13 @@ import {
   faMicrophoneSlash,
   faPaperPlane,
   faUser,
-  faTimes,
   faChevronDown,
-  faChevronUp,
-  faVolumeHigh,
   faStop,
   faSpinner,
-  faThumbsDown,
-  faThumbsUp,
   faCheck,
-  faCheckDouble,
-  faEyeSlash,
-  faBell,
-  faBellSlash,
-  faArrowRight,
-  faTriangleExclamation,
-  faHandshake,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { firstValueFrom, Subject, debounceTime } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
@@ -58,7 +44,6 @@ import { SpeechRecognitionService } from './services/speech-recognition.service'
 import { Router } from '@angular/router';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
-import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
@@ -67,11 +52,10 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
-import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { PlanExecutionPanelComponent } from './plan-execution-panel/plan-execution-panel.component';
-import { GoalCandidatesPanelComponent } from './goal-candidates-panel/goal-candidates-panel.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
+import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
@@ -79,29 +63,21 @@ import { ToolStep } from './tool-step.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
+import { stripMetadataMarkers, stripForTts, formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import {
-  PROACTIVE_REACTION,
-  PROACTIVE_REJECT_REASON,
+  ChatMessageActionsService,
+  CorrectionType,
+} from './services/chat-message-actions.service';
+import {
   ProactiveReaction,
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
-import { PROACTIVE_SEVERITY } from 'src/app/domain/constants/proactive-severity.constants';
-import { PROACTIVE_MAX_ACTION } from 'src/app/domain/constants/proactive-max-action.constants';
-import {
-  MUTE_SUGGESTION_KIND_PARAM,
-  PROACTIVE_TRIGGER_KIND,
-} from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
-import {
-  ISubmitCorrectionRequest,
-  ISubmitHelpfulFeedbackRequest,
-} from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
@@ -126,29 +102,19 @@ const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';
 const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-offline';
 const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
 const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
-const PROACTIVE_REACTION_ERROR_KEY = 'assistant-chat.error.generic';
-const PROACTIVE_MUTE_CONFIRMED_KEY = 'assistant-chat.proactive.mute-confirmed';
-const PROACTIVE_DELEGATE_CONFIRMED_KEY = 'assistant-chat.proactive.delegate-confirmed';
-const PROACTIVE_DELEGATE_FORBIDDEN_KEY = 'assistant-chat.proactive.delegate-forbidden';
-const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
-
-type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 
 @Component({
   selector: 'app-assistant-chat',
   standalone: true,
   imports: [
-    DatePipe,
-    NgTemplateOutlet,
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
     IconMMLComponent,
     IconLogoComponent,
-    IconUserComponent,
     PlanExecutionPanelComponent,
-    GoalCandidatesPanelComponent,
     AutonomyStatusBarComponent,
+    ChatMessageComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],
@@ -161,7 +127,6 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 export class AssistantChatComponent {
   private readonly messagesContainer = viewChild.required<ElementRef>('messagesContainer');
   private readonly chatInput = viewChild<ElementRef<HTMLTextAreaElement>>('chatInput');
-  private readonly inboxScrollContainer = viewChild<ElementRef<HTMLElement>>('inboxScrollContainer');
 
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
@@ -179,8 +144,8 @@ export class AssistantChatComponent {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
-  private assistantSignalR = inject(AssistantSignalRService);
   readonly proactiveInboxService = inject(DataManagementProactiveInboxService);
+  private readonly messageActions = inject(ChatMessageActionsService);
   readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
@@ -199,7 +164,6 @@ export class AssistantChatComponent {
   private eventBus = inject(EVENT_BUS_TOKEN);
 
   private shouldScrollToBottom = true;
-  private shouldScrollInboxToBottom = false;
   private pendingGreetingMessageId: string | null = null;
   private pendingGreetingOptions: ISuggestedReply[] = [];
   private greetingSpoken = false;
@@ -211,46 +175,17 @@ export class AssistantChatComponent {
   faMicrophoneSlash = faMicrophoneSlash;
   faPaperPlane = faPaperPlane;
   faUser = faUser;
-  faTimes = faTimes;
   faChevronDown = faChevronDown;
-  faChevronUp = faChevronUp;
-  faVolumeHigh = faVolumeHigh;
   faStop = faStop;
   faSpinner = faSpinner;
-  faThumbsDown = faThumbsDown;
-  faThumbsUp = faThumbsUp;
   faCheck = faCheck;
-  faCheckDouble = faCheckDouble;
-  faBell = faBell;
-  faBellSlash = faBellSlash;
-  faEyeSlash = faEyeSlash;
-  faArrowRight = faArrowRight;
-  faTriangleExclamation = faTriangleExclamation;
-  faHandshake = faHandshake;
 
-  readonly proactiveReactions = PROACTIVE_REACTION;
-  readonly proactiveRejectReasons = PROACTIVE_REJECT_REASON;
-  readonly proactiveSeverities = PROACTIVE_SEVERITY;
-
-  correctionMenuMessageId = signal<string | null>(null);
-  readonly dismissMenuMessageId = signal<string | null>(null);
-  readonly pendingReactionMessageId = signal<string | null>(null);
-  readonly pendingMuteMessageId = signal<string | null>(null);
-  readonly pendingDelegateMessageId = signal<string | null>(null);
-  readonly pendingAcknowledgeMessageId = signal<string | null>(null);
-  readonly inboxBlockId = 'assistant-chat-inbox-block';
-  readonly inboxMessages = computed(() => {
-    const ids = this.proactiveInboxService.inboxMessageIds();
-    const hidden = this.proactiveInboxService.hiddenMessageIds();
-    return this.orchestrator
-      .messages()
-      .filter((message) => ids.has(message.id) && !hidden.has(message.id));
-  });
-  // The heading rides on the first row still showing, so hiding the row it used to sit
-  // above moves it down instead of taking the whole block with it.
-  readonly inboxAnchorMessageId = computed(() => this.inboxMessages()[0]?.id ?? null);
-  private inboxLoadRequested = false;
-  private readonly inboxReloadRequests$ = new Subject<void>();
+  readonly correctionMenuMessageId = this.messageActions.correctionMenuMessageId;
+  readonly dismissMenuMessageId = this.messageActions.dismissMenuMessageId;
+  readonly pendingReactionMessageId = this.messageActions.pendingReactionMessageId;
+  readonly pendingMuteMessageId = this.messageActions.pendingMuteMessageId;
+  readonly pendingDelegateMessageId = this.messageActions.pendingDelegateMessageId;
+  readonly pendingAcknowledgeMessageId = this.messageActions.pendingAcknowledgeMessageId;
 
   inputText = signal('');
   isProcessing = signal(false);
@@ -287,15 +222,8 @@ export class AssistantChatComponent {
   private streamPreviousClean = '';
   private scrollMarkersDispatched = 0;
 
-  private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES|SCROLL)(?::[^\]]*?)?\]/g;
-  private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES|SCROLL)(?::[\s\S]*)?$/;
   private static readonly SCROLL_MARKER_REGEX = /\[SCROLL:\s*([\w-]+)\s*\]/gi;
-  private static readonly TOOL_CALL_BLOCK_REGEX = /<\s*function_calls\b[\s\S]*?<\s*\/\s*function_calls\s*>/gi;
-  private static readonly TOOL_CALL_TRAILING_REGEX = /<\s*function_calls\b[\s\S]*$/i;
-  private static readonly INVOKE_BLOCK_REGEX = /<\s*invoke\b[\s\S]*?<\s*\/\s*invoke\s*>/gi;
-  private static readonly INVOKE_TRAILING_REGEX = /<\s*invoke\b[\s\S]*$/i;
   private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
-  private static readonly INBOX_RELOAD_DEBOUNCE_MS = 250;
   private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
 
   @HostListener('document:click', ['$event'])
@@ -313,10 +241,6 @@ export class AssistantChatComponent {
       if (this.shouldScrollToBottom) {
         this.scrollToBottom();
         this.shouldScrollToBottom = false;
-      }
-      if (this.shouldScrollInboxToBottom) {
-        this.scrollInboxToBottom();
-        this.shouldScrollInboxToBottom = false;
       }
     });
 
@@ -376,24 +300,6 @@ export class AssistantChatComponent {
       this.addWelcomeMessage(currentLang);
     }
 
-    // A live push carries no content of its own: the trigger pipeline persists the inbox row
-    // before it delivers (AgentTriggerService), so the row — not the push payload — is the single
-    // source. The push only says "the inbox changed", the reload renders it.
-    this.assistantSignalR.proactiveMessage$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.ngZone.run(() => this.onProactivePushReceived()));
-
-    this.assistantSignalR.proactiveInboxChanged$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.ngZone.run(() => this.onInboxUnreadCountChanged()));
-
-    this.inboxReloadRequests$
-      .pipe(
-        debounceTime(AssistantChatComponent.INBOX_RELOAD_DEBOUNCE_MS),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => this.loadProactiveInbox());
-
     effect(() => {
       if (!this.assistantProviderService.providersInitialized()) return;
       const lang = this.pendingWelcomeLang();
@@ -430,156 +336,6 @@ export class AssistantChatComponent {
         this.restartGuidedTour();
       }
     });
-
-    effect(() => {
-      if (!this.asideService.isVisible()) {
-        this.inboxLoadRequested = false;
-        return;
-      }
-      if (this.onboarding.isTourActive() || this.inboxLoadRequested) {
-        return;
-      }
-      this.inboxLoadRequested = true;
-      this.loadProactiveInbox();
-    });
-  }
-
-  private onProactivePushReceived(): void {
-    if (this.canPresentInbox()) {
-      this.inboxReloadRequests$.next();
-      return;
-    }
-    // The live-push branch sends no unread-count signal, so the badge would miss this row.
-    this.proactiveInboxService.refreshUnreadCount();
-  }
-
-  private onInboxUnreadCountChanged(): void {
-    if (this.canPresentInbox()) {
-      this.inboxReloadRequests$.next();
-    }
-  }
-
-  private canPresentInbox(): boolean {
-    return this.asideService.isVisible() && !this.onboarding.isTourActive();
-  }
-
-  private loadProactiveInbox(): void {
-    this.proactiveInboxService
-      .loadUnreadMessages()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (items) => this.ngZone.run(() => this.presentInboxMessages(items)),
-        error: () => undefined,
-      });
-  }
-
-  private presentInboxMessages(items: IProactiveInboxItem[]): void {
-    if (items.length === 0) {
-      return;
-    }
-    const knownMessages = new Map(this.messages.map((message) => [message.id, message]));
-    // A reminder is the same inbox row with a higher reminder count and its read state
-    // reset, so it updates the existing bubble in place instead of appending a duplicate.
-    // The order stays as rendered (by CreateTime); only the row's own fields change.
-    const remindedItems = items.filter((item) => {
-      const known = knownMessages.get(item.id);
-      return known !== undefined && (item.reminderCount ?? 0) > (known.proactiveReminderCount ?? 0);
-    });
-    for (const item of remindedItems) {
-      const refreshed = this.toInboxChatMessage(item);
-      this.orchestrator.updateMessage(item.id, {
-        content: refreshed.content,
-        formattedContent: refreshed.formattedContent,
-        proactiveReminderCount: refreshed.proactiveReminderCount,
-        proactiveAcknowledged: refreshed.proactiveAcknowledged,
-      });
-    }
-    if (remindedItems.length > 0) {
-      // A hide from before the reminder must not swallow the re-sent row for the rest
-      // of the session.
-      this.proactiveInboxService.unhideMessages(remindedItems.map((item) => item.id));
-      this.shouldScrollToBottom = true;
-      this.shouldScrollInboxToBottom = true;
-    }
-    const freshItems = items.filter((item) => !knownMessages.has(item.id));
-    if (freshItems.length > 0) {
-      const inboxMessages = freshItems.map((item) => this.toInboxChatMessage(item));
-      this.messages = [...this.messages, ...inboxMessages];
-      this.proactiveInboxService.setInboxHeadingIfUnset(inboxMessages[0].id);
-      this.proactiveInboxService.addToInboxBlock(inboxMessages.map((message) => message.id));
-      // A row the user dismissed earlier must not come back as a dead one whose buttons
-      // are already spent.
-      this.proactiveInboxService.markHidden(
-        inboxMessages
-          .filter((message) => message.proactiveReaction === PROACTIVE_REACTION.Dismissed)
-          .map((message) => message.id),
-      );
-      this.shouldScrollToBottom = true;
-      this.shouldScrollInboxToBottom = true;
-    }
-    if (this.proactiveInboxService.inboxExpanded()) {
-      this.markInboxRead(items.map((item) => item.id));
-      return;
-    }
-    // Collapsed block: nothing was shown, so nothing is read — the badge has to carry the news.
-    this.proactiveInboxService.refreshUnreadCount();
-  }
-
-  private toInboxChatMessage(item: IProactiveInboxItem): ChatMessage {
-    const content = this.resolveProactiveContent(item.content, item.contentParams);
-    return {
-      id: item.id,
-      sender: 'assistant',
-      content,
-      formattedContent: this.formatMessage(content),
-      timestamp: new Date(item.createdUtc),
-      messageKind: 'proactive',
-      proactiveReaction: this.toProactiveReaction(item.reaction),
-      proactiveSeverity: item.severity ?? undefined,
-      proactiveCanDelegate: item.canDelegate ?? false,
-      proactiveReminderCount: item.reminderCount ?? 0,
-      proactiveAcknowledged: !!item.acknowledgedAtUtc,
-      ...this.toProactiveActionFields(item.kind, item.actionRoute, item.actionParams, item.contentParams),
-    };
-  }
-
-  private toProactiveActionFields(
-    kind: string | null | undefined,
-    actionRoute: string | null | undefined,
-    actionParams: Record<string, string> | null | undefined,
-    contentParams: Record<string, string> | undefined,
-  ): Partial<ChatMessage> {
-    return {
-      proactiveKind: kind ?? undefined,
-      proactiveActionRoute: actionRoute ?? undefined,
-      proactiveActionParams: actionParams ?? undefined,
-      proactiveMuteTargetKind:
-        kind === PROACTIVE_TRIGGER_KIND.MuteSuggestion
-          ? contentParams?.[MUTE_SUGGESTION_KIND_PARAM]
-          : undefined,
-    };
-  }
-
-  private toProactiveReaction(reaction?: string | null): ProactiveReaction | undefined {
-    const normalized = reaction?.toLowerCase();
-    return normalized === PROACTIVE_REACTION.Helpful || normalized === PROACTIVE_REACTION.Dismissed
-      ? normalized
-      : undefined;
-  }
-
-  // Only what was rendered counts as read: the listing is capped, so marking everything unread
-  // would silently swallow the rows beyond that page.
-  private markInboxRead(messageIds: readonly string[]): void {
-    if (messageIds.length === 0) {
-      return;
-    }
-    this.proactiveInboxService
-      .markManyRead(messageIds)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.proactiveInboxService.refreshUnreadCount(),
-        error: () => undefined,
-      });
   }
 
   private restartGuidedTour(): void {
@@ -613,44 +369,15 @@ export class AssistantChatComponent {
   }
 
   private stripMetadataMarkers(text: string): string {
-    if (!text) return text;
-    return text
-      .replace(AssistantChatComponent.TOOL_CALL_BLOCK_REGEX, '')
-      .replace(AssistantChatComponent.TOOL_CALL_TRAILING_REGEX, '')
-      .replace(AssistantChatComponent.INVOKE_BLOCK_REGEX, '')
-      .replace(AssistantChatComponent.INVOKE_TRAILING_REGEX, '')
-      .replace(AssistantChatComponent.METADATA_MARKER_REGEX, '')
-      .replace(AssistantChatComponent.TRAILING_MARKER_REGEX, '')
-      .trimEnd();
-  }
-
-  private static readonly PROACTIVE_I18N_MARKER = 'i18n:';
-
-  private resolveProactiveContent(
-    text: string,
-    params?: Record<string, string>,
-  ): string {
-    const stripped = this.stripMetadataMarkers(text);
-    if (stripped.startsWith(AssistantChatComponent.PROACTIVE_I18N_MARKER)) {
-      return this.translateService.instant(
-        stripped.slice(AssistantChatComponent.PROACTIVE_I18N_MARKER.length),
-        params,
-      );
-    }
-    return stripped;
+    return stripMetadataMarkers(text);
   }
 
   isMuteSuggestion(message: ChatMessage): boolean {
-    return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
-  }
-
-  hideWholeInbox(): void {
-    this.proactiveInboxService.hideMessages(this.inboxMessages().map((message) => message.id));
+    return this.messageActions.isMuteSuggestion(message);
   }
 
   toggleDismissMenu(messageId: string): void {
-    const current = this.dismissMenuMessageId();
-    this.dismissMenuMessageId.set(current === messageId ? null : messageId);
+    this.messageActions.toggleDismissMenu(messageId);
   }
 
   /**
@@ -662,19 +389,11 @@ export class AssistantChatComponent {
    * @param rejectReason - The reason the user picked
    */
   dismissProactiveMessage(message: ChatMessage, rejectReason: ProactiveRejectReason): void {
-    this.dismissMenuMessageId.set(null);
-    this.proactiveInboxService.dismissMessage(message.id, rejectReason);
+    this.messageActions.dismissProactiveMessage(message, rejectReason);
   }
 
   isHiddenProactiveMessage(message: ChatMessage): boolean {
     return this.proactiveInboxService.hiddenMessageIds().has(message.id);
-  }
-
-  toggleInboxExpanded(): void {
-    this.proactiveInboxService.toggleInboxExpanded();
-    if (this.proactiveInboxService.inboxExpanded()) {
-      this.markInboxRead([...this.proactiveInboxService.inboxMessageIds()]);
-    }
   }
 
   isInboxMessage(message: ChatMessage): boolean {
@@ -682,21 +401,7 @@ export class AssistantChatComponent {
   }
 
   onProactiveActionClick(message: ChatMessage): void {
-    if (!message.proactiveActionRoute) {
-      return;
-    }
-    const url = this.buildActionUrl(message.proactiveActionRoute, message.proactiveActionParams);
-    void this.klacksyNavigation.navigateAndScroll(url);
-  }
-
-  private buildActionUrl(route: string, params?: Record<string, string>): string {
-    if (!params || Object.keys(params).length === 0) {
-      return route;
-    }
-    const query = Object.entries(params)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
-    return `${route}?${query}`;
+    this.messageActions.onProactiveActionClick(message);
   }
 
   /**
@@ -706,37 +411,8 @@ export class AssistantChatComponent {
    * "Erledigt" button until the next reload.
    * @param message - The mute-suggestion message whose target kind is muted
    */
-  async submitMuteSuggestion(message: ChatMessage): Promise<void> {
-    if (message.messageKind !== 'proactive' || message.proactiveMuted) return;
-    if (!message.proactiveMuteTargetKind) return;
-    if (this.pendingMuteMessageId() !== null) return;
-
-    const mutedKind = message.proactiveMuteTargetKind;
-    this.pendingMuteMessageId.set(message.id);
-    this.cdr.detectChanges();
-    try {
-      await firstValueFrom(this.assistantService.muteTriggerKind(mutedKind));
-      this.orchestrator.updateMessage(message.id, { proactiveMuted: true });
-      this.markKindAcknowledged(mutedKind);
-      this.toastShowService.showInfo(
-        this.translateService.instant(PROACTIVE_MUTE_CONFIRMED_KEY),
-      );
-    } catch {
-      this.toastShowService.showError(
-        this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
-      );
-    } finally {
-      this.pendingMuteMessageId.set(null);
-      this.cdr.detectChanges();
-    }
-  }
-
-  private markKindAcknowledged(triggerKind: string): void {
-    for (const candidate of this.messages) {
-      if (candidate.proactiveKind === triggerKind && !candidate.proactiveAcknowledged) {
-        this.orchestrator.updateMessage(candidate.id, { proactiveAcknowledged: true });
-      }
-    }
+  submitMuteSuggestion(message: ChatMessage): Promise<void> {
+    return this.messageActions.submitMuteSuggestion(message);
   }
 
   /**
@@ -746,29 +422,8 @@ export class AssistantChatComponent {
    * button does not offer it.
    * @param message - The proactive message reporting the finding to delegate
    */
-  async submitDelegate(message: ChatMessage): Promise<void> {
-    if (message.messageKind !== 'proactive' || message.proactiveDelegated) return;
-    if (!message.proactiveCanDelegate) return;
-    if (this.pendingDelegateMessageId() !== null) return;
-
-    this.pendingDelegateMessageId.set(message.id);
-    this.cdr.detectChanges();
-    try {
-      await firstValueFrom(this.assistantService.delegateCondition(message.id, PROACTIVE_MAX_ACTION.Prepare));
-      this.orchestrator.updateMessage(message.id, { proactiveDelegated: true });
-      this.toastShowService.showInfo(
-        this.translateService.instant(PROACTIVE_DELEGATE_CONFIRMED_KEY),
-      );
-    } catch (error) {
-      const key =
-        error instanceof HttpErrorResponse && error.status === HttpStatusCode.Forbidden
-          ? PROACTIVE_DELEGATE_FORBIDDEN_KEY
-          : PROACTIVE_REACTION_ERROR_KEY;
-      this.toastShowService.showError(this.translateService.instant(key));
-    } finally {
-      this.pendingDelegateMessageId.set(null);
-      this.cdr.detectChanges();
-    }
+  submitDelegate(message: ChatMessage): Promise<void> {
+    return this.messageActions.submitDelegate(message);
   }
 
   get voiceModeEnabled(): boolean {
@@ -788,13 +443,6 @@ export class AssistantChatComponent {
     if (messagesContainer?.nativeElement) {
       messagesContainer.nativeElement.scrollTop =
         messagesContainer.nativeElement.scrollHeight;
-    }
-  }
-
-  private scrollInboxToBottom(): void {
-    const inboxContainer = this.inboxScrollContainer();
-    if (inboxContainer?.nativeElement) {
-      inboxContainer.nativeElement.scrollTop = inboxContainer.nativeElement.scrollHeight;
     }
   }
 
@@ -1081,11 +729,7 @@ export class AssistantChatComponent {
   }
 
   speakMessage(message: ChatMessage): void {
-    this.orchestrator.stopAutoSpeak();
-    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
-    const locale = this.languageMappingService.getSpeechLocale(currentLang);
-    const cleaned = this.stripForTts(this.stripMetadataMarkers(message.content));
-    this.ttsService.speak(cleaned, message.id, locale);
+    this.messageActions.speakMessage(message);
   }
 
   private maybeAutoSpeak(message: ChatMessage | undefined): void {
@@ -1213,11 +857,6 @@ export class AssistantChatComponent {
     }
   }
 
-  toggleCorrectionMenu(messageId: string): void {
-    const current = this.correctionMenuMessageId();
-    this.correctionMenuMessageId.set(current === messageId ? null : messageId);
-  }
-
   /**
    * The thumbs-down itself is the verdict (W1.8): the coarse "not helpful" is sent the moment the
    * button is pressed, not when the user finishes picking a reason, because most users never do.
@@ -1227,12 +866,7 @@ export class AssistantChatComponent {
    * @param message - The assistant message the user gave a thumbs-down
    */
   onNotHelpfulClick(message: ChatMessage): void {
-    const wasOpen = this.correctionMenuMessageId() === message.id;
-    this.toggleCorrectionMenu(message.id);
-
-    if (wasOpen || !message.respondedToUserMessage) return;
-
-    this.sendNotHelpful(message);
+    this.messageActions.onNotHelpfulClick(message);
   }
 
   /**
@@ -1242,47 +876,7 @@ export class AssistantChatComponent {
    * @param comment - Free text; an empty box just closes the menu without a pointless request
    */
   submitNotHelpfulComment(message: ChatMessage, comment: string): void {
-    const trimmed = comment.trim();
-    if (!message.respondedToUserMessage || !trimmed) {
-      this.correctionMenuMessageId.set(null);
-      return;
-    }
-
-    this.sendNotHelpful(message, trimmed);
-  }
-
-  private sendNotHelpful(message: ChatMessage, comment?: string): void {
-    const request: ISubmitHelpfulFeedbackRequest = {
-      userMessage: message.respondedToUserMessage!,
-      helpful: false,
-      comment,
-    };
-
-    this.assistantService
-      .submitHelpfulFeedback(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.ngZone.run(() => {
-            this.orchestrator.updateMessage(message.id, {
-              notHelpfulSubmitted: true,
-              notHelpfulCommentSubmitted: comment ? true : message.notHelpfulCommentSubmitted,
-            });
-            if (comment) {
-              this.correctionMenuMessageId.set(null);
-            }
-            this.cdr.detectChanges();
-          });
-        },
-        error: () => {
-          this.ngZone.run(() => {
-            this.toastShowService.showError(
-              this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
-            );
-            this.cdr.detectChanges();
-          });
-        },
-      });
+    this.messageActions.submitNotHelpfulComment(message, comment);
   }
 
   /**
@@ -1292,78 +886,15 @@ export class AssistantChatComponent {
    * @param message - The assistant message the user gave a thumbs-up
    */
   submitHelpfulFeedback(message: ChatMessage): void {
-    if (!message.respondedToUserMessage || message.helpfulSubmitted) return;
-
-    const request: ISubmitHelpfulFeedbackRequest = {
-      userMessage: message.respondedToUserMessage,
-    };
-
-    this.assistantService
-      .submitHelpfulFeedback(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.ngZone.run(() => {
-            this.orchestrator.updateMessage(message.id, { helpfulSubmitted: true });
-            this.cdr.detectChanges();
-          });
-        },
-        error: () => {
-          this.ngZone.run(() => {
-            this.toastShowService.showError(
-              this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
-            );
-            this.cdr.detectChanges();
-          });
-        },
-      });
+    this.messageActions.submitHelpfulFeedback(message);
   }
 
   submitCorrection(message: ChatMessage, correctionType: CorrectionType): void {
-    if (!message.respondedToUserMessage || message.correctionSubmitted) return;
-
-    const request: ISubmitCorrectionRequest = {
-      userMessage: message.respondedToUserMessage,
-      correctionType,
-    };
-
-    this.assistantService
-      .submitCorrection(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.ngZone.run(() => {
-            this.orchestrator.updateMessage(message.id, { correctionSubmitted: true });
-            this.correctionMenuMessageId.set(null);
-            this.cdr.detectChanges();
-          });
-        },
-        error: () => {
-          this.ngZone.run(() => {
-            this.correctionMenuMessageId.set(null);
-            this.cdr.detectChanges();
-          });
-        },
-      });
+    this.messageActions.submitCorrection(message, correctionType);
   }
 
-  async submitProactiveReaction(message: ChatMessage, reaction: ProactiveReaction): Promise<void> {
-    if (message.messageKind !== 'proactive' || message.proactiveReaction) return;
-    if (this.pendingReactionMessageId() !== null) return;
-
-    this.pendingReactionMessageId.set(message.id);
-    this.cdr.detectChanges();
-    try {
-      await firstValueFrom(this.assistantService.setProactiveReaction(message.id, reaction));
-      this.orchestrator.updateMessage(message.id, { proactiveReaction: reaction });
-    } catch {
-      this.toastShowService.showError(
-        this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
-      );
-    } finally {
-      this.pendingReactionMessageId.set(null);
-      this.cdr.detectChanges();
-    }
+  submitProactiveReaction(message: ChatMessage, reaction: ProactiveReaction): Promise<void> {
+    return this.messageActions.submitProactiveReaction(message, reaction);
   }
 
   /**
@@ -1372,23 +903,8 @@ export class AssistantChatComponent {
    * request only shows a toast so the button stays live for a retry.
    * @param message - The proactive message the user marked as done
    */
-  async submitAcknowledge(message: ChatMessage): Promise<void> {
-    if (message.messageKind !== 'proactive' || message.proactiveAcknowledged) return;
-    if (this.pendingAcknowledgeMessageId() !== null) return;
-
-    this.pendingAcknowledgeMessageId.set(message.id);
-    this.cdr.detectChanges();
-    try {
-      await firstValueFrom(this.proactiveInboxService.acknowledgeMessage(message.id));
-      this.orchestrator.updateMessage(message.id, { proactiveAcknowledged: true });
-    } catch {
-      this.toastShowService.showError(
-        this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY),
-      );
-    } finally {
-      this.pendingAcknowledgeMessageId.set(null);
-      this.cdr.detectChanges();
-    }
+  submitAcknowledge(message: ChatMessage): Promise<void> {
+    return this.messageActions.submitAcknowledge(message);
   }
 
   toggleModelDropdown(): void {
@@ -1869,146 +1385,17 @@ export class AssistantChatComponent {
     return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
+  /**
+   * Delegates to the pure markdown-ish renderer in assistant-text.helper.ts, shared with the
+   * chat-message component so both render identical HTML for the same content.
+   * @param content - Raw message text, possibly still carrying streaming metadata markers
+   */
   formatMessage(content: string): string {
-    const cleaned = this.stripMetadataMarkers(content);
-    const escaped = this.escapeForHtml(cleaned);
-
-    const blocks: string[] = [];
-    let textBuffer: string[] = [];
-    let inList = false;
-
-    const flushText = (): void => {
-      if (textBuffer.length > 0) {
-        blocks.push(textBuffer.join('<br>'));
-        textBuffer = [];
-      }
-    };
-    const closeList = (): void => {
-      if (inList) {
-        blocks.push('</ul>');
-        inList = false;
-      }
-    };
-
-    const lines = escaped.split('\n');
-    for (let i = 0; i < lines.length; i++) {
-      const trimmed = lines[i].trim();
-
-      if (/^-{3,}$/.test(trimmed)) {
-        flushText();
-        closeList();
-        blocks.push('<hr>');
-        continue;
-      }
-
-      const heading = /^(#{1,6})\s+(.+)$/.exec(trimmed);
-      if (heading) {
-        flushText();
-        closeList();
-        const level = Math.min(heading[1].length + 1, 6);
-        blocks.push(`<h${level}>${heading[2]}</h${level}>`);
-        continue;
-      }
-
-      if (this.isTableRow(trimmed) && this.isTableRow(lines[i + 1]?.trim()) && this.isTableSeparatorRow(lines[i + 1].trim())) {
-        flushText();
-        closeList();
-        const headerCells = this.parseTableRow(trimmed);
-        const bodyRows: string[][] = [];
-        let j = i + 2;
-        while (j < lines.length && this.isTableRow(lines[j].trim()) && !this.isTableSeparatorRow(lines[j].trim())) {
-          bodyRows.push(this.parseTableRow(lines[j].trim()));
-          j++;
-        }
-        blocks.push(this.buildTableHtml(headerCells, bodyRows));
-        i = j - 1;
-        continue;
-      }
-
-      const listItem = /^[-*]\s+(.+)$/.exec(trimmed);
-      if (listItem) {
-        flushText();
-        if (!inList) {
-          blocks.push('<ul>');
-          inList = true;
-        }
-        blocks.push(`<li>${listItem[1]}</li>`);
-        continue;
-      }
-
-      closeList();
-
-      if (trimmed === '') {
-        flushText();
-        if (blocks.length > 0 && blocks[blocks.length - 1] !== '<br>') {
-          blocks.push('<br>');
-        }
-        continue;
-      }
-
-      textBuffer.push(lines[i]);
-    }
-
-    flushText();
-    closeList();
-
-    return blocks.join('')
-      .replace(MARKDOWN_LINK_REGEX, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
-      .replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+    return formatMessage(content);
   }
-
-  private static readonly TABLE_SEPARATOR_CELL_REGEX = /^:?-+:?$/;
-
-  private isTableRow(line: string | undefined): boolean {
-    return !!line && line.startsWith('|') && line.length > 1;
-  }
-
-  private isTableSeparatorRow(line: string): boolean {
-    const cells = this.parseTableRow(line);
-    return cells.length > 0 && cells.every((cell) => AssistantChatComponent.TABLE_SEPARATOR_CELL_REGEX.test(cell));
-  }
-
-  private parseTableRow(line: string): string[] {
-    let inner = line;
-    if (inner.startsWith('|')) inner = inner.slice(1);
-    if (inner.endsWith('|')) inner = inner.slice(0, -1);
-    return inner.split('|').map((cell) => cell.trim());
-  }
-
-  private buildTableHtml(headerCells: string[], bodyRows: string[][]): string {
-    const headerHtml = headerCells.map((cell) => `<th>${cell}</th>`).join('');
-    const bodyHtml = bodyRows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`).join('');
-    return `<table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
-  }
-
-  private static readonly EMOJI_REGEX = /\p{Extended_Pictographic}/gu;
-  private static readonly TTS_MARKDOWN_REGEX = /^[#>\-*]+\s*|[*_`]+/gm;
-  private static readonly TTS_BULLET_REGEX = /[•‒–—―‣◦▪▫▶◀●○■□]/g;
 
   private stripForTts(text: string): string {
-    if (!text) return text;
-    const stripped = text
-      .replace(AssistantChatComponent.EMOJI_REGEX, '')
-      .replace(/^-{3,}\s*$/gm, '')
-      .replace(AssistantChatComponent.TTS_MARKDOWN_REGEX, '')
-      .replace(AssistantChatComponent.TTS_BULLET_REGEX, '')
-      .replace(/[ \t]+/g, ' ');
-
-    return stripped
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0)
-      .join('\n')
-      .trim();
-  }
-
-  private escapeForHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+    return stripForTts(text);
   }
 
   /**

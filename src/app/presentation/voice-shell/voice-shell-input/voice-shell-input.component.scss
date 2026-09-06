@@ -1,16 +1,10 @@
-/* Positioned below the voice shell icon (icon top: 50px + icon height: 56px + gap: 12px = 118px) */
+/* Placed by OverlayRailComponent, directly after the bubble in the same flow. The old fixed 118px
+   was the bubble's top plus its height plus a gap - three numbers copied from another component
+   that silently went wrong whenever any of them changed, and that could never account for this
+   bar growing with its text. */
 :host {
   display: block;
-  position: fixed;
-  top: 118px;
-  right: 16px;
-  z-index: 1000;
-
-  @media screen and (min-width: 1025px) {
-    :host-context(body:not(.full-viewport)) & {
-      right: max(16px, calc((100vw - 1445px) / 2 + 16px));
-    }
-  }
+  margin-top: 12px;
 }
 
 .floating-input-bar {

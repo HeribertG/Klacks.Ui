@@ -11,6 +11,7 @@ export enum DomainEventType {
   ADDRESS_VALIDATION_FAILED = 'domain:address-validation-failed',
   ADDRESS_VALIDATION_NO_LLM = 'domain:address-validation-no-llm',
   KLACKSY_TARGET_REQUESTED = 'domain:klacksy-target-requested',
+  UNDO_OFFERED = 'domain:undo-offered',
 }
 
 export interface ErrorEvent {
@@ -59,4 +60,12 @@ export interface AddressValidationFailedEvent {
 
 export interface KlacksyTargetRequestedEvent {
   target: string;
+}
+
+export interface UndoOfferedEvent {
+  messageKey: string;
+  detail: string;
+  labelKey: string;
+  delayMs: number;
+  onUndo: () => void;
 }

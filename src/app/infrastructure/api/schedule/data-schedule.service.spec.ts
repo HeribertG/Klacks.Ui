@@ -79,6 +79,22 @@ describe('DataScheduleService', () => {
         req.flush(deletedWork);
     });
 
+    it('should restore a deleted work item', () => {
+        // Arrange
+        const workId = 'work-123';
+        const restoredWork = mockWork();
+
+        // Act
+        service.restoreWork(workId).subscribe((work) => {
+            // Assert
+            expect(work).toEqual(restoredWork);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/${workId}/Restore`);
+        expect(req.request.method).toEqual('POST');
+        req.flush(restoredWork);
+    });
+
     it('should confirm a work item', () => {
         // Arrange
         const workId = 'work-123';

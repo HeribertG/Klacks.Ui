@@ -1,0 +1,158 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+$edge-gap: 16px;
+$lane-gap: 8px;
+$content-container: 1445px;
+$container-anchor-min: 1025px;
+$aside-panel: 450px;
+$aside-gap: 20px;
+$lane-width: 400px;
+$z-rail: 1200;
+
+// Where the bubble has always sat, clear of the header controls it overlaps. Every lane starts on
+// this line so the columns line up with the bubble instead of beginning above it.
+$rail-top: 50px;
+
+// Lanes need room for the page behind them. Two lanes plus the bubble come to roughly 890px; below
+// this the lanes collapse into a single column, which is also the only layout narrow screens and a
+// docked aside can carry.
+$lanes-min-viewport: 1440px;
+
+// One owner for position, edge anchor and stacking order. Content type decides which lane an
+// overlay lives in, never arrival order, so two overlays of different kinds can no longer meet.
+// The host is boxless so it can never intercept a click.
+:host {
+  display: contents;
+}
+
+.overlay-rail {
+  position: fixed;
+  top: $rail-top;
+  inset-inline-end: $edge-gap;
+  z-index: $z-rail;
+  display: flex;
+  flex-direction: column;
+  gap: $lane-gap;
+  max-height: calc(100dvh - #{$rail-top} - #{$edge-gap});
+  // Only the overlays themselves take pointer events; every gap passes clicks through, otherwise
+  // the rail would shield a tall strip of the page behind it.
+  pointer-events: none;
+}
+
+.overlay-rail-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+  pointer-events: none;
+}
+
+// Single-column fallback order, matching attention: the control first, then what asks something,
+// then ambient state.
+.lane-voice {
+  order: 1;
+  align-items: flex-end;
+}
+
+.lane-messages {
+  order: 2;
+}
+
+.lane-persistent {
+  order: 3;
+}
+
+app-voice-shell,
+app-voice-shell-input {
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.lane-messages ::ng-deep app-toasts {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  padding: 0;
+  pointer-events: none;
+
+  ngb-toast {
+    pointer-events: auto;
+  }
+
+  // Keeps the pending question at the top of its lane so an autohide message arriving later
+  // appends below it and can never push it out from under the cursor.
+  ngb-toast.bg-assistant-interactive {
+    order: -1;
+    position: static;
+    inset: auto;
+  }
+}
+
+// The only scrolling lane. Cards may grow and push each other; no other lane moves with them.
+.lane-persistent {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+// Lanes side by side, only where there is room for them. Logical row direction, so the lane order
+// mirrors under RTL without a second rule: messages sit innermost, the bubble keeps the edge.
+@media screen and (min-width: $lanes-min-viewport) {
+  .overlay-rail {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  // The order that puts the bubble first in a column puts it furthest from the edge in a row, so
+  // it has to be reversed here. The bubble keeps the edge it has always occupied; the lanes grow
+  // inward from it.
+  .lane-voice {
+    order: 3;
+  }
+
+  .lane-persistent {
+    order: 2;
+  }
+
+  .lane-messages {
+    order: 1;
+  }
+
+  // Width is reserved for as long as the mode keeps the lane alive, empty or not. A lane that
+  // appeared and vanished with its content would shove the lanes inside it sideways every time a
+  // candidate arrives or is answered.
+  .lane-messages {
+    width: $lane-width;
+    flex-shrink: 0;
+  }
+
+  // The cards decide this lane's width: collapsed they are icon-sized, expanded they take the full
+  // column. Collapsing is a deliberate click, so the lanes further in may follow it - unlike an
+  // arriving candidate, which must never move anything.
+  .lane-persistent {
+    width: max-content;
+    max-width: $lane-width;
+    flex-shrink: 0;
+    max-height: calc(100dvh - #{$rail-top} - #{$edge-gap});
+  }
+}
+
+// Same formula the voice bubble used to carry itself: on wide screens the overlays anchor to the
+// edge of the centred content container, not the viewport, or they end up hundreds of pixels away
+// from the content they belong to.
+@media screen and (min-width: $container-anchor-min) {
+  :host-context(body:not(.full-viewport)) .overlay-rail {
+    inset-inline-end: max(#{$edge-gap}, calc((100vw - #{$content-container}) / 2 + #{$edge-gap}));
+  }
+}
+
+// A docked aside owns the edge, so the rail steps inside it and gives up the lanes: what is left
+// of the viewport there cannot carry both. This replaces the hard-coded 470px that used to live in
+// styles.scss and was really 450px of panel plus a 20px gap.
+:host(.aside-docked) .overlay-rail {
+  inset-inline-end: #{$aside-panel + $aside-gap};
+  flex-direction: column;
+}
+
+:host(.aside-docked) .overlay-rail-lane {
+  width: min(#{$lane-width}, calc(100vw - #{$edge-gap * 2}));
+}

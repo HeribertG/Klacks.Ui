@@ -13,7 +13,7 @@
  * tour is running, mirroring the neighboring proactive-inbox load gate).
  */
 
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -66,6 +66,13 @@ export class GoalCandidatesPanelComponent {
 
   public readonly candidates = this.goalCandidatesService.candidates;
   public readonly hasCandidates = this.goalCandidatesService.hasCandidates;
+  /**
+   * Set when the panel is hosted inside a collapsible toast that already owns a header and the
+   * surrounding scroll container. The panel then drops its own header, chrome and list scroll so
+   * the toast stays a single collapsible unit with one scrollbar.
+   */
+  public readonly embedded = input<boolean>(false);
+
   public readonly isExpanded = signal<boolean>(true);
   private readonly pendingDecisionId = signal<string | null>(null);
 

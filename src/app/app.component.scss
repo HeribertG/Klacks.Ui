@@ -45,9 +45,5 @@ app-aside {
   z-index: 1000;
 }
 
-app-toasts {
-  position: fixed;
-  top: 20px;
-  inset-inline-end: 20px;
-  z-index: 1001;
-}
+// The toast container is positioned by OverlayRailComponent, which mounts it. A second anchor
+// here competed with the one in styles.scss and the one on the component host for the same corner.

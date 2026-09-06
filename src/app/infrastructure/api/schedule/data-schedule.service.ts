@@ -62,6 +62,12 @@ export class DataScheduleService {
       .pipe(retry(3));
   }
 
+  restoreWork(id: string) {
+    return this.httpClient
+      .post<IWork>(`${environment.baseUrl}Works/${id}/Restore`, {})
+      .pipe(retry(3));
+  }
+
   confirmWork(workId: string) {
     return this.httpClient
       .post<IWork>(`${environment.baseUrl}Works/${workId}/Confirm`, {})

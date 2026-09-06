@@ -7,8 +7,10 @@
  * @param breakService - Service for Break CRUD operations
  * @param shiftLoader - Service for loading shift schedules
  * @param workScheduleLoader - Service for loading work schedules
+ * @param eventBus - Publishes the undo offer for a deleted work entry to the presentation layer
  */
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, Injector, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { IPeriodHours, IScheduleCell, IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
@@ -29,6 +31,9 @@ import { AppSettingsManagementService } from '../settings/app-settings-managemen
 import { GroupSelectionService } from '../group/group-selection.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, ErrorEvent, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
+import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -76,6 +81,7 @@ export class ScheduleEntryCrudService {
   private appSettingsService = inject(AppSettingsManagementService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private injector = inject(Injector);
+  private eventBus = inject(EVENT_BUS_TOKEN);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -292,7 +298,7 @@ export class ScheduleEntryCrudService {
     switch (params.entryType) {
       case WorkScheduleEntryType.Break: {
         const response = await firstValueFrom(this.breakService.deleteBreak(params.sourceId, periodStart, periodEnd));
-        this.applySingleClientDeleteResponse(response, params.clientId, params.date);
+        this.applySingleClientScheduleResponse(response, params.clientId, params.date);
         break;
       }
 
@@ -304,7 +310,7 @@ export class ScheduleEntryCrudService {
 
       case WorkScheduleEntryType.Expenses: {
         const response = await firstValueFrom(this.expensesService.delete(params.id));
-        this.applySingleClientDeleteResponse(response, params.clientId, params.date);
+        this.applySingleClientScheduleResponse(response, params.clientId, params.date);
         break;
       }
 
@@ -319,8 +325,9 @@ export class ScheduleEntryCrudService {
       case WorkScheduleEntryType.Work:
       default: {
         const response = await this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd);
-        this.applySingleClientDeleteResponse(response, params.clientId, params.date);
+        this.applySingleClientScheduleResponse(response, params.clientId, params.date);
         this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
+        this.offerWorkRestoreUndo(params, workFilter);
         break;
       }
     }
@@ -339,10 +346,10 @@ export class ScheduleEntryCrudService {
     clientId: string,
     centerDate: Date,
   ): void {
-    this.applySingleClientDeleteResponse(response, clientId, centerDate);
+    this.applySingleClientScheduleResponse(response, clientId, centerDate);
   }
 
-  private applySingleClientDeleteResponse(
+  private applySingleClientScheduleResponse(
     response: { periodHours?: IPeriodHours | null; scheduleEntries?: IScheduleCell[] | null },
     clientId: string,
     centerDate: Date,
@@ -356,6 +363,38 @@ export class ScheduleEntryCrudService {
     const endDate = addDays(centerDate, 1);
     this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, response.scheduleEntries);
     this.triggerScheduleRefresh();
+  }
+
+  private offerWorkRestoreUndo(params: DeleteWorkScheduleEntryParams, workFilter: IWorkFilter): void {
+    this.eventBus.emit<UndoOfferedEvent>(DomainEventType.UNDO_OFFERED, {
+      messageKey: SCHEDULE_UNDO.TITLE_KEY,
+      detail: this.buildUndoDetail(params),
+      labelKey: SCHEDULE_UNDO.LABEL_KEY,
+      delayMs: SCHEDULE_UNDO.TOAST_DELAY_MS,
+      onUndo: () => void this.restoreWorkScheduleEntry(params, workFilter),
+    });
+  }
+
+  private buildUndoDetail(params: DeleteWorkScheduleEntryParams): string {
+    const client = (this.workScheduleLoader.clients ?? []).find((c) => c.id === params.clientId);
+    const clientName = [client?.firstName, client?.name].filter((part) => !!part).join(' ').trim();
+    const date = formatDateOnly(params.date);
+    return clientName ? `${clientName}, ${date}` : date;
+  }
+
+  private async restoreWorkScheduleEntry(params: DeleteWorkScheduleEntryParams, workFilter: IWorkFilter): Promise<void> {
+    try {
+      const response = await this.workCrud.restoreWorkById(params.sourceId);
+      this.applySingleClientScheduleResponse(response, params.clientId, params.date);
+      this.updateShiftEngagedLocally(params.entryId, params.date, 1, workFilter);
+    } catch (error) {
+      this.eventBus.emit<ErrorEvent>(DomainEventType.ERROR, { message: this.resolveRestoreErrorKey(error) });
+    }
+  }
+
+  private resolveRestoreErrorKey(error: unknown): string {
+    const isConflict = error instanceof HttpErrorResponse && error.status === SCHEDULE_UNDO.CONFLICT_STATUS;
+    return isConflict ? SCHEDULE_UNDO.CONFLICT_KEY : SCHEDULE_UNDO.FAILED_KEY;
   }
 
   private applyWorkChangeDeleteResponse(

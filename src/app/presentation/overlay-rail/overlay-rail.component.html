@@ -1,0 +1,20 @@
+<div class="overlay-rail">
+  <div class="overlay-rail-lane lane-messages">
+    <app-toasts aria-live="polite"></app-toasts>
+  </div>
+
+  @if (showPersistentZone()) {
+    <div class="overlay-rail-lane lane-persistent">
+      <app-audio-mode-panels></app-audio-mode-panels>
+    </div>
+  }
+
+  <div class="overlay-rail-lane lane-voice">
+    @if (showVoiceShell()) {
+      <app-voice-shell />
+    }
+    @if (showFloatingInput()) {
+      <app-voice-shell-input />
+    }
+  </div>
+</div>

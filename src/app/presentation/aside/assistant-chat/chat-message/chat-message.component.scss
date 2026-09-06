@@ -1,0 +1,479 @@
+@use "../../../../../assets/standard-styles/colors" as colors;
+
+// Custom elements default to display:inline. The main message list is flex (blockifies
+// regardless), but .inbox-scroll-container is not - without this, this host would stay
+// inline-level there and stray whitespace between rows would render as extra vertical gaps.
+:host {
+  display: block;
+}
+
+.message-wrapper {
+  display: flex;
+  gap: 12px;
+
+  &.user {
+    flex-direction: row-reverse;
+
+    .message-content {
+      align-items: flex-end;
+    }
+
+    .message-bubble {
+      background: colors.$standartGreenColor;
+      color: colors.$standartWhiteColor;
+    }
+  }
+
+  &.assistant {
+    .message-bubble {
+      background: var(--backgroundColorCard);
+      color: var(--standartTextColor);
+      border: 1px solid var(--cardBorderColor);
+
+      &.system-notice {
+        background: var(--backgroundColorSubCards);
+        border-color: var(--gridColorLine);
+      }
+
+      &.severity-high {
+        border-color: var(--standartRedColor);
+        border-width: 1px 1px 1px 3px;
+      }
+    }
+  }
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  // IconLogoComponent's svg carries fixed width/height (45px) with a portrait
+  // (210x297) viewBox, so the box below is squared via ::ng-deep instead of a
+  // CSS transform: a scale() distorts it because it interacts with the flex
+  // layout instead of just resizing the svg.
+  .message-avatar-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    ::ng-deep svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .message-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .message-wrapper.user & {
+    background: colors.$standartGreenColor;
+    color: colors.$standartWhiteColor;
+  }
+
+  .message-wrapper.assistant & {
+    background: var(--backgroundColorCard);
+  }
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 280px;
+}
+
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  word-wrap: break-word;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .system-notice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(colors.$CurrentGreyColor, 0.15);
+    color: var(--colorLabel);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    fa-icon {
+      font-size: 10px;
+    }
+
+    &.severity-high {
+      background: rgba(colors.$standartRedColor, 0.15);
+      color: var(--standartRedColor);
+    }
+  }
+
+  .message-text {
+    line-height: 1.5;
+    white-space: pre-wrap;
+    font-size: 14px;
+
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      margin: 10px 0 4px 0;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    h2 {
+      font-size: 16px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+
+    h4,
+    h5,
+    h6 {
+      font-size: 14px;
+    }
+
+    ul {
+      margin: 4px 0 8px 0;
+      padding-inline-start: 20px;
+    }
+
+    li {
+      margin: 2px 0;
+    }
+
+    hr {
+      margin: 8px 0;
+      border: none;
+      border-top: 1px solid var(--cardBorderColor, rgba(0, 0, 0, 0.12));
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.06);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12.5px;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 6px 0 10px 0;
+      font-size: 13px;
+      max-width: 100%;
+      display: block;
+      overflow-x: auto;
+    }
+
+    th,
+    td {
+      padding: 4px 10px;
+      border: 1px solid var(--cardBorderColor, rgba(0, 0, 0, 0.12));
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      background: rgba(colors.$CurrentGreyColor, 0.1);
+    }
+
+    > :first-child {
+      margin-top: 0;
+    }
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .message-time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 4px;
+  }
+}
+
+.tts-button {
+  background: none;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--colorLabel);
+  font-size: 12px;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  align-self: flex-start;
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+    color: colors.$standartGreenColor;
+    border-color: colors.$standartGreenColor;
+  }
+
+  &.loading {
+    cursor: wait;
+    border-color: colors.$standartGreenColor;
+  }
+
+  &.playing {
+    background: colors.$standartGreenColor;
+    color: colors.$standartWhiteColor;
+    border-color: colors.$standartGreenColor;
+
+    &:hover {
+      background: colors.$splitButtonGreenColor;
+      color: colors.$standartWhiteColor;
+    }
+  }
+
+  .tts-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--cardBorderColor);
+    border-top-color: colors.$standartGreenColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.feedback-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.feedback-btn {
+  background: transparent;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+  }
+}
+
+.feedback-thanks {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mutedTextColor, #888);
+  font-style: italic;
+}
+
+.correction-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.correction-btn {
+  background: transparent;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+  }
+}
+
+.correction-thanks {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mutedTextColor, #888);
+  font-style: italic;
+}
+
+.correction-menu {
+  position: absolute;
+  top: 28px;
+  inset-inline-start: 0;
+  z-index: 20;
+  background: var(--backgroundColor, #ffffff);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 200px;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+
+  button {
+    background: transparent;
+    border: none;
+    text-align: start;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--standartTextColor);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--backgroundColorFocus);
+    }
+  }
+}
+
+.proactive-reactions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.proactive-dismiss-controls {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.proactive-dismiss-menu {
+  position: absolute;
+  top: 26px;
+  inset-inline-end: 0;
+  z-index: 20;
+  background: var(--backgroundColor, #ffffff);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 200px;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+
+  button {
+    background: transparent;
+    border: none;
+    text-align: start;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--standartTextColor);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--backgroundColorFocus);
+    }
+  }
+}
+
+.proactive-reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+  }
+
+  &.selected {
+    opacity: 1;
+    background: var(--backgroundColorFocus);
+    border-color: var(--standartTextColor);
+  }
+
+  &:disabled {
+    cursor: default;
+
+    &:not(.selected) {
+      opacity: 0.3;
+    }
+  }
+}
+
+.proactive-reaction-thanks {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--colorLabel);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.proactive-reminder-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--backgroundColorFocus);
+  color: var(--colorLabel);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}

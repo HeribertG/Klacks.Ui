@@ -2,9 +2,15 @@
   display: flex;
   flex-direction: column;
   padding: 12px;
-  border-top: 1px solid var(--standartBorderColor, #ddd);
-  background-color: var(--standartBackgroundColor, #fafafa);
+  border-top: 1px solid var(--cardBorderColor, #cfd8dc);
+  background-color: var(--backgroundColorCard, #fff);
   font-size: 13px;
+
+  // Hosted in an audio-mode toast: the toast draws the frame and the surrounding scroll container.
+  &.embedded {
+    border-top: none;
+    background-color: transparent;
+  }
 }
 
 .plan-panel-header {
@@ -24,7 +30,7 @@
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 4px;
-  background-color: var(--standartBackgroundColor, #eee);
+  background-color: var(--backgroundColorSubCards, #eee);
 }
 
 .plan-status-executing {
@@ -111,7 +117,7 @@
   align-items: center;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--standartBorderColor, #ddd);
+  border-top: 1px solid var(--cardBorderColor, #cfd8dc);
   gap: 8px;
 }
 
@@ -120,7 +126,7 @@
   justify-content: flex-end;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--standartBorderColor, #ddd);
+  border-top: 1px solid var(--cardBorderColor, #cfd8dc);
 }
 
 .plan-approve-hint {

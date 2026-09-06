@@ -127,14 +127,7 @@ p {
   color: var(--colorLabel);
 }
 
-ngb-toast.bg-assistant-interactive {
-  position: fixed;
-  top: 85px;
-  inset-inline-start: auto;
-  inset-inline-end: 470px;
-  z-index: 1002;
-}
-
-body:has(app-voice-shell) ngb-toast.bg-assistant-interactive {
-  inset-inline-end: 92px;
-}
+// Position, edge anchor and stacking order of the interactive toast now belong to
+// OverlayRailComponent. The rules that used to live here pinned it with hand-set pixel values
+// (top 85, end 470 for the docked aside, end 92 next to the voice bubble) and coupled its
+// position to the DOM presence of a sibling via body:has(app-voice-shell).

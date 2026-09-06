@@ -1,9 +1,13 @@
+/* Anchored to the bubble it belongs to instead of to the viewport: the old fixed 96px was 10px
+   short of the bubble's lower edge and overlapped it, and it used a physical `right` that put the
+   transcript on the opposite side from the bubble under RTL. */
 :host {
-  position: fixed;
-  top: 96px;
-  right: 16px;
-  z-index: 999;
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 1;
   display: block;
+  pointer-events: auto;
 }
 
 .overlay {

@@ -49,6 +49,30 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
       </div>
       }
 
+      @if (toast.undo) {
+      <div class="undo-action mt-2">
+        <button type="button" class="undo-btn" (click)="onUndoClick(toast)">
+          <svg
+            class="undo-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 8v6h6" />
+            <path d="M3.5 14a8.5 8.5 0 1 0 2.2-8.1L3 8" />
+          </svg>
+          <span>{{ toast.undo.label }}</span>
+        </button>
+        <div class="undo-progress">
+          <div class="undo-progress-bar" [style.animation-duration.ms]="toast.delay"></div>
+        </div>
+      </div>
+      }
+
       @if (toast.interactive) {
       <div class="interactive-replies mt-2">
         @if (toast.interactive.repliesConfig.selectionMode === 'single') {
@@ -149,8 +173,8 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
   `,
   styleUrls: ['./toast.component.scss'],
   host: {
-    class: 'toast-container position-fixed top-0 end-0 p-3',
-    style: 'z-index: 1200',
+    class: 'toast-container',
+    style: 'position: static',
   },
   standalone: true,
   imports: [NgTemplateOutlet, NgbToastModule, TranslateModule],
@@ -221,6 +245,11 @@ export class ToastsContainerComponent {
 
   onToastHidden(toast: IToast): void {
     if (toast.interactive) return;
+    this.toastService.remove(toast);
+  }
+
+  onUndoClick(toast: IToast): void {
+    toast.undo?.onUndo();
     this.toastService.remove(toast);
   }
 

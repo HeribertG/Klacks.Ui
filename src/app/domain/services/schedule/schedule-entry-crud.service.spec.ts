@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
@@ -21,6 +22,11 @@ import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
 import { GroupSelectionService } from '../group/group-selection.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
+import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
+import { IClientWork } from '../../models/schedule/schedule-class';
+import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
 
 function createMockWorkFilter(): IWorkFilter {
   return {
@@ -85,11 +91,13 @@ describe('ScheduleEntryCrudService', () => {
     startDate: Date | null;
     endDate: Date | null;
     periodHours: Map<string, number>;
+    clients: Partial<IClientWork>[];
   };
 
   let workCrudMock: {
     createWork: ReturnType<typeof vi.fn>;
     deleteWorkById: ReturnType<typeof vi.fn>;
+    restoreWorkById: ReturnType<typeof vi.fn>;
     bulkDeleteWorks: ReturnType<typeof vi.fn>;
     bulkCreateWorks: ReturnType<typeof vi.fn>;
     reassignWorkClient: ReturnType<typeof vi.fn>;
@@ -110,6 +118,19 @@ describe('ScheduleEntryCrudService', () => {
     delete: ReturnType<typeof vi.fn>;
   };
 
+  let eventBusMock: {
+    emit: ReturnType<typeof vi.fn>;
+    on: ReturnType<typeof vi.fn>;
+    onAny: ReturnType<typeof vi.fn>;
+  };
+
+  function lastUndoOffer(): UndoOfferedEvent {
+    const call = [...eventBusMock.emit.mock.calls]
+      .reverse()
+      .find((args) => args[0] === DomainEventType.UNDO_OFFERED);
+    return call?.[1] as UndoOfferedEvent;
+  }
+
   beforeEach(() => {
     // Arrange
     dataWorkScheduleMock = {
@@ -126,11 +147,13 @@ describe('ScheduleEntryCrudService', () => {
       startDate: new Date('2025-01-01'),
       endDate: new Date('2025-01-31'),
       periodHours: new Map(),
+      clients: [{ id: 'client-1', firstName: 'Anna', name: 'Muster' }],
     };
 
     workCrudMock = {
       createWork: vi.fn().mockResolvedValue({ id: 'new-work-id', scheduleEntries: [{ clientId: 'client-1' }] }),
       deleteWorkById: vi.fn().mockResolvedValue({ scheduleEntries: [{ clientId: 'client-1' }] }),
+      restoreWorkById: vi.fn().mockResolvedValue({ scheduleEntries: [{ clientId: 'client-1' }] }),
       bulkDeleteWorks: vi.fn().mockResolvedValue({
         successCount: 0,
         failedCount: 0,
@@ -159,6 +182,12 @@ describe('ScheduleEntryCrudService', () => {
       delete: vi.fn().mockReturnValue(of({ periodHours: {}, scheduleEntries: [] })),
     };
 
+    eventBusMock = {
+      emit: vi.fn(),
+      on: vi.fn().mockReturnValue(of()),
+      onAny: vi.fn().mockReturnValue(of()),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         // AnalyseScenarioService listens for background-optimiser candidates on connect.
@@ -172,6 +201,7 @@ describe('ScheduleEntryCrudService', () => {
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },
         { provide: DataManagementBreakService, useValue: breakServiceMock },
         { provide: GroupSelectionService, useValue: { selectedGroupId: undefined, selectedGroup: undefined } },
+        { provide: EVENT_BUS_TOKEN, useValue: eventBusMock },
       ],
     });
 
@@ -381,6 +411,124 @@ describe('ScheduleEntryCrudService', () => {
 
       // Assert
       expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(0);
+    });
+  });
+
+  describe('undo offer after deleting a work entry', () => {
+    const workParams: DeleteWorkScheduleEntryParams = {
+      id: 'work-123',
+      sourceId: 'work-123',
+      clientId: 'client-1',
+      date: new Date('2025-01-15'),
+      entryId: 'shift-1',
+      entryType: 0,
+    };
+
+    it('should offer an undo with title, client name, date and the configured delay', async () => {
+      // Act
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+
+      // Assert
+      const offer = lastUndoOffer();
+      expect(offer).toBeDefined();
+      expect(offer.messageKey).toBe(SCHEDULE_UNDO.TITLE_KEY);
+      expect(offer.labelKey).toBe(SCHEDULE_UNDO.LABEL_KEY);
+      expect(offer.delayMs).toBe(SCHEDULE_UNDO.TOAST_DELAY_MS);
+      expect(offer.detail).toBe('Anna Muster, 2025-01-15');
+    });
+
+    it('should fall back to the date when the client is unknown', async () => {
+      // Arrange
+      workScheduleLoaderMock.clients = [];
+
+      // Act
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+
+      // Assert
+      expect(lastUndoOffer().detail).toBe('2025-01-15');
+    });
+
+    it('should NOT offer an undo when a break is deleted', async () => {
+      // Act
+      await service.deleteWorkScheduleEntry(
+        { ...workParams, entryType: WorkScheduleEntryType.Break },
+        createMockWorkFilter(),
+      );
+
+      // Assert
+      expect(lastUndoOffer()).toBeUndefined();
+    });
+
+    it('should restore the work and re-apply the response when the undo is used', async () => {
+      // Arrange
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+      workScheduleLoaderMock.replaceClientEntriesForDays.mockClear();
+
+      // Act
+      lastUndoOffer().onUndo();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(workCrudMock.restoreWorkById).toHaveBeenCalledWith('work-123');
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).toHaveBeenCalled();
+    });
+
+    it('should raise the shift engaged count back up after a restore', async () => {
+      // Arrange
+      const testDate = new Date('2025-01-15');
+      testDate.setHours(0, 0, 0, 0);
+      shiftLoaderMock.shiftSchedules = [
+        createMockShiftSchedule({ shiftId: 'shift-1', date: testDate, engaged: 5 }),
+      ];
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+      expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(4);
+
+      // Act
+      lastUndoOffer().onUndo();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(5);
+    });
+
+    it('should emit a generic error event when the restore is rejected', async () => {
+      // Arrange
+      workCrudMock.restoreWorkById.mockRejectedValueOnce(new HttpErrorResponse({ status: 404 }));
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+
+      // Act
+      lastUndoOffer().onUndo();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(eventBusMock.emit).toHaveBeenCalledWith(DomainEventType.ERROR, { message: SCHEDULE_UNDO.FAILED_KEY });
+    });
+
+    it('should emit the conflict message when the slot was taken meanwhile (409)', async () => {
+      // Arrange
+      workCrudMock.restoreWorkById.mockRejectedValueOnce(new HttpErrorResponse({ status: 409 }));
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+
+      // Act
+      lastUndoOffer().onUndo();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(eventBusMock.emit).toHaveBeenCalledWith(DomainEventType.ERROR, { message: SCHEDULE_UNDO.CONFLICT_KEY });
+      expect(eventBusMock.emit).not.toHaveBeenCalledWith(DomainEventType.ERROR, { message: SCHEDULE_UNDO.FAILED_KEY });
+    });
+
+    it('should fall back to the generic message for a non-http rejection', async () => {
+      // Arrange
+      workCrudMock.restoreWorkById.mockRejectedValueOnce(new Error('offline'));
+      await service.deleteWorkScheduleEntry({ ...workParams }, createMockWorkFilter());
+
+      // Act
+      lastUndoOffer().onUndo();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(eventBusMock.emit).toHaveBeenCalledWith(DomainEventType.ERROR, { message: SCHEDULE_UNDO.FAILED_KEY });
     });
   });
 

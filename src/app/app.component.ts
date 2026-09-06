@@ -1,23 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 // Version: 1.0.1-deploy-test
-import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, effect, inject, DestroyRef } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
-import { ToastsContainerComponent } from './presentation/toast/toast.component';
+import { OverlayRailComponent } from './presentation/overlay-rail/overlay-rail.component';
 import { BackendUnavailableOverlayComponent } from './presentation/error/backend-unavailable-overlay/backend-unavailable-overlay.component';
 import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
 import { AsideComponent } from './presentation/aside/aside.component';
 import { AsideService } from './presentation/aside/aside.service';
-import { VoiceShellComponent } from './presentation/voice-shell/voice-shell.component';
-import { VoiceShellInputComponent } from './presentation/voice-shell/voice-shell-input/voice-shell-input.component';
-import { AudioModePanelsComponent } from './presentation/aside/assistant-chat/audio-mode-panel-toast/audio-mode-panels.component';
 import { TooltipComponent } from './presentation/shared/tooltip/tooltip.component';
-import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
@@ -34,13 +30,10 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
   imports: [
     RouterModule,
     TranslateModule,
-    ToastsContainerComponent,
+    OverlayRailComponent,
     BackendUnavailableOverlayComponent,
     KeyboardShortcutDirective,
     AsideComponent,
-    VoiceShellComponent,
-    VoiceShellInputComponent,
-    AudioModePanelsComponent,
     TooltipComponent,
   ],
 })
@@ -48,7 +41,6 @@ export class AppComponent implements OnInit {
   private applicationInitService = inject(ApplicationInitService);
   private directionService = inject(DirectionService);
   private readonly asideService = inject(AsideService);
-  private readonly outputModes = inject(SpeechOutputModeService);
   private readonly signalRService = inject(SignalRService);
   private readonly authService = inject(AuthService);
   private readonly setupGateService = inject(SetupGateService);
@@ -59,21 +51,6 @@ export class AppComponent implements OnInit {
   public title = 'klacks';
 
   private readonly publicRoutes = ['/login', '/error', `/${SETUP_ROUTE_PATH}`];
-
-  readonly showVoiceShell = computed<boolean>(
-    () => this.asideService.isVisible() && this.outputModes.isFloatingMode(),
-  );
-
-  readonly showFloatingInput = computed<boolean>(
-    () => this.asideService.isVisible() && this.outputModes.isAutoSpeakMode(),
-  );
-
-  // Rendered here rather than inside the chat: in a floating mode the aside mounts the chat only
-  // in its hidden bootstrap host (0x0, visibility: hidden), and visibility is inherited, so a
-  // fixed-position overlay placed inside the chat can never become visible.
-  readonly showAudioModePanels = computed<boolean>(
-    () => this.asideService.isVisible() && this.outputModes.isAudioOnlyMode(),
-  );
 
   constructor() {
     effect(() => {

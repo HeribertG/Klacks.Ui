@@ -8,6 +8,7 @@
 
 import { TemplateRef } from '@angular/core';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { IUndoToastConfig } from './undo-toast-config.interface';
 
 export interface IToast {
   id: string;
@@ -21,6 +22,7 @@ export interface IToast {
   textFieldValue?: string;
   icon?: string;
   interactive?: IInteractiveToastConfig;
+  undo?: IUndoToastConfig;
   persistent?: boolean;
 }
 

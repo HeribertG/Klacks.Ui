@@ -132,6 +132,17 @@ export class DataManagementWorkService {
     });
   }
 
+  restoreWorkById(workId: string): Promise<IWork> {
+    return new Promise((resolve, reject) => {
+      this.dataSchedule.restoreWork(workId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => resolve(response),
+          error: (err) => reject(err),
+        });
+    });
+  }
+
   bulkDeleteWorks(workIds: string[]): Promise<BulkWorksResponse> {
     return new Promise((resolve, reject) => {
       this.dataSchedule.bulkDeleteWorks(workIds)

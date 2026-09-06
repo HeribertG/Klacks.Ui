@@ -1,0 +1,264 @@
+<div
+  class="message-wrapper"
+  [class.user]="message().sender === 'user'"
+  [class.assistant]="message().sender === 'assistant'"
+>
+  <div class="message-avatar">
+    @if (message().sender === 'user') {
+    <app-icon-user></app-icon-user>
+    } @else if (hasLogoImage()) {
+    <img class="message-avatar-image" [src]="logoImage()" alt="" />
+    } @else if (showTourAvatarLogo()) {
+    <span class="message-avatar-logo"><app-icon-logo></app-icon-logo></span>
+    } @else {
+    <app-icon-mml></app-icon-mml>
+    }
+  </div>
+  <div class="message-content">
+    <div
+      class="message-bubble"
+      [class.user]="message().sender === 'user'"
+      [class.assistant]="message().sender === 'assistant'"
+      [class.system-notice]="!!message().messageKind"
+      [class.severity-high]="message().proactiveSeverity === proactiveSeverities.High"
+    >
+      @if (message().messageKind) {
+      <div class="system-notice-badge" [class.severity-high]="message().proactiveSeverity === proactiveSeverities.High">
+        <fa-icon [icon]="message().proactiveSeverity === proactiveSeverities.High ? faTriangleExclamation : faBell"></fa-icon>
+        <span>{{
+          (message().proactiveSeverity === proactiveSeverities.High
+            ? "assistant-chat.system-notice.badge-urgent"
+            : "assistant-chat.system-notice.badge"
+          ) | translate
+        }}</span>
+      </div>
+      }
+      <div
+        class="message-text"
+        [innerHTML]="message().formattedContent ?? formatMessage(message().content)"
+      ></div>
+      <div class="message-time">
+        {{ message().timestamp | date : "short" }}
+      </div>
+    </div>
+
+    <!-- TTS button for assistant messages -->
+    @if (message().sender === 'assistant' && message().content && !message().isStreaming) {
+    <button
+      type="button"
+      class="tts-button"
+      [class.loading]="ttsService.isLoading() && ttsService.playingMessageId() === message().id"
+      [class.playing]="ttsService.isPlaying() && ttsService.playingMessageId() === message().id"
+      (click)="actions.speakMessage(message())"
+      [attr.aria-label]="'assistant-chat.speak-message' | translate"
+    >
+      @if (ttsService.isLoading() && ttsService.playingMessageId() === message().id) {
+        <span class="tts-spinner"></span>
+      } @else if (ttsService.isPlaying() && ttsService.playingMessageId() === message().id) {
+        <fa-icon [icon]="faStop"></fa-icon>
+      } @else {
+        <fa-icon [icon]="faVolumeHigh"></fa-icon>
+      }
+    </button>
+    }
+
+    <!-- Feedback (thumbs-up) and correction (thumbs-down) for assistant messages with a referenced user message -->
+    @if (message().sender === 'assistant' && message().respondedToUserMessage && !message().isStreaming) {
+    <div class="feedback-controls">
+      @if (message().helpfulSubmitted) {
+      <span class="feedback-thanks" [attr.aria-label]="'assistant-chat.feedback.thanks' | translate">
+        <fa-icon [icon]="faCheck"></fa-icon>
+        {{ "assistant-chat.feedback.thanks" | translate }}
+      </span>
+      } @else {
+      <button
+        type="button"
+        class="feedback-btn"
+        (click)="actions.submitHelpfulFeedback(message())"
+        [attr.aria-label]="'assistant-chat.feedback.helpful' | translate"
+        [title]="'assistant-chat.feedback.helpful' | translate"
+      >
+        <fa-icon [icon]="faThumbsUp"></fa-icon>
+      </button>
+      }
+    </div>
+    <div class="correction-controls">
+      @if (message().correctionSubmitted || message().notHelpfulCommentSubmitted) {
+      <span class="correction-thanks" [attr.aria-label]="'assistant-chat.correction.thanks' | translate">
+        <fa-icon [icon]="faCheck"></fa-icon>
+        {{ "assistant-chat.correction.thanks" | translate }}
+      </span>
+      } @else {
+      <button
+        type="button"
+        class="correction-btn"
+        [class.is-active]="message().notHelpfulSubmitted"
+        (click)="actions.onNotHelpfulClick(message())"
+        [attr.aria-label]="'assistant-chat.correction.not-helpful' | translate"
+        [title]="'assistant-chat.correction.not-helpful' | translate"
+      >
+        <fa-icon [icon]="faThumbsDown"></fa-icon>
+      </button>
+      @if (actions.correctionMenuMessageId() === message().id) {
+      <div class="correction-menu" role="menu">
+        <button type="button" role="menuitem" (click)="actions.submitCorrection(message(), 'wrong_skill')">
+          {{ "assistant-chat.correction.wrong-skill" | translate }}
+        </button>
+        <button type="button" role="menuitem" (click)="actions.submitCorrection(message(), 'wrong_param')">
+          {{ "assistant-chat.correction.wrong-param" | translate }}
+        </button>
+        <button type="button" role="menuitem" (click)="actions.submitCorrection(message(), 'none_needed')">
+          {{ "assistant-chat.correction.none-needed" | translate }}
+        </button>
+        <div class="correction-comment">
+          <input
+            #notHelpfulComment
+            type="text"
+            class="correction-comment-input"
+            [attr.placeholder]="'assistant-chat.correction.comment-placeholder' | translate"
+            [attr.aria-label]="'assistant-chat.correction.comment-placeholder' | translate"
+          />
+          <button
+            type="button"
+            class="correction-comment-send"
+            (click)="actions.submitNotHelpfulComment(message(), notHelpfulComment.value)"
+          >
+            {{ "assistant-chat.correction.comment-send" | translate }}
+          </button>
+        </div>
+      </div>
+      }
+      }
+    </div>
+    }
+
+    <!-- Reaction actions for proactive messages -->
+    @if (message().messageKind === 'proactive') {
+    <div class="proactive-reactions">
+      @if (message().proactiveReminderCount && message().proactiveReminderCount! > 0) {
+      <span class="proactive-reminder-badge">
+        {{ "assistant-chat.proactive.reminder-badge" | translate : { count: message().proactiveReminderCount } }}
+      </span>
+      }
+      @if (message().proactiveActionRoute) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-action-btn"
+        (click)="actions.onProactiveActionClick(message())"
+        [attr.aria-label]="'assistant-chat.proactive.action-show' | translate"
+      >
+        <fa-icon [icon]="faArrowRight"></fa-icon>
+        {{ "assistant-chat.proactive.action-show" | translate }}
+      </button>
+      }
+      @if (isMuteSuggestion(message())) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-mute-btn"
+        [class.selected]="message().proactiveMuted"
+        [disabled]="!!message().proactiveMuted || actions.pendingMuteMessageId() !== null"
+        (click)="actions.submitMuteSuggestion(message())"
+        [attr.aria-label]="'assistant-chat.proactive.mute-kind' | translate"
+      >
+        <fa-icon [icon]="faBellSlash"></fa-icon>
+        {{ "assistant-chat.proactive.mute-kind" | translate }}
+      </button>
+      } @else {
+      @if (message().proactiveReaction === proactiveReactions.Helpful) {
+      <span class="proactive-reaction-thanks" [attr.aria-label]="'assistant-chat.proactive.reaction-helpful-confirmed' | translate">
+        <fa-icon [icon]="faCheck"></fa-icon>
+        {{ "assistant-chat.proactive.reaction-helpful-confirmed" | translate }}
+      </span>
+      } @else {
+      <button
+        type="button"
+        class="proactive-reaction-btn"
+        [class.selected]="message().proactiveReaction === proactiveReactions.Helpful"
+        [disabled]="!!message().proactiveReaction || actions.pendingReactionMessageId() !== null"
+        (click)="actions.submitProactiveReaction(message(), proactiveReactions.Helpful)"
+        [attr.aria-label]="'assistant-chat.proactive.reaction-helpful' | translate"
+        [title]="'assistant-chat.proactive.reaction-helpful-tooltip' | translate"
+      >
+        <fa-icon [icon]="faThumbsUp"></fa-icon>
+        {{ "assistant-chat.proactive.reaction-helpful" | translate }}
+      </button>
+      }
+      }
+      @if (message().proactiveCanDelegate) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-delegate-btn"
+        [class.selected]="message().proactiveDelegated"
+        [disabled]="!!message().proactiveDelegated || actions.pendingDelegateMessageId() !== null"
+        (click)="actions.submitDelegate(message())"
+        [attr.aria-label]="'assistant-chat.proactive.delegate' | translate"
+      >
+        <fa-icon [icon]="faHandshake"></fa-icon>
+        {{ "assistant-chat.proactive.delegate" | translate }}
+      </button>
+      }
+      @if (message().proactiveAcknowledged) {
+      <span class="proactive-reaction-thanks" [attr.aria-label]="'assistant-chat.proactive.acknowledge-confirmed' | translate">
+        <fa-icon [icon]="faCheck"></fa-icon>
+        {{ "assistant-chat.proactive.acknowledge-confirmed" | translate }}
+      </span>
+      } @else if (!message().proactiveReaction) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-acknowledge-btn"
+        [disabled]="actions.pendingAcknowledgeMessageId() !== null"
+        (click)="actions.submitAcknowledge(message())"
+        [attr.aria-label]="'assistant-chat.proactive.acknowledge' | translate"
+      >
+        <fa-icon [icon]="faCheckDouble"></fa-icon>
+        {{ "assistant-chat.proactive.acknowledge" | translate }}
+      </button>
+      }
+      <div class="proactive-dismiss-controls">
+        <button
+          type="button"
+          class="proactive-reaction-btn"
+          [attr.aria-expanded]="actions.dismissMenuMessageId() === message().id"
+          (click)="actions.toggleDismissMenu(message().id)"
+          [attr.aria-label]="'assistant-chat.proactive.reaction-dismissed' | translate"
+        >
+          <fa-icon [icon]="faTimes"></fa-icon>
+          {{ "assistant-chat.proactive.reaction-dismissed" | translate }}
+        </button>
+        @if (actions.dismissMenuMessageId() === message().id) {
+        <div class="proactive-dismiss-menu" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            (click)="actions.dismissProactiveMessage(message(), proactiveRejectReasons.GenerallyUnwanted)"
+          >
+            {{ "assistant-chat.proactive.reject-reason.generally-unwanted" | translate }}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            (click)="actions.dismissProactiveMessage(message(), proactiveRejectReasons.WrongThisTime)"
+          >
+            {{ "assistant-chat.proactive.reject-reason.wrong-this-time" | translate }}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            (click)="actions.dismissProactiveMessage(message(), proactiveRejectReasons.AlreadyHandled)"
+          >
+            {{ "assistant-chat.proactive.reject-reason.already-handled" | translate }}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            (click)="actions.dismissProactiveMessage(message(), proactiveRejectReasons.NoReason)"
+          >
+            {{ "assistant-chat.proactive.reject-reason.no-reason" | translate }}
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>

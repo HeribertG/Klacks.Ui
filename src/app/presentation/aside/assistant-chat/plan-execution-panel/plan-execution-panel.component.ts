@@ -8,7 +8,7 @@
  * @param abortRequested - Emits the planId when the user clicks Abort on the running/paused plan
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import {
@@ -38,6 +38,12 @@ const PLAN_IRREVERSIBLE_STEP_I18N_KEY = 'assistant-chat.plan-execution.irreversi
 })
 export class PlanExecutionPanelComponent {
   private planService = inject(DataManagementAgentPlanService);
+
+  /**
+   * Set when the panel is hosted inside an audio-mode toast, which already draws the frame and
+   * repeats the status in its own header.
+   */
+  public readonly embedded = input<boolean>(false);
 
   approveRequested = output<string>();
   abortRequested = output<string>();

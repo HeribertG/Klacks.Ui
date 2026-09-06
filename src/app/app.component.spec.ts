@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ɵresolveComponentResources as resolveComponentResources } from '@angular/core';
 import { provideHttpClient, withXhr } from '@angular/common/http';
@@ -17,9 +17,6 @@ import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-pr
 import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
 import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
 import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
-import { AsideService } from './presentation/aside/aside.service';
-import { AppSettingsManagementService } from './domain/services/settings/app-settings-management.service';
-import { OutputMode } from './domain/constants/speech-constants';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -100,50 +97,26 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('app-toasts')).not.toBeNull();
   });
 
-  // The audio-mode panels are a fixed-position overlay. Inside the chat they were unreachable:
-  // in a floating mode the aside mounts the chat only in its hidden bootstrap host (0x0,
-  // visibility: hidden), and visibility is inherited. They must stay a sibling of the voice shell.
-  describe('audio-mode floating panels', () => {
-    let asideService: AsideService;
-    let appSettings: AppSettingsManagementService;
-
-    function panelHost(fixture: ComponentFixture<AppComponent>): Element | null {
-      return (fixture.nativeElement as HTMLElement).querySelector('app-audio-mode-panels');
-    }
-
-    beforeEach(() => {
-      asideService = TestBed.inject(AsideService);
-      appSettings = TestBed.inject(AppSettingsManagementService);
-    });
-
-    it('renders the panels at app level while the aside is open in audio-only mode', () => {
-      appSettings.speechSettings.set({ ...appSettings.speechSettings(), outputMode: OutputMode.Audio });
-      asideService.show();
-
+  // Position, edge anchor, stacking order and zone visibility for every floating overlay (toasts,
+  // audio-mode panels) now belong to OverlayRailComponent alone - see
+  // overlay-rail.component.spec.ts for the audio-mode-panel and aside-docking behavior that used to
+  // be exercised from here. This spec only needs to confirm the rail is mounted and that
+  // app-toasts is no longer a direct child of app.component's own template.
+  describe('overlay rail', () => {
+    it('hosts the floating overlays inside app-overlay-rail, not directly in app.component', () => {
       const fixture = TestBed.createComponent(AppComponent);
       fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
 
-      expect(panelHost(fixture)).not.toBeNull();
-    });
+      const overlayRail = compiled.querySelector('app-overlay-rail');
+      expect(overlayRail).not.toBeNull();
 
-    it('does not render the panels while the aside is closed', () => {
-      appSettings.speechSettings.set({ ...appSettings.speechSettings(), outputMode: OutputMode.Audio });
-      asideService.hide();
-
-      const fixture = TestBed.createComponent(AppComponent);
-      fixture.detectChanges();
-
-      expect(panelHost(fixture)).toBeNull();
-    });
-
-    it('does not render the panels in text mode', () => {
-      appSettings.speechSettings.set({ ...appSettings.speechSettings(), outputMode: OutputMode.Text });
-      asideService.show();
-
-      const fixture = TestBed.createComponent(AppComponent);
-      fixture.detectChanges();
-
-      expect(panelHost(fixture)).toBeNull();
+      // Exactly one app-toasts in the whole tree, and it must be the one nested inside the rail -
+      // querySelector alone would still pass if a second, sibling app-toasts were re-added after
+      // app-overlay-rail in the template, since document order would still put the nested one first.
+      const allToasts = compiled.querySelectorAll('app-toasts');
+      expect(allToasts.length).toBe(1);
+      expect(overlayRail?.contains(allToasts[0])).toBe(true);
     });
   });
 });

@@ -1,8 +1,14 @@
 @if (plan(); as p) {
-  <div class="plan-panel" data-klacksy-target="plan-execution-panel">
+  <div
+    class="plan-panel"
+    [class.embedded]="embedded()"
+    data-klacksy-target="plan-execution-panel"
+  >
     <div class="plan-panel-header">
       <div class="plan-goal">{{ p.goal }}</div>
-      <div class="plan-status plan-status-{{ p.status }}">{{ statusLabelKey(p.status) | translate }}</div>
+      @if (!embedded()) {
+        <div class="plan-status plan-status-{{ p.status }}">{{ statusLabelKey(p.status) | translate }}</div>
+      }
     </div>
 
     @if (p.lastErrorMessage) {

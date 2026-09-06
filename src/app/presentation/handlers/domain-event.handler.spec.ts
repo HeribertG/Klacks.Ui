@@ -8,7 +8,7 @@ import { DomainEventHandler } from './domain-event.handler';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { of, Subject } from 'rxjs';
-import { DomainEventType, ErrorEvent, SuccessEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType, ErrorEvent, SuccessEvent, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
 
 describe('DomainEventHandler', () => {
     let handler: DomainEventHandler;
@@ -24,7 +24,8 @@ describe('DomainEventHandler', () => {
         const toastServiceSpy = {
             showError: vi.fn(),
             showSuccess: vi.fn(),
-            showInfo: vi.fn()
+            showInfo: vi.fn(),
+            showUndo: vi.fn()
         };
         const routerSpy = {
             navigate: vi.fn()
@@ -64,7 +65,8 @@ describe('DomainEventHandler', () => {
             expect(mockEventBus.on).toHaveBeenCalledWith(DomainEventType.WARNING);
             expect(mockEventBus.on).toHaveBeenCalledWith(DomainEventType.INFO);
             expect(mockEventBus.on).toHaveBeenCalledWith(DomainEventType.NAVIGATE);
-            expect(mockEventBus.on).toHaveBeenCalledTimes(5);
+            expect(mockEventBus.on).toHaveBeenCalledWith(DomainEventType.UNDO_OFFERED);
+            expect(mockEventBus.on).toHaveBeenCalledTimes(6);
         });
     });
 
@@ -100,6 +102,32 @@ describe('DomainEventHandler', () => {
             expect(mockToastService.showError).toHaveBeenCalledWith(
                 String(rawError),
                 'GroupTreeError'
+            );
+        });
+    });
+
+    describe('undo offers', () => {
+        it('should show an undo toast with translated title, detail and label', () => {
+            const undoEvents = new Subject<UndoOfferedEvent>();
+            mockEventBus.on.mockImplementation((type: string) =>
+                type === DomainEventType.UNDO_OFFERED ? undoEvents.asObservable() : of()
+            );
+            const onUndo = vi.fn();
+
+            handler = TestBed.inject(DomainEventHandler);
+            undoEvents.next({
+                messageKey: 'schedule.undo.workDeleted',
+                detail: 'Anna Muster, 2025-01-15',
+                labelKey: 'schedule.undo.restore',
+                delayMs: 15000,
+                onUndo,
+            });
+
+            expect(mockToastService.showUndo).toHaveBeenCalledWith(
+                'translated:schedule.undo.workDeleted\nAnna Muster, 2025-01-15',
+                'translated:schedule.undo.restore',
+                onUndo,
+                15000
             );
         });
     });

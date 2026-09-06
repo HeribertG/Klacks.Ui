@@ -1,26 +1,41 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Renders goal-candidates and plan-execution panels as floating toasts
- * when Klacksy is in audio-only output mode. Panels are collapsed by default
- * and can be expanded/collapsed independently. Toasts stack upward with no limit.
+ * Renders goal-candidates, plan-execution and proactive-inbox panels as floating toasts in the
+ * overlay rail, present in every output mode (not just audio-only) whenever the assistant is
+ * open. Panels are collapsed by default (the inbox keeps its own service-level default of
+ * expanded) and can be expanded/collapsed independently. Toasts stack upward with no limit. The
+ * inbox message list auto-scrolls to its latest row whenever the list grows, matching the
+ * behavior the chat's own inline inbox block used to have before it moved here.
  */
 
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  afterEveryRender,
+  effect,
   computed,
   inject,
   signal,
+  viewChild,
   ViewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faChevronDown, faChevronUp, faBullseye, faListCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronUp, faBullseye, faListCheck, faXmark, faBell, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { GoalCandidatesPanelComponent } from '../goal-candidates-panel/goal-candidates-panel.component';
 import { PlanExecutionPanelComponent } from '../plan-execution-panel/plan-execution-panel.component';
+import { ChatMessageComponent } from '../chat-message/chat-message.component';
+import { IconThoughtBubbleComponent } from 'src/app/presentation/icons/icon-thought-bubble.component';
+import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
+import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
+import { AsideService } from '../../aside.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 
 @Component({
   selector: 'app-audio-mode-panels',
@@ -30,6 +45,8 @@ import { DataManagementGoalCandidatesService } from 'src/app/domain/services/ass
     FontAwesomeModule,
     GoalCandidatesPanelComponent,
     PlanExecutionPanelComponent,
+    ChatMessageComponent,
+    IconThoughtBubbleComponent,
   ],
   templateUrl: './audio-mode-panels.component.html',
   styleUrls: ['./audio-mode-panels.component.scss'],
@@ -38,6 +55,60 @@ import { DataManagementGoalCandidatesService } from 'src/app/domain/services/ass
 export class AudioModePanelsComponent {
   private planService = inject(DataManagementAgentPlanService);
   private goalCandidatesService = inject(DataManagementGoalCandidatesService);
+  private readonly asideService = inject(AsideService);
+  private readonly onboarding = inject(OnboardingService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly messageActions = inject(ChatMessageActionsService);
+  private readonly proactiveInboxService = inject(DataManagementProactiveInboxService);
+
+  private loadRequested = false;
+  private shouldScrollInboxToBottom = false;
+  private previousInboxMessageCount = 0;
+
+  private readonly inboxMessagesScrollContainer =
+    viewChild<ElementRef<HTMLElement>>('inboxMessagesScrollContainer');
+
+  constructor() {
+    // GoalCandidatesPanelComponent normally triggers this load, but here it only mounts once a
+    // card exists, and a card only exists once candidates are loaded. Without its own trigger the
+    // stack would stay empty forever in audio mode: nothing renders, so nothing loads.
+    effect(() => {
+      if (!this.asideService.isVisible()) {
+        this.loadRequested = false;
+        return;
+      }
+      if (this.onboarding.isTourActive() || this.loadRequested) {
+        return;
+      }
+      this.loadRequested = true;
+      this.goalCandidatesService
+        .loadCandidates()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({ error: () => undefined });
+    });
+
+    // The chat used to auto-scroll its inbox block to the bottom whenever a fresh or reminded
+    // row arrived. Moving inbox rendering to this card must keep that: otherwise a new row lands
+    // below the fold of the 300px scroll container with no visible sign it exists.
+    effect(() => {
+      const count = this.inboxMessages().length;
+      if (count > this.previousInboxMessageCount) {
+        this.shouldScrollInboxToBottom = true;
+      }
+      this.previousInboxMessageCount = count;
+    });
+
+    afterEveryRender(() => {
+      if (!this.shouldScrollInboxToBottom) {
+        return;
+      }
+      const container = this.inboxMessagesScrollContainer();
+      if (container) {
+        container.nativeElement.scrollTop = container.nativeElement.scrollHeight;
+      }
+      this.shouldScrollInboxToBottom = false;
+    });
+  }
 
   @ViewChild(PlanExecutionPanelComponent)
   private planPanel?: PlanExecutionPanelComponent;
@@ -47,6 +118,8 @@ export class AudioModePanelsComponent {
   readonly faChevronDown = faChevronDown;
   readonly faChevronUp = faChevronUp;
   readonly faXmark = faXmark;
+  readonly faBell = faBell;
+  readonly faEyeSlash = faEyeSlash;
 
   // Collapsed by default
   readonly isCandidatesExpanded = signal<boolean>(false);
@@ -56,6 +129,14 @@ export class AudioModePanelsComponent {
   readonly hasCandidates = this.goalCandidatesService.hasCandidates;
   readonly hasVisiblePlan = this.planService.hasVisiblePlan;
   readonly plan = this.planService.activePlan;
+
+  // Shared with AssistantChatComponent via ChatMessageActionsService: both surfaces read the
+  // same inbox-message list and trigger the same expand/hide actions on the same state. The
+  // inbox keeps its own root-scoped default (expanded) rather than the collapsed-by-default of
+  // the other two cards - no behavior change from what the chat used to show.
+  readonly inboxMessages = this.messageActions.inboxMessages;
+  readonly hasInboxMessages = computed(() => this.inboxMessages().length > 0);
+  readonly isInboxExpanded = this.proactiveInboxService.inboxExpanded;
 
   readonly planStatusLabelKey = computed(() => {
     const plan = this.plan();
@@ -69,6 +150,14 @@ export class AudioModePanelsComponent {
 
   togglePlan(): void {
     this.isPlanExpanded.update(v => !v);
+  }
+
+  toggleInbox(): void {
+    this.messageActions.toggleInboxExpanded();
+  }
+
+  hideWholeInbox(): void {
+    this.messageActions.hideWholeInbox();
   }
 
   onPlanApprove(_planId: string): void {

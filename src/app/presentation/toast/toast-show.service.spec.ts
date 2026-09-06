@@ -92,6 +92,54 @@ describe('ToastShowService', () => {
     });
   });
 
+  describe('showUndo', () => {
+    it('should create an undo toast with undo styling, delay and config', () => {
+      // Arrange
+      const onUndo = vi.fn();
+
+      // Act
+      service.showUndo('Shift deleted\nAnna Muster, 2025-01-15', 'Undo', onUndo, 15000);
+
+      // Assert
+      const toasts = toastService.toasts();
+      expect(toasts.length).toBe(1);
+      expect(toasts[0].classname).toBe('bg-undo');
+      expect(toasts[0].delay).toBe(15000);
+      expect(toasts[0].autohide).toBe(true);
+      expect(toasts[0].headertext).toBe('');
+      expect(toasts[0].icon).toBe('');
+      expect(toasts[0].undo?.label).toBe('Undo');
+      expect(toasts[0].undo?.onUndo).toBe(onUndo);
+    });
+
+    it('should replace a previous undo toast instead of stacking offers', () => {
+      // Arrange
+      service.showUndo('Shift deleted\nAnna Muster, 2025-01-15', 'Undo', vi.fn(), 15000);
+
+      // Act
+      service.showUndo('Shift deleted\nBeat Meier, 2025-01-16', 'Undo', vi.fn(), 15000);
+
+      // Assert
+      const toasts = toastService.toasts();
+      expect(toasts.length).toBe(1);
+      expect(toasts[0].textOrTpl).toBe('Shift deleted\nBeat Meier, 2025-01-16');
+    });
+
+    it('should still show the second undo offer when the text is identical', () => {
+      // Arrange
+      service.showUndo('Shift deleted\nAnna Muster, 2025-01-15', 'Undo', vi.fn(), 15000);
+      const second = vi.fn();
+
+      // Act
+      service.showUndo('Shift deleted\nAnna Muster, 2025-01-15', 'Undo', second, 15000);
+
+      // Assert
+      const toasts = toastService.toasts();
+      expect(toasts.length).toBe(1);
+      expect(toasts[0].undo?.onUndo).toBe(second);
+    });
+  });
+
   describe('interactive replies', () => {
     const config = {
       prompt: 'Please choose',

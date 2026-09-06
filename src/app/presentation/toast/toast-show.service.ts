@@ -6,6 +6,7 @@
  * @param showError - Shows an error toast (auto-hide 8s)
  * @param showSuccess - Shows a success toast (auto-hide 2s)
  * @param showInteractiveReply - Shows an interactive toast with single/multi-select options
+ * @param showUndo - Shows an undo offer toast that replaces any previous undo offer
  *
  * Error toasts are swallowed while the backend is known to be down: every pending request fails at
  * once there, and a stack of identical failures tells the user nothing the outage overlay does not
@@ -20,6 +21,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { IToast } from './toast.interface';
 import { TOAST_ICONS } from './toast-icons.constants';
+import { UNDO_TOAST } from './undo-toast.constants';
 
 const INTERACTIVE_REPLY_DEFAULTS = {
   PROMPT_FALLBACK: 'Bitte wählen...',
@@ -83,6 +85,21 @@ export class ToastShowService {
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
       icon: icon,
+    });
+  }
+
+  showUndo(message: string, label: string, onUndo: () => void, delayMs: number): IToast | null {
+    const existing = this.toastService.toasts().find((x) => x.name === UNDO_TOAST.NAME);
+    this.toastService.remove(existing);
+
+    return this.toastService.show(message, {
+      classname: UNDO_TOAST.CLASSNAME,
+      delay: delayMs,
+      name: UNDO_TOAST.NAME,
+      autohide: true,
+      headertext: '',
+      icon: '',
+      undo: { label, onUndo },
     });
   }
 

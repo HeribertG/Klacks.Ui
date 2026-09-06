@@ -1,5 +1,10 @@
 @if (hasCandidates()) {
-  <div class="goal-candidates-panel" data-klacksy-target="goal-candidates-panel">
+  <div
+    class="goal-candidates-panel"
+    [class.embedded]="embedded()"
+    data-klacksy-target="goal-candidates-panel"
+  >
+    @if (!embedded()) {
     <button
       type="button"
       class="goal-candidates-header"
@@ -12,8 +17,9 @@
         [icon]="isExpanded() ? faChevronUp : faChevronDown"
       ></fa-icon>
     </button>
+    }
 
-    @if (isExpanded()) {
+    @if (embedded() || isExpanded()) {
     <p class="goal-candidates-hint">{{ 'assistant-chat.goal-candidates.hint' | translate }}</p>
 
     <ul class="goal-candidate-list">

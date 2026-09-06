@@ -5,6 +5,7 @@
  * keys and are translated here; unknown keys fall through as plain text.
  * @param event.message - Translation key (or plain text) shown as the toast body
  * @param event.code / event.context - Toast name respectively header text
+ * @param UNDO_OFFERED - Carries the undo callback the domain layer provides; only rendering happens here
  */
 
 import { Injectable, inject, DestroyRef } from '@angular/core';
@@ -19,6 +20,7 @@ import {
   WarningEvent,
   InfoEvent,
   NavigationEvent,
+  UndoOfferedEvent,
 } from 'src/app/domain/events/domain-events';
 import { ToastShowService } from '../toast/toast-show.service';
 
@@ -38,6 +40,7 @@ export class DomainEventHandler {
     this.setupWarningHandler();
     this.setupInfoHandler();
     this.setupNavigationHandler();
+    this.setupUndoHandler();
   }
 
   private setupErrorHandler(): void {
@@ -61,6 +64,13 @@ export class DomainEventHandler {
   private setupInfoHandler(): void {
     this.eventBus.on<InfoEvent>(DomainEventType.INFO).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       this.toastService.showInfo(this.translateMessage(event.message), event.context || '', '');
+    });
+  }
+
+  private setupUndoHandler(): void {
+    this.eventBus.on<UndoOfferedEvent>(DomainEventType.UNDO_OFFERED).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      const text = `${this.translateMessage(event.messageKey)}\n${event.detail}`;
+      this.toastService.showUndo(text, this.translateMessage(event.labelKey), event.onUndo, event.delayMs);
     });
   }
 
