@@ -71,11 +71,11 @@ export class AudioModePanelsComponent {
     this.isPlanExpanded.update(v => !v);
   }
 
-  onPlanApprove(planId: string): void {
+  onPlanApprove(_planId: string): void {
     this.planPanel?.onApproveClick();
   }
 
-  onPlanAbort(planId: string): void {
+  onPlanAbort(_planId: string): void {
     this.planPanel?.onAbortClick();
   }
 }

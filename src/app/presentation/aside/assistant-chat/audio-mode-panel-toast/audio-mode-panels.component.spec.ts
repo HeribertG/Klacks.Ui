@@ -9,7 +9,7 @@ import { AudioModePanelsComponent } from './audio-mode-panels.component';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
-import { IAgentPlan, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlan, IAgentPlanStep, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 
 const PANEL_TRANSLATIONS = {
@@ -36,7 +36,7 @@ describe('AudioModePanelsComponent', () => {
     isFailed: Signal<boolean>;
     isApproving: Signal<boolean>;
     isAborting: Signal<boolean>;
-    steps: Signal<any[]>;
+    steps: Signal<IAgentPlanStep[]>;
   };
 
   const sampleCandidate: IGoalCandidate = {
@@ -70,7 +70,7 @@ describe('AudioModePanelsComponent', () => {
   beforeEach(async () => {
     const candidatesSignal = signal<IGoalCandidate[]>([]);
     const planSignal = signal<IAgentPlan | null>(null);
-    const stepsSignal = signal<any[]>([]);
+    const stepsSignal = signal<IAgentPlanStep[]>([]);
 
     goalCandidatesServiceMock = {
       candidates: candidatesSignal,
@@ -262,7 +262,6 @@ describe('AudioModePanelsComponent', () => {
     goalCandidatesServiceMock.candidates.set([sampleCandidate]);
     fixture.detectChanges();
 
-    let chevrons = fixture.nativeElement.querySelectorAll('.audio-panel-chevron fa-icon');
     // Initially collapsed → chevronDown
     expect(component.isCandidatesExpanded()).toBe(false);
 
