@@ -15,6 +15,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { environment } from 'src/environments/environment';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
+import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -43,9 +44,19 @@ export class AuthInterceptor implements HttpInterceptor {
         headers = headers.set('X-SignalR-ConnectionId', connectionId);
       }
 
-      const selectedGroupId = this.resolveSelectedGroupId();
-      if (selectedGroupId) {
-        headers = headers.set('X-Selected-Group', selectedGroupId);
+      // The token is still sent while expired so TokenRefreshInterceptor sees a 401 it can
+      // refresh and replay. Resolving the group, however, constructs the whole
+      // GroupSelectionService -> DataManagementClient -> ClientConfig chain, and
+      // ClientConfigService's constructor immediately fires four authenticated requests. During
+      // the startup refresh those would go out with the dead token and 401 in a batch, so the
+      // resolve waits until the token is actually usable. Zero buffer on purpose: the default
+      // buffer treats a token as expired 30s early, which would drop the group header from
+      // requests the server still accepts and silently widen their scope.
+      if (!isJwtExpired(token, 0)) {
+        const selectedGroupId = this.resolveSelectedGroupId();
+        if (selectedGroupId) {
+          headers = headers.set('X-Selected-Group', selectedGroupId);
+        }
       }
     }
 
