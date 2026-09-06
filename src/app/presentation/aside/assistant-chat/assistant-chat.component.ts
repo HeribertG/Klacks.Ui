@@ -62,6 +62,7 @@ import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
+import { IconLogoComponent } from '../../icons/icon-logo.component';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
@@ -144,6 +145,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     FontAwesomeModule,
     TranslateModule,
     IconMMLComponent,
+    IconLogoComponent,
     IconUserComponent,
     PlanExecutionPanelComponent,
     GoalCandidatesPanelComponent,
@@ -278,6 +280,7 @@ export class AssistantChatComponent {
   });
   readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   readonly hasLogoImage = computed(() => !!this.logoImage());
+  readonly showTourAvatarLogo = computed(() => this.isTourActive() && !this.hasNoApiKey());
 
   conversationId = '';
   private currentStreamController: AbortController | null = null;

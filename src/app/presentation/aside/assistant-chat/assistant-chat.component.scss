@@ -355,9 +355,22 @@
   flex-shrink: 0;
   overflow: hidden;
 
-  app-icon-logo {
-    display: flex;
-    transform: scale(0.7);
+  // IconLogoComponent's svg carries fixed width/height (45px) with a portrait
+  // (210x297) viewBox, so the box below is squared via ::ng-deep instead of a
+  // CSS transform: a scale() distorts it because it interacts with the flex
+  // layout instead of just resizing the svg.
+  .message-avatar-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    ::ng-deep svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .message-avatar-image {
