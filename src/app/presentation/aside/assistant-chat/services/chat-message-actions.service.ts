@@ -12,7 +12,7 @@
  * chat. This also fixes a chicken-and-egg bug: the card renders only once inboxMessages() is
  * non-empty, so if loading were owned by a component instead of this root-scoped singleton,
  * nothing might ever be mounted to trigger the first load (the same class of bug the
- * goal-candidates card hit before AudioModePanelsComponent grew its own load-trigger effect;
+ * goal-candidates card hit before AssistantPanelsComponent grew its own load-trigger effect;
  * here there is exactly one trigger for both surfaces instead of one per surface, which is also
  * what keeps a simultaneously-active chat and card from loading the inbox twice in parallel).
  * The inbox derivation and pipeline live here rather than on DataManagementProactiveInboxService

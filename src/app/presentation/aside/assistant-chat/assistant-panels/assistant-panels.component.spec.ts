@@ -5,7 +5,7 @@ import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { AudioModePanelsComponent } from './audio-mode-panels.component';
+import { AssistantPanelsComponent } from './assistant-panels.component';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
@@ -22,15 +22,15 @@ import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 
 const PANEL_TRANSLATIONS = {
-  'assistant-chat.audio-mode.goal-candidates': 'Zielvorschläge',
-  'assistant-chat.audio-mode.plan-execution': 'Plan-Ausführung',
+  'assistant-chat.panels.goal-candidates': 'Zielvorschläge',
+  'assistant-chat.panels.plan-execution': 'Plan-Ausführung',
   'assistant-chat.proactive.inbox-heading': 'Während du weg warst…',
   'assistant-chat.proactive.hide-all': 'Alle ausblenden',
 };
 
-describe('AudioModePanelsComponent', () => {
-  let fixture: ComponentFixture<AudioModePanelsComponent>;
-  let component: AudioModePanelsComponent;
+describe('AssistantPanelsComponent', () => {
+  let fixture: ComponentFixture<AssistantPanelsComponent>;
+  let component: AssistantPanelsComponent;
 
   let goalCandidatesServiceMock: {
     candidates: WritableSignal<IGoalCandidate[]>;
@@ -179,7 +179,7 @@ describe('AudioModePanelsComponent', () => {
     proactiveInboxServiceMock = { inboxExpanded: inboxExpandedSignal };
 
     await TestBed.configureTestingModule({
-      imports: [AudioModePanelsComponent, TranslateModule.forRoot()],
+      imports: [AssistantPanelsComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataManagementGoalCandidatesService, useValue: goalCandidatesServiceMock },
         { provide: DataManagementAgentPlanService, useValue: planServiceMock },
@@ -218,7 +218,7 @@ describe('AudioModePanelsComponent', () => {
     translate.setTranslation('de', PANEL_TRANSLATIONS);
     translate.use('de');
 
-    fixture = TestBed.createComponent(AudioModePanelsComponent);
+    fixture = TestBed.createComponent(AssistantPanelsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -394,7 +394,7 @@ describe('AudioModePanelsComponent', () => {
     goalCandidatesServiceMock.loadCandidates.mockClear();
 
     asideService.show();
-    TestBed.createComponent(AudioModePanelsComponent).detectChanges();
+    TestBed.createComponent(AssistantPanelsComponent).detectChanges();
 
     expect(goalCandidatesServiceMock.loadCandidates).toHaveBeenCalled();
   });
@@ -404,7 +404,7 @@ describe('AudioModePanelsComponent', () => {
     asideService.hide();
     goalCandidatesServiceMock.loadCandidates.mockClear();
 
-    TestBed.createComponent(AudioModePanelsComponent).detectChanges();
+    TestBed.createComponent(AssistantPanelsComponent).detectChanges();
 
     expect(goalCandidatesServiceMock.loadCandidates).not.toHaveBeenCalled();
   });
@@ -416,7 +416,7 @@ describe('AudioModePanelsComponent', () => {
     component.toggleCandidates();
     fixture.detectChanges();
 
-    const overlay = fixture.nativeElement.querySelector('.audio-mode-panels-overlay');
+    const overlay = fixture.nativeElement.querySelector('.assistant-panels-overlay');
     expect(getComputedStyle(overlay).flexDirection).toBe('column');
 
     const content = fixture.nativeElement.querySelector('.audio-panel-content');
@@ -432,7 +432,7 @@ describe('AudioModePanelsComponent', () => {
     goalCandidatesServiceMock.candidates.set([sampleCandidate]);
     fixture.detectChanges();
 
-    const overlay = fixture.nativeElement.querySelector('.audio-mode-panels-overlay');
+    const overlay = fixture.nativeElement.querySelector('.assistant-panels-overlay');
     const card = fixture.nativeElement.querySelector('.audio-panel-card');
 
     expect(getComputedStyle(overlay).pointerEvents).toBe('none');
@@ -446,7 +446,7 @@ describe('AudioModePanelsComponent', () => {
     goalCandidatesServiceMock.candidates.set([sampleCandidate]);
     fixture.detectChanges();
 
-    const style = getComputedStyle(fixture.nativeElement.querySelector('.audio-mode-panels-overlay'));
+    const style = getComputedStyle(fixture.nativeElement.querySelector('.assistant-panels-overlay'));
     expect(style.position).not.toBe('fixed');
     // jsdom reports an unset property as '' rather than resolving it to its initial value.
     expect(['', 'auto']).toContain(style.top);

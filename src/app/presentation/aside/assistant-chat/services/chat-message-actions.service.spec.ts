@@ -35,7 +35,7 @@ class TestHostComponent {}
  * before this pipeline moved here, the load was owned by AssistantChatComponent's constructor -
  * so on a cold start where nothing had mounted the chat, nobody ever triggered the first load and
  * the card could never appear. These tests never create AssistantChatComponent or
- * AudioModePanelsComponent, only this unrelated empty host, to prove the load fires independent
+ * AssistantPanelsComponent, only this unrelated empty host, to prove the load fires independent
  * of either one mounting.
  */
 describe('ChatMessageActionsService (proactive inbox load pipeline)', () => {
@@ -145,7 +145,7 @@ describe('ChatMessageActionsService (proactive inbox load pipeline)', () => {
 
   it('loads the inbox the moment the aside becomes visible, with nothing else ever mounted (F5 regression)', () => {
     // Arrange - the service itself is injected (as it would be by the root injector on first
-    // use), nothing resembling AssistantChatComponent or AudioModePanelsComponent is created -
+    // use), nothing resembling AssistantChatComponent or AssistantPanelsComponent is created -
     // only the empty host above, which never touches the inbox at all.
     service = TestBed.inject(ChatMessageActionsService);
     expect(proactiveInboxServiceMock.loadUnreadMessages).not.toHaveBeenCalled();

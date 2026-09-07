@@ -11,7 +11,7 @@
 // Position, edge anchor, stacking order and the scroll container all belong to OverlayRailComponent
 // now; this stack only contributes content and lays its own cards out. Anything positioning itself
 // here would put a fourth hand-set anchor back into the corner the rail exists to own.
-.audio-mode-panels-overlay {
+.assistant-panels-overlay {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

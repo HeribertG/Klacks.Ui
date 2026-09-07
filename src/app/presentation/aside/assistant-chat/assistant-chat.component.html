@@ -147,7 +147,7 @@
     <div class="messages">
       @for (message of messages; track message.id) {
       <!-- Inbox rows ("Während du weg warst…") render exclusively as their own card in the
-           overlay rail (AudioModePanelsComponent) now, not inline in the conversation. -->
+           overlay rail (AssistantPanelsComponent) now, not inline in the conversation. -->
       @if (!isInboxMessage(message) && !isHiddenProactiveMessage(message)) {
       <app-chat-message [message]="message"></app-chat-message>
       }

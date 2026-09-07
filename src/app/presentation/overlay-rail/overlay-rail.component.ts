@@ -14,7 +14,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ToastsContainerComponent } from '../toast/toast.component';
-import { AudioModePanelsComponent } from '../aside/assistant-chat/audio-mode-panel-toast/audio-mode-panels.component';
+import { AssistantPanelsComponent } from '../aside/assistant-chat/assistant-panels/assistant-panels.component';
 import { VoiceShellComponent } from '../voice-shell/voice-shell.component';
 import { VoiceShellInputComponent } from '../voice-shell/voice-shell-input/voice-shell-input.component';
 import { AsideService } from '../aside/aside.service';
@@ -25,7 +25,7 @@ import { SpeechOutputModeService } from 'src/app/application/services/speech-out
   standalone: true,
   imports: [
     ToastsContainerComponent,
-    AudioModePanelsComponent,
+    AssistantPanelsComponent,
     VoiceShellComponent,
     VoiceShellInputComponent,
   ],

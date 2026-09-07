@@ -7,7 +7,7 @@ import { AsideService } from '../aside/aside.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
-// The real children (ToastsContainerComponent, AudioModePanelsComponent, VoiceShellComponent,
+// The real children (ToastsContainerComponent, AssistantPanelsComponent, VoiceShellComponent,
 // VoiceShellInputComponent) each pull in their own dependency graph - toast service, goal-candidate
 // /plan data services, translation, FontAwesome icons, speech recognition/synthesis wiring. None of
 // that is relevant to what this spec verifies (the rail's own ownership of zone visibility, docking
@@ -15,8 +15,8 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 @Component({ selector: 'app-toasts', standalone: true, template: '' })
 class StubToastsComponent {}
 
-@Component({ selector: 'app-audio-mode-panels', standalone: true, template: '' })
-class StubAudioModePanelsComponent {}
+@Component({ selector: 'app-assistant-panels', standalone: true, template: '' })
+class StubAssistantPanelsComponent {}
 
 @Component({ selector: 'app-voice-shell', standalone: true, template: '' })
 class StubVoiceShellComponent {}
@@ -64,7 +64,7 @@ describe('OverlayRailComponent', () => {
         set: {
           imports: [
             StubToastsComponent,
-            StubAudioModePanelsComponent,
+            StubAssistantPanelsComponent,
             StubVoiceShellComponent,
             StubVoiceShellInputComponent,
           ],
@@ -109,7 +109,7 @@ describe('OverlayRailComponent', () => {
     });
 
     // Regression: the lane is gated on showPersistentZone() (the aside being open), never on
-    // whether app-audio-mode-panels itself has anything to show. The stub renders no content at all
+    // whether app-assistant-panels itself has anything to show. The stub renders no content at all
     // (template: ''), so if the lane still appears here, that proves the mode/aside condition alone
     // owns visibility - a test that only worked while candidates/a plan happened to exist would not
     // have caught a regression where the lane started depending on content again.
@@ -121,7 +121,7 @@ describe('OverlayRailComponent', () => {
       const persistentLane = fixture.nativeElement.querySelector('.lane-persistent') as HTMLElement;
       expect(persistentLane).not.toBeNull();
 
-      const panels = persistentLane.querySelector('app-audio-mode-panels') as HTMLElement;
+      const panels = persistentLane.querySelector('app-assistant-panels') as HTMLElement;
       expect(panels).not.toBeNull();
       expect(panels.textContent?.trim()).toBe('');
     });
@@ -256,7 +256,7 @@ describe('OverlayRailComponent', () => {
     const persistentLane = host.querySelector('.lane-persistent') as HTMLElement;
 
     // jsdom does resolve `order` to a computed value here (verified '1'/'2'/'3', not '') - the same
-    // mechanism audio-mode-panels.component.spec.ts already relies on for flex-direction/pointer-
+    // mechanism assistant-panels.component.spec.ts already relies on for flex-direction/pointer-
     // events, so no class-based fallback is needed for this environment.
     const voiceOrder = Number(getComputedStyle(voiceLane).order);
     const messagesOrder = Number(getComputedStyle(messagesLane).order);

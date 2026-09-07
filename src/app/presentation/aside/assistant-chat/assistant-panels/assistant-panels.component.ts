@@ -2,11 +2,11 @@
 
 /**
  * Renders goal-candidates, plan-execution and proactive-inbox panels as floating toasts in the
- * overlay rail, present in every output mode (not just audio-only) whenever the assistant is
- * open. Panels are collapsed by default (the inbox keeps its own service-level default of
- * expanded) and can be expanded/collapsed independently. Toasts stack upward with no limit. The
- * inbox message list auto-scrolls to its latest row whenever the list grows, matching the
- * behavior the chat's own inline inbox block used to have before it moved here.
+ * overlay rail, present in every mode whenever the assistant is open. Panels are collapsed by
+ * default (the inbox keeps its own service-level default of expanded) and can be
+ * expanded/collapsed independently. Toasts stack upward with no limit. The inbox message list
+ * auto-scrolls to its latest row whenever the list grows, matching the behavior the chat's own
+ * inline inbox block used to have before it moved here.
  */
 
 import {
@@ -38,7 +38,7 @@ import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 
 @Component({
-  selector: 'app-audio-mode-panels',
+  selector: 'app-assistant-panels',
   standalone: true,
   imports: [
     TranslateModule,
@@ -48,11 +48,11 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
     ChatMessageComponent,
     IconThoughtBubbleComponent,
   ],
-  templateUrl: './audio-mode-panels.component.html',
-  styleUrls: ['./audio-mode-panels.component.scss'],
+  templateUrl: './assistant-panels.component.html',
+  styleUrls: ['./assistant-panels.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudioModePanelsComponent {
+export class AssistantPanelsComponent {
   private planService = inject(DataManagementAgentPlanService);
   private goalCandidatesService = inject(DataManagementGoalCandidatesService);
   private readonly asideService = inject(AsideService);
@@ -71,7 +71,7 @@ export class AudioModePanelsComponent {
   constructor() {
     // GoalCandidatesPanelComponent normally triggers this load, but here it only mounts once a
     // card exists, and a card only exists once candidates are loaded. Without its own trigger the
-    // stack would stay empty forever in audio mode: nothing renders, so nothing loads.
+    // stack would stay empty forever: nothing renders, so nothing loads.
     effect(() => {
       if (!this.asideService.isVisible()) {
         this.loadRequested = false;

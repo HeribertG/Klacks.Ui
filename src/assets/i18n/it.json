@@ -2672,6 +2672,8 @@
   "assistant-chat.goal-candidates.load-error": "Impossibile caricare i suggerimenti di obiettivi.",
   "assistant-chat.goal-candidates.confidence.high": "Klacksy ritiene questo obiettivo chiaramente fondato.",
   "assistant-chat.goal-candidates.confidence.low": "Klacksy non è sicuro di questo obiettivo.",
+  "assistant-chat.panels.goal-candidates": "Obiettivi proposti",
+  "assistant-chat.panels.plan-execution": "Esecuzione del piano",
   "assistant-chat.goal-candidates.type.unstaffedShift.title": "Coprire prima i turni scoperti",
   "assistant-chat.goal-candidates.type.unstaffedShift.rationale": "Un turno scoperto è stato segnalato {{count}} volte negli ultimi {{days}} giorni.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Evitare modifiche di pianificazione bloccate",

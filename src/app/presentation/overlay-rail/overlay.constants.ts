@@ -3,7 +3,7 @@
 /**
  * Single source for the stacking order and edge anchoring of every floating overlay.
  * Before this table the values lived in four places (styles.scss, toast.component.ts host,
- * audio-mode-panels.component.scss, voice-shell.component.scss) and one of them was inert:
+ * assistant-panels.component.scss, voice-shell.component.scss) and one of them was inert:
  * the toast container opens its own stacking context, so the z-index set on the interactive
  * toast inside it never competed with anything outside.
  */

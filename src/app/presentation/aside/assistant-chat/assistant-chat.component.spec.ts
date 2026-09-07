@@ -2157,7 +2157,7 @@ describe('AssistantChatComponent', () => {
             expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-a');
 
             // The inbox rows themselves never render in the chat's own message flow - they only
-            // ever appear as the overlay-rail inbox card (AudioModePanelsComponent).
+            // ever appear as the overlay-rail inbox card (AssistantPanelsComponent).
             const messagesElement: HTMLElement = fixture.nativeElement.querySelector('.messages');
             expect(messagesElement.textContent).not.toContain('Erste Inbox-Nachricht.');
         });
@@ -2379,7 +2379,7 @@ describe('AssistantChatComponent', () => {
         });
 
         // The hide-all button itself now lives on the overlay-rail inbox card (see
-        // AudioModePanelsComponent's spec for the button/DOM-level coverage). What stays a
+        // AssistantPanelsComponent's spec for the button/DOM-level coverage). What stays a
         // chat-side concern is that the shared action it calls (messageActions.hideWholeInbox(),
         // exercised via mockProactiveInboxService.hideMessages) is live the moment rows are
         // showing (rows are marked read on display, so an unread-based guard would leave the
