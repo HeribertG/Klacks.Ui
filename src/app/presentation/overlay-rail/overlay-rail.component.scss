@@ -13,10 +13,18 @@ $z-rail: 1200;
 // this line so the columns line up with the bubble instead of beginning above it.
 $rail-top: 50px;
 
-// Lanes need room for the page behind them. Two lanes plus the bubble come to roughly 890px; below
-// this the lanes collapse into a single column, which is also the only layout narrow screens and a
-// docked aside can carry.
+// Lanes need room for the page behind them. Below this the lanes collapse into a single column,
+// which is also the only layout narrow screens and a docked aside can carry. The value was set for
+// two lanes plus the bubble (~890px). The third lane only reaches $lane-width while its card is
+// expanded - collapsed it is icon-sized - so the worst case is now ~1350px of rail at 1440px of
+// viewport: three expanded cards at once leave the page almost covered.
 $lanes-min-viewport: 1440px;
+
+// The margin beside the centred content container is (100vw - $content-container) / 2 + $edge-gap
+// wide. A lane fits there once that reaches $lane-width + $lane-gap + $edge-gap = 424px, which
+// solves to 100vw >= $content-container + 816px. Below it there is no room on the far side and
+// every lane stays on the inside.
+$lane-flank-min-viewport: $content-container + 816px;
 
 // One owner for position, edge anchor and stacking order. Content type decides which lane an
 // overlay lives in, never arrival order, so two overlays of different kinds can no longer meet.
@@ -28,7 +36,12 @@ $lanes-min-viewport: 1440px;
 .overlay-rail {
   position: fixed;
   top: $rail-top;
-  inset-inline-end: $edge-gap;
+  // The anchor is where the bubble sits; the flank is how far the rail reaches past it to the
+  // outside. Splitting the two keeps the bubble on its line no matter how much is flanking it -
+  // a single hand-written inset-inline-end per case would have to restate the anchor formula.
+  --rail-anchor: #{$edge-gap};
+  --rail-flank: 0px;
+  inset-inline-end: calc(var(--rail-anchor) - var(--rail-flank));
   z-index: $z-rail;
   display: flex;
   flex-direction: column;
@@ -47,19 +60,24 @@ $lanes-min-viewport: 1440px;
   pointer-events: none;
 }
 
-// Single-column fallback order, matching attention: the control first, then what asks something,
-// then ambient state.
+// Single-column fallback order, matching attention: the control first, then what the user just
+// asked to see, then what asks something, then ambient state.
 .lane-voice {
   order: 1;
   align-items: flex-end;
 }
 
-.lane-messages {
+.lane-transcript {
   order: 2;
+  align-items: flex-end;
+}
+
+.lane-messages {
+  order: 3;
 }
 
 .lane-persistent {
-  order: 3;
+  order: 4;
 }
 
 app-voice-shell,
@@ -106,6 +124,10 @@ app-voice-shell-input {
   // it has to be reversed here. The bubble keeps the edge it has always occupied; the lanes grow
   // inward from it.
   .lane-voice {
+    order: 4;
+  }
+
+  .lane-transcript {
     order: 3;
   }
 
@@ -134,6 +156,17 @@ app-voice-shell-input {
     flex-shrink: 0;
     max-height: calc(100dvh - #{$rail-top} - #{$edge-gap});
   }
+
+  // Sized by its card like the persistent lane, for the same reason: collapsed the transcript is
+  // icon-sized and must give its width back. The lane is gone entirely while the card is closed
+  // rather than standing there empty, so it costs no gap either - the deliberate price is that the
+  // lanes inside it move aside when the transcript opens.
+  .lane-transcript {
+    width: max-content;
+    max-width: $lane-width;
+    flex-shrink: 0;
+    max-height: calc(100dvh - #{$rail-top} - #{$edge-gap});
+  }
 }
 
 // Same formula the voice bubble used to carry itself: on wide screens the overlays anchor to the
@@ -141,16 +174,36 @@ app-voice-shell-input {
 // from the content they belong to.
 @media screen and (min-width: $container-anchor-min) {
   :host-context(body:not(.full-viewport)) .overlay-rail {
-    inset-inline-end: max(#{$edge-gap}, calc((100vw - #{$content-container}) / 2 + #{$edge-gap}));
+    --rail-anchor: max(#{$edge-gap}, calc((100vw - #{$content-container}) / 2 + #{$edge-gap}));
+  }
+}
+
+// Wide enough that the margin beside the content container swallows a whole lane: the outermost
+// lane crosses to the far side of the bubble instead of pushing the others further from the page.
+// The rail moves out by exactly the width it gained there, so the bubble does not shift - which is
+// why this only holds while .lane-messages reserves exactly $lane-width.
+@media screen and (min-width: $lane-flank-min-viewport) {
+  :host-context(body:not(.full-viewport)) .overlay-rail {
+    --rail-flank: #{$lane-width + $lane-gap};
+  }
+
+  :host-context(body:not(.full-viewport)) .lane-messages {
+    order: 5;
   }
 }
 
 // A docked aside owns the edge, so the rail steps inside it and gives up the lanes: what is left
-// of the viewport there cannot carry both. This replaces the hard-coded 470px that used to live in
-// styles.scss and was really 450px of panel plus a 20px gap.
-:host(.aside-docked) .overlay-rail {
-  inset-inline-end: #{$aside-panel + $aside-gap};
+// of the viewport there cannot carry both, and there is nothing to flank on either.
+// :host-context() compiles to one selector component more than :host(), so the class is repeated
+// here on purpose - without that the wide-screen rules above would keep winning while docked.
+:host(.aside-docked) .overlay-rail.overlay-rail {
+  --rail-anchor: #{$aside-panel + $aside-gap};
+  --rail-flank: 0px;
   flex-direction: column;
+}
+
+:host(.aside-docked) .overlay-rail.overlay-rail .lane-messages {
+  order: 3;
 }
 
 :host(.aside-docked) .overlay-rail-lane {

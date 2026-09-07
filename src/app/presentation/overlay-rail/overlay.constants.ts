@@ -13,7 +13,7 @@
  * backend is gone, which makes every action behind it meaningless.
  */
 export const OVERLAY_Z_INDEX = {
-  /** Global spinner and the voice transcript both sit here and must stay below the rail. */
+  /** Global spinner. Must stay below the rail. The voice transcript is a lane of the rail now. */
   Blocking: 999,
   VoiceShell: 1000,
   Rail: 1200,
@@ -24,6 +24,11 @@ export const OVERLAY_Z_INDEX = {
  * Edge anchoring. On wide screens the voice bubble anchors to the edge of the centred content
  * container rather than the viewport, so the rail has to use the same formula or the two drift
  * apart by over 200px on a 1920 screen.
+ *
+ * From LaneFlankMinWidthPx up, the rail reaches past that anchor by one lane so the outermost lane
+ * can sit on the far side of the bubble. The bubble only stays on its line because the rail moves
+ * out by exactly the width that lane reserves - the flanking lane has to keep a fixed width for
+ * this to hold. Give it max-content, as the inner lanes have, and the bubble drifts with it.
  */
 export const OVERLAY_ANCHOR = {
   EdgeGapPx: 16,
@@ -35,6 +40,13 @@ export const OVERLAY_ANCHOR = {
   AsidePanelPx: 450,
   /** Gap kept between the rail and the docked aside panel. */
   AsideGapPx: 20,
+  /** Width one lane reserves in a side-by-side layout. */
+  LaneWidthPx: 400,
+  /**
+   * From here the margin beside the content container carries a whole lane, so the outermost lane
+   * crosses to the far side of the bubble: ContentContainerPx + 2 * (LaneWidthPx + 8 + EdgeGapPx).
+   */
+  LaneFlankMinWidthPx: 2261,
 } as const;
 
 /**

@@ -380,8 +380,12 @@
   }
 }
 
+// The row carries up to five labelled buttons and is far wider than .message-content in any host
+// that embeds it. Without the wrap it overflowed, and since the inbox lane scrolls vertically the
+// browser turned its horizontal overflow into a scrollbar - a second row is the cheaper answer.
 .proactive-reactions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   margin-top: 4px;

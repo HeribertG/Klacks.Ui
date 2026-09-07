@@ -33,12 +33,14 @@
 // --standartBackgroundColor and --standartBorderColor are never defined anywhere in the project,
 // so every use of them silently falls back to its light literal and stays light in the dark theme.
 // These are the tokens the interactive toast beside this card uses, so the two now match.
+// Border and shadow are copied verbatim from .bg-assistant-interactive in toast.component.scss —
+// the SCSS variable, not var(--standartGreenColor), because that is what the toast resolves to.
 .audio-panel-card {
   background: var(--backgroundColorCard, #fff);
   color: var(--standartTextColor, #333);
-  border: 1px solid var(--cardBorderColor, #cfd8dc);
+  border: 2px solid colors.$standartGreenColor;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   min-width: 300px;
   max-width: 400px;
   pointer-events: auto;
@@ -165,4 +167,16 @@
   max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  // Once .message-content below is allowed the full card width, the bubbles run right up against
+  // the card border. This keeps them off it, and off the scrollbar that shares the same edge.
+  padding-inline-end: 10px;
+
+  // The card is 400px wide; .message-content caps itself at 280px for the narrow chat aside it was
+  // written for and leaves the rest of the card unused, which is what pushed the reaction buttons
+  // over the edge here. Setting overflow-y above makes the browser resolve overflow-x from visible
+  // to auto, so anything sticking out became a horizontal scrollbar rather than simply spilling.
+  ::ng-deep .message-content {
+    max-width: 100%;
+    min-width: 0;
+  }
 }

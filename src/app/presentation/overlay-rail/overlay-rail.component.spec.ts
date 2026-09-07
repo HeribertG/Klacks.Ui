@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OverlayRailComponent } from './overlay-rail.component';
 import { AsideService } from '../aside/aside.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
+import { TranscriptOverlayService } from '../voice-shell/transcript-overlay/transcript-overlay.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
 // The real children (ToastsContainerComponent, AssistantPanelsComponent, VoiceShellComponent,
@@ -24,12 +25,16 @@ class StubVoiceShellComponent {}
 @Component({ selector: 'app-voice-shell-input', standalone: true, template: '' })
 class StubVoiceShellInputComponent {}
 
+@Component({ selector: 'app-transcript-overlay', standalone: true, template: '' })
+class StubTranscriptOverlayComponent {}
+
 describe('OverlayRailComponent', () => {
   let fixture: ComponentFixture<OverlayRailComponent>;
   let isVisible: WritableSignal<boolean>;
   let isFloatingMode: WritableSignal<boolean>;
   let isAudioOnlyMode: WritableSignal<boolean>;
   let isAutoSpeakMode: WritableSignal<boolean>;
+  let transcriptOpen: WritableSignal<boolean>;
 
   // Mirrors SpeechOutputModeService's own predicate (Audio and BothAuto are the two floating modes;
   // Audio alone is audio-only; BothAuto alone is auto-speak) so every test drives the three mocked
@@ -52,12 +57,14 @@ describe('OverlayRailComponent', () => {
     isFloatingMode = signal(false);
     isAudioOnlyMode = signal(false);
     isAutoSpeakMode = signal(false);
+    transcriptOpen = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [OverlayRailComponent],
       providers: [
         { provide: AsideService, useValue: { isVisible } },
         { provide: SpeechOutputModeService, useValue: { isFloatingMode, isAudioOnlyMode, isAutoSpeakMode } },
+        { provide: TranscriptOverlayService, useValue: { isOpen: transcriptOpen } },
       ],
     })
       .overrideComponent(OverlayRailComponent, {
@@ -67,12 +74,51 @@ describe('OverlayRailComponent', () => {
             StubAssistantPanelsComponent,
             StubVoiceShellComponent,
             StubVoiceShellInputComponent,
+            StubTranscriptOverlayComponent,
           ],
         },
       })
       .compileComponents();
 
     fixture = TestBed.createComponent(OverlayRailComponent);
+  });
+
+  describe('transcript lane visibility', () => {
+    it('appears with the card, so a closed transcript costs no empty column', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.Audio);
+      transcriptOpen.set(true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-transcript')).not.toBeNull();
+    });
+
+    it('is absent while the card is closed', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.Audio);
+      transcriptOpen.set(false);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-transcript')).toBeNull();
+    });
+
+    it('is gone with the aside, so no orphan lane is left behind', () => {
+      isVisible.set(false);
+      applyOutputMode(OutputMode.Audio);
+      transcriptOpen.set(true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-transcript')).toBeNull();
+    });
+
+    it('is absent outside a floating mode, where there is no bubble to sit beside', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.Text);
+      transcriptOpen.set(true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-transcript')).toBeNull();
+    });
   });
 
   it('always renders the messages lane, even with nothing in it', () => {

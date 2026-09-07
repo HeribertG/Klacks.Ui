@@ -34,10 +34,3 @@
     </button>
   }
 </div>
-
-@if (transcriptOpen()) {
-  <app-transcript-overlay
-    [messages]="orchestrator.messages()"
-    (closed)="handleOverlayClose()"
-  />
-}

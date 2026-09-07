@@ -2772,6 +2772,7 @@
   "klacksy.voice.audio-mode.help": "Im Audio-Modus zeigt Klacksy nur ein Icon oben rechts. Öffne die Konversationshistorie per Rechtsklick auf das Icon.",
   "klacksy.voice.transcript.title": "Konversationsverlauf",
   "klacksy.voice.transcript.hint": "Für vollen Chat: in Einstellungen zu ‚Text' wechseln.",
+  "klacksy.voice.transcript.close": "Verlauf schließen",
   "klacksy.voice.errors.stt-failed": "Spracherkennung fehlgeschlagen",
   "klacksy.voice.errors.stt-empty": "Ich habe nichts verstanden – bitte noch einmal sprechen",
   "klacksy.voice.errors.network-failed": "Netzwerkfehler",

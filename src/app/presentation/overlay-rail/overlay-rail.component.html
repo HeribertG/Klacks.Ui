@@ -9,6 +9,12 @@
     </div>
   }
 
+  @if (showTranscript()) {
+    <div class="overlay-rail-lane lane-transcript">
+      <app-transcript-overlay></app-transcript-overlay>
+    </div>
+  }
+
   <div class="overlay-rail-lane lane-voice">
     @if (showVoiceShell()) {
       <app-voice-shell />

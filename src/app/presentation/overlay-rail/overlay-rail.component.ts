@@ -17,6 +17,8 @@ import { ToastsContainerComponent } from '../toast/toast.component';
 import { AssistantPanelsComponent } from '../aside/assistant-chat/assistant-panels/assistant-panels.component';
 import { VoiceShellComponent } from '../voice-shell/voice-shell.component';
 import { VoiceShellInputComponent } from '../voice-shell/voice-shell-input/voice-shell-input.component';
+import { TranscriptOverlayComponent } from '../voice-shell/transcript-overlay/transcript-overlay.component';
+import { TranscriptOverlayService } from '../voice-shell/transcript-overlay/transcript-overlay.service';
 import { AsideService } from '../aside/aside.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 
@@ -28,6 +30,7 @@ import { SpeechOutputModeService } from 'src/app/application/services/speech-out
     AssistantPanelsComponent,
     VoiceShellComponent,
     VoiceShellInputComponent,
+    TranscriptOverlayComponent,
   ],
   templateUrl: './overlay-rail.component.html',
   styleUrls: ['./overlay-rail.component.scss'],
@@ -39,6 +42,7 @@ import { SpeechOutputModeService } from 'src/app/application/services/speech-out
 export class OverlayRailComponent {
   private readonly asideService = inject(AsideService);
   private readonly outputModes = inject(SpeechOutputModeService);
+  private readonly transcript = inject(TranscriptOverlayService);
 
   /**
    * The aside only occupies the edge when it renders its real panel. In a floating output mode it
@@ -68,4 +72,18 @@ export class OverlayRailComponent {
    * open, not the mode it speaks in.
    */
   readonly showPersistentZone = computed<boolean>(() => this.asideService.isVisible());
+
+  /**
+   * The transcript is its own lane beside the bubble it belongs to. Unlike the other lanes it is the
+   * one exception to "a zone's existence may only change with the output mode": the card is not
+   * ambient - it exists only between the bubble gesture that opens it and its close button - so an
+   * always-present lane would be an empty flex item costing a gap of dead space whenever the
+   * transcript is closed, which is most of the time.
+   */
+  readonly showTranscript = computed<boolean>(
+    () =>
+      this.asideService.isVisible() &&
+      this.outputModes.isFloatingMode() &&
+      this.transcript.isOpen(),
+  );
 }

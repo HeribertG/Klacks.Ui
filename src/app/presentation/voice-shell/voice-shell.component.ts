@@ -14,7 +14,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  HostListener,
   OnInit,
   computed,
   inject,
@@ -31,7 +30,7 @@ import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.
 import { AsideService } from '../aside/aside.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
-import { TranscriptOverlayComponent } from './transcript-overlay/transcript-overlay.component';
+import { TranscriptOverlayService } from './transcript-overlay/transcript-overlay.service';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import {
   VoiceShellTiming,
@@ -45,7 +44,6 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
   imports: [
     TranslateModule,
     VoiceShellIconComponent,
-    TranscriptOverlayComponent,
     TrashIconRedComponent,
   ],
   templateUrl: './voice-shell.component.html',
@@ -58,10 +56,10 @@ export class VoiceShellComponent implements OnInit {
   private readonly audioQueue = inject(AudioQueueService);
   private readonly asideService = inject(AsideService);
   private readonly toastShowService = inject(ToastShowService);
+  private readonly transcriptService = inject(TranscriptOverlayService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly errorHint = signal<IVoiceShellErrorHint | null>(null);
-  readonly transcriptOpen = signal<boolean>(false);
 
   readonly effectiveState = computed<ConversationState>(() => {
     const state = this.orchestrator.state();
@@ -90,10 +88,6 @@ export class VoiceShellComponent implements OnInit {
     this.orchestrator.errors$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((hint) => this.onErrorHint(hint));
-
-    this.toastShowService.interactiveReplyShown$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.transcriptOpen.set(false));
   }
 
   handleClick(): void {
@@ -129,13 +123,13 @@ export class VoiceShellComponent implements OnInit {
   handleContextMenu(event: MouseEvent): void {
     event.preventDefault();
     this.toastShowService.dismissInteractiveReplies();
-    this.transcriptOpen.set(true);
+    this.transcriptService.show();
   }
 
   handleTouchStart(): void {
     this.longPressTimer = setTimeout(() => {
       this.toastShowService.dismissInteractiveReplies();
-      this.transcriptOpen.set(true);
+      this.transcriptService.show();
     }, VoiceShellTiming.LongPressMs);
   }
 
@@ -156,16 +150,6 @@ export class VoiceShellComponent implements OnInit {
     this.asideService.requestClearChat();
   }
 
-  handleOverlayClose(): void {
-    this.transcriptOpen.set(false);
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.transcriptOpen()) {
-      this.transcriptOpen.set(false);
-    }
-  }
 
   private onErrorHint(hint: IVoiceShellErrorHint): void {
     if (this.errorClearTimer !== null) {

@@ -1,22 +1,59 @@
-<div class="overlay" role="dialog" [attr.aria-label]="'klacksy.voice.transcript.title' | translate">
-  <header class="overlay-header">
-    <span>{{ 'klacksy.voice.transcript.title' | translate }}</span>
-    <button type="button" class="overlay-close" (click)="close()" aria-label="close">×</button>
-  </header>
-
-  <div class="overlay-body">
-    @for (msg of visibleMessages(); track msg.id) {
-      <div
-        class="message-row"
-        [class.role-user]="msg.sender === 'user'"
-        [class.role-assistant]="msg.sender === 'assistant'"
+@if (isOpen()) {
+  <div
+    class="transcript-card"
+    [class.collapsed]="!isExpanded()"
+    role="dialog"
+    [attr.aria-label]="'klacksy.voice.transcript.title' | translate"
+  >
+    <div class="transcript-header">
+      <button
+        type="button"
+        class="transcript-toggle"
+        (click)="toggleExpanded()"
+        [attr.aria-expanded]="isExpanded()"
+        [attr.aria-label]="'klacksy.voice.transcript.title' | translate"
+        [attr.title]="'klacksy.voice.transcript.title' | translate"
       >
-        <div class="bubble">{{ msg.content }}</div>
+        <fa-icon class="transcript-icon" [icon]="faComments"></fa-icon>
+        @if (isExpanded()) {
+          <span class="transcript-title">
+            {{ 'klacksy.voice.transcript.title' | translate }}
+          </span>
+          <fa-icon class="transcript-chevron" [icon]="faChevronUp"></fa-icon>
+        }
+      </button>
+
+      @if (isExpanded()) {
+        <button
+          type="button"
+          class="transcript-close"
+          (click)="close()"
+          [attr.aria-label]="'klacksy.voice.transcript.close' | translate"
+          [attr.title]="'klacksy.voice.transcript.close' | translate"
+        >
+          ×
+        </button>
+      }
+    </div>
+
+    @if (isExpanded()) {
+      <div class="transcript-content">
+        <div class="transcript-body">
+          @for (msg of visibleMessages(); track msg.id) {
+            <div
+              class="message-row"
+              [class.role-user]="msg.sender === 'user'"
+              [class.role-assistant]="msg.sender === 'assistant'"
+            >
+              <div class="bubble">{{ msg.content }}</div>
+            </div>
+          }
+        </div>
+
+        <footer class="transcript-footer">
+          {{ 'klacksy.voice.transcript.hint' | translate }}
+        </footer>
       </div>
     }
   </div>
-
-  <footer class="overlay-footer">
-    {{ 'klacksy.voice.transcript.hint' | translate }}
-  </footer>
-</div>
+}

@@ -2772,6 +2772,7 @@
   "klacksy.voice.audio-mode.help": "In audio mode Klacksy shows only an icon in the top right. Open the conversation history via right-click on the icon.",
   "klacksy.voice.transcript.title": "Conversation history",
   "klacksy.voice.transcript.hint": "For full chat: switch to 'Text' in settings.",
+  "klacksy.voice.transcript.close": "Close history",
   "klacksy.voice.errors.stt-failed": "Speech recognition failed",
   "klacksy.voice.errors.stt-empty": "I didn't catch that – please speak again",
   "klacksy.voice.errors.network-failed": "Network error",
