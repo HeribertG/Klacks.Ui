@@ -13,11 +13,11 @@
         @if (isCandidatesExpanded()) {
           <fa-icon class="audio-panel-icon" [icon]="faBullseye"></fa-icon>
         } @else {
-          <app-icon-thought-bubble class="audio-panel-icon"></app-icon-thought-bubble>
+          <fa-icon class="audio-panel-chevron" [icon]="faLightbulb"></fa-icon>
         }
         @if (isCandidatesExpanded()) {
           <span class="audio-panel-title">
-            {{ 'assistant-chat.panels.goal-candidates' | translate }}
+            {{ "assistant-chat.panels.goal-candidates" | translate }}
           </span>
         }
         <span class="audio-panel-badge">{{ candidates().length }}</span>
@@ -28,7 +28,9 @@
 
       @if (isCandidatesExpanded()) {
         <div class="audio-panel-content">
-          <app-goal-candidates-panel [embedded]="true"></app-goal-candidates-panel>
+          <app-goal-candidates-panel
+            [embedded]="true"
+          ></app-goal-candidates-panel>
         </div>
       }
     </div>
@@ -48,10 +50,12 @@
         <fa-icon class="audio-panel-icon" [icon]="faListCheck"></fa-icon>
         @if (isPlanExpanded()) {
           <span class="audio-panel-title">
-            {{ 'assistant-chat.panels.plan-execution' | translate }}
+            {{ "assistant-chat.panels.plan-execution" | translate }}
           </span>
           @if (plan()) {
-            <span class="audio-panel-status">{{ planStatusLabelKey() | translate }}</span>
+            <span class="audio-panel-status">{{
+              planStatusLabelKey() | translate
+            }}</span>
           }
           <fa-icon class="audio-panel-chevron" [icon]="faChevronUp"></fa-icon>
         }
@@ -83,7 +87,7 @@
         <fa-icon class="audio-panel-icon" [icon]="faBell"></fa-icon>
         @if (isInboxExpanded()) {
           <span class="audio-panel-title">
-            {{ 'assistant-chat.proactive.inbox-heading' | translate }}
+            {{ "assistant-chat.proactive.inbox-heading" | translate }}
           </span>
         }
         <span class="audio-panel-badge">{{ inboxMessages().length }}</span>
@@ -99,11 +103,13 @@
               type="button"
               class="audio-panel-inbox-hide-all"
               (click)="hideWholeInbox()"
-              [attr.aria-label]="'assistant-chat.proactive.hide-all' | translate"
+              [attr.aria-label]="
+                'assistant-chat.proactive.hide-all' | translate
+              "
               [title]="'assistant-chat.proactive.hide-all' | translate"
             >
               <fa-icon [icon]="faEyeSlash"></fa-icon>
-              <span>{{ 'assistant-chat.proactive.hide-all' | translate }}</span>
+              <span>{{ "assistant-chat.proactive.hide-all" | translate }}</span>
             </button>
           </div>
           <div class="audio-panel-inbox-messages" #inboxMessagesScrollContainer>

@@ -25,11 +25,19 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faChevronDown, faChevronUp, faBullseye, faListCheck, faXmark, faBell, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChevronDown,
+  faChevronUp,
+  faBullseye,
+  faListCheck,
+  faLightbulb,
+  faXmark,
+  faBell,
+  faEyeSlash,
+} from '@fortawesome/free-solid-svg-icons';
 import { GoalCandidatesPanelComponent } from '../goal-candidates-panel/goal-candidates-panel.component';
 import { PlanExecutionPanelComponent } from '../plan-execution-panel/plan-execution-panel.component';
 import { ChatMessageComponent } from '../chat-message/chat-message.component';
-import { IconThoughtBubbleComponent } from 'src/app/presentation/icons/icon-thought-bubble.component';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
@@ -46,7 +54,6 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
     GoalCandidatesPanelComponent,
     PlanExecutionPanelComponent,
     ChatMessageComponent,
-    IconThoughtBubbleComponent,
   ],
   templateUrl: './assistant-panels.component.html',
   styleUrls: ['./assistant-panels.component.scss'],
@@ -59,14 +66,17 @@ export class AssistantPanelsComponent {
   private readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly messageActions = inject(ChatMessageActionsService);
-  private readonly proactiveInboxService = inject(DataManagementProactiveInboxService);
+  private readonly proactiveInboxService = inject(
+    DataManagementProactiveInboxService,
+  );
 
   private loadRequested = false;
   private shouldScrollInboxToBottom = false;
   private previousInboxMessageCount = 0;
 
-  private readonly inboxMessagesScrollContainer =
-    viewChild<ElementRef<HTMLElement>>('inboxMessagesScrollContainer');
+  private readonly inboxMessagesScrollContainer = viewChild<
+    ElementRef<HTMLElement>
+  >('inboxMessagesScrollContainer');
 
   constructor() {
     // GoalCandidatesPanelComponent normally triggers this load, but here it only mounts once a
@@ -104,7 +114,8 @@ export class AssistantPanelsComponent {
       }
       const container = this.inboxMessagesScrollContainer();
       if (container) {
-        container.nativeElement.scrollTop = container.nativeElement.scrollHeight;
+        container.nativeElement.scrollTop =
+          container.nativeElement.scrollHeight;
       }
       this.shouldScrollInboxToBottom = false;
     });
@@ -115,6 +126,7 @@ export class AssistantPanelsComponent {
 
   readonly faBullseye = faBullseye;
   readonly faListCheck = faListCheck;
+  readonly faLightbulb = faLightbulb;
   readonly faChevronDown = faChevronDown;
   readonly faChevronUp = faChevronUp;
   readonly faXmark = faXmark;
@@ -145,11 +157,11 @@ export class AssistantPanelsComponent {
   });
 
   toggleCandidates(): void {
-    this.isCandidatesExpanded.update(v => !v);
+    this.isCandidatesExpanded.update((v) => !v);
   }
 
   togglePlan(): void {
-    this.isPlanExpanded.update(v => !v);
+    this.isPlanExpanded.update((v) => !v);
   }
 
   toggleInbox(): void {
