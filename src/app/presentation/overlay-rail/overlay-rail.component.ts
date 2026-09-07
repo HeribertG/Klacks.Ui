@@ -67,11 +67,14 @@ export class OverlayRailComponent {
   );
 
   /**
-   * The assistant's ambient surfaces - goal candidates and the proactive inbox - are their own
-   * lane in every output mode, not a section of the conversation. They follow the assistant being
-   * open, not the mode it speaks in.
+   * The assistant's ambient surfaces - goal candidates, plan execution and the proactive inbox -
+   * are a lane of their own only where there is no conversation to put them in. In a text mode the
+   * chat panel is on screen and owns them; floating the bubble alone, so they need the rail.
+   * Rendering them in both places at once is what this gate prevents.
    */
-  readonly showPersistentZone = computed<boolean>(() => this.asideService.isVisible());
+  readonly showPersistentZone = computed<boolean>(
+    () => this.asideService.isVisible() && this.outputModes.isFloatingMode(),
+  );
 
   /**
    * The transcript is its own lane beside the bubble it belongs to. Unlike the other lanes it is the

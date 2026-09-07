@@ -133,12 +133,11 @@
   <app-autonomy-status-bar></app-autonomy-status-bar>
   }
 
-  <!-- Klacksy AgentPlan execution panel (hidden during the setup tour; hidden in audio mode → shown as floating toast) -->
-  @if (!isTourActive() && planService.hasVisiblePlan() && !isAudioOutputMode()) {
-  <app-plan-execution-panel
-    (approveRequested)="onPlanApprove($event)"
-    (abortRequested)="onPlanAbort($event)"
-  ></app-plan-execution-panel>
+  <!-- Goal candidates, plan execution and the proactive inbox. They are a lane of the overlay rail
+       only in a floating mode, where there is no chat panel to hold them; here they belong to the
+       conversation. Hidden during the setup tour, as both inline blocks always were. -->
+  @if (!isTourActive() && !isFloatingOutputMode()) {
+  <app-assistant-panels [embedded]="true"></app-assistant-panels>
   }
 
 
@@ -146,8 +145,8 @@
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
       @for (message of messages; track message.id) {
-      <!-- Inbox rows ("Während du weg warst…") render exclusively as their own card in the
-           overlay rail (AssistantPanelsComponent) now, not inline in the conversation. -->
+      <!-- Inbox rows ("Während du weg warst…") render exclusively inside AssistantPanelsComponent,
+           never as ordinary rows of the conversation. -->
       @if (!isInboxMessage(message) && !isHiddenProactiveMessage(message)) {
       <app-chat-message [message]="message"></app-chat-message>
       }

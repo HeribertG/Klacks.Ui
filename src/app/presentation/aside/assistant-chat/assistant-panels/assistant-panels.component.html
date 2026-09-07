@@ -10,19 +10,22 @@
         [attr.aria-label]="'assistant-chat.panels.goal-candidates' | translate"
         [attr.title]="'assistant-chat.panels.goal-candidates' | translate"
       >
-        @if (isCandidatesExpanded()) {
+        @if (isCandidatesExpanded() || embedded()) {
           <fa-icon class="audio-panel-icon" [icon]="faBullseye"></fa-icon>
         } @else {
           <fa-icon class="audio-panel-chevron" [icon]="faLightbulb"></fa-icon>
         }
-        @if (isCandidatesExpanded()) {
+        @if (isCandidatesExpanded() || embedded()) {
           <span class="audio-panel-title">
             {{ "assistant-chat.panels.goal-candidates" | translate }}
           </span>
         }
         <span class="audio-panel-badge">{{ candidates().length }}</span>
-        @if (isCandidatesExpanded()) {
-          <fa-icon class="audio-panel-chevron" [icon]="faChevronUp"></fa-icon>
+        @if (isCandidatesExpanded() || embedded()) {
+          <fa-icon
+            class="audio-panel-chevron"
+            [icon]="isCandidatesExpanded() ? faChevronUp : faChevronDown"
+          ></fa-icon>
         }
       </button>
 
@@ -48,7 +51,7 @@
         [attr.title]="'assistant-chat.panels.plan-execution' | translate"
       >
         <fa-icon class="audio-panel-icon" [icon]="faListCheck"></fa-icon>
-        @if (isPlanExpanded()) {
+        @if (isPlanExpanded() || embedded()) {
           <span class="audio-panel-title">
             {{ "assistant-chat.panels.plan-execution" | translate }}
           </span>
@@ -57,7 +60,10 @@
               planStatusLabelKey() | translate
             }}</span>
           }
-          <fa-icon class="audio-panel-chevron" [icon]="faChevronUp"></fa-icon>
+          <fa-icon
+            class="audio-panel-chevron"
+            [icon]="isPlanExpanded() ? faChevronUp : faChevronDown"
+          ></fa-icon>
         }
       </button>
 
@@ -85,19 +91,22 @@
         [attr.title]="'assistant-chat.proactive.inbox-heading' | translate"
       >
         <fa-icon class="audio-panel-icon" [icon]="faBell"></fa-icon>
-        @if (isInboxExpanded()) {
+        @if (isInboxExpanded() || embedded()) {
           <span class="audio-panel-title">
             {{ "assistant-chat.proactive.inbox-heading" | translate }}
           </span>
         }
         <span class="audio-panel-badge">{{ inboxMessages().length }}</span>
-        @if (isInboxExpanded()) {
-          <fa-icon class="audio-panel-chevron" [icon]="faChevronUp"></fa-icon>
+        @if (isInboxExpanded() || embedded()) {
+          <fa-icon
+            class="audio-panel-chevron"
+            [icon]="isInboxExpanded() ? faChevronUp : faChevronDown"
+          ></fa-icon>
         }
       </button>
 
       @if (isInboxExpanded()) {
-        <div class="audio-panel-content">
+        <div class="audio-panel-content audio-panel-content-inbox">
           <div class="audio-panel-inbox-toolbar">
             <button
               type="button"

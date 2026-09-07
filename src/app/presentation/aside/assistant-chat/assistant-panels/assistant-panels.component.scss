@@ -180,3 +180,126 @@
     min-width: 0;
   }
 }
+
+// Embedded in the chat panel the cards are not floating surfaces any more, so everything that made
+// them read as one goes: border, shadow, own width, and the horizontal collapse. They flatten to
+// the full-width bars the inline inbox heading used to be - collapsing then only takes height away,
+// which is all there is to take when the bar already spans its container.
+// A block host in a column flex container keeps min-height:auto and therefore cannot shrink below
+// its content. The chat container clips (overflow:hidden), so the panels pushed the input box out
+// of the bottom instead of giving way. flex + min-height:0 lets them yield; overflow-y then has to
+// be auto, or a shrunk block would just spill its content instead of scrolling it.
+// A block host in a column flex container keeps min-height:auto and therefore cannot shrink below
+// its content. The chat container clips (overflow:hidden), so the panels pushed the input box out
+// of the bottom instead of giving way. flex + min-height:0 lets them yield.
+//
+// The host itself never scrolls: the cards inside divide its height between them and each scrolls
+// its own body, so a card's scrollbar always belongs to the card it sits in.
+//
+// Height stays automatic while every card is closed, so a row of bars takes only the room a row of
+// bars needs.
+:host(.embedded) {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// An open card splits the height with flex-basis 0, and a basis of 0 contributes nothing to an
+// automatic height - which is why the host collapsed to the 6px gap between its cards and vanished.
+// The share only has something to divide once the height is definite, so it becomes definite
+// exactly when a card is open and stays automatic otherwise.
+:host(.embedded):has(.audio-panel-card:not(.collapsed)) {
+  height: 50%;
+}
+
+:host(.embedded) {
+
+  .assistant-panels-overlay {
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 0.375rem;
+    pointer-events: auto;
+  }
+
+  // Embedded the cards are not floating surfaces, so everything that made them read as one goes:
+  // border, shadow, own width and the entrance animation. They flatten to the full-width bars the
+  // inline inbox heading used to be.
+  .audio-panel-card {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 10px;
+    background: rgba(colors.$CurrentGreyColor, 0.15);
+    color: var(--colorLabel);
+    animation: none;
+    display: flex;
+    flex-direction: column;
+    // An open card takes an equal share of what is left: flex-basis 0 makes the split independent
+    // of how much content each one happens to hold, so two open cards get half each.
+    flex: 1 1 0;
+    min-height: 0;
+    // overflow:hidden on the floating card clips the rounded corners; here it would also cut off a
+    // body that has its own scrollbar.
+    overflow: visible;
+  }
+
+  // A closed card is its bar and nothing more, and must not claim a share of the height.
+  .audio-panel-card.collapsed {
+    width: 100%;
+    flex: 0 0 auto;
+
+    .audio-panel-header {
+      width: 100%;
+      gap: 0.5rem;
+    }
+  }
+
+  .audio-panel-header {
+    flex: 0 0 auto;
+    padding: 0.25rem 0.625rem;
+    color: inherit;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border-radius: 10px;
+
+    &:hover {
+      background: rgba(colors.$CurrentGreyColor, 0.15);
+    }
+  }
+
+  // The rows sit on the workplace tone the message list uses, not on the card tone the chat panel
+  // itself has - against that they would not be distinguishable from the bar's own surroundings.
+  .audio-panel-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-top: none;
+    background: var(--backgroundColorWorkplace);
+    border-radius: 0 0 10px 10px;
+    color: var(--standartTextColor, #333);
+  }
+
+  // The inbox scrolls one level deeper instead: its toolbar has to stay put, and the auto-scroll
+  // in assistant-panels.component.ts writes scrollTop on the message list itself - on a non-scroller
+  // that is a silent no-op.
+  .audio-panel-content-inbox {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .audio-panel-inbox-toolbar {
+    flex: 0 0 auto;
+  }
+
+  .audio-panel-inbox-messages {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+}

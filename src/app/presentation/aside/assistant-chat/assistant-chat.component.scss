@@ -281,7 +281,6 @@
   padding: 16px;
   background: var(--backgroundColorWorkplace);
   min-height: 0;
-  max-height: calc(100vh - 280px);
   scroll-behavior: smooth;
 
   &::-webkit-scrollbar {

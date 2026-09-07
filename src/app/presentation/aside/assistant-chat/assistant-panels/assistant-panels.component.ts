@@ -18,6 +18,7 @@ import {
   effect,
   computed,
   inject,
+  input,
   signal,
   viewChild,
   ViewChild,
@@ -58,8 +59,18 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
   templateUrl: './assistant-panels.component.html',
   styleUrls: ['./assistant-panels.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.embedded]': 'embedded()',
+  },
 })
 export class AssistantPanelsComponent {
+  /**
+   * True when the cards sit inside the chat panel rather than in the overlay rail. Floating over a
+   * page they need a border, a shadow and a width of their own to read as separate surfaces; inside
+   * the conversation all three are noise, so the cards flatten to full-width bars there.
+   */
+  readonly embedded = input<boolean>(false);
+
   private planService = inject(DataManagementAgentPlanService);
   private goalCandidatesService = inject(DataManagementGoalCandidatesService);
   private readonly asideService = inject(AsideService);

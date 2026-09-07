@@ -53,7 +53,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
-import { PlanExecutionPanelComponent } from './plan-execution-panel/plan-execution-panel.component';
+import { AssistantPanelsComponent } from './assistant-panels/assistant-panels.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
@@ -112,7 +112,7 @@ const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.do
     TranslateModule,
     IconMMLComponent,
     IconLogoComponent,
-    PlanExecutionPanelComponent,
+    AssistantPanelsComponent,
     AutonomyStatusBarComponent,
     ChatMessageComponent,
   ],
@@ -152,7 +152,12 @@ export class AssistantChatComponent {
   private readonly outputModes = inject(SpeechOutputModeService);
 
   /** Whether output mode is audio-only — panels should show as floating toasts */
-  readonly isAudioOutputMode = this.outputModes.isAudioOnlyMode;
+  /**
+   * In a floating mode the assistant's surfaces live in the overlay rail, because there is no chat
+   * panel on screen to hold them. isAudioOnlyMode was used here before and covered only 'audio',
+   * so in 'both-auto' the plan panel rendered inline and in the rail at the same time.
+   */
+  readonly isFloatingOutputMode = this.outputModes.isFloatingMode;
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
   readonly onboarding = inject(OnboardingService);

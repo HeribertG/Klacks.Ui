@@ -144,18 +144,37 @@ describe('OverlayRailComponent', () => {
       expect(fixture.nativeElement.querySelector('.lane-persistent')).toBeNull();
     });
 
-    // The assistant's ambient surfaces are their own lane in every output mode, not a section of
-    // the conversation, so text mode gets them too. They follow the assistant being open.
-    it('appears in text mode as well, since the lane belongs to the assistant, not to a mode', () => {
+    // The chat panel is on screen in a text mode and holds these surfaces itself
+    // (assistant-chat.component.html embeds AssistantPanelsComponent there), so a lane here would
+    // render them a second time.
+    it('stays hidden in text mode, where the chat panel holds the surfaces instead', () => {
       isVisible.set(true);
       applyOutputMode(OutputMode.Text);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-persistent')).toBeNull();
+    });
+
+    // both-auto is a floating mode too. isAudioOnlyMode covered only 'audio', which is how the plan
+    // panel came to render inline and in the rail at the same time in this mode.
+    it('appears in both-auto, the other floating mode', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.BothAuto);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('.lane-persistent')).not.toBeNull();
     });
 
-    // Regression: the lane is gated on showPersistentZone() (the aside being open), never on
-    // whether app-assistant-panels itself has anything to show. The stub renders no content at all
+    it('stays hidden in both, which shows the chat panel', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.Both);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-persistent')).toBeNull();
+    });
+
+    // Regression: the lane is gated on showPersistentZone() (aside open in a floating mode), never
+    // on whether app-assistant-panels itself has anything to show. The stub renders no content
     // (template: ''), so if the lane still appears here, that proves the mode/aside condition alone
     // owns visibility - a test that only worked while candidates/a plan happened to exist would not
     // have caught a regression where the lane started depending on content again.
