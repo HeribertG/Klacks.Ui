@@ -2675,6 +2675,7 @@
   "assistant-chat.goal-candidates.confidence.low": "Klacksy ist sich bei diesem Ziel unsicher.",
   "assistant-chat.panels.goal-candidates": "Zielvorschläge",
   "assistant-chat.panels.plan-execution": "Plan-Ausführung",
+  "assistant-chat.panels.dismiss": "Karte ausblenden",
   "assistant-chat.goal-candidates.type.unstaffedShift.title": "Offene Schichten früher besetzen",
   "assistant-chat.goal-candidates.type.unstaffedShift.rationale": "In den letzten {{days}} Tagen wurde {{count}}-mal eine unbesetzte Schicht gemeldet.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Blockierte Planänderungen vermeiden",

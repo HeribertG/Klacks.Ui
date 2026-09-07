@@ -96,6 +96,7 @@ export class AssistantPanelsComponent {
     effect(() => {
       if (!this.asideService.isVisible()) {
         this.loadRequested = false;
+        this.restoreDismissedCards();
         return;
       }
       if (this.onboarding.isTourActive() || this.loadRequested) {
@@ -161,6 +162,33 @@ export class AssistantPanelsComponent {
   readonly hasInboxMessages = computed(() => this.inboxMessages().length > 0);
   readonly isInboxExpanded = this.proactiveInboxService.inboxExpanded;
 
+  // A card floating in the rail covers the page behind it and, unlike the interactive toast, has
+  // no way to be got out of the way. Dismissing one records what it held at that moment; it comes
+  // back as soon as there is more than that, and unconditionally when the assistant is reopened
+  // (restoreDismissedCards runs as the aside closes).
+  private readonly dismissedAtCandidateCount = signal<number | null>(null);
+  private readonly dismissedAtInboxCount = signal<number | null>(null);
+  private readonly dismissedPlanId = signal<string | null>(null);
+
+  readonly showCandidatesCard = computed<boolean>(() => {
+    if (!this.hasCandidates()) return false;
+    const dismissedAt = this.dismissedAtCandidateCount();
+    return dismissedAt === null || this.candidates().length > dismissedAt;
+  });
+
+  readonly showInboxCard = computed<boolean>(() => {
+    if (!this.hasInboxMessages()) return false;
+    const dismissedAt = this.dismissedAtInboxCount();
+    return dismissedAt === null || this.inboxMessages().length > dismissedAt;
+  });
+
+  // A plan has no count to grow, so its identity is the measure of "something new".
+  readonly showPlanCard = computed<boolean>(() => {
+    if (!this.hasVisiblePlan()) return false;
+    const dismissedId = this.dismissedPlanId();
+    return dismissedId === null || this.plan()?.id !== dismissedId;
+  });
+
   readonly planStatusLabelKey = computed(() => {
     const plan = this.plan();
     if (!plan) return '';
@@ -181,6 +209,24 @@ export class AssistantPanelsComponent {
 
   hideWholeInbox(): void {
     this.messageActions.hideWholeInbox();
+  }
+
+  dismissCandidates(): void {
+    this.dismissedAtCandidateCount.set(this.candidates().length);
+  }
+
+  dismissInbox(): void {
+    this.dismissedAtInboxCount.set(this.inboxMessages().length);
+  }
+
+  dismissPlan(): void {
+    this.dismissedPlanId.set(this.plan()?.id ?? null);
+  }
+
+  private restoreDismissedCards(): void {
+    this.dismissedAtCandidateCount.set(null);
+    this.dismissedAtInboxCount.set(null);
+    this.dismissedPlanId.set(null);
   }
 
   onPlanApprove(_planId: string): void {

@@ -1,10 +1,11 @@
 <div class="assistant-panels-overlay">
   <!-- Goal Candidates Header -->
-  @if (hasCandidates()) {
+  @if (showCandidatesCard()) {
     <div class="audio-panel-card" [class.collapsed]="!isCandidatesExpanded()">
+      <div class="audio-panel-header">
       <button
         type="button"
-        class="audio-panel-header"
+        class="audio-panel-toggle"
         (click)="toggleCandidates()"
         [attr.aria-expanded]="isCandidatesExpanded()"
         [attr.aria-label]="'assistant-chat.panels.goal-candidates' | translate"
@@ -28,6 +29,16 @@
           ></fa-icon>
         }
       </button>
+      <button
+        type="button"
+        class="audio-panel-close"
+        (click)="dismissCandidates()"
+        [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
+        [attr.title]="'assistant-chat.panels.dismiss' | translate"
+      >
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+      </div>
 
       @if (isCandidatesExpanded()) {
         <div class="audio-panel-content">
@@ -40,11 +51,12 @@
   }
 
   <!-- Plan Execution Header -->
-  @if (hasVisiblePlan()) {
+  @if (showPlanCard()) {
     <div class="audio-panel-card" [class.collapsed]="!isPlanExpanded()">
+      <div class="audio-panel-header">
       <button
         type="button"
-        class="audio-panel-header"
+        class="audio-panel-toggle"
         (click)="togglePlan()"
         [attr.aria-expanded]="isPlanExpanded()"
         [attr.aria-label]="'assistant-chat.panels.plan-execution' | translate"
@@ -66,6 +78,16 @@
           ></fa-icon>
         }
       </button>
+      <button
+        type="button"
+        class="audio-panel-close"
+        (click)="dismissPlan()"
+        [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
+        [attr.title]="'assistant-chat.panels.dismiss' | translate"
+      >
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+      </div>
 
       @if (isPlanExpanded()) {
         <div class="audio-panel-content">
@@ -80,11 +102,12 @@
   }
 
   <!-- Proactive Inbox ("Während du weg warst…") -->
-  @if (hasInboxMessages()) {
+  @if (showInboxCard()) {
     <div class="audio-panel-card" [class.collapsed]="!isInboxExpanded()">
+      <div class="audio-panel-header">
       <button
         type="button"
-        class="audio-panel-header"
+        class="audio-panel-toggle"
         (click)="toggleInbox()"
         [attr.aria-expanded]="isInboxExpanded()"
         [attr.aria-label]="'assistant-chat.proactive.inbox-heading' | translate"
@@ -104,6 +127,16 @@
           ></fa-icon>
         }
       </button>
+      <button
+        type="button"
+        class="audio-panel-close"
+        (click)="dismissInbox()"
+        [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
+        [attr.title]="'assistant-chat.panels.dismiss' | translate"
+      >
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+      </div>
 
       @if (isInboxExpanded()) {
         <div class="audio-panel-content audio-panel-content-inbox">

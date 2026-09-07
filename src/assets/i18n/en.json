@@ -2675,6 +2675,7 @@
   "assistant-chat.goal-candidates.confidence.low": "Klacksy is unsure about this goal.",
   "assistant-chat.panels.goal-candidates": "Goal Candidates",
   "assistant-chat.panels.plan-execution": "Plan Execution",
+  "assistant-chat.panels.dismiss": "Dismiss card",
   "assistant-chat.goal-candidates.type.unstaffedShift.title": "Staff open shifts earlier",
   "assistant-chat.goal-candidates.type.unstaffedShift.rationale": "An unstaffed shift was reported {{count}} time(s) in the last {{days}} days.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Avoid blocked schedule changes",

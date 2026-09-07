@@ -245,7 +245,7 @@ describe('AssistantPanelsComponent', () => {
     expect(cards.length).toBe(1);
     expect(cards[0].classList.contains('collapsed')).toBe(true);
 
-    const header = cards[0].querySelector('.audio-panel-header');
+    const header = cards[0].querySelector('.audio-panel-toggle');
     expect(header).toBeTruthy();
     expect(header.querySelector('.audio-panel-title')).toBeNull();
     // The count stays visible while collapsed - it is the only thing that says how much is waiting.
@@ -270,7 +270,7 @@ describe('AssistantPanelsComponent', () => {
     expect(cards.length).toBe(1);
     expect(cards[0].classList.contains('collapsed')).toBe(true);
 
-    const header = cards[0].querySelector('.audio-panel-header');
+    const header = cards[0].querySelector('.audio-panel-toggle');
     expect(header).toBeTruthy();
     expect(header.getAttribute('aria-label')).toContain('Plan-Ausführung');
 
@@ -411,13 +411,18 @@ describe('AssistantPanelsComponent', () => {
 
   // Cards keep their natural height and push the ones below them down. A card that scrolled
   // internally would detach its content from the stack and produce nested scrollbars.
-  it('stacks top-down and lets a card grow instead of scrolling inside it', () => {
+  // A wrapping row, not a column: collapsed the cards are icon-sized and two fit side by side,
+  // which halves the strip of page the rail covers. An open card carries min-width: 300px and
+  // wraps onto a line of its own without a rule of its own.
+  it('lays the cards out in a wrapping row and lets one grow instead of scrolling inside it', () => {
     goalCandidatesServiceMock.candidates.set([sampleCandidate]);
     component.toggleCandidates();
     fixture.detectChanges();
 
     const overlay = fixture.nativeElement.querySelector('.assistant-panels-overlay');
-    expect(getComputedStyle(overlay).flexDirection).toBe('column');
+    const overlayStyle = getComputedStyle(overlay);
+    expect(overlayStyle.flexDirection).toBe('row');
+    expect(overlayStyle.flexWrap).toBe('wrap');
 
     const content = fixture.nativeElement.querySelector('.audio-panel-content');
     const contentStyle = getComputedStyle(content);
@@ -491,7 +496,7 @@ describe('AssistantPanelsComponent', () => {
       expect(card).toBeTruthy();
       expect(card.classList.contains('collapsed')).toBe(false);
 
-      const header = card.querySelector('.audio-panel-header');
+      const header = card.querySelector('.audio-panel-toggle');
       expect(header.textContent).toContain('Während du weg warst…');
       const badge = card.querySelector('.audio-panel-badge');
       expect(badge.textContent.trim()).toBe('2');
@@ -507,7 +512,7 @@ describe('AssistantPanelsComponent', () => {
       const card = fixture.nativeElement.querySelector('.audio-panel-card');
       expect(card.classList.contains('collapsed')).toBe(true);
 
-      const header = card.querySelector('.audio-panel-header');
+      const header = card.querySelector('.audio-panel-toggle');
       expect(header.querySelector('.audio-panel-title')).toBeNull();
       expect(header.querySelector('.audio-panel-chevron')).toBeNull();
       expect(header.querySelector('.audio-panel-badge').textContent.trim()).toBe('1');
@@ -523,7 +528,7 @@ describe('AssistantPanelsComponent', () => {
       fixture.detectChanges();
 
       const header: HTMLButtonElement = fixture.nativeElement.querySelector(
-        '.audio-panel-card .audio-panel-header',
+        '.audio-panel-card .audio-panel-toggle',
       );
       header.click();
 
@@ -595,7 +600,7 @@ describe('AssistantPanelsComponent', () => {
       fixture.detectChanges();
 
       const header: HTMLButtonElement = fixture.nativeElement.querySelector(
-        '.audio-panel-card .audio-panel-header',
+        '.audio-panel-card .audio-panel-toggle',
       );
       const hideAllButton: HTMLButtonElement = fixture.nativeElement.querySelector(
         '.audio-panel-inbox-hide-all',

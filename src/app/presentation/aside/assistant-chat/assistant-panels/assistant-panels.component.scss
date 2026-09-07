@@ -11,9 +11,20 @@
 // Position, edge anchor, stacking order and the scroll container all belong to OverlayRailComponent
 // now; this stack only contributes content and lays its own cards out. Anything positioning itself
 // here would put a fourth hand-set anchor back into the corner the rail exists to own.
+// A row that wraps, not a column: collapsed the cards are icon-sized and two of them fit side by
+// side, which halves the strip of page the rail covers - the controls behind it (an ngx-slider sat
+// exactly under the second icon) stay reachable. An open card carries min-width: 300px and cannot
+// share a line, so it wraps onto one of its own without a second rule.
+// flex-end keeps the cards on the rail's own edge; flex-start stops a collapsed card from being
+// stretched to the height of an open one beside it.
 .assistant-panels-overlay {
   display: flex;
-  flex-direction: column;
+  // Longhands, not the flex-flow shorthand: jsdom does not resolve the shorthand into its parts,
+  // so the layout spec could not read either value back.
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: flex-start;
   gap: 0.5rem;
   pointer-events: none;
 }
@@ -24,7 +35,7 @@
   min-width: 0;
   width: max-content;
 
-  .audio-panel-header {
+  .audio-panel-toggle {
     width: auto;
     gap: 0.375rem;
   }
@@ -60,11 +71,20 @@
   }
 }
 
+// The header carries two controls, so it is a row rather than one big button: the toggle takes the
+// width that is left, the dismiss button keeps its own hit area at the end.
 .audio-panel-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   width: 100%;
+}
+
+.audio-panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
   padding: 0.625rem 0.75rem;
   background: transparent;
   border: none;
@@ -77,6 +97,40 @@
 
   &:hover {
     background: var(--backgroundColorSubCards);
+  }
+}
+
+// Same role as the transcript card's close button: a floating card covers the page behind it and
+// needs a way out that does not depend on its content going away.
+.audio-panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-inline-end: 0.375rem;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--standartTextColor, #333);
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.5;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    background: var(--backgroundColorSubCards);
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--standartGreenColor);
+    outline-offset: 2px;
   }
 }
 
@@ -216,7 +270,9 @@
 
 :host(.embedded) {
 
+  // Full-width bars stack; the wrapping row above is for the icon-sized cards in the rail only.
   .assistant-panels-overlay {
+    flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
     gap: 0.375rem;
@@ -252,7 +308,7 @@
     width: 100%;
     flex: 0 0 auto;
 
-    .audio-panel-header {
+    .audio-panel-toggle {
       width: 100%;
       gap: 0.5rem;
     }
@@ -260,15 +316,25 @@
 
   .audio-panel-header {
     flex: 0 0 auto;
+    border-radius: 10px;
+  }
+
+  .audio-panel-toggle {
     padding: 0.25rem 0.625rem;
     color: inherit;
     font-size: 0.6875rem;
     font-weight: 600;
-    border-radius: 10px;
+    border-radius: 10px 0 0 10px;
 
     &:hover {
       background: rgba(colors.$CurrentGreyColor, 0.15);
     }
+  }
+
+  .audio-panel-close {
+    color: inherit;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   // The rows sit on the workplace tone the message list uses, not on the card tone the chat panel

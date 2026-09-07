@@ -7,6 +7,10 @@
   margin-top: 12px;
 }
 
+// DELIBERATE EXCEPTION to the project rule that colours come from assets/standard-styles/colors.scss
+// and follow the theme (owner decision 2026-09-07): this bar stays white in every theme. It floats
+// over arbitrary page content rather than sitting on a surface of its own, so it has to read the
+// same everywhere. Everything below is hard-coded on purpose - do not "fix" it to theme tokens.
 .floating-input-bar {
   display: flex;
   align-items: center;
@@ -18,11 +22,15 @@
   width: 220px;
 }
 
+// The bar is deliberately white in every theme (see above), so the text has to be hard dark to
+// match it. Inheriting the colour meant taking the page's, which is light in the dark theme -
+// white on white. Same slate family as the placeholder below.
 .floating-textarea {
   flex: 1;
   border: none;
   outline: none;
   resize: none;
+  color: #1e293b;
   font-size: 13px;
   line-height: 1.4;
   background: transparent;

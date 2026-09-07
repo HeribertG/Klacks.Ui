@@ -2674,6 +2674,7 @@
   "assistant-chat.goal-candidates.confidence.low": "Klacksy n'est pas sûr de cet objectif.",
   "assistant-chat.panels.goal-candidates": "Suggestions d'objectifs",
   "assistant-chat.panels.plan-execution": "Exécution du plan",
+  "assistant-chat.panels.dismiss": "Masquer la carte",
   "assistant-chat.goal-candidates.type.unstaffedShift.title": "Pourvoir plus tôt les services ouverts",
   "assistant-chat.goal-candidates.type.unstaffedShift.rationale": "Un service non pourvu a été signalé {{count}} fois au cours des {{days}} derniers jours.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Éviter les modifications de planning bloquées",
