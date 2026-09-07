@@ -15,7 +15,7 @@ import {
   IClient,
   ICountry,
 } from 'src/app/domain/models/client/client-class';
-import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
+import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
@@ -242,8 +242,16 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     value.isFriday = true;
     value.quantity = 1;
     value.sumEmployees = 1;
-    value.status = 0;
-    value.isClientless = this.pendingClientlessCreation();
+
+    // A duty without a customer is created SEALED, never as a draft. OriginalOrder means "a customer's
+    // request still being worked out", so a draft without a customer would be indistinguishable from one
+    // where the customer was simply not filled in yet - and after saving, only ClientId = null remains,
+    // because isClientless lives in the browser and is gone after a reload. The status carries the
+    // intent instead, which the backend enforces: a draft without a customer is refused, and a sealed
+    // order without one must already meet the sealing requirements. Owner decision 2026-09-07.
+    const clientless = this.pendingClientlessCreation();
+    value.status = clientless ? ShiftStatus.SealedOrder : ShiftStatus.OriginalOrder;
+    value.isClientless = clientless;
     this.pendingClientlessCreation.set(false);
 
     return value;
@@ -290,7 +298,56 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         });
     }
   }
+  /**
+   * What a clientless duty is still missing before it may be saved. Empty when it may.
+   *
+   * A duty without a customer is created as a SEALED order (see prepareNewShift), and sealing cannot be
+   * undone - so an incomplete one would be permanent, with deleting and starting over as the only way
+   * out. The backend refuses it as well; this getter exists so the UI can keep the user from running
+   * into that refusal, and so the save never silently does nothing.
+   *
+   * Mirrors OrderSealingService.CollectMissingRequirements. A shift that names a customer is not checked
+   * here at all: it stays a draft and can be completed later, exactly as before.
+   */
+  get missingClientlessRequirements(): string[] {
+    const shift = this.editShift;
+    if (!shift || shift.status !== ShiftStatus.SealedOrder || shift.clientId) {
+      return [];
+    }
+
+    const missing: string[] = [];
+    if (!shift.abbreviation?.trim()) {
+      missing.push('shift.abbreviation');
+    }
+    if (!shift.name?.trim()) {
+      missing.push('shift.name');
+    }
+    if (!shift.fromDate) {
+      missing.push('shift.fromDate');
+    }
+    const hasWeekday =
+      shift.isMonday || shift.isTuesday || shift.isWednesday || shift.isThursday ||
+      shift.isFriday || shift.isSaturday || shift.isSunday || shift.isHoliday;
+    if (!hasWeekday) {
+      missing.push('shift.weekday');
+    }
+    if (!shift.groups?.length) {
+      missing.push('shift.group');
+    }
+    if (!shift.quantity || shift.quantity <= 0) {
+      missing.push('shift.quantity');
+    }
+    if (!shift.sumEmployees || shift.sumEmployees <= 0) {
+      missing.push('shift.sumEmployees');
+    }
+
+    return missing;
+  }
+
   save() {
+    if (this.missingClientlessRequirements.length > 0) {
+      return;
+    }
     if (this.onBeforeSave) {
       this.onBeforeSave();
     }
