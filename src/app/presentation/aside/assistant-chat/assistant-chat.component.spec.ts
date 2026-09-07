@@ -2073,7 +2073,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
         });
 
-        it('loads unread messages on aside open, appends them at the end and marks all read', () => {
+        it('loads unread messages on aside open, appends them at the end and refreshes the badge without marking them read', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem()]));
 
@@ -2087,7 +2087,10 @@ describe('AssistantChatComponent', () => {
             expect(lastMessage.id).toBe('inbox-1');
             expect(lastMessage.messageKind).toBe('proactive');
             expect(component.proactiveInboxService.inboxHeadingMessageId()).toBe('inbox-1');
-            expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-1']);
+            expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
+            // Being shown is not being handled - only an explicit dismiss (per-row or "Alle
+            // ausblenden") may mark a row read, so merely displaying it must not.
+            expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
         });
 
         // The urgent badge's own rendering (DOM-level, severity-driven) is covered in
@@ -2212,7 +2215,7 @@ describe('AssistantChatComponent', () => {
             // Assert
             expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(1);
             expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['inbox-dup']);
-            expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(['inbox-dup']);
+            expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
         });
 
         it('renders a live push through the inbox reload, into the block, never from the push payload', async () => {
@@ -2324,7 +2327,7 @@ describe('AssistantChatComponent', () => {
             }
         });
 
-        it('does not mark unread rows read while the block is collapsed', async () => {
+        it('never marks rows read merely from expanding/collapsing the block, live pushes included', async () => {
             // Arrange
             vi.useFakeTimers();
             try {
@@ -2350,20 +2353,17 @@ describe('AssistantChatComponent', () => {
                 expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
                 expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
 
-                // Act
+                // Act - re-expanding must not retroactively mark the block read either.
                 messageActions.toggleInboxExpanded();
 
                 // Assert
-                expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith([
-                    'inbox-collapse',
-                    'inbox-while-collapsed',
-                ]);
+                expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
             } finally {
                 vi.useRealTimers();
             }
         });
 
-        it('reports only the fetched page as read, never the whole inbox', () => {
+        it('never marks a capped page of unread rows read as a side effect of loading it', () => {
             // Arrange - 63 unread rows exist, the listing is capped at 50
             const page = Array.from({ length: 50 }, (_, index) => inboxItem({ id: `row-${index}` }));
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of(page));
@@ -2373,7 +2373,7 @@ describe('AssistantChatComponent', () => {
             fixture.detectChanges();
 
             // Assert
-            expect(mockProactiveInboxService.markManyRead).toHaveBeenCalledWith(page.map((row) => row.id));
+            expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
             expect(mockProactiveInboxService.markAllRead).not.toHaveBeenCalled();
             expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
         });
@@ -2381,9 +2381,8 @@ describe('AssistantChatComponent', () => {
         // The hide-all button itself now lives on the overlay-rail inbox card (see
         // AssistantPanelsComponent's spec for the button/DOM-level coverage). What stays a
         // chat-side concern is that the shared action it calls (messageActions.hideWholeInbox(),
-        // exercised via mockProactiveInboxService.hideMessages) is live the moment rows are
-        // showing (rows are marked read on display, so an unread-based guard would leave the
-        // button dead on arrival) and that hiding empties the block without touching expansion.
+        // exercised via mockProactiveInboxService.hideMessages) is the only thing that marks a
+        // row read, and that hiding empties the block without touching expansion.
         it('hide-all is live the moment rows are showing and empties the block without collapsing it', () => {
             // Arrange
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-mark' })]));

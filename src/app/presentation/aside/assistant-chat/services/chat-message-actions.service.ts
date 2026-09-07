@@ -189,11 +189,9 @@ export class ChatMessageActionsService {
           .map((message) => message.id),
       );
     }
-    if (this.proactiveInboxService.inboxExpanded()) {
-      this.markInboxRead(items.map((item) => item.id));
-      return;
-    }
-    // Collapsed block: nothing was shown, so nothing is read — the badge has to carry the news.
+    // Being shown is not the same as being handled: a row only counts as read once the user
+    // consciously dismisses it (per-row "Ausblenden" or the "Alle ausblenden" bulk action), so
+    // merely loading or expanding the block must never mark anything read on its own.
     this.proactiveInboxService.refreshUnreadCount();
   }
 
@@ -275,35 +273,8 @@ export class ChatMessageActionsService {
     this.proactiveInboxService.hideMessages(this.inboxMessages().map((message) => message.id));
   }
 
-  /**
-   * Expand/collapse the inbox block and, on expand, mark every row currently grouped in it as
-   * read - collapsed, nothing was shown, so nothing counts as read yet. Marks the whole block
-   * (not just the still-visible inboxMessages()) to match the read-state the block already
-   * carries: a hidden row was already marked read when it was hidden, so re-marking it is a no-op.
-   */
   toggleInboxExpanded(): void {
     this.proactiveInboxService.toggleInboxExpanded();
-    if (this.proactiveInboxService.inboxExpanded()) {
-      this.markInboxRead([...this.proactiveInboxService.inboxMessageIds()]);
-    }
-  }
-
-  /**
-   * Only what was rendered counts as read: the listing is capped, so marking everything unread
-   * would silently swallow the rows beyond that page.
-   * @param messageIds - Ids of the inbox rows to mark read
-   */
-  markInboxRead(messageIds: readonly string[]): void {
-    if (messageIds.length === 0) {
-      return;
-    }
-    this.proactiveInboxService
-      .markManyRead(messageIds)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.proactiveInboxService.refreshUnreadCount(),
-        error: () => undefined,
-      });
   }
 
   isMuteSuggestion(message: ChatMessage): boolean {
