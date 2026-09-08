@@ -62,4 +62,38 @@ describe('DataTriggerPreferenceService', () => {
     }
     expect(receivedError).toBeDefined();
   });
+
+  it('snoozeKind puts snoozedUntilUtc to trigger-preferences/{kind}', () => {
+    const untilUtc = '2026-09-09T22:00:00.000Z';
+    const updated: ITriggerPreference = {
+      triggerKind: 'period_overdue',
+      muted: false,
+      snoozedUntilUtc: untilUtc,
+      minimumSeverity: null,
+    };
+
+    service.snoozeKind('period_overdue', untilUtc).subscribe((result) => {
+      expect(result).toEqual(updated);
+    });
+
+    const req = httpMock.expectOne(`${apiUrl}/period_overdue`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ snoozedUntilUtc: untilUtc });
+    req.flush(updated);
+  });
+
+  it('snoozeKind retries three times on failure', () => {
+    let receivedError: unknown;
+    service.snoozeKind('period_overdue', '2026-09-09T22:00:00.000Z').subscribe({
+      error: (error) => {
+        receivedError = error;
+      },
+    });
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const req = httpMock.expectOne(`${apiUrl}/period_overdue`);
+      req.error(new ProgressEvent('error'));
+    }
+    expect(receivedError).toBeDefined();
+  });
 });

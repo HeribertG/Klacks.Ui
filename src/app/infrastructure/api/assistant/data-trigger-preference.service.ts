@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * API service for per-user proactive trigger preferences (mute a trigger kind).
+ * API service for per-user proactive trigger preferences (mute or snooze a trigger kind).
  * @param triggerKind - Trigger kind whose preference is updated (e.g. unstaffed_shift)
+ * @param snoozedUntilUtc - ISO instant until which the kind stays silent for this user
  */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
@@ -28,6 +29,17 @@ export class DataTriggerPreferenceService {
 
   muteKind(triggerKind: string): Observable<ITriggerPreference> {
     const request: IUpdateTriggerPreferenceRequest = { muted: true };
+    return this.httpClient
+      .put<ITriggerPreference>(
+        `${this.baseUrl}trigger-preferences/${triggerKind}`,
+        request,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
+      )
+      .pipe(retry(3));
+  }
+
+  snoozeKind(triggerKind: string, snoozedUntilUtc: string): Observable<ITriggerPreference> {
+    const request: IUpdateTriggerPreferenceRequest = { snoozedUntilUtc };
     return this.httpClient
       .put<ITriggerPreference>(
         `${this.baseUrl}trigger-preferences/${triggerKind}`,
