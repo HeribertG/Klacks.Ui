@@ -3,41 +3,43 @@
   @if (showCandidatesCard()) {
     <div class="audio-panel-card" [class.collapsed]="!isCandidatesExpanded()">
       <div class="audio-panel-header">
-      <button
-        type="button"
-        class="audio-panel-toggle"
-        (click)="toggleCandidates()"
-        [attr.aria-expanded]="isCandidatesExpanded()"
-        [attr.aria-label]="'assistant-chat.panels.goal-candidates' | translate"
-        [attr.title]="'assistant-chat.panels.goal-candidates' | translate"
-      >
-        @if (isCandidatesExpanded() || embedded()) {
-          <fa-icon class="audio-panel-icon" [icon]="faBullseye"></fa-icon>
-        } @else {
-          <fa-icon class="audio-panel-chevron" [icon]="faLightbulb"></fa-icon>
-        }
-        @if (isCandidatesExpanded() || embedded()) {
-          <span class="audio-panel-title">
-            {{ "assistant-chat.panels.goal-candidates" | translate }}
-          </span>
-        }
-        <span class="audio-panel-badge">{{ candidates().length }}</span>
-        @if (isCandidatesExpanded() || embedded()) {
-          <fa-icon
-            class="audio-panel-chevron"
-            [icon]="isCandidatesExpanded() ? faChevronUp : faChevronDown"
-          ></fa-icon>
-        }
-      </button>
-      <button
-        type="button"
-        class="audio-panel-close"
-        (click)="dismissCandidates()"
-        [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
-        [attr.title]="'assistant-chat.panels.dismiss' | translate"
-      >
-        <fa-icon [icon]="faXmark"></fa-icon>
-      </button>
+        <button
+          type="button"
+          class="audio-panel-toggle"
+          (click)="toggleCandidates()"
+          [attr.aria-expanded]="isCandidatesExpanded()"
+          [attr.aria-label]="
+            'assistant-chat.panels.goal-candidates' | translate
+          "
+          [attr.title]="'assistant-chat.panels.goal-candidates' | translate"
+        >
+          @if (isCandidatesExpanded() || embedded()) {
+            <fa-icon class="audio-panel-icon" [icon]="faBullseye"></fa-icon>
+          } @else {
+            <fa-icon class="audio-panel-chevron" [icon]="faBullseye"></fa-icon>
+          }
+          @if (isCandidatesExpanded() || embedded()) {
+            <span class="audio-panel-title">
+              {{ "assistant-chat.panels.goal-candidates" | translate }}
+            </span>
+          }
+          <span class="audio-panel-badge">{{ candidates().length }}</span>
+          @if (isCandidatesExpanded() || embedded()) {
+            <fa-icon
+              class="audio-panel-chevron"
+              [icon]="isCandidatesExpanded() ? faChevronUp : faChevronDown"
+            ></fa-icon>
+          }
+        </button>
+        <button
+          type="button"
+          class="audio-panel-close"
+          (click)="dismissCandidates()"
+          [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
+          [attr.title]="'assistant-chat.panels.dismiss' | translate"
+        >
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
       </div>
 
       @if (isCandidatesExpanded()) {
@@ -54,39 +56,39 @@
   @if (showPlanCard()) {
     <div class="audio-panel-card" [class.collapsed]="!isPlanExpanded()">
       <div class="audio-panel-header">
-      <button
-        type="button"
-        class="audio-panel-toggle"
-        (click)="togglePlan()"
-        [attr.aria-expanded]="isPlanExpanded()"
-        [attr.aria-label]="'assistant-chat.panels.plan-execution' | translate"
-        [attr.title]="'assistant-chat.panels.plan-execution' | translate"
-      >
-        <fa-icon class="audio-panel-icon" [icon]="faListCheck"></fa-icon>
-        @if (isPlanExpanded() || embedded()) {
-          <span class="audio-panel-title">
-            {{ "assistant-chat.panels.plan-execution" | translate }}
-          </span>
-          @if (plan()) {
-            <span class="audio-panel-status">{{
-              planStatusLabelKey() | translate
-            }}</span>
+        <button
+          type="button"
+          class="audio-panel-toggle"
+          (click)="togglePlan()"
+          [attr.aria-expanded]="isPlanExpanded()"
+          [attr.aria-label]="'assistant-chat.panels.plan-execution' | translate"
+          [attr.title]="'assistant-chat.panels.plan-execution' | translate"
+        >
+          <fa-icon class="audio-panel-icon" [icon]="faListCheck"></fa-icon>
+          @if (isPlanExpanded() || embedded()) {
+            <span class="audio-panel-title">
+              {{ "assistant-chat.panels.plan-execution" | translate }}
+            </span>
+            @if (plan()) {
+              <span class="audio-panel-status">{{
+                planStatusLabelKey() | translate
+              }}</span>
+            }
+            <fa-icon
+              class="audio-panel-chevron"
+              [icon]="isPlanExpanded() ? faChevronUp : faChevronDown"
+            ></fa-icon>
           }
-          <fa-icon
-            class="audio-panel-chevron"
-            [icon]="isPlanExpanded() ? faChevronUp : faChevronDown"
-          ></fa-icon>
-        }
-      </button>
-      <button
-        type="button"
-        class="audio-panel-close"
-        (click)="dismissPlan()"
-        [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
-        [attr.title]="'assistant-chat.panels.dismiss' | translate"
-      >
-        <fa-icon [icon]="faXmark"></fa-icon>
-      </button>
+        </button>
+        <button
+          type="button"
+          class="audio-panel-close"
+          (click)="dismissPlan()"
+          [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
+          [attr.title]="'assistant-chat.panels.dismiss' | translate"
+        >
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
       </div>
 
       @if (isPlanExpanded()) {
@@ -105,37 +107,39 @@
   @if (showInboxCard()) {
     <div class="audio-panel-card" [class.collapsed]="!isInboxExpanded()">
       <div class="audio-panel-header">
-      <button
-        type="button"
-        class="audio-panel-toggle"
-        (click)="toggleInbox()"
-        [attr.aria-expanded]="isInboxExpanded()"
-        [attr.aria-label]="'assistant-chat.proactive.inbox-heading' | translate"
-        [attr.title]="'assistant-chat.proactive.inbox-heading' | translate"
-      >
-        <fa-icon class="audio-panel-icon" [icon]="faBell"></fa-icon>
-        @if (isInboxExpanded() || embedded()) {
-          <span class="audio-panel-title">
-            {{ "assistant-chat.proactive.inbox-heading" | translate }}
-          </span>
-        }
-        <span class="audio-panel-badge">{{ inboxMessages().length }}</span>
-        @if (isInboxExpanded() || embedded()) {
-          <fa-icon
-            class="audio-panel-chevron"
-            [icon]="isInboxExpanded() ? faChevronUp : faChevronDown"
-          ></fa-icon>
-        }
-      </button>
-      <button
-        type="button"
-        class="audio-panel-close"
-        (click)="dismissInbox()"
-        [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
-        [attr.title]="'assistant-chat.panels.dismiss' | translate"
-      >
-        <fa-icon [icon]="faXmark"></fa-icon>
-      </button>
+        <button
+          type="button"
+          class="audio-panel-toggle"
+          (click)="toggleInbox()"
+          [attr.aria-expanded]="isInboxExpanded()"
+          [attr.aria-label]="
+            'assistant-chat.proactive.inbox-heading' | translate
+          "
+          [attr.title]="'assistant-chat.proactive.inbox-heading' | translate"
+        >
+          <fa-icon class="audio-panel-icon" [icon]="faBell"></fa-icon>
+          @if (isInboxExpanded() || embedded()) {
+            <span class="audio-panel-title">
+              {{ "assistant-chat.proactive.inbox-heading" | translate }}
+            </span>
+          }
+          <span class="audio-panel-badge">{{ inboxMessages().length }}</span>
+          @if (isInboxExpanded() || embedded()) {
+            <fa-icon
+              class="audio-panel-chevron"
+              [icon]="isInboxExpanded() ? faChevronUp : faChevronDown"
+            ></fa-icon>
+          }
+        </button>
+        <button
+          type="button"
+          class="audio-panel-close"
+          (click)="dismissInbox()"
+          [attr.aria-label]="'assistant-chat.panels.dismiss' | translate"
+          [attr.title]="'assistant-chat.panels.dismiss' | translate"
+        >
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
       </div>
 
       @if (isInboxExpanded()) {
