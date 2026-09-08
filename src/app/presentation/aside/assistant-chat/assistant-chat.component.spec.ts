@@ -44,6 +44,14 @@ import {
 } from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
+import {
+    WELCOME_FOCUS_ACTION,
+    WELCOME_FOCUS_ACTION_KIND,
+    WELCOME_FOCUS_LATER,
+} from 'src/app/domain/constants/welcome-focus.constants';
+import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
+import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -314,7 +322,15 @@ describe('AssistantChatComponent', () => {
                             onStreamPlanningEnded: vi.fn(),
                             stopAutoSpeak: vi.fn(),
                             isAutoSpeakStreaming: vi.fn(() => false),
+                            submitText: vi.fn().mockResolvedValue(undefined),
                         };
+                    },
+                },
+                {
+                    provide: DataTriggerPreferenceService,
+                    useValue: {
+                        muteKind: vi.fn(),
+                        snoozeKind: vi.fn(() => of({ triggerKind: '', muted: false, snoozedUntilUtc: null, minimumSeverity: null })),
                     },
                 },
             ],
@@ -353,6 +369,12 @@ describe('AssistantChatComponent', () => {
             }
             if (k.startsWith('assistant-chat.welcome.suggestion-')) {
                 return 'Test suggestion';
+            }
+            if (k === 'assistant-chat.action-toast.prompt') {
+                return 'Was möchtest du tun?';
+            }
+            if (k.startsWith('klacksy.focus.') || k.startsWith('setupConsultation.')) {
+                return `T:${k}`;
             }
             return 'Error message';
         });
@@ -3293,6 +3315,132 @@ describe('AssistantChatComponent', () => {
             const reopened = mountFreshChat();
 
             expect((reopened.componentInstance as any).tourIndex).toBe(3);
+        });
+    });
+
+    describe('welcome focus toast', () => {
+        let toastService: ToastShowService;
+        let showSpy: any;
+        let onboarding: OnboardingService;
+
+        const navigateFocus: IWelcomeFocus = {
+            kind: 'period_overdue',
+            promptKey: 'klacksy.focus.period-overdue.prompt',
+            promptParams: { group: 'Nord', periodEnd: '2026-08-31', days: '7' },
+            actionKind: WELCOME_FOCUS_ACTION_KIND.Navigate,
+            actionLabelKey: 'klacksy.focus.period-overdue.action',
+            actionRoute: '/workplace/period-closing',
+            conditionId: 'c1',
+        };
+
+        const consultationFocus: IWelcomeFocus = {
+            kind: 'no_schedule_yet',
+            promptKey: 'klacksy.focus.no-orders.prompt',
+            promptParams: {},
+            actionKind: WELCOME_FOCUS_ACTION_KIND.Consultation,
+            actionLabelKey: 'setupConsultation.startButton',
+            actionRoute: null,
+            conditionId: null,
+        };
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            onboarding = TestBed.inject(OnboardingService);
+            onboarding.applyWelcome(null);
+            toastService = TestBed.inject(ToastShowService);
+            showSpy = vi.spyOn(toastService, 'showInteractiveReply');
+            showSpy.mockClear();
+        });
+
+        it('shows the focus prompt as the toast headline and the focus action first', () => {
+            const built = TestBed.inject(WelcomeFocusToastService).build(navigateFocus, []);
+
+            (component as any).showGreetingOptionsAsToast(built.options, built.prompt, navigateFocus);
+
+            expect(showSpy).toHaveBeenCalledTimes(1);
+            expect(showSpy.mock.calls[0][0].prompt).toBe(built.prompt);
+            expect(showSpy.mock.calls[0][0].options[0].value).toBe(WELCOME_FOCUS_ACTION);
+            expect(showSpy.mock.calls[0][0].options.at(-1).value).toBe(WELCOME_FOCUS_LATER);
+        });
+
+        it('keeps the neutral prompt when there is no focus', () => {
+            (component as any).showGreetingOptionsAsToast([
+                { label: 'Einstellungen öffnen', value: '/workplace/settings' },
+            ]);
+
+            expect(showSpy.mock.calls[0][0].prompt).toBe('Was möchtest du tun?');
+        });
+
+        it('navigates when the focus action is a navigate action', () => {
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const navigateSpy = vi.spyOn(navigation, 'navigateAndScroll').mockImplementation(() => undefined as any);
+            (component as any).showGreetingOptionsAsToast(
+                [{ label: 'Periode abschliessen', value: WELCOME_FOCUS_ACTION }],
+                'Prompt',
+                navigateFocus,
+            );
+
+            showSpy.mock.calls[0][1]([WELCOME_FOCUS_ACTION]);
+
+            expect(navigateSpy).toHaveBeenCalledWith('/workplace/period-closing');
+        });
+
+        it('sends the setup consultation trigger phrase for a consultation action', () => {
+            const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+            orchestrator.submitText.mockClear();
+            (component as any).showGreetingOptionsAsToast(
+                [{ label: 'Beratung starten', value: WELCOME_FOCUS_ACTION }],
+                'Prompt',
+                consultationFocus,
+            );
+
+            showSpy.mock.calls[0][1]([WELCOME_FOCUS_ACTION]);
+
+            expect(orchestrator.submitText).toHaveBeenCalledWith('T:setupConsultation.triggerPhrase');
+        });
+
+        it('snoozes the kind until a future instant when later is picked', () => {
+            const preferences = TestBed.inject(DataTriggerPreferenceService) as any;
+            preferences.snoozeKind.mockClear();
+            (component as any).showGreetingOptionsAsToast(
+                [{ label: 'Später', value: WELCOME_FOCUS_LATER }],
+                'Prompt',
+                navigateFocus,
+            );
+
+            showSpy.mock.calls[0][1]([WELCOME_FOCUS_LATER]);
+
+            expect(preferences.snoozeKind).toHaveBeenCalledTimes(1);
+            expect(preferences.snoozeKind.mock.calls[0][0]).toBe('period_overdue');
+            expect(new Date(preferences.snoozeKind.mock.calls[0][1]).getTime()).toBeGreaterThan(Date.now());
+        });
+
+        it('does not send a chat message when later is picked', () => {
+            const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+            orchestrator.submitText.mockClear();
+            (component as any).showGreetingOptionsAsToast(
+                [{ label: 'Später', value: WELCOME_FOCUS_LATER }],
+                'Prompt',
+                navigateFocus,
+            );
+
+            showSpy.mock.calls[0][1]([WELCOME_FOCUS_LATER]);
+
+            expect(orchestrator.submitText).not.toHaveBeenCalled();
+        });
+
+        it('still routes a plain workplace option into navigation', () => {
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const navigateSpy = vi.spyOn(navigation, 'navigateAndScroll').mockImplementation(() => undefined as any);
+            (component as any).showGreetingOptionsAsToast(
+                [{ label: 'Person finden', value: '/workplace/client' }],
+                'Prompt',
+                navigateFocus,
+            );
+
+            showSpy.mock.calls[0][1](['/workplace/client']);
+
+            expect(navigateSpy).toHaveBeenCalledWith('/workplace/client');
         });
     });
 });

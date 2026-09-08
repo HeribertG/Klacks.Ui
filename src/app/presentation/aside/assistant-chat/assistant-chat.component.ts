@@ -72,6 +72,7 @@ import { DataManagementProactiveInboxService } from 'src/app/domain/services/ass
 import {
   ChatMessageActionsService,
   CorrectionType,
+  SETUP_CONSULTATION_TRIGGER_PHRASE_KEY,
 } from './services/chat-message-actions.service';
 import {
   ProactiveReaction,
@@ -80,6 +81,15 @@ import {
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
+import {
+  WELCOME_FOCUS_ACTION,
+  WELCOME_FOCUS_ACTION_KIND,
+  WELCOME_FOCUS_FALLBACK_PROMPT_KEY,
+  WELCOME_FOCUS_LATER,
+} from 'src/app/domain/constants/welcome-focus.constants';
+import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
+import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -149,6 +159,8 @@ export class AssistantChatComponent {
   readonly planService = inject(DataManagementAgentPlanService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
+  private readonly welcomeFocusToast = inject(WelcomeFocusToastService);
+  private readonly triggerPreferenceService = inject(DataTriggerPreferenceService);
   private readonly outputModes = inject(SpeechOutputModeService);
 
   /** Whether output mode is audio-only — panels should show as floating toasts */
@@ -171,6 +183,8 @@ export class AssistantChatComponent {
   private shouldScrollToBottom = true;
   private pendingGreetingMessageId: string | null = null;
   private pendingGreetingOptions: ISuggestedReply[] = [];
+  private pendingGreetingPrompt: string | null = null;
+  private pendingGreetingFocus: IWelcomeFocus | null = null;
   private greetingSpoken = false;
   private welcomeMessageId: string | null = null;
   private welcomeRequestedWithoutApiKey = false;
@@ -256,8 +270,14 @@ export class AssistantChatComponent {
           this.maybeAutoSpeak(msg);
           this.greetingSpoken = true;
           if (this.pendingGreetingOptions.length > 0) {
-            this.showGreetingOptionsAsToast(this.pendingGreetingOptions);
+            this.showGreetingOptionsAsToast(
+              this.pendingGreetingOptions,
+              this.pendingGreetingPrompt ?? undefined,
+              this.pendingGreetingFocus,
+            );
             this.pendingGreetingOptions = [];
+            this.pendingGreetingPrompt = null;
+            this.pendingGreetingFocus = null;
           }
         }
       }
@@ -829,7 +849,11 @@ export class AssistantChatComponent {
     });
   }
 
-  private showGreetingOptionsAsToast(options: ISuggestedReply[]): void {
+  private showGreetingOptionsAsToast(
+    options: ISuggestedReply[],
+    prompt?: string,
+    focus?: IWelcomeFocus | null,
+  ): void {
     if (!options.length) return;
     // The welcome response lands after the tour has already put its station chips up, and
     // dismissing here would take those chips down: during a tour they are the only interactive
@@ -840,13 +864,21 @@ export class AssistantChatComponent {
     }
     const config: ISuggestedRepliesConfig = {
       selectionMode: 'single',
-      prompt: this.translateService.instant('assistant-chat.action-toast.prompt'),
+      prompt: prompt ?? this.translateService.instant(WELCOME_FOCUS_FALLBACK_PROMPT_KEY),
       options,
     };
     this.toastShowService.showInteractiveReply(config, (values: string[]) => {
       this.ngZone.run(() => {
         if (values.length === 0) return;
         const value = values[0];
+        if (focus && value === WELCOME_FOCUS_ACTION) {
+          this.runWelcomeFocusAction(focus);
+          return;
+        }
+        if (focus && value === WELCOME_FOCUS_LATER) {
+          this.snoozeWelcomeFocusKind(focus);
+          return;
+        }
         if (value.startsWith('/workplace/')) {
           this.onNavigateClick(value);
         } else {
@@ -854,6 +886,29 @@ export class AssistantChatComponent {
         }
       });
     });
+  }
+
+  private runWelcomeFocusAction(focus: IWelcomeFocus): void {
+    if (focus.actionKind === WELCOME_FOCUS_ACTION_KIND.Consultation) {
+      void this.orchestrator.submitText(
+        this.translateService.instant(SETUP_CONSULTATION_TRIGGER_PHRASE_KEY),
+      );
+      return;
+    }
+    if (focus.actionRoute) {
+      this.klacksyNavigation.navigateAndScroll(focus.actionRoute);
+    }
+  }
+
+  private snoozeWelcomeFocusKind(focus: IWelcomeFocus): void {
+    this.triggerPreferenceService
+      .snoozeKind(focus.kind, this.welcomeFocusToast.nextLocalMidnightUtc(new Date()))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          /* the toast already closed itself; the question returns on the next open */
+        },
+      });
   }
 
   onNavigateClick(navigateTo: string): void {
@@ -1046,15 +1101,26 @@ export class AssistantChatComponent {
     });
     this.shouldScrollToBottom = true;
 
+    const focus = response.focus ?? null;
+    let toastPrompt: string | undefined;
+    let toastOptions = greetingOptions;
+    if (focus) {
+      const built = this.welcomeFocusToast.build(focus, greetingOptions);
+      toastPrompt = built.prompt;
+      toastOptions = built.options;
+    }
+
     if (this.asideService.isVisible()) {
       this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
       this.greetingSpoken = true;
-      if (greetingOptions.length > 0) {
-        this.showGreetingOptionsAsToast(greetingOptions);
+      if (toastOptions.length > 0) {
+        this.showGreetingOptionsAsToast(toastOptions, toastPrompt, focus);
       }
     } else {
       this.pendingGreetingMessageId = messageId;
-      this.pendingGreetingOptions = greetingOptions;
+      this.pendingGreetingOptions = toastOptions;
+      this.pendingGreetingPrompt = toastPrompt ?? null;
+      this.pendingGreetingFocus = focus;
     }
 
     this.applyWelcomeOnboarding(response);
