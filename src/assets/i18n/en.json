@@ -2790,6 +2790,7 @@
   "setupConsultation.offer": "Nothing is set up here yet — there are no orders and no duties, so there is nothing to plan yet. Should I walk you through what you need?",
   "setupConsultation.offerAccept": "Yes, show me how",
   "setupConsultation.offerDecline": "Later",
+  "setupConsultation.startButton": "Start the consultation",
   "setupConsultation.triggerPhrase": "How do I get started?",
   "shift.container-template.header": "Shift Template",
   "shift.container-template.from": "From",

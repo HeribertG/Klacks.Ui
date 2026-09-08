@@ -25,6 +25,8 @@ describe('ChatMessageComponent', () => {
     pendingDelegateMessageId: ReturnType<typeof signal<string | null>>;
     pendingAcknowledgeMessageId: ReturnType<typeof signal<string | null>>;
     isMuteSuggestion: ReturnType<typeof vi.fn>;
+    isSetupNotice: ReturnType<typeof vi.fn>;
+    startSetupConsultation: ReturnType<typeof vi.fn>;
     toggleDismissMenu: ReturnType<typeof vi.fn>;
     dismissProactiveMessage: ReturnType<typeof vi.fn>;
     onProactiveActionClick: ReturnType<typeof vi.fn>;
@@ -74,6 +76,8 @@ describe('ChatMessageComponent', () => {
       pendingDelegateMessageId: signal<string | null>(null),
       pendingAcknowledgeMessageId: signal<string | null>(null),
       isMuteSuggestion: vi.fn().mockReturnValue(false),
+      isSetupNotice: vi.fn().mockReturnValue(false),
+      startSetupConsultation: vi.fn(),
       toggleDismissMenu: vi.fn(),
       dismissProactiveMessage: vi.fn(),
       onProactiveActionClick: vi.fn(),

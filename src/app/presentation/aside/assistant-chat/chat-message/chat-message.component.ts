@@ -110,4 +110,8 @@ export class ChatMessageComponent {
   protected isMuteSuggestion(message: ChatMessage): boolean {
     return this.actions.isMuteSuggestion(message);
   }
+
+  protected isSetupNotice(message: ChatMessage): boolean {
+    return this.actions.isSetupNotice(message);
+  }
 }

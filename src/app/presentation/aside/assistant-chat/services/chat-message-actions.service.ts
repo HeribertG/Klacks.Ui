@@ -66,6 +66,7 @@ const PROACTIVE_DELEGATE_CONFIRMED_KEY = 'assistant-chat.proactive.delegate-conf
 const PROACTIVE_DELEGATE_FORBIDDEN_KEY = 'assistant-chat.proactive.delegate-forbidden';
 const PROACTIVE_I18N_MARKER = 'i18n:';
 const INBOX_RELOAD_DEBOUNCE_MS = 250;
+const SETUP_CONSULTATION_TRIGGER_PHRASE_KEY = 'setupConsultation.triggerPhrase';
 
 @Injectable({ providedIn: 'root' })
 export class ChatMessageActionsService {
@@ -279,6 +280,24 @@ export class ChatMessageActionsService {
 
   isMuteSuggestion(message: ChatMessage): boolean {
     return message.proactiveKind === PROACTIVE_TRIGGER_KIND.MuteSuggestion;
+  }
+
+  isSetupNotice(message: ChatMessage): boolean {
+    return message.proactiveKind === PROACTIVE_TRIGGER_KIND.NoScheduleYet;
+  }
+
+  /**
+   * Start the setup consultation from a proactive no_schedule_yet message. The notice asks whether
+   * to show the user how to begin, but its action button only navigates — and a plain "yes" reply
+   * matches no recipe trigger, so the offer would lead nowhere. Sending the recipe's own trigger
+   * phrase as a message is what actually starts the guided flow.
+   * @param message - The proactive message the button belongs to
+   */
+  startSetupConsultation(message: ChatMessage): void {
+    if (message.proactiveKind !== PROACTIVE_TRIGGER_KIND.NoScheduleYet) {
+      return;
+    }
+    void this.orchestrator.submitText(this.translateService.instant(SETUP_CONSULTATION_TRIGGER_PHRASE_KEY));
   }
 
   toggleDismissMenu(messageId: string): void {

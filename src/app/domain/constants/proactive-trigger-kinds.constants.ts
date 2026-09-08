@@ -6,6 +6,7 @@
  */
 export const PROACTIVE_TRIGGER_KIND = {
   MuteSuggestion: 'mute_suggestion',
+  NoScheduleYet: 'no_schedule_yet',
 } as const;
 
 export const MUTE_SUGGESTION_KIND_PARAM = 'kind';

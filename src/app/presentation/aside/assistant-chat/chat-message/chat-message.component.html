@@ -151,6 +151,15 @@
         {{ "assistant-chat.proactive.action-show" | translate }}
       </button>
       }
+      @if (isSetupNotice(message())) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-setup-consultation-btn"
+        (click)="actions.startSetupConsultation(message())"
+      >
+        {{ "setupConsultation.startButton" | translate }}
+      </button>
+      }
       @if (isMuteSuggestion(message())) {
       <button
         type="button"
