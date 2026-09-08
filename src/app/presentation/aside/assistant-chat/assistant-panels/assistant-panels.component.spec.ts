@@ -70,6 +70,8 @@ describe('AssistantPanelsComponent', () => {
     | 'pendingDelegateMessageId'
     | 'pendingAcknowledgeMessageId'
     | 'isMuteSuggestion'
+    | 'isSetupNotice'
+    | 'startSetupConsultation'
     | 'toggleDismissMenu'
     | 'dismissProactiveMessage'
     | 'onProactiveActionClick'
@@ -161,6 +163,8 @@ describe('AssistantPanelsComponent', () => {
       pendingDelegateMessageId: signal<string | null>(null),
       pendingAcknowledgeMessageId: signal<string | null>(null),
       isMuteSuggestion: vi.fn().mockReturnValue(false),
+      isSetupNotice: vi.fn().mockReturnValue(false),
+      startSetupConsultation: vi.fn(),
       toggleDismissMenu: vi.fn(),
       dismissProactiveMessage: vi.fn(),
       onProactiveActionClick: vi.fn(),
