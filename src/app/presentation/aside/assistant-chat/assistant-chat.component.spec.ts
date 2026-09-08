@@ -3442,5 +3442,78 @@ describe('AssistantChatComponent', () => {
 
             expect(navigateSpy).toHaveBeenCalledWith('/workplace/client');
         });
+
+        // The six tests above drive showGreetingOptionsAsToast directly, so they never cover the
+        // derivation from response.focus. These two enter through applyWelcomeResponse instead:
+        // once with the aside open (toast right away) and once closed (stored, replayed on open).
+        const welcomeResponseWithFocus = (focus: IWelcomeFocus): IWelcomeResponse => ({
+            greetingKey: 'assistant-chat.welcome.content',
+            greetingText: 'Hallo',
+            greetingVariantIndex: 0,
+            weekdayKey: '',
+            weatherKey: '',
+            displayName: 'Admin',
+            suggestionKeys: ['assistant-chat.welcome.suggestion-1'],
+            suggestionRoutes: { 'assistant-chat.welcome.suggestion-1': '/workplace/client' },
+            onboarding: null,
+            focus,
+        });
+
+        function seedWelcomeMessage(messageId: string): void {
+            TestBed.inject(ConversationOrchestratorService).addMessage({
+                id: messageId,
+                sender: 'assistant',
+                content: 'Hallo',
+                formattedContent: 'Hallo',
+                timestamp: new Date(),
+            } as any);
+        }
+
+        it('derives prompt and options from response.focus when the aside is open', () => {
+            const asideService = TestBed.inject(AsideService);
+            seedWelcomeMessage('welcome-focus-open');
+            asideService.show();
+            showSpy.mockClear();
+
+            (component as any).applyWelcomeResponse(
+                'welcome-focus-open',
+                welcomeResponseWithFocus(navigateFocus),
+                'de',
+            );
+
+            expect(showSpy).toHaveBeenCalledTimes(1);
+            expect(showSpy.mock.calls[0][0].prompt).toBe('T:klacksy.focus.period-overdue.prompt');
+            expect(showSpy.mock.calls[0][0].options[0].value).toBe(WELCOME_FOCUS_ACTION);
+            expect(showSpy.mock.calls[0][0].options.at(-1).value).toBe(WELCOME_FOCUS_LATER);
+        });
+
+        it('stores prompt and focus while the aside is closed and replays them when it opens', () => {
+            const asideService = TestBed.inject(AsideService);
+            asideService.hide();
+            seedWelcomeMessage('welcome-focus-pending');
+            (component as any).greetingSpoken = false;
+            showSpy.mockClear();
+
+            (component as any).applyWelcomeResponse(
+                'welcome-focus-pending',
+                welcomeResponseWithFocus(navigateFocus),
+                'de',
+            );
+
+            expect(showSpy).not.toHaveBeenCalled();
+            expect((component as any).pendingGreetingFocus).toBe(navigateFocus);
+            expect((component as any).pendingGreetingPrompt).toBe('T:klacksy.focus.period-overdue.prompt');
+            expect((component as any).pendingGreetingOptions[0].value).toBe(WELCOME_FOCUS_ACTION);
+
+            asideService.show();
+            fixture.detectChanges();
+
+            expect(showSpy).toHaveBeenCalledTimes(1);
+            expect(showSpy.mock.calls[0][0].prompt).toBe('T:klacksy.focus.period-overdue.prompt');
+            expect(showSpy.mock.calls[0][0].options[0].value).toBe(WELCOME_FOCUS_ACTION);
+            expect((component as any).pendingGreetingPrompt).toBeNull();
+            expect((component as any).pendingGreetingFocus).toBeNull();
+            expect((component as any).pendingGreetingOptions).toEqual([]);
+        });
     });
 });

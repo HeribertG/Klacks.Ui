@@ -905,8 +905,9 @@ export class AssistantChatComponent {
       .snoozeKind(focus.kind, this.welcomeFocusToast.nextLocalMidnightUtc(new Date()))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        error: () => {
+        error: (error: unknown) => {
           /* the toast already closed itself; the question returns on the next open */
+          console.error('Snoozing the welcome focus kind failed', error);
         },
       });
   }
