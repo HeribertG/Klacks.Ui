@@ -49,6 +49,7 @@ export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'edit-group', route: '/workplace/edit-group', requiredPermission: 'CanEditGroups', hasEntityParam: true, llmHint: 'edit existing group' },
   { pageKey: 'shift-list', route: '/workplace/shift', requiredPermission: 'CanViewShifts', hasEntityParam: false },
   { pageKey: 'new-shift', route: '/workplace/new-shift', requiredPermission: 'CanCreateShifts', hasEntityParam: false, llmHint: 'create shift template' },
+  { pageKey: 'new-plannable-shift', route: '/workplace/shift?create=plannable', requiredPermission: 'CanCreateShifts', hasEntityParam: false, llmHint: 'create a plannable duty without a customer' },
   { pageKey: 'edit-shift', route: '/workplace/edit-shift', requiredPermission: 'CanEditShifts', hasEntityParam: true, llmHint: 'edit shift template' },
   { pageKey: 'cut-shift', route: '/workplace/cut-shift', requiredPermission: 'CanEditShifts', hasEntityParam: true, llmHint: 'split or trim a shift' },
   { pageKey: 'container-template', route: '/workplace/container-template', requiredPermission: 'CanEditShifts', hasEntityParam: true, llmHint: 'edit shift container template' },

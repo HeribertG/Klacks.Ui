@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { AllShiftListComponent } from './all-shift-list.component';
@@ -20,6 +21,10 @@ import { AllShiftStateService } from '../services/all-shift-state.service';
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
+
+const activatedRouteStub = (queryParams: Record<string, string> = {}) => ({
+  snapshot: { queryParamMap: convertToParamMap(queryParams) },
+});
 
 describe('AllShiftListComponent - onClickInfo', () => {
   let component: AllShiftListComponent;
@@ -46,6 +51,7 @@ describe('AllShiftListComponent - onClickInfo', () => {
         { provide: ToastShowService, useValue: {} },
         { provide: DataShiftService, useValue: {} },
         { provide: NavigationService, useValue: mockNavigationService },
+        { provide: ActivatedRoute, useValue: activatedRouteStub() },
       ],
     }).overrideComponent(AllShiftListComponent, {
       set: {
@@ -134,6 +140,7 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
         { provide: DataShiftService, useValue: {} },
         { provide: NavigationService, useValue: {} },
         { provide: DataProactiveAttributionService, useValue: mockAttributionService },
+        { provide: ActivatedRoute, useValue: activatedRouteStub() },
       ],
     }).overrideComponent(AllShiftListComponent, {
       set: {

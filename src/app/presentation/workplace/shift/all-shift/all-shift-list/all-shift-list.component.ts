@@ -16,6 +16,7 @@ import {
   signal
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   NgbPaginationModule,
@@ -49,6 +50,13 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { SHIFT_FILTER_TYPE_TO_REPORT_SOURCE } from 'src/app/domain/models/report/report-data-source.model';
 import { SetupConsultationOfferService } from 'src/app/application/services/setup-consultation-offer.service';
+
+// Read once on init from the "new-plannable-shift" Klacksy navigation target
+// (Application/Skills/Definitions/navigation-targets.json), whose route is
+// "/workplace/shift?create=plannable". Kept as constants because the same pair
+// would otherwise be a magic-string literal here and, implicitly, in that route string.
+const CLIENTLESS_CREATE_QUERY_PARAM = 'create';
+const CLIENTLESS_CREATE_QUERY_VALUE = 'plannable';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -85,6 +93,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private dataShiftService = inject(DataShiftService);
   private dataProactiveAttributionService = inject(DataProactiveAttributionService);
   private setupConsultationOffer = inject(SetupConsultationOfferService);
+  private activatedRoute = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
 
   selectedRowId?: string;
@@ -110,6 +119,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.tableResizeService.setRowHeights(90, 82);
+    this.openPlannableCreateFormIfRequested();
     void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
     this.dataManagementShiftService.init();
     await this.allShiftStateService.initializeWorkplaceState();
@@ -167,6 +177,20 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   onAddPlannableShift(): void {
     this.dataManagementShiftService.pendingClientlessCreation.set(true);
     this.navigationService.navigateToNewShift();
+  }
+
+  /**
+   * Lets the "new-plannable-shift" Klacksy navigation target (route
+   * "/workplace/shift?create=plannable") open the clientless creation form the same way the
+   * admin-only "shift-create-plannable-btn" does, instead of only landing on this list. The gate
+   * is re-checked here rather than trusted from the query string: the button it mimics is
+   * admin-only, and a route must not let a non-admin reach the same effect just by typing the URL.
+   */
+  private openPlannableCreateFormIfRequested(): void {
+    const createMode = this.activatedRoute.snapshot.queryParamMap.get(CLIENTLESS_CREATE_QUERY_PARAM);
+    if (createMode === CLIENTLESS_CREATE_QUERY_VALUE && this.authorizationService.isAdmin) {
+      this.onAddPlannableShift();
+    }
   }
 
   currentPrintSourceId(): string | undefined {
