@@ -66,7 +66,7 @@ const PROACTIVE_DELEGATE_CONFIRMED_KEY = 'assistant-chat.proactive.delegate-conf
 const PROACTIVE_DELEGATE_FORBIDDEN_KEY = 'assistant-chat.proactive.delegate-forbidden';
 const PROACTIVE_I18N_MARKER = 'i18n:';
 const INBOX_RELOAD_DEBOUNCE_MS = 250;
-const SETUP_CONSULTATION_TRIGGER_PHRASE_KEY = 'setupConsultation.triggerPhrase';
+export const SETUP_CONSULTATION_TRIGGER_PHRASE_KEY = 'setupConsultation.triggerPhrase';
 
 @Injectable({ providedIn: 'root' })
 export class ChatMessageActionsService {

@@ -4,6 +4,8 @@
  * Welcome payload returned by GET /api/backend/assistant/chat/welcome.
  * Contains only i18n keys + slot values — the FE resolves all keys via TranslateService.
  */
+import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
+
 export interface IWelcomeResponse {
   greetingKey: string;
   greetingText?: string;
@@ -16,6 +18,7 @@ export interface IWelcomeResponse {
   suggestionKeys: string[];
   suggestionRoutes?: Record<string, string>;
   onboarding?: IOnboardingState | null;
+  focus?: IWelcomeFocus | null;
 }
 
 /**
