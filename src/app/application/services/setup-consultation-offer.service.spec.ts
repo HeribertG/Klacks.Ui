@@ -6,16 +6,22 @@ import { SetupConsultationOfferService } from './setup-consultation-offer.servic
 import { OnboardingService } from './onboarding.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 
 describe('SetupConsultationOfferService', () => {
   let service: SetupConsultationOfferService;
-  let addMessage: ReturnType<typeof vi.fn>;
+  let showInteractiveReply: ReturnType<typeof vi.fn>;
+  let submitText: ReturnType<typeof vi.fn>;
   let show: ReturnType<typeof vi.fn>;
   let tourActive: ReturnType<typeof signal<boolean>>;
 
+  const flushMountDelay = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
   beforeEach(() => {
-    addMessage = vi.fn();
+    showInteractiveReply = vi.fn();
+    submitText = vi.fn().mockResolvedValue(undefined);
     show = vi.fn();
     tourActive = signal(false);
     sessionStorage.clear();
@@ -23,7 +29,8 @@ describe('SetupConsultationOfferService', () => {
     TestBed.configureTestingModule({
       providers: [
         SetupConsultationOfferService,
-        { provide: ConversationOrchestratorService, useValue: { addMessage } },
+        { provide: ToastShowService, useValue: { showInteractiveReply } },
+        { provide: ConversationOrchestratorService, useValue: { submitText } },
         { provide: AsideService, useValue: { show } },
         { provide: OnboardingService, useValue: { isTourActive: tourActive } },
         { provide: TranslateService, useValue: { instant: (key: string) => key } },
@@ -32,22 +39,35 @@ describe('SetupConsultationOfferService', () => {
     service = TestBed.inject(SetupConsultationOfferService);
   });
 
-  it('offers once and posts a message carrying the trigger phrase as chip value', () => {
+  function capturedConfig(): ISuggestedRepliesConfig {
+    return showInteractiveReply.mock.calls[0][0];
+  }
+
+  function capturedCallback(): (values: string[]) => void {
+    return showInteractiveReply.mock.calls[0][1];
+  }
+
+  it('offers once as an interactive toast carrying the trigger phrase as chip value', () => {
     service.offerIfNeeded();
 
-    expect(show).toHaveBeenCalledTimes(1);
-    expect(addMessage).toHaveBeenCalledTimes(1);
-    const message = addMessage.mock.calls[0][0];
-    expect(message.sender).toBe('assistant');
-    expect(message.suggestedReplies.selectionMode).toBe('single');
-    expect(message.suggestedReplies.options[0].value).toBe('setupConsultation.triggerPhrase');
+    expect(showInteractiveReply).toHaveBeenCalledTimes(1);
+    const config = capturedConfig();
+    expect(config.selectionMode).toBe('single');
+    expect(config.prompt).toBe('setupConsultation.offer');
+    expect(config.options[0].value).toBe('setupConsultation.triggerPhrase');
+  });
+
+  it('does not open the Klacksy panel just to show the offer', () => {
+    service.offerIfNeeded();
+
+    expect(show).not.toHaveBeenCalled();
   });
 
   it('does not offer a second time in the same session', () => {
     service.offerIfNeeded();
     service.offerIfNeeded();
 
-    expect(addMessage).toHaveBeenCalledTimes(1);
+    expect(showInteractiveReply).toHaveBeenCalledTimes(1);
   });
 
   it('stays silent while the guided tour is running', () => {
@@ -55,18 +75,39 @@ describe('SetupConsultationOfferService', () => {
 
     service.offerIfNeeded();
 
-    expect(addMessage).not.toHaveBeenCalled();
-    expect(show).not.toHaveBeenCalled();
+    expect(showInteractiveReply).not.toHaveBeenCalled();
   });
 
   it('offers after the tour ended', () => {
     tourActive.set(true);
     service.offerIfNeeded();
-    expect(addMessage).not.toHaveBeenCalled();
+    expect(showInteractiveReply).not.toHaveBeenCalled();
 
     tourActive.set(false);
     service.offerIfNeeded();
 
-    expect(addMessage).toHaveBeenCalledTimes(1);
+    expect(showInteractiveReply).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the panel and submits the trigger phrase when the accept chip is chosen', async () => {
+    service.offerIfNeeded();
+    const callback = capturedCallback();
+
+    callback(['setupConsultation.triggerPhrase']);
+    await flushMountDelay();
+
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(submitText).toHaveBeenCalledWith('setupConsultation.triggerPhrase');
+  });
+
+  it('sends nothing when the decline chip is chosen', async () => {
+    service.offerIfNeeded();
+    const callback = capturedCallback();
+
+    callback(['none']);
+    await flushMountDelay();
+
+    expect(show).not.toHaveBeenCalled();
+    expect(submitText).not.toHaveBeenCalled();
   });
 });

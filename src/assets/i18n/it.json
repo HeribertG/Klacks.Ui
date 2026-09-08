@@ -2789,7 +2789,7 @@
   "setupConsultation.offer": "Qui non è ancora stato inserito nulla — non ci sono né ordini né servizi, quindi non c'è ancora nulla da pianificare. Vuoi che ti accompagni in quello di cui hai bisogno?",
   "setupConsultation.offerAccept": "Sì, mostrami come",
   "setupConsultation.offerDecline": "Più tardi",
-  "setupConsultation.triggerPhrase": "come inizio",
+  "setupConsultation.triggerPhrase": "Come inizio?",
   "shift.container-template.header": "Modello di turno",
   "shift.container-template.from": "Da",
   "shift.container-template.until": "A",

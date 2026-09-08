@@ -2789,7 +2789,7 @@
   "setupConsultation.offer": "Rien n'est encore enregistré ici — il n'y a ni commande ni service, donc rien n'est encore planifiable. Dois-je passer en revue avec toi ce dont tu as besoin ?",
   "setupConsultation.offerAccept": "Oui, montre-moi comment",
   "setupConsultation.offerDecline": "Plus tard",
-  "setupConsultation.triggerPhrase": "comment commencer",
+  "setupConsultation.triggerPhrase": "Comment commencer ?",
   "shift.container-template.header": "Modèle de service",
   "shift.container-template.from": "De",
   "shift.container-template.until": "À",
