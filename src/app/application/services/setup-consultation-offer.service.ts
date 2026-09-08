@@ -12,6 +12,7 @@
  * @param conversationOrchestrator - Submits the trigger phrase as a real user turn once accepted
  * @param asideService - Opens the Klacksy panel, but only once the offer is accepted
  * @param onboarding - Single source of truth for whether the guided tour is running
+ * @param scheduleSetupState - Tells an empty installation apart from a filtered-to-nothing list view
  */
 
 import { inject, Injectable } from '@angular/core';
@@ -21,6 +22,8 @@ import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { DataScheduleSetupStateService } from 'src/app/infrastructure/api/assistant/data-schedule-setup-state.service';
+import { IScheduleSetupState } from 'src/app/domain/interfaces/schedule-setup-state.interface';
 
 const OFFER_TEXT_KEY = 'setupConsultation.offer';
 const OFFER_ACCEPT_KEY = 'setupConsultation.offerAccept';
@@ -39,9 +42,21 @@ export class SetupConsultationOfferService {
   private readonly conversationOrchestrator = inject(ConversationOrchestratorService);
   private readonly asideService = inject(AsideService);
   private readonly onboarding = inject(OnboardingService);
+  private readonly scheduleSetupState = inject(DataScheduleSetupStateService);
 
   offerIfNeeded(): void {
     if (this.onboarding.isTourActive() || this.wasOfferedThisSession()) {
+      return;
+    }
+
+    this.scheduleSetupState.getState().subscribe({
+      next: (state) => this.showOfferIfInstallationIsEmpty(state),
+      error: () => undefined,
+    });
+  }
+
+  private showOfferIfInstallationIsEmpty(state: IScheduleSetupState): void {
+    if (state.hasOrders || state.hasShifts || state.hasWork) {
       return;
     }
 
