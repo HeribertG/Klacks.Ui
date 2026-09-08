@@ -48,6 +48,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { SHIFT_FILTER_TYPE_TO_REPORT_SOURCE } from 'src/app/domain/models/report/report-data-source.model';
+import { SetupConsultationOfferService } from 'src/app/application/services/setup-consultation-offer.service';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -83,6 +84,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private toastService = inject(ToastShowService);
   private dataShiftService = inject(DataShiftService);
   private dataProactiveAttributionService = inject(DataProactiveAttributionService);
+  private setupConsultationOffer = inject(SetupConsultationOfferService);
   private cdr = inject(ChangeDetectorRef);
 
   selectedRowId?: string;
@@ -361,9 +363,33 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filterChangeWrapper = () => {
       this.baseFilterChangeCallback?.();
       this.readProactiveAttributions();
+      this.offerSetupConsultationIfEmpty();
       this.cdr.markForCheck();
     };
     this.dataManagementShiftService.onExternalFilterChange = this.filterChangeWrapper;
+  }
+
+  /**
+   * Re-entry point for the setup consultation: the backend's proactive no_schedule_yet notice
+   * dedups permanently per user, so an installation with nothing to plan needs another way back in.
+   *
+   * Hangs off the same onExternalFilterChange hook as readProactiveAttributions() for the same
+   * reason - it fires after every read regardless of whether the read went through this component's
+   * own readPage() or was triggered directly on the service (nav-bar filter switch, resize).
+   *
+   * Only the Original and Shift views count as evidence of emptiness. Container is a different
+   * ShiftType (containers, not orders or plannable shifts) and Absence is a placeholder view that
+   * the backend answers with zero rows by construction (ShiftStatusFilterService.cs), so an empty
+   * Absence list says nothing about whether the installation has any Bestellungen or Dienste.
+   */
+  private offerSetupConsultationIfEmpty(): void {
+    const filterType = this.dataManagementShiftService.currentFilter.filterType;
+    const isRelevantView =
+      filterType === ShiftFilterType.Original || filterType === ShiftFilterType.Shift;
+
+    if (isRelevantView && this.dataManagementShiftService.maxItems === 0) {
+      this.setupConsultationOffer.offerIfNeeded();
+    }
   }
 
   /**
