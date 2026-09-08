@@ -17,4 +17,5 @@ export class StorageKeys {
   public static readonly SETTINGS_EXPERT_MODE = 'settings.expertMode';
   public static readonly RETURN_URL = 'klacks.returnUrl';
   public static readonly CONTAINER_LOCK_INSTANCE_ID = 'klacks.containerLock.instanceId';
+  public static readonly SETUP_CONSULTATION_OFFERED = 'klacks.setupConsultation.offeredSession';
 }
