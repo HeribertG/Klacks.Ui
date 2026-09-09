@@ -108,6 +108,7 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'availability', type: 'navigate', target: '', explainKey: EXPLAIN + 'availability', navIconId: ONBOARDING_NAV_ICON.Availability, route: ONBOARDING_ROUTE.Availability },
   { id: 'period-closing', type: 'navigate', target: '', explainKey: EXPLAIN + 'period-closing', navIconId: ONBOARDING_NAV_ICON.PeriodClosing, route: ONBOARDING_ROUTE.PeriodClosing },
   { id: 'security', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'security', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'web-search', type: 'navigate', target: 'web-search', explainKey: EXPLAIN + 'web-search', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'plugins', type: 'explain', target: 'feature-plugins', explainKey: EXPLAIN + 'plugins', navIconId: ONBOARDING_NAV_ICON.Settings },
 ];
 

@@ -54,6 +54,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'klacksy-proactive-governance': 'klacksy',
   'openroute': 'externalServices',
   'deepl': 'externalServices',
+  'web-search': 'externalServices',
   'messaging-providers': 'externalServices',
   'owner-messengers': 'externalServices',
   'erp-drop-points': 'erp',

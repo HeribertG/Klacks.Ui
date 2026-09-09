@@ -1,0 +1,71 @@
+<div id="web-search-form">
+  <div id="web-search-header" class="container-header">
+    {{ 'setting.web-search.headline' | translate }}
+  </div>
+
+  <div id="web-search-line" class="container-line"></div>
+
+  <div class="web-search-info first">
+    <p class="info-text">
+      {{ 'setting.web-search.description' | translate }}
+    </p>
+    <p class="info-text">
+      {{ 'setting.web-search.register' | translate }}
+      <a
+        href="https://serper.dev"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        serper.dev
+      </a>
+      /
+      <a
+        href="https://tavily.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        tavily.com
+      </a>
+    </p>
+  </div>
+
+  <div class="form-group first">
+    <label for="web-search-provider">{{ 'setting.web-search.provider' | translate }}</label>
+    <select
+      class="form-select"
+      [formField]="webSearchForm.provider"
+      aria-label="web-search-provider"
+      id="web-search-provider"
+    >
+      <option value="serper">
+        {{ 'setting.web-search.providerSerper' | translate }}
+      </option>
+      <option value="tavily">
+        {{ 'setting.web-search.providerTavily' | translate }}
+      </option>
+    </select>
+  </div>
+
+  <div class="form-group first">
+    <div class="input-group my-password">
+      <label for="web-search-apikey">{{ 'setting.web-search.apikey' | translate }}</label>
+      <app-password-input
+        [value]="webSearchForm.apiKey().value()"
+        (valueChange)="webSearchForm.apiKey().value.set($event)"
+        inputId="web-search-apikey"
+        placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        inputClass="api-input"
+      />
+    </div>
+  </div>
+
+  <div class="form-group first">
+    <label for="web-search-max-results">{{ 'setting.web-search.maxresults' | translate }}</label>
+    <input
+      type="number"
+      class="form-control"
+      [formField]="webSearchForm.maxResults"
+      id="web-search-max-results"
+    />
+  </div>
+</div>

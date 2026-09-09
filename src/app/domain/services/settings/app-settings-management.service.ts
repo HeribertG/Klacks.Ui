@@ -82,6 +82,9 @@ interface SettingsModels {
   update: IUpdateConfigSettings;
   openRouteServiceApiKey: string;
   deeplApiKey: string;
+  webSearchProvider: string;
+  webSearchApiKey: string;
+  webSearchMaxResults: string;
   erpImportCronExpression: string;
   erpImportCronTimeZone: string;
   speech: ISpeechSettings;
@@ -139,6 +142,9 @@ export class AppSettingsManagementService {
 
     [AppSetting.OPENROUTESERVICE_API_KEY, (v, m) => (m.openRouteServiceApiKey = v)],
     [AppSetting.DEEPL_API_KEY, (v, m) => (m.deeplApiKey = v)],
+    [AppSetting.WEB_SEARCH_PROVIDER, (v, m) => (m.webSearchProvider = v)],
+    [AppSetting.WEB_SEARCH_API_KEY, (v, m) => (m.webSearchApiKey = v)],
+    [AppSetting.WEB_SEARCH_MAX_RESULTS, (v, m) => (m.webSearchMaxResults = v)],
 
     [AppSetting.ERP_IMPORT_CRON_EXPRESSION, (v, m) => (m.erpImportCronExpression = v || ErpImportScheduleDefaults.CronExpression)],
     [AppSetting.ERP_IMPORT_CRON_TIMEZONE, (v, m) => (m.erpImportCronTimeZone = v || ErpImportScheduleDefaults.CronTimeZone)],
@@ -289,6 +295,9 @@ export class AppSettingsManagementService {
   public updateConfigSettings = signal<IUpdateConfigSettings>(new UpdateConfigSettings());
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
+  public webSearchProvider = signal<string>('');
+  public webSearchApiKey = signal<string>('');
+  public webSearchMaxResults = signal<string>('');
   public erpImportCronExpression = signal<string>(ErpImportScheduleDefaults.CronExpression);
   public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
@@ -308,6 +317,9 @@ export class AppSettingsManagementService {
   private updateConfigSettingsOriginal = signal<IUpdateConfigSettings>(new UpdateConfigSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
+  private webSearchProviderOriginal = signal<string>('');
+  private webSearchApiKeyOriginal = signal<string>('');
+  private webSearchMaxResultsOriginal = signal<string>('');
   private erpImportCronExpressionOriginal = signal<string>(ErpImportScheduleDefaults.CronExpression);
   private erpImportCronTimeZoneOriginal = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
@@ -337,6 +349,9 @@ export class AppSettingsManagementService {
       this.updateConfigSettings();
       this.openRouteServiceApiKey();
       this.deeplApiKey();
+      this.webSearchProvider();
+      this.webSearchApiKey();
+      this.webSearchMaxResults();
       this.erpImportCronExpression();
       this.erpImportCronTimeZone();
       this.speechSettings();
@@ -412,6 +427,9 @@ export class AppSettingsManagementService {
       update: new UpdateConfigSettings(),
       openRouteServiceApiKey: '',
       deeplApiKey: '',
+      webSearchProvider: '',
+      webSearchApiKey: '',
+      webSearchMaxResults: '',
       erpImportCronExpression: ErpImportScheduleDefaults.CronExpression,
       erpImportCronTimeZone: ErpImportScheduleDefaults.CronTimeZone,
       speech: new SpeechSettings(),
@@ -439,6 +457,9 @@ export class AppSettingsManagementService {
     this.updateConfigSettings.set(models.update);
     this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
     this.deeplApiKey.set(models.deeplApiKey);
+    this.webSearchProvider.set(models.webSearchProvider);
+    this.webSearchApiKey.set(models.webSearchApiKey);
+    this.webSearchMaxResults.set(models.webSearchMaxResults);
     this.erpImportCronExpression.set(models.erpImportCronExpression);
     this.erpImportCronTimeZone.set(models.erpImportCronTimeZone);
     this.speechSettings.set(models.speech);
@@ -458,6 +479,9 @@ export class AppSettingsManagementService {
     this.updateConfigSettingsOriginal.set(cloneObject(models.update));
     this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
+    this.webSearchProviderOriginal.set(models.webSearchProvider);
+    this.webSearchApiKeyOriginal.set(models.webSearchApiKey);
+    this.webSearchMaxResultsOriginal.set(models.webSearchMaxResults);
     this.erpImportCronExpressionOriginal.set(models.erpImportCronExpression);
     this.erpImportCronTimeZoneOriginal.set(models.erpImportCronTimeZone);
     this.speechSettingsOriginal.set(cloneObject(models.speech));
@@ -553,6 +577,9 @@ export class AppSettingsManagementService {
 
     { key: AppSetting.OPENROUTESERVICE_API_KEY, getCurrent: () => this.openRouteServiceApiKey(), getOriginal: () => this.openRouteServiceApiKeyOriginal() },
     { key: AppSetting.DEEPL_API_KEY, getCurrent: () => this.deeplApiKey(), getOriginal: () => this.deeplApiKeyOriginal() },
+    { key: AppSetting.WEB_SEARCH_PROVIDER, getCurrent: () => this.webSearchProvider(), getOriginal: () => this.webSearchProviderOriginal() },
+    { key: AppSetting.WEB_SEARCH_API_KEY, getCurrent: () => this.webSearchApiKey(), getOriginal: () => this.webSearchApiKeyOriginal() },
+    { key: AppSetting.WEB_SEARCH_MAX_RESULTS, getCurrent: () => this.webSearchMaxResults(), getOriginal: () => this.webSearchMaxResultsOriginal() },
 
     { key: AppSetting.ERP_IMPORT_CRON_EXPRESSION, getCurrent: () => this.erpImportCronExpression(), getOriginal: () => this.erpImportCronExpressionOriginal() },
     { key: AppSetting.ERP_IMPORT_CRON_TIMEZONE, getCurrent: () => this.erpImportCronTimeZone(), getOriginal: () => this.erpImportCronTimeZoneOriginal() },
@@ -702,6 +729,9 @@ export class AppSettingsManagementService {
       this.updateConfigSettingsOriginal.set(cloneObject(this.updateConfigSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
+      this.webSearchProviderOriginal.set(this.webSearchProvider());
+      this.webSearchApiKeyOriginal.set(this.webSearchApiKey());
+      this.webSearchMaxResultsOriginal.set(this.webSearchMaxResults());
       this.erpImportCronExpressionOriginal.set(this.erpImportCronExpression());
       this.erpImportCronTimeZoneOriginal.set(this.erpImportCronTimeZone());
       this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
@@ -738,6 +768,9 @@ export class AppSettingsManagementService {
       !compareComplexObjects(this.updateConfigSettings(), this.updateConfigSettingsOriginal()) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
       this.deeplApiKey() !== this.deeplApiKeyOriginal() ||
+      this.webSearchProvider() !== this.webSearchProviderOriginal() ||
+      this.webSearchApiKey() !== this.webSearchApiKeyOriginal() ||
+      this.webSearchMaxResults() !== this.webSearchMaxResultsOriginal() ||
       this.erpImportCronExpression() !== this.erpImportCronExpressionOriginal() ||
       this.erpImportCronTimeZone() !== this.erpImportCronTimeZoneOriginal() ||
       !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal()) ||
