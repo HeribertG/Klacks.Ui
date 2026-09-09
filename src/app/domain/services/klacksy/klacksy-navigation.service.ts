@@ -14,10 +14,14 @@ import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icon
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
+import {
+  NAVIGATION_REASON_PERMISSION_DENIED,
+  NAVIGATION_REASON_TARGET_NOT_FOUND,
+} from 'src/app/domain/constants/navigation-outcome.constants';
 
 export interface NavigationResult {
   success: boolean;
-  reason?: 'target-not-found' | 'permission-denied';
+  reason?: typeof NAVIGATION_REASON_TARGET_NOT_FOUND | typeof NAVIGATION_REASON_PERMISSION_DENIED;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,14 +54,24 @@ export class KlacksyNavigationService {
   private explainScrollTimer: ReturnType<typeof setTimeout> | null = null;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
-    await this.router.navigateByUrl(route);
+    // navigateByUrl resolves false for a rejected guard, but just as well for the far more common
+    // "already on this route" skip (onSameUrlNavigation defaults to 'ignore'), and Klacksy is
+    // regularly asked to point at a spot on the page the user is already looking at. Only the
+    // router's own url tells the two apart: standing on the requested page is a success no matter
+    // what the boolean said, and the scroll must still happen.
+    const navigated = await this.router.navigateByUrl(route);
+    if (!navigated && !this.isOnRoute(route)) {
+      this.telemetry.trackTargetMiss(route, target ?? '');
+      return { success: false, reason: NAVIGATION_REASON_PERMISSION_DENIED };
+    }
+
     this.pulseNavIconForRoute(route);
     if (!target) return { success: true };
 
     const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS, target);
     if (!el) {
       this.telemetry.trackTargetMiss(route, target);
-      return { success: false, reason: 'target-not-found' };
+      return { success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND };
     }
 
     this.scrollTargetIntoView(el);
@@ -105,7 +119,7 @@ export class KlacksyNavigationService {
     const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS, target);
     if (!el) {
       this.telemetry.trackTargetMiss(this.router.url, target);
-      return { success: false, reason: 'target-not-found' };
+      return { success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND };
     }
 
     this.scrollTargetIntoView(el);
@@ -127,6 +141,14 @@ export class KlacksyNavigationService {
       KlacksyNavigationService.HIGHLIGHT_MS
     );
     return true;
+  }
+
+  private isOnRoute(route: string): boolean {
+    return this.stripQuery(this.router.url) === this.stripQuery(route);
+  }
+
+  private stripQuery(url: string): string {
+    return url.split('?')[0].split('#')[0];
   }
 
   private pulseNavIconForRoute(route: string): void {

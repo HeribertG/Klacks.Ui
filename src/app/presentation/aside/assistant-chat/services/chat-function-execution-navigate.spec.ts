@@ -18,11 +18,20 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { NavigationVerdictService } from './navigation-verdict.service';
+
+const MESSAGE_ID = 'msg_turn_1';
+const UTTERANCE = 'zeige mir die uploadfläche';
 
 describe('ChatFunctionExecutionService navigate_to chain', () => {
   let service: ChatFunctionExecutionService;
   let routerMock: { url: string; navigate: ReturnType<typeof vi.fn>; navigateByUrl: ReturnType<typeof vi.fn> };
   let klacksyNavigationMock: { highlightNavIcon: ReturnType<typeof vi.fn>; navigateAndScroll: ReturnType<typeof vi.fn> };
+  let verdictMock: {
+    apply: ReturnType<typeof vi.fn>;
+    report: ReturnType<typeof vi.fn>;
+    applySuspectedMiss: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     routerMock = {
@@ -30,6 +39,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       navigate: vi.fn().mockResolvedValue(true),
       navigateByUrl: vi.fn().mockResolvedValue(true),
     };
+    verdictMock = { apply: vi.fn(), report: vi.fn(), applySuspectedMiss: vi.fn() };
     klacksyNavigationMock = {
       highlightNavIcon: vi.fn(() => true),
       navigateAndScroll: vi.fn().mockResolvedValue({ success: true }),
@@ -46,6 +56,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
         { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn() } },
         { provide: OnboardingService, useValue: { requestTourStart: vi.fn() } },
         { provide: KlacksyNavigationService, useValue: klacksyNavigationMock },
+        { provide: NavigationVerdictService, useValue: verdictMock },
         { provide: Router, useValue: routerMock },
       ],
     });
@@ -85,6 +96,63 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       '/workplace/schedule?groupId=abc-123',
       undefined,
     );
+  });
+
+  it('hands the browser verdict to the message the turn belongs to', async () => {
+    klacksyNavigationMock.navigateAndScroll.mockResolvedValue({ success: false, reason: 'target-not-found' });
+
+    await service.executeFunctionCalls(
+      [{ functionName: 'navigate_to', parameters: { page: 'settings', target: 'erp-drop-points' } }],
+      MESSAGE_ID,
+      UTTERANCE,
+    );
+
+    expect(verdictMock.apply).toHaveBeenCalledWith(
+      MESSAGE_ID,
+      { success: false, reason: 'target-not-found' },
+      '/workplace/settings',
+      'erp-drop-points',
+      UTTERANCE,
+    );
+  });
+
+  it('reports a navigation that scrolled, so the miss rate has a denominator', async () => {
+    await service.executeFunctionCalls(
+      [{ functionName: 'navigate_to', parameters: { page: 'settings', target: 'erp-drop-points' } }],
+      MESSAGE_ID,
+    );
+
+    expect(verdictMock.apply).toHaveBeenCalledWith(
+      MESSAGE_ID,
+      { success: true },
+      '/workplace/settings',
+      'erp-drop-points',
+      undefined,
+    );
+  });
+
+  it('appends only the verdict of the last navigation when several ran in one turn', async () => {
+    await service.executeFunctionCalls(
+      [
+        { functionName: 'navigate_to', parameters: { page: 'settings', target: 'erp-drop-points' } },
+        { functionName: 'navigate_to', parameters: { page: 'shift', target: 'shift-list' } },
+      ],
+      MESSAGE_ID,
+    );
+
+    expect(verdictMock.report).toHaveBeenCalledTimes(1);
+    expect(verdictMock.report.mock.calls[0][2]).toBe('erp-drop-points');
+    expect(verdictMock.apply).toHaveBeenCalledTimes(1);
+    expect(verdictMock.apply.mock.calls[0][3]).toBe('shift-list');
+  });
+
+  it('only reports when no message id was handed in', async () => {
+    await service.executeFunctionCalls([
+      { functionName: 'navigate_to', parameters: { page: 'settings', target: 'erp-drop-points' } },
+    ]);
+
+    expect(verdictMock.apply).not.toHaveBeenCalled();
+    expect(verdictMock.report).toHaveBeenCalledTimes(1);
   });
 
   it('rejects navigation when the resolved route leaves the workplace area', async () => {

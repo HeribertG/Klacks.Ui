@@ -30,8 +30,13 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { EXPLAIN_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES } from 'src/app/domain/constants/page-explain-icons.constants';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
-import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { KlacksyNavigationService, NavigationResult } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import {
+  NAVIGATION_REASON_PERMISSION_DENIED,
+  NAVIGATION_REASON_TARGET_NOT_FOUND,
+} from 'src/app/domain/constants/navigation-outcome.constants';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
+import { NavigationVerdictService } from './navigation-verdict.service';
 
 @Injectable()
 export class ChatFunctionExecutionService {
@@ -42,12 +47,20 @@ export class ChatFunctionExecutionService {
   private onboarding = inject(OnboardingService);
   private klacksyNavigation = inject(KlacksyNavigationService);
   private assistantService = inject(DataManagementAssistantService);
+  private navigationVerdict = inject(NavigationVerdictService);
   private router = inject(Router);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
+  /**
+   * @param functionCalls - Function calls the backend reported for this turn
+   * @param assistantMessageId - Message the navigation verdict belongs to; taken as a parameter
+   *   because a proactive SignalR message can arrive before the verdict and "the last message"
+   *   would then be the wrong one
+   * @param utterance - The user message this turn answered, reported with the verdict
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async executeFunctionCalls(functionCalls: any[]): Promise<void> {
+  async executeFunctionCalls(functionCalls: any[], assistantMessageId?: string, utterance?: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uiActionCalls: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,7 +102,7 @@ export class ChatFunctionExecutionService {
       await this.executeUiActionSteps(uiActionSteps, call);
     }
 
-    for (const call of navigationCalls) {
+    for (const [index, call] of navigationCalls.entries()) {
       const functionName = call.FunctionName || call.functionName;
       const args = call.Parameters || call.parameters || {};
       const backendRoute = this.extractRouteFromResult(call.Result || call.result);
@@ -101,11 +114,13 @@ export class ChatFunctionExecutionService {
         name: backendRoute && !this.NAVIGATION_FUNCTIONS.includes(functionName) ? 'navigate_to' : functionName,
         arguments: args,
       };
+      const target = (args['target'] as string) || (args['Target'] as string) || undefined;
+      const isLastNavigation = index === navigationCalls.length - 1;
       try {
         const result = await firstValueFrom(
           this.functionExecutionService.executeFunction(functionCall)
         );
-        this.applyFunctionResult(result);
+        this.recordNavigationVerdict(result, args, target, isLastNavigation, assistantMessageId, utterance);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         this.applyFunctionError(error);
@@ -160,6 +175,47 @@ export class ChatFunctionExecutionService {
     for (const iconId of iconIds) {
       if (this.klacksyNavigation.highlightNavIcon(iconId)) return;
     }
+  }
+
+  /**
+   * Hands the browser's own verdict on one navigation to the verdict service. Only the last
+   * navigation of a turn may append a sentence - the user is looking at that page - but every one
+   * is measured.
+   * @param result - Raw function result; its error carries the navigation reason, if any
+   * @param args - Arguments the navigation ran with, used for the route when nothing navigated
+   * @param target - The data-klacksy-target that was requested
+   * @param isLastNavigation - Whether this is the navigation the user ended up on
+   */
+  private recordNavigationVerdict(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result: any,
+    args: Record<string, unknown>,
+    target: string | undefined,
+    isLastNavigation: boolean,
+    assistantMessageId?: string,
+    utterance?: string,
+  ): void {
+    const outcome = this.toNavigationResult(result);
+    const route = (result?.result?.route as string) || (args['route'] as string) || '';
+
+    if (isLastNavigation && assistantMessageId) {
+      this.navigationVerdict.apply(assistantMessageId, outcome, route, target, utterance);
+      return;
+    }
+
+    this.navigationVerdict.report(outcome, route, target, utterance);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private toNavigationResult(result: any): NavigationResult {
+    if (result?.success) return { success: true };
+
+    const error = result?.error;
+    if (error === NAVIGATION_REASON_TARGET_NOT_FOUND || error === NAVIGATION_REASON_PERMISSION_DENIED) {
+      return { success: false, reason: error };
+    }
+
+    return { success: false };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

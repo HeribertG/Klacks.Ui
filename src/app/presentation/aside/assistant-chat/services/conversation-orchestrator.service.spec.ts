@@ -24,6 +24,8 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
+const FOLLOW_UP_SENTENCE = 'Die genaue Stelle finde ich gerade nicht.';
+
 describe('ConversationOrchestratorService', () => {
   let service: ConversationOrchestratorService;
   let mockAudioCapture: {
@@ -1142,6 +1144,91 @@ describe('ConversationOrchestratorService', () => {
 
     expect(service.isAutoSpeakStreaming()).toBe(false);
     expect(mockAudioQueue.stop).toHaveBeenCalled();
+  });
+
+  // --- speakFollowUpSentence: the honest navigation correction arrives after the answer was read out ---
+
+  it('speaks a follow-up sentence in voice mode and takes the floor back', async () => {
+    await service.toggleVoiceMode();
+
+    service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).toHaveBeenCalledWith(
+      expect.objectContaining({ text: FOLLOW_UP_SENTENCE }),
+    );
+    expect(service.state()).toBe(ConversationState.Speaking);
+  });
+
+  it('lets a started user utterance win over the spoken correction', async () => {
+    service.initialize({
+      getInputText: () => '',
+      setInputText: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+    }, 'de');
+    await service.toggleVoiceMode();
+    mockSttStream.transcript$.next({ text: 'und wie war das mit', isFinal: false });
+    expect(service.state()).toBe(ConversationState.Listening);
+    expect(service.interimText()).not.toBe('');
+    mockDataTts.synthesize.mockClear();
+
+    service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).not.toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Listening);
+  });
+
+  it('speaks the correction while listening as long as the user has not started talking', async () => {
+    await service.toggleVoiceMode();
+    expect(service.interimText()).toBe('');
+
+    service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Speaking);
+  });
+
+  it('speaks the correction in auto-speak without touching the voice state machine', async () => {
+    currentSettings = { ...currentSettings, outputMode: OutputMode.BothAuto };
+    TestBed.tick();
+
+    service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Idle);
+  });
+
+  it('stays silent in text-only mode', async () => {
+    currentSettings = { ...currentSettings, outputMode: OutputMode.Text };
+    TestBed.tick();
+
+    service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).not.toHaveBeenCalled();
+  });
+
+  it('stays silent when neither voice mode nor auto-speak is on', async () => {
+    service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).not.toHaveBeenCalled();
+  });
+
+  it('ignores an empty correction', async () => {
+    await service.toggleVoiceMode();
+    mockDataTts.synthesize.mockClear();
+
+    service.speakFollowUpSentence('   ');
+    await flushPromises();
+
+    expect(mockDataTts.synthesize).not.toHaveBeenCalled();
   });
 });
 

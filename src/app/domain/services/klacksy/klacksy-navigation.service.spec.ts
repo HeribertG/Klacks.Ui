@@ -8,13 +8,13 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 describe('KlacksyNavigationService', () => {
-  let router: { navigateByUrl: ReturnType<typeof vi.fn> };
+  let router: { url: string; navigateByUrl: ReturnType<typeof vi.fn> };
   let telemetry: { trackTargetMiss: ReturnType<typeof vi.fn> };
   let eventBus: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
   let service: KlacksyNavigationService;
 
   beforeEach(() => {
-    router = { navigateByUrl: vi.fn().mockResolvedValue(true) };
+    router = { url: '/workplace/dashboard', navigateByUrl: vi.fn().mockResolvedValue(true) };
     telemetry = { trackTargetMiss: vi.fn() };
     eventBus = { emit: vi.fn(), on: vi.fn(), onAny: vi.fn() };
     TestBed.configureTestingModule({
@@ -129,6 +129,51 @@ describe('KlacksyNavigationService', () => {
     expect(result.reason).toBe('target-not-found');
     expect(telemetry.trackTargetMiss).toHaveBeenCalled();
   }, 5000);
+
+  it('reports permission-denied when a guard refuses and the browser stayed elsewhere', async () => {
+    router.navigateByUrl.mockResolvedValue(false);
+    router.url = '/workplace/dashboard';
+
+    const result = await service.navigateAndScroll('/workplace/settings', 'llm-provider');
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe('permission-denied');
+    expect(telemetry.trackTargetMiss).toHaveBeenCalled();
+  });
+
+  it('does not wait for a target when the navigation was refused', async () => {
+    router.navigateByUrl.mockResolvedValue(false);
+    router.url = '/workplace/dashboard';
+
+    const result = await service.navigateAndScroll('/workplace/settings', 'nonexistent');
+
+    expect(result.reason).toBe('permission-denied');
+  });
+
+  it('still scrolls when the router skipped the navigation because the page is already open', async () => {
+    // onSameUrlNavigation defaults to 'ignore', so navigateByUrl resolves false here - claiming a
+    // rights problem would be a fresh false statement, and the scroll would never happen.
+    router.navigateByUrl.mockResolvedValue(false);
+    router.url = '/workplace/settings';
+    const el = document.createElement('div');
+    el.setAttribute('data-klacksy-target', 'erp-drop-points');
+    el.scrollIntoView = vi.fn();
+    document.body.appendChild(el);
+
+    const result = await service.navigateAndScroll('/workplace/settings', 'erp-drop-points');
+
+    expect(result.success).toBe(true);
+    expect(el.classList.contains('klacksy-highlight')).toBe(true);
+  });
+
+  it('ignores the query string when deciding whether the page is already open', async () => {
+    router.navigateByUrl.mockResolvedValue(false);
+    router.url = '/workplace/schedule?groupId=abc-123';
+
+    const result = await service.navigateAndScroll('/workplace/schedule?groupId=abc-123');
+
+    expect(result.success).toBe(true);
+  });
 
   it('highlights an existing nav icon by id', () => {
     const icon = document.createElement('button');

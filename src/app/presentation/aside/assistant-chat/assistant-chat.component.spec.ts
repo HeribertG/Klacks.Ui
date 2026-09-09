@@ -44,6 +44,7 @@ import {
 } from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { NavigationVerdictService } from './services/navigation-verdict.service';
 import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
 import {
     WELCOME_FOCUS_ACTION,
@@ -59,6 +60,9 @@ class MockTranslatePipe implements PipeTransform {
         return value;
     }
 }
+
+const FAST_PATH_ACK_KEY = 'nav.ack.fastPath';
+const FAST_PATH_ACK_TEXT = 'Ich öffne die Seite für dich.';
 
 describe('AssistantChatComponent', () => {
     let component: AssistantChatComponent;
@@ -203,6 +207,7 @@ describe('AssistantChatComponent', () => {
             delegateCondition: vi.fn().mockReturnValue(of(void 0)),
             submitHelpfulFeedback: vi.fn().mockReturnValue(of({ found: true, trajectoryId: 'traj-1' })),
             submitCorrection: vi.fn().mockReturnValue(of({ found: true, trajectoryId: 'traj-1' })),
+            reportNavigationOutcome: vi.fn().mockReturnValue(of({ recorded: true })),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
             availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
@@ -508,6 +513,109 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
+            vi.useRealTimers();
+        });
+
+        it('shows the fast-path acknowledgement as a sentence, not as the raw i18n key', async () => {
+            // The backend streams NavigationResponseKeys.FastPathAck unresolved on purpose; before
+            // this was handled the user read "nav.ack.fastPath" verbatim.
+            const previousInstant = (mockTranslateService.instant as any).getMockImplementation();
+            (mockTranslateService.instant as any).mockImplementation((k: string) =>
+                k === FAST_PATH_ACK_KEY ? FAST_PATH_ACK_TEXT : previousInstant(k),
+            );
+            component.inputText.set('öffne die Kunden');
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent(FAST_PATH_ACK_KEY);
+                    callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            component.sendMessage();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const assistantMessage = component.orchestrator.messages().filter((m) => m.sender === 'assistant').at(-1);
+            expect(assistantMessage?.content).toContain(FAST_PATH_ACK_TEXT);
+            expect(assistantMessage?.content).not.toContain(FAST_PATH_ACK_KEY);
+            (mockTranslateService.instant as any).mockImplementation(previousInstant);
+        });
+
+        it('leaves ordinary prose untouched', async () => {
+            component.inputText.set('was ist ein Dienst?');
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Ein Dienst ist ein geplanter Einsatz.');
+                    callbacks.onMetadata({});
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            component.sendMessage();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+
+            const assistantMessage = component.orchestrator.messages().filter((m) => m.sender === 'assistant').at(-1);
+            expect(assistantMessage?.content).toContain('Ein Dienst ist ein geplanter Einsatz.');
+        });
+
+        it('evaluates the fast-path navigation result instead of discarding it', async () => {
+            vi.useFakeTimers();
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const verdict = TestBed.inject(NavigationVerdictService);
+            vi.spyOn(navigation, 'navigateAndScroll').mockResolvedValue({
+                success: false,
+                reason: 'target-not-found',
+            });
+            const applySpy = vi.spyOn(verdict, 'apply').mockImplementation(() => undefined);
+
+            component.inputText.set('zeige mir die uploadfläche');
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Ich öffne die Einstellungen.');
+                    callbacks.onMetadata({
+                        navigateTo: '/workplace/settings',
+                        target: 'erp-drop-points',
+                        actionPerformed: true,
+                    });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            component.sendMessage();
+            await vi.advanceTimersByTimeAsync(2100);
+
+            expect(applySpy).toHaveBeenCalledWith(
+                expect.any(String),
+                { success: false, reason: 'target-not-found' },
+                '/workplace/settings',
+                'erp-drop-points',
+                'zeige mir die uploadfläche',
+            );
+            vi.useRealTimers();
+        });
+
+        it('shows the correction when the server flagged a suspected miss', async () => {
+            vi.useFakeTimers();
+            const verdict = TestBed.inject(NavigationVerdictService);
+            const missSpy = vi.spyOn(verdict, 'applySuspectedMiss').mockImplementation(() => undefined);
+
+            component.inputText.set('zeige mir die uploadfläche');
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Ich öffne die Einstellungen.');
+                    callbacks.onMetadata({ missedTargetId: 'erp-drop-points' });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            component.sendMessage();
+            await vi.advanceTimersByTimeAsync(2100);
+
+            expect(missSpy).toHaveBeenCalledTimes(1);
             vi.useRealTimers();
         });
     });

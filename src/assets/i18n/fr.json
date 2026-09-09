@@ -3599,6 +3599,7 @@
   "nav.success.routed": "J'ai ouvert {{label}}.",
   "nav.fail.targetMissing": "Je ne trouve pas cette section sur la page — vérifie si tu as les droits.",
   "nav.fail.permissionDenied": "Tu n'as pas les droits pour accéder à cette section.",
+  "nav.correction.targetNotFound": "La page est ouverte, mais je ne trouve pas l’endroit exact pour l’instant — fais défiler toi-même, ou dis-moi comment il s’appelle chez toi.",
   "nav.ack.fastPath": "J'ouvre la page pour toi.",
   "nav.greeting.empty": "Oui ? Qu'est-ce que je peux faire pour toi ?",
   "nav.addresses": "Adresses",
