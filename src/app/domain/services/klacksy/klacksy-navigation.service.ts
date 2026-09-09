@@ -34,6 +34,9 @@ export class KlacksyNavigationService {
   // this timeout only fires when the target is genuinely absent. 1500 ms keeps
   // the "target-not-found" feedback snappy without breaking slow lazy routes.
   private static readonly WAIT_MS = 1500;
+  // Valid unescaped CSS id selector: letters/digits/hyphens/underscores, not starting
+  // with a digit or a lone hyphen followed by a digit.
+  private static readonly SAFE_ID_PATTERN = /^-?[A-Za-z_][A-Za-z0-9_-]*$/;
   private static readonly HIGHLIGHT_MS = 5000;
   private static readonly HIGHLIGHT_CLASS = 'klacksy-highlight';
   private static readonly ICON_HIGHLIGHT_CLASS = 'klacksy-highlight-icon';
@@ -68,7 +71,7 @@ export class KlacksyNavigationService {
     this.pulseNavIconForRoute(route);
     if (!target) return { success: true };
 
-    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS, target);
+    const el = await this.waitForElement(target, KlacksyNavigationService.WAIT_MS);
     if (!el) {
       this.telemetry.trackTargetMiss(route, target);
       return { success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND };
@@ -116,7 +119,7 @@ export class KlacksyNavigationService {
   // explanation walks through the page section by section. No layout re-anchoring here:
   // the next queued section would fight the previous target's re-anchor loop.
   async scrollToTargetOnPage(target: string): Promise<NavigationResult> {
-    const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS, target);
+    const el = await this.waitForElement(target, KlacksyNavigationService.WAIT_MS);
     if (!el) {
       this.telemetry.trackTargetMiss(this.router.url, target);
       return { success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND };
@@ -216,19 +219,49 @@ export class KlacksyNavigationService {
     }
   }
 
-  private waitForElement(selector: string, timeoutMs: number, target?: string): Promise<Element | null> {
-    if (target) {
-      this.eventBus.emit(DomainEventType.KLACKSY_TARGET_REQUESTED, { target });
-    }
+  // Knowledge docs and the UI_ELEMENT_MAP seed hand the model plain DOM ids (e.g.
+  // "erp-drop-points-upload-zone") that were never wired up as a data-klacksy-target
+  // attribute. The attribute stays authoritative when both exist; the id is only a
+  // fallback, and both are tried inside the same MutationObserver window rather than
+  // two sequential timeouts.
+  private waitForElement(target: string, timeoutMs: number): Promise<Element | null> {
+    this.eventBus.emit(DomainEventType.KLACKSY_TARGET_REQUESTED, { target });
     return new Promise((resolve) => {
-      const existing = document.querySelector(selector);
+      const existing = this.findTargetElement(target);
       if (existing) return resolve(existing);
       const observer = new MutationObserver(() => {
-        const el = document.querySelector(selector);
+        const el = this.findTargetElement(target);
         if (el) { observer.disconnect(); resolve(el); }
       });
       observer.observe(document.body, { childList: true, subtree: true });
       setTimeout(() => { observer.disconnect(); resolve(null); }, timeoutMs);
     });
+  }
+
+  private findTargetElement(target: string): Element | null {
+    return this.queryTargetAttribute(target) ?? this.queryTargetId(target);
+  }
+
+  private queryTargetAttribute(target: string): Element | null {
+    try {
+      return document.querySelector(`[data-klacksy-target="${target}"]`);
+    } catch {
+      return null;
+    }
+  }
+
+  // The target string is model- or knowledge-doc-supplied and untrusted as a selector:
+  // a leading digit, a dot or a colon would make `#${target}` throw. Real DOM ids in this
+  // codebase are plain CSS identifiers (kebab-case, no dot/colon), so requiring that shape
+  // before building the selector is both correct and simpler than CSS.escape() - which
+  // jsdom (used by the unit tests) does not implement as a global at all. The try/catch
+  // stays as a last-resort net so a malformed target is a plain miss, never a thrown error.
+  private queryTargetId(target: string): Element | null {
+    if (!KlacksyNavigationService.SAFE_ID_PATTERN.test(target)) return null;
+    try {
+      return document.querySelector(`#${target}`);
+    } catch {
+      return null;
+    }
   }
 }

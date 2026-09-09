@@ -17,7 +17,9 @@
     "wake-word-lint": "tsx tools/wake-word-lint.ts",
     "postinstall": "npm rebuild esbuild",
     "prepare": "husky",
-    "validate:synonyms": "tsx tools/validate-synonyms.ts"
+    "validate:synonyms": "tsx tools/validate-synonyms.ts",
+    "gate:synonyms": "tsx tools/synonym-gate.ts",
+    "backtranslate:synonyms": "tsx tools/backtranslate-synonyms.ts"
   },
   "private": true,
   "dependencies": {
