@@ -301,6 +301,34 @@ export class DataAssistantService {
       })
       .pipe(retry(3));
   }
+
+  /**
+   * Reports what the browser actually did with a Klacksy navigation (W0). Every outcome is sent,
+   * not only the failures: a miss rate needs a denominator, and the backend cannot reconstruct one
+   * for the fast path, which writes no usage row at all.
+   * @param request - Route, requested target and the outcome the browser observed
+   */
+  reportNavigationOutcome(
+    request: IReportNavigationOutcomeRequest,
+  ): Observable<IReportNavigationOutcomeResponse> {
+    return this.httpClient
+      .post<IReportNavigationOutcomeResponse>(`${this.baseUrl}eval/navigation-outcome`, request, {
+        context: new HttpContext().set(SKIP_LOADING, true),
+      })
+      .pipe(retry(3));
+  }
+}
+
+export interface IReportNavigationOutcomeRequest {
+  route: string;
+  target?: string;
+  outcome: string;
+  locale: string;
+  utterance?: string;
+}
+
+export interface IReportNavigationOutcomeResponse {
+  recorded: boolean;
 }
 
 export interface ISubmitCorrectionRequest {

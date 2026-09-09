@@ -16,6 +16,7 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { NavigationVerdictService } from './navigation-verdict.service';
 import {
   UI_ACTION_RESULT_EMPTY_CONFIG_ERROR,
   UI_ACTION_RESULT_STATUS_COMPLETED,
@@ -44,6 +45,7 @@ describe('ChatFunctionExecutionService UiAction report', () => {
         { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn() } },
         { provide: OnboardingService, useValue: { requestTourStart: vi.fn() } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: vi.fn(), navigateAndScroll: vi.fn() } },
+        { provide: NavigationVerdictService, useValue: { apply: vi.fn(), report: vi.fn(), applySuspectedMiss: vi.fn() } },
         { provide: Router, useValue: { url: '/workplace/dashboard' } },
       ],
     });

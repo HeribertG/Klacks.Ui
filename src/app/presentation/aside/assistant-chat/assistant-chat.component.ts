@@ -43,6 +43,11 @@ import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import {
+  NAVIGATION_CONTENT_KEY_PATTERN,
+  WORKPLACE_ROUTE_PREFIX,
+} from 'src/app/domain/constants/navigation-outcome.constants';
+import { NavigationVerdictService } from './services/navigation-verdict.service';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
@@ -151,6 +156,7 @@ export class AssistantChatComponent {
   private languageMappingService = inject(LanguageMappingService);
   private languageConfigService = inject(LanguageConfigService);
   private klacksyNavigation = inject(KlacksyNavigationService);
+  private navigationVerdict = inject(NavigationVerdictService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
@@ -309,6 +315,13 @@ export class AssistantChatComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((hint) => this.onVoiceErrorHint(hint));
 
+    this.navigationVerdict.correctionAppended$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.shouldScrollToBottom = true;
+        this.cdr.detectChanges();
+      });
+
     this.translateService.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => {
@@ -391,6 +404,21 @@ export class AssistantChatComponent {
       category = 'navigating';
     }
     return AssistantChatComponent.TOOL_STATUS_PREFIX + category;
+  }
+
+  /**
+   * Turns a navigation acknowledgement that arrived as a bare i18n key into the sentence the user
+   * should read. The backend streams NavigationResponseKeys unresolved by design ("The frontend
+   * resolves them via its translation store"), but nothing ever did - the fast path showed
+   * "nav.ack.fastPath" verbatim. Anything that is not exactly one known nav key is left untouched.
+   * @param text - One raw content chunk as it came off the SSE stream
+   */
+  private resolveNavigationContentKey(text: string): string {
+    const key = text.trim();
+    if (!NAVIGATION_CONTENT_KEY_PATTERN.test(key)) return text;
+
+    const translated = this.translateService.instant(key);
+    return translated === key ? text : translated;
   }
 
   private stripMetadataMarkers(text: string): string {
@@ -641,7 +669,8 @@ export class AssistantChatComponent {
             this.cdr.detectChanges();
           });
         },
-        onContent: (text: string) => {
+        onContent: (rawText: string) => {
+          const text = this.resolveNavigationContentKey(rawText);
           if (this.toolSteps().length > 0) {
             this.toolSteps.set([]);
             this.orchestrator.onStreamPlanningEnded();
@@ -680,13 +709,25 @@ export class AssistantChatComponent {
             }
 
             if (data.functionCalls && data.functionCalls.length > 0) {
-              this.chatFunctionExecution.executeFunctionCalls(data.functionCalls);
-            } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith('/workplace/')) {
+              this.chatFunctionExecution.executeFunctionCalls(
+                data.functionCalls,
+                assistantMessageId,
+                messageText,
+              );
+            } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith(WORKPLACE_ROUTE_PREFIX)) {
               const navigateTo = data.navigateTo;
-              const target = data.target;
+              const target = data.target || undefined;
               setTimeout(() => {
-                this.klacksyNavigation.navigateAndScroll(navigateTo, target || undefined);
+                void this.klacksyNavigation
+                  .navigateAndScroll(navigateTo, target)
+                  .then((outcome) =>
+                    this.navigationVerdict.apply(assistantMessageId, outcome, navigateTo, target, messageText),
+                  );
               }, AssistantChatComponent.FAST_PATH_NAVIGATE_DELAY_MS);
+            }
+
+            if (data.missedTargetId) {
+              this.navigationVerdict.applySuspectedMiss(assistantMessageId);
             }
 
             this.cdr.detectChanges();

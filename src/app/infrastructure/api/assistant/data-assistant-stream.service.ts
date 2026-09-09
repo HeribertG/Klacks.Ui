@@ -28,6 +28,8 @@ export interface StreamMetadata {
   suggestedReplies?: ISuggestedRepliesConfig;
   navigateTo?: string;
   target?: string;
+  /** In-page target the server's matcher expected although the model navigated without one (W0). */
+  missedTargetId?: string;
   actionPerformed?: boolean;
   functionCalls?: Record<string, unknown>[];
 }

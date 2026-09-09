@@ -3607,6 +3607,7 @@
   "nav.success.routed": "Ich habe {{label}} geöffnet.",
   "nav.fail.targetMissing": "Ich finde den Bereich auf dieser Seite nicht — prüf mal ob dir dafür Rechte fehlen.",
   "nav.fail.permissionDenied": "Für diesen Bereich hast du leider keine Berechtigung.",
+  "nav.correction.targetNotFound": "Die Seite ist offen, aber die genaue Stelle finde ich gerade nicht — scroll bitte selbst hin, oder sag mir, wie sie bei dir heisst.",
   "nav.ack.fastPath": "Ich öffne die Seite für dich.",
   "nav.greeting.empty": "Ja? Was kann ich für dich tun?",
   "nav.addresses": "Adressen",

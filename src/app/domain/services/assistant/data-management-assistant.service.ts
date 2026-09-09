@@ -14,6 +14,8 @@ import {
   ISubmitCorrectionResponse,
   ISubmitHelpfulFeedbackRequest,
   ISubmitHelpfulFeedbackResponse,
+  IReportNavigationOutcomeRequest,
+  IReportNavigationOutcomeResponse,
   IReportUiActionResultRequest,
   IReportUiActionResultResponse,
   IKlacksyModelCheckResponse,
@@ -398,6 +400,12 @@ export class DataManagementAssistantService {
     request: IReportUiActionResultRequest,
   ): Observable<IReportUiActionResultResponse> {
     return this.dataAssistantService.reportUiActionResult(request);
+  }
+
+  reportNavigationOutcome(
+    request: IReportNavigationOutcomeRequest,
+  ): Observable<IReportNavigationOutcomeResponse> {
+    return this.dataAssistantService.reportNavigationOutcome(request);
   }
 
   setProactiveReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {

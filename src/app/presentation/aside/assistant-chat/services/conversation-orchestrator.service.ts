@@ -316,6 +316,36 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   /**
+   * Speaks a single sentence that only becomes known after the stream was already read out - today
+   * the honest navigation correction (W0), whose verdict arrives up to 1500 ms late. It goes through
+   * the same synthesis chain and state machine as streamed sentences, never straight to the audio
+   * queue: in voice mode the SPEAKING state is what mutes the open microphone (half-duplex) and lets
+   * barge-in cut the sentence off.
+   * @param sentence - Already translated text; stays out of the sentence buffer
+   */
+  speakFollowUpSentence(sentence: string): void {
+    const text = sentence.trim();
+    if (!text) return;
+    if (this.outputModes.isTextOnlyMode()) return;
+    if (!this.voiceModeEnabled() && !this.isAutoSpeakMode()) return;
+
+    // The verdict can land up to 1500 ms after the answer was read out, by which time voice mode is
+    // listening again. Forcing SPEAKING then would drop what the user is currently saying, because
+    // audio only reaches STT while LISTENING - a started utterance wins over the spoken correction,
+    // which the user still reads on screen.
+    if (this.voiceModeEnabled() && this.state() === ConversationState.Listening && this.interimText()) {
+      return;
+    }
+
+    this.pendingSentences.push(text);
+    this.synthesisChain = this.synthesisChain.then(() => this.synthesizeAndEnqueue(text));
+
+    if (this.voiceModeEnabled()) {
+      this.state.set(ConversationState.Speaking);
+    }
+  }
+
+  /**
    * Whether the current stream was spoken sentence-by-sentence in auto-speak
    * (text mode with BothAuto output), so callers can skip the whole-message TTS fallback.
    * Stays true after playback ends and resets when the next stream starts via stopAutoSpeak.

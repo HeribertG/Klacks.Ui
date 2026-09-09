@@ -13,6 +13,10 @@ import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { KLACKSY_PAGE_KEYS_BY_KEY } from 'src/app/domain/constants/klacksy-page-keys';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import {
+  NAVIGATION_ROUTE_NOT_ALLOWED_ERROR,
+  WORKPLACE_ROUTE_PREFIX,
+} from 'src/app/domain/constants/navigation-outcome.constants';
 
 @Injectable()
 export class AssistantFunctionExecutionService {
@@ -33,8 +37,6 @@ export class AssistantFunctionExecutionService {
         return this.executeBackendFunction(functionCall);
     }
   }
-
-  private static readonly ALLOWED_ROUTE_PREFIX = '/workplace/';
 
   private executeNavigate(
     call: IAssistantFunctionCall
@@ -63,8 +65,8 @@ export class AssistantFunctionExecutionService {
         route += `/${entityId}`;
       }
 
-      if (!route.startsWith(AssistantFunctionExecutionService.ALLOWED_ROUTE_PREFIX)) {
-        return of({ id: call.id, success: false, error: 'Navigation target not allowed' });
+      if (!route.startsWith(WORKPLACE_ROUTE_PREFIX)) {
+        return of({ id: call.id, success: false, error: NAVIGATION_ROUTE_NOT_ALLOWED_ERROR });
       }
 
       const queryString = new URLSearchParams(

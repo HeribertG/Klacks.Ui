@@ -17,6 +17,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { NavigationVerdictService } from './navigation-verdict.service';
 import { ONBOARDING_NAV_ICON, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import {
   EXPLAIN_PAGE_SKILL_PREFIX,
@@ -49,6 +50,7 @@ describe('ChatFunctionExecutionService', () => {
         { provide: EVENT_BUS_TOKEN, useValue: { emit: mockEmit } },
         { provide: OnboardingService, useValue: { requestTourStart: mockRequestTourStart } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: mockHighlightNavIcon, navigateAndScroll: mockNavigateAndScroll } },
+        { provide: NavigationVerdictService, useValue: { apply: vi.fn(), report: vi.fn(), applySuspectedMiss: vi.fn() } },
         { provide: Router, useValue: routerMock },
       ],
     });
