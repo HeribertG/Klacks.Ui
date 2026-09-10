@@ -1,5 +1,7 @@
-# Build stage — Angular 22 / Node 22 LTS
-FROM node:22-alpine AS build
+# Build stage — Angular 22 / Node 22 LTS.
+# Pinned to $BUILDPLATFORM: the Angular bundle is platform-independent, so npm ci and ng build run
+# natively on the CI host instead of under QEMU. The emulated arm64 npm ci hung for six hours on the
+# v1.0.26 release build (2026-09-06); only the nginx stage below needs to be multi-arch.
 WORKDIR /app
 
 # Copy package files
@@ -28,4 +30,4 @@ COPY --from=build /app/dist/klacks.ui/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
