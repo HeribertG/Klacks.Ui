@@ -20,7 +20,10 @@
  * Modes: default run generates pending core-locale targets (+ plugin overlays); --dry-run prints
  * the finished prompts for a few example targets to the console without calling any API or
  * writing any file; --plugins-only fills missing plugin overlays only; --core-only skips plugin
- * locales; --force regenerates even already-generated pairs.
+ * locales; --force regenerates even already-generated pairs; --regenerate re-creates the core
+ * synonyms of the (non-reviewed) targets listed in SYNONYM_ONLY_TARGETS. SYNONYM_ONLY_LOCALES
+ * restricts both core and plugin locales. A failed or empty model answer never overwrites
+ * existing synonyms.
  * Resume: tools/generate-synonyms-progress.json records every (targetId, locale) pair that has
  * already been written to disk, so a restarted run skips completed pairs instead of repeating
  * LLM calls (see loadProgress/markDone/isDone). All writes to the manifest, plugin overlays and
@@ -231,20 +234,30 @@ const genericWordIndexCache = new Map<string, GenericWordIndex>();
  * text) matters: a denylist built from German strings ("Abbrechen") would silently fail to match
  * the same chrome once it is legitimately shown in Japanese ("キャンセル"), so it must be
  * recomputed per locale from what the model will actually see.
+ * Label, headline and section headline are counted too: a section headline shared by nine targets
+ * ("Compliance & Zuschlagsregeln") otherwise entered every one of their anchors at the top priority,
+ * and the model turned it into phrases ("zuschläge") that point at the wrong target.
  */
 function getGenericWordIndex(locale: string, manifest: TargetEntry[], anchorsById: Map<string, AnchorEntry>): GenericWordIndex {
   const cached = genericWordIndexCache.get(locale);
   if (cached) return cached;
 
   const translations = getTranslations(locale);
+  const germanReverseIndex = getGermanReverseIndex();
   const targetCountByText = new Map<string, number>();
   for (const t of manifest) {
     if (t.obsolete) continue;
     const entry = anchorsById.get(t.targetId);
     if (!entry) continue;
     const seenInTarget = new Set<string>();
-    for (const v of entry.visibleTexts) {
-      const resolved = (translations[v.key] ?? v.text).trim().toLowerCase();
+    const unkeyedTexts = [
+      rawFromLabel(t, { ...entry, visibleTexts: [] }, translations, germanReverseIndex)?.text,
+      rawFromUnkeyedField(entry.headline, [], translations, germanReverseIndex)?.text,
+      rawFromUnkeyedField(entry.sectionHeadline, [], translations, germanReverseIndex)?.text,
+    ];
+    const texts = [...unkeyedTexts, ...entry.visibleTexts.map(v => translations[v.key] ?? v.text)];
+    for (const text of texts) {
+      const resolved = (text ?? '').trim().toLowerCase();
       if (!resolved || seenInTarget.has(resolved)) continue;
       seenInTarget.add(resolved);
       targetCountByText.set(resolved, (targetCountByText.get(resolved) ?? 0) + 1);
@@ -550,10 +563,27 @@ function buildPrompt(target: TargetEntry, locale: string, label: string, anchor:
     `Task: write ${PHRASES_PER_TARGET} short noun phrases (bare keywords, not sentences) a native ${locale} speaker would naturally type or say to jump to this target.`,
     brevity,
     'Rules: no imperative verbs ("open", "navigate to", "show me" or their translations), no politeness prefixes ("please", "bitte"), no leading articles — the app strips these before matching anyway. Lowercase where the script has case. No duplicates, no markdown, EXCLUDE the bot name "klacksy" and any of its variants.',
+    'Every phrase must name THIS target itself. The on-screen text also lists the fields inside the card; a field that names a separate feature (a mode, a rule set, a neighbouring card) is context, not a name for this target — a user typing that word wants the other feature. Never use the wording of a single field, column or option as a phrase unless it is the main subject of the card.',
     antiBleed,
     `Write every phrase in the natural native script and orthography of ${locale} (e.g. Japanese uses the normal Kanji/Hiragana/Katakana mix, Chinese uses Hanzi, Korean uses Hangul) — never romanized or transliterated text.`,
     'Output a strict JSON array of strings, nothing else.',
   ].filter(Boolean).join(' ');
+}
+
+/**
+ * JSON mode forces the model to answer with an object, and it picks the property name itself
+ * ("synonyms", "phrases", "keywords", ...). Takes the known names first, then the first array
+ * of strings found at the top level, so an unexpected name yields phrases instead of an empty list.
+ * @param parsed - The parsed message content of the model's answer
+ */
+function extractPhraseArray(parsed: unknown): string[] {
+  if (Array.isArray(parsed)) return parsed;
+  if (!parsed || typeof parsed !== 'object') return [];
+  const record = parsed as Record<string, unknown>;
+  const known = record['synonyms'] ?? record['phrases'];
+  if (Array.isArray(known)) return known;
+  const firstArray = Object.values(record).find(v => Array.isArray(v) && v.every(item => typeof item === 'string'));
+  return (firstArray as string[] | undefined) ?? [];
 }
 
 async function callLlm(target: TargetEntry, locale: string, label: string, anchor: MeaningAnchor): Promise<string[]> {
@@ -572,8 +602,7 @@ async function callLlm(target: TargetEntry, locale: string, label: string, ancho
       if (!res.ok) throw new Error(`LLM ${res.status}`);
       const data = await res.json() as { choices: { message: { content: string } }[] };
       const content = data.choices[0].message.content;
-      const parsed = JSON.parse(content);
-      const arr: string[] = Array.isArray(parsed) ? parsed : (parsed.synonyms ?? parsed.phrases ?? []);
+      const arr = extractPhraseArray(JSON.parse(content));
       const unique = [...new Set(arr.map(s => String(s).toLowerCase().trim()).filter(Boolean))];
       return unique.slice(0, PHRASES_PER_TARGET);
     } catch (e) {
@@ -592,7 +621,22 @@ const PLUGINS_ONLY = process.env.SYNONYM_PLUGINS_ONLY === '1' || process.argv.in
 const ONLY_LOCALES = (process.env.SYNONYM_ONLY_LOCALES ?? '').split(',').map(s => s.trim()).filter(Boolean);
 const ONLY_TARGETS = (process.env.SYNONYM_ONLY_TARGETS ?? '').split(',').map(s => s.trim()).filter(Boolean);
 const ACTIVE_PLUGIN_LOCALES = ONLY_LOCALES.length ? PLUGIN_LOCALES.filter(l => ONLY_LOCALES.includes(l)) : PLUGIN_LOCALES;
+const ACTIVE_CORE_LOCALES = ONLY_LOCALES.length ? CORE_LOCALES.filter(l => ONLY_LOCALES.includes(l)) : CORE_LOCALES;
 const FORCE = process.env.SYNONYM_FORCE === '1' || process.argv.includes('--force');
+const REGENERATE = process.argv.includes('--regenerate');
+const REVIEWED_STATUS = 'reviewed';
+const PENDING_STATUS = 'pending';
+
+/**
+ * Core-mode target selection. Pending targets always qualify. --regenerate additionally re-creates
+ * the targets named in SYNONYM_ONLY_TARGETS even when already generated — but never a reviewed
+ * target, whose synonyms are hand-checked and must not be overwritten by a model.
+ * @param t - Manifest entry to check
+ */
+function isCoreCandidate(t: TargetEntry): boolean {
+  if (t.synonymStatus === PENDING_STATUS) return true;
+  return REGENERATE && ONLY_TARGETS.includes(t.targetId) && t.synonymStatus !== REVIEWED_STATUS;
+}
 const DRY_RUN = process.argv.includes('--dry-run');
 
 /**
@@ -818,8 +862,8 @@ async function run(): Promise<void> {
       const calls = await generatePluginsForTarget(t, label, anchorEntry, knowledgeVocab, manifest, anchorsById, FORCE, progress);
       if (calls > 0) processed++;
     } else {
-      if (t.synonymStatus !== 'pending') continue;
-      for (const loc of CORE_LOCALES) {
+      if (!isCoreCandidate(t)) continue;
+      for (const loc of ACTIVE_CORE_LOCALES) {
         const resumable = isDone(progress, t.targetId, loc) && (t.synonyms[loc]?.length ?? 0) > 0;
         if (!FORCE && resumable) {
           console.log(`= ${t.targetId} / ${loc} (skip, already generated this run)`);
@@ -828,7 +872,18 @@ async function run(): Promise<void> {
         const anchor = buildMeaningAnchor(t, anchorEntry, knowledgeVocab, loc, getTranslations(loc), getGenericWordIndex(loc, manifest, anchorsById));
         if (anchor.usedLegacyFallback) console.warn(`[generate-synonyms] ${t.targetId}/${loc}: no visible-text anchor recorded, using legacy synonym fallback`);
         console.log(`→ ${t.targetId} / ${loc}`);
-        t.synonyms[loc] = await callLlm(t, loc, label, anchor);
+        let generated: string[];
+        try {
+          generated = await callLlm(t, loc, label, anchor);
+        } catch (e) {
+          console.error(`  ✗ skipped ${t.targetId}/${loc}, existing synonyms kept: ${e}`);
+          continue;
+        }
+        if (!generated.length) {
+          console.error(`  ✗ empty result ${t.targetId}/${loc}, existing synonyms kept`);
+          continue;
+        }
+        t.synonyms[loc] = generated;
         writeJsonAtomic(MANIFEST, manifest);
         markDone(progress, t.targetId, loc);
         await sleep(200);
@@ -844,7 +899,53 @@ async function run(): Promise<void> {
       processed++;
     }
   }
+  if (REGENERATE) {
+    const regeneratedIds = new Set(manifest.filter(t => !t.obsolete && ONLY_TARGETS.includes(t.targetId) && t.synonymStatus !== REVIEWED_STATUS).map(t => t.targetId));
+    for (const loc of ACTIVE_CORE_LOCALES) {
+      const removed = resolveRegeneratedCollisions(manifest, loc, regeneratedIds);
+      console.log(`[generate-synonyms] ${loc}: removed ${removed} colliding phrase(s) from regenerated targets.`);
+    }
+    writeJsonAtomic(MANIFEST, manifest);
+  }
   console.log(`Done. Processed ${processed} targets.`);
+}
+
+/**
+ * Exact-phrase collisions after a --regenerate run. A phrase that a target outside the regenerated
+ * set already owns (reviewed or hand-curated) stays there and is removed from the regenerated
+ * target only — the synonym gate would drop BOTH sides, including the correct reviewed owner.
+ * A phrase shared by two or more regenerated targets is genuinely ambiguous and is removed from all
+ * of them. Never adds anything; a target may end up with fewer phrases, which is safe (a missing
+ * phrase falls into the LLM path, a wrong one jumps with score 1.0).
+ * @param manifest - Core manifest, modified in place
+ * @param locale - Core locale to reconcile
+ * @param regeneratedIds - Target ids re-created in this run
+ * @returns Number of phrases removed
+ */
+function resolveRegeneratedCollisions(manifest: TargetEntry[], locale: string, regeneratedIds: Set<string>): number {
+  const ownersByPhrase = new Map<string, Set<string>>();
+  for (const t of manifest) {
+    if (t.obsolete) continue;
+    for (const phrase of t.synonyms[locale] ?? []) {
+      const key = phrase.trim().toLowerCase();
+      if (!ownersByPhrase.has(key)) ownersByPhrase.set(key, new Set());
+      ownersByPhrase.get(key)!.add(t.targetId);
+    }
+  }
+
+  let removed = 0;
+  for (const t of manifest) {
+    if (t.obsolete || !regeneratedIds.has(t.targetId)) continue;
+    const before = t.synonyms[locale] ?? [];
+    const kept = before.filter(phrase => (ownersByPhrase.get(phrase.trim().toLowerCase())?.size ?? 0) <= 1);
+    const dropped = before.filter(phrase => !kept.includes(phrase));
+    if (dropped.length) {
+      console.log(`  collision ${t.targetId}/${locale}: removed ${dropped.join(', ')}`);
+      t.synonyms[locale] = kept;
+      removed += dropped.length;
+    }
+  }
+  return removed;
 }
 
 if (DRY_RUN) {

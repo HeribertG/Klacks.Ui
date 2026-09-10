@@ -318,7 +318,13 @@ function wakeWordViolation(targetId: string, phrase: string, badWords: string[])
   return badWords.some(w => lower.includes(w));
 }
 
-function genericViolation(groups: GenericGroup[], locale: string, targetId: string, phrase: string, translations: Map<string, Record<string, string>>): boolean {
+/**
+ * A phrase is generic when it equals the route/category slug of a group the target belongs to, or
+ * the label of ANOTHER member of that group. The target's own label is exempt: a group collects the
+ * labels of all its members, so without the exemption every settings card lost its own name.
+ * @param ownLabelKey - labelKey of the target the phrase belongs to
+ */
+function genericViolation(groups: GenericGroup[], locale: string, targetId: string, ownLabelKey: string, phrase: string, translations: Map<string, Record<string, string>>): boolean {
   const key = normKey(phrase);
   for (const g of groups) {
     if (!g.memberTargetIds.has(targetId)) continue;
@@ -326,6 +332,7 @@ function genericViolation(groups: GenericGroup[], locale: string, targetId: stri
     const localeTranslations = translations.get(locale);
     if (!localeTranslations) continue;
     for (const lk of g.labelKeys) {
+      if (lk === ownLabelKey) continue;
       const resolved = localeTranslations[lk];
       if (resolved && key === normKey(resolved)) return true;
     }
@@ -438,6 +445,7 @@ function run(): void {
   }
 
   const activeTargetIds = new Set(activeTargets.map(t => t.targetId));
+  const labelKeyById = new Map(activeTargets.map(t => [t.targetId, t.labelKey ?? '']));
   const pairs = collectPairs(activeTargets, overlays).filter(p => activeTargetIds.has(p.targetId));
 
   const rejections: Rejection[] = [];
@@ -477,7 +485,7 @@ function run(): void {
       if (sentenceViolation(locale, phrase, prefixesByLocale[locale] ?? [])) violated.push('full-sentence');
       if (wakeWordViolation(targetId, phrase, badWords)) violated.push('wake-word');
       if (lengthViolation(locale, phrase)) violated.push('length');
-      if (genericViolation(genericGroups, locale, targetId, phrase, translationsByLocale)) violated.push('generic-lock');
+      if (genericViolation(genericGroups, locale, targetId, labelKeyById.get(targetId) ?? '', phrase, translationsByLocale)) violated.push('generic-lock');
 
       if (violated.length) {
         rejections.push({ targetId, locale, phrase, checks: violated });
