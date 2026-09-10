@@ -45,6 +45,43 @@ describe('KlacksyNavigationService', () => {
     expect(el.classList.contains('klacksy-highlight')).toBe(true);
   });
 
+  it('falls back to a DOM id when no data-klacksy-target attribute matches', async () => {
+    const el = document.createElement('div');
+    el.id = 'erp-drop-points-upload-zone';
+    el.scrollIntoView = vi.fn();
+    document.body.appendChild(el);
+
+    const result = await service.navigateAndScroll('/settings', 'erp-drop-points-upload-zone');
+
+    expect(result.success).toBe(true);
+    expect(el.classList.contains('klacksy-highlight')).toBe(true);
+  });
+
+  it('prefers the data-klacksy-target attribute over a same-named DOM id', async () => {
+    const byId = document.createElement('div');
+    byId.id = 'duplicate-target';
+    byId.scrollIntoView = vi.fn();
+    document.body.appendChild(byId);
+
+    const byAttribute = document.createElement('div');
+    byAttribute.setAttribute('data-klacksy-target', 'duplicate-target');
+    byAttribute.scrollIntoView = vi.fn();
+    document.body.appendChild(byAttribute);
+
+    await service.navigateAndScroll('/settings', 'duplicate-target');
+
+    expect(byAttribute.classList.contains('klacksy-highlight')).toBe(true);
+    expect(byId.classList.contains('klacksy-highlight')).toBe(false);
+  });
+
+  it('does not throw and reports target-not-found for a target that would be an invalid #id selector', async () => {
+    const result = await service.navigateAndScroll('/settings', '123.invalid:target');
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe('target-not-found');
+    expect(telemetry.trackTargetMiss).toHaveBeenCalledWith('/settings', '123.invalid:target');
+  }, 5000);
+
   it('never scrolls an overflow:hidden shell ancestor when a nested scroll container exists', async () => {
     // Mirrors the real app shell: #main_container (overflow:hidden, holds the
     // fixed header/footer) wrapping app-main's own overflow:auto content area.

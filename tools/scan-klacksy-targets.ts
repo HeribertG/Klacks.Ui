@@ -56,6 +56,21 @@ const SKILL_SEEDS_NAVIGATE_DESCRIPTION_REGENERATE_MARKER = '[[regenerate]]';
 const PAGE_LEVEL_CATEGORY = 'page';
 const ROUTE_LEVEL_LABEL_KEY_PREFIX = 'nav.';
 
+// The in-page target list used to be hand-maintained inside skill-seeds.json and drifted: 52 of the
+// scanned in-page targets were missing from it, so the model could not name them at all. It is
+// generated from the manifest now; the wording around the list is kept stable on purpose.
+const TARGET_PARAM_DESCRIPTION_HEAD =
+  'Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even ' +
+  'when already there. Shared prefixes shown as prefix-{a,b,c}. By page: ';
+const TARGET_PARAM_DESCRIPTION_TAIL =
+  '. These are internal routing keys, not display names — never state one to the user, not even in ' +
+  'parentheses next to a translated label; describe the destination in plain business language instead.';
+const TARGET_ID_PREFIX_SEPARATOR = '-';
+const TARGET_PREFIX_MIN_GROUP_SIZE = 2;
+const PAGE_LABEL_SEPARATOR = '/';
+const TARGET_LIST_SEPARATOR = ',';
+const PAGE_SEGMENT_SEPARATOR = '; ';
+
 function readPageKeys(): KlacksyPageKeyEntry[] {
   if (!existsSync(PAGE_KEYS_FILE)) {
     throw new Error(`Page-keys source not found: ${PAGE_KEYS_FILE}`);
@@ -104,7 +119,66 @@ function buildSkillParameterDescription(pageKeys: KlacksyPageKeyEntry[]): string
   return `The page to navigate to. ${hintParts.join('; ')}.`;
 }
 
-function syncSkillSeed(pageKeys: KlacksyPageKeyEntry[]): void {
+function compressSharedPrefixes(targetIds: string[]): string {
+  const grouped = new Map<string, string[]>();
+  const standalone: string[] = [];
+  for (const id of targetIds) {
+    const separatorIndex = id.indexOf(TARGET_ID_PREFIX_SEPARATOR);
+    if (separatorIndex <= 0) {
+      standalone.push(id);
+      continue;
+    }
+    const prefix = id.slice(0, separatorIndex);
+    const remainder = id.slice(separatorIndex + TARGET_ID_PREFIX_SEPARATOR.length);
+    const siblings = grouped.get(prefix) ?? [];
+    siblings.push(remainder);
+    grouped.set(prefix, siblings);
+  }
+
+  const parts = [...standalone];
+  for (const [prefix, remainders] of grouped) {
+    if (remainders.length < TARGET_PREFIX_MIN_GROUP_SIZE) {
+      parts.push(`${prefix}${TARGET_ID_PREFIX_SEPARATOR}${remainders[0]}`);
+      continue;
+    }
+    parts.push(`${prefix}${TARGET_ID_PREFIX_SEPARATOR}{${remainders.sort().join(TARGET_LIST_SEPARATOR)}}`);
+  }
+  return parts.sort().join(TARGET_LIST_SEPARATOR);
+}
+
+function buildTargetParameterDescription(
+  pageKeys: KlacksyPageKeyEntry[],
+  targets: TargetEntry[],
+): string {
+  const pageKeysByRoute = new Map<string, string[]>();
+  for (const pk of pageKeys) {
+    const keys = pageKeysByRoute.get(pk.route) ?? [];
+    keys.push(pk.pageKey);
+    pageKeysByRoute.set(pk.route, keys);
+  }
+
+  const inPageByRoute = new Map<string, string[]>();
+  for (const target of targets) {
+    if (target.obsolete) continue;
+    if (target.category === PAGE_LEVEL_CATEGORY) continue;
+    if (!target.route) continue;
+    const ids = inPageByRoute.get(target.route) ?? [];
+    ids.push(target.targetId);
+    inPageByRoute.set(target.route, ids);
+  }
+
+  const segments: string[] = [];
+  const routes = Array.from(inPageByRoute.keys()).sort((a, b) => a.localeCompare(b));
+  for (const route of routes) {
+    const label = (pageKeysByRoute.get(route) ?? [route]).join(PAGE_LABEL_SEPARATOR);
+    const ids = (inPageByRoute.get(route) ?? []).slice().sort((a, b) => a.localeCompare(b));
+    segments.push(`${label}: ${compressSharedPrefixes(ids)}`);
+  }
+
+  return TARGET_PARAM_DESCRIPTION_HEAD + segments.join(PAGE_SEGMENT_SEPARATOR) + TARGET_PARAM_DESCRIPTION_TAIL;
+}
+
+function syncSkillSeed(pageKeys: KlacksyPageKeyEntry[], targets: TargetEntry[]): void {
   if (!existsSync(SKILL_SEEDS_PATH)) {
     console.log(`  skill-seeds.json not found, skipping skill seed sync.`);
     return;
@@ -138,6 +212,13 @@ function syncSkillSeed(pageKeys: KlacksyPageKeyEntry[]): void {
   if (pageParam) {
     pageParam.enumValues = newEnumValues;
     pageParam.description = newParamDescription;
+  }
+
+  // Deliberately NOT an enumValues list: target is only valid relative to the resolved route, so a
+  // flat global enum would authorise cross-page values. NavigateToSkill validates it server-side.
+  const targetParam = navigateTo.parameters?.find((p: any) => p?.name === 'target');
+  if (targetParam) {
+    targetParam.description = buildTargetParameterDescription(pageKeys, targets);
   }
 
   // Byte-compare instead of tracking a `changed` flag field-by-field, so a second, no-op run of
@@ -291,7 +372,7 @@ async function scan(): Promise<void> {
   }
 
   // Step 5: sync the navigate_to skill seed so description and enum stay in lock-step.
-  syncSkillSeed(pageKeys);
+  syncSkillSeed(pageKeys, targetsOutput);
 
   const orphanCount = targetsOutput.filter((t) => !t.sourceFile.startsWith('src/app/domain/constants/') && !files.includes(t.sourceFile)).length;
   console.log(
