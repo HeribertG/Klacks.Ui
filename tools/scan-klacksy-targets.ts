@@ -441,6 +441,11 @@ function ensureDir(dir: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
+// Templates outside every routed page (header, assistant-chat aside) belong to the app shell. They get
+// the global route, which the frontend never navigates to (see KLACKSY_GLOBAL_TARGET_ROUTE): it
+// redirects to the login screen, and the element is on screen on every page anyway.
+const GLOBAL_TARGET_ROUTE = '/';
+
 function routeFromTemplatePath(templateFile: string, pageKeys: KlacksyPageKeyEntry[]): string {
   // Map presentation/workplace/<segment>/... templates to the canonical route by
   // matching the deepest folder name against a page-key entry's last route segment.
@@ -451,7 +456,7 @@ function routeFromTemplatePath(templateFile: string, pageKeys: KlacksyPageKeyEnt
     const hit = pageKeys.find((pk) => pk.route.endsWith('/' + segment));
     if (hit) return hit.route;
   }
-  return '/';
+  return GLOBAL_TARGET_ROUTE;
 }
 
 scan().catch((err) => {

@@ -3,7 +3,8 @@
 /**
  * Klacksy navigation + in-page scroll service. Also pulses main-nav icons so Klacksy
  * can show the user which icon opens a page (highlightNavIcon); every navigateAndScroll
- * pulses the destination page's nav icon as a side effect.
+ * pulses the destination page's nav icon as a side effect. Shell targets on the global route
+ * (KLACKSY_GLOBAL_TARGET_ROUTE) are highlighted in place, without any navigation.
  * @param route - destination Angular route
  * @param target - optional data-klacksy-target ID
  * @param elementId - DOM id of a main-nav icon (e.g. 'open-settings')
@@ -18,6 +19,7 @@ import {
   NAVIGATION_REASON_PERMISSION_DENIED,
   NAVIGATION_REASON_TARGET_NOT_FOUND,
 } from 'src/app/domain/constants/navigation-outcome.constants';
+import { KLACKSY_GLOBAL_TARGET_ROUTE } from 'src/app/domain/constants/klacksy-global-target.constants';
 
 export interface NavigationResult {
   success: boolean;
@@ -40,6 +42,7 @@ export class KlacksyNavigationService {
   private static readonly HIGHLIGHT_MS = 5000;
   private static readonly HIGHLIGHT_CLASS = 'klacksy-highlight';
   private static readonly ICON_HIGHLIGHT_CLASS = 'klacksy-highlight-icon';
+  private static readonly FOCUSABLE_SELECTOR = 'input, select, textarea, button, [tabindex]:not([tabindex="-1"])';
   // Async sibling cards (settings sections, contracts/groups/qualifications/notes)
   // keep growing the scroll container long after the target marker exists in the
   // DOM, and response bursts are separated by quiet gaps — so any "wait until the
@@ -57,6 +60,10 @@ export class KlacksyNavigationService {
   private explainScrollTimer: ReturnType<typeof setTimeout> | null = null;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
+    if (route === KLACKSY_GLOBAL_TARGET_ROUTE) {
+      return target ? this.highlightGlobalTarget(target) : { success: true };
+    }
+
     // navigateByUrl resolves false for a rejected guard, but just as well for the far more common
     // "already on this route" skip (onSameUrlNavigation defaults to 'ignore'), and Klacksy is
     // regularly asked to point at a spot on the page the user is already looking at. Only the
@@ -81,9 +88,25 @@ export class KlacksyNavigationService {
     el.classList.add('klacksy-highlight');
     setTimeout(() => el.classList.remove('klacksy-highlight'), KlacksyNavigationService.HIGHLIGHT_MS);
 
-    const focusable = el.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+    const focusable = el.querySelector<HTMLElement>(KlacksyNavigationService.FOCUSABLE_SELECTOR);
     focusable?.focus({ preventScroll: true });
     void this.keepAnchoredWhileLayoutGrows(el);
+    return { success: true };
+  }
+
+  // Shell targets (header search, assistant-chat panels) are on screen on every page, so the
+  // user stays where they are; the element is only highlighted and focused.
+  private async highlightGlobalTarget(target: string): Promise<NavigationResult> {
+    const el = await this.waitForElement(target, KlacksyNavigationService.WAIT_MS);
+    if (!el) {
+      this.telemetry.trackTargetMiss(this.router.url, target);
+      return { success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND };
+    }
+
+    this.scrollTargetIntoView(el);
+    el.classList.add(KlacksyNavigationService.HIGHLIGHT_CLASS);
+    setTimeout(() => el.classList.remove(KlacksyNavigationService.HIGHLIGHT_CLASS), KlacksyNavigationService.HIGHLIGHT_MS);
+    el.querySelector<HTMLElement>(KlacksyNavigationService.FOCUSABLE_SELECTOR)?.focus({ preventScroll: true });
     return { success: true };
   }
 

@@ -35,6 +35,38 @@ describe('KlacksyNavigationService', () => {
     expect(result.success).toBe(true);
   });
 
+  it('does not navigate for a shell target on the global route, it only highlights it', async () => {
+    const input = document.createElement('input');
+    const el = document.createElement('div');
+    el.setAttribute('data-klacksy-target', 'header-search');
+    el.scrollIntoView = vi.fn();
+    el.appendChild(input);
+    document.body.appendChild(el);
+
+    const result = await service.navigateAndScroll('/', 'header-search');
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(result.success).toBe(true);
+    expect(el.classList.contains('klacksy-highlight')).toBe(true);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('reports target-not-found for a missing shell target without navigating', async () => {
+    const result = await service.navigateAndScroll('/', 'plan-execution-panel');
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe('target-not-found');
+    expect(telemetry.trackTargetMiss).toHaveBeenCalledWith('/workplace/dashboard', 'plan-execution-panel');
+  });
+
+  it('stays put for the global route without a target', async () => {
+    const result = await service.navigateAndScroll('/');
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(result.success).toBe(true);
+  });
+
   it('scrolls to target when element exists', async () => {
     const el = document.createElement('div');
     el.setAttribute('data-klacksy-target', 'llm-provider');

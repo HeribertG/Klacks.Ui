@@ -662,20 +662,6 @@ function isCoreCandidate(t: TargetEntry): boolean {
   if (t.synonymStatus === PENDING_STATUS) return true;
   return REGENERATE && ONLY_TARGETS.includes(t.targetId) && t.synonymStatus !== REVIEWED_STATUS;
 }
-
-const ROOT_ROUTE = '/';
-
-/**
- * A target on the root route has no page of its own (header search, chat-side panels). The
- * fast path navigates to the target's route before highlighting it, so a synonym hit on such a
- * target takes the user away from the page they are on. Until that navigation is changed, a root
- * target that has no synonyms yet is held back instead of being handed to the model; the ones
- * that already carry synonyms are left alone.
- * @param t - Manifest entry to check
- */
-function isHeldBackRootTarget(t: TargetEntry): boolean {
-  return t.route === ROOT_ROUTE && Object.values(t.synonyms ?? {}).every(list => list.length === 0);
-}
 const DRY_RUN = process.argv.includes('--dry-run');
 
 /**
@@ -940,12 +926,7 @@ async function run(): Promise<void> {
     console.log(`[generate-synonyms] Pruned ${pruned} stale overlay target(s).`);
   }
 
-  const requested = manifest.filter(t => !t.obsolete && (!ONLY_TARGETS.length || ONLY_TARGETS.includes(t.targetId)));
-  const heldBack = requested.filter(isHeldBackRootTarget);
-  if (heldBack.length) {
-    console.log(`[generate-synonyms] Held back ${heldBack.length} root-route target(s) without synonyms: ${heldBack.map(t => t.targetId).join(', ')}`);
-  }
-  const selected = requested.filter(t => !isHeldBackRootTarget(t));
+  const selected = manifest.filter(t => !t.obsolete && (!ONLY_TARGETS.length || ONLY_TARGETS.includes(t.targetId)));
   let processed = 0;
 
   if (PLUGINS_ONLY) {
