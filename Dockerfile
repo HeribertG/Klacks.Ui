@@ -2,6 +2,7 @@
 # Pinned to $BUILDPLATFORM: the Angular bundle is platform-independent, so npm ci and ng build run
 # natively on the CI host instead of under QEMU. The emulated arm64 npm ci hung for six hours on the
 # v1.0.26 release build (2026-09-06); only the nginx stage below needs to be multi-arch.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 WORKDIR /app
 
 # Copy package files
