@@ -600,7 +600,7 @@ function run(): void {
       }
     }
     const deAllMap = new Map<string, string[]>();
-    for (const t of manifest) {
+    for (const t of manifest ?? []) {
       for (const p of t.synonyms?.['de'] ?? []) {
         const k = normKey(p);
         const arr = deAllMap.get(k) ?? [];

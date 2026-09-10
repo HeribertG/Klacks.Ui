@@ -248,6 +248,28 @@ function pageLevelEntry(pk: KlacksyPageKeyEntry, now: string): TargetEntry {
   };
 }
 
+function registerMarker(
+  newEntries: Map<string, TargetEntry>,
+  targetId: string,
+  full: string,
+  now: string,
+  opts: { route: string; labelKey?: string; category?: string; requiredPermission?: string },
+): void {
+  const previous = newEntries.get(targetId);
+  newEntries.set(targetId, {
+    targetId,
+    route: previous?.route ?? opts.route,
+    labelKey: previous?.labelKey ?? (opts.labelKey ?? ''),
+    category: previous?.category ?? opts.category,
+    requiredPermission: previous?.requiredPermission ?? opts.requiredPermission,
+    sourceFile: relative(UI_ROOT, full).replace(/\\/g, '/'),
+    lastScannedAt: now,
+    synonyms: previous?.synonyms ?? {},
+    synonymStatus: previous?.synonymStatus ?? 'pending',
+    obsolete: false,
+  });
+}
+
 async function scan(): Promise<void> {
   const pageKeys = readPageKeys();
   const now = new Date().toISOString();
@@ -275,23 +297,25 @@ async function scan(): Promise<void> {
       // page-level entry with a real source file). Otherwise create a new in-page
       // marker entry mapped to the parent route.
       const parentRoute = n.getAttribute('data-klacksy-route') ?? routeFromTemplatePath(file, pageKeys);
-      const labelKey = n.getAttribute('data-klacksy-label-key') ?? '';
-      const category = n.getAttribute('data-klacksy-category') ?? undefined;
-      const requiredPermission = n.getAttribute('data-klacksy-required-permission') ?? undefined;
-
-      const previous = newEntries.get(targetId);
-      newEntries.set(targetId, {
-        targetId,
-        route: previous?.route ?? parentRoute,
-        labelKey: previous?.labelKey ?? labelKey,
-        category: previous?.category ?? category,
-        requiredPermission: previous?.requiredPermission ?? requiredPermission,
-        sourceFile: relative(UI_ROOT, full).replace(/\\/g, '/'),
-        lastScannedAt: now,
-        synonyms: previous?.synonyms ?? {},
-        synonymStatus: previous?.synonymStatus ?? 'pending',
-        obsolete: false,
+      registerMarker(newEntries, targetId, full, now, {
+        route: parentRoute,
+        labelKey: n.getAttribute('data-klacksy-label-key') ?? undefined,
+        category: n.getAttribute('data-klacksy-category') ?? undefined,
+        requiredPermission: n.getAttribute('data-klacksy-required-permission') ?? undefined,
       });
+    }
+
+    // Some reusable components (e.g. SearchInputComponent) take a `klacksyTarget` @Input and
+    // render [attr.data-klacksy-target] themselves, so the literal marker string never appears
+    // in any single template — it is only known statically at the call site, as a plain
+    // (unbound) `klacksyTarget="..."` attribute on the component tag. Recognize that literal
+    // form here too. A bound form like `[klacksyTarget]="expr"` is intentionally NOT matched
+    // (negative lookbehind on `[`): its value is dynamic and not knowable from source text.
+    const inputPropertyTargetRegex = /(?<!\[)\bklacksyTarget\s*=\s*(?:"([^"]+)"|'([^']+)')/g;
+    for (const m of html.matchAll(inputPropertyTargetRegex)) {
+      const targetId = m[1] ?? m[2];
+      if (!targetId) continue;
+      registerMarker(newEntries, targetId, full, now, { route: routeFromTemplatePath(file, pageKeys) });
     }
   }
 

@@ -161,7 +161,9 @@
           class="icon-button"
           id="open-profile"
           (click)="onClickProfile()"
-          [attr.aria-label]="'Open profile (Alt+7)'"
+          [attr.aria-label]="
+            ('profile.nav.aria-label' | translate) + ' (Alt+7)'
+          "
         >
           <app-icon-user #userIcon></app-icon-user>
         </button>
@@ -174,7 +176,9 @@
           class="icon-button profile-img-button"
           id="open-profile"
           (click)="onClickProfile()"
-          [attr.aria-label]="'Open profile (Alt+7)'"
+          [attr.aria-label]="
+            ('profile.nav.aria-label' | translate) + ' (Alt+7)'
+          "
         >
           <img
             [src]="dataLoadFileService.profileImage$()"
@@ -191,7 +195,9 @@
           class="icon-button"
           id="open-settings"
           (click)="onClickSettings()"
-          [attr.aria-label]="'Open Settings (Alt+8)'"
+          [attr.aria-label]="
+            ('settings.nav.aria-label' | translate) + ' (Alt+8)'
+          "
         >
           <app-icon-setting #settingsIcon></app-icon-setting>
         </button>

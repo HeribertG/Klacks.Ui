@@ -44,6 +44,27 @@
  * handful of points; a single-language, single-budget trial run's thresholds are calibration on
  * that language/budget slice only and should not be assumed to generalize to other languages.
  *
+ * Two offline, zero-network modes let scoring/threshold work happen without ever touching the
+ * DeepL API:
+ *   --plan     Reconstructs survivors, applies gate filtering and locale/sample selection exactly
+ *              like a real run, then prints a per-locale table (candidates before the gate,
+ *              gate-filtered count, survivors, selected count after sampling, already-cached
+ *              count, uncached count, planned characters) and exits. No DEEPL_API_KEY is read, no
+ *              fetch() call of any kind is made — not even the free GET /v2/usage. This is the
+ *              safe way to check what a real run (or a gate/threshold change) would do.
+ *   --rescore  Recomputes classifications and the report purely from the entries already present
+ *              in backtranslate-cache.json, against the current scoring code and the current
+ *              German reference text — so a scoring-formula or threshold change can be evaluated
+ *              for free, as many times as needed, without spending a single additional DeepL
+ *              character. It reconstructs the full (un-gated) candidate phrase set from the
+ *              manifest/overlays purely to recover which targetId a cached (locale, phrase) pair
+ *              belongs to (the cache itself only keys on locale + normalized phrase); gate state
+ *              is irrelevant here since a cached phrase already WAS translated once, regardless
+ *              of what the gate thinks of it today. Cache entries that no longer match any
+ *              manifest phrase (e.g. the manifest changed since translation) are reported as
+ *              orphaned and skipped rather than scored. This mode NEVER reads DEEPL_API_KEY and
+ *              NEVER calls fetch() — asserted defensively in code, not just by omission.
+ *
  * This script never mutates navigation-targets.json or any overlay file — it only reads them and
  * writes its own report/result/cache files. There is deliberately no --apply: a weak or mismatched
  * back-translation can also mean DeepL does not know a domain term, or the German reference text is
@@ -72,6 +93,11 @@
  *   --plugins-root <path>  Override the Klacks.Api/Plugins/Languages root.
  *   --plan-only            Print the planned selection and budget check, then exit before any
  *                           DeepL translate call (still performs the live usage GET).
+ *   --plan                 Fully offline planning mode (see header comment above): per-locale
+ *                           breakdown, zero network calls, no DEEPL_API_KEY required.
+ *   --rescore              Fully offline rescoring mode (see header comment above): recompute
+ *                           scores/report from backtranslate-cache.json only, zero network calls,
+ *                           no DEEPL_API_KEY required.
  *
  * Env: DEEPL_API_KEY (required) — read exclusively from process.env, never from any file. The key
  * is never logged, never written to any file, and never included in the report or console output.
@@ -210,6 +236,8 @@ interface CliArgs {
   coreManifestPath: string;
   pluginsRoot: string;
   planOnly: boolean;
+  plan: boolean;
+  rescore: boolean;
 }
 
 function getFlagValue(argv: string[], name: string): string | undefined {
@@ -242,6 +270,8 @@ function parseArgs(argv: string[]): CliArgs {
     coreManifestPath: getFlagValue(argv, 'core-manifest') ?? DEFAULT_CORE_MANIFEST_PATH,
     pluginsRoot: getFlagValue(argv, 'plugins-root') ?? DEFAULT_PLUGINS_ROOT,
     planOnly: hasFlag(argv, 'plan-only'),
+    plan: hasFlag(argv, 'plan'),
+    rescore: hasFlag(argv, 'rescore'),
   };
 }
 
@@ -293,14 +323,25 @@ function pairKeyStr(targetId: string, locale: string): string {
  * scope has no reconstructed pair at all, so its gate rejections are excluded from the assertion
  * rather than causing a false drift failure.
  */
+interface LocaleStats { candidates: number; gateFiltered: number; }
+interface ReconstructResult {
+  survivorsByPair: Map<string, string[]>;
+  statsByLocale: Map<string, LocaleStats>;
+}
+
 function reconstructSurvivors(
   targets: CoreTarget[],
   overlays: Map<string, OverlayFile>,
   gate: GateResult | null,
   scopeLocales: Set<string>,
-): Map<string, string[]> {
+): ReconstructResult {
   const survivorsByPair = new Map<string, string[]>();
   const rejectedByPair = new Map<string, Set<string>>();
+  const statsByLocale = new Map<string, LocaleStats>();
+  function bumpStats(locale: string, candidates: number, gateFiltered: number): void {
+    const prev = statsByLocale.get(locale) ?? { candidates: 0, gateFiltered: 0 };
+    statsByLocale.set(locale, { candidates: prev.candidates + candidates, gateFiltered: prev.gateFiltered + gateFiltered });
+  }
   if (gate) {
     for (const r of gate.rejections) {
       if (!scopeLocales.has(r.locale)) continue;
@@ -336,8 +377,10 @@ function reconstructSurvivors(
         survivors.push(phrase);
       }
       matchedRejections += matched;
+      bumpStats(locale, seen.size, matched);
     } else {
       survivors = [...seen.values()];
+      bumpStats(locale, seen.size, 0);
     }
     survivorsByPair.set(key, survivors);
   }
@@ -376,7 +419,7 @@ function reconstructSurvivors(
     }
   }
 
-  return survivorsByPair;
+  return { survivorsByPair, statsByLocale };
 }
 
 function mulberry32(seed: number): () => number {
@@ -629,23 +672,31 @@ function buildReferenceText(anchor: AnchorEntry | undefined, coreDeSynonyms: str
   return parts.join(' ').trim();
 }
 
+interface BudgetInfo {
+  plannedChars: number;
+  finalPlannedChars: number;
+  predictedSucceededChars: number;
+  actualUsageDeltaChars: number | null;
+  usageBefore: DeeplUsage;
+  usageAfter: DeeplUsage | null;
+  cachedCount: number;
+  explicitBudget: number | null;
+  quotaExhausted: boolean;
+}
+interface RescoreStats {
+  cachedEntriesScored: number;
+  orphanedCacheEntries: number;
+  localesInCache: string[];
+}
+
 function writeReports(
   reportMdPath: string,
   reportJsonPath: string,
   scored: ScoredResult[],
   thresholds: Thresholds,
-  budgetInfo: {
-    plannedChars: number;
-    finalPlannedChars: number;
-    predictedSucceededChars: number;
-    actualUsageDeltaChars: number | null;
-    usageBefore: DeeplUsage;
-    usageAfter: DeeplUsage | null;
-    cachedCount: number;
-    explicitBudget: number | null;
-    quotaExhausted: boolean;
-  },
+  budgetInfo: BudgetInfo | null,
   gateUsed: boolean,
+  rescoreStats: RescoreStats | null,
 ): void {
   const byLocale = new Map<string, ScoredResult[]>();
   for (const r of scored) {
@@ -658,19 +709,30 @@ function writeReports(
   lines.push('# DeepL Back-Translation Report');
   lines.push('');
   lines.push(`Generated: ${new Date().toISOString()}`);
-  lines.push(`Gate filtering applied: ${gateUsed ? 'yes' : 'NO — run with --no-gate, only raw deduplicated phrases were filtered, gate rejections were NOT excluded'}`);
+  if (rescoreStats) {
+    lines.push('Mode: --rescore (recomputed from backtranslate-cache.json only; zero DeepL calls, not even GET /v2/usage)');
+  } else {
+    lines.push(`Gate filtering applied: ${gateUsed ? 'yes' : 'NO — run with --no-gate, only raw deduplicated phrases were filtered, gate rejections were NOT excluded'}`);
+  }
   lines.push('');
   lines.push('## Budget');
   lines.push('');
-  lines.push(`- DeepL usage before: ${budgetInfo.usageBefore.character_count} / ${budgetInfo.usageBefore.character_limit}`);
-  if (budgetInfo.usageAfter) lines.push(`- DeepL usage after: ${budgetInfo.usageAfter.character_count} / ${budgetInfo.usageAfter.character_limit}`);
-  lines.push(`- Explicit --budget: ${budgetInfo.explicitBudget ?? '(none)'}`);
-  lines.push(`- Planned characters (desired selection, before truncation): ${budgetInfo.plannedChars}`);
-  lines.push(`- Planned characters (after truncation to budget): ${budgetInfo.finalPlannedChars}`);
-  lines.push(`- Predicted characters actually spent (sum of succeeded batches): ${budgetInfo.predictedSucceededChars}`);
-  if (budgetInfo.actualUsageDeltaChars !== null) lines.push(`- Actual usage delta measured via /v2/usage: ${budgetInfo.actualUsageDeltaChars}`);
-  lines.push(`- Served from cache (free): ${budgetInfo.cachedCount}`);
-  lines.push(`- Quota exhausted mid-run (HTTP 456): ${budgetInfo.quotaExhausted ? 'yes' : 'no'}`);
+  if (rescoreStats) {
+    lines.push('Rescore mode: no DeepL call of any kind was made for this report.');
+    lines.push(`- Cached entries scored: ${rescoreStats.cachedEntriesScored}`);
+    lines.push(`- Orphaned cache entries skipped (no matching manifest phrase): ${rescoreStats.orphanedCacheEntries}`);
+    lines.push(`- Locales present in cache (in scope): ${rescoreStats.localesInCache.join(', ') || '(none)'}`);
+  } else if (budgetInfo) {
+    lines.push(`- DeepL usage before: ${budgetInfo.usageBefore.character_count} / ${budgetInfo.usageBefore.character_limit}`);
+    if (budgetInfo.usageAfter) lines.push(`- DeepL usage after: ${budgetInfo.usageAfter.character_count} / ${budgetInfo.usageAfter.character_limit}`);
+    lines.push(`- Explicit --budget: ${budgetInfo.explicitBudget ?? '(none)'}`);
+    lines.push(`- Planned characters (desired selection, before truncation): ${budgetInfo.plannedChars}`);
+    lines.push(`- Planned characters (after truncation to budget): ${budgetInfo.finalPlannedChars}`);
+    lines.push(`- Predicted characters actually spent (sum of succeeded batches): ${budgetInfo.predictedSucceededChars}`);
+    if (budgetInfo.actualUsageDeltaChars !== null) lines.push(`- Actual usage delta measured via /v2/usage: ${budgetInfo.actualUsageDeltaChars}`);
+    lines.push(`- Served from cache (free): ${budgetInfo.cachedCount}`);
+    lines.push(`- Quota exhausted mid-run (HTTP 456): ${budgetInfo.quotaExhausted ? 'yes' : 'no'}`);
+  }
   lines.push('');
   lines.push('## Classification thresholds');
   lines.push('');
@@ -710,21 +772,203 @@ function writeReports(
 
   const resultPayload = {
     generatedAt: new Date().toISOString(),
+    mode: rescoreStats ? 'rescore' : 'run',
     gateUsed,
     thresholds,
     budget: budgetInfo,
+    rescore: rescoreStats,
     scored,
   };
   writeFileAtomic(reportJsonPath, JSON.stringify(resultPayload, null, 2) + '\n');
   console.log(`\nReports written:\n  ${reportMdPath}\n  ${reportJsonPath}`);
 }
 
+/**
+ * Prints the per-locale planning breakdown used by --plan and --plan-only: how many candidate
+ * phrases existed before the gate ran, how many the gate filtered out, how many survivors remain,
+ * how many were actually selected for this run (full check for RISK_LOCALES, a sample for the
+ * rest), and of those, how many are already cached versus how many characters a real run would
+ * still need to send to DeepL. Pure computation over already-loaded data — no I/O, no network.
+ */
+function printPlanTable(
+  scopeLocaleList: string[],
+  statsByLocale: Map<string, LocaleStats>,
+  survivorsByPair: Map<string, string[]>,
+  desiredSelection: SelectedItem[],
+  cachedItems: { item: SelectedItem; backTranslation: string }[],
+  uncached: SelectedItem[],
+): void {
+  const survivorsByLocale = new Map<string, number>();
+  for (const [key, phrases] of survivorsByPair) {
+    const locale = key.split('|')[1];
+    survivorsByLocale.set(locale, (survivorsByLocale.get(locale) ?? 0) + phrases.length);
+  }
+  const selectedByLocale = new Map<string, number>();
+  for (const it of desiredSelection) selectedByLocale.set(it.locale, (selectedByLocale.get(it.locale) ?? 0) + 1);
+  const cachedByLocale = new Map<string, number>();
+  for (const c of cachedItems) cachedByLocale.set(c.item.locale, (cachedByLocale.get(c.item.locale) ?? 0) + 1);
+  const uncachedByLocale = new Map<string, number>();
+  const uncachedCharsByLocale = new Map<string, number>();
+  for (const it of uncached) {
+    uncachedByLocale.set(it.locale, (uncachedByLocale.get(it.locale) ?? 0) + 1);
+    uncachedCharsByLocale.set(it.locale, (uncachedCharsByLocale.get(it.locale) ?? 0) + it.sourceChars);
+  }
+
+  console.log('\n--- Per-locale plan ---');
+  console.log('locale  candidates  gateFiltered  survivors  selected  cached  uncached  plannedChars');
+  let totalCandidates = 0, totalGateFiltered = 0, totalSurvivors = 0, totalSelected = 0, totalCached = 0, totalUncached = 0, totalPlannedChars = 0;
+  for (const locale of [...scopeLocaleList].sort((a, b) => a.localeCompare(b))) {
+    const stats = statsByLocale.get(locale) ?? { candidates: 0, gateFiltered: 0 };
+    const survivors = survivorsByLocale.get(locale) ?? 0;
+    const selected = selectedByLocale.get(locale) ?? 0;
+    const cached = cachedByLocale.get(locale) ?? 0;
+    const uncachedCount = uncachedByLocale.get(locale) ?? 0;
+    const plannedChars = uncachedCharsByLocale.get(locale) ?? 0;
+    console.log(`${locale.padEnd(8)}${String(stats.candidates).padEnd(12)}${String(stats.gateFiltered).padEnd(14)}${String(survivors).padEnd(11)}${String(selected).padEnd(10)}${String(cached).padEnd(8)}${String(uncachedCount).padEnd(10)}${plannedChars}`);
+    totalCandidates += stats.candidates;
+    totalGateFiltered += stats.gateFiltered;
+    totalSurvivors += survivors;
+    totalSelected += selected;
+    totalCached += cached;
+    totalUncached += uncachedCount;
+    totalPlannedChars += plannedChars;
+  }
+  console.log(`${'TOTAL'.padEnd(8)}${String(totalCandidates).padEnd(12)}${String(totalGateFiltered).padEnd(14)}${String(totalSurvivors).padEnd(11)}${String(totalSelected).padEnd(10)}${String(totalCached).padEnd(8)}${String(totalUncached).padEnd(10)}${totalPlannedChars}`);
+}
+
+/**
+ * Rescores the cache against the current scoring code with zero DeepL calls: no DEEPL_API_KEY is
+ * read, no fetch() is ever invoked. The gate is deliberately NOT applied here (gate=null) — a
+ * cached phrase already WAS translated once, so today's gate opinion on it is irrelevant; the
+ * reconstruction is only used to recover which targetId a cached (locale, phrase) pair belongs to
+ * (the cache key itself is only `locale|normalizedPhrase`, it does not carry targetId). A phrase
+ * whose normalized key collides across two different targetIds in the same locale is resolved to
+ * the first targetId in sort order and logged — this is a pre-existing cache-schema ambiguity,
+ * not something --rescore introduces.
+ */
+async function runRescore(cli: CliArgs): Promise<void> {
+  const cache = loadCache(cli.cachePath);
+  const cacheKeys = Object.keys(cache);
+  if (!cacheKeys.length) {
+    console.error(`FATAL: cache file ${cli.cachePath} is empty or missing — nothing to rescore.`);
+    process.exit(1);
+    return;
+  }
+  const localesInCacheAll = [...new Set(cacheKeys.map(k => k.split('|')[0]))];
+  const requestedLocales = cli.langs ?? localesInCacheAll;
+  const scopeLocaleList = requestedLocales.filter(l => TRANSLATABLE_LOCALES.includes(l) && localesInCacheAll.includes(l));
+  if (!scopeLocaleList.length) {
+    console.error('FATAL: no in-scope locale has any cached entry (check --lang against what is actually cached).');
+    process.exit(1);
+    return;
+  }
+  const scopeLocales = new Set(scopeLocaleList);
+
+  const manifest = readJsonFile<CoreTarget[]>(cli.coreManifestPath);
+  const activeTargets = manifest.filter(t => !t.obsolete);
+  const overlays = new Map<string, OverlayFile>();
+  for (const locale of OVERLAY_LOCALES) {
+    if (!scopeLocales.has(locale)) continue;
+    const path = join(cli.pluginsRoot, locale, 'navigation-targets.json');
+    if (!existsSync(path)) continue;
+    overlays.set(locale, readJsonFile<OverlayFile>(path));
+  }
+  let anchorsByTargetId = new Map<string, AnchorEntry>();
+  if (existsSync(cli.anchorsPath)) {
+    const anchors = readJsonFile<AnchorsFile>(cli.anchorsPath);
+    anchorsByTargetId = new Map(anchors.targets.map(a => [a.targetId, a]));
+  } else {
+    console.warn(`WARNING: anchors file not found at ${cli.anchorsPath}, reference text will fall back to core German synonyms only.`);
+  }
+  const coreDeByTargetId = new Map(activeTargets.map(t => [t.targetId, t.synonyms?.de ?? []]));
+
+  const { survivorsByPair } = reconstructSurvivors(activeTargets, overlays, null, scopeLocales);
+  const reverseIndex = new Map<string, { targetId: string; phrase: string }>();
+  const collisions: string[] = [];
+  const sortedPairKeys = [...survivorsByPair.keys()].sort((a, b) => a.localeCompare(b));
+  for (const key of sortedPairKeys) {
+    const [targetId, locale] = key.split('|');
+    for (const phrase of survivorsByPair.get(key)!) {
+      const ck = cacheKey(locale, phrase);
+      if (reverseIndex.has(ck)) {
+        collisions.push(`${ck} (kept ${reverseIndex.get(ck)!.targetId}, also matched by ${targetId})`);
+        continue;
+      }
+      reverseIndex.set(ck, { targetId, phrase });
+    }
+  }
+  if (collisions.length) {
+    console.warn(`WARNING: ${collisions.length} cache key(s) matched more than one targetId; kept the first in sorted order. Examples:\n  ${collisions.slice(0, 5).join('\n  ')}`);
+  }
+
+  const scored: ScoredResult[] = [];
+  const rawScores: number[] = [];
+  const preliminary: { ck: string; targetId: string; phrase: string; locale: string; backTranslation: string; referenceText: string; tokenOverlap: number; trigramScore: number; combinedScore: number }[] = [];
+  let orphanedCacheEntries = 0;
+  for (const ck of cacheKeys) {
+    const locale = ck.split('|')[0];
+    if (!scopeLocales.has(locale)) continue;
+    const resolved = reverseIndex.get(ck);
+    if (!resolved) {
+      orphanedCacheEntries++;
+      continue;
+    }
+    const backTranslation = cache[ck].backTranslation;
+    const anchor = anchorsByTargetId.get(resolved.targetId);
+    const referenceText = buildReferenceText(anchor, coreDeByTargetId.get(resolved.targetId) ?? []);
+    const tokenOverlap = referenceText ? tokenOverlapScore(backTranslation, referenceText) : 0;
+    const trigramScore = referenceText ? trigramContainmentScore(backTranslation, referenceText) : 0;
+    const combinedScore = Math.max(tokenOverlap, trigramScore);
+    preliminary.push({ ck, targetId: resolved.targetId, phrase: resolved.phrase, locale, backTranslation, referenceText, tokenOverlap, trigramScore, combinedScore });
+    if (referenceText) rawScores.push(combinedScore);
+  }
+
+  const thresholds = deriveThresholds(rawScores);
+  for (const p of preliminary) {
+    scored.push({
+      targetId: p.targetId,
+      locale: p.locale,
+      phrase: p.phrase,
+      backTranslation: p.backTranslation,
+      referenceText: p.referenceText,
+      tokenOverlap: p.tokenOverlap,
+      trigramScore: p.trigramScore,
+      combinedScore: p.combinedScore,
+      classification: classify(p.combinedScore, thresholds, !!p.referenceText),
+      fromCache: true,
+    });
+  }
+
+  console.log(`\n=== backtranslate-synonyms --rescore ===`);
+  console.log(`Locales in scope: ${scopeLocaleList.join(', ')}`);
+  console.log(`Cached entries scored: ${scored.length}`);
+  console.log(`Orphaned cache entries skipped: ${orphanedCacheEntries}`);
+
+  writeReports(
+    cli.reportMdPath,
+    cli.reportJsonPath,
+    scored,
+    thresholds,
+    null,
+    false,
+    { cachedEntriesScored: scored.length, orphanedCacheEntries, localesInCache: scopeLocaleList },
+  );
+
+  const matchCount = scored.filter(s => s.classification === 'match').length;
+  const weakCount = scored.filter(s => s.classification === 'weak').length;
+  const mismatchCount = scored.filter(s => s.classification === 'mismatch').length;
+  const noRefCount = scored.filter(s => s.classification === 'no-reference').length;
+  console.log(`\nScored ${scored.length} phrase(s): match=${matchCount} weak=${weakCount} mismatch=${mismatchCount} no-reference=${noRefCount}`);
+}
+
 async function main(): Promise<void> {
   const cli = parseArgs(process.argv.slice(2));
-  const apiKey = process.env.DEEPL_API_KEY;
-  if (!apiKey) {
-    console.error('FATAL: DEEPL_API_KEY environment variable is not set. This script reads the DeepL key only from that variable.');
-    process.exit(1);
+
+  if (cli.rescore) {
+    if (cli.plan || cli.planOnly) {
+      console.warn('WARNING: --plan/--plan-only ignored because --rescore is set (rescore never calls DeepL, so there is nothing to plan for).');
+    }
+    await runRescore(cli);
     return;
   }
 
@@ -775,7 +1019,7 @@ async function main(): Promise<void> {
   }
   const coreDeByTargetId = new Map(activeTargets.map(t => [t.targetId, t.synonyms?.de ?? []]));
 
-  const survivorsByPair = reconstructSurvivors(activeTargets, overlays, gate, scopeLocales);
+  const { survivorsByPair, statsByLocale } = reconstructSurvivors(activeTargets, overlays, gate, scopeLocales);
   const desiredSelection = selectItems(survivorsByPair, scopeLocales, cli.sampleRate, cli.seed);
 
   const cache = loadCache(cli.cachePath);
@@ -793,6 +1037,20 @@ async function main(): Promise<void> {
   console.log(`Locales in scope: ${scopeLocaleList.join(', ')}`);
   console.log(`Desired selection: ${desiredSelection.length} phrase(s) (${cachedItems.length} cached, ${uncached.length} need translation)`);
   console.log(`Planned characters to spend (before any budget truncation): ${plannedChars}`);
+
+  printPlanTable(scopeLocaleList, statsByLocale, survivorsByPair, desiredSelection, cachedItems, uncached);
+
+  if (cli.plan) {
+    console.log('\n--plan set: fully offline planning only. DEEPL_API_KEY was not read and no network call of any kind was made (not even GET /v2/usage). Exiting.');
+    return;
+  }
+
+  const apiKey = process.env.DEEPL_API_KEY;
+  if (!apiKey) {
+    console.error('FATAL: DEEPL_API_KEY environment variable is not set. This script reads the DeepL key only from that variable.');
+    process.exit(1);
+    return;
+  }
 
   const usageBefore = await fetchUsage(apiKey);
   const deeplRemaining = usageBefore.character_limit - usageBefore.character_count;
@@ -886,6 +1144,7 @@ async function main(): Promise<void> {
       quotaExhausted,
     },
     gate !== null,
+    null,
   );
 
   const matchCount = scored.filter(s => s.classification === 'match').length;

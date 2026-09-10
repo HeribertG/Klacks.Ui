@@ -1184,7 +1184,7 @@
   "settings.feature-plugins.error.install": "Fehler beim Installieren des Feature-Plugins",
   "settings.feature-plugins.error.uninstall": "Fehler beim Deinstallieren des Feature-Plugins",
   "settings.feature-plugins.error.toggle": "Fehler beim Umschalten des Feature-Plugins",
-  "setting.country.add": "+ Staaten hinzufügen",
+  "setting.country.add": "+ Länder hinzufügen",
   "setting.country.header.abbreviation": "KÜRZEL",
   "setting.country.header.name": "NAME",
   "setting.country.header.prefix": "VORWAHL",
@@ -2102,7 +2102,7 @@
   "setting.absence-detail.validation.absence-required": "Absenz ist erforderlich",
   "setting.absence-detail.validation.duration-min": "Dauer muss mindestens 0 Stunden sein",
   "setting.absence-detail.validation.duration-max": "Dauer darf maximal 23:59 Stunden sein",
-  "setting.state.add": "+ Länder hinzufügen",
+  "setting.state.add": "+ Staaten hinzufügen",
   "setting.state.header.abbreviation": "KÜRZEL",
   "setting.state.header.name": "NAME",
   "setting.state.header.state": "LAND",
@@ -4055,5 +4055,8 @@
   "setting.skill-effectiveness.flop-skills.empty": "Kein Skill unter der Erfolgsschwelle",
   "setting.skill-effectiveness.provenance.headline": "Herkunft des gewählten Skills",
   "setting.skill-effectiveness.provenance.source": "Quelle",
-  "setting.skill-effectiveness.provenance.count": "Anzahl"
+  "setting.skill-effectiveness.provenance.count": "Anzahl",
+  "shift.edit-shift.group.header": "Zugeordnete Gruppen",
+  "profile.nav.aria-label": "Profil öffnen",
+  "settings.nav.aria-label": "Einstellungen öffnen"
 }

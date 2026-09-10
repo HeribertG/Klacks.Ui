@@ -4047,5 +4047,8 @@
   "setting.skill-effectiveness.provenance.headline": "Origine du skill choisi",
   "setting.skill-effectiveness.provenance.source": "Source",
   "setting.skill-effectiveness.provenance.count": "Nombre",
-  "settings.skillEffectiveness": "Efficacité des skills"
+  "settings.skillEffectiveness": "Efficacité des skills",
+  "shift.edit-shift.group.header": "Groupes attribués",
+  "profile.nav.aria-label": "Ouvrir le profil",
+  "settings.nav.aria-label": "Ouvrir les paramètres"
 }

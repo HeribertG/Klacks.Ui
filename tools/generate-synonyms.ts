@@ -28,7 +28,9 @@
  * already been written to disk, so a restarted run skips completed pairs instead of repeating
  * LLM calls (see loadProgress/markDone/isDone). All writes to the manifest, plugin overlays and
  * the progress file go through writeJsonAtomic (tmp file + rename + re-read verification).
- * Env (optional): SYNONYM_LLM_BASE_URL, SYNONYM_LLM_API_KEY, SYNONYM_LLM_MODEL, SYNONYM_LLM_PROVIDER_ID.
+ * Env (optional): SYNONYM_LLM_BASE_URL, SYNONYM_LLM_API_KEY, SYNONYM_LLM_MODEL, SYNONYM_LLM_PROVIDER_ID,
+ * SYNONYM_CONCURRENCY (model calls in flight, default 1; see runPool), SYNONYM_PROGRESS_PATH (separate
+ * progress file, required when two runs overlap — each holds the file in memory and rewrites it whole).
  * Falls back to the enabled provider in llm_providers (default: deepseek) when env vars are absent.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync } from 'node:fs';
@@ -70,10 +72,12 @@ interface GenericWordIndex { hardDrop: Set<string>; deprioritize: Set<string>; }
 const UI_ROOT = resolve(__dirname, '..');
 const MANIFEST = resolve(UI_ROOT, '../Klacks.Api/Application/Skills/Definitions/navigation-targets.json');
 const PLUGINS_ROOT = resolve(UI_ROOT, '../Klacks.Api/Plugins/Languages');
+const FEATURES_ROOT = resolve(UI_ROOT, '../Klacks.Api/Plugins/Features');
+const FEATURE_I18N_DIRECTORY = 'i18n';
 const CORE_I18N_ROOT = resolve(UI_ROOT, 'src/assets/i18n');
 const ANCHORS_PATH = resolve(UI_ROOT, '../docs/knowledge/klacksy-navigation-anchors.json');
 const KNOWLEDGE_ROOT = resolve(UI_ROOT, '../Klacks.Api/Infrastructure/Persistence/Seed/KlacksyKnowledge');
-const PROGRESS_PATH = resolve(UI_ROOT, 'tools/generate-synonyms-progress.json');
+const PROGRESS_PATH = process.env.SYNONYM_PROGRESS_PATH ?? resolve(UI_ROOT, 'tools/generate-synonyms-progress.json');
 const CORE_LOCALES = ['de', 'en', 'fr', 'it'];
 const PLUGIN_LOCALES = ['ar','cs','da','el','es','fi','he','id','ja','ko','ms','nb','nl','pl','pt','ro','sv','th','vi','zh-CN','zh-TW'];
 const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe';
@@ -190,16 +194,35 @@ function getTranslations(locale: string): Record<string, string> {
   const cached = translationsCache.get(locale);
   if (cached) return cached;
   const path = CORE_LOCALES.includes(locale) ? join(CORE_I18N_ROOT, `${locale}.json`) : join(PLUGINS_ROOT, locale, 'translations.json');
-  let data: Record<string, string> = {};
-  if (existsSync(path)) {
-    try {
-      data = JSON.parse(readFileSync(path, 'utf8'));
-    } catch {
-      data = {};
-    }
+  const data: Record<string, string> = { ...readJsonOrEmpty(path) };
+  for (const [key, value] of Object.entries(readFeaturePluginTranslations(locale))) {
+    if (!(key in data)) data[key] = value;
   }
   translationsCache.set(locale, data);
   return data;
+}
+
+function readJsonOrEmpty(path: string): Record<string, string> {
+  if (!existsSync(path)) return {};
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Feature plugins (messaging, ...) ship their own UI texts in Plugins/Features/{plugin}/i18n/{locale}.json,
+ * which the app merges at runtime. Anchor keys of plugin-owned targets (e.g. profile-messengers) only
+ * resolve there; without this merge every non-core locale fell back to German text for them.
+ */
+function readFeaturePluginTranslations(locale: string): Record<string, string> {
+  if (!existsSync(FEATURES_ROOT)) return {};
+  const merged: Record<string, string> = {};
+  for (const plugin of readdirSync(FEATURES_ROOT)) {
+    Object.assign(merged, readJsonOrEmpty(join(FEATURES_ROOT, plugin, FEATURE_I18N_DIRECTORY, `${locale}.json`)));
+  }
+  return merged;
 }
 
 let germanReverseIndexCache: Map<string, string> | null = null;
@@ -624,6 +647,8 @@ const ACTIVE_PLUGIN_LOCALES = ONLY_LOCALES.length ? PLUGIN_LOCALES.filter(l => O
 const ACTIVE_CORE_LOCALES = ONLY_LOCALES.length ? CORE_LOCALES.filter(l => ONLY_LOCALES.includes(l)) : CORE_LOCALES;
 const FORCE = process.env.SYNONYM_FORCE === '1' || process.argv.includes('--force');
 const REGENERATE = process.argv.includes('--regenerate');
+const DEFAULT_CONCURRENCY = 1;
+const CONCURRENCY = Math.max(1, Number(process.env.SYNONYM_CONCURRENCY ?? DEFAULT_CONCURRENCY) || DEFAULT_CONCURRENCY);
 const REVIEWED_STATUS = 'reviewed';
 const PENDING_STATUS = 'pending';
 
@@ -697,43 +722,94 @@ function pluginOverlayHasTarget(loc: string, targetId: string): boolean {
   }
 }
 
-async function generatePluginsForTarget(
-  t: TargetEntry,
-  label: string,
-  anchorEntry: AnchorEntry | undefined,
-  knowledgeVocab: string[],
+interface GenerationJob { target: TargetEntry; locale: string; }
+
+/**
+ * Runs jobs with at most SYNONYM_CONCURRENCY model calls in flight. Safe for the shared manifest,
+ * overlay and progress files because every write happens synchronously right after a job's await
+ * resolves — Node never interleaves two synchronous blocks, so a read-modify-write of one file
+ * cannot be split by another job.
+ * @param jobs - (target, locale) pairs to generate
+ * @param worker - Generates and persists one pair
+ */
+async function runPool(jobs: GenerationJob[], worker: (job: GenerationJob) => Promise<void>): Promise<void> {
+  let next = 0;
+  const laneCount = Math.min(CONCURRENCY, jobs.length);
+  const lanes = Array.from({ length: laneCount }, async () => {
+    while (next < jobs.length) {
+      const job = jobs[next++];
+      await worker(job);
+    }
+  });
+  await Promise.all(lanes);
+}
+
+/**
+ * Plugin (overlay) jobs for one target. A pair already recorded in the progress file is always
+ * skipped, so a killed run resumes where it stopped; without force a pair whose overlay already
+ * holds the target is skipped too. A fresh forced run therefore needs the progress file removed.
+ */
+function collectPluginJobs(t: TargetEntry, force: boolean, progress: ProgressState): GenerationJob[] {
+  return ACTIVE_PLUGIN_LOCALES
+    .filter(loc => !isDone(progress, t.targetId, loc) && (force || !pluginOverlayHasTarget(loc, t.targetId)))
+    .map(loc => ({ target: t, locale: loc }));
+}
+
+async function generatePluginJob(
+  job: GenerationJob,
   manifest: TargetEntry[],
   anchorsById: Map<string, AnchorEntry>,
-  force: boolean,
+  knowledgeById: Map<string, string[]>,
   progress: ProgressState,
-): Promise<number> {
-  let calls = 0;
-  for (const loc of ACTIVE_PLUGIN_LOCALES) {
-    if (!force && (isDone(progress, t.targetId, loc) || pluginOverlayHasTarget(loc, t.targetId))) continue;
-    const anchor = buildMeaningAnchor(t, anchorEntry, knowledgeVocab, loc, getTranslations(loc), getGenericWordIndex(loc, manifest, anchorsById));
-    if (anchor.usedLegacyFallback) console.warn(`[generate-synonyms] ${t.targetId}/${loc}: no visible-text anchor recorded, using legacy synonym fallback`);
-    console.log(`→ ${t.targetId} / ${loc} (plugin)`);
-    let synonyms: string[];
-    try {
-      synonyms = await callLlm(t, loc, label, anchor);
-    } catch (e) {
-      console.error(`  ✗ skipped ${t.targetId}/${loc}: ${e}`);
-      continue;
-    }
-    if (!synonyms.length) {
-      console.error(`  ✗ empty result ${t.targetId}/${loc}, skipped`);
-      continue;
-    }
-    await sleep(200);
-    const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
-    mkdirSync(dirname(file), { recursive: true });
-    const overlay = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
-    overlay[t.targetId] = { synonyms, status: 'generated' };
-    writeJsonAtomic(file, overlay);
-    markDone(progress, t.targetId, loc);
-    calls++;
+): Promise<void> {
+  const { target: t, locale: loc } = job;
+  const anchor = buildMeaningAnchor(t, anchorsById.get(t.targetId), knowledgeById.get(t.targetId) ?? [], loc, getTranslations(loc), getGenericWordIndex(loc, manifest, anchorsById));
+  if (anchor.usedLegacyFallback) console.warn(`[generate-synonyms] ${t.targetId}/${loc}: no visible-text anchor recorded, using legacy synonym fallback`);
+  console.log(`→ ${t.targetId} / ${loc} (plugin)`);
+  let synonyms: string[];
+  try {
+    synonyms = await callLlm(t, loc, labelOf(t), anchor);
+  } catch (e) {
+    console.error(`  ✗ skipped ${t.targetId}/${loc}: ${e}`);
+    return;
   }
-  return calls;
+  if (!synonyms.length) {
+    console.error(`  ✗ empty result ${t.targetId}/${loc}, skipped`);
+    return;
+  }
+  const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
+  mkdirSync(dirname(file), { recursive: true });
+  const overlay = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+  overlay[t.targetId] = { synonyms, status: 'generated' };
+  writeJsonAtomic(file, overlay);
+  markDone(progress, t.targetId, loc);
+}
+
+async function generateCoreJob(
+  job: GenerationJob,
+  manifest: TargetEntry[],
+  anchorsById: Map<string, AnchorEntry>,
+  knowledgeById: Map<string, string[]>,
+  progress: ProgressState,
+): Promise<void> {
+  const { target: t, locale: loc } = job;
+  const anchor = buildMeaningAnchor(t, anchorsById.get(t.targetId), knowledgeById.get(t.targetId) ?? [], loc, getTranslations(loc), getGenericWordIndex(loc, manifest, anchorsById));
+  if (anchor.usedLegacyFallback) console.warn(`[generate-synonyms] ${t.targetId}/${loc}: no visible-text anchor recorded, using legacy synonym fallback`);
+  console.log(`→ ${t.targetId} / ${loc}`);
+  let generated: string[];
+  try {
+    generated = await callLlm(t, loc, labelOf(t), anchor);
+  } catch (e) {
+    console.error(`  ✗ skipped ${t.targetId}/${loc}, existing synonyms kept: ${e}`);
+    return;
+  }
+  if (!generated.length) {
+    console.error(`  ✗ empty result ${t.targetId}/${loc}, existing synonyms kept`);
+    return;
+  }
+  t.synonyms[loc] = generated;
+  writeJsonAtomic(MANIFEST, manifest);
+  markDone(progress, t.targetId, loc);
 }
 
 /**
@@ -850,54 +926,34 @@ async function run(): Promise<void> {
     console.log(`[generate-synonyms] Pruned ${pruned} stale overlay target(s).`);
   }
 
+  const selected = manifest.filter(t => !t.obsolete && (!ONLY_TARGETS.length || ONLY_TARGETS.includes(t.targetId)));
   let processed = 0;
-  for (const t of manifest) {
-    if (t.obsolete) continue;
-    if (ONLY_TARGETS.length && !ONLY_TARGETS.includes(t.targetId)) continue;
-    const label = labelOf(t);
-    const anchorEntry = anchorsById.get(t.targetId);
-    const knowledgeVocab = knowledgeById.get(t.targetId) ?? [];
 
-    if (PLUGINS_ONLY) {
-      const calls = await generatePluginsForTarget(t, label, anchorEntry, knowledgeVocab, manifest, anchorsById, FORCE, progress);
-      if (calls > 0) processed++;
-    } else {
-      if (!isCoreCandidate(t)) continue;
-      for (const loc of ACTIVE_CORE_LOCALES) {
+  if (PLUGINS_ONLY) {
+    const jobs = selected.flatMap(t => collectPluginJobs(t, FORCE, progress));
+    await runPool(jobs, job => generatePluginJob(job, manifest, anchorsById, knowledgeById, progress));
+    processed = new Set(jobs.map(j => j.target.targetId)).size;
+  } else {
+    const coreTargets = selected.filter(isCoreCandidate);
+    const coreJobs = coreTargets.flatMap(t => ACTIVE_CORE_LOCALES
+      .filter(loc => {
         const resumable = isDone(progress, t.targetId, loc) && (t.synonyms[loc]?.length ?? 0) > 0;
-        if (!FORCE && resumable) {
-          console.log(`= ${t.targetId} / ${loc} (skip, already generated this run)`);
-          continue;
-        }
-        const anchor = buildMeaningAnchor(t, anchorEntry, knowledgeVocab, loc, getTranslations(loc), getGenericWordIndex(loc, manifest, anchorsById));
-        if (anchor.usedLegacyFallback) console.warn(`[generate-synonyms] ${t.targetId}/${loc}: no visible-text anchor recorded, using legacy synonym fallback`);
-        console.log(`→ ${t.targetId} / ${loc}`);
-        let generated: string[];
-        try {
-          generated = await callLlm(t, loc, label, anchor);
-        } catch (e) {
-          console.error(`  ✗ skipped ${t.targetId}/${loc}, existing synonyms kept: ${e}`);
-          continue;
-        }
-        if (!generated.length) {
-          console.error(`  ✗ empty result ${t.targetId}/${loc}, existing synonyms kept`);
-          continue;
-        }
-        t.synonyms[loc] = generated;
-        writeJsonAtomic(MANIFEST, manifest);
-        markDone(progress, t.targetId, loc);
-        await sleep(200);
-      }
-      const allCoreDone = CORE_LOCALES.every(loc => (t.synonyms[loc]?.length ?? 0) > 0);
-      if (allCoreDone) {
-        t.synonymStatus = 'generated';
-        writeJsonAtomic(MANIFEST, manifest);
-      }
-      if (!SKIP_PLUGINS) {
-        await generatePluginsForTarget(t, label, anchorEntry, knowledgeVocab, manifest, anchorsById, true, progress);
-      }
-      processed++;
+        if (!FORCE && resumable) console.log(`= ${t.targetId} / ${loc} (skip, already generated this run)`);
+        return FORCE || !resumable;
+      })
+      .map(loc => ({ target: t, locale: loc })));
+    await runPool(coreJobs, job => generateCoreJob(job, manifest, anchorsById, knowledgeById, progress));
+
+    for (const t of coreTargets) {
+      if (CORE_LOCALES.every(loc => (t.synonyms[loc]?.length ?? 0) > 0)) t.synonymStatus = 'generated';
     }
+    writeJsonAtomic(MANIFEST, manifest);
+
+    if (!SKIP_PLUGINS) {
+      const pluginJobs = coreTargets.flatMap(t => collectPluginJobs(t, true, progress));
+      await runPool(pluginJobs, job => generatePluginJob(job, manifest, anchorsById, knowledgeById, progress));
+    }
+    processed = coreTargets.length;
   }
   if (REGENERATE) {
     const regeneratedIds = new Set(manifest.filter(t => !t.obsolete && ONLY_TARGETS.includes(t.targetId) && t.synonymStatus !== REVIEWED_STATUS).map(t => t.targetId));

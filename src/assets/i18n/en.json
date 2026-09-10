@@ -4055,5 +4055,8 @@
   "setting.skill-effectiveness.flop-skills.empty": "No skill below the success threshold",
   "setting.skill-effectiveness.provenance.headline": "Origin of the chosen skill",
   "setting.skill-effectiveness.provenance.source": "Source",
-  "setting.skill-effectiveness.provenance.count": "Count"
+  "setting.skill-effectiveness.provenance.count": "Count",
+  "shift.edit-shift.group.header": "Assigned Groups",
+  "profile.nav.aria-label": "Open profile",
+  "settings.nav.aria-label": "Open settings"
 }
