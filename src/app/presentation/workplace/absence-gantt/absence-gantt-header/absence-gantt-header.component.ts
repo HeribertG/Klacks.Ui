@@ -22,6 +22,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-absence-gantt-header',
@@ -51,7 +52,7 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   currentLang = signal<Language>(DomainMessages.DEFAULT_LANG);
   value = signal<number>(100);
-  currentYear = signal<number>(new Date().getFullYear());
+  currentYear = signal<number>(companyToday().getFullYear());
 
   maxYear = computed(() => this.currentYear() + 30);
   zoomLevel = computed(() => this.value() / 100);

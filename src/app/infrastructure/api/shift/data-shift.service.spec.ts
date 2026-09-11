@@ -7,7 +7,13 @@ import { DataShiftService } from './data-shift.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { Shift, IShift } from 'src/app/domain/models/shift/shift-class';
 import { environment } from 'src/environments/environment';
-import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import { Group } from 'src/app/domain/models/group/group-class';
+import {
+    activeJanuaryOffsetMinutes,
+    currentTimeZone,
+    expectedJanuaryOffsetMinutes,
+    useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 describe('DataShiftService', () => {
     let service: DataShiftService;
@@ -101,5 +107,65 @@ describe('DataShiftService', () => {
                 });
             });
         }
+    });
+
+    describe('groups attached to the shift', () => {
+        for (const zone of ['Europe/Zurich', 'Asia/Kolkata', 'America/New_York'] as const) {
+            describe(zone, () => {
+                useTimeZone(zone);
+
+                it('runs in the requested time zone', () => {
+                    expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+                });
+
+                it.each(['add', 'update'] as const)('sends a group picked in the UI with its own validFrom/validUntil day on %s', (operation) => {
+                    const shift = mockShift();
+                    const group = new Group();
+                    group.id = 'group-1';
+                    group.validFrom = new Date(2026, 7, 3);
+                    group.validUntil = new Date(2026, 11, 31);
+                    shift.groups = [group];
+
+                    (operation === 'add' ? service.addShift(shift as IShift) : service.updateShift(shift as IShift)).subscribe();
+
+                    const req = httpTestingController.expectOne(`${environment.baseUrl}Shifts/`);
+                    const wire = JSON.parse(JSON.stringify(req.request.body));
+                    expect(wire.groups[0].validFrom).toBe('2026-08-03T00:00:00.000Z');
+                    expect(wire.groups[0].validUntil).toBe('2026-12-31T00:00:00.000Z');
+                    expect(shift.groups[0].validFrom).toEqual(new Date(2026, 7, 3));
+                    req.flush(mockShift());
+                });
+
+                it('passes group dates still holding the backend wire string through unchanged', () => {
+                    const shift = mockShift();
+                    const group = new Group();
+                    group.validFrom = '0001-01-01T00:00:00' as unknown as Date;
+                    group.validUntil = undefined;
+                    shift.groups = [group];
+
+                    service.updateShift(shift as IShift).subscribe();
+
+                    const req = httpTestingController.expectOne(`${environment.baseUrl}Shifts/`);
+                    expect(req.request.body.groups[0].validFrom).toBe('0001-01-01T00:00:00');
+                    expect(req.request.body.groups[0].validUntil).toBeUndefined();
+                    req.flush(mockShift());
+                });
+            });
+        }
+    });
+
+    describe('unparsable fromDate', () => {
+        it.each(['add', 'update'] as const)('reports the error through the observable on %s instead of throwing', (operation) => {
+            const shift = mockShift();
+            shift.fromDate = new Date('invalid');
+            const onError = vi.fn();
+
+            const call = () => (operation === 'add' ? service.addShift(shift as IShift) : service.updateShift(shift as IShift));
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/`);
+        });
     });
 });

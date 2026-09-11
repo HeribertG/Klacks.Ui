@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
+  addDays,
+  CalendarDateToStringShort,
   DateToString,
   DateToStringShort,
+  getDateKeysBetween,
   dateWithUTCCorrection,
   daysBetweenDates,
 } from './date.helper';
@@ -38,6 +41,19 @@ describe('Date Helper Functions', () => {
     });
   });
 
+  describe('tolerance for backend strings typed as Date', () => {
+    it('addDays still returns a valid Date instead of throwing', () => {
+      const call = () => addDays('2026-08-03T00:00:00Z' as unknown as Date, 1);
+
+      expect(call).not.toThrow();
+      expect(Number.isNaN(call().getTime())).toBe(false);
+    });
+
+    it('getDateKeysBetween still accepts a string start', () => {
+      expect(getDateKeysBetween('2026-08-03T12:00:00Z' as unknown as Date, new Date(2026, 7, 5, 23)).length).toBeGreaterThan(0);
+    });
+  });
+
   describe('calendar dates across browser time zones', () => {
     for (const zone of CALENDAR_TEST_ZONES) {
       describe(zone, () => {
@@ -53,6 +69,17 @@ describe('Date Helper Functions', () => {
             expect(dateWithUTCCorrection(wireValue)?.toISOString()).toBe('2026-08-03T00:00:00.000Z');
           },
         );
+
+        it.each(['2026-08-03', '2026-08-03T00:00:00Z', '2026-08-03T00:00:00'])(
+          'formats the backend value %s as its own day',
+          (wireValue) => {
+            expect(CalendarDateToStringShort(wireValue, 'de')).toBe('03.08.2026');
+          },
+        );
+
+        it('returns a value that is not a calendar date unchanged', () => {
+          expect(CalendarDateToStringShort('not-a-date', 'de')).toBe('not-a-date');
+        });
 
         it('corrects a local Date to UTC midnight of its local day', () => {
           expect(dateWithUTCCorrection(new Date(2026, 7, 3))?.toISOString()).toBe('2026-08-03T00:00:00.000Z');

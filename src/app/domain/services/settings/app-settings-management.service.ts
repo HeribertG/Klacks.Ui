@@ -6,6 +6,9 @@
  * signals (contact, email, imap, work, scheduling defaults, compensatory rest,
  * surcharge modes, overtime, compliance enforcement, etc.), tracks per-group dirtiness
  * against an original snapshot, and debounces an auto-save that writes only changed keys.
+ * saveImmediately always resolves once every request of the save has settled; if one of them
+ * failed, the error is logged and the original snapshot is kept so the settings stay dirty and
+ * the next save sends them again.
  */
 
 import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } from '@angular/core';
@@ -50,6 +53,8 @@ import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+
+const SAVE_SETTING_FAILED_MESSAGE = 'Failed to save app setting:';
 
 /**
  * Serializes a nullable numeric setting into its stored string form.
@@ -335,6 +340,7 @@ export class AppSettingsManagementService {
 
   private settingsList: ISetting[] = [];
   private saveCounter = 0;
+  private saveFailed = false;
   private saveCompletionResolvers: (() => void)[] = [];
   private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -695,9 +701,9 @@ export class AppSettingsManagementService {
       this.dataSettingsService
         .updateSetting(existingSetting)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.saveCounter--;
-          this.checkSaveComplete();
+        .subscribe({
+          next: () => this.completeSaveRequest(),
+          error: (error: unknown) => this.failSaveRequest(error),
         });
     } else {
       const newSetting = new Setting();
@@ -707,41 +713,66 @@ export class AppSettingsManagementService {
       this.dataSettingsService
         .addSetting(newSetting)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((savedSetting) => {
-          this.settingsList.push(savedSetting);
-          this.saveCounter--;
-          this.checkSaveComplete();
+        .subscribe({
+          next: (savedSetting) => {
+            this.settingsList.push(savedSetting);
+            this.completeSaveRequest();
+          },
+          error: (error: unknown) => this.failSaveRequest(error),
         });
     }
   }
 
+  private completeSaveRequest(): void {
+    this.saveCounter--;
+    this.checkSaveComplete();
+  }
+
+  private failSaveRequest(error: unknown): void {
+    console.error(SAVE_SETTING_FAILED_MESSAGE, error);
+    this.saveFailed = true;
+    this.saveCounter--;
+    this.checkSaveComplete();
+  }
+
   private checkSaveComplete(): void {
-    if (this.saveCounter === 0) {
-      const resolvers = this.saveCompletionResolvers;
-      this.saveCompletionResolvers = [];
-      resolvers.forEach((resolve) => resolve());
-      this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
-      this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
-      this.imapSettingsOriginal.set(cloneObject(this.imapSettings()));
-      this.workSettingsOriginal.set(cloneObject(this.workSettings()));
-      this.schedulingDefaultSettingsOriginal.set(cloneObject(this.schedulingDefaultSettings()));
-      this.dataRetentionSettingsOriginal.set(cloneObject(this.dataRetentionSettings()));
-      this.updateConfigSettingsOriginal.set(cloneObject(this.updateConfigSettings()));
-      this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
-      this.deeplApiKeyOriginal.set(this.deeplApiKey());
-      this.webSearchProviderOriginal.set(this.webSearchProvider());
-      this.webSearchApiKeyOriginal.set(this.webSearchApiKey());
-      this.webSearchMaxResultsOriginal.set(this.webSearchMaxResults());
-      this.erpImportCronExpressionOriginal.set(this.erpImportCronExpression());
-      this.erpImportCronTimeZoneOriginal.set(this.erpImportCronTimeZone());
-      this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
-      this.holisticHarmonizerSettingsOriginal.set(cloneObject(this.holisticHarmonizerSettings()));
-      this.compensatoryRestSettingsOriginal.set(cloneObject(this.compensatoryRestSettings()));
-      this.surchargeModeSettingsOriginal.set(cloneObject(this.surchargeModeSettings()));
-      this.overtimeSettingsOriginal.set(cloneObject(this.overtimeSettings()));
-      this.complianceEnforcementSettingsOriginal.set(cloneObject(this.complianceEnforcementSettings()));
-      this.activeIndustriesSettingsOriginal.set(cloneObject(this.activeIndustriesSettings()));
+    if (this.saveCounter !== 0) {
+      return;
     }
+
+    const resolvers = this.saveCompletionResolvers;
+    this.saveCompletionResolvers = [];
+    const failed = this.saveFailed;
+    this.saveFailed = false;
+
+    if (!failed) {
+      this.snapshotOriginals();
+    }
+    resolvers.forEach((resolve) => resolve());
+  }
+
+  private snapshotOriginals(): void {
+    this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
+    this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
+    this.imapSettingsOriginal.set(cloneObject(this.imapSettings()));
+    this.workSettingsOriginal.set(cloneObject(this.workSettings()));
+    this.schedulingDefaultSettingsOriginal.set(cloneObject(this.schedulingDefaultSettings()));
+    this.dataRetentionSettingsOriginal.set(cloneObject(this.dataRetentionSettings()));
+    this.updateConfigSettingsOriginal.set(cloneObject(this.updateConfigSettings()));
+    this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
+    this.deeplApiKeyOriginal.set(this.deeplApiKey());
+    this.webSearchProviderOriginal.set(this.webSearchProvider());
+    this.webSearchApiKeyOriginal.set(this.webSearchApiKey());
+    this.webSearchMaxResultsOriginal.set(this.webSearchMaxResults());
+    this.erpImportCronExpressionOriginal.set(this.erpImportCronExpression());
+    this.erpImportCronTimeZoneOriginal.set(this.erpImportCronTimeZone());
+    this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
+    this.holisticHarmonizerSettingsOriginal.set(cloneObject(this.holisticHarmonizerSettings()));
+    this.compensatoryRestSettingsOriginal.set(cloneObject(this.compensatoryRestSettings()));
+    this.surchargeModeSettingsOriginal.set(cloneObject(this.surchargeModeSettings()));
+    this.overtimeSettingsOriginal.set(cloneObject(this.overtimeSettings()));
+    this.complianceEnforcementSettingsOriginal.set(cloneObject(this.complianceEnforcementSettings()));
+    this.activeIndustriesSettingsOriginal.set(cloneObject(this.activeIndustriesSettings()));
   }
 
   private checkIfDirty(): boolean {

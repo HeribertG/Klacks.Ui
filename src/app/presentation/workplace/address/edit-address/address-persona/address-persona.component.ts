@@ -45,6 +45,7 @@ import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
@@ -145,7 +146,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   public addressValidFrom: NgbDateStruct | undefined;
 
   public newAddressType = 0;
-  public newAddressValidFrom: NgbDateStruct = transformDateToNgbDateStruct(new Date())!;
+  public newAddressValidFrom: NgbDateStruct = transformDateToNgbDateStruct(companyToday())!;
   public message = DomainMessages.DEACTIVE_ADDRESS;
   public title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
   public newAddressString = DomainMessages.NEW_ADDRESS;
@@ -678,7 +679,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     this.newAddressType = +this.dataManagementClientService.editClient()!.addresses[
       this.dataManagementClientService.currentAddressIndex()
     ].type;
-    this.newAddressValidFrom = transformDateToNgbDateStruct(new Date())!;
+    this.newAddressValidFrom = transformDateToNgbDateStruct(companyToday())!;
     this.ngbModal
       .open(content, { size: 'md', centered: true, windowClass: 'custom-class' })
       .result.then(

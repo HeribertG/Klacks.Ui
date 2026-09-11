@@ -20,7 +20,7 @@ import { DataContractService } from 'src/app/infrastructure/api/contract/data-co
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
-import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { calendarDateKey, companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
@@ -176,7 +176,7 @@ export class ReportDataProviderService {
       case 'client.company': return context.client?.company ?? '';
       case 'client.idNumber': return context.client?.idNumber?.toString() ?? '';
       case 'report.period': return `${this.formatDate(context.startDate ?? '')} - ${this.formatDate(context.endDate ?? '')}`;
-      case 'report.date': return this.formatDate(new Date());
+      case 'report.date': return this.formatDate(companyToday());
       case 'report.groupName': return context.groupName ?? '';
       case 'report.customText': return field.name ?? '';
       default: return null;
@@ -291,7 +291,7 @@ export class ReportDataProviderService {
           ...this.absenceLookup.absenceDetails().filter(d => !!d.id).map(d => ({ id: d.id!, name: '', checked: true })),
         ];
         const year = params.year
-          ?? (parseCalendarDate(params.startDate) ?? new Date()).getFullYear();
+          ?? (parseCalendarDate(params.startDate) ?? companyToday()).getFullYear();
         const response = await firstValueFrom(
           this.breakPlaceholderService.getClientList({
             currentYear: year,

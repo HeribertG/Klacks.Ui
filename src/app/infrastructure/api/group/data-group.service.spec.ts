@@ -98,4 +98,19 @@ describe('DataGroupService', () => {
             });
         }
     });
+
+    describe('unparsable validFrom', () => {
+        it.each(['add', 'update'] as const)('reports the error through the observable on %s instead of throwing', (operation) => {
+            const group = mockGroup();
+            group.validFrom = new Date('invalid');
+            const onError = vi.fn();
+
+            const call = () => (operation === 'add' ? service.addGroup(group as IGroup) : service.updateGroup(group as IGroup));
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Groups/`);
+        });
+    });
 });

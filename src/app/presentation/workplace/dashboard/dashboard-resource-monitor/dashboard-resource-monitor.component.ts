@@ -17,7 +17,7 @@ import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calenda
 import { Group } from 'src/app/domain/models/group/group-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
@@ -63,7 +63,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   private translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
-  selectedYear = signal(new Date().getFullYear());
+  selectedYear = signal(companyToday().getFullYear());
   selectedGroupId = signal<string | null>(null);
   private currentLang = signal(this.translate.currentLang ?? DomainMessages.DEFAULT_LANG);
   isLoading = signal(true);

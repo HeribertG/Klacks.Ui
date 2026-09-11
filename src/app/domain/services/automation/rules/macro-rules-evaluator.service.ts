@@ -171,10 +171,10 @@ export class MacroRulesEvaluatorService {
 
     return {
       agentId: context.agentId,
-      currentDate: context.currentDate.toISOString(),
+      currentDate: formatDateOnly(context.currentDate),
       proposedShiftId: context.proposedAssignment.shiftId,
       proposedShiftName: context.proposedAssignment.shiftName,
-      proposedDate: context.proposedAssignment.date.toISOString(),
+      proposedDate: formatDateOnly(context.proposedAssignment.date),
       proposedStart: context.proposedAssignment.startTime,
       proposedEnd: context.proposedAssignment.endTime,
       proposedHours: context.proposedAssignment.hours,

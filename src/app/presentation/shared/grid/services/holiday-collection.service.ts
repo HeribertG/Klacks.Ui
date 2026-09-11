@@ -10,6 +10,7 @@ import {
 } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 import { firstValueFrom } from 'rxjs';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 const OVERRIDE_KEY_SEPARATOR = '|';
 
@@ -33,7 +34,7 @@ export class HolidayCollectionService {
   private static readonly WAIT_TIME = 100;
 
   constructor() {
-    this.holidays.currentYear = new Date().getFullYear();
+    this.holidays.currentYear = companyToday().getFullYear();
   }
 
   get currentYear(): number {

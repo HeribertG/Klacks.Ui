@@ -8,7 +8,7 @@ import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface GanttDrawingConfig {
   pageWidth: number;
@@ -237,8 +237,8 @@ export class GanttPdfDrawingService {
       pageHeight: 841.89, // A3 landscape
       rowHeaderWidth: pageWidth * 0.12, // 12% of page width (~143px for A3)
       rowHeight: 25, // Height of a row
-      year: new Date().getFullYear(),
-      startDate: new Date(new Date().getFullYear(), 0, 1),
+      year: companyToday().getFullYear(),
+      startDate: new Date(companyToday().getFullYear(), 0, 1),
       evenMonthColor: '#f9f9f9', // Lighter for even months
       oddMonthColor: '#ffffff', // White for odd months
       weekendColor: '#fffbcc', // Light yellow for weekends

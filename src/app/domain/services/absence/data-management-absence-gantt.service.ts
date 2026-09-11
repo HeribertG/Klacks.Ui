@@ -5,6 +5,7 @@ import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { firstValueFrom } from 'rxjs';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class DataManagementAbsenceGanttService {
 
   public absenceList = signal<IAbsence[]>([]);
 
-  private _currentYear = signal(new Date().getFullYear());
+  private _currentYear = signal(companyToday().getFullYear());
 
   readData(): void {
     this.dataAbsence.readVisibleAbsenceList().subscribe((absences) => {

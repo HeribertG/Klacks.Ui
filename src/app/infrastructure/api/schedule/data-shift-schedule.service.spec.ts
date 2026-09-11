@@ -69,4 +69,19 @@ describe('DataShiftScheduleService', () => {
             });
         }
     });
+
+    describe('unparsable holidayDates', () => {
+        it('reports the error through the observable instead of throwing', () => {
+            const filter = mockFilter();
+            filter.holidayDates = [new Date('invalid')];
+            const onError = vi.fn();
+
+            const call = () => service.getShiftSchedule(filter);
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/Schedule`);
+        });
+    });
 });

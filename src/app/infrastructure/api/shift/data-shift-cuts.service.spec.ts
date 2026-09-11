@@ -8,7 +8,13 @@ import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-ca
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { environment } from 'src/environments/environment';
-import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import { Group } from 'src/app/domain/models/group/group-class';
+import {
+    activeJanuaryOffsetMinutes,
+    currentTimeZone,
+    expectedJanuaryOffsetMinutes,
+    useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 describe('DataShiftCutsService', () => {
     let service: DataShiftCutsService;
@@ -100,5 +106,59 @@ describe('DataShiftCutsService', () => {
                 });
             });
         }
+    });
+
+    describe('groups attached to a cut', () => {
+        for (const zone of ['Europe/Zurich', 'Asia/Kolkata'] as const) {
+            describe(zone, () => {
+                useTimeZone(zone);
+
+                it('runs in the requested time zone', () => {
+                    expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+                });
+
+                it('sends a group picked in the UI with its own validFrom day', () => {
+                    const operation = mockCutOperation();
+                    const group = new Group();
+                    group.validFrom = new Date(2026, 7, 3);
+                    operation.data.groups = [group];
+
+                    service.batchCuts([operation]).subscribe();
+
+                    const req = httpTestingController.expectOne(`${environment.baseUrl}Shifts/Cuts/Batch`);
+                    const wire = JSON.parse(JSON.stringify(req.request.body));
+                    expect(wire.operations[0].data.groups[0].validFrom).toBe('2026-08-03T00:00:00.000Z');
+                    req.flush([]);
+                });
+            });
+        }
+    });
+
+    describe('unparsable dates', () => {
+        it('reports an invalid group date through the observable instead of throwing', () => {
+            const operation = mockCutOperation();
+            const group = new Group();
+            group.validFrom = new Date('invalid');
+            operation.data.groups = [group];
+            const onError = vi.fn();
+
+            const call = () => service.batchCuts([operation]);
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/Cuts/Batch`);
+        });
+
+        it('reports an invalid reset start date through the observable instead of throwing', () => {
+            const onError = vi.fn();
+
+            const call = () => service.resetCuts('shift-original', new Date('invalid'));
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/Cuts/Reset`);
+        });
     });
 });

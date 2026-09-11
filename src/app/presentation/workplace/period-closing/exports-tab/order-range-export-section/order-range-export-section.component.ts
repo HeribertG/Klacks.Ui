@@ -29,8 +29,7 @@ import {
   lastOfMonth,
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
-import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
@@ -192,7 +191,7 @@ export class OrderRangeExportSectionComponent implements OnInit {
   }
 
   formatWorkDate(isoDate: string): string {
-    return DateToStringShort(parseCalendarDate(isoDate) ?? isoDate);
+    return CalendarDateToStringShort(isoDate);
   }
 
   onExport(): void {

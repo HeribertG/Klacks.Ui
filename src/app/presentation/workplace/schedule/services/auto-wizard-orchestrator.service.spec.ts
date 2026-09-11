@@ -61,6 +61,7 @@ describe('AutoWizardOrchestratorService day count across a DST transition', () =
     useTimeZone('Europe/Zurich');
 
     it('counts 3 calendar days for 2026-03-28..2026-03-30', async () => {
+      expect(new Date(2026, 2, 30).getTimezoneOffset()).not.toBe(new Date(2026, 2, 28).getTimezoneOffset());
       const days = await runExceedsLimits(new Date(2026, 2, 28), new Date(2026, 2, 30));
       expect(days).toBe(3);
     });
@@ -70,6 +71,7 @@ describe('AutoWizardOrchestratorService day count across a DST transition', () =
     useTimeZone('America/New_York');
 
     it('counts 3 calendar days for 2026-03-07..2026-03-09', async () => {
+      expect(new Date(2026, 2, 9).getTimezoneOffset()).not.toBe(new Date(2026, 2, 7).getTimezoneOffset());
       const days = await runExceedsLimits(new Date(2026, 2, 7), new Date(2026, 2, 9));
       expect(days).toBe(3);
     });

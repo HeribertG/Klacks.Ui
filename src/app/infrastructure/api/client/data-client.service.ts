@@ -2,9 +2,11 @@
 
 /**
  * API service for client CRUD operations.
- * Uses ClientDataMapper for data transformation before sending to the API.
+ * Uses ClientDataMapper for data transformation before sending to the API; the mapping runs
+ * inside defer so an unparsable calendar date surfaces as an observable error, not a throw.
  */
 import { inject, Injectable } from '@angular/core';
+import { defer } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -40,14 +42,12 @@ export class DataClientService {
   private httpClient = inject(HttpClient);
 
   readClientList(filter: IFilter) {
-    const mappedFilter = ClientDataMapper.mapFilterDates(filter);
-
-    return this.httpClient
+    return defer(() => this.httpClient
       .post<ITruncatedClient>(
         `${environment.baseUrl}Clients/GetSimpleList`,
-        mappedFilter,
+        ClientDataMapper.mapFilterDates(filter),
       )
-      .pipe();
+      .pipe());
   }
 
   readChangeList(filter: IFilter) {
@@ -82,19 +82,15 @@ export class DataClientService {
   }
 
   updateClient(value: IClient) {
-    const mapped = ClientDataMapper.mapForUpdate(value);
-
-    return this.httpClient
-      .put<IClient>(`${environment.baseUrl}Clients/`, mapped)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .put<IClient>(`${environment.baseUrl}Clients/`, ClientDataMapper.mapForUpdate(value))
+      .pipe(retry(3)));
   }
 
   addClient(value: IClient) {
-    const mapped = ClientDataMapper.mapForCreate(value);
-
-    return this.httpClient
-      .post<IClient>(`${environment.baseUrl}Clients/`, mapped)
-      .pipe();
+    return defer(() => this.httpClient
+      .post<IClient>(`${environment.baseUrl}Clients/`, ClientDataMapper.mapForCreate(value))
+      .pipe());
   }
 
   deleteClient(id: string) {
@@ -149,11 +145,11 @@ export class DataClientService {
   }
 
   exportList(filter: IExportClient) {
-    return this.httpClient
+    return defer(() => this.httpClient
       .post<IExportClientItem[]>(
         `${environment.baseUrl}Clients/ExportList`,
-        filter,
+        { ...filter, filter: ClientDataMapper.mapFilterDates(filter.filter) },
       )
-      .pipe();
+      .pipe());
   }
 }

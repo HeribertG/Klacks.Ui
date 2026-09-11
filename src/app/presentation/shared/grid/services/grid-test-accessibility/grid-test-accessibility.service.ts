@@ -230,8 +230,7 @@ export class GridTestAccessibilityService {
         }
       }
       if (ds.startDate instanceof Date) {
-        // eslint-disable-next-line no-restricted-syntax -- ds.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the caller's instance
-        const date = new Date(ds.startDate);
+        const date = new Date(ds.startDate.getTime());
         date.setDate(date.getDate() + col);
         return formatDateOnly(date);
       }

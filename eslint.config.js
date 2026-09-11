@@ -3,6 +3,9 @@ const eslint = require("@eslint/js");
 const tseslint = require("typescript-eslint");
 const angular = require("angular-eslint");
 
+const CALENDAR_DATE_NAME_PATTERN =
+  "(?:.*[Dd]ate(?:Str|String)?|birthdate|.*validFrom|.*validUntil|from|until)";
+
 module.exports = tseslint.config(
   {
     ignores: ["**/assets/docs/**/*.html"],
@@ -51,16 +54,34 @@ module.exports = tseslint.config(
             "Deriving a calendar date by truncating toISOString() of a local midnight shifts to the previous day east of UTC (e.g. Switzerland). Use parseCalendarDate/calendarDateKey from calendar-date.helper instead.",
         },
         {
-          selector:
-            "NewExpression[callee.name='Date'][arguments.length=1] > Identifier.arguments:first-child[name=/^(?:.*Date|date|birthdate|.*validFrom|.*validUntil)$/]",
+          selector: `CallExpression[callee.property.name='toISOString'][callee.object.property.name=/^${CALENDAR_DATE_NAME_PATTERN}$/]`,
+          message:
+            "toISOString() of a local-midnight calendar value yields the previous day east of UTC (e.g. Switzerland). Use calendarDateKey/formatDateOnly for keys and toCalendarDateWire for the wire format.",
+        },
+        {
+          selector: `CallExpression[callee.property.name='toISOString'][callee.object.name=/^${CALENDAR_DATE_NAME_PATTERN}$/]`,
+          message:
+            "toISOString() of a local-midnight calendar value yields the previous day east of UTC (e.g. Switzerland). Use calendarDateKey/formatDateOnly for keys and toCalendarDateWire for the wire format.",
+        },
+        {
+          selector: `NewExpression[callee.name='Date'][arguments.length=1] > Identifier.arguments:first-child[name=/^${CALENDAR_DATE_NAME_PATTERN}$/], NewExpression[callee.name='Date'][arguments.length=1] > MemberExpression.arguments:first-child[property.name=/^${CALENDAR_DATE_NAME_PATTERN}$/]`,
           message:
             "new Date(<backend calendar-date field>) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
         },
         {
-          selector:
-            "NewExpression[callee.name='Date'][arguments.length=1] > MemberExpression.arguments:first-child[property.name=/^(?:.*Date|date|birthdate|.*validFrom|.*validUntil)$/]",
+          selector: `NewExpression[callee.name='Date'][arguments.length=1] > TSNonNullExpression.arguments:first-child > Identifier.expression[name=/^${CALENDAR_DATE_NAME_PATTERN}$/], NewExpression[callee.name='Date'][arguments.length=1] > TSNonNullExpression.arguments:first-child > MemberExpression.expression[property.name=/^${CALENDAR_DATE_NAME_PATTERN}$/]`,
           message:
-            "new Date(<backend calendar-date field>) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
+            "new Date(<backend calendar-date field>!) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
+        },
+        {
+          selector: `NewExpression[callee.name='Date'][arguments.length=1] > TSAsExpression.arguments:first-child > Identifier.expression[name=/^${CALENDAR_DATE_NAME_PATTERN}$/], NewExpression[callee.name='Date'][arguments.length=1] > TSAsExpression.arguments:first-child > MemberExpression.expression[property.name=/^${CALENDAR_DATE_NAME_PATTERN}$/]`,
+          message:
+            "new Date(<backend calendar-date field> as ...) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
+        },
+        {
+          selector: `NewExpression[callee.name='Date'][arguments.length=1] > LogicalExpression.arguments:first-child > Identifier.left[name=/^${CALENDAR_DATE_NAME_PATTERN}$/], NewExpression[callee.name='Date'][arguments.length=1] > LogicalExpression.arguments:first-child > MemberExpression.left[property.name=/^${CALENDAR_DATE_NAME_PATTERN}$/]`,
+          message:
+            "new Date(<backend calendar-date field> ?? ...) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
         },
       ],
     },
@@ -68,7 +89,6 @@ module.exports = tseslint.config(
   {
     files: [
       "**/shared/helpers/calendar-date.helper.ts",
-      "**/shared/helpers/date.helper.ts",
       "**/*.spec.ts",
       "**/shared/testing/**",
     ],

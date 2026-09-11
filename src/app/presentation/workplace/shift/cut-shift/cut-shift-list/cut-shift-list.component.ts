@@ -42,7 +42,7 @@ import { CutTableComponent } from '../cut-table/cut-table.component';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
@@ -528,7 +528,7 @@ export class CutShiftListComponent implements OnInit {
             this.maxDate = this.calendar.getNext(earliestNgbDate, 'y', 1);
           }
 
-          const today = new Date();
+          const today = companyToday();
           const todayNgbDate = new NgbDate(
             today.getFullYear(),
             today.getMonth() + 1,

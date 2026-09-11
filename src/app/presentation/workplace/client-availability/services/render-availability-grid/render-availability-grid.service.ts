@@ -142,8 +142,7 @@ export class RenderAvailabilityGridService {
 
     const infos: DayInfo[] = [];
     for (let dayIdx = firstDay; dayIdx <= lastDay; dayIdx++) {
-      // eslint-disable-next-line no-restricted-syntax -- calculation.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-      const date = new Date(this.calculation.startDate);
+      const date = new Date(this.calculation.startDate.getTime());
       date.setDate(date.getDate() + dayIdx);
 
       const slotStartHours: number[] = [];

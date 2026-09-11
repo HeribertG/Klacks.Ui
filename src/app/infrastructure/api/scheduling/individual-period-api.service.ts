@@ -6,7 +6,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { defer, firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
@@ -27,13 +27,17 @@ export class IndividualPeriodApiService {
   }
 
   create(period: IIndividualPeriod): Promise<IIndividualPeriod> {
-    const { id: _id, ...payload } = this.correctDates(period);
-    return firstValueFrom(this.http.post<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retry(3)));
+    return firstValueFrom(defer(() => {
+      const { id: _id, ...payload } = this.correctDates(period);
+      return this.http.post<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retry(3));
+    }));
   }
 
   update(period: IIndividualPeriod): Promise<IIndividualPeriod> {
-    const payload = this.correctDates(period);
-    return firstValueFrom(this.http.put<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retry(3)));
+    return firstValueFrom(defer(() => {
+      const payload = this.correctDates(period);
+      return this.http.put<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods`, payload).pipe(retry(3));
+    }));
   }
 
   delete(id: string): Promise<IIndividualPeriod> {

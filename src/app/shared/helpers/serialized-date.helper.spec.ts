@@ -2,7 +2,12 @@
 
 import { serializedDateReviver } from './serialized-date.helper';
 import { calendarDateKey } from './calendar-date.helper';
-import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 const revive = (json: string): unknown => JSON.parse(json, serializedDateReviver);
 
@@ -10,6 +15,10 @@ describe('serializedDateReviver', () => {
   for (const zone of CALENDAR_TEST_ZONES) {
     describe(`in ${zone}`, () => {
       useTimeZone(zone);
+
+      it('runs in the requested time zone', () => {
+        expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+      });
 
       it('restores a serialized local midnight as the same calendar day', () => {
         const revived = revive(JSON.stringify(new Date(2026, 7, 3)));

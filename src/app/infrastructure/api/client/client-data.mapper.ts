@@ -40,10 +40,10 @@ export class ClientDataMapper {
     return {
       ...value,
       scopeFrom: value.scopeFrom
-        ? toCalendarDateWire(new Date(value.scopeFrom))
+        ? toCalendarDateWire(value.scopeFrom)
         : undefined,
       scopeUntil: value.scopeUntil
-        ? toCalendarDateWire(new Date(value.scopeUntil))
+        ? toCalendarDateWire(value.scopeUntil)
         : undefined,
     };
   }
@@ -79,6 +79,15 @@ export class ClientDataMapper {
           : x.untilDate,
       })),
       groupItems: value.groupItems.map((x) => ({
+        ...x,
+        validFrom: x.validFrom
+          ? toCalendarDateWire(x.validFrom)
+          : x.validFrom,
+        validUntil: x.validUntil
+          ? toCalendarDateWire(x.validUntil)
+          : x.validUntil,
+      })),
+      qualifications: value.qualifications?.map((x) => ({
         ...x,
         validFrom: x.validFrom
           ? toCalendarDateWire(x.validFrom)

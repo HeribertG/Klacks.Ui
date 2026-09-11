@@ -16,6 +16,7 @@ import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { GanttCoordinateService } from './gantt-coordinate.service';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable()
 export class AbsenceGanttDragDropService {
@@ -117,12 +118,9 @@ export class AbsenceGanttDragDropService {
                 leftDiffDay
               );
 
-              if (
-                equalDate(
-                  this.drawCalendarGantt.selectedBreak.from!,
-                  this.drawCalendarGantt.selectedBreak.until!
-                ) > 0
-              ) {
+              const leftFrom = parseCalendarDate(this.drawCalendarGantt.selectedBreak.from);
+              const leftUntil = parseCalendarDate(this.drawCalendarGantt.selectedBreak.until);
+              if (leftFrom && leftUntil && equalDate(leftFrom, leftUntil) > 0) {
                 this.drawCalendarGantt.selectedBreak.until =
                   this.drawCalendarGantt.selectedBreak.from!;
               }
@@ -140,12 +138,9 @@ export class AbsenceGanttDragDropService {
                 rightDiffDay
               );
 
-              if (
-                equalDate(
-                  this.drawCalendarGantt.selectedBreak.until!,
-                  this.drawCalendarGantt.selectedBreak.from!
-                ) < 0
-              ) {
+              const rightFrom = parseCalendarDate(this.drawCalendarGantt.selectedBreak.from);
+              const rightUntil = parseCalendarDate(this.drawCalendarGantt.selectedBreak.until);
+              if (rightFrom && rightUntil && equalDate(rightUntil, rightFrom) < 0) {
                 this.drawCalendarGantt.selectedBreak.from =
                   this.drawCalendarGantt.selectedBreak.until!;
               }
@@ -239,10 +234,6 @@ export class AbsenceGanttDragDropService {
 
     if (x >= 0) {
       const tmpCol = this.coord.mouseToColumn(x);
-
-      // eslint-disable-next-line no-restricted-syntax -- drawCalendarGantt.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the caller's instance
-      const date = new Date(this.drawCalendarGantt.startDate);
-      date.setDate(date.getDate() + tmpCol);
 
       if (tmpCol === this.drawCalendarGantt.selectedBreakIndex) {
         return;

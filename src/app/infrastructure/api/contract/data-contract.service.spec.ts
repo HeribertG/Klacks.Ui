@@ -109,4 +109,19 @@ describe('DataContractService', () => {
             });
         }
     });
+
+    describe('unparsable validFrom', () => {
+        it.each(['add', 'update'] as const)('reports the error through the observable on %s instead of throwing', (operation) => {
+            const contract = mockContract();
+            contract.validFrom = new Date('invalid');
+            const onError = vi.fn();
+
+            const call = () => (operation === 'add' ? service.addContract(contract) : service.updateContract(contract));
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Contracts/`);
+        });
+    });
 });

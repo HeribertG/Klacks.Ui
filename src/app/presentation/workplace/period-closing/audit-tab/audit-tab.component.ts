@@ -35,8 +35,7 @@ import {
   lastOfMonth,
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
-import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 
 interface AuditActionDisplay {
@@ -126,8 +125,8 @@ export class AuditTabComponent implements OnInit {
 
   formatRange(start: string, end: string): string {
     if (!start || !end) return '';
-    const startTxt = DateToStringShort(parseCalendarDate(start) ?? start);
-    const endTxt = DateToStringShort(parseCalendarDate(end) ?? end);
+    const startTxt = CalendarDateToStringShort(start);
+    const endTxt = CalendarDateToStringShort(end);
     return start === end ? startTxt : `${startTxt} – ${endTxt}`;
   }
 

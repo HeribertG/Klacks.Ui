@@ -114,9 +114,9 @@ export class InboxEmailPdfExportService {
     return data.bodyHtml ? htmlToPlainText(data.bodyHtml) : data.bodyText || '';
   }
 
-  private formatDateTime(dateStr: string): string {
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
+  private formatDateTime(dateTimeStr: string): string {
+    const date = new Date(dateTimeStr);
+    if (isNaN(date.getTime())) return dateTimeStr;
     const pad = (n: number) => n.toString().padStart(2, '0');
     return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }

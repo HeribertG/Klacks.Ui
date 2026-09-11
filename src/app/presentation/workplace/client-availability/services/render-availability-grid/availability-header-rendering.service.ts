@@ -107,8 +107,7 @@ export class AvailabilityHeaderRenderingService {
     );
 
     for (let dayIdx = firstDay; dayIdx < lastDay; dayIdx++) {
-      // eslint-disable-next-line no-restricted-syntax -- calculation.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-      const date = new Date(this.calculation.startDate);
+      const date = new Date(this.calculation.startDate.getTime());
       date.setDate(date.getDate() + dayIdx);
       const x = this.coord.absoluteSpanX(dayIdx * columnsPerDay, columnsPerDay, scrollX);
 
@@ -147,8 +146,7 @@ export class AvailabilityHeaderRenderingService {
       const slotIdx = col % columnsPerDay;
       const x = this.coord.absoluteColX(col, scrollX);
 
-      // eslint-disable-next-line no-restricted-syntax -- calculation.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-      const currentDate = new Date(this.calculation.startDate);
+      const currentDate = new Date(this.calculation.startDate.getTime());
       currentDate.setDate(currentDate.getDate() + dayIdx);
 
       ctx.drawImage(template, 0, 0, template.width, template.height, x, dayHeaderHeight, cellWidth, hourHeaderHeight);
