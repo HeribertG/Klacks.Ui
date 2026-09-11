@@ -6,8 +6,9 @@
  * with the question, so an answer with a known valid range is entered in a bounded control instead of
  * free text that costs a correction turn. Action toasts render one button per action; choosing one
  * removes the toast and runs the action. An action toast (e.g. a reload countdown) mutes its own
- * `ngb-toast` live region and is instead announced to screen readers exactly once, through
- * `LiveRegionService`, so a text update such as a per-second countdown does not repeat the announcement.
+ * `ngb-toast` live region and gets `role="status"` instead of the default `role="alert"`; it is
+ * announced once through `LiveRegionService`, so a text update such as a per-second countdown does not
+ * repeat the announcement. Verified in the DOM by the component spec, not with a real screen reader.
  * @param toastService - Injected service providing the toast array
  */
 
@@ -25,12 +26,13 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
   selector: 'app-toasts',
   template: `
     @for (toast of toastService.toasts(); track toast.id) {
-      @if (toast.actions?.length) {
+      @if (isActionToast(toast)) {
       <ngb-toast
         [class]="toast.classname"
         [autohide]="toast.autohide ?? true"
         [delay]="toast.delay || 5000"
         aria-live="off"
+        role="status"
         (hidden)="onToastHidden(toast)"
         style="height: auto !important;"
       >
@@ -49,31 +51,32 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
       }
     }
     <ng-template #toastBody let-toast>
-      @if (isTemplate(toast)) {
-      <ng-template [ngTemplateOutlet]="getTemplate(toast)"></ng-template>
+      @let t = asToast(toast);
+      @if (isTemplate(t)) {
+      <ng-template [ngTemplateOutlet]="getTemplate(t)"></ng-template>
       } @else {
       <div class="toast-content">
-        @if (toast.icon) {
-        <span class="toast-icon me-2">{{ toast.icon }}</span>
+        @if (t.icon) {
+        <span class="toast-icon me-2">{{ t.icon }}</span>
         }
-        <span class="toast-text">{{ toast.textOrTpl }}</span>
+        <span class="toast-text">{{ t.textOrTpl }}</span>
       </div>
 
-      @if (toast.showTextField) {
+      @if (t.showTextField) {
       <div class="mt-2">
         <textarea
           class="form-control form-control-sm"
-          [value]="toast.textFieldValue || ''"
-          [rows]="calculateRows(toast.textFieldValue || '')"
+          [value]="t.textFieldValue || ''"
+          [rows]="calculateRows(t.textFieldValue || '')"
           style="resize: none; overflow: hidden;"
           readonly
         ></textarea>
       </div>
       }
 
-      @if (toast.undo) {
+      @if (t.undo) {
       <div class="undo-action mt-2">
-        <button type="button" class="undo-btn" (click)="onUndoClick(toast)">
+        <button type="button" class="undo-btn" (click)="onUndoClick(t)">
           <svg
             class="undo-icon"
             viewBox="0 0 24 24"
@@ -87,33 +90,33 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
             <path d="M3 8v6h6" />
             <path d="M3.5 14a8.5 8.5 0 1 0 2.2-8.1L3 8" />
           </svg>
-          <span>{{ toast.undo.label }}</span>
+          <span>{{ t.undo.label }}</span>
         </button>
         <div class="undo-progress">
-          <div class="undo-progress-bar" [style.animation-duration.ms]="toast.delay"></div>
+          <div class="undo-progress-bar" [style.animation-duration.ms]="t.delay"></div>
         </div>
       </div>
       }
 
-      @if (toast.actions?.length) {
+      @if (t.actions?.length) {
       <div class="toast-actions mt-2">
-        @for (action of toast.actions; track $index) {
-        <button type="button" class="toast-action-btn" (click)="onActionClick(toast, action)">
+        @for (action of t.actions; track $index) {
+        <button type="button" class="toast-action-btn" (click)="onActionClick(t, action)">
           {{ action.label }}
         </button>
         }
       </div>
       }
 
-      @if (toast.interactive) {
+      @if (t.interactive) {
       <div class="interactive-replies mt-2">
-        @if (toast.interactive.repliesConfig.selectionMode === 'single') {
+        @if (t.interactive.repliesConfig.selectionMode === 'single') {
         <div class="reply-chips">
-          @for (option of toast.interactive.repliesConfig.options; track option.value) {
+          @for (option of t.interactive.repliesConfig.options; track option.value) {
           <button
             type="button"
             class="reply-chip-btn"
-            (click)="onOptionClick(toast, option.value)"
+            (click)="onOptionClick(t, option.value)"
           >
             {{ option.label }}
           </button>
@@ -121,14 +124,14 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
         </div>
         }
 
-        @if (toast.interactive.repliesConfig.selectionMode === 'multi') {
+        @if (t.interactive.repliesConfig.selectionMode === 'multi') {
         <div class="reply-checkboxes">
-          @for (option of toast.interactive.repliesConfig.options; track option.value) {
-          <label class="reply-checkbox-label" [class.checked]="isChecked(toast.id, option.value)">
+          @for (option of t.interactive.repliesConfig.options; track option.value) {
+          <label class="reply-checkbox-label" [class.checked]="isChecked(t.id, option.value)">
             <input
               type="checkbox"
-              [checked]="isChecked(toast.id, option.value)"
-              (change)="onCheckboxToggle(toast.id, option.value)"
+              [checked]="isChecked(t.id, option.value)"
+              (change)="onCheckboxToggle(t.id, option.value)"
             />
             <span class="checkbox-text">{{ option.label }}</span>
           </label>
@@ -137,54 +140,54 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
         <button
           type="button"
           class="reply-confirm-btn mt-2"
-          [disabled]="getCheckedCount(toast.id) === 0"
-          (click)="onMultiConfirm(toast)"
+          [disabled]="getCheckedCount(t.id) === 0"
+          (click)="onMultiConfirm(t)"
         >
           {{ 'assistant-chat.replies.confirm' | translate }}
         </button>
         }
 
-        @if (toast.interactive.repliesConfig.selectionMode === 'date') {
-        @if (toast.interactive.repliesConfig.prompt) {
-        <div class="reply-date-heading">{{ toast.interactive.repliesConfig.prompt }}</div>
+        @if (t.interactive.repliesConfig.selectionMode === 'date') {
+        @if (t.interactive.repliesConfig.prompt) {
+        <div class="reply-date-heading">{{ t.interactive.repliesConfig.prompt }}</div>
         }
         <input
           type="date"
           class="form-control form-control-sm reply-date-input"
-          [value]="getDateValue(toast.id)"
-          (input)="onDateInput(toast.id, $event)"
+          [value]="getDateValue(t.id)"
+          (input)="onDateInput(t.id, $event)"
         />
         <button
           type="button"
           class="reply-confirm-btn mt-2"
-          [disabled]="!getDateValue(toast.id)"
-          (click)="onDateConfirm(toast)"
+          [disabled]="!getDateValue(t.id)"
+          (click)="onDateConfirm(t)"
         >
           {{ 'assistant-chat.replies.confirm' | translate }}
         </button>
         }
 
-        @if (toast.interactive.repliesConfig.selectionMode === 'number') {
-        @if (toast.interactive.repliesConfig.prompt) {
-        <div class="reply-date-heading">{{ toast.interactive.repliesConfig.prompt }}</div>
+        @if (t.interactive.repliesConfig.selectionMode === 'number') {
+        @if (t.interactive.repliesConfig.prompt) {
+        <div class="reply-date-heading">{{ t.interactive.repliesConfig.prompt }}</div>
         }
         <input
           type="number"
           class="form-control form-control-sm reply-number-input"
-          [attr.min]="toast.interactive.repliesConfig.min"
-          [attr.max]="toast.interactive.repliesConfig.max"
-          [attr.step]="toast.interactive.repliesConfig.step"
-          [value]="getNumberValue(toast.id)"
-          (input)="onNumberInput(toast.id, $event)"
+          [attr.min]="t.interactive.repliesConfig.min"
+          [attr.max]="t.interactive.repliesConfig.max"
+          [attr.step]="t.interactive.repliesConfig.step"
+          [value]="getNumberValue(t.id)"
+          (input)="onNumberInput(t.id, $event)"
         />
-        @if (numberRangeHint(toast.interactive.repliesConfig); as rangeHint) {
+        @if (numberRangeHint(t.interactive.repliesConfig); as rangeHint) {
         <div class="reply-number-range">{{ rangeHint }}</div>
         }
         <button
           type="button"
           class="reply-confirm-btn mt-2"
-          [disabled]="!isNumberValid(toast.id, toast.interactive.repliesConfig)"
-          (click)="onNumberConfirm(toast)"
+          [disabled]="!isNumberValid(t.id, t.interactive.repliesConfig)"
+          (click)="onNumberConfirm(t)"
         >
           {{ 'assistant-chat.replies.confirm' | translate }}
         </button>
@@ -193,7 +196,7 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
         <button
           type="button"
           class="reply-dismiss-btn"
-          (click)="onDismissInteractive(toast)"
+          (click)="onDismissInteractive(t)"
         >
           {{ 'cancel' | translate }}
         </button>
@@ -240,10 +243,18 @@ export class ToastsContainerComponent {
 
   private needsAnnouncement(toast: IToast): boolean {
     return (
-      (toast.actions?.length ?? 0) > 0 &&
+      this.isActionToast(toast) &&
       typeof toast.textOrTpl === 'string' &&
       !this.announcedActionToastIds.has(toast.id)
     );
+  }
+
+  isActionToast(toast: IToast): boolean {
+    return (toast.actions?.length ?? 0) > 0;
+  }
+
+  asToast(value: unknown): IToast {
+    return value as IToast;
   }
 
   calculateRows(text: string): number {

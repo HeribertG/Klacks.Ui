@@ -29,10 +29,11 @@ describe('ToastsContainerComponent', () => {
   });
 
   afterEach(() => {
-    // LiveRegionService appends its sr-only announcer directly to document.body and is not torn down
-    // with the fixture - without this, a leftover announcer from an earlier test would be the one
-    // document.body.querySelector('.sr-only[aria-live]') finds in a later test.
-    document.querySelectorAll('.sr-only').forEach((element) => element.remove());
+    // LiveRegionService appends its visually-hidden announcer directly to document.body and is not torn
+    // down with the fixture - without this, a leftover announcer from an earlier test would be the one
+    // document.body.querySelector('.visually-hidden[aria-live]') finds in a later test.
+    document.querySelectorAll('.visually-hidden').forEach((element) => element.remove());
+    vi.useRealTimers();
   });
 
   it('should render an undo button with the configured label', () => {
@@ -161,6 +162,7 @@ describe('ToastsContainerComponent', () => {
     // Assert
     const ngbToast: HTMLElement | null = fixture.nativeElement.querySelector('ngb-toast');
     expect(ngbToast?.getAttribute('aria-live')).toBe('off');
+    expect(ngbToast?.getAttribute('role')).toBe('status');
     expect(announce).toHaveBeenCalledTimes(1);
     expect(announce).toHaveBeenCalledWith('Reloading in 10 s');
   });
@@ -175,9 +177,8 @@ describe('ToastsContainerComponent', () => {
     await vi.advanceTimersByTimeAsync(200);
 
     // Assert
-    const region: HTMLElement | null = document.body.querySelector('.sr-only[aria-live]');
+    const region: HTMLElement | null = document.body.querySelector('.visually-hidden[aria-live]');
     expect(region?.textContent).toBe('Reloading in 10 s');
-    vi.useRealTimers();
   });
 
   it('should keep the default live region for a toast without actions', () => {
@@ -189,7 +190,8 @@ describe('ToastsContainerComponent', () => {
 
     // Assert
     const ngbToast: HTMLElement | null = fixture.nativeElement.querySelector('ngb-toast');
-    expect(ngbToast?.getAttribute('aria-live')).not.toBe('off');
+    expect(ngbToast?.getAttribute('aria-live')).toBe('polite');
+    expect(ngbToast?.getAttribute('role')).toBe('alert');
   });
 
   it('should render single-select reply chips for an interactive toast', () => {

@@ -4,8 +4,8 @@
  * Decides whether and when a requested page reload happens - for a newer deployed version, the end of a
  * backend outage, or a missing chunk of the running bundle - deferring it while changes are unsaved, a
  * dialog is open or the user is typing, and otherwise running a countdown toast; the countdown only
- * starts with a visible toast.
- * @param request - The pending reload request (reason, optional target URL, whether auto-reload is allowed)
+ * starts with a visible toast. The pending reload request carries the reason, an optional target URL
+ * and whether auto-reload is allowed.
  */
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';

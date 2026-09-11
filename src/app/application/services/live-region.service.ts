@@ -14,7 +14,7 @@ export class LiveRegionService {
       this.liveRegion = this.renderer.createElement('div');
       this.renderer.setAttribute(this.liveRegion, 'aria-live', 'polite');
       this.renderer.setAttribute(this.liveRegion, 'aria-atomic', 'true');
-      this.renderer.addClass(this.liveRegion, 'sr-only');
+      this.renderer.addClass(this.liveRegion, 'visually-hidden');
       this.renderer.appendChild(document.body, this.liveRegion);
     }
     return this.liveRegion!;
