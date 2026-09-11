@@ -6,11 +6,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ToastsContainerComponent } from './toast.component';
 import { ToastService } from './toast.service';
 import { ToastShowService } from './toast-show.service';
+import { LiveRegionService } from 'src/app/application/services/live-region.service';
 
 describe('ToastsContainerComponent', () => {
   let fixture: ComponentFixture<ToastsContainerComponent>;
   let toastService: ToastService;
   let toastShowService: ToastShowService;
+  let liveRegionService: LiveRegionService;
 
   const UNDO_DELAY_MS = 15000;
 
@@ -23,6 +25,7 @@ describe('ToastsContainerComponent', () => {
     fixture = TestBed.createComponent(ToastsContainerComponent);
     toastService = TestBed.inject(ToastService);
     toastShowService = TestBed.inject(ToastShowService);
+    liveRegionService = TestBed.inject(LiveRegionService);
   });
 
   it('should render an undo button with the configured label', () => {
@@ -125,5 +128,45 @@ describe('ToastsContainerComponent', () => {
 
     // Assert
     expect(fixture.nativeElement.querySelector('.toast-action-btn')).toBeNull();
+  });
+
+  it('should not render the actions container for an empty action list', () => {
+    // Arrange
+    toastShowService.showActions('No actions here', 'empty-actions', []);
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(fixture.nativeElement.querySelector('.toast-actions')).toBeNull();
+  });
+
+  it('should mute the live region of an action toast and announce it once instead', () => {
+    // Arrange
+    const announce = vi.spyOn(liveRegionService, 'announce');
+    const toast = toastShowService.showActions('Reloading in 10 s', 'app-reload', [{ label: 'Now', onClick: vi.fn() }]);
+    fixture.detectChanges();
+
+    // Act
+    toastShowService.updateText(toast!, 'Reloading in 9 s');
+    fixture.detectChanges();
+
+    // Assert
+    const ngbToast: HTMLElement | null = fixture.nativeElement.querySelector('ngb-toast');
+    expect(ngbToast?.getAttribute('aria-live')).toBe('off');
+    expect(announce).toHaveBeenCalledTimes(1);
+    expect(announce).toHaveBeenCalledWith('Reloading in 10 s');
+  });
+
+  it('should keep the default live region for a toast without actions', () => {
+    // Arrange
+    toastShowService.showInfo('Plain information');
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    const ngbToast: HTMLElement | null = fixture.nativeElement.querySelector('ngb-toast');
+    expect(ngbToast?.getAttribute('aria-live')).not.toBe('off');
   });
 });

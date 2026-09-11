@@ -109,6 +109,15 @@ describe('AppReloadCoordinator', () => {
     vi.useRealTimers();
   });
 
+  it('stops the countdown when the coordinator is destroyed', async () => {
+    reloadRequests.requestReload(VERSION_REQUEST);
+    TestBed.resetTestingModule();
+
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_MS);
+
+    expect(pageReloader.reload).not.toHaveBeenCalled();
+  });
+
   describe('when nothing holds the reload back', () => {
     it('shows a ten-second countdown and reloads the current page when it runs out', async () => {
       // Act

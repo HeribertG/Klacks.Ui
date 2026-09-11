@@ -5,11 +5,13 @@
  * date-picker and number-field options. The number field carries the min/max/step the assistant sent
  * with the question, so an answer with a known valid range is entered in a bounded control instead of
  * free text that costs a correction turn. Action toasts render one button per action; choosing one
- * removes the toast and runs the action.
+ * removes the toast and runs the action. An action toast (e.g. a reload countdown) mutes its own
+ * `ngb-toast` live region and is instead announced to screen readers exactly once, through
+ * `LiveRegionService`, so a text update such as a per-second countdown does not repeat the announcement.
  * @param toastService - Injected service providing the toast array
  */
 
-import { ChangeDetectionStrategy, Component, TemplateRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, effect, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,18 +19,36 @@ import { ToastService } from './toast.service';
 import { IToast } from './toast.interface';
 import { IToastAction } from './toast-action.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { LiveRegionService } from 'src/app/application/services/live-region.service';
 
 @Component({
   selector: 'app-toasts',
   template: `
     @for (toast of toastService.toasts(); track toast.id) {
-    <ngb-toast
-      [class]="toast.classname"
-      [autohide]="toast.autohide ?? true"
-      [delay]="toast.delay || 5000"
-      (hidden)="onToastHidden(toast)"
-      style="height: auto !important;"
-    >
+      @if (toast.actions?.length) {
+      <ngb-toast
+        [class]="toast.classname"
+        [autohide]="toast.autohide ?? true"
+        [delay]="toast.delay || 5000"
+        aria-live="off"
+        (hidden)="onToastHidden(toast)"
+        style="height: auto !important;"
+      >
+        <ng-container [ngTemplateOutlet]="toastBody" [ngTemplateOutletContext]="{ $implicit: toast }"></ng-container>
+      </ngb-toast>
+      } @else {
+      <ngb-toast
+        [class]="toast.classname"
+        [autohide]="toast.autohide ?? true"
+        [delay]="toast.delay || 5000"
+        (hidden)="onToastHidden(toast)"
+        style="height: auto !important;"
+      >
+        <ng-container [ngTemplateOutlet]="toastBody" [ngTemplateOutletContext]="{ $implicit: toast }"></ng-container>
+      </ngb-toast>
+      }
+    }
+    <ng-template #toastBody let-toast>
       @if (isTemplate(toast)) {
       <ng-template [ngTemplateOutlet]="getTemplate(toast)"></ng-template>
       } @else {
@@ -75,9 +95,9 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
       </div>
       }
 
-      @if (toast.actions; as actions) {
+      @if (toast.actions?.length) {
       <div class="toast-actions mt-2">
-        @for (action of actions; track $index) {
+        @for (action of toast.actions; track $index) {
         <button type="button" class="toast-action-btn" (click)="onActionClick(toast, action)">
           {{ action.label }}
         </button>
@@ -180,8 +200,7 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
       </div>
       }
       }
-    </ngb-toast>
-    }
+    </ng-template>
   `,
   styleUrls: ['./toast.component.scss'],
   host: {
@@ -194,10 +213,38 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
 })
 export class ToastsContainerComponent {
   readonly toastService = inject(ToastService);
+  private readonly liveRegion = inject(LiveRegionService);
 
   private readonly checkedState = signal<Map<string, Set<string>>>(new Map());
   private readonly dateState = signal<Map<string, string>>(new Map());
   private readonly numberState = signal<Map<string, string>>(new Map());
+  private readonly announcedActionToastIds = new Set<string>();
+
+  constructor() {
+    effect(() => {
+      const toasts = this.toastService.toasts();
+      const currentIds = new Set(toasts.map((toast) => toast.id));
+      for (const toast of toasts) {
+        if (this.needsAnnouncement(toast)) {
+          this.announcedActionToastIds.add(toast.id);
+          this.liveRegion.announce(toast.textOrTpl as string);
+        }
+      }
+      for (const id of this.announcedActionToastIds) {
+        if (!currentIds.has(id)) {
+          this.announcedActionToastIds.delete(id);
+        }
+      }
+    });
+  }
+
+  private needsAnnouncement(toast: IToast): boolean {
+    return (
+      (toast.actions?.length ?? 0) > 0 &&
+      typeof toast.textOrTpl === 'string' &&
+      !this.announcedActionToastIds.has(toast.id)
+    );
+  }
 
   calculateRows(text: string): number {
     if (!text || text.length === 0) return 1;

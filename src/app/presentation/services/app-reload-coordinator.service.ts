@@ -1,20 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Decides whether and when a requested page reload happens - for a newer deployed version, the end of
- * a backend outage, or a chunk of the running bundle that is gone. Unsaved changes are never reloaded
- * away: the user gets a standing toast with a reload button instead. An open dialog postpones the
- * decision, and so does a signed-in user who is typing: focus in a text field only counts while an
- * input, keydown or compositionstart event reached the document within the last 60 seconds, and never
- * on the login page, where no unsaved changes can exist. The decision is taken again when focus leaves,
- * the dialog closes, the next request arrives or the periodic re-check runs. Otherwise a 10-second
- * countdown toast reloads the page unless the user picks "later", which postpones it by 15 minutes. A
- * chunk failure loads the URL the user tried to open and ends a "later" postponement. Requests arriving
- * while one is pending are merged, and no countdown ever runs without a visible toast: ToastService.show()
- * silently returns null for empty or duplicate text, so if the countdown or standing toast could not be
- * shown, the periodic re-check is armed instead of leaving the request stuck - the next re-check tries
- * again. Only at the moment of the actual reload do the version watch and, for a chunk failure, the
- * chunk recovery record it, so a reload that does not help cannot repeat itself.
+ * Decides whether and when a requested page reload happens - for a newer deployed version, the end of a
+ * backend outage, or a missing chunk of the running bundle - deferring it while changes are unsaved, a
+ * dialog is open or the user is typing, and otherwise running a countdown toast; the countdown only
+ * starts with a visible toast.
+ * @param request - The pending reload request (reason, optional target URL, whether auto-reload is allowed)
  */
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
