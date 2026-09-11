@@ -1,6 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-// Version: 1.0.1-deploy-test
+/**
+ * Root component: hosts the router outlet and the global overlays, starts the application-wide
+ * services (data refresh, reload coordination, chunk recovery, version watch, SignalR) and signs out
+ * a user whose SignalR authentication failed for good.
+ */
 import { ChangeDetectionStrategy, Component, OnInit, effect, inject, DestroyRef } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,6 +24,9 @@ import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
 import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
 import { DataRefreshCoordinator } from 'src/app/application/services/data-refresh-coordinator.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { AppReloadCoordinator } from 'src/app/presentation/services/app-reload-coordinator.service';
+import { ChunkLoadRecoveryService } from 'src/app/application/services/chunk-load-recovery.service';
+import { AppVersionWatchService } from 'src/app/application/services/app-version-watch.service';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +53,9 @@ export class AppComponent implements OnInit {
   private readonly setupGateService = inject(SetupGateService);
   private readonly dataRefreshCoordinator = inject(DataRefreshCoordinator);
   private readonly assistantSignalR = inject(AssistantSignalRService);
+  private readonly appReloadCoordinator = inject(AppReloadCoordinator);
+  private readonly chunkLoadRecovery = inject(ChunkLoadRecoveryService);
+  private readonly appVersionWatch = inject(AppVersionWatchService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   public title = 'klacks';
@@ -63,6 +73,9 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.applicationInitService.initializeBasics();
     this.dataRefreshCoordinator.start();
+    this.appReloadCoordinator.start();
+    this.chunkLoadRecovery.start();
+    this.appVersionWatch.start();
     if (this.authService.authenticated()) {
       void this.signalRService.startConnection();
       void this.assistantSignalR.startConnection();

@@ -17,6 +17,12 @@ import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-pr
 import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
 import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
 import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
+import { APP_VERSION_SOURCE } from './domain/interfaces/app-version-source.interface';
+import { REALTIME_CONNECTION_STATUS } from './domain/interfaces/realtime-connection-status.interface';
+import { RELOAD_GUARD_STORAGE } from './domain/interfaces/reload-guard-storage.interface';
+import { AppReloadCoordinator } from './presentation/services/app-reload-coordinator.service';
+import { ChunkLoadRecoveryService } from './application/services/chunk-load-recovery.service';
+import { AppVersionWatchService } from './application/services/app-version-watch.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -64,6 +70,17 @@ describe('AppComponent', () => {
         { provide: FILTER_STORAGE_TOKEN, useValue: { getItem: () => null, setItem: () => {}, removeItem: () => {} } },
         { provide: SCRIPT_COMPILER, useValue: { compile: () => ({}) } },
         { provide: SEARCH_STRATEGY, useValue: { globalSearch: () => {}, resetFilter: () => {}, restoreSearch: () => '', setRestoreSearch: () => {} } },
+        { provide: APP_VERSION_SOURCE, useValue: { fetchDeployedBuildInfo: () => Promise.resolve(null) } },
+        { provide: REALTIME_CONNECTION_STATUS, useValue: { connected$: of(false) } },
+        {
+          provide: RELOAD_GUARD_STORAGE,
+          useValue: {
+            readLastChunkReloadAt: () => null,
+            writeLastChunkReloadAt: () => undefined,
+            readReloadedBuildKey: () => null,
+            writeReloadedBuildKey: () => undefined,
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -95,6 +112,27 @@ describe('AppComponent', () => {
 
     // Assert
     expect(compiled.querySelector('app-toasts')).not.toBeNull();
+  });
+
+  it('starts reload coordination before the chunk recovery and the version watch', () => {
+    // Arrange
+    const started: string[] = [];
+    vi.spyOn(TestBed.inject(AppReloadCoordinator), 'start').mockImplementation(() => {
+      started.push('coordinator');
+    });
+    vi.spyOn(TestBed.inject(ChunkLoadRecoveryService), 'start').mockImplementation(() => {
+      started.push('chunk-recovery');
+    });
+    vi.spyOn(TestBed.inject(AppVersionWatchService), 'start').mockImplementation(() => {
+      started.push('version-watch');
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(started).toEqual(['coordinator', 'chunk-recovery', 'version-watch']);
   });
 
   // Position, edge anchor, stacking order and zone visibility for every floating overlay (toasts,
