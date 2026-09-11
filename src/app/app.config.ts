@@ -70,6 +70,10 @@ import { BUILD_INFO } from './domain/interfaces/build-info.interface';
 import { BUILD_INFO_VALUE } from '../build-info';
 import { RELOAD_GUARD_STORAGE } from './domain/interfaces/reload-guard-storage.interface';
 import { ReloadGuardStorageService } from './infrastructure/storage/reload-guard-storage.service';
+import { APP_VERSION_SOURCE } from './domain/interfaces/app-version-source.interface';
+import { DataAppVersionService } from './infrastructure/api/data-app-version.service';
+import { REALTIME_CONNECTION_STATUS } from './domain/interfaces/realtime-connection-status.interface';
+import { SignalRConnectionStatusService } from './infrastructure/signalr/signalr-connection-status.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -183,6 +187,14 @@ export const appConfig: ApplicationConfig = {
     {
       provide: RELOAD_GUARD_STORAGE,
       useExisting: ReloadGuardStorageService,
+    },
+    {
+      provide: APP_VERSION_SOURCE,
+      useExisting: DataAppVersionService,
+    },
+    {
+      provide: REALTIME_CONNECTION_STATUS,
+      useExisting: SignalRConnectionStatusService,
     },
     ...providePluginHost(),
     ...provideMessagingVoice(),
