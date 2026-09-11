@@ -7,6 +7,10 @@
  * @param showSuccess - Shows a success toast (auto-hide 2s)
  * @param showInteractiveReply - Shows an interactive toast with single/multi-select options
  * @param showUndo - Shows an undo offer toast that replaces any previous undo offer
+ * @param showActions - Shows a toast with action buttons that stays until one is chosen and
+ * replaces an earlier toast of the same name
+ * @param updateText - Changes the text of a shown toast, e.g. a countdown
+ * @param dismiss - Removes a shown toast
  *
  * Error toasts are swallowed while the backend is known to be down: every pending request fails at
  * once there, and a stack of identical failures tells the user nothing the outage overlay does not
@@ -22,6 +26,8 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
 import { IToast } from './toast.interface';
 import { TOAST_ICONS } from './toast-icons.constants';
 import { UNDO_TOAST } from './undo-toast.constants';
+import { ACTION_TOAST } from './action-toast.constants';
+import { IToastAction } from './toast-action.interface';
 
 const INTERACTIVE_REPLY_DEFAULTS = {
   PROMPT_FALLBACK: 'Bitte wählen...',
@@ -101,6 +107,28 @@ export class ToastShowService {
       icon: '',
       undo: { label, onUndo },
     });
+  }
+
+  showActions(message: string, name: string, actions: IToastAction[]): IToast | null {
+    const existing = this.toastService.toasts().find((x) => x.name === name);
+    this.toastService.remove(existing);
+
+    return this.toastService.show(message, {
+      classname: ACTION_TOAST.CLASSNAME,
+      autohide: false,
+      name,
+      headertext: '',
+      icon: '',
+      actions,
+    });
+  }
+
+  updateText(toast: IToast, message: string): void {
+    this.toastService.updateText(toast.id, message);
+  }
+
+  dismiss(toast: IToast): void {
+    this.toastService.removeById(toast.id);
   }
 
   showInteractiveReply(

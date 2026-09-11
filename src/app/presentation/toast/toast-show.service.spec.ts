@@ -4,6 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { ToastShowService } from './toast-show.service';
 import { ToastService } from './toast.service';
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
+import { ACTION_TOAST } from './action-toast.constants';
+
+const ACTION_TOAST_NAME = 'app-reload';
 
 describe('ToastShowService', () => {
   let service: ToastShowService;
@@ -227,6 +230,60 @@ describe('ToastShowService', () => {
       service.showSuccess('Operation completed', 'Success');
 
       expect(toastService.toasts().length).toBe(1);
+    });
+
+    it('should still show action toasts', () => {
+      service.showActions('New version available', ACTION_TOAST_NAME, [{ label: 'Now', onClick: vi.fn() }]);
+
+      expect(toastService.toasts().length).toBe(1);
+    });
+  });
+
+  describe('showActions', () => {
+    it('should create a toast that stays until one of its actions is chosen', () => {
+      const actions = [
+        { label: 'Now', onClick: vi.fn() },
+        { label: 'Later', onClick: vi.fn() },
+      ];
+
+      const toast = service.showActions('New version available', ACTION_TOAST_NAME, actions);
+
+      expect(toast).not.toBeNull();
+      expect(toastService.toasts()[0]).toMatchObject({
+        textOrTpl: 'New version available',
+        name: ACTION_TOAST_NAME,
+        autohide: false,
+        classname: ACTION_TOAST.CLASSNAME,
+      });
+      expect(toastService.toasts()[0].actions).toBe(actions);
+    });
+
+    it('should replace an earlier action toast with the same name', () => {
+      service.showActions('New version available', ACTION_TOAST_NAME, [{ label: 'Now', onClick: vi.fn() }]);
+      service.showActions('Connection restored', ACTION_TOAST_NAME, [{ label: 'Now', onClick: vi.fn() }]);
+
+      expect(toastService.toasts().length).toBe(1);
+      expect(toastService.toasts()[0].textOrTpl).toBe('Connection restored');
+    });
+  });
+
+  describe('updateText', () => {
+    it('should change the text of a shown toast', () => {
+      const toast = service.showActions('Reloading in 10 s', ACTION_TOAST_NAME, [])!;
+
+      service.updateText(toast, 'Reloading in 9 s');
+
+      expect(toastService.toasts()[0].textOrTpl).toBe('Reloading in 9 s');
+    });
+  });
+
+  describe('dismiss', () => {
+    it('should remove the given toast', () => {
+      const toast = service.showActions('New version available', ACTION_TOAST_NAME, [])!;
+
+      service.dismiss(toast);
+
+      expect(toastService.toasts().length).toBe(0);
     });
   });
 });

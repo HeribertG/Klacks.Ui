@@ -111,4 +111,23 @@ describe('ToastService', () => {
 
     expect(before).not.toBe(after);
   });
+
+  it('should replace the text of a toast in place, keeping its id', () => {
+    const toast = service.show('Reloading in 10 s')!;
+
+    service.updateText(toast.id, 'Reloading in 9 s');
+
+    expect(service.toasts().length).toBe(1);
+    expect(service.toasts()[0].id).toBe(toast.id);
+    expect(service.toasts()[0].textOrTpl).toBe('Reloading in 9 s');
+  });
+
+  it('should leave other toasts untouched when updating a text', () => {
+    service.show('Other toast');
+    const toast = service.show('Reloading in 10 s')!;
+
+    service.updateText(toast.id, 'Reloading in 9 s');
+
+    expect(service.toasts()[0].textOrTpl).toBe('Other toast');
+  });
 });

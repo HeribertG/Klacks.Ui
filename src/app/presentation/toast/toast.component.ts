@@ -4,7 +4,8 @@
  * Renders toast notifications including interactive reply toasts with single-select, multi-select,
  * date-picker and number-field options. The number field carries the min/max/step the assistant sent
  * with the question, so an answer with a known valid range is entered in a bounded control instead of
- * free text that costs a correction turn.
+ * free text that costs a correction turn. Action toasts render one button per action; choosing one
+ * removes the toast and runs the action.
  * @param toastService - Injected service providing the toast array
  */
 
@@ -14,6 +15,7 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from './toast.service';
 import { IToast } from './toast.interface';
+import { IToastAction } from './toast-action.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 
 @Component({
@@ -70,6 +72,16 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
         <div class="undo-progress">
           <div class="undo-progress-bar" [style.animation-duration.ms]="toast.delay"></div>
         </div>
+      </div>
+      }
+
+      @if (toast.actions; as actions) {
+      <div class="toast-actions mt-2">
+        @for (action of actions; track $index) {
+        <button type="button" class="toast-action-btn" (click)="onActionClick(toast, action)">
+          {{ action.label }}
+        </button>
+        }
       </div>
       }
 
@@ -251,6 +263,11 @@ export class ToastsContainerComponent {
   onUndoClick(toast: IToast): void {
     toast.undo?.onUndo();
     this.toastService.remove(toast);
+  }
+
+  onActionClick(toast: IToast, action: IToastAction): void {
+    this.toastService.remove(toast);
+    action.onClick();
   }
 
   onOptionClick(toast: IToast, value: string): void {

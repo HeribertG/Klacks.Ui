@@ -2,13 +2,15 @@
 
 /**
  * Defines the structure for toast notifications including interactive reply toasts.
- * @param IToast - Base toast with display properties and optional interactive options
+ * @param IToast - Base toast with display properties, optional interactive options and optional
+ * action buttons that keep the toast open until one is chosen
  * @param IInteractiveToastConfig - Configuration for single/multi-select interactive toasts
  */
 
 import { TemplateRef } from '@angular/core';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { IUndoToastConfig } from './undo-toast-config.interface';
+import { IToastAction } from './toast-action.interface';
 
 export interface IToast {
   id: string;
@@ -23,6 +25,7 @@ export interface IToast {
   icon?: string;
   interactive?: IInteractiveToastConfig;
   undo?: IUndoToastConfig;
+  actions?: IToastAction[];
   persistent?: boolean;
 }
 

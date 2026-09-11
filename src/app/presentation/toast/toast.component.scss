@@ -61,7 +61,8 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   }
 
-  .bg-undo {
+  .bg-undo,
+  .bg-action {
     background: var(--backgroundColorCard, #fff) !important;
     color: var(--standartTextColor, #333) !important;
     border: 2px solid colors.$standartGreenColor !important;
@@ -140,13 +141,15 @@
     gap: 6px;
   }
 
-  .reply-chips {
+  .reply-chips,
+  .toast-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
   }
 
-  .reply-chip-btn {
+  .reply-chip-btn,
+  .toast-action-btn {
     background: var(--backgroundColorFocus, #f0f0f0);
     color: var(--standartTextColor, #333);
     border: 1px solid var(--cardBorderColor, #ddd);

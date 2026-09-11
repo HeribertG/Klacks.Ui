@@ -5,6 +5,7 @@
  * @param toasts - Array of active toast notifications
  * @param show - Adds a new toast with optional interactive config
  * @param remove - Removes a toast from display
+ * @param updateText - Replaces the text of a shown toast in place, e.g. for a countdown
  */
 
 import { Injectable, signal } from '@angular/core';
@@ -40,6 +41,10 @@ export class ToastService {
 
   removeById(id: string): void {
     this.toasts.update(arr => arr.filter((t) => t.id !== id));
+  }
+
+  updateText(id: string, text: string): void {
+    this.toasts.update(arr => arr.map((t) => (t.id === id ? { ...t, textOrTpl: text } : t)));
   }
 
   findToast(text: string): boolean {
