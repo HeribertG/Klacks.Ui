@@ -18,8 +18,8 @@
  * German (it has no per-locale translation) and is always presented to the model as such.
  * The targetId slug and labelKey are only a technical fallback shown to the model for orientation.
  * Modes: default run generates pending core-locale targets (+ plugin overlays); --dry-run prints
- * the finished prompts for a few example targets to the console without calling any API or
- * writing any file; --plugins-only fills missing plugin overlays only; --core-only skips plugin
+ * the finished prompts for a few example targets (or the SYNONYM_ONLY_TARGETS/SYNONYM_ONLY_LOCALES
+ * selection) to the console without calling any API or writing any file; --plugins-only fills missing plugin overlays only; --core-only skips plugin
  * locales; --force regenerates even already-generated pairs; --regenerate re-creates the core
  * synonyms of the (non-reviewed) targets listed in SYNONYM_ONLY_TARGETS. SYNONYM_ONLY_LOCALES
  * restricts both core and plugin locales. A failed or empty model answer never overwrites
@@ -519,7 +519,7 @@ function buildMeaningAnchor(
     if (de.length) parts.push(`German: ${de.join(', ')}`);
     if (!parts.length) return { text: '', usedLegacyFallback: false, usedGermanTextFallback: false, hasOnScreenText: false };
     return {
-      text: `No on-screen text is recorded for this target; falling back to previously generated synonyms to convey the concept (use ONLY to grasp the meaning, never translate literally): ${parts.join(' || ')}.`,
+      text: `No on-screen text is recorded for this target; these previously generated synonyms define its meaning (use them ONLY to grasp the meaning, never translate literally): ${parts.join(' || ')}.`,
       usedLegacyFallback: true,
       usedGermanTextFallback: false,
       hasOnScreenText: false,
@@ -573,6 +573,18 @@ function buildAntiBleedInstruction(locale: string, anchor: MeaningAnchor): strin
   return ` The "on-screen text (${localeName})" reference above is genuine ${localeName} vocabulary from the app itself — you may draw on it directly.${fallbackNote} The separate "known user vocabulary" reference is German — do not copy those words verbatim into your ${localeName} phrases; write natural, idiomatic ${localeName} vocabulary for anything not already covered by the on-screen text. Technical acronyms (${PROMPT_ALLOWED_ACRONYMS.join(', ')}) and established international loanwords may be kept as-is.`;
 }
 
+/**
+ * Without on-screen text the model sees the reference vocabulary next to the technical id and label
+ * key, and it followed the slug instead of the reference: "client-list" got customer phrases in five
+ * languages although its reference synonyms say employees — in Klacks a client is a person record.
+ * This makes the reference vocabulary the authority whenever no on-screen text anchors the meaning.
+ * @param anchor - Meaning anchor of the target; the instruction applies only without on-screen text
+ */
+function buildAnchorlessMeaningInstruction(anchor: MeaningAnchor): string {
+  if (anchor.hasOnScreenText || !anchor.text) return '';
+  return 'Because this target has no on-screen text, the reference vocabulary below DEFINES what it means. The id and label key are internal technical names and can be misleading — in this app "client" means an employee (a person record), not a customer. Wherever the id or label key suggests a different meaning than the reference vocabulary, follow the reference vocabulary.';
+}
+
 function buildPrompt(target: TargetEntry, locale: string, label: string, anchor: MeaningAnchor): string {
   const idConcept = humanizeId(target.targetId);
   const labelHint = label && label.toLowerCase() !== idConcept.toLowerCase() ? `, technical label key suffix: "${label}"` : '';
@@ -582,6 +594,7 @@ function buildPrompt(target: TargetEntry, locale: string, label: string, anchor:
   return [
     'You generate in-app navigation synonyms for Klacks, a workforce scheduling application (shifts, employees, absences, contracts, settings).',
     `Navigation target: "${idConcept}" (internal id: "${target.targetId}"${labelHint}, section: "${target.category ?? 'n/a'}", route: "${target.route}"). The id, label key and section are only a technical fallback for orientation — they are NOT what the user sees on screen.`,
+    buildAnchorlessMeaningInstruction(anchor),
     anchor.text,
     `Task: write ${PHRASES_PER_TARGET} short noun phrases (bare keywords, not sentences) a native ${locale} speaker would naturally type or say to jump to this target.`,
     brevity,
@@ -885,7 +898,9 @@ async function dryRun(manifest: TargetEntry[]): Promise<void> {
   let printedPairs = 0;
   let printedGermanTextFallbackPairs = 0;
 
-  for (const targetId of DRY_RUN_TARGET_IDS) {
+  const dryRunTargetIds = ONLY_TARGETS.length ? ONLY_TARGETS : DRY_RUN_TARGET_IDS;
+  const dryRunLocales = ONLY_LOCALES.length ? ONLY_LOCALES : DRY_RUN_LOCALES;
+  for (const targetId of dryRunTargetIds) {
     const t = manifest.find(m => m.targetId === targetId);
     if (!t) {
       console.error(`[dry-run] target not found in manifest: ${targetId}`);
@@ -894,7 +909,7 @@ async function dryRun(manifest: TargetEntry[]): Promise<void> {
     const anchorEntry = anchorsById.get(t.targetId);
     const knowledgeVocab = knowledgeById.get(t.targetId) ?? [];
     const label = labelOf(t);
-    for (const locale of DRY_RUN_LOCALES) {
+    for (const locale of dryRunLocales) {
       const anchor = buildMeaningAnchor(t, anchorEntry, knowledgeVocab, locale, getTranslations(locale), getGenericWordIndex(locale, manifest, anchorsById));
       if (anchor.usedLegacyFallback) console.log(`[dry-run] ${t.targetId}/${locale}: no visible-text anchor recorded, using legacy synonym fallback`);
       if (locale !== 'de') {
