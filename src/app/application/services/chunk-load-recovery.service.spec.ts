@@ -27,8 +27,8 @@ describe('ChunkLoadRecoveryService', () => {
     writeLastChunkReloadAt: (timestampMs: number) => {
       lastChunkReloadAt = timestampMs;
     },
-    readVersionReloadTarget: () => null,
-    writeVersionReloadTarget: () => undefined,
+    readReloadedBuildKey: () => null,
+    writeReloadedBuildKey: () => undefined,
   };
 
   beforeEach(() => {

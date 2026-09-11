@@ -78,7 +78,7 @@ export class AppVersionWatchService {
 
   recordReload(): void {
     if (this.lastReportedBuildKey !== null) {
-      this.guardStorage.writeVersionReloadTarget(this.lastReportedBuildKey);
+      this.guardStorage.writeReloadedBuildKey(this.lastReportedBuildKey);
     }
   }
 
@@ -127,7 +127,7 @@ export class AppVersionWatchService {
     this.reportedBuildKeys.add(deployed.buildKey);
     this.lastReportedBuildKey = deployed.buildKey;
 
-    const reloadAlreadyAttempted = this.guardStorage.readVersionReloadTarget() === deployed.buildKey;
+    const reloadAlreadyAttempted = this.guardStorage.readReloadedBuildKey() === deployed.buildKey;
     this.reloadRequests.requestReload({
       reason: AppReloadReason.Version,
       autoReloadAllowed: !reloadAlreadyAttempted,

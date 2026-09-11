@@ -26,15 +26,15 @@ describe('AppVersionWatchService', () => {
   let connected$: Subject<boolean>;
   let outageEnded$: Subject<void>;
   let chunkLoadFailed$: Subject<void>;
-  let versionReloadTarget: string | null;
+  let reloadedBuildKey: string | null;
   let visibility: DocumentVisibilityState;
 
   const guardStorage: IReloadGuardStorage = {
     readLastChunkReloadAt: () => null,
     writeLastChunkReloadAt: () => undefined,
-    readVersionReloadTarget: () => versionReloadTarget,
-    writeVersionReloadTarget: (buildKey: string) => {
-      versionReloadTarget = buildKey;
+    readReloadedBuildKey: () => reloadedBuildKey,
+    writeReloadedBuildKey: (buildKey: string) => {
+      reloadedBuildKey = buildKey;
     },
   };
 
@@ -70,7 +70,7 @@ describe('AppVersionWatchService', () => {
     connected$ = new Subject<boolean>();
     outageEnded$ = new Subject<void>();
     chunkLoadFailed$ = new Subject<void>();
-    versionReloadTarget = null;
+    reloadedBuildKey = null;
     visibility = 'hidden';
     Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => visibility });
   });
@@ -143,7 +143,7 @@ describe('AppVersionWatchService', () => {
 
       await becomeVisible();
 
-      expect(versionReloadTarget).toBeNull();
+      expect(reloadedBuildKey).toBeNull();
     });
 
     it('remembers the reported build key at the moment the page reloads', async () => {
@@ -152,7 +152,7 @@ describe('AppVersionWatchService', () => {
 
       TestBed.inject(AppVersionWatchService).recordReload();
 
-      expect(versionReloadTarget).toBe(DEPLOYED_BUILD.buildKey);
+      expect(reloadedBuildKey).toBe(DEPLOYED_BUILD.buildKey);
     });
 
     it('records nothing for a reload when no newer build was reported', async () => {
@@ -162,11 +162,11 @@ describe('AppVersionWatchService', () => {
 
       TestBed.inject(AppVersionWatchService).recordReload();
 
-      expect(versionReloadTarget).toBeNull();
+      expect(reloadedBuildKey).toBeNull();
     });
 
     it('forbids the automatic reload when this tab already reloaded for that build key', async () => {
-      versionReloadTarget = DEPLOYED_BUILD.buildKey;
+      reloadedBuildKey = DEPLOYED_BUILD.buildKey;
       startWatch();
 
       await becomeVisible();

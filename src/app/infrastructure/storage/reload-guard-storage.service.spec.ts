@@ -37,10 +37,10 @@ describe('ReloadGuardStorageService', () => {
     expect(storage.readLastChunkReloadAt()).toBeNull();
   });
 
-  it('remembers the build key a version reload was requested for', () => {
-    storage.writeVersionReloadTarget(BUILD_KEY);
+  it('remembers the build key this tab last reloaded for', () => {
+    storage.writeReloadedBuildKey(BUILD_KEY);
 
-    expect(storage.readVersionReloadTarget()).toBe(BUILD_KEY);
+    expect(storage.readReloadedBuildKey()).toBe(BUILD_KEY);
   });
 
   it('degrades to "nothing remembered" when the browser refuses session storage', () => {
@@ -51,9 +51,9 @@ describe('ReloadGuardStorageService', () => {
       throw new Error('denied');
     });
 
-    expect(() => storage.writeVersionReloadTarget(BUILD_KEY)).not.toThrow();
+    expect(() => storage.writeReloadedBuildKey(BUILD_KEY)).not.toThrow();
     expect(() => storage.writeLastChunkReloadAt(CHUNK_RELOAD_AT_MS)).not.toThrow();
-    expect(storage.readVersionReloadTarget()).toBeNull();
+    expect(storage.readReloadedBuildKey()).toBeNull();
     expect(storage.readLastChunkReloadAt()).toBeNull();
   });
 });

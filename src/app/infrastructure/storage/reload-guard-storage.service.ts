@@ -2,7 +2,7 @@
 
 /**
  * Remembers, per browser tab, which reloads were already attempted: the time of the last automatic
- * chunk reload and the build key a version reload was last requested for. sessionStorage survives
+ * chunk reload and the build key this tab last reloaded for. sessionStorage survives
  * the reload itself but is not inherited by a new tab. A storage that throws (private modes, disabled
  * storage) degrades to "nothing remembered".
  */
@@ -10,7 +10,7 @@ import { Injectable } from '@angular/core';
 import { IReloadGuardStorage } from 'src/app/domain/interfaces/reload-guard-storage.interface';
 
 const LAST_CHUNK_RELOAD_KEY = 'klacks.last-chunk-reload-at';
-const VERSION_RELOAD_TARGET_KEY = 'klacks.version-reload-target';
+const RELOADED_BUILD_KEY_STORAGE_KEY = 'klacks.reloaded-build-key';
 
 @Injectable({
   providedIn: 'root',
@@ -29,12 +29,12 @@ export class ReloadGuardStorageService implements IReloadGuardStorage {
     this.write(LAST_CHUNK_RELOAD_KEY, String(timestampMs));
   }
 
-  readVersionReloadTarget(): string | null {
-    return this.read(VERSION_RELOAD_TARGET_KEY);
+  readReloadedBuildKey(): string | null {
+    return this.read(RELOADED_BUILD_KEY_STORAGE_KEY);
   }
 
-  writeVersionReloadTarget(buildKey: string): void {
-    this.write(VERSION_RELOAD_TARGET_KEY, buildKey);
+  writeReloadedBuildKey(buildKey: string): void {
+    this.write(RELOADED_BUILD_KEY_STORAGE_KEY, buildKey);
   }
 
   private read(key: string): string | null {
