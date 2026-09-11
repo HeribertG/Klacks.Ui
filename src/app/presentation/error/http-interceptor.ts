@@ -81,14 +81,16 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        this.resetUIState();
+        this.resetUIState(error);
         return this.handleSpecificErrors(error, req);
       })
     );
   }
 
-  private resetUIState(): void {
-    this.workplaceStateService.isDirty = false;
+  private resetUIState(error: HttpErrorResponse): void {
+    if (!this.isBackendUnreachable(error)) {
+      this.workplaceStateService.isDirty = false;
+    }
     this.workplaceStateService.showProgressSpinner(false);
     this.workplaceStateService.isSavedOrReset = false;
   }

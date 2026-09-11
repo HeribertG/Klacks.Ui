@@ -34,6 +34,11 @@ describe('ResponseInterceptor', () => {
   let httpMock: HttpTestingController;
   let toastShowService: any;
   let backendAvailabilityService: any;
+  let workplaceStateService: {
+    isDirty: boolean;
+    isSavedOrReset: boolean;
+    showProgressSpinner: ReturnType<typeof vi.fn>;
+  };
 
   const expectRequestToFail = (url: string): { status: number | null } => {
     const captured: { status: number | null } = { status: null };
@@ -49,7 +54,7 @@ describe('ResponseInterceptor', () => {
   };
 
   beforeEach(() => {
-    const workplaceStateServiceSpy = {
+    workplaceStateService = {
       isDirty: false,
       isSavedOrReset: false,
       showProgressSpinner: vi.fn(),
@@ -81,7 +86,7 @@ describe('ResponseInterceptor', () => {
           useClass: ResponseInterceptor,
           multi: true,
         },
-        { provide: WorkplaceStateService, useValue: workplaceStateServiceSpy },
+        { provide: WorkplaceStateService, useValue: workplaceStateService },
         { provide: ToastShowService, useValue: toastShowServiceSpy },
         { provide: NavigationService, useValue: navigationServiceSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
@@ -195,6 +200,35 @@ describe('ResponseInterceptor', () => {
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
       expect(captured.status).toBe(CONFLICT.status);
+    });
+  });
+
+  describe('unsaved changes during a backend outage', () => {
+    it.each(GATEWAY_FAILURE_RESPONSES)('keeps the unsaved-changes flag on a $status from the own API', (response) => {
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(API_REQUEST_URL);
+
+      httpMock.expectOne(API_REQUEST_URL).flush(null, response);
+
+      expect(workplaceStateService.isDirty).toBe(true);
+    });
+
+    it('keeps the unsaved-changes flag when the connection itself fails', () => {
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(API_REQUEST_URL);
+
+      httpMock.expectOne(API_REQUEST_URL).error(new ProgressEvent('error'));
+
+      expect(workplaceStateService.isDirty).toBe(true);
+    });
+
+    it('still clears the unsaved-changes flag on a genuine application error', () => {
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(API_REQUEST_URL);
+
+      httpMock.expectOne(API_REQUEST_URL).flush(null, NOT_FOUND);
+
+      expect(workplaceStateService.isDirty).toBe(false);
     });
   });
 });
