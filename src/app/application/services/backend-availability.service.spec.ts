@@ -2,6 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { BackendAvailabilityService } from './backend-availability.service';
+import { AppReloadRequestService } from './app-reload-request.service';
+import { AppReloadReason } from 'src/app/domain/enums/app-reload-reason.enum';
 import { environment } from 'src/environments/environment';
 
 const BACKEND_RESPONSE_URL = environment.baseUrl + 'Countries/';
@@ -15,11 +17,12 @@ const CLOCK_STEP_MS = 500;
 const MEASURED_SLOWEST_BACKEND_START_MS = 41000;
 const BACKEND_READY_AT_MS = 20000;
 const ANSWERED_STORAGE_KEY = 'klacks.backend-has-answered';
+const OUTAGE_RELOAD_REQUEST = { reason: AppReloadReason.Outage, autoReloadAllowed: true };
 
 describe('BackendAvailabilityService', () => {
   let service: BackendAvailabilityService;
   let fetchMock: ReturnType<typeof vi.fn>;
-  let reloadCount: number;
+  let requestReload: ReturnType<typeof vi.fn>;
   let now: number;
 
   const advance = async (ms: number): Promise<void> => {
@@ -29,12 +32,17 @@ describe('BackendAvailabilityService', () => {
     }
   };
 
-  const newServiceInstance = (): BackendAvailabilityService => {
-    const instance = TestBed.runInInjectionContext(() => new BackendAvailabilityService());
-    (instance as unknown as { reloadPage: () => void }).reloadPage = () => {
-      reloadCount++;
-    };
-    return instance;
+  const newServiceInstance = (): BackendAvailabilityService =>
+    TestBed.runInInjectionContext(() => new BackendAvailabilityService());
+
+  const showOverlayThenRecover = async (target: BackendAvailabilityService, gracePeriodMs: number): Promise<void> => {
+    fetchMock.mockResolvedValue({ ok: false });
+    target.reportUnavailable();
+    await advance(gracePeriodMs + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
+    expect(target.isUnavailable()).toBe(true);
+
+    fetchMock.mockResolvedValue({ ok: true });
+    await advance(PROBE_INTERVAL_AFTER_OVERLAY_MS);
   };
 
   beforeEach(() => {
@@ -45,14 +53,12 @@ describe('BackendAvailabilityService', () => {
 
     fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
+    requestReload = vi.fn();
 
-    TestBed.configureTestingModule({ providers: [BackendAvailabilityService] });
+    TestBed.configureTestingModule({
+      providers: [BackendAvailabilityService, { provide: AppReloadRequestService, useValue: { requestReload } }],
+    });
     service = TestBed.inject(BackendAvailabilityService);
-
-    reloadCount = 0;
-    (service as unknown as { reloadPage: () => void }).reloadPage = () => {
-      reloadCount++;
-    };
   });
 
   afterEach(() => {
@@ -72,14 +78,14 @@ describe('BackendAvailabilityService', () => {
       expect(service.isUnavailable()).toBe(false);
     });
 
-    it('never shows the overlay and does not reload when the backend finishes booting', async () => {
+    it('never shows the overlay and requests no reload when the backend finishes booting', async () => {
       fetchMock.mockImplementation(async () => ({ ok: now >= BACKEND_READY_AT_MS }));
 
       service.reportUnavailable();
       await advance(BACKEND_READY_AT_MS + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
 
       expect(service.isUnavailable()).toBe(false);
-      expect(reloadCount).toBe(0);
+      expect(requestReload).not.toHaveBeenCalled();
     });
 
     it('still shows the overlay once the startup grace period has passed', async () => {
@@ -138,20 +144,27 @@ describe('BackendAvailabilityService', () => {
       await advance(2 * OUTAGE_GRACE_PERIOD_MS);
 
       expect(service.isUnavailable()).toBe(false);
-      expect(reloadCount).toBe(0);
+      expect(requestReload).not.toHaveBeenCalled();
     });
 
-    it('reloads the page when the backend recovers after the overlay was shown', async () => {
-      fetchMock.mockResolvedValue({ ok: false });
+    it('hides the overlay and requests one outage reload when the backend recovers after the overlay was shown', async () => {
+      await showOverlayThenRecover(service, OUTAGE_GRACE_PERIOD_MS);
+
+      expect(service.isUnavailable()).toBe(false);
+      expect(requestReload).toHaveBeenCalledTimes(1);
+      expect(requestReload).toHaveBeenCalledWith(OUTAGE_RELOAD_REQUEST);
+    });
+
+    it('requests no reload for a later short outage after recovering from a shown overlay', async () => {
+      await showOverlayThenRecover(service, OUTAGE_GRACE_PERIOD_MS);
+      requestReload.mockClear();
+      fetchMock.mockResolvedValueOnce({ ok: false }).mockResolvedValue({ ok: true });
 
       service.reportUnavailable();
-      await advance(OUTAGE_GRACE_PERIOD_MS + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
-      expect(service.isUnavailable()).toBe(true);
+      await advance(OUTAGE_GRACE_PERIOD_MS);
 
-      fetchMock.mockResolvedValue({ ok: true });
-      await advance(PROBE_INTERVAL_AFTER_OVERLAY_MS);
-
-      expect(reloadCount).toBe(1);
+      expect(service.isUnavailable()).toBe(false);
+      expect(requestReload).not.toHaveBeenCalled();
     });
 
     it('remembers the answer for the next page load', () => {
@@ -183,16 +196,9 @@ describe('BackendAvailabilityService', () => {
     });
 
     it('remembers the recovery that happened while the overlay was shown', async () => {
-      fetchMock.mockResolvedValue({ ok: false });
+      await showOverlayThenRecover(service, STARTUP_GRACE_PERIOD_MS);
 
-      service.reportUnavailable();
-      await advance(STARTUP_GRACE_PERIOD_MS + PROBE_INTERVAL_BEFORE_OVERLAY_MS);
-      expect(service.isUnavailable()).toBe(true);
-
-      fetchMock.mockResolvedValue({ ok: true });
-      await advance(PROBE_INTERVAL_AFTER_OVERLAY_MS);
-
-      expect(reloadCount).toBe(1);
+      expect(requestReload).toHaveBeenCalledTimes(1);
       expect(sessionStorage.getItem(ANSWERED_STORAGE_KEY)).toBe('true');
     });
   });
@@ -213,7 +219,29 @@ describe('BackendAvailabilityService', () => {
 
       expect(service.isOutageSuspected()).toBe(false);
       expect(service.isUnavailable()).toBe(false);
-      expect(reloadCount).toBe(0);
+      expect(requestReload).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('end of an outage', () => {
+    it('is announced also when the overlay never appeared', async () => {
+      const ended = vi.fn();
+      service.outageEnded$.subscribe(ended);
+      fetchMock.mockResolvedValueOnce({ ok: false }).mockResolvedValue({ ok: true });
+
+      service.reportUnavailable();
+      await advance(2 * PROBE_INTERVAL_BEFORE_OVERLAY_MS);
+
+      expect(ended).toHaveBeenCalledTimes(1);
+    });
+
+    it('is announced when the backend recovers after the overlay was shown', async () => {
+      const ended = vi.fn();
+      service.outageEnded$.subscribe(ended);
+
+      await showOverlayThenRecover(service, STARTUP_GRACE_PERIOD_MS);
+
+      expect(ended).toHaveBeenCalledTimes(1);
     });
   });
 });

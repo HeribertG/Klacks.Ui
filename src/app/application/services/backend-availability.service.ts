@@ -12,16 +12,22 @@
  * would look like a fresh start and make the user stare at a dead page for the full startup
  * grace period. Only responses from the
  * API count as an answer — assets such as the i18n bundles come from the web server and say
- * nothing about the backend. Only one poll loop ever runs at a time. The page is reloaded on
- * recovery only if the overlay was actually shown, because an unexplained reload during startup
- * looks like a defect. While a poll loop runs the outage is public knowledge, so error toasts and
+ * nothing about the backend. Only one poll loop ever runs at a time. On recovery the overlay is
+ * hidden and, only if it was actually shown, a page reload is requested through
+ * AppReloadRequestService - an unexplained reload during startup looks like a defect, and whether
+ * and when the reload happens is decided by the presentation layer, which protects unsaved work.
+ * Every end of an outage is announced on outageEnded$, because a backend that was down may have
+ * been updated. While a poll loop runs the outage is public knowledge, so error toasts and
  * the loading spinner can stay silent instead of drowning the user in noise about a backend that
  * is simply gone.
  * @param url - Response URL reported to reportReachable, matched against the configured API base
  */
 import { Injectable, inject, signal } from '@angular/core';
+import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { BackendAnsweredStorageService } from 'src/app/infrastructure/storage/backend-answered-storage.service';
+import { AppReloadReason } from 'src/app/domain/enums/app-reload-reason.enum';
+import { AppReloadRequestService } from './app-reload-request.service';
 
 const PROBE_TIMEOUT_MS = 3000;
 const STARTUP_GRACE_PERIOD_MS = 45000;
@@ -32,13 +38,16 @@ const PROBE_INTERVAL_AFTER_OVERLAY_MS = 2000;
 @Injectable({ providedIn: 'root' })
 export class BackendAvailabilityService {
   private readonly answeredStorage = inject(BackendAnsweredStorageService);
+  private readonly reloadRequests = inject(AppReloadRequestService);
   private readonly unavailableSignal = signal(false);
   private readonly outageSuspectedSignal = signal(false);
+  private readonly outageEnded = new Subject<void>();
   private overlayWasShown = false;
   private backendHasAnswered = this.answeredStorage.isMarked();
 
   readonly isUnavailable = this.unavailableSignal.asReadonly();
   readonly isOutageSuspected = this.outageSuspectedSignal.asReadonly();
+  readonly outageEnded$ = this.outageEnded.asObservable();
 
   reportReachable(url: string | null): void {
     if (url && url.includes(environment.baseUrl)) {
@@ -77,17 +86,15 @@ export class BackendAvailabilityService {
   }
 
   private endOutage(): void {
+    const overlayWasShown = this.overlayWasShown;
+    this.overlayWasShown = false;
     this.outageSuspectedSignal.set(false);
-    this.markBackendAnswered();
-    if (this.overlayWasShown) {
-      this.reloadPage();
-      return;
-    }
     this.unavailableSignal.set(false);
-  }
-
-  private reloadPage(): void {
-    window.location.reload();
+    this.markBackendAnswered();
+    this.outageEnded.next();
+    if (overlayWasShown) {
+      this.reloadRequests.requestReload({ reason: AppReloadReason.Outage, autoReloadAllowed: true });
+    }
   }
 
   private markBackendAnswered(): void {
