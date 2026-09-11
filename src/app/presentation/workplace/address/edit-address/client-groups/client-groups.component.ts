@@ -25,6 +25,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
@@ -161,12 +162,12 @@ export class ClientGroupsComponent implements OnInit {
       if (orderBy === 'name') {
         compareValue = (a.groupName || '').localeCompare(b.groupName || '');
       } else if (orderBy === 'validFrom') {
-        const aDate = a.validFrom ? new Date(a.validFrom).getTime() : 0;
-        const bDate = b.validFrom ? new Date(b.validFrom).getTime() : 0;
+        const aDate = parseCalendarDate(a.validFrom)?.getTime() ?? 0;
+        const bDate = parseCalendarDate(b.validFrom)?.getTime() ?? 0;
         compareValue = aDate - bDate;
       } else if (orderBy === 'validUntil') {
-        const aDate = a.validUntil ? new Date(a.validUntil).getTime() : 0;
-        const bDate = b.validUntil ? new Date(b.validUntil).getTime() : 0;
+        const aDate = parseCalendarDate(a.validUntil)?.getTime() ?? 0;
+        const bDate = parseCalendarDate(b.validUntil)?.getTime() ?? 0;
         compareValue = aDate - bDate;
       }
 
@@ -220,7 +221,7 @@ export class ClientGroupsComponent implements OnInit {
     this.groupFromDateValidationState.clear();
 
     currentClient.groupItems.forEach((groupItem, index) => {
-      const validFrom = groupItem.validFrom ? new Date(groupItem.validFrom) : null;
+      const validFrom = parseCalendarDate(groupItem.validFrom);
 
       if (!validFrom) {
         this.groupFromDateValidationState.set(index, false);
@@ -231,7 +232,7 @@ export class ClientGroupsComponent implements OnInit {
       if (!groupItem.validUntil) {
         this.groupValidationState.set(index, undefined);
       } else {
-        const validUntil = new Date(groupItem.validUntil);
+        const validUntil = parseCalendarDate(groupItem.validUntil);
 
         if (!validFrom || !validUntil) {
           this.groupValidationState.set(index, false);

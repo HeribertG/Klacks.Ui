@@ -28,6 +28,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -228,7 +229,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   private prepareNewShift(): IShift {
     const value = new Shift();
-    value.fromDate = new Date();
+    value.fromDate = companyToday();
     value.startShift = '07:00:00';
     value.endShift = '15:00:00';
     value.workTime = 8;
@@ -558,7 +559,8 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     value: IClient,
     fromDate: Date | undefined
   ): number {
-    if (value && fromDate && value.addresses.length > 1) {
+    const current = parseCalendarDate(fromDate);
+    if (value && current && value.addresses.length > 1) {
       value.addresses.sort((a: IAddress, b: IAddress) => {
         const first = a.validFrom as Date;
         const second = b.validFrom as Date;
@@ -566,7 +568,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         return first > second ? -1 : first < second ? 1 : 0;
       });
 
-      const current = fromDate!;
       const collectScopeAddresses = new Array<IAddress>();
       const collectFutureAddresses = new Array<IAddress>();
       let currentIndex = value.addresses.length - 1;
@@ -574,9 +575,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
       value.addresses.forEach((itm) => {
         itm.isScoped = false;
         itm.isFuture = false;
-        const tmpDate = new Date(itm.validFrom);
+        const tmpDate = parseCalendarDate(itm.validFrom);
 
-        if (tmpDate <= current) {
+        if (tmpDate && tmpDate <= current) {
           collectScopeAddresses.push(itm);
           itm.isScoped = true;
         } else {

@@ -31,6 +31,7 @@ import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -133,10 +134,10 @@ export class ClientEditService {
           const c = new Client();
           c.type = 0;
           c.membership = new Membership();
-          c.membership.validFrom = new Date();
+          c.membership.validFrom = companyToday();
           c.idNumber = x + 1;
           const a = c.addresses[0];
-          a.validFrom = new Date();
+          a.validFrom = companyToday();
           a.type = AddressTypeEnum.customer;
 
           this.prepareClient(c);
@@ -148,10 +149,10 @@ export class ClientEditService {
           const c = new Client();
           c.type = 0;
           c.membership = new Membership();
-          c.membership.validFrom = new Date();
+          c.membership.validFrom = companyToday();
           c.idNumber = 1;
           const a = c.addresses[0];
-          a.validFrom = new Date();
+          a.validFrom = companyToday();
           a.type = AddressTypeEnum.customer;
 
           this.prepareClient(c);
@@ -545,8 +546,8 @@ export class ClientEditService {
         return true;
       }
 
-      const fromDate = c.fromDate ? new Date(c.fromDate) : null;
-      const untilDate = c.untilDate ? new Date(c.untilDate) : null;
+      const fromDate = parseCalendarDate(c.fromDate);
+      const untilDate = parseCalendarDate(c.untilDate);
 
       if (!fromDate || !untilDate) {
         return false;
@@ -572,8 +573,8 @@ export class ClientEditService {
         return true;
       }
 
-      const validFrom = g.validFrom ? new Date(g.validFrom) : null;
-      const validUntil = g.validUntil ? new Date(g.validUntil) : null;
+      const validFrom = parseCalendarDate(g.validFrom);
+      const validUntil = parseCalendarDate(g.validUntil);
 
       if (!validFrom || !validUntil) {
         return false;

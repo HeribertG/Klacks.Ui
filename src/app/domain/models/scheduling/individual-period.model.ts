@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+
 export interface IPeriod {
   id?: string;
   fromDate: Date;
@@ -9,7 +11,7 @@ export interface IPeriod {
 
 export class Period implements IPeriod {
   id?: string = undefined;
-  fromDate = new Date();
+  fromDate = companyToday();
   untilDate: Date | undefined = undefined;
   fullHours = 0;
 }

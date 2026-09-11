@@ -16,6 +16,7 @@ import {
 import { IRuleEvaluationSummary } from '../../../models/automation/rules/rule-evaluation-summary.model';
 import { IMacroRuleResult } from '../../../models/automation/rules/macro-rule-result.model';
 import { AGENT_STATE_CONSTANTS } from '../../../models/automation/automation-constants';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -157,11 +158,11 @@ export class MacroRulesEvaluatorService {
     }[] = [];
 
     for (const assign of context.existingAssignments) {
-      existingDates.push(assign.date.toISOString().split('T')[0]);
+      existingDates.push(formatDateOnly(assign.date));
       assignmentsArray.push({
         shiftId: assign.shiftId,
         shiftName: assign.shiftName,
-        date: assign.date.toISOString(),
+        date: formatDateOnly(assign.date),
         startTime: assign.startTime,
         endTime: assign.endTime,
         hours: assign.hours

@@ -4,6 +4,7 @@
 
 import { Component, ChangeDetectionStrategy, OnInit, signal, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import {
   HolidayStatus,
@@ -182,10 +183,11 @@ export class PropertyGridComponent implements OnInit {
     if (!date) return '';
     if (typeof date === 'string') return date;
 
+    // eslint-disable-next-line no-restricted-syntax -- date is confirmed a real Date instance above (the string branch already returned); this clones it before validating getTime()
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
 
-    return d.toISOString().split('T')[0];
+    return formatDateOnly(d);
   }
 
   updateProperty(key: string, value: any) {

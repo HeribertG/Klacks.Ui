@@ -20,6 +20,12 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { getAllFieldsForDataSet } from 'src/app/domain/models/report/report-data-source.model';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 const PHONE_TYPE = 1;
 const EMAIL_TYPE = 4;
@@ -349,6 +355,37 @@ describe('ReportDataProviderService', () => {
       expect(values['client.groupsSummary']).toContain('Team A');
       expect(values['client.qualificationsSummary']).toContain('Erste Hilfe');
       expect(values['client.notesSummary']).toContain('Wichtige Notiz');
+    });
+
+    describe('backend calendar dates across browser time zones', () => {
+      const wireClient = {
+        ...client,
+        birthdate: '1990-05-12T00:00:00Z',
+        membership: { validFrom: '2020-01-15T00:00:00Z' },
+        clientContracts: [{ contractId: 'ct1', fromDate: '2020-01-15', untilDate: undefined, isActive: true }],
+      };
+
+      for (const zone of CALENDAR_TEST_ZONES) {
+        describe(zone, () => {
+          useTimeZone(zone);
+
+          it('activates the configured zone', () => {
+            expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+          });
+
+          it('prints UTC-midnight and DateOnly wire values on their own day', () => {
+            const provider = service.getProvider('edit-address', ['details']);
+            const resolve = (dataBinding: string) => provider.resolveHeaderValue(
+              { dataBinding } as never,
+              { client: wireClient, metadata: { qualifications: qualificationCatalog, contracts: contractCatalog } } as never
+            );
+
+            expect(resolve('client.birthdate')).toBe('12.05.1990');
+            expect(resolve('client.entryDate')).toBe('15.01.2020');
+            expect(resolve('client.contractsSummary')).toContain('Vollzeit: 15.01.2020 (');
+          });
+        });
+      }
     });
 
     it('resolves the contract name via the contractId lookup, not via a populated contract navigation', () => {

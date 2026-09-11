@@ -11,6 +11,7 @@ import {
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
 import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import {
   CoreShift,
   CoreAgent,
@@ -147,7 +148,7 @@ export class FitnessEvaluatorService {
     return {
       id: shift.id,
       name: shift.name,
-      date: shift.date instanceof Date ? shift.date.toISOString() : String(shift.date),
+      date: shift.date instanceof Date ? formatDateOnly(shift.date) : String(shift.date),
       startTime: shift.startTime,
       endTime: shift.endTime,
       hours: shift.hours,

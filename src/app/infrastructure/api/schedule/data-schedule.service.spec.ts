@@ -7,6 +7,7 @@ import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { environment } from 'src/environments/environment';
 import { Client, Address, Communication, Annotation } from 'src/app/domain/models/client/client-class';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
+import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('DataScheduleService', () => {
     let service: DataScheduleService;
@@ -193,6 +194,64 @@ describe('DataScheduleService', () => {
         expect(req.request.method).toEqual('POST');
         expect(req.request.body).toEqual({ startDate, endDate });
         req.flush(8);
+    });
+
+    describe('calendar date wire format', () => {
+        const ZONES = ['Asia/Kolkata', 'America/New_York'] as const;
+
+        for (const zone of ZONES) {
+            describe(zone, () => {
+                let originalTz: string | undefined;
+
+                beforeEach(() => {
+                    originalTz = currentTimeZone();
+                    process.env['TZ'] = zone;
+                });
+
+                afterEach(() => {
+                    process.env['TZ'] = originalTz;
+                });
+
+                it('sends currentDate as UTC midnight without mutating the caller object on add', () => {
+                    const work = mockWork();
+                    const originalDate = work.currentDate;
+
+                    service.addWork(work).subscribe();
+
+                    const req = httpTestingController.expectOne(`${environment.baseUrl}Works/`);
+                    expect(req.request.body.currentDate).toBe('2020-01-01T00:00:00.000Z');
+                    expect(work.currentDate).toBe(originalDate);
+                    req.flush(mockWork());
+                });
+
+                it('sends currentDate as UTC midnight without mutating the caller object on update', () => {
+                    const work = mockWork();
+                    const originalDate = work.currentDate;
+
+                    service.updateWork(work).subscribe();
+
+                    const req = httpTestingController.expectOne(`${environment.baseUrl}Works/`);
+                    expect(req.request.body.currentDate).toBe('2020-01-01T00:00:00.000Z');
+                    expect(work.currentDate).toBe(originalDate);
+                    req.flush(mockWork());
+                });
+            });
+        }
+    });
+
+    describe('unparsable currentDate', () => {
+        it.each(['add', 'update'] as const)('reports the error through the observable on %s instead of throwing', (operation) => {
+            const work = mockWork();
+            work.currentDate = new Date('invalid');
+            const onError = vi.fn();
+
+            const call = () => (operation === 'add' ? service.addWork(work) : service.updateWork(work));
+
+            expect(call).not.toThrow();
+            call().subscribe({ error: onError });
+            expect(onError).toHaveBeenCalledWith(expect.any(RangeError));
+            httpTestingController.expectNone(`${environment.baseUrl}Works/`);
+        });
     });
 
     const mockClient = (): Client => {

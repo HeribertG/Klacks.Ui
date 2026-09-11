@@ -1,12 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Abstract base class for localStorage- and sessionStorage-based services.
+ * Abstract base class for localStorage- and sessionStorage-based services. Values are stored as
+ * JSON; restoreFilter revives serialized Dates (serializedDateReviver) so a stored Date comes back
+ * as the same instant instead of a UTC string that would read as the previous day east of UTC.
  * @param storage - The concrete storage instance (localStorage or sessionStorage)
  * @param storageName - Display name for log messages (e.g. 'localStorage', 'sessionStorage')
  */
 
 import { IFilterStorage } from '../../application/interfaces/filter-storage.interface';
+import { serializedDateReviver } from 'src/app/shared/helpers/serialized-date.helper';
 
 const STORAGE_KEY_PREFIX = 'klacks_filter_';
 
@@ -45,7 +48,7 @@ export abstract class AbstractStorageService implements IFilterStorage {
         return Promise.resolve(null);
       }
 
-      return Promise.resolve(JSON.parse(serializedValue) as T);
+      return Promise.resolve(JSON.parse(serializedValue, serializedDateReviver) as T);
     } catch (error) {
       console.error(`Error restoring filter from ${this.storageName}:`, error);
       return Promise.resolve(null);

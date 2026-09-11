@@ -30,7 +30,7 @@
             [value]="c.id"
             placement="left"
             ngbTooltip="{{ 'VALID_FROM' | translate }} {{
-              c.validFrom | date : 'dd.MM.yyyy'
+              c.validFrom | calendarDate : 'dd.MM.yyyy'
             }}"
           >
             {{ onAddressTypeName(i) }}
@@ -59,7 +59,7 @@
             [value]="c.id"
             placement="left"
             ngbTooltip="{{ 'VALID_FROM' | translate }} {{
-              c.validFrom | date : 'dd.MM.yyyy'
+              c.validFrom | calendarDate : 'dd.MM.yyyy'
             }}"
           >
             {{ onAddressTypeName(i) }}
@@ -92,7 +92,7 @@
             [value]="c.id"
             placement="left"
             ngbTooltip="{{ 'VALID_FROM' | translate }} {{
-              c.validFrom | date : 'dd.MM.yyyy'
+              c.validFrom | calendarDate : 'dd.MM.yyyy'
             }}"
           >
             {{ onAddressTypeName(i) }}

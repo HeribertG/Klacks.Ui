@@ -8,6 +8,7 @@
 
 /* eslint-disable no-prototype-builtins */
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { companyToday, parseCalendarDate } from './calendar-date.helper';
 
 /**
  * Transforms NgbDateStruct to native Date object.
@@ -43,23 +44,25 @@ export function transformNgbDateStructToDate(
 }
 
 /**
- * Transforms native Date to NgbDateStruct.
+ * Transforms a calendar date to NgbDateStruct. Strings from the backend ("yyyy-MM-dd",
+ * "...T00:00:00Z", no-Z) are parsed component-wise so the picker shows their own day in every
+ * browser time zone; Date values are read with local getters.
  *
- * @param value - Date to transform
- * @returns NgbDateStruct or undefined if invalid
+ * @param value - Date or backend calendar-date string to transform
+ * @returns NgbDateStruct or undefined if empty or invalid
  */
 export function transformDateToNgbDateStruct(
   value: Date | string | undefined
 ): NgbDateStruct | NgbDate | undefined {
-  if (value) {
-    const now = new Date(value);
-    return {
-      year: now.getFullYear(),
-      month: now.getMonth() + 1,
-      day: now.getDate(),
-    };
+  const date = parseCalendarDate(value);
+  if (!date) {
+    return undefined;
   }
-  return undefined;
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+  };
 }
 
 /**
@@ -110,7 +113,7 @@ export function ngbDateStructToIsoDate(
  * @param monthOffset - 0 = current month, -1 = previous, +1 = next
  */
 export function firstOfMonth(monthOffset = 0): NgbDateStruct | null {
-  const d = new Date();
+  const d = companyToday();
   return (
     transformDateToNgbDateStruct(
       new Date(d.getFullYear(), d.getMonth() + monthOffset, 1),
@@ -124,7 +127,7 @@ export function firstOfMonth(monthOffset = 0): NgbDateStruct | null {
  * @param monthOffset - 0 = current month, -1 = previous, +1 = next
  */
 export function lastOfMonth(monthOffset = 0): NgbDateStruct | null {
-  const d = new Date();
+  const d = companyToday();
   return (
     transformDateToNgbDateStruct(
       new Date(d.getFullYear(), d.getMonth() + monthOffset + 1, 0),

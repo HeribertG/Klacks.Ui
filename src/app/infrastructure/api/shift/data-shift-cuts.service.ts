@@ -5,7 +5,7 @@ import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { calculateDurationInMinutes } from 'src/app/shared/helpers/time-format.helper';
@@ -52,7 +52,7 @@ export class DataShiftCutsService {
     return this.httpClient
       .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Reset`, {
         originalId: originalId,
-        newStartDate: newStartDate,
+        newStartDate: toCalendarDateWire(newStartDate),
       })
       .pipe(retry(3));
   }
@@ -66,12 +66,14 @@ export class DataShiftCutsService {
   }
 
   private setCorrectDate(value: IShift) {
-    if (value.fromDate) {
-      value.fromDate = dateWithLocalTimeCorrection(new Date(value.fromDate))!;
+    const fromDate = parseCalendarDate(value.fromDate);
+    if (fromDate) {
+      value.fromDate = new Date(toCalendarDateWire(fromDate));
     }
 
-    if (value.untilDate) {
-      value.untilDate = dateWithLocalTimeCorrection(new Date(value.untilDate))!;
+    const untilDate = parseCalendarDate(value.untilDate);
+    if (untilDate) {
+      value.untilDate = new Date(toCalendarDateWire(untilDate));
     }
   }
 

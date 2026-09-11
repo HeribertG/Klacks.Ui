@@ -21,6 +21,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -339,8 +340,8 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
 
   private sortBreaks(value: IBreakPlaceholder[]): IBreakPlaceholder[] {
     return value.sort((a: IBreakPlaceholder, b: IBreakPlaceholder) => {
-      const da = new Date(a.from!).getTime();
-      const db = new Date(b.from!).getTime();
+      const da = parseCalendarDate(a.from)?.getTime() ?? Number.NaN;
+      const db = parseCalendarDate(b.from)?.getTime() ?? Number.NaN;
 
       return da < db ? -1 : da > db ? 1 : 0;
     });
@@ -355,15 +356,14 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
     }
 
     const membership = client.membership;
-    const breakFrom = new Date(breakItem.from!);
-    const breakUntil = new Date(breakItem.until!);
+    const breakFrom = parseCalendarDate(breakItem.from);
+    const breakUntil = parseCalendarDate(breakItem.until);
+    if (!breakFrom || !breakUntil) {
+      return true;
+    }
 
-    const membershipValidFrom = membership.validFrom
-      ? new Date(membership.validFrom)
-      : null;
-    const membershipValidUntil = membership.validUntil
-      ? new Date(membership.validUntil)
-      : null;
+    const membershipValidFrom = parseCalendarDate(membership.validFrom);
+    const membershipValidUntil = parseCalendarDate(membership.validUntil);
 
     if (membershipValidFrom && breakFrom < membershipValidFrom) {
       this.translateService

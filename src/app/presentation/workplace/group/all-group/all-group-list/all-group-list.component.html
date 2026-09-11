@@ -182,12 +182,12 @@
           </td>
 
           <td [id]="'all-group-list-cell-from-' + i" class="table-cell">
-            {{ data.validFrom | date : "dd.MM.yyyy" }}
+            {{ data.validFrom | calendarDate : "dd.MM.yyyy" }}
           </td>
           <td [id]="'all-group-list-cell-until-' + i" class="table-cell">
             @if (data.validUntil) {
             <p>
-              {{ data.validUntil | date : "dd.MM.yyyy" }}
+              {{ data.validUntil | calendarDate : "dd.MM.yyyy" }}
             </p>
             }
           </td>

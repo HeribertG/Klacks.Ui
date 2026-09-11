@@ -3,7 +3,9 @@
 /**
  * Date Helper
  *
- * Pure functions for date manipulation and formatting.
+ * Pure functions for date manipulation and formatting. formatDateOnly and the UTC-midnight
+ * conversion of dateWithUTCCorrection are implemented once in calendar-date.helper and only
+ * re-exported/delegated here.
  */
 
 import { format } from 'date-fns';
@@ -11,6 +13,9 @@ import { de, enUS } from 'date-fns/locale';
 
 export const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { formatDateOnly, parseCalendarDate, toCalendarDateWire } from './calendar-date.helper';
+
+export { formatDateOnly };
 
 /**
  * Compares two dates and returns a comparison result.
@@ -82,48 +87,6 @@ function formatDate(
 }
 
 /**
- * Corrects a date for local timezone offset.
- *
- * @param date - Date to correct
- * @returns Corrected date or undefined if input is null/undefined
- */
-export function dateWithLocalTimeCorrection(
-  date: Date | string | undefined
-): Date | undefined {
-  if (date === null || date === undefined) {
-    return undefined;
-  }
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const userTimezoneOffset = -dateObj.getTimezoneOffset();
-  const hourDiff = userTimezoneOffset / 60;
-  return new Date(
-    dateObj.getFullYear(),
-    dateObj.getMonth(),
-    dateObj.getDate(),
-    hourDiff,
-    0,
-    0
-  );
-}
-
-/**
- * Converts UTC date to local date.
- *
- * @param date - UTC date to convert
- * @returns Local date or undefined if input is null
- */
-export function utcToLocalDate(date: Date | string): Date | undefined {
-  if (date === null) {
-    return undefined;
-  }
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const userTimezoneOffset = -dateObj.getTimezoneOffset();
-  const hourDiff = userTimezoneOffset / 60;
-  const d = dateObj.setHours(dateObj.getHours() + hourDiff);
-  return new Date(d);
-}
-
-/**
  * Adds months to a date.
  *
  * @param date - Base date
@@ -146,7 +109,7 @@ export function addMonths(date: Date, value: number): Date {
  * @param days - Number of days to add (can be negative)
  * @returns New date with days added
  */
-export function addDays(date: Date | string, days: number): Date {
+export function addDays(date: Date, days: number): Date {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
@@ -166,38 +129,15 @@ export function addSecond(date: Date | string, second: number): Date {
 }
 
 /**
- * Corrects a date to UTC timezone.
+ * Returns UTC midnight of the calendar day of the given value. Strings from the backend are
+ * parsed component-wise (see parseCalendarDate); Date values are read with local getters.
  *
- * @param date - Date to correct
- * @returns UTC corrected date or undefined if invalid
+ * @param date - Date or backend calendar-date string
+ * @returns UTC-midnight date or undefined if empty or invalid
  */
 export function dateWithUTCCorrection(date: Date | string): Date | undefined {
-  if (!date) {
-    return undefined;
-  }
-
-  let parsedDate: Date;
-
-  if (typeof date === 'string') {
-    parsedDate = new Date(date);
-  } else {
-    parsedDate = date;
-  }
-
-  if (isNaN(parsedDate.getTime())) {
-    return undefined;
-  }
-
-  const d = Date.UTC(
-    parsedDate.getFullYear(),
-    parsedDate.getMonth(),
-    parsedDate.getDate(),
-    0,
-    0,
-    0
-  );
-
-  return new Date(d);
+  const calendarDate = parseCalendarDate(date);
+  return calendarDate ? new Date(toCalendarDateWire(calendarDate)) : undefined;
 }
 
 /**
@@ -325,19 +265,6 @@ export function daysBetweenDates(
 
   const Difference_In_Time = bb.getTime() - aa.getTime();
   return Difference_In_Time / (1000 * 60 * 60 * 24);
-}
-
-/**
- * Formats a date as ISO date string (yyyy-MM-dd).
- *
- * @param date - Date to format
- * @returns Date string in format "yyyy-MM-dd"
- */
-export function formatDateOnly(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
 }
 
 /**

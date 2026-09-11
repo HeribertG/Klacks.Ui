@@ -26,6 +26,7 @@ import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/sch
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
+import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface FillHandleDragContext {
   gridSurface: GridSurfaceTemplateComponent;
@@ -91,7 +92,7 @@ export class GridFillHandleDragService {
 
     const date = scheduleDataService.getDateForColumn(pos.column);
     const shift = this.dataManagementSchedule.shiftSchedules.find(
-      (s) => s.shiftId === entry.entryId && date && this.isSameDay(s.date, date)
+      (s) => s.shiftId === entry.entryId && date && isSameCalendarDate(s.date, date)
     );
     const workTime = shift?.workTime ?? 0;
 
@@ -375,7 +376,7 @@ export class GridFillHandleDragService {
       }
 
       const shiftAvailable = this.dataManagementSchedule.shiftSchedules.find(
-        (s) => s.shiftId === result.entryId && this.isSameDay(s.date, date)
+        (s) => s.shiftId === result.entryId && isSameCalendarDate(s.date, date)
       );
 
       if (!shiftAvailable) {
@@ -436,15 +437,5 @@ export class GridFillHandleDragService {
     const hitArea = this.FILL_HANDLE_HIT_AREA * this.gridSettings.zoom;
 
     return distance <= hitArea;
-  }
-
-  private isSameDay(date1: Date | string, date2: Date | string): boolean {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
-    );
   }
 }

@@ -22,10 +22,18 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import {
+    activeJanuaryOffsetMinutes,
+    CALENDAR_TEST_ZONES,
+    expectedJanuaryOffsetMinutes,
+    useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
-    let dataManagement: { clients: unknown[] };
+    let dataManagement: { clients: unknown[]; visibleStartDate: Date | null; visibleEndDate: Date | null };
 
     beforeEach(() => {
         const dm = {
@@ -152,5 +160,51 @@ describe('ScheduleDataService', () => {
             dataManagement.clients = [{ groupItemValidFrom: undefined, groupItemValidUntil: '2026-01-25' }];
             expect(service.isCellOutsideGroupPeriod(0, 0)).toBe(false);
         });
+    });
+
+    describe('calendar dates across browser time zones', () => {
+        for (const zone of CALENDAR_TEST_ZONES) {
+            describe(zone, () => {
+                useTimeZone(zone);
+
+                it('activates the configured zone', () => {
+                    expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+                });
+
+                it('puts the visible start date into column 0', () => {
+                    dataManagement.visibleStartDate = parseCalendarDate('2026-08-03');
+                    dataManagement.visibleEndDate = parseCalendarDate('2026-09-06');
+
+                    service.initializeDateAndColumns();
+
+                    expect(formatDateOnly(service.getDateForColumn(0) as Date)).toBe('2026-08-03');
+                    expect(service.weekdayName(0)).toBe('Monday');
+                    expect(service.columns).toBe(35);
+                });
+
+                it('counts one column per calendar day across the autumn DST switch', () => {
+                    dataManagement.visibleStartDate = parseCalendarDate('2026-10-20');
+                    dataManagement.visibleEndDate = parseCalendarDate('2026-11-10');
+
+                    service.initializeDateAndColumns();
+
+                    expect(service.columns).toBe(22);
+                    expect(formatDateOnly(service.getDateForColumn(21) as Date)).toBe('2026-11-10');
+                });
+
+                it('maps every wire format of a date to the column showing that date', () => {
+                    dataManagement.visibleStartDate = parseCalendarDate('2026-08-03');
+                    dataManagement.visibleEndDate = parseCalendarDate('2026-09-06');
+                    service.initializeDateAndColumns();
+
+                    expect(service.getColumnForDate('2026-08-03')).toBe(0);
+                    expect(service.getColumnForDate('2026-08-05')).toBe(2);
+                    expect(service.getColumnForDate('2026-08-05T00:00:00Z')).toBe(2);
+                    expect(service.getColumnForDate('2026-08-05T00:00:00')).toBe(2);
+                    expect(service.getColumnForDate('2026-09-06')).toBe(34);
+                    expect(service.getColumnForDate('2026-09-07')).toBe(-1);
+                });
+            });
+        }
     });
 });

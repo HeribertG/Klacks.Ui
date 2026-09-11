@@ -31,6 +31,7 @@ export class CalendarDayRenderingService {
     headerDayRank: CalendarHeaderDayRank[]
   ): void {
     for (let i = 0; i < daysPerYear; i++) {
+      // eslint-disable-next-line no-restricted-syntax -- calculationService.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the caller's instance
       const currDate = new Date(this.calculationService.startDate);
       currDate.setDate(currDate.getDate() + i);
       const dayRect = this.calculationService.calculateDayRectangle(i);

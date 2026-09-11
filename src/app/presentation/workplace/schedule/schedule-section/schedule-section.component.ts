@@ -28,6 +28,7 @@ import {
   computed
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
+import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { ScheduleTimelineRowHeaderComponent } from './timeline/schedule-timeline-row-header/schedule-timeline-row-header.component';
 import { GridSurfaceTimelineTemplateComponent } from './timeline/grid-surface-timeline-template/grid-surface-timeline-template.component';
@@ -617,16 +618,7 @@ export class ScheduleSectionComponent
     if (shift.shiftType === 1) return false;
     if (shift.isInTemplateContainer) return false;
     if (shift.engaged >= shift.sumEmployees * shift.quantity) return false;
-    if (targetDate && !this.isSameDay(shift.date, targetDate)) return false;
+    if (targetDate && !isSameCalendarDate(shift.date, targetDate)) return false;
     return true;
-  }
-
-  private isSameDay(a: Date | string, b: Date): boolean {
-    const da = a instanceof Date ? a : new Date(a);
-    return (
-      da.getFullYear() === b.getFullYear() &&
-      da.getMonth() === b.getMonth() &&
-      da.getDate() === b.getDate()
-    );
   }
 }

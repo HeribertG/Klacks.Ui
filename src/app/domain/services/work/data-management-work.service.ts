@@ -14,6 +14,7 @@ import { BulkAddWorksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-wo
 import { BulkWorksResponse } from 'src/app/infrastructure/api/dtos/bulk-works-response.dto';
 import { ReassignWorkClientResponse } from 'src/app/infrastructure/api/dtos/reassign-work-client-response.dto';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({
@@ -209,8 +210,8 @@ export class DataManagementWorkService {
 
   private sortWorks(value: IWork[]): IWork[] {
     return value.sort((a: IWork, b: IWork) => {
-      const da = new Date(a.currentDate).getTime();
-      const db = new Date(b.currentDate).getTime();
+      const da = parseCalendarDate(a.currentDate)?.getTime() ?? Number.NaN;
+      const db = parseCalendarDate(b.currentDate)?.getTime() ?? Number.NaN;
       return da < db ? -1 : da > db ? 1 : 0;
     });
   }

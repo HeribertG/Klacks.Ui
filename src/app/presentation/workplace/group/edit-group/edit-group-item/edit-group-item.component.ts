@@ -29,6 +29,7 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 interface EditGroupItemFormModel {
@@ -165,8 +166,8 @@ export class EditGroupItemComponent
     this.validFromValid = group.validFrom ? true : undefined;
 
     if (group.validUntil) {
-      const validFrom = group.validFrom ? new Date(group.validFrom) : null;
-      const validUntil = new Date(group.validUntil);
+      const validFrom = parseCalendarDate(group.validFrom);
+      const validUntil = parseCalendarDate(group.validUntil);
 
       if (!validFrom || !validUntil) {
         this.validUntilValid = false;

@@ -2,11 +2,12 @@
 
 import { BaseEntity } from '../general-class';
 import { IAddress } from './i-address';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 export class Address extends BaseEntity implements IAddress {
   id = '';
   clientId = '';
-  validFrom = new Date();
+  validFrom = companyToday();
   type = 0;
   addressLine1 = '';
   addressLine2 = '';

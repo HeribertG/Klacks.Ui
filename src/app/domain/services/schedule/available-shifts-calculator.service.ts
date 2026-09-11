@@ -10,6 +10,9 @@ import {
 } from 'src/app/shared/helpers/date.helper';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+
+const OUT_OF_RANGE_DAY_INDEX = -1;
 
 @Injectable({
   providedIn: 'root',
@@ -42,10 +45,13 @@ export class AvailableShiftsCalculatorService {
     const isOverbooked = (shift: IShiftSchedule) =>
       !isBlocked(shift) && shift.engaged > shift.sumEmployees * shift.quantity;
 
-    const toDayEntry = (shift: IShiftSchedule) => ({
-      dayIdx: getDayIndex(startDate, new Date(shift.date)),
-      abbreviation: shift.abbreviation,
-    });
+    const toDayEntry = (shift: IShiftSchedule) => {
+      const shiftDate = parseCalendarDate(shift.date);
+      return {
+        dayIdx: shiftDate ? getDayIndex(startDate, shiftDate) : OUT_OF_RANGE_DAY_INDEX,
+        abbreviation: shift.abbreviation,
+      };
+    };
 
     const isInRange = (entry: { dayIdx: number }) =>
       entry.dayIdx >= 0 && entry.dayIdx < totalDays;

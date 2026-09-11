@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withXhr } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementShiftService } from './data-management-shift.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
@@ -12,6 +12,12 @@ import { of } from 'rxjs';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { SessionStorageService } from 'src/app/infrastructure/storage/session-storage.service';
+import { environment } from 'src/environments/environment';
+import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
+
+const DRAFT_ROUND_TRIP_KEY = 'shift-draft-round-trip-spec';
 
 class MockEventBus implements IEventBus {
     emit<_T>(_eventType: string, _payload: _T): void { }
@@ -123,5 +129,35 @@ describe('DataManagementShiftService', () => {
 
             expect(service.editShift!.name).toBe('Current');
         });
+
+        for (const zone of CALENDAR_TEST_ZONES) {
+            describe(`after a session-storage round trip in ${zone}`, () => {
+                useTimeZone(zone);
+
+                afterEach(async () => {
+                    await TestBed.inject(SessionStorageService).removeFilter(DRAFT_ROUND_TRIP_KEY);
+                    TestBed.inject(HttpTestingController).verify();
+                });
+
+                it('sends the restored fromDate as the same calendar day', async () => {
+                    const storage = TestBed.inject(SessionStorageService);
+                    const edited = new Shift();
+                    edited.name = 'Draft value';
+                    edited.fromDate = new Date(2026, 7, 3);
+                    edited.untilDate = new Date(2026, 8, 30);
+
+                    await storage.saveFilter(DRAFT_ROUND_TRIP_KEY, { draft: cloneObject<Shift>(edited) });
+                    const payload = await storage.restoreFilter<{ draft: unknown }>(DRAFT_ROUND_TRIP_KEY);
+                    service.restoreDraft(payload!.draft);
+
+                    TestBed.inject(DataShiftService).addShift(service.editShift!).subscribe();
+
+                    const req = TestBed.inject(HttpTestingController).expectOne(`${environment.baseUrl}Shifts/`);
+                    expect(req.request.body.fromDate).toBe('2026-08-03T00:00:00.000Z');
+                    expect(req.request.body.untilDate).toBe('2026-09-30T00:00:00.000Z');
+                    req.flush(new Shift());
+                });
+            });
+        }
     });
 });

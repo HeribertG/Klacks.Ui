@@ -17,6 +17,7 @@ import { Break } from 'src/app/domain/models/break/break-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
   ScheduleCellDragSource,
@@ -83,10 +84,10 @@ export class ScheduleCellDropHandlerService {
 
     const periodStart = this.dataManagement.visibleStartDate
       ? formatDateOnly(this.dataManagement.visibleStartDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
     const periodEnd = this.dataManagement.visibleEndDate
       ? formatDateOnly(this.dataManagement.visibleEndDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
     breakEntry.periodStart = periodStart;
     breakEntry.periodEnd = periodEnd;
     breakEntry.paymentInterval = this.dataManagement.currentFilter.paymentInterval;

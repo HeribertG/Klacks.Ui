@@ -21,6 +21,7 @@ import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/da
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { ChunkLoader } from './chunk-loader';
+import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 interface ShiftScheduleResponse {
   shifts: IShiftSchedule[];
@@ -124,17 +125,11 @@ export class ShiftScheduleLoaderService {
   }
 
   updateShiftEngaged(shiftId: string, date: Date, engaged: number): boolean {
-    const normalizedDate = new Date(date);
-    normalizedDate.setHours(0, 0, 0, 0);
-
     let updated = false;
     for (const shift of this.shiftSchedules) {
       if (shift.shiftId !== shiftId) continue;
 
-      const shiftDate = new Date(shift.date);
-      shiftDate.setHours(0, 0, 0, 0);
-
-      if (shiftDate.getTime() === normalizedDate.getTime()) {
+      if (isSameCalendarDate(shift.date, date)) {
         shift.engaged = engaged;
         updated = true;
       }

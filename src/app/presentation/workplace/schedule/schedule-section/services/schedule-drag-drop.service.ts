@@ -34,6 +34,7 @@ import { CellValueChangeEvent } from 'src/app/presentation/shared/grid/body/grid
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 export interface DropTargetInfo {
@@ -216,7 +217,7 @@ export class ScheduleDragDropService {
     const matchingShift = this.dataManagement.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === ctx.abbreviation &&
-        this.isSameDay(shift.date, ctx.date),
+        isSameCalendarDate(shift.date, ctx.date),
     );
     if (!matchingShift) {
       return false;
@@ -357,15 +358,5 @@ export class ScheduleDragDropService {
       next: () => this.dataManagement.readDatas(false),
       error: (err) => console.error('Failed to update schedule command', { id, clientId, keyword, error: err }),
     });
-  }
-
-  private isSameDay(date1: Date | string, date2: Date | string): boolean {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
-    );
   }
 }

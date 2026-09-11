@@ -14,7 +14,7 @@
  * @param modalService - Global confirmation modal service
  */
 
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,6 +34,8 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
+import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
 
 const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
@@ -71,6 +73,7 @@ export class PeriodsTabComponent implements OnInit {
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
   private modalService = inject(ModalService);
+  private locale = inject(LOCALE_ID);
 
   public readonly bulkUnsealKey = BULK_UNSEAL_KEY;
 
@@ -357,7 +360,7 @@ export class PeriodsTabComponent implements OnInit {
       return body;
     }
     const warning = this.translate.instant('periodClosing.warning.hasExport', {
-      date: new Date(exportLog.exportedAt).toLocaleDateString(),
+      date: formatCompanyInstant(exportLog.exportedAt, 'date', this.locale, companyTimeZone()) ?? '',
     });
     return `${body} ${warning}`;
   }

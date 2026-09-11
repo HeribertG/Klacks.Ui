@@ -23,11 +23,16 @@ import {
   RngFn,
 } from './evolution-types';
 import { generateId } from './evolution-rng';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 function getPreviousDayKey(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = parseCalendarDate(dateStr);
+  if (!d) {
+    return dateStr;
+  }
   d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+  return formatDateOnly(d);
 }
 
 export function createRandomScenario(
@@ -60,12 +65,15 @@ export function createRandomScenario(
 }
 
 function getWeekKey(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = parseCalendarDate(dateStr);
+  if (!d) {
+    return dateStr;
+  }
   const day = d.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(d);
   monday.setDate(d.getDate() + diff);
-  return monday.toISOString().split('T')[0];
+  return formatDateOnly(monday);
 }
 
 function countConsecutiveDaysEnding(
@@ -73,9 +81,12 @@ function countConsecutiveDaysEnding(
   targetDate: string,
 ): number {
   let count = 0;
-  const d = new Date(targetDate);
+  const d = parseCalendarDate(targetDate);
+  if (!d) {
+    return count;
+  }
   d.setDate(d.getDate() - 1);
-  while (workedDates.has(d.toISOString().split('T')[0])) {
+  while (workedDates.has(formatDateOnly(d))) {
     count++;
     d.setDate(d.getDate() - 1);
   }

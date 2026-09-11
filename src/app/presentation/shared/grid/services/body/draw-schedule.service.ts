@@ -18,6 +18,7 @@ import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCellManipulationService } from './cell-manipulation.service';
 import { GridFontsService } from '../grid-fonts.service';
 import { GridCoordinateService } from 'src/app/presentation/shared/grid/services/grid-coordinate.service';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable()
 export class BaseDrawScheduleService {
@@ -39,7 +40,7 @@ export class BaseDrawScheduleService {
   private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
   private readonly ADDITIONALLY_EMPTY_ROWS = 3;
 
-  public startDate: Date = new Date();
+  public startDate: Date = companyToday();
   public recFilterIcon: Rectangle = new Rectangle();
   public filterImage: HTMLImageElement | undefined;
   public showFillHandle = false;

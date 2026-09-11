@@ -10,7 +10,7 @@ import {
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { compareDate } from 'src/app/shared/helpers/date.helper';
+import { compareDate, getDayIndex } from 'src/app/shared/helpers/date.helper';
 
 const WEEKDAY_KEYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -57,6 +57,7 @@ export class AvailabilityCalculationService {
     const slotIndex = col % columnsPerDay;
     const groupSize = HOUR_GROUPING_SIZES[this.settings.hourGroupingMode()];
 
+    // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
     const date = new Date(this.startDate);
     date.setDate(date.getDate() + dayIndex);
 
@@ -72,8 +73,7 @@ export class AvailabilityCalculationService {
   }
 
   public dateHourToColumn(date: Date, hour: number): number {
-    const diffTime = date.getTime() - this.startDate.getTime();
-    const dayIndex = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const dayIndex = getDayIndex(this.startDate, date);
     const groupSize = HOUR_GROUPING_SIZES[this.settings.hourGroupingMode()];
     const slotIndex = Math.floor(hour / groupSize);
     return dayIndex * this.settings.columnsPerDay + slotIndex;
@@ -126,6 +126,7 @@ export class AvailabilityCalculationService {
   }
 
   public getEndDate(): string {
+    // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
     const end = new Date(this.startDate);
     end.setDate(end.getDate() + this.daysInView - 1);
     return this.formatDateOnly(end);

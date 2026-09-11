@@ -12,6 +12,8 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { ScheduleDataService } from './schedule-data.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { getDayIndex } from 'src/app/shared/helpers/date.helper';
 
 interface BreakBarLayout {
   bp: IBreakPlaceholder;
@@ -120,16 +122,17 @@ export class ScheduleBreakBarRenderService {
     if (!this.dataService.startDate) return [];
 
     const startDate = this.dataService.startDate;
-    const sorted = [...breakPlaceholders]
-      .filter((bp) => bp.from && bp.until)
-      .sort((a, b) => new Date(a.from!).getTime() - new Date(b.from!).getTime());
+    const sorted = breakPlaceholders
+      .map((bp) => ({ bp, from: parseCalendarDate(bp.from), until: parseCalendarDate(bp.until) }))
+      .filter((entry): entry is { bp: IBreakPlaceholder; from: Date; until: Date } => !!entry.from && !!entry.until)
+      .sort((a, b) => a.from.getTime() - b.from.getTime());
 
     const layouts: BreakBarLayout[] = [];
     const subRowEnds: number[] = [];
 
-    for (const bp of sorted) {
-      const startCol = this.daysBetween(startDate, new Date(bp.from!));
-      const endCol = this.daysBetween(startDate, new Date(bp.until!));
+    for (const { bp, from, until } of sorted) {
+      const startCol = getDayIndex(startDate, from);
+      const endCol = getDayIndex(startDate, until);
 
       let assignedRow = -1;
       for (let i = 0; i < subRowEnds.length; i++) {
@@ -171,13 +174,5 @@ export class ScheduleBreakBarRenderService {
 
     const hit = layouts.find(l => l.subRow === subRow && col >= l.startCol && col <= l.endCol);
     return hit?.bp ?? null;
-  }
-
-  private daysBetween(start: Date, end: Date): number {
-    const s = new Date(start);
-    s.setHours(0, 0, 0, 0);
-    const e = new Date(end);
-    e.setHours(0, 0, 0, 0);
-    return Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24));
   }
 }

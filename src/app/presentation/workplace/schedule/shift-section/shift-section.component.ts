@@ -79,6 +79,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { ContainerShiftOverrideDialogComponent } from './container-shift-override-dialog/container-shift-override-dialog.component';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-shift-section',
@@ -400,8 +401,8 @@ export class ShiftSectionComponent
         const pos = this.cellManipulation.Position;
         const shiftId = shiftDataService.getShiftId(pos.row);
         const dateStr = shiftDataService.getDateKeyForColumn(pos.column);
-        if (shiftId && dateStr) {
-          const date = new Date(dateStr);
+        const date = parseCalendarDate(dateStr);
+        if (shiftId && date) {
           const weekday = WEEKDAY_NAMES[date.getDay()];
           const abbreviation = shiftDataService.getShiftAbbreviation(pos.row);
           this.overrideDialog().open({

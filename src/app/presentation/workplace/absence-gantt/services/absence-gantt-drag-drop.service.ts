@@ -240,6 +240,7 @@ export class AbsenceGanttDragDropService {
     if (x >= 0) {
       const tmpCol = this.coord.mouseToColumn(x);
 
+      // eslint-disable-next-line no-restricted-syntax -- drawCalendarGantt.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the caller's instance
       const date = new Date(this.drawCalendarGantt.startDate);
       date.setDate(date.getDate() + tmpCol);
 

@@ -20,6 +20,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -130,7 +131,7 @@ export class ClientListService {
       c.company,
       c.firstName,
       c.name,
-      c.birthdate ? new Date(c.birthdate).toLocaleDateString('de-CH') : '',
+      parseCalendarDate(c.birthdate)?.toLocaleDateString('de-CH') ?? '',
       c.type,
     ]);
 

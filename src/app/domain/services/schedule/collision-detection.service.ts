@@ -34,6 +34,7 @@ import {
   isoWeekMondayOf,
 } from 'src/app/shared/helpers/date.helper';
 import { WEEK_SCOPED_VALIDATION_KEYS } from 'src/app/domain/constants/schedule-validation-keys.constants';
+import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -217,7 +218,7 @@ export class CollisionDetectionService implements OnDestroy {
     for (const shift of shifts) {
       if (shift.engaged >= shift.sumEmployees * shift.quantity) continue;
 
-      const dateKey = formatDateOnly(new Date(shift.date));
+      const dateKey = calendarDateKey(shift.date);
       let group = understaffedByDate.get(dateKey);
       if (!group) {
         group = { abbreviations: new Set<string>(), needed: 0, scheduled: 0 };

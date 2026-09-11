@@ -5,6 +5,7 @@ import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from '../shift/shift-class';
 import { IBaseFilter } from '../general-class';
 import { IPeriodHours, IScheduleCell, IScheduleQualification } from './work-schedule-class';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 const HOURS_PER_DAY = 24;
 const LAST_CLOCK_HOUR = HOURS_PER_DAY - 1;
@@ -116,12 +117,12 @@ export interface IWorkFilter extends IBaseFilter {
 }
 
 export class WorkFilter implements IWorkFilter {
-  currentMonth: number = new Date().getMonth() + 1;
-  currentYear: number = new Date().getFullYear();
+  currentMonth: number = companyToday().getMonth() + 1;
+  currentYear: number = companyToday().getFullYear();
   currentWeek?: number = WorkFilter.getCurrentISOWeek();
 
   private static getCurrentISOWeek(): number {
-    const date = new Date();
+    const date = companyToday();
     date.setDate(date.getDate() + 4 - (date.getDay() || 7));
     const thursday = date.getTime();
     date.setMonth(0);

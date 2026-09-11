@@ -21,7 +21,7 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import {
   NgbPaginationModule,
   NgbTooltipModule,
@@ -57,7 +57,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   styleUrls: ['./all-group-list.component.scss'],
   standalone: true,
   imports: [
-    DatePipe,
+    CalendarDatePipe,
     NgbTooltipModule,
     NgbPaginationModule,
     TranslateModule,

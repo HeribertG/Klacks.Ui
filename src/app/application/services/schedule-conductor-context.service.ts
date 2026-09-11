@@ -15,6 +15,8 @@ import { IShift } from 'src/app/domain/models/automation/conductor/shift.model';
 import { IWorkScheduleClient, IPeriodHours } from 'src/app/domain/models/schedule/work-schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -51,16 +53,19 @@ export class ScheduleConductorContextService {
   }
 
   private mapShifts(shiftSchedules: IShiftSchedule[]): IShift[] {
-    return shiftSchedules.map(s => ({
-      id: `${s.shiftId}_${this.formatDate(s.date)}`,
-      name: s.shiftName,
-      date: s.date instanceof Date ? s.date : new Date(s.date),
-      startTime: s.startShift,
-      endTime: s.endShift,
-      hours: s.workTime,
-      requiredAssignments: s.quantity,
-      priority: s.isSporadic ? 2 : 1,
-    }));
+    return shiftSchedules.map(s => {
+      const date = parseCalendarDate(s.date) ?? new Date(NaN);
+      return {
+        id: `${s.shiftId}_${formatDateOnly(date)}`,
+        name: s.shiftName,
+        date,
+        startTime: s.startShift,
+        endTime: s.endShift,
+        hours: s.workTime,
+        requiredAssignments: s.quantity,
+        priority: s.isSporadic ? 2 : 1,
+      };
+    });
   }
 
   private mapClients(clients: IClientWork[]): IWorkScheduleClient[] {
@@ -78,6 +83,7 @@ export class ScheduleConductorContextService {
       type: c.type,
       neededRows: c.neededRows,
       hasContract: c.hasContract,
+      qualifications: c.qualifications,
     }));
   }
 
@@ -98,11 +104,4 @@ export class ScheduleConductorContextService {
     return Math.max(0, Math.min(1, elapsedMs / totalMs));
   }
 
-  private formatDate(date: Date): string {
-    const d = date instanceof Date ? date : new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
 }

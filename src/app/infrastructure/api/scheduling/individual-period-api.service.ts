@@ -10,7 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
-import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root'
@@ -40,13 +40,13 @@ export class IndividualPeriodApiService {
     return firstValueFrom(this.http.delete<IIndividualPeriod>(`${environment.baseUrl}IndividualPeriods/${id}`).pipe(retry(3)));
   }
 
-  private correctDates(period: IIndividualPeriod): IIndividualPeriod {
+  private correctDates(period: IIndividualPeriod) {
     return {
       ...period,
       periods: period.periods.map(row => ({
         ...row,
-        fromDate: dateWithLocalTimeCorrection(row.fromDate) as Date,
-        untilDate: row.untilDate ? dateWithLocalTimeCorrection(row.untilDate) : undefined,
+        fromDate: toCalendarDateWire(row.fromDate),
+        untilDate: row.untilDate ? toCalendarDateWire(row.untilDate) : row.untilDate,
       })),
     };
   }

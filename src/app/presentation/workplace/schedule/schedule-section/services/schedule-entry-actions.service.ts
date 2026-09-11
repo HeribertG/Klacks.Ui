@@ -29,6 +29,7 @@ import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { Break } from 'src/app/domain/models/break/break-class';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { ScheduleDataService } from './schedule-data.service';
@@ -71,7 +72,7 @@ export class ScheduleEntryActionsService {
 
     const targetDate = addDays(dataService.startDate, column);
     const shift = this.dataManagement.shiftSchedules.find(
-      (s) => s.shiftId === shiftId && this.isSameDay(new Date(s.date), targetDate)
+      (s) => s.shiftId === shiftId && isSameCalendarDate(s.date, targetDate)
     );
 
     if (!shift) return;
@@ -115,10 +116,10 @@ export class ScheduleEntryActionsService {
 
     const periodStart = this.dataManagement.visibleStartDate
       ? formatDateOnly(this.dataManagement.visibleStartDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
     const periodEnd = this.dataManagement.visibleEndDate
       ? formatDateOnly(this.dataManagement.visibleEndDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
 
     const breakEntry = new Break();
     breakEntry.clientId = client.id;
@@ -287,24 +288,21 @@ export class ScheduleEntryActionsService {
     const workTime = this.calculateBreakWorkTime(selectedItem);
     const description = selectedItem?.description ? { ...selectedItem.description } : undefined;
 
-    const from = new Date(bp.from);
-    from.setHours(0, 0, 0, 0);
-    const until = new Date(bp.until);
-    until.setHours(0, 0, 0, 0);
+    const from = parseCalendarDate(bp.from);
+    const until = parseCalendarDate(bp.until);
+    if (!from || !until) return;
 
     const entries: BreakCellParams[] = [];
-    const current = new Date(from);
-    while (current <= until) {
+    for (let current = from; current <= until; current = addDays(current, 1)) {
       entries.push({
         clientId: bp.clientId,
         absenceId,
-        date: new Date(current),
+        date: current,
         workTime,
         startTime,
         endTime,
         description,
       });
-      current.setDate(current.getDate() + 1);
     }
 
     await this.scheduleEntryCrud.bulkAddBreakScheduleEntries(entries);
@@ -337,15 +335,5 @@ export class ScheduleEntryActionsService {
     this.scheduleCommandService.delete(entry.id).subscribe({
       next: () => this.dataManagement.readDatas(false),
     });
-  }
-
-  private isSameDay(date1: Date | string, date2: Date | string): boolean {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
-    );
   }
 }

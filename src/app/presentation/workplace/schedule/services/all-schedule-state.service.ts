@@ -7,7 +7,9 @@
  * @description
  * Service managing the complete state for the Schedule workplace.
  * Extends BaseStateService to provide filter persistence and restoration.
- * Integrates with AppSettings to apply work-specific settings like payment interval.
+ * Integrates with AppSettings to apply work-specific settings like payment interval, and waits for
+ * the company clock so the untouched default period follows the company "today" before the stored
+ * filter is restored (a stored or user-chosen period always wins).
  *
  * @relations
  * - Extends: BaseStateService
@@ -17,11 +19,13 @@
 import { Injectable, inject } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable()
 export class AllScheduleStateService extends BaseStateService<
@@ -29,6 +33,7 @@ export class AllScheduleStateService extends BaseStateService<
   DataManagementScheduleService
 > {
   private appSettingsService = inject(AppSettingsManagementService);
+  private companyClockService = inject(CompanyClockService);
   private calendarUtil = inject(CalendarUtilService);
 
   constructor() {
@@ -40,7 +45,11 @@ export class AllScheduleStateService extends BaseStateService<
   }
 
   override async initializeWorkplaceState(): Promise<void> {
-    await this.appSettingsService.loadSettingsAsync();
+    await Promise.all([
+      this.appSettingsService.loadSettingsAsync(),
+      this.companyClockService.loadIfAuthenticated(),
+    ]);
+    this.dataManagementService.applyCompanyDefaultPeriod();
 
     await super.initializeWorkplaceState();
 
@@ -65,7 +74,7 @@ export class AllScheduleStateService extends BaseStateService<
     const filter = this.dataManagementService.currentFilter;
     if (filter.paymentInterval === PaymentInterval.Weekly
       || filter.paymentInterval === PaymentInterval.Biweekly) {
-      const now = new Date();
+      const now = companyToday();
       filter.currentWeek = this.calendarUtil.getISO8601WeekNumber(now);
       filter.currentYear = now.getFullYear();
     }

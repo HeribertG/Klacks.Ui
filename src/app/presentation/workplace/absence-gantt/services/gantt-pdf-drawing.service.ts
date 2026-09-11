@@ -8,6 +8,7 @@ import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface GanttDrawingConfig {
   pageWidth: number;
@@ -354,7 +355,9 @@ export class GanttPdfDrawingService {
     breakData: any, // IBreak
     rowHeight: number
   ): void {
-    if (!breakData.from || !breakData.until) {
+    const breakStart = parseCalendarDate(breakData.from);
+    const breakEnd = parseCalendarDate(breakData.until);
+    if (!breakStart || !breakEnd) {
       return;
     }
 
@@ -363,9 +366,6 @@ export class GanttPdfDrawingService {
 
     const daysInYear = this.getDaysInYear(config.year);
     const dayWidth = availableCalendarWidth / daysInYear;
-
-    const breakStart = new Date(breakData.from);
-    const breakEnd = new Date(breakData.until);
 
     if (
       breakStart.getFullYear() !== config.year &&

@@ -14,6 +14,13 @@ import {
 } from 'src/app/domain/interfaces/collision-notification.interface';
 import { IScheduleValidationNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 function createCollision(overrides: Partial<ICollisionNotification> = {}): ICollisionNotification {
   return {
@@ -685,5 +692,34 @@ describe('CollisionDetectionService', () => {
       expect(service.infoCount()).toBe(1);
       expect(service.errorEntries().length).toBe(3);
     });
+  });
+
+  describe('understaffed shift dates across browser time zones', () => {
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it('activates the configured zone', () => {
+          expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+        });
+
+        it.each(['2026-08-03', '2026-08-03T00:00:00Z', '2026-08-03T00:00:00'])(
+          'reports an understaffed shift dated %s on 2026-08-03',
+          (wireDate) => {
+            dataManagementMock.visibleStartDate = parseCalendarDate('2026-08-01');
+            dataManagementMock.visibleEndDate = parseCalendarDate('2026-08-31');
+            dataManagementMock.shiftSchedules = [
+              { date: wireDate as unknown as Date, abbreviation: 'F', sumEmployees: 2, quantity: 1, engaged: 1 },
+            ];
+
+            collisionsDetected$.next({ isFullRefresh: true, collisions: [] });
+            flushAndTick();
+
+            const infoDates = service.errorEntries().filter((e) => e.type === 'info').map((e) => e.date);
+            expect(infoDates).toEqual(['2026-08-03']);
+          },
+        );
+      });
+    }
   });
 });

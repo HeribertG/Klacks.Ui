@@ -7,6 +7,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { GanttCoordinateService } from '../gantt-coordinate.service';
 
@@ -156,12 +157,8 @@ export class CalendarCalculationService {
       return -1;
     }
 
-    const validFromDate =
-      client.membership.validFrom instanceof Date
-        ? client.membership.validFrom
-        : new Date(client.membership.validFrom);
-
-    if (isNaN(validFromDate.getTime())) {
+    const validFromDate = parseCalendarDate(client.membership.validFrom);
+    if (!validFromDate) {
       return -1;
     }
 
@@ -183,12 +180,8 @@ export class CalendarCalculationService {
       return -1;
     }
 
-    const validUntilDate =
-      client.membership.validUntil instanceof Date
-        ? client.membership.validUntil
-        : new Date(client.membership.validUntil);
-
-    if (isNaN(validUntilDate.getTime())) {
+    const validUntilDate = parseCalendarDate(client.membership.validUntil);
+    if (!validUntilDate) {
       return -1;
     }
 

@@ -2,9 +2,10 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry } from 'rxjs';
+import { defer, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IBreak, Break } from 'src/app/domain/models/break/break-class';
+import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { BulkAddBreaksRequest } from '../dtos/bulk-add-breaks-request.dto';
 import { BulkDeleteBreaksRequest } from '../dtos/bulk-delete-breaks-request.dto';
 import { BulkBreaksResponse } from '../dtos/bulk-breaks-response.dto';
@@ -22,15 +23,15 @@ export class DataBreakService {
   }
 
   addBreak(value: Break) {
-    return this.httpClient
-      .post<IBreak>(`${environment.baseUrl}Breaks/`, value)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .post<IBreak>(`${environment.baseUrl}Breaks/`, this.toWirePayload(value))
+      .pipe(retry(3)));
   }
 
   updateBreak(value: Break) {
-    return this.httpClient
-      .put<IBreak>(`${environment.baseUrl}Breaks/`, value)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .put<IBreak>(`${environment.baseUrl}Breaks/`, this.toWirePayload(value))
+      .pipe(retry(3)));
   }
 
   deleteBreak(id: string, periodStart: string, periodEnd: string) {
@@ -61,5 +62,9 @@ export class DataBreakService {
     return this.httpClient
       .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Unconfirm`, {})
       .pipe(retry(3));
+  }
+
+  private toWirePayload(value: Break) {
+    return { ...value, currentDate: toCalendarDateWire(value.currentDate) };
   }
 }

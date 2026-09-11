@@ -26,6 +26,7 @@ import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signal
 import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
+import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 
 /**
  * Realtime hub services whose authenticated push channel must be torn down on logout
@@ -126,7 +127,8 @@ export class AuthService {
 
   /**
    * Tears down all authenticated realtime hub connections and clears session-scoped state that
-   * outlives token removal (the recoverable form draft and the container-lock instance id).
+   * outlives token removal (the recoverable form draft, the loaded company clock and the
+   * container-lock instance id).
    * Every step is best-effort and isolated so a single failure never blocks logout. Services are
    * resolved lazily through the Injector to avoid a construction-time DI cycle.
    */
@@ -143,6 +145,12 @@ export class AuthService {
       void this.injector.get(DraftRecoveryService).clear();
     } catch {
       // Draft recovery not resolvable - ignore.
+    }
+
+    try {
+      this.injector.get(CompanyClockService).reset();
+    } catch {
+      // Company clock not resolvable - ignore.
     }
 
     try {
@@ -280,6 +288,21 @@ export class AuthService {
     }
 
     this.authorizationService.refresh();
+    this.loadCompanyClockIfAuthenticated();
+  }
+
+  /**
+   * Triggers the company-clock load (idempotent: a second call reuses the first load) after a
+   * login, a token refresh, or a boot with an already-valid token. Resolved lazily through the
+   * Injector, matching REALTIME_CONNECTION_SERVICES above, so a construction-time DI cycle through
+   * CompanyClockService's own HTTP call never forms.
+   */
+  private loadCompanyClockIfAuthenticated(): void {
+    try {
+      void this.injector.get(CompanyClockService).loadIfAuthenticated();
+    } catch {
+      // Service not resolvable - ignore.
+    }
   }
 
   private removeToken(isRefresh?: boolean) {
@@ -380,6 +403,9 @@ export class AuthService {
   private async performStartupRefresh(): Promise<void> {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     if (!token || !this.isAccessTokenExpired(token)) {
+      if (token) {
+        this.loadCompanyClockIfAuthenticated();
+      }
       return;
     }
 

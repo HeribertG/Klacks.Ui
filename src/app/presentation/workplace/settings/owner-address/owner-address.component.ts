@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Settings panel for the owner (company) address, country/state, company time zone and global
+ * calendar selection. Edits flow into AppSettings contactSettings; a country, state or time-zone
+ * change is applied to contactSettings synchronously, saved immediately and then reloads the
+ * company clock so "today" follows the new company zone.
+ * @param selectedTimeZone - IANA id chosen as company time zone (empty = resolved by the backend)
+ */
+
 import { Component, ChangeDetectionStrategy, OnInit, effect, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
@@ -8,7 +16,10 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
-
+import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
+import { COMPANY_CLOCK_SOURCE_UTC } from 'src/app/domain/models/settings/company-clock.model';
+import { IAppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
+
 import { DomainMessages } from 'src/app/domain/constants/messages';
 interface AddressModel {
   addressName: string;
@@ -33,6 +44,9 @@ export class OwnerAddressComponent implements OnInit {
   private appSettingsService = inject(AppSettingsManagementService);
   public clientConfigService = inject(ClientConfigService);
   public calendarSelectionService = inject(DataManagementCalendarSelectionService);
+  private companyClockService = inject(CompanyClockService);
+
+  public readonly showUtcWarning = computed(() => this.companyClockService.source() === COMPANY_CLOCK_SOURCE_UTC);
 
   private isInitialized = false;
   public selectedCountry = signal<string>('');
@@ -69,30 +83,36 @@ export class OwnerAddressComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const model = this.addressModel();
-      const country = this.selectedCountry();
-      const state = this.selectedState();
-      const timeZone = this.selectedTimeZone();
-      const calendarId = this.selectedCalendarId();
+      const patch = this.buildContactSettingsPatch();
       if (this.isInitialized) {
-        this.appSettingsService.contactSettings.update(s => ({
-          ...s,
-          addressName: model.addressName,
-          phone: model.phone,
-          supplementAddress: model.supplementAddress,
-          email: model.email,
-          address: model.address,
-          zip: model.zip,
-          place: model.place,
-          state: state,
-          country: country,
-          timeZone: timeZone,
-          globalCalendarCountry: country,
-          globalCalendarState: state,
-          globalCalendarSelectionId: calendarId,
-        }));
+        this.applyContactSettingsPatch(patch);
       }
     });
+  }
+
+  private buildContactSettingsPatch(): Partial<IAppContactSettings> {
+    const model = this.addressModel();
+    const country = this.selectedCountry();
+    const state = this.selectedState();
+    return {
+      addressName: model.addressName,
+      phone: model.phone,
+      supplementAddress: model.supplementAddress,
+      email: model.email,
+      address: model.address,
+      zip: model.zip,
+      place: model.place,
+      state: state,
+      country: country,
+      timeZone: this.selectedTimeZone(),
+      globalCalendarCountry: country,
+      globalCalendarState: state,
+      globalCalendarSelectionId: this.selectedCalendarId(),
+    };
+  }
+
+  private applyContactSettingsPatch(patch: Partial<IAppContactSettings>): void {
+    this.appSettingsService.contactSettings.update(s => ({ ...s, ...patch }));
   }
 
   async ngOnInit(): Promise<void> {
@@ -128,14 +148,24 @@ export class OwnerAddressComponent implements OnInit {
         this.selectedCalendarId.set('');
       }
     }
+    this.saveAndReloadCompanyClock();
   }
 
   onStateChange(state: string): void {
     this.selectedState.set(state);
+    this.saveAndReloadCompanyClock();
   }
 
   onTimeZoneChange(timeZone: string): void {
     this.selectedTimeZone.set(timeZone);
+    this.saveAndReloadCompanyClock();
+  }
+
+  private saveAndReloadCompanyClock(): void {
+    if (this.isInitialized) {
+      this.applyContactSettingsPatch(this.buildContactSettingsPatch());
+    }
+    void this.appSettingsService.saveImmediately().then(() => this.companyClockService.reload());
   }
 
   private loadTimeZones(): string[] {

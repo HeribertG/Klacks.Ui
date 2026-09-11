@@ -11,6 +11,8 @@ import { DataManagementScheduleService } from './data-management-schedule.servic
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -69,7 +71,7 @@ export class WorkNotificationService {
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
 
     if (clientDisplayed) {
-      this.queueRefresh(notification.clientId, new Date(notification.currentDate));
+      this.queueCalendarRefresh(notification.clientId, notification.currentDate);
       this.scheduleUpdateSignal.set(notification.workId);
       setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
     }
@@ -93,7 +95,7 @@ export class WorkNotificationService {
 
     for (const work of notification.works) {
       if (this.isClientDisplayed(work.clientId)) {
-        this.queueRefresh(work.clientId, new Date(work.currentDate));
+        this.queueCalendarRefresh(work.clientId, work.currentDate);
         lastDisplayedWorkId = work.workId;
       }
 
@@ -107,6 +109,13 @@ export class WorkNotificationService {
     if (lastDisplayedWorkId !== null) {
       this.scheduleUpdateSignal.set(lastDisplayedWorkId);
       setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
+    }
+  }
+
+  private queueCalendarRefresh(clientId: string, currentDate: Date | string): void {
+    const date = parseCalendarDate(currentDate);
+    if (date) {
+      this.queueRefresh(clientId, date);
     }
   }
 
@@ -134,13 +143,13 @@ export class WorkNotificationService {
     if (this._pendingRefreshes.size === 0) return;
 
     for (const [clientId, range] of this._pendingRefreshes) {
+      // eslint-disable-next-line no-restricted-syntax -- range.minDate is epoch milliseconds (Date.getTime()), not a calendar-date wire string
       const startDate = new Date(range.minDate);
+      // eslint-disable-next-line no-restricted-syntax -- range.maxDate is epoch milliseconds (Date.getTime()), not a calendar-date wire string
       const endDate = new Date(range.maxDate);
       // Add +1 day buffer to cover overnight shifts that affect the next day
-      const bufferedStart = new Date(startDate);
-      bufferedStart.setDate(bufferedStart.getDate() - 1);
-      const bufferedEnd = new Date(endDate);
-      bufferedEnd.setDate(bufferedEnd.getDate() + 1);
+      const bufferedStart = addDays(startDate, -1);
+      const bufferedEnd = addDays(endDate, 1);
 
       this.dataManagementSchedule.refreshClientScheduleForDateRange(clientId, bufferedStart, bufferedEnd);
     }
@@ -155,10 +164,11 @@ export class WorkNotificationService {
     }
 
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
+    const centerDate = parseCalendarDate(notification.currentDate);
 
-    if (clientDisplayed) {
+    if (clientDisplayed && centerDate) {
       // Wait for data to be loaded before triggering UI refresh
-      this.refreshAffectedDays(notification.clientId, new Date(notification.currentDate))
+      this.refreshAffectedDays(notification.clientId, centerDate)
         .then(() => {
           this.scheduleUpdateSignal.set(notification.clientId);
           setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
@@ -174,9 +184,14 @@ export class WorkNotificationService {
       return;
     }
 
+    const shiftDate = parseCalendarDate(notification.date);
+    if (!shiftDate) {
+      return;
+    }
+
     const updated = this.shiftScheduleLoader.updateShiftEngaged(
       notification.shiftId,
-      new Date(notification.date),
+      shiftDate,
       notification.engaged
     );
 

@@ -17,10 +17,9 @@ import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-sc
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly, getDayIndex } from 'src/app/shared/helpers/date.helper';
 
 const TOAST_CONTEXT = 'auto-wizard';
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class AutoWizardOrchestratorService {
@@ -109,10 +108,7 @@ export class AutoWizardOrchestratorService {
   }
 
   private exceedsLimits(agents: number, shifts: number, startDate: Date, endDate: Date): boolean {
-    const periodDays = Math.max(
-      1,
-      Math.floor((endDate.getTime() - startDate.getTime()) / MS_PER_DAY) + 1,
-    );
+    const periodDays = Math.max(1, getDayIndex(startDate, endDate) + 1);
     const slotProduct = agents * Math.max(1, shifts) * periodDays;
     if (
       agents <= AUTO_WIZARD_LIMITS.maxAgents &&

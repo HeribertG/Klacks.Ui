@@ -27,6 +27,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule/schedule-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -264,7 +265,7 @@ export class DataManagementContractService {
     newContract.nightStart = this.settingsService.appSettings.surchargeModeSettings().nightStart;
     newContract.nightEnd = this.settingsService.appSettings.surchargeModeSettings().nightEnd;
     newContract.paymentInterval = work.paymentInterval;
-    newContract.validFrom = new Date();
+    newContract.validFrom = companyToday();
     newContract.validUntil = undefined;
     newContract.calendarSelection = undefined;
 

@@ -5,7 +5,7 @@ import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { companyToday, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 
@@ -39,21 +39,17 @@ export class DataShiftService {
 
 
   updateShift(value: IShift) {
-    delete value.addressName;
-    this.ensureDateCorrection(value);
-    this.ensureTimeDefaults(value);
+    const { addressName: _addressName, ...rest } = value;
     return this.httpClient
-      .put<IShift>(`${environment.baseUrl}Shifts/`, value)
+      .put<IShift>(`${environment.baseUrl}Shifts/`, this.toWirePayload(rest))
       .pipe(retry(3));
   }
 
   addShift(value: IShift) {
-    delete value.id;
-    delete value.addressName;
-    this.ensureDateCorrection(value);
-    this.ensureTimeDefaults(value);
+    const { addressName: _addressName, ...rest } = value;
+    const { id: _id, ...payload } = this.toWirePayload(rest);
     return this.httpClient
-      .post<IShift>(`${environment.baseUrl}Shifts/`, value)
+      .post<IShift>(`${environment.baseUrl}Shifts/`, payload)
       .pipe(retry(3));
   }
 
@@ -63,50 +59,22 @@ export class DataShiftService {
       .pipe(retry(3));
   }
 
-  private ensureDateCorrection(value: IShift) {
-    if (!value.fromDate) {
-      value.fromDate = new Date();
-    }
-    value.fromDate = dateWithLocalTimeCorrection(value.fromDate)!;
-
-    if (value.untilDate) {
-      value.untilDate = dateWithLocalTimeCorrection(value.untilDate)!;
-    }
-  }
-
-  private ensureTimeDefaults(value: IShift) {
+  private toWirePayload(value: Omit<IShift, 'addressName'>) {
     const nullTime = '00:00:00';
+    const fromDate = value.fromDate ?? companyToday();
 
-    if (!value.startShift) {
-      value.startShift = nullTime;
-    }
-
-    if (!value.endShift) {
-      value.endShift = nullTime;
-    }
-
-    if (!value.afterShift) {
-      value.afterShift = nullTime;
-    }
-
-    if (!value.beforeShift) {
-      value.beforeShift = nullTime;
-    }
-
-    if (!value.travelTimeAfter) {
-      value.travelTimeAfter = nullTime;
-    }
-
-    if (!value.travelTimeBefore) {
-      value.travelTimeBefore = nullTime;
-    }
-
-    if (!value.briefingTime) {
-      value.briefingTime = nullTime;
-    }
-
-    if (!value.debriefingTime) {
-      value.debriefingTime = nullTime;
-    }
+    return {
+      ...value,
+      fromDate: toCalendarDateWire(fromDate),
+      untilDate: value.untilDate ? toCalendarDateWire(value.untilDate) : value.untilDate,
+      startShift: value.startShift || nullTime,
+      endShift: value.endShift || nullTime,
+      afterShift: value.afterShift || nullTime,
+      beforeShift: value.beforeShift || nullTime,
+      travelTimeAfter: value.travelTimeAfter || nullTime,
+      travelTimeBefore: value.travelTimeBefore || nullTime,
+      briefingTime: value.briefingTime || nullTime,
+      debriefingTime: value.debriefingTime || nullTime,
+    };
   }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ICalendarSelection } from '../calendar/calendar-selection-class';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 export enum PaymentInterval {
   Weekly = 0,
@@ -59,7 +60,7 @@ export class Contract implements IContract {
   paymentInterval = PaymentInterval.Monthly;
   percent: number | undefined = undefined;
 
-  validFrom = new Date();
+  validFrom = companyToday();
   validUntil: Date | undefined = undefined;
   calendarSelection: ICalendarSelection | undefined = undefined;
   calendarSelectionId: string | undefined = undefined;

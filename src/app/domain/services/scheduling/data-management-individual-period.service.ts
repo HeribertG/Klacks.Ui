@@ -13,6 +13,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -42,8 +43,8 @@ export class DataManagementIndividualPeriodService {
       ...period,
       periods: period.periods.map(row => ({
         ...row,
-        fromDate: new Date(row.fromDate),
-        untilDate: row.untilDate ? new Date(row.untilDate) : undefined,
+        fromDate: parseCalendarDate(row.fromDate) ?? row.fromDate,
+        untilDate: parseCalendarDate(row.untilDate) ?? undefined,
       })),
     };
   }
@@ -164,7 +165,7 @@ export class DataManagementIndividualPeriodService {
         );
       }
 
-      if (row.untilDate && row.fromDate && new Date(row.untilDate) < new Date(row.fromDate)) {
+      if (this.isUntilBeforeFrom(row.fromDate, row.untilDate)) {
         errors.push(
           this.translate.instant('setting.individualPeriod.validation.invalidDateRange')
         );
@@ -178,5 +179,11 @@ export class DataManagementIndividualPeriodService {
     }
 
     return errors;
+  }
+
+  private isUntilBeforeFrom(fromDate: Date | undefined, untilDate: Date | undefined): boolean {
+    const from = parseCalendarDate(fromDate);
+    const until = parseCalendarDate(untilDate);
+    return !!from && !!until && until < from;
   }
 }

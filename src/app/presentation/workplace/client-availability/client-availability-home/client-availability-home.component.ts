@@ -6,6 +6,7 @@ import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild,
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
@@ -229,7 +230,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   }
 
   private setStartDate(): void {
-    const now = new Date();
+    const now = companyToday();
     if (this.viewMode === PaymentInterval.Monthly) {
       this.calculation.startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     } else {
