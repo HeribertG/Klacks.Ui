@@ -54,6 +54,16 @@ describe('ChunkLoadRecoveryService', () => {
     vi.useRealTimers();
   });
 
+  describe('start()', () => {
+    it('subscribes to router events only once even when called twice', () => {
+      service.start();
+
+      routerEvents.next(new NavigationError(NAVIGATION_ID, TARGET_URL, CHUNK_ERROR));
+
+      expect(requestReload).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('navigation errors', () => {
     it('asks for a reload of the URL the user tried to open when its chunk is missing', () => {
       routerEvents.next(new NavigationError(NAVIGATION_ID, TARGET_URL, CHUNK_ERROR));
