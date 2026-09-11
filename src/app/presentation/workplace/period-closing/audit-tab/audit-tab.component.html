@@ -27,7 +27,7 @@
         </dd>
 
         <dt>{{ 'periodClosing.modal.performedAt' | translate }}</dt>
-        <dd>{{ entry.performedAt | date:'dd.MM.yyyy, HH:mm' }}</dd>
+        <dd>{{ entry.performedAt | companyDateTime }}</dd>
 
         <dt>{{ 'periodClosing.modal.performedBy' | translate }}</dt>
         <dd>{{ displayUser(entry.performedByName, entry.performedBy) }}</dd>
@@ -78,7 +78,7 @@
         <dd>{{ entry.format.toUpperCase() }}</dd>
 
         <dt>{{ 'periodClosing.modal.exportedAt' | translate }}</dt>
-        <dd>{{ entry.exportedAt | date:'dd.MM.yyyy, HH:mm' }}</dd>
+        <dd>{{ entry.exportedAt | companyDateTime }}</dd>
 
         <dt>{{ 'periodClosing.modal.exportedBy' | translate }}</dt>
         <dd>{{ displayUser(entry.exportedByName, entry.exportedBy) }}</dd>
@@ -189,7 +189,7 @@
                   role="button"
                 >
                   <td [id]="'audit-log-cell-date-' + i" class="table-cell">
-                    {{ e.performedAt | date:'dd.MM.yyyy, HH:mm' }}
+                    {{ e.performedAt | companyDateTime }}
                   </td>
                   <td [id]="'audit-log-cell-action-' + i" class="table-cell">
                     <span class="badge" [ngClass]="auditActionDisplay(e.action).badgeClass">
@@ -256,7 +256,7 @@
                   role="button"
                 >
                   <td [id]="'export-log-cell-date-' + i" class="table-cell">
-                    {{ e.exportedAt | date:'dd.MM.yyyy, HH:mm' }}
+                    {{ e.exportedAt | companyDateTime }}
                   </td>
                   <td [id]="'export-log-cell-format-' + i" class="table-cell">
                     {{ e.format.toUpperCase() }}

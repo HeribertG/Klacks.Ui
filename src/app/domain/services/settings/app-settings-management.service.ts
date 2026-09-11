@@ -147,7 +147,7 @@ export class AppSettingsManagementService {
     [AppSetting.WEB_SEARCH_MAX_RESULTS, (v, m) => (m.webSearchMaxResults = v)],
 
     [AppSetting.ERP_IMPORT_CRON_EXPRESSION, (v, m) => (m.erpImportCronExpression = v || ErpImportScheduleDefaults.CronExpression)],
-    [AppSetting.ERP_IMPORT_CRON_TIMEZONE, (v, m) => (m.erpImportCronTimeZone = v || ErpImportScheduleDefaults.CronTimeZone)],
+    [AppSetting.ERP_IMPORT_CRON_TIMEZONE, (v, m) => (m.erpImportCronTimeZone = v ?? ErpImportScheduleDefaults.UseCompanyTimeZone)],
 
     [AppSetting.WORK_VACATION_DAYS_PER_YEAR, (v, m) => (m.work.vacationDaysPerYear = parseInt(v, 10) || 25)],
     [AppSetting.WORK_PROBATION_PERIOD, (v, m) => (m.work.probationPeriod = parseInt(v, 10) || 3)],
@@ -299,7 +299,7 @@ export class AppSettingsManagementService {
   public webSearchApiKey = signal<string>('');
   public webSearchMaxResults = signal<string>('');
   public erpImportCronExpression = signal<string>(ErpImportScheduleDefaults.CronExpression);
-  public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
+  public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.UseCompanyTimeZone);
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
   public holisticHarmonizerSettings = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
   public compensatoryRestSettings = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
@@ -321,7 +321,7 @@ export class AppSettingsManagementService {
   private webSearchApiKeyOriginal = signal<string>('');
   private webSearchMaxResultsOriginal = signal<string>('');
   private erpImportCronExpressionOriginal = signal<string>(ErpImportScheduleDefaults.CronExpression);
-  private erpImportCronTimeZoneOriginal = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
+  private erpImportCronTimeZoneOriginal = signal<string>(ErpImportScheduleDefaults.UseCompanyTimeZone);
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
   private holisticHarmonizerSettingsOriginal = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
   private compensatoryRestSettingsOriginal = signal<ICompensatoryRestSettings>(new CompensatoryRestSettings());
@@ -431,7 +431,7 @@ export class AppSettingsManagementService {
       webSearchApiKey: '',
       webSearchMaxResults: '',
       erpImportCronExpression: ErpImportScheduleDefaults.CronExpression,
-      erpImportCronTimeZone: ErpImportScheduleDefaults.CronTimeZone,
+      erpImportCronTimeZone: ErpImportScheduleDefaults.UseCompanyTimeZone,
       speech: new SpeechSettings(),
       holisticHarmonizer: new HolisticHarmonizerSettings(),
       compensatoryRest: new CompensatoryRestSettings(),

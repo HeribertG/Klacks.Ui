@@ -77,12 +77,20 @@
         (ngModelChange)="onScheduleTimeZoneChange($event)"
         aria-label="erpImportCronTimeZone"
       >
+        <option value="">
+          {{ companyTimeZoneOptionLabel() }}
+        </option>
         @for (timeZone of timeZones; track timeZone) {
           <option [value]="timeZone">
             {{ timeZone }}
           </option>
         }
       </select>
+      @if (showUtcWarning()) {
+        <div id="erp-drop-points-schedule-timezone-utc-warning" class="alert alert-warning">
+          {{ 'setting.companyClock.utcWarning' | translate }}
+        </div>
+      }
     </div>
   </div>
 

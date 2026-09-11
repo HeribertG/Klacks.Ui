@@ -30,6 +30,7 @@ import { BaseCellManipulationService } from '../../../../shared/grid/services/bo
 import { ProgressBarAnimationService } from '../../../../shared/grid/services/progress-bar-animation.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { isDefined } from 'src/app/shared/helpers/type-guard.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable()
 export class BaseDrawRowHeaderService {
@@ -67,7 +68,7 @@ export class BaseDrawRowHeaderService {
 
   public pixelRatio = DrawHelper.pixelRatio();
 
-  public startDate: Date = new Date();
+  public startDate: Date = companyToday();
 
   private _height = 10;
   private _width = 10;

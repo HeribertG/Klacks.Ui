@@ -19,6 +19,7 @@ import type {
   ITestGridMetadata,
 } from './grid-test-accessibility.types';
 import type { MyPosition } from '../../classes/position';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 // Extended interfaces for test framework detection
 interface WindowWithTestFrameworks extends Window {
@@ -225,13 +226,14 @@ export class GridTestAccessibilityService {
       if (ds.getDateForColumn) {
         const date = ds.getDateForColumn(col);
         if (date instanceof Date) {
-          return date.toISOString().split('T')[0];
+          return formatDateOnly(date);
         }
       }
       if (ds.startDate instanceof Date) {
+        // eslint-disable-next-line no-restricted-syntax -- ds.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the caller's instance
         const date = new Date(ds.startDate);
         date.setDate(date.getDate() + col);
-        return date.toISOString().split('T')[0];
+        return formatDateOnly(date);
       }
       return undefined;
     };

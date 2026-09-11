@@ -277,6 +277,7 @@ export class HolidaysListHelper {
   }
 
   public getISO8601WeekNumber(inputDate: Date): number {
+    // eslint-disable-next-line no-restricted-syntax -- inputDate is typed Date; this clones it so the mutations below don't affect the caller's instance
     const date = new Date(inputDate);
 
     date.setDate(date.getDate() + 4 - (date.getDay() || 7));
@@ -483,7 +484,8 @@ export class HolidaysListHelper {
     return calcDate;
   }
 
-  private addDays(date: Date | string, days: number) {
+  private addDays(date: Date, days: number): Date {
+    // eslint-disable-next-line no-restricted-syntax -- date is always a Date instance here (all callers pass one); this clones it so the mutation below does not affect the caller's instance
     const result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;

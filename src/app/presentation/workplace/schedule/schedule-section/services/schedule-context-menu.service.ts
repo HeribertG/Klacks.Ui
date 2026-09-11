@@ -38,6 +38,7 @@ import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-c
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { addDays } from 'src/app/shared/helpers/date.helper';
+import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { sanitizeCssColor } from 'src/app/shared/helpers/color.helper';
 import { ScheduleDataService } from './schedule-data.service';
 
@@ -286,13 +287,8 @@ export class ScheduleContextMenuService {
   getAvailableShiftsForDate(date: Date): IShiftSchedule[] {
     const shiftSchedules = this.dataManagement.shiftSchedules;
     return shiftSchedules.filter((shift) => {
-      const shiftDate = new Date(shift.date);
-      const isSameDay =
-        shiftDate.getFullYear() === date.getFullYear() &&
-        shiftDate.getMonth() === date.getMonth() &&
-        shiftDate.getDate() === date.getDate();
       const hasCapacity = shift.engaged < shift.sumEmployees * shift.quantity;
-      return isSameDay && hasCapacity;
+      return isSameCalendarDate(shift.date, date) && hasCapacity;
     });
   }
 

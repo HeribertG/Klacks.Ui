@@ -17,9 +17,11 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import {
+  addDays,
   formatDateOnly,
   getDateKeysBetween,
 } from 'src/app/shared/helpers/date.helper';
+import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ScheduleChangeService } from './schedule-change.service';
@@ -143,8 +145,8 @@ export class WorkScheduleLoaderService {
         );
         this.mergeClientAvailabilities(response.clientAvailabilities);
         this._totalAvailableClients = response.totalClientCount;
-        this.startDate = new Date(response.startDate);
-        this.endDate = new Date(response.endDate);
+        this.startDate = parseCalendarDate(response.startDate);
+        this.endDate = parseCalendarDate(response.endDate);
         this.updateClientNeededRows();
         this.applyBreakPlaceholderRows();
 
@@ -269,11 +271,8 @@ export class WorkScheduleLoaderService {
     const dayVisibleBefore = this.settingsService.appSettings.workSettings().dayVisibleBefore;
     const dayVisibleAfter = this.settingsService.appSettings.workSettings().dayVisibleAfter;
 
-    const startDate = new Date(periodStartDate);
-    startDate.setDate(startDate.getDate() - dayVisibleBefore);
-
-    const endDate = new Date(periodEndDate);
-    endDate.setDate(endDate.getDate() + dayVisibleAfter);
+    const startDate = addDays(periodStartDate, -dayVisibleBefore);
+    const endDate = addDays(periodEndDate, dayVisibleAfter);
 
     return {
       startDate: formatDateOnly(startDate),
@@ -553,7 +552,7 @@ export class WorkScheduleLoaderService {
 
     for (const entry of entries) {
       const clientId = entry.clientId;
-      const dateKey = formatDateOnly(new Date(entry.entryDate));
+      const dateKey = calendarDateKey(entry.entryDate);
 
       if (!result.has(clientId)) {
         result.set(clientId, new Map());
@@ -573,7 +572,7 @@ export class WorkScheduleLoaderService {
   private mergeIntoGroupedData(entries: IScheduleCell[]): void {
     for (const entry of entries) {
       const clientId = entry.clientId;
-      const dateKey = formatDateOnly(new Date(entry.entryDate));
+      const dateKey = calendarDateKey(entry.entryDate);
 
       if (!this.workScheduleByClientAndDate.has(clientId)) {
         this.workScheduleByClientAndDate.set(clientId, new Map());
@@ -598,7 +597,7 @@ export class WorkScheduleLoaderService {
 
     this.workScheduleEntries = this.workScheduleEntries.filter((entry) => {
       if (entry.clientId !== clientId) return true;
-      const entryDateKey = formatDateOnly(new Date(entry.entryDate));
+      const entryDateKey = calendarDateKey(entry.entryDate);
       return !dateKeys.includes(entryDateKey);
     });
 
@@ -612,7 +611,7 @@ export class WorkScheduleLoaderService {
     for (const entry of newEntries) {
       this.workScheduleEntries.push(entry);
 
-      const dateKey = formatDateOnly(new Date(entry.entryDate));
+      const dateKey = calendarDateKey(entry.entryDate);
       if (!this.workScheduleByClientAndDate.has(clientId)) {
         this.workScheduleByClientAndDate.set(clientId, new Map());
       }

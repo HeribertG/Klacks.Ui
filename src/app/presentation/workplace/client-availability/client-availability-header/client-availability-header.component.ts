@@ -27,6 +27,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { AvailabilityCalculationService } from '../services/render-availability-grid';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 const GROUPING_LABEL_KEYS = [
   'client-availability.grouping.1h',
@@ -75,8 +76,8 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
 
   periodChanged = output<PeriodResetData>();
 
-  currentYear = new Date().getFullYear();
-  currentMonth = new Date().getMonth() + 1;
+  currentYear = companyToday().getFullYear();
+  currentMonth = companyToday().getMonth() + 1;
   currentWeek = 1;
 
   groupingOptions: WritableSignal<Options> = signal({});
@@ -86,7 +87,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   public readonly quickPrintSourceId = 'client-availability';
 
   async ngOnInit(): Promise<void> {
-    this.currentWeek = this.calendarUtil.getISO8601WeekNumber(new Date());
+    this.currentWeek = this.calendarUtil.getISO8601WeekNumber(companyToday());
     this.groupingOptions.set(this.buildGroupingOptions());
 
     const rebuildOptions = () => {

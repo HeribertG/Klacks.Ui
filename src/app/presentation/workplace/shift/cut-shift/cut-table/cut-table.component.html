@@ -120,13 +120,13 @@
       </td>
 
       <td colspan="2" class="table-cell-small-border">
-        <p>{{ data.fromDate | date : "dd.MM.yyyy" }}</p>
+        <p>{{ data.fromDate | calendarDate : "dd.MM.yyyy" }}</p>
       </td>
 
       <td colspan="2" class="table-cell-small-border">
         @if (data.untilDate) {
         <p>
-          {{ data.untilDate | date : "dd.MM.yyyy" }}
+          {{ data.untilDate | calendarDate : "dd.MM.yyyy" }}
         </p>
         }
       </td>

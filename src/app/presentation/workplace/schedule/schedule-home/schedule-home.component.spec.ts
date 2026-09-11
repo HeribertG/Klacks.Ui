@@ -24,6 +24,7 @@ import { ScheduleViewModeService } from '../services/schedule-view-mode.service'
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('ScheduleHomeComponent', () => {
   const clientId = '131e24fe-2acf-4bd5-b70c-5af888321338';
@@ -177,5 +178,42 @@ describe('ScheduleHomeComponent', () => {
       expect(mockDataClientService.getClient).not.toHaveBeenCalled();
       expect(workFilter.searchString).toBe('1148');
     });
+  });
+
+  describe('updateHolidayDates', () => {
+    const ZONES = ['Asia/Kolkata', 'America/New_York'] as const;
+
+    for (const zone of ZONES) {
+      describe(zone, () => {
+        let originalTz: string | undefined;
+
+        beforeEach(() => {
+          originalTz = currentTimeZone();
+          process.env['TZ'] = zone;
+        });
+
+        afterEach(() => {
+          process.env['TZ'] = originalTz;
+        });
+
+        it('stores holiday dates as local midnight regardless of the browser zone', () => {
+          // Arrange
+          setup({});
+          const holidayCollectionMock = TestBed.inject(HolidayCollectionService) as unknown as { holidays: { holidayList: { currentDate: Date }[] } };
+          holidayCollectionMock.holidays = { holidayList: [{ currentDate: new Date(2026, 0, 1) }] };
+          const dataManagementScheduleMock = TestBed.inject(DataManagementScheduleService) as unknown as { holidayDates: Date[] };
+
+          // Act
+          (component as unknown as { updateHolidayDates(): void }).updateHolidayDates();
+
+          // Assert
+          const [holiday] = dataManagementScheduleMock.holidayDates;
+          expect(holiday.getFullYear()).toBe(2026);
+          expect(holiday.getMonth()).toBe(0);
+          expect(holiday.getDate()).toBe(1);
+          expect(holiday.getHours()).toBe(0);
+        });
+      });
+    }
   });
 });

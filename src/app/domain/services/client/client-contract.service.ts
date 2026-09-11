@@ -5,6 +5,7 @@ import {
   IClient,
   ClientContract,
 } from 'src/app/domain/models/client/client-class';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,7 @@ export class ClientContractService {
   public addContract(client: IClient): IClient {
     const newContract = new ClientContract();
     newContract.clientId = client.id || '';
-    newContract.fromDate = new Date();
+    newContract.fromDate = companyToday();
 
     client.clientContracts = [...client.clientContracts, newContract];
 

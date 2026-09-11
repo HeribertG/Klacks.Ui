@@ -16,7 +16,8 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { SchedulePdfDrawingService, ScheduleDrawingConfig } from '../../schedule-section/services/schedule-pdf-drawing.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
+import { addDays, compareDate, getDayIndex } from 'src/app/shared/helpers/date.helper';
+import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 
@@ -96,9 +97,7 @@ export class ShiftPdfExportService {
       return;
     }
 
-    const totalColumns = Math.ceil(
-      (visibleEnd.getTime() - visibleStart.getTime()) / (1000 * 60 * 60 * 24),
-    ) + 1;
+    const totalColumns = getDayIndex(visibleStart, visibleEnd) + 1;
 
     const workSettings = this.appSettingsService.workSettings();
     const daysBefore = workSettings.dayVisibleBefore;
@@ -356,7 +355,7 @@ export class ShiftPdfExportService {
       }
 
       const shiftRow = shiftMap.get(schedule.shiftId)!;
-      const dateKey = this.formatDateKey(schedule.date);
+      const dateKey = calendarDateKey(schedule.date);
       shiftRow.activeDays.set(dateKey, {
         engaged: schedule.engaged,
         sumEmployees: schedule.sumEmployees,
@@ -386,7 +385,7 @@ export class ShiftPdfExportService {
       for (let i = 0; i < coreDays; i++) {
         const col = coreStartCol + i;
         const date = addDays(visibleStart, col);
-        const dateKey = this.formatDateKey(date);
+        const dateKey = calendarDateKey(date);
         const dayCapacity = row.activeDays.get(dateKey);
 
         if (dayCapacity) {
@@ -470,10 +469,5 @@ export class ShiftPdfExportService {
     const hours = ownTime.hours.padStart(2, '0');
     const minutes = ownTime.minutes.padStart(2, '0');
     return `${hours}:${minutes}`;
-  }
-
-  private formatDateKey(date: Date | string): string {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 }

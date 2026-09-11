@@ -27,6 +27,14 @@ import { DomainEventType, UndoOfferedEvent } from 'src/app/domain/events/domain-
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 import { IClientWork } from '../../models/schedule/schedule-class';
 import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  CalendarTestZone,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 function createMockWorkFilter(): IWorkFilter {
   return {
@@ -855,6 +863,68 @@ describe('ScheduleEntryCrudService', () => {
       // Assert
       expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalledTimes(1);
     });
+  });
+
+  describe('calendar dates across browser time zones', () => {
+    const AUTUMN_DST_SWITCH: Record<CalendarTestZone, { day: string; before: string; after: string }> = {
+      'Europe/Zurich': { day: '2026-10-25', before: '2026-10-24', after: '2026-10-26' },
+      'America/New_York': { day: '2026-11-01', before: '2026-10-31', after: '2026-11-02' },
+      'Asia/Kolkata': { day: '2026-11-01', before: '2026-10-31', after: '2026-11-02' },
+      'Pacific/Auckland': { day: '2026-04-05', before: '2026-04-04', after: '2026-04-06' },
+    };
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it('activates the configured zone', () => {
+          expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+        });
+
+        it.each(['2026-08-03', '2026-08-03T00:00:00Z', '2026-08-03T00:00:00'])(
+          'raises engaged of the shift dated %s when work is added on grid date 2026-08-03',
+          async (wireDate) => {
+            shiftLoaderMock.shiftSchedules = [
+              createMockShiftSchedule({ shiftId: 'shift-1', date: wireDate as unknown as Date, engaged: 2 }),
+            ];
+            const params: ScheduleCellParams = {
+              clientId: 'client-1',
+              date: new Date(2026, 7, 3),
+              shiftId: 'shift-1',
+              workTime: 480,
+              startTime: '08:00:00',
+              endTime: '16:00:00',
+            };
+
+            service.addWorkScheduleEntry(params, createMockWorkFilter());
+            await new Promise(resolve => setTimeout(resolve, 10));
+
+            expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(3);
+          },
+        );
+
+        it('reloads the day before and after a bulk-deleted entry on the autumn DST switch day', async () => {
+          const dstSwitch = AUTUMN_DST_SWITCH[zone];
+          const entries: DeleteWorkScheduleEntryParams[] = [
+            {
+              id: 'work-1',
+              sourceId: 'work-1',
+              clientId: 'client-1',
+              date: parseCalendarDate(dstSwitch.day) as Date,
+              entryId: 'shift-1',
+              entryType: 0,
+            },
+          ];
+
+          service.bulkDeleteWorkScheduleEntries(entries, createMockWorkFilter());
+          await new Promise(resolve => setTimeout(resolve, 10));
+
+          expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalledWith(
+            expect.objectContaining({ startDate: dstSwitch.before, endDate: dstSwitch.after }),
+          );
+        });
+      });
+    }
   });
 
   describe('signal behavior', () => {

@@ -12,6 +12,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 
 @Injectable({
@@ -94,7 +95,7 @@ export class AddressService {
 
     if (editClient.addresses.length === 0) {
       const c = new Address();
-      c.validFrom = new Date();
+      c.validFrom = companyToday();
       c.isScoped = true;
       editClient.addresses.push(c);
       currentAddressIndex = 0;
@@ -117,7 +118,7 @@ export class AddressService {
         return first > second ? -1 : first < second ? 1 : 0;
       });
 
-      const current = new Date();
+      const current = companyToday();
       const collectScopeAddresses: IAddress[] = [];
 
       editClient.hasScopeAddress = false;
@@ -127,9 +128,9 @@ export class AddressService {
       editClient.addresses.forEach((itm) => {
         itm.isScoped = false;
         itm.isFuture = false;
-        const tmpDate = new Date(itm.validFrom);
+        const tmpDate = parseCalendarDate(itm.validFrom);
 
-        if (tmpDate <= current) {
+        if (tmpDate && tmpDate <= current) {
           collectScopeAddresses.push(itm);
           itm.isScoped = true;
           editClient.hasScopeAddress = true;

@@ -7,6 +7,10 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays } from 'src/app/shared/helpers/date.helper';
+
+const NEXT_DAY_OFFSET = 1;
 
 export interface CutByDateParams {
   selectedShift: Shift;
@@ -57,8 +61,7 @@ export class ShiftCutOperationService {
 
     const copiedShift = this.copyShift(selectedShift);
 
-    const dayBeforeCut = new Date(cutDate);
-    dayBeforeCut.setDate(dayBeforeCut.getDate() - 1);
+    const dayBeforeCut = addDays(cutDate, -NEXT_DAY_OFFSET);
 
     selectedShift.untilDate = dayBeforeCut;
 
@@ -109,11 +112,9 @@ export class ShiftCutOperationService {
       cutStartMinutes >= 0 &&
       cutStartMinutes < originalEndMinutes;
 
-    if (cutTimeProps.cuttingAfterMidnight && selectedShift.fromDate) {
-      const nextDayDate = new Date(selectedShift.fromDate);
-      nextDayDate.setDate(nextDayDate.getDate() + 1);
-
-      cutTimeProps.fromDate = nextDayDate;
+    const shiftFromDate = parseCalendarDate(selectedShift.fromDate);
+    if (cutTimeProps.cuttingAfterMidnight && shiftFromDate) {
+      cutTimeProps.fromDate = addDays(shiftFromDate, NEXT_DAY_OFFSET);
     }
 
     this.prepareCutShift(copiedShift, cutTimeProps);

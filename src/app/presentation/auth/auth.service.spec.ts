@@ -15,6 +15,7 @@ import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signal
 import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
+import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 
 describe('AuthService', () => {
     let service: AuthService;
@@ -30,6 +31,7 @@ describe('AuthService', () => {
                 ToastShowService,
                 provideHttpClient(withXhr(), withInterceptorsFromDi()),
                 provideHttpClientTesting(),
+                { provide: CompanyClockService, useValue: { loadIfAuthenticated: vi.fn().mockResolvedValue(undefined), reset: vi.fn() } },
             ],
         });
         service = TestBed.inject(AuthService);
@@ -263,10 +265,12 @@ describe('AuthService logout session cleanup', () => {
     let httpMock: HttpTestingController;
     const signalRMock = { stopConnection: vi.fn().mockResolvedValue(undefined) };
     const draftRecoveryMock = { clear: vi.fn().mockResolvedValue(true) };
+    const companyClockMock = { loadIfAuthenticated: vi.fn().mockResolvedValue(undefined), reset: vi.fn() };
 
     beforeEach(() => {
         signalRMock.stopConnection.mockClear();
         draftRecoveryMock.clear.mockClear();
+        companyClockMock.reset.mockClear();
         TestBed.configureTestingModule({
             imports: [RouterTestingModule],
             providers: [
@@ -280,6 +284,7 @@ describe('AuthService logout session cleanup', () => {
                 { provide: DataHarmonizerService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
                 { provide: DataHolisticHarmonizerService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
                 { provide: DraftRecoveryService, useValue: draftRecoveryMock },
+                { provide: CompanyClockService, useValue: companyClockMock },
             ],
         });
         service = TestBed.inject(AuthService);
@@ -304,5 +309,20 @@ describe('AuthService logout session cleanup', () => {
         ).toBeNull();
 
         httpMock.expectOne(logoutUrl).flush(null);
+    });
+
+    it('should reset the company clock on logout', () => {
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+
+        service.logOut();
+
+        expect(companyClockMock.reset).toHaveBeenCalledTimes(1);
+        httpMock.expectOne(logoutUrl).flush(null);
+    });
+
+    it('should reset the company clock on a logout without an SSO provider', async () => {
+        await service.logOutWithSso();
+
+        expect(companyClockMock.reset).toHaveBeenCalledTimes(1);
     });
 });

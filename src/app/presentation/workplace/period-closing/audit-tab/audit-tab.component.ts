@@ -36,6 +36,8 @@ import {
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 
 interface AuditActionDisplay {
   labelKey: string;
@@ -60,7 +62,7 @@ const AUDIT_ACTION_DISPLAY: Record<PeriodAuditAction, AuditActionDisplay> = {
   templateUrl: './audit-tab.component.html',
   styleUrls: ['./audit-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, RefreshButtonComponent, ExpandableCardComponent, DateInputComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, RefreshButtonComponent, ExpandableCardComponent, DateInputComponent, CompanyDateTimePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditTabComponent implements OnInit {
@@ -124,8 +126,8 @@ export class AuditTabComponent implements OnInit {
 
   formatRange(start: string, end: string): string {
     if (!start || !end) return '';
-    const startTxt = DateToStringShort(start);
-    const endTxt = DateToStringShort(end);
+    const startTxt = DateToStringShort(parseCalendarDate(start) ?? start);
+    const endTxt = DateToStringShort(parseCalendarDate(end) ?? end);
     return start === end ? startTxt : `${startTxt} – ${endTxt}`;
   }
 

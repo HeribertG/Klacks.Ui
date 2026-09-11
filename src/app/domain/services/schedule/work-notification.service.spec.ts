@@ -11,6 +11,13 @@ import { AvailableShiftsCalculatorService } from './available-shifts-calculator.
 import { IWorkNotification } from '../../interfaces/work-notification.interface';
 import { IWorksBulkCreatedNotification } from '../../interfaces/works-bulk-created-notification.interface';
 import { IShiftStatsNotification } from '../../interfaces/shift-stats-notification.interface';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 describe('WorkNotificationService', () => {
   let service: WorkNotificationService;
@@ -476,5 +483,60 @@ describe('WorkNotificationService', () => {
       expect(service.isShiftAffected('shift-1')).toBe(true);
       expect(service.isShiftAffected('shift-2')).toBe(true);
     });
+  });
+
+  describe('notification dates across browser time zones', () => {
+    const REFRESH_DEBOUNCE_ELAPSED_MS = 600;
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        beforeEach(() => {
+          vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+          vi.useRealTimers();
+        });
+
+        it('activates the configured zone', () => {
+          expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+        });
+
+        it('refreshes the day before to the day after a work dated with a DateOnly string', () => {
+          workCreated$.next({
+            workId: 'work-1',
+            clientId: 'client-1',
+            shiftId: 'shift-1',
+            currentDate: '2026-08-03' as unknown as Date,
+            operationType: 'created',
+            sourceConnectionId: 'other-connection',
+          });
+          vi.advanceTimersByTime(REFRESH_DEBOUNCE_ELAPSED_MS);
+
+          const [clientId, start, end] = dataManagementMock.refreshClientScheduleForDateRange.mock.calls[0];
+          expect(clientId).toBe('client-1');
+          expect(formatDateOnly(start)).toBe('2026-08-02');
+          expect(formatDateOnly(end)).toBe('2026-08-04');
+        });
+
+        it.each(['2026-08-03', '2026-08-03T00:00:00Z', '2026-08-03T00:00:00'])(
+          'passes shift stats dated %s on as local 2026-08-03',
+          (wireDate) => {
+            shiftStatsUpdated$.next({
+              shiftId: 'shift-1',
+              date: wireDate as unknown as Date,
+              engaged: 1,
+              sourceConnectionId: 'other-connection',
+            });
+
+            const passedDate = shiftScheduleLoaderMock.updateShiftEngaged.mock.calls[0][1] as Date;
+            expect(formatDateOnly(passedDate)).toBe('2026-08-03');
+            expect(passedDate.getHours()).toBe(0);
+          },
+        );
+      });
+    }
   });
 });

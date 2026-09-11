@@ -24,6 +24,7 @@ import { DataManagementContractService } from 'src/app/domain/services/contract/
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
@@ -224,12 +225,12 @@ export class ClientContractsComponent implements OnInit {
         const bName = this.getContractName(b.contractId);
         compareValue = (aName || '').localeCompare(bName || '');
       } else if (orderBy === 'fromDate') {
-        const aDate = a.fromDate ? new Date(a.fromDate).getTime() : 0;
-        const bDate = b.fromDate ? new Date(b.fromDate).getTime() : 0;
+        const aDate = parseCalendarDate(a.fromDate)?.getTime() ?? 0;
+        const bDate = parseCalendarDate(b.fromDate)?.getTime() ?? 0;
         compareValue = aDate - bDate;
       } else if (orderBy === 'untilDate') {
-        const aDate = a.untilDate ? new Date(a.untilDate).getTime() : 0;
-        const bDate = b.untilDate ? new Date(b.untilDate).getTime() : 0;
+        const aDate = parseCalendarDate(a.untilDate)?.getTime() ?? 0;
+        const bDate = parseCalendarDate(b.untilDate)?.getTime() ?? 0;
         compareValue = aDate - bDate;
       } else if (orderBy === 'active') {
         const aActive = a.isActive ? 1 : 0;
@@ -261,7 +262,7 @@ export class ClientContractsComponent implements OnInit {
     this.contractFromDateValidationState.clear();
 
     client.clientContracts.forEach((contract, index) => {
-      const fromDate = contract.fromDate ? new Date(contract.fromDate) : null;
+      const fromDate = parseCalendarDate(contract.fromDate);
 
       if (!fromDate) {
         this.contractFromDateValidationState.set(index, false);
@@ -272,7 +273,7 @@ export class ClientContractsComponent implements OnInit {
       if (!contract.untilDate) {
         this.contractValidationState.set(index, undefined);
       } else {
-        const untilDate = new Date(contract.untilDate);
+        const untilDate = parseCalendarDate(contract.untilDate);
 
         if (!fromDate || !untilDate) {
           this.contractValidationState.set(index, false);

@@ -342,8 +342,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     const holidays = this.holidayCollection.holidays.holidayList;
     this.dataManagementSchedule.holidayDates = holidays.map((h) => {
       const d = h.currentDate;
-      const offset = -d.getTimezoneOffset();
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), offset / 60, 0, 0);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
     });
   }
 

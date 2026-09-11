@@ -17,6 +17,7 @@ import { DataManagementClientService } from '../client/data-management-client.se
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -93,7 +94,7 @@ export class GroupSelectionService {
           this._selectedGroup()?.paymentInterval
           ?? this.appSettingsService.workSettings().paymentInterval;
         if (schedFilter.paymentInterval === 0 || schedFilter.paymentInterval === 1) {
-          const now = new Date();
+          const now = companyToday();
           const d = new Date(now);
           d.setDate(d.getDate() + 4 - (d.getDay() || 7));
           const jan1 = new Date(d.getFullYear(), 0, 1);

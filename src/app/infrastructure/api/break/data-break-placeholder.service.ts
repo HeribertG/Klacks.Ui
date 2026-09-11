@@ -2,11 +2,11 @@
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry, map, Observable } from 'rxjs';
+import { defer, retry, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { BreakPlaceholder, IBreakPlaceholder, IBreakFilter } from 'src/app/domain/models/break/break-class';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
-import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -21,17 +21,15 @@ export class DataBreakPlaceholderService {
   }
 
   addBreak(value: BreakPlaceholder) {
-    this.setCorrectDate(value);
-    return this.httpClient
-      .post<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/`, value)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .post<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/`, this.toWirePayload(value))
+      .pipe(retry(3)));
   }
 
   updateBreak(value: BreakPlaceholder) {
-    this.setCorrectDate(value);
-    return this.httpClient
-      .put<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/`, value)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .put<IBreakPlaceholder>(`${environment.baseUrl}BreakPlaceholders/`, this.toWirePayload(value))
+      .pipe(retry(3)));
   }
 
   deleteBreak(id: string) {
@@ -68,8 +66,11 @@ export class DataBreakPlaceholderService {
       );
   }
 
-  private setCorrectDate(value: BreakPlaceholder) {
-    value.from = dateWithLocalTimeCorrection(value.from)!;
-    value.until = dateWithLocalTimeCorrection(value.until)!;
+  private toWirePayload(value: BreakPlaceholder) {
+    return {
+      ...value,
+      from: value.from ? toCalendarDateWire(value.from) : value.from,
+      until: value.until ? toCalendarDateWire(value.until) : value.until,
+    };
   }
 }

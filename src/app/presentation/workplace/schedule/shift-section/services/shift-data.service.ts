@@ -31,7 +31,9 @@ import { WeekConfigurationService } from 'src/app/domain/services/settings/week-
 import {
   addDays,
   compareDate,
+  getDayIndex,
 } from 'src/app/shared/helpers/date.helper';
+import { calendarDateKey, companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { CellBadge } from 'src/app/presentation/shared/grid/classes/cell-badge';
@@ -106,8 +108,8 @@ export class ShiftDataService extends BaseDataService {
     const visibleStart = this.dataManagementSchedule.visibleStartDate;
     const visibleEnd = this.dataManagementSchedule.visibleEndDate;
     if (visibleStart && visibleEnd) {
-      const fromDate = this.formatDateKey(visibleStart);
-      const toDate = this.formatDateKey(visibleEnd);
+      const fromDate = calendarDateKey(visibleStart);
+      const toDate = calendarDateKey(visibleEnd);
       this.loadOverrideData(fromDate, toDate);
     }
   }
@@ -182,11 +184,9 @@ export class ShiftDataService extends BaseDataService {
 
     if (visibleStart && visibleEnd) {
       this.startDate = new Date(visibleStart);
-      const diffTime = visibleEnd.getTime() - visibleStart.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      this.columns = diffDays;
+      this.columns = getDayIndex(visibleStart, visibleEnd) + 1;
     } else {
-      this.startDate = new Date();
+      this.startDate = companyToday();
       this.columns = 0;
     }
   }
@@ -291,7 +291,7 @@ export class ShiftDataService extends BaseDataService {
       }
 
       const shiftRow = shiftMap.get(schedule.shiftId)!;
-      const dateKey = this.formatDateKey(schedule.date);
+      const dateKey = calendarDateKey(schedule.date);
       shiftRow.activeDays.set(dateKey, {
         isInTemplateContainer: schedule.isInTemplateContainer,
         hasOverride: false,
@@ -316,18 +316,10 @@ export class ShiftDataService extends BaseDataService {
     this.rows = this.shiftRows.length;
   }
 
-  private formatDateKey(date: Date | string): string {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-      2,
-      '0'
-    )}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-
   public getDateKeyForColumn(col: number): string {
     if (this.startDate) {
       const date = addDays(this.startDate, col);
-      return this.formatDateKey(date);
+      return calendarDateKey(date);
     }
     return '';
   }
@@ -360,6 +352,7 @@ export class ShiftDataService extends BaseDataService {
 
   override getWeekday(column: number): WeekDaysEnum {
     if (this.startDate) {
+      // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
       const today: Date = new Date(this.startDate);
       today.setDate(today.getDate() + column);
 
@@ -400,6 +393,7 @@ export class ShiftDataService extends BaseDataService {
 
   override weekdayName(column: number): string {
     if (this.startDate) {
+      // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
       const today: Date = new Date(this.startDate);
       today.setDate(today.getDate() + column);
 
@@ -456,7 +450,7 @@ export class ShiftDataService extends BaseDataService {
           if (!shiftRow) continue;
 
           for (const override of overrides) {
-            const dateKey = this.formatDateKey(override.date);
+            const dateKey = calendarDateKey(override.date);
             const dayInfo = shiftRow.activeDays.get(dateKey);
             if (dayInfo) {
               dayInfo.hasOverride = true;

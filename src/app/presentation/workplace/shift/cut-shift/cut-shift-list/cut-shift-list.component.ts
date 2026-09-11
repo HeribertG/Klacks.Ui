@@ -42,6 +42,7 @@ import { CutTableComponent } from '../cut-table/cut-table.component';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
@@ -500,7 +501,10 @@ export class CutShiftListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const earliestDate = new Date(response.earliestResetDate);
+          const earliestDate = parseCalendarDate(response.earliestResetDate);
+          if (!earliestDate) {
+            return;
+          }
           const earliestNgbDate = this.calendar.getNext(
             new NgbDate(
               earliestDate.getFullYear(),
@@ -512,8 +516,8 @@ export class CutShiftListComponent implements OnInit {
           );
           this.minDate = earliestNgbDate;
 
-          if (response.untilDate) {
-            const untilDate = new Date(response.untilDate);
+          const untilDate = parseCalendarDate(response.untilDate);
+          if (untilDate) {
             const untilNgbDate = new NgbDate(
               untilDate.getFullYear(),
               untilDate.getMonth() + 1,

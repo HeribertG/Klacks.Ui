@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { DatePipe } from '@angular/common';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -26,6 +26,7 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
@@ -52,7 +53,7 @@ const YEAR_END_SUFFIX = '-12-31T00:00:00';
   styleUrls: ['./absence-gantt-grid.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, TranslateModule],
+  imports: [CalendarDatePipe, TranslateModule],
   providers: [
     TableSortingService,
     ReportPdfService,
@@ -205,10 +206,10 @@ export class AbsenceGanttGridComponent
     if (!date1) return -1;
     if (!date2) return 1;
     
-    const d1 = date1 instanceof Date ? date1 : new Date(date1);
-    const d2 = date2 instanceof Date ? date2 : new Date(date2);
-    
-    return d1.getTime() - d2.getTime();
+    const d1 = parseCalendarDate(date1)?.getTime() ?? Number.NaN;
+    const d2 = parseCalendarDate(date2)?.getTime() ?? Number.NaN;
+
+    return d1 - d2;
   }
 
   private compareAbsences(a: IBreakPlaceholder, b: IBreakPlaceholder): number {

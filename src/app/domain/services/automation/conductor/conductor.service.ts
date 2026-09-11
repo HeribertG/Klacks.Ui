@@ -23,6 +23,7 @@ import { EvolutionEngineService } from './evolution-engine.service';
 import { AgentStateService } from '../agent/agent-state.service';
 import { RulesEngineService } from '../rules/rules-engine.service';
 import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 interface IWorkerProgressData {
   currentGeneration: number;
@@ -413,7 +414,7 @@ export class ConductorService {
     return shifts.map(s => ({
       id: s.id,
       name: s.name,
-      date: s.date instanceof Date ? s.date.toISOString() : String(s.date),
+      date: s.date instanceof Date ? formatDateOnly(s.date) : String(s.date),
       startTime: s.startTime,
       endTime: s.endTime,
       hours: s.hours,

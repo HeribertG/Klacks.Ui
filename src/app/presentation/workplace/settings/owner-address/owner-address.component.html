@@ -182,6 +182,11 @@
             </option>
           }
         </select>
+        @if (showUtcWarning()) {
+          <div id="owner-address-timezone-utc-warning" class="alert alert-warning">
+            {{ 'setting.companyClock.utcWarning' | translate }}
+          </div>
+        }
       </div>
     </div>
 

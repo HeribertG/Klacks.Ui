@@ -12,13 +12,14 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 @Component({
   selector: 'app-edit-address-nav',
   templateUrl: './edit-address-nav.component.html',
   styleUrls: ['./edit-address-nav.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, NgbTooltipModule],
+  imports: [CommonModule, FormsModule, TranslateModule, NgbTooltipModule, CalendarDatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {

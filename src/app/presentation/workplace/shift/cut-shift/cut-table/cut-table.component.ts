@@ -7,11 +7,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 @Component({
   selector: 'app-cut-shift-table',
   standalone: true,
-  imports: [CommonModule, FormField, TranslateModule],
+  imports: [CommonModule, FormField, TranslateModule, CalendarDatePipe],
   templateUrl: './cut-table.component.html',
   styleUrl: './cut-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

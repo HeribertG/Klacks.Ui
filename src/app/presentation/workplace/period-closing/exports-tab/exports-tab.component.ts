@@ -34,6 +34,7 @@ import {
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
@@ -325,8 +326,8 @@ export class ExportsTabComponent implements OnInit {
   }
 
   private formatPeriod(from: string, until: string | null): string {
-    const fromTxt = DateToStringShort(from);
-    const untilTxt = until ? DateToStringShort(until) : fromTxt;
+    const fromTxt = DateToStringShort(parseCalendarDate(from) ?? from);
+    const untilTxt = until ? DateToStringShort(parseCalendarDate(until) ?? until) : fromTxt;
     return fromTxt === untilTxt ? fromTxt : `${fromTxt}–${untilTxt}`;
   }
 

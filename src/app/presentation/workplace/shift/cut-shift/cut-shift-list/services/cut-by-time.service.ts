@@ -12,6 +12,10 @@ import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { CutTimeParams } from './cut-parameter-state';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays } from 'src/app/shared/helpers/date.helper';
+
+const NEXT_DAY_OFFSET = 1;
 
 @Injectable({
   providedIn: 'root',
@@ -207,10 +211,9 @@ export class CutByTimeService {
       copiedStartMinutes >= 0 &&
       copiedStartMinutes < originalEndMinutes;
 
-    if (copiedShift.cuttingAfterMidnight && copiedShift.fromDate) {
-      const adjustedDate = new Date(copiedShift.fromDate);
-      adjustedDate.setDate(adjustedDate.getDate() + 1);
-      copiedShift.fromDate = adjustedDate;
+    const copiedFromDate = parseCalendarDate(copiedShift.fromDate);
+    if (copiedShift.cuttingAfterMidnight && copiedFromDate) {
+      copiedShift.fromDate = addDays(copiedFromDate, NEXT_DAY_OFFSET);
       this.shiftWeekdaysForward(copiedShift);
     }
 

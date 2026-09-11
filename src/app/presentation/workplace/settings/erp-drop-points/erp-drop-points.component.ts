@@ -42,6 +42,9 @@ import { formatFileSize } from 'src/app/domain/helpers/file-size.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AssetDownloadService } from 'src/app/application/services/asset-download.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
+import { COMPANY_CLOCK_SOURCE_UTC } from 'src/app/domain/models/settings/company-clock.model';
+import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
 const SAMPLE_FILE_NAME = 'sample-erp-order-import.xml';
@@ -89,7 +92,16 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   private assetDownloadService = inject(AssetDownloadService);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
+  private companyClockService = inject(CompanyClockService);
   private destroy$ = new Subject<void>();
+
+  public readonly showUtcWarning = computed(() => this.companyClockService.source() === COMPANY_CLOCK_SOURCE_UTC);
+
+  public readonly companyTimeZoneOptionLabel = computed(() => {
+    const zone = companyTimeZone();
+    const label = this.translate.instant('settings.erp-drop-points.schedule.companyTimeZoneOption');
+    return zone ? `${label} (${zone})` : label;
+  });
 
   readonly activeTab = signal<PageTab>('list');
   readonly fileTab = signal<FileTab>('pending');
@@ -108,7 +120,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   });
 
   public readonly timeZones: string[] = this.loadTimeZones();
-  public selectedScheduleTimeZone = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
+  public selectedScheduleTimeZone = signal<string>(ErpImportScheduleDefaults.UseCompanyTimeZone);
   private isScheduleFormInitialized = false;
 
   private scheduleFormModel = signal<ErpImportScheduleFormModel>({
@@ -133,9 +145,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
         if (isValidCronExpression(cronExpression)) {
           this.appSettingsService.erpImportCronExpression.set(cronExpression);
         }
-        this.appSettingsService.erpImportCronTimeZone.set(
-          timeZone?.trim() || ErpImportScheduleDefaults.CronTimeZone
-        );
+        this.appSettingsService.erpImportCronTimeZone.set(timeZone?.trim() ?? ErpImportScheduleDefaults.UseCompanyTimeZone);
       }
     });
   }

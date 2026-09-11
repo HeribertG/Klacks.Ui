@@ -17,6 +17,7 @@ import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calenda
 import { Group } from 'src/app/domain/models/group/group-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
@@ -109,8 +110,8 @@ export class DashboardResourceMonitorComponent implements OnInit {
     const sunColor = this.gridColorService.backGroundColorSunday;
     const holColor = this.gridColorService.backGroundColorOfficiallyHoliday;
     return this.dailyData().flatMap((d, i) => {
-      const [y, m, day] = d.date.split('-').map(Number);
-      const date = new Date(y, m - 1, day);
+      const date = parseCalendarDate(d.date);
+      if (!date) return [];
       const weekendSlot = this.weekConfiguration.getWeekendSlot(date);
       const result: ISpecialDay[] = [];
       if (weekendSlot === 1) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
@@ -133,11 +134,13 @@ export class DashboardResourceMonitorComponent implements OnInit {
     const markers: IMonthMarker[] = [];
     let lastMonth = -1;
     data.forEach((d, i) => {
-      const month = new Date(d.date).getMonth();
+      const date = parseCalendarDate(d.date);
+      if (!date) return;
+      const month = date.getMonth();
       if (month !== lastMonth) {
         markers.push({
           index: i,
-          label: new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(new Date(d.date)),
+          label: new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(date),
         });
         lastMonth = month;
       }

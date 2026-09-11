@@ -42,6 +42,38 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name=/^(slice|split|substring|substr)$/][callee.object.type='CallExpression'][callee.object.callee.property.name='toISOString']",
+          message:
+            "Deriving a calendar date by truncating toISOString() of a local midnight shifts to the previous day east of UTC (e.g. Switzerland). Use parseCalendarDate/calendarDateKey from calendar-date.helper instead.",
+        },
+        {
+          selector:
+            "NewExpression[callee.name='Date'][arguments.length=1] > Identifier.arguments:first-child[name=/^(?:.*Date|date|birthdate|.*validFrom|.*validUntil)$/]",
+          message:
+            "new Date(<backend calendar-date field>) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
+        },
+        {
+          selector:
+            "NewExpression[callee.name='Date'][arguments.length=1] > MemberExpression.arguments:first-child[property.name=/^(?:.*Date|date|birthdate|.*validFrom|.*validUntil)$/]",
+          message:
+            "new Date(<backend calendar-date field>) is read as UTC and shifts a day west of UTC. Use parseCalendarDate from calendar-date.helper instead.",
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "**/shared/helpers/calendar-date.helper.ts",
+      "**/shared/helpers/date.helper.ts",
+      "**/*.spec.ts",
+      "**/shared/testing/**",
+    ],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   {

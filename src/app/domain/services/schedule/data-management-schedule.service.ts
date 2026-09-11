@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Root-level state and orchestration for the schedule workplace: holds the work filter, delegates
+ * loading to the work/shift/break loaders and CRUD to the entry services. The default period of the
+ * filter is re-derived from the company "today" at schedule init (applyCompanyDefaultPeriod) as long
+ * as neither the user nor a restored filter has changed it, because the singleton may be created
+ * before the company time zone is known.
+ */
+
 import {
   inject,
   Injectable,
@@ -50,6 +58,7 @@ import { AnalyseScenarioService } from './analyse-scenario.service';
 import { ClientSortPreferenceService } from './client-sort-preference.service';
 import { AssistantPageContextService } from '../assistant/assistant-page-context.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -173,6 +182,32 @@ export class DataManagementScheduleService implements ILoadable {
   public get currentFilter(): IWorkFilter {
     return this.workFilter;
   }
+  private untouchedDefaultPeriod = this.capturePeriod(this.workFilter);
+
+  public applyCompanyDefaultPeriod(): void {
+    if (!this.isSamePeriod(this.capturePeriod(this.workFilter), this.untouchedDefaultPeriod)) {
+      return;
+    }
+
+    const companyDefaults = new WorkFilter();
+    this.workFilter.currentMonth = companyDefaults.currentMonth;
+    this.workFilter.currentYear = companyDefaults.currentYear;
+    this.workFilter.currentWeek = companyDefaults.currentWeek;
+    this.untouchedDefaultPeriod = this.capturePeriod(this.workFilter);
+  }
+
+  private capturePeriod(filter: IWorkFilter): Pick<IWorkFilter, 'currentMonth' | 'currentYear' | 'currentWeek'> {
+    return { currentMonth: filter.currentMonth, currentYear: filter.currentYear, currentWeek: filter.currentWeek };
+  }
+
+  private isSamePeriod(
+    first: Pick<IWorkFilter, 'currentMonth' | 'currentYear' | 'currentWeek'>,
+    second: Pick<IWorkFilter, 'currentMonth' | 'currentYear' | 'currentWeek'>,
+  ): boolean {
+    return first.currentMonth === second.currentMonth
+      && first.currentYear === second.currentYear
+      && first.currentWeek === second.currentWeek;
+  }
   public holidayDates: Date[] = [];
 
   private _cachedStartDate: Date | null = null;
@@ -291,8 +326,8 @@ export class DataManagementScheduleService implements ILoadable {
 
   private executeReadDatas(resetScroll: boolean): void {
     const dates = this.workScheduleLoader.calculateVisibleDates(this.workFilter);
-    this._cachedStartDate = new Date(dates.startDate);
-    this._cachedEndDate = new Date(dates.endDate);
+    this._cachedStartDate = parseCalendarDate(dates.startDate);
+    this._cachedEndDate = parseCalendarDate(dates.endDate);
     this.publishPageContext();
     this.readWorkSchedule(resetScroll);
     this.readShiftSchedule(resetScroll, dates.startDate, dates.endDate);

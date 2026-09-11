@@ -10,7 +10,7 @@ import {
   IGroupTree,
   ITruncatedGroup,
 } from 'src/app/domain/models/group/group-class';
-import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { companyToday, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -35,23 +35,20 @@ export class DataGroupService {
   }
 
   updateGroup(value: IGroup): Observable<IGroup> {
-    this.setCorrectDate(value);
-
-    if (value.groupItems) {
-      value.groupItems = value.groupItems.filter(item => item.clientId != null);
+    const payload = this.toWirePayload(value);
+    if (payload.groupItems) {
+      payload.groupItems = payload.groupItems.filter(item => item.clientId != null);
     }
 
     return this.httpClient
-      .put<IGroup>(`${environment.baseUrl}Groups/`, value)
+      .put<IGroup>(`${environment.baseUrl}Groups/`, payload)
       .pipe(retry(3));
   }
 
   addGroup(value: IGroup): Observable<IGroup> {
-    delete value.id;
-
-    this.setCorrectDate(value);
+    const { id: _id, ...rest } = value;
     return this.httpClient
-      .post<IGroup>(`${environment.baseUrl}Groups/`, value)
+      .post<IGroup>(`${environment.baseUrl}Groups/`, this.toWirePayload(rest))
       .pipe(retry(3));
   }
 
@@ -94,17 +91,11 @@ export class DataGroupService {
       .pipe(retry(3));
   }
 
-  setCorrectDate(value: IGroup): void {
-    if (value.validFrom) {
-      value.validFrom = dateWithLocalTimeCorrection(new Date(value.validFrom))!;
-    } else {
-      value.validFrom = dateWithLocalTimeCorrection(new Date())!;
-    }
-
-    if (value.validUntil) {
-      value.validUntil = dateWithLocalTimeCorrection(new Date(value.validUntil))!;
-    } else {
-      value.validUntil = undefined;
-    }
+  private toWirePayload(value: IGroup) {
+    return {
+      ...value,
+      validFrom: toCalendarDateWire(value.validFrom || companyToday()),
+      validUntil: value.validUntil ? toCalendarDateWire(value.validUntil) : undefined,
+    };
   }
 }

@@ -6,6 +6,13 @@ import { ShiftCutOperationService, CutByDateParams, CutByTimeParams, CutByWeekda
 import { Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { WorkTimeCalculationService } from '../work-time-calculation.service';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import {
+    activeJanuaryOffsetMinutes,
+    CALENDAR_TEST_ZONES,
+    expectedJanuaryOffsetMinutes,
+    useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 describe('ShiftCutOperationService', () => {
     let service: ShiftCutOperationService;
@@ -329,5 +336,30 @@ describe('ShiftCutOperationService', () => {
             expect(result.originalShift.quantity).toBe(50);
             expect(result.newShift.quantity).toBe(0);
         });
+    });
+
+    describe('cutByTime after midnight across browser time zones', () => {
+        for (const zone of CALENDAR_TEST_ZONES) {
+            describe(zone, () => {
+                useTimeZone(zone);
+
+                it('activates the configured zone', () => {
+                    expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+                });
+
+                it('starts the after-midnight piece on the day after a DateOnly fromDate from the backend', () => {
+                    workTimeCalculator.calculateWorkTime.mockReturnValue(240);
+                    const selectedShift = new Shift();
+                    selectedShift.fromDate = '2026-08-03' as unknown as Date;
+                    selectedShift.startShift = '22:00:00';
+                    selectedShift.endShift = '06:00:00';
+
+                    const result = service.cutByTime({ selectedShift, cutTime: OwnTime.forTime('2', '0') });
+
+                    expect(result.newShift.cuttingAfterMidnight).toBe(true);
+                    expect(formatDateOnly(result.newShift.fromDate as Date)).toBe('2026-08-04');
+                });
+            });
+        }
     });
 });

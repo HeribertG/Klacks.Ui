@@ -3,8 +3,8 @@
 import { inject, Injectable } from '@angular/core';
 import { IWork, Work } from 'src/app/domain/models/schedule/schedule-class';
 import { environment } from 'src/environments/environment';
-import { retry } from 'rxjs';
-import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { defer, retry } from 'rxjs';
+import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { HttpClient } from '@angular/common/http';
 import { BulkDeleteWorksRequest } from '../dtos/bulk-delete-works-request.dto';
 import { BulkAddWorksRequest } from '../dtos/bulk-add-works-request.dto';
@@ -24,17 +24,15 @@ export class DataScheduleService {
   }
 
   addWork(value: Work) {
-    this.setCorrectDate(value);
-    return this.httpClient
-      .post<IWork>(`${environment.baseUrl}Works/`, value)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .post<IWork>(`${environment.baseUrl}Works/`, this.toWirePayload(value))
+      .pipe(retry(3)));
   }
 
   updateWork(value: Work) {
-    this.setCorrectDate(value);
-    return this.httpClient
-      .put<IWork>(`${environment.baseUrl}Works/`, value)
-      .pipe(retry(3));
+    return defer(() => this.httpClient
+      .put<IWork>(`${environment.baseUrl}Works/`, this.toWirePayload(value))
+      .pipe(retry(3)));
   }
 
   reassignWorkClient(id: string, targetClientId: string) {
@@ -104,7 +102,7 @@ export class DataScheduleService {
       .pipe(retry(3));
   }
 
-  private setCorrectDate(value: Work) {
-    value.currentDate = dateWithLocalTimeCorrection(value.currentDate)!;
+  private toWirePayload(value: Work) {
+    return { ...value, currentDate: toCalendarDateWire(value.currentDate) };
   }
 }

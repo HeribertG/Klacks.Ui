@@ -34,6 +34,10 @@ import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helpe
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, ErrorEvent, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
+import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+
+const REFRESH_MARGIN_DAYS = 1;
+
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -104,10 +108,10 @@ export class ScheduleEntryCrudService {
 
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
     const periodEnd = this.workScheduleLoader.endDate
       ? formatDateOnly(this.workScheduleLoader.endDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
 
     const request = {
       breaks: entries.map(e => ({
@@ -190,10 +194,10 @@ export class ScheduleEntryCrudService {
 
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
     const periodEnd = this.workScheduleLoader.endDate
       ? formatDateOnly(this.workScheduleLoader.endDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
 
     return this.workCrud.createWork({ ...params, periodStart, periodEnd }).then((response) => {
       if (response.periodHours) {
@@ -231,10 +235,10 @@ export class ScheduleEntryCrudService {
 
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
     const periodEnd = this.workScheduleLoader.endDate
       ? formatDateOnly(this.workScheduleLoader.endDate)
-      : formatDateOnly(new Date());
+      : formatDateOnly(companyToday());
 
     const response = await this.workCrud.bulkCreateWorks({
       entries: entries.map(e => ({
@@ -334,7 +338,7 @@ export class ScheduleEntryCrudService {
   }
 
   private getLoaderPeriodRange(): { periodStart: string; periodEnd: string } {
-    const fallback = new Date();
+    const fallback = companyToday();
     return {
       periodStart: formatDateOnly(this.workScheduleLoader.startDate ?? fallback),
       periodEnd: formatDateOnly(this.workScheduleLoader.endDate ?? fallback),
@@ -417,9 +421,7 @@ export class ScheduleEntryCrudService {
   }
 
   private resolveWorkDate(currentDate: string | undefined, fallback: Date): Date {
-    if (!currentDate) return fallback;
-    const [year, month, day] = currentDate.split('-').map(Number);
-    return new Date(year, month - 1, day);
+    return parseCalendarDate(currentDate) ?? fallback;
   }
 
   private getGenericDeleter(entryType: WorkScheduleEntryType): (id: string) => Observable<unknown> {
@@ -596,16 +598,10 @@ export class ScheduleEntryCrudService {
   }
 
   private updateShiftEngagedLocally(shiftId: string, date: Date, delta: number, workFilter: IWorkFilter): void {
-    const normalizedDate = new Date(date);
-    normalizedDate.setHours(0, 0, 0, 0);
-
     for (const shift of this.shiftLoader.shiftSchedules) {
       if (shift.shiftId !== shiftId) continue;
 
-      const shiftDate = new Date(shift.date);
-      shiftDate.setHours(0, 0, 0, 0);
-
-      if (shiftDate.getTime() === normalizedDate.getTime()) {
+      if (isSameCalendarDate(shift.date, date)) {
         shift.engaged = Math.max(0, shift.engaged + delta);
       }
     }
@@ -615,16 +611,10 @@ export class ScheduleEntryCrudService {
 
   private bulkUpdateShiftEngagedLocally(entries: { entryId: string; date: Date }[], workFilter: IWorkFilter): void {
     for (const entry of entries) {
-      const normalizedDate = new Date(entry.date);
-      normalizedDate.setHours(0, 0, 0, 0);
-
       for (const shift of this.shiftLoader.shiftSchedules) {
         if (shift.shiftId !== entry.entryId) continue;
 
-        const shiftDate = new Date(shift.date);
-        shiftDate.setHours(0, 0, 0, 0);
-
-        if (shiftDate.getTime() === normalizedDate.getTime()) {
+        if (isSameCalendarDate(shift.date, entry.date)) {
           shift.engaged = Math.max(0, shift.engaged - 1);
         }
       }
@@ -651,17 +641,16 @@ export class ScheduleEntryCrudService {
   private mergeOverlappingDateRanges(sortedTimestamps: number[]): { start: Date; end: Date }[] {
     if (sortedTimestamps.length === 0) return [];
 
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
     const ranges: { start: Date; end: Date }[] = [];
 
-    let currentStart = new Date(sortedTimestamps[0] - ONE_DAY_MS);
-    let currentEnd = new Date(sortedTimestamps[0] + ONE_DAY_MS);
+    let currentStart = addDays(new Date(sortedTimestamps[0]), -REFRESH_MARGIN_DAYS);
+    let currentEnd = addDays(new Date(sortedTimestamps[0]), REFRESH_MARGIN_DAYS);
 
     for (let i = 1; i < sortedTimestamps.length; i++) {
-      const nextStart = new Date(sortedTimestamps[i] - ONE_DAY_MS);
-      const nextEnd = new Date(sortedTimestamps[i] + ONE_DAY_MS);
+      const nextStart = addDays(new Date(sortedTimestamps[i]), -REFRESH_MARGIN_DAYS);
+      const nextEnd = addDays(new Date(sortedTimestamps[i]), REFRESH_MARGIN_DAYS);
 
-      if (nextStart.getTime() <= currentEnd.getTime() + ONE_DAY_MS) {
+      if (nextStart.getTime() <= addDays(currentEnd, REFRESH_MARGIN_DAYS).getTime()) {
         currentEnd = nextEnd;
       } else {
         ranges.push({ start: currentStart, end: currentEnd });

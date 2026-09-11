@@ -18,6 +18,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 
 interface OAuth2Token extends MyToken {
   userName?: string;
@@ -78,6 +79,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private toastService = inject(ToastShowService);
   private readonly syncNotificationService = inject(SyncNotificationToastService);
   private readonly authorizationService = inject(AuthorizationService);
+  private readonly companyClockService = inject(CompanyClockService);
 
   isLoading = signal(true);
   error = signal<string | null>(null);
@@ -158,5 +160,6 @@ export class OAuth2CallbackComponent implements OnInit {
     }
 
     this.authorizationService.refresh();
+    void this.companyClockService.loadIfAuthenticated();
   }
 }

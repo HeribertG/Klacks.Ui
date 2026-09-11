@@ -42,6 +42,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -313,7 +314,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     const c = new Group({
       name: '',
       description: '',
-      validFrom: new Date(),
+      validFrom: companyToday(),
       parent: parentId,
       depth: 0,
       clientsCount: 0,
@@ -498,14 +499,14 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
       return false;
     }
 
-    const validFrom = new Date(this.editGroup.validFrom);
-    if (isNaN(validFrom.getTime())) {
+    const validFrom = parseCalendarDate(this.editGroup.validFrom);
+    if (!validFrom) {
       return false;
     }
 
     if (this.editGroup.validUntil) {
-      const validUntil = new Date(this.editGroup.validUntil);
-      if (isNaN(validUntil.getTime()) || validFrom >= validUntil) {
+      const validUntil = parseCalendarDate(this.editGroup.validUntil);
+      if (!validUntil || validFrom >= validUntil) {
         return false;
       }
     }

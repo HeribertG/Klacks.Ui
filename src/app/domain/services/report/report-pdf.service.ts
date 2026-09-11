@@ -29,6 +29,8 @@ import { ReportFontService } from './report-font.service';
 import { ReportRowFilterService, ReportParameterContext } from './report-row-filter.service';
 import { ReportParameterValues } from '../../models/report/report-parameter.model';
 import { buildParameterVariables } from '../../helpers/report-parameter.helper';
+import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays } from 'src/app/shared/helpers/date.helper';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
 import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 
@@ -681,7 +683,7 @@ export class ReportPdfService {
     const groups = new Map<string, Record<string, string>[]>();
     const groupOrder: string[] = [];
     for (const { row, sourceEntry } of resolvedRows) {
-      const key = sourceEntry.entryDate ? new Date(sourceEntry.entryDate).toDateString() : '';
+      const key = calendarDateKey(sourceEntry.entryDate);
       if (!groups.has(key)) {
         groups.set(key, []);
         groupOrder.push(key);
@@ -1122,26 +1124,26 @@ export class ReportPdfService {
   }
 
   private fillFullPeriod(rows: any[], startDate: string, endDate: string): any[] {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseCalendarDate(startDate);
+    const end = parseCalendarDate(endDate);
+    if (!start || !end) return rows;
     const rowsByDate = new Map<string, any[]>();
 
     for (const row of rows) {
-      const key = new Date(row.entryDate).toDateString();
+      const key = calendarDateKey(row.entryDate);
       if (!rowsByDate.has(key)) rowsByDate.set(key, []);
       rowsByDate.get(key)!.push(row);
     }
 
     const result: any[] = [];
-    const current = new Date(start);
-    while (current <= end) {
-      const key = current.toDateString();
+    for (let current = start; current <= end; current = addDays(current, 1)) {
+      const key = calendarDateKey(current);
       const dayRows = rowsByDate.get(key);
       if (dayRows) {
         result.push(...dayRows);
       } else {
         result.push({
-          entryDate: new Date(current),
+          entryDate: current,
           startTime: '',
           endTime: '',
           changeTime: null,
@@ -1152,7 +1154,6 @@ export class ReportPdfService {
           information: null,
         } as Partial<IScheduleCell>);
       }
-      current.setDate(current.getDate() + 1);
     }
 
     return result;

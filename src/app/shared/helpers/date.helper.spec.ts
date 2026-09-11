@@ -3,9 +3,15 @@
 import {
   DateToString,
   DateToStringShort,
-  dateWithLocalTimeCorrection,
-  utcToLocalDate,
+  dateWithUTCCorrection,
+  daysBetweenDates,
 } from './date.helper';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 describe('Date Helper Functions', () => {
   describe('DateToString', () => {
@@ -32,40 +38,32 @@ describe('Date Helper Functions', () => {
     });
   });
 
-  describe('dateWithLocalTimeCorrection', () => {
-    it('should handle date with timezone correction', () => {
-      const date = new Date('2024-03-15T12:00:00Z');
-      const result = dateWithLocalTimeCorrection(date);
-      expect(result).toBeDefined();
-      expect(result?.getFullYear()).toBe(2024);
-      expect(result?.getMonth()).toBe(2);
-      expect(result?.getDate()).toBe(15);
-    });
+  describe('calendar dates across browser time zones', () => {
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
 
-    it('should return undefined for null', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = dateWithLocalTimeCorrection(null as any);
-      expect(result).toBeUndefined();
-    });
+        it('activates the configured zone', () => {
+          expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+        });
 
-    it('should return undefined for undefined', () => {
-      const result = dateWithLocalTimeCorrection(undefined);
-      expect(result).toBeUndefined();
-    });
-  });
+        it.each(['2026-08-03', '2026-08-03T00:00:00Z', '2026-08-03T00:00:00'])(
+          'corrects the backend value %s to UTC midnight of its own day',
+          (wireValue) => {
+            expect(dateWithUTCCorrection(wireValue)?.toISOString()).toBe('2026-08-03T00:00:00.000Z');
+          },
+        );
 
-  describe('utcToLocalDate', () => {
-    it('should convert UTC to local date', () => {
-      const date = new Date('2024-03-15T12:00:00Z');
-      const result = utcToLocalDate(date);
-      expect(result).toBeDefined();
-      expect(result?.getFullYear()).toBe(2024);
-    });
+        it('corrects a local Date to UTC midnight of its local day', () => {
+          expect(dateWithUTCCorrection(new Date(2026, 7, 3))?.toISOString()).toBe('2026-08-03T00:00:00.000Z');
+        });
 
-    it('should return undefined for null', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = utcToLocalDate(null as any);
-      expect(result).toBeUndefined();
-    });
+        it('counts days between a local grid start and a UTC-midnight backend string', () => {
+          const gridStart = new Date(2026, 0, 1);
+          const breakFrom = '2026-01-10T00:00:00Z' as unknown as Date;
+          expect(daysBetweenDates(gridStart, breakFrom)).toBe(9);
+        });
+      });
+    }
   });
 });

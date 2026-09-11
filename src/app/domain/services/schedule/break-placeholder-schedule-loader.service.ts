@@ -7,7 +7,8 @@ import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { IBreakFilter, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({
@@ -93,8 +94,9 @@ export class BreakPlaceholderScheduleLoaderService {
     endDate: string,
   ): Map<string, number> {
     const result = new Map<string, number>();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseCalendarDate(startDate);
+    const end = parseCalendarDate(endDate);
+    if (!start || !end) return result;
 
     for (const client of this.clients) {
       if (!client.id || !client.breakPlaceholders?.length) continue;
@@ -102,21 +104,16 @@ export class BreakPlaceholderScheduleLoaderService {
       const dayCounts = new Map<string, number>();
 
       for (const bp of client.breakPlaceholders) {
-        const bpFrom = new Date(bp.from!);
-        const bpUntil = new Date(bp.until!);
+        const bpFrom = parseCalendarDate(bp.from);
+        const bpUntil = parseCalendarDate(bp.until);
+        if (!bpFrom || !bpUntil) continue;
 
         const rangeStart = bpFrom < start ? start : bpFrom;
         const rangeEnd = bpUntil > end ? end : bpUntil;
 
-        const current = new Date(rangeStart);
-        current.setHours(0, 0, 0, 0);
-        const endDay = new Date(rangeEnd);
-        endDay.setHours(0, 0, 0, 0);
-
-        while (current <= endDay) {
+        for (let current = rangeStart; current <= rangeEnd; current = addDays(current, 1)) {
           const key = formatDateOnly(current);
           dayCounts.set(key, (dayCounts.get(key) || 0) + 1);
-          current.setDate(current.getDate() + 1);
         }
       }
 

@@ -20,6 +20,7 @@ import { DataContractService } from 'src/app/infrastructure/api/contract/data-co
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
+import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
@@ -175,7 +176,7 @@ export class ReportDataProviderService {
       case 'client.company': return context.client?.company ?? '';
       case 'client.idNumber': return context.client?.idNumber?.toString() ?? '';
       case 'report.period': return `${this.formatDate(context.startDate ?? '')} - ${this.formatDate(context.endDate ?? '')}`;
-      case 'report.date': return this.formatDate(new Date().toISOString());
+      case 'report.date': return this.formatDate(new Date());
       case 'report.groupName': return context.groupName ?? '';
       case 'report.customText': return field.name ?? '';
       default: return null;
@@ -222,7 +223,7 @@ export class ReportDataProviderService {
           case 'sum.workDays': {
             const uniqueDates = new Set(
               rows.filter(e => e.entryType === WorkScheduleEntryType.Work)
-                .map(e => new Date(e.entryDate).toDateString())
+                .map(e => calendarDateKey(e.entryDate))
             );
             return uniqueDates.size.toString();
           }
@@ -237,7 +238,7 @@ export class ReportDataProviderService {
         surcharges: row.surcharges ?? 0,
         startTime: row.startTime ?? '',
         endTime: row.endTime ?? '',
-        weekday: row.entryDate ? new Date(row.entryDate).getDay() : 0,
+        weekday: parseCalendarDate(row.entryDate)?.getDay() ?? 0,
         entryType: row.entryType ?? 0,
         information: row.information ?? '',
         amount: row.amount ?? 0,
@@ -246,7 +247,7 @@ export class ReportDataProviderService {
       buildFooterFormulaVariables: (rows: IScheduleCell[]) => {
         const uniqueDates = new Set(
           rows.filter(e => e.entryType === WorkScheduleEntryType.Work)
-            .map(e => new Date(e.entryDate).toDateString())
+            .map(e => calendarDateKey(e.entryDate))
         );
         return {
           totalRows: rows.length,
@@ -290,7 +291,7 @@ export class ReportDataProviderService {
           ...this.absenceLookup.absenceDetails().filter(d => !!d.id).map(d => ({ id: d.id!, name: '', checked: true })),
         ];
         const year = params.year
-          ?? (params.startDate ? new Date(params.startDate).getFullYear() : new Date().getFullYear());
+          ?? (parseCalendarDate(params.startDate) ?? new Date()).getFullYear();
         const response = await firstValueFrom(
           this.breakPlaceholderService.getClientList({
             currentYear: year,
@@ -334,7 +335,7 @@ export class ReportDataProviderService {
             const absenceName = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
             const defaultValue = absenceName?.defaultValue;
             if (defaultValue && defaultValue > 0 && row.from && row.until) {
-              const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
+              const diff = Math.floor(daysBetweenDates(parseCalendarDate(row.from), parseCalendarDate(row.until))) + 1;
               return (diff * defaultValue).toString();
             }
             return '';
@@ -353,7 +354,7 @@ export class ReportDataProviderService {
             const absence = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
             const defaultValue = absence?.defaultValue ?? 0;
             if (defaultValue > 0 && row.from && row.until) {
-              const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
+              const diff = Math.floor(daysBetweenDates(parseCalendarDate(row.from), parseCalendarDate(row.until))) + 1;
               return sum + diff * defaultValue;
             }
             return sum;
@@ -376,7 +377,7 @@ export class ReportDataProviderService {
           const absence = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
           const defaultValue = absence?.defaultValue ?? 0;
           if (defaultValue > 0 && row.from && row.until) {
-            const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
+            const diff = Math.floor(daysBetweenDates(parseCalendarDate(row.from), parseCalendarDate(row.until))) + 1;
             return sum + diff * defaultValue;
           }
           return sum;
@@ -625,7 +626,7 @@ export class ReportDataProviderService {
       resolveFieldValue: (field, row: IClientAvailabilityRange) => {
         switch (field.dataBinding) {
           case 'availability.date': return this.formatDate(row.date);
-          case 'availability.weekday': return this.resolveWeekday(new Date(row.date).getDay());
+          case 'availability.weekday': return this.resolveWeekday(parseCalendarDate(row.date)?.getDay() ?? 0);
           case 'availability.ranges': return row.ranges ?? '';
           case 'availability.hours': return hoursToHHMM(this.computeHoursFromRanges(row.ranges));
           default: return '';
@@ -955,9 +956,9 @@ export class ReportDataProviderService {
     switch (field.dataBinding) {
       case 'entry.date':
       case 'expense.date':
-        return this.formatDate(entry.entryDate?.toString() ?? '');
+        return this.formatDate(entry.entryDate);
       case 'entry.weekday':
-        return this.resolveWeekday(new Date(entry.entryDate).getDay());
+        return this.resolveWeekday(parseCalendarDate(entry.entryDate)?.getDay() ?? 0);
       case 'entry.startTime':
         return this.formatTime(entry.startTime);
       case 'entry.endTime':
@@ -995,8 +996,8 @@ export class ReportDataProviderService {
 
   private formatDate(dateStr: string | Date | undefined): string {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return String(dateStr);
+    const date = parseCalendarDate(dateStr);
+    if (!date) return String(dateStr);
     return date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 

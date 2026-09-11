@@ -13,6 +13,8 @@
 
 import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
 import { SCHEDULING_CONSTANTS, EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 export interface ConstraintShift {
   id: string;
@@ -52,11 +54,14 @@ function timeSlotsOverlap(start1: string, end1: string, start2: string, end2: st
 }
 
 function getWeekKey(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = parseCalendarDate(dateStr);
+  if (!d) {
+    return dateStr;
+  }
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   const monday = new Date(d.getFullYear(), d.getMonth(), diff);
-  return monday.toISOString().split('T')[0];
+  return formatDateOnly(monday);
 }
 
 function timeGapHours(end: string, start: string): number {

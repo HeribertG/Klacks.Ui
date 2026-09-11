@@ -9,6 +9,7 @@ import {
 import { Client, IClient } from '../client/client-class';
 import { PaymentInterval } from '../contract/contract-class';
 import { ICalendarSelection } from '../calendar/calendar-selection-class';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface IGroup {
   id?: string;
@@ -38,7 +39,7 @@ export class Group implements IGroup {
   id?: string;
   name = '';
   description = '';
-  validFrom: Date = new Date();
+  validFrom: Date = companyToday();
   validUntil?: Date;
   parent?: string;
   root?: string;
@@ -66,13 +67,12 @@ export class Group implements IGroup {
     this.validFrom =
       data.validFrom instanceof Date
         ? data.validFrom
-        : new Date(data.validFrom || new Date());
+        : parseCalendarDate(data.validFrom) ?? companyToday();
 
-    this.validUntil = data.validUntil
-      ? data.validUntil instanceof Date
+    this.validUntil =
+      data.validUntil instanceof Date
         ? data.validUntil
-        : new Date(data.validUntil)
-      : undefined;
+        : parseCalendarDate(data.validUntil) ?? undefined;
 
     this.parent = data.parent;
     this.root = data.root;

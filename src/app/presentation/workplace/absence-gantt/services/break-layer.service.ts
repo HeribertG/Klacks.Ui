@@ -2,6 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface IBreakPlaceholderWithLayer extends IBreakPlaceholder {
   layer: number;
@@ -55,8 +56,8 @@ export class BreakLayerService {
     const items = validBreaks
       .map((b) => ({
         ...b,
-        fromTs: new Date(b.from!).getTime(),
-        untilTs: new Date(b.until!).getTime(),
+        fromTs: this.calendarTime(b.from),
+        untilTs: this.calendarTime(b.until),
         layer: 0,
       }))
       .sort((a, b) => a.fromTs - b.fromTs);
@@ -89,23 +90,23 @@ export class BreakLayerService {
     const validBreaks = this.filterValidBreaks(breaks);
     let maxOverlaps = 0;
 
-    const events: { date: Date; type: 'start' | 'end'; break: IBreakPlaceholder }[] = [];
+    const events: { time: number; type: 'start' | 'end'; break: IBreakPlaceholder }[] = [];
 
     validBreaks.forEach((breakItem) => {
       events.push({
-        date: new Date(breakItem.from!),
+        time: this.calendarTime(breakItem.from),
         type: 'start',
         break: breakItem,
       });
       events.push({
-        date: new Date(breakItem.until!),
+        time: this.calendarTime(breakItem.until),
         type: 'end',
         break: breakItem,
       });
     });
 
     events.sort((a, b) => {
-      const timeDiff = a.date.getTime() - b.date.getTime();
+      const timeDiff = a.time - b.time;
       if (timeDiff !== 0) return timeDiff;
       return a.type === 'end' ? -1 : 1;
     });
@@ -179,10 +180,10 @@ export class BreakLayerService {
       return false;
     }
 
-    const break1Start = new Date(break1.from).getTime();
-    const break1End = new Date(break1.until).getTime();
-    const break2Start = new Date(break2.from).getTime();
-    const break2End = new Date(break2.until).getTime();
+    const break1Start = this.calendarTime(break1.from);
+    const break1End = this.calendarTime(break1.until);
+    const break2Start = this.calendarTime(break2.from);
+    const break2End = this.calendarTime(break2.until);
 
     return break1Start <= break2End && break1End >= break2Start;
   }
@@ -198,8 +199,8 @@ export class BreakLayerService {
     return (
       break1.clientId === break2.clientId &&
       break1.absenceId === break2.absenceId &&
-      break1.from?.getTime() === break2.from?.getTime() &&
-      break1.until?.getTime() === break2.until?.getTime()
+      this.calendarTime(break1.from) === this.calendarTime(break2.from) &&
+      this.calendarTime(break1.until) === this.calendarTime(break2.until)
     );
   }
 
@@ -212,7 +213,7 @@ export class BreakLayerService {
         breakItem &&
         breakItem.from &&
         breakItem.until &&
-        breakItem.from <= breakItem.until
+        this.calendarTime(breakItem.from) <= this.calendarTime(breakItem.until)
     );
   }
 
@@ -222,7 +223,11 @@ export class BreakLayerService {
   private sortBreaksByStartDate(breaks: IBreakPlaceholder[]): IBreakPlaceholder[] {
     return [...breaks].sort((a, b) => {
       if (!a.from || !b.from) return 0;
-      return new Date(a.from).getTime() - new Date(b.from).getTime();
+      return this.calendarTime(a.from) - this.calendarTime(b.from);
     });
+  }
+
+  private calendarTime(value: Date | string | undefined): number {
+    return parseCalendarDate(value)?.getTime() ?? Number.NaN;
   }
 }

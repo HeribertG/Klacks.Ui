@@ -648,11 +648,9 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   openAddressType(content: any) {
-    const tmpDate = new Date(
-      this.dataManagementClientService.editClient()!.addresses[
-        this.dataManagementClientService.currentAddressIndex()
-      ].validFrom
-    );
+    const tmpDate = this.dataManagementClientService.editClient()!.addresses[
+      this.dataManagementClientService.currentAddressIndex()
+    ].validFrom;
     this.editClientType = +this.dataManagementClientService.editClient()!.type;
     this.addressType = +this.dataManagementClientService.editClient()!.addresses[
       this.dataManagementClientService.currentAddressIndex()

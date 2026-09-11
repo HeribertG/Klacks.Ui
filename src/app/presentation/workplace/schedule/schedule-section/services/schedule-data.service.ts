@@ -27,7 +27,8 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, compareDate, formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { addDays, compareDate, formatDateOnly, getDayIndex } from 'src/app/shared/helpers/date.helper';
+import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
@@ -214,11 +215,9 @@ export class ScheduleDataService extends BaseDataService {
 
     if (visibleStart && visibleEnd) {
       this.startDate = new Date(visibleStart);
-      const diffTime = visibleEnd.getTime() - visibleStart.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      this.columns = diffDays;
+      this.columns = getDayIndex(visibleStart, visibleEnd) + 1;
     } else {
-      this.startDate = new Date();
+      this.startDate = companyToday();
       this.columns = 0;
     }
   }
@@ -441,6 +440,7 @@ export class ScheduleDataService extends BaseDataService {
 
   override getWeekday(column: number): WeekDaysEnum {
     if (this.startDate) {
+      // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
       const today: Date = new Date(this.startDate);
       today.setDate(today.getDate() + column);
 
@@ -481,6 +481,7 @@ export class ScheduleDataService extends BaseDataService {
 
   override weekdayName(column: number): string {
     if (this.startDate) {
+      // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
       const today: Date = new Date(this.startDate);
       today.setDate(today.getDate() + column);
 
@@ -725,7 +726,7 @@ export class ScheduleDataService extends BaseDataService {
     const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === upperAbbr &&
-        this.isSameDay(shift.date, date),
+        isSameCalendarDate(shift.date, date),
     );
 
     if (matchingShift) {
@@ -739,22 +740,12 @@ export class ScheduleDataService extends BaseDataService {
     return undefined;
   }
 
-  private isSameDay(date1: Date | string, date2: Date | string): boolean {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
-    );
-  }
-
   private findShiftByIdAndDate(
     shiftId: string,
     date: Date,
   ): { shiftId: string; workTime: number; startShift: string; endShift: string } | undefined {
     const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
-      (shift) => shift.shiftId === shiftId && this.isSameDay(shift.date, date),
+      (shift) => shift.shiftId === shiftId && isSameCalendarDate(shift.date, date),
     );
 
     if (matchingShift) {
@@ -815,7 +806,7 @@ export class ScheduleDataService extends BaseDataService {
 
     const dateKey = formatDateOnly(date);
     const matchingEntry = this.dataManagementSchedule.workScheduleEntries.find(
-      (e: IScheduleCell) => e.entryId === shiftId && formatDateOnly(new Date(e.entryDate)) === dateKey
+      (e: IScheduleCell) => e.entryId === shiftId && calendarDateKey(e.entryDate) === dateKey
     );
 
     if (!matchingEntry) return -1;
@@ -848,9 +839,9 @@ export class ScheduleDataService extends BaseDataService {
 
   getColumnForDate(dateStr: string): number {
     if (!this.startDate) return -1;
-    const targetDate = new Date(dateStr);
-    const diffTime = targetDate.getTime() - this.startDate.getTime();
-    const column = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    const targetDate = parseCalendarDate(dateStr);
+    if (!targetDate) return -1;
+    const column = getDayIndex(this.startDate, targetDate);
     return column >= 0 && column < this.columns ? column : -1;
   }
 
