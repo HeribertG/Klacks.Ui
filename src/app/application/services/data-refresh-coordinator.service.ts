@@ -15,10 +15,8 @@ import { WorkplaceStateService } from './workplace-state.service';
 import { DataRefreshRegistry } from './data-refresh-registry.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
-import {
-  IRefreshable,
-  ISaveable,
-} from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { isSaveable } from 'src/app/domain/helpers/manageable.helper';
 
 const BUFFER_WINDOW_MS = 300;
 const RELOAD_PROMPT_KEY = 'data-refresh.changed-prompt';
@@ -109,10 +107,6 @@ function isRefreshable(value: unknown): value is IRefreshable {
     typeof (value as IRefreshable).reload === 'function' &&
     Array.isArray((value as IRefreshable).refreshableEntities)
   );
-}
-
-function isSaveable(value: unknown): value is ISaveable {
-  return !!value && typeof (value as ISaveable).areObjectsDirty === 'function';
 }
 
 function intersects(a: readonly string[], b: readonly string[]): boolean {

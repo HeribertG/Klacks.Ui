@@ -13,9 +13,9 @@ import {
 import {
   ILoadable,
   IResettable,
-  ISaveable,
   INavigable,
 } from 'src/app/domain/interfaces/manageable.interface';
+import { isSaveable } from 'src/app/domain/helpers/manageable.helper';
 import { IEntityStateProvider } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { ManageableServiceFactory } from './manageable-service.factory';
@@ -25,14 +25,6 @@ import {
   isValidRouteName,
 } from 'src/app/domain/enums/entity-names.enum';
 import { environment } from 'src/environments/environment';
-
-function isSaveable(manager: any): manager is ISaveable {
-  return (
-    manager &&
-    typeof manager.areObjectsDirty === 'function' &&
-    typeof manager.save === 'function'
-  );
-}
 
 function isResettable(manager: any): manager is IResettable {
   return (
