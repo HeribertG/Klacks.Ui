@@ -98,6 +98,9 @@ jobs:
         # Multi-arch: arm64 for Hetzner (Ampere), amd64 for on-prem customers (Docker Desktop).
         platforms: linux/amd64,linux/arm64
         push: true
+        build-args: |
+          KLACKS_VERSION=${{ steps.version.outputs.version }}
+          KLACKS_BUILD_KEY=${{ github.sha }}
         tags: |
           ghcr.io/heribertg/klacks-ui:${{ steps.version.outputs.version }}
           ghcr.io/heribertg/klacks-ui:${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
