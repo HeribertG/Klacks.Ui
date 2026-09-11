@@ -243,6 +243,10 @@ describe('AppVersionWatchService', () => {
       fetchDeployedBuildInfo.mockClear();
 
       TestBed.resetTestingModule();
+      outageEnded$.next();
+      chunkLoadFailed$.next();
+      connected$.next(false);
+      connected$.next(true);
       await becomeVisible();
       await vi.advanceTimersByTimeAsync(CHECK_INTERVAL_MS);
 
