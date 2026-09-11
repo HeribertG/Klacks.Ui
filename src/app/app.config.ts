@@ -68,6 +68,8 @@ import { SignalRService } from './infrastructure/signalr/signalr.service';
 import { providePluginHost, provideMessagingVoice } from './infrastructure/plugins/provide-plugin-host';
 import { BUILD_INFO } from './domain/interfaces/build-info.interface';
 import { BUILD_INFO_VALUE } from '../build-info';
+import { RELOAD_GUARD_STORAGE } from './domain/interfaces/reload-guard-storage.interface';
+import { ReloadGuardStorageService } from './infrastructure/storage/reload-guard-storage.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -177,6 +179,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: BUILD_INFO,
       useValue: BUILD_INFO_VALUE,
+    },
+    {
+      provide: RELOAD_GUARD_STORAGE,
+      useExisting: ReloadGuardStorageService,
     },
     ...providePluginHost(),
     ...provideMessagingVoice(),
