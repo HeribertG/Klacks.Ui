@@ -39,6 +39,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import {
   transformNullableNumberToOwnTime,
   transformNumberToOwnTime,
@@ -316,9 +317,9 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
 
     try {
       await this.monthlyTargetHoursService.init();
-      const now = new Date();
+      const today = companyToday();
       this.companyMonthlyHours.set(
-        this.monthlyTargetHoursService.hoursOf(now.getFullYear(), now.getMonth() + 1)
+        this.monthlyTargetHoursService.hoursOf(today.getFullYear(), today.getMonth() + 1)
       );
       this.cdr.markForCheck();
     } catch (error) {

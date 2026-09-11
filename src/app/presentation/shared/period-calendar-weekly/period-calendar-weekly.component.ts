@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { PeriodResetData } from '../period-calendar-monthly/period-calendar-monthly.component';
 
 @Component({
@@ -20,19 +21,19 @@ import { PeriodResetData } from '../period-calendar-monthly/period-calendar-mont
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodCalendarWeeklyComponent implements OnInit {
-  @Input() year = new Date().getFullYear();
+  @Input() year = companyToday().getFullYear();
   @Input() week = 1;
   readonly periodChanged = output<PeriodResetData>();
 
   private calendarUtil = inject(CalendarUtilService);
 
-  maxYear = new Date().getFullYear() + 30;
+  maxYear = companyToday().getFullYear() + 30;
   weeks: number[] = [];
 
   ngOnInit(): void {
     this.updateWeeks();
     if (!this.week) {
-      this.week = this.calendarUtil.getISO8601WeekNumber(new Date());
+      this.week = this.calendarUtil.getISO8601WeekNumber(companyToday());
     }
     this.periodChanged.emit({ year: this.year, week: this.week });
   }

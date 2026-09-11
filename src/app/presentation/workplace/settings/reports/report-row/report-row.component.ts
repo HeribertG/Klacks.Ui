@@ -36,6 +36,7 @@ import { Group } from 'src/app/domain/models/group/group-class';
 import { REPORT_DATA_SOURCES, ReportDataSource, ReportDataSet } from 'src/app/domain/models/report/report-data-source.model';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
@@ -308,7 +309,7 @@ export class ReportRowComponent {
       sections: template.sections?.length ? template.sections : [...DEFAULT_SECTIONS]
     };
 
-    const today = new Date();
+    const today = companyToday();
     this.previewFromDate = transformDateToNgbDateStruct(new Date(today.getFullYear(), today.getMonth(), 1)) ?? null;
     this.previewToDate = transformDateToNgbDateStruct(new Date(today.getFullYear(), today.getMonth() + 1, 0)) ?? null;
 

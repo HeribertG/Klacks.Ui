@@ -57,8 +57,7 @@ export class AvailabilityCalculationService {
     const slotIndex = col % columnsPerDay;
     const groupSize = HOUR_GROUPING_SIZES[this.settings.hourGroupingMode()];
 
-    // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-    const date = new Date(this.startDate);
+    const date = new Date(this.startDate.getTime());
     date.setDate(date.getDate() + dayIndex);
 
     const startHour = slotIndex * groupSize;
@@ -126,8 +125,7 @@ export class AvailabilityCalculationService {
   }
 
   public getEndDate(): string {
-    // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-    const end = new Date(this.startDate);
+    const end = new Date(this.startDate.getTime());
     end.setDate(end.getDate() + this.daysInView - 1);
     return this.formatDateOnly(end);
   }

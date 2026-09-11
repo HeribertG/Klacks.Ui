@@ -8,8 +8,8 @@
  * logged-out visitor (e.g. the login page) never triggers a guaranteed 401. A failed load leaves
  * the browser time zone in place, only logs a warning (never a toast) and is retried by the next
  * loadIfAuthenticated call. loadIfAuthenticated is idempotent (a second caller reuses the
- * in-flight/completed load); reload always re-fetches and is used after the company address/time
- * zone setting is saved; reset clears zone, source and the cached load on logout (a response still
+ * in-flight/completed load); reload always re-fetches, discards the answer of any older load still in
+ * flight, and is used after the company address/time zone setting is saved; reset clears zone, source and the cached load on logout (a response still
  * in flight is discarded) so the next user starts from the browser zone and loads their own clock.
  * @param source - Signal exposing which resolution step (Setting, AddressCountry, CalendarCountry,
  *   Utc) produced the current time zone, so the UI can warn when it fell back to Utc
@@ -51,6 +51,7 @@ export class CompanyClockService {
     if (!this.hasToken()) {
       return Promise.resolve();
     }
+    this.loadGeneration++;
     return this.startLoad();
   }
 

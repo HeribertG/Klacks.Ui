@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Contract, IContract } from 'src/app/domain/models/contract/contract-class';
-import { retry } from 'rxjs';
+import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
@@ -26,16 +26,18 @@ export class DataContractService {
   }
 
   addContract(value: Contract) {
-    const { id: _id, ...rest } = value;
-    return this.httpClient
-      .post<IContract>(`${environment.baseUrl}Contracts/`, this.toWirePayload(rest))
-      .pipe();
+    return defer(() => {
+      const { id: _id, ...rest } = value;
+      return this.httpClient
+        .post<IContract>(`${environment.baseUrl}Contracts/`, this.toWirePayload(rest))
+        .pipe();
+    });
   }
 
   updateContract(value: Contract) {
-    return this.httpClient
+    return defer(() => this.httpClient
       .put<IContract>(`${environment.baseUrl}Contracts/`, this.toWirePayload(value))
-      .pipe();
+      .pipe());
   }
 
   deleteContract(id: string) {

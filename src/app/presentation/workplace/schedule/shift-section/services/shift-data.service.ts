@@ -352,8 +352,7 @@ export class ShiftDataService extends BaseDataService {
 
   override getWeekday(column: number): WeekDaysEnum {
     if (this.startDate) {
-      // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-      const today: Date = new Date(this.startDate);
+      const today: Date = new Date(this.startDate.getTime());
       today.setDate(today.getDate() + column);
 
       if (this.holidayCollection) {
@@ -393,8 +392,7 @@ export class ShiftDataService extends BaseDataService {
 
   override weekdayName(column: number): string {
     if (this.startDate) {
-      // eslint-disable-next-line no-restricted-syntax -- this.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the field
-      const today: Date = new Date(this.startDate);
+      const today: Date = new Date(this.startDate.getTime());
       today.setDate(today.getDate() + column);
 
       return this.gridSetting.weekday[today.getDay()];

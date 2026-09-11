@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { PeriodResetData } from '../period-calendar-monthly/period-calendar-monthly.component';
 
 export interface BiweeklyOption {
@@ -25,19 +26,19 @@ export interface BiweeklyOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodCalendarBiweeklyComponent implements OnInit {
-  @Input() year = new Date().getFullYear();
+  @Input() year = companyToday().getFullYear();
   @Input() week = 1;
   readonly periodChanged = output<PeriodResetData>();
 
   private calendarUtil = inject(CalendarUtilService);
 
-  maxYear = new Date().getFullYear() + 30;
+  maxYear = companyToday().getFullYear() + 30;
   biweeklyOptions: BiweeklyOption[] = [];
 
   ngOnInit(): void {
     this.updateBiweeklyOptions();
     if (!this.week) {
-      const currentWeek = this.calendarUtil.getISO8601WeekNumber(new Date());
+      const currentWeek = this.calendarUtil.getISO8601WeekNumber(companyToday());
       this.week = currentWeek % 2 === 1 ? currentWeek : currentWeek - 1;
     }
     this.periodChanged.emit({ year: this.year, week: this.week });

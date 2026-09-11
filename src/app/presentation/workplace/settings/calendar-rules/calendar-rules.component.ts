@@ -50,6 +50,7 @@ import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-dropdown/calendar-dropdown.component';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 interface RuleFormModel {
   name: string;
@@ -227,7 +228,7 @@ export class CalendarRulesComponent
         this.cdr.markForCheck();
       });
 
-    this.holidaysListHelper.currentYear = new Date().getFullYear();
+    this.holidaysListHelper.currentYear = companyToday().getFullYear();
   }
 
   ngAfterViewInit(): void {

@@ -87,4 +87,18 @@ describe('IndividualPeriodApiService', () => {
             });
         }
     });
+
+    describe('unparsable period fromDate', () => {
+        it.each(['create', 'update'] as const)('rejects the promise on %s instead of throwing synchronously', async (operation) => {
+            const individualPeriod = mockIndividualPeriod();
+            individualPeriod.periods[0].fromDate = new Date('invalid');
+            let pending: Promise<unknown> | undefined;
+
+            expect(() => {
+                pending = operation === 'create' ? service.create(individualPeriod) : service.update(individualPeriod);
+            }).not.toThrow();
+            await expect(pending).rejects.toBeInstanceOf(RangeError);
+            httpTestingController.expectNone(`${environment.baseUrl}IndividualPeriods`);
+        });
+    });
 });

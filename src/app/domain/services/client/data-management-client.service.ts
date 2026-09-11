@@ -373,7 +373,7 @@ export class DataManagementClientService
 
         this.lastChangeListWrapper.set(x);
         this.subTitleLastChanges.set(
-          `${DateToString(x.lastChange, locale)}, bearbeitet von ${x.editor}`
+          `${DateToString(new Date(x.lastChange), locale)}, bearbeitet von ${x.editor}`
         );
         this.lastChangeMaxItems.set(x.maxItems);
       });
@@ -383,9 +383,10 @@ export class DataManagementClientService
     this.dataClientService.getLastChangeMetaData()
       .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
+        const lastChangeInstant = x.lastChangesDate;
         this.subTitleLastChangesAllAddress.set(
           `${DomainMessages.LAST_STATE} ${DateToString(
-            x.lastChangesDate,
+            new Date(lastChangeInstant),
             locale
           )}${DomainMessages.EDITED_FROM} ${x.autor}`
         );

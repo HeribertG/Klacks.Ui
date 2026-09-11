@@ -33,8 +33,7 @@ import {
   lastOfMonth,
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
-import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
@@ -326,8 +325,8 @@ export class ExportsTabComponent implements OnInit {
   }
 
   private formatPeriod(from: string, until: string | null): string {
-    const fromTxt = DateToStringShort(parseCalendarDate(from) ?? from);
-    const untilTxt = until ? DateToStringShort(parseCalendarDate(until) ?? until) : fromTxt;
+    const fromTxt = CalendarDateToStringShort(from);
+    const untilTxt = until ? CalendarDateToStringShort(until) : fromTxt;
     return fromTxt === untilTxt ? fromTxt : `${fromTxt}–${untilTxt}`;
   }
 

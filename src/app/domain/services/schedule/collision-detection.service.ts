@@ -94,7 +94,7 @@ export class CollisionDetectionService implements OnDestroy {
       if (this.dataManagement.isWorkScheduleRead()) {
         const group = this.dataManagement.workFilter.selectedGroup ?? '';
         const token = this.analyseScenarioService.activeToken() ?? 'null';
-        const currentKey = `${group}_${this.dataManagement.visibleStartDate?.toISOString()}_${this.dataManagement.visibleEndDate?.toISOString()}_${token}`;
+        const currentKey = `${group}_${calendarDateKey(this.dataManagement.visibleStartDate)}_${calendarDateKey(this.dataManagement.visibleEndDate)}_${token}`;
         const changed = currentKey !== this.lastClearedKey;
 
         if (changed) {

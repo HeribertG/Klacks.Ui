@@ -9,8 +9,7 @@ export class CalendarUtilService {
   private readonly MS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
   getISO8601WeekNumber(inputDate: Date): number {
-    // eslint-disable-next-line no-restricted-syntax -- inputDate is typed Date; this clones it so the mutations below don't affect the caller's instance
-    const date = new Date(inputDate);
+    const date = new Date(inputDate.getTime());
     date.setDate(date.getDate() + 4 - (date.getDay() || 7));
     const thursday = date.getTime();
     date.setMonth(0);

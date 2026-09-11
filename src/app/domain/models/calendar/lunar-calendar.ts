@@ -113,8 +113,7 @@ export function getGregorianDateForLunarInYear(
   daysToAdd += lunarDay - 1;
 
   const newYearDate = new Date(gregorianYear, nyEntry[0] - 1, nyEntry[1]);
-  // eslint-disable-next-line no-restricted-syntax -- newYearDate was just constructed above from numeric y/m/d, not parsed from a wire string; this clones it so the mutation below doesn't affect it
-  const result = new Date(newYearDate);
+  const result = new Date(newYearDate.getTime());
   result.setDate(result.getDate() + daysToAdd);
   return result;
 }

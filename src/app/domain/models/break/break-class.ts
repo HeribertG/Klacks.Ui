@@ -6,6 +6,7 @@ import { EntrySource } from '../../enums/entry-source.enum';
 import { IBaseFilter } from '../general-class';
 import { MultiLanguage } from '../translation/multi-language-class';
 import { IPeriodHours, IScheduleCell } from '../schedule/work-schedule-class';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface IBreak {
   id: string | undefined;
@@ -103,7 +104,7 @@ export interface IBreakFilter extends IBaseFilter {
 }
 
 export class BreakFilter implements IBreakFilter {
-  currentYear = new Date().getFullYear();
+  currentYear = companyToday().getFullYear();
   absences: AbsenceTokenFilter[] = [];
   searchString = '';
   orderBy = 'name';

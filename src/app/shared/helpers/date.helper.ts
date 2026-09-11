@@ -5,7 +5,9 @@
  *
  * Pure functions for date manipulation and formatting. formatDateOnly and the UTC-midnight
  * conversion of dateWithUTCCorrection are implemented once in calendar-date.helper and only
- * re-exported/delegated here.
+ * re-exported/delegated here. addMonths/addDays/getDateKeysBetween clone their input via
+ * valueOf() rather than getTime() on purpose, so a string mistyped as Date does not throw
+ * (it is still parsed as UTC; callers must pass real Dates).
  */
 
 import { format } from 'date-fns';
@@ -24,12 +26,9 @@ export { formatDateOnly };
  * @param secondDate - Second date to compare
  * @returns -1 if first > second, 1 if first < second, 0 if equal
  */
-export function EqualDate(
-  firstDate: Date | string,
-  secondDate: Date | string
-): number {
-  const first = new Date(firstDate);
-  const second = new Date(secondDate);
+export function EqualDate(firstDate: Date, secondDate: Date): number {
+  const first = firstDate.getTime();
+  const second = secondDate.getTime();
 
   return first > second ? -1 : first < second ? 1 : 0;
 }
@@ -42,7 +41,7 @@ export function EqualDate(
  * @returns Formatted date string (e.g., "Montag 15.03.2025")
  */
 export function DateToString(
-  date: Date | string,
+  date: Date,
   locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   return formatDate(date, 'dddd DD.MM.yyyy', locale);
@@ -56,10 +55,26 @@ export function DateToString(
  * @returns Formatted date string (e.g., "15.03.2025")
  */
 export function DateToStringShort(
-  date: Date | string,
+  date: Date,
   locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   return formatDate(date, 'DD.MM.yyyy', locale);
+}
+
+/**
+ * Formats a backend calendar-date value as a short date string. The value is parsed
+ * component-wise (see parseCalendarDate), so it shows its own day in every time zone.
+ *
+ * @param value - Calendar-date wire value ("yyyy-MM-dd" or "yyyy-MM-ddTHH:mm:ss[Z]")
+ * @param locale - Locale code (default: DomainMessages.DEFAULT_LANG)
+ * @returns Formatted date string (e.g., "15.03.2025"), or the unchanged value if it is not a calendar date
+ */
+export function CalendarDateToStringShort(
+  value: string,
+  locale: string = DomainMessages.DEFAULT_LANG
+): string {
+  const date = parseCalendarDate(value);
+  return date ? DateToStringShort(date, locale) : value;
 }
 
 /**
@@ -71,11 +86,10 @@ export function DateToStringShort(
  * @returns The formatted date string
  */
 function formatDate(
-  date: Date | string,
+  date: Date,
   dateFormat: string,
   locale: string = DomainMessages.DEFAULT_LANG
 ): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
   const localeObj = locale === 'de' ? de : enUS;
 
   const dateFnsFormat = dateFormat
@@ -83,7 +97,7 @@ function formatDate(
     .replace(/DD/g, 'dd')
     .replace(/YYYY/g, 'yyyy');
 
-  return format(dateObj, dateFnsFormat, { locale: localeObj });
+  return format(date, dateFnsFormat, { locale: localeObj });
 }
 
 /**
@@ -94,7 +108,7 @@ function formatDate(
  * @returns New date with months added
  */
 export function addMonths(date: Date, value: number): Date {
-  const d = new Date(date);
+  const d = new Date(date.valueOf());
   const n = date.getDate();
   d.setDate(1);
   d.setMonth(d.getMonth() + value);
@@ -110,21 +124,8 @@ export function addMonths(date: Date, value: number): Date {
  * @returns New date with days added
  */
 export function addDays(date: Date, days: number): Date {
-  const result = new Date(date);
+  const result = new Date(date.valueOf());
   result.setDate(result.getDate() + days);
-  return result;
-}
-
-/**
- * Adds seconds to a date.
- *
- * @param date - Base date
- * @param second - Number of seconds to add
- * @returns New date with seconds added
- */
-export function addSecond(date: Date | string, second: number): Date {
-  const result = new Date(date);
-  result.setDate(result.getSeconds() + second);
   return result;
 }
 
@@ -174,11 +175,8 @@ export function compareDate(a: Date, b: Date): boolean {
  * @param b - Second date
  * @returns Difference in milliseconds
  */
-export function equalDate(a: Date | string, b: Date | string) {
-  const aa = new Date(a);
-  const bb = new Date(b);
-
-  return aa.getTime() - bb.getTime();
+export function equalDate(a: Date, b: Date): number {
+  return a.getTime() - b.getTime();
 }
 
 /**
@@ -203,8 +201,7 @@ export function isDateOver(a: Date, b: Date): boolean {
  * @returns true if valid, false otherwise
  */
 export function isDateStringValid(dateString: string): boolean {
-  const date = new Date(dateString);
-  return !isNaN(date.getTime());
+  return parseCalendarDate(dateString) !== null;
 }
 
 /**
@@ -297,7 +294,7 @@ export function isoWeekMondayOf(dateOnly: string): string {
  */
 export function getDateKeysBetween(startDate: Date, endDate: Date): string[] {
   const keys: string[] = [];
-  let current = new Date(startDate);
+  let current = new Date(startDate.valueOf());
   while (current <= endDate) {
     keys.push(formatDateOnly(current));
     current = addDays(current, 1);

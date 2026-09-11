@@ -45,6 +45,7 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimelineCreateRowHeaderService } from '../services/timeline-create-row-header.service';
 import { TimelineSelectionService } from '../services/timeline-selection.service';
@@ -268,11 +269,7 @@ export class ScheduleTimelineRowHeaderComponent
     const row = scheduleData.findRowByClientId(entry.clientId);
     if (row < 0) return;
 
-    const entryDate =
-      entry.entryDate instanceof Date
-        ? entry.entryDate.toISOString()
-        : String(entry.entryDate);
-    const col = scheduleData.getColumnForDate(entryDate);
+    const col = scheduleData.getColumnForDate(calendarDateKey(entry.entryDate));
     if (col < 0) return;
 
     this.timelineSelection.selectBlock({ row, col, entry });

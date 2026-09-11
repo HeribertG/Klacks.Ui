@@ -84,8 +84,7 @@ export class WorkEditDialogComponent {
     this.clientId = options.clientId;
     this.shiftId = options.shiftId;
     this.currentDate = options.currentDate;
-    // eslint-disable-next-line no-restricted-syntax -- options.currentDate is typed Date; this clones it to decouple originalCurrentDate from the caller's instance
-    this.originalCurrentDate = new Date(options.currentDate);
+    this.originalCurrentDate = new Date(options.currentDate.getTime());
     this.startTime = this.parseTimeString(options.workStartTime);
     this.endTime = this.parseTimeString(options.workEndTime);
     this.originalStartTime = this.parseTimeString(options.workStartTime);
@@ -118,8 +117,7 @@ export class WorkEditDialogComponent {
     } else if (originalStartMinutes >= MIDDAY && newStartMinutes < MIDDAY) {
       this.currentDate = addDays(this.originalCurrentDate, 1);
     } else {
-      // eslint-disable-next-line no-restricted-syntax -- originalCurrentDate is typed Date; this clones it rather than parsing a wire string
-      this.currentDate = new Date(this.originalCurrentDate);
+      this.currentDate = new Date(this.originalCurrentDate.getTime());
     }
   }
 

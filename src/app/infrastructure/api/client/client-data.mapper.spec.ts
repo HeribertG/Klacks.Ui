@@ -6,7 +6,12 @@ import { ClientContract } from 'src/app/domain/models/client/client-contract';
 import { ClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
 import { IFilter } from 'src/app/domain/models/client/i-filter';
 import { IMembership } from 'src/app/domain/models/client/i-membership';
-import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import { ClientQualification } from 'src/app/domain/models/client/client-qualification-class';
+import {
+  activeJanuaryOffsetMinutes,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 const mockClient = (): Client => {
   const client = new Client();
@@ -27,23 +32,47 @@ const mockClient = (): Client => {
   groupItem.validUntil = new Date(2020, 7, 1);
   client.groupItems = [groupItem];
 
+  const qualification = new ClientQualification();
+  qualification.qualificationId = 'qualification-1';
+  qualification.validFrom = new Date(2020, 8, 1);
+  qualification.validUntil = new Date(2020, 9, 3);
+  client.qualifications = [qualification];
+
   return client;
 };
 
 describe('ClientDataMapper', () => {
-  const ZONES = ['Asia/Kolkata', 'America/New_York'] as const;
+  const ZONES = ['Europe/Zurich', 'Asia/Kolkata', 'America/New_York'] as const;
 
   for (const zone of ZONES) {
     describe(zone, () => {
-      let originalTz: string | undefined;
+      useTimeZone(zone);
 
-      beforeEach(() => {
-        originalTz = currentTimeZone();
-        process.env['TZ'] = zone;
+      it('runs in the requested time zone', () => {
+        expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
       });
 
-      afterEach(() => {
-        process.env['TZ'] = originalTz;
+      it('maps qualification validFrom/validUntil to UTC midnight of the chosen day on update and create', () => {
+        const client = mockClient();
+        const originalValidUntil = client.qualifications[0].validUntil;
+
+        const updatedWire = JSON.parse(JSON.stringify(ClientDataMapper.mapForUpdate(client)));
+        const createdWire = JSON.parse(JSON.stringify(ClientDataMapper.mapForCreate(client)));
+
+        expect(updatedWire.qualifications[0].validFrom).toBe('2020-09-01T00:00:00.000Z');
+        expect(updatedWire.qualifications[0].validUntil).toBe('2020-10-03T00:00:00.000Z');
+        expect(createdWire.qualifications[0].validFrom).toBe('2020-09-01T00:00:00.000Z');
+        expect(createdWire.qualifications[0].validUntil).toBe('2020-10-03T00:00:00.000Z');
+        expect(client.qualifications[0].validUntil).toBe(originalValidUntil);
+      });
+
+      it('keeps an open-ended qualification without a validUntil', () => {
+        const client = mockClient();
+        client.qualifications[0].validUntil = undefined;
+
+        const mapped = ClientDataMapper.mapForUpdate(client);
+
+        expect(mapped.qualifications[0].validUntil).toBeUndefined();
       });
 
       it('maps all calendar fields to UTC midnight on mapForUpdate without mutating the input', () => {

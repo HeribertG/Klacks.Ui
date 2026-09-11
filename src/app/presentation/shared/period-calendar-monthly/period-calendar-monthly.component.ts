@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface PeriodResetData {
   year: number;
@@ -25,13 +26,13 @@ export interface PeriodResetData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodCalendarMonthlyComponent implements OnInit {
-  @Input() year = new Date().getFullYear();
+  @Input() year = companyToday().getFullYear();
   @Input() month = new Date().getMonth() + 1;
   readonly periodChanged = output<PeriodResetData>();
 
   public gridSettingsService = inject(GridSettingsService);
 
-  maxYear = new Date().getFullYear() + 30;
+  maxYear = companyToday().getFullYear() + 30;
 
   ngOnInit(): void {
     this.periodChanged.emit({ year: this.year, month: this.month });

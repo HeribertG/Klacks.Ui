@@ -2,10 +2,11 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry } from 'rxjs';
+import { defer, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 import { companyToday, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toShiftGroupsWire } from './shift-groups-wire.mapper';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 
@@ -39,18 +40,22 @@ export class DataShiftService {
 
 
   updateShift(value: IShift) {
-    const { addressName: _addressName, ...rest } = value;
-    return this.httpClient
-      .put<IShift>(`${environment.baseUrl}Shifts/`, this.toWirePayload(rest))
-      .pipe(retry(3));
+    return defer(() => {
+      const { addressName: _addressName, ...rest } = value;
+      return this.httpClient
+        .put<IShift>(`${environment.baseUrl}Shifts/`, this.toWirePayload(rest))
+        .pipe(retry(3));
+    });
   }
 
   addShift(value: IShift) {
-    const { addressName: _addressName, ...rest } = value;
-    const { id: _id, ...payload } = this.toWirePayload(rest);
-    return this.httpClient
-      .post<IShift>(`${environment.baseUrl}Shifts/`, payload)
-      .pipe(retry(3));
+    return defer(() => {
+      const { addressName: _addressName, ...rest } = value;
+      const { id: _id, ...payload } = this.toWirePayload(rest);
+      return this.httpClient
+        .post<IShift>(`${environment.baseUrl}Shifts/`, payload)
+        .pipe(retry(3));
+    });
   }
 
   deleteShift(id: string) {
@@ -67,6 +72,7 @@ export class DataShiftService {
       ...value,
       fromDate: toCalendarDateWire(fromDate),
       untilDate: value.untilDate ? toCalendarDateWire(value.untilDate) : value.untilDate,
+      groups: toShiftGroupsWire(value.groups),
       startShift: value.startShift || nullTime,
       endShift: value.endShift || nullTime,
       afterShift: value.afterShift || nullTime,

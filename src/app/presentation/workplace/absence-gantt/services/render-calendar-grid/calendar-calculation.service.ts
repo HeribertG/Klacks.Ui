@@ -7,7 +7,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { GanttCoordinateService } from '../gantt-coordinate.service';
 
@@ -20,7 +20,7 @@ export class CalendarCalculationService {
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private coord = inject(GanttCoordinateService);
 
-  public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
+  public startDate: Date = new Date(companyToday().getFullYear(), 0, 1);
 
   private readonly MINCELLWITHFORDAYRANK = 20;
 

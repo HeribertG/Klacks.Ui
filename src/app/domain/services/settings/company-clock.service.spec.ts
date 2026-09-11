@@ -75,6 +75,27 @@ describe('CompanyClockService', () => {
     expect(mockDataCompanyClockService.readCompanyClock).toHaveBeenCalledTimes(2);
   });
 
+  it('keeps the zone of a reload when the older in-flight load answers last', async () => {
+    mockLocalStorageService.get.mockReturnValue('a-token');
+    const olderResponse = new Subject<ICompanyClockResource>();
+    const newerResponse = new Subject<ICompanyClockResource>();
+    mockDataCompanyClockService.readCompanyClock
+      .mockReturnValueOnce(olderResponse.asObservable())
+      .mockReturnValueOnce(newerResponse.asObservable());
+
+    const initialLoad = service.loadIfAuthenticated();
+    const reload = service.reload();
+    newerResponse.next({ timeZone: 'America/New_York', today: '2026-06-27', source: 'AddressCountry' });
+    newerResponse.complete();
+    await reload;
+    olderResponse.next(CLOCK);
+    olderResponse.complete();
+    await initialLoad;
+
+    expect(companyTimeZone()).toBe('America/New_York');
+    expect(service.source()).toBe('AddressCountry');
+  });
+
   it('keeps the browser time zone and only warns on a failed load', async () => {
     mockLocalStorageService.get.mockReturnValue('a-token');
     mockDataCompanyClockService.readCompanyClock.mockReturnValue(throwError(() => new Error('network down')));

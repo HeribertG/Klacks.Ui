@@ -4,7 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { SessionStorageService } from './session-storage.service';
 import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
-import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import {
+  activeJanuaryOffsetMinutes,
+  CALENDAR_TEST_ZONES,
+  expectedJanuaryOffsetMinutes,
+  useTimeZone,
+} from 'src/app/shared/testing/time-zone.testing';
 
 const FILTER_KEY = 'serialized-date-round-trip-spec';
 
@@ -35,6 +40,10 @@ describe('SessionStorageService serialized dates', () => {
   for (const zone of CALENDAR_TEST_ZONES) {
     describe(`in ${zone}`, () => {
       useTimeZone(zone);
+
+      it('runs in the requested time zone', () => {
+        expect(activeJanuaryOffsetMinutes()).toBe(expectedJanuaryOffsetMinutes(zone));
+      });
 
       it('restores a local-midnight filter date so the datepicker shows the same day', async () => {
         const filter: StoredScheduleFilter = {

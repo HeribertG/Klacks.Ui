@@ -129,8 +129,7 @@ export class BaseCreateHeaderService {
 
   getTitle(column: number): string {
     if (this.gridData.startDate) {
-      // eslint-disable-next-line no-restricted-syntax -- gridData.startDate is typed Date (grid anchor); this clones it so the mutation below doesn't affect the caller's instance
-      const today: Date = new Date(this.gridData.startDate);
+      const today: Date = new Date(this.gridData.startDate.getTime());
       today.setDate(today.getDate() + column);
 
       return this.formatDate(today);

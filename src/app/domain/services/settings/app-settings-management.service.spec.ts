@@ -4,7 +4,7 @@
 import { TestBed } from '@angular/core/testing';
 import { AppSettingsManagementService } from './app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ISetting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
 
 describe('AppSettingsManagementService', () => {
@@ -249,6 +249,45 @@ describe('AppSettingsManagementService', () => {
 
             // Assert
             expect(dataSettingsService.updateSetting).toHaveBeenCalled();
+        });
+
+        it.each([
+            ['an existing setting is updated', 'updateSetting'],
+            ['a missing setting is added', 'addSetting'],
+        ] as const)('resolves saveImmediately and stays dirty when the request fails while %s', async (_case, failingCall) => {
+            vi.useRealTimers();
+            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
+            service.loadSettings();
+            dataSettingsService[failingCall].mockReturnValue(throwError(() => new Error('network down')));
+            if (failingCall === 'updateSetting') {
+                service.contactSettings.update(s => ({ ...s, name: 'Name whose save fails' }));
+            } else {
+                service.activeIndustriesSettings.update(s => ({ ...s, activeIndustry: 'retail' }));
+            }
+
+            const outcome = await Promise.race([
+                service.saveImmediately().then(() => 'resolved'),
+                new Promise<string>((resolve) => setTimeout(() => resolve('pending'), 0)),
+            ]);
+
+            expect(dataSettingsService[failingCall]).toHaveBeenCalled();
+            expect(outcome).toBe('resolved');
+            expect(service.isDirty()).toBe(true);
+            expect(errorSpy).toHaveBeenCalled();
+            errorSpy.mockRestore();
+        });
+
+        it('resolves saveImmediately and clears the dirty state once every request succeeded', async () => {
+            vi.useRealTimers();
+            dataSettingsService.readSettingList.mockReturnValue(of(mockSettings));
+            service.loadSettings();
+            service.contactSettings.update(s => ({ ...s, name: 'Name whose save succeeds' }));
+
+            await service.saveImmediately();
+
+            expect(dataSettingsService.updateSetting).toHaveBeenCalled();
+            expect(service.isDirty()).toBe(false);
         });
     });
 

@@ -26,7 +26,7 @@ export class WorkNotificationService {
   private destroyRef = inject(DestroyRef);
 
   private readonly REFRESH_DEBOUNCE_MS = 500;
-  private _pendingRefreshes = new Map<string, { minDate: number; maxDate: number }>();
+  private _pendingRefreshes = new Map<string, { minTimestamp: number; maxTimestamp: number }>();
   private _refreshDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   public affectedShifts = signal<Map<string, boolean>>(new Map());
@@ -124,10 +124,10 @@ export class WorkNotificationService {
     const existing = this._pendingRefreshes.get(clientId);
 
     if (existing) {
-      existing.minDate = Math.min(existing.minDate, timestamp);
-      existing.maxDate = Math.max(existing.maxDate, timestamp);
+      existing.minTimestamp = Math.min(existing.minTimestamp, timestamp);
+      existing.maxTimestamp = Math.max(existing.maxTimestamp, timestamp);
     } else {
-      this._pendingRefreshes.set(clientId, { minDate: timestamp, maxDate: timestamp });
+      this._pendingRefreshes.set(clientId, { minTimestamp: timestamp, maxTimestamp: timestamp });
     }
 
     if (this._refreshDebounceTimer) {
@@ -143,10 +143,8 @@ export class WorkNotificationService {
     if (this._pendingRefreshes.size === 0) return;
 
     for (const [clientId, range] of this._pendingRefreshes) {
-      // eslint-disable-next-line no-restricted-syntax -- range.minDate is epoch milliseconds (Date.getTime()), not a calendar-date wire string
-      const startDate = new Date(range.minDate);
-      // eslint-disable-next-line no-restricted-syntax -- range.maxDate is epoch milliseconds (Date.getTime()), not a calendar-date wire string
-      const endDate = new Date(range.maxDate);
+      const startDate = new Date(range.minTimestamp);
+      const endDate = new Date(range.maxTimestamp);
       // Add +1 day buffer to cover overnight shifts that affect the next day
       const bufferedStart = addDays(startDate, -1);
       const bufferedEnd = addDays(endDate, 1);

@@ -7,6 +7,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { isNumeric } from '../../shared/helpers/number.helper';
 import { padZero } from '../../shared/helpers/string.helper';
+import { companyToday } from '../../shared/helpers/calendar-date.helper';
 
 @Injectable()
 export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
@@ -14,13 +15,13 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
     if (value) {
       const dateParts = value.trim().split('.');
       if (dateParts.length === 1 && isNumeric(dateParts[0])) {
-        return { day: +dateParts[0], month: 1, year: new Date().getFullYear() };
+        return { day: +dateParts[0], month: 1, year: companyToday().getFullYear() };
       } else if (
         dateParts.length === 2 &&
         isNumeric(dateParts[0]) &&
         isNumeric(dateParts[1])
       ) {
-        return { day: +dateParts[0], month: +dateParts[1], year: new Date().getFullYear() };
+        return { day: +dateParts[0], month: +dateParts[1], year: companyToday().getFullYear() };
       } else if (
         dateParts.length === 3 &&
         isNumeric(dateParts[0]) &&

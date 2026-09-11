@@ -2,10 +2,11 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry } from 'rxjs';
+import { defer, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 import { parseCalendarDate, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toShiftGroupsWire } from './shift-groups-wire.mapper';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { calculateDurationInMinutes } from 'src/app/shared/helpers/time-format.helper';
@@ -28,33 +29,35 @@ export class DataShiftCutsService {
   }
 
   batchCuts(operations: CutOperation[]) {
-    const processedOperations = operations.map((op) => {
-      const processedData = { ...op.data };
-      delete processedData.addressName;
-      this.setCorrectDate(processedData);
-      this.setCorrectTime(processedData);
+    return defer(() => {
+      const processedOperations = operations.map((op) => {
+        const processedData = { ...op.data };
+        delete processedData.addressName;
+        this.setCorrectDate(processedData);
+        this.setCorrectTime(processedData);
 
-      return {
-        type: op.type,
-        parentId: op.parentId,
-        data: processedData,
-      };
+        return {
+          type: op.type,
+          parentId: op.parentId,
+          data: { ...processedData, groups: toShiftGroupsWire(processedData.groups) },
+        };
+      });
+
+      return this.httpClient
+        .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Batch`, {
+          operations: processedOperations,
+        })
+        .pipe(retry(3));
     });
-
-    return this.httpClient
-      .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Batch`, {
-        operations: processedOperations,
-      })
-      .pipe(retry(3));
   }
 
   resetCuts(originalId: string, newStartDate: Date) {
-    return this.httpClient
+    return defer(() => this.httpClient
       .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Reset`, {
         originalId: originalId,
         newStartDate: toCalendarDateWire(newStartDate),
       })
-      .pipe(retry(3));
+      .pipe(retry(3)));
   }
 
   getResetDateRange(originalId: string) {

@@ -41,6 +41,7 @@ describe('AvailabilityCalculationService.dateHourToColumn across a DST transitio
     useTimeZone('Europe/Zurich');
 
     it('lands two calendar days later on column 48, not 24', () => {
+      expect(new Date(2026, 2, 30).getTimezoneOffset()).not.toBe(new Date(2026, 2, 28).getTimezoneOffset());
       const service = buildService();
       service.startDate = new Date(2026, 2, 28);
 
@@ -52,6 +53,7 @@ describe('AvailabilityCalculationService.dateHourToColumn across a DST transitio
     useTimeZone('America/New_York');
 
     it('lands two calendar days later on column 48, not 24', () => {
+      expect(new Date(2026, 2, 9).getTimezoneOffset()).not.toBe(new Date(2026, 2, 7).getTimezoneOffset());
       const service = buildService();
       service.startDate = new Date(2026, 2, 7);
 
