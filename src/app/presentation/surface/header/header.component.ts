@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Main application header with logo, search, group selector, and navigation controls.
+ * Main application header with logo, search, group selector, navigation controls and the version of
+ * the running build (empty for development builds).
  */
 import {
   Component,
@@ -33,6 +34,8 @@ import { DataManagementEscalationChainService } from 'src/app/domain/services/as
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ONBOARDING_STATUS } from 'src/app/domain/constants/onboarding-stations';
+import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
+import { toDisplayVersion } from 'src/app/domain/helpers/build-info.helper';
 
 @Component({
   selector: 'app-header',
@@ -65,9 +68,10 @@ export class HeaderComponent {
   private navigationService = inject(NavigationService);
   private asideService = inject(AsideService);
   private outputModes = inject(SpeechOutputModeService);
+  private readonly buildInfo = inject(BUILD_INFO);
 
   public authorised = signal<boolean>(false);
-  public readonly version = signal<string>('');
+  public readonly version = signal<string>(toDisplayVersion(this.buildInfo));
   public readonly faTriangleExclamation = faTriangleExclamation;
 
   public readonly isFloatingMode = this.outputModes.isFloatingMode;
