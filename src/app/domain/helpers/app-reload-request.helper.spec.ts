@@ -40,6 +40,18 @@ describe('app reload request helper', () => {
       expect(mergeReloadRequests(VERSION, { ...OUTAGE, autoReloadAllowed: false }).autoReloadAllowed).toBe(false);
       expect(mergeReloadRequests({ ...VERSION, autoReloadAllowed: false }, CHUNK).autoReloadAllowed).toBe(false);
     });
+
+    it("lets a newer build's version request lift the loop-guard block of an earlier one", () => {
+      const blocked = { ...VERSION, autoReloadAllowed: false };
+
+      expect(mergeReloadRequests(blocked, VERSION).autoReloadAllowed).toBe(true);
+    });
+
+    it('keeps a blocked version request blocked when an outage ends afterwards', () => {
+      const blocked = { ...VERSION, autoReloadAllowed: false };
+
+      expect(mergeReloadRequests(blocked, OUTAGE).autoReloadAllowed).toBe(false);
+    });
   });
 
   describe('isSameReloadRequest', () => {

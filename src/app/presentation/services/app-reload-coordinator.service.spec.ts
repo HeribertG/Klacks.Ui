@@ -446,4 +446,23 @@ describe('AppReloadCoordinator', () => {
       expect(pageReloader.navigateTo).toHaveBeenCalledWith(TARGET_URL);
     });
   });
+
+  describe('a newer build after a loop-guard block', () => {
+    it('shows the standing toast for a version request blocked by the loop guard', () => {
+      reloadRequests.requestReload({ ...VERSION_REQUEST, autoReloadAllowed: false });
+
+      expect(reloadToast()?.textOrTpl).toBe(KEYS.UPDATE_AVAILABLE);
+      expect(reloadToast()?.actions?.map((action) => action.label)).toEqual([KEYS.RELOAD]);
+    });
+
+    it('switches to a countdown and reloads once a newer version request allows it', async () => {
+      reloadRequests.requestReload({ ...VERSION_REQUEST, autoReloadAllowed: false });
+
+      reloadRequests.requestReload(VERSION_REQUEST);
+
+      expect(reloadToast()?.textOrTpl).toBe(countdownText(KEYS.UPDATE_COUNTDOWN, COUNTDOWN_SECONDS));
+      await vi.advanceTimersByTimeAsync(COUNTDOWN_MS);
+      expect(pageReloader.reload).toHaveBeenCalledTimes(1);
+    });
+  });
 });
