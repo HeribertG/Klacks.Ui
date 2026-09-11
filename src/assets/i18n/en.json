@@ -1163,6 +1163,8 @@
   "settings.language-plugins.marketplace.error.search": "Error searching marketplace",
   "settings.language-plugins.marketplace.error.install": "Error installing from marketplace",
   "settings.language-plugins.marketplace.success.install": "Language pack installed from marketplace",
+  "settings.language-plugins.index-rebuild-hint": "Klacksy's search index is being rebuilt in the background (this may take up to 20 minutes).",
+  "settings.language-plugins.index-rebuild-running": "Search index is being rebuilt...",
   "settings.feature-plugins.title": "Feature Plugins",
   "settings.feature-plugins.header.name": "NAME",
   "settings.feature-plugins.header.category": "CATEGORY",

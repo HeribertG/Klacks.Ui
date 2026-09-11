@@ -4,6 +4,14 @@
   idPrefix="language-plugins"
   [showHeader]="true"
 >
+  <div headerAction class="index-rebuild-slot">
+    @if (isIndexRebuilding()) {
+      <div id="language-plugins-index-rebuild-indicator" class="index-rebuild-indicator" role="status">
+        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+        <span class="index-rebuild-text">{{ 'settings.language-plugins.index-rebuild-running' | translate }}</span>
+      </div>
+    }
+  </div>
   <app-language-plugins-header header id="language-plugins-table-header"></app-language-plugins-header>
   <div rows>
     @for (plugin of plugins; track plugin.code; let i = $index) {

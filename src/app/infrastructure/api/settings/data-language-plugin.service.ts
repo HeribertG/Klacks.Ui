@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { LanguagePluginInfo } from 'src/app/domain/models/settings/language-plugin';
 import { MarketplacePackage, MarketplaceSearchResult } from 'src/app/domain/models/settings/marketplace-package';
+import { KnowledgeIndexSyncStatus } from 'src/app/domain/models/settings/knowledge-index-sync-status';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 @Injectable({ providedIn: 'root' })
 export class DataLanguagePluginService {
@@ -51,6 +53,13 @@ export class DataLanguagePluginService {
   downloadAndInstall(code: string): Observable<void> {
     return this.httpClient.post<void>(
       `${this.apiUrl}config/marketplace/packages/${code}/download-and-install`, {}
+    );
+  }
+
+  getKnowledgeIndexSyncStatus(): Observable<KnowledgeIndexSyncStatus> {
+    return this.httpClient.get<KnowledgeIndexSyncStatus>(
+      `${this.apiUrl}config/knowledge-index/sync-status`,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
     );
   }
 }

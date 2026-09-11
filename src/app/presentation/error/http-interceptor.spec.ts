@@ -29,6 +29,10 @@ const KLACKSY_LEARNING_PHRASE_URL = '/api/backend/assistant/learning/phrases/1';
 const CONFLICT = { status: 409, statusText: 'Conflict' };
 const SERVER_ERROR = { status: 500, statusText: 'Internal Server Error' };
 
+const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
+const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
+const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
+
 describe('ResponseInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
@@ -201,6 +205,26 @@ describe('ResponseInterceptor', () => {
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
       expect(captured.status).toBe(CONFLICT.status);
     });
+  });
+
+  describe('knowledge index sync status pass-through (background poll stops quietly)', () => {
+    it.each(QUIET_POLL_FAILURE_RESPONSES)(
+      'neither toasts nor navigates to the error page for a $status',
+      (response) => {
+        // Arrange
+        const navigationService = TestBed.inject(NavigationService) as any;
+        const captured = expectRequestToFail(KNOWLEDGE_INDEX_SYNC_STATUS_URL);
+
+        // Act
+        httpMock.expectOne(KNOWLEDGE_INDEX_SYNC_STATUS_URL).flush(null, response);
+
+        // Assert
+        expect(toastShowService.showError).not.toHaveBeenCalled();
+        expect(toastShowService.showInfo).not.toHaveBeenCalled();
+        expect(navigationService.navigateToError).not.toHaveBeenCalled();
+        expect(captured.status).toBe(response.status);
+      }
+    );
   });
 
   describe('unsaved changes during a backend outage', () => {

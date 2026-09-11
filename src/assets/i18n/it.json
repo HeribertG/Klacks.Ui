@@ -1163,6 +1163,8 @@
   "settings.language-plugins.marketplace.error.search": "Errore nella ricerca nel Marketplace",
   "settings.language-plugins.marketplace.error.install": "Errore nell'installazione dal Marketplace",
   "settings.language-plugins.marketplace.success.install": "Pacchetto lingua installato dal Marketplace",
+  "settings.language-plugins.index-rebuild-hint": "L'indice di ricerca di Klacksy viene ricostruito in background (può richiedere fino a 20 minuti).",
+  "settings.language-plugins.index-rebuild-running": "Ricostruzione dell'indice di ricerca in corso...",
   "settings.feature-plugins.title": "Plugin funzionalità",
   "settings.feature-plugins.header.name": "NOME",
   "settings.feature-plugins.header.category": "CATEGORIA",

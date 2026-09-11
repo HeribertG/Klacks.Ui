@@ -1163,6 +1163,8 @@
   "settings.language-plugins.marketplace.error.search": "Fehler beim Suchen im Marketplace",
   "settings.language-plugins.marketplace.error.install": "Fehler beim Installieren aus dem Marketplace",
   "settings.language-plugins.marketplace.success.install": "Sprachpaket aus Marketplace installiert",
+  "settings.language-plugins.index-rebuild-hint": "Der Suchindex von Klacksy wird im Hintergrund neu aufgebaut (das kann bis zu 20 Minuten dauern).",
+  "settings.language-plugins.index-rebuild-running": "Suchindex wird neu aufgebaut...",
   "settings.feature-plugins.title": "Feature-Plugins",
   "settings.feature-plugins.header.name": "NAME",
   "settings.feature-plugins.header.category": "KATEGORIE",

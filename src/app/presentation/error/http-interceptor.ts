@@ -37,6 +37,7 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
   private static readonly API_PATH_PREFIX = '/api/';
+  private static readonly KNOWLEDGE_INDEX_SYNC_STATUS_PATH = 'knowledge-index/sync-status';
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
     HttpStatusCode.NotFound,
@@ -108,6 +109,11 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
 
     if (url.includes('Addresses/Validate')) {
+      return throwError(() => error);
+    }
+
+    // Background poll of the language-plugins page: the caller stops polling quietly on failure.
+    if (url.includes(ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH)) {
       return throwError(() => error);
     }
 

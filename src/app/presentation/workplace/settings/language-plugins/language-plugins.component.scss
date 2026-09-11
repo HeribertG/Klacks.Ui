@@ -8,6 +8,25 @@
   position: relative;
 }
 
+.index-rebuild-slot {
+  min-width: 0;
+  margin-inline-end: 70px;
+}
+
+.index-rebuild-indicator {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--colorLabel);
+}
+
+.index-rebuild-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .search-btn {
   position: absolute;
   inset-inline-end: 30px;
