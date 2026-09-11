@@ -82,10 +82,20 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        this.resetUIState(error);
+        if (!this.isQuietBackgroundPoll(error)) {
+          this.resetUIState(error);
+        }
         return this.handleSpecificErrors(error, req);
       })
     );
+  }
+
+  // A background poll (currently only the knowledge-index sync status, checked every 10s for up to
+  // ~20 minutes) must not touch UI state on failure: unlike a user-triggered request, its error has
+  // nothing to do with whatever the user is editing elsewhere on the page, so it must not clear the
+  // unsaved-changes flag or the spinner/save-state out from under them.
+  private isQuietBackgroundPoll(error: HttpErrorResponse): boolean {
+    return (error.url || '').includes(ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH);
   }
 
   private resetUIState(error: HttpErrorResponse): void {
@@ -113,7 +123,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
 
     // Background poll of the language-plugins page: the caller stops polling quietly on failure.
-    if (url.includes(ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH)) {
+    if (this.isQuietBackgroundPoll(error)) {
       return throwError(() => error);
     }
 

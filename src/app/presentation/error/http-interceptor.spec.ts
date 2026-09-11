@@ -225,6 +225,21 @@ describe('ResponseInterceptor', () => {
         expect(captured.status).toBe(response.status);
       }
     );
+
+    it.each(QUIET_POLL_FAILURE_RESPONSES)(
+      'does not clear the unsaved-changes flag on a $status',
+      (response) => {
+        // Arrange
+        workplaceStateService.isDirty = true;
+        expectRequestToFail(KNOWLEDGE_INDEX_SYNC_STATUS_URL);
+
+        // Act
+        httpMock.expectOne(KNOWLEDGE_INDEX_SYNC_STATUS_URL).flush(null, response);
+
+        // Assert
+        expect(workplaceStateService.isDirty).toBe(true);
+      }
+    );
   });
 
   describe('unsaved changes during a backend outage', () => {
