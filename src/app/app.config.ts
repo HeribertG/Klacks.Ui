@@ -66,6 +66,8 @@ import { SearchStrategyService } from './presentation/search/search-strategy.ser
 import { SCHEDULE_SIGNALR } from './domain/interfaces/schedule-signalr.interface';
 import { SignalRService } from './infrastructure/signalr/signalr.service';
 import { providePluginHost, provideMessagingVoice } from './infrastructure/plugins/provide-plugin-host';
+import { BUILD_INFO } from './domain/interfaces/build-info.interface';
+import { BUILD_INFO_VALUE } from '../build-info';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -171,6 +173,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: SCHEDULE_SIGNALR,
       useExisting: SignalRService,
+    },
+    {
+      provide: BUILD_INFO,
+      useValue: BUILD_INFO_VALUE,
     },
     ...providePluginHost(),
     ...provideMessagingVoice(),
