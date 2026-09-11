@@ -2,7 +2,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ToastsContainerComponent } from './toast.component';
 import { ToastService } from './toast.service';
 import { ToastShowService } from './toast-show.service';
@@ -26,6 +26,13 @@ describe('ToastsContainerComponent', () => {
     toastService = TestBed.inject(ToastService);
     toastShowService = TestBed.inject(ToastShowService);
     liveRegionService = TestBed.inject(LiveRegionService);
+  });
+
+  afterEach(() => {
+    // LiveRegionService appends its sr-only announcer directly to document.body and is not torn down
+    // with the fixture - without this, a leftover announcer from an earlier test would be the one
+    // document.body.querySelector('.sr-only[aria-live]') finds in a later test.
+    document.querySelectorAll('.sr-only').forEach((element) => element.remove());
   });
 
   it('should render an undo button with the configured label', () => {
@@ -158,6 +165,21 @@ describe('ToastsContainerComponent', () => {
     expect(announce).toHaveBeenCalledWith('Reloading in 10 s');
   });
 
+  it('should actually place the initial announcement text in the shared live region', async () => {
+    // Arrange
+    vi.useFakeTimers();
+    toastShowService.showActions('Reloading in 10 s', 'app-reload', [{ label: 'Now', onClick: vi.fn() }]);
+    fixture.detectChanges();
+
+    // Act
+    await vi.advanceTimersByTimeAsync(200);
+
+    // Assert
+    const region: HTMLElement | null = document.body.querySelector('.sr-only[aria-live]');
+    expect(region?.textContent).toBe('Reloading in 10 s');
+    vi.useRealTimers();
+  });
+
   it('should keep the default live region for a toast without actions', () => {
     // Arrange
     toastShowService.showInfo('Plain information');
@@ -168,5 +190,24 @@ describe('ToastsContainerComponent', () => {
     // Assert
     const ngbToast: HTMLElement | null = fixture.nativeElement.querySelector('ngb-toast');
     expect(ngbToast?.getAttribute('aria-live')).not.toBe('off');
+  });
+
+  it('should render single-select reply chips for an interactive toast', () => {
+    // Arrange
+    const onSelected = vi.fn();
+    toastShowService.showInteractiveReply({ selectionMode: 'single', options: [{ label: 'Yes', value: 'yes' }] }, onSelected);
+
+    // Act
+    fixture.detectChanges();
+    const chip: HTMLButtonElement | null = fixture.nativeElement.querySelector('.reply-chip-btn');
+
+    // Assert
+    expect(chip?.textContent?.trim()).toBe('Yes');
+
+    // Act
+    chip?.click();
+
+    // Assert
+    expect(onSelected).toHaveBeenCalledWith(['yes']);
   });
 });
