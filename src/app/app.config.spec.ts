@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { ErrorHandler } from '@angular/core';
 import { appConfig } from './app.config';
+import { AppErrorHandler } from './app.error-handler';
 import { BUILD_INFO } from './domain/interfaces/build-info.interface';
 import { BUILD_INFO_VALUE } from '../build-info';
 import { isDevBuild } from './domain/helpers/build-info.helper';
@@ -42,5 +44,13 @@ describe('appConfig', () => {
       provide: REALTIME_CONNECTION_STATUS,
       useExisting: SignalRConnectionStatusService,
     });
+  });
+
+  it('registers AppErrorHandler as the application ErrorHandler', () => {
+    expect(registrationFor(ErrorHandler)).toEqual({ provide: ErrorHandler, useClass: AppErrorHandler });
+  });
+
+  it('no longer registers AppErrorHandler under its own class token', () => {
+    expect(registrationFor(AppErrorHandler)).toBeUndefined();
   });
 });

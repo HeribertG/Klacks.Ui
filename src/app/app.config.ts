@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ApplicationConfig, importProvidersFrom, LOCALE_ID, APP_INITIALIZER } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 import {
@@ -136,7 +136,7 @@ export const appConfig: ApplicationConfig = {
       multi: true,
     },
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
-    { provide: AppErrorHandler, useClass: AppErrorHandler },
+    { provide: ErrorHandler, useClass: AppErrorHandler },
     { provide: CanDeactivateGuard, useClass: CanDeactivateGuard },
     { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },
     CurrencyPipe,

@@ -1,12 +1,24 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ErrorHandler, Injectable } from '@angular/core';
+/**
+ * Application-wide ErrorHandler. Hands failed chunk loads of an outdated bundle to the chunk recovery,
+ * stays silent for HTTP errors (the response interceptor reports them) and for a fixed list of known,
+ * harmless framework and library errors, and logs everything else. It must never throw itself, so a
+ * chunk recovery that cannot be resolved is skipped.
+ * @param injector - Resolves ChunkLoadRecoveryService on first use; the ErrorHandler is created before
+ * the router the recovery depends on
+ */
+import { ErrorHandler, Injectable, Injector, inject } from '@angular/core';
+import { ChunkLoadRecoveryService } from './application/services/chunk-load-recovery.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+const HTTP_ERROR_RESPONSE_NAME = 'HttpErrorResponse';
+const INVALID_ERROR_LOG_MESSAGE = 'Invalid error object:';
+const UNHANDLED_ERROR_LOG_MESSAGE = 'Unhandled Application Error:';
+
+@Injectable()
 export class AppErrorHandler implements ErrorHandler {
-  // Errors die ignoriert werden sollen
+  private readonly injector = inject(Injector);
+
   private static readonly IGNORED_ERROR_PATTERNS = [
     'ExpressionChangedAfterItHasBeenCheckedError',
     'Unable to preventDefault inside passive event listener due to target being treated as passive',
@@ -20,41 +32,41 @@ export class AppErrorHandler implements ErrorHandler {
     "Cannot set property 'order' of null",
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleError(error: any): void {
-    // Basis-Validierung
+  handleError(error: unknown): void {
     if (!error || typeof error !== 'object') {
-      console.error('Invalid error object:', error);
+      console.error(INVALID_ERROR_LOG_MESSAGE, error);
       return;
     }
 
-    // HTTP Errors werden bereits im ResponseInterceptor behandelt
-    if (this.isHttpError(error)) {
+    if (this.recoverFromChunkLoadError(error)) {
       return;
     }
 
-    // Ignorierte Errors prüfen
-    if (this.shouldIgnoreError(error)) {
+    if (this.isHttpError(error) || this.shouldIgnoreError(error)) {
       return;
     }
 
-    // Alle anderen Errors loggen
-    console.error('Unhandled Application Error:', error);
+    console.error(UNHANDLED_ERROR_LOG_MESSAGE, error);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private isHttpError(error: any): boolean {
-    return error?.rejection?.name === 'HttpErrorResponse';
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private shouldIgnoreError(error: any): boolean {
-    if (!error?.message || typeof error.message !== 'string') {
+  private recoverFromChunkLoadError(error: object): boolean {
+    try {
+      return this.injector.get(ChunkLoadRecoveryService).handleError(error);
+    } catch {
       return false;
     }
+  }
 
-    return AppErrorHandler.IGNORED_ERROR_PATTERNS.some((pattern) =>
-      error.message.includes(pattern)
+  private isHttpError(error: object): boolean {
+    const rejection = (error as { rejection?: { name?: unknown } | null }).rejection;
+    return rejection?.name === HTTP_ERROR_RESPONSE_NAME;
+  }
+
+  private shouldIgnoreError(error: object): boolean {
+    const message = (error as { message?: unknown }).message;
+    return (
+      typeof message === 'string' &&
+      AppErrorHandler.IGNORED_ERROR_PATTERNS.some((pattern) => message.includes(pattern))
     );
   }
 }
