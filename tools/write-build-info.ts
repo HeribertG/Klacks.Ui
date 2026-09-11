@@ -11,6 +11,7 @@
  */
 import { existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { DEV_BUILD_KEY, DEV_BUILD_VERSION } from '../src/app/domain/constants/build-info.constants';
 
 interface IBuildIdentity {
   version: string;
@@ -21,21 +22,19 @@ const ROOT_DIRECTORY = resolve(__dirname, '..');
 const SOURCE_FILE = resolve(ROOT_DIRECTORY, 'src', 'build-info.ts');
 const DIST_DIRECTORY = resolve(ROOT_DIRECTORY, 'dist', 'klacks.ui', 'browser');
 const DIST_FILE = resolve(DIST_DIRECTORY, 'version.json');
-const DEFAULT_VERSION = '0.0.0';
-const DEFAULT_BUILD_KEY = 'dev';
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const BUILD_KEY_PATTERN = /^[0-9A-Za-z._-]{1,64}$/;
 const MODE_SOURCE = 'source';
 const MODE_DIST = 'dist';
 
 function readBuildIdentity(): IBuildIdentity {
-  const version = process.env['KLACKS_VERSION'] || DEFAULT_VERSION;
-  const buildKey = process.env['KLACKS_BUILD_KEY'] || DEFAULT_BUILD_KEY;
+  const version = process.env['KLACKS_VERSION'] || DEV_BUILD_VERSION;
+  const buildKey = process.env['KLACKS_BUILD_KEY'] || DEV_BUILD_KEY;
   if (!VERSION_PATTERN.test(version)) {
     throw new Error(`KLACKS_VERSION "${version}" is not a release version like 1.0.28`);
   }
   if (!BUILD_KEY_PATTERN.test(buildKey)) {
-    throw new Error(`KLACKS_BUILD_KEY "${buildKey}" may only contain letters, digits, ".", "_" and "-"`);
+    throw new Error(`KLACKS_BUILD_KEY "${buildKey}" must be 1-64 characters of letters, digits, ".", "_" and "-"`);
   }
   return { version, buildKey };
 }

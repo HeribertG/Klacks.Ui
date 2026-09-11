@@ -3,6 +3,7 @@
 import { appConfig } from './app.config';
 import { BUILD_INFO } from './domain/interfaces/build-info.interface';
 import { BUILD_INFO_VALUE } from '../build-info';
+import { isDevBuild } from './domain/helpers/build-info.helper';
 import { RELOAD_GUARD_STORAGE } from './domain/interfaces/reload-guard-storage.interface';
 import { ReloadGuardStorageService } from './infrastructure/storage/reload-guard-storage.service';
 import { APP_VERSION_SOURCE } from './domain/interfaces/app-version-source.interface';
@@ -16,6 +17,10 @@ const registrationFor = (token: unknown): unknown =>
 describe('appConfig', () => {
   it('binds the build identity compiled into the bundle', () => {
     expect(registrationFor(BUILD_INFO)).toEqual({ provide: BUILD_INFO, useValue: BUILD_INFO_VALUE });
+  });
+
+  it('ships a development identity in the committed source', () => {
+    expect(isDevBuild(BUILD_INFO_VALUE)).toBe(true);
   });
 
   it('binds the reload guard storage to its session storage implementation', () => {
