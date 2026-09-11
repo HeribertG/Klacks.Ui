@@ -232,4 +232,31 @@ describe('AppVersionWatchService', () => {
       expect(fetchDeployedBuildInfo).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('lifecycle', () => {
+    it('stops every trigger when the application is destroyed', async () => {
+      startWatch();
+      connected$.next(true);
+      connected$.next(false);
+      connected$.next(true);
+      await settle();
+      fetchDeployedBuildInfo.mockClear();
+
+      TestBed.resetTestingModule();
+      await becomeVisible();
+      await vi.advanceTimersByTimeAsync(CHECK_INTERVAL_MS);
+
+      expect(fetchDeployedBuildInfo).not.toHaveBeenCalled();
+    });
+
+    it('arms its triggers only once even when start() is called twice', async () => {
+      startWatch();
+      TestBed.inject(AppVersionWatchService).start();
+
+      TestBed.resetTestingModule();
+      await vi.advanceTimersByTimeAsync(CHECK_INTERVAL_MS);
+
+      expect(fetchDeployedBuildInfo).not.toHaveBeenCalled();
+    });
+  });
 });
