@@ -1,4 +1,11 @@
 {
+  "app-reload.later": "Più tardi",
+  "app-reload.now": "Ora",
+  "app-reload.reconnected-available": "Connessione ripristinata\nSalva le modifiche e poi ricarica la pagina.",
+  "app-reload.reconnected-countdown": "Connessione ripristinata\nLa pagina verrà ricaricata tra {{seconds}} s.",
+  "app-reload.reload": "Ricarica",
+  "app-reload.update-available": "Nuova versione disponibile\nSalva le modifiche e poi ricarica la pagina.",
+  "app-reload.update-countdown": "Nuova versione disponibile\nLa pagina verrà ricaricata tra {{seconds}} s.",
   "data-refresh.changed-prompt": "Klacksy ha modificato questi dati. Ricaricare?",
   "data-refresh.reload": "Ricarica",
   "draft-recovery.title": "Ripristinare il lavoro non salvato?",

@@ -1,4 +1,11 @@
 {
+  "app-reload.later": "Plus tard",
+  "app-reload.now": "Maintenant",
+  "app-reload.reconnected-available": "Connexion rétablie\nVeuillez enregistrer vos modifications, puis recharger la page.",
+  "app-reload.reconnected-countdown": "Connexion rétablie\nLa page sera rechargée dans {{seconds}} s.",
+  "app-reload.reload": "Recharger",
+  "app-reload.update-available": "Nouvelle version disponible\nVeuillez enregistrer vos modifications, puis recharger la page.",
+  "app-reload.update-countdown": "Nouvelle version disponible\nLa page sera rechargée dans {{seconds}} s.",
   "data-refresh.changed-prompt": "Klacksy a modifié ces données. Recharger ?",
   "data-refresh.reload": "Recharger",
   "draft-recovery.title": "Restaurer le travail non enregistré ?",

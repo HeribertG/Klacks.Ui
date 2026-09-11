@@ -1,4 +1,11 @@
 {
+  "app-reload.later": "Later",
+  "app-reload.now": "Now",
+  "app-reload.reconnected-available": "Connection restored\nPlease save your changes, then reload the page.",
+  "app-reload.reconnected-countdown": "Connection restored\nThe page will reload in {{seconds}} s.",
+  "app-reload.reload": "Reload",
+  "app-reload.update-available": "New version available\nPlease save your changes, then reload the page.",
+  "app-reload.update-countdown": "New version available\nThe page will reload in {{seconds}} s.",
   "data-refresh.changed-prompt": "Klacksy changed this data. Reload?",
   "data-refresh.reload": "Reload",
   "draft-recovery.title": "Restore unsaved work?",
