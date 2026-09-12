@@ -33,6 +33,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { TextToSpeechService } from '../services/text-to-speech.service';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
+import { ChatStageStatusService } from '../services/chat-stage-status.service';
 import { ChatMessage } from '../chat-message.interface';
 import { formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
 import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
@@ -53,6 +54,7 @@ export class ChatMessageComponent {
   readonly message = input.required<ChatMessage>();
 
   protected readonly actions = inject(ChatMessageActionsService);
+  protected readonly stageStatus = inject(ChatStageStatusService);
   protected readonly ttsService = inject(TextToSpeechService);
   private readonly dataLoadFileService = inject(DataLoadFileService);
   private readonly assistantService = inject(DataManagementAssistantService);
@@ -92,6 +94,32 @@ export class ChatMessageComponent {
   protected readonly showTourAvatarLogo = computed(() => this.onboarding.isTourActive() && !this.hasNoApiKey());
 
   protected readonly formatMessage = formatMessage;
+
+  /** True while this message is the one currently streaming and has not received any content yet. */
+  protected readonly isEmptyStreaming = computed(
+    () => this.message().isStreaming === true && !this.message().content,
+  );
+
+  /** True while this message is the one ChatStageStatusService is tracking, i.e. the live streaming reply. */
+  protected readonly isActiveStreamingMessage = computed(
+    () => this.message().isStreaming === true && this.stageStatus.isActiveMessage(this.message().id),
+  );
+
+  /** True while the "still working" row (stage text and/or tool steps, with the typing dots) should show. */
+  protected readonly showWorkingStatus = computed(
+    () => this.isActiveStreamingMessage() && (this.isEmptyStreaming() || this.stageStatus.toolSteps().length > 0),
+  );
+
+  /**
+   * True only when the stage row above replaces the normal text/time — i.e. an empty streaming
+   * message that ChatStageStatusService is actually tracking. Gating text/time on this rather than
+   * on isEmptyStreaming() alone means a message stuck empty+streaming without an active tracker (a
+   * state this service's invariants should prevent, but not one the template should assume away)
+   * falls back to the old empty-but-visible bubble instead of rendering nothing at all.
+   */
+  protected readonly showEmptyBubblePlaceholder = computed(
+    () => this.isEmptyStreaming() && this.isActiveStreamingMessage(),
+  );
 
   private noApiKeyForSelectedModel(): boolean {
     const providers = this.assistantProviderService.getCurrentProviders();
