@@ -19,9 +19,10 @@ import { AsideService } from '../aside.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
+import { ChatStageStatusService } from './services/chat-stage-status.service';
+import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
-import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ChatMessageActionsService } from './services/chat-message-actions.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
@@ -349,7 +350,6 @@ describe('AssistantChatComponent', () => {
                     FormsModule,
                     MockTranslatePipe,
                     IconChatComponent,
-                    IconMMLComponent,
                     ChatMessageComponent,
                 ],
                 providers: [
@@ -1865,6 +1865,110 @@ describe('AssistantChatComponent', () => {
 
             callbacks.onContent('Erledigt.');
             expect(component.toolSteps().length).toBe(0);
+        });
+    });
+
+    describe('Backend status stage', () => {
+        it('forwards a status event to ChatStageStatusService inside the Angular zone', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            const stageStatus = TestBed.inject(ChatStageStatusService);
+            component.inputText.set('Wie ändere ich die Öffnungszeiten?');
+            await component.sendMessage();
+
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.AssemblingToolset, elapsedMs: 400 });
+
+            expect(stageStatus.stageLabelKey()).toBe('assistant-chat.stage.assembling_toolset');
+        });
+
+        it('resets stage and tool steps but keeps the message tracked once content starts', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            const stageStatus = TestBed.inject(ChatStageStatusService);
+            component.inputText.set('Erstelle einen neuen Mitarbeiter');
+            await component.sendMessage();
+
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.CallingModel, elapsedMs: 900 });
+            expect(stageStatus.stageLabelKey()).toBe('assistant-chat.stage.calling_model');
+
+            callbacks.onContent('Hallo');
+
+            expect(stageStatus.stageLabelKey()).toBe('assistant-chat.tool-status.working');
+            expect(stageStatus.toolSteps().length).toBe(0);
+
+            // A later multi-turn tool call must still render, i.e. the message stays tracked.
+            callbacks.onFunctionCall({ functionName: 'search_address', parameters: {} });
+            expect(component.toolSteps().length).toBe(1);
+        });
+
+        it('a second-iteration calling_model status after content already streamed only updates the dezent tool-status, never wipes it', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            const stageStatus = TestBed.inject(ChatStageStatusService);
+            component.inputText.set('Erstelle einen neuen Mitarbeiter');
+            await component.sendMessage();
+
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.CallingModel, elapsedMs: 300, iteration: 1 });
+            callbacks.onContent('Teilantwort');
+            callbacks.onFunctionCall({ functionName: 'search_address', parameters: {} });
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.ExecutingTool, elapsedMs: 600 });
+            callbacks.onFunctionResult({ functionName: 'search_address', functionResult: '', executionType: '' });
+
+            // Second multi-turn iteration: calling_model comes back with iteration=2. The message is
+            // still tracked and the tool-status list from the first iteration's call is unaffected -
+            // only onContentStarted()/clear() ever reset it, never a plain status event.
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.CallingModel, elapsedMs: 2100, iteration: 2 });
+
+            expect(stageStatus.activeMessageId()).not.toBeNull();
+            expect(stageStatus.stageLabelKey()).toBe('assistant-chat.stage.calling_model');
+            expect(component.toolSteps().length).toBe(1);
+            expect(component.toolSteps()[0].done).toBe(true);
+        });
+
+        it('clears the stage on error so a stale stage never sticks to a dead message id', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            const stageStatus = TestBed.inject(ChatStageStatusService);
+            component.inputText.set('Frage');
+            await component.sendMessage();
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.CallingModel, elapsedMs: 500 });
+
+            callbacks.onError('Boom');
+
+            expect(stageStatus.activeMessageId()).toBeNull();
+        });
+
+        // ChatStageStatusService is providedIn: 'root', so its state outlives this component. Closing
+        // the aside mid-stream destroys the component without any done/error callback ever arriving,
+        // which used to leave the singleton owning a message id that no longer exists.
+        it('clears the app-wide stage state when the component is destroyed mid-stream', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            const stageStatus = TestBed.inject(ChatStageStatusService);
+            component.inputText.set('Frage');
+            await component.sendMessage();
+            callbacks.onStatus({ stage: ASSISTANT_STATUS_STAGE.CallingModel, elapsedMs: 500 });
+            expect(stageStatus.activeMessageId()).not.toBeNull();
+
+            fixture.destroy();
+
+            expect(stageStatus.activeMessageId()).toBeNull();
+            expect(stageStatus.stageLabelKey()).toBe('assistant-chat.tool-status.working');
         });
     });
 

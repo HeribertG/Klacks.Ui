@@ -33,6 +33,35 @@
         }}</span>
       </div>
       }
+      @if (showWorkingStatus()) {
+      <div class="stage-status">
+        @if (isEmptyStreaming()) {
+        <div class="stage-status-text">{{ stageStatus.stageLabelKey() | translate }}</div>
+        }
+        @if (stageStatus.toolSteps().length > 0) {
+        <div class="tool-status">
+          @for (step of stageStatus.toolSteps(); track $index) {
+          <div class="tool-step" [class.done]="step.done">
+            @if (step.done) {
+            <fa-icon class="tool-step-check" [icon]="faCheck"></fa-icon>
+            } @else {
+            <span class="tool-step-dot"></span>
+            }
+            <span>{{ step.key | translate }}</span>
+          </div>
+          }
+        </div>
+        }
+        @if (isEmptyStreaming()) {
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        }
+      </div>
+      }
+      @if (!showEmptyBubblePlaceholder()) {
       <div
         class="message-text"
         [innerHTML]="message().formattedContent ?? formatMessage(message().content)"
@@ -40,6 +69,7 @@
       <div class="message-time">
         {{ message().timestamp | date : "short" }}
       </div>
+      }
     </div>
 
     <!-- TTS button for assistant messages -->

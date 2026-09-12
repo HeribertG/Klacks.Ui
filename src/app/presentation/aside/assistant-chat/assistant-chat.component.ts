@@ -33,7 +33,6 @@ import {
   faChevronDown,
   faStop,
   faSpinner,
-  faCheck,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -51,9 +50,6 @@ import { NavigationVerdictService } from './services/navigation-verdict.service'
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
-import { IconMMLComponent } from '../../icons/icon-mml.component';
-import { IconLogoComponent } from '../../icons/icon-logo.component';
-import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
@@ -64,8 +60,8 @@ import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
-import { ToolStep } from './tool-step.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
+import { ChatStageStatusService } from './services/chat-stage-status.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 import { stripMetadataMarkers, stripForTts, formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
@@ -83,7 +79,7 @@ import {
   ProactiveReaction,
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
-import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { StreamMetadata, StreamStatus } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
@@ -125,8 +121,6 @@ const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.do
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
-    IconMMLComponent,
-    IconLogoComponent,
     AssistantPanelsComponent,
     AutonomyStatusBarComponent,
     ChatMessageComponent,
@@ -147,6 +141,7 @@ export class AssistantChatComponent {
   private assistantProviderService = inject(DataManagementAssistantProviderService);
   private chatFunctionExecution = inject(ChatFunctionExecutionService);
   readonly orchestrator = inject(ConversationOrchestratorService);
+  private readonly chatStageStatus = inject(ChatStageStatusService);
   readonly ConversationState = ConversationState;
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
@@ -177,7 +172,6 @@ export class AssistantChatComponent {
    */
   readonly isFloatingOutputMode = this.outputModes.isFloatingMode;
   private localStorageService = inject(LocalStorageService);
-  private dataLoadFileService = inject(DataLoadFileService);
   readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
   private tourIndex = 0;
@@ -203,7 +197,6 @@ export class AssistantChatComponent {
   faChevronDown = faChevronDown;
   faStop = faStop;
   faSpinner = faSpinner;
-  faCheck = faCheck;
 
   readonly correctionMenuMessageId = this.messageActions.correctionMenuMessageId;
   readonly dismissMenuMessageId = this.messageActions.dismissMenuMessageId;
@@ -214,7 +207,8 @@ export class AssistantChatComponent {
 
   inputText = signal('');
   isProcessing = signal(false);
-  toolSteps = signal<readonly ToolStep[]>([]);
+  /** Pass-through of the extracted service's state; kept as a component member for template/spec compatibility. */
+  readonly toolSteps = this.chatStageStatus.toolSteps;
   showModelDropdown = signal(false);
 
   readonly availableModels = computed(() =>
@@ -235,10 +229,6 @@ export class AssistantChatComponent {
     const liveStep = this.liveTourStep();
     return liveStep === null ? this.onboarding.progress() : Math.min(liveStep, this.onboarding.total);
   });
-  readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
-  readonly hasLogoImage = computed(() => !!this.logoImage());
-  readonly showTourAvatarLogo = computed(() => this.isTourActive() && !this.hasNoApiKey());
-
   conversationId = '';
   private currentStreamController: AbortController | null = null;
   private currentRawStream = '';
@@ -249,7 +239,6 @@ export class AssistantChatComponent {
 
   private static readonly SCROLL_MARKER_REGEX = /\[SCROLL:\s*([\w-]+)\s*\]/gi;
   private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
-  private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -295,6 +284,7 @@ export class AssistantChatComponent {
         this.streamRafHandle = null;
       }
       this.ttsService.stop();
+      this.chatStageStatus.clear();
     });
 
     const currentLangForSpeech = this.resolveCurrentLang();
@@ -389,21 +379,6 @@ export class AssistantChatComponent {
 
   set messages(next: readonly ChatMessage[]) {
     this.orchestrator.replaceMessages(next);
-  }
-
-  private toolStatusKey(functionName: string): string {
-    const name = (functionName || '').toLowerCase();
-    let category = 'working';
-    if (name.startsWith('search') || name.startsWith('list') || name.startsWith('find') || name.startsWith('get') || name.includes('web_search')) {
-      category = 'searching';
-    } else if (name.startsWith('create') || name.startsWith('add')) {
-      category = 'creating';
-    } else if (name.startsWith('update') || name.startsWith('assign') || name.startsWith('remove') || name.startsWith('set') || name.startsWith('delete')) {
-      category = 'updating';
-    } else if (name.startsWith('navigate') || name.startsWith('open') || name.includes('navigate')) {
-      category = 'navigating';
-    }
-    return AssistantChatComponent.TOOL_STATUS_PREFIX + category;
   }
 
   /**
@@ -514,32 +489,12 @@ export class AssistantChatComponent {
       });
     }
     this.isProcessing.set(false);
-    this.toolSteps.set([]);
+    this.chatStageStatus.clear();
     this.streamBuffer = '';
     this.streamPreviousClean = '';
     this.currentRawStream = '';
     this.scrollMarkersDispatched = 0;
     this.klacksyNavigation.clearExplainScrollQueue();
-  }
-
-  private addToolStep(functionName: string): void {
-    this.toolSteps.update((steps) => [
-      ...steps,
-      { functionName, key: this.toolStatusKey(functionName), done: false },
-    ]);
-  }
-
-  private markToolStepDone(functionName: string): void {
-    this.toolSteps.update((steps) => {
-      let idx = steps.findIndex((s) => !s.done && s.functionName === functionName);
-      if (idx < 0) {
-        idx = steps.findIndex((s) => !s.done);
-      }
-      if (idx < 0) return steps;
-      const next = steps.slice();
-      next[idx] = { ...next[idx], done: true };
-      return next;
-    });
   }
 
   private flushStreamBuffer(assistantMessageId: string): void {
@@ -620,7 +575,6 @@ export class AssistantChatComponent {
     const messageText = this.inputText();
     this.inputText.set('');
     this.isProcessing.set(true);
-    this.toolSteps.set([]);
     this.shouldScrollToBottom = true;
 
     const assistantMessageId = this.generateMessageId();
@@ -634,6 +588,7 @@ export class AssistantChatComponent {
       respondedToUserMessage: messageText.trim(),
     };
     this.orchestrator.addMessage(assistantMessage);
+    this.chatStageStatus.startMessage(assistantMessageId);
     this.currentRawStream = '';
     this.streamBuffer = '';
     this.streamPreviousClean = '';
@@ -655,26 +610,32 @@ export class AssistantChatComponent {
             this.conversationId = convId;
           }
         },
+        onStatus: (data: StreamStatus) => {
+          this.ngZone.run(() => {
+            this.chatStageStatus.applyStatus(data.stage);
+            this.cdr.detectChanges();
+          });
+        },
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
           this.ngZone.run(() => {
             this.orchestrator.onStreamFunctionCall();
-            this.addToolStep(data.functionName);
+            this.chatStageStatus.addToolStep(data.functionName);
             this.shouldScrollToBottom = true;
             this.cdr.detectChanges();
           });
         },
         onFunctionResult: (data: { functionName: string }) => {
           this.ngZone.run(() => {
-            this.markToolStepDone(data.functionName);
+            this.chatStageStatus.markToolStepDone(data.functionName);
             this.cdr.detectChanges();
           });
         },
         onContent: (rawText: string) => {
           const text = this.resolveNavigationContentKey(rawText);
           if (this.toolSteps().length > 0) {
-            this.toolSteps.set([]);
             this.orchestrator.onStreamPlanningEnded();
           }
+          this.chatStageStatus.onContentStarted();
           this.streamBuffer += text;
           if (this.streamRafHandle !== null) return;
           this.streamRafHandle = requestAnimationFrame(() => {
@@ -695,6 +656,7 @@ export class AssistantChatComponent {
               navigateTo: data.navigateTo,
               actionPerformed: data.actionPerformed,
             });
+            this.chatStageStatus.clear();
             this.shouldScrollToBottom = true;
 
             const offerableNavigateTo = this.offerableNavigateTo(data);
@@ -744,7 +706,7 @@ export class AssistantChatComponent {
             });
             this.shouldScrollToBottom = true;
             this.isProcessing.set(false);
-            this.toolSteps.set([]);
+            this.chatStageStatus.clear();
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
@@ -765,7 +727,7 @@ export class AssistantChatComponent {
             });
             this.shouldScrollToBottom = true;
             this.isProcessing.set(false);
-            this.toolSteps.set([]);
+            this.chatStageStatus.clear();
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamError();
@@ -1556,6 +1518,7 @@ export class AssistantChatComponent {
 
   clearChat(): void {
     this.isTourStationPending = false;
+    this.chatStageStatus.clear();
     this.proactiveInboxService.resetInboxBlock();
     this.orchestrator.clearMessages();
     this.toastShowService.dismissInteractiveReplies();

@@ -11,9 +11,19 @@ import { environment } from 'src/environments/environment';
 import { IAssistantChatRequest } from './data-assistant.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { AssistantStatusStage, toAssistantStatusStage } from 'src/app/domain/constants/assistant-status-stage.constants';
+
+export interface StreamStatus {
+  stage: AssistantStatusStage;
+  /** Milliseconds since the request started; the backend omits the field rather than sending null, and 0 is a legitimate value on the very first event, so callers must never test it for truthiness. */
+  elapsedMs: number | null;
+  /** 1-based multi-turn iteration number; only present on `calling_model` and `executing_tool`. */
+  iteration?: number;
+}
 
 export interface StreamCallbacks {
   onStreamStart?: (conversationId: string) => void;
+  onStatus?: (data: StreamStatus) => void;
   onContent?: (text: string) => void;
   onFunctionCall?: (data: { functionName: string; parameters: Record<string, unknown> }) => void;
   onFunctionResult?: (data: { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string; uiActionTrackingId?: string }) => void;
@@ -143,6 +153,15 @@ export class DataAssistantStreamService {
     switch (event.type) {
       case 'stream_start':
         callbacks.onStreamStart?.(data['conversationId'] as string);
+        break;
+      case 'status':
+        callbacks.onStatus?.({
+          stage: toAssistantStatusStage(data['stage'] as string | undefined),
+          // The backend omits elapsedMs/iteration rather than sending null, and 0 is a valid
+          // elapsedMs on the very first event - checked via typeof, never a truthiness check.
+          elapsedMs: typeof data['elapsedMs'] === 'number' ? data['elapsedMs'] : null,
+          iteration: typeof data['iteration'] === 'number' ? data['iteration'] : undefined,
+        });
         break;
       case 'content':
         callbacks.onContent?.(data['text'] as string);
