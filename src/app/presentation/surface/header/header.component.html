@@ -35,7 +35,7 @@
 
   <app-signalr-status-indicator></app-signalr-status-indicator>
 
-  @if (authorizationService.isAdmin && escalationChainService.hasRunning()) {
+  @if (canViewEscalations() && escalationChainService.hasRunning()) {
     <span
       id="header-escalation-button-container"
       class="escalation-btn-container"

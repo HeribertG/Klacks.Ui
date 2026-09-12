@@ -19,6 +19,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
@@ -55,6 +56,7 @@ export class EditShiftAddressComponent implements OnInit {
   }
 
   public dataManagementShiftService = inject(DataManagementShiftService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   private dataClientService = inject(DataClientService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -73,8 +75,14 @@ export class EditShiftAddressComponent implements OnInit {
     this.setFilter();
   }
 
+  /**
+   * The route only asks for CanViewShifts, so a reader without the write right reaches this form;
+   * without the permission clause every field of an OriginalOrder shift would be editable for them.
+   * ShiftEditPermissionService picks CanCreateShifts or CanEditShifts by whether the shift is new.
+   */
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
+    if (!this.shiftEditPermission.canWriteCurrentShift()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

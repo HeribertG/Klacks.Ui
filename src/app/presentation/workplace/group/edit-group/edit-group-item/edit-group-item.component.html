@@ -32,7 +32,7 @@
           (valueChange)="
             internalValidFrom = $event || undefined; onValidFromChange()
           "
-          [disabled]="!authorizationService.isAuthorised"
+          [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
           [isValid]="validFromValid"
           [touched]="validFromTouched"
         ></app-date-input>
@@ -46,7 +46,7 @@
           (valueChange)="
             internalValidUntil = $event || undefined; onValidUntilChange()
           "
-          [disabled]="!authorizationService.isAuthorised"
+          [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
           [isValid]="validUntilValid"
           [touched]="validUntilTouched"
         ></app-date-input>
@@ -66,7 +66,7 @@
                 ngbDropdownToggle
                 aria-label="payment interval selection"
                 type="button"
-                [disabled]="!authorizationService.isAuthorised"
+                [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
               >
                 <span class="selector-name">{{
                   getPaymentIntervalLabel()
@@ -99,7 +99,7 @@
                 ngbDropdownToggle
                 aria-label="calendar selection"
                 type="button"
-                [disabled]="!authorizationService.isAuthorised"
+                [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
               >
                 <app-choose-calendar></app-choose-calendar>
                 <span class="selector-name">{{
@@ -141,7 +141,7 @@
           <div class="input-text">
             <app-rich-text-editor
               [content]="dataManagementGroupService.editGroup.description"
-              [disabled]="!authorizationService.isAuthorised"
+              [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
               [showToolbar]="true"
               [showToolbarOnlyOnFocus]="false"
               [height]="'auto'"

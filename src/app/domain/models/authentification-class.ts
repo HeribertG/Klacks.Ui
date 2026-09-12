@@ -88,6 +88,7 @@ export interface IMyToken {
   id: string;
   isAdmin: boolean;
   isAuthorised: boolean;
+  permissions: string[];
   refreshToken: string;
   version: string;
 }
@@ -103,6 +104,7 @@ export class MyToken implements IMyToken {
   id = '';
   isAdmin = false;
   isAuthorised = false;
+  permissions: string[] = [];
   refreshToken = '';
   version = '';
 }

@@ -104,16 +104,20 @@
 
       <td rowspan="2" class="table-cell-small-border cell-right">
         @if(!isSealedOrder()){
+        @if (authorizationService.hasPermission(PERMISSIONS.CanEditShifts)) {
         <div class="icon icon-padding">
           <app-icon-pencil-icon-grey
             (click)="onClickEdit(data, $event)"
           ></app-icon-pencil-icon-grey>
         </div>
+        }
+        @if (authorizationService.hasPermission(PERMISSIONS.CanDeleteShifts)) {
         <div class="icon">
           <app-icon-trash-red
             (click)="onClickDelete(data, $event)"
           ></app-icon-trash-red>
         </div>
+        }
         } @else {
         <div class="info-icon">
           <app-icon-info (click)="onShowInfo(data, $event)"></app-icon-info>

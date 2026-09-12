@@ -105,7 +105,7 @@
             <app-qualification-gap-report [gaps]="qualificationGaps()" />
           }
 
-          @if (authorizationService.isAuthorised) {
+          @if (authorizationService.hasPermission(ROLE_ADMIN)) {
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="wizard-override-block"
                      [checked]="overrideBlockRequested()"

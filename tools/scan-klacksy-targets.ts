@@ -10,6 +10,65 @@
  *        - target-level entries derived from data-klacksy-target HTML markers
  *   2. klacksy-page-keys.generated.json (read at runtime by NavigateToSkill)
  *   3. (nothing for the UI; UI imports klacksy-page-keys.ts directly)
+ *
+ * Permission inheritance (design spec 2026-09-12, section 3.2): an in-page
+ * marker without its own data-klacksy-required-permission attribute inherits
+ * requiredPermission from the page-key entry of the same route (query string
+ * stripped). The global shell route ("/") always stays null. An explicit
+ * data-klacksy-required-permission attribute always wins over inheritance.
+ * If two page-keys share a route but disagree on requiredPermission, the
+ * scan aborts (spec 3.1 requires them to agree). This inheritance is applied
+ * once at marker registration time and then carried through the manifest
+ * merge unconditionally, so a stale permission from a previous scan can
+ * never survive a route/guard change (see the requiredPermission assignment
+ * in the merge loop below).
+ *
+ * actionPermission: a page-key may name a right stricter than its route's, for
+ * the create or edit action the key stands for. The PAGE-level manifest entry
+ * takes `actionPermission ?? requiredPermission`, because that entry IS the
+ * offer to perform the action. In-page markers keep inheriting the plain route
+ * permission (buildRoutePermissionMap reads requiredPermission only): scrolling
+ * to an anchor on a page the user may read needs no write right, and the backend
+ * NavigationManifestPermissionGuardTests pins in-page against the page-key route
+ * permission. Page-keys sharing a route must still agree on requiredPermission;
+ * their actionPermission may differ (new-group vs edit-group).
+ *
+ * Settings section-coverage guard (design spec section 3.7): every target
+ * scanned from settings-home.component.html must be reachable through a
+ * collapsible section, i.e. present in SETTINGS_TARGET_SECTIONS, or be
+ * explicitly listed in SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST below
+ * with a reason. Otherwise Klacksy would ask the page to auto-expand a
+ * section that does not know the target and land on "target-not-found" for
+ * a collapsed section. The scan aborts (non-zero exit) on any gap, so the
+ * pre-commit hook and the CI gate catch drift before it ships.
+ *
+ * Glob paths are normalized to forward slashes on all platforms to match the
+ * forward-slash-normalized sourceFile values stored in the manifest.
+ *
+ * Settings allowlist: SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST starts empty because every
+ * current settings-home marker sits inside a collapsible section, and exists only to exempt a
+ * future marker placed outside every section, with a recorded reason, without weakening the check.
+ *
+ * Page-key constant resolution: a klacksy-page-keys.ts field may reference a string constant
+ * declared as `export const NAME = '...'` either in klacksy-page-keys.ts itself or in one of the
+ * files listed in PAGE_KEY_CONSTANT_FILES, and the scan aborts rather than silently defaulting to
+ * null when such an identifier cannot be resolved. Those files are parsed as source text, never
+ * imported, for the same reason as settings-target-sections.constants.ts. A constant name declared
+ * in more than one of them aborts the scan rather than resolving last-write-wins.
+ *
+ * Feature inheritance: requiredFeature is inherited by in-page markers from the page-key of the
+ * same route exactly like requiredPermission, and for the same reason — the chat fast-path filters
+ * the manifest, so a target left without the feature of its page stays offered on installations
+ * that do not have the page at all. Unlike requiredPermission there is no per-marker HTML override
+ * attribute: a marker cannot sit on a page whose feature it does not share.
+ *
+ * Settings-sections parsing: settings-target-sections.constants.ts is parsed as source text
+ * rather than imported, for the same reason as klacksy-page-keys.ts — avoiding a dependency on
+ * tsx's module resolution for a second source file.
+ *
+ * Obsolete entries: an entry whose template or route disappeared still has its requiredPermission
+ * recomputed from route inheritance rather than kept as-is, since no live marker remains whose
+ * explicit attribute could take precedence over it.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve, join, relative, dirname } from 'node:path';
@@ -22,6 +81,7 @@ interface TargetEntry {
   labelKey: string;
   category?: string;
   requiredPermission?: string;
+  requiredFeature?: string;
   sourceFile: string;
   lastScannedAt: string;
   synonyms: Record<string, string[]>;
@@ -33,17 +93,31 @@ interface KlacksyPageKeyEntry {
   pageKey: string;
   route: string;
   requiredPermission: string | null;
+  actionPermission?: string;
   hasEntityParam: boolean;
   llmHint?: string;
+  requiredFeature?: string;
 }
 
 const UI_ROOT = resolve(__dirname, '..');
 const TEMPLATE_GLOB = 'src/app/presentation/**/*.html';
 const PAGE_KEYS_FILE = resolve(UI_ROOT, 'src/app/domain/constants/klacksy-page-keys.ts');
+const PAGE_KEY_CONSTANT_FILES = [
+  resolve(UI_ROOT, 'src/app/domain/constants/feature-plugin.constants.ts'),
+  resolve(UI_ROOT, 'src/app/domain/constants/permissions.constants.ts'),
+];
 const API_DEFINITIONS_DIR = resolve(UI_ROOT, '../Klacks.Api/Application/Skills/Definitions');
 const TARGETS_OUTPUT = join(API_DEFINITIONS_DIR, 'navigation-targets.json');
 const PAGE_KEYS_OUTPUT = join(API_DEFINITIONS_DIR, 'klacksy-page-keys.generated.json');
 const SKILL_SEEDS_PATH = join(API_DEFINITIONS_DIR, 'skill-seeds.json');
+const SETTINGS_TARGET_SECTIONS_FILE = resolve(
+  UI_ROOT,
+  'src/app/presentation/workplace/settings/settings-home/settings-target-sections.constants.ts',
+);
+const SETTINGS_HOME_SOURCE_FILE =
+  'src/app/presentation/workplace/settings/settings-home/settings-home.component.html';
+const SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST: ReadonlySet<string> = new Set([]);
+const ROUTE_QUERY_STRING_SEPARATOR = '?';
 // Kept short and stable on purpose: SkillSeedDescriptionQualityTests caps skill descriptions at
 // 500 chars, and the full page-key list (700+ chars) belongs in the "page" parameter description
 // instead (buildSkillParameterDescription below), not in the skill-level description.
@@ -71,11 +145,53 @@ const PAGE_LABEL_SEPARATOR = '/';
 const TARGET_LIST_SEPARATOR = ',';
 const PAGE_SEGMENT_SEPARATOR = '; ';
 
+const EXPORTED_STRING_CONSTANT_REGEX = /export const ([A-Za-z_$][\w$]*)\s*=\s*'([^']*)'/g;
+// An exported object of string literals, such as PERMISSIONS in permissions.constants.ts. Its
+// members are registered under their qualified name (PERMISSIONS.CanViewGroups), which is exactly
+// how a page-key entry references them.
+const EXPORTED_STRING_OBJECT_REGEX =
+  /export const ([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*\{([\s\S]*?)\}\s*(?:as const)?\s*;/g;
+const OBJECT_STRING_MEMBER_REGEX = /([A-Za-z_$][\w$]*)\s*:\s*'([^']*)'/g;
+const QUALIFIED_NAME_SEPARATOR = '.';
+
+function collectStringConstants(files: readonly string[]): Map<string, string> {
+  const constants = new Map<string, string>();
+  const declaredIn = new Map<string, string>();
+  const declare = (name: string, value: string, file: string): void => {
+    const previousFile = declaredIn.get(name);
+    if (previousFile !== undefined) {
+      throw new Error(
+        `Constant "${name}" is exported from both ${previousFile} and ${file}. A page-key field ` +
+          `referencing it would resolve ambiguously — rename one of them.`,
+      );
+    }
+    declaredIn.set(name, file);
+    constants.set(name, value);
+  };
+
+  for (const file of files) {
+    if (!existsSync(file)) {
+      throw new Error(`Page-key constant source not found: ${file}`);
+    }
+    const source = readFileSync(file, 'utf8');
+    for (const m of source.matchAll(EXPORTED_STRING_CONSTANT_REGEX)) {
+      declare(m[1], m[2], file);
+    }
+    for (const objectMatch of source.matchAll(EXPORTED_STRING_OBJECT_REGEX)) {
+      for (const member of objectMatch[2].matchAll(OBJECT_STRING_MEMBER_REGEX)) {
+        declare(objectMatch[1] + QUALIFIED_NAME_SEPARATOR + member[1], member[2], file);
+      }
+    }
+  }
+  return constants;
+}
+
 function readPageKeys(): KlacksyPageKeyEntry[] {
   if (!existsSync(PAGE_KEYS_FILE)) {
     throw new Error(`Page-keys source not found: ${PAGE_KEYS_FILE}`);
   }
   const source = readFileSync(PAGE_KEYS_FILE, 'utf8');
+  const stringConstants = collectStringConstants([PAGE_KEYS_FILE, ...PAGE_KEY_CONSTANT_FILES]);
   const arrayMatch = source.match(/KLACKSY_PAGE_KEYS\s*:\s*(?:ReadonlyArray<[^>]+>|readonly\s+\w+\[\])\s*=\s*\[([\s\S]*?)\];/);
   if (!arrayMatch) {
     throw new Error('Could not locate KLACKSY_PAGE_KEYS array literal in klacksy-page-keys.ts');
@@ -87,12 +203,26 @@ function readPageKeys(): KlacksyPageKeyEntry[] {
   while ((match = entryRegex.exec(body)) !== null) {
     const fields = match[1];
     const get = (field: string): string | null => {
-      const re = new RegExp(`${field}:\\s*(null|'([^']*)'|true|false)`);
+      const re = new RegExp(
+        `${field}:\\s*(null|true|false|'([^']*)'|([A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)?))`,
+      );
       const m = re.exec(fields);
       if (!m) return null;
-      if (m[1] === 'null') return null;
-      if (m[1] === 'true' || m[1] === 'false') return m[1];
-      return m[2] ?? '';
+      const whole = m[1];
+      if (whole === 'null') return null;
+      if (whole === 'true' || whole === 'false') return whole;
+      if (m[2] !== undefined) return m[2];
+      const identifier = m[3];
+      const resolved = stringConstants.get(identifier);
+      if (resolved === undefined) {
+        throw new Error(
+          `Could not resolve constant "${identifier}" used for field "${field}" in ` +
+            `klacksy-page-keys.ts. Only string constants declared as "export const NAME = '...'" ` +
+            `or as a member of an exported object of string literals (PERMISSIONS.CanViewGroups) ` +
+            `in that file or in PAGE_KEY_CONSTANT_FILES can be referenced from a KLACKSY_PAGE_KEYS entry.`,
+        );
+      }
+      return resolved;
     };
     const pageKey = get('pageKey');
     const route = get('route');
@@ -102,8 +232,10 @@ function readPageKeys(): KlacksyPageKeyEntry[] {
       pageKey,
       route,
       requiredPermission: get('requiredPermission'),
+      actionPermission: get('actionPermission') ?? undefined,
       hasEntityParam: hasEntityParamRaw === 'true',
       llmHint: get('llmHint') ?? undefined,
+      requiredFeature: get('requiredFeature') ?? undefined,
     });
   }
   if (entries.length === 0) {
@@ -233,13 +365,88 @@ function syncSkillSeed(pageKeys: KlacksyPageKeyEntry[], targets: TargetEntry[]):
   console.log(`  skill-seeds.json synced: navigate_to bumped to version ${navigateTo.version}.`);
 }
 
+function stripQueryString(route: string): string {
+  const separatorIndex = route.indexOf(ROUTE_QUERY_STRING_SEPARATOR);
+  return separatorIndex === -1 ? route : route.slice(0, separatorIndex);
+}
+
+function buildRoutePermissionMap(pageKeys: KlacksyPageKeyEntry[]): Map<string, string | undefined> {
+  const map = new Map<string, string | undefined>();
+  for (const pk of pageKeys) {
+    const route = stripQueryString(pk.route);
+    const permission = pk.requiredPermission ?? undefined;
+    if (map.has(route) && map.get(route) !== permission) {
+      throw new Error(
+        `Page-keys sharing route "${route}" disagree on requiredPermission: ` +
+          `"${map.get(route) ?? 'null'}" vs "${permission ?? 'null'}" (pageKey "${pk.pageKey}"). ` +
+          `Design spec 3.1 requires page-keys of the same route to carry the same permission.`,
+      );
+    }
+    map.set(route, permission);
+  }
+  return map;
+}
+
+function buildRouteFeatureMap(pageKeys: KlacksyPageKeyEntry[]): Map<string, string | undefined> {
+  const map = new Map<string, string | undefined>();
+  for (const pk of pageKeys) {
+    const route = stripQueryString(pk.route);
+    if (map.has(route) && map.get(route) !== pk.requiredFeature) {
+      throw new Error(
+        `Page-keys sharing route "${route}" disagree on requiredFeature: ` +
+          `"${map.get(route) ?? 'none'}" vs "${pk.requiredFeature ?? 'none'}" (pageKey "${pk.pageKey}"). ` +
+          `One route is gated by one guard, so its page-keys must name the same feature.`,
+      );
+    }
+    map.set(route, pk.requiredFeature);
+  }
+  return map;
+}
+
+function readSettingsTargetSections(): Record<string, string> {
+  if (!existsSync(SETTINGS_TARGET_SECTIONS_FILE)) {
+    throw new Error(`Settings target sections source not found: ${SETTINGS_TARGET_SECTIONS_FILE}`);
+  }
+  const source = readFileSync(SETTINGS_TARGET_SECTIONS_FILE, 'utf8');
+  const objectMatch = source.match(/SETTINGS_TARGET_SECTIONS[^=]*=\s*\{([\s\S]*?)\};/);
+  if (!objectMatch) {
+    throw new Error(
+      'Could not locate SETTINGS_TARGET_SECTIONS object literal in settings-target-sections.constants.ts',
+    );
+  }
+  const entryRegex = /'([^']+)'\s*:\s*'([^']+)'/g;
+  const sections: Record<string, string> = {};
+  for (const entry of objectMatch[1].matchAll(entryRegex)) {
+    sections[entry[1]] = entry[2];
+  }
+  return sections;
+}
+
+function checkSettingsSectionCoverage(targets: TargetEntry[]): void {
+  const sections = readSettingsTargetSections();
+  const missing = targets
+    .filter((t) => !t.obsolete && t.sourceFile === SETTINGS_HOME_SOURCE_FILE)
+    .map((t) => t.targetId)
+    .filter((id) => !(id in sections) && !SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST.has(id));
+  if (missing.length > 0) {
+    throw new Error(
+      `Settings target(s) missing from SETTINGS_TARGET_SECTIONS (or the non-collapsible ` +
+        `allowlist): ${missing.join(', ')}. A collapsed settings section cannot auto-expand for ` +
+        `these targets. Add an entry to settings-target-sections.constants.ts, or to ` +
+        `SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST in this file if the marker sits outside ` +
+        `every collapsible section.`,
+    );
+  }
+}
+
 function pageLevelEntry(pk: KlacksyPageKeyEntry, now: string): TargetEntry {
   return {
     targetId: pk.pageKey,
     route: pk.route,
     labelKey: ROUTE_LEVEL_LABEL_KEY_PREFIX + pk.pageKey,
     category: PAGE_LEVEL_CATEGORY,
-    requiredPermission: pk.requiredPermission ?? undefined,
+    requiredPermission: pk.actionPermission ?? pk.requiredPermission ?? undefined,
+    requiredFeature: pk.requiredFeature,
     sourceFile: 'src/app/domain/constants/klacksy-page-keys.ts',
     lastScannedAt: now,
     synonyms: {},
@@ -253,7 +460,13 @@ function registerMarker(
   targetId: string,
   full: string,
   now: string,
-  opts: { route: string; labelKey?: string; category?: string; requiredPermission?: string },
+  opts: {
+    route: string;
+    labelKey?: string;
+    category?: string;
+    requiredPermission?: string;
+    requiredFeature?: string;
+  },
 ): void {
   const previous = newEntries.get(targetId);
   newEntries.set(targetId, {
@@ -262,6 +475,7 @@ function registerMarker(
     labelKey: previous?.labelKey ?? (opts.labelKey ?? ''),
     category: previous?.category ?? opts.category,
     requiredPermission: previous?.requiredPermission ?? opts.requiredPermission,
+    requiredFeature: previous?.requiredFeature ?? opts.requiredFeature,
     sourceFile: relative(UI_ROOT, full).replace(/\\/g, '/'),
     lastScannedAt: now,
     synonyms: previous?.synonyms ?? {},
@@ -272,9 +486,11 @@ function registerMarker(
 
 async function scan(): Promise<void> {
   const pageKeys = readPageKeys();
+  const routePermissions = buildRoutePermissionMap(pageKeys);
+  const routeFeatures = buildRouteFeatureMap(pageKeys);
   const now = new Date().toISOString();
 
-  const files = await glob(TEMPLATE_GLOB, { cwd: UI_ROOT });
+  const files = (await glob(TEMPLATE_GLOB, { cwd: UI_ROOT })).map((f) => f.replace(/\\/g, '/'));
 
   const newEntries = new Map<string, TargetEntry>();
 
@@ -296,12 +512,16 @@ async function scan(): Promise<void> {
       // A target that re-uses a page-key id is allowed (the marker enriches the
       // page-level entry with a real source file). Otherwise create a new in-page
       // marker entry mapped to the parent route.
-      const parentRoute = n.getAttribute('data-klacksy-route') ?? routeFromTemplatePath(file, pageKeys);
+      const parentRoute =
+        n.getAttribute('data-klacksy-route') ?? routeFromTemplatePath(file, pageKeys, targetId);
+      const explicitPermission = n.getAttribute('data-klacksy-required-permission') ?? undefined;
+      const inheritedPermission = routePermissions.get(stripQueryString(parentRoute));
       registerMarker(newEntries, targetId, full, now, {
         route: parentRoute,
         labelKey: n.getAttribute('data-klacksy-label-key') ?? undefined,
         category: n.getAttribute('data-klacksy-category') ?? undefined,
-        requiredPermission: n.getAttribute('data-klacksy-required-permission') ?? undefined,
+        requiredPermission: explicitPermission ?? inheritedPermission,
+        requiredFeature: routeFeatures.get(stripQueryString(parentRoute)),
       });
     }
 
@@ -315,7 +535,12 @@ async function scan(): Promise<void> {
     for (const m of html.matchAll(inputPropertyTargetRegex)) {
       const targetId = m[1] ?? m[2];
       if (!targetId) continue;
-      registerMarker(newEntries, targetId, full, now, { route: routeFromTemplatePath(file, pageKeys) });
+      const parentRoute = routeFromTemplatePath(file, pageKeys, targetId);
+      registerMarker(newEntries, targetId, full, now, {
+        route: parentRoute,
+        requiredPermission: routePermissions.get(stripQueryString(parentRoute)),
+        requiredFeature: routeFeatures.get(stripQueryString(parentRoute)),
+      });
     }
   }
 
@@ -361,7 +586,8 @@ async function scan(): Promise<void> {
       ...fresh,
       labelKey: fresh.labelKey || prev?.labelKey || '',
       category: fresh.category ?? prev?.category,
-      requiredPermission: fresh.requiredPermission ?? prev?.requiredPermission,
+      requiredPermission: fresh.requiredPermission,
+      requiredFeature: fresh.requiredFeature,
       synonyms,
       synonymStatus,
       obsolete: false,
@@ -374,10 +600,19 @@ async function scan(): Promise<void> {
     merged.set(id, candidate);
   }
   for (const [id, prev] of merged) {
-    if (!newEntries.has(id)) merged.set(id, { ...prev, obsolete: true });
+    if (newEntries.has(id)) continue;
+    const inheritedPermission = routePermissions.get(stripQueryString(prev.route));
+    const inheritedFeature = routeFeatures.get(stripQueryString(prev.route));
+    merged.set(id, {
+      ...prev,
+      requiredPermission: inheritedPermission,
+      requiredFeature: inheritedFeature,
+      obsolete: true,
+    });
   }
 
   const targetsOutput = Array.from(merged.values()).sort((a, b) => a.targetId.localeCompare(b.targetId));
+  checkSettingsSectionCoverage(targetsOutput);
   const targetsSerialized = JSON.stringify(targetsOutput, null, 2) + '\n';
   if (existingRaw === null || normalizeLineEndings(existingRaw) !== targetsSerialized) {
     writeFileSync(TARGETS_OUTPUT, targetsSerialized, 'utf8');
@@ -416,6 +651,7 @@ function sameContentIgnoringScanTimestamp(a: TargetEntry, b: TargetEntry): boole
     a.labelKey === b.labelKey &&
     a.category === b.category &&
     a.requiredPermission === b.requiredPermission &&
+    a.requiredFeature === b.requiredFeature &&
     a.sourceFile === b.sourceFile &&
     a.synonymStatus === b.synonymStatus &&
     a.obsolete === b.obsolete &&
@@ -445,8 +681,21 @@ function ensureDir(dir: string): void {
 // the global route, which the frontend never navigates to (see KLACKSY_GLOBAL_TARGET_ROUTE): it
 // redirects to the login screen, and the element is on screen on every page anyway.
 const GLOBAL_TARGET_ROUTE = '/';
+const WORKPLACE_TEMPLATE_PREFIX = 'src/app/presentation/workplace/';
 
-function routeFromTemplatePath(templateFile: string, pageKeys: KlacksyPageKeyEntry[]): string {
+/**
+ * The route a marker in this template belongs to. A template under presentation/workplace sits on a
+ * routed page by definition, so falling through to the global route there is never right: the target
+ * would be offered on every page and the fast-path would never filter it by the page's rights. That
+ * case aborts the scan instead. The check is per marker, not per file, so a marker carrying an
+ * explicit data-klacksy-route still resolves without ever asking here, and a workplace template with
+ * no marker at all is not touched.
+ */
+function routeFromTemplatePath(
+  templateFile: string,
+  pageKeys: KlacksyPageKeyEntry[],
+  targetId: string,
+): string {
   // Map presentation/workplace/<segment>/... templates to the canonical route by
   // matching the deepest folder name against a page-key entry's last route segment.
   // glob returns backslash-separated paths on Windows, so split on both separators.
@@ -455,6 +704,15 @@ function routeFromTemplatePath(templateFile: string, pageKeys: KlacksyPageKeyEnt
     const segment = parts[i];
     const hit = pageKeys.find((pk) => pk.route.endsWith('/' + segment));
     if (hit) return hit.route;
+  }
+  if (templateFile.startsWith(WORKPLACE_TEMPLATE_PREFIX)) {
+    throw new Error(
+      `Marker "${targetId}" in ${templateFile} sits on a workplace page, but no page-key route ` +
+        `matches any folder of that path, so its route cannot be resolved. Add a page-key whose ` +
+        `route ends in the page's folder name, or put an explicit data-klacksy-route on the marker. ` +
+        `Falling back to "${GLOBAL_TARGET_ROUTE}" would offer the target on every page and strip the ` +
+        `page's rights from it.`,
+    );
   }
   return GLOBAL_TARGET_ROUTE;
 }

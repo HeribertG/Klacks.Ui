@@ -13,7 +13,12 @@
     </div>
   }
   <!-- Header -->
-  <div id="container-template-header" class="header">
+  <div
+    id="container-template-header"
+    class="header"
+    data-klacksy-target="container-template.overview"
+    data-klacksy-label-key="shift.container-template.header"
+  >
     <div class="header-content">
       <h2>
         {{
@@ -283,7 +288,11 @@
         <as-split direction="vertical" [gutterSize]="6" unit="percent">
           <!-- Zone 2: Top -->
           <as-split-area [size]="50" [minSize]="20">
-            <div class="zone zone-center">
+            <div
+              class="zone zone-center"
+              data-klacksy-target="container-template.selected-tasks"
+              data-klacksy-label-key="shift.container-template.selected-tasks.title"
+            >
               <div class="header-table">
                 <h3>
                   {{

@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ShiftFormService } from '../services/shift-form.service';
@@ -68,6 +69,7 @@ export class EditShiftItemComponent
   readonly abbreviation = viewChild<NgModel>('abbreviation');
 
   public dataManagementShiftService = inject(DataManagementShiftService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   public shiftFormService = inject(ShiftFormService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
@@ -113,6 +115,10 @@ export class EditShiftItemComponent
   }
 
   onLockClick(): void {
+    if (this.isFieldsDisabled) {
+      return;
+    }
+
     if (this.dataManagementShiftService.editShift) {
       this.dataManagementShiftService.editShift.status =
         ShiftStatus.SealedOrder;
@@ -292,8 +298,14 @@ export class EditShiftItemComponent
     );
   }
 
+  /**
+   * The route only asks for CanViewShifts, so a reader without the write right reaches this form;
+   * without the permission clause every field of an OriginalOrder shift would be editable for them.
+   * ShiftEditPermissionService picks CanCreateShifts or CanEditShifts by whether the shift is new.
+   */
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
+    if (!this.shiftEditPermission.canWriteCurrentShift()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

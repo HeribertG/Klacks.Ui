@@ -4,8 +4,8 @@
  * Card component for managing required qualifications on a shift. Lists rows in a table with
  * emoji, qualification dropdown, min-level dropdown and a mandatory toggle. Changes are held
  * in-memory on the edited shift and persisted together with the shift via the savebar (shift PUT).
- * Editability follows the same gate as the group / macro cards: editable on OriginalOrder for
- * everyone, and on any other status (Sealed / OriginalShift / Split) for Admin / Authorised users.
+ * Editability follows the same gate as the group / macro cards: editable at any shift status for a
+ * user holding the write right ShiftEditPermissionService demands, read-only for everyone else.
  * @param isReadOnly - Disables all editing when true
  * @param isChangingEvent - Emits true whenever a qualification row is added, changed or removed
  */
@@ -33,9 +33,8 @@ import { QualificationCategory } from 'src/app/domain/enums/qualification-catego
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { IShiftRequiredQualification, ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
-import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
@@ -64,7 +63,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataQualificationService = inject(DataQualificationService);
-  private authService = inject(AuthService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -111,14 +110,18 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
     this.reloadEffect.destroy();
   }
 
+  /**
+   * The status clause that used to sit here was AND-ed with the role check, so an OriginalOrder
+   * shift stayed editable for everyone; since the route asks only for CanViewShifts, the write right
+   * is the whole question. A holder of the write right may still edit a sealed or cut shift here,
+   * which is what the former role check granted.
+   */
   isDisabled(): boolean {
-    const shift = this.dataManagementShiftService.editShift;
-    if (this.isReadOnly() || !shift) {
+    if (this.isReadOnly() || !this.dataManagementShiftService.editShift) {
       return true;
     }
-    const isNotOriginal = shift.status !== ShiftStatus.OriginalOrder;
-    const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
-    return isNotOriginal && isNotAuthorisedOrAdmin;
+
+    return !this.shiftEditPermission.canWriteCurrentShift();
   }
 
   hasMasterQualifications(): boolean {

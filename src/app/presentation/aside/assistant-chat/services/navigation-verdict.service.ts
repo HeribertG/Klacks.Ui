@@ -16,12 +16,15 @@ import { Subject, firstValueFrom } from 'rxjs';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { NavigationResult } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import {
+  NAVIGATION_OUTCOME_FEATURE_DISABLED,
   NAVIGATION_OUTCOME_MAX_UTTERANCE_LENGTH,
   NAVIGATION_OUTCOME_PERMISSION_DENIED,
   NAVIGATION_OUTCOME_SCROLLED,
   NAVIGATION_OUTCOME_TARGET_MISS,
+  NAVIGATION_REASON_FEATURE_DISABLED,
   NAVIGATION_REASON_PERMISSION_DENIED,
   NAVIGATION_REASON_TARGET_NOT_FOUND,
+  NAV_CORRECTION_FEATURE_DISABLED_KEY,
   NAV_CORRECTION_PERMISSION_DENIED_KEY,
   NAV_CORRECTION_TARGET_NOT_FOUND_KEY,
 } from 'src/app/domain/constants/navigation-outcome.constants';
@@ -103,19 +106,29 @@ export class NavigationVerdictService {
     if (outcome.reason === NAVIGATION_REASON_PERMISSION_DENIED) {
       return NAV_CORRECTION_PERMISSION_DENIED_KEY;
     }
+    if (outcome.reason === NAVIGATION_REASON_FEATURE_DISABLED) {
+      return NAV_CORRECTION_FEATURE_DISABLED_KEY;
+    }
 
-    // A refusal without one of the two known reasons never moved the browser at all (an invented
+    // A refusal without one of the known reasons never moved the browser at all (an invented
     // route outside the workplace prefix). Claiming the page is open would be a fresh false claim.
     return null;
   }
 
+  // Every branch is named explicitly rather than falling through to permission-denied: an
+  // else-branch here would keep showing the user the honest feature sentence while quietly
+  // recording a rights problem, and the telemetry is what the miss rate is measured on.
   private outcomeKindFor(outcome: NavigationResult, target?: string): string | null {
     if (outcome.success) {
       return target ? NAVIGATION_OUTCOME_SCROLLED : null;
     }
-    return outcome.reason === NAVIGATION_REASON_TARGET_NOT_FOUND
-      ? NAVIGATION_OUTCOME_TARGET_MISS
-      : NAVIGATION_OUTCOME_PERMISSION_DENIED;
+    if (outcome.reason === NAVIGATION_REASON_TARGET_NOT_FOUND) {
+      return NAVIGATION_OUTCOME_TARGET_MISS;
+    }
+    if (outcome.reason === NAVIGATION_REASON_FEATURE_DISABLED) {
+      return NAVIGATION_OUTCOME_FEATURE_DISABLED;
+    }
+    return NAVIGATION_OUTCOME_PERMISSION_DENIED;
   }
 
   private appendCorrection(messageId: string, translationKey: string): void {

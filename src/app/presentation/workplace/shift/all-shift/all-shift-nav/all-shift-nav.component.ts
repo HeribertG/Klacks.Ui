@@ -20,6 +20,7 @@ import { DataManagementShiftService } from 'src/app/domain/services/shift/data-m
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 
 @Component({
@@ -36,6 +37,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   private translateService = inject(TranslateService);
   private workplaceStateService = inject(WorkplaceStateService);
   private cdr = inject(ChangeDetectorRef);
@@ -73,7 +75,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private checkAdminPermissions(): void {
-    if (!this.authorizationService.isAdmin) {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditShifts)) {
       this.dataManagementShiftService.currentFilter.filterType = 1;
     }
   }

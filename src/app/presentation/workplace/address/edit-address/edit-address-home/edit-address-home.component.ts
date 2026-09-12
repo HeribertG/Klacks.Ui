@@ -27,6 +27,7 @@ import { FeaturePluginStateService } from 'src/app/application/services/feature-
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -72,6 +73,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   public dataManagementClientService = inject(DataManagementClientService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   public featurePluginState = inject(FeaturePluginStateService);
   public quickPrintAction = inject(QuickPrintActionService);
   private cardVisibility = inject(EditAddressCardVisibilityService);

@@ -371,7 +371,13 @@
   </div>
 </ng-template>
 
-<form #cutShiftForm="ngForm" id="cutShiftForm" class="container-card">
+<form
+  #cutShiftForm="ngForm"
+  id="cutShiftForm"
+  class="container-card"
+  data-klacksy-target="cut-shift.list"
+  data-klacksy-label-key="shift.cut-shift.list.title"
+>
   <div class="container-header header-container">
     {{ "shift.cut-shift.list.title" | translate }}
   </div>

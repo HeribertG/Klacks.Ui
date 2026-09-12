@@ -32,6 +32,7 @@ import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/sign
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { DataManagementEscalationChainService } from 'src/app/domain/services/assistant/data-management-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ONBOARDING_STATUS } from 'src/app/domain/constants/onboarding-stations';
 import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
@@ -73,6 +74,10 @@ export class HeaderComponent {
   public authorised = signal<boolean>(false);
   public readonly version = signal<string>(toDisplayVersion(this.buildInfo));
   public readonly faTriangleExclamation = faTriangleExclamation;
+
+  public readonly canViewEscalations = computed<boolean>(() =>
+    this.authorizationService.hasPermission(ROLE_ADMIN),
+  );
 
   public readonly isFloatingMode = this.outputModes.isFloatingMode;
   public readonly hideAssistantButton = computed<boolean>(

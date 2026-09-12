@@ -21,7 +21,7 @@
       </app-all-group-list>
     </div>
 
-    @if (authorizationService.isAuthorised) {
+    @if (authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
     <div
       id="all-group-nav-container"
       class="container-address-nav border-right-card border-bottom-card"

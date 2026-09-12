@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="folder-list-header">
   <span class="folder-title">{{ "inbox.folder-list.title" | translate }}</span>
-  @if (isAuthorised) {
+  @if (isAdmin) {
     <button
       type="button"
       class="add-folder-button"
@@ -29,7 +29,7 @@
         @if (getFolderBadgeCount(folder) > 0) {
           <span class="folder-badge">{{ getFolderBadgeCount(folder) }}</span>
         }
-        @if (isAuthorised && !folder.isSystem) {
+        @if (isAdmin && !folder.isSystem) {
           <button
             type="button"
             class="delete-folder-button"

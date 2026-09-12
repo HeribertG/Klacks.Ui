@@ -6,6 +6,7 @@ import { firstValueFrom, of, throwError } from 'rxjs';
 
 import { AutonomyStatusBarComponent } from './autonomy-status-bar.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { DataProactiveGovernanceService } from 'src/app/infrastructure/api/assistant/data-proactive-governance.service';
 import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -37,9 +38,7 @@ describe('AutonomyStatusBarComponent', () => {
         {
           provide: AuthorizationService,
           useValue: {
-            get isAdmin(): boolean {
-              return isAdmin;
-            },
+            hasPermission: (p: string) => (p === ROLE_ADMIN ? isAdmin : false),
           },
         },
       ],

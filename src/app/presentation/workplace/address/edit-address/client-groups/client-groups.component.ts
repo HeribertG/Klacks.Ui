@@ -23,6 +23,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
@@ -116,7 +117,7 @@ export class ClientGroupsComponent implements OnInit {
     return (
       this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAdmin
+      !this.authorizationService.hasPermission(PERMISSIONS.CanEditClients)
     );
   }
 

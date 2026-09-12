@@ -118,6 +118,7 @@
       </td>
 
       <td rowspan="2" class="table-cell-small-border cell-right">
+        @if (authorizationService.hasPermission(PERMISSIONS.CanEditShifts)) {
         <div class="icon icon-padding">
           @if (tableMode === 'cut') {
             <app-icon-scissor
@@ -137,6 +138,7 @@
             (click)="onClickEdit(data, $event)"
           ></app-icon-pencil-icon-grey>
         </div>
+        }
       </td>
     </tr>
 

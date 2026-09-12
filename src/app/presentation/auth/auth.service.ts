@@ -217,16 +217,6 @@ export class AuthService {
     return res;
   }
 
-  isAuthorised(url: string): boolean {
-    switch (url) {
-      case '/workplace/settings':
-        return this.authorizationService.isAdmin;
-
-      default:
-        return true;
-    }
-  }
-
   checkIfTokenIsValid(): void {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     if (token !== null) {
@@ -269,14 +259,6 @@ export class AuthService {
       token.expTime!.toString()
     );
     this.localStorageService.set(
-      StorageKeys.TOKEN_ADMIN,
-      token.isAdmin.toString()
-    );
-    this.localStorageService.set(
-      StorageKeys.TOKEN_AUTHORISED,
-      token.isAuthorised.toString()
-    );
-    this.localStorageService.set(
       StorageKeys.TOKEN_APPVERSION,
       token.version
     );
@@ -287,7 +269,7 @@ export class AuthService {
       );
     }
 
-    this.authorizationService.refresh();
+    this.authorizationService.store(token.permissions);
     this.loadCompanyClockIfAuthenticated();
   }
 
@@ -311,10 +293,9 @@ export class AuthService {
       this.localStorageService.remove(StorageKeys.TOKEN_EXP);
       this.localStorageService.remove(StorageKeys.TOKEN_USERNAME);
       this.localStorageService.remove(StorageKeys.TOKEN_USERID);
-      this.localStorageService.remove(StorageKeys.TOKEN_ADMIN);
-      this.localStorageService.remove(StorageKeys.TOKEN_AUTHORISED);
       this.localStorageService.remove(StorageKeys.TOKEN_APPVERSION);
       this.localStorageService.remove(StorageKeys.TOKEN_SUBJECT);
+      this.authorizationService.clear();
 
       if (!isRefresh) {
         this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
@@ -323,18 +304,6 @@ export class AuthService {
     } catch {
       // Token removal error - ignored
     }
-  }
-
-  public isAdminUser(): boolean {
-    return this.authorizationService.isAdmin;
-  }
-
-  public isAuthorisedUser(): boolean {
-    return this.authorizationService.isAuthorised;
-  }
-
-  public isAuthorisedOrAdmin(): boolean {
-    return this.authorizationService.isAuthorised;
   }
 
   errorMessage(error: string, message?: string) {
@@ -405,6 +374,7 @@ export class AuthService {
     if (!token || !this.isAccessTokenExpired(token)) {
       if (token) {
         this.loadCompanyClockIfAuthenticated();
+        await this.backfillPermissionsIfMissing();
       }
       return;
     }
@@ -419,6 +389,37 @@ export class AuthService {
 
     if (await this.isRefreshTokenRejected(refreshToken)) {
       this.logOut();
+    }
+  }
+
+  /**
+   * Repairs a session that was opened before the backend started sending the rights list: its
+   * access token is still valid, but nothing in storage says what the user may do, which would
+   * read as a user who lost all rights. One refresh fetches the list and the repair then deletes
+   * itself. A failure is swallowed on purpose - such a session stays signed in today, and losing
+   * it over a backfill would be a worse bug than the missing list.
+   */
+  private async backfillPermissionsIfMissing(): Promise<void> {
+    if (this.authorizationService.hasStoredPermissions()) {
+      return;
+    }
+
+    const refreshToken = this.localStorageService.get(
+      StorageKeys.TOKEN_REFRESHTOKEN
+    );
+    if (!refreshToken) {
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.dataAuthService.refreshToken({ refreshToken })
+      );
+      if (response) {
+        this.storeToken(response, true);
+      }
+    } catch {
+      // Backfill failed - the session stays as it is.
     }
   }
 

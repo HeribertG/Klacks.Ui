@@ -30,6 +30,7 @@ import { IconSettingComponent } from 'src/app/presentation/icons/icon-setting.co
 import { IconTimeScheduleComponent } from 'src/app/presentation/icons/icon-time-schedule.component';
 import { IconUserComponent } from 'src/app/presentation/icons/icon-user.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
@@ -124,7 +125,11 @@ export class NavComponent implements OnInit {
   private currentTheme = computed(() => this.themeService.theme());
   private currentPage = signal<NavigationPage>('');
 
-  isAdmin = computed(() => this.authorizationService.isAdmin);
+  isAdmin = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
+  canViewGroups = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanViewGroups));
+  canViewSettings = computed(() =>
+    this.authorizationService.hasPermission(PERMISSIONS.CanViewSettings),
+  );
   hasProfileImage = computed(() => !!this.dataLoadFileService.profileImage$());
 
   selectedIcon = computed(() => {

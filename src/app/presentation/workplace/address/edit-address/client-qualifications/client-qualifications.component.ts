@@ -34,6 +34,7 @@ import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper'
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataManagementQualificationService } from 'src/app/domain/services/settings/data-management-qualification.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
@@ -132,7 +133,7 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy {
     return (
       this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAdmin
+      !this.authorizationService.hasPermission(PERMISSIONS.CanEditClients)
     );
   }
 

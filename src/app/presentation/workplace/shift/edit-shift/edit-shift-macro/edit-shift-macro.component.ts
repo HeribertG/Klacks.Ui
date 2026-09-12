@@ -7,14 +7,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { IMacro } from 'src/app/domain/models/settings/macro-class';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
-import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 
 @Component({
   selector: 'app-edit-shift-macro',
@@ -38,7 +37,7 @@ export class EditShiftMacroComponent
 
   dataManagementShiftService = inject(DataManagementShiftService);
   private translateService = inject(TranslateService);
-  private authService = inject(AuthService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   private cdr = inject(ChangeDetectorRef);
 
   readonly isChangingEvent = output<boolean>();
@@ -98,13 +97,16 @@ export class EditShiftMacroComponent
     this.readCorrectDescription();
   }
 
+  /**
+   * The status clause that used to sit here was AND-ed with the role check, so an OriginalOrder
+   * shift stayed editable for everyone; since the route asks only for CanViewShifts, the write right
+   * is the whole question. A holder of the write right may still edit a sealed or cut shift here,
+   * which is what the former role check granted.
+   */
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
-    const status = this.dataManagementShiftService.editShift?.status;
-    const isNotOriginal = status !== undefined && status !== ShiftStatus.OriginalOrder;
-    const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
 
-    return isNotOriginal && isNotAuthorisedOrAdmin;
+    return !this.shiftEditPermission.canWriteCurrentShift();
   }
 
   private readCorrectDescription() {

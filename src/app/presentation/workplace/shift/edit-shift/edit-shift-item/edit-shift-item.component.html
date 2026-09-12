@@ -18,6 +18,7 @@
           id="checkbox"
           [(ngModel)]="isChecked"
           (change)="onComplexModeChecked()"
+          [disabled]="isFieldsDisabled"
           name="isChecked"
         />
         <div class="slider round"></div>
@@ -81,7 +82,7 @@
             (click)="onLockClick()"
             [ngbTooltip]="'shift.edit-shift.main.lock-tooltip' | translate"
             placement="top"
-            [disabled]="!isLockButtonEnabled"
+            [disabled]="!isLockButtonEnabled || isFieldsDisabled"
           >
             <app-icon-unlock></app-icon-unlock>
           </button>
@@ -208,6 +209,7 @@
             [(ngModel)]="isContainerChecked"
             id="isContainer"
             name="isContainer"
+            [disabled]="isFieldsDisabled"
           />
           {{ "shift.edit-shift.main.is-container" | translate }}
         </label>
@@ -223,7 +225,7 @@
           <div class="input-text">
             <app-rich-text-editor
               [content]="dataManagementShiftService.editShift.description || ''"
-              [disabled]="false"
+              [disabled]="isFieldsDisabled"
               [showToolbar]="true"
               [showToolbarOnlyOnFocus]="false"
               [height]="'auto'"

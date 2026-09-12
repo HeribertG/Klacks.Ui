@@ -67,7 +67,7 @@
               name="shiftType"
               [value]="0"
               [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
-              [disabled]="!authorizationService.isAdmin"
+              [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditShifts)"
               (change)="onSelect()"
             />
             {{ "shift.all-shift.nav.original" | translate }}
@@ -81,7 +81,7 @@
               [(ngModel)]="
                 dataManagementShiftService.currentFilter.isSealedOrder
               "
-              [disabled]="!authorizationService.isAdmin"
+              [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditShifts)"
               (change)="onSelect()"
               name="formerDateRange"
             />
@@ -95,7 +95,7 @@
               name="shiftType"
               [value]="1"
               [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
-              [disabled]="!authorizationService.isAdmin"
+              [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditShifts)"
               (change)="onSelect()"
             />
             {{ "shift.all-shift.nav.planbar" | translate }}
@@ -109,7 +109,7 @@
                 [(ngModel)]="
                   dataManagementShiftService.currentFilter.isTimeRange
                 "
-                [disabled]="!authorizationService.isAdmin"
+                [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditShifts)"
                 (change)="onSelect()"
                 name="isTimeRange"
               />
@@ -121,7 +121,7 @@
                 [(ngModel)]="
                   dataManagementShiftService.currentFilter.isSporadic
                 "
-                [disabled]="!authorizationService.isAdmin"
+                [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditShifts)"
                 (change)="onSelect()"
                 name="isSporadic"
               />
@@ -137,7 +137,7 @@
               name="shiftType"
               [value]="2"
               [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
-              [disabled]="!authorizationService.isAdmin"
+              [disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditShifts)"
               (change)="onSelect()"
             />
             {{ "shift.all-shift.nav.container" | translate }}

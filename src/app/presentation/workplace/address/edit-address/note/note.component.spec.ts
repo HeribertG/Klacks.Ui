@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoteComponent } from './note.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
@@ -15,6 +16,7 @@ describe('NoteComponent', () => {
     let fixture: ComponentFixture<NoteComponent>;
     let mockDataManagementClientService: any;
     let mockAuthorizationService: any;
+    let grantedPermissions: Set<string>;
     let editClientSignal: WritableSignal<any>;
     let currentAnnotationIndexSignal: WritableSignal<number>;
     let editClientDeletedSignal: WritableSignal<boolean>;
@@ -43,8 +45,10 @@ describe('NoteComponent', () => {
             },
         };
 
+        grantedPermissions = new Set([PERMISSIONS.CanEditClientNotes]);
         mockAuthorizationService = {
-            isAdmin: true,
+            hasPermission: (p: string) => grantedPermissions.has(p),
+            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
         };
 
         await TestBed.configureTestingModule({
@@ -87,14 +91,14 @@ describe('NoteComponent', () => {
             expect(component.isDisabled()).toBe(true);
         });
 
-        it('should return true when not authorized', () => {
-            mockAuthorizationService.isAdmin = false;
+        it('should return true when the Planer role lacks CanEditClientNotes', () => {
+            grantedPermissions.clear();
             expect(component.isDisabled()).toBe(true);
         });
 
-        it('should return false when authorized and client not deleted', () => {
+        it('should return false for the Supervisor role, which holds CanEditClientNotes', () => {
             editClientDeletedSignal.set(false);
-            mockAuthorizationService.isAdmin = true;
+            grantedPermissions = new Set([PERMISSIONS.CanEditClientNotes]);
             expect(component.isDisabled()).toBe(false);
         });
     });
@@ -214,7 +218,7 @@ describe('NoteComponent', () => {
 
         it('should set currentAnnotationIndex when not disabled', () => {
             editClientDeletedSignal.set(false);
-            mockAuthorizationService.isAdmin = true;
+            grantedPermissions = new Set([PERMISSIONS.CanEditClientNotes]);
             component.onFocus(1);
             expect(currentAnnotationIndexSignal()).toBe(1);
         });

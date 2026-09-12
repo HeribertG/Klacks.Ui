@@ -22,7 +22,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   ModalService,
@@ -37,6 +36,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
@@ -76,6 +76,7 @@ export class AllAddressListComponent
   readonly myAddressTable = viewChild<ElementRef>('myAddressTable');
 
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
   public sortingService = inject(TableSortingService);
@@ -95,7 +96,6 @@ export class AllAddressListComponent
   public checkBoxIndeterminate = false;
   public firstItemOnLastPage: number | undefined = undefined;
   public highlightRowId: string | undefined = undefined;
-  public isAuthorised = false;
   public isFirstRead = true;
   public isNextPage: boolean | undefined = undefined;
   public isPreviousPage: boolean | undefined = undefined;
@@ -123,12 +123,6 @@ export class AllAddressListComponent
 
   // Lifecycle hooks
   async ngOnInit(): Promise<void> {
-    if (this.localStorageService.get(StorageKeys.TOKEN_AUTHORISED)) {
-      this.isAuthorised = JSON.parse(
-        this.localStorageService.get(StorageKeys.TOKEN_AUTHORISED)!
-      );
-    }
-
     this.sortingService.initialize({
       columns: ['idNumber', 'company', 'firstName', 'name', 'status'],
       defaultOrderBy: 'name',
@@ -429,6 +423,10 @@ export class AllAddressListComponent
   }
 
   private deleteClient(id: string): void {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanDeleteClients)) {
+      return;
+    }
+
     this.dataManagementClientService
       .deleteClient(id)
       .pipe(takeUntil(this.ngUnsubscribe))

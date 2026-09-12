@@ -6,7 +6,8 @@
  * @param sectionVisibilityModel - Signal form model for per-section visibility, persisted in localStorage
  * @param sectionOrder - Signal tracking display order of sections, persisted in localStorage
  */
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal, computed, effect } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy, signal, computed, effect } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { CdkDropList, CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -17,6 +18,16 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import {
+  DASHBOARD_SECTION_COVERAGE,
+  DASHBOARD_SECTION_LOCATIONS,
+  DASHBOARD_SECTION_ORDER,
+  DASHBOARD_SECTION_OVERVIEW,
+  DASHBOARD_SECTION_RESOURCES,
+} from './dashboard-section-keys.constants';
+import { DASHBOARD_TARGET_SECTIONS } from './dashboard-target-sections.constants';
 import { DashboardClientsOverviewComponent } from '../dashboard-clients-overview/dashboard-clients-overview.component';
 import { DashboardClientsLocationsComponent } from '../dashboard-clients-locations/dashboard-clients-locations.component';
 import { DashboardShiftsOverviewComponent } from '../dashboard-shifts-overview/dashboard-shifts-overview.component';
@@ -30,13 +41,12 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
 import { IconSettingsThreeComponent } from 'src/app/presentation/icons/icon-settings-three.component';
 import { IconGripVerticalComponent } from 'src/app/presentation/icons/icon-grip-vertical.component';
 
-const DEFAULT_SECTION_ORDER = ['overview', 'coverage', 'resources', 'locations'] as const;
+const DEFAULT_SECTION_ORDER = DASHBOARD_SECTION_ORDER;
 
-interface SectionVisibilityFormModel {
-  overview: boolean;
-  coverage: boolean;
-  resources: boolean;
-  locations: boolean;
+type SectionVisibilityFormModel = Record<(typeof DEFAULT_SECTION_ORDER)[number], boolean>;
+
+function allSectionsVisible(): SectionVisibilityFormModel {
+  return Object.fromEntries(DEFAULT_SECTION_ORDER.map(key => [key, true])) as SectionVisibilityFormModel;
 }
 
 @Component({
@@ -72,24 +82,21 @@ export class DashboardHomeComponent implements OnInit {
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
   private localStorageService = inject(LocalStorageService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly sectionKeys = DEFAULT_SECTION_ORDER;
 
+  protected readonly SECTION_OVERVIEW = DASHBOARD_SECTION_OVERVIEW;
+  protected readonly SECTION_COVERAGE = DASHBOARD_SECTION_COVERAGE;
+  protected readonly SECTION_RESOURCES = DASHBOARD_SECTION_RESOURCES;
+  protected readonly SECTION_LOCATIONS = DASHBOARD_SECTION_LOCATIONS;
+
   menuOpen = signal(false);
 
-  sectionsState = signal<Record<string, boolean>>({
-    overview: true,
-    coverage: true,
-    resources: true,
-    locations: true,
-  });
+  sectionsState = signal<Record<string, boolean>>(allSectionsVisible());
 
-  sectionVisibilityModel = signal<SectionVisibilityFormModel>({
-    overview: true,
-    coverage: true,
-    resources: true,
-    locations: true,
-  });
+  sectionVisibilityModel = signal<SectionVisibilityFormModel>(allSectionsVisible());
   sectionVisibilityForm = form(this.sectionVisibilityModel);
 
   sectionOrder = signal<string[]>([...DEFAULT_SECTION_ORDER]);
@@ -102,6 +109,18 @@ export class DashboardHomeComponent implements OnInit {
       if (!this.visibilityFormInitialized) return;
       this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY, vis);
     });
+
+    this.eventBus
+      .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ target }) => {
+        const section = DASHBOARD_TARGET_SECTIONS[target];
+        if (section) {
+          const key = section as keyof SectionVisibilityFormModel;
+          this.sectionVisibilityModel.update(m => ({ ...m, [key]: true }));
+          this.sectionsState.update(s => ({ ...s, [section]: true }));
+        }
+      });
   }
 
   readonly visibleSectionOrder = computed(() =>

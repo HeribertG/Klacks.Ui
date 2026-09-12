@@ -22,6 +22,7 @@ import { RouterModule } from '@angular/router';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
@@ -159,7 +160,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.isClicked.set(false);
     this.authorizationService.refresh();
-    if (this.auth.isAdminUser()) {
+    if (this.authorizationService.hasPermission(ROLE_ADMIN)) {
       void this.syncNotificationService.checkAndShow();
     }
   }

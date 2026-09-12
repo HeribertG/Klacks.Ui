@@ -6,6 +6,7 @@ import { ClientContractsComponent } from './client-contracts.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
@@ -19,6 +20,7 @@ describe('ClientContractsComponent', () => {
     let mockDataManagementClientService: any;
     let mockContractService: any;
     let mockAuthorizationService: any;
+    let grantedPermissions: Set<string>;
     let editClientSignal: WritableSignal<any>;
     let editClientDeletedSignal: WritableSignal<boolean>;
 
@@ -56,8 +58,10 @@ describe('ClientContractsComponent', () => {
             ])),
         };
 
+        grantedPermissions = new Set([PERMISSIONS.CanEditContracts]);
         mockAuthorizationService = {
-            isAdmin: true,
+            hasPermission: (p: string) => grantedPermissions.has(p),
+            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
         };
 
         await TestBed.configureTestingModule({
@@ -105,14 +109,14 @@ describe('ClientContractsComponent', () => {
             expect(component.isDisabled()).toBe(true);
         });
 
-        it('should return true when not authorized', () => {
-            mockAuthorizationService.isAdmin = false;
+        it('should return true for the Planer role, which lacks CanEditContracts', () => {
+            grantedPermissions.clear();
             expect(component.isDisabled()).toBe(true);
         });
 
-        it('should return false when authorized and client not deleted', () => {
+        it('should return false for the Supervisor role, which holds CanEditContracts', () => {
             editClientDeletedSignal.set(false);
-            mockAuthorizationService.isAdmin = true;
+            grantedPermissions = new Set([PERMISSIONS.CanEditContracts]);
             expect(component.isDisabled()).toBe(false);
         });
     });

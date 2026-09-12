@@ -6,12 +6,22 @@ import { KlacksyNavigationService } from './klacksy-navigation.service';
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { NoAccessReasonService } from 'src/app/domain/services/navigation/no-access-reason.service';
+import {
+  NO_ACCESS_REASON_FEATURE,
+  NO_ACCESS_REASON_PERMISSION,
+} from 'src/app/domain/constants/no-access-reason.constants';
+import {
+  NAVIGATION_REASON_FEATURE_DISABLED,
+  NAVIGATION_REASON_PERMISSION_DENIED,
+} from 'src/app/domain/constants/navigation-outcome.constants';
 
 describe('KlacksyNavigationService', () => {
   let router: { url: string; navigateByUrl: ReturnType<typeof vi.fn> };
   let telemetry: { trackTargetMiss: ReturnType<typeof vi.fn> };
   let eventBus: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
   let service: KlacksyNavigationService;
+  let noAccessReason: NoAccessReasonService;
 
   beforeEach(() => {
     router = { url: '/workplace/dashboard', navigateByUrl: vi.fn().mockResolvedValue(true) };
@@ -26,6 +36,7 @@ describe('KlacksyNavigationService', () => {
       ]
     });
     service = TestBed.inject(KlacksyNavigationService);
+    noAccessReason = TestBed.inject(NoAccessReasonService);
     document.body.innerHTML = '';
   });
 
@@ -112,6 +123,17 @@ describe('KlacksyNavigationService', () => {
     expect(result.success).toBe(false);
     expect(result.reason).toBe('target-not-found');
     expect(telemetry.trackTargetMiss).toHaveBeenCalledWith('/settings', '123.invalid:target');
+  }, 5000);
+
+  it('does not let a CSS-selector-injection target reach an unrelated element', async () => {
+    const password = document.createElement('input');
+    password.type = 'password';
+    document.body.appendChild(password);
+
+    const result = await service.navigateAndScroll('/settings', 'x"],input[type=password');
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe('target-not-found');
   }, 5000);
 
   it('never scrolls an overflow:hidden shell ancestor when a nested scroll container exists', async () => {
@@ -206,7 +228,7 @@ describe('KlacksyNavigationService', () => {
     const result = await service.navigateAndScroll('/workplace/settings', 'llm-provider');
 
     expect(result.success).toBe(false);
-    expect(result.reason).toBe('permission-denied');
+    expect(result.reason).toBe(NAVIGATION_REASON_PERMISSION_DENIED);
     expect(telemetry.trackTargetMiss).toHaveBeenCalled();
   });
 
@@ -216,7 +238,65 @@ describe('KlacksyNavigationService', () => {
 
     const result = await service.navigateAndScroll('/workplace/settings', 'nonexistent');
 
-    expect(result.reason).toBe('permission-denied');
+    expect(result.reason).toBe(NAVIGATION_REASON_PERMISSION_DENIED);
+  });
+
+  it('reports feature-disabled when the guard refused because the feature is not activated', async () => {
+    // The guard records the reason synchronously before it returns false, so it is already there
+    // when navigateByUrl resolves - this is what separates a disabled plugin from a missing right.
+    router.navigateByUrl.mockImplementation(() => {
+      noAccessReason.set(NO_ACCESS_REASON_FEATURE);
+      return Promise.resolve(false);
+    });
+    router.url = '/workplace/dashboard';
+
+    const result = await service.navigateAndScroll('/workplace/messaging');
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe(NAVIGATION_REASON_FEATURE_DISABLED);
+  });
+
+  it('reports permission-denied when the guard recorded a missing right', async () => {
+    router.navigateByUrl.mockImplementation(() => {
+      noAccessReason.set(NO_ACCESS_REASON_PERMISSION);
+      return Promise.resolve(false);
+    });
+    router.url = '/workplace/dashboard';
+
+    const result = await service.navigateAndScroll('/workplace/settings');
+
+    expect(result.reason).toBe(NAVIGATION_REASON_PERMISSION_DENIED);
+  });
+
+  it('falls back to permission-denied when no guard recorded a reason', async () => {
+    router.navigateByUrl.mockResolvedValue(false);
+    router.url = '/workplace/dashboard';
+
+    const result = await service.navigateAndScroll('/workplace/settings');
+
+    expect(result.reason).toBe(NAVIGATION_REASON_PERMISSION_DENIED);
+  });
+
+  it('never blames a navigation for a feature reason left over from an earlier refusal', async () => {
+    // The user walked into /workplace/messaging on their own and was refused; the stale reason must
+    // not turn the next unrelated refusal into a "feature not activated" claim.
+    noAccessReason.set(NO_ACCESS_REASON_FEATURE);
+    router.navigateByUrl.mockResolvedValue(false);
+    router.url = '/workplace/dashboard';
+
+    const result = await service.navigateAndScroll('/workplace/settings');
+
+    expect(result.reason).toBe(NAVIGATION_REASON_PERMISSION_DENIED);
+  });
+
+  it('clears a pending reason even when the navigation succeeds', async () => {
+    noAccessReason.set(NO_ACCESS_REASON_FEATURE);
+    router.navigateByUrl.mockResolvedValue(true);
+    router.url = '/workplace/settings';
+
+    await service.navigateAndScroll('/workplace/settings');
+
+    expect(noAccessReason.consume()).toBeNull();
   });
 
   it('still scrolls when the router skipped the navigation because the page is already open', async () => {

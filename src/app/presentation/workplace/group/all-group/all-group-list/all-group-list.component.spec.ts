@@ -4,6 +4,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllGroupListComponent } from './all-group-list.component';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
@@ -22,6 +24,7 @@ describe('AllGroupListComponent', () => {
     let component: AllGroupListComponent;
     let fixture: ComponentFixture<AllGroupListComponent>;
     let mockDataManagementGroupService: any;
+    let grantedPermissions: Set<string>;
     let mockLocalStorageService: any;
     let mockModalService: any;
     let mockTableResizeService: any;
@@ -34,6 +37,12 @@ describe('AllGroupListComponent', () => {
     let sortingService: TableSortingService;
 
     beforeEach(async () => {
+        grantedPermissions = new Set<string>([
+            PERMISSIONS.CanCreateGroups,
+            PERMISSIONS.CanEditGroups,
+            PERMISSIONS.CanDeleteGroups,
+        ]);
+
         mockDataManagementGroupService = {
             init: vi.fn(),
             readPage: vi.fn(),
@@ -122,6 +131,13 @@ describe('AllGroupListComponent', () => {
             imports: [AllGroupListComponent, TranslateModule.forRoot()],
             providers: [
                 { provide: DataManagementGroupService, useValue: mockDataManagementGroupService },
+                {
+                    provide: AuthorizationService,
+                    useValue: {
+                        hasPermission: (p: string) => grantedPermissions.has(p),
+                        hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
+                    },
+                },
                 { provide: LocalStorageService, useValue: mockLocalStorageService },
                 { provide: ModalService, useValue: mockModalService },
                 { provide: TableResizeService, useValue: mockTableResizeService },
@@ -259,8 +275,20 @@ describe('AllGroupListComponent', () => {
         });
 
         it('should create new group on add button click', () => {
+            grantedPermissions.add(PERMISSIONS.CanCreateGroups);
+
             component.onAddGroup();
+
             expect(mockDataManagementGroupService.createGroup).toHaveBeenCalled();
+        });
+
+        it('should refuse to create a group without CanCreateGroups, not only hide the button', () => {
+            grantedPermissions.clear();
+
+            component.onAddGroup();
+
+            expect(mockDataManagementGroupService.createGroup).not.toHaveBeenCalled();
+            expect(mockNavigationService.navigateToEditGroup).not.toHaveBeenCalled();
         });
 
         it('should navigate to edit group with group id', () => {

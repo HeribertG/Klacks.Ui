@@ -23,6 +23,7 @@ import { DragDropFileUploadDirective } from 'src/app/presentation/directives/dra
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
@@ -89,7 +90,7 @@ export class ClientImageComponent implements OnInit, OnDestroy {
     return (
       this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAdmin
+      !this.authorizationService.hasPermission(PERMISSIONS.CanEditClients)
     );
   }
 

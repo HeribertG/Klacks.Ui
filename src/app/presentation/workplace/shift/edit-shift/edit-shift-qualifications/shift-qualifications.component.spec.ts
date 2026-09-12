@@ -13,14 +13,15 @@ import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
-import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 
 describe('ShiftQualificationsComponent', () => {
   let component: ShiftQualificationsComponent;
   let fixture: ComponentFixture<ShiftQualificationsComponent>;
   let mockDataManagementShiftService: any;
   let mockQualificationService: any;
-  let mockAuthService: any;
+  let grantedPermissions: Set<string>;
 
   const securityWork: IQualification = {
     id: 'q-security',
@@ -52,16 +53,17 @@ describe('ShiftQualificationsComponent', () => {
       getQualificationList: vi.fn().mockReturnValue(of([securityWork, swissLanguage])),
     };
 
-    mockAuthService = {
-      isAuthorisedOrAdmin: vi.fn().mockReturnValue(false),
-    };
+    grantedPermissions = new Set<string>([PERMISSIONS.CanEditShifts]);
 
     await TestBed.configureTestingModule({
       imports: [ShiftQualificationsComponent, TranslateModule.forRoot(), FormsModule],
       providers: [
         { provide: DataManagementShiftService, useValue: mockDataManagementShiftService },
         { provide: DataQualificationService, useValue: mockQualificationService },
-        { provide: AuthService, useValue: mockAuthService },
+        {
+          provide: AuthorizationService,
+          useValue: { hasPermission: (permission: string) => grantedPermissions.has(permission) },
+        },
       ],
     }).compileComponents();
 
@@ -85,9 +87,8 @@ describe('ShiftQualificationsComponent', () => {
     expect(emitSpy).toHaveBeenCalledWith(true);
   });
 
-  it('should be disabled for a non-admin on a non-OriginalOrder shift and not mutate it', () => {
-    mockDataManagementShiftService.editShift.status = ShiftStatus.SplitShift;
-    mockAuthService.isAuthorisedOrAdmin.mockReturnValue(false);
+  it('should be disabled without CanEditShifts and not mutate the shift', () => {
+    grantedPermissions.clear();
     const emitSpy = vi.spyOn(component.isChangingEvent, 'emit');
 
     expect(component.isDisabled()).toBe(true);
@@ -98,9 +99,8 @@ describe('ShiftQualificationsComponent', () => {
     expect(emitSpy).not.toHaveBeenCalled();
   });
 
-  it('should stay editable on a non-OriginalOrder shift for Admin / Authorised users', () => {
+  it('should stay editable on a non-OriginalOrder shift for a holder of CanEditShifts', () => {
     mockDataManagementShiftService.editShift.status = ShiftStatus.SplitShift;
-    mockAuthService.isAuthorisedOrAdmin.mockReturnValue(true);
 
     expect(component.isDisabled()).toBe(false);
 

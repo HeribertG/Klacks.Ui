@@ -14,6 +14,7 @@ import { AllGroupListComponent } from '../all-group-list/all-group-list.componen
 import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -36,6 +37,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 })
 export class AllGroupHomeComponent implements OnInit {
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   private workplaceStateService = inject(
     WorkplaceStateService
   );

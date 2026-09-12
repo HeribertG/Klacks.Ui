@@ -28,6 +28,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { TrashIconLightRedComponent } from 'src/app/presentation/icons/trash-icon-light-red.component ';
 import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
@@ -122,7 +123,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   isDisabled(): boolean {
     return (
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAdmin
+      !this.authorizationService.hasPermission(PERMISSIONS.CanEditClientNotes)
     );
   }
 

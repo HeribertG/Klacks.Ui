@@ -25,6 +25,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
@@ -58,6 +59,7 @@ export class EditGroupItemComponent
 {
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   private locale: string = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
@@ -81,7 +83,7 @@ export class EditGroupItemComponent
 
   public groupFormModel = signal<EditGroupItemFormModel>({ name: '' });
   public groupForm = form(this.groupFormModel, (f) => {
-    disabled(f, { when: () => !this.authorizationService.isAuthorised });
+    disabled(f, { when: () => !this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups) });
   });
 
   private isFormLoaded = false;

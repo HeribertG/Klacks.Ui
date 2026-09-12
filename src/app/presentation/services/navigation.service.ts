@@ -115,18 +115,20 @@ export class NavigationService {
     }
   }
 
-  navigateToEditShift(id?: string, readOnly?: boolean): void {
-    if (id) {
-      if (readOnly) {
-        this.router.navigate(['/workplace/edit-shift', id], {
-          queryParams: { readonly: 'true', returnUrl: '/workplace/shift' },
-        });
-      } else {
-        this.router.navigate(['/workplace/edit-shift', id]);
-      }
-    } else {
-      this.router.navigate(['/workplace/edit-shift']);
+  /**
+   * @param id - Shift to open; there is no parameterless /workplace/edit-shift route, a new shift
+   * goes to navigateToNewShift instead
+   * @param readOnly - Opens the shift for viewing and remembers the shift list as the way back
+   */
+  navigateToEditShift(id: string, readOnly?: boolean): void {
+    if (readOnly) {
+      this.router.navigate(['/workplace/edit-shift', id], {
+        queryParams: { readonly: 'true', returnUrl: '/workplace/shift' },
+      });
+      return;
     }
+
+    this.router.navigate(['/workplace/edit-shift', id]);
   }
 
   navigateToNewShift(): void {

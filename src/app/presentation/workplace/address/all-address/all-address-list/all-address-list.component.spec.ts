@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllAddressListComponent } from './all-address-list.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
@@ -17,15 +18,20 @@ import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/inter
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
+import { ModalType } from 'src/app/presentation/modal/modal.service';
+
+const ALL_ADDRESS_LIST_MODAL_CONTEXT = 'all-address-list';
 
 describe('AllAddressListComponent', () => {
     let component: AllAddressListComponent;
     let fixture: ComponentFixture<AllAddressListComponent>;
     let mockDataManagementClientService: any;
     let mockAuthorizationService: any;
+    let grantedPermissions: Set<string>;
     let mockLocalStorageService: any;
     let mockModalService: any;
+    let modalResultEvent: Subject<ModalType>;
     let mockTableResizeService: any;
     let mockAllAddressStateService: any;
     let mockNavigationService: any;
@@ -59,18 +65,27 @@ describe('AllAddressListComponent', () => {
             clientAttribute: []
         };
 
+        grantedPermissions = new Set([
+            PERMISSIONS.CanCreateClients,
+            PERMISSIONS.CanEditClients,
+            PERMISSIONS.CanDeleteClients,
+        ]);
         mockAuthorizationService = {
-            isAdmin: true
+            hasPermission: (p: string) => grantedPermissions.has(p),
+            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
         };
 
         mockLocalStorageService = {
             get: vi.fn(),
             set: vi.fn()
         };
+        modalResultEvent = new Subject<ModalType>();
         mockModalService = {
             openModel: vi.fn(),
             setDefault: vi.fn(),
-            resultEvent: of()
+            componentContext: '',
+            Filing: '',
+            resultEvent: modalResultEvent
         };
         mockTableResizeService = {
             calculateOptimalRowCount: vi.fn(),
@@ -170,11 +185,6 @@ describe('AllAddressListComponent', () => {
             });
         });
 
-        it('should set isAuthorised from localStorage', () => {
-            mockLocalStorageService.get.mockReturnValue(JSON.stringify(true));
-            fixture.detectChanges();
-            expect(component.isAuthorised).toBe(true);
-        });
     });
 
     describe('Table Sorting', () => {
@@ -236,6 +246,42 @@ describe('AllAddressListComponent', () => {
             (component as any).setFilter();
 
             expect(mockAllAddressStateService.prepareFilterForRequest).toHaveBeenCalledWith('company', expect.any(String), component.page, component.firstItemOnLastPage, component.isPreviousPage, component.isNextPage);
+        });
+    });
+
+    describe('Permission gating', () => {
+        it('shows the new-address button for the Supervisor role, which holds CanCreateClients', () => {
+            fixture.detectChanges();
+            const button = fixture.nativeElement.querySelector('#new-address-button');
+            expect(button).toBeTruthy();
+        });
+
+        it('hides the new-address button for the Planer role, which lacks CanCreateClients', () => {
+            grantedPermissions.clear();
+            fixture.detectChanges();
+            const button = fixture.nativeElement.querySelector('#new-address-button');
+            expect(button).toBeFalsy();
+        });
+
+        it('deletes the client once the delete modal is confirmed by a user holding CanDeleteClients', () => {
+            fixture.detectChanges();
+            mockModalService.componentContext = ALL_ADDRESS_LIST_MODAL_CONTEXT;
+            mockModalService.Filing = 'client-1';
+
+            modalResultEvent.next(ModalType.Delete);
+
+            expect(mockDataManagementClientService.deleteClient).toHaveBeenCalledWith('client-1');
+        });
+
+        it('refuses the delete even on a confirmed modal when CanDeleteClients is missing', () => {
+            grantedPermissions.clear();
+            fixture.detectChanges();
+            mockModalService.componentContext = ALL_ADDRESS_LIST_MODAL_CONTEXT;
+            mockModalService.Filing = 'client-1';
+
+            modalResultEvent.next(ModalType.Delete);
+
+            expect(mockDataManagementClientService.deleteClient).not.toHaveBeenCalled();
         });
     });
 

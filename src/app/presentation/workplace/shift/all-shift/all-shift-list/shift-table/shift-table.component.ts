@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, Input, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { IconBoxComponent } from 'src/app/presentation/icons/icon-box.component';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
@@ -38,6 +40,8 @@ import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proa
 })
 export class ShiftTableComponent {
   private textFormatterService = inject(TextFormatterService);
+  public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   readonly shifts = input<IShift[]>();
   readonly attributions = input<ReadonlyMap<string, IProactiveShiftAttribution> | null>(null);
   @Input() sortingService!: TableSortingService;

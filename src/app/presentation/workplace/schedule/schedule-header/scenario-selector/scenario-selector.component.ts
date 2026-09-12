@@ -27,6 +27,7 @@ import { RenameScenarioDialogComponent } from '../../dialogs/rename-scenario-dia
 import { DeleteAllScenariosDialogComponent } from '../../dialogs/delete-all-scenarios-dialog/delete-all-scenarios-dialog.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 @Component({
@@ -103,7 +104,7 @@ export class ScenarioSelectorComponent implements OnInit {
       (err.error as { detail?: string } | null)?.detail ??
       this.translateService.instant('schedule.scenario.accept.blockedTitle');
 
-    if (this.authorizationService.isAuthorised) {
+    if (this.authorizationService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED)) {
       this.modalService.openModal({
         type: ModalType.Confirmation,
         title: this.translateService.instant('schedule.scenario.accept.overrideConfirmTitle'),

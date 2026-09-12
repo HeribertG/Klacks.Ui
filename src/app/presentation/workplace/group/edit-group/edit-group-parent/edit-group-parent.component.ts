@@ -26,6 +26,7 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 interface EditGroupParentFormModel {
@@ -67,7 +68,7 @@ export class EditGroupParentComponent implements OnInit {
 
   public parentFormModel = signal<EditGroupParentFormModel>({ parent: '' });
   public parentSelectForm = form(this.parentFormModel, (f) => {
-    disabled(f, { when: () => !this.authorizationService.isAuthorised });
+    disabled(f, { when: () => !this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups) });
   });
 
   ngOnInit(): void {

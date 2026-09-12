@@ -58,6 +58,7 @@ import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { DataMessagingInvitationService, TelegramInvitationResult } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
@@ -336,7 +337,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     return (
       this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAdmin
+      !this.authorizationService.hasPermission(PERMISSIONS.CanEditClients)
     );
   }
 

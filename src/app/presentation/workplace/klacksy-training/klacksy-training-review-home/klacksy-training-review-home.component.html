@@ -25,11 +25,11 @@
             <a
               id="klacksy-training-tab-targets"
               class="nav-link"
-              [class.active]="activeTab() === 'targets'"
+              [class.active]="activeTab() === TAB_TARGETS"
               role="tab"
-              [attr.aria-selected]="activeTab() === 'targets'"
+              [attr.aria-selected]="activeTab() === TAB_TARGETS"
               tabindex="0"
-              (click)="setTab('targets')"
+              (click)="setTab(TAB_TARGETS)"
             >
               {{ 'klacksyTraining.tabs.targets' | translate }}
             </a>
@@ -38,11 +38,11 @@
             <a
               id="klacksy-training-tab-feedback"
               class="nav-link"
-              [class.active]="activeTab() === 'feedback'"
+              [class.active]="activeTab() === TAB_FEEDBACK"
               role="tab"
-              [attr.aria-selected]="activeTab() === 'feedback'"
+              [attr.aria-selected]="activeTab() === TAB_FEEDBACK"
               tabindex="0"
-              (click)="setTab('feedback')"
+              (click)="setTab(TAB_FEEDBACK)"
             >
               {{ 'klacksyTraining.tabs.feedback' | translate }}
             </a>
@@ -51,11 +51,11 @@
             <a
               id="klacksy-training-tab-metrics"
               class="nav-link"
-              [class.active]="activeTab() === 'metrics'"
+              [class.active]="activeTab() === TAB_METRICS"
               role="tab"
-              [attr.aria-selected]="activeTab() === 'metrics'"
+              [attr.aria-selected]="activeTab() === TAB_METRICS"
               tabindex="0"
-              (click)="setTab('metrics')"
+              (click)="setTab(TAB_METRICS)"
             >
               {{ 'klacksyTraining.tabs.metrics' | translate }}
             </a>
@@ -64,11 +64,11 @@
             <a
               id="klacksy-training-tab-manual"
               class="nav-link"
-              [class.active]="activeTab() === 'manual'"
+              [class.active]="activeTab() === TAB_MANUAL"
               role="tab"
-              [attr.aria-selected]="activeTab() === 'manual'"
+              [attr.aria-selected]="activeTab() === TAB_MANUAL"
               tabindex="0"
-              (click)="setTab('manual')"
+              (click)="setTab(TAB_MANUAL)"
             >
               {{ 'klacksyTraining.tabs.manual' | translate }}
             </a>
@@ -77,17 +77,29 @@
       </div>
 
       <div class="standard-tab-body">
-        @if (activeTab() === 'targets') {
-          <app-klacksy-training-review />
+        @if (activeTab() === TAB_TARGETS) {
+          <app-klacksy-training-review
+            data-klacksy-target="klacksy-training.targets"
+            data-klacksy-label-key="klacksyTraining.tabs.targets"
+          />
         }
-        @if (activeTab() === 'feedback') {
-          <app-klacksy-training-feedback-review />
+        @if (activeTab() === TAB_FEEDBACK) {
+          <app-klacksy-training-feedback-review
+            data-klacksy-target="klacksy-training.feedback"
+            data-klacksy-label-key="klacksyTraining.tabs.feedback"
+          />
         }
-        @if (activeTab() === 'metrics') {
-          <app-klacksy-training-metrics />
+        @if (activeTab() === TAB_METRICS) {
+          <app-klacksy-training-metrics
+            data-klacksy-target="klacksy-training.metrics"
+            data-klacksy-label-key="klacksyTraining.tabs.metrics"
+          />
         }
-        @if (activeTab() === 'manual') {
-          <app-klacksy-training-manual />
+        @if (activeTab() === TAB_MANUAL) {
+          <app-klacksy-training-manual
+            data-klacksy-target="klacksy-training.manual"
+            data-klacksy-label-key="klacksyTraining.tabs.manual"
+          />
         }
       </div>
     </div>

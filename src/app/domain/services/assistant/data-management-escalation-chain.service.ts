@@ -13,6 +13,7 @@ import { Observable, Subject, filter, tap, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant/data-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
 
 const POLL_INTERVAL_MS = 60000;
@@ -31,7 +32,7 @@ export class DataManagementEscalationChainService implements OnDestroy {
   constructor() {
     timer(0, POLL_INTERVAL_MS)
       .pipe(
-        filter(() => this.authorizationService.isAdmin),
+        filter(() => this.authorizationService.hasPermission(ROLE_ADMIN)),
         takeUntil(this.destroy$),
       )
       .subscribe(() => this.refresh());

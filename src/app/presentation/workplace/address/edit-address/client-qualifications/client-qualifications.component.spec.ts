@@ -11,6 +11,7 @@ import { ClientQualificationsComponent } from './client-qualifications.component
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
@@ -21,6 +22,7 @@ describe('ClientQualificationsComponent', () => {
   let mockDataManagementClientService: any;
   let mockQualificationService: any;
   let mockAuthorizationService: any;
+  let grantedPermissions: Set<string>;
   let editClientSignal: WritableSignal<any>;
   let editClientDeletedSignal: WritableSignal<boolean>;
 
@@ -85,8 +87,10 @@ describe('ClientQualificationsComponent', () => {
         .mockReturnValue(of([timeLimited, permanent, securityWork, swissLanguage])),
     };
 
+    grantedPermissions = new Set([PERMISSIONS.CanEditClients]);
     mockAuthorizationService = {
-      isAdmin: true,
+      hasPermission: (p: string) => grantedPermissions.has(p),
+      hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
     };
 
     await TestBed.configureTestingModule({
@@ -125,13 +129,13 @@ describe('ClientQualificationsComponent', () => {
       expect(component.isDisabled()).toBe(true);
     });
 
-    it('should be true when not admin', () => {
-      mockAuthorizationService.isAdmin = false;
+    it('should be true for the Planer role, which lacks CanEditClients', () => {
+      grantedPermissions.clear();
       expect(component.isDisabled()).toBe(true);
     });
 
-    it('should be false when admin and client not deleted', () => {
-      mockAuthorizationService.isAdmin = true;
+    it('should be false for the Supervisor role, which holds CanEditClients, when client not deleted', () => {
+      grantedPermissions = new Set([PERMISSIONS.CanEditClients]);
       editClientDeletedSignal.set(false);
       expect(component.isDisabled()).toBe(false);
     });

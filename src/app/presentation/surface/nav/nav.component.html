@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    @if (isAdmin()) {
+    @if (canViewGroups()) {
       <div class="icon">
         <button
           type="button"
@@ -188,7 +188,7 @@
         </button>
       </div>
     }
-    @if (isAdmin()) {
+    @if (canViewSettings()) {
       <div class="icon">
         <button
           type="button"

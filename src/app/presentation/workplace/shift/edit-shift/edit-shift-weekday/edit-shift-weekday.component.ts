@@ -21,6 +21,7 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { ShiftFormService } from '../services/shift-form.service';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
@@ -65,6 +66,7 @@ export class EditShiftWeekdayComponent
   readonly weekdayShiftForm = viewChild<NgForm>('weekdayShiftForm');
 
   public dataManagementShiftService = inject(DataManagementShiftService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   public shiftFormService = inject(ShiftFormService);
   private workTimeCalculationService = inject(WorkTimeCalculationService);
   private injector = inject(Injector);
@@ -247,8 +249,14 @@ export class EditShiftWeekdayComponent
     this.isChangingEvent.emit(true);
   }
 
+  /**
+   * The route only asks for CanViewShifts, so a reader without the write right reaches this form;
+   * without the permission clause every field of an OriginalOrder shift would be editable for them.
+   * ShiftEditPermissionService picks CanCreateShifts or CanEditShifts by whether the shift is new.
+   */
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
+    if (!this.shiftEditPermission.canWriteCurrentShift()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

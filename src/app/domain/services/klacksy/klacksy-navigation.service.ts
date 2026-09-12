@@ -5,6 +5,10 @@
  * can show the user which icon opens a page (highlightNavIcon); every navigateAndScroll
  * pulses the destination page's nav icon as a side effect. Shell targets on the global route
  * (KLACKSY_GLOBAL_TARGET_ROUTE) are highlighted in place, without any navigation.
+ * Target strings are model-supplied and untrusted: attribute selectors escape the value
+ * (CSS.escape, with a quote/backslash fallback because jsdom has no global CSS object) and
+ * id selectors are restricted to plain CSS identifiers, so a malformed target is a miss, never
+ * a second attacker-chosen selector or a thrown error.
  * @param route - destination Angular route
  * @param target - optional data-klacksy-target ID
  * @param elementId - DOM id of a main-nav icon (e.g. 'open-settings')
@@ -16,14 +20,20 @@ import { KlacksyTelemetryService } from './klacksy-telemetry.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import {
+  NAVIGATION_REASON_FEATURE_DISABLED,
   NAVIGATION_REASON_PERMISSION_DENIED,
   NAVIGATION_REASON_TARGET_NOT_FOUND,
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { KLACKSY_GLOBAL_TARGET_ROUTE } from 'src/app/domain/constants/klacksy-global-target.constants';
+import { NO_ACCESS_REASON_FEATURE } from 'src/app/domain/constants/no-access-reason.constants';
+import { NoAccessReasonService } from 'src/app/domain/services/navigation/no-access-reason.service';
 
 export interface NavigationResult {
   success: boolean;
-  reason?: typeof NAVIGATION_REASON_TARGET_NOT_FOUND | typeof NAVIGATION_REASON_PERMISSION_DENIED;
+  reason?:
+    | typeof NAVIGATION_REASON_TARGET_NOT_FOUND
+    | typeof NAVIGATION_REASON_PERMISSION_DENIED
+    | typeof NAVIGATION_REASON_FEATURE_DISABLED;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,6 +41,7 @@ export class KlacksyNavigationService {
   private readonly router = inject(Router);
   private readonly telemetry = inject(KlacksyTelemetryService);
   private readonly eventBus = inject(EVENT_BUS_TOKEN);
+  private readonly noAccessReason = inject(NoAccessReasonService);
   // Worst-case wait until we conclude the target marker is missing. The
   // MutationObserver resolves immediately the moment the element appears, so
   // this timeout only fires when the target is genuinely absent. 1500 ms keeps
@@ -60,6 +71,10 @@ export class KlacksyNavigationService {
   private explainScrollTimer: ReturnType<typeof setTimeout> | null = null;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
+    // A reason left over from a refusal the user walked into on their own would otherwise be
+    // blamed on this navigation.
+    this.noAccessReason.consume();
+
     if (route === KLACKSY_GLOBAL_TARGET_ROUTE) {
       return target ? this.highlightGlobalTarget(target) : { success: true };
     }
@@ -72,7 +87,16 @@ export class KlacksyNavigationService {
     const navigated = await this.router.navigateByUrl(route);
     if (!navigated && !this.isOnRoute(route)) {
       this.telemetry.trackTargetMiss(route, target ?? '');
-      return { success: false, reason: NAVIGATION_REASON_PERMISSION_DENIED };
+      // The guard recorded why it refused before it returned false, so the reason is already there
+      // by the time this promise resolves - a missing right and a feature that was never activated
+      // need different sentences, and guessing "no permission" for a disabled plugin is a false claim.
+      return {
+        success: false,
+        reason:
+          this.noAccessReason.consume() === NO_ACCESS_REASON_FEATURE
+            ? NAVIGATION_REASON_FEATURE_DISABLED
+            : NAVIGATION_REASON_PERMISSION_DENIED,
+      };
     }
 
     this.pulseNavIconForRoute(route);
@@ -267,10 +291,19 @@ export class KlacksyNavigationService {
 
   private queryTargetAttribute(target: string): Element | null {
     try {
-      return document.querySelector(`[data-klacksy-target="${target}"]`);
+      return document.querySelector(
+        `[data-klacksy-target="${KlacksyNavigationService.escapeAttributeSelectorValue(target)}"]`
+      );
     } catch {
       return null;
     }
+  }
+
+  private static escapeAttributeSelectorValue(value: string): string {
+    if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+      return CSS.escape(value);
+    }
+    return value.replace(/[\\"]/g, '\\$&');
   }
 
   // The target string is model- or knowledge-doc-supplied and untrusted as a selector:

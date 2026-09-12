@@ -21,6 +21,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, OnI
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
@@ -42,7 +43,7 @@ export class AutonomyStatusBarComponent implements OnInit {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
 
-  readonly canRender = computed(() => this.authorizationService.isAdmin);
+  readonly canRender = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
   readonly isSaving = signal(false);
   readonly autonomyEnabled = linkedSignal(
     () => !this.proactiveGovernanceService.killSwitchActive()

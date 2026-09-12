@@ -10,11 +10,14 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import {
+  NAVIGATION_OUTCOME_FEATURE_DISABLED,
   NAVIGATION_OUTCOME_PERMISSION_DENIED,
   NAVIGATION_OUTCOME_SCROLLED,
   NAVIGATION_OUTCOME_TARGET_MISS,
+  NAVIGATION_REASON_FEATURE_DISABLED,
   NAVIGATION_REASON_PERMISSION_DENIED,
   NAVIGATION_REASON_TARGET_NOT_FOUND,
+  NAV_CORRECTION_FEATURE_DISABLED_KEY,
   NAV_CORRECTION_PERMISSION_DENIED_KEY,
   NAV_CORRECTION_TARGET_NOT_FOUND_KEY,
 } from 'src/app/domain/constants/navigation-outcome.constants';
@@ -26,6 +29,8 @@ const MESSAGE_ID = 'msg_1';
 const STREAMED_PROSE = 'Ich habe dir die Einstellungen geöffnet.';
 const CORRECTION_TEXT = 'Die Stelle finde ich gerade nicht.';
 const PERMISSION_TEXT = 'Für diesen Bereich hast du keine Berechtigung.';
+const FEATURE_DISABLED_TEXT =
+  'Diese Funktion ist in dieser Installation nicht aktiviert – ich kann die Seite deshalb nicht öffnen.';
 const ROUTE = '/workplace/settings';
 const TARGET = 'erp-drop-points';
 const UTTERANCE = 'zeige mir die uploadfläche';
@@ -72,7 +77,9 @@ describe('NavigationVerdictService', () => {
                 ? CORRECTION_TEXT
                 : key === NAV_CORRECTION_PERMISSION_DENIED_KEY
                   ? PERMISSION_TEXT
-                  : key,
+                  : key === NAV_CORRECTION_FEATURE_DISABLED_KEY
+                    ? FEATURE_DISABLED_TEXT
+                    : key,
           },
         },
       ],
@@ -109,6 +116,40 @@ describe('NavigationVerdictService', () => {
     const update = orchestrator.updateMessage.mock.calls[0][1];
     expect(update.content).toContain(PERMISSION_TEXT);
     expect(update.content).not.toContain(CORRECTION_TEXT);
+  });
+
+  it('shows the feature wording AND reports feature-disabled, never a rights problem', () => {
+    // The sentence and the telemetry are decided in two separate methods: an else-branch in either
+    // one would tell the user the honest thing while recording the wrong cause, or the reverse.
+    service.apply(MESSAGE_ID, { success: false, reason: NAVIGATION_REASON_FEATURE_DISABLED }, ROUTE, TARGET);
+
+    const update = orchestrator.updateMessage.mock.calls[0][1];
+    expect(update.content).toContain(FEATURE_DISABLED_TEXT);
+    expect(update.content).not.toContain(PERMISSION_TEXT);
+    expect(assistantService.reportNavigationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: NAVIGATION_OUTCOME_FEATURE_DISABLED }),
+    );
+  });
+
+  it('reads the feature sentence out loud like any other correction', () => {
+    service.apply(MESSAGE_ID, { success: false, reason: NAVIGATION_REASON_FEATURE_DISABLED }, ROUTE, TARGET);
+
+    expect(orchestrator.speakFollowUpSentence).toHaveBeenCalledWith(FEATURE_DISABLED_TEXT);
+  });
+
+  it('never puts the raw feature-disabled reason string in front of the user', () => {
+    service.apply(MESSAGE_ID, { success: false, reason: NAVIGATION_REASON_FEATURE_DISABLED }, ROUTE, TARGET);
+
+    const update = orchestrator.updateMessage.mock.calls[0][1];
+    expect(update.content).not.toContain(NAVIGATION_REASON_FEATURE_DISABLED);
+  });
+
+  it('still reports permission-denied for a rights refusal after feature-disabled exists', () => {
+    service.apply(MESSAGE_ID, { success: false, reason: NAVIGATION_REASON_PERMISSION_DENIED }, ROUTE, TARGET);
+
+    expect(assistantService.reportNavigationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: NAVIGATION_OUTCOME_PERMISSION_DENIED }),
+    );
   });
 
   it('stays silent when the browser never navigated at all', () => {

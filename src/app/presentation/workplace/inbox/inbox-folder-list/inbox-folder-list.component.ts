@@ -6,6 +6,7 @@ import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
@@ -36,8 +37,8 @@ export class InboxFolderListComponent implements OnInit {
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
 
-  get isAuthorised(): boolean {
-    return this.authorizationService.isAuthorised;
+  get isAdmin(): boolean {
+    return this.authorizationService.hasPermission(ROLE_ADMIN);
   }
 
   ngOnInit(): void {
@@ -63,6 +64,9 @@ export class InboxFolderListComponent implements OnInit {
   }
 
   onCreateFolder(): void {
+    if (!this.isAdmin) {
+      return;
+    }
     this.modalService.componentContext = 'inbox-create-folder';
     this.modalService.contentInputTitle = this.translateService.instant('inbox.folder-list.prompt-name');
     this.modalService.contentInputString = '';
@@ -84,6 +88,9 @@ export class InboxFolderListComponent implements OnInit {
   }
 
   onDeleteFolder(folder: IEmailFolder): void {
+    if (!this.isAdmin) {
+      return;
+    }
     this.modalService.openModal({
       type: ModalType.Delete,
       title: this.translateService.instant('delete'),

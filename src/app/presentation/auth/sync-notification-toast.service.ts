@@ -8,17 +8,18 @@ import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 
 @Injectable({ providedIn: 'root' })
 export class SyncNotificationToastService {
   private readonly dataSyncNotification = inject(DataSyncNotificationService);
   private readonly toast = inject(ToastShowService);
   private readonly translate = inject(TranslateService);
-  private readonly auth = inject(AuthService);
+  private readonly authorizationService = inject(AuthorizationService);
 
   async checkAndShow(): Promise<void> {
-    if (!this.auth.isAdminUser()) return;
+    if (!this.authorizationService.hasPermission(ROLE_ADMIN)) return;
 
     try {
       const notifications = await this.dataSyncNotification.fetchUnread();

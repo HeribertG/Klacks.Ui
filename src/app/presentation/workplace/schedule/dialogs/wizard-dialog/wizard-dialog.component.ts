@@ -36,6 +36,7 @@ import { QualificationGapReportComponent } from 'src/app/presentation/workplace/
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { SkippedPlacementsReportComponent } from 'src/app/presentation/workplace/schedule/shared/skipped-placements-report/skipped-placements-report.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
@@ -67,6 +68,7 @@ export class WizardDialogComponent {
   private readonly translate = inject(TranslateService);
   private readonly localStorageService = inject(LocalStorageService);
   readonly authorizationService = inject(AuthorizationService);
+  readonly ROLE_ADMIN = ROLE_ADMIN;
   private readonly modalService = inject(ModalService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
@@ -218,7 +220,7 @@ export class WizardDialogComponent {
     this.analyseScenarioService.isScenarioMode()
     && this._skippedPlacements().length > 0
     && this.appliedCount() === 0
-    && this.authorizationService.isAuthorised);
+    && this.authorizationService.hasPermission(ROLE_ADMIN));
 
   private shortenEscalation(full: string): string {
     const colon = full.indexOf(':');

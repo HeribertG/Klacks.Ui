@@ -57,6 +57,7 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import {
   ScheduleTimelineRangeService,
@@ -182,8 +183,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
   readonly isAutoWizardRunning = this.autoWizardOrchestrator.isRunning;
 
-  /** Every autofill endpoint (Wizard 1-4, Recovery) requires the admin role server-side. */
-  readonly canUseAutofill = computed(() => this.authorizationService.isAdmin);
+  readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
 
   constructor() {
     this.scheduleSignalR.thoroughRecalculationCompleted$
@@ -396,7 +396,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     if (!event.ctrlKey || !event.shiftKey || event.key.toLowerCase() !== 'h') {
       return;
     }
-    if (!this.authorizationService.isAdmin) {
+    if (!this.authorizationService.hasPermission(ROLE_ADMIN)) {
       return;
     }
     const target = event.target as HTMLElement | null;

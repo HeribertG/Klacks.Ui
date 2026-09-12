@@ -63,11 +63,6 @@ describe('NavigationService', () => {
       });
     });
 
-    it('navigates to the new-shift route when no id is given', () => {
-      service.navigateToEditShift();
-
-      expect(router.navigate).toHaveBeenCalledWith(['/workplace/edit-shift']);
-    });
   });
 
   describe('redirectToLogin', () => {

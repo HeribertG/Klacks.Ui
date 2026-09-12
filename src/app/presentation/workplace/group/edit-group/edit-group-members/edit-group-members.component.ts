@@ -24,6 +24,7 @@ import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -44,6 +45,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 })
 export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastShowService = inject(ToastShowService);
   public groupSelectionService = inject(GroupSelectionService);
@@ -190,6 +192,10 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   }
 
   onDeleteClient(value: IGroupItem) {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
+      return;
+    }
+
     const groupItems = this.dataManagementGroupService.editGroup?.groupItems;
     if (this.dataManagementGroupService.editGroup && groupItems) {
       this.dataManagementGroupService.editGroup.groupItems = groupItems.filter(
@@ -200,6 +206,10 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   }
 
   private applyClient() {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
+      return;
+    }
+
     if (this.selectedClient) {
       const id = this.selectedClient.id;
 

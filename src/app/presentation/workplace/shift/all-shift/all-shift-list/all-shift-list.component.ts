@@ -39,6 +39,7 @@ import { OriginalTableComponent } from './original-table/original-table.componen
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftTableComponent } from './shift-table/shift-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
@@ -82,6 +83,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   public sortingService = inject(TableSortingService);
   public quickPrintAction = inject(QuickPrintActionService);
   private tableResizeService = inject(ShiftTableResizeService);
@@ -188,7 +190,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private openPlannableCreateFormIfRequested(): void {
     const createMode = this.activatedRoute.snapshot.queryParamMap.get(CLIENTLESS_CREATE_QUERY_PARAM);
-    if (createMode === CLIENTLESS_CREATE_QUERY_VALUE && this.authorizationService.isAdmin) {
+    if (createMode === CLIENTLESS_CREATE_QUERY_VALUE && this.authorizationService.hasPermission(PERMISSIONS.CanCreateShifts)) {
       this.onAddPlannableShift();
     }
   }

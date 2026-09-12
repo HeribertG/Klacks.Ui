@@ -9,11 +9,19 @@ export const NAVIGATION_REASON_TARGET_NOT_FOUND = 'target-not-found';
 
 export const NAVIGATION_REASON_PERMISSION_DENIED = 'permission-denied';
 
+/**
+ * The route is blocked because its feature was never activated here (plugin not installed or
+ * disabled, inbox without IMAP) - telling the user to ask for rights would send them nowhere.
+ */
+export const NAVIGATION_REASON_FEATURE_DISABLED = 'feature-disabled';
+
 export const NAVIGATION_OUTCOME_SCROLLED = 'scrolled';
 
 export const NAVIGATION_OUTCOME_TARGET_MISS = 'target-miss';
 
 export const NAVIGATION_OUTCOME_PERMISSION_DENIED = 'permission-denied';
+
+export const NAVIGATION_OUTCOME_FEATURE_DISABLED = 'feature-disabled';
 
 /** Backend truncates at 500 characters; trimming here keeps the request small. */
 export const NAVIGATION_OUTCOME_MAX_UTTERANCE_LENGTH = 500;
@@ -21,6 +29,8 @@ export const NAVIGATION_OUTCOME_MAX_UTTERANCE_LENGTH = 500;
 export const NAV_CORRECTION_TARGET_NOT_FOUND_KEY = 'nav.correction.targetNotFound';
 
 export const NAV_CORRECTION_PERMISSION_DENIED_KEY = 'nav.fail.permissionDenied';
+
+export const NAV_CORRECTION_FEATURE_DISABLED_KEY = 'nav.fail.featureDisabled';
 
 /** Only routes below this prefix may be navigated to on the model's word. */
 export const WORKPLACE_ROUTE_PREFIX = '/workplace/';

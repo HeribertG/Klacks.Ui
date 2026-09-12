@@ -35,9 +35,11 @@
           </div>
           } @if (selectedClient) {
           <div
-            class="input-group-text btn btn-outline-secondary container-search-button"
+            class="input-group-text btn btn-outline-secondary"
+            [class.container-search-button]="authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
+            [class.container-search-button-disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
+            [attr.aria-disabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
             (click)="onClickApply()"
-            disabled="!authorizationService.isAuthorised"
           >
             {{ "group.edit-group.edit-group-member.add" | translate }}
           </div>
@@ -164,11 +166,13 @@
               </td>
 
               <td class="table-cell cell-right">
+                @if (authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
                 <div>
                   <div class="icon" (click)="onDeleteClient(data)">
                     <app-icon-trash-red></app-icon-trash-red>
                   </div>
                 </div>
+                }
               </td>
             </tr>
             }

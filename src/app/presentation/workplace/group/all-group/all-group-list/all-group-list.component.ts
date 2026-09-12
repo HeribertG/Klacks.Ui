@@ -21,6 +21,8 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import {
   NgbPaginationModule,
@@ -79,6 +81,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly switchToTree = output<void>();
 
   public dataManagementGroupService = inject(DataManagementGroupService);
+  public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   public sortingService = inject(TableSortingService);
   public quickPrintAction = inject(QuickPrintActionService);
   private spinnerService = inject(SpinnerService);
@@ -101,7 +105,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   message = DomainMessages.DELETE_ENTRY;
   checkBoxIndeterminate = false;
-  isAuthorised = false;
   monthList = [];
   isFirstRead = true;
   isQuickPrinting = false;
@@ -189,6 +192,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onAddGroup() {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanCreateGroups)) {
+      return;
+    }
+
     this.dataManagementGroupService.createGroup();
     this.navigationService.navigateToEditGroup();
   }

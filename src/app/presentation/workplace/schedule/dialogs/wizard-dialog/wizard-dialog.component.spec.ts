@@ -12,6 +12,7 @@ import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 
 function createWizardServiceMock() {
   return {
@@ -57,7 +58,8 @@ describe('WizardDialogComponent', () => {
   let wizardServiceMock: ReturnType<typeof createWizardServiceMock>;
   let scheduleMock: ReturnType<typeof createScheduleMock>;
   let analyseScenarioServiceMock: { isScenarioMode: ReturnType<typeof vi.fn> };
-  let authorizationServiceMock: { isAuthorised: boolean; isAdmin: boolean };
+  let authorizationServiceMock: { hasPermission: (p: string) => boolean };
+  let grantedPermissions: Set<string>;
 
   beforeEach(async () => {
     wizardServiceMock = createWizardServiceMock();
@@ -65,7 +67,8 @@ describe('WizardDialogComponent', () => {
     analyseScenarioServiceMock = {
       isScenarioMode: vi.fn().mockReturnValue(true),
     };
-    authorizationServiceMock = { isAuthorised: true, isAdmin: false };
+    grantedPermissions = new Set([ROLE_ADMIN]);
+    authorizationServiceMock = { hasPermission: (p: string) => grantedPermissions.has(p) };
 
     await TestBed.configureTestingModule({
       imports: [WizardDialogComponent, TranslateModule.forRoot()],
@@ -244,6 +247,23 @@ describe('WizardDialogComponent', () => {
 
     expect(wizardServiceMock.apply).not.toHaveBeenCalled();
     expect(component.appliedCount()).toBe(0);
+  });
+
+  it('canRetryWithOverride stays false for the Supervisor role, which lacks the Admin-only wizard override right', async () => {
+    grantedPermissions = new Set();
+    analyseScenarioServiceMock.isScenarioMode.mockReturnValue(true);
+    wizardServiceMock.status.set('completed');
+    wizardServiceMock.currentJobId.set('job-1');
+    wizardServiceMock.apply.mockResolvedValue({
+      createdWorkIds: [],
+      complianceViolations: [],
+      skippedPlacements: [{ clientId: 'agent-1', date: '2026-04-22', shiftId: null, reasonKey: 'schedule.error-list.overtime' }],
+      overrideApplied: false,
+    });
+
+    await component.onApply();
+
+    expect(component.canRetryWithOverride()).toBe(false);
   });
 
   it('canRetryWithOverride is true after a full block on the apply() path (isScenarioMode true), which is the only cache-retry-capable backend path', async () => {

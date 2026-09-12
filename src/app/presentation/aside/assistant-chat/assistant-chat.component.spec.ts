@@ -597,6 +597,44 @@ describe('AssistantChatComponent', () => {
             vi.useRealTimers();
         });
 
+        it('hands a feature-disabled verdict on unchanged, so the honest sentence survives the fast path', async () => {
+            // The fast path passes the outcome through without inspecting the reason; this pins that
+            // down, because a branch added here later would silently swallow the new reason.
+            vi.useFakeTimers();
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const verdict = TestBed.inject(NavigationVerdictService);
+            vi.spyOn(navigation, 'navigateAndScroll').mockResolvedValue({
+                success: false,
+                reason: 'feature-disabled',
+            });
+            const applySpy = vi.spyOn(verdict, 'apply').mockImplementation(() => undefined);
+
+            component.inputText.set('öffne den posteingang');
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Ich öffne den Posteingang.');
+                    callbacks.onMetadata({
+                        navigateTo: '/workplace/inbox',
+                        actionPerformed: true,
+                    });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            component.sendMessage();
+            await vi.advanceTimersByTimeAsync(2100);
+
+            expect(applySpy).toHaveBeenCalledWith(
+                expect.any(String),
+                { success: false, reason: 'feature-disabled' },
+                '/workplace/inbox',
+                undefined,
+                'öffne den posteingang',
+            );
+            vi.useRealTimers();
+        });
+
         it('shows the correction when the server flagged a suspected miss', async () => {
             vi.useFakeTimers();
             const verdict = TestBed.inject(NavigationVerdictService);

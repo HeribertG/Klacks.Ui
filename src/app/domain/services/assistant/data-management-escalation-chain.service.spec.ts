@@ -7,12 +7,14 @@ import { of } from 'rxjs';
 import { DataManagementEscalationChainService } from './data-management-escalation-chain.service';
 import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant/data-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
 
 describe('DataManagementEscalationChainService', () => {
     let service: DataManagementEscalationChainService;
     let mockDataService: any;
-    let mockAuthorizationService: { isAdmin: boolean };
+    let mockAuthorizationService: { hasPermission: (p: string) => boolean };
+    let isAdmin: boolean;
 
     const chain = (overrides: Partial<IEscalationChainSummary> = {}): IEscalationChainSummary => ({
         id: 'chain-1',
@@ -33,7 +35,8 @@ describe('DataManagementEscalationChainService', () => {
             acknowledge: vi.fn(() => of(undefined)),
             cancel: vi.fn(() => of(undefined)),
         };
-        mockAuthorizationService = { isAdmin: true };
+        isAdmin = true;
+        mockAuthorizationService = { hasPermission: (p: string) => (p === ROLE_ADMIN ? isAdmin : false) };
 
         TestBed.configureTestingModule({
             providers: [
@@ -56,7 +59,7 @@ describe('DataManagementEscalationChainService', () => {
     });
 
     it('does not poll when not admin', () => {
-        mockAuthorizationService.isAdmin = false;
+        isAdmin = false;
         vi.advanceTimersByTime(0);
 
         expect(mockDataService.getRunning).not.toHaveBeenCalled();

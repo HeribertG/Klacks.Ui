@@ -3,10 +3,12 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './presentation/auth/auth.guard';
-import { AdminGuard } from './presentation/auth/admin.guard';
+import { permissionGuard } from './presentation/auth/permission.guard';
+import { ROUTE_DATA_REQUIRED_PERMISSION } from './presentation/auth/route-data.constants';
 import { InboxGuard } from './presentation/auth/inbox.guard';
 import { featurePluginGuard } from './presentation/auth/feature-plugin.guard';
 import { MESSAGING_PLUGIN_NAME, FLOOR_PLAN_PLUGIN_NAME } from './domain/constants/feature-plugin.constants';
+import { PERMISSIONS, ROLE_ADMIN } from './domain/constants/permissions.constants';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
@@ -15,7 +17,7 @@ import { NoAccessComponent } from './presentation/no-access/no-access.component'
 import { PageNotFoundComponent } from './presentation/page-not-found/page-not-found.component';
 import { SETUP_ROUTE_PATH } from './domain/constants/setup.constants';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
@@ -41,7 +43,8 @@ const routes: Routes = [
   },
   {
     path: SETUP_ROUTE_PATH,
-    canActivate: [AuthGuard, AdminGuard],
+    canActivate: [AuthGuard, permissionGuard],
+    data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanEditSettings },
     loadComponent: () =>
       import('./presentation/auth/setup/setup.component').then(
         (m) => m.SetupComponent,
@@ -77,6 +80,8 @@ const routes: Routes = [
           import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(
             (m) => m.EditAddressHomeComponent,
           ),
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewClients },
         canDeactivate: [CanDeactivateGuard],
       },
       {
@@ -85,6 +90,8 @@ const routes: Routes = [
           import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(
             (m) => m.EditAddressHomeComponent,
           ),
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewClients },
         canDeactivate: [CanDeactivateGuard],
       },
       {
@@ -121,7 +128,8 @@ const routes: Routes = [
           import('./presentation/workplace/settings/settings-home/settings-home.component').then(
             (m) => m.SettingsHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewSettings },
       },
       {
         path: 'escalations',
@@ -129,7 +137,8 @@ const routes: Routes = [
           import('./presentation/workplace/escalations/escalation-intervention-list/escalation-intervention-list.component').then(
             (m) => m.EscalationInterventionListComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: ROLE_ADMIN },
       },
       {
         path: 'group',
@@ -137,7 +146,8 @@ const routes: Routes = [
           import('./presentation/workplace/group/all-group/all-group-home/all-group-home.component').then(
             (m) => m.AllGroupHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewGroups },
       },
       {
         path: 'edit-group',
@@ -145,7 +155,8 @@ const routes: Routes = [
           import('./presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component').then(
             (m) => m.EditGroupHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewGroups },
       },
       {
         path: 'edit-group/:id',
@@ -153,7 +164,8 @@ const routes: Routes = [
           import('./presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component').then(
             (m) => m.EditGroupHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewGroups },
       },
       {
         path: 'shift',
@@ -168,15 +180,8 @@ const routes: Routes = [
           import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(
             (m) => m.EditShiftHomeComponent,
           ),
-        canActivate: [AdminGuard],
-      },
-      {
-        path: 'edit-shift',
-        loadComponent: () =>
-          import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(
-            (m) => m.EditShiftHomeComponent,
-          ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanCreateShifts },
       },
       {
         path: 'edit-shift/:id',
@@ -184,7 +189,8 @@ const routes: Routes = [
           import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(
             (m) => m.EditShiftHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewShifts },
       },
       {
         path: 'cut-shift/:id',
@@ -192,6 +198,8 @@ const routes: Routes = [
           import('./presentation/workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component').then(
             (m) => m.CutShiftHomeComponent,
           ),
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanEditShifts },
       },
       {
         path: 'container-template/:id',
@@ -199,6 +207,8 @@ const routes: Routes = [
           import('./presentation/workplace/shift/container-template/container-template.component').then(
             (m) => m.ContainerTemplateComponent,
           ),
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanEditShifts },
       },
       {
         path: 'inbox',
@@ -230,7 +240,8 @@ const routes: Routes = [
           import('./presentation/workplace/period-closing/period-closing-home/period-closing-home.component').then(
             (m) => m.PeriodClosingHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: ROLE_ADMIN },
       },
       {
         path: 'klacksy-training',
@@ -238,7 +249,8 @@ const routes: Routes = [
           import('./presentation/workplace/klacksy-training/klacksy-training-review-home/klacksy-training-review-home.component').then(
             (m) => m.KlacksyTrainingReviewHomeComponent,
           ),
-        canActivate: [AdminGuard],
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: ROLE_ADMIN },
       },
     ],
   },

@@ -6,6 +6,7 @@ import { ClientImageComponent } from './client-image.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
@@ -16,6 +17,7 @@ describe('ClientImageComponent', () => {
     let mockDataManagementClientService: any;
     let mockDataLoadFileService: any;
     let mockAuthorizationService: any;
+    let grantedPermissions: Set<string>;
     let editClientSignal: WritableSignal<any>;
     let editClientDeletedSignal: WritableSignal<boolean>;
 
@@ -39,8 +41,10 @@ describe('ClientImageComponent', () => {
             uploadFile: vi.fn()
         };
 
+        grantedPermissions = new Set([PERMISSIONS.CanEditClients]);
         mockAuthorizationService = {
-            isAdmin: true,
+            hasPermission: (p: string) => grantedPermissions.has(p),
+            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
         };
 
         await TestBed.configureTestingModule({
@@ -62,6 +66,19 @@ describe('ClientImageComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    describe('isDisabled', () => {
+        it('should be true for the Planer role, which lacks CanEditClients', () => {
+            grantedPermissions.clear();
+            expect(component.isDisabled()).toBe(true);
+        });
+
+        it('should be false for the Supervisor role, which holds CanEditClients, when client not deleted', () => {
+            grantedPermissions = new Set([PERMISSIONS.CanEditClients]);
+            editClientDeletedSignal.set(false);
+            expect(component.isDisabled()).toBe(false);
+        });
     });
 
     describe('loadImage', () => {

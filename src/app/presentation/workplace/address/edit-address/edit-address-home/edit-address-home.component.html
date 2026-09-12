@@ -95,7 +95,7 @@
     </app-client-image>
   </div>
 
-  @if (authorizationService.isAuthorised) {
+  @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
   <div class="container-address-nav border-right-card border-bottom-card">
     <app-edit-address-nav></app-edit-address-nav>
   </div>

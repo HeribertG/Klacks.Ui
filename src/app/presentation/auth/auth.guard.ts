@@ -1,7 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Guard that protects routes requiring authentication and authorization.
+ * Guard that protects routes requiring a session. It answers one question only - is the user
+ * signed in - and sends anyone else to the login page with the requested url. Which rights a
+ * route demands is the business of permissionGuard, which reads them from the route data.
+ * Losing the session is not a rights problem, so no refusal reason is recorded here.
  */
 import { inject } from '@angular/core';
 import { CanActivateFn, RouterStateSnapshot } from '@angular/router';
@@ -12,7 +15,7 @@ export const AuthGuard: CanActivateFn = (_route, state: RouterStateSnapshot) => 
   const authService = inject(AuthService);
   const navigationService = inject(NavigationService);
 
-  if (authService.authenticated() && authService.isAuthorised(state.url)) {
+  if (authService.authenticated()) {
     return true;
   }
 

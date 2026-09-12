@@ -6,7 +6,7 @@
 
     <span class="filler"></span>
 
-    @if (authorizationService.isAdmin) {
+    @if (authorizationService.hasPermission(PERMISSIONS.CanCreateClients)) {
       <div class="tree-actions">
         <button
           id="new-address-button"
@@ -223,7 +223,7 @@
             </td>
 
             <td class="table-cell cell-right">
-              @if (authorizationService.isAdmin) {
+              @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
                 <div>
                   <div
                     [id]="'client-edit-button-' + i"
@@ -233,7 +233,7 @@
                     <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
                   </div>
 
-                  @if (!data.isDeleted) {
+                  @if (!data.isDeleted && authorizationService.hasPermission(PERMISSIONS.CanDeleteClients)) {
                     <div
                       [id]="'client-delete-button-' + i"
                       class="icon"
@@ -244,7 +244,7 @@
                   }
                 </div>
               }
-              @if (!authorizationService.isAdmin) {
+              @if (!authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
                 <div>
                   <div
                     [id]="'client-view-button-' + i"

@@ -38,6 +38,7 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from '@angular/cdk/drag-drop';
 
@@ -69,6 +70,7 @@ import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from
 })
 export class TreeGroupComponent implements OnInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   public dataManagementGroupService = inject(DataManagementGroupService);
   private navigationService = inject(NavigationService);
   private injector = inject(Injector);
@@ -183,6 +185,10 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   }
 
   onAddRootGroup(): void {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanCreateGroups)) {
+      return;
+    }
+
     this.dataManagementGroupService.createGroup();
     this.navigationService.navigateToEditGroup();
   }
@@ -340,6 +346,12 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   }
 
   onDrop(event: CdkDragDrop<Group>): void {
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
+      this.dataManagementGroupService.initTree(undefined, true);
+      this.resetDragState();
+      return;
+    }
+
     if (event.previousContainer === event.container) {
       this.dataManagementGroupService.initTree(undefined, true);
       this.resetDragState();

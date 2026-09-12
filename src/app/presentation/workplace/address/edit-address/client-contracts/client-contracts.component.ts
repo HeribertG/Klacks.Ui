@@ -18,6 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { NgbModule, NgbTooltipModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IContract } from 'src/app/domain/models/contract/contract-class';
 import { IClientContract } from 'src/app/domain/models/client/client-class';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
@@ -130,7 +131,7 @@ export class ClientContractsComponent implements OnInit {
     return (
       this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAdmin
+      !this.authorizationService.hasPermission(PERMISSIONS.CanEditContracts)
     );
   }
 

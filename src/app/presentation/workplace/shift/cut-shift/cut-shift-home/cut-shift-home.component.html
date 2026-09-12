@@ -3,7 +3,11 @@
     {{ "shift.cut-shift.header" | translate }}
   </div>
 
-  <div class="container-profilline">
+  <div
+    class="container-profilline"
+    data-klacksy-target="cut-shift.overview"
+    data-klacksy-label-key="shift.cut-shift.header"
+  >
     <app-cut-shift-list
       (isChangingEvent)="onIsChanging($event)"
       class="container-profile first border-right-card border-bottom-card"

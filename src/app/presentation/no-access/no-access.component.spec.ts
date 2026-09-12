@@ -4,10 +4,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, ParamMap, convertToParamMap } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { NoAccessComponent } from './no-access.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import {
+    NO_ACCESS_FEATURE_DISABLED_KEY,
+    NO_ACCESS_PERMISSION_KEY,
+    NO_ACCESS_REASON_FEATURE,
+    NO_ACCESS_REASON_PERMISSION,
+    NO_ACCESS_REASON_QUERY_PARAM,
+} from 'src/app/domain/constants/no-access-reason.constants';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,11 +29,16 @@ describe('NoAccessComponent', () => {
     let component: NoAccessComponent;
     let fixture: ComponentFixture<NoAccessComponent>;
     let navigationService: any;
+    let queryParamMap: BehaviorSubject<ParamMap>;
+
+    const messageText = (): string =>
+        fixture.nativeElement.querySelector('.message').textContent.trim();
 
     beforeEach(async () => {
         const navigationServiceSpy = {
             navigateToRoot: vi.fn()
         };
+        queryParamMap = new BehaviorSubject<ParamMap>(convertToParamMap({}));
 
         await TestBed.configureTestingModule({
             imports: [
@@ -36,6 +50,7 @@ describe('NoAccessComponent', () => {
             ],
             providers: [
                 { provide: NavigationService, useValue: navigationServiceSpy },
+                { provide: ActivatedRoute, useValue: { queryParamMap } },
             ],
         }).compileComponents();
 
@@ -73,7 +88,7 @@ describe('NoAccessComponent', () => {
 
         const messageElement = fixture.nativeElement.querySelector('.message');
         expect(messageElement).toBeTruthy();
-        expect(messageElement.textContent.trim()).toContain('no-access.message');
+        expect(messageElement.textContent.trim()).toContain(NO_ACCESS_PERMISSION_KEY);
     });
 
     it('should render button with translation and click handler', () => {
@@ -124,6 +139,49 @@ describe('NoAccessComponent', () => {
 
         // Check button
         expect(compiled.querySelector('button')).toBeTruthy();
+    });
+
+    it('shows the feature wording when the guard refused for a feature that is not activated', () => {
+        queryParamMap.next(
+            convertToParamMap({ [NO_ACCESS_REASON_QUERY_PARAM]: NO_ACCESS_REASON_FEATURE }),
+        );
+        fixture.detectChanges();
+
+        expect(component.messageKey()).toBe(NO_ACCESS_FEATURE_DISABLED_KEY);
+        expect(messageText()).toContain(NO_ACCESS_FEATURE_DISABLED_KEY);
+        expect(messageText()).not.toContain(NO_ACCESS_PERMISSION_KEY);
+    });
+
+    it('keeps the rights wording for the permission reason', () => {
+        queryParamMap.next(
+            convertToParamMap({ [NO_ACCESS_REASON_QUERY_PARAM]: NO_ACCESS_REASON_PERMISSION }),
+        );
+        fixture.detectChanges();
+
+        expect(component.messageKey()).toBe(NO_ACCESS_PERMISSION_KEY);
+    });
+
+    it('keeps the rights wording for an unknown reason value', () => {
+        queryParamMap.next(convertToParamMap({ [NO_ACCESS_REASON_QUERY_PARAM]: 'whatever' }));
+        fixture.detectChanges();
+
+        expect(component.messageKey()).toBe(NO_ACCESS_PERMISSION_KEY);
+    });
+
+    it('follows a second redirect with a different reason instead of keeping a stale snapshot', () => {
+        queryParamMap.next(
+            convertToParamMap({ [NO_ACCESS_REASON_QUERY_PARAM]: NO_ACCESS_REASON_FEATURE }),
+        );
+        fixture.detectChanges();
+        expect(component.messageKey()).toBe(NO_ACCESS_FEATURE_DISABLED_KEY);
+
+        queryParamMap.next(
+            convertToParamMap({ [NO_ACCESS_REASON_QUERY_PARAM]: NO_ACCESS_REASON_PERMISSION }),
+        );
+        fixture.detectChanges();
+
+        expect(component.messageKey()).toBe(NO_ACCESS_PERMISSION_KEY);
+        expect(messageText()).toContain(NO_ACCESS_PERMISSION_KEY);
     });
 
     it('should have lock icon with proper path and styling', () => {

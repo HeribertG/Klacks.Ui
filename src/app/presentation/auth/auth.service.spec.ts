@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { ToastShowService } from '../toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
@@ -62,6 +63,7 @@ describe('AuthService', () => {
             expTime: new Date(),
             isAdmin: true,
             isAuthorised: true,
+            permissions: [ROLE_ADMIN],
             version: '1.0',
             refreshToken: 'refreshToken',
             success: false,
@@ -140,10 +142,51 @@ describe('AuthService', () => {
     it('should not refresh at startup when the access token is still valid', async () => {
         localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
         localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'refreshToken');
+        localStorage.setItem(StorageKeys.TOKEN_PERMISSIONS, JSON.stringify([ROLE_ADMIN]));
 
         await service.ensureFreshTokenAtStartup();
 
         httpMock.expectNone(refreshUrl);
+    });
+
+    it('should refresh a still-valid session that has no stored rights list, to repair a session from before the change', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'refreshToken');
+
+        const startupPromise = service.ensureFreshTokenAtStartup();
+
+        httpMock.expectOne(refreshUrl).flush({
+            token: makeJwt(3600),
+            subject: 'subject',
+            username: 'username',
+            id: 'id',
+            expTime: new Date(),
+            isAdmin: true,
+            isAuthorised: true,
+            permissions: [ROLE_ADMIN],
+            version: '1.0',
+            refreshToken: 'rotatedRefreshToken',
+        });
+        await startupPromise;
+
+        expect(localStorage.getItem(StorageKeys.TOKEN_PERMISSIONS)).toBe(
+            JSON.stringify([ROLE_ADMIN])
+        );
+    });
+
+    it('should keep a still-valid session signed in when the rights-list repair fails', async () => {
+        localStorage.setItem(StorageKeys.TOKEN, makeJwt(3600));
+        localStorage.setItem(StorageKeys.TOKEN_REFRESHTOKEN, 'deadRefreshToken');
+
+        const startupPromise = service.ensureFreshTokenAtStartup();
+
+        httpMock.expectOne(refreshUrl).flush('Unauthorized', {
+            status: 401,
+            statusText: 'Unauthorized',
+        });
+        await startupPromise;
+
+        expect(localStorage.getItem(StorageKeys.TOKEN)).not.toBeNull();
     });
 
     it('should not refresh at startup when the token is expired but no refresh token exists', async () => {
@@ -211,6 +254,7 @@ describe('AuthService', () => {
             expTime: new Date(),
             isAdmin: true,
             isAuthorised: true,
+            permissions: [ROLE_ADMIN],
             version: '1.0',
             refreshToken: 'rotatedRefreshToken',
         });
@@ -235,6 +279,7 @@ describe('AuthService', () => {
             expTime: new Date(),
             isAdmin: true,
             isAuthorised: true,
+            permissions: [ROLE_ADMIN],
             version: '1.0',
             refreshToken: 'rotatedRefreshToken',
         });

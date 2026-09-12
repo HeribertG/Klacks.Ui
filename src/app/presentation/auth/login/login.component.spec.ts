@@ -40,7 +40,6 @@ describe('LoginComponent', () => {
         const authServiceSpy = {
             logIn: vi.fn(),
             checkIfTokenIsValid: vi.fn(),
-            isAdminUser: vi.fn().mockReturnValue(false),
         };
         const syncNotificationServiceSpy = {
             checkAndShow: vi.fn().mockResolvedValue(undefined),
@@ -49,7 +48,8 @@ describe('LoginComponent', () => {
             checkAndRedirect: vi.fn().mockResolvedValue(false),
         };
         const authorizationServiceSpy = {
-            refresh: vi.fn()
+            refresh: vi.fn(),
+            hasPermission: vi.fn().mockReturnValue(false)
         };
         const localStorageServiceSpy = {
             get: vi.fn()

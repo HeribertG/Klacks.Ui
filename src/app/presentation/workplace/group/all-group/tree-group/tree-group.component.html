@@ -51,11 +51,13 @@
       <app-icon-refresh-grey></app-icon-refresh-grey>
     </div>
 
+    @if (authorizationService.hasPermission(PERMISSIONS.CanCreateGroups)) {
     <div class="tree-actions">
       <button id="tree-group-add-root-button" class="btn new-btn" (click)="onAddRootGroup()">
         {{ "group.tree.add-root" | translate }}
       </button>
     </div>
+    }
     <div
       id="tree-group-grid-toggle"
       class="btn ownStyle-button"
@@ -109,6 +111,7 @@
              [class.active]="isNodeSelected(node)"
              cdkDrag
              [cdkDragData]="node"
+             [cdkDragDisabled]="!authorizationService.hasPermission(PERMISSIONS.CanEditGroups)"
              (cdkDragStarted)="onDragStarted(node)"
              (cdkDragMoved)="onDragMoved($event)"
              (cdkDragEnded)="onDragEnded()">
@@ -158,22 +161,28 @@
             >
           </div>
 
-          @if (authorizationService.isAuthorised) {
+          @if (authorizationService.hasAnyPermission(PERMISSIONS.CanEditGroups, PERMISSIONS.CanCreateGroups, PERMISSIONS.CanDeleteGroups)) {
           <div class="tree-node-actions" [id]="'tree-node-actions-' + node.id">
+            @if (authorizationService.hasPermission(PERMISSIONS.CanEditGroups)) {
             <button class="tree-action-btn" [id]="'tree-node-edit-btn-' + node.id" (click)="editNode(node)">
               <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
             </button>
+            }
+            @if (authorizationService.hasPermission(PERMISSIONS.CanCreateGroups)) {
             <button class="tree-action-btn" [id]="'tree-node-copy-btn-' + node.id" (click)="copyNode(node)">
               <app-icon-copy-grey></app-icon-copy-grey>
             </button>
             <button class="tree-action-btn" [id]="'tree-node-add-btn-' + node.id" (click)="addChildNode(node)">
               <app-icon-add></app-icon-add>
             </button>
+            }
+            @if (authorizationService.hasPermission(PERMISSIONS.CanDeleteGroups)) {
             <button class="tree-action-btn" [id]="'tree-node-delete-btn-' + node.id" (click)="deleteNode(node)">
               <app-icon-trash-red></app-icon-trash-red>
             </button>
+            }
           </div>
-          } @if (!authorizationService.isAuthorised) {
+          } @if (!authorizationService.hasAnyPermission(PERMISSIONS.CanEditGroups, PERMISSIONS.CanCreateGroups, PERMISSIONS.CanDeleteGroups)) {
           <div class="tree-node-actions" [id]="'tree-node-actions-' + node.id">
             <button class="tree-action-btn" [id]="'tree-node-view-btn-' + node.id" (click)="editNode(node)">
               <app-icon-eye-grey></app-icon-eye-grey>

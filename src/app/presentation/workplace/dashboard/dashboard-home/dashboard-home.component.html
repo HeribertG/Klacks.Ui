@@ -138,20 +138,35 @@
 
         @if (sectionsState()[key]) {
           @switch (key) {
-            @case ("overview") {
+            @case (SECTION_OVERVIEW) {
               <div class="container-dashboard-charts-row">
-                <app-dashboard-clients-overview></app-dashboard-clients-overview>
-                <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+                <app-dashboard-clients-overview
+                  data-klacksy-target="dashboard.clients-overview"
+                  data-klacksy-label-key="dashboard.clients.byGroup"
+                ></app-dashboard-clients-overview>
+                <app-dashboard-shifts-overview
+                  data-klacksy-target="dashboard.shifts-overview"
+                  data-klacksy-label-key="dashboard.shifts.byGroup"
+                ></app-dashboard-shifts-overview>
               </div>
             }
-            @case ("coverage") {
-              <app-dashboard-shift-coverage></app-dashboard-shift-coverage>
+            @case (SECTION_COVERAGE) {
+              <app-dashboard-shift-coverage
+                data-klacksy-target="dashboard.shift-coverage"
+                data-klacksy-label-key="dashboard.coverage.coverageByGroup"
+              ></app-dashboard-shift-coverage>
             }
-            @case ("resources") {
-              <app-dashboard-resource-monitor></app-dashboard-resource-monitor>
+            @case (SECTION_RESOURCES) {
+              <app-dashboard-resource-monitor
+                data-klacksy-target="dashboard.resource-monitor"
+                data-klacksy-label-key="dashboard.resource-monitor.title"
+              ></app-dashboard-resource-monitor>
             }
-            @case ("locations") {
-              <app-dashboard-clients-locations></app-dashboard-clients-locations>
+            @case (SECTION_LOCATIONS) {
+              <app-dashboard-clients-locations
+                data-klacksy-target="dashboard.clients-locations"
+                data-klacksy-label-key="dashboard.locations.headline"
+              ></app-dashboard-clients-locations>
             }
           }
         }

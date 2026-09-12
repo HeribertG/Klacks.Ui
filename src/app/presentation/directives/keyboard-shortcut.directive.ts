@@ -3,8 +3,8 @@
 import { Directive, OnInit, OnDestroy, inject } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Directive({
@@ -13,17 +13,10 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 })
 export class KeyboardShortcutDirective implements OnInit, OnDestroy {
   private navigationService = inject(NavigationService);
-  private localStorageService = inject(LocalStorageService);
+  private authorizationService = inject(AuthorizationService);
   private subscription = new Subscription();
-  private isAdmin = false;
 
   ngOnInit() {
-    if (this.localStorageService.get(StorageKeys.TOKEN_ADMIN)) {
-      this.isAdmin = JSON.parse(
-        this.localStorageService.get(StorageKeys.TOKEN_ADMIN)!
-      );
-    }
-
     this.subscription = fromEvent<KeyboardEvent>(document, 'keydown')
       .pipe(
         filter((event) => {
@@ -88,7 +81,7 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
           this.navigationService.navigateToClient();
           break;
         case '6':
-          if (this.isAdmin) {
+          if (this.authorizationService.hasPermission(PERMISSIONS.CanViewGroups)) {
             this.navigationService.navigateToGroup();
           }
           break;
@@ -96,7 +89,7 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
           this.navigationService.navigateToProfile();
           break;
         case '8':
-          if (this.isAdmin) {
+          if (this.authorizationService.hasPermission(PERMISSIONS.CanViewSettings)) {
             this.navigationService.navigateToSettings();
           }
           break;

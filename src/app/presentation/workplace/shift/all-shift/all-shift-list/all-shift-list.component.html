@@ -3,7 +3,7 @@
     {{ "shift.all-shift.list.title" | translate }}
 
     <span class="filler"></span>
-    @if (authorizationService.isAdmin &&
+    @if (authorizationService.hasPermission(PERMISSIONS.CanCreateShifts) &&
     dataManagementShiftService.currentFilter.filterType === 0){
     <div class="actions">
       <button
@@ -16,7 +16,7 @@
       </button>
     </div>
     }
-    @if (authorizationService.isAdmin &&
+    @if (authorizationService.hasPermission(PERMISSIONS.CanCreateShifts) &&
     dataManagementShiftService.currentFilter.filterType === 1){
     <div class="actions">
       <button

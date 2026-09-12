@@ -162,6 +162,7 @@ describe('SettingsHomeComponent', () => {
     ['individual-periods', 'work'],
     ['llm-models', 'llm'],
     ['klacksy-autonomy', 'klacksy'],
+    ['skill-effectiveness', 'klacksy'],
     ['updates', 'system'],
     ['email-config', 'communication'],
     ['imap-setting', 'communication'],

@@ -58,7 +58,9 @@ describe('TreeGroupComponent - Drag and Drop', () => {
         };
 
         const authorizationServiceSpy = {
-            isAuthorised: true
+            isAuthorised: true,
+            hasPermission: () => true,
+            hasAnyPermission: () => true,
         };
 
         const navigationServiceSpy = {

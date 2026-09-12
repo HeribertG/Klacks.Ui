@@ -12,6 +12,7 @@ import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -96,6 +97,70 @@ describe('AllShiftListComponent - onClickInfo', () => {
 
     expect(mockNavigationService.navigateToEditShift).not.toHaveBeenCalled();
     expect(mockAllShiftStateService.saveCurrentFilter).not.toHaveBeenCalled();
+  });
+});
+
+describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
+  let component: AllShiftListComponent;
+  let fixture: ComponentFixture<AllShiftListComponent>;
+  let mockNavigationService: any;
+  let mockShiftService: any;
+  let grantedPermissions: Set<string>;
+
+  const build = (queryParams: Record<string, string>) => {
+    mockNavigationService = { navigateToNewShift: vi.fn() };
+    mockShiftService = { pendingClientlessCreation: { set: vi.fn() } };
+
+    TestBed.configureTestingModule({
+      imports: [AllShiftListComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: DataManagementShiftService, useValue: mockShiftService },
+        { provide: DataManagementShiftCutService, useValue: {} },
+        {
+          provide: AuthorizationService,
+          useValue: {
+            hasPermission: (p: string) => grantedPermissions.has(p),
+            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
+          },
+        },
+        { provide: LocalStorageService, useValue: {} },
+        { provide: ModalService, useValue: {} },
+        { provide: ToastShowService, useValue: {} },
+        { provide: DataShiftService, useValue: {} },
+        { provide: NavigationService, useValue: mockNavigationService },
+        { provide: ActivatedRoute, useValue: activatedRouteStub(queryParams) },
+      ],
+    }).overrideComponent(AllShiftListComponent, {
+      set: {
+        providers: [
+          { provide: AllShiftStateService, useValue: { saveCurrentFilter: vi.fn() } },
+          { provide: ShiftTableResizeService, useValue: {} },
+          { provide: TableSortingService, useValue: {} },
+        ],
+      },
+    });
+
+    fixture = TestBed.createComponent(AllShiftListComponent);
+    component = fixture.componentInstance;
+  };
+
+  it('opens the clientless creation form for the Supervisor role, which holds CanCreateShifts', () => {
+    grantedPermissions = new Set([PERMISSIONS.CanCreateShifts]);
+    build({ create: 'plannable' });
+
+    (component as any).openPlannableCreateFormIfRequested();
+
+    expect(mockShiftService.pendingClientlessCreation.set).toHaveBeenCalledWith(true);
+    expect(mockNavigationService.navigateToNewShift).toHaveBeenCalled();
+  });
+
+  it('ignores the query trigger for the Planer role, which lacks CanCreateShifts', () => {
+    grantedPermissions = new Set();
+    build({ create: 'plannable' });
+
+    (component as any).openPlannableCreateFormIfRequested();
+
+    expect(mockNavigationService.navigateToNewShift).not.toHaveBeenCalled();
   });
 });
 

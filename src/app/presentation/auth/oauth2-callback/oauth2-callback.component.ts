@@ -148,8 +148,6 @@ export class OAuth2CallbackComponent implements OnInit {
     this.localStorageService.set(StorageKeys.TOKEN_USERNAME, token.userName || token.username);
     this.localStorageService.set(StorageKeys.TOKEN_USERID, token.id);
     this.localStorageService.set(StorageKeys.TOKEN_EXP, token.expires?.toString() || '');
-    this.localStorageService.set(StorageKeys.TOKEN_ADMIN, (token.isAdmin || false).toString());
-    this.localStorageService.set(StorageKeys.TOKEN_AUTHORISED, (token.isAuthorised || false).toString());
     if (token.refreshToken) {
       this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, token.refreshToken);
     }
@@ -159,7 +157,7 @@ export class OAuth2CallbackComponent implements OnInit {
       this.localStorageService.set('oauth2_provider_id', providerId);
     }
 
-    this.authorizationService.refresh();
+    this.authorizationService.store(token.permissions);
     void this.companyClockService.loadIfAuthenticated();
   }
 }

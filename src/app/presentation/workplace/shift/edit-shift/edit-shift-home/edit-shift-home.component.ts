@@ -29,6 +29,7 @@ import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.co
 import { EditShiftExpensesComponent } from '../edit-shift-expenses/edit-shift-expenses.component';
 import { ShiftQualificationsComponent } from '../edit-shift-qualifications/shift-qualifications.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -120,7 +121,13 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
       this.isReadOnly = queryParams['readonly'] === 'true';
       this.returnUrl = queryParams['returnUrl'] || null;
 
-      this.savebarService.setSavebarVisibility(!this.isReadOnly);
+      this.savebarService.setSavebarVisibility(
+        !this.isReadOnly &&
+          this.authorizationService.hasAnyPermission(
+            PERMISSIONS.CanEditShifts,
+            PERMISSIONS.CanCreateShifts,
+          ),
+      );
 
       if (this.returnUrl) {
         this.dataManagementShiftService.returnUrl = this.returnUrl;

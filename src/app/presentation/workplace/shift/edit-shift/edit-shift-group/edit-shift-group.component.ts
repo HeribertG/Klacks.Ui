@@ -28,8 +28,7 @@ import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-do
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
-import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 
 @Component({
   selector: 'app-edit-shift-group',
@@ -56,7 +55,7 @@ export class EditShiftGroupComponent
   readonly isChangingEvent = output<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
-  private authService = inject(AuthService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 
@@ -152,13 +151,15 @@ export class EditShiftGroupComponent
     }
   }
 
+  /**
+   * The status clause that used to sit here was AND-ed with the role check, so an OriginalOrder
+   * shift stayed editable for everyone; since the route asks only for CanViewShifts, the write right
+   * is the whole question. A holder of the write right may still edit a sealed or cut shift here,
+   * which is what the former role check granted.
+   */
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
-    const status = this.dataManagementShiftService.editShift?.status;
-    const isNotOriginal =
-      status !== undefined && status !== ShiftStatus.OriginalOrder;
-    const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
 
-    return isNotOriginal && isNotAuthorisedOrAdmin;
+    return !this.shiftEditPermission.canWriteCurrentShift();
   }
 }

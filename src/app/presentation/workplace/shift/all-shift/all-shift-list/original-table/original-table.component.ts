@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { InfoIconComponent } from 'src/app/presentation/icons/icon-info.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
@@ -29,6 +31,8 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 })
 export class OriginalTableComponent {
   private textFormatterService = inject(TextFormatterService);
+  public authorizationService = inject(AuthorizationService);
+  public readonly PERMISSIONS = PERMISSIONS;
   readonly shifts = input<IShift[]>();
   readonly isSealedOrder = input(false);
   readonly sortingService = input.required<TableSortingService>();
