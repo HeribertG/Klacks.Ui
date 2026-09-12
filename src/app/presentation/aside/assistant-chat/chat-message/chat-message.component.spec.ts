@@ -7,6 +7,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatMessage } from '../chat-message.interface';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
+import { ChatStageStatusService } from '../services/chat-stage-status.service';
+import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 import { TextToSpeechService } from '../services/text-to-speech.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
@@ -17,6 +19,7 @@ import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/cons
 describe('ChatMessageComponent', () => {
   let fixture: ComponentFixture<ChatMessageComponent>;
   let component: ChatMessageComponent;
+  let stageStatus: ChatStageStatusService;
   let actionsMock: {
     correctionMenuMessageId: ReturnType<typeof signal<string | null>>;
     dismissMenuMessageId: ReturnType<typeof signal<string | null>>;
@@ -129,6 +132,7 @@ describe('ChatMessageComponent', () => {
 
     fixture = TestBed.createComponent(ChatMessageComponent);
     component = fixture.componentInstance;
+    stageStatus = TestBed.inject(ChatStageStatusService);
   });
 
   it('renders a user message bubble on the right with its text', () => {
@@ -264,5 +268,83 @@ describe('ChatMessageComponent', () => {
     helpfulButton.click();
 
     expect(actionsMock.submitHelpfulFeedback).toHaveBeenCalledWith(respondedMessage);
+  });
+
+  describe('working status row', () => {
+    const emptyStreamingMessage: ChatMessage = {
+      id: 'msg-streaming-1',
+      sender: 'assistant',
+      content: '',
+      formattedContent: '',
+      timestamp: new Date('2026-09-12T08:00:00Z'),
+      isStreaming: true,
+    };
+
+    it('shows the stage text and dots instead of an empty dated bubble while streaming with no content', () => {
+      stageStatus.startMessage(emptyStreamingMessage.id);
+      stageStatus.applyStatus(ASSISTANT_STATUS_STAGE.CallingModel);
+      fixture.componentRef.setInput('message', emptyStreamingMessage);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.message-text')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.message-time')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.stage-status-text').textContent).toContain(
+        'assistant-chat.stage.calling_model',
+      );
+      expect(fixture.nativeElement.querySelector('.typing-indicator')).toBeTruthy();
+    });
+
+    it('falls back to the generic working label before the first status event arrives', () => {
+      stageStatus.startMessage(emptyStreamingMessage.id);
+      fixture.componentRef.setInput('message', emptyStreamingMessage);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.stage-status-text').textContent).toContain(
+        'assistant-chat.tool-status.working',
+      );
+    });
+
+    it('renders normal text and the timestamp once content has arrived, even while still streaming', () => {
+      const streamingWithContent: ChatMessage = {
+        ...emptyStreamingMessage,
+        content: 'Teilantwort…',
+        formattedContent: 'Teilantwort…',
+      };
+      stageStatus.startMessage(emptyStreamingMessage.id);
+      stageStatus.applyStatus(ASSISTANT_STATUS_STAGE.CallingModel);
+      fixture.componentRef.setInput('message', streamingWithContent);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.message-text').textContent).toContain('Teilantwort…');
+      expect(fixture.nativeElement.querySelector('.message-time')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.stage-status')).toBeNull();
+    });
+
+    it('shows tool steps alongside already-streamed text for a later multi-turn tool call', () => {
+      const streamingWithContent: ChatMessage = {
+        ...emptyStreamingMessage,
+        content: 'Teilantwort…',
+        formattedContent: 'Teilantwort…',
+      };
+      stageStatus.startMessage(emptyStreamingMessage.id);
+      stageStatus.addToolStep('search_address');
+      fixture.componentRef.setInput('message', streamingWithContent);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.message-text').textContent).toContain('Teilantwort…');
+      expect(fixture.nativeElement.querySelector('.tool-status')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.stage-status-text')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.typing-indicator')).toBeNull();
+    });
+
+    it('falls back to the plain empty bubble for a message the stage service is not tracking', () => {
+      stageStatus.startMessage('some-other-message-id');
+      fixture.componentRef.setInput('message', emptyStreamingMessage);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.stage-status')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.message-text')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.message-time')).toBeTruthy();
+    });
   });
 });
