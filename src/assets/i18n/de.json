@@ -2752,6 +2752,8 @@
   "assistant-chat.goal-candidates.type.bulkSealOrdersCompleted.rationale": "In den letzten {{days}} Tagen wurde {{count}}-mal ein Massenversiegeln mit blockierten oder fehlgeschlagenen Bestellungen gemeldet.",
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.title": "Massenversiegeln von Bestellungen zuverlässig zum Laufen bringen",
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.rationale": "In den letzten {{days}} Tagen wurde {{count}}-mal ein abgebrochenes Massenversiegeln von Bestellungen gemeldet.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Klacksys Antwortqualität nicht abrutschen lassen",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "In den letzten {{days}} Tagen wurde {{count}}-mal ein Rückgang der gemessenen Antwortqualität gemeldet.",
   "autoWizard.tooltip": "AutoWizard - Plan + Harmonizer + Holistic Harmonizer ausführen",
   "autoWizard.dropdown.tooltip": "AutoWizard-Menü",
   "autoWizard.menu.plan": "Plan",

@@ -17,9 +17,13 @@ describe('LocaleService', () => {
   afterEach(() => {
     if (originalLanguageGetter) {
       Object.defineProperty(navigator, 'language', originalLanguageGetter);
+    } else {
+      delete (navigator as any).language;
     }
     if (originalLanguagesGetter) {
       Object.defineProperty(navigator, 'languages', originalLanguagesGetter);
+    } else {
+      delete (navigator as any).languages;
     }
   });
 
