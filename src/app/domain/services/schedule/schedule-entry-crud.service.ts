@@ -218,6 +218,9 @@ export class ScheduleEntryCrudService {
     if (response.work.periodHours) {
       this.workScheduleLoader.periodHours.set(targetClientId, response.work.periodHours);
     }
+    if (response.sourcePeriodHours) {
+      this.workScheduleLoader.periodHours.set(sourceClientId, response.sourcePeriodHours);
+    }
 
     const startDate = addDays(date, -1);
     const endDate = addDays(date, 1);

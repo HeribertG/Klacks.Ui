@@ -172,6 +172,7 @@ describe('ScheduleEntryCrudService', () => {
       reassignWorkClient: vi.fn().mockResolvedValue({
         work: { clientId: 'client-2', periodHours: { hours: 8 }, scheduleEntries: [{ clientId: 'client-2' }] },
         sourceScheduleEntries: [{ clientId: 'client-1' }],
+        sourcePeriodHours: { hours: 3 },
       }),
     };
 
@@ -561,6 +562,14 @@ describe('ScheduleEntryCrudService', () => {
         expect.any(Date),
         [{ clientId: 'client-2' }],
       );
+    });
+
+    it('should recalculate periodHours for the source client, not just the target', async () => {
+      // Act
+      await service.reassignWorkScheduleEntry('work-123', 'client-1', 'client-2', new Date('2025-01-15'));
+
+      // Assert
+      expect(workScheduleLoaderMock.periodHours.get('client-1')).toEqual({ hours: 3 });
     });
 
     it('should apply sourceScheduleEntries for the source client without an extra HTTP call', async () => {
