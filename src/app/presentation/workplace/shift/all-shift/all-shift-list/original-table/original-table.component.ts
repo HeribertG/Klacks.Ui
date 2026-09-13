@@ -13,6 +13,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 @Component({
   selector: 'app-original-table',
@@ -27,6 +28,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
     PencilIconGreyComponent,
     TrashIconRedComponent,
     InfoIconComponent,
+    CalendarDatePipe,
   ],
 })
 export class OriginalTableComponent {

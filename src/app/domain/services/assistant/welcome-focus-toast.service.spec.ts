@@ -3,6 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 
+import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import { WelcomeFocusToastService } from './welcome-focus-toast.service';
 import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
 import {
@@ -36,13 +37,14 @@ describe('WelcomeFocusToastService', () => {
 
   let service: WelcomeFocusToastService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
         WelcomeFocusToastService,
         { provide: TranslateService, useValue: translateMock },
       ],
     });
+    await TestBed.inject(LocaleDataLoaderService).ensureLoaded(translateMock.currentLang);
     service = TestBed.inject(WelcomeFocusToastService);
   });
 

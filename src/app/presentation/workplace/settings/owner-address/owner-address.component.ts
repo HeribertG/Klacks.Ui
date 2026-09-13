@@ -17,7 +17,7 @@ import { ClientConfigService } from 'src/app/domain/services/client/client-confi
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
-import { COMPANY_CLOCK_SOURCE_UTC } from 'src/app/domain/models/settings/company-clock.model';
+import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { IAppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -46,7 +46,7 @@ export class OwnerAddressComponent implements OnInit {
   public calendarSelectionService = inject(DataManagementCalendarSelectionService);
   private companyClockService = inject(CompanyClockService);
 
-  public readonly showUtcWarning = computed(() => this.companyClockService.source() === COMPANY_CLOCK_SOURCE_UTC);
+  public readonly showUtcWarning = computed(() => isCompanyClockUtcFallback(this.companyClockService.source()));
 
   private isInitialized = false;
   public selectedCountry = signal<string>('');

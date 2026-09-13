@@ -7,6 +7,9 @@
  * @param mapRenderingService - Renders the route map as a canvas element
  */
 import { Injectable, inject } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
@@ -75,6 +78,7 @@ const FONT_STYLE_NORMAL = 'normal' as const;
 @Injectable()
 export class RoutePdfExportService {
   private translateService = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private mapRenderingService = inject(MapRenderingService);
 
   async exportRouteToPdf(
@@ -96,7 +100,7 @@ export class RoutePdfExportService {
     pdf.text(
       `${this.translateService.instant(
         'pdf.generated'
-      )}: ${new Date().toLocaleDateString()}`,
+      )}: ${formatCalendarDate(companyToday(), this.localeService.getLocale()) ?? ''}`,
       PDF_MARGIN,
       PDF_GENERATED_Y
     );

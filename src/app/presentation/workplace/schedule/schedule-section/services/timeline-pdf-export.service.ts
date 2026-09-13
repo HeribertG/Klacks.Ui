@@ -7,6 +7,9 @@
  * @param rowHeight - Fixed height per client row (150 pt ≈ 3 clients per A4-landscape page)
  */
 import { Injectable, inject } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF, GState } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
 import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
@@ -38,6 +41,7 @@ interface TimelineClientBlock {
 @Injectable()
 export class TimelinePdfExportService {
   private translateService = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private dataService = inject(BaseDataService) as ScheduleDataService;
   private appSettingsService = inject(AppSettingsManagementService);
@@ -233,7 +237,7 @@ export class TimelinePdfExportService {
     const pageText = this.translateService.instant('pdf.page');
     const ofText = this.translateService.instant('pdf.of');
 
-    const dateString = `${generatedText}: ${new Date().toLocaleDateString()}`;
+    const dateString = `${generatedText}: ${formatCalendarDate(companyToday(), this.localeService.getLocale()) ?? ''}`;
     const pageString = `${pageText} ${pageNumber} ${ofText} ${totalPages}`;
 
     if (this.isRtl) {

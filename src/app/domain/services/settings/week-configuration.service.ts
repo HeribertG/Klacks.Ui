@@ -22,10 +22,15 @@ export class WeekConfigurationService {
     return new Set(names.map((name) => DAY_NAME_TO_JS_DAY[name]).filter((d) => d !== undefined));
   });
 
-  public weekStartDay = computed<number>(() => {
+  public configuredWeekStartDay = computed<number | null>(() => {
     const name = this.appSettings.schedulingDefaultSettings().weekStartDay;
-    return DAY_NAME_TO_JS_DAY[name] ?? DEFAULT_WEEK_START_JS_DAY;
+    const jsDay = DAY_NAME_TO_JS_DAY[name];
+    return jsDay === undefined ? null : jsDay;
   });
+
+  public weekStartDay = computed<number>(
+    () => this.configuredWeekStartDay() ?? DEFAULT_WEEK_START_JS_DAY
+  );
 
   /**
    * The configured weekend days ordered by ISO weekday (Monday=1..Sunday=7), mirroring the

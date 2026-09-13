@@ -1280,6 +1280,10 @@
   "setting.owner-address.timezone": "Fuso orario",
   "setting.owner-address.noTimezone": "Deduci dal paese (altrimenti UTC)",
   "setting.companyClock.utcWarning": "Nessun fuso orario aziendale configurato — le date utilizzano UTC. Seleziona il fuso orario.",
+  "companyClock.utcBanner.text": "Il fuso orario aziendale non è configurato; Klacks utilizza UTC. Imposta il paese o il fuso orario in Impostazioni → {{target}}.",
+  "companyClock.utcBanner.multiZoneText": "Il paese dell’azienda ha più fusi orari; Klacks utilizza UTC finché non viene selezionato un fuso orario in Impostazioni → {{target}}.",
+  "companyClock.utcBanner.action": "Apri l'indirizzo aziendale",
+  "companyClock.utcBanner.dismiss": "Nascondi",
   "setting.owner-address.globalCalendarCountry": "Calendario globale - Paese",
   "setting.owner-address.globalCalendarState": "Calendario globale - Cantone",
   "setting.owner-address.noCountry": "Nessun paese",
@@ -4068,5 +4072,11 @@
   "settings.skillEffectiveness": "Efficacia degli skill",
   "shift.edit-shift.group.header": "Gruppi assegnati",
   "profile.nav.aria-label": "Apri il profilo",
-  "settings.nav.aria-label": "Apri le impostazioni"
+  "settings.nav.aria-label": "Apri le impostazioni",
+  "client.export.column.number": "N.",
+  "client.export.column.company": "Azienda",
+  "client.export.column.first-name": "Nome",
+  "client.export.column.name": "Cognome",
+  "client.export.column.birthdate": "Data di nascita",
+  "client.export.column.type": "Tipo"
 }

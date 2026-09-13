@@ -10,7 +10,8 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,7 +32,7 @@ interface InboxListFilterFormModel {
   templateUrl: './inbox-list.component.html',
   styleUrls: ['./inbox-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, DatePipe, TranslateModule, FormsModule, FormField, ContextMenuComponent],
+  imports: [CommonModule, CompanyDateTimePipe, TranslateModule, FormsModule, FormField, ContextMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxListComponent implements OnInit, AfterViewInit {

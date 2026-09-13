@@ -3,7 +3,6 @@
 import { Component, inject, computed, effect, signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { sanitizeStoredHtml } from 'src/app/shared/helpers/html-sanitizer.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -18,12 +17,13 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { InboxEmailPdfExportService } from '../services/inbox-email-pdf-export.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 @Component({
   selector: 'app-inbox-detail',
   templateUrl: './inbox-detail.component.html',
   styleUrls: ['./inbox-detail.component.scss'],
   standalone: true,
-  imports: [DatePipe, TranslateModule, FontAwesomeModule, TrashIconRedComponent, IconEyeClosedComponent, PdfIconComponent],
+  imports: [CompanyDateTimePipe, TranslateModule, FontAwesomeModule, TrashIconRedComponent, IconEyeClosedComponent, PdfIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxDetailComponent {

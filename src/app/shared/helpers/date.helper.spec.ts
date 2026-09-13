@@ -15,6 +15,18 @@ import {
   expectedJanuaryOffsetMinutes,
   useTimeZone,
 } from 'src/app/shared/testing/time-zone.testing';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+import localeEn from '@angular/common/locales/en';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+import localeTh from '@angular/common/locales/th';
+
+registerLocaleData(localeDe, 'de');
+registerLocaleData(localeEn, 'en');
+registerLocaleData(localeFr, 'fr');
+registerLocaleData(localeIt, 'it');
+registerLocaleData(localeTh, 'th');
 
 describe('Date Helper Functions', () => {
   describe('DateToString', () => {
@@ -28,8 +40,28 @@ describe('Date Helper Functions', () => {
     it('should format date with full weekday name (English)', () => {
       const date = new Date('2024-03-15T00:00:00');
       const result = DateToString(date, 'en');
-      expect(result).toContain('15.03.2024');
+      expect(result).toContain('3/15/2024');
       expect(result).toContain('Friday');
+    });
+
+    it('should use french weekday names, not english ones', () => {
+      const date = new Date('2024-03-15T00:00:00');
+
+      expect(DateToString(date, 'fr')).toBe('vendredi 15/03/2024');
+    });
+
+    it('should use italian weekday names, not english ones', () => {
+      const date = new Date('2024-03-15T00:00:00');
+
+      expect(DateToString(date, 'it')).toBe('venerdì 15/03/2024');
+    });
+
+    it('should use thai weekday names and a gregorian year', () => {
+      const date = new Date('2024-03-15T00:00:00');
+      const result = DateToString(date, 'th');
+
+      expect(result).toContain('15/3/2024');
+      expect(result).not.toContain('2567');
     });
   });
 

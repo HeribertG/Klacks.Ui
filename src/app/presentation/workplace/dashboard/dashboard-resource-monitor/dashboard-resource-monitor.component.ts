@@ -18,6 +18,8 @@ import { Group } from 'src/app/domain/models/group/group-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/shared/helpers/intl-format-options.helper';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
@@ -61,6 +63,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   private holidayCollection = inject(HolidayCollectionService);
   private manualLoader = inject(ManualLoaderService);
   private translate = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private readonly destroyRef = inject(DestroyRef);
 
   selectedYear = signal(companyToday().getFullYear());
@@ -140,7 +143,10 @@ export class DashboardResourceMonitorComponent implements OnInit {
       if (month !== lastMonth) {
         markers.push({
           index: i,
-          label: new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(date),
+          label: new Intl.DateTimeFormat(this.localeService.getLocale(), {
+            ...GREGORIAN_LATIN_INTL_OPTIONS,
+            month: 'short',
+          }).format(date),
         });
         lastMonth = month;
       }

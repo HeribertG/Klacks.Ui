@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { DatePipe } from '@angular/common';
-import { LOCALE_ID } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CalendarDatePipe } from './calendar-date.pipe';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,
@@ -18,8 +20,9 @@ describe('CalendarDatePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CalendarDatePipe, { provide: LOCALE_ID, useValue: 'en-US' }],
+      providers: [CalendarDatePipe],
     });
+    TestBed.inject(LocaleService).setLocale('en-US');
     pipe = TestBed.inject(CalendarDatePipe);
   });
 
@@ -64,4 +67,52 @@ describe('CalendarDatePipe', () => {
       });
     });
   }
+
+  describe('live locale from LocaleService', () => {
+    it('should follow a language switch instead of the bootstrap LOCALE_ID', async () => {
+      const localeService = TestBed.inject(LocaleService);
+      await TestBed.inject(LocaleDataLoaderService).ensureLoaded('de');
+      await TestBed.inject(LocaleDataLoaderService).ensureLoaded('en');
+
+      localeService.setLocale('de');
+      expect(pipe.transform('2026-12-31', 'numericDate')).toBe('31.12.2026');
+
+      localeService.setLocale('en');
+      expect(pipe.transform('2026-12-31', 'numericDate')).toBe('12/31/2026');
+    });
+  });
+
+  describe('a rendered cell after a language switch', () => {
+    @Component({
+      standalone: true,
+      imports: [CalendarDatePipe],
+      template: `<span>{{ value | calendarDate: 'numericDate' }}</span>`,
+    })
+    class HostComponent {
+      value = '2026-12-31';
+    }
+
+    it('re-formats without a reload, because the pipe is impure and memoized', async () => {
+      const localeService = TestBed.inject(LocaleService);
+      await TestBed.inject(LocaleDataLoaderService).ensureLoaded('de');
+      await TestBed.inject(LocaleDataLoaderService).ensureLoaded('en');
+      localeService.setLocale('de');
+
+      const fixture = TestBed.createComponent(HostComponent);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent.trim()).toBe('31.12.2026');
+
+      localeService.setLocale('en');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent.trim()).toBe('12/31/2026');
+    });
+
+    it('does not serve a memoized result when only the format changes', () => {
+      TestBed.inject(LocaleService).setLocale('en');
+
+      expect(pipe.transform('2026-12-31', 'numericDate')).toBe('12/31/2026');
+      expect(pipe.transform('2026-12-31', 'yyyy')).toBe('2026');
+    });
+  });
 });

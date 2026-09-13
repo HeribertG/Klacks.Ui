@@ -92,7 +92,7 @@
         @if (attributionFor(data); as attribution) { @if (attribution.handledAtUtc) {
         <span class="klacksy-resolved-badge">{{
           'assistant.proactive.containerAutoResolved'
-            | translate: { date: attribution.handledAtUtc | date: 'dd.MM.yyyy' }
+            | translate: { date: attribution.handledAtUtc | companyDateTime: 'date' }
         }}</span>
         } @else {
         <span class="klacksy-resolved-badge">{{
@@ -106,13 +106,13 @@
       </td>
 
       <td colspan="2" class="table-cell-small-border">
-        <p>{{ data.fromDate | date : "dd.MM.yyyy" }}</p>
+        <p>{{ data.fromDate | calendarDate : 'numericDate' }}</p>
       </td>
 
       <td colspan="2" class="table-cell-small-border">
         @if (data.untilDate) {
         <p>
-          {{ data.untilDate | date : "dd.MM.yyyy" }}
+          {{ data.untilDate | calendarDate : 'numericDate' }}
         </p>
         }
       </td>

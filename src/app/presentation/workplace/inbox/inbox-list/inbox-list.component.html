@@ -95,7 +95,7 @@
           <span class="unread-dot"></span>
         }
         <span class="email-from">{{ getDisplayName(email) }}</span>
-        <span class="email-date">{{ email.receivedDate | date: 'dd.MM. HH:mm' }}</span>
+        <span class="email-date">{{ email.receivedDate | companyDateTime: 'dayMonthTime' }}</span>
       </div>
       <div class="email-row-bottom">
         <span class="email-subject">{{ email.subject }}</span>

@@ -11,6 +11,9 @@
  * @param unstaffedShiftTruncated - When true the count is rendered with a trailing "+" lower-bound marker
  */
 import { Injectable, inject } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
@@ -40,6 +43,7 @@ const COLUMN_WIDTH_CLIENT = 55;
 })
 export class PeriodIssuesPdfExportService {
   private translateService = inject(TranslateService);
+  private localeService = inject(LocaleService);
 
   private get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
@@ -92,7 +96,7 @@ export class PeriodIssuesPdfExportService {
 
     pdf.setFont('helvetica', 'normal');
     pdf.text(
-      `${this.translateService.instant('periodClosing.issues.pdf.generated')}: ${new Date().toLocaleDateString()}`,
+      `${this.translateService.instant('periodClosing.issues.pdf.generated')}: ${formatCalendarDate(companyToday(), this.localeService.getLocale()) ?? ''}`,
       x,
       PDF_META_Y,
       { align },

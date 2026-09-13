@@ -120,6 +120,13 @@ describe('ErpDropPointsComponent', () => {
     expect(component.showUtcWarning()).toBe(false);
   });
 
+  it('shows the UTC warning when the company clock source is UtcMultiZoneCountry', () => {
+    mockCompanyClockService.source.set('UtcMultiZoneCountry');
+    fixture.detectChanges();
+
+    expect(component.showUtcWarning()).toBe(true);
+  });
+
   it('includes the resolved company zone in the company-time-zone option label', () => {
     setCompanyTimeZone('Asia/Kolkata');
     fixture.detectChanges();

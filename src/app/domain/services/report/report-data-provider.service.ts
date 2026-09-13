@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +22,7 @@ import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { calendarDateKey, companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
@@ -106,6 +108,7 @@ export interface ReportDataProvider {
 @Injectable()
 export class ReportDataProviderService {
   private translate = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private workScheduleService = inject(DataWorkScheduleService);
   private breakPlaceholderService = inject(DataBreakPlaceholderService);
   private clientService = inject(DataClientService);
@@ -996,9 +999,7 @@ export class ReportDataProviderService {
 
   private formatDate(dateStr: string | Date | undefined): string {
     if (!dateStr) return '';
-    const date = parseCalendarDate(dateStr);
-    if (!date) return String(dateStr);
-    return date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return formatCalendarDate(dateStr, this.localeService.getLocale()) ?? String(dateStr);
   }
 
   private formatTime(time: string | undefined): string {

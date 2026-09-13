@@ -3,23 +3,23 @@
 /**
  * Intl formatting shared by the companyDateTime pipe (templates) and by plain-TS callers such as
  * periods-tab's buildUnsealMessage, so an instant renders identically wherever the company zone
- * is shown. The fixed dd.MM.yyyy template always uses the Gregorian calendar and Latin digits, so a
- * locale with another default calendar or numbering system (e.g. th, ar) cannot change year or digits.
+ * is shown. Field order and separators come from the locale (12/31/2026 under English, 2026/12/31
+ * under Japanese) instead of a fixed Swiss dd.MM.yyyy template, while the Gregorian calendar and
+ * Latin digits stay pinned, so a locale with another default calendar or numbering system (e.g. th,
+ * ar) cannot change year or digits. The hour cycle stays h23: the app shows 24h time everywhere.
  * @param value - Instant in any ISO wire format ("...Z", "...+02:00") or a Date
- * @param format - Preset name selecting the field layout: "dateTime" (dd.MM.yyyy, HH:mm) or "date" (dd.MM.yyyy)
- * @param locale - Locale used for Intl.DateTimeFormat (e.g. the app's LOCALE_ID)
+ * @param format - Preset name selecting the field layout: "dateTime" (date plus HH:mm), "date" (date
+ *   only) or "dayMonthTime" (day and month plus HH:mm, for compact list columns that omit the year)
+ * @param locale - Locale used for Intl.DateTimeFormat (the active language from LocaleService)
  * @param zone - IANA company time zone id, or null to fall back to the browser zone
  */
 
-export type CompanyDateTimeFormat = 'dateTime' | 'date';
+import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/shared/helpers/intl-format-options.helper';
 
-const GREGORIAN_LATIN_DIGITS: Intl.DateTimeFormatOptions = {
-  calendar: 'gregory',
-  numberingSystem: 'latn',
-};
+export type CompanyDateTimeFormat = 'dateTime' | 'date' | 'dayMonthTime';
 
 const COMPANY_DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
-  ...GREGORIAN_LATIN_DIGITS,
+  ...GREGORIAN_LATIN_INTL_OPTIONS,
   day: '2-digit',
   month: '2-digit',
   year: 'numeric',
@@ -29,22 +29,25 @@ const COMPANY_DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
 };
 
 const COMPANY_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  ...GREGORIAN_LATIN_DIGITS,
+  ...GREGORIAN_LATIN_INTL_OPTIONS,
   day: '2-digit',
   month: '2-digit',
   year: 'numeric',
 };
 
-type CompanyDateTimeParts = Partial<Record<Intl.DateTimeFormatPartTypes, string>>;
+const COMPANY_DAY_MONTH_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
+  ...GREGORIAN_LATIN_INTL_OPTIONS,
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+};
 
 const COMPANY_DATE_TIME_FORMAT_OPTIONS: Record<CompanyDateTimeFormat, Intl.DateTimeFormatOptions> = {
   dateTime: COMPANY_DATE_TIME_OPTIONS,
   date: COMPANY_DATE_OPTIONS,
-};
-
-const COMPANY_DATE_TIME_TEMPLATES: Record<CompanyDateTimeFormat, (parts: CompanyDateTimeParts) => string> = {
-  dateTime: (parts) => `${parts.day}.${parts.month}.${parts.year}, ${parts.hour}:${parts.minute}`,
-  date: (parts) => `${parts.day}.${parts.month}.${parts.year}`,
+  dayMonthTime: COMPANY_DAY_MONTH_TIME_OPTIONS,
 };
 
 export function formatCompanyInstant(
@@ -60,10 +63,6 @@ export function formatCompanyInstant(
 
   const baseOptions = COMPANY_DATE_TIME_FORMAT_OPTIONS[format];
   const options: Intl.DateTimeFormatOptions = zone ? { ...baseOptions, timeZone: zone } : baseOptions;
-  const parts: CompanyDateTimeParts = {};
-  for (const part of new Intl.DateTimeFormat(locale, options).formatToParts(date)) {
-    parts[part.type] = part.value;
-  }
 
-  return COMPANY_DATE_TIME_TEMPLATES[format](parts);
+  return new Intl.DateTimeFormat(locale, options).format(date);
 }

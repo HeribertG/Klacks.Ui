@@ -27,7 +27,7 @@ export interface PeriodResetData {
 })
 export class PeriodCalendarMonthlyComponent implements OnInit {
   @Input() year = companyToday().getFullYear();
-  @Input() month = new Date().getMonth() + 1;
+  @Input() month = companyToday().getMonth() + 1;
   readonly periodChanged = output<PeriodResetData>();
 
   public gridSettingsService = inject(GridSettingsService);

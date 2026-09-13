@@ -1280,6 +1280,10 @@
   "setting.owner-address.timezone": "Zeitzone",
   "setting.owner-address.noTimezone": "Aus Land ableiten (sonst UTC)",
   "setting.companyClock.utcWarning": "Keine Firmenzeitzone konfiguriert — Daten verwenden UTC. Bitte Zeitzone auswählen.",
+  "companyClock.utcBanner.text": "Die Firmenzeitzone ist nicht konfiguriert; Klacks verwendet UTC. Legen Sie das Land oder die Zeitzone unter Einstellungen → {{target}} fest.",
+  "companyClock.utcBanner.multiZoneText": "Das Land der Firma hat mehrere Zeitzonen; Klacks verwendet UTC, bis unter Einstellungen → {{target}} eine Zeitzone ausgewählt wird.",
+  "companyClock.utcBanner.action": "Firmenadresse öffnen",
+  "companyClock.utcBanner.dismiss": "Ausblenden",
   "setting.owner-address.globalCalendarCountry": "Globaler Kalender - Land",
   "setting.owner-address.globalCalendarState": "Globaler Kalender - Kanton",
   "setting.owner-address.noCountry": "Kein Land",
@@ -4076,5 +4080,11 @@
   "setting.skill-effectiveness.provenance.count": "Anzahl",
   "shift.edit-shift.group.header": "Zugeordnete Gruppen",
   "profile.nav.aria-label": "Profil öffnen",
-  "settings.nav.aria-label": "Einstellungen öffnen"
+  "settings.nav.aria-label": "Einstellungen öffnen",
+  "client.export.column.number": "Nr",
+  "client.export.column.company": "Firma",
+  "client.export.column.first-name": "Vorname",
+  "client.export.column.name": "Name",
+  "client.export.column.birthdate": "Geburtsdatum",
+  "client.export.column.type": "Typ"
 }

@@ -56,8 +56,8 @@
       (click)="onClickedRow(data)"
       [class.active]="data.id === highlightRowId"
     >
-      <td [id]="'absence-grid-cell-from-' + i" class="table-cell">{{ data.from | calendarDate : "dd.MM.yyyy" }}</td>
-      <td [id]="'absence-grid-cell-until-' + i" class="table-cell">{{ data.until | calendarDate : "dd.MM.yyyy" }}</td>
+      <td [id]="'absence-grid-cell-from-' + i" class="table-cell">{{ data.from | calendarDate : 'numericDate' }}</td>
+      <td [id]="'absence-grid-cell-until-' + i" class="table-cell">{{ data.until | calendarDate : 'numericDate' }}</td>
       <td [id]="'absence-grid-cell-absence-' + i" class="table-cell">{{ onAbsenceName(data) }}</td>
       <td [id]="'absence-grid-cell-value-' + i" class="table-cell">{{ onAbsenceValue(data) }}</td>
       <td [id]="'absence-grid-cell-note-' + i" class="table-cell">{{ isScheduleBreak(data) ? ("absence-gantt.absence-gantt-mask.absence-gantt-mask.list.booked" | translate) : getPlainTextNote(data) }}</td>

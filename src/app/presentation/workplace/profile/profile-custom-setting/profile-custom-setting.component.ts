@@ -55,7 +55,7 @@ export class ProfileCustomSettingComponent {
     this.translateService.use(lang);
     this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
-    this.localeService.setLocale(lang);
+    void this.localeService.switchLocale(lang);
   }
 
   onThemeChanged(event: Event): void {

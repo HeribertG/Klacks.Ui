@@ -90,8 +90,8 @@ export class LanguageConfigService implements ILanguageConfig {
       return savedLang;
     }
 
-    const browserLang = LocaleService.detectBrowserLanguage();
-    if (this.isLanguageSupported(browserLang)) {
+    const browserLang = LocaleService.matchSupportedLanguage(LocaleService.readBrowserLanguageTag());
+    if (browserLang && this.isLanguageSupported(browserLang)) {
       return browserLang;
     }
 

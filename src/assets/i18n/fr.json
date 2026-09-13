@@ -1280,6 +1280,10 @@
   "setting.owner-address.timezone": "Fuseau horaire",
   "setting.owner-address.noTimezone": "Déduire du pays (sinon UTC)",
   "setting.companyClock.utcWarning": "Aucun fuseau horaire de l'entreprise configuré — les dates utilisent UTC. Veuillez sélectionner le fuseau horaire.",
+  "companyClock.utcBanner.text": "Le fuseau horaire de l'entreprise n'est pas configuré ; Klacks utilise UTC. Définissez le pays ou le fuseau horaire sous Paramètres → {{target}}.",
+  "companyClock.utcBanner.multiZoneText": "Le pays de l'entreprise compte plusieurs fuseaux horaires ; Klacks utilise UTC tant qu'aucun fuseau horaire n'est sélectionné sous Paramètres → {{target}}.",
+  "companyClock.utcBanner.action": "Ouvrir l'adresse de l'entreprise",
+  "companyClock.utcBanner.dismiss": "Masquer",
   "setting.owner-address.globalCalendarCountry": "Calendrier global - Pays",
   "setting.owner-address.globalCalendarState": "Calendrier global - Canton",
   "setting.owner-address.noCountry": "Aucun pays",
@@ -4068,5 +4072,11 @@
   "settings.skillEffectiveness": "Efficacité des skills",
   "shift.edit-shift.group.header": "Groupes attribués",
   "profile.nav.aria-label": "Ouvrir le profil",
-  "settings.nav.aria-label": "Ouvrir les paramètres"
+  "settings.nav.aria-label": "Ouvrir les paramètres",
+  "client.export.column.number": "N°",
+  "client.export.column.company": "Entreprise",
+  "client.export.column.first-name": "Prénom",
+  "client.export.column.name": "Nom",
+  "client.export.column.birthdate": "Date de naissance",
+  "client.export.column.type": "Type"
 }

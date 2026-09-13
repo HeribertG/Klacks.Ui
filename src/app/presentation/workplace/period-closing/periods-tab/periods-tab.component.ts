@@ -14,7 +14,8 @@
  * @param modalService - Global confirmation modal service
  */
 
-import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,8 +35,9 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyTimeZone, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
+import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 
 const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
@@ -73,7 +75,7 @@ export class PeriodsTabComponent implements OnInit {
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
   private modalService = inject(ModalService);
-  private locale = inject(LOCALE_ID);
+  private localeService = inject(LocaleService);
 
   public readonly bulkUnsealKey = BULK_UNSEAL_KEY;
 
@@ -360,7 +362,7 @@ export class PeriodsTabComponent implements OnInit {
       return body;
     }
     const warning = this.translate.instant('periodClosing.warning.hasExport', {
-      date: formatCompanyInstant(exportLog.exportedAt, 'date', this.locale, companyTimeZone()) ?? '',
+      date: formatCompanyInstant(exportLog.exportedAt, 'date', this.localeService.getLocale(), companyTimeZone()) ?? '',
     });
     return `${body} ${warning}`;
   }
@@ -560,15 +562,18 @@ export class PeriodsTabComponent implements OnInit {
   }
 
   private formatDate(iso: string): string {
-    const d = new Date(`${iso}T00:00:00`);
-    return d.toLocaleDateString();
+    return formatCalendarDate(iso, this.localeService.getLocale()) ?? iso;
   }
 
   private formatMonthYear(startIso: string, endIso: string): string {
-    const start = new Date(`${startIso}T00:00:00`);
-    const end = new Date(`${endIso}T00:00:00`);
+    const start = parseCalendarDate(startIso);
+    const end = parseCalendarDate(endIso);
+    if (!start || !end) {
+      return '';
+    }
+
     const mid = new Date((start.getTime() + end.getTime()) / 2);
-    return mid.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    return formatCalendarDate(mid, this.localeService.getLocale(), 'monthYear') ?? '';
   }
 
   private intervalTranslationKey(interval: number): string {

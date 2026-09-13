@@ -130,5 +130,11 @@ describe('LanguageConfigService', () => {
 
       expect(service.resolveInitialLanguage(null)).toBe(service.getDefaultLanguage());
     });
+
+    it('should fall back to the installation default for an unknown browser language', () => {
+      mockNavigatorLanguage('xx-YY');
+
+      expect(service.resolveInitialLanguage(null)).toBe(service.getDefaultLanguage());
+    });
   });
 });

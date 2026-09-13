@@ -43,7 +43,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { AssetDownloadService } from 'src/app/application/services/asset-download.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
-import { COMPANY_CLOCK_SOURCE_UTC } from 'src/app/domain/models/settings/company-clock.model';
+import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
@@ -95,7 +95,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   private companyClockService = inject(CompanyClockService);
   private destroy$ = new Subject<void>();
 
-  public readonly showUtcWarning = computed(() => this.companyClockService.source() === COMPANY_CLOCK_SOURCE_UTC);
+  public readonly showUtcWarning = computed(() => isCompanyClockUtcFallback(this.companyClockService.source()));
 
   public readonly companyTimeZoneOptionLabel = computed(() => {
     const zone = companyTimeZone();

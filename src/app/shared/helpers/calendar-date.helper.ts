@@ -19,6 +19,8 @@
 
 import { signal } from '@angular/core';
 
+import { GREGORIAN_LATIN_INTL_OPTIONS } from './intl-format-options.helper';
+
 const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const WIRE_LOCALE = 'en-CA';
 const DATE_PART_WIDTH = 2;
@@ -112,6 +114,7 @@ export function companyToday(): Date {
   }
 
   const parts = new Intl.DateTimeFormat(WIRE_LOCALE, {
+    ...GREGORIAN_LATIN_INTL_OPTIONS,
     timeZone: zone,
     year: 'numeric',
     month: '2-digit',

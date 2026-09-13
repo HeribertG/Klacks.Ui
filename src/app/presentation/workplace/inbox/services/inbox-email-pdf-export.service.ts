@@ -5,6 +5,9 @@
  * @param data - Subject, body (HTML or plain text) and metadata of the email exactly as shown to the user
  */
 import { Injectable, inject } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
 import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
@@ -35,6 +38,7 @@ const PDF_META_TO_BODY_GAP = 5;
 })
 export class InboxEmailPdfExportService {
   private translateService = inject(TranslateService);
+  private localeService = inject(LocaleService);
 
   exportEmail(data: InboxEmailPrintData): void {
     const pdf = this.createPdfInstance();
@@ -115,9 +119,9 @@ export class InboxEmailPdfExportService {
   }
 
   private formatDateTime(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    if (isNaN(date.getTime())) return dateTimeStr;
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    return (
+      formatCompanyInstant(dateTimeStr, 'dateTime', this.localeService.getLocale(), companyTimeZone()) ??
+      dateTimeStr
+    );
   }
 }

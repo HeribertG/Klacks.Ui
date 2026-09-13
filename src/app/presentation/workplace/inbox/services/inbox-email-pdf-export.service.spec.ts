@@ -5,6 +5,13 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { InboxEmailPdfExportService, InboxEmailPrintData } from './inbox-email-pdf-export.service';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+import { LocaleService } from 'src/app/application/services/locale.service';
+
+registerLocaleData(localeDe, 'de');
+
+const GERMAN_LOCALE_SERVICE = { getLocale: () => 'de' } as LocaleService;
 
 describe('InboxEmailPdfExportService', () => {
   let service: InboxEmailPdfExportService;
@@ -36,6 +43,7 @@ describe('InboxEmailPdfExportService', () => {
       providers: [
         InboxEmailPdfExportService,
         { provide: TranslateService, useValue: translateSpy },
+        { provide: LocaleService, useValue: GERMAN_LOCALE_SERVICE },
       ],
     });
 

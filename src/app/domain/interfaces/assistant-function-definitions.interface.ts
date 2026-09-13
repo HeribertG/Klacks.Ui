@@ -33,6 +33,12 @@ export interface IAssistantFunctionResult {
   error?: string;
 }
 
+export interface ILLMFunctionExecuteRequest {
+  functionName: string;
+  parameters: Record<string, any>;
+  language?: string;
+}
+
 export interface IAssistantToolDefinition {
   type: 'function';
   function: {

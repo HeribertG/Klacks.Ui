@@ -18,6 +18,8 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
+import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 @Component({
   selector: 'app-shift-table',
@@ -36,6 +38,8 @@ import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proa
     IconShiftSegmentComponent,
     IconTimeWindowComponent,
     IconUnknownTimeComponent,
+    CompanyDateTimePipe,
+    CalendarDatePipe,
   ],
 })
 export class ShiftTableComponent {

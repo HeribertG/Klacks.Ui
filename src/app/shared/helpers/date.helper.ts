@@ -10,12 +10,12 @@
  * (it is still parsed as UTC; callers must pass real Dates).
  */
 
-import { format } from 'date-fns';
-import { de, enUS } from 'date-fns/locale';
-
 export const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { formatDateOnly, parseCalendarDate, toCalendarDateWire } from './calendar-date.helper';
+import { formatCalendarDate } from './locale-date-format.helper';
+
+const EMPTY_DATE_TEXT = '';
 
 export { formatDateOnly };
 
@@ -34,31 +34,33 @@ export function EqualDate(firstDate: Date, secondDate: Date): number {
 }
 
 /**
- * Formats a date as a localized long date string.
+ * Formats a date as a localized long date string: weekday name plus the numeric date layout of
+ * the given locale, so a French user reads "jeudi 31/12/2026" instead of an English weekday name
+ * in a Swiss layout.
  *
  * @param date - Date to format
  * @param locale - Locale code (default: DomainMessages.DEFAULT_LANG)
- * @returns Formatted date string (e.g., "Montag 15.03.2025")
+ * @returns Formatted date string (e.g., "Montag 15.03.2025"), or an empty string for an invalid date
  */
 export function DateToString(
   date: Date,
   locale: string = DomainMessages.DEFAULT_LANG
 ): string {
-  return formatDate(date, 'dddd DD.MM.yyyy', locale);
+  return formatCalendarDate(date, locale, 'weekdayDate') ?? EMPTY_DATE_TEXT;
 }
 
 /**
- * Formats a date as a short date string.
+ * Formats a date in the numeric date layout of the given locale.
  *
  * @param date - Date to format
  * @param locale - Locale code (default: DomainMessages.DEFAULT_LANG)
- * @returns Formatted date string (e.g., "15.03.2025")
+ * @returns Formatted date string (e.g., "15.03.2025"), or an empty string for an invalid date
  */
 export function DateToStringShort(
   date: Date,
   locale: string = DomainMessages.DEFAULT_LANG
 ): string {
-  return formatDate(date, 'DD.MM.yyyy', locale);
+  return formatCalendarDate(date, locale, 'numericDate') ?? EMPTY_DATE_TEXT;
 }
 
 /**
@@ -73,31 +75,7 @@ export function CalendarDateToStringShort(
   value: string,
   locale: string = DomainMessages.DEFAULT_LANG
 ): string {
-  const date = parseCalendarDate(value);
-  return date ? DateToStringShort(date, locale) : value;
-}
-
-/**
- * Format a date as a string using the given format and locale.
- *
- * @param date - The date to format
- * @param dateFormat - The format string to use
- * @param locale - The locale to use for formatting (default: DomainMessages.DEFAULT_LANG)
- * @returns The formatted date string
- */
-function formatDate(
-  date: Date,
-  dateFormat: string,
-  locale: string = DomainMessages.DEFAULT_LANG
-): string {
-  const localeObj = locale === 'de' ? de : enUS;
-
-  const dateFnsFormat = dateFormat
-    .replace(/dddd/g, 'EEEE')
-    .replace(/DD/g, 'dd')
-    .replace(/YYYY/g, 'yyyy');
-
-  return format(date, dateFnsFormat, { locale: localeObj });
+  return formatCalendarDate(value, locale, 'numericDate') ?? value;
 }
 
 /**

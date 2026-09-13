@@ -9,7 +9,6 @@ import {
   DestroyRef,
   HostListener,
   inject,
-  LOCALE_ID,
   OnInit,
   ChangeDetectionStrategy,
   output
@@ -50,7 +49,6 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   public toastShowService = inject(ToastShowService);
   public groupSelectionService = inject(GroupSelectionService);
   public sortingService = inject(TableSortingService);
-  private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
@@ -74,8 +72,6 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.locale = DomainMessages.DEFAULT_LANG;
-
     this.sortingService.initialize({
       columns: ['idNumber', 'company', 'firstName', 'name'],
       defaultOrderBy: 'idNumber',

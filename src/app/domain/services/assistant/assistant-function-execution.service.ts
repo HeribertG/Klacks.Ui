@@ -8,6 +8,7 @@ import { catchError, map, retry } from 'rxjs/operators';
 import {
   IAssistantFunctionCall,
   IAssistantFunctionResult,
+  ILLMFunctionExecuteRequest,
 } from '../../interfaces/assistant-function-definitions.interface';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
@@ -17,12 +18,14 @@ import {
   NAVIGATION_ROUTE_NOT_ALLOWED_ERROR,
   WORKPLACE_ROUTE_PREFIX,
 } from 'src/app/domain/constants/navigation-outcome.constants';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 
 @Injectable()
 export class AssistantFunctionExecutionService {
   private httpClient = inject(HttpClient);
   private router = inject(Router);
   private readonly klacksyNavigation = inject(KlacksyNavigationService);
+  private readonly assistantService = inject(DataManagementAssistantService);
   private readonly apiBaseUrl = environment.baseUrl;
 
   executeFunction(
@@ -89,9 +92,10 @@ export class AssistantFunctionExecutionService {
   executeFunctionsBatch(
     calls: IAssistantFunctionCall[]
   ): Promise<IAssistantFunctionResult[]> {
-    const requests = calls.map(call => ({
+    const requests: ILLMFunctionExecuteRequest[] = calls.map(call => ({
       functionName: call.name,
       parameters: call.arguments,
+      language: this.assistantService.currentLanguage(),
     }));
 
     return firstValueFrom(
@@ -135,6 +139,7 @@ export class AssistantFunctionExecutionService {
       }>(`${this.apiBaseUrl}assistant/chat/execute-function`, {
         functionName: call.name,
         parameters: call.arguments,
+        language: this.assistantService.currentLanguage(),
       })
       .pipe(
         map((response) => ({

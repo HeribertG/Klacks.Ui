@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID, APP_INITIALIZER } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID, APP_INITIALIZER, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 import {
@@ -43,6 +43,8 @@ import localeEn from '@angular/common/locales/en';
 import localeIt from '@angular/common/locales/it';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { CustomDatepickerI18n } from 'src/app/application/services/custom-datepicker-i18n.service';
+import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
+import { DatepickerWeekStartService } from 'src/app/application/services/datepicker-week-start.service';
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { AuthService } from './presentation/auth/auth.service';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
@@ -96,6 +98,16 @@ export function initializeAuthStartup(authService: AuthService) {
   return () => authService.ensureFreshTokenAtStartup();
 }
 
+export function initializeLocaleData(): Promise<void> {
+  const localeService = inject(LocaleService);
+  const localeDataLoader = inject(LocaleDataLoaderService);
+  return localeDataLoader.ensureLoaded(localeService.getLocale());
+}
+
+export function initializeDatepickerWeekStart(): void {
+  inject(DatepickerWeekStartService);
+}
+
 export function initializeLanguageConfig(service: LanguageConfigService) {
   return () => service.loadConfig().then(() => initializeLanguageHelper(service));
 }
@@ -104,6 +116,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter([]),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    provideAppInitializer(initializeLocaleData),
+    provideAppInitializer(initializeDatepickerWeekStart),
     {
       provide: APP_INITIALIZER,
       useFactory: initializeAuthStartup,

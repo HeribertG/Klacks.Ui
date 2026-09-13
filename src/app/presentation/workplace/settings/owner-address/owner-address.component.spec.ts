@@ -139,6 +139,13 @@ describe('OwnerAddressComponent', () => {
             expect(component.showUtcWarning()).toBe(false);
         });
 
+        it('is shown when the company clock source is UtcMultiZoneCountry', () => {
+            mockCompanyClockService.source.set('UtcMultiZoneCountry');
+            fixture.detectChanges();
+
+            expect(component.showUtcWarning()).toBe(true);
+        });
+
         it('is shown when the company clock source is Utc', () => {
             mockCompanyClockService.source.set('Utc');
             fixture.detectChanges();

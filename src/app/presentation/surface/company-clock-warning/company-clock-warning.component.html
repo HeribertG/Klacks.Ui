@@ -1,0 +1,24 @@
+@if (visible()) {
+  <div
+    id="company-clock-utc-banner"
+    class="alert alert-warning d-flex align-items-center gap-2 mb-0"
+    role="alert"
+  >
+    <span>{{ textKey() | translate: textParams() }}</span>
+    <button
+      id="company-clock-utc-banner-open"
+      type="button"
+      class="btn btn-link p-0"
+      (click)="openCompanyAddress()"
+    >
+      {{ keys.action | translate }}
+    </button>
+    <button
+      id="company-clock-utc-banner-dismiss"
+      type="button"
+      class="btn-close ms-auto"
+      [attr.aria-label]="keys.dismiss | translate"
+      (click)="dismiss()"
+    ></button>
+  </div>
+}

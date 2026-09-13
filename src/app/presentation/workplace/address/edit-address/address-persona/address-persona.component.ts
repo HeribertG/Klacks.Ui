@@ -12,7 +12,6 @@ import {
   AfterViewInit,
   Component,
   input,
-  LOCALE_ID,
   OnDestroy,
   OnInit,
   output,
@@ -118,7 +117,6 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   private messagingInvitationService = inject(DataMessagingInvitationService);
   private toastShowService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
-  private locale = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
@@ -286,7 +284,6 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngOnInit(): void {
-    this.locale = DomainMessages.DEFAULT_LANG;
     this.currentLang = this.translateService.currentLang as Language;
     this.message = DomainMessages.DEACTIVE_ADDRESS;
     this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;

@@ -26,6 +26,7 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { addDays } from 'src/app/shared/helpers/date.helper';
+import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -166,7 +167,7 @@ export class AbsenceGanttMaskComponent
       }
       if (id) {
         const absence = this.dataManagementAbsence.getAbsenceById(id);
-        const currentDate = new Date();
+        const currentDate = companyToday();
         const startDate = new Date(
           currentYear,
           currentDate.getMonth(),

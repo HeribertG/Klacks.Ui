@@ -6,6 +6,9 @@
  * neighbouring settings cards it has nothing to save; changing the window reloads the scorecard.
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -34,6 +37,7 @@ const EMPTY_VALUE = '-';
 export class SkillEffectivenessComponent implements OnInit, OnDestroy {
   private effectivenessService = inject(DataManagementSkillEffectivenessService);
   private cdr = inject(ChangeDetectorRef);
+  private localeService = inject(LocaleService);
   private destroy$ = new Subject<void>();
 
   readonly dayOptions = SKILL_EFFECTIVENESS_DAY_OPTIONS;
@@ -96,7 +100,7 @@ export class SkillEffectivenessComponent implements OnInit, OnDestroy {
     if (!value) {
       return EMPTY_VALUE;
     }
-    return new Date(value).toLocaleString();
+    return formatCompanyInstant(value, 'dateTime', this.localeService.getLocale(), companyTimeZone()) ?? EMPTY_VALUE;
   }
 
   model(value: string | null): string {

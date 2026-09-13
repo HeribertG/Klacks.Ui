@@ -94,7 +94,7 @@
     </div>
     <div class="meta-row">
       <span class="meta-label">{{ 'inbox.detail.date' | translate }}</span>
-      <span class="meta-value">{{ email()!.receivedDate | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+      <span class="meta-value">{{ email()!.receivedDate | companyDateTime }}</span>
     </div>
     <div class="meta-row">
       <span class="meta-label">{{ 'inbox.detail.folder' | translate }}</span>

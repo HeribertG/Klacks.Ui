@@ -15,6 +15,7 @@ import { NavComponent } from '../nav/nav.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MainComponent } from '../main/main.component';
 import { SavebarComponent } from '../savebar/savebar.component';
+import { CompanyClockWarningComponent } from '../company-clock-warning/company-clock-warning.component';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
@@ -32,6 +33,7 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
     SpinnerWrapperComponent,
     HeaderComponent,
     NavComponent,
+    CompanyClockWarningComponent,
     MainComponent,
     SavebarComponent,
     FooterComponent,

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   BreakPlaceholder,
@@ -22,6 +23,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +35,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
   private translateService = inject(TranslateService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroyRef = inject(DestroyRef);
+  private localeService = inject(LocaleService);
 
   public isRead = signal(false);
   private _showProgressSpinner = signal(false);
@@ -372,7 +375,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .subscribe((message) => {
           const formattedMessage = message.replace(
             '{0}',
-            membershipValidFrom.toLocaleDateString()
+            formatCalendarDate(membershipValidFrom, this.localeService.getLocale()) ?? ''
           );
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
@@ -391,7 +394,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .subscribe((message) => {
           const formattedMessage = message.replace(
             '{0}',
-            membershipValidUntil.toLocaleDateString()
+            formatCalendarDate(membershipValidUntil, this.localeService.getLocale()) ?? ''
           );
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
@@ -413,8 +416,8 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((message) => {
           const formattedMessage = message
-            .replace('{0}', membershipValidFrom.toLocaleDateString())
-            .replace('{1}', membershipValidUntil.toLocaleDateString());
+            .replace('{0}', formatCalendarDate(membershipValidFrom, this.localeService.getLocale()) ?? '')
+            .replace('{1}', formatCalendarDate(membershipValidUntil, this.localeService.getLocale()) ?? '');
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
             code: 'membership-validation-error',

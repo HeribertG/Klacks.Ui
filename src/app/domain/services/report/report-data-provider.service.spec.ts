@@ -1,7 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
 import { TestBed } from '@angular/core/testing';
+import { LocaleService } from 'src/app/application/services/locale.service';
+
+registerLocaleData(localeDe, 'de');
+
+const GERMAN_LOCALE_SERVICE = { getLocale: () => 'de' } as LocaleService;
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -76,6 +83,7 @@ describe('ReportDataProviderService', () => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
+        { provide: LocaleService, useValue: GERMAN_LOCALE_SERVICE },
         ReportDataProviderService,
         { provide: DataWorkScheduleService, useValue: {} },
         { provide: DataBreakPlaceholderService, useValue: {} },

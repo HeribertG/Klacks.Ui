@@ -20,7 +20,14 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { TranslateService } from '@ngx-translate/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import {
+  CLIENT_EXPORT_COLUMN_KEYS,
+  CLIENT_EXPORT_CSV_MIME_TYPE,
+  CLIENT_EXPORT_FILE_NAME,
+} from 'src/app/domain/constants/client-export.constants';
+import { buildClientExportCsv } from 'src/app/domain/services/client/client-export-csv.builder';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +35,8 @@ import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 export class ClientListService {
   private dataClientService = inject(DataClientService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private translateService = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private destroy$ = new Subject<void>();
 
   public listWrapper = signal<ITruncatedClient | undefined>(undefined);
@@ -125,22 +134,12 @@ export class ClientListService {
   }
 
   private generateAndDownloadCsv(items: IExportClientItem[]): void {
-    const header = ['Nr', 'Firma', 'Vorname', 'Name', 'Geburtsdatum', 'Typ'];
-    const rows = items.map((c) => [
-      c.idNumber,
-      c.company,
-      c.firstName,
-      c.name,
-      parseCalendarDate(c.birthdate)?.toLocaleDateString('de-CH') ?? '',
-      c.type,
-    ]);
-
-    const csvLines = [header, ...rows].map((row) =>
-      row.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+    const headers = CLIENT_EXPORT_COLUMN_KEYS.map(
+      (key) => this.translateService.instant(key) as string
     );
-    const csvContent = '﻿' + csvLines.join('\r\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'clients.csv');
+    const csvContent = buildClientExportCsv(items, headers, this.localeService.getLocale());
+    const blob = new Blob([csvContent], { type: CLIENT_EXPORT_CSV_MIME_TYPE });
+    saveAs(blob, CLIENT_EXPORT_FILE_NAME);
   }
 
   public clearCheckedArray() {

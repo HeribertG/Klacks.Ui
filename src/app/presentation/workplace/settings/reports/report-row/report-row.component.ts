@@ -8,6 +8,9 @@
  */
 
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, TemplateRef, inject, input, output, signal, viewChild, DestroyRef } from '@angular/core';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -108,6 +111,7 @@ export class ReportRowComponent {
   private toast = inject(ToastShowService);
   private reportApi = inject(DataReportApiService);
   private cdr = inject(ChangeDetectorRef);
+  private localeService = inject(LocaleService);
   private destroyRef = inject(DestroyRef);
 
   private modalRef: NgbModalRef | null = null;
@@ -245,8 +249,7 @@ export class ReportRowComponent {
   }
 
   formatVersionDate(version: ReportTemplateVersion): string {
-    const date = new Date(version.savedAt);
-    return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+    return formatCompanyInstant(version.savedAt, 'dateTime', this.localeService.getLocale(), companyTimeZone()) ?? '';
   }
 
   get sourcePreviewConfig(): SourcePreviewConfig {

@@ -1,17 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CompanyDateTimePipe } from './company-date-time.pipe';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
+
+const localeServiceFor = (locale: string) => ({ getLocale: () => locale }) as LocaleService;
 
 describe('CompanyDateTimePipe', () => {
   let pipe: CompanyDateTimePipe;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CompanyDateTimePipe, { provide: LOCALE_ID, useValue: 'en-US' }],
+      providers: [CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor('en-US') }],
     });
     pipe = TestBed.inject(CompanyDateTimePipe);
   });
@@ -30,34 +32,34 @@ describe('CompanyDateTimePipe', () => {
     useTimeZone('America/New_York');
 
     it('falls back to the browser zone when no company zone is set', () => {
-      expect(pipe.transform('2026-06-27T23:30:00Z')).toBe('27.06.2026, 19:30');
+      expect(pipe.transform('2026-06-27T23:30:00Z')).toBe('06/27/2026, 19:30');
     });
 
     it('shows the instant in Pacific/Auckland regardless of the browser zone', () => {
       setCompanyTimeZone('Pacific/Auckland');
-      expect(pipe.transform('2026-06-27T23:30:00Z')).toBe('28.06.2026, 11:30');
+      expect(pipe.transform('2026-06-27T23:30:00Z')).toBe('06/28/2026, 11:30');
     });
 
     it('shows the instant in Europe/Zurich regardless of the browser zone', () => {
       setCompanyTimeZone('Europe/Zurich');
-      expect(pipe.transform('2026-06-27T23:30:00Z')).toBe('28.06.2026, 01:30');
+      expect(pipe.transform('2026-06-27T23:30:00Z')).toBe('06/28/2026, 01:30');
     });
 
     it('formats a company-zone midnight as 00, not 24 (h23 hour cycle)', () => {
       setCompanyTimeZone('Pacific/Auckland');
-      expect(pipe.transform('2026-01-14T11:00:00Z')).toBe('15.01.2026, 00:00');
+      expect(pipe.transform('2026-01-14T11:00:00Z')).toBe('01/15/2026, 00:00');
     });
 
     it('accepts a Date instance directly', () => {
       setCompanyTimeZone('Europe/Zurich');
-      expect(pipe.transform(new Date('2026-06-27T23:30:00Z'))).toBe('28.06.2026, 01:30');
+      expect(pipe.transform(new Date('2026-06-27T23:30:00Z'))).toBe('06/28/2026, 01:30');
     });
 
     it('reacts to the company zone changing after an earlier render (memo invalidation)', () => {
       const value = '2026-06-27T23:30:00Z';
-      expect(pipe.transform(value)).toBe('27.06.2026, 19:30');
+      expect(pipe.transform(value)).toBe('06/27/2026, 19:30');
       setCompanyTimeZone('Pacific/Auckland');
-      expect(pipe.transform(value)).toBe('28.06.2026, 11:30');
+      expect(pipe.transform(value)).toBe('06/28/2026, 11:30');
     });
   });
 
@@ -67,7 +69,7 @@ describe('CompanyDateTimePipe', () => {
     it('still pads a company-zone midnight as 00 under the de locale', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [CompanyDateTimePipe, { provide: LOCALE_ID, useValue: 'de' }],
+        providers: [CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor('de') }],
       });
       const dePipe = TestBed.inject(CompanyDateTimePipe);
 
@@ -82,19 +84,32 @@ describe('CompanyDateTimePipe', () => {
     const pipeFor = (locale: string): CompanyDateTimePipe => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [CompanyDateTimePipe, { provide: LOCALE_ID, useValue: locale }],
+        providers: [CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor(locale) }],
       });
       return TestBed.inject(CompanyDateTimePipe);
     };
 
     it('keeps the Gregorian year under the th locale (no Buddhist year 2569)', () => {
       setCompanyTimeZone('Europe/Zurich');
-      expect(pipeFor('th').transform('2026-06-27T23:30:00Z')).toBe('28.06.2026, 01:30');
+      expect(pipeFor('th').transform('2026-06-27T23:30:00Z')).toBe('28/06/2026 01:30');
     });
+
+    it.each(['de', 'en-US', 'it', 'th'])(
+      'never renders a two-digit year under the %s locale',
+      (locale) => {
+        setCompanyTimeZone('Europe/Zurich');
+
+        expect(pipeFor(locale).transform('2026-06-27T23:30:00Z')).toContain('2026');
+      }
+    );
 
     it('keeps Latin digits under the ar-EG locale', () => {
       setCompanyTimeZone('Europe/Zurich');
-      expect(pipeFor('ar-EG').transform('2026-06-27T23:30:00Z')).toBe('28.06.2026, 01:30');
+      const formatted = pipeFor('ar-EG').transform('2026-06-27T23:30:00Z');
+
+      expect(formatted).toContain('2026');
+      expect(formatted).toContain('01:30');
+      expect(formatted).not.toMatch(/[٠-٩]/);
     });
   });
 });

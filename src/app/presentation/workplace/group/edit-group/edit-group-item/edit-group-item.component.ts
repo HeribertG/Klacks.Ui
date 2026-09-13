@@ -5,7 +5,6 @@ import {
   Component,
   DestroyRef,
   Injector,
-  LOCALE_ID,
   OnInit,
   effect,
   inject,
@@ -60,7 +59,6 @@ export class EditGroupItemComponent
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   public readonly PERMISSIONS = PERMISSIONS;
-  private locale: string = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);

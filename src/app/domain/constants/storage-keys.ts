@@ -17,4 +17,5 @@ export class StorageKeys {
   public static readonly RETURN_URL = 'klacks.returnUrl';
   public static readonly CONTAINER_LOCK_INSTANCE_ID = 'klacks.containerLock.instanceId';
   public static readonly SETUP_CONSULTATION_OFFERED = 'klacks.setupConsultation.offeredSession';
+  public static readonly COMPANY_CLOCK_UTC_WARNING_DISMISSED = 'klacks.companyClock.utcWarningDismissedSession';
 }
