@@ -2751,6 +2751,8 @@
   "assistant-chat.goal-candidates.type.bulkSealOrdersCompleted.rationale": "Una sigillatura in blocco con ordini bloccati o falliti si è verificata {{count}} volta/e negli ultimi {{days}} giorni.",
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.title": "Rendere affidabile la sigillatura in blocco degli ordini",
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.rationale": "Una sigillatura in blocco interrotta si è verificata {{count}} volta/e negli ultimi {{days}} giorni.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Evitare il calo della qualità delle risposte di Klacksy",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Un calo della qualità misurata delle risposte è stato segnalato {{count}} volte negli ultimi {{days}} giorni.",
   "autoWizard.tooltip": "AutoWizard - esegui plan + harmonizer + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "Menu AutoWizard",
   "autoWizard.menu.plan": "Plan",

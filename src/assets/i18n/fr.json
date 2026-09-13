@@ -2751,6 +2751,8 @@
   "assistant-chat.goal-candidates.type.bulkSealOrdersCompleted.rationale": "Un scellement en masse de commandes avec des commandes bloquées ou échouées est survenu {{count}} fois au cours des {{days}} derniers jours.",
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.title": "Rendre fiable le scellement en masse des commandes",
   "assistant-chat.goal-candidates.type.bulkSealOrdersFailed.rationale": "Un scellement en masse de commandes interrompu est survenu {{count}} fois au cours des {{days}} derniers jours.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Empêcher la qualité des réponses de Klacksy de se dégrader",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Une baisse de la qualité mesurée des réponses a été signalée {{count}} fois au cours des {{days}} derniers jours.",
   "autoWizard.tooltip": "AutoWizard - exécuter plan + harmonizer + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "Menu AutoWizard",
   "autoWizard.menu.plan": "Plan",

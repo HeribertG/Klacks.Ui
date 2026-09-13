@@ -68,6 +68,7 @@ describe('ClientListService CSV export', () => {
     await loader.ensureLoaded('de');
     await loader.ensureLoaded('en');
     service = TestBed.inject(ClientListService);
+    TestBed.inject(LocaleService).setLocale('en');
   });
 
   afterEach(() => {
