@@ -34,7 +34,6 @@ import { DataManagementEscalationChainService } from 'src/app/domain/services/as
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { ONBOARDING_STATUS } from 'src/app/domain/constants/onboarding-stations';
 import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
 import { toDisplayVersion } from 'src/app/domain/helpers/build-info.helper';
 
@@ -83,10 +82,7 @@ export class HeaderComponent {
   public readonly hideAssistantButton = computed<boolean>(
     () => this.isFloatingMode() && this.asideService.isVisible(),
   );
-  public readonly showTourStartBadge = computed<boolean>(() => {
-    const state = this.onboardingService.state();
-    return !!state && state.status !== ONBOARDING_STATUS.Completed;
-  });
+  public readonly showTourStartBadge = this.onboardingService.isTourActive;
   public readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public readonly hasLogoImage = computed(() => !!this.logoImage());
   public readonly logoDimensions = computed(() =>
