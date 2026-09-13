@@ -15,6 +15,10 @@ import {
   IWelcomeResponse,
 } from 'src/app/domain/models/assistant/welcome.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
+import {
+  ITurnOption,
+  ITurnOptionsRequest,
+} from 'src/app/domain/models/assistant/turn-options.interface';
 
 export interface ISpeechModelCheckDto {
   modelId: string;
@@ -263,6 +267,19 @@ export class DataAssistantService {
       request,
       { context: new HttpContext().set(SKIP_LOADING, true) },
     );
+  }
+
+  /**
+   * The skills that were offered to the model in the turn this message answered (C1). A POST because
+   * the raw utterance travels in the body: the backend hashes it through MessageNormalizer, and a
+   * query string would leak the user's message into the access logs. Skips the loading indicator -
+   * the correction menu opens immediately and fills in afterwards.
+   * @param request - The user message whose turn the correction menu is about to refine
+   */
+  getTurnOptions(request: ITurnOptionsRequest): Observable<ITurnOption[]> {
+    return this.httpClient.post<ITurnOption[]>(`${this.baseUrl}eval/turn-options`, request, {
+      context: new HttpContext().set(SKIP_LOADING, true),
+    });
   }
 
   submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {

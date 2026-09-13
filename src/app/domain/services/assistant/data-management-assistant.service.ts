@@ -34,6 +34,10 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { decodeJwtPayload } from 'src/app/shared/helpers/jwt.helper';
+import {
+  ITurnOption,
+  ITurnOptionsRequest,
+} from 'src/app/domain/models/assistant/turn-options.interface';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -384,6 +388,10 @@ export class DataManagementAssistantService {
 
   warmupCache(): void {
     this.dataAssistantService.warmup();
+  }
+
+  getTurnOptions(request: ITurnOptionsRequest): Observable<ITurnOption[]> {
+    return this.dataAssistantService.getTurnOptions(request);
   }
 
   submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {

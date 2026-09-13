@@ -131,9 +131,57 @@
       </button>
       @if (actions.correctionMenuMessageId() === message().id) {
       <div class="correction-menu" role="menu">
-        <button type="button" role="menuitem" (click)="actions.submitCorrection(message(), 'wrong_skill')">
+        <button
+          type="button"
+          role="menuitem"
+          [attr.aria-expanded]="actions.expectedSkillMessageId() === message().id"
+          (click)="actions.openExpectedSkillMenu(message())"
+        >
           {{ "assistant-chat.correction.wrong-skill" | translate }}
         </button>
+        @if (actions.expectedSkillMessageId() === message().id) {
+        <div class="expected-skill-panel">
+          <span class="expected-skill-title">{{ "assistant-chat.correction.expected-skill-title" | translate }}</span>
+          @if (actions.turnOptionsLoading()) {
+          <span class="expected-skill-loading" aria-live="polite">{{
+            "assistant-chat.correction.expected-skill-loading" | translate
+          }}</span>
+          } @else { @for (option of actions.turnOptions(); track option.skillName) {
+          <button
+            type="button"
+            class="expected-skill-option"
+            [title]="option.description"
+            (click)="actions.submitCorrection(message(), 'wrong_skill', option.skillName)"
+          >
+            {{ option.displayName }}
+          </button>
+          } }
+          <div class="expected-skill-free-text">
+            <input
+              #expectedSkillInput
+              type="text"
+              class="correction-comment-input"
+              [attr.maxlength]="expectedSkillMaxLength"
+              [attr.placeholder]="'assistant-chat.correction.expected-skill-placeholder' | translate"
+              [attr.aria-label]="'assistant-chat.correction.expected-skill-placeholder' | translate"
+            />
+            <button
+              type="button"
+              class="correction-comment-send"
+              (click)="actions.submitExpectedSkillFreeText(message(), expectedSkillInput.value)"
+            >
+              {{ "assistant-chat.correction.comment-send" | translate }}
+            </button>
+          </div>
+          <button
+            type="button"
+            class="expected-skill-unknown"
+            (click)="actions.submitCorrection(message(), 'wrong_skill')"
+          >
+            {{ "assistant-chat.correction.expected-skill-unknown" | translate }}
+          </button>
+        </div>
+        }
         <button type="button" role="menuitem" (click)="actions.submitCorrection(message(), 'wrong_param')">
           {{ "assistant-chat.correction.wrong-param" | translate }}
         </button>
