@@ -45,6 +45,7 @@ import {
   ISubmitCorrectionRequest,
   ISubmitHelpfulFeedbackRequest,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-options.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import {
   MUTE_SUGGESTION_KIND_PARAM,
@@ -248,6 +249,9 @@ export class ChatMessageActionsService {
   }
 
   private readonly _correctionMenuMessageId = signal<string | null>(null);
+  private readonly _expectedSkillMessageId = signal<string | null>(null);
+  private readonly _turnOptions = signal<readonly ITurnOption[]>([]);
+  private readonly _turnOptionsLoading = signal(false);
   private readonly _dismissMenuMessageId = signal<string | null>(null);
   private readonly _pendingReactionMessageId = signal<string | null>(null);
   private readonly _pendingMuteMessageId = signal<string | null>(null);
@@ -255,6 +259,9 @@ export class ChatMessageActionsService {
   private readonly _pendingAcknowledgeMessageId = signal<string | null>(null);
 
   readonly correctionMenuMessageId = this._correctionMenuMessageId.asReadonly();
+  readonly expectedSkillMessageId = this._expectedSkillMessageId.asReadonly();
+  readonly turnOptions = this._turnOptions.asReadonly();
+  readonly turnOptionsLoading = this._turnOptionsLoading.asReadonly();
   readonly dismissMenuMessageId = this._dismissMenuMessageId.asReadonly();
   readonly pendingReactionMessageId = this._pendingReactionMessageId.asReadonly();
   readonly pendingMuteMessageId = this._pendingMuteMessageId.asReadonly();
@@ -421,9 +428,20 @@ export class ChatMessageActionsService {
     this.ttsService.speak(cleaned, message.id, locale);
   }
 
+  /**
+   * Moves the correction menu to another message or closes it. Every call changes which message the
+   * menu belongs to, so the second level is dropped unconditionally: carrying it over would show the
+   * skills of the message the user just left under the menu of the one just opened.
+   * @param messageId - The message whose menu is being toggled
+   */
   private toggleCorrectionMenu(messageId: string): void {
     const current = this._correctionMenuMessageId();
-    this._correctionMenuMessageId.set(current === messageId ? null : messageId);
+    const next = current === messageId ? null : messageId;
+    this._correctionMenuMessageId.set(next);
+
+    this._expectedSkillMessageId.set(null);
+    this._turnOptions.set([]);
+    this._turnOptionsLoading.set(false);
   }
 
   /**
@@ -452,7 +470,7 @@ export class ChatMessageActionsService {
   submitNotHelpfulComment(message: ChatMessage, comment: string): void {
     const trimmed = comment.trim();
     if (!message.respondedToUserMessage || !trimmed) {
-      this._correctionMenuMessageId.set(null);
+      this.closeCorrectionMenus();
       return;
     }
 
@@ -477,7 +495,7 @@ export class ChatMessageActionsService {
               notHelpfulCommentSubmitted: comment ? true : message.notHelpfulCommentSubmitted,
             });
             if (comment) {
-              this._correctionMenuMessageId.set(null);
+              this.closeCorrectionMenus();
             }
           });
         },
@@ -523,12 +541,68 @@ export class ChatMessageActionsService {
       });
   }
 
-  submitCorrection(message: ChatMessage, correctionType: CorrectionType): void {
+  /**
+   * Opens the second level of the correction menu and loads the skills that were offered to the model
+   * in this turn. The list is a convenience, never a precondition: a failed or empty load leaves the
+   * free-text box and the "I don't know" entry, so the user can always finish the correction. Both
+   * handlers compare the message the request was started for against the message the panel currently
+   * shows, so a slow answer can neither overwrite the options of a panel opened for another message
+   * afterwards nor fill one that is closed. Two requests for the same message are indistinguishable
+   * to that guard: reopening the same panel lets a late earlier answer land in it, which is harmless
+   * because both requests ask about the same turn.
+   * @param message - The assistant message whose turn is being corrected
+   */
+  openExpectedSkillMenu(message: ChatMessage): void {
+    if (!message.respondedToUserMessage) return;
+
+    const requestedMessageId = message.id;
+    this._expectedSkillMessageId.set(requestedMessageId);
+    this._turnOptions.set([]);
+    this._turnOptionsLoading.set(true);
+
+    this.assistantService
+      .getTurnOptions({ userMessage: message.respondedToUserMessage })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (options) => {
+          this.ngZone.run(() => {
+            if (this._expectedSkillMessageId() !== requestedMessageId) return;
+
+            this._turnOptions.set(options);
+            this._turnOptionsLoading.set(false);
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            if (this._expectedSkillMessageId() !== requestedMessageId) return;
+
+            this._turnOptions.set([]);
+            this._turnOptionsLoading.set(false);
+          });
+        },
+      });
+  }
+
+  /**
+   * Sends a skill the user typed instead of picking one, for a capability the turn never offered.
+   * An empty box is not a correction and sends nothing.
+   * @param message - The assistant message whose turn is being corrected
+   * @param expectedSkill - Free text naming the skill the turn should have used
+   */
+  submitExpectedSkillFreeText(message: ChatMessage, expectedSkill: string): void {
+    const trimmed = expectedSkill.trim();
+    if (!trimmed) return;
+
+    this.submitCorrection(message, 'wrong_skill', trimmed);
+  }
+
+  submitCorrection(message: ChatMessage, correctionType: CorrectionType, expectedSkill?: string): void {
     if (!message.respondedToUserMessage || message.correctionSubmitted) return;
 
     const request: ISubmitCorrectionRequest = {
       userMessage: message.respondedToUserMessage,
       correctionType,
+      expectedSkill,
     };
 
     this.assistantService
@@ -538,15 +612,22 @@ export class ChatMessageActionsService {
         next: () => {
           this.ngZone.run(() => {
             this.orchestrator.updateMessage(message.id, { correctionSubmitted: true });
-            this._correctionMenuMessageId.set(null);
+            this.closeCorrectionMenus();
           });
         },
         error: () => {
           this.ngZone.run(() => {
-            this._correctionMenuMessageId.set(null);
+            this.closeCorrectionMenus();
           });
         },
       });
+  }
+
+  private closeCorrectionMenus(): void {
+    this._correctionMenuMessageId.set(null);
+    this._expectedSkillMessageId.set(null);
+    this._turnOptions.set([]);
+    this._turnOptionsLoading.set(false);
   }
 
   async submitProactiveReaction(message: ChatMessage, reaction: ProactiveReaction): Promise<void> {

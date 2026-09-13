@@ -953,8 +953,8 @@ export class AssistantChatComponent {
     this.messageActions.submitHelpfulFeedback(message);
   }
 
-  submitCorrection(message: ChatMessage, correctionType: CorrectionType): void {
-    this.messageActions.submitCorrection(message, correctionType);
+  submitCorrection(message: ChatMessage, correctionType: CorrectionType, expectedSkill?: string): void {
+    this.messageActions.submitCorrection(message, correctionType, expectedSkill);
   }
 
   submitProactiveReaction(message: ChatMessage, reaction: ProactiveReaction): Promise<void> {

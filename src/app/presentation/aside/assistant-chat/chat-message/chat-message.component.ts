@@ -42,6 +42,9 @@ import { IconUserComponent } from '../../../icons/icon-user.component';
 import { IconMMLComponent } from '../../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../../icons/icon-logo.component';
 
+/** Mirrors the width of the backend column the corrected skill name is clipped to before it is stored. */
+const EXPECTED_SKILL_MAX_LENGTH = 128;
+
 @Component({
   selector: 'app-chat-message',
   standalone: true,
@@ -77,6 +80,7 @@ export class ChatMessageComponent {
   protected readonly proactiveReactions = PROACTIVE_REACTION;
   protected readonly proactiveRejectReasons = PROACTIVE_REJECT_REASON;
   protected readonly proactiveSeverities = PROACTIVE_SEVERITY;
+  protected readonly expectedSkillMaxLength = EXPECTED_SKILL_MAX_LENGTH;
 
   protected readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   protected readonly hasLogoImage = computed(() => !!this.logoImage());
