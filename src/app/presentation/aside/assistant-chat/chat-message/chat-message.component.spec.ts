@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatMessage } from '../chat-message.interface';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-options.interface';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { ChatStageStatusService } from '../services/chat-stage-status.service';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
@@ -40,6 +41,11 @@ describe('ChatMessageComponent', () => {
     submitNotHelpfulComment: ReturnType<typeof vi.fn>;
     submitHelpfulFeedback: ReturnType<typeof vi.fn>;
     submitCorrection: ReturnType<typeof vi.fn>;
+    expectedSkillMessageId: ReturnType<typeof signal<string | null>>;
+    turnOptions: ReturnType<typeof signal<readonly ITurnOption[]>>;
+    turnOptionsLoading: ReturnType<typeof signal<boolean>>;
+    openExpectedSkillMenu: ReturnType<typeof vi.fn>;
+    submitExpectedSkillFreeText: ReturnType<typeof vi.fn>;
     submitProactiveReaction: ReturnType<typeof vi.fn>;
     submitAcknowledge: ReturnType<typeof vi.fn>;
   };
@@ -91,6 +97,11 @@ describe('ChatMessageComponent', () => {
       submitNotHelpfulComment: vi.fn(),
       submitHelpfulFeedback: vi.fn(),
       submitCorrection: vi.fn(),
+      expectedSkillMessageId: signal<string | null>(null),
+      turnOptions: signal<readonly ITurnOption[]>([]),
+      turnOptionsLoading: signal(false),
+      openExpectedSkillMenu: vi.fn(),
+      submitExpectedSkillFreeText: vi.fn(),
       submitProactiveReaction: vi.fn(),
       submitAcknowledge: vi.fn(),
     };
@@ -346,5 +357,103 @@ describe('ChatMessageComponent', () => {
       expect(fixture.nativeElement.querySelector('.message-text')).toBeTruthy();
       expect(fixture.nativeElement.querySelector('.message-time')).toBeTruthy();
     });
+  });
+
+  it('opens the expected-skill menu instead of submitting straight away on "wrong skill"', () => {
+    // Arrange
+    const message: ChatMessage = { ...baseAssistantMessage, respondedToUserMessage: 'Lege einen Kunden an' };
+    actionsMock.correctionMenuMessageId.set(message.id);
+    fixture.componentRef.setInput('message', message);
+    fixture.detectChanges();
+
+    // Act
+    const wrongSkillButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.correction-menu button[role="menuitem"]');
+    wrongSkillButton.click();
+
+    // Assert
+    expect(actionsMock.openExpectedSkillMenu).toHaveBeenCalledWith(message);
+    expect(actionsMock.submitCorrection).not.toHaveBeenCalled();
+  });
+
+  it('renders one option button per turn option and sends it as the expected skill', () => {
+    // Arrange
+    const message: ChatMessage = { ...baseAssistantMessage, respondedToUserMessage: 'Lege einen Kunden an' };
+    actionsMock.correctionMenuMessageId.set(message.id);
+    actionsMock.expectedSkillMessageId.set(message.id);
+    actionsMock.turnOptions.set([
+      { skillName: 'create_client', displayName: 'Create client', description: 'Creates a client.' },
+      { skillName: 'list_clients', displayName: 'List clients', description: 'Lists clients.' },
+    ]);
+    fixture.componentRef.setInput('message', message);
+    fixture.detectChanges();
+
+    // Act
+    const options: HTMLButtonElement[] =
+      Array.from(fixture.nativeElement.querySelectorAll('.expected-skill-option'));
+    options[1].click();
+
+    // Assert
+    expect(options.length).toBe(2);
+    expect(options[0].textContent).toContain('Create client');
+    expect(actionsMock.submitCorrection).toHaveBeenCalledWith(message, 'wrong_skill', 'list_clients');
+  });
+
+  it('keeps the free-text fallback and the unknown entry when no option was loaded', () => {
+    // Arrange
+    const message: ChatMessage = { ...baseAssistantMessage, respondedToUserMessage: 'Lege einen Kunden an' };
+    actionsMock.correctionMenuMessageId.set(message.id);
+    actionsMock.expectedSkillMessageId.set(message.id);
+    actionsMock.turnOptions.set([]);
+    fixture.componentRef.setInput('message', message);
+    fixture.detectChanges();
+
+    // Act
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('.expected-skill-free-text input');
+    input.value = 'create_client';
+    const send: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.expected-skill-free-text .correction-comment-send');
+    send.click();
+    const unknown: HTMLButtonElement = fixture.nativeElement.querySelector('.expected-skill-unknown');
+    unknown.click();
+
+    // Assert
+    expect(fixture.nativeElement.querySelectorAll('.expected-skill-option').length).toBe(0);
+    expect(actionsMock.submitExpectedSkillFreeText).toHaveBeenCalledWith(message, 'create_client');
+    expect(actionsMock.submitCorrection).toHaveBeenCalledWith(message, 'wrong_skill');
+  });
+
+  it('caps the free-text skill box at the shared maximum length', () => {
+    // Arrange
+    const message: ChatMessage = { ...baseAssistantMessage, respondedToUserMessage: 'Lege einen Kunden an' };
+    actionsMock.correctionMenuMessageId.set(message.id);
+    actionsMock.expectedSkillMessageId.set(message.id);
+    fixture.componentRef.setInput('message', message);
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('.expected-skill-free-text input');
+    expect(input.getAttribute('maxlength')).toBe('128');
+  });
+
+  it('reports the expected-skill panel state through aria-expanded on the wrong-skill entry', () => {
+    // Arrange
+    const message: ChatMessage = { ...baseAssistantMessage, respondedToUserMessage: 'Lege einen Kunden an' };
+    actionsMock.correctionMenuMessageId.set(message.id);
+    fixture.componentRef.setInput('message', message);
+    fixture.detectChanges();
+    const wrongSkillButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.correction-menu button[role="menuitem"]');
+
+    // Act
+    const collapsed = wrongSkillButton.getAttribute('aria-expanded');
+    actionsMock.expectedSkillMessageId.set(message.id);
+    fixture.detectChanges();
+
+    // Assert
+    expect(collapsed).toBe('false');
+    expect(wrongSkillButton.getAttribute('aria-expanded')).toBe('true');
   });
 });

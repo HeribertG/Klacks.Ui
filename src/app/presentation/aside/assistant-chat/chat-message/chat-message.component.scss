@@ -457,6 +457,43 @@
       background: var(--backgroundColorFocus);
     }
   }
+
+  // Nested rather than top-level: the option and unknown entries are buttons, so a top-level
+  // .expected-skill-* selector (0,1,0) loses to .correction-menu button (0,1,1) and their tighter
+  // padding never applied. Everything the button rule above already gives them is left to it.
+  .expected-skill-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-top: 1px solid var(--cardBorderColor);
+    margin-top: 4px;
+    padding-top: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .expected-skill-title,
+  .expected-skill-loading {
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--standartTextColor);
+    opacity: 0.75;
+  }
+
+  .expected-skill-option,
+  .expected-skill-unknown {
+    padding: 6px 12px;
+  }
+
+  .expected-skill-unknown {
+    opacity: 0.75;
+  }
+
+  .expected-skill-free-text {
+    display: flex;
+    gap: 4px;
+    padding: 4px 12px;
+  }
 }
 
 // The row carries up to five labelled buttons and is far wider than .message-content in any host
