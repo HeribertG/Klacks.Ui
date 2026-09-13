@@ -146,8 +146,6 @@ describe('AssistantChatComponent', () => {
             hasUnread: signal(false),
             refreshUnreadCount: vi.fn(),
             loadUnreadMessages: vi.fn().mockReturnValue(of([])),
-            markRead: vi.fn().mockReturnValue(of(void 0)),
-            markAllRead: vi.fn().mockReturnValue(of(void 0)),
             markManyRead: vi.fn().mockReturnValue(of(void 0)),
             inboxHeadingMessageId: inboxHeadingMessageIdSig,
             inboxExpanded: inboxExpandedSig,
@@ -158,7 +156,7 @@ describe('AssistantChatComponent', () => {
             ),
             markHidden: vi.fn((messageIds: readonly string[]) => hide(messageIds)),
             hideMessages: vi.fn((messageIds: readonly string[]) => hide(messageIds)),
-            dismissMessage: vi.fn((messageId: string) => hide([messageId])),
+            dismissMessage: vi.fn().mockReturnValue(of(void 0)),
             acknowledgeMessage: vi.fn().mockReturnValue(of(void 0)),
             unhideMessages: vi.fn((messageIds: readonly string[]) =>
                 hiddenMessageIdsSig.update((ids) => {
@@ -2138,14 +2136,14 @@ describe('AssistantChatComponent', () => {
             ).toBe(PROACTIVE_REACTION.Helpful);
         });
 
-        it('takes a dismissed row out of the block instead of only greying its button', () => {
+        it('takes a dismissed row out of the block instead of only greying its button', async () => {
             // Arrange
             deliver(proactiveRow({ id: 'keep-me' }), proactiveRow({ id: 'drop-me' }));
             expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['keep-me', 'drop-me']);
             const dismissed = component.messages.find((m) => m.id === 'drop-me')!;
 
             // Act
-            component.dismissProactiveMessage(dismissed, PROACTIVE_REJECT_REASON.AlreadyHandled);
+            await component.dismissProactiveMessage(dismissed, PROACTIVE_REJECT_REASON.AlreadyHandled);
             fixture.detectChanges();
 
             // Assert
@@ -2186,14 +2184,14 @@ describe('AssistantChatComponent', () => {
             expect(component.dismissMenuMessageId()).toBeNull();
         });
 
-        it('passes the picked reason on and closes the menu', () => {
+        it('passes the picked reason on and closes the menu', async () => {
             // Arrange
             deliver(proactiveRow({ id: 'unwanted' }));
             const message = component.messages.find((m) => m.id === 'unwanted')!;
             component.toggleDismissMenu('unwanted');
 
             // Act
-            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.GenerallyUnwanted);
+            await component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.GenerallyUnwanted);
             fixture.detectChanges();
 
             // Assert
@@ -2205,13 +2203,13 @@ describe('AssistantChatComponent', () => {
             expect(component.isHiddenProactiveMessage(message)).toBe(true);
         });
 
-        it('dismissing without a reason is a choice of its own, not an omitted field', () => {
+        it('dismissing without a reason is a choice of its own, not an omitted field', async () => {
             // Arrange
             deliver(proactiveRow({ id: 'silent' }));
             const message = component.messages.find((m) => m.id === 'silent')!;
 
             // Act
-            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
+            await component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
 
             // Assert
             expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
@@ -2476,9 +2474,11 @@ describe('AssistantChatComponent', () => {
             });
             mockProactiveInboxService.loadUnreadMessages.mockReturnValue(of([inboxItem({ id: 'inbox-dup' })]));
 
-            // Assert - the push payload alone never enters the conversation
+            // Assert - the push payload alone never enters the conversation. The badge fallback
+            // for this closed-aside case now lives on DataManagementProactiveInboxService itself
+            // (covered in its own spec), not on this component/service pair, so it is not
+            // asserted here.
             expect(component.messages.filter((m) => m.id === 'inbox-dup').length).toBe(0);
-            expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
 
             // Act
             asideService.show();
@@ -2557,8 +2557,10 @@ describe('AssistantChatComponent', () => {
             }
         });
 
-        it('only refreshes the badge when a push arrives while the aside is closed', async () => {
-            // Arrange
+        it('never reloads the inbox for a push that arrives while the aside is closed', async () => {
+            // Arrange - the badge fallback for this case now lives on
+            // DataManagementProactiveInboxService itself (covered in its own spec), so this
+            // component/service pair only needs to prove it stays inert while closed.
             vi.useFakeTimers();
             try {
                 // Act
@@ -2571,7 +2573,6 @@ describe('AssistantChatComponent', () => {
                 await vi.advanceTimersByTimeAsync(400);
 
                 // Assert
-                expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
                 expect(mockProactiveInboxService.loadUnreadMessages).not.toHaveBeenCalled();
                 expect(component.messages.some((m) => m.id === 'closed-1')).toBe(false);
             } finally {
@@ -2646,7 +2647,6 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockProactiveInboxService.markManyRead).not.toHaveBeenCalled();
-            expect(mockProactiveInboxService.markAllRead).not.toHaveBeenCalled();
             expect(mockProactiveInboxService.refreshUnreadCount).toHaveBeenCalled();
         });
 
@@ -3057,7 +3057,7 @@ describe('AssistantChatComponent', () => {
         // that rendering now. What is still a chat-side concern: the materialized message
         // classifies as a mute suggestion, and the dismiss route stays reachable and empties the
         // block - the reject-reason menu takes two steps: open, then pick.
-        it('classifies a delivered mute suggestion and keeps the dismiss route reachable', () => {
+        it('classifies a delivered mute suggestion and keeps the dismiss route reachable', async () => {
             // Arrange
             deliver(muteSuggestion());
             const message = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
@@ -3066,7 +3066,7 @@ describe('AssistantChatComponent', () => {
             // Act - open the reason menu, then pick "no reason"
             component.toggleDismissMenu(message.id);
             expect(component.dismissMenuMessageId()).toBe('mute-suggestion-1');
-            component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
+            await component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
             fixture.detectChanges();
 
             // Assert

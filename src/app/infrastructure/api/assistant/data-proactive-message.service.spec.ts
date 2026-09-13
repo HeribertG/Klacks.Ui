@@ -79,15 +79,6 @@ describe('DataProactiveMessageService', () => {
     req.flush(mockCount);
   });
 
-  it('markRead puts to proactive-messages/{id}/read', () => {
-    service.markRead('dispatch-1').subscribe();
-
-    const req = httpMock.expectOne(`${apiUrl}/dispatch-1/read`);
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toBeNull();
-    req.flush(null);
-  });
-
   it('acknowledge puts to proactive-messages/{id}/acknowledge', () => {
     service.acknowledge('dispatch-1').subscribe();
 
@@ -106,15 +97,6 @@ describe('DataProactiveMessageService', () => {
     req.flush(null);
   });
 
-  it('markAllRead puts to proactive-messages/read-all', () => {
-    service.markAllRead().subscribe();
-
-    const req = httpMock.expectOne(`${apiUrl}/read-all`);
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toBeNull();
-    req.flush(null);
-  });
-
   it('getUnreadMessages retries three times on failure', () => {
     let receivedError: unknown;
     service.getUnreadMessages(50).subscribe({
@@ -130,16 +112,16 @@ describe('DataProactiveMessageService', () => {
     expect(receivedError).toBeDefined();
   });
 
-  it('markAllRead retries three times on failure', () => {
+  it('markManyRead retries three times on failure', () => {
     let receivedError: unknown;
-    service.markAllRead().subscribe({
+    service.markManyRead(['dispatch-1']).subscribe({
       error: (error) => {
         receivedError = error;
       },
     });
 
     for (let attempt = 0; attempt < 4; attempt++) {
-      const req = httpMock.expectOne(`${apiUrl}/read-all`);
+      const req = httpMock.expectOne(`${apiUrl}/read`);
       req.error(new ProgressEvent('error'));
     }
     expect(receivedError).toBeDefined();

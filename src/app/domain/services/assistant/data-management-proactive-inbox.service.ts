@@ -3,19 +3,19 @@
 /**
  * State + actions for the proactive assistant inbox (silent channel, Phase 2).
  * Holds the unread badge count as a signal fed by the REST unread-count endpoint,
- * live ProactiveInboxChanged pushes, and local updates after mark-read calls.
- * Also owns the "while you were away" block state (which messages are grouped
- * under the inbox heading, where the heading anchor sits, whether the block
- * is expanded, and which rows the user has hidden). This state is root-scoped on
- * purpose: AssistantChatComponent is destroyed and recreated every time the aside
- * panel closes and reopens, so any state kept on the component itself would reset
+ * live ProactiveInboxChanged pushes, and a fallback refresh on every ProactiveMessage push
+ * (which carries no unread-count of its own). Also owns the "while you were away" block
+ * state (which messages are grouped under the inbox heading, where the heading anchor sits,
+ * whether the block is expanded, and which rows the user has hidden). This state is
+ * root-scoped on purpose: AssistantChatComponent is destroyed and recreated every time the
+ * aside panel closes and reopens, so any state kept on the component itself would reset
  * and strand already-grouped messages as ungrouped bubbles.
  * @param dataProactiveMessageService - HTTP API for inbox listing and read state
- * @param signalRService - assistant SignalR connection for live unread-count updates
+ * @param signalRService - assistant SignalR connection for live unread-count and message pushes
  */
 
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
-import { Observable, Subject, tap } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
@@ -53,6 +53,12 @@ export class DataManagementProactiveInboxService implements OnDestroy {
     this.signalRService.proactiveInboxChanged$
       .pipe(takeUntil(this.destroy$))
       .subscribe((change) => this.unreadCount.set(change.unreadCount));
+
+    // ProactiveMessage carries no unread count, and this root service is the only subscriber
+    // alive before the first aside open.
+    this.signalRService.proactiveMessage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refreshUnreadCount());
   }
 
   refreshUnreadCount(): void {
@@ -69,20 +75,8 @@ export class DataManagementProactiveInboxService implements OnDestroy {
     return this.dataProactiveMessageService.getUnreadMessages(UNREAD_MESSAGES_TAKE);
   }
 
-  markRead(messageId: string): Observable<void> {
-    return this.dataProactiveMessageService
-      .markRead(messageId)
-      .pipe(tap(() => this.unreadCount.update((count) => Math.max(0, count - 1))));
-  }
-
   markManyRead(messageIds: readonly string[]): Observable<void> {
     return this.dataProactiveMessageService.markManyRead(messageIds);
-  }
-
-  markAllRead(): Observable<void> {
-    return this.dataProactiveMessageService
-      .markAllRead()
-      .pipe(tap(() => this.unreadCount.set(0)));
   }
 
   /**
@@ -128,26 +122,26 @@ export class DataManagementProactiveInboxService implements OnDestroy {
   }
 
   /**
-   * Hide a single row and record why it went away, so the dismissal still feeds the
-   * trigger statistics. Subscribed here rather than in the component on purpose: the
-   * aside can close mid-flight, and a request cancelled then would leave the row
-   * hidden locally but unread on the server.
+   * Record that the user dismissed the message and why, so the dismissal feeds the trigger
+   * statistics. Returned cold on purpose, mirroring acknowledgeMessage: the caller owns the
+   * pending/error handling and decides when to hide the row, so it must only disappear once
+   * the reaction actually persisted - a request that fails must leave it visible with its
+   * buttons still live for a retry.
    * @param messageId - Id of the message the user dismissed
    * @param rejectReason - Why it was dismissed; omitted when the user picked no reason
    */
-  dismissMessage(messageId: string, rejectReason?: ProactiveRejectReason): void {
-    this.dataProactiveMessageService
-      .setReaction(messageId, PROACTIVE_REACTION.Dismissed, rejectReason)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({ error: () => undefined });
-    this.hideMessages([messageId]);
+  dismissMessage(messageId: string, rejectReason?: ProactiveRejectReason): Observable<void> {
+    return this.dataProactiveMessageService.setReaction(
+      messageId,
+      PROACTIVE_REACTION.Dismissed,
+      rejectReason,
+    );
   }
 
   /**
    * Record that the user handled the message, which stops the reminder backoff for it
-   * server-side. Returned cold on purpose: the component owns the pending state and the
-   * error toast, so it subscribes itself (unlike dismissMessage, where the aside closing
-   * mid-flight must not strand the row).
+   * server-side. Returned cold on purpose: the caller owns the pending state and the
+   * error toast, so it subscribes itself.
    * @param messageId - Id of the message to acknowledge
    */
   acknowledgeMessage(messageId: string): Observable<void> {

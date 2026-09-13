@@ -3,7 +3,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { ChatMessageActionsService } from './chat-message-actions.service';
 import { ConversationOrchestratorService, ConversationState } from './conversation-orchestrator.service';
@@ -16,6 +16,7 @@ import { TextToSpeechService } from './text-to-speech.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
 import { ChatMessage } from '../chat-message.interface';
 
 /**
@@ -53,6 +54,7 @@ describe('ChatMessageActionsService (proactive inbox load pipeline)', () => {
     addToInboxBlock: ReturnType<typeof vi.fn>;
     markHidden: ReturnType<typeof vi.fn>;
     unhideMessages: ReturnType<typeof vi.fn>;
+    dismissMessage: ReturnType<typeof vi.fn>;
   };
   let orchestratorMessagesSignal: ReturnType<typeof signal<ChatMessage[]>>;
 
@@ -82,6 +84,7 @@ describe('ChatMessageActionsService (proactive inbox load pipeline)', () => {
       ),
       markHidden: vi.fn(),
       unhideMessages: vi.fn(),
+      dismissMessage: vi.fn().mockReturnValue(of(void 0)),
     };
 
     await TestBed.configureTestingModule({
@@ -212,5 +215,105 @@ describe('ChatMessageActionsService (proactive inbox load pipeline)', () => {
     expect(readByChat).toEqual(['shared-1']);
     expect(readByCard).toEqual(['shared-1']);
     expect(proactiveInboxServiceMock.loadUnreadMessages).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * Covers the pessimistic dismiss orchestration (P3a): the row must only disappear, and the
+ * badge only refresh, once the reaction actually persisted - a failed request must leave the
+ * row visible (with its dismiss button live for a retry) and surface a toast instead.
+ */
+describe('ChatMessageActionsService (dismissProactiveMessage)', () => {
+  let hostFixture: ComponentFixture<TestHostComponent>;
+  let service: ChatMessageActionsService;
+  let toastShowService: { showInfo: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
+  let proactiveInboxServiceMock: {
+    loadUnreadMessages: ReturnType<typeof vi.fn>;
+    markManyRead: ReturnType<typeof vi.fn>;
+    refreshUnreadCount: ReturnType<typeof vi.fn>;
+    markHidden: ReturnType<typeof vi.fn>;
+    dismissMessage: ReturnType<typeof vi.fn>;
+  };
+
+  const proactiveMessage: ChatMessage = {
+    id: 'proactive-dismiss-1',
+    sender: 'assistant',
+    content: 'Eine Schicht ist unbesetzt.',
+    timestamp: new Date('2026-09-13T08:00:00Z'),
+    messageKind: 'proactive',
+  };
+
+  beforeEach(async () => {
+    toastShowService = { showInfo: vi.fn(), showError: vi.fn() };
+    proactiveInboxServiceMock = {
+      loadUnreadMessages: vi.fn().mockReturnValue(of([])),
+      markManyRead: vi.fn().mockReturnValue(of(void 0)),
+      refreshUnreadCount: vi.fn(),
+      markHidden: vi.fn(),
+      dismissMessage: vi.fn().mockReturnValue(of(void 0)),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [TestHostComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: DataManagementProactiveInboxService, useValue: proactiveInboxServiceMock },
+        {
+          provide: ConversationOrchestratorService,
+          useValue: {
+            state: signal(ConversationState.Idle),
+            messages: signal<ChatMessage[]>([]),
+            addMessage: vi.fn(),
+            replaceMessages: vi.fn(),
+            updateMessage: vi.fn(),
+            stopAutoSpeak: vi.fn(),
+          },
+        },
+        {
+          provide: DataManagementAssistantService,
+          useValue: {
+            muteTriggerKind: vi.fn(),
+            delegateCondition: vi.fn(),
+            setProactiveReaction: vi.fn(),
+            submitHelpfulFeedback: vi.fn(),
+            submitCorrection: vi.fn(),
+          },
+        },
+        { provide: LanguageMappingService, useValue: { getSpeechLocale: vi.fn(), currentLang: 'de' } },
+        { provide: KlacksyNavigationService, useValue: { navigateAndScroll: vi.fn() } },
+        { provide: ToastShowService, useValue: toastShowService },
+        { provide: TextToSpeechService, useValue: { speak: vi.fn() } },
+        {
+          provide: AssistantSignalRService,
+          useValue: { proactiveMessage$: new Subject(), proactiveInboxChanged$: new Subject() },
+        },
+      ],
+    }).compileComponents();
+
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostFixture.detectChanges();
+    service = TestBed.inject(ChatMessageActionsService);
+  });
+
+  it('hides the row and refreshes the badge once the reaction persisted, without marking it read', async () => {
+    await service.dismissProactiveMessage(proactiveMessage, PROACTIVE_REJECT_REASON.AlreadyHandled);
+
+    expect(proactiveInboxServiceMock.dismissMessage).toHaveBeenCalledWith(
+      'proactive-dismiss-1',
+      PROACTIVE_REJECT_REASON.AlreadyHandled,
+    );
+    expect(proactiveInboxServiceMock.markHidden).toHaveBeenCalledWith(['proactive-dismiss-1']);
+    expect(proactiveInboxServiceMock.refreshUnreadCount).toHaveBeenCalled();
+    expect(proactiveInboxServiceMock.markManyRead).not.toHaveBeenCalled();
+    expect(toastShowService.showError).not.toHaveBeenCalled();
+  });
+
+  it('leaves the row visible and shows a toast when the reaction request fails', async () => {
+    proactiveInboxServiceMock.dismissMessage.mockReturnValue(throwError(() => new Error('offline')));
+
+    await service.dismissProactiveMessage(proactiveMessage, PROACTIVE_REJECT_REASON.NoReason);
+
+    expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+    expect(proactiveInboxServiceMock.markHidden).not.toHaveBeenCalled();
+    expect(proactiveInboxServiceMock.refreshUnreadCount).not.toHaveBeenCalled();
   });
 });

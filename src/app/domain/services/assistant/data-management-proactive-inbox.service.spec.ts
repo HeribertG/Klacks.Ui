@@ -13,21 +13,19 @@ describe('DataManagementProactiveInboxService', () => {
   let dataServiceMock: {
     getUnreadMessages: ReturnType<typeof vi.fn>;
     getUnreadCount: ReturnType<typeof vi.fn>;
-    markRead: ReturnType<typeof vi.fn>;
-    markAllRead: ReturnType<typeof vi.fn>;
     markManyRead: ReturnType<typeof vi.fn>;
     setReaction: ReturnType<typeof vi.fn>;
     acknowledge: ReturnType<typeof vi.fn>;
   };
   let inboxChanged$: Subject<IProactiveInboxChanged>;
+  let proactiveMessage$: Subject<unknown>;
 
   beforeEach(() => {
     inboxChanged$ = new Subject<IProactiveInboxChanged>();
+    proactiveMessage$ = new Subject<unknown>();
     dataServiceMock = {
       getUnreadMessages: vi.fn().mockReturnValue(of([])),
       getUnreadCount: vi.fn().mockReturnValue(of({ count: 0 })),
-      markRead: vi.fn().mockReturnValue(of(void 0)),
-      markAllRead: vi.fn().mockReturnValue(of(void 0)),
       markManyRead: vi.fn().mockReturnValue(of(void 0)),
       setReaction: vi.fn().mockReturnValue(of(void 0)),
       acknowledge: vi.fn().mockReturnValue(of(void 0)),
@@ -37,7 +35,10 @@ describe('DataManagementProactiveInboxService', () => {
       providers: [
         DataManagementProactiveInboxService,
         { provide: DataProactiveMessageService, useValue: dataServiceMock },
-        { provide: AssistantSignalRService, useValue: { proactiveInboxChanged$: inboxChanged$ } },
+        {
+          provide: AssistantSignalRService,
+          useValue: { proactiveInboxChanged$: inboxChanged$, proactiveMessage$: proactiveMessage$ },
+        },
       ],
     });
 
@@ -74,6 +75,15 @@ describe('DataManagementProactiveInboxService', () => {
     expect(service.unreadCount()).toBe(7);
   });
 
+  it('refreshes the unread count from a ProactiveMessage push, which carries no count of its own', () => {
+    dataServiceMock.getUnreadCount.mockReturnValue(of({ count: 9 }));
+
+    proactiveMessage$.next({});
+
+    expect(dataServiceMock.getUnreadCount).toHaveBeenCalledTimes(1);
+    expect(service.unreadCount()).toBe(9);
+  });
+
   it('loadUnreadMessages delegates to the data service with the configured take', () => {
     const items: IProactiveInboxItem[] = [
       {
@@ -91,15 +101,6 @@ describe('DataManagementProactiveInboxService', () => {
     expect(received).toEqual(items);
   });
 
-  it('markAllRead resets the unread count to zero', () => {
-    inboxChanged$.next({ unreadCount: 5 });
-
-    service.markAllRead().subscribe();
-
-    expect(dataServiceMock.markAllRead).toHaveBeenCalledTimes(1);
-    expect(service.unreadCount()).toBe(0);
-  });
-
   it('markManyRead forwards exactly the given ids and leaves the count to a refresh', () => {
     inboxChanged$.next({ unreadCount: 63 });
 
@@ -107,25 +108,6 @@ describe('DataManagementProactiveInboxService', () => {
 
     expect(dataServiceMock.markManyRead).toHaveBeenCalledWith(['a', 'b']);
     expect(service.unreadCount()).toBe(63);
-  });
-
-  it('markRead decrements the unread count but never below zero', () => {
-    inboxChanged$.next({ unreadCount: 1 });
-
-    service.markRead('dispatch-1').subscribe();
-    service.markRead('dispatch-2').subscribe();
-
-    expect(dataServiceMock.markRead).toHaveBeenCalledWith('dispatch-1');
-    expect(service.unreadCount()).toBe(0);
-  });
-
-  it('does not touch the count when markAllRead fails', () => {
-    inboxChanged$.next({ unreadCount: 3 });
-    dataServiceMock.markAllRead.mockReturnValue(throwError(() => new Error('offline')));
-
-    service.markAllRead().subscribe({ error: () => undefined });
-
-    expect(service.unreadCount()).toBe(3);
   });
 
   describe('inbox block state', () => {
@@ -222,26 +204,28 @@ describe('DataManagementProactiveInboxService', () => {
       expect(dataServiceMock.markManyRead).not.toHaveBeenCalled();
     });
 
-    it('dismissMessage hides the row and records the dismissal', () => {
-      service.dismissMessage('a');
+    it('dismissMessage records the dismissal but leaves hiding to the caller', () => {
+      service.dismissMessage('a').subscribe();
 
-      expect(service.hiddenMessageIds().has('a')).toBe(true);
       expect(dataServiceMock.setReaction).toHaveBeenCalledWith('a', 'dismissed', undefined);
-      expect(dataServiceMock.markManyRead).toHaveBeenCalledWith(['a']);
+      expect(service.hiddenMessageIds().has('a')).toBe(false);
+      expect(dataServiceMock.markManyRead).not.toHaveBeenCalled();
     });
 
     it('dismissMessage forwards the reject reason the user picked', () => {
-      service.dismissMessage('a', 'alreadyHandled');
+      service.dismissMessage('a', 'alreadyHandled').subscribe();
 
       expect(dataServiceMock.setReaction).toHaveBeenCalledWith('a', 'dismissed', 'alreadyHandled');
     });
 
-    it('dismissMessage still hides the row when recording the reaction fails', () => {
+    it('dismissMessage propagates a failed reaction instead of swallowing it', () => {
       dataServiceMock.setReaction.mockReturnValue(throwError(() => new Error('offline')));
+      let receivedError: unknown;
 
-      service.dismissMessage('a');
+      service.dismissMessage('a').subscribe({ error: (error) => (receivedError = error) });
 
-      expect(service.hiddenMessageIds().has('a')).toBe(true);
+      expect(receivedError).toBeDefined();
+      expect(service.hiddenMessageIds().has('a')).toBe(false);
     });
 
     it('resetInboxBlock clears the hidden set as well', () => {

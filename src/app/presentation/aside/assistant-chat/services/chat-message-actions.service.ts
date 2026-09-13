@@ -121,13 +121,14 @@ export class ChatMessageActionsService {
     });
   }
 
+  /**
+   * The badge fallback for a closed/not-yet-created aside now lives on
+   * DataManagementProactiveInboxService, so there is nothing to do here when the inbox cannot be presented.
+   */
   private onProactivePushReceived(): void {
     if (this.canPresentInbox()) {
       this.inboxReloadRequests$.next();
-      return;
     }
-    // The live-push branch sends no unread-count signal, so the badge would miss this row.
-    this.proactiveInboxService.refreshUnreadCount();
   }
 
   private onInboxUnreadCountChanged(): void {
@@ -309,13 +310,21 @@ export class ChatMessageActionsService {
    * Hide the message and say why. The reason is what turns a dismissal into feedback Klacksy can act
    * on, so the menu offers "no reason" as a fourth choice rather than letting the button dismiss
    * silently: a user who does not want to explain still closes the row in one further click, and the
-   * backend can tell that answer apart from a client that never asked.
+   * backend can tell that answer apart from a client that never asked. Pessimistic on purpose: the
+   * row only disappears once the reaction actually persisted, so a failed request leaves it visible
+   * with the dismiss button live for a retry instead of silently dropping the user's choice.
    * @param message - The proactive message being dismissed
    * @param rejectReason - The reason the user picked
    */
-  dismissProactiveMessage(message: ChatMessage, rejectReason: ProactiveRejectReason): void {
+  async dismissProactiveMessage(message: ChatMessage, rejectReason: ProactiveRejectReason): Promise<void> {
     this._dismissMenuMessageId.set(null);
-    this.proactiveInboxService.dismissMessage(message.id, rejectReason);
+    try {
+      await firstValueFrom(this.proactiveInboxService.dismissMessage(message.id, rejectReason));
+      this.proactiveInboxService.markHidden([message.id]);
+      this.proactiveInboxService.refreshUnreadCount();
+    } catch {
+      this.toastShowService.showError(this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY));
+    }
   }
 
   onProactiveActionClick(message: ChatMessage): void {

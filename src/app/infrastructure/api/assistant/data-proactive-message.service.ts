@@ -2,7 +2,7 @@
 
 /**
  * API service for proactive assistant messages: user reactions plus the silent-channel
- * inbox (unread listing, unread count, mark-as-read).
+ * inbox (unread listing, unread count, bulk mark-as-read).
  * @param messageId - Identifier of the proactive message dispatch (Guid)
  * @param reaction - Chosen reaction value, helpful or dismissed
  * @param rejectReason - Why the message was dismissed; omitted when no reason was picked, and rejected by the API when sent with a helpful reaction
@@ -75,31 +75,11 @@ export class DataProactiveMessageService {
       .pipe(retry(3));
   }
 
-  markRead(messageId: string): Observable<void> {
-    return this.httpClient
-      .put<void>(
-        `${this.baseUrl}proactive-messages/${messageId}/read`,
-        null,
-        { context: new HttpContext().set(SKIP_LOADING, true) },
-      )
-      .pipe(retry(3));
-  }
-
   markManyRead(messageIds: readonly string[]): Observable<void> {
     return this.httpClient
       .put<void>(
         `${this.baseUrl}proactive-messages/read`,
         { ids: messageIds },
-        { context: new HttpContext().set(SKIP_LOADING, true) },
-      )
-      .pipe(retry(3));
-  }
-
-  markAllRead(): Observable<void> {
-    return this.httpClient
-      .put<void>(
-        `${this.baseUrl}proactive-messages/read-all`,
-        null,
         { context: new HttpContext().set(SKIP_LOADING, true) },
       )
       .pipe(retry(3));

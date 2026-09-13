@@ -416,8 +416,8 @@ export class AssistantChatComponent {
    * @param message - The proactive message being dismissed
    * @param rejectReason - The reason the user picked
    */
-  dismissProactiveMessage(message: ChatMessage, rejectReason: ProactiveRejectReason): void {
-    this.messageActions.dismissProactiveMessage(message, rejectReason);
+  dismissProactiveMessage(message: ChatMessage, rejectReason: ProactiveRejectReason): Promise<void> {
+    return this.messageActions.dismissProactiveMessage(message, rejectReason);
   }
 
   isHiddenProactiveMessage(message: ChatMessage): boolean {
