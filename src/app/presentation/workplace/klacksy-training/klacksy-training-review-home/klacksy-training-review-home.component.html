@@ -73,6 +73,19 @@
               {{ 'klacksyTraining.tabs.manual' | translate }}
             </a>
           </li>
+          <li class="nav-item">
+            <a
+              id="klacksy-training-tab-effectiveness"
+              class="nav-link"
+              [class.active]="activeTab() === TAB_EFFECTIVENESS"
+              role="tab"
+              [attr.aria-selected]="activeTab() === TAB_EFFECTIVENESS"
+              tabindex="0"
+              (click)="setTab(TAB_EFFECTIVENESS)"
+            >
+              {{ 'klacksyTraining.tabs.effectiveness' | translate }}
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -99,6 +112,13 @@
           <app-klacksy-training-manual
             data-klacksy-target="klacksy-training.manual"
             data-klacksy-label-key="klacksyTraining.tabs.manual"
+          />
+        }
+        <!-- legacy target id "skill-effectiveness" kept for Klacksy navigation compatibility — see klacksy-training-target-tabs.constants.ts -->
+        @if (activeTab() === TAB_EFFECTIVENESS) {
+          <app-klacksy-training-effectiveness
+            data-klacksy-target="skill-effectiveness"
+            data-klacksy-label-key="settings.skillEffectiveness"
           />
         }
       </div>

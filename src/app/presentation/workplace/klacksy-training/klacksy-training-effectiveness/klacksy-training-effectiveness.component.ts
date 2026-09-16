@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * W6.1: read-only settings card "Skill-Wirksamkeit" — eval trend, recipe funnel, failure classes,
+ * Read-only Klacksy training-page tab "Wirksamkeit": eval trend, recipe funnel, failure classes,
  * top/flop skills and toolset provenance for a chosen reporting window. Read-only, so unlike the
- * neighbouring settings cards it has nothing to save; changing the window reloads the scorecard.
+ * neighbouring training tabs it has nothing to save; changing the window reloads the scorecard.
+ * Relocated from the customer-facing Settings page (was app-skill-effectiveness) because these
+ * figures are Klacks-internal QA telemetry, not a customer-facing feature.
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
@@ -27,14 +29,14 @@ const SCORE_DIGITS = 4;
 const EMPTY_VALUE = '-';
 
 @Component({
-  selector: 'app-skill-effectiveness',
-  templateUrl: './skill-effectiveness.component.html',
-  styleUrls: ['./skill-effectiveness.component.scss'],
+  selector: 'app-klacksy-training-effectiveness',
+  templateUrl: './klacksy-training-effectiveness.component.html',
+  styleUrls: ['./klacksy-training-effectiveness.component.scss'],
   standalone: true,
   imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SkillEffectivenessComponent implements OnInit, OnDestroy {
+export class KlacksyTrainingEffectivenessComponent implements OnInit, OnDestroy {
   private effectivenessService = inject(DataManagementSkillEffectivenessService);
   private cdr = inject(ChangeDetectorRef);
   private localeService = inject(LocaleService);

@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, Subject } from 'rxjs';
 import { KlacksyTrainingReviewHomeComponent } from './klacksy-training-review-home.component';
 import { DataKlacksyTrainingService } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import { DataManagementSkillEffectivenessService } from 'src/app/domain/services/assistant/data-management-skill-effectiveness.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 
 describe('KlacksyTrainingReviewHomeComponent', () => {
@@ -21,6 +22,19 @@ describe('KlacksyTrainingReviewHomeComponent', () => {
     updateSynonyms: () => of(true),
   };
 
+  // Stub effectiveness service with minimal data structure for template rendering
+  const effectivenessServiceStub = {
+    getSkillEffectiveness: () => of({
+      days: 30,
+      evalTrend: [],
+      recipeFunnel: [],
+      failureSummary: { totalRows: 0, notFound: 0, permissionDenied: 0, parameterInvalid: 0, gateHold: 0, uiActionContext: 0, exception: 0, hallucinationRate: 0 },
+      topSkills: [],
+      flopSkills: [],
+      chosenSourceDistribution: [],
+    }),
+  };
+
   beforeEach(() => {
     targetRequested$ = new Subject<{ target: string }>();
     eventBusMock = {
@@ -33,6 +47,7 @@ describe('KlacksyTrainingReviewHomeComponent', () => {
       imports: [KlacksyTrainingReviewHomeComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataKlacksyTrainingService, useValue: trainingServiceStub },
+        { provide: DataManagementSkillEffectivenessService, useValue: effectivenessServiceStub },
         { provide: EVENT_BUS_TOKEN, useValue: eventBusMock },
       ]
     });
@@ -58,5 +73,19 @@ describe('KlacksyTrainingReviewHomeComponent', () => {
     targetRequested$.next({ target: 'goal-candidates-panel.approve' });
 
     expect(component['activeTab']()).toBe('targets');
+  });
+
+  it('switches to the effectiveness tab when its nav-link is clicked', () => {
+    fixture.detectChanges();
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('#klacksy-training-tab-effectiveness');
+    link.click();
+    fixture.detectChanges();
+    expect(link.classList.contains('active')).toBe(true);
+  });
+
+  it('activates the effectiveness tab when Klacksy requests the skill-effectiveness target', () => {
+    targetRequested$.next({ target: 'skill-effectiveness' });
+
+    expect(component['activeTab']()).toBe('effectiveness');
   });
 });

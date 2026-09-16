@@ -1,12 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import { SkillEffectivenessComponent } from './skill-effectiveness.component';
+import { KlacksyTrainingEffectivenessComponent } from './klacksy-training-effectiveness.component';
 import { DataManagementSkillEffectivenessService } from 'src/app/domain/services/assistant/data-management-skill-effectiveness.service';
 import { ISkillEffectivenessResource } from 'src/app/domain/interfaces/skill-effectiveness.interface';
 import {
@@ -44,22 +43,22 @@ const RESOURCE: ISkillEffectivenessResource = {
   chosenSourceDistribution: [{ source: 'knowledge_index', count: 42 }],
 };
 
-describe('SkillEffectivenessComponent', () => {
-  let component: SkillEffectivenessComponent;
-  let fixture: ComponentFixture<SkillEffectivenessComponent>;
+describe('KlacksyTrainingEffectivenessComponent', () => {
+  let component: KlacksyTrainingEffectivenessComponent;
+  let fixture: ComponentFixture<KlacksyTrainingEffectivenessComponent>;
   let getSkillEffectiveness: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     getSkillEffectiveness = vi.fn(() => of(RESOURCE));
 
     await TestBed.configureTestingModule({
-      imports: [SkillEffectivenessComponent, TranslateModule.forRoot()],
+      imports: [KlacksyTrainingEffectivenessComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataManagementSkillEffectivenessService, useValue: { getSkillEffectiveness } },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SkillEffectivenessComponent);
+    fixture = TestBed.createComponent(KlacksyTrainingEffectivenessComponent);
     component = fixture.componentInstance;
   });
 
