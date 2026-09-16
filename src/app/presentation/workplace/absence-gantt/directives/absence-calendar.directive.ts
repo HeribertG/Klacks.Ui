@@ -122,19 +122,6 @@ export class AbsenceCalendarDirective {
       this.gridBody.onSelectByMouse(event);
       this.gridBody.onMouseDown(event);
     }
-    if (event.buttons === 2) {
-      const contextMenu = this.gridBody.contextMenu();
-      if (contextMenu) {
-        contextMenu.closeMenu(true);
-        this.stopEvent(event);
-        const isHeader = event.offsetY < this.gridBody.calendarSetting.cellHeaderHeight;
-        if (this.gridBody.drawCalendarGantt.rows > 0 && !isHeader) {
-          this.gridBody.onSelectByMouse(event);
-          this.gridBody.createContextMenu(event);
-          contextMenu.openMenu(event);
-        }
-      }
-    }
     this.gridBody.setFocus();
   }
 
@@ -433,11 +420,23 @@ export class AbsenceCalendarDirective {
     this.gridBody.isCtrl = false;
   }
 
-  @HostListener('contextmenu', ['$event']) onContextMenu(event: Event): void {
+  @HostListener('contextmenu', ['$event']) onContextMenu(event: MouseEvent): void {
     if (!this.isOwnElement(event)) {
       return;
     }
     this.stopEvent(event);
+
+    const contextMenu = this.gridBody.contextMenu();
+    if (!contextMenu) {
+      return;
+    }
+    contextMenu.closeMenu(true);
+    const isHeader = event.offsetY < this.gridBody.calendarSetting.cellHeaderHeight;
+    if (this.gridBody.drawCalendarGantt.rows > 0 && !isHeader) {
+      this.gridBody.onSelectByMouse(event);
+      this.gridBody.createContextMenu(event);
+      contextMenu.openMenu(event);
+    }
   }
 
   @HostListener('focus', ['$event']) onFocus(event: Event): void {

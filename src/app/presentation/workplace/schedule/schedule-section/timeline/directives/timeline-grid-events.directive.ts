@@ -108,14 +108,14 @@ export class TimelineGridEventsDirective {
     this.cachedRect = this.el.nativeElement.getBoundingClientRect();
     if (event.buttons === 1) {
       this.respondToLeftButtonMouseDown(event);
-    } else if (event.buttons === 2) {
-      this.emitRightClick(event);
     }
   }
 
   @HostListener('contextmenu', ['$event']) onContextMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    this.cachedRect = this.el.nativeElement.getBoundingClientRect();
+    this.emitRightClick(event);
   }
 
   @HostListener('dblclick', ['$event']) onDoubleClick(event: MouseEvent): void {

@@ -185,8 +185,6 @@ export class GridTemplateEventsDirective {
       this.respondToLeftButtonMouseDown(event);
       this.scheduleEvents.tryPrepareShiftDrag(event);
       this.scheduleEvents.tryPrepareScheduleCellDrag(event);
-    } else if (event.buttons === 2) {
-      this.respondToRightButtonMouseDown(event);
     }
   }
 
@@ -648,6 +646,22 @@ export class GridTemplateEventsDirective {
   onContextMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    this.cancelPendingLeftButtonState();
+    this.respondToRightButtonMouseDown(event);
+  }
+
+  /**
+   * Safari/WebKit on macOS reports a Ctrl+Click secondary click as an ordinary
+   * left-button mousedown (buttons=1) before dispatching contextmenu, which can
+   * leave left-button drag state armed when this handler opens the menu.
+   */
+  private cancelPendingLeftButtonState(): void {
+    this.scheduleEvents.cancelPendingDrag();
+    this.scheduleEvents.cancelPendingScheduleCellDrag();
+    if (this.fillHandleDrag.isDragging()) {
+      this.fillHandleDrag.endDrag();
+    }
+    this.isDrawing = false;
   }
 
   private stopEvent(event: Event): void {
