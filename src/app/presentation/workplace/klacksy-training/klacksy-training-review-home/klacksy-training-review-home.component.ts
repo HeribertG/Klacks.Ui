@@ -2,7 +2,7 @@
 
 /**
  * Admin entry page for the Klacksy training review tool.
- * Layout container: delegates to review / feedback / metrics sub-components via tabs.
+ * Layout container: delegates to review / feedback / metrics / effectiveness sub-components via tabs.
  */
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,9 +11,11 @@ import { KlacksyTrainingReviewComponent } from '../klacksy-training-review/klack
 import { KlacksyTrainingFeedbackReviewComponent } from '../klacksy-training-feedback-review/klacksy-training-feedback-review.component';
 import { KlacksyTrainingMetricsComponent } from '../klacksy-training-metrics/klacksy-training-metrics.component';
 import { KlacksyTrainingManualComponent } from '../klacksy-training-manual/klacksy-training-manual.component';
+import { KlacksyTrainingEffectivenessComponent } from '../klacksy-training-effectiveness/klacksy-training-effectiveness.component';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 import {
+  KLACKSY_TRAINING_TAB_EFFECTIVENESS,
   KLACKSY_TRAINING_TAB_FEEDBACK,
   KLACKSY_TRAINING_TAB_MANUAL,
   KLACKSY_TRAINING_TAB_METRICS,
@@ -25,7 +27,7 @@ import { KLACKSY_TRAINING_TARGET_TABS } from './klacksy-training-target-tabs.con
 @Component({
   selector: 'app-klacksy-training-review-home',
   standalone: true,
-  imports: [TranslateModule, KlacksyTrainingReviewComponent, KlacksyTrainingFeedbackReviewComponent, KlacksyTrainingMetricsComponent, KlacksyTrainingManualComponent],
+  imports: [TranslateModule, KlacksyTrainingReviewComponent, KlacksyTrainingFeedbackReviewComponent, KlacksyTrainingMetricsComponent, KlacksyTrainingManualComponent, KlacksyTrainingEffectivenessComponent],
   templateUrl: './klacksy-training-review-home.component.html',
   styleUrls: ['./klacksy-training-review-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -40,6 +42,7 @@ export class KlacksyTrainingReviewHomeComponent {
   protected readonly TAB_FEEDBACK = KLACKSY_TRAINING_TAB_FEEDBACK;
   protected readonly TAB_METRICS = KLACKSY_TRAINING_TAB_METRICS;
   protected readonly TAB_MANUAL = KLACKSY_TRAINING_TAB_MANUAL;
+  protected readonly TAB_EFFECTIVENESS = KLACKSY_TRAINING_TAB_EFFECTIVENESS;
 
   constructor() {
     this.eventBus

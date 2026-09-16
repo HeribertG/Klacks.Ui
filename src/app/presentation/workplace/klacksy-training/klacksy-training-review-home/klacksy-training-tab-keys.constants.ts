@@ -9,9 +9,11 @@ export const KLACKSY_TRAINING_TAB_TARGETS = 'targets';
 export const KLACKSY_TRAINING_TAB_FEEDBACK = 'feedback';
 export const KLACKSY_TRAINING_TAB_METRICS = 'metrics';
 export const KLACKSY_TRAINING_TAB_MANUAL = 'manual';
+export const KLACKSY_TRAINING_TAB_EFFECTIVENESS = 'effectiveness';
 
 export type KlacksyTrainingTab =
   | typeof KLACKSY_TRAINING_TAB_TARGETS
   | typeof KLACKSY_TRAINING_TAB_FEEDBACK
   | typeof KLACKSY_TRAINING_TAB_METRICS
-  | typeof KLACKSY_TRAINING_TAB_MANUAL;
+  | typeof KLACKSY_TRAINING_TAB_MANUAL
+  | typeof KLACKSY_TRAINING_TAB_EFFECTIVENESS;
