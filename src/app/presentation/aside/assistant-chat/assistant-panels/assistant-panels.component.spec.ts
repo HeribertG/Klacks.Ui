@@ -2,10 +2,13 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { AssistantPanelsComponent } from './assistant-panels.component';
+import { PlanExecutionPanelComponent } from '../plan-execution-panel/plan-execution-panel.component';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
@@ -14,6 +17,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { TextToSpeechService } from '../services/text-to-speech.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
 import { IAgentPlan, IAgentPlanStep, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
 import { ChatMessage } from '../chat-message.interface';
@@ -48,6 +52,8 @@ describe('AssistantPanelsComponent', () => {
     isApproving: Signal<boolean>;
     isAborting: Signal<boolean>;
     steps: Signal<IAgentPlanStep[]>;
+    approve: ReturnType<typeof vi.fn>;
+    abort: ReturnType<typeof vi.fn>;
   };
 
   // ChatMessageActionsService is the shared surface both the chat and this card read the inbox
@@ -149,6 +155,8 @@ describe('AssistantPanelsComponent', () => {
       isApproving: signal(false),
       isAborting: signal(false),
       steps: stepsSignal,
+      approve: vi.fn(() => of(planSignal())),
+      abort: vi.fn(() => of(planSignal())),
     };
 
     inboxMessagesSignal = signal<ChatMessage[]>([]);
@@ -366,28 +374,92 @@ describe('AssistantPanelsComponent', () => {
     expect(badge.textContent.trim()).toBe('3');
   });
 
-  // Test 12: onPlanApprove delegates to plan panel
-  it('Test 12: onPlanApprove calls plan panel approve', () => {
-    planServiceMock.activePlan.set(samplePlan);
+  // Test 12: approving the paused plan calls the plan service exactly once (regression: the
+  // handler used to call back into the emitting child method, recursing instead of approving).
+  it('Test 12: onPlanApprove calls the plan service exactly once and does not recurse', () => {
+    planServiceMock.activePlan.set({ ...samplePlan, status: PlanStatus.PausedForApproval });
     fixture.detectChanges();
 
-    // Expand to render the panel
     component.togglePlan();
     fixture.detectChanges();
 
-    // Should not throw when called
-    expect(() => component.onPlanApprove('plan-1')).not.toThrow();
+    const panel = fixture.debugElement.query(By.directive(PlanExecutionPanelComponent))
+      .componentInstance as PlanExecutionPanelComponent;
+    panel.onApproveClick();
+
+    expect(planServiceMock.approve).toHaveBeenCalledTimes(1);
+    expect(planServiceMock.approve).toHaveBeenCalledWith('plan-1');
   });
 
-  // Test 13: onPlanAbort delegates to plan panel
-  it('Test 13: onPlanAbort calls plan panel abort', () => {
-    planServiceMock.activePlan.set(samplePlan);
+  it('Test 12b: shows an error toast when approving fails', () => {
+    planServiceMock.approve.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    const toastService = TestBed.inject(ToastShowService);
+    const showErrorSpy = vi.spyOn(toastService, 'showError');
+    planServiceMock.activePlan.set({ ...samplePlan, status: PlanStatus.PausedForApproval });
+    fixture.detectChanges();
+    component.togglePlan();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.directive(PlanExecutionPanelComponent))
+      .componentInstance as PlanExecutionPanelComponent;
+    panel.onApproveClick();
+
+    expect(showErrorSpy).toHaveBeenCalled();
+  });
+
+  // Test 13: aborting the executing plan calls the plan service exactly once (same regression as
+  // Test 12, for the abort path).
+  it('Test 13: onPlanAbort calls the plan service exactly once and does not recurse', () => {
+    planServiceMock.activePlan.set({ ...samplePlan, status: PlanStatus.Executing });
     fixture.detectChanges();
 
     component.togglePlan();
     fixture.detectChanges();
 
-    expect(() => component.onPlanAbort('plan-1')).not.toThrow();
+    const panel = fixture.debugElement.query(By.directive(PlanExecutionPanelComponent))
+      .componentInstance as PlanExecutionPanelComponent;
+    panel.onAbortClick();
+
+    expect(planServiceMock.abort).toHaveBeenCalledTimes(1);
+    expect(planServiceMock.abort).toHaveBeenCalledWith('plan-1');
+  });
+
+  it('Test 13b: shows a conflict-specific toast when aborting returns 409', () => {
+    planServiceMock.abort.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    const toastService = TestBed.inject(ToastShowService);
+    const translateService = TestBed.inject(TranslateService);
+    const showErrorSpy = vi.spyOn(toastService, 'showError');
+    const instantSpy = vi.spyOn(translateService, 'instant');
+    planServiceMock.activePlan.set({ ...samplePlan, status: PlanStatus.Executing });
+    fixture.detectChanges();
+    component.togglePlan();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.directive(PlanExecutionPanelComponent))
+      .componentInstance as PlanExecutionPanelComponent;
+    panel.onAbortClick();
+
+    expect(showErrorSpy).toHaveBeenCalled();
+    expect(instantSpy).toHaveBeenCalledWith('assistant-chat.plan-execution.abort-conflict');
+  });
+
+  it('Test 13c: shows a generic error toast when aborting fails with a non-conflict status', () => {
+    planServiceMock.abort.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    const toastService = TestBed.inject(ToastShowService);
+    const translateService = TestBed.inject(TranslateService);
+    const showErrorSpy = vi.spyOn(toastService, 'showError');
+    const instantSpy = vi.spyOn(translateService, 'instant');
+    planServiceMock.activePlan.set({ ...samplePlan, status: PlanStatus.Executing });
+    fixture.detectChanges();
+    component.togglePlan();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.directive(PlanExecutionPanelComponent))
+      .componentInstance as PlanExecutionPanelComponent;
+    panel.onAbortClick();
+
+    expect(showErrorSpy).toHaveBeenCalled();
+    expect(instantSpy).toHaveBeenCalledWith('assistant-chat.plan-execution.abort-error');
   });
 
   // Regression: the panel component that normally triggers this load only mounts once a card

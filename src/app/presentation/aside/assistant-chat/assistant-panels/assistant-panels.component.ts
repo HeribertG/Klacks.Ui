@@ -6,7 +6,9 @@
  * default (the inbox keeps its own service-level default of expanded) and can be
  * expanded/collapsed independently. Toasts stack upward with no limit. The inbox message list
  * auto-scrolls to its latest row whenever the list grows, matching the behavior the chat's own
- * inline inbox block used to have before it moved here.
+ * inline inbox block used to have before it moved here. Owns approving/aborting the active
+ * AgentPlan itself, since it is the only component that ever mounts the plan-execution panel
+ * (both the overlay rail and the embedded chat host it without binding its outputs further).
  */
 
 import {
@@ -21,10 +23,10 @@ import {
   input,
   signal,
   viewChild,
-  ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faChevronDown,
@@ -43,8 +45,13 @@ import { ChatMessageActionsService } from '../services/chat-message-actions.serv
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { DataManagementGoalCandidatesService } from 'src/app/domain/services/assistant/data-management-goal-candidates.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+
+const PLAN_APPROVE_ERROR_I18N_KEY = 'assistant-chat.plan-execution.approve-error';
+const PLAN_ABORT_CONFLICT_I18N_KEY = 'assistant-chat.plan-execution.abort-conflict';
+const PLAN_ABORT_ERROR_I18N_KEY = 'assistant-chat.plan-execution.abort-error';
 
 @Component({
   selector: 'app-assistant-panels',
@@ -77,6 +84,8 @@ export class AssistantPanelsComponent {
   private readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly messageActions = inject(ChatMessageActionsService);
+  private readonly toastShowService = inject(ToastShowService);
+  private readonly translateService = inject(TranslateService);
   private readonly proactiveInboxService = inject(
     DataManagementProactiveInboxService,
   );
@@ -132,9 +141,6 @@ export class AssistantPanelsComponent {
       this.shouldScrollInboxToBottom = false;
     });
   }
-
-  @ViewChild(PlanExecutionPanelComponent)
-  private planPanel?: PlanExecutionPanelComponent;
 
   readonly faBullseye = faBullseye;
   readonly faListCheck = faListCheck;
@@ -229,11 +235,28 @@ export class AssistantPanelsComponent {
     this.dismissedPlanId.set(null);
   }
 
-  onPlanApprove(_planId: string): void {
-    this.planPanel?.onApproveClick();
+  onPlanApprove(planId: string): void {
+    this.planService.approve(planId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => {
+          this.toastShowService.showError(
+            this.translateService.instant(PLAN_APPROVE_ERROR_I18N_KEY),
+          );
+        },
+      });
   }
 
-  onPlanAbort(_planId: string): void {
-    this.planPanel?.onAbortClick();
+  onPlanAbort(planId: string): void {
+    this.planService.abort(planId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: (error: unknown) => {
+          const messageKey = error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict
+            ? PLAN_ABORT_CONFLICT_I18N_KEY
+            : PLAN_ABORT_ERROR_I18N_KEY;
+          this.toastShowService.showError(this.translateService.instant(messageKey));
+        },
+      });
   }
 }

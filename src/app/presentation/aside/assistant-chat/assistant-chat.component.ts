@@ -21,7 +21,6 @@ import {
   afterEveryRender,
   viewChild
 } from '@angular/core';
-import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
@@ -1538,30 +1537,4 @@ export class AssistantChatComponent {
     return this.speechService.getDiagnostics().useWhisperFallback;
   }
 
-  onPlanApprove(planId: string): void {
-    this.planService.approve(planId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => this.ngZone.run(() => {
-          this.toastShowService.showError(
-            this.translateService.instant('assistant-chat.plan-execution.approve-error'),
-          );
-          this.cdr.detectChanges();
-        }),
-      });
-  }
-
-  onPlanAbort(planId: string): void {
-    this.planService.abort(planId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: (error: unknown) => this.ngZone.run(() => {
-          const messageKey = error instanceof HttpErrorResponse && error.status === HttpStatusCode.Conflict
-            ? 'assistant-chat.plan-execution.abort-conflict'
-            : 'assistant-chat.plan-execution.abort-error';
-          this.toastShowService.showError(this.translateService.instant(messageKey));
-          this.cdr.detectChanges();
-        }),
-      });
-  }
 }

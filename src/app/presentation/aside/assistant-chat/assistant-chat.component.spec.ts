@@ -2003,57 +2003,6 @@ describe('AssistantChatComponent', () => {
             expect(mockPlanService.refreshActivePlan).toHaveBeenCalledTimes(1);
         });
 
-        it('onPlanApprove calls the plan service with the given plan id', () => {
-            fixture.detectChanges();
-
-            component.onPlanApprove('plan-1');
-
-            expect(mockPlanService.approve).toHaveBeenCalledWith('plan-1');
-        });
-
-        it('onPlanApprove shows an error toast when approving fails', () => {
-            mockPlanService.approve.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-            const toastService = TestBed.inject(ToastShowService);
-            const showErrorSpy = vi.spyOn(toastService, 'showError');
-            fixture.detectChanges();
-
-            component.onPlanApprove('plan-1');
-
-            expect(showErrorSpy).toHaveBeenCalled();
-        });
-
-        it('onPlanAbort calls the plan service with the given plan id', () => {
-            fixture.detectChanges();
-
-            component.onPlanAbort('plan-1');
-
-            expect(mockPlanService.abort).toHaveBeenCalledWith('plan-1');
-        });
-
-        it('onPlanAbort shows a conflict-specific toast on a 409 response', () => {
-            mockPlanService.abort.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
-            const toastService = TestBed.inject(ToastShowService);
-            const showErrorSpy = vi.spyOn(toastService, 'showError');
-            fixture.detectChanges();
-
-            component.onPlanAbort('plan-1');
-
-            expect(showErrorSpy).toHaveBeenCalled();
-            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.plan-execution.abort-conflict');
-        });
-
-        it('onPlanAbort shows a generic error toast on a non-conflict failure', () => {
-            mockPlanService.abort.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-            const toastService = TestBed.inject(ToastShowService);
-            const showErrorSpy = vi.spyOn(toastService, 'showError');
-            fixture.detectChanges();
-
-            component.onPlanAbort('plan-1');
-
-            expect(showErrorSpy).toHaveBeenCalled();
-            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.plan-execution.abort-error');
-        });
-
         it('exposes hasVisiblePlan from the plan service for the template', () => {
             fixture.detectChanges();
 
