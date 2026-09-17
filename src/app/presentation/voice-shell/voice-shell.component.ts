@@ -27,6 +27,7 @@ import {
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
 import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
 import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.service';
+import { ChatTurnControlService } from '../aside/assistant-chat/services/chat-turn-control.service';
 import { AsideService } from '../aside/aside.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
@@ -54,6 +55,7 @@ export class VoiceShellComponent implements OnInit {
   readonly orchestrator = inject(ConversationOrchestratorService);
   private readonly ttsService = inject(TextToSpeechService);
   private readonly audioQueue = inject(AudioQueueService);
+  private readonly turnControl = inject(ChatTurnControlService);
   private readonly asideService = inject(AsideService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly transcriptService = inject(TranscriptOverlayService);
@@ -91,7 +93,9 @@ export class VoiceShellComponent implements OnInit {
   }
 
   handleClick(): void {
-    const state = this.orchestrator.state();
+    const state = this.effectiveState();
+    const isRealVoiceSession = this.orchestrator.state() !== ConversationState.Idle;
+
     switch (state) {
       case ConversationState.Idle:
         if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
@@ -109,11 +113,26 @@ export class VoiceShellComponent implements OnInit {
         this.toastShowService.dismissInteractiveReplies();
         break;
       case ConversationState.Processing:
-        this.orchestrator.endSession();
-        this.toastShowService.dismissInteractiveReplies();
+      case ConversationState.Planning:
+        if (isRealVoiceSession) {
+          this.orchestrator.endSession();
+          this.toastShowService.dismissInteractiveReplies();
+        } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
+          this.ttsService.stop();
+        } else if (this.audioQueue.isPlaying()) {
+          this.orchestrator.stopAutoSpeak();
+        } else {
+          void this.turnControl.stop('voice-bubble');
+        }
         break;
       case ConversationState.Speaking:
-        this.orchestrator.interruptAndListen();
+        if (isRealVoiceSession) {
+          this.orchestrator.interruptAndListen('voice-bubble');
+        } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
+          this.ttsService.stop();
+        } else if (this.audioQueue.isPlaying()) {
+          this.orchestrator.stopAutoSpeak();
+        }
         break;
       case ConversationState.Enhancing:
         break;
