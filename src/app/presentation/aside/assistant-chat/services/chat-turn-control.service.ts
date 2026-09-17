@@ -56,6 +56,7 @@ export class ChatTurnControlService {
    */
   beginTurn(messageId: string): void {
     this.turnEpoch++;
+    this.resolveTurnStoppedWait(null);
     this._isTurnRunning.set(true);
     this._isStopping.set(false);
     this.turnId = null;

@@ -210,6 +210,31 @@ describe('ChatTurnControlService', () => {
     expect(service.isTurnRunning()).toBe(true); // B is still running, untouched
   });
 
+  it('does not let an orphaned wait from an old turn contaminate a new turn that starts stopping while the old one is still pending', async () => {
+    service.beginTurn('msg-a');
+    service.setTurnId('turn-a');
+    const hooksA = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+    service.registerHooks(hooksA);
+    const stopA = service.stop('user-button'); // suspends on the grace wait, never settled
+
+    service.beginTurn('msg-b');
+    service.setTurnId('turn-b');
+    const hooksB = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+    service.registerHooks(hooksB);
+    const stopB = service.stop('user-button'); // also suspends on its own grace wait
+
+    service.notifyTurnStopped(['skill-b']); // B's real server confirmation arrives
+
+    await Promise.all([stopA, stopB]);
+
+    expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-b', {
+      wasInterrupted: true,
+      interruptedSummary: { executed: ['skill-b'] },
+    });
+    expect(mockOrchestrator.updateMessage).not.toHaveBeenCalledWith('msg-a', expect.anything());
+    expect(hooksB.hardAbort).not.toHaveBeenCalled();
+  });
+
   it('keeps hooks registered across endTurn (component-lifetime registration)', async () => {
     const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
     service.registerHooks(hooks);
