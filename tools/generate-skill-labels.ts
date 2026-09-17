@@ -53,6 +53,14 @@ const BASE_DEEPSEEK_LOCALES = ['id', 'ja', 'ko', 'ms', 'th', 'vi', 'zh-CN', 'zh-
 // without touching the owner's actual per-locale provider assignment above.
 const FORCE_DEEPSEEK_LOCALES = (process.env.LABEL_FORCE_DEEPSEEK_LOCALES ?? '')
   .split(',').map(s => s.trim()).filter(Boolean);
+for (const locale of FORCE_DEEPSEEK_LOCALES) {
+  if (!(locale in DEEPL_LOCALE_TARGET)) {
+    throw new Error(
+      `LABEL_FORCE_DEEPSEEK_LOCALES contains unknown locale '${locale}' (must be one of: ` +
+      `${Object.keys(DEEPL_LOCALE_TARGET).join(', ')})`,
+    );
+  }
+}
 const DEEPSEEK_LOCALES = [...new Set([...BASE_DEEPSEEK_LOCALES, ...FORCE_DEEPSEEK_LOCALES])];
 const PLUGIN_LOCALES = [...new Set([...Object.keys(DEEPL_LOCALE_TARGET), ...DEEPSEEK_LOCALES])];
 
@@ -260,8 +268,20 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
-function sanitize(label: string): string {
-  return label.trim().replace(/^["'“„]+|["'“„]+$/g, '').slice(0, LABEL_MAX_LENGTH);
+const LABEL_MIN_KEPT_RATIO = 0.5;
+
+function sanitize(label: string, context: string): string {
+  const cleaned = label.trim().replace(/^["'“„]+|["'“„]+$/g, '');
+  if (cleaned.length <= LABEL_MAX_LENGTH) return cleaned;
+
+  const lastSpace = cleaned.lastIndexOf(' ', LABEL_MAX_LENGTH);
+  const cut = lastSpace > 0 ? cleaned.slice(0, lastSpace).trimEnd() : cleaned.slice(0, LABEL_MAX_LENGTH);
+
+  if (lastSpace <= 0 || cut.length < cleaned.length * LABEL_MIN_KEPT_RATIO) {
+    console.warn(`  ⚠ ${context}: label truncated from ${cleaned.length} to ${cut.length} chars, no good word boundary — needs manual review: '${cleaned}' -> '${cut}'`);
+  }
+
+  return cut;
 }
 
 function reportDuplicates(locale: string, pack: Record<string, string>): void {
@@ -298,7 +318,7 @@ async function processDeepLLocale(locale: string, coreSkills: SkillSeed[]): Prom
         calls++;
         batch.forEach((s, idx) => {
           const t = translations[idx];
-          if (t) pack[s.name] = sanitize(t);
+          if (t) pack[s.name] = sanitize(t, `${locale}/${s.name}`);
         });
       } catch (e) {
         console.error(`  ✗ batch failed ${locale} #${i + 1}: ${e}`);
@@ -340,7 +360,7 @@ async function processDeepSeekLocale(locale: string, coreSkills: SkillSeed[]): P
       }
       for (const skill of batch) {
         const label = result[skill.name];
-        if (label) pack[skill.name] = sanitize(label);
+        if (label) pack[skill.name] = sanitize(label, `${locale}/${skill.name}`);
         else console.error(`  ✗ missing label ${locale}/${skill.name}`);
       }
       pack = { ...loadPack(locale), ...pack };
