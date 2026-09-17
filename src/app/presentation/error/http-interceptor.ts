@@ -131,6 +131,12 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    // Etappe 1 of the stop-turn design calls this before the Etappe 2 Api endpoint exists; a 404 is
+    // the expected degrade-to-hard-abort path (see ChatTurnControlService.stop()), not a real error.
+    if (url.includes('chat/turns/') && url.includes('/cancel') && error.status === 404) {
+      return throwError(() => error);
+    }
+
     if (url.includes('IndustryTemplates/GetCustomRulesSummary') && error.status === 404) {
       return throwError(() => error);
     }

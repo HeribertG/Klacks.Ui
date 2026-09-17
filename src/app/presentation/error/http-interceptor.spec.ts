@@ -175,6 +175,28 @@ describe('ResponseInterceptor', () => {
     });
   });
 
+  describe('stop-turn cancel pass-through (Etappe 2 Api endpoint does not exist yet)', () => {
+    const CANCEL_TURN_URL = '/api/backend/assistant/chat/turns/turn-1/cancel';
+
+    it('does not show a toast for a 404 on the cancel-turn endpoint', () => {
+      const captured = expectRequestToFail(CANCEL_TURN_URL);
+
+      httpMock.expectOne(CANCEL_TURN_URL).flush(null, NOT_FOUND);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(NOT_FOUND.status);
+    });
+
+    it('still shows the generic toast for a 500 on the cancel-turn endpoint', () => {
+      const captured = expectRequestToFail(CANCEL_TURN_URL);
+
+      httpMock.expectOne(CANCEL_TURN_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+  });
+
   describe('klacksy learning pass-through (component already shows its own toast)', () => {
     it('does not show a generic toast for a 409 on a learning path', () => {
       const captured = expectRequestToFail(KLACKSY_LEARNING_PHRASE_URL);

@@ -357,6 +357,47 @@
   }
 }
 
+.stop-turn-button {
+  background: none;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--colorLabel);
+  font-size: 12px;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  align-self: flex-start;
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+    color: colors.$standartRedColor;
+    border-color: colors.$standartRedColor;
+  }
+}
+
+// Informational, not an error state: an honest report of what happened, so it stays muted like
+// .feedback-thanks/.correction-thanks rather than reading as a warning.
+.interrupted-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--mutedTextColor, #888);
+  font-style: italic;
+}
+
+.interrupted-label {
+  font-weight: 600;
+}
+
 .feedback-controls {
   display: flex;
   align-items: center;

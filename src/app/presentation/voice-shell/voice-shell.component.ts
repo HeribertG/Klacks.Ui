@@ -7,6 +7,7 @@
  * @param orchestrator - single source of truth for conversation state (root singleton)
  * @param ttsService - whole-message TTS playback; drives the Speaking icon state outside voice sessions
  * @param audioQueue - sentence-wise auto-speak playback (BothAuto); also drives the Speaking icon state
+ * @param turnControl - single stop path for a running turn; used when the bubble is clicked during a text turn with no real voice session
  * @param asideService - existing visibility service, used for manual close gesture
  */
 
@@ -27,6 +28,7 @@ import {
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
 import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
 import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.service';
+import { ChatTurnControlService } from '../aside/assistant-chat/services/chat-turn-control.service';
 import { AsideService } from '../aside/aside.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
@@ -54,6 +56,7 @@ export class VoiceShellComponent implements OnInit {
   readonly orchestrator = inject(ConversationOrchestratorService);
   private readonly ttsService = inject(TextToSpeechService);
   private readonly audioQueue = inject(AudioQueueService);
+  private readonly turnControl = inject(ChatTurnControlService);
   private readonly asideService = inject(AsideService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly transcriptService = inject(TranscriptOverlayService);
@@ -91,17 +94,13 @@ export class VoiceShellComponent implements OnInit {
   }
 
   handleClick(): void {
-    const state = this.orchestrator.state();
+    const state = this.effectiveState();
+    const isRealVoiceSession = this.orchestrator.state() !== ConversationState.Idle;
+
     switch (state) {
       case ConversationState.Idle:
-        if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
-          this.ttsService.stop();
-          break;
-        }
-        if (this.audioQueue.isPlaying()) {
-          this.orchestrator.stopAutoSpeak();
-          break;
-        }
+        // effectiveState() only returns Idle when tts/audioQueue are both already idle (see the
+        // Processing/Planning case's comment above for the same invariant) - nothing left to stop here.
         this.orchestrator.startSession();
         break;
       case ConversationState.Listening:
@@ -109,11 +108,27 @@ export class VoiceShellComponent implements OnInit {
         this.toastShowService.dismissInteractiveReplies();
         break;
       case ConversationState.Processing:
-        this.orchestrator.endSession();
-        this.toastShowService.dismissInteractiveReplies();
+      case ConversationState.Planning:
+        if (isRealVoiceSession) {
+          this.orchestrator.endSession();
+          this.toastShowService.dismissInteractiveReplies();
+        } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
+          // No audioQueue.isPlaying() check needed here: effectiveState() already returns
+          // Speaking (not Processing/Planning) whenever audioQueue is playing, so this branch
+          // is only ever reached with audioQueue idle.
+          this.ttsService.stop();
+        } else {
+          void this.turnControl.stop('voice-bubble');
+        }
         break;
       case ConversationState.Speaking:
-        this.orchestrator.interruptAndListen();
+        if (isRealVoiceSession) {
+          this.orchestrator.interruptAndListen('voice-bubble');
+        } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
+          this.ttsService.stop();
+        } else if (this.audioQueue.isPlaying()) {
+          this.orchestrator.stopAutoSpeak();
+        }
         break;
       case ConversationState.Enhancing:
         break;

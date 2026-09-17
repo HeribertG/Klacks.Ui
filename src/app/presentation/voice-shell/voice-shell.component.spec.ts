@@ -11,6 +11,8 @@ import {
   ConversationState,
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
 import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
+import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.service';
+import { ChatTurnControlService } from '../aside/assistant-chat/services/chat-turn-control.service';
 import { AsideService } from '../aside/aside.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import type { ChatMessage } from '../aside/assistant-chat/chat-message.interface';
@@ -24,7 +26,9 @@ interface MockOrchestrator {
   errors$: Subject<IVoiceShellErrorHint>;
   startSession: ReturnType<typeof vi.fn>;
   endSession: ReturnType<typeof vi.fn>;
+  interrupt: ReturnType<typeof vi.fn>;
   interruptAndListen: ReturnType<typeof vi.fn>;
+  stopAutoSpeak: ReturnType<typeof vi.fn>;
 }
 
 function makeOrchestratorMock(): MockOrchestrator {
@@ -37,8 +41,26 @@ function makeOrchestratorMock(): MockOrchestrator {
     errors$: new Subject<IVoiceShellErrorHint>(),
     startSession: vi.fn().mockResolvedValue(undefined),
     endSession: vi.fn(),
+    interrupt: vi.fn(),
     interruptAndListen: vi.fn(),
+    stopAutoSpeak: vi.fn(),
   };
+}
+
+interface MockAudioQueue {
+  isPlaying: ReturnType<typeof signal<boolean>>;
+}
+
+function makeAudioQueueMock(): MockAudioQueue {
+  return { isPlaying: signal<boolean>(false) };
+}
+
+interface MockTurnControl {
+  stop: ReturnType<typeof vi.fn>;
+}
+
+function makeTurnControlMock(): MockTurnControl {
+  return { stop: vi.fn(() => Promise.resolve()) };
 }
 
 interface MockTts {
@@ -60,15 +82,21 @@ describe('VoiceShellComponent — click matrix', () => {
   let component: VoiceShellComponent;
   let orch: MockOrchestrator;
   let tts: MockTts;
+  let turnControl: MockTurnControl;
+  let audioQueue: MockAudioQueue;
 
   beforeEach(() => {
     orch = makeOrchestratorMock();
     tts = makeTtsMock();
+    turnControl = makeTurnControlMock();
+    audioQueue = makeAudioQueueMock();
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
         { provide: TextToSpeechService, useValue: tts },
+        { provide: ChatTurnControlService, useValue: turnControl },
+        { provide: AudioQueueService, useValue: audioQueue },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -110,6 +138,66 @@ describe('VoiceShellComponent — click matrix', () => {
     component.handleClick();
     expect(orch.interruptAndListen).toHaveBeenCalledOnce();
   });
+
+  it('processing during a TEXT turn (orchestrator still Idle) → stops the turn, never startSession', () => {
+    orch.state.set(ConversationState.Idle);
+    orch.isTextProcessing.set(true);
+    component.handleClick();
+
+    expect(turnControl.stop).toHaveBeenCalledWith('voice-bubble');
+    expect(orch.startSession).not.toHaveBeenCalled();
+  });
+
+  it('planning during a TEXT turn → stops the turn via voice-bubble', () => {
+    orch.state.set(ConversationState.Idle);
+    orch.isTextProcessing.set(true);
+    orch.isPlanning.set(true);
+    component.handleClick();
+
+    expect(turnControl.stop).toHaveBeenCalledWith('voice-bubble');
+  });
+
+  it('processing during a REAL voice session → still ends the session, not turnControl.stop', () => {
+    orch.state.set(ConversationState.Processing);
+    component.handleClick();
+
+    expect(orch.endSession).toHaveBeenCalledOnce();
+    expect(turnControl.stop).not.toHaveBeenCalled();
+  });
+
+  it('TTS playing outside a voice session (state Idle) → still stops TTS directly, unaffected by the fix', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isPlaying.set(true);
+    component.handleClick();
+
+    expect(tts.stop).toHaveBeenCalledOnce();
+    expect(turnControl.stop).not.toHaveBeenCalled();
+  });
+
+  it('TTS loading outside a voice session (state Idle, effectiveState Processing) → still stops TTS directly', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isLoading.set(true);
+    component.handleClick();
+
+    expect(tts.stop).toHaveBeenCalledOnce();
+    expect(turnControl.stop).not.toHaveBeenCalled();
+  });
+
+  it('audioQueue auto-speak playing outside a voice session (state Idle) → stops auto-speak directly, not the turn', () => {
+    orch.state.set(ConversationState.Idle);
+    audioQueue.isPlaying.set(true);
+    component.handleClick();
+
+    expect(orch.stopAutoSpeak).toHaveBeenCalledOnce();
+    expect(turnControl.stop).not.toHaveBeenCalled();
+  });
+
+  it('speaking during a real voice session → interruptAndListen with voice-bubble', () => {
+    orch.state.set(ConversationState.Speaking);
+    component.handleClick();
+
+    expect(orch.interruptAndListen).toHaveBeenCalledWith('voice-bubble');
+  });
 });
 
 describe('VoiceShellComponent — error hint', () => {
@@ -120,6 +208,7 @@ describe('VoiceShellComponent — error hint', () => {
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
         { provide: TextToSpeechService, useValue: makeTtsMock() },
+        { provide: ChatTurnControlService, useValue: makeTurnControlMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -141,6 +230,7 @@ describe('VoiceShellComponent — error hint', () => {
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
         { provide: TextToSpeechService, useValue: makeTtsMock() },
+        { provide: ChatTurnControlService, useValue: makeTurnControlMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -162,6 +252,7 @@ describe('VoiceShellComponent — close button', () => {
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
         { provide: TextToSpeechService, useValue: makeTtsMock() },
+        { provide: ChatTurnControlService, useValue: makeTurnControlMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -182,6 +273,7 @@ describe('VoiceShellComponent — close button', () => {
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
         { provide: TextToSpeechService, useValue: makeTtsMock() },
+        { provide: ChatTurnControlService, useValue: makeTurnControlMock() },
         { provide: AsideService, useValue: aside },
       ],
     });
@@ -207,6 +299,7 @@ describe('VoiceShellComponent — auto-play TTS (BothAuto)', () => {
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
         { provide: TextToSpeechService, useValue: tts },
+        { provide: ChatTurnControlService, useValue: makeTurnControlMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });

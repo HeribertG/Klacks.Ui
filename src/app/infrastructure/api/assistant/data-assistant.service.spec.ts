@@ -5,6 +5,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 
 import { DataAssistantService, IAssistantChatRequest, IAssistantChatResponse, IAssistantModel, IAssistantUsage, IAssistantFunction, IAssistantHelp } from './data-assistant.service';
 import { environment } from 'src/environments/environment';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 describe('DataAssistantService', () => {
     let service: DataAssistantService;
@@ -357,6 +358,30 @@ describe('DataAssistantService', () => {
             const req = httpMock.expectOne(`${baseUrl}chat/functions`);
             expect(req.request.method).toBe('GET');
             req.flush(expectedFunctions);
+        });
+    });
+
+    describe('cancelTurn', () => {
+        it('cancels a turn without retrying and without the loading indicator', () => {
+            // Act
+            service.cancelTurn('turn-123').subscribe();
+
+            // Assert
+            const req = httpMock.expectOne(`${baseUrl}chat/turns/turn-123/cancel`);
+            expect(req.request.method).toBe('POST');
+            expect(req.request.context.get(SKIP_LOADING)).toBe(true);
+            req.flush({ accepted: true });
+        });
+
+        it('does not retry on failure', () => {
+            // Act
+            service.cancelTurn('turn-123').subscribe({ error: () => undefined });
+
+            // Assert
+            httpMock
+                .expectOne(`${baseUrl}chat/turns/turn-123/cancel`)
+                .flush(null, { status: 500, statusText: 'Server Error' });
+            httpMock.expectNone(`${baseUrl}chat/turns/turn-123/cancel`);
         });
     });
 

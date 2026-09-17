@@ -41,6 +41,9 @@ export class VoiceModeAdapterService implements IPluginVoiceService, OnDestroy {
       getAbortController: () => null,
       detectChanges: callbacks.detectChanges,
       isTextProcessing: signal(false),
+      // This adapter never drives its own turn (getAbortController above is also a no-op here);
+      // wire real cancellation into ChatTurnControlService if that changes.
+      stop: () => undefined,
     };
 
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang || DomainMessages.DEFAULT_LANG;

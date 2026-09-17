@@ -19,6 +19,7 @@ import {
   IReportUiActionResultRequest,
   IReportUiActionResultResponse,
   IKlacksyModelCheckResponse,
+  ICancelTurnResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
 import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
@@ -414,6 +415,10 @@ export class DataManagementAssistantService {
     request: IReportNavigationOutcomeRequest,
   ): Observable<IReportNavigationOutcomeResponse> {
     return this.dataAssistantService.reportNavigationOutcome(request);
+  }
+
+  cancelTurn(turnId: string): Observable<ICancelTurnResponse> {
+    return this.dataAssistantService.cancelTurn(turnId);
   }
 
   setProactiveReaction(messageId: string, reaction: ProactiveReaction): Observable<void> {

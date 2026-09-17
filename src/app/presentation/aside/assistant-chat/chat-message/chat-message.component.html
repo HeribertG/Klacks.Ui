@@ -72,6 +72,43 @@
       }
     </div>
 
+    <!-- Interrupted notice after a stopped assistant turn -->
+    @if (message().wasInterrupted) {
+    <div class="interrupted-notice">
+      <span class="interrupted-label">{{ "assistant-chat.stop.interrupted-label" | translate }}</span>
+      @if (message().interruptedSummary === null) {
+      <span>{{ "assistant-chat.stop.maybe-executed" | translate }}</span>
+      } @else if (message().interruptedSummary; as summary) {
+      @if (summary.executed.length > 0) {
+      <!-- assistant-chat.stop.executed is a plain label (no {{list}} placeholder): missing-translation
+           fallback discards interpolateParams, so the list is appended here instead. -->
+      <span>{{ "assistant-chat.stop.executed" | translate }}: {{ summary.executed.join(", ") }}</span>
+      } @else {
+      <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
+      }
+      } @else {
+      <!-- Unreachable today (the only current producer, ChatTurnControlService, always sets
+           interruptedSummary alongside wasInterrupted), but the field type allows `undefined` -
+           this branch keeps an undefined summary from crashing the template instead of assuming
+           the pairing invariant. -->
+      <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
+      }
+    </div>
+    }
+
+    <!-- Stop button while an assistant message is streaming -->
+    @if (message().sender === 'assistant' && message().isStreaming) {
+    <button
+      type="button"
+      class="stop-turn-button"
+      (click)="stopTurn()"
+      [attr.aria-label]="'assistant-chat.stop.tooltip' | translate"
+      [title]="'assistant-chat.stop.tooltip' | translate"
+    >
+      <fa-icon [icon]="faStop"></fa-icon>
+    </button>
+    }
+
     <!-- TTS button for assistant messages -->
     @if (message().sender === 'assistant' && message().content && !message().isStreaming) {
     <button

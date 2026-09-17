@@ -334,6 +334,20 @@ export class DataAssistantService {
       })
       .pipe(retry(3));
   }
+
+  /**
+   * Requests a cooperative stop of a running turn (Etappe 1 of the stop-turn design). No retry: a
+   * 404 is the expected Etappe-1 answer while the Api endpoint does not exist yet, and retrying
+   * would burn the 3-second grace window the caller waits before falling back to a hard local abort.
+   * @param turnId - Id the backend assigned in the stream_start SSE event
+   */
+  cancelTurn(turnId: string): Observable<ICancelTurnResponse> {
+    return this.httpClient.post<ICancelTurnResponse>(
+      `${this.baseUrl}chat/turns/${turnId}/cancel`,
+      {},
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
 }
 
 export interface IReportNavigationOutcomeRequest {
@@ -384,4 +398,8 @@ export interface IReportUiActionResultResponse {
 export interface ISubmitHelpfulFeedbackResponse {
   found: boolean;
   trajectoryId: string | null;
+}
+
+export interface ICancelTurnResponse {
+  accepted: boolean;
 }

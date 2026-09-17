@@ -62,7 +62,8 @@ describe('DataManagementAssistantService', () => {
             getFunctions: vi.fn(),
             createModel: vi.fn(),
             deleteModel: vi.fn(),
-            updateModel: vi.fn()
+            updateModel: vi.fn(),
+            cancelTurn: vi.fn()
         };
 
         const eventBusSpy = {
@@ -620,6 +621,19 @@ describe('DataManagementAssistantService', () => {
             expect(loadingStates).toContain(true); // Started loading
             expect(loadingStates).toContain(false); // Finished loading
             sub.unsubscribe();
+        });
+    });
+
+    describe('cancelTurn', () => {
+        it('delegates cancelTurn to the infrastructure service', () => {
+            // Arrange
+            mockDataAssistantService.cancelTurn.mockReturnValue(of({ accepted: true }));
+
+            // Act
+            service.cancelTurn('turn-123').subscribe();
+
+            // Assert
+            expect(mockDataAssistantService.cancelTurn).toHaveBeenCalledWith('turn-123');
         });
     });
 

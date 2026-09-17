@@ -2,11 +2,11 @@
 
 /**
  * Renders a single Klacksy chat message (user, assistant or proactive-inbox row): avatar,
- * bubble with formatted text, TTS button, thumbs-up/down feedback, and the proactive
- * reaction/dismiss/mute/delegate/acknowledge controls. Standalone so the same rendering can
- * later be reused outside the chat (e.g. an overlay card) without a chat host to wire outputs
- * through - it injects ChatMessageActionsService itself and calls it directly instead of
- * emitting events for a parent to relay.
+ * bubble with formatted text, TTS button, stop button and interrupted notice for a streaming
+ * turn, thumbs-up/down feedback, and the proactive reaction/dismiss/mute/delegate/acknowledge
+ * controls. Standalone so the same rendering can later be reused outside the chat (e.g. an
+ * overlay card) without a chat host to wire outputs through - it injects ChatMessageActionsService
+ * itself and calls it directly instead of emitting events for a parent to relay.
  * @param message - The chat message to render (required)
  */
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
@@ -34,6 +34,7 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { TextToSpeechService } from '../services/text-to-speech.service';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { ChatStageStatusService } from '../services/chat-stage-status.service';
+import { ChatTurnControlService } from '../services/chat-turn-control.service';
 import { ChatMessage } from '../chat-message.interface';
 import { formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
 import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
@@ -59,6 +60,7 @@ export class ChatMessageComponent {
   protected readonly actions = inject(ChatMessageActionsService);
   protected readonly stageStatus = inject(ChatStageStatusService);
   protected readonly ttsService = inject(TextToSpeechService);
+  protected readonly turnControl = inject(ChatTurnControlService);
   private readonly dataLoadFileService = inject(DataLoadFileService);
   private readonly assistantService = inject(DataManagementAssistantService);
   private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
@@ -145,5 +147,9 @@ export class ChatMessageComponent {
 
   protected isSetupNotice(message: ChatMessage): boolean {
     return this.actions.isSetupNotice(message);
+  }
+
+  protected stopTurn(): void {
+    void this.turnControl.stop('user-button');
   }
 }
