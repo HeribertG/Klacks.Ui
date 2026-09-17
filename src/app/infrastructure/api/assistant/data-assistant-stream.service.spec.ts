@@ -133,6 +133,45 @@ describe('DataAssistantStreamService', () => {
     expect(received[0].iteration).toBeUndefined();
   });
 
+  it('passes turnId from stream_start when the backend sends one', async () => {
+    mockFetchWithEvents([{ event: 'stream_start', data: { conversationId: 'conv-1', turnId: 'turn-1' } }]);
+    const onStreamStart = vi.fn();
+    const callbacks: StreamCallbacks = { onStreamStart };
+
+    service.chatStream(request, callbacks);
+
+    await vi.waitFor(() => {
+      expect(onStreamStart).toHaveBeenCalled();
+    });
+    expect(onStreamStart).toHaveBeenCalledWith('conv-1', 'turn-1');
+  });
+
+  it('passes null turnId from stream_start when the backend omits it (Etappe 2 not deployed yet)', async () => {
+    mockFetchWithEvents([{ event: 'stream_start', data: { conversationId: 'conv-1' } }]);
+    const onStreamStart = vi.fn();
+    const callbacks: StreamCallbacks = { onStreamStart };
+
+    service.chatStream(request, callbacks);
+
+    await vi.waitFor(() => {
+      expect(onStreamStart).toHaveBeenCalled();
+    });
+    expect(onStreamStart).toHaveBeenCalledWith('conv-1', null);
+  });
+
+  it('dispatches turn_stopped with the executed skill labels', async () => {
+    mockFetchWithEvents([{ event: 'turn_stopped', data: { executedSkillLabels: ['create_client'] } }]);
+    const onTurnStopped = vi.fn();
+    const callbacks: StreamCallbacks = { onTurnStopped };
+
+    service.chatStream(request, callbacks);
+
+    await vi.waitFor(() => {
+      expect(onTurnStopped).toHaveBeenCalled();
+    });
+    expect(onTurnStopped).toHaveBeenCalledWith(['create_client']);
+  });
+
   it('dispatches multiple status events that arrive before stream_start, in wire order', async () => {
     // Real turn shape: assembling_toolset and preparing_context precede stream_start; resolving_recipe
     // and calling_model(iteration=1) follow it, before any content. Nothing here should let the

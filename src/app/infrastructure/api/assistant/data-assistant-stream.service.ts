@@ -22,12 +22,13 @@ export interface StreamStatus {
 }
 
 export interface StreamCallbacks {
-  onStreamStart?: (conversationId: string) => void;
+  onStreamStart?: (conversationId: string, turnId: string | null) => void;
   onStatus?: (data: StreamStatus) => void;
   onContent?: (text: string) => void;
   onFunctionCall?: (data: { functionName: string; parameters: Record<string, unknown> }) => void;
   onFunctionResult?: (data: { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string; uiActionTrackingId?: string }) => void;
   onMetadata?: (data: StreamMetadata) => void;
+  onTurnStopped?: (executedSkillLabels: string[]) => void;
   onDone?: () => void;
   onError?: (message: string) => void;
 }
@@ -152,7 +153,10 @@ export class DataAssistantStreamService {
     const data = event.data;
     switch (event.type) {
       case 'stream_start':
-        callbacks.onStreamStart?.(data['conversationId'] as string);
+        callbacks.onStreamStart?.(
+          data['conversationId'] as string,
+          (data['turnId'] as string | undefined) ?? null,
+        );
         break;
       case 'status':
         callbacks.onStatus?.({
@@ -174,6 +178,9 @@ export class DataAssistantStreamService {
         break;
       case 'metadata':
         callbacks.onMetadata?.(data as StreamMetadata);
+        break;
+      case 'turn_stopped':
+        callbacks.onTurnStopped?.((data['executedSkillLabels'] as string[] | undefined) ?? []);
         break;
       case 'done':
         callbacks.onDone?.();
