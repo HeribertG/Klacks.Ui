@@ -147,6 +147,24 @@ describe('ChatTurnControlService', () => {
     expect(hooks.hardAbort).toHaveBeenCalledOnce();
   });
 
+  it('snapshots hadToolSteps before hardAbort runs (hardAbort may clear the underlying signal)', async () => {
+    service.beginTurn('msg-1');
+    let toolStepsPresent = true;
+    const hooks = {
+      silence: vi.fn(),
+      hardAbort: vi.fn(() => { toolStepsPresent = false; }),
+      hadToolSteps: () => toolStepsPresent,
+    };
+    service.registerHooks(hooks);
+
+    await service.stop('user-button');
+
+    expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+      wasInterrupted: true,
+      interruptedSummary: null,
+    });
+  });
+
   it("does not let an earlier turn's stale timer resolve a later turn (cross-turn isolation)", async () => {
     service.beginTurn('msg-a');
     const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };

@@ -128,9 +128,9 @@ export class ChatTurnControlService {
         });
       }
     } else {
+      const hadToolSteps = this.hooks?.hadToolSteps() ?? false;
       this.hooks?.hardAbort();
       if (messageId) {
-        const hadToolSteps = this.hooks?.hadToolSteps() ?? false;
         this.orchestrator.updateMessage(messageId, {
           wasInterrupted: true,
           interruptedSummary: hadToolSteps ? null : { executed: [] },
