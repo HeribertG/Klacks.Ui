@@ -65,6 +65,7 @@ describe('DrawHelper', () => {
             fillTextArgs: [string, number, number] | undefined;
             measureTextResult: FakeMetrics;
             textBaseline?: string;
+            canvas?: { height: number };
             save(): void;
             restore(): void;
             beginPath(): void;
@@ -72,14 +73,19 @@ describe('DrawHelper', () => {
             clip(): void;
             measureText(text: string): FakeMetrics;
             fillText(text: string, x: number, y: number): void;
+            getTransform?(): { d: number };
         }
 
-        function createFakeCtx(measureTextResult: FakeMetrics): FakeCtx {
+        function createFakeCtx(
+            measureTextResult: FakeMetrics,
+            canvasOptions?: { height: number; verticalScale: number }
+        ): FakeCtx {
             const fakeCtx: FakeCtx = {
                 calls: [],
                 rectArgs: undefined,
                 fillTextArgs: undefined,
                 measureTextResult,
+                canvas: canvasOptions ? { height: canvasOptions.height } : undefined,
                 save() {
                     this.calls.push('save');
                 },
@@ -104,6 +110,9 @@ describe('DrawHelper', () => {
                     this.calls.push('fillText');
                     this.fillTextArgs = [text, x, y];
                 },
+                getTransform: canvasOptions
+                    ? () => ({ d: canvasOptions.verticalScale })
+                    : undefined,
             };
 
             return fakeCtx;
@@ -177,6 +186,57 @@ describe('DrawHelper', () => {
             expect(rw).toBe(55);
             expect(ry).toBeLessThanOrEqual(0);
             expect(ry + rh).toBeGreaterThanOrEqual(20);
+        });
+
+        it('does not clip descenders when the row slot is shrunk (baselineReducer) but the cell canvas has room', () => {
+            // Real GridFontsService values: 11pt main text, baselineReducer 0.8 -> h=15.64,
+            // Segoe UI ascent/descent 16/4 (ascent+descent=20 > h). cellHeight=50 logical (dpr 2 -> 100 physical).
+            const fakeCtx = createFakeCtx(
+                { width: 40, fontBoundingBoxAscent: 16, fontBoundingBoxDescent: 4 },
+                { height: 100, verticalScale: 2 }
+            );
+
+            DrawHelper.drawText(
+                fakeCtx as unknown as CanvasRenderingContext2D,
+                'Zweiter Bug',
+                0,
+                2,
+                60,
+                15.64,
+                '11pt Segoe UI',
+                11,
+                '#000000',
+                TextAlignmentEnum.Center,
+                BaselineAlignmentEnum.Center
+            );
+
+            const baselineY = fakeCtx.fillTextArgs?.[2] as number;
+            const [, ry, , rh] = fakeCtx.rectArgs as number[];
+            expect(ry + rh).toBeGreaterThanOrEqual(baselineY + 4);
+        });
+
+        it('caps the clip at the real canvas bottom when the font box does not fit even with slack', () => {
+            const fakeCtx = createFakeCtx(
+                { width: 40, fontBoundingBoxAscent: 16, fontBoundingBoxDescent: 10 },
+                { height: 50, verticalScale: 1 }
+            );
+
+            DrawHelper.drawText(
+                fakeCtx as unknown as CanvasRenderingContext2D,
+                'Zweiter Bug',
+                0,
+                40,
+                60,
+                15.64,
+                '11pt Segoe UI',
+                11,
+                '#000000',
+                TextAlignmentEnum.Center,
+                BaselineAlignmentEnum.Center
+            );
+
+            const [, ry, , rh] = fakeCtx.rectArgs as number[];
+            expect(ry + rh).toBe(49);
         });
 
         it('keeps clip within the slot when the font box is smaller than the slot', () => {

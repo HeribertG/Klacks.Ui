@@ -201,6 +201,7 @@ export abstract class DrawHelper {
   private static readonly TEXT_CLIP_RIGHT_PADDING = 5;
   private static readonly TEXT_CLIP_TOP_PADDING = 1;
   private static readonly TEXT_CLIP_BOTTOM_PADDING = 2;
+  private static readonly TEXT_CLIP_BOTTOM_EDGE_OFFSET = 1;
   private static readonly TEXT_LEFT_ALIGN_OFFSET = 3;
   private static readonly TEXT_RIGHT_ALIGN_OFFSET = 2;
   private static readonly FALLBACK_DESCENT_RATIO = 0.25;
@@ -220,8 +221,6 @@ export abstract class DrawHelper {
     };
   }
 
-  // Clamped to [y, y+h]: callers stack multiple drawText calls in one fixed-height
-  // canvas, so the glyph box can't borrow space from the next block or the canvas edge.
   private static resolveBaselineY(
     y: number,
     h: number,
@@ -229,22 +228,28 @@ export abstract class DrawHelper {
     descent: number,
     baselineAlignment: BaselineAlignmentEnum
   ): number {
-    const minBaselineY = y + DrawHelper.TEXT_CLIP_TOP_PADDING + ascent;
-    const maxBaselineY = y + h - DrawHelper.TEXT_CLIP_BOTTOM_PADDING - descent;
-
-    let baselineY: number;
     if (baselineAlignment === BaselineAlignmentEnum.Top) {
-      baselineY = minBaselineY;
-    } else if (baselineAlignment === BaselineAlignmentEnum.Bottom) {
-      baselineY = maxBaselineY;
-    } else {
-      baselineY = y + (h - (ascent + descent)) / 2 + ascent;
+      return y + DrawHelper.TEXT_CLIP_TOP_PADDING + ascent;
     }
+    if (baselineAlignment === BaselineAlignmentEnum.Bottom) {
+      return y + h - DrawHelper.TEXT_CLIP_BOTTOM_PADDING - descent;
+    }
+    return y + (h - (ascent + descent)) / 2 + ascent;
+  }
 
-    if (minBaselineY <= maxBaselineY) {
-      return Math.min(Math.max(baselineY, minBaselineY), maxBaselineY);
+  // Grid fonts intentionally shrink h below the real font box (GridFontsService's
+  // baselineReducer), so the clip must be allowed to grow past y+h to show the full
+  // glyph - but never past the canvas this ctx actually draws on, or the raster edge
+  // truncates it anyway. ctx.getTransform().d reads the real vertical scale in effect
+  // (e.g. HiDPI ctx.scale(dpr, dpr)) instead of assuming DrawHelper.pixelRatio() applies.
+  private static resolveCanvasLogicalBottom(ctx: CanvasRenderingContext2D): number {
+    const canvas = ctx.canvas;
+    if (!canvas || !Number.isFinite(canvas.height)) {
+      return Number.POSITIVE_INFINITY;
     }
-    return (minBaselineY + maxBaselineY) / 2;
+    const transform = typeof ctx.getTransform === 'function' ? ctx.getTransform() : undefined;
+    const verticalScale = transform && Number.isFinite(transform.d) && transform.d > 0 ? transform.d : 1;
+    return canvas.height / verticalScale;
   }
 
   public static drawText(
@@ -271,12 +276,19 @@ export abstract class DrawHelper {
     const baselineY = DrawHelper.resolveBaselineY(y, h, ascent, descent, baselineAlignment);
     const roundedBaselineY = Math.round(baselineY);
 
+    const canvasBottom = DrawHelper.resolveCanvasLogicalBottom(ctx);
+    const clipTop = Math.min(y + DrawHelper.TEXT_CLIP_TOP_PADDING, roundedBaselineY - ascent);
+    const clipBottom = Math.min(
+      Math.max(y + h - DrawHelper.TEXT_CLIP_BOTTOM_EDGE_OFFSET, roundedBaselineY + descent),
+      canvasBottom - DrawHelper.TEXT_CLIP_BOTTOM_EDGE_OFFSET
+    );
+
     ctx.beginPath();
     ctx.rect(
       x + DrawHelper.TEXT_CLIP_LEFT_PADDING,
-      y + DrawHelper.TEXT_CLIP_TOP_PADDING,
+      clipTop,
       w - DrawHelper.TEXT_CLIP_RIGHT_PADDING,
-      h - DrawHelper.TEXT_CLIP_TOP_PADDING - DrawHelper.TEXT_CLIP_BOTTOM_PADDING
+      clipBottom - clipTop
     );
     ctx.clip();
 
