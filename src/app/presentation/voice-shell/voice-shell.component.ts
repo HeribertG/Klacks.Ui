@@ -118,9 +118,10 @@ export class VoiceShellComponent implements OnInit {
           this.orchestrator.endSession();
           this.toastShowService.dismissInteractiveReplies();
         } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
+          // No audioQueue.isPlaying() check needed here: effectiveState() already returns
+          // Speaking (not Processing/Planning) whenever audioQueue is playing, so this branch
+          // is only ever reached with audioQueue idle.
           this.ttsService.stop();
-        } else if (this.audioQueue.isPlaying()) {
-          this.orchestrator.stopAutoSpeak();
         } else {
           void this.turnControl.stop('voice-bubble');
         }
