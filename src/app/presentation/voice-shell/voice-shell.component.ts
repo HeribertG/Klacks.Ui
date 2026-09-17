@@ -7,6 +7,7 @@
  * @param orchestrator - single source of truth for conversation state (root singleton)
  * @param ttsService - whole-message TTS playback; drives the Speaking icon state outside voice sessions
  * @param audioQueue - sentence-wise auto-speak playback (BothAuto); also drives the Speaking icon state
+ * @param turnControl - single stop path for a running turn; used when the bubble is clicked during a text turn with no real voice session
  * @param asideService - existing visibility service, used for manual close gesture
  */
 
@@ -98,14 +99,8 @@ export class VoiceShellComponent implements OnInit {
 
     switch (state) {
       case ConversationState.Idle:
-        if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
-          this.ttsService.stop();
-          break;
-        }
-        if (this.audioQueue.isPlaying()) {
-          this.orchestrator.stopAutoSpeak();
-          break;
-        }
+        // effectiveState() only returns Idle when tts/audioQueue are both already idle (see the
+        // Processing/Planning case's comment above for the same invariant) - nothing left to stop here.
         this.orchestrator.startSession();
         break;
       case ConversationState.Listening:
