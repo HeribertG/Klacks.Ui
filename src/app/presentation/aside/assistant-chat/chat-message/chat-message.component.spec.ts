@@ -515,6 +515,23 @@ describe('ChatMessageComponent', () => {
       expect(notice.textContent).toContain('assistant-chat.stop.nothing-executed');
     });
 
+    // wasInterrupted:true with interruptedSummary left undefined never happens in practice today -
+    // ChatTurnControlService always sets both together - but the type allows it, and nothing
+    // enforces the pairing across files. This proves the template guards it instead of assuming it.
+    it('renders without throwing when wasInterrupted is set but interruptedSummary is undefined', () => {
+      fixture.componentRef.setInput('message', {
+        ...baseAssistantMessage,
+        isStreaming: false,
+        wasInterrupted: true,
+        interruptedSummary: undefined,
+      });
+
+      expect(() => fixture.detectChanges()).not.toThrow();
+      const notice: HTMLElement = fixture.nativeElement.querySelector('.interrupted-notice');
+      expect(notice).toBeTruthy();
+      expect(notice.textContent).toContain('assistant-chat.stop.nothing-executed');
+    });
+
     it('shows the cautious sentence when interruptedSummary is null', () => {
       fixture.componentRef.setInput('message', {
         ...baseAssistantMessage,

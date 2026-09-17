@@ -2,11 +2,11 @@
 
 /**
  * Renders a single Klacksy chat message (user, assistant or proactive-inbox row): avatar,
- * bubble with formatted text, TTS button, thumbs-up/down feedback, and the proactive
- * reaction/dismiss/mute/delegate/acknowledge controls. Standalone so the same rendering can
- * later be reused outside the chat (e.g. an overlay card) without a chat host to wire outputs
- * through - it injects ChatMessageActionsService itself and calls it directly instead of
- * emitting events for a parent to relay.
+ * bubble with formatted text, TTS button, stop button and interrupted notice for a streaming
+ * turn, thumbs-up/down feedback, and the proactive reaction/dismiss/mute/delegate/acknowledge
+ * controls. Standalone so the same rendering can later be reused outside the chat (e.g. an
+ * overlay card) without a chat host to wire outputs through - it injects ChatMessageActionsService
+ * itself and calls it directly instead of emitting events for a parent to relay.
  * @param message - The chat message to render (required)
  */
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
