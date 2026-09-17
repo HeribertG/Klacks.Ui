@@ -155,7 +155,7 @@ export class DataAssistantStreamService {
       case 'stream_start':
         callbacks.onStreamStart?.(
           data['conversationId'] as string,
-          (data['turnId'] as string | undefined) ?? null,
+          typeof data['turnId'] === 'string' ? (data['turnId'] as string) : null,
         );
         break;
       case 'status':
@@ -180,7 +180,9 @@ export class DataAssistantStreamService {
         callbacks.onMetadata?.(data as StreamMetadata);
         break;
       case 'turn_stopped':
-        callbacks.onTurnStopped?.((data['executedSkillLabels'] as string[] | undefined) ?? []);
+        callbacks.onTurnStopped?.(
+          Array.isArray(data['executedSkillLabels']) ? (data['executedSkillLabels'] as string[]) : [],
+        );
         break;
       case 'done':
         callbacks.onDone?.();

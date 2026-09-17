@@ -172,6 +172,19 @@ describe('DataAssistantStreamService', () => {
     expect(onTurnStopped).toHaveBeenCalledWith(['create_client']);
   });
 
+  it('defaults executedSkillLabels to [] when turn_stopped omits it', async () => {
+    mockFetchWithEvents([{ event: 'turn_stopped', data: {} }]);
+    const onTurnStopped = vi.fn();
+    const callbacks: StreamCallbacks = { onTurnStopped };
+
+    service.chatStream(request, callbacks);
+
+    await vi.waitFor(() => {
+      expect(onTurnStopped).toHaveBeenCalled();
+    });
+    expect(onTurnStopped).toHaveBeenCalledWith([]);
+  });
+
   it('dispatches multiple status events that arrive before stream_start, in wire order', async () => {
     // Real turn shape: assembling_toolset and preparing_context precede stream_start; resolving_recipe
     // and calling_model(iteration=1) follow it, before any content. Nothing here should let the
