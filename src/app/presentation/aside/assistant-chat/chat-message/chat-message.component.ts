@@ -34,6 +34,7 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { TextToSpeechService } from '../services/text-to-speech.service';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { ChatStageStatusService } from '../services/chat-stage-status.service';
+import { ChatTurnControlService } from '../services/chat-turn-control.service';
 import { ChatMessage } from '../chat-message.interface';
 import { formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
 import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
@@ -59,6 +60,7 @@ export class ChatMessageComponent {
   protected readonly actions = inject(ChatMessageActionsService);
   protected readonly stageStatus = inject(ChatStageStatusService);
   protected readonly ttsService = inject(TextToSpeechService);
+  protected readonly turnControl = inject(ChatTurnControlService);
   private readonly dataLoadFileService = inject(DataLoadFileService);
   private readonly assistantService = inject(DataManagementAssistantService);
   private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
@@ -145,5 +147,9 @@ export class ChatMessageComponent {
 
   protected isSetupNotice(message: ChatMessage): boolean {
     return this.actions.isSetupNotice(message);
+  }
+
+  protected stopTurn(): void {
+    void this.turnControl.stop('user-button');
   }
 }

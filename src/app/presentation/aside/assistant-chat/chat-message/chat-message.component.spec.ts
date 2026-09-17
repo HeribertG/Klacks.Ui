@@ -16,11 +16,13 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
+import { ChatTurnControlService } from '../services/chat-turn-control.service';
 
 describe('ChatMessageComponent', () => {
   let fixture: ComponentFixture<ChatMessageComponent>;
   let component: ChatMessageComponent;
   let stageStatus: ChatStageStatusService;
+  let turnControlMock: { stop: ReturnType<typeof vi.fn> };
   let actionsMock: {
     correctionMenuMessageId: ReturnType<typeof signal<string | null>>;
     dismissMenuMessageId: ReturnType<typeof signal<string | null>>;
@@ -77,6 +79,7 @@ describe('ChatMessageComponent', () => {
   };
 
   beforeEach(async () => {
+    turnControlMock = { stop: vi.fn(() => Promise.resolve()) };
     actionsMock = {
       correctionMenuMessageId: signal<string | null>(null),
       dismissMenuMessageId: signal<string | null>(null),
@@ -135,6 +138,7 @@ describe('ChatMessageComponent', () => {
           },
         },
         { provide: OnboardingService, useValue: { isTourActive: signal(false) } },
+        { provide: ChatTurnControlService, useValue: turnControlMock },
       ],
     }).compileComponents();
 
@@ -455,5 +459,81 @@ describe('ChatMessageComponent', () => {
     // Assert
     expect(collapsed).toBe('false');
     expect(wrongSkillButton.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  describe('stop button and interrupted notice', () => {
+    it('shows the stop button while the assistant message is streaming', () => {
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: true });
+      fixture.detectChanges();
+
+      const stopButton = fixture.nativeElement.querySelector('.stop-turn-button');
+      expect(stopButton).toBeTruthy();
+    });
+
+    it('calls turnControl.stop with user-button when the stop button is clicked', () => {
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: true });
+      fixture.detectChanges();
+
+      const stopButton: HTMLButtonElement = fixture.nativeElement.querySelector('.stop-turn-button');
+      stopButton.click();
+
+      expect(turnControlMock.stop).toHaveBeenCalledWith('user-button');
+    });
+
+    it('hides the stop button once streaming has finished', () => {
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: false });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.stop-turn-button')).toBeNull();
+    });
+
+    it('shows the interrupted notice with the executed list', () => {
+      fixture.componentRef.setInput('message', {
+        ...baseAssistantMessage,
+        isStreaming: false,
+        wasInterrupted: true,
+        interruptedSummary: { executed: ['create_client'] },
+      });
+      fixture.detectChanges();
+
+      const notice: HTMLElement = fixture.nativeElement.querySelector('.interrupted-notice');
+      expect(notice).toBeTruthy();
+      expect(notice.textContent).toContain('create_client');
+    });
+
+    it('shows the nothing-executed notice when the executed list is empty', () => {
+      fixture.componentRef.setInput('message', {
+        ...baseAssistantMessage,
+        isStreaming: false,
+        wasInterrupted: true,
+        interruptedSummary: { executed: [] },
+      });
+      fixture.detectChanges();
+
+      const notice: HTMLElement = fixture.nativeElement.querySelector('.interrupted-notice');
+      expect(notice).toBeTruthy();
+      expect(notice.textContent).toContain('assistant-chat.stop.nothing-executed');
+    });
+
+    it('shows the cautious sentence when interruptedSummary is null', () => {
+      fixture.componentRef.setInput('message', {
+        ...baseAssistantMessage,
+        isStreaming: false,
+        wasInterrupted: true,
+        interruptedSummary: null,
+      });
+      fixture.detectChanges();
+
+      const notice: HTMLElement = fixture.nativeElement.querySelector('.interrupted-notice');
+      expect(notice).toBeTruthy();
+      expect(notice.textContent).toContain('assistant-chat.stop.maybe-executed');
+    });
+
+    it('does not show the interrupted notice when wasInterrupted is not set', () => {
+      fixture.componentRef.setInput('message', baseAssistantMessage);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.interrupted-notice')).toBeNull();
+    });
   });
 });
