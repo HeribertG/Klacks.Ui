@@ -47,6 +47,7 @@ export class ChatTurnControlService {
   private activeMessageId: string | null = null;
   private hooks: TurnHooks | null = null;
   private turnStoppedResolver: ((labels: string[] | null) => void) | null = null;
+  private turnStoppedTimer: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Marks a new turn as running. Called once per sendMessage(), before the stream starts.
@@ -70,6 +71,10 @@ export class ChatTurnControlService {
     this._isStopping.set(false);
     this.turnId = null;
     this.activeMessageId = null;
+    if (this.turnStoppedTimer !== null) {
+      clearTimeout(this.turnStoppedTimer);
+      this.turnStoppedTimer = null;
+    }
     this.turnStoppedResolver = null;
   }
 
@@ -85,8 +90,7 @@ export class ChatTurnControlService {
 
   /** Resolves a pending stop()'s wait for the server's turn_stopped SSE event (Etappe 2). */
   notifyTurnStopped(executedSkillLabels: string[]): void {
-    this.turnStoppedResolver?.(executedSkillLabels);
-    this.turnStoppedResolver = null;
+    this.resolveTurnStoppedWait(executedSkillLabels);
   }
 
   /**
@@ -107,7 +111,11 @@ export class ChatTurnControlService {
     const waitsForServer = reason !== 'superseded' && reason !== 'panel-closed';
 
     if (tid) {
-      firstValueFrom(this.assistantService.cancelTurn(tid)).catch(() => undefined);
+      firstValueFrom(this.assistantService.cancelTurn(tid)).catch((err: { status?: number }) => {
+        if (err?.status !== 404) {
+          console.warn('ChatTurnControlService: cancelTurn request failed unexpectedly', err);
+        }
+      });
     }
 
     const summary = tid && waitsForServer ? await this.waitForTurnStopped(TURN_STOP_GRACE_MS) : null;
@@ -136,12 +144,22 @@ export class ChatTurnControlService {
   private waitForTurnStopped(timeoutMs: number): Promise<string[] | null> {
     return new Promise((resolve) => {
       this.turnStoppedResolver = resolve;
-      setTimeout(() => {
-        if (this.turnStoppedResolver) {
-          this.turnStoppedResolver = null;
-          resolve(null);
-        }
-      }, timeoutMs);
+      this.turnStoppedTimer = setTimeout(() => this.resolveTurnStoppedWait(null), timeoutMs);
     });
+  }
+
+  /**
+   * The single funnel through which a pending wait can ever settle - by server notification or by
+   * timeout - so the timer for one turn's wait can never act on a later turn's still-live resolver.
+   * @param labels - Executed skill labels from the server, or null on a local timeout
+   */
+  private resolveTurnStoppedWait(labels: string[] | null): void {
+    if (this.turnStoppedTimer !== null) {
+      clearTimeout(this.turnStoppedTimer);
+      this.turnStoppedTimer = null;
+    }
+    const resolver = this.turnStoppedResolver;
+    this.turnStoppedResolver = null;
+    resolver?.(labels);
   }
 }

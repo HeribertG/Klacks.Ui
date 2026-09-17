@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
-import { ChatTurnControlService } from './chat-turn-control.service';
+import { ChatTurnControlService, TURN_STOP_GRACE_MS } from './chat-turn-control.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 
@@ -141,10 +141,35 @@ describe('ChatTurnControlService', () => {
     service.registerHooks(hooks);
 
     const stopping = service.stop('user-button');
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.advanceTimersByTimeAsync(TURN_STOP_GRACE_MS);
     await stopping;
 
     expect(hooks.hardAbort).toHaveBeenCalledOnce();
+  });
+
+  it("does not let an earlier turn's stale timer resolve a later turn (cross-turn isolation)", async () => {
+    service.beginTurn('msg-a');
+    const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+    service.registerHooks(hooks);
+    service.setTurnId('turn-a');
+
+    const stopA = service.stop('user-button');
+    service.notifyTurnStopped(['skill-a']);
+    await stopA;
+
+    hooks.hardAbort.mockClear();
+    service.beginTurn('msg-b');
+    service.setTurnId('turn-b');
+    const stopB = service.stop('user-button');
+
+    await vi.advanceTimersByTimeAsync(3000);
+    await stopB;
+
+    expect(hooks.hardAbort).toHaveBeenCalledOnce();
+    expect(mockOrchestrator.updateMessage).toHaveBeenLastCalledWith('msg-b', {
+      wasInterrupted: true,
+      interruptedSummary: { executed: [] },
+    });
   });
 
   it('keeps hooks registered across endTurn (component-lifetime registration)', async () => {
