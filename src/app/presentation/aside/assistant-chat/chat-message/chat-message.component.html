@@ -79,6 +79,8 @@
       @if (message().interruptedSummary === null) {
       <span>{{ "assistant-chat.stop.maybe-executed" | translate }}</span>
       } @else if (message().interruptedSummary!.executed.length > 0) {
+      <!-- assistant-chat.stop.executed is a plain label (no {{list}} placeholder): missing-translation
+           fallback discards interpolateParams, so the list is appended here instead. -->
       <span>{{ "assistant-chat.stop.executed" | translate }}: {{ message().interruptedSummary!.executed.join(", ") }}</span>
       } @else {
       <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
