@@ -235,6 +235,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -255,6 +256,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -279,6 +281,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -301,6 +304,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -325,6 +329,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -354,6 +359,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -389,6 +395,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -416,6 +423,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -443,15 +451,16 @@ describe('ConversationOrchestratorService', () => {
     expect(mockAudioCapture.start).toHaveBeenCalled();
   });
 
-  it('endSession() aborts the in-flight SSE stream and drops the orchestrator to IDLE', async () => {
-    const abortSpy = vi.fn();
+  it('endSession() calls callbacks.stop(session-end) instead of aborting directly, and drops the orchestrator to IDLE', async () => {
+    const stopSpy = vi.fn();
     const callbacks: ConversationCallbacks = {
       getInputText: () => '',
       setInputText: vi.fn(),
       sendMessage: vi.fn().mockResolvedValue(undefined),
-      getAbortController: () => ({ abort: abortSpy } as unknown as AbortController),
+      getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: stopSpy,
     };
 
     service.initialize(callbacks, 'de');
@@ -460,7 +469,7 @@ describe('ConversationOrchestratorService', () => {
 
     service.endSession();
 
-    expect(abortSpy).toHaveBeenCalled();
+    expect(stopSpy).toHaveBeenCalledWith('session-end');
     expect(service.voiceModeEnabled()).toBe(false);
     expect(service.state()).toBe(ConversationState.Idle);
   });
@@ -473,6 +482,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
     service.initialize(callbacks, 'de');
 
@@ -489,6 +499,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -506,6 +517,100 @@ describe('ConversationOrchestratorService', () => {
     expect(interruptSpy).toHaveBeenCalledOnce();
     expect(mockAudioQueue.stop).toHaveBeenCalled();
     expect(service.state()).toBe(ConversationState.Listening);
+  });
+
+  it('interrupt defaults to barge-in when the orchestrator is Speaking', async () => {
+    const stopSpy = vi.fn();
+    let inputText = 'hello';
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => inputText,
+      setInputText: (text: string) => { inputText = text; },
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+      stop: stopSpy,
+    };
+
+    service.initialize(callbacks, 'de');
+    await service.startSession();
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+    service.onStreamContent('Hello world. This is Klacksy.');
+    expect(service.state()).toBe(ConversationState.Speaking);
+
+    service.interrupt();
+
+    expect(stopSpy).toHaveBeenCalledWith('barge-in');
+  });
+
+  it('interrupt accepts an explicit reason (voice-bubble)', async () => {
+    const stopSpy = vi.fn();
+    let inputText = 'hello';
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => inputText,
+      setInputText: (text: string) => { inputText = text; },
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+      stop: stopSpy,
+    };
+
+    service.initialize(callbacks, 'de');
+    await service.startSession();
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+    service.onStreamContent('Hello world. This is Klacksy.');
+    expect(service.state()).toBe(ConversationState.Speaking);
+
+    service.interrupt('voice-bubble');
+
+    expect(stopSpy).toHaveBeenCalledWith('voice-bubble');
+  });
+
+  it('interruptAndListen defaults to voice-bubble', async () => {
+    const stopSpy = vi.fn();
+    let inputText = 'hello';
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => inputText,
+      setInputText: (text: string) => { inputText = text; },
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+      stop: stopSpy,
+    };
+
+    service.initialize(callbacks, 'de');
+    await service.startSession();
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+    service.onStreamContent('Hello world. This is Klacksy.');
+    expect(service.state()).toBe(ConversationState.Speaking);
+
+    service.interruptAndListen();
+
+    expect(stopSpy).toHaveBeenCalledWith('voice-bubble');
+  });
+
+  it('interrupt is still a no-op outside Speaking/Processing and never calls stop', () => {
+    const stopSpy = vi.fn();
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => '',
+      setInputText: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+      stop: stopSpy,
+    };
+    service.initialize(callbacks, 'de');
+
+    service.interrupt();
+
+    expect(stopSpy).not.toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Idle);
   });
 
   // --- Messages signal (root-level conversation log) ---
@@ -575,6 +680,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -651,6 +757,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
     service.initialize(callbacks, 'de');
 
@@ -708,6 +815,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
   };
 
@@ -921,6 +1029,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
 
     service.initialize(callbacks, 'de');
@@ -945,6 +1054,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     };
     return { callbacks, setInputText };
   };
@@ -1168,6 +1278,7 @@ describe('ConversationOrchestratorService', () => {
       getAbortController: () => null,
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
+      stop: vi.fn(),
     }, 'de');
     await service.toggleVoiceMode();
     mockSttStream.transcript$.next({ text: 'und wie war das mit', isFinal: false });

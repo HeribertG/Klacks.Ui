@@ -41,6 +41,7 @@ export class VoiceModeAdapterService implements IPluginVoiceService, OnDestroy {
       getAbortController: () => null,
       detectChanges: callbacks.detectChanges,
       isTextProcessing: signal(false),
+      stop: () => undefined,
     };
 
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang || DomainMessages.DEFAULT_LANG;

@@ -312,6 +312,7 @@ export class AssistantChatComponent {
         getAbortController: () => this.currentStreamController,
         detectChanges: () => this.cdr.detectChanges(),
         isTextProcessing: this.isProcessing,
+        stop: (reason) => { void this.turnControl.stop(reason); },
       },
       speechLocale,
     );
