@@ -360,6 +360,18 @@ describe('DataAssistantService', () => {
         });
     });
 
+    describe('cancelTurn', () => {
+        it('cancels a turn without retrying and without the loading indicator', () => {
+            // Act
+            service.cancelTurn('turn-123').subscribe();
+
+            // Assert
+            const req = httpMock.expectOne(`${baseUrl}chat/turns/turn-123/cancel`);
+            expect(req.request.method).toBe('POST');
+            req.flush({ accepted: true });
+        });
+    });
+
     describe('getHelp', () => {
         it('should fetch help information', () => {
             // Arrange
