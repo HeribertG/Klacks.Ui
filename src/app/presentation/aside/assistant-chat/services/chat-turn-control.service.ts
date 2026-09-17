@@ -68,17 +68,19 @@ export class ChatTurnControlService {
     this.turnId = turnId;
   }
 
-  /** Called when the turn finishes normally (done/error), so a later stray stop() finds nothing to do. */
+  /**
+   * Called when the turn finishes normally (done/error), so a later stray stop() finds nothing to do.
+   * Bumping turnEpoch here means a stop() call still suspended waiting for turn_stopped when the turn
+   * finishes normally sees an epoch mismatch on resuming and bails out cleanly - no interruption is
+   * shown, which is correct: the turn genuinely completed, the stop merely arrived a moment too late.
+   */
   endTurn(): void {
+    this.turnEpoch++;
     this._isTurnRunning.set(false);
     this._isStopping.set(false);
     this.turnId = null;
     this.activeMessageId = null;
-    if (this.turnStoppedTimer !== null) {
-      clearTimeout(this.turnStoppedTimer);
-      this.turnStoppedTimer = null;
-    }
-    this.turnStoppedResolver = null;
+    this.resolveTurnStoppedWait(null);
   }
 
   /**
@@ -91,7 +93,13 @@ export class ChatTurnControlService {
     this.hooks = hooks;
   }
 
-  /** Resolves a pending stop()'s wait for the server's turn_stopped SSE event (Etappe 2). */
+  /**
+   * Resolves a pending stop()'s wait for the server's turn_stopped SSE event (Etappe 2). KNOWN GAP:
+   * carries no turn identity - Etappe 2 must add a turnId to the turn_stopped SSE event and this
+   * signature must become notifyTurnStopped(turnId, labels), compared against this.turnId, before
+   * two turns can ever legitimately be suspended waiting at once (currently impossible: the backend
+   * never sends a turnId yet, so this.turnId is always null and this wait path never executes).
+   */
   notifyTurnStopped(executedSkillLabels: string[]): void {
     this.resolveTurnStoppedWait(executedSkillLabels);
   }
@@ -125,28 +133,35 @@ export class ChatTurnControlService {
     const summary = tid && waitsForServer ? await this.waitForTurnStopped(TURN_STOP_GRACE_MS) : null;
 
     if (epoch !== this.turnEpoch) {
+      // A newer turn already began and owns endTurn() duty now; touch nothing and let it be.
       return;
     }
 
-    if (summary !== null) {
-      if (messageId) {
-        this.orchestrator.updateMessage(messageId, {
-          wasInterrupted: true,
-          interruptedSummary: { executed: summary },
-        });
+    // A throwing hook (hardAbort in particular, since it drives real stream/DOM cleanup) must not
+    // permanently wedge the service: without this, isStopping() would stay true forever, blocking
+    // every future stop() via the reentrancy guard. finally guarantees endTurn() still runs, while
+    // the exception itself still propagates to whoever is awaiting this stop() call.
+    try {
+      if (summary !== null) {
+        if (messageId) {
+          this.orchestrator.updateMessage(messageId, {
+            wasInterrupted: true,
+            interruptedSummary: { executed: summary },
+          });
+        }
+      } else {
+        const hadToolSteps = this.hooks?.hadToolSteps() ?? false;
+        this.hooks?.hardAbort();
+        if (messageId) {
+          this.orchestrator.updateMessage(messageId, {
+            wasInterrupted: true,
+            interruptedSummary: hadToolSteps ? null : { executed: [] },
+          });
+        }
       }
-    } else {
-      const hadToolSteps = this.hooks?.hadToolSteps() ?? false;
-      this.hooks?.hardAbort();
-      if (messageId) {
-        this.orchestrator.updateMessage(messageId, {
-          wasInterrupted: true,
-          interruptedSummary: hadToolSteps ? null : { executed: [] },
-        });
-      }
+    } finally {
+      this.endTurn();
     }
-
-    this.endTurn();
   }
 
   private waitForTurnStopped(timeoutMs: number): Promise<string[] | null> {

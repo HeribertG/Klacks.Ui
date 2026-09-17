@@ -235,6 +235,43 @@ describe('ChatTurnControlService', () => {
     expect(hooksB.hardAbort).not.toHaveBeenCalled();
   });
 
+  it('a stop() call suspended when the turn finishes normally resolves cleanly with no interruption shown', async () => {
+    service.beginTurn('msg-a');
+    service.setTurnId('turn-a');
+    const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+    service.registerHooks(hooks);
+
+    const stopping = service.stop('user-button'); // suspends on the grace wait
+    service.endTurn(); // the stream finished normally while stop() was still waiting
+
+    await vi.advanceTimersByTimeAsync(TURN_STOP_GRACE_MS);
+    await stopping;
+
+    expect(hooks.hardAbort).not.toHaveBeenCalled();
+    expect(mockOrchestrator.updateMessage).not.toHaveBeenCalledWith('msg-a', expect.anything());
+  });
+
+  it('recovers isTurnRunning/isStopping for the next turn even if a hook throws', async () => {
+    service.beginTurn('msg-1');
+    const hooks = {
+      silence: vi.fn(),
+      hardAbort: vi.fn(() => {
+        throw new Error('boom');
+      }),
+      hadToolSteps: () => false,
+    };
+    service.registerHooks(hooks);
+
+    await expect(service.stop('user-button')).rejects.toThrow('boom');
+
+    expect(service.isTurnRunning()).toBe(false);
+    expect(service.isStopping()).toBe(false);
+
+    service.beginTurn('msg-2');
+    expect(service.isTurnRunning()).toBe(true);
+    expect(service.isStopping()).toBe(false);
+  });
+
   it('keeps hooks registered across endTurn (component-lifetime registration)', async () => {
     const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
     service.registerHooks(hooks);
