@@ -190,6 +190,26 @@ describe('ChatTurnControlService', () => {
     });
   });
 
+  it('abandons a stale stop continuation when a newer turn has already begun (turn-epoch guard)', async () => {
+    service.beginTurn('msg-a');
+    service.setTurnId('turn-a');
+    const hooksA = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+    service.registerHooks(hooksA);
+
+    const stopA = service.stop('user-button'); // waitsForServer=true, suspends on the grace wait
+
+    // A newer turn begins before A's wait resolves.
+    service.beginTurn('msg-b');
+
+    await vi.advanceTimersByTimeAsync(3000);
+    await stopA;
+
+    // A's stale continuation must not touch B's message or B's state.
+    expect(mockOrchestrator.updateMessage).not.toHaveBeenCalledWith('msg-a', expect.anything());
+    expect(hooksA.hardAbort).not.toHaveBeenCalled();
+    expect(service.isTurnRunning()).toBe(true); // B is still running, untouched
+  });
+
   it('keeps hooks registered across endTurn (component-lifetime registration)', async () => {
     const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
     service.registerHooks(hooks);

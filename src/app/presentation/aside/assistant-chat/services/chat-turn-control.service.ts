@@ -48,12 +48,14 @@ export class ChatTurnControlService {
   private hooks: TurnHooks | null = null;
   private turnStoppedResolver: ((labels: string[] | null) => void) | null = null;
   private turnStoppedTimer: ReturnType<typeof setTimeout> | null = null;
+  private turnEpoch = 0;
 
   /**
    * Marks a new turn as running. Called once per sendMessage(), before the stream starts.
    * @param messageId - The assistant ChatMessage this turn is streaming into
    */
   beginTurn(messageId: string): void {
+    this.turnEpoch++;
     this._isTurnRunning.set(true);
     this._isStopping.set(false);
     this.turnId = null;
@@ -102,6 +104,7 @@ export class ChatTurnControlService {
    */
   async stop(reason: TurnStopReason): Promise<void> {
     if (!this._isTurnRunning() || this._isStopping()) return;
+    const epoch = this.turnEpoch;
     this._isTurnRunning.set(false);
     this._isStopping.set(true);
     this.hooks?.silence();
@@ -119,6 +122,10 @@ export class ChatTurnControlService {
     }
 
     const summary = tid && waitsForServer ? await this.waitForTurnStopped(TURN_STOP_GRACE_MS) : null;
+
+    if (epoch !== this.turnEpoch) {
+      return;
+    }
 
     if (summary !== null) {
       if (messageId) {
