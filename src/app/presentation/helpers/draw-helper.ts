@@ -197,6 +197,46 @@ export abstract class DrawHelper {
     return myColors;
   }
 
+  private static readonly TEXT_CLIP_LEFT_PADDING = 3;
+  private static readonly TEXT_CLIP_RIGHT_PADDING = 5;
+  private static readonly TEXT_CLIP_TOP_PADDING = 1;
+  private static readonly TEXT_CLIP_BOTTOM_PADDING = 2;
+  private static readonly TEXT_CLIP_BOTTOM_EDGE_OFFSET = 1;
+  private static readonly TEXT_LEFT_ALIGN_OFFSET = 3;
+  private static readonly TEXT_RIGHT_ALIGN_OFFSET = 2;
+  private static readonly FALLBACK_DESCENT_RATIO = 0.25;
+
+  private static resolveFontVerticalMetrics(
+    metrics: TextMetrics,
+    fontSize: number
+  ): { ascent: number; descent: number } {
+    const ascent = metrics.fontBoundingBoxAscent;
+    const descent = metrics.fontBoundingBoxDescent;
+    if (Number.isFinite(ascent) && Number.isFinite(descent)) {
+      return { ascent, descent };
+    }
+    return {
+      ascent: fontSize,
+      descent: fontSize * DrawHelper.FALLBACK_DESCENT_RATIO,
+    };
+  }
+
+  private static resolveBaselineY(
+    y: number,
+    h: number,
+    ascent: number,
+    descent: number,
+    baselineAlignment: BaselineAlignmentEnum
+  ): number {
+    if (baselineAlignment === BaselineAlignmentEnum.Top) {
+      return y + DrawHelper.TEXT_CLIP_TOP_PADDING + ascent;
+    }
+    if (baselineAlignment === BaselineAlignmentEnum.Bottom) {
+      return y + h - DrawHelper.TEXT_CLIP_BOTTOM_PADDING - descent;
+    }
+    return y + (h - (ascent + descent)) / 2 + ascent;
+  }
+
   public static drawText(
     ctx: CanvasRenderingContext2D,
     text: string,
@@ -212,12 +252,29 @@ export abstract class DrawHelper {
   ): void {
     ctx.save();
 
-    ctx.rect(x + 3, y + 1, w - 5, h - 2);
-    ctx.clip();
-
     ctx.font = font;
     ctx.fillStyle = foregroundColor;
-    ctx.textBaseline = 'top';
+    ctx.textBaseline = 'alphabetic';
+
+    const metrics = ctx.measureText(text);
+    const { ascent, descent } = DrawHelper.resolveFontVerticalMetrics(metrics, fontSize);
+    const baselineY = DrawHelper.resolveBaselineY(y, h, ascent, descent, baselineAlignment);
+    const roundedBaselineY = Math.round(baselineY);
+
+    const clipTop = Math.min(y + DrawHelper.TEXT_CLIP_TOP_PADDING, roundedBaselineY - ascent);
+    const clipBottom = Math.max(
+      y + h - DrawHelper.TEXT_CLIP_BOTTOM_EDGE_OFFSET,
+      roundedBaselineY + descent
+    );
+
+    ctx.beginPath();
+    ctx.rect(
+      x + DrawHelper.TEXT_CLIP_LEFT_PADDING,
+      clipTop,
+      w - DrawHelper.TEXT_CLIP_RIGHT_PADDING,
+      clipBottom - clipTop
+    );
+    ctx.clip();
 
     const isRtl = document.documentElement.dir === 'rtl';
     const effectiveAlignment = isRtl
@@ -226,21 +283,14 @@ export abstract class DrawHelper {
         : textAlignment)
       : textAlignment;
 
-    let diffX = (w - ctx.measureText(text).width) / 2;
+    let diffX = (w - metrics.width) / 2;
     if (effectiveAlignment === TextAlignmentEnum.Left) {
-      diffX = 3;
+      diffX = DrawHelper.TEXT_LEFT_ALIGN_OFFSET;
     } else if (effectiveAlignment === TextAlignmentEnum.Right) {
-      diffX = w - ctx.measureText(text).width - 2;
+      diffX = w - metrics.width - DrawHelper.TEXT_RIGHT_ALIGN_OFFSET;
     }
 
-    let diffY = (h - fontSize) / 2;
-    if (baselineAlignment === BaselineAlignmentEnum.Top) {
-      diffY = 1;
-    } else if (baselineAlignment === BaselineAlignmentEnum.Bottom) {
-      diffY = h - fontSize - 2;
-    }
-
-    ctx.fillText(text, Math.round(diffX + x), Math.round(diffY + y));
+    ctx.fillText(text, Math.round(diffX + x), roundedBaselineY);
 
     ctx.restore();
   }
