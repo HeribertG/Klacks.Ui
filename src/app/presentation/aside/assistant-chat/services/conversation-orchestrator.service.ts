@@ -30,7 +30,7 @@ import { SttEngine, SpeechDefaults } from 'src/app/domain/constants/speech-const
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
-import { TurnStopReason } from './chat-turn-control.service';
+import type { TurnStopReason } from './chat-turn-control.service';
 
 export enum ConversationState {
   Idle = 'IDLE',
@@ -258,8 +258,9 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   /**
-   * End the current voice session: aborts the in-flight SSE stream, disables voice mode,
-   * and resets to Idle. Safe to call in any state.
+   * End the current voice session: routes through ChatTurnControlService.stop('session-end')
+   * (cooperative stop, not a direct abort — see chat-turn-control.service.ts), disables voice
+   * mode, and resets to Idle. Safe to call in any state.
    */
   endSession(): void {
     this.callbacks?.stop('session-end');
@@ -276,8 +277,11 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   /**
-   * @param reason - Which trigger requested the interrupt; defaults to 'barge-in', the only
-   * unguarded caller today (confirmBargeIn()).
+   * @param reason - Which trigger requested the interrupt; defaults to 'barge-in', the reason
+   * used by confirmBargeIn(). Note: assistant-chat.component.ts's onVoiceButtonClick() also calls
+   * interrupt() with no argument today and should pass 'voice-bubble' explicitly (tracked as a
+   * later task in the stop-turn plan) — the default exists for the barge-in caller, not as a
+   * statement that no other caller needs a different reason.
    */
   interrupt(reason: TurnStopReason = 'barge-in'): void {
     if (this.state() !== ConversationState.Speaking && this.state() !== ConversationState.Processing) return;

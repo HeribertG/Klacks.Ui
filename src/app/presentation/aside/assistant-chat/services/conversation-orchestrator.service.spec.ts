@@ -453,11 +453,12 @@ describe('ConversationOrchestratorService', () => {
 
   it('endSession() calls callbacks.stop(session-end) instead of aborting directly, and drops the orchestrator to IDLE', async () => {
     const stopSpy = vi.fn();
+    const abortSpy = vi.fn();
     const callbacks: ConversationCallbacks = {
       getInputText: () => '',
       setInputText: vi.fn(),
       sendMessage: vi.fn().mockResolvedValue(undefined),
-      getAbortController: () => null,
+      getAbortController: () => ({ abort: abortSpy } as unknown as AbortController),
       detectChanges: vi.fn(),
       isTextProcessing: signal(false),
       stop: stopSpy,
@@ -470,6 +471,7 @@ describe('ConversationOrchestratorService', () => {
     service.endSession();
 
     expect(stopSpy).toHaveBeenCalledWith('session-end');
+    expect(abortSpy).not.toHaveBeenCalled();
     expect(service.voiceModeEnabled()).toBe(false);
     expect(service.state()).toBe(ConversationState.Idle);
   });
