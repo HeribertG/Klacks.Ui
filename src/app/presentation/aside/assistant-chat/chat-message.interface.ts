@@ -49,4 +49,12 @@ export interface ChatMessage {
   proactiveReminderCount?: number;
   /** Set after the user acknowledged ("Erledigt") this message; locks the acknowledge button. */
   proactiveAcknowledged?: boolean;
+  /** Set once this message's turn was stopped by any of the six TurnStopReason triggers (§4.4). */
+  wasInterrupted?: boolean;
+  /**
+   * What the stop reported as executed. `{ executed: [] }` means confidently nothing ran; a
+   * non-empty list names what did; `null` means the turn was hard-cut with tool steps already
+   * running, so the honest answer is "possibly already executed" (§3.5) rather than either extreme.
+   */
+  interruptedSummary?: { executed: string[] } | null;
 }
