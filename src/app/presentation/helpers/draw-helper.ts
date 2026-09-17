@@ -201,7 +201,6 @@ export abstract class DrawHelper {
   private static readonly TEXT_CLIP_RIGHT_PADDING = 5;
   private static readonly TEXT_CLIP_TOP_PADDING = 1;
   private static readonly TEXT_CLIP_BOTTOM_PADDING = 2;
-  private static readonly TEXT_CLIP_BOTTOM_EDGE_OFFSET = 1;
   private static readonly TEXT_LEFT_ALIGN_OFFSET = 3;
   private static readonly TEXT_RIGHT_ALIGN_OFFSET = 2;
   private static readonly FALLBACK_DESCENT_RATIO = 0.25;
@@ -221,6 +220,8 @@ export abstract class DrawHelper {
     };
   }
 
+  // Clamped to [y, y+h]: callers stack multiple drawText calls in one fixed-height
+  // canvas, so the glyph box can't borrow space from the next block or the canvas edge.
   private static resolveBaselineY(
     y: number,
     h: number,
@@ -228,13 +229,22 @@ export abstract class DrawHelper {
     descent: number,
     baselineAlignment: BaselineAlignmentEnum
   ): number {
+    const minBaselineY = y + DrawHelper.TEXT_CLIP_TOP_PADDING + ascent;
+    const maxBaselineY = y + h - DrawHelper.TEXT_CLIP_BOTTOM_PADDING - descent;
+
+    let baselineY: number;
     if (baselineAlignment === BaselineAlignmentEnum.Top) {
-      return y + DrawHelper.TEXT_CLIP_TOP_PADDING + ascent;
+      baselineY = minBaselineY;
+    } else if (baselineAlignment === BaselineAlignmentEnum.Bottom) {
+      baselineY = maxBaselineY;
+    } else {
+      baselineY = y + (h - (ascent + descent)) / 2 + ascent;
     }
-    if (baselineAlignment === BaselineAlignmentEnum.Bottom) {
-      return y + h - DrawHelper.TEXT_CLIP_BOTTOM_PADDING - descent;
+
+    if (minBaselineY <= maxBaselineY) {
+      return Math.min(Math.max(baselineY, minBaselineY), maxBaselineY);
     }
-    return y + (h - (ascent + descent)) / 2 + ascent;
+    return (minBaselineY + maxBaselineY) / 2;
   }
 
   public static drawText(
@@ -261,18 +271,12 @@ export abstract class DrawHelper {
     const baselineY = DrawHelper.resolveBaselineY(y, h, ascent, descent, baselineAlignment);
     const roundedBaselineY = Math.round(baselineY);
 
-    const clipTop = Math.min(y + DrawHelper.TEXT_CLIP_TOP_PADDING, roundedBaselineY - ascent);
-    const clipBottom = Math.max(
-      y + h - DrawHelper.TEXT_CLIP_BOTTOM_EDGE_OFFSET,
-      roundedBaselineY + descent
-    );
-
     ctx.beginPath();
     ctx.rect(
       x + DrawHelper.TEXT_CLIP_LEFT_PADDING,
-      clipTop,
+      y + DrawHelper.TEXT_CLIP_TOP_PADDING,
       w - DrawHelper.TEXT_CLIP_RIGHT_PADDING,
-      clipBottom - clipTop
+      h - DrawHelper.TEXT_CLIP_TOP_PADDING - DrawHelper.TEXT_CLIP_BOTTOM_PADDING
     );
     ctx.clip();
 
