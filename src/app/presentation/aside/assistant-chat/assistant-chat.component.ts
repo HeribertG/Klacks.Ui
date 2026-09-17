@@ -207,6 +207,7 @@ export class AssistantChatComponent {
   readonly pendingAcknowledgeMessageId = this.messageActions.pendingAcknowledgeMessageId;
 
   inputText = signal('');
+  /** Now backed by ChatTurnControlService: flips false the instant a stop begins, not only when the turn fully completes. */
   readonly isProcessing = this.turnControl.isTurnRunning;
   /** Pass-through of the extracted service's state; kept as a component member for template/spec compatibility. */
   readonly toolSteps = this.chatStageStatus.toolSteps;
@@ -566,7 +567,7 @@ export class AssistantChatComponent {
       return;
     }
 
-    if (this.turnControl.isTurnRunning()) {
+    if (this.turnControl.isTurnRunning() || this.turnControl.isStopping()) {
       await this.turnControl.stop('superseded');
     } else {
       this.ttsService.interrupt();

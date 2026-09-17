@@ -701,6 +701,21 @@ describe('AssistantChatComponent', () => {
             expect(mockTurnControl.stop).toHaveBeenCalledWith('superseded');
         });
 
+        // Covers the race where an earlier stop() (e.g. the stop button) has already flipped
+        // isTurnRunning to false while its own grace-window wait is still in flight (isStopping
+        // stays true throughout that wait) - without this branch sendMessage() would skip the
+        // "stop first" step entirely and start a new turn while the old stop's continuation is
+        // still alive.
+        it('stops as superseded when a previous stop is still resolving (isStopping, not isTurnRunning)', async () => {
+            mockTurnControl.isTurnRunning.set(false);
+            mockTurnControl.isStopping.set(true);
+            component.inputText.set('second message');
+
+            await component.sendMessage();
+
+            expect(mockTurnControl.stop).toHaveBeenCalledWith('superseded');
+        });
+
         it('forwards the turnId from onStreamStart to setTurnId', async () => {
             component.inputText.set('hello');
             await component.sendMessage();
@@ -734,6 +749,31 @@ describe('AssistantChatComponent', () => {
         it('stops the turn as panel-closed on destroy', () => {
             fixture.destroy();
             expect(mockTurnControl.stop).toHaveBeenCalledWith('panel-closed');
+        });
+
+        it('the registered hardAbort hook clears stream state and the hadToolSteps hook reflects live tool-step count before that', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            component.inputText.set('Lege einen Mitarbeiter an');
+            await component.sendMessage();
+
+            callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
+            expect(component.toolSteps().length).toBe(1);
+
+            const hooks = mockTurnControl.registerHooks.mock.calls[0][0];
+            expect(hooks.hadToolSteps()).toBe(true);
+
+            const streamingMessage = component.messages.find((m) => m.isStreaming);
+            expect(streamingMessage).toBeTruthy();
+
+            hooks.hardAbort();
+
+            const finalized = component.messages.find((m) => m.id === streamingMessage!.id);
+            expect(finalized?.isStreaming).toBe(false);
+            expect(component.toolSteps().length).toBe(0);
         });
     });
 
