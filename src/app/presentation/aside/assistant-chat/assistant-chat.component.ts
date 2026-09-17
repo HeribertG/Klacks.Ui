@@ -61,6 +61,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { ChatStageStatusService } from './services/chat-stage-status.service';
+import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 import { stripMetadataMarkers, stripForTts, formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
@@ -141,6 +142,7 @@ export class AssistantChatComponent {
   private chatFunctionExecution = inject(ChatFunctionExecutionService);
   readonly orchestrator = inject(ConversationOrchestratorService);
   private readonly chatStageStatus = inject(ChatStageStatusService);
+  private readonly turnControl = inject(ChatTurnControlService);
   readonly ConversationState = ConversationState;
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
@@ -205,7 +207,7 @@ export class AssistantChatComponent {
   readonly pendingAcknowledgeMessageId = this.messageActions.pendingAcknowledgeMessageId;
 
   inputText = signal('');
-  isProcessing = signal(false);
+  readonly isProcessing = this.turnControl.isTurnRunning;
   /** Pass-through of the extracted service's state; kept as a component member for template/spec compatibility. */
   readonly toolSteps = this.chatStageStatus.toolSteps;
   showModelDropdown = signal(false);
@@ -284,6 +286,19 @@ export class AssistantChatComponent {
       }
       this.ttsService.stop();
       this.chatStageStatus.clear();
+    });
+
+    this.turnControl.registerHooks({
+      silence: () => {
+        this.ttsService.interrupt();
+        this.orchestrator.stopAutoSpeak();
+      },
+      hardAbort: () => this.hardAbortStream(),
+      hadToolSteps: () => this.toolSteps().length > 0,
+    });
+
+    this.destroyRef.onDestroy(() => {
+      void this.turnControl.stop('panel-closed');
     });
 
     const currentLangForSpeech = this.resolveCurrentLang();
@@ -473,7 +488,7 @@ export class AssistantChatComponent {
     }
   }
 
-  private interruptCurrentStream(): void {
+  private hardAbortStream(): void {
     if (this.currentStreamController) {
       this.currentStreamController.abort();
       this.currentStreamController = null;
@@ -487,7 +502,6 @@ export class AssistantChatComponent {
         formattedContent: finalized?.formattedContent ?? this.formatMessage(finalized?.content ?? ''),
       });
     }
-    this.isProcessing.set(false);
     this.chatStageStatus.clear();
     this.streamBuffer = '';
     this.streamPreviousClean = '';
@@ -552,9 +566,12 @@ export class AssistantChatComponent {
       return;
     }
 
-    if (this.isProcessing()) {
-      this.interruptCurrentStream();
+    if (this.turnControl.isTurnRunning()) {
+      await this.turnControl.stop('superseded');
     }
+    // silence() on the hook above already covers this when a turn was running, but TTS can also
+    // be reading out a message that finished streaming a while ago - unconditional here is what
+    // pins "sending a message interrupts a running TTS playback" even with no turn in flight.
     this.ttsService.interrupt();
     this.orchestrator.stopAutoSpeak();
 
@@ -573,7 +590,6 @@ export class AssistantChatComponent {
     }
     const messageText = this.inputText();
     this.inputText.set('');
-    this.isProcessing.set(true);
     this.shouldScrollToBottom = true;
 
     const assistantMessageId = this.generateMessageId();
@@ -587,6 +603,7 @@ export class AssistantChatComponent {
       respondedToUserMessage: messageText.trim(),
     };
     this.orchestrator.addMessage(assistantMessage);
+    this.turnControl.beginTurn(assistantMessageId);
     this.chatStageStatus.startMessage(assistantMessageId);
     this.currentRawStream = '';
     this.streamBuffer = '';
@@ -604,9 +621,12 @@ export class AssistantChatComponent {
       messageText,
       this.conversationId,
       {
-        onStreamStart: (convId: string) => {
+        onStreamStart: (convId: string, turnId: string | null) => {
           if (!this.conversationId || this.conversationId !== convId) {
             this.conversationId = convId;
+          }
+          if (turnId) {
+            this.turnControl.setTurnId(turnId);
           }
         },
         onStatus: (data: StreamStatus) => {
@@ -694,6 +714,9 @@ export class AssistantChatComponent {
             this.cdr.detectChanges();
           });
         },
+        onTurnStopped: (executedSkillLabels: string[]) => {
+          this.turnControl.notifyTurnStopped(executedSkillLabels);
+        },
         onDone: () => {
           this.ngZone.run(() => {
             this.drainStreamBuffer(assistantMessageId);
@@ -704,7 +727,7 @@ export class AssistantChatComponent {
               formattedContent: doneMessage?.formattedContent ?? this.formatMessage(doneContent),
             });
             this.shouldScrollToBottom = true;
-            this.isProcessing.set(false);
+            this.turnControl.endTurn();
             this.chatStageStatus.clear();
             this.currentStreamController = null;
             this.cdr.detectChanges();
@@ -725,7 +748,7 @@ export class AssistantChatComponent {
               formattedContent: this.formatMessage(merged),
             });
             this.shouldScrollToBottom = true;
-            this.isProcessing.set(false);
+            this.turnControl.endTurn();
             this.chatStageStatus.clear();
             this.currentStreamController = null;
             this.cdr.detectChanges();

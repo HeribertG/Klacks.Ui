@@ -20,6 +20,7 @@ import { SpeechRecognitionService } from './services/speech-recognition.service'
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { ChatStageStatusService } from './services/chat-stage-status.service';
+import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
@@ -133,8 +134,20 @@ describe('AssistantChatComponent', () => {
 
     let mockPlanService: any;
     let mockProactiveInboxService: any;
+    let mockTurnControl: any;
 
     beforeEach(async () => {
+        mockTurnControl = {
+            isTurnRunning: signal(false),
+            isStopping: signal(false),
+            beginTurn: vi.fn(),
+            endTurn: vi.fn(),
+            setTurnId: vi.fn(),
+            notifyTurnStopped: vi.fn(),
+            registerHooks: vi.fn(),
+            stop: vi.fn(() => Promise.resolve()),
+        };
+
         const inboxHeadingMessageIdSig = signal<string | null>(null);
         const inboxExpandedSig = signal<boolean>(true);
         const inboxMessageIdsSig = signal<ReadonlySet<string>>(new Set());
@@ -281,6 +294,7 @@ describe('AssistantChatComponent', () => {
             providers: [
                 { provide: DataManagementAssistantService, useValue: llmServiceSpy },
                 { provide: DataManagementAssistantProviderService, useValue: llmProviderServiceSpy },
+                { provide: ChatTurnControlService, useFactory: () => mockTurnControl },
                 { provide: DataManagementAgentPlanService, useValue: mockPlanService },
                 { provide: DataManagementProactiveInboxService, useValue: mockProactiveInboxService },
                 { provide: SpeechRecognitionService, useValue: speechServiceSpy },
@@ -489,7 +503,7 @@ describe('AssistantChatComponent', () => {
             // Assert
             expect(component.messages.length).toBe(3); // Welcome + User + Error
             expect(component.messages[2].content).toContain('API Error');
-            expect(component.isProcessing()).toBe(false);
+            expect(mockTurnControl.endTurn).toHaveBeenCalled();
         });
 
         it('should navigate when actionPerformed is true', async () => {
@@ -653,6 +667,73 @@ describe('AssistantChatComponent', () => {
 
             expect(missSpy).toHaveBeenCalledTimes(1);
             vi.useRealTimers();
+        });
+    });
+
+    describe('ChatTurnControlService wiring', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
+        it('registers hooks with ChatTurnControlService on construction', () => {
+            expect(mockTurnControl.registerHooks).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    silence: expect.any(Function),
+                    hardAbort: expect.any(Function),
+                    hadToolSteps: expect.any(Function),
+                }),
+            );
+        });
+
+        it('calls beginTurn with the new assistant message id when sending', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+
+            expect(mockTurnControl.beginTurn).toHaveBeenCalledWith(expect.any(String));
+        });
+
+        it('stops the previous turn as superseded before starting a new one', async () => {
+            mockTurnControl.isTurnRunning.set(true);
+            component.inputText.set('second message');
+
+            await component.sendMessage();
+
+            expect(mockTurnControl.stop).toHaveBeenCalledWith('superseded');
+        });
+
+        it('forwards the turnId from onStreamStart to setTurnId', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+            const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+
+            callbacks.onStreamStart('conv-1', 'turn-9');
+
+            expect(mockTurnControl.setTurnId).toHaveBeenCalledWith('turn-9');
+        });
+
+        it('forwards onTurnStopped to notifyTurnStopped', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+            const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+
+            callbacks.onTurnStopped(['create_client']);
+
+            expect(mockTurnControl.notifyTurnStopped).toHaveBeenCalledWith(['create_client']);
+        });
+
+        it('calls endTurn (not a manual isProcessing set) when the stream completes', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+            const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+
+            callbacks.onDone();
+
+            expect(mockTurnControl.endTurn).toHaveBeenCalled();
+        });
+
+        it('stops the turn as panel-closed on destroy', () => {
+            fixture.destroy();
+            expect(mockTurnControl.stop).toHaveBeenCalledWith('panel-closed');
         });
     });
 
