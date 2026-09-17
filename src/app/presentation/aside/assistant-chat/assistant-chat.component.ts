@@ -568,12 +568,10 @@ export class AssistantChatComponent {
 
     if (this.turnControl.isTurnRunning()) {
       await this.turnControl.stop('superseded');
+    } else {
+      this.ttsService.interrupt();
+      this.orchestrator.stopAutoSpeak();
     }
-    // silence() on the hook above already covers this when a turn was running, but TTS can also
-    // be reading out a message that finished streaming a while ago - unconditional here is what
-    // pins "sending a message interrupts a running TTS playback" even with no turn in flight.
-    this.ttsService.interrupt();
-    this.orchestrator.stopAutoSpeak();
 
     const userContent = this.inputText().trim();
     const userMessage: ChatMessage = {
