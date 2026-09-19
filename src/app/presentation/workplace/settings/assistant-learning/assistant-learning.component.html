@@ -17,7 +17,7 @@
       >
         <span
           aria-hidden="true"
-          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+          style="font-size: var(--fontSizeLabel); border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
           >&times;</span
         >
       </div>
@@ -99,7 +99,7 @@
       >
         <span
           aria-hidden="true"
-          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+          style="font-size: var(--fontSizeLabel); border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
           >&times;</span
         >
       </div>
@@ -180,7 +180,7 @@
     >
       <span
         aria-hidden="true"
-        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+        style="font-size: var(--fontSizeLabel); border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
         >&times;</span
       >
     </div>
@@ -254,7 +254,7 @@
   </div>
   <div class="container-line"></div>
 
-  <div id="assistant-learning-intro" class="intro-hint">
+  <div id="assistant-learning-intro" class="intro-hint settings-hint">
     {{ "setting.klacksyLearning.intro" | translate }}
   </div>
 
@@ -295,7 +295,7 @@
           (approveEvent)="onClickApprovePhrase($event)"
         />
       } @empty {
-        <div id="learned-phrases-empty" class="empty-hint">
+        <div id="learned-phrases-empty" class="empty-hint settings-hint">
           {{ "setting.klacksyLearning.phrases.empty" | translate }}
         </div>
       }
@@ -321,7 +321,7 @@
           (isDeleteEvent)="onClickDeleteCapability($event)"
         />
       } @empty {
-        <div id="learned-capabilities-empty" class="empty-hint">
+        <div id="learned-capabilities-empty" class="empty-hint settings-hint">
           {{ "setting.klacksyLearning.capabilities.empty" | translate }}
         </div>
       }
@@ -348,7 +348,7 @@
           (retryEvent)="onClickRetryWish($event)"
         />
       } @empty {
-        <div id="unfulfillable-wishes-empty" class="empty-hint">
+        <div id="unfulfillable-wishes-empty" class="empty-hint settings-hint">
           {{ "setting.klacksyLearning.wishes.empty" | translate }}
         </div>
       }

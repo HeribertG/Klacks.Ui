@@ -1,17 +1,12 @@
 @use "../../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 
 .report-parameters {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 16px 0;
-}
-
-.parameters-hint,
-.parameters-empty {
-  font-size: 12px;
-  color: var(--colorSubHeadline);
 }
 
 .parameter-card {
@@ -53,7 +48,7 @@
 }
 
 .parameter-footer {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 }
 
 .parameter-variable code {
@@ -68,7 +63,7 @@
 }
 
 .add-button {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: colors.$standartGreenColor;
   cursor: pointer;

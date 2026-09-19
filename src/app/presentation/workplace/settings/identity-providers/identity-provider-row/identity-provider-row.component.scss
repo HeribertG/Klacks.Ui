@@ -53,7 +53,7 @@ label {
 
 .add-button {
   margin-inline-start: 100px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: var(--standartGreenColor);
 }
@@ -73,7 +73,7 @@ button {
 }
 
 .nav {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
 }
 
@@ -101,16 +101,12 @@ button {
     height: 18px;
     margin-inline-end: 8px;
   }
-
-  .form-check-label {
-    font-size: 13px;
-  }
 }
 
 .alert {
   padding: 12px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
 }
 
 .alert-success {

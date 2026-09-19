@@ -19,7 +19,7 @@
 }
 
 .nav {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
 }
 
@@ -58,13 +58,13 @@
 }
 
 .source-name {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 600;
   color: var(--standartTextColor);
 }
 
 .source-path {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorSubHeadline);
   margin-top: 2px;
 }
@@ -74,7 +74,7 @@
 }
 
 .dataset-card {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--standartTextColor);
 }
@@ -105,7 +105,7 @@ input {
 }
 
 .margin-label {
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   color: var(--colorLabel);
 }
 
@@ -146,8 +146,6 @@ input {
 
 .discard-question {
   margin-inline-end: auto;
-  font-size: 13px;
-  color: var(--colorLabel);
 }
 
 .history-section {
@@ -162,7 +160,7 @@ input {
   grid-template-columns: 160px 1fr 140px auto;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   padding: 4px 0;
   border-bottom: 1px solid var(--colorLine);
 }
@@ -178,11 +176,6 @@ input {
   white-space: nowrap;
 }
 
-.history-empty {
-  font-size: 13px;
-  color: var(--colorLabel);
-}
-
 .preview-parameters {
   margin-bottom: 18px;
   padding-bottom: 12px;
@@ -190,7 +183,7 @@ input {
 }
 
 .preview-parameters-title {
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-weight: 500;
   color: var(--colorLabel);
   margin-bottom: 8px;

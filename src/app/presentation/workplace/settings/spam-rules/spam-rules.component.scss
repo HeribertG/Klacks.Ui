@@ -2,6 +2,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 
 .rules-content {
   padding: 10px 30px;
@@ -14,15 +15,12 @@
   th {
     text-align: start;
     padding: 6px 8px;
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--standartTextColor);
     border-bottom: 1px solid var(--standartBorderColor);
   }
 
   td {
     padding: 6px 8px;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     color: var(--standartTextColor);
     border-bottom: 1px solid var(--standartBorderColor);
   }
@@ -49,7 +47,7 @@
 .btn-delete {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: var(--fontSizeTitle);
   cursor: pointer;
   color: colors.$standartRedColor;
   padding: 0 6px;
@@ -69,18 +67,16 @@
   .rule-type-select {
     width: 180px;
     height: 32px;
-    font-size: 13px;
   }
 
   .pattern-input {
     flex: 1;
     height: 32px;
-    font-size: 13px;
   }
 
   .add-button {
     height: 32px;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     white-space: nowrap;
   }
 }

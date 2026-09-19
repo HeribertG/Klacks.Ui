@@ -6,26 +6,14 @@
     idPrefix="monthly-target-hours"
   >
     <div header id="monthly-target-hours-header" class="year-header">
-      <button
-        id="monthly-target-hours-previous-year"
-        type="button"
-        class="btn btn-sm year-button"
-        [attr.aria-label]="'setting.monthlyTargetHours.previous-year' | translate"
-        (click)="previousYear()"
+      <app-counter
+        id="monthly-target-hours-year-counter"
+        [maxNumber]="maxYear"
+        [currentNumber]="year()"
+        (isChanged)="setYear($event)"
       >
-        &lsaquo;
-      </button>
-      <span id="monthly-target-hours-current-year" class="year-label">{{ year() }}</span>
-      <button
-        id="monthly-target-hours-next-year"
-        type="button"
-        class="btn btn-sm year-button"
-        [attr.aria-label]="'setting.monthlyTargetHours.next-year' | translate"
-        (click)="nextYear()"
-      >
-        &rsaquo;
-      </button>
-      <span class="info-text">{{
+      </app-counter>
+      <span class="settings-hint">{{
         "setting.monthlyTargetHours.empty-means-no-override" | translate
       }}</span>
     </div>

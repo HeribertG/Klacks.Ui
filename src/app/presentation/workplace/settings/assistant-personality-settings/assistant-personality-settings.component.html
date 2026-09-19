@@ -9,11 +9,11 @@
 
   <div class="settings-form">
     @if (isLoading()) {
-      <div class="loading-hint">
+      <div class="loading-hint settings-hint">
         {{ "setting.personality.loading" | translate }}
       </div>
     } @else {
-      <div class="intro-hint">
+      <div class="intro-hint settings-hint">
         {{ "setting.personality.intro" | translate }}
       </div>
 
@@ -29,7 +29,7 @@
             (blur)="onFieldBlur(i)"
             rows="5"
           ></textarea>
-          <div class="field-hint">
+          <div class="field-hint settings-hint">
             {{ field.hintKey | translate }}
           </div>
         </div>

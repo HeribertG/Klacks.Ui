@@ -15,8 +15,6 @@
   padding-inline-end: 30px;
   margin-top: 10px;
   margin-bottom: 8px;
-  font-size: 12px;
-  color: var(--colorLabel);
 }
 
 .empty-hint {
@@ -24,13 +22,11 @@
   padding-inline-end: 30px;
   padding-top: 24px;
   padding-bottom: 24px;
-  font-size: 13px;
-  color: var(--colorLabel);
   text-align: center;
 }
 
 .readonly-value {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   line-height: 1.4;
   color: var(--standartTextColor);
   white-space: pre-wrap;
@@ -46,6 +42,6 @@
   padding: 2px 8px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorLabel);
 }

@@ -84,13 +84,13 @@ button {
 }
 
 .nav {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
 }
 
 ::ng-deep ngx-code-editor {
   .cm-editor {
-    font-size: 12px !important;
+    font-size: var(--fontSizeSmall) !important;
     height: 300px !important;
     border: 1px solid #ccc;
     background-color: white;
@@ -102,12 +102,12 @@ button {
   }
 
   .cm-content {
-    font-size: 12px !important;
+    font-size: var(--fontSizeSmall) !important;
   }
 
   .cm-scroller {
     font-family: monospace;
-    font-size: 12px !important;
+    font-size: var(--fontSizeSmall) !important;
   }
 
   .cm-gutters {

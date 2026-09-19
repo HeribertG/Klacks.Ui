@@ -10,7 +10,7 @@ ngb-pagination {
 
 ngb-pagination ::ng-deep a {
  font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
  }
 
 ngb-pagination ::ng-deep .page-item.active .page-link {
@@ -68,7 +68,7 @@ ngb-pagination ::ng-deep .page-item:last-child .page-link {
 .entry-info {
   padding-inline-end: 20px;
   margin-top: 8px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color:var(--colorLabel);
   
@@ -77,7 +77,7 @@ ngb-pagination ::ng-deep .page-item:last-child .page-link {
 .entry-row{
   padding-inline-end: 1px;
   margin-top: 8px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color:var(--colorLabel);
 }

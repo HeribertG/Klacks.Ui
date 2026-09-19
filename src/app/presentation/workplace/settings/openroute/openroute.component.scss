@@ -10,12 +10,10 @@
 
 .openroute-info {
   .info-text {
-    font-size: 13px;
-    color: var(--colorSubHeadline);
     margin-bottom: 8px;
 
     a {
-      color: var(--colorLink, #e57373);
+      color: var(--colorLink);
       text-decoration: none;
 
       &:hover {
@@ -45,15 +43,15 @@
     align-items: center;
     justify-content: center;
     width: 45px;
-    border: 1px solid #ced4da;
+    border: 1px solid var(--inputBorderColor);
     border-inline-start: none;
-    background-color: #e9ecef;
+    background-color: var(--standartTextBackgroundReadOnly);
     border-start-end-radius: 5px;
     border-end-end-radius: 5px;
     cursor: pointer;
 
     &:hover {
-      background-color: #dee2e6;
+      background-color: var(--backgroundColorFocus);
     }
 
     &:focus {
@@ -63,7 +61,7 @@
   }
 
   .password-icon {
-    font-size: 16px;
-    color: #464e5f;
+    font-size: var(--fontSizeCardHeader);
+    color: var(--colorLabel);
   }
 }

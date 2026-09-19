@@ -1,6 +1,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 
 .row-line {
   margin-top: 5px;
@@ -26,14 +27,6 @@
   margin-inline-start: 30px;
   margin-top: 10px;
   margin-bottom: 5px;
-  color: var(--standartTextColor);
-  font-size: 12px;
-}
-
-.hint-text {
-  color: var(--standartTextColor);
-  font-size: 12px;
-  font-weight: 600;
 }
 
 .update-available {
@@ -48,8 +41,6 @@
   margin-inline-start: 30px;
   margin-top: 6px;
   font-style: italic;
-  font-size: 12px;
-  color: var(--standartTextColor);
 }
 
 input[type="number"] {
@@ -63,7 +54,6 @@ select {
 .history-table {
   margin-inline-start: 30px;
   margin-top: 8px;
-  font-size: 12px;
   width: calc(100% - 60px);
 }
 
@@ -84,7 +74,5 @@ select {
 }
 
 label {
-  font-size: 12px;
-  color: var(--colorLabel);
   margin-bottom: 0;
 }

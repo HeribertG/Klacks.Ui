@@ -16,7 +16,7 @@
 
 .add-button {
   padding-inline-end: 50px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: colors.$standartGreenColor;
   margin-top: 20px;
@@ -85,7 +85,7 @@
 }
 
 .link-button {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   cursor: pointer;
 }

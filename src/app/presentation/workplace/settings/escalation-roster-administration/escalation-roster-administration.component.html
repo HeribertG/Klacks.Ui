@@ -13,7 +13,7 @@
 
     @if (!isLoadingRoster()) {
       @if (members().length === 0) {
-        <p class="escalation-roster-empty">{{ 'setting.escalation-roster.empty' | translate }}</p>
+        <p class="escalation-roster-empty settings-hint">{{ 'setting.escalation-roster.empty' | translate }}</p>
       }
 
       @if (members().length > 0) {
@@ -47,7 +47,7 @@
                     <app-spinner></app-spinner>
                   } @else {
                     @if (absencePeriods().length === 0) {
-                      <p class="escalation-roster-absence-empty">{{ 'setting.escalation-roster.absence-empty' | translate }}</p>
+                      <p class="escalation-roster-absence-empty settings-hint">{{ 'setting.escalation-roster.absence-empty' | translate }}</p>
                     }
                     <ul class="escalation-roster-absence-list">
                       @for (period of absencePeriods(); track period.id) {

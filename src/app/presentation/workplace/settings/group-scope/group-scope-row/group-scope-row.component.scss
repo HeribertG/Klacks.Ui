@@ -1,3 +1,4 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
@@ -49,8 +50,6 @@ button.btn-info {
 }
 
 .checkbox-container .form-check-label {
-  font-size: 0.875rem; // 14px
-  color: var(--colorHeadline);
   cursor: pointer;
   line-height: 1.4;
   flex: 1;
@@ -74,14 +73,11 @@ button.btn-info {
   background: var(--colorLabel);
 }
 
-.checkbox-container .form-check .text-muted {
-  font-weight: 500;
-  font-size: 13px;
+.checkbox-container .form-check .settings-hint {
   font-style: italic;
-  color: var(--colorLabel) !important;
 }
 
 .link-button {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
 }

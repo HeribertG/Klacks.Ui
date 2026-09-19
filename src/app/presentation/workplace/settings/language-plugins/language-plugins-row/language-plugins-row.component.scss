@@ -20,7 +20,7 @@
 }
 
 span {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
   margin-inline-end: 15px;
 }
@@ -67,7 +67,7 @@ span {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   font-weight: 500;
 }
 
@@ -89,7 +89,7 @@ span {
 .action-btn {
   padding: 2px 12px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   border: 1px solid;
   cursor: pointer;
   background: transparent;

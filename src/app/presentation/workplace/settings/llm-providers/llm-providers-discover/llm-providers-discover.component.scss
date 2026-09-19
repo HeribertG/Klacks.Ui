@@ -1,3 +1,5 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../../assets/standard-styles/standard-tabs.scss";
 @use "../../../../../../assets/standard-styles/standard-manual.scss";
@@ -7,7 +9,6 @@ $badge-unknown-color: #9aa0a6;
 
 .discover-browse {
   .discover-hint {
-    font-size: 12px;
     padding-bottom: 8px;
   }
 
@@ -24,10 +25,6 @@ $badge-unknown-color: #9aa0a6;
   }
 
   .table-header {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--colorWorkplaceHeadline);
-    border-bottom: 1px solid var(--colorLine);
     padding-bottom: 6px;
   }
 
@@ -51,9 +48,6 @@ $badge-unknown-color: #9aa0a6;
   }
 
   .table-cell {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--colorLabel);
     border-bottom: none;
   }
 
@@ -89,7 +83,7 @@ $badge-unknown-color: #9aa0a6;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 10px;
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     font-weight: 500;
     color: white;
 

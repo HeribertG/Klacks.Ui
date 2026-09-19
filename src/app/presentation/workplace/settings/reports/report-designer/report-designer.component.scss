@@ -24,7 +24,7 @@
 
 .palette-title,
 .preview-title {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 600;
   margin-bottom: 10px;
   color: var(--colorLabel);
@@ -40,7 +40,7 @@
   gap: 6px;
   padding: 5px 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-weight: 500;
   color: var(--colorWorkplaceHeadline);
   border-radius: 4px;
@@ -50,13 +50,13 @@
   }
 
   i {
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     width: 12px;
   }
 
   .badge {
     margin-inline-start: auto;
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     background: var(--backgroundColorFocus);
     color: var(--colorLabel);
     border-radius: 8px;
@@ -74,7 +74,7 @@
   gap: 6px;
   padding: 4px 8px;
   margin-bottom: 2px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   cursor: grab;
   border: 1px solid transparent;
   border-radius: 3px;
@@ -88,12 +88,12 @@
 
   .drag-handle {
     color: var(--colorSubHeadline);
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
   }
 }
 
 .palette-empty {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorSubHeadline);
   padding: 4px 8px;
   font-style: italic;
@@ -123,7 +123,7 @@
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   padding: 2px 6px;
   border-radius: 3px;
   color: var(--standartTextColor);
@@ -149,7 +149,7 @@
 }
 
 .tb-select {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   padding: 1px 4px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 3px;
@@ -160,7 +160,7 @@
 
 .tb-size {
   width: 44px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   padding: 1px 4px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 3px;
@@ -187,7 +187,7 @@
 }
 
 .tb-label {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorLabel);
   margin: 0 2px;
 }
@@ -196,7 +196,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--standartTextColor);
   cursor: pointer;
   white-space: nowrap;
@@ -213,7 +213,7 @@
 }
 
 .section-label {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   font-weight: 600;
   color: var(--colorLabel);
   text-transform: uppercase;
@@ -242,11 +242,11 @@
   gap: 8px;
   padding: 10px;
   color: var(--colorSubHeadline);
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-style: italic;
 
   i {
-    font-size: 14px;
+    font-size: var(--fontSizeBase);
   }
 
   :host-context([dir="rtl"]) & i {
@@ -270,7 +270,7 @@
   background: var(--backgroundColorFocus);
   border: 1px solid var(--cardBorderColor);
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--standartTextColor);
   cursor: pointer;
   transition: border-color 0.15s;
@@ -295,7 +295,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   padding: 0 3px;
   border-radius: 2px;
   color: var(--colorLabel);
@@ -351,7 +351,7 @@
   }
 
   .column-name {
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
@@ -376,7 +376,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 9px;
+  font-size: var(--fontSizeMicro);
   padding: 1px 4px;
   background: rgba(100, 149, 237, 0.2);
   border: 1px solid rgba(100, 149, 237, 0.4);
@@ -388,7 +388,7 @@
     border: none;
     color: var(--colorSubHeadline);
     cursor: pointer;
-    font-size: 9px;
+    font-size: var(--fontSizeMicro);
     padding: 0 1px;
     line-height: 1;
 
@@ -402,18 +402,18 @@
   width: 40px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   padding: 1px 3px;
   text-align: center;
 }
 
 .width-label {
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   color: var(--colorSubHeadline);
 }
 
 .sort-select {
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   padding: 1px 2px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 3px;
@@ -436,7 +436,7 @@
   border: 1px solid var(--cardBorderColor);
   background: var(--backgroundColorFocus);
   color: var(--standartTextColor);
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   padding: 3px 10px;
   border-radius: 3px;
   cursor: pointer;
@@ -447,7 +447,7 @@
   }
 
   i {
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     margin-inline-end: 4px;
   }
 }
@@ -505,7 +505,7 @@
   background: var(--backgroundColorCard);
   border: 1px solid var(--cardBorderColor);
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   cursor: pointer;
   color: var(--standartTextColor);
   transition: border-color 0.15s;
@@ -528,7 +528,7 @@
 }
 
 .zone-placeholder {
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   color: var(--colorSubHeadline);
   font-style: italic;
   padding: 2px 4px;
@@ -539,7 +539,7 @@
 
 .custom-text-textarea {
   flex: 1;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   padding: 2px 6px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 3px;
@@ -559,7 +559,7 @@
   height: 22px;
   border-radius: 3px;
   color: var(--colorLabel);
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 
   &:hover {
     background: var(--backgroundColorHover);
@@ -575,7 +575,7 @@
 }
 
 .image-placeholder-icon {
-  font-size: 16px;
+  font-size: var(--fontSizeCardHeader);
   color: var(--colorLabel);
 }
 
@@ -592,12 +592,12 @@
 }
 
 .image-upload-text {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorSubHeadline);
 }
 
 .image-filename {
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   color: var(--colorSubHeadline);
   white-space: nowrap;
   overflow: hidden;
@@ -606,7 +606,7 @@
 }
 
 .row-remove {
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   padding: 2px 6px;
 }
 
@@ -628,7 +628,7 @@
   border: 1px solid var(--cardBorderColor);
   background: var(--backgroundColorFocus);
   color: var(--standartTextColor);
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   padding: 3px 10px;
   border-radius: 3px;
   cursor: pointer;
@@ -638,7 +638,7 @@
   }
 
   i {
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     margin-inline-end: 4px;
   }
 }
@@ -659,7 +659,7 @@
 }
 
 .table-type-badge {
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 3px;
@@ -683,7 +683,7 @@
 }
 
 .table-remove {
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   padding: 2px 6px;
 
   &:disabled {
@@ -700,7 +700,7 @@
   background: var(--backgroundColorFocus);
   border-radius: 4px;
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--standartTextColor);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -793,7 +793,7 @@
   max-width: 240px;
   margin-inline-start: 12px;
   padding: 2px 6px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   border: 1px solid var(--standartBorderColor, #ccc);
   border-radius: 3px;
   background: var(--standartBackgroundColor, transparent);
@@ -804,14 +804,14 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--standartTextColor);
   margin-inline-start: 12px;
 
   input[type="number"] {
     width: 50px;
     padding: 2px 4px;
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     border: 1px solid var(--standartBorderColor, #ccc);
     border-radius: 3px;
     background: var(--standartBackgroundColor, transparent);
@@ -823,7 +823,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   cursor: pointer;
   color: var(--standartTextColor);
   margin-inline-start: 12px;
@@ -844,7 +844,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   cursor: pointer;
   color: var(--standartTextColor);
 
@@ -882,7 +882,7 @@
 
 .free-text-input {
   flex: 1;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   padding: 3px 6px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 3px;
@@ -896,7 +896,7 @@
   border-inline-start: 3px solid #9b59b6;
 
   .formula-prefix {
-    font-size: 9px;
+    font-size: var(--fontSizeMicro);
     font-weight: 600;
     color: #9b59b6;
     margin-inline-end: 4px;
@@ -924,13 +924,13 @@
   }
 
   .formula-icon {
-    font-size: 14px;
+    font-size: var(--fontSizeBase);
     font-weight: 600;
     color: #9b59b6;
   }
 
   .add-formula-label {
-    font-size: 9px;
+    font-size: var(--fontSizeMicro);
     color: #9b59b6;
     text-align: center;
     line-height: 1.2;
@@ -941,7 +941,7 @@
   border-inline-start: 3px solid #9b59b6;
 
   .formula-prefix {
-    font-size: 9px;
+    font-size: var(--fontSizeMicro);
     font-weight: 600;
     color: #9b59b6;
     margin-inline-end: 4px;
@@ -952,7 +952,7 @@
   margin-inline-start: 6px;
 
   .formula-icon {
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     font-weight: 600;
     color: #9b59b6;
     margin-inline-end: 4px;
@@ -962,11 +962,11 @@
 .formula-edit-btn {
   font-weight: 600;
   color: #9b59b6 !important;
-  font-size: 11px !important;
+  font-size: var(--fontSizeXSmall) !important;
 }
 
 .formula-status {
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   padding: 1px 6px;
   border-radius: 3px;
   white-space: nowrap;
@@ -1018,7 +1018,7 @@
 
   h6 {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--fontSizeBase);
     font-weight: 600;
     color: var(--standartTextColor);
   }
@@ -1033,7 +1033,7 @@
 
   label {
     display: block;
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     font-weight: 500;
     color: var(--colorLabel);
     margin-bottom: 4px;
@@ -1042,7 +1042,7 @@
   input {
     width: 100%;
     padding: 4px 8px;
-    font-size: 12px;
+    font-size: var(--fontSizeSmall);
     border: 1px solid var(--cardBorderColor);
     border-radius: 4px;
     background: var(--backgroundColorFocus);
@@ -1065,7 +1065,7 @@
 
 .formula-tab-btn {
   padding: 5px 14px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-weight: 500;
   color: var(--colorSubHeadline);
   background: transparent;
@@ -1094,7 +1094,7 @@
 .formula-tab {
   label {
     display: block;
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     font-weight: 500;
     color: var(--colorLabel);
     margin-bottom: 4px;
@@ -1104,7 +1104,7 @@
 .formula-textarea {
   width: 100%;
   font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   padding: 8px;
   border: 1px solid var(--cardBorderColor);
   border-radius: 4px;
@@ -1127,7 +1127,7 @@
   align-items: center;
   gap: 8px;
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   border-bottom: 1px solid var(--cardBorderColor);
 
   &:last-child {
@@ -1142,7 +1142,7 @@
   }
 
   .var-type {
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     color: var(--colorSubHeadline);
     min-width: 50px;
   }
@@ -1163,7 +1163,7 @@
 
 .formula-test-result {
   font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-weight: 600;
   color: var(--standartTextColor);
   padding: 2px 8px;
@@ -1172,13 +1172,13 @@
 }
 
 .page-geometry {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorSubHeadline);
   margin-bottom: 8px;
 }
 
 .width-sum {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorLabel);
   white-space: nowrap;
 }
@@ -1189,7 +1189,7 @@
 }
 
 .distribute-widths {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   white-space: nowrap;
 }
 
@@ -1198,7 +1198,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorLabel);
   margin: 0;
   white-space: nowrap;
@@ -1208,7 +1208,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorLabel);
   margin: 0;
   white-space: nowrap;
@@ -1216,12 +1216,12 @@
   input {
     min-width: 180px;
     font-family: monospace;
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
   }
 }
 
 .filter-status {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 
   &.status-valid {
     color: #1bc5bd;

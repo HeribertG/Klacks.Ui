@@ -71,17 +71,17 @@
   width: 280px;
   flex-shrink: 0;
   color: var(--gridColorText);
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
 }
 
 .result-ok {
   color: var(--gridColorText);
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
 }
 
 .result-error {
   color: var(--standartRedColor);
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-style: italic;
   flex: 1;
 }

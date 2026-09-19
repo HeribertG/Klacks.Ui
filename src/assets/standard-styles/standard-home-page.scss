@@ -13,7 +13,7 @@
     flex-direction: column;
     padding-inline-start: $base-left;
     padding-top: $base-top;
-    font-size: 23px;
+    font-size: var(--fontSizeHeadline);
     font-weight: 600;
     color: var(--colorWorkplaceHeadline);
     text-decoration: none solid var(-colorWorkplaceHeadlineDecoration);
@@ -51,7 +51,7 @@
     flex-direction: column;
     padding-inline-start: $base-left;
     padding-top: $base-top;
-    font-size: 23px;
+    font-size: var(--fontSizeHeadline);
     font-weight: 600;
     color: var(--colorWorkplaceHeadline);
     text-decoration: none solid var(-colorWorkplaceHeadlineDecoration);
@@ -89,7 +89,7 @@
     flex-direction: column;
     padding-inline-start: $base-left;
     padding-top: $base-top;
-    font-size: 23px;
+    font-size: var(--fontSizeHeadline);
     font-weight: 600;
     color: var(--colorWorkplaceHeadline);
     text-decoration: none solid var(-colorWorkplaceHeadlineDecoration);

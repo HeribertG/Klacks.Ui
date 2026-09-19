@@ -1,8 +1,8 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 
 .property-grid {
-  font-family: Arial, sans-serif;
   border-radius: 4px;
   padding: 10px;
   margin: 10px 0;
@@ -11,12 +11,6 @@
   overflow-y: auto;
   color: var(--gridColorLine);
   background-color: transparent;
-}
-
-.property-header {
-  color: var(--colorHeadline);
-  font-weight: 500;
-  font-size: 14px;
 }
 
 .property-table {
@@ -28,7 +22,6 @@
   text-align: start;
   background-color: transparent;
   padding: 8px;
-  color: var(--colorHeadline);
   border-bottom: 2px solid var(--gridColorLine);
 
   top: 0;
@@ -43,7 +36,7 @@
 
 .property-name {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   width: 40%;
   color: var(--gridColorText);
 }
@@ -55,9 +48,6 @@
 .property-value input {
   width: 100%;
   padding: 4px;
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
   caret-color: var(--standartTextCaretColor);
 }
@@ -70,9 +60,6 @@
 .enum-select {
   width: 100%;
   padding: 4px;
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
   // border: 1px solid var(--standartTextBorder, #3a4452);
   // border-radius: 4px;

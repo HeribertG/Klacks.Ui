@@ -1,3 +1,4 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/settings-list-card-modal.scss";
@@ -21,12 +22,10 @@
 
 .token-list-hint {
   padding: 15px 0;
-  font-size: 13px;
-  color: var(--colorLabel);
 }
 
 .add-button {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: var(--standartGreenColor);
   cursor: pointer;
@@ -79,7 +78,6 @@
 .expiry-hint {
   display: block;
   margin-top: 5px;
-  color: var(--colorLabel);
 }
 
 .row-line-modal-inline {

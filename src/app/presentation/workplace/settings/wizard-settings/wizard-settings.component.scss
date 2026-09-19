@@ -1,3 +1,4 @@
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 
@@ -32,13 +33,8 @@ select {
   max-width: 280px;
 }
 
-.check-hint {
-  font-size: 0.85rem;
-  color: var(--colorInactive, #777);
-}
-
 .wizard-check-error {
-  font-size: 0.9rem;
+  font-size: var(--fontSizeBase);
 }
 
 .wizard-check-table-wrapper {
@@ -49,7 +45,6 @@ select {
 }
 
 .wizard-check-table {
-  font-size: 0.88rem;
   margin-bottom: 0;
 }
 
@@ -57,19 +52,19 @@ select {
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: var(--backgroundColorCard, #fff);
-  box-shadow: inset 0 -1px 0 var(--colorLine, #ddd);
+  background-color: var(--backgroundColorCard);
+  box-shadow: inset 0 -1px 0 var(--colorLine);
 }
 
 .wizard-check-id {
-  font-size: 0.78rem;
-  color: var(--colorInactive, #777);
+  font-size: var(--fontSizeSmall);
+  color: var(--colorInactive);
   font-family: monospace;
 }
 
 .wizard-check-error-detail {
-  font-size: 0.78rem;
-  color: var(--colorInactive, #777);
+  font-size: var(--fontSizeSmall);
+  color: var(--colorInactive);
   margin-top: 0.15rem;
   white-space: pre-wrap;
 }

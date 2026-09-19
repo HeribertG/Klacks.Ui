@@ -10,7 +10,7 @@
 }
 
 .row-value {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
   cursor: pointer;
   overflow: hidden;

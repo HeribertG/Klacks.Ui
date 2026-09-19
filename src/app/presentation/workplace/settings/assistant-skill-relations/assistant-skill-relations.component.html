@@ -40,7 +40,7 @@
   <div class="standard-tab-body">
     @if (activeTab() === 'relations') {
       <div class="relations-form">
-        <div class="intro-hint">
+        <div class="intro-hint settings-hint">
           {{ "setting.skillRelations.intro" | translate }}
         </div>
 
@@ -56,11 +56,11 @@
         </div>
 
         @if (isLoading()) {
-          <div class="loading-hint">
+          <div class="loading-hint settings-hint">
             {{ "setting.skillRelations.loading" | translate }}
           </div>
         } @else if (relations().length === 0) {
-          <div class="empty-hint">
+          <div class="empty-hint settings-hint">
             {{ "setting.skillRelations.empty" | translate }}
           </div>
         } @else {

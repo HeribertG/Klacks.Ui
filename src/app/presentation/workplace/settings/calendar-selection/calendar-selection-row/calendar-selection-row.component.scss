@@ -5,7 +5,7 @@
 
 .calendar-summary {
   min-width: 40px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
   cursor: default;
 }
@@ -15,7 +15,7 @@
   padding: 1px 8px;
   border: 1px solid var(--colorLabel);
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   color: var(--colorLabel);
   white-space: nowrap;
 }

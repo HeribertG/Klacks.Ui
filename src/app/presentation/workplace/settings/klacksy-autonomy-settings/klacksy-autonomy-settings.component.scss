@@ -8,7 +8,7 @@
 
 .saving-indicator {
   margin-inline-start: 12px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-weight: normal;
   color: var(--standartTextColor);
 }
@@ -19,8 +19,6 @@
   margin-block: 8px;
   margin-inline-start: 30px;
   padding-inline-end: 30px;
-  font-size: 13px;
-  color: var(--standartTextColor);
 }
 
 .level-list {
@@ -71,7 +69,7 @@
   background-color: rgba(colors.$standartGreenColor, 0.5);
   border: 1px solid var(--gridColorLine);
   border-radius: 50%;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
 }
 
 .level-text {
@@ -80,10 +78,10 @@
 }
 
 .level-label {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
 }
 
 .level-description {
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   opacity: 0.8;
 }

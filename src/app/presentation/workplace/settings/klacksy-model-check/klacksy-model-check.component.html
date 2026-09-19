@@ -5,7 +5,7 @@
   <div class="container-line"></div>
 
   <div class="settings-form">
-    <div class="intro">{{ "setting.klacksy-models.intro" | translate }}</div>
+    <div class="intro settings-hint">{{ "setting.klacksy-models.intro" | translate }}</div>
 
     <div class="model-check-row">
       <button
@@ -24,7 +24,7 @@
           {{ "setting.klacksy-models.run" | translate }}
         }
       </button>
-      <span class="model-check-hint">{{
+      <span class="settings-hint">{{
         "setting.klacksy-models.hint" | translate
       }}</span>
     </div>
@@ -38,17 +38,17 @@
         <table class="table table-sm model-check-table">
           <thead>
             <tr>
-              <th>{{ "setting.klacksy-models.col-model" | translate }}</th>
-              <th>{{ "setting.klacksy-models.col-provider" | translate }}</th>
-              <th>{{ "setting.klacksy-models.col-tool-calling" | translate }}</th>
-              <th class="text-end">
+              <th class="table-header-no-border">{{ "setting.klacksy-models.col-model" | translate }}</th>
+              <th class="table-header-no-border">{{ "setting.klacksy-models.col-provider" | translate }}</th>
+              <th class="table-header-no-border">{{ "setting.klacksy-models.col-tool-calling" | translate }}</th>
+              <th class="table-header-no-border text-end">
                 {{ "setting.klacksy-models.col-context" | translate }}
               </th>
-              <th class="text-end">
+              <th class="table-header-no-border text-end">
                 {{ "setting.klacksy-models.col-cost" | translate }}
               </th>
-              <th>{{ "setting.klacksy-models.col-state" | translate }}</th>
-              <th class="text-end">
+              <th class="table-header-no-border">{{ "setting.klacksy-models.col-state" | translate }}</th>
+              <th class="table-header-no-border text-end">
                 {{ "setting.klacksy-models.col-action" | translate }}
               </th>
             </tr>

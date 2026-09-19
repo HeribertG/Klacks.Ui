@@ -10,7 +10,7 @@
 
 .learned-capabilities-cell {
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
   cursor: pointer;
   overflow: hidden;
@@ -41,7 +41,7 @@
 
 .needs-first-use-badge {
   margin-inline-start: 6px;
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--colorLabel);

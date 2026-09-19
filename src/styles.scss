@@ -4,6 +4,7 @@
 // CodeMirror 6 styles are included in the component
 @use "bootstrap" as bootstrap;
 @use "assets/standard-styles/colors.scss" as colors;
+@use "assets/standard-styles/typography.scss";
 @use "assets/standard-styles/datepicker.scss";
 @use "assets/standard-styles/standard-controls.scss";
 @use "assets/standard-styles/standard-button.scss";
@@ -43,7 +44,7 @@ body {
   overflow-y: hidden;
   font-family: "Roboto", sans-serif;
   font-weight: normal;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 }
 
 @media screen and (max-width: 768px) {

@@ -3,7 +3,7 @@
 @use "../../../../../../../assets/standard-styles/settings-list-row.scss";
 
 span {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   margin-inline-end: 15px;
   overflow: hidden;
   text-overflow: ellipsis;

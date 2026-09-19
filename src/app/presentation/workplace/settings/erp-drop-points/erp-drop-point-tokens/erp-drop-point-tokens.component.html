@@ -5,11 +5,11 @@
     <app-erp-drop-point-token-header id="erp-drop-point-tokens-header" />
 
     @if (isLoading()) {
-      <div id="erp-drop-point-tokens-loading" class="token-list-hint">
+      <div id="erp-drop-point-tokens-loading" class="token-list-hint settings-hint">
         {{ 'settings.erp-drop-points.tokens.loading' | translate }}
       </div>
     } @else if (tokens().length === 0) {
-      <div id="erp-drop-point-tokens-empty" class="token-list-hint">
+      <div id="erp-drop-point-tokens-empty" class="token-list-hint settings-hint">
         {{ 'settings.erp-drop-points.tokens.empty' | translate }}
       </div>
     } @else {
@@ -99,7 +99,7 @@
             [formField]="tokenForm.expiresInDays"
             class="form-control"
           />
-          <small id="erp-drop-point-tokens-expires-hint" class="expiry-hint">
+          <small id="erp-drop-point-tokens-expires-hint" class="expiry-hint settings-hint">
             {{ 'settings.erp-drop-points.tokens.expires-in-days-hint' | translate }}
           </small>
         </div>

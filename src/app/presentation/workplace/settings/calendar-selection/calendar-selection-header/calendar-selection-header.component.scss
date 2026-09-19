@@ -1,3 +1,4 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/settings-list-row.scss";
@@ -15,9 +16,6 @@
 }
 
 label {
-  color: var(--colorWorkplaceHeadline);
-  font-weight: 500;
-  font-size: 13px;
   margin-bottom: 0;
   margin-inline-end: 15px;
 }

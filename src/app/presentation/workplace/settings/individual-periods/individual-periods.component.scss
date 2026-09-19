@@ -17,7 +17,7 @@
 }
 
 .add-button {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: colors.$standartGreenColor;
   cursor: pointer;

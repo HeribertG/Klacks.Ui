@@ -29,17 +29,10 @@ input {
   margin-inline-start: 30px;
   margin-top: 10px;
   margin-bottom: 5px;
-  color: var(--standartTextColor);
-  font-size: 12px;
 }
 
 .hint-column {
   display: flex;
   align-items: flex-end;
   padding-bottom: 6px;
-}
-
-.hint-text {
-  color: var(--standartTextColor);
-  font-size: 11px;
 }

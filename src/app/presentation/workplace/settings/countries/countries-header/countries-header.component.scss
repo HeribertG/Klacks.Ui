@@ -1,3 +1,6 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+
 .first {
   margin-inline-start: 30px;
   padding-inline-end: -30px;
@@ -5,9 +8,6 @@
 
 label {
   width: 100px;
-  font-weight: 500;
-  font-size: 13px;
-  color: var(--colorLabel);
 }
 
 .gap {

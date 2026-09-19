@@ -3,7 +3,7 @@
 .container-table {
   padding-top: 25px;
   padding-inline: 30px;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 600;
   color: var(--gridColorLine);
   background-color: transparent;
@@ -12,7 +12,7 @@
 .container-table-max {
   padding-top: 25px;
   padding-inline: 30px;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 600;
   color: var(--gridColorLine);
   background-color: transparent;
@@ -21,7 +21,7 @@
 .container-table-max-borderless {
   padding-top: 25px;
 
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 600;
   color: var(--gridColorLine);
   background-color: transparent;
@@ -30,7 +30,7 @@
 .container-table-borderless {
   padding-top: 25px;
 
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 600;
   color: var(--gridColorLine);
   background-color: transparent;
@@ -40,7 +40,7 @@
 .container-table-borderless-no-height {
   padding-top: 25px;
   padding-inline: 30px;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 600;
   color: var(--gridColorLine);
   background-color: transparent;
@@ -51,24 +51,27 @@
 }
 
 .table-header {
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 500;
-  color: var(--gridColorLine);
+  color: var(--colorLabel);
+  text-transform: uppercase;
   background-color: transparent;
   border-bottom: 1px solid var(--colorLine);
 }
 
 .table-header-border {
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 500;
-  color: var(--gridColorLine);
+  color: var(--colorLabel);
+  text-transform: uppercase;
   background-color: transparent;
   border: 1px solid var(--colorLine);
 }
 .table-header-no-border {
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 500;
-  color: var(--gridColorLine);
+  color: var(--colorLabel);
+  text-transform: uppercase;
   background-color: transparent;
   border-bottom: 1px solid transparent !important;
 }
@@ -80,7 +83,7 @@
 
 .table-header-cell-arrow {
   margin-top: -4px;
-  font-size: 18px;
+  font-size: var(--fontSizeTitle);
   font-weight: 700;
 }
 
@@ -101,7 +104,7 @@
 }
 
 .table-cell {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorText);
   background-color: transparent;
@@ -113,14 +116,14 @@ t .table-cell-top {
 }
 
 .table-cell-no-border {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorText);
   border-bottom: 1px solid transparent !important;
 }
 
 .table-cell-small-border {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorText);
   border-bottom: 0.5px solid var(--colorLine);
@@ -128,7 +131,7 @@ t .table-cell-top {
 }
 
 .table-cell-small-border-with-bottom {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorText);
   border-bottom: 1px solid var(--colorLine);
@@ -136,35 +139,35 @@ t .table-cell-top {
 }
 
 .table-cell-empty {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorText);
 }
 
 .table-cell-Info {
   background-color: var(--gridBackgroundColorInfo);
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 600;
   color: var(--gridColorText);
   border-bottom: 1px solid var(--colorLine);
 }
 
 .table-cell-updated {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 600;
   color: var(--gridColorTextUpdate);
   border-bottom: 1px solid var(--colorLine);
 }
 
 .table-cell-del {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorTextDelete);
   border-bottom: 1px solid var(--colorLine);
 }
 
 .table-cell-delete {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--gridColorTextDelete);
   border-bottom: 1px solid var(--colorLine);

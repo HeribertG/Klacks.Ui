@@ -2,29 +2,12 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 .year-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-left: 30px;
-  padding-right: 30px;
-}
-
-.year-button {
-  padding: 0 8px;
-  line-height: 1.2;
-}
-
-.year-label {
-  min-width: 48px;
-  text-align: center;
-  font-weight: 600;
-}
-
-.info-text {
-  font-size: 11px;
-  opacity: 0.75;
   padding-left: 30px;
   padding-right: 30px;
 }

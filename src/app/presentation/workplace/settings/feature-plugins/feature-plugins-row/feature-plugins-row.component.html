@@ -1,9 +1,9 @@
 <div [id]="'feature-plugins-row-container-' + data().name" class="first custom-control-inline">
-  <span class="col-name">{{ data().displayName }}</span>
-  <span class="col-category">{{ data().category }}</span>
-  <span class="col-version">{{ data().version }}</span>
-  <span class="col-author">{{ data().author }}</span>
-  <span class="col-status">
+  <span class="col-name table-cell-no-border">{{ data().displayName }}</span>
+  <span class="col-category table-cell-no-border">{{ data().category }}</span>
+  <span class="col-version table-cell-no-border">{{ data().version }}</span>
+  <span class="col-author table-cell-no-border">{{ data().author }}</span>
+  <span class="col-status table-cell-no-border">
     <span class="status-badge" [class]="getStatusClass()">
       {{ getStatusKey() | translate }}
     </span>

@@ -1,3 +1,4 @@
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../assets/standard-styles/standard-controls.scss";
@@ -25,9 +26,7 @@
 
   label {
     display: block;
-    font-weight: 500;
     margin-bottom: 5px;
-    color: var(--colorWorkplaceHeadline);
   }
 }
 
@@ -55,8 +54,6 @@
 .field-hint {
   display: block;
   margin-top: 4px;
-  font-size: 12px;
-  color: var(--colorLabel);
 }
 
 .manual-tab-body {

@@ -1,3 +1,4 @@
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "sass:color";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
@@ -8,7 +9,7 @@
 
 .add-button {
   padding-inline-end: 50px;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: colors.$standartGreenColor;
   cursor: pointer;
@@ -59,9 +60,6 @@
 
 label {
   width: 100px;
-  font-weight: 500;
-  font-size: 13px;
-  color: var(--colorLabel);
 }
 
 .delete-button {
@@ -71,7 +69,7 @@ label {
 }
 
 .link-button {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
 }
 
@@ -79,13 +77,6 @@ label {
   margin-top: 10px;
   padding-inline-end: 30px;
   color: var(--standartRedColor);
-}
-
-.red-font-disabled {
-  margin-top: 10px;
-  padding-inline-end: 30px;
-  color: #b6b6c3;
-  pointer-events: none;
 }
 
 .manual-tab-body {

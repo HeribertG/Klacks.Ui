@@ -19,7 +19,7 @@
       <span
         aria-hidden="true"
         style="
-          font-size: 13px;
+          font-size: var(--fontSizeLabel);
           border: 1px transparent solid;
           color: var(--colorWorkplaceHeadline);
         "
@@ -28,7 +28,7 @@
     </div>
   </div>
   <div id="holiday-work-exemption-modal-body" class="modal-body">
-    <div id="holiday-work-exemption-modal-intro" class="exemption-intro">
+    <div id="holiday-work-exemption-modal-intro" class="exemption-intro settings-hint">
       {{ 'setting.holidayWorkExemption.intro' | translate }}
     </div>
 
@@ -62,7 +62,7 @@
             <option [value]="rule.id">{{ rule.name }}</option>
           }
         </select>
-        <div id="holiday-work-exemption-modal-scope-hint" class="exemption-hint">
+        <div id="holiday-work-exemption-modal-scope-hint" class="exemption-hint settings-hint">
           {{ 'setting.holidayWorkExemption.scope-hint' | translate }}
         </div>
       </div>
@@ -114,7 +114,7 @@
         (isDeleteEvent)="openDeleteExemption(i)"
       />
     } @empty {
-      <div id="holiday-work-exemptions-empty" class="exemption-empty">
+      <div id="holiday-work-exemptions-empty" class="exemption-empty settings-hint">
         {{ 'setting.holidayWorkExemption.empty' | translate }}
       </div>
     }

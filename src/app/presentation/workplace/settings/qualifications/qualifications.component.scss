@@ -1,3 +1,4 @@
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 @use '../../../../../assets/standard-styles/standard-card-interior.scss';
 @use '../../../../../assets/standard-styles/standard-controls.scss';
 @use '../../../../../assets/standard-styles/standard-modal.scss';
@@ -22,13 +23,6 @@
 .emoji-trigger-display {
   font-size: 1.6rem;
   line-height: 1;
-}
-
-.emoji-trigger-hint {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--colorLabel);
-  font-family: inherit;
 }
 
 .emoji-picker-inline {
@@ -65,7 +59,7 @@
   width: 34px;
   height: 32px;
   padding: 0;
-  font-size: 1.1rem;
+  font-size: var(--fontSizeTitle);
   border: 1px solid var(--cardBorderColor, var(--colorLine));
   border-radius: 6px;
   background: transparent;
@@ -151,7 +145,7 @@
   }
 
   span {
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     line-height: 1.4;
   }
 }

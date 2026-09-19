@@ -40,7 +40,7 @@ select {
 
 .send-to {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   text-decoration: underline;
   color: colors.$standartBlueColor;
   cursor: pointer;

@@ -1,6 +1,7 @@
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 
 .row-line-single {
   margin-top: 5px;
@@ -59,7 +60,6 @@
 }
 
 .migration-header-row {
-  font-weight: 600;
   opacity: 0.85;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .migration-suggested {
-  font-size: 0.85em;
+  font-size: var(--fontSizeSmall);
   opacity: 0.75;
 }
 

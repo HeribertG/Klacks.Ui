@@ -22,7 +22,7 @@
       >
         <span
           aria-hidden="true"
-          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+          style="font-size: var(--fontSizeLabel); border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
         >&times;</span>
       </div>
     </div>
@@ -131,7 +131,7 @@
               (click)="toggleEmojiPicker()"
             >
               <span class="emoji-trigger-display">{{ selectedEmoji() || '❓' }}</span>
-              <span class="emoji-trigger-hint">{{ 'setting.qualifications.modal.emoji-hint' | translate }}</span>
+              <span class="settings-hint">{{ 'setting.qualifications.modal.emoji-hint' | translate }}</span>
             </button>
           </div>
 

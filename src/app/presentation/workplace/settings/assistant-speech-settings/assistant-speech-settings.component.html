@@ -175,7 +175,7 @@
               {{ 'setting.speech.model-check.run' | translate }}
             }
           </button>
-          <span class="model-check-hint">{{ 'setting.speech.model-check.hint' | translate }}</span>
+          <span class="model-check-hint settings-hint">{{ 'setting.speech.model-check.hint' | translate }}</span>
         </div>
         @if (modelCheckError(); as err) {
           <div class="alert alert-danger model-check-error">{{ err }}</div>
@@ -188,13 +188,13 @@
         <table class="table table-sm model-check-table">
           <thead>
             <tr>
-              <th>{{ 'setting.speech.model-check.col-model' | translate }}</th>
-              <th>{{ 'setting.speech.model-check.col-provider' | translate }}</th>
-              <th>{{ 'setting.speech.model-check.col-status' | translate }}</th>
-              <th class="text-end">{{ 'setting.speech.model-check.col-context' | translate }}</th>
-              <th class="text-end">{{ 'setting.speech.model-check.col-cost' | translate }}</th>
-              <th class="text-end">{{ 'setting.speech.model-check.col-latency' | translate }}</th>
-              <th class="text-end">{{ 'setting.speech.model-check.col-action' | translate }}</th>
+              <th class="table-header-no-border">{{ 'setting.speech.model-check.col-model' | translate }}</th>
+              <th class="table-header-no-border">{{ 'setting.speech.model-check.col-provider' | translate }}</th>
+              <th class="table-header-no-border">{{ 'setting.speech.model-check.col-status' | translate }}</th>
+              <th class="table-header-no-border text-end">{{ 'setting.speech.model-check.col-context' | translate }}</th>
+              <th class="table-header-no-border text-end">{{ 'setting.speech.model-check.col-cost' | translate }}</th>
+              <th class="table-header-no-border text-end">{{ 'setting.speech.model-check.col-latency' | translate }}</th>
+              <th class="table-header-no-border text-end">{{ 'setting.speech.model-check.col-action' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -274,7 +274,7 @@
           }
         </select>
         @if (outputMode === 'audio') {
-          <div class="prompt-hint">
+          <div class="prompt-hint settings-hint">
             {{ 'klacksy.voice.audio-mode.help' | translate }}
           </div>
         }
@@ -292,7 +292,7 @@
             (valueChange)="onSettingChanged()"
           ></ngx-slider>
         </div>
-        <div class="prompt-hint">
+        <div class="prompt-hint settings-hint">
           {{ "setting.speech.silence-threshold-hint" | translate }}
         </div>
       </div>
@@ -320,7 +320,7 @@
           {{ "setting.speech.barge-in-enabled" | translate }}
         </label>
         @if (bargeInEnabled) {
-          <div class="prompt-hint">
+          <div class="prompt-hint settings-hint">
             {{ "setting.speech.barge-in-hint" | translate }}
           </div>
         }
@@ -339,7 +339,7 @@
         (ngModelChange)="onSettingChanged()"
         rows="6"
       ></textarea>
-      <div class="prompt-hint">
+      <div class="prompt-hint settings-hint">
         {{ "setting.speech.prompt-hint" | translate }}
       </div>
       <button

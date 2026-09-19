@@ -1,0 +1,15 @@
+// Zentrale Schriftgroessen-Skala fuer die gesamte App.
+// Werte entsprechen den bisherigen Standard-Styles:
+// 23px container-headline, 18px grid-icons, 16px card-header, 14px inputs/table-header,
+// 13px labels/cells/buttons, 12px sublines, 11px/10px/9px badges, hints, counter.
+:root {
+  --fontSizeHeadline: 23px;
+  --fontSizeTitle: 18px;
+  --fontSizeCardHeader: 16px;
+  --fontSizeBase: 14px;
+  --fontSizeLabel: 13px;
+  --fontSizeSmall: 12px;
+  --fontSizeXSmall: 11px;
+  --fontSizeTiny: 10px;
+  --fontSizeMicro: 9px;
+}

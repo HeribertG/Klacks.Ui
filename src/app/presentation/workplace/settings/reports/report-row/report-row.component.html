@@ -20,7 +20,7 @@
       <span
         aria-hidden="true"
         style="
-          font-size: 13px;
+          font-size: var(--fontSizeLabel);
           border: 1px transparent solid;
           color: var(--colorWorkplaceHeadline);
         "
@@ -409,7 +409,7 @@
                     </button>
                   </div>
                 } @empty {
-                  <div class="history-empty">
+                  <div class="history-empty settings-hint">
                     {{ "setting.report.noVersions" | translate }}
                   </div>
                 }
@@ -434,7 +434,7 @@
 
   <div class="modal-footer">
     @if (showDiscardConfirm()) {
-      <span class="discard-question">{{
+      <span class="discard-question settings-hint">{{
         "setting.report.discardQuestion" | translate
       }}</span>
       <button type="button" class="btn btn-outline-danger" (click)="discardChanges()">

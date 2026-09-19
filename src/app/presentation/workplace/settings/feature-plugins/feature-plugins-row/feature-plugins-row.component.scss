@@ -1,3 +1,4 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/colors.scss" as colors;
@@ -20,8 +21,6 @@
 }
 
 span {
-  font-size: 13px;
-  color: var(--colorLabel);
   margin-inline-end: 15px;
 }
 
@@ -64,7 +63,7 @@ span {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   font-weight: 500;
 }
 
@@ -86,7 +85,7 @@ span {
 .action-btn {
   padding: 2px 12px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   border: 1px solid;
   cursor: pointer;
   background: transparent;

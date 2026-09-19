@@ -1,6 +1,6 @@
 select {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
 }
@@ -18,7 +18,7 @@ select:disabled {
 
 input {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
   caret-color: var(--standartTextCaretColor);
@@ -44,7 +44,7 @@ input:disabled {
 
 textarea {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
   caret-color: var(--standartTextCaretColor);
@@ -64,19 +64,19 @@ textarea:read-only {
 
 label {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
 }
 
 em {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
 }
 
 option {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorOption);
   background-color: var(--backgroundOption);
 }
@@ -93,7 +93,7 @@ option {
 
 :host ::ng-deep ngb-datepicker {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
 }
 
 button {
@@ -108,7 +108,7 @@ span[type="button"] {
 
 .btn-selector {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
   border: 1px solid var(--standartBorderColor, #ced4da);
@@ -150,7 +150,7 @@ span[type="button"] {
 /* Dropdown menu styling */
 .selector-dropdown-menu {
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
   border: 1px solid var(--standartBorderColor, #ced4da);
@@ -160,7 +160,7 @@ span[type="button"] {
 
   .dropdown-item {
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--fontSizeBase);
     color: var(--standartTextColor);
     padding: 8px 16px;
 
@@ -179,7 +179,7 @@ span[type="button"] {
 /* Selection label styling */
 .selection-label {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
   margin-bottom: 4px;
   display: block;
@@ -206,7 +206,7 @@ span[type="button"] {
 .text-muted {
   margin: 12px 0 8px;
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-style: italic;
   color: var(--colorLabel) !important;
 }

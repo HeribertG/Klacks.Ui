@@ -1,3 +1,4 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 
 .row-line-single {
@@ -20,8 +21,6 @@
   margin-inline-start: 30px;
   margin-top: 10px;
   margin-bottom: 5px;
-  color: var(--standartTextColor);
-  font-size: 12px;
 }
 
 .checkbox-label input[disabled] {

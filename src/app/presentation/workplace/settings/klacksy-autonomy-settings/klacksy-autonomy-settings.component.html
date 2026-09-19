@@ -8,9 +8,9 @@
   <div class="container-line"></div>
 
   @if (isLoading()) {
-    <div class="loading-hint">{{ "setting.autonomy.loading" | translate }}</div>
+    <div class="loading-hint settings-hint">{{ "setting.autonomy.loading" | translate }}</div>
   } @else {
-    <p class="autonomy-intro">{{ "setting.autonomy.intro" | translate }}</p>
+    <p class="autonomy-intro settings-hint">{{ "setting.autonomy.intro" | translate }}</p>
     <div class="level-list">
       @for (level of levels; track level.value) {
         <button
@@ -29,6 +29,6 @@
         </button>
       }
     </div>
-    <p class="autonomy-note">{{ "setting.autonomy.sensitive-note" | translate }}</p>
+    <p class="autonomy-note settings-hint">{{ "setting.autonomy.sensitive-note" | translate }}</p>
   }
 </div>

@@ -5,7 +5,7 @@
   <div id="export-format-overrides-setting-line" class="container-line"></div>
 
   <div id="export-format-overrides-setting-body" class="card-body-scroll">
-    <div class="info-text">
+    <div class="info-text settings-hint">
       {{ "setting.export-format-overrides.description" | translate }}
     </div>
 
@@ -32,13 +32,13 @@
       </div>
 
       @if (selectedFormat()) {
-        <div id="export-format-overrides-allowed-keys" class="info-text">
+        <div id="export-format-overrides-allowed-keys" class="info-text settings-hint">
           {{ "setting.export-format-overrides.allowed-keys" | translate }}
           <span class="allowed-keys">{{ allowedKeysText() }}</span>
         </div>
 
         @if (versionWarning(); as warning) {
-          <div id="export-format-overrides-version-warning" class="info-text version-warning">
+          <div id="export-format-overrides-version-warning" class="info-text settings-hint version-warning">
             {{
               "setting.export-format-overrides.version-warning"
                 | translate: { created: warning.created, current: warning.current }
@@ -94,7 +94,7 @@
   @if (data() && selectedFormat()) {
     <div id="export-format-overrides-setting-footer" class="card-footer">
       @if (actionMessage()) {
-        <div id="export-format-overrides-action-message" class="action-message">
+        <div id="export-format-overrides-action-message" class="action-message settings-hint">
           {{ actionMessage() }}
         </div>
       }

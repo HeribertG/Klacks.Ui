@@ -20,6 +20,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
@@ -36,6 +37,7 @@ import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
     TranslateModule,
     SpinnerModule,
     SettingsListCardComponent,
+    CounterComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -51,6 +53,7 @@ export class MonthlyTargetHoursComponent implements OnInit {
   );
 
   public year = signal(companyToday().getFullYear());
+  public readonly maxYear = MONTHLY_TARGET_HOURS.maxYear;
   public isDataLoaded = signal(false);
 
   private isReadEffect = effect(() => {
@@ -82,13 +85,8 @@ export class MonthlyTargetHoursComponent implements OnInit {
     return this.dataManagementMonthlyTargetHoursService.rowsOfYear(this.year()).length;
   }
 
-  previousYear(): void {
-    this.year.update(current => Math.max(MONTHLY_TARGET_HOURS.minYear, current - 1));
-    this.cdr.markForCheck();
-  }
-
-  nextYear(): void {
-    this.year.update(current => Math.min(MONTHLY_TARGET_HOURS.maxYear, current + 1));
+  setYear(value: number): void {
+    this.year.set(Math.min(MONTHLY_TARGET_HOURS.maxYear, Math.max(MONTHLY_TARGET_HOURS.minYear, value)));
     this.cdr.markForCheck();
   }
 

@@ -10,7 +10,7 @@
 
 .unfulfillable-wishes-cell {
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   color: var(--colorLabel);
   cursor: pointer;
   overflow: hidden;
@@ -45,5 +45,5 @@
 .retry-button {
   color: var(--standartGreenColor);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
 }

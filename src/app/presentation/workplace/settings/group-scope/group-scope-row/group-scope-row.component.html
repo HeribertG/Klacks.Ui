@@ -17,7 +17,7 @@
       <span
         aria-hidden="true"
         style="
-          font-size: 13px;
+          font-size: var(--fontSizeLabel);
           border: 1px transparent solid;
           color: var(--colorWorkplaceHeadline);
         "
@@ -39,7 +39,7 @@
         <label [id]="'group-scope-modal-group-label-' + group.id" class="form-check-label" for="group-{{ group.id }}">
           {{ group.name }}
           @if (group.description) {
-          <span class="text-muted"> - {{ group.description }}</span>
+          <span class="settings-hint"> - {{ group.description }}</span>
           }
         </label>
       </div>

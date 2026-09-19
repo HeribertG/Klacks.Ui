@@ -109,7 +109,7 @@
       </div>
     </div>
 
-    <div id="erp-drop-points-status-line" class="first status-line">
+    <div id="erp-drop-points-status-line" class="first status-line settings-hint">
       <span id="erp-drop-points-status-last-polled">
         {{ 'settings.erp-drop-points.last-polled-at' | translate }}:
         @if (dropPoint.lastPolledAt) {
@@ -152,7 +152,7 @@
       (click)="onDropZoneClick()"
       (fileDropped)="onDropZoneFiles($event)"
     >
-      <span class="ddinfo">{{ 'settings.erp-drop-points.upload-zone.info' | translate }}</span>
+      <span class="ddinfo settings-hint">{{ 'settings.erp-drop-points.upload-zone.info' | translate }}</span>
     </div>
   </div>
 </app-expandable-card>
@@ -290,7 +290,7 @@
   [headerTitle]="'settings.erp-drop-points.tokens.section-title' | translate"
   [initiallyExpanded]="false"
 >
-  <div id="erp-drop-points-tokens-section-info" class="first token-section-info">
+  <div id="erp-drop-points-tokens-section-info" class="first token-section-info settings-hint">
     {{ 'settings.erp-drop-points.tokens.section-info' | translate }}
   </div>
   @if (dropPointService.defaultDropPoint(); as dropPoint) {

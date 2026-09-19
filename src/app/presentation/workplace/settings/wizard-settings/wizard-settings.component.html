@@ -37,7 +37,7 @@
             {{ 'setting.holisticHarmonizer.check.run' | translate }}
           }
         </button>
-        <span class="check-hint">{{ 'setting.holisticHarmonizer.check.hint' | translate }}</span>
+        <span class="settings-hint">{{ 'setting.holisticHarmonizer.check.hint' | translate }}</span>
       </div>
 
       @if (checkError(); as err) {
@@ -50,11 +50,11 @@
         <table class="table table-sm wizard-check-table">
           <thead>
             <tr>
-              <th>{{ 'setting.holisticHarmonizer.check.col-model' | translate }}</th>
-              <th>{{ 'setting.holisticHarmonizer.check.col-provider' | translate }}</th>
-              <th>{{ 'setting.holisticHarmonizer.check.col-status' | translate }}</th>
-              <th class="text-end">{{ 'setting.holisticHarmonizer.check.col-latency' | translate }}</th>
-              <th class="text-end">{{ 'setting.holisticHarmonizer.check.col-action' | translate }}</th>
+              <th class="table-header-no-border">{{ 'setting.holisticHarmonizer.check.col-model' | translate }}</th>
+              <th class="table-header-no-border">{{ 'setting.holisticHarmonizer.check.col-provider' | translate }}</th>
+              <th class="table-header-no-border">{{ 'setting.holisticHarmonizer.check.col-status' | translate }}</th>
+              <th class="table-header-no-border text-end">{{ 'setting.holisticHarmonizer.check.col-latency' | translate }}</th>
+              <th class="table-header-no-border text-end">{{ 'setting.holisticHarmonizer.check.col-action' | translate }}</th>
             </tr>
           </thead>
           <tbody>
