@@ -9,6 +9,7 @@ import { DataManagementClientAvailabilityService } from 'src/app/domain/services
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
 import { ClientAvailabilitySurfaceComponent } from '../client-availability-surface/client-availability-surface.component';
+import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
 
 const REPEAT_DELAY_MS = 100;
@@ -47,7 +48,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || isMacContextClick(event)) return;
 
     const cell = this.getCellFromEvent(event);
     if (!cell) return;
@@ -71,6 +72,12 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
 
     this.applyCellValue(cell.row, cell.col, this.dragValue);
     this.drawGrid.drawGrid();
+  }
+
+  @HostListener('contextmenu', ['$event'])
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    this.endDrag();
   }
 
   @HostListener('mousemove', ['$event'])

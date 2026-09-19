@@ -10,6 +10,7 @@
 import { inject, Injectable, OutputEmitterRef } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
 import { TimeRangeService } from './time-range.service';
 import { TimeRulerDragDropService, DragUpdateResult } from './time-ruler-drag-drop.service';
@@ -17,6 +18,8 @@ import { TimeRulerRenderService } from './time-ruler-render.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { IShiftContextMenuEvent } from '../time-ruler.component';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
+
+const PRIMARY_BUTTON = 0;
 
 interface CanvasLogicalCoordinates {
   x: number;
@@ -63,6 +66,8 @@ export class TimeRulerInteractionService {
     blockSelectionService: TimeRulerBlockSelectionService,
     allShifts: IContainerTemplateItem[]
   ): void {
+    if (isMacContextClick(event)) return;
+
     if (this._suppressNextClick) {
       this._suppressNextClick = false;
       return;
@@ -95,6 +100,7 @@ export class TimeRulerInteractionService {
     shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
     shiftRightClick: OutputEmitterRef<IShiftContextMenuEvent>
   ): void {
+    this.resetPointerInteractionState();
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 
     for (const [item, shiftRect] of shiftRectangles) {
@@ -117,6 +123,8 @@ export class TimeRulerInteractionService {
     allShifts: IContainerTemplateItem[],
     blockSelectionService: TimeRulerBlockSelectionService
   ): void {
+    if (event.button !== PRIMARY_BUTTON || isMacContextClick(event)) return;
+
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 
     for (const [item, shiftRect] of shiftRectangles) {
@@ -171,6 +179,12 @@ export class TimeRulerInteractionService {
     }
 
     return false;
+  }
+
+  private resetPointerInteractionState(): void {
+    this._isPaintSelecting = false;
+    this._suppressNextClick = false;
+    this.dragDropService.cancelDrag();
   }
 
   endPaintSelect(): void {

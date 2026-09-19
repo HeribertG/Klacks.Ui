@@ -226,6 +226,10 @@ export class AbsenceGanttSurfaceComponent
     this.dragDropService.onMouseUp(event);
   }
 
+  cancelDrag(): void {
+    this.dragDropService.cancelDrag();
+  }
+
   onMouseMove(event: MouseEvent): void {
     this.dragDropService.onMouseMove(event);
   }

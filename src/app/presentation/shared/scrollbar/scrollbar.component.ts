@@ -31,6 +31,7 @@ import {
 } from './scrollbar.service';
 import { CheckContext } from 'src/app/domain/services/check-context.decorator';
 import { SCROLLBAR_CONSTANTS } from './constants';
+import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import {
   Subject,
   debounceTime,
@@ -153,6 +154,7 @@ export class ScrollbarComponent
   private readonly CROSS_AXIS_POSITION_OFFSET = 1;
   private readonly FPS_THROTTLE = 16;
   private readonly MOUSE_PRIMARY_BUTTON = 1;
+  private readonly PRIMARY_BUTTON_INDEX = 0;
 
   private destroy$ = new Subject<void>();
 
@@ -493,8 +495,13 @@ export class ScrollbarComponent
   }
 
   private onMouseDown(event: MouseEvent): void {
+    if (!this.isPrimaryClick(event)) return;
     this.updateMouseState(event);
     this.handleNonThumbClick(event);
+  }
+
+  private isPrimaryClick(event: MouseEvent): boolean {
+    return event.button === this.PRIMARY_BUTTON_INDEX && !isMacContextClick(event);
   }
 
   private updateMouseState(event: MouseEvent): void {
@@ -553,6 +560,7 @@ export class ScrollbarComponent
   }
 
   private onPointerDown(event: PointerEvent): void {
+    if (!this.isPrimaryClick(event)) return;
     this.mousePointThumb = this.isMouseOverThumb(event);
     if (this.mousePointThumb && event.buttons === this.MOUSE_PRIMARY_BUTTON) {
       const thumbPosition = this.thumbPositionForValue(this.value);
@@ -616,6 +624,7 @@ export class ScrollbarComponent
   }
 
   onArrowThumbMouseDown(event: MouseEvent, direction: number) {
+    if (!this.isPrimaryClick(event)) return;
     const newValue = this.value + direction;
     this.animationService.startArrowHoldAnimation(direction, newValue);
     event.preventDefault();

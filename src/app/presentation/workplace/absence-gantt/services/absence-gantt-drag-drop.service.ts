@@ -86,6 +86,13 @@ export class AbsenceGanttDragDropService {
     }
   }
 
+  cancelDrag(): void {
+    this.currentCursor = CursorEnum.default;
+    this.mouseToBarAlpha = undefined;
+    this.originalBreakPosition = undefined;
+    this.dragStartMouseX = undefined;
+  }
+
   onMouseUp(event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
