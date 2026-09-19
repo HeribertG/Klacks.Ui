@@ -45,6 +45,34 @@ export function openBlobInNewTab(blob: Blob, fallbackFileName: string): void {
   }
 }
 
+export interface PendingBlobTab {
+  show(blob: Blob, fallbackFileName: string): void;
+  cancel(): void;
+}
+
+/**
+ * Opens an empty tab synchronously inside the user's click so that the popup blocker
+ * lets it through, and fills it with the blob once the (slow, async) generation is done.
+ * Falls back to a download when the tab could not be opened.
+ *
+ * @returns Handle to fill the tab with a blob or to close it again on failure
+ */
+export function openPendingBlobTab(): PendingBlobTab {
+  const tab = window.open('', '_blank');
+  return {
+    show(blob: Blob, fallbackFileName: string): void {
+      if (!tab || tab.closed) {
+        triggerBlobDownload(blob, fallbackFileName);
+        return;
+      }
+      tab.location.href = window.URL.createObjectURL(blob);
+    },
+    cancel(): void {
+      tab?.close();
+    },
+  };
+}
+
 /**
  * Extracts the file name from a content-disposition header value.
  *

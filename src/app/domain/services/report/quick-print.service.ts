@@ -18,6 +18,9 @@ import { ReportService } from './report.service';
 import { AbsenceLookupService } from '../schedule/absence-lookup.service';
 import { ReportDefaultsService } from './report-defaults.service';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { openPendingBlobTab, PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+
+const FALLBACK_FILE_NAME = 'report.pdf';
 
 export enum QuickPrintOutcome {
   Success = 'success',
@@ -50,6 +53,19 @@ export class QuickPrintService {
   }
 
   async print(request: QuickPrintRequest): Promise<QuickPrintOutcome> {
+    const pendingTab = openPendingBlobTab();
+    let outcome = QuickPrintOutcome.Failed;
+    try {
+      outcome = await this.printInto(request, pendingTab);
+    } finally {
+      if (outcome !== QuickPrintOutcome.Success) {
+        pendingTab.cancel();
+      }
+    }
+    return outcome;
+  }
+
+  private async printInto(request: QuickPrintRequest, pendingTab: PendingBlobTab): Promise<QuickPrintOutcome> {
     await this.ensureDefaultsLoaded();
     const templateId = this.reportDefaults.getDefaultTemplateId(request.sourceId);
     if (!templateId) {
@@ -74,7 +90,6 @@ export class QuickPrintService {
     try {
       const dataProviderService = childInjector.get(ReportDataProviderService);
       const pdfService = childInjector.get(ReportPdfService);
-      const reportService = childInjector.get(ReportService);
 
       const dataSetIds = template.dataSetIds?.length ? template.dataSetIds : request.fallbackDataSetIds;
       const provider = dataProviderService.getProvider(request.sourceId, dataSetIds);
@@ -90,7 +105,7 @@ export class QuickPrintService {
       };
 
       const blob = await pdfService.generatePdf(context);
-      reportService.openPdfPreview(blob);
+      pendingTab.show(blob, FALLBACK_FILE_NAME);
       return QuickPrintOutcome.Success;
     } catch {
       return QuickPrintOutcome.Failed;

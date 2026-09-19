@@ -8,7 +8,12 @@
  */
 
 import { Injectable } from '@angular/core';
-import { openBlobInNewTab, triggerBlobDownload } from 'src/app/shared/helpers/file-download.helper';
+import {
+  openBlobInNewTab,
+  openPendingBlobTab,
+  PendingBlobTab,
+  triggerBlobDownload,
+} from 'src/app/shared/helpers/file-download.helper';
 
 const FALLBACK_FILE_NAME = 'report.pdf';
 
@@ -38,6 +43,10 @@ export class ReportService {
     if (url) {
       window.URL.revokeObjectURL(url);
     }
+  }
+
+  openPendingPdfTab(): PendingBlobTab {
+    return openPendingBlobTab();
   }
 
   openPdfPreview(blob: Blob, fileName: string = FALLBACK_FILE_NAME): void {

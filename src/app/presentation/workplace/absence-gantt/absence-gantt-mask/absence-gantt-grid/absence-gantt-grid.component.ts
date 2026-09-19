@@ -34,6 +34,7 @@ import { DataManagementReportService } from 'src/app/domain/services/report/data
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportDataProviderService, ReportData } from 'src/app/domain/services/report/report-data-provider.service';
 import { ReportService } from 'src/app/domain/services/report/report.service';
+import { PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { ReportType } from 'src/app/domain/models/report/report-template.model';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
@@ -240,6 +241,17 @@ export class AbsenceGanttGridComponent
       return;
     }
 
+    const pendingTab = this.reportService.openPendingPdfTab();
+    try {
+      await this.openAbsenceReport(this.selectedRowData, pendingTab);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
+    this.exportPDF.emit();
+  }
+
+  private async openAbsenceReport(selectedRows: IBreakPlaceholder[], pendingTab: PendingBlobTab): Promise<void> {
     await this.absenceLookup.loadIfNeeded();
 
     const clientName = this.getClientName();
@@ -261,7 +273,7 @@ export class AbsenceGanttGridComponent
       template.dataSetIds ?? [ABSENCE_DATA_SET_ID]
     );
 
-    const rows = this.selectedRowData.map(bp => ({
+    const rows = selectedRows.map(bp => ({
       ...bp,
       clientId: client?.id,
       clientName: client?.name ?? '',
@@ -285,9 +297,7 @@ export class AbsenceGanttGridComponent
 
     const blob = await this.reportPdfService.generatePdf(context);
     const fileName = `absence-report-${clientName}-${new Date().getTime()}.pdf`;
-    this.reportService.openPdfPreview(blob, fileName);
-
-    this.exportPDF.emit();
+    pendingTab.show(blob, fileName);
   }
 
   private toReportClient(client: IClientBreak): Record<string, unknown> {

@@ -10,6 +10,9 @@ import { ReportPdfService, ReportGenerationContext } from './report-pdf.service'
 import { ReportService } from './report.service';
 import { AbsenceLookupService } from '../schedule/absence-lookup.service';
 import { ReportDefaultsService } from './report-defaults.service';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+
+const FALLBACK_FILE_NAME = 'report.pdf';
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleReportContextService {
@@ -22,18 +25,22 @@ export class ScheduleReportContextService {
     const templateId = this.reportDefaults.getDefaultTemplateId('schedule');
     if (!templateId) return;
 
-    const template = await this.reportApi.getTemplateById(templateId);
-    if (!template) return;
-
-    const childInjector = createEnvironmentInjector(
-      [ReportDataProviderService, ReportPdfService, ReportService, AbsenceLookupService],
-      this.parentInjector,
-    );
-
+    const pendingTab = openPendingBlobTab();
+    let childInjector: EnvironmentInjector | undefined;
     try {
+      const template = await this.reportApi.getTemplateById(templateId);
+      if (!template) {
+        pendingTab.cancel();
+        return;
+      }
+
+      childInjector = createEnvironmentInjector(
+        [ReportDataProviderService, ReportPdfService, ReportService, AbsenceLookupService],
+        this.parentInjector,
+      );
+
       const dataProviderService = childInjector.get(ReportDataProviderService);
       const pdfService = childInjector.get(ReportPdfService);
-      const reportService = childInjector.get(ReportService);
 
       const provider = dataProviderService.getProvider('schedule', template.dataSetIds ?? ['work']);
       const data = await provider.fetchData({ startDate, endDate, clientId });
@@ -48,9 +55,12 @@ export class ScheduleReportContextService {
       };
 
       const blob = await pdfService.generatePdf(context);
-      reportService.openPdfPreview(blob);
+      pendingTab.show(blob, FALLBACK_FILE_NAME);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
     } finally {
-      childInjector.destroy();
+      childInjector?.destroy();
     }
   }
 
