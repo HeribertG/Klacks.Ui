@@ -6,7 +6,9 @@ import { ISetting, Setting } from 'src/app/domain/models/settings/settings-vario
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
+import { DEFAULT_GRID_FONT_STACK } from 'src/app/domain/constants/grid-font.constants';
 import { PixelToPtService } from './pixel-to-pt.service';
+import { ensureFontFallback } from './ensure-font-fallback';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -25,7 +27,7 @@ export class GridFontsService {
 
   private _zoom = 1;
   private weight = '350 ';
-  private fontName = 'system-ui';
+  private fontName = DEFAULT_GRID_FONT_STACK;
   private point = 'pt ';
 
   private headerFontPoint = 11;
@@ -278,7 +280,7 @@ export class GridFontsService {
   private setSetting(value: ISetting) {
     switch (value.type) {
       case ConstantKeys.MAIN_FONT_NAME_KEY:
-        this.mainFontName = value.value;
+        this.mainFontName = ensureFontFallback(value.value);
         this.setCurrentSetting(value);
         break;
       case ConstantKeys.MAIN_FONT_SIZE_KEY:
@@ -287,7 +289,7 @@ export class GridFontsService {
         this.setCurrentSetting(value);
         break;
       case ConstantKeys.FIRST_SUB_FONT_NAME_KEY:
-        this.firstSubFontName = value.value;
+        this.firstSubFontName = ensureFontFallback(value.value);
         this.setCurrentSetting(value);
         break;
       case ConstantKeys.FIRST_SUB_FONT_SIZE_KEY:
@@ -296,7 +298,7 @@ export class GridFontsService {
         this.setCurrentSetting(value);
         break;
       case ConstantKeys.SECOND_SUB_FONT_NAME_KEY:
-        this.secondSubFontName = value.value;
+        this.secondSubFontName = ensureFontFallback(value.value);
         this.setCurrentSetting(value);
         break;
       case ConstantKeys.SECOND_SUB_FONT_SIZE_KEY:

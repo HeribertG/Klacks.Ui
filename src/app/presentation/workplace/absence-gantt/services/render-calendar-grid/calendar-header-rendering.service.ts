@@ -55,7 +55,7 @@ export class CalendarHeaderRenderingService {
             x.rect.top,
             x.rect.width,
             x.rect.height,
-            this.gridFonts.firstSubFontName,
+            this.gridFonts.firstSubFontString,
             +this.gridFonts.firstSubFontSize,
             this.gridColors.foreGroundColor,
             TextAlignmentEnum.Center,

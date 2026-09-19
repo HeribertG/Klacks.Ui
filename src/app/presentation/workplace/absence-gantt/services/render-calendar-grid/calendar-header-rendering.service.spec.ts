@@ -45,7 +45,7 @@ describe('CalendarHeaderRenderingService', () => {
         };
 
         mockGridFonts = {
-            firstSubFontName: 'Arial',
+            firstSubFontString: 'normal 10pt Arial, sans-serif',
             firstSubFontSize: '10'
         };
 
@@ -93,6 +93,8 @@ describe('CalendarHeaderRenderingService', () => {
 
             expect(fillSpy).toHaveBeenCalledTimes(2);
             expect(textSpy).toHaveBeenCalledTimes(2);
+            expect(textSpy.mock.calls[0][6]).toBe(mockGridFonts.firstSubFontString);
+            expect(textSpy.mock.calls[0][7]).toBe(10);
             fillSpy.mockRestore();
             textSpy.mockRestore();
         });
