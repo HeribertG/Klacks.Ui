@@ -348,3 +348,99 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
         expect(isOverLeft).toBe(false);
     });
 });
+
+describe('ScrollbarComponent (context click guard)', () => {
+    let component: ScrollbarComponent;
+    let fixture: ComponentFixture<ScrollbarComponent>;
+    let animation: { startBarAnimation: Mock; startArrowHoldAnimation: Mock; destroy: Mock };
+
+    const setPlatform = (platform: string): void => {
+        vi.spyOn(navigator, 'platform', 'get').mockReturnValue(platform);
+    };
+
+    const mouseEvent = (init: MouseEventInit): MouseEvent =>
+        new MouseEvent('mousedown', { bubbles: true, cancelable: true, ...init });
+
+    beforeEach(async () => {
+        const setup = createTestBed('horizontal');
+
+        await TestBed.configureTestingModule({
+            imports: [ScrollbarComponent],
+            providers: [
+                { provide: ScrollbarService, useValue: setup.scrollbarServiceSpy },
+                { provide: DomSanitizer, useValue: setup.domSanitizerSpy },
+            ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(ScrollbarComponent);
+        component = setupComponent(fixture, 'horizontal');
+        (component as any).isMouseOverThumb = vi.fn().mockReturnValue(false);
+        animation = { startBarAnimation: vi.fn(), startArrowHoldAnimation: vi.fn(), destroy: vi.fn() };
+        (component as any).animationService = animation;
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it('track mousedown with the primary button starts the bar animation', () => {
+        setPlatform('MacIntel');
+        (component as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, clientX: 10 }));
+
+        expect(animation.startBarAnimation).toHaveBeenCalledTimes(1);
+    });
+
+    it('track mousedown ignores a Mac Ctrl+Click', () => {
+        setPlatform('MacIntel');
+        (component as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true, clientX: 10 }));
+
+        expect(animation.startBarAnimation).not.toHaveBeenCalled();
+    });
+
+    it('track mousedown ignores the secondary button', () => {
+        setPlatform('Win32');
+        (component as any).onMouseDown(mouseEvent({ button: 2, buttons: 2, clientX: 10 }));
+
+        expect(animation.startBarAnimation).not.toHaveBeenCalled();
+    });
+
+    it('track mousedown on Windows with Ctrl still reacts', () => {
+        setPlatform('Win32');
+        (component as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true, clientX: 10 }));
+
+        expect(animation.startBarAnimation).toHaveBeenCalledTimes(1);
+    });
+
+    it('arrow mousedown with the primary button starts the hold animation', () => {
+        setPlatform('MacIntel');
+        component.onArrowThumbMouseDown(mouseEvent({ button: 0, buttons: 1 }), 1);
+
+        expect(animation.startArrowHoldAnimation).toHaveBeenCalledTimes(1);
+    });
+
+    it('arrow mousedown ignores a Mac Ctrl+Click', () => {
+        setPlatform('MacIntel');
+        component.onArrowThumbMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true }), 1);
+
+        expect(animation.startArrowHoldAnimation).not.toHaveBeenCalled();
+    });
+
+    it('arrow mousedown ignores the secondary button', () => {
+        setPlatform('Win32');
+        component.onArrowThumbMouseDown(mouseEvent({ button: 2, buttons: 2 }), 1);
+
+        expect(animation.startArrowHoldAnimation).not.toHaveBeenCalled();
+    });
+
+    it('thumb pointerdown ignores a Mac Ctrl+Click', () => {
+        setPlatform('MacIntel');
+        (component as any).isMouseOverThumb = vi.fn().mockReturnValue(true);
+        const setPointerCapture = vi.fn();
+        component.canvasRef.nativeElement.setPointerCapture = setPointerCapture;
+
+        (component as any).onPointerDown(
+            new MouseEvent('pointerdown', { button: 0, buttons: 1, ctrlKey: true }) as unknown as PointerEvent
+        );
+
+        expect((component as any).mousePointThumb).toBe(false);
+        expect(setPointerCapture).not.toHaveBeenCalled();
+    });
+});

@@ -48,6 +48,7 @@ describe('AbsenceCalendarDirective - Safari right-click via contextmenu', () => 
       onSelectByMouse: vi.fn(),
       onMouseDown: vi.fn(),
       onMouseUp: vi.fn(),
+      cancelDrag: vi.fn(),
       onMouseMove: vi.fn(),
       setFocus: vi.fn(),
       destroyToolTip: vi.fn(),
@@ -98,5 +99,80 @@ describe('AbsenceCalendarDirective - Safari right-click via contextmenu', () => 
     canvasEl.dispatchEvent(createMouseEvent('contextmenu', { clientX: 5, clientY: 5, offsetY: 30 } as any));
 
     expect(contextMenu.openMenu).toHaveBeenCalled();
+  });
+});
+
+describe('AbsenceCalendarDirective - Mac Ctrl+Click drag guard', () => {
+  let fixture: ComponentFixture<AbsenceMacHostComponent>;
+  let canvasEl: HTMLElement;
+  let contextMenu: any;
+  let gridBody: any;
+
+  @Component({
+    selector: 'app-absence-mac-host',
+    standalone: true,
+    imports: [AbsenceCalendarDirective],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `<canvas appAbsenceCalendar></canvas>`,
+  })
+  class AbsenceMacHostComponent {}
+
+  const setPlatform = (platform: string): void => {
+    vi.spyOn(navigator, 'platform', 'get').mockReturnValue(platform);
+  };
+
+  beforeEach(async () => {
+    contextMenu = { closeMenu: vi.fn(), openMenu: vi.fn() };
+    gridBody = {
+      drawCalendarGantt: { isFocused: false, rows: 5 },
+      calendarSetting: { cellHeaderHeight: 20 },
+      onSelectByMouse: vi.fn(),
+      onMouseDown: vi.fn(),
+      cancelDrag: vi.fn(),
+      setFocus: vi.fn(),
+      createContextMenu: vi.fn(),
+      contextMenu: vi.fn().mockReturnValue(contextMenu),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [AbsenceMacHostComponent],
+      providers: [
+        { provide: AbsenceGanttSurfaceComponent, useValue: gridBody },
+        { provide: DrawCalendarGanttService, useValue: {} },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AbsenceMacHostComponent);
+    canvasEl = fixture.nativeElement.querySelector('canvas') as HTMLElement;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('on Mac: Ctrl+Click does not start a drag and contextmenu cancels any drag state', () => {
+    setPlatform('MacIntel');
+    canvasEl.dispatchEvent(createMouseEvent('mousedown', { button: 0, buttons: 1, ctrlKey: true } as any));
+
+    expect(gridBody.onSelectByMouse).not.toHaveBeenCalled();
+    expect(gridBody.onMouseDown).not.toHaveBeenCalled();
+
+    canvasEl.dispatchEvent(createMouseEvent('contextmenu', { clientX: 5, clientY: 5, offsetY: 30 } as any));
+
+    expect(gridBody.cancelDrag).toHaveBeenCalledTimes(1);
+    expect(contextMenu.openMenu).toHaveBeenCalled();
+  });
+
+  it('on non-Mac: Ctrl+Click keeps starting the drag path', () => {
+    setPlatform('Win32');
+    canvasEl.dispatchEvent(createMouseEvent('mousedown', { button: 0, buttons: 1, ctrlKey: true } as any));
+
+    expect(gridBody.onMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('on Mac: plain primary click still starts the drag path', () => {
+    setPlatform('MacIntel');
+    canvasEl.dispatchEvent(createMouseEvent('mousedown', { button: 0, buttons: 1 } as any));
+
+    expect(gridBody.onMouseDown).toHaveBeenCalledTimes(1);
   });
 });

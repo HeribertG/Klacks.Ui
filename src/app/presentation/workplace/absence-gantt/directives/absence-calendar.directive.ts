@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
+import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
 
@@ -118,7 +119,7 @@ export class AbsenceCalendarDirective {
 
     this.gridBody.drawCalendarGantt.isFocused = true;
 
-    if (event.buttons === 1) {
+    if (event.buttons === 1 && !isMacContextClick(event)) {
       this.gridBody.onSelectByMouse(event);
       this.gridBody.onMouseDown(event);
     }
@@ -425,6 +426,7 @@ export class AbsenceCalendarDirective {
       return;
     }
     this.stopEvent(event);
+    this.gridBody.cancelDrag();
 
     const contextMenu = this.gridBody.contextMenu();
     if (!contextMenu) {
