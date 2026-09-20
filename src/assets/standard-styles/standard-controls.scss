@@ -72,6 +72,25 @@ input.form-select {
   font-size: var(--fontSizeBase);
   font-weight: 500;
   line-height: 1.5;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+}
+
+input.form-control:focus,
+select.form-control:focus,
+select.form-select:focus,
+input.form-select:focus {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+}
+
+input.form-control:disabled,
+input.form-control:read-only,
+select.form-control:disabled,
+select.form-select:disabled,
+input.form-select:disabled {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackgroundReadOnly);
 }
 
 textarea {
