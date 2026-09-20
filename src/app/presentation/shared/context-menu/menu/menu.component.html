@@ -3,7 +3,7 @@
   class="menu-container"
   appClickOutside
   [ngStyle]="rightPanelStyle"
-  (clickOutside)="closeMenu()"
+  (clickOutside)="onClickOutside($event)"
   (mouseenter)="onMouseEnter()"
   (contextmenu)="stopEvent($event)"
 >

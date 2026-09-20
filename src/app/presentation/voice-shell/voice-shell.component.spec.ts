@@ -16,6 +16,8 @@ import { ChatTurnControlService } from '../aside/assistant-chat/services/chat-tu
 import { AsideService } from '../aside/aside.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import type { ChatMessage } from '../aside/assistant-chat/chat-message.interface';
+import { TranscriptOverlayService } from './transcript-overlay/transcript-overlay.service';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 interface MockOrchestrator {
   state: ReturnType<typeof signal<ConversationState>>;
@@ -371,5 +373,103 @@ describe('VoiceShellComponent — auto-play TTS (BothAuto)', () => {
     component.handleClick();
     expect(tts.stop).toHaveBeenCalledOnce();
     expect(orch.startSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('VoiceShellComponent — long press', () => {
+  let fixture: ComponentFixture<VoiceShellComponent>;
+  let orch: MockOrchestrator;
+  let shell: HTMLElement;
+  let showTranscript: ReturnType<typeof vi.spyOn>;
+
+  const touchPointer = (type: string, init: PointerEventInit = {}): PointerEvent =>
+    new PointerEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      isPrimary: true,
+      pointerId: 5,
+      pointerType: 'touch',
+      clientX: 20,
+      clientY: 20,
+      ...init,
+    });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    orch = makeOrchestratorMock();
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: makeTtsMock() },
+        { provide: ChatTurnControlService, useValue: makeTurnControlMock() },
+        { provide: AudioQueueService, useValue: makeAudioQueueMock() },
+        { provide: AsideService, useValue: { hide: vi.fn() } },
+      ],
+    });
+    showTranscript = vi.spyOn(TestBed.inject(TranscriptOverlayService), 'show');
+    fixture = TestBed.createComponent(VoiceShellComponent);
+    fixture.detectChanges();
+    shell = fixture.nativeElement.querySelector('.voice-shell');
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('opens the transcript once after a held touch', () => {
+    shell.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs);
+    document.dispatchEvent(touchPointer('pointerup'));
+
+    expect(showTranscript).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not open the transcript when the finger moves beyond the tolerance before the hold completes', () => {
+    shell.dispatchEvent(touchPointer('pointerdown'));
+    document.dispatchEvent(
+      touchPointer('pointermove', { clientX: 20 + TouchInteraction.MoveTolerancePx + 5 }),
+    );
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs * 2);
+
+    expect(showTranscript).not.toHaveBeenCalled();
+  });
+
+  it('does not start a voice session from the click that follows a long press', () => {
+    shell.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs);
+    document.dispatchEvent(touchPointer('pointerup'));
+
+    shell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect(orch.startSession).not.toHaveBeenCalled();
+  });
+
+  it('still starts a voice session from a plain tap', () => {
+    shell.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs / 5);
+    document.dispatchEvent(touchPointer('pointerup'));
+
+    shell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect(orch.startSession).toHaveBeenCalledOnce();
+    expect(showTranscript).not.toHaveBeenCalled();
+  });
+
+  it('opens the transcript exactly once when the browser emits its own contextmenu during the hold', () => {
+    shell.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs / 2);
+
+    shell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs * 2);
+    document.dispatchEvent(touchPointer('pointerup'));
+
+    expect(showTranscript).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the mouse right-click path', () => {
+    shell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+
+    expect(showTranscript).toHaveBeenCalledTimes(1);
   });
 });

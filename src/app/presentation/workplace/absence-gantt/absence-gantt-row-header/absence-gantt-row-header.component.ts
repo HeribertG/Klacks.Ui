@@ -37,6 +37,7 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 @Component({
   selector: 'app-absence-gantt-row-header',
@@ -44,7 +45,7 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
   styleUrls: ['./absence-gantt-row-header.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgStyle, ClientFilterComponent, ResizeDirective, ContextMenuComponent],
+  imports: [NgStyle, ClientFilterComponent, ResizeDirective, ContextMenuComponent, LongPressContextDirective],
   providers: [ProgressBarAnimationService, ContextMenuService],
 })
 export class AbsenceGanttRowHeaderComponent

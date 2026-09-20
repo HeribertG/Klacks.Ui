@@ -61,6 +61,7 @@ import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services
 import { RowHeaderTooltipService } from './row-header-tooltip.service';
 import { RowHeaderReportService } from './row-header-report.service';
 import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences-dialog/shift-preferences-dialog.component';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -79,6 +80,7 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
     CdkDragHandle,
     CdkDragPreview,
     CdkScrollable,
+    LongPressContextDirective,
   ],
   providers: [
     BaseCreateRowHeaderService,

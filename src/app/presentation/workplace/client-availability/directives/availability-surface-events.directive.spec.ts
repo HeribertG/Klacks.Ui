@@ -106,3 +106,100 @@ describe('AvailabilitySurfaceEventsDirective - Ctrl+Click and context menu', () 
     expect(dataManagement.setHourRange).not.toHaveBeenCalled();
   });
 });
+
+describe('AvailabilitySurfaceEventsDirective - touch predicate and pan', () => {
+  let fixture: ComponentFixture<HostComponent>;
+  let directive: AvailabilitySurfaceEventsDirective;
+  let selection: any;
+  let drawGrid: any;
+  let surface: any;
+
+  const pointer = (clientX: number, clientY: number): PointerEvent =>
+    new PointerEvent('pointerdown', { pointerType: 'touch', clientX, clientY });
+
+  beforeEach(async () => {
+    selection = { selectedRow: vi.fn().mockReturnValue(-1), selectedCol: vi.fn().mockReturnValue(-1), select: vi.fn() };
+    drawGrid = {
+      drawGrid: vi.fn(),
+      moveGrid: vi.fn(),
+      getScrollX: vi.fn().mockReturnValue(100),
+      getScrollY: vi.fn().mockReturnValue(100),
+      getMaxScrollX: vi.fn().mockReturnValue(1000),
+      getMaxScrollY: vi.fn().mockReturnValue(1000),
+      getVisibleWidth: vi.fn().mockReturnValue(200),
+      getVisibleHeight: vi.fn().mockReturnValue(200),
+    };
+    surface = { notifyScrollChanged: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [HostComponent],
+      providers: [
+        { provide: AvailabilitySettingService, useValue: { cellHeaderHeight: 20, cellHeight: 20, cellWidth: 20 } },
+        { provide: AvailabilityCanvasManagerService, useValue: {} },
+        { provide: AvailabilityCalculationService, useValue: { totalColumns: 10, columnToDateHour: vi.fn().mockReturnValue({ dateString: '2026-01-01', startHour: 0, endHour: 1 }) } },
+        { provide: RenderAvailabilityGridService, useValue: { getClients: vi.fn().mockReturnValue(Array.from({ length: 10 }, (_, index) => ({ id: `c${index}` }))) } },
+        { provide: DataManagementClientAvailabilityService, useValue: { setHourRange: vi.fn(), isGroupAvailable: vi.fn().mockReturnValue(false) } },
+        { provide: DrawAvailabilityGridService, useValue: drawGrid },
+        { provide: AvailabilitySelectionService, useValue: selection },
+        { provide: ClientAvailabilitySurfaceComponent, useValue: surface },
+        { provide: AvailabilityCoordinateService, useValue: { mouseToColumn: vi.fn().mockReturnValue(3) } },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    const canvasEl = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
+    vi.spyOn(canvasEl, 'getBoundingClientRect').mockReturnValue({
+      left: 0, top: 0, right: 200, bottom: 200, width: 200, height: 200, x: 0, y: 0, toJSON: () => ({}),
+    });
+    fixture.detectChanges();
+    directive = fixture.debugElement
+      .query((node) => node.name === 'canvas')
+      .injector.get(AvailabilitySurfaceEventsDirective);
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('reports no selection hit while nothing is selected, so the gesture becomes a pan', () => {
+    expect(directive.isPointerOnSelection(pointer(70, 30))).toBe(false);
+  });
+
+  it('reports a selection hit on the cell that is currently selected', () => {
+    selection.selectedRow.mockReturnValue(5);
+    selection.selectedCol.mockReturnValue(3);
+
+    expect(directive.isPointerOnSelection(pointer(70, 30))).toBe(true);
+  });
+
+  it('reports no selection hit on a neighbouring row', () => {
+    selection.selectedRow.mockReturnValue(4);
+    selection.selectedCol.mockReturnValue(3);
+
+    expect(directive.isPointerOnSelection(pointer(70, 30))).toBe(false);
+  });
+
+  it('reports no selection hit outside the grid rows', () => {
+    selection.selectedRow.mockReturnValue(5);
+    selection.selectedCol.mockReturnValue(3);
+
+    expect(directive.isPointerOnSelection(pointer(70, 400))).toBe(false);
+  });
+
+  it('pans the grid against the finger direction and reports the new scroll position', () => {
+    directive.panBy(-30, -40);
+
+    expect(drawGrid.moveGrid).toHaveBeenCalledWith(130, 140);
+    expect(surface.notifyScrollChanged).toHaveBeenCalledTimes(1);
+  });
+
+  it('clamps a pan at the start of the grid', () => {
+    directive.panBy(500, 500);
+
+    expect(drawGrid.moveGrid).toHaveBeenCalledWith(0, 0);
+  });
+
+  it('clamps a pan at the end of the grid', () => {
+    directive.panBy(-5000, -5000);
+
+    expect(drawGrid.moveGrid).toHaveBeenCalledWith(800, 800);
+  });
+});

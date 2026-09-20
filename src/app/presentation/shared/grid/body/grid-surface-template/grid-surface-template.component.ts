@@ -9,9 +9,11 @@ import {
   Injector,
   OnDestroy,
   OnInit,
+  computed,
   effect,
   inject,
   runInInjectionContext,
+  signal,
   ChangeDetectionStrategy,
   input,
   output,
@@ -45,6 +47,19 @@ import { GridCoordinateService } from '../../services/grid-coordinate.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridCellInputController } from './grid-cell-input.controller';
 import { GridResizeController } from './grid-resize.controller';
+import {
+  TouchGestureDirective,
+  TouchPanEvent,
+} from 'src/app/presentation/directives/touch-gesture.directive';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TouchPanAccumulator } from 'src/app/shared/helpers/touch-pan-accumulator';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import {
+  GridCellActionsBounds,
+  GridCellActionsButtonComponent,
+  GridCellActionsOpenEvent,
+  GridCellRect,
+} from '../grid-cell-actions-button/grid-cell-actions-button.component';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -66,7 +81,13 @@ export interface CellValueChangeEvent {
   templateUrl: './grid-surface-template.component.html',
   styleUrl: './grid-surface-template.component.scss',
   standalone: true,
-  imports: [GridTemplateEventsDirective, CellInputEventsDirective],
+  imports: [
+    GridTemplateEventsDirective,
+    CellInputEventsDirective,
+    TouchGestureDirective,
+    LongPressContextDirective,
+    GridCellActionsButtonComponent,
+  ],
   providers: [
     TestAccessibilityService,
     GridTestAccessibilityService,
@@ -106,11 +127,13 @@ export class GridSurfaceTemplateComponent
   public drawSchedule = inject(BaseDrawScheduleService);
   public settings = inject(BaseSettingsService);
   private cellManipulation = inject(BaseCellManipulationService);
+  private fillHandleDrag = inject(GridFillHandleDragService);
   private gridFonts = inject(GridFontsService);
   private tooltipService = inject(TooltipService);
   public testAccessibility = inject(TestAccessibilityService);
   private gridTestAccessibility = inject(GridTestAccessibilityService);
   private coord = inject(GridCoordinateService);
+  protected readonly inputModality = inject(InputModalityService);
 
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
@@ -133,6 +156,114 @@ export class GridSurfaceTemplateComponent
 
   private lastColumns = 0;
   private lastRows = 0;
+
+  private readonly touchPanAccumulator = new TouchPanAccumulator();
+  private readonly selectionVersion = signal(0);
+
+  readonly selectedCellRect = computed<GridCellRect | null>(() => {
+    this.selectionVersion();
+    this.cellManipulation.positionSignal();
+    return this.calculateAnchorCellRect();
+  });
+
+  readonly cellActionsBounds = computed<GridCellActionsBounds>(() => {
+    this.selectionVersion();
+    return { width: this.drawSchedule.width, height: this.drawSchedule.height };
+  });
+
+  notifySelectionChanged(): void {
+    this.selectionVersion.update((version) => version + 1);
+  }
+
+  onCellActionsOpen(event: GridCellActionsOpenEvent): void {
+    const position = this.drawSchedule.position;
+    if (!position || !this.drawSchedule.isPositionValid(position)) {
+      return;
+    }
+    this.rightClick.emit({
+      row: position.row,
+      column: position.column,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      source: 'canvas',
+    });
+  }
+
+  private calculateAnchorCellRect(): GridCellRect | null {
+    const cellWidth = this.settings.cellWidth;
+    const cellHeight = this.settings.cellHeight;
+    if (cellWidth <= 0 || cellHeight <= 0) {
+      return null;
+    }
+
+    const bounds = this.readSelectionBounds();
+    if (!bounds) {
+      return null;
+    }
+
+    const headerHeight = this.settings.cellHeaderHeight;
+    const firstVisibleColumn = this.scroll.horizontalScrollPosition;
+    const firstVisibleRow = this.scroll.verticalScrollPosition;
+    const leftOfMinColumn = this.coord.cellX(bounds.minColumn - firstVisibleColumn);
+    const leftOfMaxColumn = this.coord.cellX(bounds.maxColumn - firstVisibleColumn);
+    const left = Math.max(leftOfMinColumn, leftOfMaxColumn);
+    const top = headerHeight + (bounds.minRow - firstVisibleRow) * cellHeight;
+
+    if (left + cellWidth <= 0 || left >= this.drawSchedule.width) {
+      return null;
+    }
+    if (top + cellHeight <= headerHeight || top >= this.drawSchedule.height) {
+      return null;
+    }
+
+    return { left, top, width: cellWidth, height: cellHeight };
+  }
+
+  private readSelectionBounds(): { minRow: number; minColumn: number; maxColumn: number } | null {
+    const collection = this.cellManipulation.PositionCollection;
+    if (collection.count() > 0) {
+      return {
+        minRow: collection.minRow(),
+        minColumn: collection.minColumn(),
+        maxColumn: collection.maxColumn(),
+      };
+    }
+
+    const position = this.drawSchedule.position;
+    if (!position || !this.drawSchedule.isPositionValid(position)) {
+      return null;
+    }
+    return { minRow: position.row, minColumn: position.column, maxColumn: position.column };
+  }
+
+  readonly isPointerOnSelection = (event: PointerEvent): boolean => {
+    if (this.cellInput.visible()) {
+      return false;
+    }
+    const pos = this.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.drawSchedule.isPositionValid(pos)) {
+      return false;
+    }
+    if (this.fillHandleDrag.isPointerOverFillHandle(event)) {
+      return true;
+    }
+    return this.cellManipulation.isPositionInSelection(pos);
+  };
+
+  onTouchPan(event: TouchPanEvent): void {
+    const { columns, rows } = this.touchPanAccumulator.consume(
+      event.dx,
+      event.dy,
+      this.settings.cellWidth,
+      this.settings.cellHeight,
+    );
+    if (columns !== 0) {
+      this.valueHScrollbar.emit(Math.max(0, this.scroll.horizontalScrollPosition + columns));
+    }
+    if (rows !== 0) {
+      this.valueVScrollbar.emit(Math.max(0, this.scroll.verticalScrollPosition + rows));
+    }
+  }
 
   ngOnInit(): void {
     this.readSignals();
@@ -194,7 +325,10 @@ export class GridSurfaceTemplateComponent
 
   private observeParentResize(): void {
     this.resize.observeParent(this.el.nativeElement.parentElement, {
-      onResized: () => this.updateScrollbarValues(true),
+      onResized: () => {
+        this.updateScrollbarValues(true);
+        this.notifySelectionChanged();
+      },
       nameId: this.nameId(),
     });
   }
@@ -207,6 +341,7 @@ export class GridSurfaceTemplateComponent
     this.drawSchedule.refresh();
     this.updateScrollbarValues();
     this.resize.applyPendingResize();
+    this.notifySelectionChanged();
   }
 
   private updateScrollbarValues(forceUpdate = false): void {
@@ -272,6 +407,7 @@ export class GridSurfaceTemplateComponent
             this.drawSchedule.redraw();
             this.updateScrollbarValues(true);
             this.cellInput.refreshForZoom();
+            this.notifySelectionChanged();
             this.cdr.detectChanges();
           }
         }, 0);
@@ -340,6 +476,7 @@ export class GridSurfaceTemplateComponent
         if (hChanged || vChanged) {
           this.drawSchedule.moveGrid();
           this.cellInput.refreshForScroll();
+          this.notifySelectionChanged();
         }
       });
       this.effects.push(scrollEffect);

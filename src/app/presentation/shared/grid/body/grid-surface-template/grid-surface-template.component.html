@@ -4,6 +4,11 @@
   <canvas
     #canvasTemplateRef
     appGridTemplateEvents
+    appTouchGesture
+    appLongPressContext
+    class="touch-surface"
+    [touchDragPredicate]="isPointerOnSelection"
+    (touchPan)="onTouchPan($event)"
     id="template-canvas{{ canvasId }}"
     [tabindex]="0"
     role="application"
@@ -48,9 +53,17 @@
     </div>
   }
 
+  <app-grid-cell-actions-button
+    [rect]="selectedCellRect()"
+    [bounds]="cellActionsBounds()"
+    [visible]="inputModality.isTouchMode() && !cellInput.visible()"
+    (open)="onCellActionsOpen($event)"
+  />
+
   <input
     #cellInputEl
     appCellInputEvents
+    appLongPressContext
     type="text"
     class="cell-input-overlay"
     [attr.data-testid]="'cell-input'"

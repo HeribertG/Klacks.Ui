@@ -1,9 +1,11 @@
 <div class="scrollbar-container" appResize (resizeElement)="onResize($event)">
   <div
-    class="arrow-thumb"
+    class="arrow-thumb touch-surface"
     role="button"
-    (mousedown)="onArrowThumbMouseDown($event, -1)"
-    (mouseup)="onArrowThumbMouseUp($event)"
+    (pointerdown)="onArrowThumbPointerDown($event, -1)"
+    (pointerup)="onArrowThumbPointerEnd($event)"
+    (pointercancel)="onArrowThumbPointerEnd($event)"
+    (pointerleave)="onArrowThumbPointerEnd($event)"
     [innerHTML]="safeTriangleSvgBackward"
     [class.disabled]="disableBackwardArrow"
     [class.hidden]="hideArrowButtons"
@@ -12,14 +14,16 @@
   ></div>
 
   <div class="scrollbar-bar">
-    <canvas #canvas></canvas>
+    <canvas #canvas class="touch-surface"></canvas>
   </div>
 
   <div
-    class="arrow-thumb"
+    class="arrow-thumb touch-surface"
     role="button"
-    (mousedown)="onArrowThumbMouseDown($event, 1)"
-    (mouseup)="onArrowThumbMouseUp($event)"
+    (pointerdown)="onArrowThumbPointerDown($event, 1)"
+    (pointerup)="onArrowThumbPointerEnd($event)"
+    (pointercancel)="onArrowThumbPointerEnd($event)"
+    (pointerleave)="onArrowThumbPointerEnd($event)"
     [innerHTML]="safeTriangleSvgForward"
     [class.disabled]="disableForwardArrow"
     [class.hidden]="hideArrowButtons"

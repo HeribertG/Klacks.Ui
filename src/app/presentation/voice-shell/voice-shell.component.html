@@ -1,5 +1,6 @@
 <div
-  class="voice-shell"
+  class="voice-shell touch-no-callout"
+  appLongPressContext
   role="button"
   tabindex="0"
   [class.error-active]="errorHint() !== null && !errorHint()!.persistent"
@@ -8,9 +9,6 @@
   (keydown.enter)="handleClick()"
   (keydown.space)="handleClick(); $event.preventDefault()"
   (contextmenu)="handleContextMenu($event)"
-  (touchstart)="handleTouchStart()"
-  (touchend)="handleTouchEnd()"
-  (touchcancel)="handleTouchEnd()"
   [attr.title]="errorHint() ? (errorHint()!.i18nKey | translate) : null"
 >
   <app-voice-shell-icon [state]="effectiveState()" />

@@ -8,6 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ElementRef } from '@angular/core';
 import { ScrollbarService } from './scrollbar.service';
 import { SCROLLBAR_CONSTANTS } from './constants';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 
 function createTestBed(orientation: 'vertical' | 'horizontal') {
     const scrollbarServiceSpy = {
@@ -99,6 +100,30 @@ describe('ScrollbarComponent (vertical)', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should mark the host with the touch-mode class only after a finger has touched the page', () => {
+        vi.stubGlobal('ResizeObserver', class {
+            observe(): void { /* not needed */ }
+            unobserve(): void { /* not needed */ }
+            disconnect(): void { /* not needed */ }
+        });
+        const host = fixture.nativeElement as HTMLElement;
+        const modality = TestBed.inject(InputModalityService);
+
+        document.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'mouse', bubbles: true }));
+        fixture.detectChanges();
+        expect(modality.isTouchMode()).toBe(false);
+        expect(host.classList.contains('touch-mode')).toBe(false);
+
+        document.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true }));
+        fixture.detectChanges();
+        expect(host.classList.contains('touch-mode')).toBe(true);
+
+        document.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'mouse', bubbles: true }));
+        fixture.detectChanges();
+        expect(host.classList.contains('touch-mode')).toBe(false);
+        vi.unstubAllGlobals();
     });
 
     it('should initialize with default values', () => {
@@ -352,7 +377,7 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
 describe('ScrollbarComponent (context click guard)', () => {
     let component: ScrollbarComponent;
     let fixture: ComponentFixture<ScrollbarComponent>;
-    let animation: { startBarAnimation: Mock; startArrowHoldAnimation: Mock; destroy: Mock };
+    let animation: { startBarAnimation: Mock; startArrowHoldAnimation: Mock; stopArrowHold: Mock; destroy: Mock };
 
     const setPlatform = (platform: string): void => {
         vi.spyOn(navigator, 'platform', 'get').mockReturnValue(platform);
@@ -360,6 +385,9 @@ describe('ScrollbarComponent (context click guard)', () => {
 
     const mouseEvent = (init: MouseEventInit): MouseEvent =>
         new MouseEvent('mousedown', { bubbles: true, cancelable: true, ...init });
+
+    const pointerEvent = (type: string, init: PointerEventInit): PointerEvent =>
+        new PointerEvent(type, { bubbles: true, cancelable: true, isPrimary: true, pointerId: 4, ...init });
 
     beforeEach(async () => {
         const setup = createTestBed('horizontal');
@@ -375,7 +403,7 @@ describe('ScrollbarComponent (context click guard)', () => {
         fixture = TestBed.createComponent(ScrollbarComponent);
         component = setupComponent(fixture, 'horizontal');
         (component as any).isMouseOverThumb = vi.fn().mockReturnValue(false);
-        animation = { startBarAnimation: vi.fn(), startArrowHoldAnimation: vi.fn(), destroy: vi.fn() };
+        animation = { startBarAnimation: vi.fn(), startArrowHoldAnimation: vi.fn(), stopArrowHold: vi.fn(), destroy: vi.fn() };
         (component as any).animationService = animation;
     });
 
@@ -409,25 +437,42 @@ describe('ScrollbarComponent (context click guard)', () => {
         expect(animation.startBarAnimation).toHaveBeenCalledTimes(1);
     });
 
-    it('arrow mousedown with the primary button starts the hold animation', () => {
+    it('arrow pointerdown with the primary button starts the hold animation', () => {
         setPlatform('MacIntel');
-        component.onArrowThumbMouseDown(mouseEvent({ button: 0, buttons: 1 }), 1);
+        component.onArrowThumbPointerDown(pointerEvent('pointerdown', { button: 0, buttons: 1, pointerType: 'mouse' }), 1);
 
         expect(animation.startArrowHoldAnimation).toHaveBeenCalledTimes(1);
     });
 
-    it('arrow mousedown ignores a Mac Ctrl+Click', () => {
+    it('arrow pointerdown ignores a Mac Ctrl+Click', () => {
         setPlatform('MacIntel');
-        component.onArrowThumbMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true }), 1);
+        component.onArrowThumbPointerDown(pointerEvent('pointerdown', { button: 0, buttons: 1, ctrlKey: true, pointerType: 'mouse' }), 1);
 
         expect(animation.startArrowHoldAnimation).not.toHaveBeenCalled();
     });
 
-    it('arrow mousedown ignores the secondary button', () => {
+    it('arrow pointerdown ignores the secondary button', () => {
         setPlatform('Win32');
-        component.onArrowThumbMouseDown(mouseEvent({ button: 2, buttons: 2 }), 1);
+        component.onArrowThumbPointerDown(pointerEvent('pointerdown', { button: 2, buttons: 2, pointerType: 'mouse' }), 1);
 
         expect(animation.startArrowHoldAnimation).not.toHaveBeenCalled();
+    });
+
+    it('arrow pointerdown starts the hold animation for a finger, where no mousedown would arrive before the lift', () => {
+        setPlatform('Win32');
+        const event = pointerEvent('pointerdown', { button: 0, buttons: 1, pointerType: 'touch' });
+
+        component.onArrowThumbPointerDown(event, -1);
+
+        expect(animation.startArrowHoldAnimation).toHaveBeenCalledTimes(1);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('stops the arrow hold on pointerup and on a cancelled touch gesture', () => {
+        component.onArrowThumbPointerEnd(pointerEvent('pointerup', { pointerType: 'touch' }));
+        component.onArrowThumbPointerEnd(pointerEvent('pointercancel', { pointerType: 'touch' }));
+
+        expect(animation.stopArrowHold).toHaveBeenCalledTimes(2);
     });
 
     it('thumb pointerdown ignores a Mac Ctrl+Click', () => {
@@ -437,10 +482,35 @@ describe('ScrollbarComponent (context click guard)', () => {
         component.canvasRef.nativeElement.setPointerCapture = setPointerCapture;
 
         (component as any).onPointerDown(
-            new MouseEvent('pointerdown', { button: 0, buttons: 1, ctrlKey: true }) as unknown as PointerEvent
+            pointerEvent('pointerdown', { button: 0, buttons: 1, ctrlKey: true, pointerType: 'mouse' })
         );
 
         expect((component as any).mousePointThumb).toBe(false);
         expect(setPointerCapture).not.toHaveBeenCalled();
+    });
+
+    it('thumb pointerdown captures a touch pointer, so the drag survives leaving the scrollbar', () => {
+        setPlatform('Win32');
+        (component as any).isMouseOverThumb = vi.fn().mockReturnValue(true);
+        const setPointerCapture = vi.fn();
+        component.canvasRef.nativeElement.setPointerCapture = setPointerCapture;
+
+        (component as any).onPointerDown(
+            pointerEvent('pointerdown', { button: 0, buttons: 1, pointerType: 'touch' })
+        );
+
+        expect((component as any).mousePointThumb).toBe(true);
+        expect(setPointerCapture).toHaveBeenCalledWith(4);
+    });
+
+    it('releases only a capture it actually holds', () => {
+        const releasePointerCapture = vi.fn();
+        component.canvasRef.nativeElement.hasPointerCapture = vi.fn().mockReturnValue(false);
+        component.canvasRef.nativeElement.releasePointerCapture = releasePointerCapture;
+
+        (component as any).onPointerUp(pointerEvent('pointerup', { pointerType: 'touch' }));
+
+        expect((component as any).mousePointThumb).toBe(false);
+        expect(releasePointerCapture).not.toHaveBeenCalled();
     });
 });

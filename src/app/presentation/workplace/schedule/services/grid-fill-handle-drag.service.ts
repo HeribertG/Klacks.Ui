@@ -27,6 +27,8 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 
 export interface FillHandleDragContext {
   gridSurface: GridSurfaceTemplateComponent;
@@ -42,8 +44,8 @@ export class GridFillHandleDragService {
   private fillHandleService = inject(FillHandleService);
   private gridFonts = inject(GridFontsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private inputModality = inject(InputModalityService);
 
-  private readonly FILL_HANDLE_HIT_AREA = 12;
   private readonly AUTO_SCROLL_INITIAL_DELAY = 400;
   private readonly AUTO_SCROLL_MIN_DELAY = 50;
 
@@ -58,6 +60,20 @@ export class GridFillHandleDragService {
 
   isDragging(): boolean {
     return this.fillHandleService.isDragging();
+  }
+
+  isPointerOverFillHandle(event: MouseEvent): boolean {
+    if (!this.context) {
+      return false;
+    }
+    if (!this.context.gridSurface.drawSchedule.showFillHandle) {
+      return false;
+    }
+    const pos = this.cellManipulation.Position;
+    if (pos.isEmpty()) {
+      return false;
+    }
+    return this.isOverFillHandle(event, pos);
   }
 
   tryStartDrag(event: MouseEvent): boolean {
@@ -434,7 +450,10 @@ export class GridFillHandleDragService {
     const dx = mouseX - handleCenterX;
     const dy = mouseY - handleCenterY;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const hitArea = this.FILL_HANDLE_HIT_AREA * this.gridSettings.zoom;
+    const baseHitArea = this.inputModality.isTouchMode()
+      ? TouchInteraction.FillHandleTouchHitAreaPx
+      : TouchInteraction.FillHandleHitAreaPx;
+    const hitArea = baseHitArea * this.gridSettings.zoom;
 
     return distance <= hitArea;
   }

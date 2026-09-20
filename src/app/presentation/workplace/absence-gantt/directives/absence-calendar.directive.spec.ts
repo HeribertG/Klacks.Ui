@@ -6,6 +6,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbsenceCalendarDirective } from './absence-calendar.directive';
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 const createMouseEvent = (
   type: string,
@@ -174,5 +176,92 @@ describe('AbsenceCalendarDirective - Mac Ctrl+Click drag guard', () => {
     canvasEl.dispatchEvent(createMouseEvent('mousedown', { button: 0, buttons: 1 } as any));
 
     expect(gridBody.onMouseDown).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('AbsenceCalendarDirective - long press opens the context menu', () => {
+  let fixture: ComponentFixture<AbsenceLongPressHostComponent>;
+  let canvasEl: HTMLElement;
+  let contextMenu: any;
+  let gridBody: any;
+
+  @Component({
+    selector: 'app-absence-long-press-host',
+    standalone: true,
+    imports: [AbsenceCalendarDirective, LongPressContextDirective],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `<canvas appAbsenceCalendar appLongPressContext></canvas>`,
+  })
+  class AbsenceLongPressHostComponent {}
+
+  const touchPointer = (type: string, init: PointerEventInit = {}): PointerEvent =>
+    new PointerEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      isPrimary: true,
+      pointerId: 4,
+      pointerType: 'touch',
+      clientX: 70,
+      clientY: 90,
+      ...init,
+    });
+
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    contextMenu = { closeMenu: vi.fn(), openMenu: vi.fn() };
+    gridBody = {
+      drawCalendarGantt: { isFocused: false, rows: 5 },
+      calendarSetting: { cellHeaderHeight: 0 },
+      onSelectByMouse: vi.fn(),
+      onMouseDown: vi.fn(),
+      cancelDrag: vi.fn(),
+      setFocus: vi.fn(),
+      createContextMenu: vi.fn(),
+      contextMenu: vi.fn().mockReturnValue(contextMenu),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [AbsenceLongPressHostComponent],
+      providers: [
+        { provide: AbsenceGanttSurfaceComponent, useValue: gridBody },
+        { provide: DrawCalendarGanttService, useValue: {} },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AbsenceLongPressHostComponent);
+    canvasEl = fixture.nativeElement.querySelector('canvas') as HTMLElement;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  it('opens the menu at the finger position after the long-press duration', () => {
+    canvasEl.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs);
+
+    expect(contextMenu.closeMenu).toHaveBeenCalledWith(true);
+    expect(gridBody.createContextMenu).toHaveBeenCalled();
+    expect(contextMenu.openMenu).toHaveBeenCalledTimes(1);
+    const opened = contextMenu.openMenu.mock.calls[0][0] as MouseEvent;
+    expect(opened.clientX).toBe(70);
+    expect(opened.clientY).toBe(90);
+  });
+
+  it('opens the menu only once when the browser adds its own contextmenu afterwards', () => {
+    canvasEl.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs);
+    document.dispatchEvent(touchPointer('pointerup'));
+    canvasEl.dispatchEvent(createMouseEvent('contextmenu', { clientX: 70, clientY: 90 } as any));
+
+    expect(contextMenu.openMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not open the menu when the finger lifts before the long-press duration', () => {
+    canvasEl.dispatchEvent(touchPointer('pointerdown'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs - 50);
+    document.dispatchEvent(touchPointer('pointerup'));
+    vi.advanceTimersByTime(TouchInteraction.LongPressMs);
+
+    expect(contextMenu.openMenu).not.toHaveBeenCalled();
   });
 });

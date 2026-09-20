@@ -36,13 +36,14 @@ import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { firstValueFrom } from 'rxjs';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 @Component({
   selector: 'app-client-availability-row-header',
   templateUrl: './client-availability-row-header.component.html',
   styleUrls: ['./client-availability-row-header.component.scss'],
   standalone: true,
-  imports: [ResizeDirective, NgStyle, ClientFilterComponent, ContextMenuComponent],
+  imports: [ResizeDirective, NgStyle, ClientFilterComponent, ContextMenuComponent, LongPressContextDirective],
   providers: [ContextMenuService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

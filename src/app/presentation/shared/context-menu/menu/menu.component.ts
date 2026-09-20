@@ -10,13 +10,16 @@ import {
   Input,
   ChangeDetectionStrategy,
   output,
-  viewChild
+  viewChild,
+  viewChildren
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { CommonModule } from '@angular/common';
 import { MenuItemComponent } from '../menu-item/menu-item.component';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
+
+const PARENT_ITEM_SELECTOR = '.menu-item-container';
 
 @Component({
   selector: 'app-menu',
@@ -34,6 +37,7 @@ export class MenuComponent {
   @Input() menu: Menu | undefined;
   readonly mouseEntered = output<void>();
   readonly appRoot = viewChild.required<ElementRef>('appRoot');
+  private readonly menuItems = viewChildren(MenuItemComponent);
 
   private cdr = inject(ChangeDetectorRef);
   private elementRef = inject(ElementRef);
@@ -85,6 +89,19 @@ export class MenuComponent {
     this.isVisible = false;
     this.rightPanelStyle = { display: 'none' };
     this.cdr.markForCheck();
+  }
+
+  onClickOutside(event: Event): void {
+    const parentItem = (this.elementRef.nativeElement as HTMLElement).closest(PARENT_ITEM_SELECTOR);
+    if (parentItem?.contains(event.target as Node)) {
+      return;
+    }
+    this.closeMenu();
+  }
+
+  closeWithSubMenus(): void {
+    this.menuItems().forEach((item) => item.closeSubMenu());
+    this.closeMenu();
   }
 
   onMouseEnter(): void {

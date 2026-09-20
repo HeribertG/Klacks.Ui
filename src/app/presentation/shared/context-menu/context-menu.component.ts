@@ -11,6 +11,15 @@ import { Timer } from 'src/app/presentation/helpers/timer';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import {
+  TOUCH_LIKE_POINTER_TYPES,
+  TouchInteraction,
+} from 'src/app/domain/constants/touch-interaction.constants';
+
+const MOUSE_OPEN_OFFSET_PX = 4;
+const CONTEXT_MENU_TOUCH_CLASS = 'context-menu--touch';
+const DELAYED_CLOSE_MS = 1000;
 
 @Component({
   selector: 'app-context-menu',
@@ -25,6 +34,7 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
   private contextMenuService = inject(ContextMenuService);
   private cdr = inject(ChangeDetectorRef);
   private hostElementRef = inject(ElementRef);
+  protected readonly inputModality = inject(InputModalityService);
   private movedToBody = false;
 
   @ViewChild('main', { static: false }) main!: MenuComponent;
@@ -55,20 +65,28 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
 
   openMenu(event: MouseEvent) {
     this.myTimer.stop();
+    const host = this.hostElementRef.nativeElement as HTMLElement;
     if (!this.movedToBody) {
-      const host = this.hostElementRef.nativeElement as HTMLElement;
       document.body.appendChild(host);
       this.movedToBody = true;
     }
+    const touch = this.isTouchOpen(event);
+    host.classList.toggle(CONTEXT_MENU_TOUCH_CLASS, touch);
     this.rightPanelStyle = {
       display: 'contents',
     };
     this.cdr.detectChanges();
 
     if (this.main) {
+      if (this.main.isVisible) {
+        this.main.closeWithSubMenus();
+      }
       const isRtl = document.documentElement.dir === 'rtl';
-      const openX = isRtl ? event.clientX + 4 : event.clientX - 4;
-      this.main.openMenu(openX, event.clientY - 4, 0, 0);
+      const offset = touch ? TouchInteraction.MenuOffsetFromFingerPx : MOUSE_OPEN_OFFSET_PX;
+      const towardsInlineEnd = touch ? offset : -offset;
+      const openX = isRtl ? event.clientX - towardsInlineEnd : event.clientX + towardsInlineEnd;
+      this.main.openMenu(openX, event.clientY - offset, 0, 0);
+      this.contextMenuService.markOpened(touch);
     }
   }
   closeMenu(force = false) {
@@ -83,7 +101,15 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
         this.main.closeMenu();
       }
       this.cdr.markForCheck();
-    }, 1000);
+    }, DELAYED_CLOSE_MS);
+  }
+
+  private isTouchOpen(event: MouseEvent): boolean {
+    const pointerType = (event as PointerEvent).pointerType;
+    if (pointerType) {
+      return TOUCH_LIKE_POINTER_TYPES.has(pointerType);
+    }
+    return this.inputModality.isTouchMode();
   }
 
   stopEvent(event: any): void {

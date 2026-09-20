@@ -98,6 +98,8 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 @Component({
   selector: 'app-container-template',
@@ -125,6 +127,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
     IconTransportMixComponent,
     IconWizardComponent,
     NgxSliderModule,
+    LongPressContextDirective,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -149,6 +152,10 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
   ],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {
+  protected readonly rowDragStartDelay = {
+    touch: TouchInteraction.RowDragTouchStartDelayMs,
+    mouse: 0,
+  };
   private _timeFrom = OwnTime.forTime('06', '00');
   private _timeTo = OwnTime.forTime('18', '00');
 

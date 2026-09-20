@@ -22,6 +22,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 interface InboxListFilterFormModel {
   readFilter: string;
@@ -32,7 +33,7 @@ interface InboxListFilterFormModel {
   templateUrl: './inbox-list.component.html',
   styleUrls: ['./inbox-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, CompanyDateTimePipe, TranslateModule, FormsModule, FormField, ContextMenuComponent],
+  imports: [CommonModule, CompanyDateTimePipe, TranslateModule, FormsModule, FormField, ContextMenuComponent, LongPressContextDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxListComponent implements OnInit, AfterViewInit {

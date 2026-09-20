@@ -20,6 +20,11 @@ ul {
   z-index: 1080;
 }
 
+:host-context(.context-menu--touch) .menu-container {
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
 :host-context(.menu-item-arrow) .menu-container {
   max-height: 400px;
   overflow-y: auto;

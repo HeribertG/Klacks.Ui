@@ -29,6 +29,15 @@
   flex-direction: row;
 }
 
+:host-context(.context-menu--touch) .menu-item-container {
+  min-height: 44px;
+  align-items: center;
+}
+
+:host-context(.context-menu--touch) .menu-item {
+  padding: 12px 14px;
+}
+
 .menu-item-container:hover {
   background: var(--gridBackgroundColorRowHover);
   cursor: pointer;

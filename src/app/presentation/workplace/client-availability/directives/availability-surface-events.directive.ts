@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Directive, HostListener, inject, OnDestroy } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject, OnDestroy } from '@angular/core';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
 import { AvailabilityCanvasManagerService } from '../services/availability-canvas-manager.service';
 import { AvailabilityCalculationService } from '../services/render-availability-grid/availability-calculation.service';
@@ -21,6 +21,7 @@ const AUTO_SCROLL_INTERVAL_MS = 120;
   standalone: true,
 })
 export class AvailabilitySurfaceEventsDirective implements OnDestroy {
+  private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private settings = inject(AvailabilitySettingService);
   private canvasManager = inject(AvailabilityCanvasManagerService);
   private calculation = inject(AvailabilityCalculationService);
@@ -82,10 +83,10 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
-    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
+    const canvas = this.el.nativeElement;
+    const rect = canvas.getBoundingClientRect();
     const localX = event.clientX - rect.left;
     const localY = event.clientY - rect.top;
-    const canvas = event.target as HTMLCanvasElement;
     canvas.style.cursor = (localY - this.settings.cellHeaderHeight) >= 0 ? 'pointer' : 'default';
 
     if (!this.isDragging) return;
@@ -122,6 +123,22 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     const deltaY = event.deltaY !== 0 ? Math.sign(event.deltaY) * this.settings.cellHeight : 0;
     const deltaX = event.deltaX !== 0 ? Math.sign(event.deltaX) * this.settings.cellWidth : 0;
 
+    this.scrollByPixels(deltaX, deltaY);
+  }
+
+  isPointerOnSelection(event: MouseEvent): boolean {
+    const cell = this.getCellFromEvent(event);
+    if (!cell) {
+      return false;
+    }
+    return this.selection.selectedRow() === cell.row && this.selection.selectedCol() === cell.col;
+  }
+
+  panBy(dx: number, dy: number): void {
+    this.scrollByPixels(-dx, -dy);
+  }
+
+  private scrollByPixels(deltaX: number, deltaY: number): void {
     const maxScrollX = Math.max(0, this.drawGrid.getMaxScrollX() - this.drawGrid.getVisibleWidth());
     const maxScrollY = Math.max(0, this.drawGrid.getMaxScrollY() - this.drawGrid.getVisibleHeight());
     const newScrollX = Math.min(maxScrollX, Math.max(0, this.drawGrid.getScrollX() + deltaX));
@@ -305,7 +322,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   }
 
   private getCellFromEvent(event: MouseEvent): { row: number; col: number } | null {
-    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
+    const rect = this.el.nativeElement.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const y = event.clientY - rect.top - this.settings.cellHeaderHeight + this.drawGrid.getScrollY();
 

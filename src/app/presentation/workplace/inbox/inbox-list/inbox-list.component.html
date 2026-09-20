@@ -81,7 +81,8 @@
 <div class="email-list">
   @for (email of inboxService.displayEmails(); track email.id) {
     <div
-      class="email-item"
+      class="email-item touch-no-callout"
+      appLongPressContext
       [class.unread]="!email.isRead"
       [class.selected]="isSelected(email)"
       (click)="onSelectEmail(email)"

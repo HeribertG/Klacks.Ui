@@ -8,10 +8,15 @@ import {
   input,
   OnDestroy,
   output,
+  viewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { AvailabilitySurfaceEventsDirective } from '../directives/availability-surface-events.directive';
+import {
+  TouchGestureDirective,
+  TouchPanEvent,
+} from 'src/app/presentation/directives/touch-gesture.directive';
 import { AvailabilityCanvasManagerService } from '../services/availability-canvas-manager.service';
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
@@ -24,7 +29,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   templateUrl: './client-availability-surface.component.html',
   styleUrls: ['./client-availability-surface.component.scss'],
   standalone: true,
-  imports: [ResizeDirective, AvailabilitySurfaceEventsDirective],
+  imports: [ResizeDirective, AvailabilitySurfaceEventsDirective, TouchGestureDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilitySurfaceComponent
@@ -36,6 +41,8 @@ export class ClientAvailabilitySurfaceComponent
   private filterService = inject(ClientAvailabilityFilterService);
   private settings = inject(AvailabilitySettingService);
   private gridColorService = inject(GridColorService);
+
+  readonly surfaceEvents = viewChild(AvailabilitySurfaceEventsDirective);
 
   valueChangeHScrollbar = input(0);
   valueChangeVScrollbar = input(0);
@@ -107,6 +114,13 @@ export class ClientAvailabilitySurfaceComponent
         this.updateScrollbarValues();
       });
     });
+  }
+
+  readonly isPointerOnSelection = (event: PointerEvent): boolean =>
+    this.surfaceEvents()?.isPointerOnSelection(event) ?? false;
+
+  onTouchPan(event: TouchPanEvent): void {
+    this.surfaceEvents()?.panBy(event.dx, event.dy);
   }
 
   notifyScrollChanged(): void {

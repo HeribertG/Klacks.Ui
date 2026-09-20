@@ -358,6 +358,9 @@
                       <tr
                         cdkDrag
                         cdkDragLockAxis="y"
+                        class="touch-no-callout"
+                        appLongPressContext
+                        [cdkDragStartDelay]="rowDragStartDelay"
                         (click)="shiftRowClick.emit(item)"
                         (dblclick)="absenceRowDblClick.emit(item)"
                         (contextmenu)="

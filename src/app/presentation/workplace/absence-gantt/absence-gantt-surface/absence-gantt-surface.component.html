@@ -7,7 +7,13 @@
 >
   <canvas
     appAbsenceCalendar
+    appTouchGesture
+    appLongPressContext
+    class="touch-surface"
     id="absence-surface-canvas"
+    [touchDragPredicate]="isPointerOnSelectedBar"
+    [longPressSuppressPredicate]="isPointerOnBreakAnchor"
+    (touchPan)="onTouchPan($event)"
     (dragover)="dragOver($event)"
     (drop)="drop($event)"
     aria-label="Absence Calendar"

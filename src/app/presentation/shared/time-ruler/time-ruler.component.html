@@ -1,7 +1,8 @@
 <div class="time-ruler-container">
   <canvas
     #inboxCanvas
-    class="main-canvas"
+    class="main-canvas touch-no-callout"
+    appLongPressContext
     (click)="onCanvasClick($event)"
     (mousedown)="onMouseDown($event)"
     (mousemove)="onMouseMove($event)"

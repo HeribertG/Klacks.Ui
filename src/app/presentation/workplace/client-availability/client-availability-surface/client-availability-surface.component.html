@@ -1,7 +1,11 @@
 <div class="surface-container" appResize (resizeElement)="onResize($event)">
   <canvas
     id="availability-surface-canvas"
+    class="touch-surface"
     appAvailabilitySurfaceEvents
+    appTouchGesture
+    [touchDragPredicate]="isPointerOnSelection"
+    (touchPan)="onTouchPan($event)"
     tabindex="0">
   </canvas>
 </div>

@@ -73,6 +73,12 @@ export class MenuItemComponent {
     }
   }
 
+  closeSubMenu(): void {
+    this.myTimer.stop();
+    this.closeTimer.stop();
+    this.subMenu()?.closeWithSubMenus();
+  }
+
   onSubMenuEnter(): void {
     this.closeTimer.stop();
   }

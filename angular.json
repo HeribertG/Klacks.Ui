@@ -78,6 +78,20 @@
           },
           "configurations": {
             "production": {
+              "assets": [
+                "src/favicon.ico",
+                {
+                  "glob": "**/*",
+                  "input": "src/assets",
+                  "output": "/assets",
+                  "ignore": ["dev/**"]
+                },
+                {
+                  "glob": "*.png",
+                  "input": "node_modules/leaflet/dist/images",
+                  "output": "assets/leaflet"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",

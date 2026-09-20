@@ -465,6 +465,9 @@
                         <tr
                           cdkDrag
                           cdkDragLockAxis="y"
+                          class="touch-no-callout"
+                          appLongPressContext
+                          [cdkDragStartDelay]="rowDragStartDelay"
                           (click)="onShiftRowClick(shift)"
                           (dblclick)="onAbsenceRowDblClick(shift)"
                           (contextmenu)="onTableRowRightClick($event, shift)"

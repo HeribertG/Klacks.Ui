@@ -31,6 +31,42 @@
   -ms-user-select: none;
 }
 
+:host(.touch-mode) .arrow-thumb {
+  position: relative;
+}
+
+:host(.touch-mode) .arrow-thumb:not(.disabled)::before {
+  content: '';
+  position: absolute;
+}
+
+:host(.touch-mode.vertical) .arrow-thumb::before {
+  inset-inline: 0;
+  height: 44px;
+}
+
+:host(.touch-mode.vertical) .arrow-thumb:first-child::before {
+  top: 0;
+}
+
+:host(.touch-mode.vertical) .arrow-thumb:last-child::before {
+  bottom: 0;
+}
+
+:host(.touch-mode.horizontal) .arrow-thumb::before {
+  top: 0;
+  bottom: 0;
+  width: 44px;
+}
+
+:host(.touch-mode.horizontal) .arrow-thumb:first-child::before {
+  inset-inline-start: 0;
+}
+
+:host(.touch-mode.horizontal) .arrow-thumb:last-child::before {
+  inset-inline-end: 0;
+}
+
 .arrow-thumb:hover {
   color: #424949;
   cursor: default;

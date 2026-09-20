@@ -41,6 +41,12 @@ import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
+import {
+  TouchGestureDirective,
+  TouchPanEvent,
+} from 'src/app/presentation/directives/touch-gesture.directive';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TouchPanAccumulator } from 'src/app/shared/helpers/touch-pan-accumulator';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
@@ -55,7 +61,13 @@ import { Language } from 'src/app/domain/models/settings/language-config';
   styleUrls: ['./absence-gantt-surface.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ResizeDirective, AbsenceCalendarDirective, ContextMenuComponent],
+  imports: [
+    ResizeDirective,
+    AbsenceCalendarDirective,
+    ContextMenuComponent,
+    TouchGestureDirective,
+    LongPressContextDirective,
+  ],
   providers: [ScrollbarService, ContextMenuService],
 })
 export class AbsenceGanttSurfaceComponent
@@ -96,6 +108,7 @@ export class AbsenceGanttSurfaceComponent
   public isShift = false;
   public isCtrl = false;
 
+  private readonly touchPanAccumulator = new TouchPanAccumulator();
   private isAbsenceHeaderInit = false;
   private eventListeners = new Array<() => void>();
   private holidayMap = new Map<string, HolidayDate>();
@@ -236,6 +249,27 @@ export class AbsenceGanttSurfaceComponent
 
   isMouseOverSelectedBreak(event: MouseEvent): boolean {
     return this.dragDropService.isMouseOverSelectedBreak(event);
+  }
+
+  readonly isPointerOnSelectedBar = (event: PointerEvent): boolean =>
+    this.dragDropService.isMouseOverSelectedBreakOrAnchor(event);
+
+  readonly isPointerOnBreakAnchor = (event: PointerEvent): boolean =>
+    this.dragDropService.isMouseOverBreakAnchor(event);
+
+  onTouchPan(event: TouchPanEvent): void {
+    const { columns, rows } = this.touchPanAccumulator.consume(
+      event.dx,
+      event.dy,
+      this.calendarSetting.cellWidth,
+      this.calendarSetting.cellHeight,
+    );
+    if (columns !== 0) {
+      this.valueHScrollbar.emit(this.valueChangeHScrollbar() + columns);
+    }
+    if (rows !== 0) {
+      this.valueVScrollbar.emit(Math.max(0, this.valueChangeVScrollbar() + rows));
+    }
   }
 
   onSelectByMouse(event: MouseEvent): void {

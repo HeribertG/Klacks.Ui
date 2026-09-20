@@ -42,6 +42,7 @@ import {
 
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ScrollAnimationService } from './scroll-animation.service';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 
 export type ScrollbarOrientation = 'horizontal' | 'vertical';
 
@@ -99,6 +100,7 @@ const HORIZONTAL_CONFIG: AxisConfig = {
   host: {
     '[class.horizontal]': 'orientation === "horizontal"',
     '[class.vertical]': 'orientation === "vertical"',
+    '[class.touch-mode]': 'inputModality.isTouchMode()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -141,6 +143,7 @@ export class ScrollbarComponent
   private scrollbarService = inject(ScrollbarService);
   private cdr = inject(ChangeDetectorRef);
   private hostRef = inject(ElementRef);
+  protected readonly inputModality = inject(InputModalityService);
   private animationService = inject(ScrollAnimationService);
 
   public safeTriangleSvgBackward!: SafeHtml;
@@ -590,7 +593,7 @@ export class ScrollbarComponent
   private onPointerUp(event: PointerEvent): void {
     this.mousePointThumb = false;
     const canvas = this.canvasRef.nativeElement;
-    if (canvas) {
+    if (canvas?.hasPointerCapture?.(event.pointerId)) {
       canvas.releasePointerCapture(event.pointerId);
     }
   }
@@ -623,7 +626,7 @@ export class ScrollbarComponent
     });
   }
 
-  onArrowThumbMouseDown(event: MouseEvent, direction: number) {
+  onArrowThumbPointerDown(event: PointerEvent, direction: number) {
     if (!this.isPrimaryClick(event)) return;
     const newValue = this.value + direction;
     this.animationService.startArrowHoldAnimation(direction, newValue);
@@ -631,7 +634,7 @@ export class ScrollbarComponent
     event.stopPropagation();
   }
 
-  onArrowThumbMouseUp(event: MouseEvent) {
+  onArrowThumbPointerEnd(event: PointerEvent) {
     this.animationService.stopArrowHold();
     event.preventDefault();
     event.stopPropagation();

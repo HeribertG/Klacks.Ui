@@ -3,7 +3,7 @@
   class="context-menu"
   appClickOutside
   [ngStyle]="rightPanelStyle"
-  (clickOutside)="closeMenu()"
+  (clickOutside)="closeMenu(inputModality.isTouchMode())"
 >
   <app-menu [menu]="menuData" #main></app-menu>
 </div>

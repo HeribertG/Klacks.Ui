@@ -17,10 +17,14 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { GanttCoordinateService } from './gantt-coordinate.service';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 
 @Injectable()
 export class AbsenceGanttDragDropService {
   private calendarSetting = inject(CalendarSettingService);
+  private inputModality = inject(InputModalityService);
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   private drawCalendarGantt = inject(DrawCalendarGanttService);
@@ -197,6 +201,21 @@ export class AbsenceGanttDragDropService {
     return isSelected;
   }
 
+  isMouseOverSelectedBreakOrAnchor(event: MouseEvent): boolean {
+    this.existActiveSelection(event);
+
+    return this.selectedArea !== SelectedArea.None;
+  }
+
+  isMouseOverBreakAnchor(event: MouseEvent): boolean {
+    this.existActiveSelection(event);
+
+    return (
+      this.selectedArea === SelectedArea.LeftAnchor ||
+      this.selectedArea === SelectedArea.RightAnchor
+    );
+  }
+
   existActiveSelection(event: MouseEvent): void {
     if (this.drawCalendarGantt.selectedBreak?.entrySource === EntrySource.Schedule) {
       this.selectedArea = SelectedArea.None;
@@ -217,16 +236,22 @@ export class AbsenceGanttDragDropService {
       this.drawCalendarGantt.selectedBreakRec &&
       !this.drawCalendarGantt.selectedBreakRec.isEmpty()
     ) {
-      const left = this.drawCalendarGantt.calcLeftAnchorRectangle(
-        this.drawCalendarGantt.selectedBreakRec!
+      const left = this.expandAnchorHitArea(
+        this.drawCalendarGantt.calcLeftAnchorRectangle(
+          this.drawCalendarGantt.selectedBreakRec!
+        ),
+        true
       );
       if (left.pointInRect(x, y)) {
         this.selectedArea = SelectedArea.LeftAnchor;
         return;
       }
 
-      const right = this.drawCalendarGantt.calcRightAnchorRectangle(
-        this.drawCalendarGantt.selectedBreakRec!
+      const right = this.expandAnchorHitArea(
+        this.drawCalendarGantt.calcRightAnchorRectangle(
+          this.drawCalendarGantt.selectedBreakRec!
+        ),
+        false
       );
       if (right.pointInRect(x, y)) {
         this.selectedArea = SelectedArea.RightAnchor;
@@ -234,6 +259,19 @@ export class AbsenceGanttDragDropService {
       }
     }
     this.selectedArea = SelectedArea.None;
+  }
+
+  private expandAnchorHitArea(anchor: Rectangle, growsToTheLeft: boolean): Rectangle {
+    const hitArea = TouchInteraction.BreakAnchorTouchHitAreaPx;
+    if (!this.inputModality.isFingerMode() || anchor.width >= hitArea) {
+      return anchor;
+    }
+
+    const centerY = anchor.top + anchor.height / 2;
+    const left = growsToTheLeft ? anchor.right - hitArea : anchor.left;
+    const right = growsToTheLeft ? anchor.right : anchor.left + hitArea;
+
+    return new Rectangle(left, centerY - hitArea / 2, right, centerY + hitArea / 2);
   }
 
   createBreakSelection(selectedRow: number, x: number): void {

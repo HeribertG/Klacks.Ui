@@ -53,6 +53,8 @@ import {
   formatClientWithAddress,
   formatWorkTime,
 } from 'src/app/shared/helpers/container-template-format.helper';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 @Component({
   selector: 'app-container-editor-layout',
@@ -83,6 +85,7 @@ import {
     IconByBicycleComponent,
     IconTransportMixComponent,
     SearchInputComponent,
+    LongPressContextDirective,
   ],
   templateUrl: './container-editor-layout.component.html',
   styleUrl: './container-editor-layout.component.scss',
@@ -90,6 +93,10 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContainerEditorLayoutComponent {
+  protected readonly rowDragStartDelay = {
+    touch: TouchInteraction.RowDragTouchStartDelayMs,
+    mouse: 0,
+  };
   protected direction = inject(DirectionService).direction;
   protected translateService = inject(TranslateService);
   protected addressProvider = inject(AddressProviderService);

@@ -32,6 +32,7 @@ import { TimeRulerInteractionService } from './services/time-ruler-interaction.s
 import { TimeRulerBlockSelectionService } from './services/time-ruler-block-selection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 export interface IShiftContextMenuEvent {
   item: IContainerTemplateItem;
@@ -40,7 +41,7 @@ export interface IShiftContextMenuEvent {
 
 @Component({
   selector: 'app-time-ruler',
-  imports: [],
+  imports: [LongPressContextDirective],
   templateUrl: './time-ruler.component.html',
   styleUrl: './time-ruler.component.scss',
   providers: [TimeRulerDragDropService, TimeRulerInteractionService, TimeRulerBlockSelectionService],

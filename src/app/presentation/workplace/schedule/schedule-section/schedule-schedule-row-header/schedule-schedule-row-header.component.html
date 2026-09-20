@@ -11,7 +11,7 @@
   ></app-client-filter>
 </div>
 
-<div #box id="box" class="box" tabindex="-1" role="application" appResize (resizeElement)="onResize($event)"
+<div #box id="box" class="box touch-no-callout" tabindex="-1" role="application" appResize appLongPressContext (resizeElement)="onResize($event)"
      (mousemove)="onMouseMove($event)"
      (mouseleave)="onCanvasMouseLeave()"
      (click)="onCanvasClick($event)"

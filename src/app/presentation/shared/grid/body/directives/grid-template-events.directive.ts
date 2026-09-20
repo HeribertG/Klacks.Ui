@@ -2,6 +2,10 @@
 
 /**
  * Generic grid events directive: keyboard navigation, mouse events, focus management.
+ * In touch mode the press-and-hold drags (shift drag, work move drag) stay disarmed: both arm on a
+ * timer of 150 ms without a movement condition, which would start a drag long before the 500 ms of
+ * the long-press context menu and cannot be cancelled afterwards. Cutting and pasting through the
+ * context menu replaces them on a tablet.
  * @param gridSurface - GridSurfaceTemplateComponent for canvas access and scroll events
  * @param gridData - BaseDataService for grid data (rows, columns, cell status)
  * @param gridSettings - BaseSettingsService for grid configuration (header, cell size)
@@ -39,12 +43,18 @@ import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surf
 import { GridSelectionModeEnum } from '../../enums/divers';
 import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
 import { GridScheduleEventsService } from 'src/app/presentation/workplace/schedule/services/grid-schedule-events.service';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 export interface GridDoubleClickEvent {
   row: number;
   column: number;
   entry?: IScheduleCell | null;
 }
+
+const CONTEXT_MENU_KEY = 'ContextMenu';
+const SHIFT_CONTEXT_MENU_KEY = 'F10';
+const CELL_CENTER_DIVISOR = 2;
 
 @Directive({
   selector: '[appGridTemplateEvents]',
@@ -59,6 +69,7 @@ export class GridTemplateEventsDirective {
   private cellManipulation = inject(BaseCellManipulationService);
   private fillHandleDrag = inject(GridFillHandleDragService);
   private scheduleEvents = inject(GridScheduleEventsService);
+  private inputModality = inject(InputModalityService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly rightClick = output<GridRightClickEvent>();
@@ -80,6 +91,7 @@ export class GridTemplateEventsDirective {
 
   private edgeEnterTime: number | null = null;
   private lastScrollEmitTime = 0;
+  private tooltipAutoHideTimer: ReturnType<typeof setTimeout> | null = null;
 
   private lastGoRightTime = 0;
   private lastGoLeftTime = 0;
@@ -104,6 +116,7 @@ export class GridTemplateEventsDirective {
     ['Ctrl+c', (event) => this.handleCopy(event)],
     ['Ctrl+v', (event) => this.handlePaste(event)],
     ['F2', (event) => this.handleF2(event)],
+    [CONTEXT_MENU_KEY, (event) => this.handleContextMenuKey(event)],
   ]);
 
   constructor() {
@@ -118,6 +131,8 @@ export class GridTemplateEventsDirective {
     ).subscribe(event => {
       this.onMouseMove(event);
     });
+
+    this.destroyRef.onDestroy(() => this.cancelTooltipAutoHide());
   }
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
@@ -144,6 +159,7 @@ export class GridTemplateEventsDirective {
       return;
     }
     this.cellManipulation.hoveredCell.set(null);
+    this.cancelTooltipAutoHide();
     this.gridSurface.destroyToolTip();
   }
 
@@ -174,6 +190,7 @@ export class GridTemplateEventsDirective {
   @HostListener('appClickOutside', ['$event']) onClickOutside(
     event: Event
   ): void {
+    this.cancelTooltipAutoHide();
     this.gridSurface.destroyToolTip();
   }
 
@@ -183,12 +200,20 @@ export class GridTemplateEventsDirective {
         return;
       }
       this.respondToLeftButtonMouseDown(event);
+      if (this.inputModality.isFingerMode()) {
+        return;
+      }
       this.scheduleEvents.tryPrepareShiftDrag(event);
       this.scheduleEvents.tryPrepareScheduleCellDrag(event);
     }
   }
 
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
+    this.processMouseUp(event);
+    this.gridSurface.notifySelectionChanged();
+  }
+
+  private processMouseUp(event: MouseEvent): void {
     this.scheduleEvents.cancelPendingDrag();
     this.scheduleEvents.cancelPendingScheduleCellDrag();
 
@@ -310,7 +335,7 @@ export class GridTemplateEventsDirective {
   private updateHoveredCell(pos: MyPosition, event: MouseEvent): void {
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
       this.cellManipulation.hoveredCell.set(null);
-      this.gridSurface.hideToolTip();
+      this.hideToolTipAndCancelAutoHide();
       return;
     }
 
@@ -326,10 +351,35 @@ export class GridTemplateEventsDirective {
 
     const cell = this.gridData.getCell(pos.row, pos.column);
     if (cell && cell.tooltip) {
-      this.gridSurface.showToolTip({ value: cell.tooltip, event });
+      this.showToolTipForModality(cell.tooltip, event);
     } else {
-      this.gridSurface.hideToolTip();
+      this.hideToolTipAndCancelAutoHide();
     }
+  }
+
+  private showToolTipForModality(value: string, event: MouseEvent): void {
+    this.cancelTooltipAutoHide();
+    this.gridSurface.showToolTip({ value, event });
+    if (!this.inputModality.isTouchMode()) {
+      return;
+    }
+    this.tooltipAutoHideTimer = setTimeout(() => {
+      this.tooltipAutoHideTimer = null;
+      this.gridSurface.hideToolTip();
+    }, TouchInteraction.TooltipAutoHideMs);
+  }
+
+  private hideToolTipAndCancelAutoHide(): void {
+    this.cancelTooltipAutoHide();
+    this.gridSurface.hideToolTip();
+  }
+
+  private cancelTooltipAutoHide(): void {
+    if (this.tooltipAutoHideTimer === null) {
+      return;
+    }
+    clearTimeout(this.tooltipAutoHideTimer);
+    this.tooltipAutoHideTimer = null;
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(
@@ -357,10 +407,16 @@ export class GridTemplateEventsDirective {
       contextMenu.closeMenu(true);
     }
 
+    if (event.shiftKey && event.key === SHIFT_CONTEXT_MENU_KEY) {
+      this.handleContextMenuKey(event);
+      return;
+    }
+
     const mapKey = event.ctrlKey ? `Ctrl+${event.key}` : event.key;
     const handler = this.keyHandlers.get(mapKey);
     if (handler) {
       handler(event);
+      this.gridSurface.notifySelectionChanged();
       return;
     }
 
@@ -631,15 +687,58 @@ export class GridTemplateEventsDirective {
     if (this.gridSurface.drawSchedule.position !== pos) {
       this.gridSurface.drawSchedule.position = pos;
     }
+
+    this.openContextMenuForPosition(pos, event.clientX, event.clientY);
+  }
+
+  private openContextMenuForPosition(
+    pos: MyPosition,
+    clientX: number,
+    clientY: number
+  ): void {
     this.gridSurface.drawSchedule.drawSelection();
     this.gridSurface.drawSchedule.drawGridSelectedCell();
+    this.gridSurface.notifySelectionChanged();
 
     this.rightClick.emit({
       row: pos.row,
       column: pos.column,
-      clientX: event.clientX,
-      clientY: event.clientY,
+      clientX,
+      clientY,
     });
+  }
+
+  private handleContextMenuKey(event: KeyboardEvent): void {
+    this.stopEvent(event);
+
+    const pos = this.gridSurface.drawSchedule.position;
+    if (!pos || !this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+
+    const anchor = this.selectedCellCenterInClientCoordinates();
+    if (!anchor) {
+      return;
+    }
+
+    this.gridSurface.setFocus();
+    this.openContextMenuForPosition(pos, anchor.clientX, anchor.clientY);
+  }
+
+  private selectedCellCenterInClientCoordinates(): {
+    clientX: number;
+    clientY: number;
+  } | null {
+    const rect = this.gridSurface.selectedCellRect();
+    if (!rect) {
+      return null;
+    }
+
+    const canvasBounds = this.el.nativeElement.getBoundingClientRect();
+    return {
+      clientX: canvasBounds.left + rect.left + rect.width / CELL_CENTER_DIVISOR,
+      clientY: canvasBounds.top + rect.top + rect.height / CELL_CENTER_DIVISOR,
+    };
   }
 
   @HostListener('contextmenu', ['$event'])

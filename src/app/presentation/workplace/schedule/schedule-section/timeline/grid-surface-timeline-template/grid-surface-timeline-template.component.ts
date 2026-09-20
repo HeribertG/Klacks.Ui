@@ -54,6 +54,12 @@ import {
   TimelineGridEventsDirective,
   TimelineGridRightClickEvent,
 } from '../directives/timeline-grid-events.directive';
+import {
+  TouchGestureDirective,
+  TouchPanEvent,
+} from 'src/app/presentation/directives/touch-gesture.directive';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TouchPanAccumulator } from 'src/app/shared/helpers/touch-pan-accumulator';
 
 export interface TimelineCellValueChangeEvent {
   row: number;
@@ -74,6 +80,10 @@ export interface TimelineDoubleClickEvent {
       <canvas
         #canvasTemplateRef
         appTimelineGridEvents
+        appTouchGesture
+        appLongPressContext
+        class="touch-surface"
+        (touchPan)="onTouchPan($event)"
         id="timeline-template-canvas{{ canvasId }}"
         [tabindex]="0"
         (rightClick)="onCanvasRightClick($event)"
@@ -99,7 +109,7 @@ export interface TimelineDoubleClickEvent {
     `,
   ],
   standalone: true,
-  imports: [TimelineGridEventsDirective],
+  imports: [TimelineGridEventsDirective, TouchGestureDirective, LongPressContextDirective],
   providers: [
     { provide: BaseCreateCellService, useClass: TimelineCreateCellService },
     BaseDrawScheduleService,
@@ -154,6 +164,7 @@ export class GridSurfaceTimelineTemplateComponent
   private cdr = inject(ChangeDetectorRef);
 
   public canvasId = `-${Math.random().toString(36).substring(2, 10)}`;
+  private readonly touchPanAccumulator = new TouchPanAccumulator();
   private effects: EffectRef[] = [];
   private resizeObserver?: ResizeObserver;
   private isDestroyed = false;
@@ -238,6 +249,21 @@ export class GridSurfaceTimelineTemplateComponent
 
   onDeleteKey(event: TimelineGridBlockEvent): void {
     this.deleteBlock.emit({ row: event.row, column: event.column, entry: event.entry });
+  }
+
+  onTouchPan(event: TouchPanEvent): void {
+    const { columns, rows } = this.touchPanAccumulator.consume(
+      event.dx,
+      event.dy,
+      this.settings.cellWidth,
+      this.settings.cellHeight,
+    );
+    if (columns !== 0) {
+      this.valueHScrollbar.emit(Math.max(0, this.scroll.horizontalScrollPosition + columns));
+    }
+    if (rows !== 0) {
+      this.valueVScrollbar.emit(Math.max(0, this.scroll.verticalScrollPosition + rows));
+    }
   }
 
   onWheelScroll(event: { deltaX: number; deltaY: number }): void {

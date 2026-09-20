@@ -1,0 +1,25 @@
+:host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.cell-actions {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: manipulation;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 50%;
+  background: var(--gridHeaderBackground);
+  color: var(--gridColorText);
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}

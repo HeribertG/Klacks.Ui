@@ -34,6 +34,7 @@ import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
 import { TranscriptOverlayService } from './transcript-overlay/transcript-overlay.service';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
+import { LongPressContextDirective } from '../directives/long-press-context.directive';
 import {
   VoiceShellTiming,
   VoiceShellClass,
@@ -47,6 +48,7 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
     TranslateModule,
     VoiceShellIconComponent,
     TrashIconRedComponent,
+    LongPressContextDirective,
   ],
   templateUrl: './voice-shell.component.html',
   styleUrl: './voice-shell.component.scss',
@@ -84,7 +86,6 @@ export class VoiceShellComponent implements OnInit {
 
   readonly isIdle = computed<boolean>(() => this.effectiveState() === ConversationState.Idle);
 
-  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
   private errorClearTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
@@ -139,20 +140,6 @@ export class VoiceShellComponent implements OnInit {
     event.preventDefault();
     this.toastShowService.dismissInteractiveReplies();
     this.transcriptService.show();
-  }
-
-  handleTouchStart(): void {
-    this.longPressTimer = setTimeout(() => {
-      this.toastShowService.dismissInteractiveReplies();
-      this.transcriptService.show();
-    }, VoiceShellTiming.LongPressMs);
-  }
-
-  handleTouchEnd(): void {
-    if (this.longPressTimer !== null) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
-    }
   }
 
   handleClose(event: MouseEvent): void {

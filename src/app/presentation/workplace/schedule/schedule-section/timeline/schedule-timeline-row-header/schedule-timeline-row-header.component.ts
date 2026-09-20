@@ -53,13 +53,14 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { RowHeaderReportService } from '../../schedule-schedule-row-header/row-header-report.service';
 import { ShiftPreferencesDialogComponent } from '../../../dialogs/shift-preferences-dialog/shift-preferences-dialog.component';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 
 @Component({
   selector: 'app-schedule-timeline-row-header',
   templateUrl: './schedule-timeline-row-header.component.html',
   styleUrls: ['./schedule-timeline-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, ResizeDirective, ClientFilterComponent, ContextMenuComponent, ShiftPreferencesDialogComponent],
+  imports: [NgStyle, ResizeDirective, ClientFilterComponent, ContextMenuComponent, ShiftPreferencesDialogComponent, LongPressContextDirective],
   providers: [
     { provide: BaseCreateRowHeaderService, useClass: TimelineCreateRowHeaderService },
     BaseDrawRowHeaderService,

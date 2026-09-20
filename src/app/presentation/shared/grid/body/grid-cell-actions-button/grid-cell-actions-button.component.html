@@ -1,0 +1,17 @@
+@if (visible() && rect()) {
+  <button
+    #actionsButton
+    type="button"
+    class="cell-actions"
+    [attr.data-testid]="testId"
+    [attr.aria-label]="labelKey | translate"
+    aria-haspopup="menu"
+    [style.left.px]="left()"
+    [style.top.px]="top()"
+    [style.width.px]="size"
+    [style.height.px]="size"
+    (click)="onClick(actionsButton, $event)"
+  >
+    &#8942;
+  </button>
+}

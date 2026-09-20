@@ -13,6 +13,8 @@
 <div class="row-header-container" appResize (resizeElement)="onResize($event)">
   <canvas
     id="availability-row-header-canvas"
+    class="touch-no-callout"
+    appLongPressContext
     (mousemove)="onMouseMove($event)"
     (click)="onClick($event)"
     (contextmenu)="onRightClick($event)"

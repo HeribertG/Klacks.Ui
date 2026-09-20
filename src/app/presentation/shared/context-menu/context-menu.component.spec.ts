@@ -9,15 +9,20 @@ import { ContextMenuService } from './context-menu.service';
 import { MenuComponent } from './menu/menu.component';
 import { Menu } from './context-menu-class';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 describe('ContextMenuComponent', () => {
     let component: ContextMenuComponent;
     let fixture: ComponentFixture<ContextMenuComponent>;
     let contextMenuService: any;
+    let touchMode: boolean;
 
     beforeEach(async () => {
+        touchMode = false;
         const contextMenuServiceSpy = {
-            hasClicked: new Subject<string[]>()
+            hasClicked: new Subject<string[]>(),
+            markOpened: vi.fn()
         };
 
         await TestBed.configureTestingModule({
@@ -27,7 +32,8 @@ describe('ContextMenuComponent', () => {
                 ClickOutsideDirective
             ],
             providers: [
-                { provide: ContextMenuService, useValue: contextMenuServiceSpy }
+                { provide: ContextMenuService, useValue: contextMenuServiceSpy },
+                { provide: InputModalityService, useValue: { isTouchMode: () => touchMode } }
             ]
         }).compileComponents();
 
@@ -168,5 +174,109 @@ describe('ContextMenuComponent', () => {
         component.menuData = testMenu;
 
         expect(component.menuData).toBe(testMenu);
+    });
+
+    describe('touch mode', () => {
+        const hostOf = (): HTMLElement => (component as any).hostElementRef.nativeElement as HTMLElement;
+
+        const mockMain = (): any => {
+            const main = { openMenu: vi.fn(), closeMenu: vi.fn(), closeWithSubMenus: vi.fn(), isVisible: false } as any;
+            component.main = main;
+            vi.spyOn(component['cdr'], 'detectChanges').mockImplementation(() => {});
+            return main;
+        };
+
+        const fingerOffset = TouchInteraction.MenuOffsetFromFingerPx;
+
+        afterEach(() => {
+            document.documentElement.dir = '';
+        });
+
+        it('opens with a finger offset, the touch class and an armed ghost-click guard for a touch pointer', () => {
+            const main = mockMain();
+
+            component.openMenu(new PointerEvent('contextmenu', { clientX: 200, clientY: 300, pointerType: 'touch' }));
+
+            expect(main.openMenu).toHaveBeenCalledWith(200 + fingerOffset, 300 - fingerOffset, 0, 0);
+            expect(hostOf().classList.contains('context-menu--touch')).toBe(true);
+            expect(contextMenuService.markOpened).toHaveBeenCalledWith(true);
+        });
+
+        it('keeps the mouse offset, drops the touch class and arms no guard for a mouse pointer', () => {
+            const main = mockMain();
+            hostOf().classList.add('context-menu--touch');
+
+            component.openMenu(new PointerEvent('contextmenu', { clientX: 200, clientY: 300, pointerType: 'mouse' }));
+
+            expect(main.openMenu).toHaveBeenCalledWith(196, 296, 0, 0);
+            expect(hostOf().classList.contains('context-menu--touch')).toBe(false);
+            expect(contextMenuService.markOpened).toHaveBeenCalledWith(false);
+        });
+
+        it('treats a pen like a finger for the menu geometry', () => {
+            const main = mockMain();
+
+            component.openMenu(new PointerEvent('contextmenu', { clientX: 200, clientY: 300, pointerType: 'pen' }));
+
+            expect(main.openMenu).toHaveBeenCalledWith(200 + fingerOffset, 300 - fingerOffset, 0, 0);
+        });
+
+        it('falls back to the input modality when the opener passes a bare coordinate object', () => {
+            const main = mockMain();
+            touchMode = true;
+
+            component.openMenu({ clientX: 200, clientY: 300 } as MouseEvent);
+
+            expect(main.openMenu).toHaveBeenCalledWith(200 + fingerOffset, 300 - fingerOffset, 0, 0);
+        });
+
+        it('mirrors the offsets in a right-to-left document without changing the mouse behaviour', () => {
+            const main = mockMain();
+            document.documentElement.dir = 'rtl';
+
+            component.openMenu(new PointerEvent('contextmenu', { clientX: 200, clientY: 300, pointerType: 'mouse' }));
+            expect(main.openMenu).toHaveBeenLastCalledWith(204, 296, 0, 0);
+
+            component.openMenu(new PointerEvent('contextmenu', { clientX: 200, clientY: 300, pointerType: 'touch' }));
+            expect(main.openMenu).toHaveBeenLastCalledWith(200 - fingerOffset, 300 - fingerOffset, 0, 0);
+        });
+
+        it('closes a menu that is still open before it opens at the new position', () => {
+            const main = mockMain();
+            main.isVisible = true;
+
+            component.openMenu(new MouseEvent('contextmenu', { clientX: 10, clientY: 20 }));
+
+            expect(main.closeWithSubMenus).toHaveBeenCalledTimes(1);
+            expect(main.closeWithSubMenus.mock.invocationCallOrder[0]).toBeLessThan(main.openMenu.mock.invocationCallOrder[0]);
+        });
+
+        it('does not close anything when no menu is open', () => {
+            const main = mockMain();
+
+            component.openMenu(new MouseEvent('contextmenu', { clientX: 10, clientY: 20 }));
+
+            expect(main.closeWithSubMenus).not.toHaveBeenCalled();
+        });
+
+        it('closes immediately on an outside click in touch mode instead of after the delay', () => {
+            touchMode = true;
+            fixture.detectChanges();
+            const closeSpy = vi.spyOn(component, 'closeMenu').mockImplementation(() => {});
+
+            document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+            expect(closeSpy).toHaveBeenCalledWith(true);
+        });
+
+        it('keeps the delayed close on an outside click with a mouse', () => {
+            touchMode = false;
+            fixture.detectChanges();
+            const closeSpy = vi.spyOn(component, 'closeMenu').mockImplementation(() => {});
+
+            document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+            expect(closeSpy).toHaveBeenCalledWith(false);
+        });
     });
 });

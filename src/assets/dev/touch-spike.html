@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klacks touch spike</title>
+<style>
+  body { margin: 0; font: 14px system-ui; display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+  header { padding: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  #stage { position: relative; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; background: #f4f4f4; }
+  #stage.ta-none canvas { touch-action: none; }
+  #stage.noselect canvas { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  #log { height: 40vh; overflow: auto; font: 11px ui-monospace, monospace; border-top: 1px solid #ccc; padding: 4px; }
+  #log div.untrusted { color: #a00; }
+  label { user-select: none; }
+</style>
+</head>
+<body>
+<header>
+  <label><input type="checkbox" id="taNone" checked> touch-action: none</label>
+  <label><input type="checkbox" id="noSelect" checked> user-select/callout none</label>
+  <label><input type="checkbox" id="pdPrevent"> preventDefault on pointerdown</label>
+  <label><input type="checkbox" id="cmPrevent" checked> preventDefault on contextmenu</label>
+  <button id="clear" type="button">Clear</button>
+  <button id="copy" type="button">Copy JSON</button>
+  <span id="env"></span>
+</header>
+<div id="stage" class="ta-none noselect"><canvas id="c"></canvas></div>
+<div id="log"></div>
+<script>
+(() => {
+  const TYPES = ['pointerdown','pointermove','pointerup','pointercancel','gotpointercapture','lostpointercapture',
+    'touchstart','touchmove','touchend','touchcancel',
+    'mousedown','mousemove','mouseup','click','dblclick','contextmenu','selectstart','wheel'];
+  const stage = document.getElementById('stage');
+  const canvas = document.getElementById('c');
+  const logEl = document.getElementById('log');
+  const entries = [];
+  const t0 = performance.now();
+  const env = document.getElementById('env');
+  env.textContent = [
+    navigator.platform, navigator.userAgentData?.platform ?? '-',
+    'maxTouchPoints=' + navigator.maxTouchPoints,
+    'coarse=' + matchMedia('(pointer: coarse)').matches,
+    'anyCoarse=' + matchMedia('(any-pointer: coarse)').matches,
+    'hoverNone=' + matchMedia('(hover: none)').matches,
+  ].join(' | ');
+
+  const opts = { taNone: true, noSelect: true, pdPrevent: false, cmPrevent: true };
+  for (const key of Object.keys(opts)) {
+    document.getElementById(key).addEventListener('change', (e) => {
+      opts[key] = e.target.checked;
+      stage.classList.toggle('ta-none', opts.taNone);
+      stage.classList.toggle('noselect', opts.noSelect);
+    });
+  }
+
+  let lastMove = 0;
+  function record(e) {
+    const isMove = e.type.endsWith('move');
+    if (isMove && performance.now() - lastMove < 50) return;
+    if (isMove) lastMove = performance.now();
+    const row = {
+      t: +(performance.now() - t0).toFixed(1), type: e.type, trusted: e.isTrusted,
+      pointerType: e.pointerType ?? null, pointerId: e.pointerId ?? null, isPrimary: e.isPrimary ?? null,
+      button: e.button ?? null, buttons: e.buttons ?? null,
+      x: e.clientX ?? (e.touches?.[0]?.clientX ?? null), y: e.clientY ?? (e.touches?.[0]?.clientY ?? null),
+      pressure: e.pressure ?? null, defaultPrevented: e.defaultPrevented,
+    };
+    entries.push(row);
+    const div = document.createElement('div');
+    div.className = e.isTrusted ? '' : 'untrusted';
+    div.textContent = JSON.stringify(row);
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  for (const type of TYPES) {
+    canvas.addEventListener(type, (e) => {
+      record(e);
+      if (type === 'pointerdown' && opts.pdPrevent) e.preventDefault();
+      if (type === 'contextmenu' && opts.cmPrevent) e.preventDefault();
+      if (type === 'pointerdown' && e.pointerType !== 'mouse') {
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) { record({ type: 'setPointerCapture:error', isTrusted: false }); }
+      }
+    }, { capture: true, passive: false });
+  }
+
+  document.getElementById('clear').addEventListener('click', () => { entries.length = 0; logEl.textContent = ''; });
+  document.getElementById('copy').addEventListener('click', async () => {
+    await navigator.clipboard.writeText(JSON.stringify({ env: env.textContent, opts, entries }, null, 1));
+  });
+  window.__touchSpike = entries;
+})();
+</script>
+</body>
+</html>
