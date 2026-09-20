@@ -124,10 +124,17 @@
 }
 
 .table-governance {
-  min-width: 900px;
+  width: 100%;
+  padding: 0;
 
-  th {
-    white-space: nowrap;
+  th:first-child,
+  td:first-child {
+    padding-inline-start: 0;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-inline-end: 0;
   }
 }
 
