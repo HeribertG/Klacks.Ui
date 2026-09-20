@@ -66,12 +66,12 @@
 
   .rule-type-select {
     width: 180px;
-    height: 32px;
+    height: var(--controlHeight);
   }
 
   .pattern-input {
     flex: 1;
-    height: 32px;
+    height: var(--controlHeight);
   }
 
   .add-button {

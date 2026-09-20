@@ -16,7 +16,7 @@
         }}</span>
         @if (s.activeOperation; as op) {
           @if (awaitingUpdater()) {
-            <span class="hint-text settings-hint status-failed">{{
+            <span class="hint-text settings-hint status-text-error">{{
               "setting.speech.whisper-plugin.status-awaiting-updater" | translate
             }}</span>
           } @else if (op.operationType === OperationTypes.Install) {
@@ -31,7 +31,7 @@
             }}</span>
           }
         } @else if (s.installed) {
-          <span class="hint-text settings-hint status-installed">{{
+          <span class="hint-text settings-hint status-text-success">{{
             "setting.speech.whisper-plugin.status-installed"
               | translate: { model: s.modelAlias }
           }}</span>
@@ -49,7 +49,7 @@
           }}</span>
           <span
             class="hint-text settings-hint"
-            [class.status-failed]="
+            [class.status-text-error]="
               s.lastOperation.status === OperationStatuses.Failed
             "
           >
@@ -64,7 +64,7 @@
 
     @if (s.activeOperation) {
       @if (awaitingUpdater()) {
-        <div class="info-text settings-hint status-failed">
+        <div class="info-text settings-hint status-text-error">
           {{
             "setting.speech.whisper-plugin.awaiting-updater-hint"
               | translate: { minutes: waitingMinutes() }
@@ -78,7 +78,7 @@
     }
 
     @if (s.otherOperationActive) {
-      <div class="info-text settings-hint status-failed">
+      <div class="info-text settings-hint status-text-error">
         {{ "setting.speech.whisper-plugin.other-operation-active" | translate }}
       </div>
     }

@@ -19,8 +19,8 @@
 .no-api-key-warning {
   margin: 20px;
   padding: 20px;
-  background: #fff3cd;
-  border: 2px solid #ffc107;
+  background: var(--alertWarningBackground);
+  border: 2px solid var(--colorWarning);
   border-radius: 8px;
   display: flex;
   gap: 16px;
@@ -36,20 +36,20 @@
 
     .warning-title {
       margin: 0 0 8px 0;
-      font-size: 16px;
+      font-size: var(--fontSizeCardHeader);
       font-weight: 600;
-      color: #856404;
+      color: var(--alertWarningText);
     }
 
     .warning-message {
       margin: 0 0 16px 0;
-      color: #856404;
+      color: var(--alertWarningText);
       line-height: 1.5;
     }
 
     .warning-button {
       background: colors.$standartGreenColor;
-      color: white;
+      color: var(--onAccent);
       border: none;
       padding: 8px 16px;
       border-radius: 4px;
@@ -117,7 +117,7 @@
     }
 
     .model-cost {
-      font-size: 12px;
+      font-size: var(--fontSizeSmall);
       color: colors.$standartGreenColor;
       font-weight: 600;
     }
@@ -181,7 +181,7 @@
         }
 
         .model-description {
-          font-size: 12px;
+          font-size: var(--fontSizeSmall);
           color: colors.$CurrentGreyColor;
           margin-bottom: 6px;
         }
@@ -189,7 +189,7 @@
         .model-pricing {
           display: flex;
           gap: 12px;
-          font-size: 11px;
+          font-size: var(--fontSizeXSmall);
 
           .input-cost {
             color: colors.$standartBlueColor;
@@ -206,7 +206,7 @@
         color: colors.$standartWhiteColor;
         padding: 4px 8px;
         border-radius: 12px;
-        font-size: 10px;
+        font-size: var(--fontSizeTiny);
         text-transform: uppercase;
         font-weight: 600;
       }
@@ -249,7 +249,7 @@
 
     .header-title {
       font-weight: 600;
-      font-size: 16px;
+      font-size: var(--fontSizeCardHeader);
     }
   }
 
@@ -262,9 +262,9 @@
       border: none;
       border-radius: 6px;
       padding: 6px 8px;
-      color: white;
+      color: var(--onAccent);
       cursor: pointer;
-      font-size: 12px;
+      font-size: var(--fontSizeSmall);
       transition: background-color 0.2s ease;
 
       &:hover {
@@ -292,11 +292,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #dee2e6;
+    background: var(--colorScrollbarThumb);
     border-radius: 3px;
 
     &:hover {
-      background: #adb5bd;
+      background: var(--colorScrollbarThumbHover);
     }
   }
 }
@@ -332,7 +332,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   flex-shrink: 0;
   overflow: hidden;
 
@@ -390,7 +390,7 @@
   border: none;
   border-radius: 12px;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -420,7 +420,7 @@
   border: 1px solid var(--cardBorderColor);
   border-radius: 16px;
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -454,7 +454,7 @@
   color: var(--standartGreenColor);
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   margin-bottom: 8px;
   text-align: center;
   display: flex;
@@ -483,21 +483,21 @@
   color: var(--standartTextColor);
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   margin-bottom: 8px;
   text-align: center;
   animation: pulse-voice 1.5s infinite;
 }
 
 .speech-not-supported {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   margin-bottom: 8px;
   text-align: center;
-  border: 1px solid #ffeaa7;
+  border: 1px solid var(--alertWarningBorder);
 }
 
 @keyframes pulse-voice {
@@ -532,7 +532,7 @@
   background: none;
   border: none;
   color: var(--colorLabel);
-  font-size: 18px;
+  font-size: var(--fontSizeTitle);
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
@@ -552,7 +552,7 @@
 
   &.voice-enabled {
     background: var(--standartGreenColor);
-    color: white;
+    color: var(--onAccent);
     border-radius: 50%;
 
     &:hover {
@@ -564,7 +564,7 @@
   &.listening,
   &.listening.voice-enabled {
     background: colors.$voiceStateListeningColor;
-    color: white;
+    color: var(--onAccent);
     border-radius: 50%;
     animation: pulse-voice 1s infinite;
   }
@@ -572,7 +572,7 @@
   &.transcribing,
   &.transcribing.voice-enabled {
     background: colors.$voiceStateEnhancingColor;
-    color: white;
+    color: var(--onAccent);
     border-radius: 50%;
     cursor: wait;
 
@@ -584,7 +584,7 @@
   &.processing,
   &.processing.voice-enabled {
     background: colors.$voiceStateProcessingColor;
-    color: white;
+    color: var(--onAccent);
     border-radius: 50%;
     cursor: wait;
 
@@ -596,16 +596,16 @@
   &.speaking,
   &.speaking.voice-enabled {
     background: colors.$voiceStateSpeakingColor;
-    color: white;
+    color: var(--onAccent);
     border-radius: 50%;
   }
 
   &.not-supported {
-    color: #ffc107;
+    color: var(--colorWarning);
     opacity: 0.7;
 
     &:hover {
-      background: #fff3cd;
+      background: var(--alertWarningBackground);
     }
   }
 
@@ -662,7 +662,7 @@
   outline: none;
   background: none;
   resize: none;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   line-height: 1.4;
   min-height: 40px;
   color: var(--standartTextColor);
@@ -683,7 +683,7 @@
   border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--fontSizeCardHeader);
   transition: all 0.2s ease;
   flex-shrink: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -750,7 +750,7 @@
 
   .onboarding-card-title {
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--fontSizeBase);
   }
 
   .onboarding-card-dismiss {
@@ -758,13 +758,13 @@
     border: none;
     color: colors.$CurrentGreyColor;
     cursor: pointer;
-    font-size: 18px;
+    font-size: var(--fontSizeTitle);
     line-height: 1;
     padding: 0 4px;
   }
 
   .onboarding-card-progress-text {
-    font-size: 12px;
+    font-size: var(--fontSizeSmall);
     color: colors.$CurrentGreyColor;
   }
 
@@ -788,11 +788,11 @@
 
   .onboarding-card-start {
     background: colors.$standartGreenColor;
-    color: #fff;
+    color: var(--onAccent);
     border: none;
     border-radius: 4px;
     padding: 6px 14px;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     cursor: pointer;
 
     &:hover {
@@ -806,7 +806,7 @@
     border: 1px solid var(--cardBorderColor);
     border-radius: 4px;
     padding: 6px 14px;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     cursor: pointer;
 
     &:hover {

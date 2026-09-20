@@ -10,7 +10,7 @@ $setup-background: "../../../../assets/png/login-background.png" !default;
 }
 
 .container {
-  background-color: white;
+  background-color: var(--backgroundColorCard);
   align-self: center;
   display: flex;
   justify-content: flex-start space-around;
@@ -29,12 +29,12 @@ $setup-background: "../../../../assets/png/login-background.png" !default;
 .intro {
   padding-inline-start: 50px;
   padding-inline-end: 50px;
-  color: #6c757d;
+  color: var(--colorNeutral);
   font-size: 14px;
 }
 
 input {
-  height: 40px;
+  height: var(--controlHeight);
 }
 
 label {

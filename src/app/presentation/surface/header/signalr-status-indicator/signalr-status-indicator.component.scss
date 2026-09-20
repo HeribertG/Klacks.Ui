@@ -16,9 +16,9 @@
 }
 
 .signalr-status-dot.connected {
-  background-color: #28a745;
+  background-color: var(--standartGreenColor);
 }
 
 .signalr-status-dot.disconnected {
-  background-color: #dc3545;
+  background-color: var(--standartRedColor);
 }

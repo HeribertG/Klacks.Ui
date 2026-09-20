@@ -22,7 +22,7 @@
 
   .form-control {
     flex: 1;
-    height: 32px;
+    height: var(--controlHeight);
     border-start-end-radius: 0;
     border-end-end-radius: 0;
     border-start-start-radius: 5px;
@@ -88,7 +88,7 @@ select {
   .test-email-button {
     background-color: colors.$standartGreenColor;
     border-color: colors.$standartGreenColor;
-    color: white;
+    color: var(--onAccent);
 
     &:hover:not(:disabled) {
       background-color: colors.$splitButtonGreenColor;

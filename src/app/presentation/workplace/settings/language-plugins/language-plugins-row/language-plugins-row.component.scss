@@ -73,12 +73,12 @@ span {
 
 .status-core {
   background-color: colors.$standartGreenColor;
-  color: white;
+  color: var(--onAccent);
 }
 
 .status-installed {
-  background-color: #3b82f6;
-  color: white;
+  background-color: var(--colorInfo);
+  color: var(--onAccent);
 }
 
 .status-available {
@@ -101,16 +101,16 @@ span {
 
   &:hover {
     background: colors.$standartGreenColor;
-    color: white;
+    color: var(--onAccent);
   }
 }
 
 .uninstall-btn {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--standartRedColor);
+  color: var(--standartRedColor);
 
   &:hover {
-    background: #ef4444;
-    color: white;
+    background: var(--standartRedColor);
+    color: var(--onAccent);
   }
 }

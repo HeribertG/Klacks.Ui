@@ -32,8 +32,8 @@
     }
 
     textarea.form-control {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      background-color: color-mix(in srgb, var(--onAccent) 10%, transparent) !important;
+      border: 1px solid color-mix(in srgb, var(--onAccent) 20%, transparent) !important;
       color: inherit !important;
       resize: none !important;
       overflow: hidden !important;
@@ -42,29 +42,29 @@
       height: auto !important;
 
       &::placeholder {
-        color: rgba(255, 255, 255, 0.6) !important;
+        color: color-mix(in srgb, var(--onAccent) 60%, transparent) !important;
       }
 
       &:focus {
-        background-color: rgba(255, 255, 255, 0.15) !important;
-        border-color: rgba(255, 255, 255, 0.4) !important;
-        box-shadow: 0 0 0 0.1rem rgba(255, 255, 255, 0.2) !important;
+        background-color: color-mix(in srgb, var(--onAccent) 15%, transparent) !important;
+        border-color: color-mix(in srgb, var(--onAccent) 40%, transparent) !important;
+        box-shadow: 0 0 0 0.1rem color-mix(in srgb, var(--onAccent) 20%, transparent) !important;
       }
     }
   }
 
   // Interactive assistant toast
   .bg-assistant-interactive {
-    background: var(--backgroundColorCard, #fff) !important;
-    color: var(--standartTextColor, #333) !important;
+    background: var(--backgroundColorCard) !important;
+    color: var(--standartTextColor) !important;
     border: 2px solid colors.$standartGreenColor !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   }
 
   .bg-undo,
   .bg-action {
-    background: var(--backgroundColorCard, #fff) !important;
-    color: var(--standartTextColor, #333) !important;
+    background: var(--backgroundColorCard) !important;
+    color: var(--standartTextColor) !important;
     border: 2px solid colors.$standartGreenColor !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   }
@@ -80,12 +80,12 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--backgroundColorFocus, #f0f0f0);
-    color: var(--standartTextColor, #333);
-    border: 1px solid var(--cardBorderColor, #ddd);
+    background: var(--backgroundColorFocus);
+    color: var(--standartTextColor);
+    border: 1px solid var(--cardBorderColor);
     border-radius: 16px;
     padding: 6px 14px;
-    font-size: 12px;
+    font-size: var(--fontSizeSmall);
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -112,7 +112,7 @@
     width: 100%;
     height: 3px;
     border-radius: 2px;
-    background: var(--backgroundColorFocus, #f0f0f0);
+    background: var(--backgroundColorFocus);
     overflow: hidden;
   }
 
@@ -150,12 +150,12 @@
 
   .reply-chip-btn,
   .toast-action-btn {
-    background: var(--backgroundColorFocus, #f0f0f0);
-    color: var(--standartTextColor, #333);
-    border: 1px solid var(--cardBorderColor, #ddd);
+    background: var(--backgroundColorFocus);
+    color: var(--standartTextColor);
+    border: 1px solid var(--cardBorderColor);
     border-radius: 16px;
     padding: 6px 14px;
-    font-size: 12px;
+    font-size: var(--fontSizeSmall);
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -185,16 +185,16 @@
     padding: 6px 8px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
-    color: var(--standartTextColor, #333);
+    font-size: var(--fontSizeLabel);
+    color: var(--standartTextColor);
     transition: background 0.15s;
 
     &:hover {
-      background: var(--backgroundColorFocus, #f0f0f0);
+      background: var(--backgroundColorFocus);
     }
 
     &.checked {
-      background: rgba(colors.$standartGreenColor, 0.08);
+      background: color-mix(in srgb, var(--standartGreenColor) 8%, transparent);
     }
 
     input[type="checkbox"] {
@@ -220,7 +220,7 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
@@ -234,31 +234,31 @@
   }
 
   .reply-date-heading {
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     font-weight: 500;
-    color: var(--standartTextColor, #333);
+    color: var(--standartTextColor);
     margin-bottom: 6px;
   }
 
   .reply-number-range {
-    font-size: 12px;
-    color: var(--secondaryTextColor, #666);
+    font-size: var(--fontSizeSmall);
+    color: var(--colorInactive);
     margin-top: 4px;
   }
 
   .reply-date-input,
   .reply-number-input {
     width: 100%;
-    background-color: var(--backgroundColorFocus, #f0f0f0) !important;
-    border: 1px solid var(--cardBorderColor, #ddd) !important;
-    color: var(--standartTextColor, #333) !important;
+    background-color: var(--backgroundColorFocus) !important;
+    border: 1px solid var(--cardBorderColor) !important;
+    color: var(--standartTextColor) !important;
     border-radius: 6px !important;
     padding: 6px 10px;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
 
     &:focus {
       border-color: colors.$standartGreenColor !important;
-      box-shadow: 0 0 0 0.1rem rgba(colors.$standartGreenColor, 0.25) !important;
+      box-shadow: 0 0 0 0.1rem color-mix(in srgb, var(--standartGreenColor) 25%, transparent) !important;
       outline: none;
     }
   }
@@ -266,8 +266,8 @@
   .reply-dismiss-btn {
     background: none;
     border: none;
-    color: var(--colorLabel, #999);
-    font-size: 11px;
+    color: var(--colorLabel);
+    font-size: var(--fontSizeXSmall);
     cursor: pointer;
     padding: 4px 0;
     text-align: center;

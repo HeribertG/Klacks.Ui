@@ -100,7 +100,7 @@
   }
 
   &.running {
-    color: var(--standartBlueColor, #6993ff);
+    color: var(--standartBlueColor);
   }
 
   &.success {
@@ -178,7 +178,7 @@
   .picker-hint {
     display: block;
     margin-top: 4px;
-    color: #6c757d;
+    color: var(--colorNeutral);
     font-size: 0.85em;
   }
 }
@@ -186,7 +186,7 @@
 .record-playback-section {
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--colorSubtleLine);
 
   h4 {
     margin-bottom: 12px;

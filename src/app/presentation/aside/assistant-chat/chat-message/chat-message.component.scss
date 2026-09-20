@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   flex-shrink: 0;
   overflow: hidden;
 
@@ -115,13 +115,13 @@
     border-radius: 10px;
     background: rgba(colors.$CurrentGreyColor, 0.15);
     color: var(--colorLabel);
-    font-size: 10px;
+    font-size: var(--fontSizeTiny);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 
     fa-icon {
-      font-size: 10px;
+      font-size: var(--fontSizeTiny);
     }
 
     &.severity-high {
@@ -133,7 +133,7 @@
   .message-text {
     line-height: 1.5;
     white-space: pre-wrap;
-    font-size: 14px;
+    font-size: var(--fontSizeBase);
 
     h2,
     h3,
@@ -146,7 +146,7 @@
     }
 
     h2 {
-      font-size: 16px;
+      font-size: var(--fontSizeCardHeader);
     }
 
     h3 {
@@ -156,7 +156,7 @@
     h4,
     h5,
     h6 {
-      font-size: 14px;
+      font-size: var(--fontSizeBase);
     }
 
     ul {
@@ -178,7 +178,7 @@
       background: rgba(0, 0, 0, 0.06);
       padding: 1px 4px;
       border-radius: 3px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-family: var(--fontFamilyMono);
       font-size: 12.5px;
     }
 
@@ -189,7 +189,7 @@
     table {
       border-collapse: collapse;
       margin: 6px 0 10px 0;
-      font-size: 13px;
+      font-size: var(--fontSizeLabel);
       max-width: 100%;
       display: block;
       overflow-x: auto;
@@ -217,7 +217,7 @@
   }
 
   .message-time {
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     opacity: 0.7;
     margin-top: 4px;
   }
@@ -313,7 +313,7 @@
   justify-content: center;
   cursor: pointer;
   color: var(--colorLabel);
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   padding: 0;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -368,7 +368,7 @@
   justify-content: center;
   cursor: pointer;
   color: var(--colorLabel);
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   padding: 0;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -389,8 +389,8 @@
   align-items: center;
   gap: 4px;
   margin-top: 4px;
-  font-size: 11px;
-  color: var(--mutedTextColor, #888);
+  font-size: var(--fontSizeXSmall);
+  color: var(--colorInactive);
   font-style: italic;
 }
 
@@ -403,7 +403,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 }
 
 .feedback-btn {
@@ -430,7 +430,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--mutedTextColor, #888);
+  color: var(--colorInactive);
   font-style: italic;
 }
 
@@ -440,7 +440,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 4px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 }
 
 .correction-btn {
@@ -467,7 +467,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--mutedTextColor, #888);
+  color: var(--colorInactive);
   font-style: italic;
 }
 
@@ -476,7 +476,7 @@
   top: 28px;
   inset-inline-start: 0;
   z-index: 20;
-  background: var(--backgroundColor, #ffffff);
+  background: var(--backgroundColorCard);
   border: 1px solid var(--cardBorderColor);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -490,7 +490,7 @@
     border: none;
     text-align: start;
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: var(--fontSizeSmall);
     color: var(--standartTextColor);
     cursor: pointer;
 
@@ -516,7 +516,7 @@
   .expected-skill-title,
   .expected-skill-loading {
     padding: 4px 12px;
-    font-size: 11px;
+    font-size: var(--fontSizeXSmall);
     color: var(--standartTextColor);
     opacity: 0.75;
   }
@@ -559,7 +559,7 @@
   top: 26px;
   inset-inline-end: 0;
   z-index: 20;
-  background: var(--backgroundColor, #ffffff);
+  background: var(--backgroundColorCard);
   border: 1px solid var(--cardBorderColor);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -573,7 +573,7 @@
     border: none;
     text-align: start;
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: var(--fontSizeSmall);
     color: var(--standartTextColor);
     cursor: pointer;
 
@@ -592,7 +592,7 @@
   color: var(--standartTextColor);
   border-radius: 12px;
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   cursor: pointer;
   opacity: 0.55;
   transition: opacity 0.15s ease, background-color 0.15s ease;
@@ -623,7 +623,7 @@
   gap: 4px;
   color: var(--colorLabel);
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
 }
 
 .proactive-reminder-badge {
@@ -633,7 +633,7 @@
   border-radius: 10px;
   background: var(--backgroundColorFocus);
   color: var(--colorLabel);
-  font-size: 10px;
+  font-size: var(--fontSizeTiny);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;

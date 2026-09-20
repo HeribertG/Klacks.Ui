@@ -10,7 +10,7 @@ $login-background: "../../../../assets/png/login-background.png" !default;
 }
 
 .container {
-  background-color: white;
+  background-color: var(--backgroundColorCard);
   align-self: center;
   display: flex;
   justify-content: flex-start space-around;
@@ -27,7 +27,7 @@ $login-background: "../../../../assets/png/login-background.png" !default;
 }
 
 input {
-  height: 40px;
+  height: var(--controlHeight);
 }
 
 label {
@@ -63,18 +63,18 @@ label {
 }
 
 .password-icon {
-  font-size: 16px;
-  color: #464e5f;
+  font-size: var(--fontSizeCardHeader);
+  color: var(--standartTextColor);
 }
 
 .password-button {
-  border: 1px solid #ced4da;
+  border: 1px solid var(--standartBorderColor);
   border-inline-start: none;
-  background-color: #e9ecef;
+  background-color: var(--backgroundColorSubCards);
   cursor: pointer;
 
   &:hover {
-    background-color: #dee2e6;
+    background-color: var(--colorSubtleLine);
   }
 
   &:focus {
@@ -86,7 +86,7 @@ label {
 .link-button {
   background: none;
   border: none;
-  color: #0d6efd;
+  color: var(--colorInfo);
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
@@ -94,7 +94,7 @@ label {
   font-family: inherit;
 
   &:hover {
-    color: #0a58ca;
+    color: color-mix(in srgb, var(--colorInfo) 80%, black);
   }
 
   &:focus {
@@ -113,13 +113,13 @@ label {
   &::after {
     content: "";
     flex: 1;
-    border-bottom: 1px solid #ced4da;
+    border-bottom: 1px solid var(--standartBorderColor);
   }
 
   span {
     padding: 0 15px;
-    color: #6c757d;
-    font-size: 14px;
+    color: var(--colorNeutral);
+    font-size: var(--fontSizeBase);
   }
 }
 
@@ -139,14 +139,14 @@ label {
 .legal-links {
   text-align: center;
   padding: 15px 0;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
 
   a {
-    color: #6c757d;
+    color: var(--colorNeutral);
     text-decoration: none;
 
     &:hover {
-      color: #0d6efd;
+      color: var(--colorInfo);
       text-decoration: underline;
     }
   }
@@ -154,5 +154,5 @@ label {
 
 .legal-separator {
   margin: 0 8px;
-  color: #ced4da;
+  color: var(--standartBorderColor);
 }

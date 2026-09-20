@@ -54,7 +54,7 @@ ngb-pagination ::ng-deep .page-item:last-child .page-link {
   margin-inline-end: 10px;
   margin-top: 3px;
   width: auto;
-  height:30px;
+  height: var(--controlHeight);
   font-weight: 500;
   color:var(--colorLabel);
   border: 0px;

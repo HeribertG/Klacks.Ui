@@ -2,11 +2,6 @@
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/settings-list-row.scss";
 
-$badge-active-color: #6c757d;
-$badge-pending-color: #0d6efd;
-$badge-applied-auto-color: #28a745;
-$badge-blocked-color: #d97706;
-
 .learned-phrases-row {
   display: flex;
   align-items: center;
@@ -63,27 +58,27 @@ $badge-blocked-color: #d97706;
 }
 
 .badge-status-active {
-  background: rgba($badge-active-color, 0.12);
-  border-color: rgba($badge-active-color, 0.5);
-  color: $badge-active-color;
+  background: color-mix(in srgb, var(--colorNeutral) 12%, transparent);
+  border-color: color-mix(in srgb, var(--colorNeutral) 50%, transparent);
+  color: var(--colorNeutral);
 }
 
 .badge-status-pending {
-  background: rgba($badge-pending-color, 0.1);
-  border-color: rgba($badge-pending-color, 0.4);
-  color: $badge-pending-color;
+  background: color-mix(in srgb, var(--colorInfo) 10%, transparent);
+  border-color: color-mix(in srgb, var(--colorInfo) 40%, transparent);
+  color: var(--colorInfo);
 }
 
 .badge-status-applied-auto {
-  background: rgba($badge-applied-auto-color, 0.12);
-  border-color: rgba($badge-applied-auto-color, 0.5);
-  color: $badge-applied-auto-color;
+  background: color-mix(in srgb, var(--standartGreenColor) 12%, transparent);
+  border-color: color-mix(in srgb, var(--standartGreenColor) 50%, transparent);
+  color: var(--standartGreenColor);
 }
 
 .badge-status-blocked {
-  background: rgba($badge-blocked-color, 0.12);
-  border-color: rgba($badge-blocked-color, 0.5);
-  color: $badge-blocked-color;
+  background: color-mix(in srgb, var(--colorWarning) 12%, transparent);
+  border-color: color-mix(in srgb, var(--colorWarning) 50%, transparent);
+  color: var(--colorWarning);
 }
 
 .approve-slot {

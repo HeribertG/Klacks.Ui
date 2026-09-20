@@ -65,7 +65,7 @@
   display: flex;
   gap: 20px;
   padding: 4px 0 8px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   color: var(--colorLabel);
   flex-wrap: wrap;
 }

@@ -33,7 +33,7 @@
               @for (field of getAvailableFields(group); track field.key) {
                 <div class="palette-field" cdkDrag [cdkDragData]="field">
                   <i class="fa fa-grip-vertical drag-handle"></i>
-                  <span class="field-label">{{
+                  <span>{{
                     field.i18nKey | translate
                   }}</span>
                 </div>

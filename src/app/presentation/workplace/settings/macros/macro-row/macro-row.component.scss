@@ -9,12 +9,12 @@
 
 input {
   width: 200px;
-  height: 32px;
+  height: var(--controlHeight);
 }
 
 select {
   width: 200px;
-  height: 33px;
+  height: var(--controlHeight);
 }
 
 label {
@@ -37,7 +37,7 @@ label {
 
 .container-line {
   margin-top: 25px;
-  border-top: 1px solid #e5eaee;
+  border-top: 1px solid var(--colorLine);
   padding-bottom: 10px;
 }
 
@@ -75,7 +75,7 @@ button {
   margin-top: 5px;
   margin-bottom: 5px;
   font-weight: 900;
-  color: grey;
+  color: var(--colorNeutral);
   margin-inline-end: 10px;
 }
 
@@ -97,7 +97,7 @@ button {
 
     &.cm-focused .cm-selectionBackground,
     .cm-selectionBackground {
-      background-color: #3297fd !important;
+      background-color: var(--colorInfo) !important;
     }
   }
 
@@ -106,7 +106,7 @@ button {
   }
 
   .cm-scroller {
-    font-family: monospace;
+    font-family: var(--fontFamilyMono);
     font-size: var(--fontSizeSmall) !important;
   }
 

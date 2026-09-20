@@ -10,7 +10,7 @@
 }
 
 input {
-  height: 32px;
+  height: var(--controlHeight);
 }
 
 .cap-period {

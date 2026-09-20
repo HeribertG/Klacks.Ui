@@ -82,31 +82,31 @@
   display: inline-block;
   padding: 6px 16px;
   border-radius: 14px;
-  font-size: 14px;
+  font-size: var(--fontSizeBase);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .badge-sealed {
-  background-color: var(--standartGreenColor, #1bc5bd);
-  color: #fff;
+  background-color: var(--standartGreenColor);
+  color: var(--onAccent);
 }
 
 .badge-partial {
-  background-color: var(--standartOrangeColor, #e89b2e);
-  color: #fff;
+  background-color: var(--standartOrangeColor);
+  color: var(--onAccent);
 }
 
 .badge-empty {
-  background-color: var(--colorLabel, #6c757d);
-  color: #fff;
+  background-color: var(--colorLabel);
+  color: var(--onAccent);
 }
 
 .reason-dialog {
   margin-top: 12px;
   padding: 12px;
-  border: 1px solid var(--colorLine, #e5eaee);
+  border: 1px solid var(--colorLine);
   border-radius: 5px;
 }
 

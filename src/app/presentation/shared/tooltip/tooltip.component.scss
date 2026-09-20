@@ -4,7 +4,7 @@
   position: fixed;
   padding: 6px 10px;
   background-color: colors.$tooltipBackgroundColor;
-  color: #000;
+  color: var(--standartTextColor);
   border: colors.$tooltipBorder;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);

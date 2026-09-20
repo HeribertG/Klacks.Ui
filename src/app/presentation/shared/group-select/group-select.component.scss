@@ -15,7 +15,7 @@
   color: var(--gridColorText);
 
   .required-marker {
-    color: #e53935;
+    color: var(--standartRedColor);
     margin-inline-start: 4px;
   }
 }
@@ -159,7 +159,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    border: 2px solid #ccc;
+    border: 2px solid var(--standartBorderColor);
     display: flex;
     align-items: center;
     justify-content: center;

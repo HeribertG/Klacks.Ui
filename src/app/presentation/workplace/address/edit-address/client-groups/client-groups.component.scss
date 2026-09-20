@@ -58,7 +58,7 @@ table input:not([type="checkbox"]):not(.is-invalid):not(.is-valid),
 
 table input.is-invalid,
 .table input.is-invalid {
-  border: 1px solid #dc3545 !important;
+  border: 1px solid var(--standartRedColor) !important;
   background: transparent !important;
   background-image: none !important;
   padding-inline-end: 0.75rem !important;
@@ -70,7 +70,7 @@ table input.is-invalid,
 
 table input.is-valid,
 .table input.is-valid {
-  border: 1px solid #198754 !important;
+  border: 1px solid var(--standartGreenColor) !important;
   background: transparent !important;
   background-image: none !important;
   padding-inline-end: 0.75rem !important;

@@ -134,6 +134,35 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: #fef3c7;
   --badgeCustomerColor: #d97706;
   --countBoxBackground: #e0f7f5;
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #d4edda;
+  --alertSuccessText: #155724;
+  --alertSuccessBorder: #c3e6cb;
+  --alertWarningBackground: #fff3cd;
+  --alertWarningText: #856404;
+  --alertWarningBorder: #ffeaa7;
+  --alertDangerBackground: #f8d7da;
+  --alertDangerText: #721c24;
+  --alertDangerBorder: #f5c6cb;
+  --alertNeutralBackground: #e2e3e5;
+  --alertNeutralText: #383d41;
+  --alertNeutralBorder: #d6d8db;
+  --colorWarning: #f59e0b;
+  --colorInfo: #3b82f6;
+  --colorNeutral: #6c757d;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #dee2e6;
+  --colorScrollbarThumb: #dee2e6;
+  --colorScrollbarThumbHover: #adb5bd;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #a9a9a9;
+  --colorScrollbarButtonActive: #424949;
 }
 
 :root[data-theme="dark"] {
@@ -237,6 +266,35 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: rgba(230, 126, 34, 0.15);
   --badgeCustomerColor: #fbbf24;
   --countBoxBackground: rgba(27, 197, 189, 0.12);
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #1e3a2a;
+  --alertSuccessText: #9be3b0;
+  --alertSuccessBorder: #2f5d42;
+  --alertWarningBackground: #3d3216;
+  --alertWarningText: #f2d27a;
+  --alertWarningBorder: #5f4d1f;
+  --alertDangerBackground: #3f1f24;
+  --alertDangerText: #f5a3ac;
+  --alertDangerBorder: #6b2f37;
+  --alertNeutralBackground: #33373d;
+  --alertNeutralText: #c8ccd4;
+  --alertNeutralBorder: #4a4f57;
+  --colorWarning: #f59e0b;
+  --colorInfo: #60a5fa;
+  --colorNeutral: #9aa0a6;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #3a3f47;
+  --colorScrollbarThumb: #3a3f47;
+  --colorScrollbarThumbHover: #5a6069;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #8a929c;
+  --colorScrollbarButtonActive: #e5eaee;
 }
 
 :root[data-theme="high-contrast"] {
@@ -349,6 +407,35 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: #fff3cd;
   --badgeCustomerColor: #996600;
   --countBoxBackground: #d4edda;
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #ffffff;
+  --alertSuccessText: #005a00;
+  --alertSuccessBorder: #005a00;
+  --alertWarningBackground: #ffffff;
+  --alertWarningText: #6b4c00;
+  --alertWarningBorder: #6b4c00;
+  --alertDangerBackground: #ffffff;
+  --alertDangerText: #990000;
+  --alertDangerBorder: #990000;
+  --alertNeutralBackground: #ffffff;
+  --alertNeutralText: #000000;
+  --alertNeutralBorder: #000000;
+  --colorWarning: #b36b00;
+  --colorInfo: #0033cc;
+  --colorNeutral: #444444;
+  --colorMuted: #555555;
+  --colorSubtleLine: #000000;
+  --colorScrollbarThumb: #555555;
+  --colorScrollbarThumbHover: #000000;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #555555;
+  --colorScrollbarButtonActive: #000000;
 }
 
 :root[data-theme="blue"] {
@@ -461,6 +548,35 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: #fefcbf;
   --badgeCustomerColor: #d69e2e;
   --countBoxBackground: #dbeafe;
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #d4edda;
+  --alertSuccessText: #155724;
+  --alertSuccessBorder: #c3e6cb;
+  --alertWarningBackground: #fff3cd;
+  --alertWarningText: #856404;
+  --alertWarningBorder: #ffeaa7;
+  --alertDangerBackground: #f8d7da;
+  --alertDangerText: #721c24;
+  --alertDangerBorder: #f5c6cb;
+  --alertNeutralBackground: #e2e3e5;
+  --alertNeutralText: #383d41;
+  --alertNeutralBorder: #d6d8db;
+  --colorWarning: #f59e0b;
+  --colorInfo: #3b82f6;
+  --colorNeutral: #6c757d;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #dee2e6;
+  --colorScrollbarThumb: #dee2e6;
+  --colorScrollbarThumbHover: #adb5bd;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #a9a9a9;
+  --colorScrollbarButtonActive: #424949;
 }
 
 :root[data-theme="warm"] {
@@ -573,6 +689,35 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: #fef5e7;
   --badgeCustomerColor: #d97706;
   --countBoxBackground: #f0e8d8;
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #d4edda;
+  --alertSuccessText: #155724;
+  --alertSuccessBorder: #c3e6cb;
+  --alertWarningBackground: #fff3cd;
+  --alertWarningText: #856404;
+  --alertWarningBorder: #ffeaa7;
+  --alertDangerBackground: #f8d7da;
+  --alertDangerText: #721c24;
+  --alertDangerBorder: #f5c6cb;
+  --alertNeutralBackground: #e2e3e5;
+  --alertNeutralText: #383d41;
+  --alertNeutralBorder: #d6d8db;
+  --colorWarning: #f59e0b;
+  --colorInfo: #3b82f6;
+  --colorNeutral: #6c757d;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #dee2e6;
+  --colorScrollbarThumb: #dee2e6;
+  --colorScrollbarThumbHover: #adb5bd;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #a9a9a9;
+  --colorScrollbarButtonActive: #424949;
 }
 
 :root[data-theme="oled"] {
@@ -685,6 +830,35 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: rgba(230, 126, 34, 0.12);
   --badgeCustomerColor: #fbbf24;
   --countBoxBackground: rgba(27, 197, 189, 0.1);
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #1e3a2a;
+  --alertSuccessText: #9be3b0;
+  --alertSuccessBorder: #2f5d42;
+  --alertWarningBackground: #3d3216;
+  --alertWarningText: #f2d27a;
+  --alertWarningBorder: #5f4d1f;
+  --alertDangerBackground: #3f1f24;
+  --alertDangerText: #f5a3ac;
+  --alertDangerBorder: #6b2f37;
+  --alertNeutralBackground: #33373d;
+  --alertNeutralText: #c8ccd4;
+  --alertNeutralBorder: #4a4f57;
+  --colorWarning: #f59e0b;
+  --colorInfo: #60a5fa;
+  --colorNeutral: #9aa0a6;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #3a3f47;
+  --colorScrollbarThumb: #3a3f47;
+  --colorScrollbarThumbHover: #5a6069;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #8a929c;
+  --colorScrollbarButtonActive: #e5eaee;
 }
 
 :root[data-theme="dimmed"] {
@@ -797,4 +971,33 @@ $voiceStateSpeakingColor: #10b981;
   --badgeCustomerBackground: rgba(230, 126, 34, 0.15);
   --badgeCustomerColor: #fbbf24;
   --countBoxBackground: rgba(27, 197, 189, 0.12);
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #1e3a2a;
+  --alertSuccessText: #9be3b0;
+  --alertSuccessBorder: #2f5d42;
+  --alertWarningBackground: #3d3216;
+  --alertWarningText: #f2d27a;
+  --alertWarningBorder: #5f4d1f;
+  --alertDangerBackground: #3f1f24;
+  --alertDangerText: #f5a3ac;
+  --alertDangerBorder: #6b2f37;
+  --alertNeutralBackground: #33373d;
+  --alertNeutralText: #c8ccd4;
+  --alertNeutralBorder: #4a4f57;
+  --colorWarning: #f59e0b;
+  --colorInfo: #60a5fa;
+  --colorNeutral: #9aa0a6;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #3a3f47;
+  --colorScrollbarThumb: #3a3f47;
+  --colorScrollbarThumbHover: #5a6069;
+  --colorFocus: #4a90e2;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #e89b2e;
+  --standartTealColor: #1a9e8f;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #8a929c;
+  --colorScrollbarButtonActive: #e5eaee;
 }

@@ -32,34 +32,34 @@
 }
 
 .fileupload-image {
-  border: 2px dashed #dee2e6;
+  border: 2px dashed var(--colorSubtleLine);
   border-radius: 8px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
+  background-color: var(--backgroundColorSubCards);
 
   &:hover {
-    border-color: #0d6efd;
-    background-color: #e7f1ff;
+    border-color: var(--colorInfo);
+    background-color: var(--backgroundColorDropZoneHover);
   }
 }
 
 .ddinfo {
   display: block;
-  color: #6c757d;
+  color: var(--colorNeutral);
   font-size: 0.9rem;
 }
 
 .delete-button {
   cursor: pointer;
-  color: #dc3545;
+  color: var(--standartRedColor);
   font-size: 0.9rem;
   text-decoration: underline;
 
   &:hover {
-    color: #bd2130;
+    color: color-mix(in srgb, var(--standartRedColor) 80%, black);
   }
 }
 

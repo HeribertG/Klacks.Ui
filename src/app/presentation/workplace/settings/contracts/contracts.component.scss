@@ -16,7 +16,7 @@
   width: 120px;
   height: 30px;
   padding: 5px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--standartBorderColor);
   border-radius: 4px;
 }
 
@@ -163,9 +163,9 @@
 
 .rate-input {
   width: 80px;
-  height: 30px;
+  height: var(--controlHeight);
   padding: 5px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--standartBorderColor);
   border-radius: 4px;
   text-align: end;
 }

@@ -210,7 +210,7 @@ select {
 .model-check-id {
   font-size: var(--fontSizeSmall);
   color: var(--colorInactive);
-  font-family: monospace;
+  font-family: var(--fontFamilyMono);
 }
 
 .model-check-error-detail {

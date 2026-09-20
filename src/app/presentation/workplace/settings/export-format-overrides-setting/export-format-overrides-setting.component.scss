@@ -36,12 +36,12 @@
 }
 
 .allowed-keys {
-  font-family: monospace;
+  font-family: var(--fontFamilyMono);
   font-weight: 600;
 }
 
 .version-warning {
-  color: var(--bs-warning, #b58100);
+  color: var(--colorWarning);
   font-weight: 600;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .patch-textarea {
-  font-family: monospace;
+  font-family: var(--fontFamilyMono);
 }
 
 .checkbox-label {
@@ -88,7 +88,7 @@
 }
 
 .error-message {
-  color: var(--bs-danger, #dc3545);
+  color: var(--standartRedColor);
   font-style: normal;
   font-weight: 600;
 }
