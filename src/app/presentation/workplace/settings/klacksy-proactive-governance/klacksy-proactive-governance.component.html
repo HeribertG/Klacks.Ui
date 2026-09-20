@@ -11,6 +11,7 @@
     <div class="governance-hint settings-hint">{{ "setting.proactiveGovernance.loading" | translate }}</div>
   } @else {
     <p class="governance-hint settings-hint">{{ "setting.proactiveGovernance.intro" | translate }}</p>
+    <p class="governance-hint settings-hint">{{ "setting.proactiveGovernance.levels-inactive-hint" | translate }}</p>
 
     <p class="governance-label">{{ "setting.proactiveGovernance.global-level" | translate }}</p>
     <p class="governance-hint settings-hint">{{ "setting.proactiveGovernance.global-level-description" | translate }}</p>
@@ -66,7 +67,6 @@
             <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-kind" | translate }}</th>
             <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-max-action" | translate }}</th>
             <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-enabled" | translate }}</th>
-            <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-owner" | translate }}</th>
             <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-daily-budget" | translate }}</th>
             <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-window-limit" | translate }}</th>
             <th scope="col" class="table-header">{{ "setting.proactiveGovernance.column-window-minutes" | translate }}</th>
@@ -113,26 +113,6 @@
                 </label>
               </td>
               <td class="table-cell">
-                <select
-                  class="form-select"
-                  [id]="'proactive-governance-owner-' + rule.triggerKind"
-                  [disabled]="savingKind() !== null"
-                  (change)="onChangeResponsibleOwner(rule, $any($event.target).value)"
-                >
-                  <option value="" [selected]="rule.responsibleOwnerUserId === null">
-                    {{ "setting.proactiveGovernance.owner-none" | translate }}
-                  </option>
-                  @for (account of accounts(); track account.id) {
-                    <option
-                      [value]="account.id"
-                      [selected]="account.id === rule.responsibleOwnerUserId"
-                    >
-                      {{ account.firstName }} {{ account.lastName }}
-                    </option>
-                  }
-                </select>
-              </td>
-              <td class="table-cell">
                 <input
                   type="number"
                   min="0"
@@ -175,6 +155,5 @@
       </div>
     </div>
 
-    <p class="governance-hint settings-hint">{{ "setting.proactiveGovernance.owner-note" | translate }}</p>
   }
 </div>

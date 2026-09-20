@@ -9,7 +9,6 @@
  * @param effectiveMaxAction - What actually applies once the global level, the kill switch and enabled are folded in
  * @param globalAutonomyCap - Ceiling the global autonomy level imposes on this rule
  * @param enabled - False pins the kind to reporting only; it never silences the message
- * @param responsibleOwnerUserId - Account a prepared or executed action runs under
  * @param dailyActionBudget - Actions allowed per day for this kind
  * @param windowActionLimit - Actions allowed inside one window before the breaker trips
  * @param windowMinutes - Length of that window in minutes
@@ -23,7 +22,6 @@ export interface IProactiveGovernanceRule {
   effectiveMaxAction: number;
   globalAutonomyCap: number;
   enabled: boolean;
-  responsibleOwnerUserId: string | null;
   dailyActionBudget: number;
   windowActionLimit: number;
   windowMinutes: number;
