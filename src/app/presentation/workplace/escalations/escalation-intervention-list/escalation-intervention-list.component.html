@@ -15,7 +15,13 @@
     @for (chain of escalationChainService.runningChains(); track chain.id) {
       <li class="escalation-intervention-card">
         <div class="escalation-intervention-card-header">
-          <span class="escalation-intervention-client">{{ chain.absentClientName }}</span>
+          <span class="escalation-intervention-client">
+            @if (isProactiveApproval(chain)) {
+              {{ 'assistant.escalation.purpose.proactiveApproval' | translate }}
+            } @else {
+              {{ chain.absentClientName }}
+            }
+          </span>
           <span class="escalation-intervention-deadline">
             {{ 'escalation.intervention.deadline-in' | translate: { minutes: minutesUntil(chain.deadlineUtc) } }}
           </span>

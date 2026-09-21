@@ -25,7 +25,10 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { DataManagementEscalationChainService } from 'src/app/domain/services/assistant/data-management-escalation-chain.service';
-import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
+import {
+  ESCALATION_PURPOSE_PROACTIVE_APPROVAL,
+  IEscalationChainSummary,
+} from 'src/app/domain/interfaces/escalation-chain.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
@@ -72,6 +75,10 @@ export class EscalationInterventionListComponent implements OnInit, OnDestroy {
   minutesUntil(deadlineUtc: string): number {
     const diffMs = new Date(deadlineUtc).getTime() - Date.now();
     return Math.round(diffMs / 60000);
+  }
+
+  isProactiveApproval(chain: IEscalationChainSummary): boolean {
+    return chain.purpose === ESCALATION_PURPOSE_PROACTIVE_APPROVAL;
   }
 
   onAcknowledge(chain: IEscalationChainSummary): void {
