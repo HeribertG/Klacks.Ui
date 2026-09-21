@@ -18,8 +18,10 @@ import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/pr
 import { IProactiveGovernanceRule } from 'src/app/domain/models/assistant/proactive-governance-rule.interface';
 import { IProactiveGovernanceUpdate } from 'src/app/domain/models/assistant/proactive-governance-update.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { PROACTIVE_MAX_ACTION } from 'src/app/domain/constants/proactive-max-action.constants';
 import { PROACTIVE_MAX_ACTIONS } from './proactive-max-action.constants';
 import { PROACTIVE_AUTONOMY_LEVELS } from './proactive-autonomy-level.constants';
+import { KlacksyStandingApprovalsComponent } from './klacksy-standing-approvals.component';
 
 const KILL_SWITCH_ROW_KEY = '*';
 const LEVEL_ROW_KEY = 'level';
@@ -29,7 +31,7 @@ const LEVEL_ROW_KEY = 'level';
   templateUrl: './klacksy-proactive-governance.component.html',
   styleUrls: ['./klacksy-proactive-governance.component.scss'],
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, KlacksyStandingApprovalsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KlacksyProactiveGovernanceComponent implements OnInit {
@@ -48,6 +50,10 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
   readonly isSavingKillSwitch = computed(() => this.savingKind() === KILL_SWITCH_ROW_KEY);
 
   readonly levels = PROACTIVE_AUTONOMY_LEVELS;
+
+  isStepDisabled(rule: IProactiveGovernanceRule, step: number): boolean {
+    return step === PROACTIVE_MAX_ACTION.Prepare && !rule.isScenarioCapable && rule.maxAction !== step;
+  }
 
   async ngOnInit(): Promise<void> {
     try {

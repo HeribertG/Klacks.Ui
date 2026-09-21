@@ -13,6 +13,7 @@
  * @param windowActionLimit - Actions allowed inside one window before the breaker trips
  * @param windowMinutes - Length of that window in minutes
  * @param isStored - False when the row is the fail-safe default rather than a saved rule
+ * @param isScenarioCapable - False when this finding type cannot prepare a scenario, so the prepare step is not selectable
  */
 export interface IProactiveGovernanceRule {
   triggerKind: string;
@@ -26,4 +27,5 @@ export interface IProactiveGovernanceRule {
   windowActionLimit: number;
   windowMinutes: number;
   isStored: boolean;
+  isScenarioCapable: boolean;
 }

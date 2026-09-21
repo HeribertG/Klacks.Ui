@@ -14,7 +14,10 @@ import { takeUntil } from 'rxjs/operators';
 import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant/data-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
-import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
+import {
+  IEscalationAcknowledgeResult,
+  IEscalationChainSummary,
+} from 'src/app/domain/interfaces/escalation-chain.interface';
 
 const POLL_INTERVAL_MS = 60000;
 
@@ -48,7 +51,7 @@ export class DataManagementEscalationChainService implements OnDestroy {
       });
   }
 
-  acknowledge(chainId: string): Observable<void> {
+  acknowledge(chainId: string): Observable<IEscalationAcknowledgeResult> {
     return this.dataService.acknowledge(chainId).pipe(tap(() => this.refresh()));
   }
 

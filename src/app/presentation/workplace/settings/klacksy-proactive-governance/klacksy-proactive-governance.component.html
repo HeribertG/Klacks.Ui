@@ -95,7 +95,11 @@
                   (change)="onChangeMaxAction(rule, $any($event.target).value)"
                 >
                   @for (maxAction of maxActions; track maxAction.value) {
-                    <option [value]="maxAction.value" [selected]="maxAction.value === rule.maxAction">
+                    <option
+                      [value]="maxAction.value"
+                      [selected]="maxAction.value === rule.maxAction"
+                      [disabled]="isStepDisabled(rule, maxAction.value)"
+                    >
                       {{ maxAction.labelKey | translate }}
                     </option>
                   }
@@ -154,6 +158,8 @@
       </table>
       </div>
     </div>
+
+    <app-klacksy-standing-approvals></app-klacksy-standing-approvals>
 
   }
 </div>

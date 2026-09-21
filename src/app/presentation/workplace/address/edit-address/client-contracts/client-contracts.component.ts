@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Card listing the contract assignments of one client and letting a permitted caller add, re-date and
+ * detach them. Nothing here talks to the API: the rows are edited in memory and saved with the rest of
+ * the aggregate by PUT api/backend/Clients, so the only gate that matters is CanEditContracts - the
+ * right the card asks for and, since the owner decision of 21.09.2026, the one the backend handler
+ * (PutCommandHandler) checks too. Before that the handler demanded the Admin role and the card was a
+ * dead end for the supervisor it was open to.
+ * @param isReadOnly - Whether the surrounding edit page is showing the client read-only
+ * @param isChangingEvent - Emitted whenever a row was added, changed or removed, so the save bar arms
+ */
 import {
   Component,
   effect,

@@ -7,6 +7,8 @@ import { of, throwError } from 'rxjs';
 import { KlacksyProactiveGovernanceComponent } from './klacksy-proactive-governance.component';
 import { DataProactiveGovernanceService } from 'src/app/infrastructure/api/assistant/data-proactive-governance.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { StandingApprovalService } from 'src/app/domain/services/assistant/standing-approval.service';
 import { IProactiveGovernance } from 'src/app/domain/models/assistant/proactive-governance.interface';
 import { IProactiveGovernanceRule } from 'src/app/domain/models/assistant/proactive-governance-rule.interface';
 
@@ -31,6 +33,7 @@ describe('KlacksyProactiveGovernanceComponent', () => {
     windowActionLimit: 3,
     windowMinutes: 60,
     isStored: true,
+    isScenarioCapable: true,
     ...overrides,
   });
 
@@ -54,6 +57,8 @@ describe('KlacksyProactiveGovernanceComponent', () => {
       providers: [
         { provide: DataProactiveGovernanceService, useValue: mockDataGovernanceService },
         { provide: ToastShowService, useValue: mockToast },
+        { provide: AuthorizationService, useValue: { isAdmin: false } },
+        { provide: StandingApprovalService, useValue: {} },
       ],
     }).compileComponents();
 
@@ -76,6 +81,17 @@ describe('KlacksyProactiveGovernanceComponent', () => {
 
   it('offers exactly the three ladder steps', () => {
     expect(component.maxActions.map((step) => step.value)).toEqual([0, 1, 2]);
+  });
+
+  it('disables the prepare step for a finding type that cannot prepare a scenario', () => {
+    expect(component.isStepDisabled(rule({ isScenarioCapable: false }), 1)).toBe(true);
+    expect(component.isStepDisabled(rule({ isScenarioCapable: false }), 0)).toBe(false);
+    expect(component.isStepDisabled(rule({ isScenarioCapable: false }), 2)).toBe(false);
+  });
+
+  it('keeps the prepare step selectable when the type is capable or already set to it', () => {
+    expect(component.isStepDisabled(rule({ isScenarioCapable: true }), 1)).toBe(false);
+    expect(component.isStepDisabled(rule({ isScenarioCapable: false, maxAction: 1 }), 1)).toBe(false);
   });
 
   it('persists the kill switch immediately and adopts the answer', async () => {

@@ -34,7 +34,7 @@ describe('DataManagementEscalationChainService', () => {
 
         mockDataService = {
             getRunning: vi.fn(() => of([])),
-            acknowledge: vi.fn(() => of(undefined)),
+            acknowledge: vi.fn(() => of({ outcome: 'Acknowledged', chainStatus: 'Acknowledged' })),
             cancel: vi.fn(() => of(undefined)),
         };
         isAdmin = true;

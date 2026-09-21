@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, throwError } from 'rxjs';
 
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EscalationInterventionListComponent } from './escalation-intervention-list.component';
 import { DataManagementEscalationChainService } from 'src/app/domain/services/assistant/data-management-escalation-chain.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
@@ -24,6 +26,7 @@ describe('EscalationInterventionListComponent', () => {
     let mockSearchService: any;
     let mockNgbModal: any;
     let mockEventBus: any;
+    let mockToastShowService: any;
 
     const chain = (overrides: Partial<IEscalationChainSummary> = {}): IEscalationChainSummary => ({
         id: 'chain-1',
@@ -44,9 +47,10 @@ describe('EscalationInterventionListComponent', () => {
         mockEscalationService = {
             runningChains: signal<IEscalationChainSummary[]>([]),
             refresh: vi.fn(),
-            acknowledge: vi.fn(() => of(undefined)),
+            acknowledge: vi.fn(() => of({ outcome: 'Acknowledged', chainStatus: 'Acknowledged' })),
             cancel: vi.fn(() => of(undefined)),
         };
+        mockToastShowService = { showError: vi.fn() };
         mockSavebarService = { setSavebarVisibility: vi.fn() };
         mockLayoutService = { setContainerToNormalSize: vi.fn() };
         mockSearchService = { setSearchVisibility: vi.fn() };
@@ -61,6 +65,7 @@ describe('EscalationInterventionListComponent', () => {
                 { provide: LayoutService, useValue: mockLayoutService },
                 { provide: SearchService, useValue: mockSearchService },
                 { provide: NgbModal, useValue: mockNgbModal },
+                { provide: ToastShowService, useValue: mockToastShowService },
                 { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
             ],
         }).compileComponents();
@@ -100,6 +105,76 @@ describe('EscalationInterventionListComponent', () => {
             expect.anything(),
             expect.objectContaining({ code: 'ESCALATION_ACKNOWLEDGE_ERROR' }),
         );
+    });
+
+    describe('conflicting acknowledge (HTTP 409)', () => {
+        const conflict = (outcome: string, chainStatus: string | null) =>
+            throwError(() => new HttpErrorResponse({ status: 409, error: { outcome, chainStatus } }));
+
+        it('shows the deadline-lapsed toast for an exhausted chain', () => {
+            mockEscalationService.acknowledge.mockReturnValue(conflict('ChainAlreadyResolved', 'Exhausted'));
+            fixture.detectChanges();
+
+            component.onAcknowledge(chain());
+
+            expect(mockToastShowService.showError).toHaveBeenCalledTimes(1);
+            expect(mockToastShowService.showError.mock.calls[0][0]).toContain('acknowledge-too-late');
+            expect(mockEventBus.emit).not.toHaveBeenCalled();
+        });
+
+        it('shows the neutral toast when somebody else resolved the chain', () => {
+            mockEscalationService.acknowledge.mockReturnValue(conflict('ChainAlreadyResolved', 'Acknowledged'));
+            fixture.detectChanges();
+
+            component.onAcknowledge(chain());
+
+            expect(mockToastShowService.showError.mock.calls[0][0]).toContain('acknowledge-already-handled');
+        });
+
+        it('shows the neutral toast when the stage moved on while the chain still runs', () => {
+            mockEscalationService.acknowledge.mockReturnValue(conflict('NoNotifiedStage', 'Running'));
+            fixture.detectChanges();
+
+            component.onAcknowledge(chain());
+
+            expect(mockToastShowService.showError.mock.calls[0][0]).toContain('acknowledge-already-handled');
+        });
+
+        it('falls back to the neutral toast when the response carries no body', () => {
+            mockEscalationService.acknowledge.mockReturnValue(
+                throwError(() => new HttpErrorResponse({ status: 409 })),
+            );
+            fixture.detectChanges();
+
+            component.onAcknowledge(chain());
+
+            expect(mockToastShowService.showError.mock.calls[0][0]).toContain('acknowledge-already-handled');
+        });
+
+        it('refreshes the list, because the clicked row is stale', () => {
+            mockEscalationService.acknowledge.mockReturnValue(conflict('ChainAlreadyResolved', 'Exhausted'));
+            fixture.detectChanges();
+            mockEscalationService.refresh.mockClear();
+
+            component.onAcknowledge(chain());
+
+            expect(mockEscalationService.refresh).toHaveBeenCalledTimes(1);
+        });
+
+        it('still emits the generic error for any other HTTP failure', () => {
+            mockEscalationService.acknowledge.mockReturnValue(
+                throwError(() => new HttpErrorResponse({ status: 500 })),
+            );
+            fixture.detectChanges();
+
+            component.onAcknowledge(chain());
+
+            expect(mockToastShowService.showError).not.toHaveBeenCalled();
+            expect(mockEventBus.emit).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ code: 'ESCALATION_ACKNOWLEDGE_ERROR' }),
+            );
+        });
     });
 
     describe('cancel flow', () => {

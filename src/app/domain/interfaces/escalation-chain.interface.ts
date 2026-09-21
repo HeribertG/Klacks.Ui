@@ -13,6 +13,14 @@ export interface IEscalationStageSummary {
 export const ESCALATION_PURPOSE_ABSENCE_COVERAGE = 'AbsenceCoverage';
 export const ESCALATION_PURPOSE_PROACTIVE_APPROVAL = 'ProactiveApproval';
 
+export const ESCALATION_ACKNOWLEDGE_OUTCOME_CHAIN_ALREADY_RESOLVED = 'ChainAlreadyResolved';
+export const ESCALATION_CHAIN_STATUS_EXHAUSTED = 'Exhausted';
+
+export interface IEscalationAcknowledgeResult {
+  outcome: string;
+  chainStatus: string | null;
+}
+
 export interface IEscalationChainSummary {
   id: string;
   purpose: string;
