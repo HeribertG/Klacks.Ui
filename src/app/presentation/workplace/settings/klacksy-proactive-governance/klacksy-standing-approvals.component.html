@@ -1,0 +1,136 @@
+@if (isAdmin) {
+  <div class="standing-approvals">
+    <p class="standing-label">{{ "setting.standingApprovals.headline" | translate }}</p>
+    <p class="standing-hint settings-hint">{{ "setting.standingApprovals.intro" | translate }}</p>
+    <p class="standing-warning">{{ "setting.standingApprovals.warning" | translate }}</p>
+
+    <div class="grant-form">
+      <label class="grant-field">
+        <span>{{ "setting.standingApprovals.column-kind" | translate }}</span>
+        <select
+          id="standing-approval-kind"
+          class="form-select"
+          [disabled]="isBusy()"
+          (change)="onSelectKind($any($event.target).value)"
+        >
+          <option value="" [selected]="draftKind() === ''">
+            {{ "setting.standingApprovals.select-kind" | translate }}
+          </option>
+          @for (kind of eligibleKinds(); track kind) {
+            <option [value]="kind" [selected]="kind === draftKind()">
+              {{ kindKeyOf(kind) | translate }}
+            </option>
+          }
+        </select>
+      </label>
+      <label class="grant-field">
+        <span>{{ "setting.standingApprovals.column-group" | translate }}</span>
+        <select
+          id="standing-approval-group"
+          class="form-select"
+          [disabled]="isBusy()"
+          (change)="onSelectGroup($any($event.target).value)"
+        >
+          <option value="" [selected]="draftGroupId() === ''">
+            {{ "setting.standingApprovals.all-groups" | translate }}
+          </option>
+          @for (group of groups(); track group.id) {
+            <option [value]="group.id" [selected]="group.id === draftGroupId()">{{ group.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="grant-field">
+        <span>{{ "setting.standingApprovals.duration-days" | translate }}</span>
+        <input
+          id="standing-approval-days"
+          type="number"
+          step="1"
+          class="form-control number-cell"
+          [attr.min]="limits.MinimumDurationDays"
+          [attr.max]="limits.MaximumDurationDays"
+          [value]="draftDays()"
+          [disabled]="isBusy()"
+          (input)="onChangeDays($any($event.target).value)"
+        />
+      </label>
+      <label class="grant-field">
+        <span>{{ "setting.standingApprovals.column-budget" | translate }}</span>
+        <input
+          id="standing-approval-budget"
+          type="number"
+          step="1"
+          class="form-control number-cell"
+          [attr.min]="limits.MinimumDailyBudget"
+          [attr.max]="limits.MaximumDailyBudget"
+          [value]="draftBudget()"
+          [disabled]="isBusy()"
+          (input)="onChangeBudget($any($event.target).value)"
+        />
+      </label>
+      <button
+        id="standing-approval-grant"
+        type="button"
+        class="btn btn-primary"
+        [disabled]="!canGrant()"
+        (click)="onGrant()"
+      >
+        {{ "setting.standingApprovals.grant" | translate }}
+      </button>
+    </div>
+
+    @if (approvals().length === 0) {
+      <p class="standing-hint settings-hint">{{ "setting.standingApprovals.empty" | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table class="table table-borderless table-standing">
+          <thead>
+            <tr>
+              <th scope="col" class="table-header">{{ "setting.standingApprovals.column-kind" | translate }}</th>
+              <th scope="col" class="table-header">{{ "setting.standingApprovals.column-group" | translate }}</th>
+              <th scope="col" class="table-header">{{ "setting.standingApprovals.column-granted-by" | translate }}</th>
+              <th scope="col" class="table-header">{{ "setting.standingApprovals.column-valid-until" | translate }}</th>
+              <th scope="col" class="table-header">{{ "setting.standingApprovals.column-budget" | translate }}</th>
+              <th scope="col" class="table-header">{{ "setting.standingApprovals.column-status" | translate }}</th>
+              <th scope="col" class="table-header"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (approval of approvals(); track approval.id) {
+              <tr class="table-row">
+                <td class="table-cell">{{ kindKeyOf(approval.triggerKind) | translate }}</td>
+                <td class="table-cell">
+                  @if (groupLabelOf(approval.groupId); as groupLabel) {
+                    {{ groupLabel }}
+                  } @else {
+                    {{ "setting.standingApprovals.all-groups" | translate }}
+                  }
+                </td>
+                <td class="table-cell" [attr.title]="approval.grantedByUserId">{{ shortId(approval.grantedByUserId) }}</td>
+                <td class="table-cell">{{ formatExpiry(approval.expiresAtUtc) }}</td>
+                <td class="table-cell">{{ approval.dailyBudget }}</td>
+                <td class="table-cell">
+                  <span class="status-badge" [class]="'status-' + statusOf(approval)">{{
+                    statusKeyOf(approval) | translate
+                  }}</span>
+                </td>
+                <td class="table-cell">
+                  @if (canRevoke(approval)) {
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      [id]="'standing-approval-revoke-' + approval.id"
+                      [disabled]="isBusy()"
+                      (click)="onRevoke(approval)"
+                    >
+                      {{ "setting.standingApprovals.revoke" | translate }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}
