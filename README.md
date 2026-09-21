@@ -1,6 +1,6 @@
 # Klacks.UI
 
-[![DeepWiki: HeribertG/Klacks.Ui](https://img.shields.io/badge/DeepWiki-HeribertG%2FKlacks.Ui-blue)](https://deepwiki.com/HeribertG/Klacks.Ui)
+[DeepWiki documentation for this repository](https://deepwiki.com/HeribertG/Klacks.Ui)
 [![Tests](https://github.com/HeribertG/Klacks.Ui/actions/workflows/tests.yml/badge.svg)](https://github.com/HeribertG/Klacks.Ui/actions/workflows/tests.yml)
 [![CodeQL](https://github.com/HeribertG/Klacks.Ui/actions/workflows/codeql.yml/badge.svg)](https://github.com/HeribertG/Klacks.Ui/actions/workflows/codeql.yml)
 
