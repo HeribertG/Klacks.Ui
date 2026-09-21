@@ -75,7 +75,7 @@ app-group-select {
   top: -8px;
   inset-inline-end: -10px;
   background-color: colors.$CurrentGreyColor;
-  color: #fff;
+  color: var(--onAccent);
   font-size: 10px;
   font-weight: 700;
   min-width: 16px;
@@ -91,7 +91,7 @@ app-group-select {
   top: -10px;
   inset-inline-end: -14px;
   background-color: colors.$standartGreenColor;
-  color: #fff;
+  color: var(--onAccent);
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
@@ -127,7 +127,7 @@ app-group-select {
   top: -8px;
   inset-inline-end: -10px;
   background-color: var(--standartRedColor);
-  color: #fff;
+  color: var(--onAccent);
   font-size: 10px;
   font-weight: 700;
   min-width: 16px;

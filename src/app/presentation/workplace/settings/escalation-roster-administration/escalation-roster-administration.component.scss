@@ -134,7 +134,7 @@
   }
 
   input {
-    height: 30px;
+    height: var(--controlHeight);
   }
 }
 

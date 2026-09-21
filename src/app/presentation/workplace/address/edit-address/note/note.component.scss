@@ -20,8 +20,8 @@
 .ownStyle-button {
   width: 53px;
   height: 34px;
-  background-color: #e5eaee;
-  color: black;
+  background-color: var(--backgroundColorSubCards);
+  color: var(--standartTextColor);
   font-size: 13px;
   margin-inline-end: 20px;
 }

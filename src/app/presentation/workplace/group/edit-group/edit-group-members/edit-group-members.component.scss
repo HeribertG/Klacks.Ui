@@ -38,7 +38,7 @@
 .container-search-button-disabled {
   font-weight: 600;
   font-size: 13px;
-  background-color: #b6b6c3;
+  background-color: var(--colorMuted);
   color: colors.$standartWhiteColor;
 }
 

@@ -24,14 +24,14 @@
 .holisticHarmonizer-progress-bar-outer {
   width: 100%;
   height: 0.6rem;
-  background: var(--colorBackgroundMuted, #ececec);
+  background: var(--backgroundColorSubCards);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .holisticHarmonizer-progress-bar-inner {
   height: 100%;
-  background: var(--colorPrimary, #1f4a8c);
+  background: var(--colorInfo);
   transition: width 0.2s ease-out;
 }
 
@@ -40,7 +40,7 @@
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   font-size: 0.85rem;
-  color: var(--colorTextMuted, #555);
+  color: var(--colorInactive);
   font-variant-numeric: tabular-nums;
 }
 
@@ -66,7 +66,7 @@
 }
 
 .holisticHarmonizer-summary-delta .holisticHarmonizer-summary-value {
-  color: var(--colorAccent, #2a8e2a);
+  color: var(--colorInfo);
 }
 
 .holisticHarmonizer-section-title {
@@ -76,7 +76,7 @@
 }
 
 .holisticHarmonizer-section-rejected {
-  color: var(--colorInactive, #888);
+  color: var(--colorInactive);
 }
 
 .holisticHarmonizer-swap-list {
@@ -94,12 +94,12 @@
 }
 
 .holisticHarmonizer-swap-reason {
-  color: var(--colorInactive, #666);
+  color: var(--colorInactive);
   font-style: italic;
 }
 
 .holisticHarmonizer-rejected-list .holisticHarmonizer-swap-item {
-  color: var(--colorInactive, #888);
+  color: var(--colorInactive);
 }
 
 .holisticHarmonizer-llm-diagnostic {
@@ -122,28 +122,28 @@
 }
 
 .holisticHarmonizer-batch-card {
-  border: 1px solid var(--colorBorder, #d0d0d0);
+  border: 1px solid var(--standartBorderColor);
   border-left-width: 4px;
   border-radius: 4px;
   padding: 0.6rem 0.85rem;
-  background: var(--colorBackgroundElevated, #fafafa);
+  background: var(--backgroundColorHover);
 }
 
 .holisticHarmonizer-batch-card--accepted {
-  border-left-color: var(--colorSuccess, #2a8e2a);
+  border-left-color: var(--standartGreenColor);
 }
 
 .holisticHarmonizer-batch-card--partial {
-  border-left-color: var(--colorWarning, #d9a300);
+  border-left-color: var(--colorWarning);
 }
 
 .holisticHarmonizer-batch-card--degrade {
-  border-left-color: var(--colorWarning, #d9a300);
+  border-left-color: var(--colorWarning);
   opacity: 0.85;
 }
 
 .holisticHarmonizer-batch-card--rejected {
-  border-left-color: var(--colorDanger, #c0392b);
+  border-left-color: var(--standartRedColor);
   opacity: 0.85;
 }
 
@@ -158,8 +158,8 @@
 .holisticHarmonizer-batch-intent {
   font-weight: 600;
   font-size: 0.95rem;
-  font-family: var(--fontMonospace, monospace);
-  color: var(--colorPrimary, #1f4a8c);
+  font-family: var(--fontFamilyMono);
+  color: var(--colorInfo);
 }
 
 .holisticHarmonizer-batch-result-badge {
@@ -167,19 +167,19 @@
   font-weight: 600;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: var(--colorBackgroundMuted, #ececec);
-  color: var(--colorTextMuted, #555);
+  background: var(--backgroundColorSubCards);
+  color: var(--colorInactive);
   white-space: nowrap;
 }
 
 .holisticHarmonizer-batch-result-badge--positive {
-  background: var(--colorSuccessSoft, #d4ecd4);
-  color: var(--colorSuccess, #1f6b1f);
+  background: var(--alertSuccessBackground);
+  color: var(--alertSuccessText);
 }
 
 .holisticHarmonizer-batch-result-badge--negative {
-  background: var(--colorDangerSoft, #f1d6d2);
-  color: var(--colorDanger, #8e2a1f);
+  background: var(--alertDangerBackground);
+  color: var(--alertDangerText);
 }
 
 .holisticHarmonizer-batch-meta {
@@ -187,7 +187,7 @@
   flex-wrap: wrap;
   gap: 0.3rem;
   font-size: 0.85rem;
-  color: var(--colorTextMuted, #555);
+  color: var(--colorInactive);
   margin-bottom: 0.35rem;
 }
 
@@ -200,17 +200,17 @@
 }
 
 .holisticHarmonizer-batch-meta-value--positive {
-  color: var(--colorSuccess, #1f6b1f);
+  color: var(--standartGreenColor);
   font-weight: 600;
 }
 
 .holisticHarmonizer-batch-meta-value--negative {
-  color: var(--colorDanger, #8e2a1f);
+  color: var(--standartRedColor);
   font-weight: 600;
 }
 
 .holisticHarmonizer-batch-meta-divider {
-  color: var(--colorBorder, #c8c8c8);
+  color: var(--standartBorderColor);
 }
 
 .holisticHarmonizer-batch-steps {
@@ -223,16 +223,16 @@
   margin: 0.25rem 0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--colorTextMuted, #666);
+  color: var(--colorInactive);
 }
 
 .holisticHarmonizer-batch-steps-title--rejected {
-  color: var(--colorInactive, #888);
+  color: var(--colorInactive);
 }
 
 .holisticHarmonizer-batch-empty {
   margin: 0.25rem 0 0 0;
   font-size: 0.85rem;
   font-style: italic;
-  color: var(--colorTextMuted, #888);
+  color: var(--colorInactive);
 }

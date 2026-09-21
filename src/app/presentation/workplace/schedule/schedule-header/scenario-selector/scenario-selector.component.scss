@@ -4,7 +4,7 @@
 
 .scenario-btn {
   margin-inline-start: 8px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--colorSubtleLine);
   background-color: transparent;
   color: var(--iconStandartColor);
   font-family: Roboto;
@@ -12,9 +12,9 @@
   font-weight: normal;
 
   &.scenario-active {
-    background-color: #fff3cd;
-    border-color: #ffc107;
-    color: #856404;
+    background-color: var(--alertWarningBackground);
+    border-color: var(--colorWarning);
+    color: var(--alertWarningText);
   }
 }
 
@@ -23,7 +23,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #ffc107;
+  background-color: var(--colorWarning);
   margin-inline-end: 4px;
 }
 

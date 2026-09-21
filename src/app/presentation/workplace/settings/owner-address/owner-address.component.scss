@@ -12,12 +12,12 @@
 
 input {
   width: 420px;
-  height: 32px;
+  height: var(--controlHeight);
 }
 
 select {
   width: 420px;
-  height: 32px;
+  height: var(--controlHeight);
 }
 .row-line {
   margin-top: 5px;
@@ -53,7 +53,7 @@ select {
   gap: 10px;
   padding: 8px 15px;
   background-color: var(--colorCardBackground);
-  border: 1px solid #ccc;
+  border: 1px solid var(--standartBorderColor);
   border-radius: 4px;
   color: var(--colorWorkplaceHeadline);
   min-width: 200px;

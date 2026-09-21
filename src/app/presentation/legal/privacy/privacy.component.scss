@@ -14,7 +14,7 @@ $login-background: "../../../../assets/png/login-background.png" !default;
 }
 
 .legal-container {
-  background-color: white;
+  background-color: var(--backgroundColorCard);
   border-radius: 5px;
   padding: 40px;
   max-width: 800px;
@@ -23,27 +23,27 @@ $login-background: "../../../../assets/png/login-background.png" !default;
 
   h1 {
     margin-bottom: 24px;
-    color: var(--textColor, #333);
+    color: var(--standartTextColor);
   }
 }
 
 .legal-content {
   line-height: 1.6;
-  color: var(--textColor, #555);
+  color: var(--standartTextColor);
 
   ::ng-deep {
     h2 {
       font-size: 1.3rem;
       margin-top: 28px;
       margin-bottom: 12px;
-      color: var(--textColor, #333);
+      color: var(--standartTextColor);
     }
 
     h3 {
       font-size: 1.1rem;
       margin-top: 16px;
       margin-bottom: 8px;
-      color: var(--textColor, #444);
+      color: var(--standartTextColor);
     }
 
     table {

@@ -35,9 +35,9 @@
 
 .rule-input {
   width: 120px;
-  height: 30px;
+  height: var(--controlHeight);
   padding: 5px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--standartBorderColor);
   border-radius: 4px;
   text-align: end;
 }
@@ -63,7 +63,7 @@
 }
 
 input[type="checkbox"].tri-state-checkbox:indeterminate {
-  outline: 1px solid grey;
+  outline: 1px solid var(--colorNeutral);
 }
 
 .tri-state-legend {

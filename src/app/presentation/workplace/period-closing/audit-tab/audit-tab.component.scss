@@ -66,7 +66,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid var(--colorFocus, #4a90e2);
+    outline: 2px solid var(--colorFocus);
     outline-offset: -2px;
   }
 }
@@ -133,46 +133,46 @@
   display: inline-block;
   padding: 3px 10px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .badge-seal {
-  background-color: var(--standartGreenColor, #2d8f5f);
-  color: #fff;
+  background-color: var(--standartGreenColor);
+  color: var(--onAccent);
 }
 
 .badge-unseal {
-  background-color: var(--standartOrangeColor, #e89b2e);
-  color: #fff;
+  background-color: var(--standartOrangeColor);
+  color: var(--onAccent);
 }
 
 .badge-approve-day {
-  background-color: var(--standartBlueColor, #4a7fd6);
-  color: #fff;
+  background-color: var(--standartBlueColor);
+  color: var(--onAccent);
 }
 
 .badge-confirm-work {
-  background-color: var(--standartTealColor, #1a9e8f);
-  color: #fff;
+  background-color: var(--standartTealColor);
+  color: var(--onAccent);
 }
 
 .badge-confirm-break {
-  background-color: var(--standartPurpleColor, #7d5fc4);
-  color: #fff;
+  background-color: var(--standartPurpleColor);
+  color: var(--onAccent);
 }
 
 .badge-unknown {
-  background-color: var(--standartGreyColor, #6c757d);
-  color: #fff;
+  background-color: var(--standartGreyColor);
+  color: var(--onAccent);
 }
 
 .empty-state {
   margin: 12px 0 8px;
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-style: italic;
   color: var(--colorLabel) !important;
 }
@@ -185,13 +185,13 @@
 
   dt {
     font-weight: 600;
-    color: var(--colorSubHeadline, #6c757d);
-    font-size: 13px;
+    color: var(--colorSubHeadline);
+    font-size: var(--fontSizeLabel);
   }
 
   dd {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fontSizeLabel);
     word-break: break-word;
   }
 }

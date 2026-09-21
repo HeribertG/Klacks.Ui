@@ -30,13 +30,13 @@
     }
 
     &.is-invalid {
-      border-color: #dc3545;
+      border-color: var(--standartRedColor);
       background-image: none !important;
       padding-inline-end: 0.75rem;
     }
 
     &.is-valid {
-      border-color: #198754;
+      border-color: var(--standartGreenColor);
       background-image: none !important;
       padding-inline-end: 0.75rem;
     }

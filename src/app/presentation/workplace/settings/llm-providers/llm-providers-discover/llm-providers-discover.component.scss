@@ -4,9 +4,6 @@
 @use "../../../../../../assets/standard-styles/standard-tabs.scss";
 @use "../../../../../../assets/standard-styles/standard-manual.scss";
 
-$badge-needs-key-color: #f0ad4e;
-$badge-unknown-color: #9aa0a6;
-
 .discover-browse {
   .discover-hint {
     padding-bottom: 8px;
@@ -85,14 +82,14 @@ $badge-unknown-color: #9aa0a6;
     border-radius: 10px;
     font-size: var(--fontSizeXSmall);
     font-weight: 500;
-    color: white;
+    color: var(--onAccent);
 
     &.reachable {
       background-color: colors.$standartGreenColor;
     }
 
     &.needs-key {
-      background-color: $badge-needs-key-color;
+      background-color: var(--colorWarning);
     }
 
     &.unreachable {
@@ -100,7 +97,7 @@ $badge-unknown-color: #9aa0a6;
     }
 
     &.unknown {
-      background-color: $badge-unknown-color;
+      background-color: var(--colorNeutral);
     }
   }
 

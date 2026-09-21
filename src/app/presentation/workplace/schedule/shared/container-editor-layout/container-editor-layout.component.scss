@@ -127,26 +127,26 @@
 .zone {
   height: 100%;
   padding: 1rem;
-  background-color: var(--background-color, #f5f5f5);
-  border: 1px solid var(--border-color, #e0e0e0);
+  background-color: var(--backgroundColorSubCards);
+  border: 1px solid var(--standartBorderColor);
   overflow: auto;
 
   h3 {
     margin-top: 0;
-    color: var(--text-color, #333);
+    color: var(--colorLabel);
     font-size: 1.2rem;
     font-weight: 500;
     margin-bottom: 1rem;
   }
 
   p {
-    color: var(--text-secondary-color, #666);
+    color: var(--colorInactive);
     line-height: 1.6;
   }
 }
 
 .zone-left {
-  background-color: #fafafa;
+  background-color: var(--backgroundColorHover);
   padding: 0;
 }
 
@@ -307,7 +307,7 @@
               td {
                 padding: 2rem;
                 text-align: center;
-                border: 2px dashed #b6b6c3;
+                border: 2px dashed var(--colorMuted);
                 border-radius: 6px;
                 background-color: var(--backgroundColorCard);
 
@@ -552,9 +552,9 @@ as-split-area {
 }
 
 .readonly-banner {
-  background: #fff3cd;
-  color: #664d03;
-  border: 1px solid #ffe69c;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  border: 1px solid var(--alertWarningBorder);
   border-radius: 4px;
   padding: 8px 12px;
   margin-bottom: 8px;
@@ -631,7 +631,7 @@ as-split-area {
 .autofill-progress-bar {
   height: 100%;
   width: 30%;
-  background-color: #4caf50;
+  background-color: var(--standartGreenColor);
   animation: autofill-slide 1.2s ease-in-out infinite;
 }
 

@@ -103,16 +103,16 @@
 }
 
 .status-exportable {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: var(--alertSuccessBackground);
+  color: var(--alertSuccessText);
 }
 
 .status-period-open {
-  background-color: #fff3cd;
-  color: #664d03;
+  background-color: var(--alertWarningBackground);
+  color: var(--alertWarningText);
 }
 
 .status-not-closed {
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: var(--alertNeutralBackground);
+  color: var(--alertNeutralText);
 }

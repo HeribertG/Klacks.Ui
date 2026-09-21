@@ -14,7 +14,7 @@ $login-background: "../../../../assets/png/login-background.png" !default;
 }
 
 .legal-container {
-  background-color: white;
+  background-color: var(--backgroundColorCard);
   border-radius: 5px;
   padding: 40px;
   max-width: 800px;
@@ -23,13 +23,13 @@ $login-background: "../../../../assets/png/login-background.png" !default;
 
   h1 {
     margin-bottom: 24px;
-    color: var(--textColor, #333);
+    color: var(--standartTextColor);
   }
 }
 
 .legal-content {
   line-height: 1.6;
-  color: var(--textColor, #555);
+  color: var(--standartTextColor);
 }
 
 .legal-back {

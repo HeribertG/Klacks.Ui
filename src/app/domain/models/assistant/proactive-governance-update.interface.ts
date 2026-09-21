@@ -7,8 +7,6 @@
  * @param groupId - Restricts the rule to one group instead of the whole installation
  * @param maxAction - New ceiling for this finding type
  * @param enabled - Whether Klacksy may handle this finding type autonomously at all
- * @param responsibleOwnerUserId - Account a prepared or executed action runs under
- * @param clearResponsibleOwner - True removes the accountable person; a null id alone cannot say that
  * @param dailyActionBudget - Actions allowed per day for this finding type
  * @param windowActionLimit - Actions allowed inside one window before the breaker trips
  * @param windowMinutes - Length of that window in minutes
@@ -20,8 +18,6 @@ export interface IProactiveGovernanceUpdate {
   groupId?: string | null;
   maxAction?: number;
   enabled?: boolean;
-  responsibleOwnerUserId?: string | null;
-  clearResponsibleOwner?: boolean;
   dailyActionBudget?: number;
   windowActionLimit?: number;
   windowMinutes?: number;

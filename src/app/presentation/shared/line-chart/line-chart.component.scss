@@ -10,13 +10,13 @@
   overflow: visible;
 }
 
-.lc-grid  { stroke: #f0f0f0; stroke-width: 1; }
-.lc-axis  { stroke: #e0e0e0; stroke-width: 1; }
-.lc-tick  { stroke: #ccc; stroke-width: 1; }
+.lc-grid  { stroke: var(--colorLine); stroke-width: 1; }
+.lc-axis  { stroke: var(--colorSubtleLine); stroke-width: 1; }
+.lc-tick  { stroke: var(--standartBorderColor); stroke-width: 1; }
 
 .lc-label {
   font-size: 9px;
-  fill: #999;
+  fill: var(--colorInactive);
   font-family: inherit;
 
   &--y { text-anchor: end; }
@@ -24,19 +24,19 @@
 }
 
 .lc-today {
-  stroke: #e74c3c;
+  stroke: var(--standartRedColor);
   stroke-width: 1.5;
   stroke-dasharray: 4, 3;
 }
 
 .lc-today-label {
   font-size: 8px;
-  fill: #e74c3c;
+  fill: var(--standartRedColor);
   font-family: inherit;
 }
 
 .lc-crosshair {
-  stroke: #bbb;
+  stroke: var(--colorMuted);
   stroke-width: 1;
   stroke-dasharray: 3, 3;
   pointer-events: none;
@@ -44,8 +44,8 @@
 
 .lc-tooltip {
   position: absolute;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid #ddd;
+  background: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
   border-radius: 6px;
   padding: 6px 10px;
   font-size: 12px;

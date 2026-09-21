@@ -26,7 +26,7 @@
 
   input {
     width: 341px;
-    height: 35px;
+    height: var(--controlHeight);
 
   }
 
@@ -65,7 +65,7 @@
 }
 
 .strong {
-  color: green;
+  color: var(--standartGreenColor);
 }
 
 .my-password {

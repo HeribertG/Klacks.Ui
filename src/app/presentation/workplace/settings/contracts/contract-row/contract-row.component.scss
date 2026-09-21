@@ -4,9 +4,9 @@
 
 .attribute-hours {
   width: 120px;
-  height: 30px;
+  height: var(--controlHeight);
   padding: 5px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--standartBorderColor);
   border-radius: 4px;
   margin-inline-end: 10px;
 }
@@ -15,7 +15,7 @@
   width: 120px;
   height: 30px;
   padding: 5px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--standartBorderColor);
   border-radius: 4px;
   margin-inline-end: 10px;
 }

@@ -28,7 +28,7 @@
     }
 
     .slice-path {
-      stroke: var(--backgroundColorCard, #fff);
+      stroke: var(--backgroundColorCard);
       stroke-width: 3;
       transition: filter 0.25s ease;
       cursor: pointer;

@@ -69,12 +69,12 @@ span {
 
 .status-enabled {
   background-color: colors.$standartGreenColor;
-  color: white;
+  color: var(--onAccent);
 }
 
 .status-disabled {
-  background-color: #f59e0b;
-  color: white;
+  background-color: var(--colorWarning);
+  color: var(--onAccent);
 }
 
 .status-available {
@@ -97,16 +97,16 @@ span {
 
   &:hover {
     background: colors.$standartGreenColor;
-    color: white;
+    color: var(--onAccent);
   }
 }
 
 .toggle-btn {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: var(--colorInfo);
+  color: var(--colorInfo);
 
   &:hover {
-    background: #3b82f6;
-    color: white;
+    background: var(--colorInfo);
+    color: var(--onAccent);
   }
 }

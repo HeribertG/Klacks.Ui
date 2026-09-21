@@ -10,7 +10,7 @@
 
 input {
   width: 250px;
-  height: 32px;
+  height: var(--controlHeight);
 }
 
 label {
@@ -19,7 +19,7 @@ label {
 
 select {
   width: 120px;
-  height: 32px;
+  height: var(--controlHeight);
 }
 
 .gap {

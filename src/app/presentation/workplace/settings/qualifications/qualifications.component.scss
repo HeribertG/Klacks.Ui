@@ -9,7 +9,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid var(--colorLine);
-  background: var(--standartTextBackground, #fff);
+  background: var(--standartTextBackground);
   border-radius: 4px;
   padding: 6px 14px;
   cursor: pointer;
@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   margin: 0 30px 15px;
-  border: 1px solid var(--cardBorderColor, var(--colorLine));
+  border: 1px solid var(--cardBorderColor);
   border-radius: 8px;
   height: 280px;
   overflow: hidden;
@@ -46,9 +46,9 @@
   height: 46px;
   min-height: 46px;
   max-height: 46px;
-  border-bottom: 1px solid var(--cardBorderColor, var(--colorLine));
+  border-bottom: 1px solid var(--cardBorderColor);
   align-items: center;
-  background-color: var(--backgroundColorCard, #fff);
+  background-color: var(--backgroundColorCard);
 
   &::-webkit-scrollbar { height: 3px; }
   &::-webkit-scrollbar-thumb { background: var(--colorLine); border-radius: 2px; }
@@ -60,7 +60,7 @@
   height: 32px;
   padding: 0;
   font-size: var(--fontSizeTitle);
-  border: 1px solid var(--cardBorderColor, var(--colorLine));
+  border: 1px solid var(--cardBorderColor);
   border-radius: 6px;
   background: transparent;
   cursor: pointer;
@@ -74,7 +74,7 @@
   }
 
   &:hover:not(.active) {
-    background: var(--backgroundColorHover, #f0f0f0);
+    background: var(--backgroundColorHover);
     border-color: var(--standartGreenColor);
   }
 }
@@ -88,7 +88,7 @@
   flex: 1;
   gap: 2px;
   align-content: flex-start;
-  background-color: var(--backgroundColorCard, #fff);
+  background-color: var(--backgroundColorCard);
 }
 
 .emoji-cell {
@@ -106,7 +106,7 @@
   color: var(--standartTextColor);
 
   &:hover {
-    background: var(--backgroundColorHover, #f0f0f0);
+    background: var(--backgroundColorHover);
     border-color: var(--colorLine);
   }
 
@@ -119,10 +119,10 @@
 .country-checkbox-list {
   height: 120px;
   overflow-y: auto;
-  border: 1px solid var(--colorLine, #ced4da);
+  border: 1px solid var(--colorLine);
   border-radius: 4px;
   padding: 4px 6px;
-  background: var(--standartTextBackground, #fff);
+  background: var(--standartTextBackground);
 }
 
 .country-checkbox-option {

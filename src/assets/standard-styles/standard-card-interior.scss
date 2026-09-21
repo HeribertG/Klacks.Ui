@@ -36,6 +36,29 @@
   line-height: 1.5;
 }
 
+.hint-text {
+  &:is(p) {
+    margin-inline-start: 30px;
+    padding-inline-end: 40px;
+    max-width: 880px;
+    font-style: italic;
+    opacity: 0.85;
+  }
+
+  &:is(small) {
+    display: block;
+    margin-top: 4px;
+  }
+}
+
+.status-text-success {
+  color: var(--standartGreenColor);
+}
+
+.status-text-error {
+  color: var(--standartRedColor);
+}
+
 .container-line {
   margin-top: 25px;
   border-top: 1px solid var(--colorLine);

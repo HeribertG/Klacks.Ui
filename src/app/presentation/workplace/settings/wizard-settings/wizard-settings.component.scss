@@ -59,7 +59,7 @@ select {
 .wizard-check-id {
   font-size: var(--fontSizeSmall);
   color: var(--colorInactive);
-  font-family: monospace;
+  font-family: var(--fontFamilyMono);
 }
 
 .wizard-check-error-detail {

@@ -16,7 +16,7 @@ select {
   padding: 5px;
 }
 .select-country {
-  height: 30px;
+  height: var(--controlHeight);
 }
 
 .auto-width {

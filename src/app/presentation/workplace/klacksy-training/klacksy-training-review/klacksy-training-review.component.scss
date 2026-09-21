@@ -15,7 +15,7 @@
 }
 
 .filter-label {
-  font-size: 13px;
+  font-size: var(--fontSizeLabel);
   font-weight: 500;
   color: var(--colorLabel);
   margin-bottom: 0;
@@ -30,7 +30,7 @@
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
   font-weight: 500;
 }
 
@@ -40,16 +40,16 @@
 }
 
 .status-generated {
-  background-color: rgba(230, 137, 0, 0.15);
-  color: #b86b00;
+  background-color: color-mix(in srgb, var(--colorWarning) 15%, transparent);
+  color: var(--alertWarningText);
 }
 
 .status-reviewed {
-  background-color: rgba(67, 160, 71, 0.15);
-  color: #2e7d32;
+  background-color: color-mix(in srgb, var(--standartGreenColor) 15%, transparent);
+  color: var(--alertSuccessText);
 }
 
 .status-needs-review {
-  background-color: rgba(211, 47, 47, 0.15);
-  color: #c62828;
+  background-color: color-mix(in srgb, var(--standartRedColor) 15%, transparent);
+  color: var(--alertDangerText);
 }

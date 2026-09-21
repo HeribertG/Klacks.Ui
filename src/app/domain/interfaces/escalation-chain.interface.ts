@@ -10,11 +10,16 @@ export interface IEscalationStageSummary {
   respondedAtUtc: string | null;
 }
 
+export const ESCALATION_PURPOSE_ABSENCE_COVERAGE = 'AbsenceCoverage';
+export const ESCALATION_PURPOSE_PROACTIVE_APPROVAL = 'ProactiveApproval';
+
 export interface IEscalationChainSummary {
   id: string;
-  workId: string;
+  purpose: string;
+  workId: string | null;
+  conditionId: string | null;
   absentClientName: string;
-  shiftStartUtc: string;
+  shiftStartUtc: string | null;
   deadlineUtc: string;
   canAcknowledge: boolean;
   stages: IEscalationStageSummary[];

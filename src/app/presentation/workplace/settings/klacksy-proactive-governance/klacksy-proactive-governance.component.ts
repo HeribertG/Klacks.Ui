@@ -5,8 +5,7 @@
  * everything from above, plus per finding type report it, additionally lay a ready scenario next
  * to it, or additionally carry it out. Saves each change immediately, the
  * way the other assistant cards do, and reloads the whole picture from the answer so the effective
- * ceiling stays truthful when the master off switch is on. Loads the account list itself, because the
- * Klacksy settings section has no neighbour that would do it.
+ * ceiling stays truthful when the master off switch is on.
  * @param governance - Shared service signal holding the current rules and master off switch state
  * @param isLoading - Signal set while the initial GET is running
  * @param savingKind - Finding type whose row is currently being saved, or null
@@ -16,7 +15,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
-import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { IProactiveGovernanceRule } from 'src/app/domain/models/assistant/proactive-governance-rule.interface';
 import { IProactiveGovernanceUpdate } from 'src/app/domain/models/assistant/proactive-governance-update.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -36,7 +34,6 @@ const LEVEL_ROW_KEY = 'level';
 })
 export class KlacksyProactiveGovernanceComponent implements OnInit {
   private proactiveGovernanceService = inject(ProactiveGovernanceService);
-  private userAdministrationManagementService = inject(UserAdministrationManagementService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
 
@@ -49,12 +46,10 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
   readonly globalLevel = computed(() => this.governance()?.globalAutonomyLevel ?? 0);
   readonly killSwitchActive = computed(() => this.governance()?.killSwitchActive ?? false);
   readonly isSavingKillSwitch = computed(() => this.savingKind() === KILL_SWITCH_ROW_KEY);
-  readonly accounts = this.userAdministrationManagementService.accountsList;
 
   readonly levels = PROACTIVE_AUTONOMY_LEVELS;
 
   async ngOnInit(): Promise<void> {
-    this.userAdministrationManagementService.loadAccounts();
     try {
       await firstValueFrom(this.proactiveGovernanceService.get());
     } catch {
@@ -95,17 +90,6 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
 
   async onToggleEnabled(rule: IProactiveGovernanceRule, enabled: boolean): Promise<void> {
     await this.save(rule.triggerKind, { triggerKind: rule.triggerKind, enabled });
-  }
-
-  async onChangeResponsibleOwner(
-    rule: IProactiveGovernanceRule,
-    rawValue: string
-  ): Promise<void> {
-    const update: IProactiveGovernanceUpdate = rawValue
-      ? { triggerKind: rule.triggerKind, responsibleOwnerUserId: rawValue }
-      : { triggerKind: rule.triggerKind, clearResponsibleOwner: true };
-
-    await this.save(rule.triggerKind, update);
   }
 
   async onChangeDailyActionBudget(

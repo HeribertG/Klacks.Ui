@@ -89,7 +89,7 @@
   .conflict-btn {
     &.active {
       background-color: colors.$standartBlueColor;
-      color: #fff;
+      color: var(--onAccent);
       border-color: colors.$standartBlueColor;
     }
   }

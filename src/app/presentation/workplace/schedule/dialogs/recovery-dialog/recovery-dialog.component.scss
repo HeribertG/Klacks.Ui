@@ -46,7 +46,7 @@
 
 .recovery-reason {
   flex: 1 1 auto;
-  color: var(--bs-secondary-color, #6c757d);
+  color: var(--bs-secondary-color, var(--colorNeutral));
 }
 
 .recovery-uncovered .recovery-date,

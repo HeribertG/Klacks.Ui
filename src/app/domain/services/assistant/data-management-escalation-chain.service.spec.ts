@@ -18,7 +18,9 @@ describe('DataManagementEscalationChainService', () => {
 
     const chain = (overrides: Partial<IEscalationChainSummary> = {}): IEscalationChainSummary => ({
         id: 'chain-1',
+        purpose: 'AbsenceCoverage',
         workId: 'work-1',
+        conditionId: null,
         absentClientName: 'Anna Adler',
         shiftStartUtc: '2026-08-17T06:00:00Z',
         deadlineUtc: '2026-08-17T04:00:00Z',

@@ -39,7 +39,7 @@ label {
 }
 
 .grey-color {
-  color: #b6b6c3;
+  color: var(--colorMuted);
 }
 
 .row-line-add {
@@ -118,8 +118,8 @@ label {
 .ownStyle-button {
   width: 53px;
   height: 34px;
-  background-color: #e5eaee;
-  color: black;
+  background-color: var(--backgroundColorSubCards);
+  color: var(--standartTextColor);
   font-size: 13px;
   margin-inline-end: 20px;
 }
@@ -192,7 +192,7 @@ btn-outline-secondary {
 .container-search-button-disabled {
   font-weight: 600;
   font-size: 13px;
-  background-color: #b6b6c3;
+  background-color: var(--colorMuted);
   color: colors.$standartWhiteColor;
 }
 

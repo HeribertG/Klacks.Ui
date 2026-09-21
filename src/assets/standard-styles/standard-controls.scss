@@ -42,6 +42,57 @@ input:disabled {
   caret-color: var(--standartTextCaretColor);
 }
 
+
+:where(
+    input:not(
+        [type="checkbox"],
+        [type="radio"],
+        [type="range"],
+        [type="color"],
+        [type="file"],
+        [type="hidden"],
+        [type="button"],
+        [type="submit"],
+        [type="reset"],
+        [type="image"]
+      ),
+    select
+  ) {
+  height: var(--controlHeight);
+  box-sizing: border-box;
+}
+
+input.form-control,
+select.form-control,
+select.form-select,
+input.form-select {
+  height: var(--controlHeight);
+  min-height: var(--controlHeight);
+  box-sizing: border-box;
+  font-size: var(--fontSizeBase);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+}
+
+input.form-control:focus,
+select.form-control:focus,
+select.form-select:focus,
+input.form-select:focus {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+}
+
+input.form-control:disabled,
+input.form-control:read-only,
+select.form-control:disabled,
+select.form-select:disabled,
+input.form-select:disabled {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackgroundReadOnly);
+}
+
 textarea {
   font-weight: 500;
   font-size: var(--fontSizeBase);

@@ -12,12 +12,12 @@
 
 input {
   width: 200px;
-  height: 32px;
+  height: var(--controlHeight);
 }
 
 select {
   width: 200px;
-  height: 33px;
+  height: var(--controlHeight);
 }
 
 label {
@@ -40,14 +40,14 @@ label {
 
 .container-line {
   margin-top: 25px;
-  border-top: 1px solid #e5eaee;
+  border-top: 1px solid var(--colorLine);
   padding-bottom: 10px;
 }
 
 .red-font-disabled {
   margin-top: 10px;
   padding-inline-end: 30px;
-  color: #b6b6c3;
+  color: var(--colorMuted);
   pointer-events: none;
 }
 
@@ -110,15 +110,15 @@ button {
 }
 
 .alert-success {
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
+  background-color: var(--alertSuccessBackground);
+  border: 1px solid var(--alertSuccessBorder);
+  color: var(--alertSuccessText);
 }
 
 .alert-danger {
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
+  background-color: var(--alertDangerBackground);
+  border: 1px solid var(--alertDangerBorder);
+  color: var(--alertDangerText);
 }
 
 .spinner-border-sm {

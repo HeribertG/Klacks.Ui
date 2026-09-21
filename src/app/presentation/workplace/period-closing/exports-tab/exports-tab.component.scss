@@ -50,7 +50,7 @@
   }
 
   .form-control {
-    height: calc(1.5em + 0.5rem + 2px);
+    height: var(--controlHeight);
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5;
@@ -60,7 +60,7 @@
   }
 
   .container-search-button.input-group-text {
-    height: calc(1.5em + 0.5rem + 2px);
+    height: var(--controlHeight);
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5;
@@ -87,7 +87,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid var(--colorFocus, #4a90e2);
+    outline: 2px solid var(--colorFocus);
     outline-offset: -2px;
   }
 

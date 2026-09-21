@@ -2,9 +2,9 @@
   display: flex;
   flex-direction: column;
   padding: 12px;
-  border-top: 1px solid var(--cardBorderColor, #cfd8dc);
-  background-color: var(--backgroundColorCard, #fff);
-  font-size: 13px;
+  border-top: 1px solid var(--cardBorderColor);
+  background-color: var(--backgroundColorCard);
+  font-size: var(--fontSizeLabel);
 
   // Hosted in an audio-mode toast: the toast draws the frame and the surrounding scroll container.
   &.embedded {
@@ -26,16 +26,16 @@
 }
 
 .plan-status {
-  font-size: 11px;
+  font-size: var(--fontSizeXSmall);
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 4px;
-  background-color: var(--backgroundColorSubCards, #eee);
+  background-color: var(--backgroundColorSubCards);
 }
 
 .plan-status-executing {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: var(--alertWarningBackground);
+  color: var(--alertWarningText);
 }
 
 .plan-status-paused_for_approval {
@@ -44,22 +44,22 @@
 }
 
 .plan-status-completed {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--alertSuccessBackground);
+  color: var(--alertSuccessText);
 }
 
 .plan-status-failed {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--alertDangerBackground);
+  color: var(--alertDangerText);
 }
 
 .plan-error {
   padding: 6px 8px;
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--alertDangerBackground);
+  color: var(--alertDangerText);
   border-radius: 4px;
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
 }
 
 .plan-step-list {
@@ -82,33 +82,33 @@
   font-weight: bold;
 }
 
-.plan-step-done .plan-step-icon { color: #28a745; }
-.plan-step-running .plan-step-icon { color: #ffc107; }
+.plan-step-done .plan-step-icon { color: var(--standartGreenColor); }
+.plan-step-running .plan-step-icon { color: var(--colorWarning); }
 .plan-step-paused .plan-step-icon { color: #fd7e14; }
-.plan-step-failed .plan-step-icon { color: #dc3545; }
-.plan-step-pending .plan-step-icon { color: #6c757d; }
+.plan-step-failed .plan-step-icon { color: var(--standartRedColor); }
+.plan-step-pending .plan-step-icon { color: var(--colorNeutral); }
 
 .plan-step-skill {
-  font-family: monospace;
-  font-size: 12px;
+  font-family: var(--fontFamilyMono);
+  font-size: var(--fontSizeSmall);
 }
 
 .plan-step-verify {
-  color: #6c757d;
-  font-size: 11px;
-  font-family: monospace;
+  color: var(--colorNeutral);
+  font-size: var(--fontSizeXSmall);
+  font-family: var(--fontFamilyMono);
   margin-inline-start: 4px;
 }
 
 .plan-step-irreversible {
-  color: #dc3545;
+  color: var(--standartRedColor);
   font-weight: bold;
   margin-inline-start: 4px;
 }
 
 .plan-status-aborted {
-  background-color: #e2e3e5;
-  color: #383d41;
+  background-color: var(--alertNeutralBackground);
+  color: var(--alertNeutralText);
 }
 
 .plan-approve-bar {
@@ -117,7 +117,7 @@
   align-items: center;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--cardBorderColor, #cfd8dc);
+  border-top: 1px solid var(--cardBorderColor);
   gap: 8px;
 }
 
@@ -126,12 +126,12 @@
   justify-content: flex-end;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--cardBorderColor, #cfd8dc);
+  border-top: 1px solid var(--cardBorderColor);
 }
 
 .plan-approve-hint {
-  font-size: 12px;
-  color: #856404;
+  font-size: var(--fontSizeSmall);
+  color: var(--alertWarningText);
 }
 
 .plan-action-buttons {
@@ -141,7 +141,7 @@
 
 .plan-approve-btn,
 .plan-abort-btn {
-  font-size: 12px;
+  font-size: var(--fontSizeSmall);
 }
 
 .plan-approve-btn:disabled,

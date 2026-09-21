@@ -64,15 +64,15 @@
 }
 
 .icon-error {
-  color: #dc3545;
+  color: var(--standartRedColor);
 }
 
 .icon-warning {
-  color: #ffc107;
+  color: var(--colorWarning);
 }
 
 .icon-info {
-  color: #0dcaf0;
+  color: var(--colorInfo);
 }
 
 .error-list-table-wrapper {
