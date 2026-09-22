@@ -62,10 +62,14 @@ export interface IUiActionExecutionOutcome {
   succeeded: boolean;
   failedStep?: UiActionType;
   error?: string;
+  /** Set when the run stopped early because the turn it belongs to was stopped (§4.5); never sent to the backend. */
+  cancelled?: boolean;
 }
 
 export interface IUiActionContext {
   params: Record<string, unknown>;
   results: Record<string, unknown>;
   callId: string;
+  /** Polled between steps; absent means "never cancellable" (all existing non-Klacksy-stop call sites). */
+  isCancelled?: () => boolean;
 }

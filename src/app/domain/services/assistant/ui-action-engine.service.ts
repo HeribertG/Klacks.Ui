@@ -51,6 +51,10 @@ export class UiActionEngineService {
     let firstFailure: IUiActionExecutionOutcome | null = null;
 
     for (const step of config.steps) {
+      if (context.isCancelled?.()) {
+        return { succeeded: false, cancelled: true };
+      }
+
       try {
         await this.executeStep(step, context);
       } catch (error) {
