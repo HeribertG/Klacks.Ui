@@ -74,6 +74,7 @@ export interface IClientWork {
   works: Work[];
   hasContract: boolean;
   memberSince?: string;
+  memberUntil?: string;
   groupItemValidFrom?: string;
   groupItemValidUntil?: string;
   qualifications: IScheduleQualification[];
@@ -90,6 +91,7 @@ export class ClientWork implements IClientWork {
   membership?: Membership;
   membershipId!: string;
   memberSince?: string;
+  memberUntil?: string;
   groupItemValidFrom?: string;
   groupItemValidUntil?: string;
   name = '';

@@ -63,7 +63,7 @@ describe('ScheduleEntryActionsService', () => {
     return {
       startDate,
       rowGroupIndex: [0],
-      isCellBeforeClientStart: () => false,
+      isCellOutsideMembershipPeriod: () => false,
       isCellOutsideGroupPeriod: () => false,
       getGroupIndex: () => ({ id: 'client-1' }),
     } as unknown as ScheduleDataService;

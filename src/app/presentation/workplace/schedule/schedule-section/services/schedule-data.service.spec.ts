@@ -83,6 +83,81 @@ describe('ScheduleDataService', () => {
         expect(service).toBeTruthy();
     });
 
+    describe('isCellOutsideMembershipPeriod', () => {
+        const START_DATE = new Date('2026-01-01');
+
+        beforeEach(() => {
+            service.startDate = START_DATE;
+            service.rowGroupIndex = [0];
+        });
+
+        it('returns false when client has no memberSince and no memberUntil', () => {
+            dataManagement.clients = [{ memberSince: undefined, memberUntil: undefined }];
+            expect(service.isCellOutsideMembershipPeriod(0, 10)).toBe(false);
+        });
+
+        it('returns false when row has no client index', () => {
+            service.rowGroupIndex = [];
+            expect(service.isCellOutsideMembershipPeriod(0, 10)).toBe(false);
+        });
+
+        it('returns false when startDate is not set', () => {
+            service.startDate = undefined;
+            dataManagement.clients = [{ memberSince: '2026-01-15' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 0)).toBe(false);
+        });
+
+        it('returns true when date is before memberSince (entry date)', () => {
+            // col 0 → 2026-01-01, memberSince = 2026-01-15 → outside
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 0)).toBe(true);
+        });
+
+        it('returns false when date equals memberSince (boundary is inside)', () => {
+            // col 14 → 2026-01-15, memberSince = 2026-01-15 → on boundary, inside
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 14)).toBe(false);
+        });
+
+        it('returns false when date is within valid range', () => {
+            // col 20 → 2026-01-21, memberSince = 2026-01-15, memberUntil = 2026-01-25 → inside
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 20)).toBe(false);
+        });
+
+        it('returns false when date equals memberUntil (boundary is inside)', () => {
+            // col 24 → 2026-01-25, memberUntil = 2026-01-25 → on boundary, inside
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 24)).toBe(false);
+        });
+
+        it('returns true when date is after memberUntil (exit date)', () => {
+            // col 25 → 2026-01-26, memberUntil = 2026-01-25 → outside
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 25)).toBe(true);
+        });
+
+        it('returns true when only memberSince set and date is before it', () => {
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: undefined }];
+            expect(service.isCellOutsideMembershipPeriod(0, 0)).toBe(true);
+        });
+
+        it('returns false when only memberSince set and date is on or after it', () => {
+            dataManagement.clients = [{ memberSince: '2026-01-15', memberUntil: undefined }];
+            expect(service.isCellOutsideMembershipPeriod(0, 14)).toBe(false);
+        });
+
+        it('returns true when only memberUntil set and date is after it', () => {
+            dataManagement.clients = [{ memberSince: undefined, memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 25)).toBe(true);
+        });
+
+        it('returns false when only memberUntil set and date is before or on it', () => {
+            dataManagement.clients = [{ memberSince: undefined, memberUntil: '2026-01-25' }];
+            expect(service.isCellOutsideMembershipPeriod(0, 0)).toBe(false);
+        });
+    });
+
     describe('isCellOutsideGroupPeriod', () => {
         const START_DATE = new Date('2026-01-01');
 

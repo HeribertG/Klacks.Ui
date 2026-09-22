@@ -317,7 +317,7 @@ export class GridFillHandleDragService {
         continue;
       }
 
-      if (scheduleDataService.isCellBeforeClientStart(result.row, col)) {
+      if (scheduleDataService.isCellOutsideMembershipPeriod(result.row, col)) {
         continue;
       }
 
@@ -379,7 +379,7 @@ export class GridFillHandleDragService {
         continue;
       }
 
-      if (scheduleDataService.isCellBeforeClientStart(result.row, col)) {
+      if (scheduleDataService.isCellOutsideMembershipPeriod(result.row, col)) {
         continue;
       }
 

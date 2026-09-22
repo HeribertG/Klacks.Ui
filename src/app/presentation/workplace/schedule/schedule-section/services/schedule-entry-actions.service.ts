@@ -61,7 +61,7 @@ export class ScheduleEntryActionsService {
   ): void {
     if (!shiftId) return;
     if (!dataService.startDate) return;
-    if (dataService.isCellBeforeClientStart(row, column)) return;
+    if (dataService.isCellOutsideMembershipPeriod(row, column)) return;
     if (dataService.isCellOutsideGroupPeriod(row, column)) return;
 
     const clientIndex = dataService.rowGroupIndex[row];
@@ -95,7 +95,7 @@ export class ScheduleEntryActionsService {
   ): void {
     if (!absenceItemId) return;
     if (!dataService.startDate) return;
-    if (dataService.isCellBeforeClientStart(row, column)) return;
+    if (dataService.isCellOutsideMembershipPeriod(row, column)) return;
     if (dataService.isCellOutsideGroupPeriod(row, column)) return;
 
     const clientIndex = dataService.rowGroupIndex[row];

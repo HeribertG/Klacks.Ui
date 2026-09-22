@@ -133,7 +133,7 @@ export class ScheduleDataService extends BaseDataService {
       this.applyAvailabilityHighlighting(cell, row, col, !entry);
     }
 
-    if (this.isCellBeforeClientStart(row, col)) {
+    if (this.isCellOutsideMembershipPeriod(row, col)) {
       cell.sealed = true;
     }
 
@@ -268,7 +268,7 @@ export class ScheduleDataService extends BaseDataService {
       return false;
     }
 
-    if (this.isCellBeforeClientStart(row, col)) {
+    if (this.isCellOutsideMembershipPeriod(row, col)) {
       return false;
     }
 
@@ -335,17 +335,25 @@ export class ScheduleDataService extends BaseDataService {
     return this.dataManagementSchedule.sealedDates.has(formatDateOnly(date));
   }
 
-  public isCellBeforeClientStart(row: number, col: number): boolean {
+  public isCellOutsideMembershipPeriod(row: number, col: number): boolean {
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) return false;
 
-    const memberSince = this.dataManagementSchedule.clients[clientIndex]?.memberSince;
-    if (!memberSince) return false;
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    const memberSince = client?.memberSince;
+    const memberUntil = client?.memberUntil;
+
+    if (!memberSince && !memberUntil) return false;
 
     const date = this.getDateForColumn(col);
     if (!date) return false;
 
-    return formatDateOnly(date) < memberSince;
+    const dateStr = formatDateOnly(date);
+
+    if (memberSince && dateStr < memberSince) return true;
+    if (memberUntil && dateStr > memberUntil) return true;
+
+    return false;
   }
 
   public isCellOutsideGroupPeriod(row: number, col: number): boolean {
@@ -599,7 +607,7 @@ export class ScheduleDataService extends BaseDataService {
         const targetCol = startCol + colOffset;
 
         if (this.isColumnSealed(targetCol)) continue;
-        if (this.isCellBeforeClientStart(targetRow, targetCol)) continue;
+        if (this.isCellOutsideMembershipPeriod(targetRow, targetCol)) continue;
         if (this.isCellOutsideGroupPeriod(targetRow, targetCol)) continue;
         if (this.isCellActive(targetRow, targetCol)) continue;
 
@@ -677,7 +685,7 @@ export class ScheduleDataService extends BaseDataService {
         const targetCol = startCol + colOffset;
 
         if (this.isColumnSealed(targetCol)) continue;
-        if (this.isCellBeforeClientStart(targetRow, targetCol)) continue;
+        if (this.isCellOutsideMembershipPeriod(targetRow, targetCol)) continue;
         if (this.isCellOutsideGroupPeriod(targetRow, targetCol)) continue;
         if (this.isCellActive(targetRow, targetCol)) continue;
 

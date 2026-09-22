@@ -99,6 +99,7 @@ export interface IWorkScheduleClient {
   neededRows: number;
   hasContract: boolean;
   memberSince?: string | null;
+  memberUntil?: string | null;
   groupItemValidFrom?: string | null;
   groupItemValidUntil?: string | null;
   qualifications: IScheduleQualification[];

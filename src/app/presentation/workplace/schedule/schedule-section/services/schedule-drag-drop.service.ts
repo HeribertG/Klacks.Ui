@@ -116,7 +116,7 @@ export class ScheduleDragDropService {
     }
 
     const isEmpty = !dataService.isCellActive(row, column);
-    const isBeforeClientStart = dataService.isCellBeforeClientStart(row, column) || dataService.isCellOutsideGroupPeriod(row, column);
+    const isBeforeClientStart = dataService.isCellOutsideMembershipPeriod(row, column) || dataService.isCellOutsideGroupPeriod(row, column);
 
     return {
       row,
