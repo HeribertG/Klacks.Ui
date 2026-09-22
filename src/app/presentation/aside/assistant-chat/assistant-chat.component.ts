@@ -763,7 +763,7 @@ export class AssistantChatComponent {
   onVoiceButtonClick(): void {
     const currentState = this.orchestrator.state();
     if (currentState === ConversationState.Speaking || currentState === ConversationState.Processing) {
-      this.orchestrator.interrupt();
+      this.orchestrator.interrupt('voice-bubble');
     } else {
       this.orchestrator.toggleVoiceMode();
     }

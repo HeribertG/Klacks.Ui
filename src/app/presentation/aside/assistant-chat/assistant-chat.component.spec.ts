@@ -1424,6 +1424,15 @@ describe('AssistantChatComponent', () => {
             expect(component.orchestrator.toggleVoiceMode).toHaveBeenCalled();
         });
 
+        it('onVoiceButtonClick interrupts with voice-bubble, not the barge-in default', () => {
+            // Act
+            component.orchestrator.state.set(ConversationState.Speaking);
+            component.onVoiceButtonClick();
+
+            // Assert
+            expect(component.orchestrator.interrupt).toHaveBeenCalledWith('voice-bubble');
+        });
+
         it('should reflect orchestrator state for voiceModeEnabled', () => {
             expect(component.voiceModeEnabled).toBe(false);
         });
