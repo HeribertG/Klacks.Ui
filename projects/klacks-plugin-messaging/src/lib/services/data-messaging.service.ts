@@ -14,6 +14,7 @@ import { CreateMessagingProvider } from '../models/create-messaging-provider.mod
 import { SendMessage } from '../models/send-message.model';
 import { MessageDirection } from '../enums/message-direction.enum';
 import { MessageScope } from '../enums/message-scope.enum';
+import { MessagingSetupReport } from '../models/messaging-setup-report.model';
 
 @Injectable({ providedIn: 'root' })
 export class DataMessagingService {
@@ -42,6 +43,10 @@ export class DataMessagingService {
 
   testProvider(id: string): Observable<{ success: boolean }> {
     return this.httpClient.post<{ success: boolean }>(`${this.apiUrl}messaging/providers/${id}/test`, {});
+  }
+
+  getSetupDiagnosis(): Observable<MessagingSetupReport> {
+    return this.httpClient.get<MessagingSetupReport>(`${this.apiUrl}messaging/setup-diagnosis`);
   }
 
   getMessages(providerId?: string, direction?: MessageDirection, sender?: string, scope?: MessageScope, count = 50, offset = 0): Observable<Message[]> {

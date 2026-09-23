@@ -17,6 +17,7 @@ import {
   PLUGIN_VOICE_SERVICE,
   PLUGIN_SPEECH_SERVICE,
   PLUGIN_GROUP_SELECTION,
+  PLUGIN_ASSISTANT_LAUNCHER,
   IPluginWorkplaceHost,
   IPluginGroupSelection,
 } from 'klacks-plugin-contracts';
@@ -31,6 +32,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { VoiceModeAdapterService } from './voice-mode-adapter.service';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
+import { PluginSetupAssistantOfferService } from 'src/app/application/services/plugin-setup-assistant-offer.service';
 
 export function providePluginHost(): Provider[] {
   return [
@@ -82,6 +84,10 @@ export function providePluginHost(): Provider[] {
         };
       },
       deps: [GroupSelectionService],
+    },
+    {
+      provide: PLUGIN_ASSISTANT_LAUNCHER,
+      useExisting: PluginSetupAssistantOfferService,
     },
   ];
 }

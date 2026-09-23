@@ -12,6 +12,8 @@ export { IPluginManualLoader } from './lib/plugin-manual-loader';
 export { IPluginVoiceService, IPluginSpeechService, IPluginVoiceCallbacks } from './lib/plugin-voice';
 export { PluginEventStream } from './lib/plugin-event-stream';
 export { IPluginGroupSelection } from './lib/plugin-group-selection';
+export { IPluginAssistantLauncher } from './lib/plugin-assistant-launcher';
+export { IPluginAssistantSetupOffer } from './lib/plugin-assistant-setup-offer';
 export {
   PLUGIN_WORKPLACE_HOST,
   PLUGIN_TOAST_SERVICE,
@@ -21,4 +23,5 @@ export {
   PLUGIN_VOICE_SERVICE,
   PLUGIN_SPEECH_SERVICE,
   PLUGIN_GROUP_SELECTION,
+  PLUGIN_ASSISTANT_LAUNCHER,
 } from './lib/tokens';

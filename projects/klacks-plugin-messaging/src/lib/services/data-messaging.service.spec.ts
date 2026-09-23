@@ -122,6 +122,14 @@ describe('DataMessagingService', () => {
     req.flush({ broadcastId: 'b-1', total: 1, sent: 1, failed: 0, skippedNoContact: 0 });
   });
 
+  it('requests the setup diagnosis from the plugin base URL', () => {
+    service.getSetupDiagnosis().subscribe();
+
+    const req = httpMock.expectOne(`${API_BASE_URL}messaging/setup-diagnosis`);
+    expect(req.request.method).toBe('GET');
+    req.flush({ pluginSteps: [], providers: [] });
+  });
+
   it('posts the send-to-id-numbers body with the id number list and fixed contentType', () => {
     service.sendBroadcastToIdNumbers('telegram-main', [7, 8], 'hi all').subscribe();
 

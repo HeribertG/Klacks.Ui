@@ -12,6 +12,7 @@ import { IPluginManualLoader } from './plugin-manual-loader';
 import { IPluginVoiceService, IPluginSpeechService } from './plugin-voice';
 import { PluginEventStream } from './plugin-event-stream';
 import { IPluginGroupSelection } from './plugin-group-selection';
+import { IPluginAssistantLauncher } from './plugin-assistant-launcher';
 
 export const PLUGIN_WORKPLACE_HOST = new InjectionToken<IPluginWorkplaceHost>('PLUGIN_WORKPLACE_HOST');
 export const PLUGIN_TOAST_SERVICE = new InjectionToken<IPluginToastService>('PLUGIN_TOAST_SERVICE');
@@ -21,3 +22,4 @@ export const PLUGIN_API_BASE_URL = new InjectionToken<string>('PLUGIN_API_BASE_U
 export const PLUGIN_VOICE_SERVICE = new InjectionToken<IPluginVoiceService>('PLUGIN_VOICE_SERVICE');
 export const PLUGIN_SPEECH_SERVICE = new InjectionToken<IPluginSpeechService>('PLUGIN_SPEECH_SERVICE');
 export const PLUGIN_GROUP_SELECTION = new InjectionToken<IPluginGroupSelection>('PLUGIN_GROUP_SELECTION');
+export const PLUGIN_ASSISTANT_LAUNCHER = new InjectionToken<IPluginAssistantLauncher>('PLUGIN_ASSISTANT_LAUNCHER');

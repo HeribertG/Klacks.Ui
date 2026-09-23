@@ -5,20 +5,24 @@
  * Shows only installed plugins. Marketplace modal for browsing and installing new ones.
  * @param dataService - API service for feature plugin operations
  * @param toastService - Service for displaying toast notifications
+ * @param assistantLauncher - Offers Klacksy's commissioning help after install/enable, when the manifest asks for it
  */
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { PluginSetupAssistantOfferService } from 'src/app/application/services/plugin-setup-assistant-offer.service';
 import { FeaturePluginsHeaderComponent } from './feature-plugins-header/feature-plugins-header.component';
 import { FeaturePluginsRowComponent } from './feature-plugins-row/feature-plugins-row.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { IconSearchComponent } from 'src/app/presentation/icons/icon-search.component';
 import { FeaturePluginMarketplaceBrowseComponent } from './feature-plugin-marketplace-browse/feature-plugin-marketplace-browse.component';
+
+const ASSISTANT_SETUP_OFFER_KEY_PREFIX = 'plugin-setup:';
 
 @Component({
   selector: 'app-feature-plugins',
@@ -39,6 +43,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
   private dataService = inject(DataFeaturePluginService);
   private pluginState = inject(FeaturePluginStateService);
   private toastService = inject(ToastShowService);
+  private assistantLauncher = inject(PluginSetupAssistantOfferService);
   private modalService = inject(NgbModal);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -46,6 +51,8 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
 
   readonly marketplaceModal = viewChild.required<TemplateRef<unknown>>('marketplaceModal');
   readonly marketplaceBrowse = viewChild(FeaturePluginMarketplaceBrowseComponent);
+
+  private marketplaceModalRef: NgbModalRef | null = null;
 
   allPlugins: FeaturePluginInfo[] = [];
   isLoading = false;
@@ -105,6 +112,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
 
   async onToggleEnabled(plugin: FeaturePluginInfo): Promise<void> {
     const newState = !plugin.isEnabled;
+    let toggledOn = false;
     try {
       if (newState) {
         await firstValueFrom(this.dataService.enable(plugin.name));
@@ -121,22 +129,45 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
         this.translate.instant(messageKey),
         this.translate.instant('TOAST_SUCCESS')
       );
+      toggledOn = newState;
     } catch {
       this.toastService.showError(this.translate.instant('settings.feature-plugins.error.toggle'));
     } finally {
       this.cdr.markForCheck();
     }
+
+    if (toggledOn) {
+      this.offerAssistantSetupIfApplicable(plugin.name);
+    }
   }
 
   openMarketplaceModal(): void {
-    this.modalService.open(this.marketplaceModal(), { size: 'lg' });
+    this.marketplaceModalRef = this.modalService.open(this.marketplaceModal(), { size: 'lg' });
     setTimeout(() => this.marketplaceBrowse()?.search(), 0);
   }
 
-  async onMarketplaceInstalled(_name: string): Promise<void> {
+  async onMarketplaceInstalled(name: string): Promise<void> {
     this.loadPlugins();
     await this.pluginState.refresh();
     await this.reloadTranslations();
+    this.marketplaceModalRef?.close();
+    this.offerAssistantSetupIfApplicable(name);
+  }
+
+  private offerAssistantSetupIfApplicable(name: string): void {
+    const plugin = this.pluginState.plugins().find((p) => p.name === name);
+    if (!plugin?.assistantSetup || plugin.isOperational) {
+      return;
+    }
+    this.assistantLauncher.offerSetupHelp(
+      {
+        offerKey: plugin.assistantSetup.offerKey,
+        acceptKey: plugin.assistantSetup.acceptKey,
+        declineKey: plugin.assistantSetup.declineKey,
+        triggerPhraseKey: plugin.assistantSetup.triggerPhraseKey,
+      },
+      ASSISTANT_SETUP_OFFER_KEY_PREFIX + plugin.name,
+    );
   }
 
   private async reloadTranslations(): Promise<void> {

@@ -5,6 +5,7 @@
  * @param dataService - API service for messaging provider operations
  * @param toastService - Service for displaying toast notifications
  * @param ngbModal - NgbModal service for opening edit modals
+ * @param assistantLauncher - Offers Klacksy's commissioning help when a saved provider is not yet ready
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -25,11 +26,20 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataMessagingService } from '../../services/data-messaging.service';
 import { MessagingProvider } from '../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../models/create-messaging-provider.model';
-import { PLUGIN_TOAST_SERVICE, PLUGIN_MANUAL_LOADER } from 'klacks-plugin-contracts';
+import { SetupStepStatus } from '../../enums/setup-step-status.enum';
+import { PLUGIN_TOAST_SERVICE, PLUGIN_MANUAL_LOADER, PLUGIN_ASSISTANT_LAUNCHER } from 'klacks-plugin-contracts';
 import { MessagingProvidersHeaderComponent } from './messaging-providers-header/messaging-providers-header.component';
 import { MessagingProvidersRowComponent } from './messaging-providers-row/messaging-providers-row.component';
 import { MessagingProviderEditComponent } from './messaging-provider-edit/messaging-provider-edit.component';
 import { PluginSettingsListCardComponent } from '../../shared/settings-list-card/settings-list-card.component';
+
+const ASSISTANT_SETUP_OFFER = {
+  offerKey: 'messaging.setup-assistant.offer-after-save',
+  acceptKey: 'messaging.setup-assistant.accept',
+  declineKey: 'messaging.setup-assistant.decline',
+  triggerPhraseKey: 'messaging.setup-assistant.trigger',
+};
+const ASSISTANT_OFFER_KEY_PREFIX = 'messaging-setup:';
 
 @Component({
   selector: 'lib-messaging-providers',
@@ -49,6 +59,7 @@ import { PluginSettingsListCardComponent } from '../../shared/settings-list-card
 export class MessagingProvidersComponent implements OnInit, OnDestroy {
   private dataService = inject(DataMessagingService);
   private toastService = inject(PLUGIN_TOAST_SERVICE);
+  private assistantLauncher = inject(PLUGIN_ASSISTANT_LAUNCHER);
   private ngbModal = inject(NgbModal);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -201,19 +212,20 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
   }
 
   async onSaved(dto: CreateMessagingProvider, modal: any): Promise<void> {
+    let saved: MessagingProvider | null = null;
     try {
       if (this.isNewProvider) {
-        const created = await firstValueFrom(this.dataService.createProvider(dto));
-        this.providers = [...this.providers, created];
+        saved = await firstValueFrom(this.dataService.createProvider(dto));
+        this.providers = [...this.providers, saved];
         this.toastService.showSuccess(
           this.translate.instant('settings.messaging-providers.success.create'),
           this.translate.instant('TOAST_SUCCESS')
         );
       } else if (this.editingProvider) {
-        const updated = await firstValueFrom(this.dataService.updateProvider(this.editingProvider.id, dto));
+        saved = await firstValueFrom(this.dataService.updateProvider(this.editingProvider.id, dto));
         const index = this.providers.findIndex(p => p.id === this.editingProvider!.id);
         if (index >= 0) {
-          this.providers[index] = updated;
+          this.providers[index] = saved;
           this.providers = [...this.providers];
         }
         this.toastService.showSuccess(
@@ -227,5 +239,24 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
     } finally {
       this.cdr.markForCheck();
     }
+
+    if (saved) {
+      this.offerAssistantSetupIfNeeded(saved.name);
+    }
+  }
+
+  private offerAssistantSetupIfNeeded(providerName: string): void {
+    this.dataService.getSetupDiagnosis()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (report) => {
+          const nextStep = report.providers.find(p => p.providerName === providerName)?.nextStep;
+          if (!nextStep || (nextStep.status !== SetupStepStatus.Error && nextStep.status !== SetupStepStatus.ActionRequired)) {
+            return;
+          }
+          this.assistantLauncher.offerSetupHelp(ASSISTANT_SETUP_OFFER, ASSISTANT_OFFER_KEY_PREFIX + providerName);
+        },
+        error: () => undefined,
+      });
   }
 }
