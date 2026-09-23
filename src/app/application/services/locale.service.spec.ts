@@ -18,12 +18,12 @@ describe('LocaleService', () => {
     if (originalLanguageGetter) {
       Object.defineProperty(navigator, 'language', originalLanguageGetter);
     } else {
-      delete (navigator as any).language;
+      Reflect.deleteProperty(navigator, 'language');
     }
     if (originalLanguagesGetter) {
       Object.defineProperty(navigator, 'languages', originalLanguagesGetter);
     } else {
-      delete (navigator as any).languages;
+      Reflect.deleteProperty(navigator, 'languages');
     }
   });
 
