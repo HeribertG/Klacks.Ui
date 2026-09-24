@@ -23,6 +23,7 @@ import { UiActionValueResolverService } from 'src/app/domain/services/assistant/
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
@@ -335,6 +336,34 @@ describe('stop-turn cancellation across turn control, function execution and UI 
         throw new Error('navigation failed');
       });
       await runWithMessage([navigationCall('/a')], seq);
+      expect(turnControl.isExecuting()).toBe(false);
+    });
+
+    it('resets isExecuting and passes the exception on when a call throws during the execution', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      const onboarding = TestBed.inject(OnboardingService) as unknown as { requestTourStart: ReturnType<typeof vi.fn> };
+      onboarding.requestTourStart.mockImplementationOnce(() => {
+        throw new Error('tour failed');
+      });
+
+      const execution = runWithMessage([{ functionName: START_GUIDED_TOUR_SKILL }, uiActionCall], seq);
+
+      await expect(execution).rejects.toThrow('tour failed');
+      expect(turnControl.isExecuting()).toBe(false);
+      expect(turnControl.isMessageExecuting(MESSAGE_ID)).toBe(false);
+    });
+
+    it('resets isExecuting and passes the exception on when the event bus throws', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      const eventBus = TestBed.inject(EVENT_BUS_TOKEN) as unknown as { emit: ReturnType<typeof vi.fn> };
+      eventBus.emit.mockImplementationOnce(() => {
+        throw new Error('bus failed');
+      });
+      const clientCall = { functionName: 'create_client', result: 'Data: {"ClientId":"c-1"}' };
+
+      await expect(runWithMessage([clientCall], seq)).rejects.toThrow('bus failed');
       expect(turnControl.isExecuting()).toBe(false);
     });
 

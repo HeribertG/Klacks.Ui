@@ -124,7 +124,6 @@ export class VoiceShellComponent implements OnInit {
         }
         break;
       case ConversationState.Speaking:
-        this.turnControl.cancelRunningExecutions();
         if (isRealVoiceSession) {
           this.orchestrator.interruptAndListen('voice-bubble');
         } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {

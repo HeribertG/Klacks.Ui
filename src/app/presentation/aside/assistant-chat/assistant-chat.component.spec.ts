@@ -787,13 +787,25 @@ describe('AssistantChatComponent', () => {
             expect(mockTurnControl.cancelRunningExecutions).not.toHaveBeenCalled();
         });
 
-        it('cancels a running execution when the panel is destroyed', () => {
+        it('cancels a running execution when the panel is really closed (aside no longer visible)', () => {
+            TestBed.inject(AsideService).hide();
+
             fixture.destroy();
 
             expect(mockTurnControl.cancelRunningExecutions).toHaveBeenCalledTimes(1);
+            expect(mockTurnControl.stop).toHaveBeenCalledWith('panel-closed');
         });
 
-        it.each(['barge-in', 'session-end', 'voice-bubble'] as const)(
+        it('keeps a running execution alive when the instance is only swapped while the aside stays visible', () => {
+            TestBed.inject(AsideService).show();
+
+            fixture.destroy();
+
+            expect(mockTurnControl.cancelRunningExecutions).not.toHaveBeenCalled();
+            expect(mockTurnControl.stop).toHaveBeenCalledWith('panel-closed');
+        });
+
+        it.each(['barge-in', 'voice-bubble'] as const)(
             'the orchestrator stop callback for %s stops the turn and cancels a running execution',
             (reason) => {
                 const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
@@ -805,6 +817,16 @@ describe('AssistantChatComponent', () => {
                 expect(mockTurnControl.cancelRunningExecutions).toHaveBeenCalledTimes(1);
             },
         );
+
+        it('the orchestrator stop callback for the automatic session-end stops the turn but keeps a running execution', () => {
+            const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+            const callbacks = orchestrator.initialize.mock.calls[0][0];
+
+            callbacks.stop('session-end');
+
+            expect(mockTurnControl.stop).toHaveBeenCalledWith('session-end');
+            expect(mockTurnControl.cancelRunningExecutions).not.toHaveBeenCalled();
+        });
 
         it('stops the turn as panel-closed on destroy', () => {
             fixture.destroy();

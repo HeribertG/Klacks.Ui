@@ -87,10 +87,10 @@
       <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
       }
       } @else {
-      <!-- Unreachable today (the only current producer, ChatTurnControlService, always sets
-           interruptedSummary alongside wasInterrupted), but the field type allows `undefined` -
-           this branch keeps an undefined summary from crashing the template instead of assuming
-           the pairing invariant. -->
+      <!-- Unreachable today (both producers, ChatTurnControlService and
+           ChatFunctionExecutionService, always set interruptedSummary alongside wasInterrupted),
+           but the field type allows `undefined` - this branch keeps an undefined summary from
+           crashing the template instead of assuming the pairing invariant. -->
       <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
       }
     </div>

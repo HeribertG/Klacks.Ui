@@ -299,7 +299,10 @@ export class AssistantChatComponent {
     });
 
     this.destroyRef.onDestroy(() => {
-      this.turnControl.cancelRunningExecutions();
+      // A visible aside means the instance is only swapped (floating-mode switch), not closed.
+      if (!this.asideService.isVisible()) {
+        this.turnControl.cancelRunningExecutions();
+      }
       void this.turnControl.stop('panel-closed');
     });
 
@@ -314,7 +317,10 @@ export class AssistantChatComponent {
         detectChanges: () => this.cdr.detectChanges(),
         isTextProcessing: this.isProcessing,
         stop: (reason) => {
-          this.turnControl.cancelRunningExecutions();
+          // session-end also fires automatically when the floating shell disappears; that must not cancel a running execution.
+          if (reason !== 'session-end') {
+            this.turnControl.cancelRunningExecutions();
+          }
           void this.turnControl.stop(reason);
         },
       },

@@ -244,14 +244,24 @@ describe('VoiceShellComponent — click matrix', () => {
     expect(turnControl.cancelRunningExecutions).toHaveBeenCalledOnce();
   });
 
-  it('TTS playing during a TEXT turn → stops TTS and cancels a running execution', () => {
+  it('TTS playing during a TEXT turn → stops only the speech and leaves a running execution alone', () => {
     orch.state.set(ConversationState.Idle);
     tts.isPlaying.set(true);
     turnControl.isExecuting.set(true);
     component.handleClick();
 
     expect(tts.stop).toHaveBeenCalledOnce();
-    expect(turnControl.cancelRunningExecutions).toHaveBeenCalledOnce();
+    expect(turnControl.cancelRunningExecutions).not.toHaveBeenCalled();
+  });
+
+  it('auto-speak playing during a TEXT turn → stops only the speech and leaves a running execution alone', () => {
+    orch.state.set(ConversationState.Idle);
+    audioQueue.isPlaying.set(true);
+    turnControl.isExecuting.set(true);
+    component.handleClick();
+
+    expect(orch.stopAutoSpeak).toHaveBeenCalledOnce();
+    expect(turnControl.cancelRunningExecutions).not.toHaveBeenCalled();
   });
 
   it('idle without any execution → no cancel', () => {
