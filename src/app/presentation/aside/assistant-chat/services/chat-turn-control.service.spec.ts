@@ -283,4 +283,93 @@ describe('ChatTurnControlService', () => {
 
     expect(hooks.silence).toHaveBeenCalledOnce();
   });
+
+  describe('captureCancellation', () => {
+    beforeEach(() => {
+      service.registerHooks({ silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false });
+    });
+
+    it('never fires when no turn is live', () => {
+      const isCancelled = service.captureCancellation();
+      expect(isCancelled()).toBe(false);
+    });
+
+    it('is false while the turn runs and stays false after it ends normally', () => {
+      service.beginTurn('msg-1');
+      const isCancelled = service.captureCancellation();
+      expect(isCancelled()).toBe(false);
+
+      service.endTurn();
+
+      expect(service.isTurnRunning()).toBe(false);
+      expect(isCancelled()).toBe(false);
+    });
+
+    it('turns true the instant stop() is called and stays true after the stop completed', async () => {
+      service.beginTurn('msg-1');
+      const isCancelled = service.captureCancellation();
+
+      void service.stop('user-button');
+      expect(isCancelled()).toBe(true);
+
+      await vi.runAllTimersAsync();
+      expect(service.isTurnRunning()).toBe(false);
+      expect(isCancelled()).toBe(true);
+    });
+
+    it('stays true for a stop that lost the race against the normal end of the turn', async () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+      const isCancelled = service.captureCancellation();
+
+      const stopping = service.stop('user-button');
+      service.endTurn();
+      await stopping;
+
+      expect(isCancelled()).toBe(true);
+      expect(mockOrchestrator.updateMessage).not.toHaveBeenCalled();
+    });
+
+    it('ignores a stop() that arrives after the turn ended normally', async () => {
+      service.beginTurn('msg-1');
+      const isCancelled = service.captureCancellation();
+      service.endTurn();
+
+      await service.stop('user-button');
+
+      expect(isCancelled()).toBe(false);
+    });
+
+    it('does not let the stop of an old turn cancel the next turn', async () => {
+      service.beginTurn('msg-1');
+      await service.stop('superseded');
+
+      service.beginTurn('msg-2');
+      const isCancelledNext = service.captureCancellation();
+
+      expect(isCancelledNext()).toBe(false);
+    });
+
+    it('does not let the stop of a newer turn cancel a check captured for the older one', async () => {
+      service.beginTurn('msg-1');
+      const isCancelledOld = service.captureCancellation();
+      service.endTurn();
+
+      service.beginTurn('msg-2');
+      const isCancelledNew = service.captureCancellation();
+      await service.stop('user-button');
+
+      expect(isCancelledNew()).toBe(true);
+      expect(isCancelledOld()).toBe(false);
+    });
+
+    it('does not treat a call after a stopped turn ended as cancelled', async () => {
+      service.beginTurn('msg-1');
+      await service.stop('user-button');
+
+      const isCancelled = service.captureCancellation();
+
+      expect(isCancelled()).toBe(false);
+    });
+  });
 });

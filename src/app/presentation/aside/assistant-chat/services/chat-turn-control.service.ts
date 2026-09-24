@@ -49,6 +49,8 @@ export class ChatTurnControlService {
   private turnStoppedResolver: ((labels: string[] | null) => void) | null = null;
   private turnStoppedTimer: ReturnType<typeof setTimeout> | null = null;
   private turnEpoch = 0;
+  private turnSeq = 0;
+  private stoppedSeq: number | null = null;
 
   /**
    * Marks a new turn as running. Called once per sendMessage(), before the stream starts.
@@ -56,6 +58,7 @@ export class ChatTurnControlService {
    */
   beginTurn(messageId: string): void {
     this.turnEpoch++;
+    this.turnSeq++;
     this.resolveTurnStoppedWait(null);
     this._isTurnRunning.set(true);
     this._isStopping.set(false);
@@ -81,6 +84,20 @@ export class ChatTurnControlService {
     this.turnId = null;
     this.activeMessageId = null;
     this.resolveTurnStoppedWait(null);
+  }
+
+  /**
+   * Returns a check bound to the turn that is running (or being stopped) right now, answering
+   * "did the user stop THIS turn?". It is deliberately not "is the turn still running": the stream
+   * delivers Metadata and Done back to back, so a normally finished turn has isTurnRunning() false
+   * while its function calls still execute. Only stop() marks a turn as stopped; endTurn() never
+   * does, and a check captured for one turn is never affected by the stop or the start of another.
+   * Without a live turn there is nothing to cancel, so the returned check never fires.
+   */
+  captureCancellation(): () => boolean {
+    if (!this._isTurnRunning() && !this._isStopping()) return () => false;
+    const seq = this.turnSeq;
+    return () => this.stoppedSeq === seq;
   }
 
   /**
@@ -114,6 +131,7 @@ export class ChatTurnControlService {
   async stop(reason: TurnStopReason): Promise<void> {
     if (!this._isTurnRunning() || this._isStopping()) return;
     const epoch = this.turnEpoch;
+    this.stoppedSeq = this.turnSeq;
     this._isTurnRunning.set(false);
     this._isStopping.set(true);
     this.hooks?.silence();
