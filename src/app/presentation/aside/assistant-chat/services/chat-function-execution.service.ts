@@ -55,20 +55,22 @@ export class ChatFunctionExecutionService {
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
   /**
-   * Runs the function calls of one turn. Cancellation is bound to the turn that is live when this is
-   * called (always synchronously from the stream's Metadata handler, before Done): once the user
-   * stops that turn no further UI action, UI action step or navigation call starts. A cancelled UI
-   * action is never reported - the backend only accepts completed/failed and closes such tracking
-   * rows itself (design doc §5.3, Etappe 2).
+   * Runs the function calls of one turn. Once the user stopped that turn no further UI action, UI
+   * action step or navigation call starts. A cancelled UI action is never reported: the backend
+   * accepts only completed/failed. Its tracking row stays Dispatched, because a stop in the middle of
+   * an action arrives after the backend's persistence tail; the design doc (§5.3) closes only the
+   * rows of turns whose stop reached the backend before the Metadata.
    * @param functionCalls - Function calls the backend reported for this turn
    * @param assistantMessageId - Message the navigation verdict belongs to; taken as a parameter
    *   because a proactive SignalR message can arrive before the verdict and "the last message"
    *   would then be the wrong one
    * @param utterance - The user message this turn answered, reported with the verdict
+   * @param turnSeq - Sequence number of the turn the calls belong to (from ChatTurnControlService.beginTurn);
+   *   without it the calls can never be cancelled
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async executeFunctionCalls(functionCalls: any[], assistantMessageId?: string, utterance?: string): Promise<void> {
-    const isCancelled = this.turnControl.captureCancellation();
+  async executeFunctionCalls(functionCalls: any[], assistantMessageId?: string, utterance?: string, turnSeq?: number): Promise<void> {
+    const isCancelled = turnSeq === undefined ? () => false : this.turnControl.captureCancellation(turnSeq);
     if (isCancelled()) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

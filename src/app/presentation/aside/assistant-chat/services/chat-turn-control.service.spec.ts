@@ -289,14 +289,9 @@ describe('ChatTurnControlService', () => {
       service.registerHooks({ silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false });
     });
 
-    it('never fires when no turn is live', () => {
-      const isCancelled = service.captureCancellation();
-      expect(isCancelled()).toBe(false);
-    });
-
     it('is false while the turn runs and stays false after it ends normally', () => {
-      service.beginTurn('msg-1');
-      const isCancelled = service.captureCancellation();
+      const seq = service.beginTurn('msg-1');
+      const isCancelled = service.captureCancellation(seq);
       expect(isCancelled()).toBe(false);
 
       service.endTurn();
@@ -306,8 +301,8 @@ describe('ChatTurnControlService', () => {
     });
 
     it('turns true the instant stop() is called and stays true after the stop completed', async () => {
-      service.beginTurn('msg-1');
-      const isCancelled = service.captureCancellation();
+      const seq = service.beginTurn('msg-1');
+      const isCancelled = service.captureCancellation(seq);
 
       void service.stop('user-button');
       expect(isCancelled()).toBe(true);
@@ -318,9 +313,9 @@ describe('ChatTurnControlService', () => {
     });
 
     it('stays true for a stop that lost the race against the normal end of the turn', async () => {
-      service.beginTurn('msg-1');
+      const seq = service.beginTurn('msg-1');
       service.setTurnId('turn-1');
-      const isCancelled = service.captureCancellation();
+      const isCancelled = service.captureCancellation(seq);
 
       const stopping = service.stop('user-button');
       service.endTurn();
@@ -330,9 +325,23 @@ describe('ChatTurnControlService', () => {
       expect(mockOrchestrator.updateMessage).not.toHaveBeenCalled();
     });
 
+    it('binds a check created after the stop completed to the stopped turn, not to the live one', async () => {
+      const seq = service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+      const stopping = service.stop('user-button');
+      service.notifyTurnStopped([]);
+      await stopping;
+
+      const isCancelled = service.captureCancellation(seq);
+
+      expect(service.isTurnRunning()).toBe(false);
+      expect(service.isStopping()).toBe(false);
+      expect(isCancelled()).toBe(true);
+    });
+
     it('ignores a stop() that arrives after the turn ended normally', async () => {
-      service.beginTurn('msg-1');
-      const isCancelled = service.captureCancellation();
+      const seq = service.beginTurn('msg-1');
+      const isCancelled = service.captureCancellation(seq);
       service.endTurn();
 
       await service.stop('user-button');
@@ -344,32 +353,41 @@ describe('ChatTurnControlService', () => {
       service.beginTurn('msg-1');
       await service.stop('superseded');
 
-      service.beginTurn('msg-2');
-      const isCancelledNext = service.captureCancellation();
+      const seq = service.beginTurn('msg-2');
 
-      expect(isCancelledNext()).toBe(false);
+      expect(service.captureCancellation(seq)()).toBe(false);
     });
 
     it('does not let the stop of a newer turn cancel a check captured for the older one', async () => {
-      service.beginTurn('msg-1');
-      const isCancelledOld = service.captureCancellation();
+      const oldSeq = service.beginTurn('msg-1');
+      const isCancelledOld = service.captureCancellation(oldSeq);
       service.endTurn();
 
-      service.beginTurn('msg-2');
-      const isCancelledNew = service.captureCancellation();
+      const newSeq = service.beginTurn('msg-2');
+      const isCancelledNew = service.captureCancellation(newSeq);
       await service.stop('user-button');
 
       expect(isCancelledNew()).toBe(true);
       expect(isCancelledOld()).toBe(false);
     });
 
-    it('does not treat a call after a stopped turn ended as cancelled', async () => {
-      service.beginTurn('msg-1');
+    it('does not let the start of a new turn cancel the older turn', () => {
+      const oldSeq = service.beginTurn('msg-1');
+      const isCancelledOld = service.captureCancellation(oldSeq);
+      service.endTurn();
+
+      service.beginTurn('msg-2');
+
+      expect(isCancelledOld()).toBe(false);
+    });
+
+    it('keeps an older stopped turn cancelled after a later turn was stopped too', async () => {
+      const oldSeq = service.beginTurn('msg-1');
+      await service.stop('superseded');
+      service.beginTurn('msg-2');
       await service.stop('user-button');
 
-      const isCancelled = service.captureCancellation();
-
-      expect(isCancelled()).toBe(false);
+      expect(service.captureCancellation(oldSeq)()).toBe(true);
     });
   });
 });

@@ -4,7 +4,8 @@
  * Integration tests for stop-turn cancellation across the real ChatTurnControlService, the real
  * ChatFunctionExecutionService and the real UiActionEngineService. The stream's Metadata and Done
  * events are processed back to back, so a turn that ends normally must never look cancelled to a
- * function-call execution that is still running after it.
+ * function-call execution that is still running after it, and a stopped turn must stay cancelled
+ * for its own execution even when the stop already completed before the Metadata arrived.
  */
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
@@ -84,10 +85,13 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     vi.restoreAllMocks();
   });
 
-  it('runs every step and the navigation and reports completed when Done ends the turn before step 2', async () => {
-    turnControl.beginTurn('assistant-1');
+  const run = (calls: unknown[], turnSeq?: number): Promise<void> =>
+    service.executeFunctionCalls(calls, undefined, undefined, turnSeq);
 
-    const execution = service.executeFunctionCalls([uiActionCall, navigationCall('/workplace/clients')]);
+  it('runs every step and the navigation and reports completed when Done ends the turn before step 2', async () => {
+    const seq = turnControl.beginTurn('assistant-1');
+
+    const execution = run([uiActionCall, navigationCall('/workplace/clients')], seq);
     turnControl.endTurn();
     await execution;
 
@@ -98,25 +102,34 @@ describe('stop-turn cancellation across turn control, function execution and UI 
   });
 
   it('does not stop a running execution merely because isTurnRunning is false', async () => {
-    turnControl.beginTurn('assistant-1');
+    const seq = turnControl.beginTurn('assistant-1');
     executeStep.mockImplementationOnce(async () => {
       turnControl.endTurn();
     });
 
-    await service.executeFunctionCalls([uiActionCall]);
+    await run([uiActionCall], seq);
 
     expect(turnControl.isTurnRunning()).toBe(false);
     expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
     expect(reportUiActionResult.mock.calls[0][0]).toMatchObject({ status: 'completed' });
   });
 
-  it('stops between step 1 and step 2 on a real user stop and neither reports nor navigates', async () => {
+  it('never cancels a call that was not given a turn', async () => {
     turnControl.beginTurn('assistant-1');
+    void turnControl.stop('user-button');
+
+    await run([uiActionCall]);
+
+    expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
+  });
+
+  it('stops between step 1 and step 2 on a real user stop and neither reports nor navigates', async () => {
+    const seq = turnControl.beginTurn('assistant-1');
     executeStep.mockImplementationOnce(async () => {
       void turnControl.stop('user-button');
     });
 
-    await service.executeFunctionCalls([uiActionCall, navigationCall('/workplace/clients')]);
+    await run([uiActionCall, navigationCall('/workplace/clients')], seq);
 
     expect(executeStep).toHaveBeenCalledTimes(1);
     expect(executeFunction).not.toHaveBeenCalled();
@@ -124,12 +137,12 @@ describe('stop-turn cancellation across turn control, function execution and UI 
   });
 
   it('runs nothing when Metadata arrives while the stop still waits for the server confirmation', async () => {
-    turnControl.beginTurn('assistant-1');
+    const seq = turnControl.beginTurn('assistant-1');
     turnControl.setTurnId('turn-1');
     const stopping = turnControl.stop('user-button');
     expect(turnControl.isStopping()).toBe(true);
 
-    await service.executeFunctionCalls([uiActionCall, navigationCall('/workplace/clients')]);
+    await run([uiActionCall, navigationCall('/workplace/clients')], seq);
     turnControl.notifyTurnStopped([]);
     await stopping;
 
@@ -138,14 +151,41 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     expect(reportUiActionResult).not.toHaveBeenCalled();
   });
 
+  it('runs nothing when turn_stopped ended the turn before the Metadata of that same turn arrived', async () => {
+    const seq = turnControl.beginTurn('assistant-1');
+    turnControl.setTurnId('turn-1');
+    const stopping = turnControl.stop('user-button');
+    turnControl.notifyTurnStopped(['open_client_dialog']);
+    await stopping;
+    expect(turnControl.isTurnRunning()).toBe(false);
+    expect(turnControl.isStopping()).toBe(false);
+
+    await run([uiActionCall, navigationCall('/workplace/clients')], seq);
+
+    expect(executeStep).not.toHaveBeenCalled();
+    expect(executeFunction).not.toHaveBeenCalled();
+    expect(reportUiActionResult).not.toHaveBeenCalled();
+  });
+
+  it('still treats the execution of a stopped turn as cancelled after the stop completed and the turn ended', async () => {
+    const seq = turnControl.beginTurn('assistant-1');
+    void turnControl.stop('user-button');
+    expect(turnControl.isTurnRunning()).toBe(false);
+    expect(turnControl.isStopping()).toBe(false);
+
+    await run([uiActionCall], seq);
+
+    expect(executeStep).not.toHaveBeenCalled();
+  });
+
   it('stops the navigation loop between two navigation calls on a real user stop', async () => {
-    turnControl.beginTurn('assistant-1');
+    const seq = turnControl.beginTurn('assistant-1');
     executeFunction.mockImplementationOnce(() => {
       void turnControl.stop('user-button');
       return of({ success: true });
     });
 
-    await service.executeFunctionCalls([navigationCall('/a'), navigationCall('/b')]);
+    await run([navigationCall('/a'), navigationCall('/b')], seq);
 
     expect(executeFunction).toHaveBeenCalledTimes(1);
   });
@@ -154,8 +194,8 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     turnControl.beginTurn('assistant-1');
     void turnControl.stop('superseded');
 
-    turnControl.beginTurn('assistant-2');
-    await service.executeFunctionCalls([uiActionCall, navigationCall('/workplace/clients')]);
+    const seq = turnControl.beginTurn('assistant-2');
+    await run([uiActionCall, navigationCall('/workplace/clients')], seq);
 
     expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
     expect(executeFunction).toHaveBeenCalledTimes(1);
@@ -163,33 +203,47 @@ describe('stop-turn cancellation across turn control, function execution and UI 
   });
 
   it('keeps the stop of a newer turn from cancelling the execution of the older turn', async () => {
-    turnControl.beginTurn('assistant-1');
+    const seq = turnControl.beginTurn('assistant-1');
     executeStep.mockImplementationOnce(async () => {
       turnControl.endTurn();
       turnControl.beginTurn('assistant-2');
       void turnControl.stop('user-button');
     });
 
-    await service.executeFunctionCalls([uiActionCall]);
+    await run([uiActionCall], seq);
 
     expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
     expect(reportUiActionResult.mock.calls[0][0]).toMatchObject({ status: 'completed' });
   });
 
-  it('does not treat a call made after a stopped turn ended as cancelled', async () => {
-    turnControl.beginTurn('assistant-1');
-    void turnControl.stop('user-button');
-    expect(turnControl.isTurnRunning()).toBe(false);
-    expect(turnControl.isStopping()).toBe(false);
+  it('does not cancel the still running execution of an old turn when a new turn starts', async () => {
+    const seq = turnControl.beginTurn('assistant-1');
+    executeStep.mockImplementationOnce(async () => {
+      turnControl.endTurn();
+      turnControl.beginTurn('assistant-2');
+    });
 
-    await service.executeFunctionCalls([uiActionCall]);
+    await run([uiActionCall, navigationCall('/workplace/clients')], seq);
 
     expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
+    expect(executeFunction).toHaveBeenCalledTimes(1);
+    expect(reportUiActionResult.mock.calls[0][0]).toMatchObject({ status: 'completed' });
+  });
+
+  it('keeps a stopped turn cancelled although a later turn was stopped as well', async () => {
+    const seqA = turnControl.beginTurn('assistant-1');
+    void turnControl.stop('superseded');
+    turnControl.beginTurn('assistant-2');
+    void turnControl.stop('user-button');
+
+    await run([uiActionCall], seqA);
+
+    expect(executeStep).not.toHaveBeenCalled();
   });
 
   it('ignores a stop that arrives after the turn already ended normally', async () => {
-    turnControl.beginTurn('assistant-1');
-    const execution = service.executeFunctionCalls([uiActionCall]);
+    const seq = turnControl.beginTurn('assistant-1');
+    const execution = run([uiActionCall], seq);
     turnControl.endTurn();
     await turnControl.stop('user-button');
     await execution;

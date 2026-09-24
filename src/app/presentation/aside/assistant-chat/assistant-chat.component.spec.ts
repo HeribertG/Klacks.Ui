@@ -135,12 +135,15 @@ describe('AssistantChatComponent', () => {
     let mockPlanService: any;
     let mockProactiveInboxService: any;
     let mockTurnControl: any;
+    let mockChatFunctionExecution: any;
+    const TURN_SEQ = 7;
 
     beforeEach(async () => {
+        mockChatFunctionExecution = { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) };
         mockTurnControl = {
             isTurnRunning: signal(false),
             isStopping: signal(false),
-            beginTurn: vi.fn(),
+            beginTurn: vi.fn(() => TURN_SEQ),
             endTurn: vi.fn(),
             setTurnId: vi.fn(),
             notifyTurnStopped: vi.fn(),
@@ -365,7 +368,7 @@ describe('AssistantChatComponent', () => {
                     ChatMessageComponent,
                 ],
                 providers: [
-                    { provide: ChatFunctionExecutionService, useValue: { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) } },
+                    { provide: ChatFunctionExecutionService, useValue: mockChatFunctionExecution },
                 ],
             },
         })
@@ -734,6 +737,23 @@ describe('AssistantChatComponent', () => {
             callbacks.onTurnStopped(['create_client']);
 
             expect(mockTurnControl.notifyTurnStopped).toHaveBeenCalledWith(['create_client']);
+        });
+
+        it('hands the sequence number of its own turn to executeFunctionCalls', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+            const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+            const functionCalls = [{ functionName: 'open_client_dialog' }];
+
+            callbacks.onMetadata({ functionCalls });
+            callbacks.onDone();
+
+            expect(mockChatFunctionExecution.executeFunctionCalls).toHaveBeenCalledWith(
+                functionCalls,
+                expect.any(String),
+                'hello',
+                TURN_SEQ,
+            );
         });
 
         it('calls endTurn (not a manual isProcessing set) when the stream completes', async () => {

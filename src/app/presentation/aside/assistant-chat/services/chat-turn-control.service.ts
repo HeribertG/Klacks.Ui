@@ -50,13 +50,14 @@ export class ChatTurnControlService {
   private turnStoppedTimer: ReturnType<typeof setTimeout> | null = null;
   private turnEpoch = 0;
   private turnSeq = 0;
-  private stoppedSeq: number | null = null;
+  private readonly stoppedSeqs = new Set<number>();
 
   /**
    * Marks a new turn as running. Called once per sendMessage(), before the stream starts.
    * @param messageId - The assistant ChatMessage this turn is streaming into
+   * @returns The sequence number identifying this turn, to be handed to captureCancellation()
    */
-  beginTurn(messageId: string): void {
+  beginTurn(messageId: string): number {
     this.turnEpoch++;
     this.turnSeq++;
     this.resolveTurnStoppedWait(null);
@@ -64,6 +65,7 @@ export class ChatTurnControlService {
     this._isStopping.set(false);
     this.turnId = null;
     this.activeMessageId = messageId;
+    return this.turnSeq;
   }
 
   /** Called from the stream_start SSE event once the backend assigns a turnId (absent until Etappe 2 ships). */
@@ -87,17 +89,17 @@ export class ChatTurnControlService {
   }
 
   /**
-   * Returns a check bound to the turn that is running (or being stopped) right now, answering
-   * "did the user stop THIS turn?". It is deliberately not "is the turn still running": the stream
-   * delivers Metadata and Done back to back, so a normally finished turn has isTurnRunning() false
-   * while its function calls still execute. Only stop() marks a turn as stopped; endTurn() never
-   * does, and a check captured for one turn is never affected by the stop or the start of another.
-   * Without a live turn there is nothing to cancel, so the returned check never fires.
+   * Returns a check answering "did the user stop THAT turn?" for the turn identified by seq, no
+   * matter which turn is live when the check runs. It is deliberately neither "is the turn still
+   * running" nor "is the current turn stopped": Metadata and Done arrive back to back, so a normally
+   * finished turn has isTurnRunning() false while its function calls still execute, and a stop that
+   * was confirmed by turn_stopped has already ended its turn when that turn's Metadata arrives. Only
+   * stop() marks a turn as stopped; endTurn() and the start or stop of another turn never change the
+   * answer.
+   * @param seq - The sequence number beginTurn() returned for the turn the check belongs to
    */
-  captureCancellation(): () => boolean {
-    if (!this._isTurnRunning() && !this._isStopping()) return () => false;
-    const seq = this.turnSeq;
-    return () => this.stoppedSeq === seq;
+  captureCancellation(seq: number): () => boolean {
+    return () => this.stoppedSeqs.has(seq);
   }
 
   /**
@@ -131,7 +133,7 @@ export class ChatTurnControlService {
   async stop(reason: TurnStopReason): Promise<void> {
     if (!this._isTurnRunning() || this._isStopping()) return;
     const epoch = this.turnEpoch;
-    this.stoppedSeq = this.turnSeq;
+    this.stoppedSeqs.add(this.turnSeq);
     this._isTurnRunning.set(false);
     this._isStopping.set(true);
     this.hooks?.silence();

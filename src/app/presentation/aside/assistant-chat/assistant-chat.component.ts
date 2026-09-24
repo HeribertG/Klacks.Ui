@@ -603,7 +603,7 @@ export class AssistantChatComponent {
       respondedToUserMessage: messageText.trim(),
     };
     this.orchestrator.addMessage(assistantMessage);
-    this.turnControl.beginTurn(assistantMessageId);
+    const turnSeq = this.turnControl.beginTurn(assistantMessageId);
     this.chatStageStatus.startMessage(assistantMessageId);
     this.currentRawStream = '';
     this.streamBuffer = '';
@@ -694,6 +694,7 @@ export class AssistantChatComponent {
                 data.functionCalls,
                 assistantMessageId,
                 messageText,
+                turnSeq,
               );
             } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith(WORKPLACE_ROUTE_PREFIX)) {
               const navigateTo = data.navigateTo;

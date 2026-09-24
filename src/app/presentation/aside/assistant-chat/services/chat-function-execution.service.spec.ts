@@ -37,6 +37,8 @@ describe('ChatFunctionExecutionService', () => {
   let mockExecuteConfig: ReturnType<typeof vi.fn>;
   let routerMock: { url: string };
   let cancelled: boolean;
+  let mockCaptureCancellation: ReturnType<typeof vi.fn>;
+  const TURN_SEQ = 3;
 
   beforeEach(() => {
     mockHighlightNavIcon = vi.fn(() => true);
@@ -48,6 +50,7 @@ describe('ChatFunctionExecutionService', () => {
     mockExecuteConfig = vi.fn(() => Promise.resolve({ succeeded: true }));
     routerMock = { url: '/workplace/dashboard' };
     cancelled = false;
+    mockCaptureCancellation = vi.fn(() => () => cancelled);
 
     TestBed.configureTestingModule({
       providers: [
@@ -56,7 +59,7 @@ describe('ChatFunctionExecutionService', () => {
         { provide: UiActionEngineService, useValue: { executeConfig: mockExecuteConfig } },
         { provide: DataManagementAssistantService, useValue: { reportUiActionResult: mockReportUiActionResult } },
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
-        { provide: ChatTurnControlService, useValue: { captureCancellation: () => () => cancelled } },
+        { provide: ChatTurnControlService, useValue: { captureCancellation: mockCaptureCancellation } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: mockEmit } },
         { provide: OnboardingService, useValue: { requestTourStart: mockRequestTourStart } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: mockHighlightNavIcon, navigateAndScroll: mockNavigateAndScroll } },
@@ -206,8 +209,20 @@ describe('ChatFunctionExecutionService', () => {
     });
     mockExecuteFunction.mockImplementationOnce(secondCall);
 
-    await service.executeFunctionCalls(calls);
+    await service.executeFunctionCalls(calls, undefined, undefined, TURN_SEQ);
 
     expect(secondCall).not.toHaveBeenCalled();
+  });
+
+  it('binds cancellation to the turn it was given', async () => {
+    await service.executeFunctionCalls([{ functionName: 'navigate_to', parameters: { route: '/a' } }], undefined, undefined, TURN_SEQ);
+
+    expect(mockCaptureCancellation).toHaveBeenCalledWith(TURN_SEQ);
+  });
+
+  it('asks for no cancellation when it was not given a turn', async () => {
+    await service.executeFunctionCalls([{ functionName: 'navigate_to', parameters: { route: '/a' } }]);
+
+    expect(mockCaptureCancellation).not.toHaveBeenCalled();
   });
 });
