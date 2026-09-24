@@ -284,6 +284,18 @@ describe('stop-turn cancellation across turn control, function execution and UI 
       expect(reportUiActionResult).not.toHaveBeenCalled();
     });
 
+    it('never registers an execution for a turn that was stopped before its Metadata arrived', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      void turnControl.stop('user-button');
+      const beginExecution = vi.spyOn(turnControl, 'beginExecution');
+
+      await runWithMessage([uiActionCall], seq);
+
+      expect(beginExecution).not.toHaveBeenCalled();
+      expect(turnControl.isExecuting()).toBe(false);
+      expect(executeStep).not.toHaveBeenCalled();
+    });
+
     it('reports isExecuting true for the message while the steps run and false once they finished', async () => {
       const seq = turnControl.beginTurn(MESSAGE_ID);
       turnControl.endTurn();

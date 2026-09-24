@@ -75,15 +75,13 @@ export class ChatFunctionExecutionService {
       return;
     }
 
+    const isCancelled = this.turnControl.captureCancellation(turnSeq);
+    if (isCancelled()) return;
+
     this.turnControl.beginExecution(turnSeq, assistantMessageId);
     let cutShort = false;
     try {
-      cutShort = await this.runFunctionCalls(
-        functionCalls,
-        this.turnControl.captureCancellation(turnSeq),
-        assistantMessageId,
-        utterance,
-      );
+      cutShort = await this.runFunctionCalls(functionCalls, isCancelled, assistantMessageId, utterance);
     } finally {
       const cancelledExplicitly = this.turnControl.endExecution(turnSeq);
       if (cutShort && cancelledExplicitly) {
@@ -110,8 +108,6 @@ export class ChatFunctionExecutionService {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async runFunctionCalls(functionCalls: any[], isCancelled: () => boolean, assistantMessageId?: string, utterance?: string): Promise<boolean> {
-    if (isCancelled()) return true;
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uiActionCalls: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

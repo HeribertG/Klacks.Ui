@@ -113,8 +113,8 @@ export class ChatTurnControlService {
    * running" nor "is the current turn stopped": Metadata and Done arrive back to back, so a normally
    * finished turn has isTurnRunning() false while its function calls still execute, and a stop that
    * was confirmed by turn_stopped has already ended its turn when that turn's Metadata arrives. Only
-   * stop() marks a turn as stopped; endTurn() and the start or stop of another turn never change the
-   * answer.
+   * stop() and, for a running execution, cancelExecution() mark a turn as stopped; endTurn() and the
+   * start or stop of another turn never change the answer.
    * @param seq - The sequence number beginTurn() returned for the turn the check belongs to
    */
   captureCancellation(seq: number): () => boolean {
