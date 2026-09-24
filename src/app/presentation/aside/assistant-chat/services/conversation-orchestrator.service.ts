@@ -277,11 +277,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   /**
-   * @param reason - Which trigger requested the interrupt; defaults to 'barge-in', the reason
-   * used by confirmBargeIn(). Note: assistant-chat.component.ts's onVoiceButtonClick() also calls
-   * interrupt() with no argument today and should pass 'voice-bubble' explicitly (tracked as a
-   * later task in the stop-turn plan) — the default exists for the barge-in caller, not as a
-   * statement that no other caller needs a different reason.
+   * @param reason - Which trigger requested the interrupt; defaults to 'barge-in', the reason used by confirmBargeIn().
    */
   interrupt(reason: TurnStopReason = 'barge-in'): void {
     if (this.state() !== ConversationState.Speaking && this.state() !== ConversationState.Processing) return;
