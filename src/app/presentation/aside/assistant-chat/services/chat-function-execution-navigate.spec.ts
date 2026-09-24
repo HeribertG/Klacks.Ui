@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ChatFunctionExecutionService } from './chat-function-execution.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
+import { ChatTurnControlService } from './chat-turn-control.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
@@ -58,6 +59,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
         { provide: KlacksyNavigationService, useValue: klacksyNavigationMock },
         { provide: NavigationVerdictService, useValue: verdictMock },
         { provide: Router, useValue: routerMock },
+        { provide: ChatTurnControlService, useValue: { captureCancellation: () => () => false } },
       ],
     });
     service = TestBed.inject(ChatFunctionExecutionService);

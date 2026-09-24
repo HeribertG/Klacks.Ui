@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ChatFunctionExecutionService } from './chat-function-execution.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
+import { ChatTurnControlService } from './chat-turn-control.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
@@ -31,22 +32,31 @@ describe('ChatFunctionExecutionService', () => {
   let mockNavigateAndScroll: ReturnType<typeof vi.fn>;
   let mockEmit: ReturnType<typeof vi.fn>;
   let mockRequestTourStart: ReturnType<typeof vi.fn>;
+  let mockReportUiActionResult: ReturnType<typeof vi.fn>;
+  let mockExecuteFunction: ReturnType<typeof vi.fn>;
+  let mockExecuteConfig: ReturnType<typeof vi.fn>;
   let routerMock: { url: string };
+  let cancelled: boolean;
 
   beforeEach(() => {
     mockHighlightNavIcon = vi.fn(() => true);
     mockNavigateAndScroll = vi.fn(() => Promise.resolve({ success: true }));
     mockEmit = vi.fn();
     mockRequestTourStart = vi.fn();
+    mockReportUiActionResult = vi.fn(() => of({ found: true, updated: true, error: null }));
+    mockExecuteFunction = vi.fn(() => of({ success: true }));
+    mockExecuteConfig = vi.fn(() => Promise.resolve({ succeeded: true }));
     routerMock = { url: '/workplace/dashboard' };
+    cancelled = false;
 
     TestBed.configureTestingModule({
       providers: [
         ChatFunctionExecutionService,
-        { provide: AssistantFunctionExecutionService, useValue: { executeFunction: vi.fn(), executeFunctionsBatch: vi.fn() } },
-        { provide: UiActionEngineService, useValue: { executeConfig: vi.fn() } },
-        { provide: DataManagementAssistantService, useValue: { reportUiActionResult: vi.fn(() => of({ found: true, updated: true, error: null })) } },
+        { provide: AssistantFunctionExecutionService, useValue: { executeFunction: mockExecuteFunction, executeFunctionsBatch: vi.fn() } },
+        { provide: UiActionEngineService, useValue: { executeConfig: mockExecuteConfig } },
+        { provide: DataManagementAssistantService, useValue: { reportUiActionResult: mockReportUiActionResult } },
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
+        { provide: ChatTurnControlService, useValue: { captureCancellation: () => () => cancelled } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: mockEmit } },
         { provide: OnboardingService, useValue: { requestTourStart: mockRequestTourStart } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: mockHighlightNavIcon, navigateAndScroll: mockNavigateAndScroll } },
@@ -169,5 +179,35 @@ describe('ChatFunctionExecutionService', () => {
     expect(mockRequestTourStart).toHaveBeenCalledTimes(1);
     expect(mockHighlightNavIcon).not.toHaveBeenCalled();
     expect(mockNavigateAndScroll).not.toHaveBeenCalled();
+  });
+
+  it('does not report a UI action outcome when the turn was cancelled mid-run', async () => {
+    mockExecuteConfig.mockImplementationOnce(async () => {
+      cancelled = true;
+      return { succeeded: false, cancelled: true };
+    });
+
+    await service.executeFunctionCalls([
+      { functionName: 'create_client', uiActionSteps: JSON.stringify({ steps: [{ action: 'delay' }] }) },
+    ]);
+
+    expect(mockReportUiActionResult).not.toHaveBeenCalled();
+  });
+
+  it('stops the navigation-call loop once the turn was stopped', async () => {
+    const secondCall = vi.fn();
+    const calls = [
+      { functionName: 'navigate_to', parameters: { route: '/a' } },
+      { functionName: 'navigate_to', parameters: { route: '/b' } },
+    ];
+    mockExecuteFunction.mockImplementationOnce(() => {
+      cancelled = true;
+      return of({ success: true });
+    });
+    mockExecuteFunction.mockImplementationOnce(secondCall);
+
+    await service.executeFunctionCalls(calls);
+
+    expect(secondCall).not.toHaveBeenCalled();
   });
 });

@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
-import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { IUiActionConfig, IUiActionContext } from 'src/app/domain/interfaces/ui-action-step.interface';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import {
   UI_ACTION_RESULT_EMPTY_CONFIG_ERROR,
@@ -37,6 +37,7 @@ import {
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { NavigationVerdictService } from './navigation-verdict.service';
+import { ChatTurnControlService } from './chat-turn-control.service';
 
 @Injectable()
 export class ChatFunctionExecutionService {
@@ -49,10 +50,16 @@ export class ChatFunctionExecutionService {
   private assistantService = inject(DataManagementAssistantService);
   private navigationVerdict = inject(NavigationVerdictService);
   private router = inject(Router);
+  private turnControl = inject(ChatTurnControlService);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
   /**
+   * Runs the function calls of one turn. Cancellation is bound to the turn that is live when this is
+   * called (always synchronously from the stream's Metadata handler, before Done): once the user
+   * stops that turn no further UI action, UI action step or navigation call starts. A cancelled UI
+   * action is never reported - the backend only accepts completed/failed and closes such tracking
+   * rows itself (design doc §5.3, Etappe 2).
    * @param functionCalls - Function calls the backend reported for this turn
    * @param assistantMessageId - Message the navigation verdict belongs to; taken as a parameter
    *   because a proactive SignalR message can arrive before the verdict and "the last message"
@@ -61,6 +68,9 @@ export class ChatFunctionExecutionService {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async executeFunctionCalls(functionCalls: any[], assistantMessageId?: string, utterance?: string): Promise<void> {
+    const isCancelled = this.turnControl.captureCancellation();
+    if (isCancelled()) return;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uiActionCalls: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -98,11 +108,15 @@ export class ChatFunctionExecutionService {
     }
 
     for (const call of uiActionCalls) {
+      if (isCancelled()) return;
+
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
-      await this.executeUiActionSteps(uiActionSteps, call);
+      await this.executeUiActionSteps(uiActionSteps, call, isCancelled);
     }
 
     for (const [index, call] of navigationCalls.entries()) {
+      if (isCancelled()) return;
+
       const functionName = call.FunctionName || call.functionName;
       const args = call.Parameters || call.parameters || {};
       const backendRoute = this.extractRouteFromResult(call.Result || call.result);
@@ -246,9 +260,10 @@ export class ChatFunctionExecutionService {
    * here and nowhere else, so every exit of this method leaves a verdict behind.
    * @param stepsJson - The UiActionSteps payload of the function call
    * @param call - The raw function call, carrying parameters and the UiAction tracking id
+   * @param isCancelled - Polled between steps; true once the user stopped the turn this call belongs to
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async executeUiActionSteps(stepsJson: string, call: any): Promise<void> {
+  private async executeUiActionSteps(stepsJson: string, call: any, isCancelled: () => boolean): Promise<void> {
     const trackingId: string | undefined = call.UiActionTrackingId || call.uiActionTrackingId;
 
     try {
@@ -262,13 +277,17 @@ export class ChatFunctionExecutionService {
         return;
       }
 
-      const context = {
+      const context: IUiActionContext = {
         params: call.Parameters || call.parameters || {},
         results: {},
         callId: this.generateMessageId(),
+        isCancelled,
       };
 
       const outcome = await this.uiActionEngine.executeConfig(config, context);
+      if (outcome?.cancelled) {
+        return;
+      }
       if (outcome && outcome.succeeded === false) {
         this.reportUiActionOutcome(
           trackingId,
