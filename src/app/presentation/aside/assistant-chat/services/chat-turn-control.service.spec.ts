@@ -390,4 +390,157 @@ describe('ChatTurnControlService', () => {
       expect(service.captureCancellation(oldSeq)()).toBe(true);
     });
   });
+
+  describe('execution cancellation', () => {
+    it('is not executing until an execution begins', () => {
+      expect(service.isExecuting()).toBe(false);
+      expect(service.isMessageExecuting('msg-1')).toBe(false);
+    });
+
+    it('is executing between beginExecution and endExecution, for exactly that message', () => {
+      const seq = service.beginTurn('msg-1');
+
+      service.beginExecution(seq, 'msg-1');
+      expect(service.isExecuting()).toBe(true);
+      expect(service.isMessageExecuting('msg-1')).toBe(true);
+      expect(service.isMessageExecuting('msg-2')).toBe(false);
+
+      service.endExecution(seq);
+      expect(service.isExecuting()).toBe(false);
+      expect(service.isMessageExecuting('msg-1')).toBe(false);
+    });
+
+    it('keeps the execution independent of the turn: endTurn() does not end it', () => {
+      const seq = service.beginTurn('msg-1');
+      service.beginExecution(seq, 'msg-1');
+
+      service.endTurn();
+
+      expect(service.isTurnRunning()).toBe(false);
+      expect(service.isExecuting()).toBe(true);
+    });
+
+    it('cancelExecution marks the sequence as stopped and hides the running state at once', () => {
+      const seq = service.beginTurn('msg-1');
+      service.endTurn();
+      service.beginExecution(seq, 'msg-1');
+      const isCancelled = service.captureCancellation(seq);
+
+      service.cancelExecution(seq);
+
+      expect(isCancelled()).toBe(true);
+      expect(service.isExecuting()).toBe(false);
+      expect(service.isMessageExecuting('msg-1')).toBe(false);
+    });
+
+    it('cancelExecution touches neither hooks, turn state, the epoch nor the backend', async () => {
+      const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+      service.registerHooks(hooks);
+      const seq = service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+      service.beginExecution(seq, 'msg-1');
+
+      service.cancelExecution(seq);
+
+      expect(hooks.silence).not.toHaveBeenCalled();
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+      expect(mockAssistantService.cancelTurn).not.toHaveBeenCalled();
+      expect(mockOrchestrator.updateMessage).not.toHaveBeenCalled();
+      expect(service.isTurnRunning()).toBe(true);
+      expect(service.isStopping()).toBe(false);
+
+      const stopping = service.stop('user-button');
+      service.notifyTurnStopped([]);
+      await stopping;
+      expect(hooks.silence).toHaveBeenCalledTimes(1);
+    });
+
+    it('cancelExecution does nothing when that sequence has no running execution', () => {
+      const seq = service.beginTurn('msg-1');
+
+      service.cancelExecution(seq);
+
+      expect(service.captureCancellation(seq)()).toBe(false);
+    });
+
+    it('cancelExecution is idempotent', () => {
+      const seq = service.beginTurn('msg-1');
+      service.beginExecution(seq, 'msg-1');
+
+      service.cancelExecution(seq);
+      service.cancelExecution(seq);
+
+      expect(service.captureCancellation(seq)()).toBe(true);
+      expect(service.isExecuting()).toBe(false);
+    });
+
+    it('cancelExecution does not pre-cancel an execution that begins later for the same sequence', () => {
+      const seq = service.beginTurn('msg-1');
+
+      service.cancelExecution(seq);
+      service.beginExecution(seq, 'msg-1');
+
+      expect(service.captureCancellation(seq)()).toBe(false);
+      expect(service.isExecuting()).toBe(true);
+    });
+
+    it('endExecution tells whether the execution was cancelled explicitly', () => {
+      const cancelledSeq = service.beginTurn('msg-1');
+      service.beginExecution(cancelledSeq, 'msg-1');
+      service.cancelExecution(cancelledSeq);
+      expect(service.endExecution(cancelledSeq)).toBe(true);
+
+      const plainSeq = service.beginTurn('msg-2');
+      service.beginExecution(plainSeq, 'msg-2');
+      expect(service.endExecution(plainSeq)).toBe(false);
+    });
+
+    it('endExecution of an unknown sequence is a harmless no-op', () => {
+      expect(service.endExecution(42)).toBe(false);
+      expect(service.isExecuting()).toBe(false);
+    });
+
+    it('cancelRunningExecutions cancels every running execution and leaves later ones alone', () => {
+      const seqA = service.beginTurn('msg-1');
+      service.beginExecution(seqA, 'msg-1');
+      const seqB = service.beginTurn('msg-2');
+      service.beginExecution(seqB, 'msg-2');
+
+      service.cancelRunningExecutions();
+
+      expect(service.captureCancellation(seqA)()).toBe(true);
+      expect(service.captureCancellation(seqB)()).toBe(true);
+      expect(service.isExecuting()).toBe(false);
+
+      const seqC = service.beginTurn('msg-3');
+      service.beginExecution(seqC, 'msg-3');
+      expect(service.captureCancellation(seqC)()).toBe(false);
+      expect(service.isExecuting()).toBe(true);
+    });
+
+    it('cancelRunningExecutions without a running execution changes nothing', () => {
+      const seq = service.beginTurn('msg-1');
+
+      service.cancelRunningExecutions();
+
+      expect(service.captureCancellation(seq)()).toBe(false);
+      expect(service.isTurnRunning()).toBe(true);
+    });
+
+    it('leaves stop() behaviour untouched for a turn whose execution was cancelled', async () => {
+      const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+      service.registerHooks(hooks);
+      const seq = service.beginTurn('msg-1');
+      service.beginExecution(seq, 'msg-1');
+      service.cancelExecution(seq);
+
+      await service.stop('user-button');
+
+      expect(hooks.hardAbort).toHaveBeenCalledTimes(1);
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: { executed: [] },
+      });
+    });
+  });
 });

@@ -59,7 +59,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
         { provide: KlacksyNavigationService, useValue: klacksyNavigationMock },
         { provide: NavigationVerdictService, useValue: verdictMock },
         { provide: Router, useValue: routerMock },
-        { provide: ChatTurnControlService, useValue: { captureCancellation: () => () => false } },
+        { provide: ChatTurnControlService, useValue: { captureCancellation: () => () => false, beginExecution: vi.fn(), endExecution: () => false } },
       ],
     });
     service = TestBed.inject(ChatFunctionExecutionService);

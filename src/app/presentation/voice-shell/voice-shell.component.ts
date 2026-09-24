@@ -78,7 +78,7 @@ export class VoiceShellComponent implements OnInit {
     if (this.ttsService.isPlaying() || this.audioQueue.isPlaying()) {
       return ConversationState.Speaking;
     }
-    if (this.orchestrator.isTextProcessing() || this.ttsService.isLoading()) {
+    if (this.orchestrator.isTextProcessing() || this.ttsService.isLoading() || this.turnControl.isExecuting()) {
       return planning ? ConversationState.Planning : ConversationState.Processing;
     }
     return ConversationState.Idle;
@@ -110,6 +110,7 @@ export class VoiceShellComponent implements OnInit {
         break;
       case ConversationState.Processing:
       case ConversationState.Planning:
+        this.turnControl.cancelRunningExecutions();
         if (isRealVoiceSession) {
           this.orchestrator.endSession();
           this.toastShowService.dismissInteractiveReplies();
@@ -123,6 +124,7 @@ export class VoiceShellComponent implements OnInit {
         }
         break;
       case ConversationState.Speaking:
+        this.turnControl.cancelRunningExecutions();
         if (isRealVoiceSession) {
           this.orchestrator.interruptAndListen('voice-bubble');
         } else if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {

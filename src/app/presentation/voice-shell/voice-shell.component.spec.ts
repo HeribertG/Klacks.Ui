@@ -59,10 +59,16 @@ function makeAudioQueueMock(): MockAudioQueue {
 
 interface MockTurnControl {
   stop: ReturnType<typeof vi.fn>;
+  cancelRunningExecutions: ReturnType<typeof vi.fn>;
+  isExecuting: ReturnType<typeof signal<boolean>>;
 }
 
 function makeTurnControlMock(): MockTurnControl {
-  return { stop: vi.fn(() => Promise.resolve()) };
+  return {
+    stop: vi.fn(() => Promise.resolve()),
+    cancelRunningExecutions: vi.fn(),
+    isExecuting: signal<boolean>(false),
+  };
 }
 
 interface MockTts {
@@ -199,6 +205,60 @@ describe('VoiceShellComponent — click matrix', () => {
     component.handleClick();
 
     expect(orch.interruptAndListen).toHaveBeenCalledWith('voice-bubble');
+  });
+
+  it('UI action still executing after Done (orchestrator Idle, turn finished) → cancels the execution, never startSession', () => {
+    orch.state.set(ConversationState.Idle);
+    turnControl.isExecuting.set(true);
+    component.handleClick();
+
+    expect(turnControl.cancelRunningExecutions).toHaveBeenCalledOnce();
+    expect(orch.startSession).not.toHaveBeenCalled();
+  });
+
+  it('shows the bubble as processing while a UI action executes', () => {
+    orch.state.set(ConversationState.Idle);
+    expect(component.effectiveState()).toBe(ConversationState.Idle);
+
+    turnControl.isExecuting.set(true);
+
+    expect(component.effectiveState()).toBe(ConversationState.Processing);
+  });
+
+  it('after the execution ended a click starts a session again', () => {
+    orch.state.set(ConversationState.Idle);
+    turnControl.isExecuting.set(true);
+    turnControl.isExecuting.set(false);
+    component.handleClick();
+
+    expect(turnControl.cancelRunningExecutions).not.toHaveBeenCalled();
+    expect(orch.startSession).toHaveBeenCalledOnce();
+  });
+
+  it('processing during a TEXT turn → stops the turn and cancels a running execution', () => {
+    orch.state.set(ConversationState.Idle);
+    orch.isTextProcessing.set(true);
+    component.handleClick();
+
+    expect(turnControl.stop).toHaveBeenCalledWith('voice-bubble');
+    expect(turnControl.cancelRunningExecutions).toHaveBeenCalledOnce();
+  });
+
+  it('TTS playing during a TEXT turn → stops TTS and cancels a running execution', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isPlaying.set(true);
+    turnControl.isExecuting.set(true);
+    component.handleClick();
+
+    expect(tts.stop).toHaveBeenCalledOnce();
+    expect(turnControl.cancelRunningExecutions).toHaveBeenCalledOnce();
+  });
+
+  it('idle without any execution → no cancel', () => {
+    orch.state.set(ConversationState.Idle);
+    component.handleClick();
+
+    expect(turnControl.cancelRunningExecutions).not.toHaveBeenCalled();
   });
 });
 

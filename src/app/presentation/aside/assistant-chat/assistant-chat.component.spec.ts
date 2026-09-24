@@ -149,6 +149,8 @@ describe('AssistantChatComponent', () => {
             notifyTurnStopped: vi.fn(),
             registerHooks: vi.fn(),
             stop: vi.fn(() => Promise.resolve()),
+            cancelRunningExecutions: vi.fn(),
+            isMessageExecuting: vi.fn(() => false),
         };
 
         const inboxHeadingMessageIdSig = signal<string | null>(null);
@@ -765,6 +767,44 @@ describe('AssistantChatComponent', () => {
 
             expect(mockTurnControl.endTurn).toHaveBeenCalled();
         });
+
+        it('cancels a running execution of the previous message before the new turn begins', async () => {
+            component.inputText.set('second message');
+
+            await component.sendMessage();
+
+            expect(mockTurnControl.cancelRunningExecutions).toHaveBeenCalledTimes(1);
+            expect(mockTurnControl.cancelRunningExecutions.mock.invocationCallOrder[0]).toBeLessThan(
+                mockTurnControl.beginTurn.mock.invocationCallOrder[0],
+            );
+        });
+
+        it('does not cancel any execution when nothing is sent', async () => {
+            component.inputText.set('   ');
+
+            await component.sendMessage();
+
+            expect(mockTurnControl.cancelRunningExecutions).not.toHaveBeenCalled();
+        });
+
+        it('cancels a running execution when the panel is destroyed', () => {
+            fixture.destroy();
+
+            expect(mockTurnControl.cancelRunningExecutions).toHaveBeenCalledTimes(1);
+        });
+
+        it.each(['barge-in', 'session-end', 'voice-bubble'] as const)(
+            'the orchestrator stop callback for %s stops the turn and cancels a running execution',
+            (reason) => {
+                const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+                const callbacks = orchestrator.initialize.mock.calls[0][0];
+
+                callbacks.stop(reason);
+
+                expect(mockTurnControl.stop).toHaveBeenCalledWith(reason);
+                expect(mockTurnControl.cancelRunningExecutions).toHaveBeenCalledTimes(1);
+            },
+        );
 
         it('stops the turn as panel-closed on destroy', () => {
             fixture.destroy();

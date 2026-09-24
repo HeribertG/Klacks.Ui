@@ -96,8 +96,8 @@
     </div>
     }
 
-    <!-- Stop button while an assistant message is streaming -->
-    @if (message().sender === 'assistant' && message().isStreaming) {
+    <!-- Stop button while an assistant message is streaming, and afterwards while its UI actions still execute -->
+    @if (message().sender === 'assistant' && (message().isStreaming || turnControl.isMessageExecuting(message().id))) {
     <button
       type="button"
       class="stop-turn-button"

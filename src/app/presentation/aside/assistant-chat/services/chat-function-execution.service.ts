@@ -66,12 +66,51 @@ export class ChatFunctionExecutionService {
    *   would then be the wrong one
    * @param utterance - The user message this turn answered, reported with the verdict
    * @param turnSeq - Sequence number of the turn the calls belong to (from ChatTurnControlService.beginTurn);
-   *   without it the calls can never be cancelled
+   *   without it the calls can never be cancelled and are not shown as executing
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async executeFunctionCalls(functionCalls: any[], assistantMessageId?: string, utterance?: string, turnSeq?: number): Promise<void> {
-    const isCancelled = turnSeq === undefined ? () => false : this.turnControl.captureCancellation(turnSeq);
-    if (isCancelled()) return;
+    if (turnSeq === undefined) {
+      await this.runFunctionCalls(functionCalls, () => false, assistantMessageId, utterance);
+      return;
+    }
+
+    this.turnControl.beginExecution(turnSeq, assistantMessageId);
+    let cutShort = false;
+    try {
+      cutShort = await this.runFunctionCalls(
+        functionCalls,
+        this.turnControl.captureCancellation(turnSeq),
+        assistantMessageId,
+        utterance,
+      );
+    } finally {
+      const cancelledExplicitly = this.turnControl.endExecution(turnSeq);
+      if (cutShort && cancelledExplicitly) {
+        this.markExecutionCancelled(assistantMessageId);
+      }
+    }
+  }
+
+  /**
+   * Tells the user that an explicit cancel cut the execution short. The backend has already run its
+   * skills by then, so the honest sentence is the cautious one; a message that stop() already marked
+   * keeps that more precise summary.
+   * @param assistantMessageId - The message the cancelled execution belongs to
+   */
+  private markExecutionCancelled(assistantMessageId: string | undefined): void {
+    if (!assistantMessageId) return;
+    const message = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
+    if (!message || message.wasInterrupted) return;
+    this.orchestrator.updateMessage(assistantMessageId, { wasInterrupted: true, interruptedSummary: null });
+  }
+
+  /**
+   * @returns True when a cancel made the run skip UI action steps, UI actions or navigations
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async runFunctionCalls(functionCalls: any[], isCancelled: () => boolean, assistantMessageId?: string, utterance?: string): Promise<boolean> {
+    if (isCancelled()) return true;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uiActionCalls: any[] = [];
@@ -110,14 +149,15 @@ export class ChatFunctionExecutionService {
     }
 
     for (const call of uiActionCalls) {
-      if (isCancelled()) return;
+      if (isCancelled()) return true;
 
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
-      await this.executeUiActionSteps(uiActionSteps, call, isCancelled);
+      const cancelled = await this.executeUiActionSteps(uiActionSteps, call, isCancelled);
+      if (cancelled) return true;
     }
 
     for (const [index, call] of navigationCalls.entries()) {
-      if (isCancelled()) return;
+      if (isCancelled()) return true;
 
       const functionName = call.FunctionName || call.functionName;
       const args = call.Parameters || call.parameters || {};
@@ -143,7 +183,7 @@ export class ChatFunctionExecutionService {
       }
     }
 
-    if (backendCalls.length === 0) return;
+    if (backendCalls.length === 0) return false;
 
     if (backendCalls.length === 1) {
       try {
@@ -155,7 +195,7 @@ export class ChatFunctionExecutionService {
       } catch (error: any) {
         this.applyFunctionError(error);
       }
-      return;
+      return false;
     }
 
     try {
@@ -167,6 +207,7 @@ export class ChatFunctionExecutionService {
     } catch (error: any) {
       this.applyFunctionError(error);
     }
+    return false;
   }
 
   private bringUserToExplainedPage(functionName: string): void {
@@ -263,9 +304,10 @@ export class ChatFunctionExecutionService {
    * @param stepsJson - The UiActionSteps payload of the function call
    * @param call - The raw function call, carrying parameters and the UiAction tracking id
    * @param isCancelled - Polled between steps; true once the user stopped the turn this call belongs to
+   * @returns True when a cancel ended the action before all its steps ran
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async executeUiActionSteps(stepsJson: string, call: any, isCancelled: () => boolean): Promise<void> {
+  private async executeUiActionSteps(stepsJson: string, call: any, isCancelled: () => boolean): Promise<boolean> {
     const trackingId: string | undefined = call.UiActionTrackingId || call.uiActionTrackingId;
 
     try {
@@ -276,7 +318,7 @@ export class ChatFunctionExecutionService {
           UI_ACTION_RESULT_STATUS_FAILED,
           UI_ACTION_RESULT_EMPTY_CONFIG_ERROR,
         );
-        return;
+        return false;
       }
 
       const context: IUiActionContext = {
@@ -288,7 +330,7 @@ export class ChatFunctionExecutionService {
 
       const outcome = await this.uiActionEngine.executeConfig(config, context);
       if (outcome?.cancelled) {
-        return;
+        return true;
       }
       if (outcome && outcome.succeeded === false) {
         this.reportUiActionOutcome(
@@ -296,7 +338,7 @@ export class ChatFunctionExecutionService {
           UI_ACTION_RESULT_STATUS_FAILED,
           outcome.error || UI_ACTION_RESULT_UNKNOWN_ERROR,
         );
-        return;
+        return false;
       }
 
       this.reportUiActionOutcome(trackingId, UI_ACTION_RESULT_STATUS_COMPLETED);
@@ -313,6 +355,7 @@ export class ChatFunctionExecutionService {
         this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || UI_ACTION_RESULT_UNKNOWN_ERROR });
       }
     }
+    return false;
   }
 
   /**

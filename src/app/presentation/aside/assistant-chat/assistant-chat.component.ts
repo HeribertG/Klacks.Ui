@@ -299,6 +299,7 @@ export class AssistantChatComponent {
     });
 
     this.destroyRef.onDestroy(() => {
+      this.turnControl.cancelRunningExecutions();
       void this.turnControl.stop('panel-closed');
     });
 
@@ -312,7 +313,10 @@ export class AssistantChatComponent {
         getAbortController: () => this.currentStreamController,
         detectChanges: () => this.cdr.detectChanges(),
         isTextProcessing: this.isProcessing,
-        stop: (reason) => { void this.turnControl.stop(reason); },
+        stop: (reason) => {
+          this.turnControl.cancelRunningExecutions();
+          void this.turnControl.stop(reason);
+        },
       },
       speechLocale,
     );
@@ -568,6 +572,7 @@ export class AssistantChatComponent {
       return;
     }
 
+    this.turnControl.cancelRunningExecutions();
     if (this.turnControl.isTurnRunning() || this.turnControl.isStopping()) {
       await this.turnControl.stop('superseded');
     } else {

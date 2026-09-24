@@ -251,4 +251,170 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
     expect(reportUiActionResult.mock.calls[0][0]).toMatchObject({ status: 'completed' });
   });
+  describe('cancelling a running execution (Option A)', () => {
+    const MESSAGE_ID = 'assistant-1';
+    let updateMessage: ReturnType<typeof vi.fn>;
+    let messages: { id: string; wasInterrupted?: boolean }[];
+
+    beforeEach(() => {
+      const orchestrator = TestBed.inject(ConversationOrchestratorService) as unknown as {
+        messages: ReturnType<typeof vi.fn>;
+        updateMessage: ReturnType<typeof vi.fn>;
+      };
+      messages = [{ id: MESSAGE_ID }];
+      orchestrator.messages.mockImplementation(() => messages);
+      updateMessage = orchestrator.updateMessage;
+    });
+
+    const runWithMessage = (calls: unknown[], seq: number): Promise<void> =>
+      service.executeFunctionCalls(calls, MESSAGE_ID, 'utterance', seq);
+
+    it('runs the action after Done ended the turn and cancelExecution between step 1 and step 2 skips step 2, the report and the navigation', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      expect(turnControl.isTurnRunning()).toBe(false);
+      executeStep.mockImplementationOnce(async () => {
+        turnControl.cancelExecution(seq);
+      });
+
+      await runWithMessage([uiActionCall, navigationCall('/workplace/clients')], seq);
+
+      expect(executeStep).toHaveBeenCalledTimes(1);
+      expect(executeFunction).not.toHaveBeenCalled();
+      expect(reportUiActionResult).not.toHaveBeenCalled();
+    });
+
+    it('reports isExecuting true for the message while the steps run and false once they finished', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      const observed: boolean[] = [];
+      executeStep.mockImplementation(async () => {
+        observed.push(turnControl.isExecuting() && turnControl.isMessageExecuting(MESSAGE_ID));
+      });
+
+      const execution = runWithMessage([uiActionCall], seq);
+      expect(turnControl.isExecuting()).toBe(true);
+      await execution;
+
+      expect(observed).toEqual([true, true, true]);
+      expect(turnControl.isExecuting()).toBe(false);
+      expect(turnControl.isMessageExecuting(MESSAGE_ID)).toBe(false);
+    });
+
+    it('resets isExecuting after a cancelled execution', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      executeStep.mockImplementationOnce(async () => {
+        turnControl.cancelExecution(seq);
+        expect(turnControl.isExecuting()).toBe(false);
+      });
+
+      await runWithMessage([uiActionCall], seq);
+
+      expect(turnControl.isExecuting()).toBe(false);
+    });
+
+    it('resets isExecuting after a failing step and after a failing navigation', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      executeStep.mockRejectedValueOnce(new Error('step failed'));
+      await runWithMessage([uiActionCall], seq);
+      expect(turnControl.isExecuting()).toBe(false);
+
+      executeFunction.mockImplementationOnce(() => {
+        throw new Error('navigation failed');
+      });
+      await runWithMessage([navigationCall('/a')], seq);
+      expect(turnControl.isExecuting()).toBe(false);
+    });
+
+    it('marks the message as interrupted with the cautious summary when the cancel cut work short', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      executeStep.mockImplementationOnce(async () => {
+        turnControl.cancelExecution(seq);
+      });
+
+      await runWithMessage([uiActionCall], seq);
+
+      expect(updateMessage).toHaveBeenCalledWith(MESSAGE_ID, { wasInterrupted: true, interruptedSummary: null });
+    });
+
+    it('marks the message as interrupted when only the navigation was cut short', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      executeStep.mockImplementation(async () => {
+        turnControl.cancelExecution(seq);
+      });
+
+      await runWithMessage([uiActionCall, navigationCall('/workplace/clients')], seq);
+
+      expect(executeFunction).not.toHaveBeenCalled();
+      expect(updateMessage).toHaveBeenCalledWith(MESSAGE_ID, { wasInterrupted: true, interruptedSummary: null });
+    });
+
+    it('writes no notice when the cancel arrived during the last step and nothing was left to skip', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      executeStep
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockImplementationOnce(async () => {
+          turnControl.cancelExecution(seq);
+        });
+
+      await runWithMessage([uiActionCall], seq);
+
+      expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
+      expect(updateMessage).not.toHaveBeenCalled();
+    });
+
+    it('does not overwrite the summary of a stop() that already interrupted the message', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      messages = [{ id: MESSAGE_ID, wasInterrupted: true }];
+      executeStep.mockImplementationOnce(async () => {
+        turnControl.cancelExecution(seq);
+      });
+
+      await runWithMessage([uiActionCall], seq);
+
+      expect(updateMessage).not.toHaveBeenCalled();
+    });
+
+    it('writes no notice for a cancel that came from stop() alone', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      executeStep.mockImplementationOnce(async () => {
+        void turnControl.stop('user-button');
+      });
+
+      await runWithMessage([uiActionCall], seq);
+
+      expect(executeStep).toHaveBeenCalledTimes(1);
+      expect(updateMessage).not.toHaveBeenCalledWith(MESSAGE_ID, { wasInterrupted: true, interruptedSummary: null });
+    });
+
+    it('cancelRunningExecutions from a trigger without a sequence number stops the running execution', async () => {
+      const seq = turnControl.beginTurn(MESSAGE_ID);
+      turnControl.endTurn();
+      executeStep.mockImplementationOnce(async () => {
+        turnControl.cancelRunningExecutions();
+      });
+
+      await runWithMessage([uiActionCall, navigationCall('/workplace/clients')], seq);
+
+      expect(executeStep).toHaveBeenCalledTimes(1);
+      expect(executeFunction).not.toHaveBeenCalled();
+    });
+
+    it('does not cancel the execution of the following turn when the old one is cancelled', async () => {
+      const seqA = turnControl.beginTurn('assistant-old');
+      turnControl.endTurn();
+      turnControl.cancelRunningExecutions();
+      const seqB = turnControl.beginTurn(MESSAGE_ID);
+
+      await runWithMessage([uiActionCall], seqB);
+
+      expect(seqB).not.toBe(seqA);
+      expect(executeStep).toHaveBeenCalledTimes(UI_ACTION_STEP_COUNT);
+    });
+  });
 });
