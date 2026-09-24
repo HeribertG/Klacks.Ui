@@ -275,6 +275,10 @@ export class UiActionEngineService {
     context.results[step.resultKey] = (el as HTMLInputElement).value;
   }
 
+  /**
+   * A conditional counts as one single step: the cancellation check of executeConfig sits between
+   * top-level steps, so the chosen then/else branch always runs to its end.
+   */
   private async executeConditional(step: IUiActionStep, context: IUiActionContext): Promise<void> {
     const condition = step.condition;
     if (!condition) {
