@@ -7,7 +7,7 @@
  * instance outside AssistantChatComponent's own tree, and that tree can be (re)constructed while
  * this singleton lives on - hooks are therefore replaced, not accumulated, on every registration.
  */
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
@@ -22,6 +22,11 @@ export type TurnStopReason =
 
 /** Milliseconds the UI waits for the backend's turn_stopped event before falling back to a hard local abort. */
 export const TURN_STOP_GRACE_MS = 3000;
+
+interface RunningExecution {
+  messageId: string | null;
+  cancelRequested: boolean;
+}
 
 export interface TurnHooks {
   /** Cheap, idempotent: mute TTS/auto-speak immediately, regardless of the eventual cooperative outcome. */
@@ -51,6 +56,20 @@ export class ChatTurnControlService {
   private turnEpoch = 0;
   private turnSeq = 0;
   private readonly stoppedSeqs = new Set<number>();
+  private readonly _executions = signal<ReadonlyMap<number, RunningExecution>>(new Map());
+
+  /**
+   * True while a function-call execution (UI action steps, navigation) is running that the user can
+   * still cancel. Independent of isTurnRunning: the execution starts with the stream's Metadata, right
+   * before Done ends the turn, and outlives it. Turns false the moment cancelExecution() is requested,
+   * although the step in flight still finishes.
+   */
+  readonly isExecuting = computed(() => {
+    for (const execution of this._executions().values()) {
+      if (!execution.cancelRequested) return true;
+    }
+    return false;
+  });
 
   /**
    * Marks a new turn as running. Called once per sendMessage(), before the stream starts.
@@ -94,12 +113,78 @@ export class ChatTurnControlService {
    * running" nor "is the current turn stopped": Metadata and Done arrive back to back, so a normally
    * finished turn has isTurnRunning() false while its function calls still execute, and a stop that
    * was confirmed by turn_stopped has already ended its turn when that turn's Metadata arrives. Only
-   * stop() marks a turn as stopped; endTurn() and the start or stop of another turn never change the
-   * answer.
+   * stop() and, for a running execution, cancelExecution() mark a turn as stopped; endTurn() and the
+   * start or stop of another turn never change the answer.
    * @param seq - The sequence number beginTurn() returned for the turn the check belongs to
    */
   captureCancellation(seq: number): () => boolean {
     return () => this.stoppedSeqs.has(seq);
+  }
+
+  /**
+   * Whether the execution belonging to the given assistant message can still be cancelled. Reads a
+   * signal, so templates and computeds calling it stay reactive.
+   * @param messageId - The assistant ChatMessage whose function calls are being executed
+   */
+  isMessageExecuting(messageId: string): boolean {
+    for (const execution of this._executions().values()) {
+      if (execution.messageId === messageId && !execution.cancelRequested) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Registers a function-call execution as running, so it can be cancelled and shown. Not part of the
+   * turn lifecycle: never touches isTurnRunning, the epoch or the hooks.
+   * @param seq - The sequence number of the turn whose function calls run
+   * @param messageId - The assistant ChatMessage the execution belongs to, if known
+   */
+  beginExecution(seq: number, messageId?: string): void {
+    this.updateExecutions((executions) => {
+      executions.set(seq, { messageId: messageId ?? null, cancelRequested: false });
+    });
+  }
+
+  /**
+   * Unregisters a function-call execution. Safe to call for an unknown sequence.
+   * @param seq - The sequence number passed to beginExecution()
+   * @returns Whether cancelExecution() had been requested for that execution
+   */
+  endExecution(seq: number): boolean {
+    const execution = this._executions().get(seq);
+    if (!execution) return false;
+    this.updateExecutions((executions) => {
+      executions.delete(seq);
+    });
+    return execution.cancelRequested;
+  }
+
+  /**
+   * The second, narrower stop path: cancels only the function-call execution of one turn - the UI
+   * action steps and navigations that run AFTER the turn's Done. It just marks the sequence as
+   * stopped (what captureCancellation() polls), so the execution ends at its next step boundary and
+   * the step in flight finishes regularly. No hooks, no endTurn(), no epoch change and no backend
+   * cancel: the turn is over, only its client-side execution is not. Idempotent, and a sequence
+   * without a running execution is left untouched, so a turn that still streams is never cancelled in advance.
+   * @param seq - The sequence number of the turn whose execution should stop
+   */
+  cancelExecution(seq: number): void {
+    const execution = this._executions().get(seq);
+    if (!execution || execution.cancelRequested) return;
+    this.stoppedSeqs.add(seq);
+    this.updateExecutions((executions) => {
+      executions.set(seq, { ...execution, cancelRequested: true });
+    });
+  }
+
+  /**
+   * Cancels every running execution, for the triggers that know no sequence number (voice bubble,
+   * barge-in, session end, panel closed, a new message, the stop button of a finished message).
+   */
+  cancelRunningExecutions(): void {
+    for (const seq of [...this._executions().keys()]) {
+      this.cancelExecution(seq);
+    }
   }
 
   /**
@@ -204,5 +289,13 @@ export class ChatTurnControlService {
     const resolver = this.turnStoppedResolver;
     this.turnStoppedResolver = null;
     resolver?.(labels);
+  }
+
+  private updateExecutions(mutate: (executions: Map<number, RunningExecution>) => void): void {
+    this._executions.update((current) => {
+      const next = new Map(current);
+      mutate(next);
+      return next;
+    });
   }
 }

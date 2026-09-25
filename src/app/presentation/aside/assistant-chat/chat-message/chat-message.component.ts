@@ -149,7 +149,15 @@ export class ChatMessageComponent {
     return this.actions.isSetupNotice(message);
   }
 
+  /**
+   * Stops what is running behind this bubble: the streaming turn while it streams, otherwise (after
+   * Done) the client-side execution of its UI actions and navigations.
+   */
   protected stopTurn(): void {
-    void this.turnControl.stop('user-button');
+    if (this.message().isStreaming) {
+      void this.turnControl.stop('user-button');
+      return;
+    }
+    this.turnControl.cancelRunningExecutions();
   }
 }

@@ -22,7 +22,12 @@ describe('ChatMessageComponent', () => {
   let fixture: ComponentFixture<ChatMessageComponent>;
   let component: ChatMessageComponent;
   let stageStatus: ChatStageStatusService;
-  let turnControlMock: { stop: ReturnType<typeof vi.fn> };
+  let executingMessageIds: ReturnType<typeof signal<string[]>>;
+  let turnControlMock: {
+    stop: ReturnType<typeof vi.fn>;
+    cancelRunningExecutions: ReturnType<typeof vi.fn>;
+    isMessageExecuting: (messageId: string) => boolean;
+  };
   let actionsMock: {
     correctionMenuMessageId: ReturnType<typeof signal<string | null>>;
     dismissMenuMessageId: ReturnType<typeof signal<string | null>>;
@@ -79,7 +84,12 @@ describe('ChatMessageComponent', () => {
   };
 
   beforeEach(async () => {
-    turnControlMock = { stop: vi.fn(() => Promise.resolve()) };
+    executingMessageIds = signal<string[]>([]);
+    turnControlMock = {
+      stop: vi.fn(() => Promise.resolve()),
+      cancelRunningExecutions: vi.fn(),
+      isMessageExecuting: (messageId: string) => executingMessageIds().includes(messageId),
+    };
     actionsMock = {
       correctionMenuMessageId: signal<string | null>(null),
       dismissMenuMessageId: signal<string | null>(null),
@@ -478,6 +488,59 @@ describe('ChatMessageComponent', () => {
       stopButton.click();
 
       expect(turnControlMock.stop).toHaveBeenCalledWith('user-button');
+    });
+
+    it('shows the stop button while a UI action of the finished message still executes', () => {
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: false });
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.stop-turn-button')).toBeNull();
+
+      executingMessageIds.set([baseAssistantMessage.id]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.stop-turn-button')).toBeTruthy();
+    });
+
+    it('hides the stop button again once the execution ended or was cancelled', () => {
+      executingMessageIds.set([baseAssistantMessage.id]);
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: false });
+      fixture.detectChanges();
+
+      executingMessageIds.set([]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.stop-turn-button')).toBeNull();
+    });
+
+    it('does not show the stop button for the execution of another message', () => {
+      executingMessageIds.set(['some-other-message']);
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: false });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.stop-turn-button')).toBeNull();
+    });
+
+    it('cancels the execution, not the turn, when the stop button is clicked during the execution phase', () => {
+      executingMessageIds.set([baseAssistantMessage.id]);
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: false });
+      fixture.detectChanges();
+
+      const stopButton: HTMLButtonElement = fixture.nativeElement.querySelector('.stop-turn-button');
+      stopButton.click();
+
+      expect(turnControlMock.cancelRunningExecutions).toHaveBeenCalledTimes(1);
+      expect(turnControlMock.stop).not.toHaveBeenCalled();
+    });
+
+    it('still stops the turn, not the execution, while the message is streaming', () => {
+      fixture.componentRef.setInput('message', { ...baseAssistantMessage, isStreaming: true });
+      fixture.detectChanges();
+
+      const stopButton: HTMLButtonElement = fixture.nativeElement.querySelector('.stop-turn-button');
+      stopButton.click();
+
+      expect(turnControlMock.stop).toHaveBeenCalledWith('user-button');
+      expect(turnControlMock.cancelRunningExecutions).not.toHaveBeenCalled();
     });
 
     it('hides the stop button once streaming has finished', () => {

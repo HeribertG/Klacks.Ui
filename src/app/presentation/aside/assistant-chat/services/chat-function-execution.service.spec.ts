@@ -59,7 +59,7 @@ describe('ChatFunctionExecutionService', () => {
         { provide: UiActionEngineService, useValue: { executeConfig: mockExecuteConfig } },
         { provide: DataManagementAssistantService, useValue: { reportUiActionResult: mockReportUiActionResult } },
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
-        { provide: ChatTurnControlService, useValue: { captureCancellation: mockCaptureCancellation } },
+        { provide: ChatTurnControlService, useValue: { captureCancellation: mockCaptureCancellation, beginExecution: vi.fn(), endExecution: vi.fn(() => false) } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: mockEmit } },
         { provide: OnboardingService, useValue: { requestTourStart: mockRequestTourStart } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: mockHighlightNavIcon, navigateAndScroll: mockNavigateAndScroll } },

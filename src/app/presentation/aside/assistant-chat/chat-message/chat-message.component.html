@@ -87,17 +87,17 @@
       <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
       }
       } @else {
-      <!-- Unreachable today (the only current producer, ChatTurnControlService, always sets
-           interruptedSummary alongside wasInterrupted), but the field type allows `undefined` -
-           this branch keeps an undefined summary from crashing the template instead of assuming
-           the pairing invariant. -->
+      <!-- Unreachable today (both producers, ChatTurnControlService and
+           ChatFunctionExecutionService, always set interruptedSummary alongside wasInterrupted),
+           but the field type allows `undefined` - this branch keeps an undefined summary from
+           crashing the template instead of assuming the pairing invariant. -->
       <span>{{ "assistant-chat.stop.nothing-executed" | translate }}</span>
       }
     </div>
     }
 
-    <!-- Stop button while an assistant message is streaming -->
-    @if (message().sender === 'assistant' && message().isStreaming) {
+    <!-- Stop button while an assistant message is streaming, and afterwards while its UI actions still execute -->
+    @if (message().sender === 'assistant' && (message().isStreaming || turnControl.isMessageExecuting(message().id))) {
     <button
       type="button"
       class="stop-turn-button"
