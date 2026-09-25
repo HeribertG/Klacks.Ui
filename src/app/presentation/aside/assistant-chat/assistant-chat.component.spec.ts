@@ -22,6 +22,7 @@ import { ConversationOrchestratorService, ConversationState } from './services/c
 import { ChatStageStatusService } from './services/chat-stage-status.service';
 import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
+import { StreamCallbacks } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
@@ -746,7 +747,7 @@ describe('AssistantChatComponent', () => {
         });
 
         describe('after a confirmed stop', () => {
-            let callbacks: any;
+            let callbacks: Required<StreamCallbacks>;
             let stageStatus: ChatStageStatusService;
 
             beforeEach(async () => {
@@ -819,7 +820,7 @@ describe('AssistantChatComponent', () => {
         });
 
         describe('fast-path navigation timer', () => {
-            let callbacks: any;
+            let callbacks: Required<StreamCallbacks>;
             let navigation: KlacksyNavigationService;
             let asideService: AsideService;
 
