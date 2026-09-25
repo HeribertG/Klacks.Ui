@@ -274,7 +274,8 @@ export class DataAssistantService {
    * the raw utterance travels in the body: the backend hashes it through MessageNormalizer, and a
    * query string would leak the user's message into the access logs. Skips the loading indicator -
    * the correction menu opens immediately and fills in afterwards.
-   * @param request - The user message whose turn the correction menu is about to refine
+   * @param request - The user message whose turn the correction menu is about to refine, plus the turn id
+   *   when known (the server then never falls back to the message hash)
    */
   getTurnOptions(request: ITurnOptionsRequest): Observable<ITurnOption[]> {
     return this.httpClient.post<ITurnOption[]>(`${this.baseUrl}eval/turn-options`, request, {
@@ -292,7 +293,7 @@ export class DataAssistantService {
   /**
    * Marks the turn the given user message produced as helpful. The counterpart of submitCorrection:
    * the request carries no verdict, because the route itself is the verdict.
-   * @param request - The user message whose answer helped
+   * @param request - The user message whose answer helped, plus the turn id when known
    */
   submitHelpfulFeedback(
     request: ISubmitHelpfulFeedbackRequest,
@@ -379,6 +380,9 @@ export interface ISubmitCorrectionResponse {
 
 export interface ISubmitHelpfulFeedbackRequest {
   userMessage: string;
+
+  /** Id of the judged turn; omitted when unknown, which makes the server fall back to the message-hash lookup. */
+  turnId?: string;
 
   /** Absent means thumbs-up; false marks the turn as not helpful (W1.8). */
   helpful?: boolean;

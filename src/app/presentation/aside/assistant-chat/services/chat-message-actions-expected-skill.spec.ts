@@ -188,6 +188,75 @@ describe('ChatMessageActionsService (expected skill)', () => {
     expect(request.turnId).toBeUndefined();
   });
 
+  it('names the turn of the message when the expected-skill menu loads its options', () => {
+    // Arrange
+    const stoppedMessage: ChatMessage = { ...assistantMessage, respondedToTurnId: 'turn-stopped' };
+
+    // Act
+    service.openExpectedSkillMenu(stoppedMessage);
+
+    // Assert
+    expect(assistantServiceMock.getTurnOptions).toHaveBeenCalledWith({
+      userMessage: 'Lege einen neuen Kunden an',
+      turnId: 'turn-stopped',
+    });
+  });
+
+  it('asks for the options without a turn id when the message never received one', () => {
+    // Act
+    service.openExpectedSkillMenu(assistantMessage);
+
+    // Assert
+    const request = assistantServiceMock.getTurnOptions.mock.calls[0][0];
+    expect(request.turnId).toBeUndefined();
+  });
+
+  it('sends the turn id of the message with the thumbs-up', () => {
+    // Arrange
+    const stoppedMessage: ChatMessage = { ...assistantMessage, respondedToTurnId: 'turn-stopped' };
+
+    // Act
+    service.submitHelpfulFeedback(stoppedMessage);
+
+    // Assert
+    expect(assistantServiceMock.submitHelpfulFeedback).toHaveBeenCalledWith({
+      userMessage: 'Lege einen neuen Kunden an',
+      turnId: 'turn-stopped',
+    });
+  });
+
+  it('sends no turn id with the thumbs-up of a message that never received one', () => {
+    // Act
+    service.submitHelpfulFeedback(assistantMessage);
+
+    // Assert
+    const request = assistantServiceMock.submitHelpfulFeedback.mock.calls[0][0];
+    expect(request.turnId).toBeUndefined();
+  });
+
+  it('sends the turn id of the message with the thumbs-down and with its comment', () => {
+    // Arrange
+    const stoppedMessage: ChatMessage = { ...assistantMessage, respondedToTurnId: 'turn-stopped' };
+
+    // Act
+    service.onNotHelpfulClick(stoppedMessage);
+    service.submitNotHelpfulComment(stoppedMessage, 'falsche Gruppe');
+
+    // Assert
+    expect(assistantServiceMock.submitHelpfulFeedback).toHaveBeenNthCalledWith(1, {
+      userMessage: 'Lege einen neuen Kunden an',
+      helpful: false,
+      comment: undefined,
+      turnId: 'turn-stopped',
+    });
+    expect(assistantServiceMock.submitHelpfulFeedback).toHaveBeenNthCalledWith(2, {
+      userMessage: 'Lege einen neuen Kunden an',
+      helpful: false,
+      comment: 'falsche Gruppe',
+      turnId: 'turn-stopped',
+    });
+  });
+
   it('trims free text before sending it as the expected skill', () => {
     // Act
     service.submitExpectedSkillFreeText(assistantMessage, '  create_client  ');

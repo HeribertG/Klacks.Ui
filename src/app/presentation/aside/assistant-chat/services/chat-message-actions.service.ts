@@ -482,6 +482,7 @@ export class ChatMessageActionsService {
       userMessage: message.respondedToUserMessage!,
       helpful: false,
       comment,
+      turnId: message.respondedToTurnId,
     };
 
     this.assistantService
@@ -520,6 +521,7 @@ export class ChatMessageActionsService {
 
     const request: ISubmitHelpfulFeedbackRequest = {
       userMessage: message.respondedToUserMessage,
+      turnId: message.respondedToTurnId,
     };
 
     this.assistantService
@@ -561,7 +563,10 @@ export class ChatMessageActionsService {
     this._turnOptionsLoading.set(true);
 
     this.assistantService
-      .getTurnOptions({ userMessage: message.respondedToUserMessage })
+      .getTurnOptions({
+        userMessage: message.respondedToUserMessage,
+        turnId: message.respondedToTurnId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (options) => {
