@@ -499,8 +499,11 @@ export class AssistantChatComponent {
   private scrollToBottom(): void {
     const messagesContainer = this.messagesContainer();
     if (messagesContainer?.nativeElement) {
-      messagesContainer.nativeElement.scrollTop =
-        messagesContainer.nativeElement.scrollHeight;
+      // 'instant' overrides the container's CSS smooth scrolling: a smooth scroll lags behind streamed text and carries the stop button out of view.
+      messagesContainer.nativeElement.scrollTo({
+        top: messagesContainer.nativeElement.scrollHeight,
+        behavior: 'instant',
+      });
     }
   }
 

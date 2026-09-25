@@ -69,6 +69,12 @@ const FAST_PATH_ACK_KEY = 'nav.ack.fastPath';
 const FAST_PATH_ACK_TEXT = 'Ich öffne die Seite für dich.';
 
 describe('AssistantChatComponent', () => {
+    beforeAll(() => {
+        if (!HTMLElement.prototype.scrollTo) {
+            HTMLElement.prototype.scrollTo = () => undefined;
+        }
+    });
+
     let component: AssistantChatComponent;
     let fixture: ComponentFixture<AssistantChatComponent>;
     // The proactive-inbox message list and its expand/hide actions moved to
@@ -4142,6 +4148,25 @@ describe('AssistantChatComponent', () => {
             expect((component as any).pendingGreetingPrompt).toBeNull();
             expect((component as any).pendingGreetingFocus).toBeNull();
             expect((component as any).pendingGreetingOptions).toEqual([]);
+        });
+    });
+
+    describe('stop button reachability while text streams', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
+        it('scrolls the message list to the bottom instantly so the stop button under the growing bubble does not drift out of view', () => {
+            const container: HTMLElement = fixture.nativeElement.querySelector('#assistant-chat-messages');
+            const scrollToSpy = vi.fn();
+            container.scrollTo = scrollToSpy as any;
+
+            (component as any).scrollToBottom();
+
+            expect(scrollToSpy).toHaveBeenCalledTimes(1);
+            expect(scrollToSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ top: container.scrollHeight, behavior: 'instant' }),
+            );
         });
     });
 });
