@@ -652,6 +652,7 @@ export class AssistantChatComponent {
           }
           if (turnId) {
             this.turnControl.setTurnId(turnId);
+            this.ngZone.run(() => this.orchestrator.updateMessage(assistantMessageId, { respondedToTurnId: turnId }));
           }
         },
         onStatus: (data: StreamStatus) => {

@@ -603,6 +603,7 @@ export class ChatMessageActionsService {
       userMessage: message.respondedToUserMessage,
       correctionType,
       expectedSkill,
+      turnId: message.respondedToTurnId,
     };
 
     this.assistantService

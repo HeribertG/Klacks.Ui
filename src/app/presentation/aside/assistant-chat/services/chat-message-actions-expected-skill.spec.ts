@@ -163,6 +163,31 @@ describe('ChatMessageActionsService (expected skill)', () => {
     });
   });
 
+  it('sends the turn id of the corrected message with the correction', () => {
+    // Arrange
+    const stoppedMessage: ChatMessage = { ...assistantMessage, respondedToTurnId: 'turn-stopped' };
+
+    // Act
+    service.submitCorrection(stoppedMessage, 'wrong_skill', 'create_client');
+
+    // Assert
+    expect(assistantServiceMock.submitCorrection).toHaveBeenCalledWith({
+      userMessage: 'Lege einen neuen Kunden an',
+      correctionType: 'wrong_skill',
+      expectedSkill: 'create_client',
+      turnId: 'turn-stopped',
+    });
+  });
+
+  it('sends no turn id for a message that never received one', () => {
+    // Act
+    service.submitCorrection(assistantMessage, 'wrong_skill');
+
+    // Assert
+    const request = assistantServiceMock.submitCorrection.mock.calls[0][0];
+    expect(request.turnId).toBeUndefined();
+  });
+
   it('trims free text before sending it as the expected skill', () => {
     // Act
     service.submitExpectedSkillFreeText(assistantMessage, '  create_client  ');

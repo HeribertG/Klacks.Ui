@@ -736,6 +736,45 @@ describe('AssistantChatComponent', () => {
             expect(mockTurnControl.setTurnId).toHaveBeenCalledWith('turn-9');
         });
 
+        it('stamps the turnId of stream_start on the assistant message of that turn', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+            const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+
+            callbacks.onStreamStart('conv-1', 'turn-9');
+
+            const assistant = component.orchestrator.messages().find((m: any) => m.respondedToUserMessage);
+            expect(assistant?.respondedToTurnId).toBe('turn-9');
+        });
+
+        // Stop and resend: the old stream's stream_start can arrive after the new turn has started. Each
+        // message must keep the id of its own turn, or a correction would name the wrong twin again.
+        it('keeps every message on its own turnId when a resent turn overtakes the stopped one', async () => {
+            component.inputText.set('same text');
+            await component.sendMessage();
+            component.inputText.set('same text');
+            await component.sendMessage();
+            const firstCallbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+            const secondCallbacks = mockLlmService.sendMessageStream.mock.calls[1][2];
+
+            secondCallbacks.onStreamStart('conv-1', 'turn-2');
+            firstCallbacks.onStreamStart('conv-1', 'turn-1');
+
+            const answered = component.orchestrator.messages().filter((m: any) => m.respondedToUserMessage);
+            expect(answered.map((m: any) => m.respondedToTurnId)).toEqual(['turn-1', 'turn-2']);
+        });
+
+        it('leaves the message without a turnId when stream_start carries none', async () => {
+            component.inputText.set('hello');
+            await component.sendMessage();
+            const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+
+            callbacks.onStreamStart('conv-1', null);
+
+            const assistant = component.orchestrator.messages().find((m: any) => m.respondedToUserMessage);
+            expect(assistant?.respondedToTurnId).toBeUndefined();
+        });
+
         it('forwards onTurnStopped to notifyTurnStopped with the turnId, the labels and the executed count', async () => {
             component.inputText.set('hello');
             await component.sendMessage();

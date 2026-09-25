@@ -17,6 +17,12 @@ export interface ChatMessage {
   formattedContent?: string;
   /** User message that this assistant response answered. Set on assistant messages only. */
   respondedToUserMessage?: string;
+  /**
+   * Server-assigned id of the turn that produced this assistant message, taken from the stream_start
+   * event. Stamped on the message itself (never read from the live turn state), so a correction still
+   * names its own turn after a stop and resend. Absent for history and for turns that never got the event.
+   */
+  respondedToTurnId?: string;
   /** Set after the user submitted a correction for this assistant message. */
   correctionSubmitted?: boolean;
   /** Set after the user marked this assistant message as helpful; locks the thumbs-up. */
