@@ -994,6 +994,49 @@ describe('AssistantChatComponent', () => {
         });
     });
 
+    describe('hadToolSteps hook after a function call and streamed text', () => {
+        let callbacks: any;
+
+        beforeEach(async () => {
+            fixture.detectChanges();
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            component.inputText.set('Lege einen Mitarbeiter an');
+            await component.sendMessage();
+        });
+
+        it('still reports tool steps once text streamed after the function call and cleared the visible steps', () => {
+            const hooks = mockTurnControl.registerHooks.mock.calls[0][0];
+
+            callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
+            callbacks.onContent('Der Mitarbeiter wird angelegt');
+
+            expect(component.toolSteps().length).toBe(0);
+            expect(hooks.hadToolSteps()).toBe(true);
+        });
+
+        it('reports no tool steps for a turn that only streamed text', () => {
+            const hooks = mockTurnControl.registerHooks.mock.calls[0][0];
+
+            callbacks.onContent('Antwort ohne Werkzeug');
+
+            expect(hooks.hadToolSteps()).toBe(false);
+        });
+
+        it('starts every new turn without the tool steps of the previous one', async () => {
+            const hooks = mockTurnControl.registerHooks.mock.calls[0][0];
+            callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
+            expect(hooks.hadToolSteps()).toBe(true);
+
+            component.inputText.set('Noch eine Frage');
+            await component.sendMessage();
+
+            expect(hooks.hadToolSteps()).toBe(false);
+        });
+    });
+
     describe('navigation toast suppression', () => {
         let toastService: ToastShowService;
         let showSpy: any;

@@ -239,6 +239,7 @@ export class AssistantChatComponent {
   private streamPreviousClean = '';
   private scrollMarkersDispatched = 0;
   private isCurrentTurnStopped: () => boolean = () => false;
+  private sawFunctionCall = false;
   private fastPathNavigationTimer: ReturnType<typeof setTimeout> | null = null;
 
   private static readonly SCROLL_MARKER_REGEX = /\[SCROLL:\s*([\w-]+)\s*\]/gi;
@@ -297,7 +298,7 @@ export class AssistantChatComponent {
         this.orchestrator.stopAutoSpeak();
       },
       hardAbort: () => this.hardAbortStream(),
-      hadToolSteps: () => this.toolSteps().length > 0,
+      hadToolSteps: () => this.sawFunctionCall,
     });
 
     this.destroyRef.onDestroy(() => {
@@ -628,6 +629,7 @@ export class AssistantChatComponent {
     const isStopped = this.turnControl.captureCancellation(turnSeq);
     this.isCurrentTurnStopped = isStopped;
     this.chatStageStatus.startMessage(assistantMessageId);
+    this.sawFunctionCall = false;
     this.currentRawStream = '';
     this.streamBuffer = '';
     this.streamPreviousClean = '';
@@ -660,6 +662,7 @@ export class AssistantChatComponent {
         },
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
           this.ngZone.run(() => {
+            this.sawFunctionCall = true;
             this.orchestrator.onStreamFunctionCall();
             this.chatStageStatus.addToolStep(data.functionName);
             this.shouldScrollToBottom = true;
