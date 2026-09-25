@@ -3992,6 +3992,7 @@
   "setting.complianceEnforcement.rule.holidayWork": "Holiday work",
   "setting.complianceEnforcement.roster-publication-header": "Roster publication",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Minimum lead time (days)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Planning lead (days before a period starts)",
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Count workdays only",
   "settings.counterRule": "Counter rules",
   "settings.periodCapRule": "Period caps",

@@ -287,6 +287,10 @@ export class AppSettingsManagementService {
       m.complianceEnforcement.rosterPublicationMinLeadDays = Number.isNaN(parsed) ? 0 : parsed;
     }],
     [AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, (v, m) => (m.complianceEnforcement.rosterPublicationCountWorkdaysOnly = v === 'true')],
+    [AppSetting.PLANNING_DEADLINE_LEAD_DAYS, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.complianceEnforcement.planningDeadlineLeadDays = Number.isNaN(parsed) ? 0 : parsed;
+    }],
 
     [AppSetting.ACTIVE_INDUSTRIES, (v, m) => (m.activeIndustries.activeIndustry = normalizeActiveIndustry(v))],
   ]);
@@ -662,6 +666,7 @@ export class AppSettingsManagementService {
     { key: AppSetting.COMPLIANCE_ENFORCEMENT_HOLIDAY_WORK, getCurrent: () => this.complianceEnforcementSettings().enforcementHolidayWork, getOriginal: () => this.complianceEnforcementSettingsOriginal().enforcementHolidayWork },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS, getCurrent: () => this.complianceEnforcementSettings().rosterPublicationMinLeadDays.toString(), getOriginal: () => this.complianceEnforcementSettingsOriginal().rosterPublicationMinLeadDays.toString() },
     { key: AppSetting.COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY, getCurrent: () => String(this.complianceEnforcementSettings().rosterPublicationCountWorkdaysOnly), getOriginal: () => String(this.complianceEnforcementSettingsOriginal().rosterPublicationCountWorkdaysOnly) },
+    { key: AppSetting.PLANNING_DEADLINE_LEAD_DAYS, getCurrent: () => this.complianceEnforcementSettings().planningDeadlineLeadDays.toString(), getOriginal: () => this.complianceEnforcementSettingsOriginal().planningDeadlineLeadDays.toString() },
 
     { key: AppSetting.ACTIVE_INDUSTRIES, getCurrent: () => this.activeIndustriesSettings().activeIndustry, getOriginal: () => this.activeIndustriesSettingsOriginal().activeIndustry },
   ];

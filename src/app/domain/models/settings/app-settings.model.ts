@@ -278,6 +278,7 @@ export interface IComplianceEnforcementSettings {
   enforcementHolidayWork: ComplianceEnforcementRuleMode;
   rosterPublicationMinLeadDays: number;
   rosterPublicationCountWorkdaysOnly: boolean;
+  planningDeadlineLeadDays: number;
 }
 
 export class ComplianceEnforcementSettings implements IComplianceEnforcementSettings {
@@ -297,6 +298,7 @@ export class ComplianceEnforcementSettings implements IComplianceEnforcementSett
   enforcementHolidayWork: ComplianceEnforcementRuleMode = '';
   rosterPublicationMinLeadDays = 0;
   rosterPublicationCountWorkdaysOnly = false;
+  planningDeadlineLeadDays = 0;
 }
 
 export interface IActiveIndustriesSettings {

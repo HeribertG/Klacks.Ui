@@ -3984,6 +3984,7 @@
   "setting.complianceEnforcement.rule.holidayWork": "Lavoro nei giorni festivi",
   "setting.complianceEnforcement.roster-publication-header": "Pubblicazione del turno",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Anticipo minimo (giorni)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Anticipo di pianificazione (giorni prima dell'inizio di un periodo)",
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Conta solo i giorni lavorativi",
   "settings.counterRule": "Regole di conteggio",
   "settings.periodCapRule": "Limiti di periodo",

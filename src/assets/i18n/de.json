@@ -3992,6 +3992,7 @@
   "setting.complianceEnforcement.rule.holidayWork": "Feiertagsarbeit",
   "setting.complianceEnforcement.roster-publication-header": "Dienstplan-Veröffentlichung",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Mindest-Vorlauf (Tage)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Planungsvorlauf (Tage vor Periodenbeginn)",
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Nur Arbeitstage zählen",
   "settings.counterRule": "Zähler-Regeln",
   "settings.periodCapRule": "Perioden-Obergrenzen",

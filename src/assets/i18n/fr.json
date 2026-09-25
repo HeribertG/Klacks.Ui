@@ -3984,6 +3984,7 @@
   "setting.complianceEnforcement.rule.holidayWork": "Travail les jours fériés",
   "setting.complianceEnforcement.roster-publication-header": "Publication du planning",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Délai minimum (jours)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Délai de planification (jours avant le début d'une période)",
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Compter uniquement les jours ouvrés",
   "settings.counterRule": "Règles de comptage",
   "settings.periodCapRule": "Plafonds de période",

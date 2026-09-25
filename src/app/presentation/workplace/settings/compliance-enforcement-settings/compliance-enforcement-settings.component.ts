@@ -53,6 +53,7 @@ interface ComplianceEnforcementFormModel {
   enforcementHolidayWork: ComplianceEnforcementRuleMode;
   rosterPublicationMinLeadDays: number;
   rosterPublicationCountWorkdaysOnly: boolean;
+  planningDeadlineLeadDays: number;
 }
 
 @Component({
@@ -92,6 +93,7 @@ export class ComplianceEnforcementSettingsComponent implements OnInit, OnDestroy
     enforcementHolidayWork: '',
     rosterPublicationMinLeadDays: 0,
     rosterPublicationCountWorkdaysOnly: false,
+    planningDeadlineLeadDays: 0,
   });
 
   complianceForm = form(this.formModel);
@@ -162,6 +164,7 @@ export class ComplianceEnforcementSettingsComponent implements OnInit, OnDestroy
       enforcementHolidayWork: compliance.enforcementHolidayWork,
       rosterPublicationMinLeadDays: compliance.rosterPublicationMinLeadDays,
       rosterPublicationCountWorkdaysOnly: compliance.rosterPublicationCountWorkdaysOnly,
+      planningDeadlineLeadDays: compliance.planningDeadlineLeadDays,
     });
   }
 
@@ -185,6 +188,7 @@ export class ComplianceEnforcementSettingsComponent implements OnInit, OnDestroy
       enforcementHolidayWork: data.enforcementHolidayWork,
       rosterPublicationMinLeadDays: clampLeadDays(data.rosterPublicationMinLeadDays),
       rosterPublicationCountWorkdaysOnly: data.rosterPublicationCountWorkdaysOnly,
+      planningDeadlineLeadDays: clampLeadDays(data.planningDeadlineLeadDays),
     }));
     svc.settingsChangeTrigger.update(v => v + 1);
   }

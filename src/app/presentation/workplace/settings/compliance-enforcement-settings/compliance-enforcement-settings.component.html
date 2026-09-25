@@ -400,6 +400,22 @@
         </div>
         <div class="form-group secondColumn"></div>
       </div>
+      <div id="compliance-enforcement-planning-deadline-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="cePlanningDeadlineLeadDays">{{
+            "setting.complianceEnforcement.planning-deadline-lead-days" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="complianceForm.planningDeadlineLeadDays"
+            aria-label="cePlanningDeadlineLeadDays"
+            id="cePlanningDeadlineLeadDays"
+          />
+        </div>
+        <div class="form-group secondColumn"></div>
+      </div>
       <div id="compliance-enforcement-roster-workdays-row" class="row-line" style="margin-top: 16px">
         <div class="form-group firstColumn">
           <label for="ceRosterCountWorkdaysOnly">&#8203;</label>
