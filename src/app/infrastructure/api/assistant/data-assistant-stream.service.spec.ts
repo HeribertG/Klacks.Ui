@@ -159,8 +159,10 @@ describe('DataAssistantStreamService', () => {
     expect(onStreamStart).toHaveBeenCalledWith('conv-1', null);
   });
 
-  it('dispatches turn_stopped with the executed skill labels', async () => {
-    mockFetchWithEvents([{ event: 'turn_stopped', data: { executedSkillLabels: ['create_client'] } }]);
+  it('dispatches turn_stopped with the turnId, the executed skill labels and the executed count', async () => {
+    mockFetchWithEvents([
+      { event: 'turn_stopped', data: { turnId: 'turn-1', executedSkillLabels: ['create_client'], executedCount: 2 } },
+    ]);
     const onTurnStopped = vi.fn();
     const callbacks: StreamCallbacks = { onTurnStopped };
 
@@ -169,10 +171,10 @@ describe('DataAssistantStreamService', () => {
     await vi.waitFor(() => {
       expect(onTurnStopped).toHaveBeenCalled();
     });
-    expect(onTurnStopped).toHaveBeenCalledWith(['create_client']);
+    expect(onTurnStopped).toHaveBeenCalledWith('turn-1', ['create_client'], 2);
   });
 
-  it('defaults executedSkillLabels to [] when turn_stopped omits it', async () => {
+  it('defaults turn_stopped to no turnId, no labels and no count when the payload omits them', async () => {
     mockFetchWithEvents([{ event: 'turn_stopped', data: {} }]);
     const onTurnStopped = vi.fn();
     const callbacks: StreamCallbacks = { onTurnStopped };
@@ -182,7 +184,40 @@ describe('DataAssistantStreamService', () => {
     await vi.waitFor(() => {
       expect(onTurnStopped).toHaveBeenCalled();
     });
-    expect(onTurnStopped).toHaveBeenCalledWith([]);
+    expect(onTurnStopped).toHaveBeenCalledWith(null, [], null);
+  });
+
+  it('ignores a non-string turnId, non-string labels and a non-numeric count in turn_stopped', async () => {
+    mockFetchWithEvents([
+      { event: 'turn_stopped', data: { turnId: 7, executedSkillLabels: ['a', 3, null, 'b'], executedCount: '2' } },
+    ]);
+    const onTurnStopped = vi.fn();
+    const callbacks: StreamCallbacks = { onTurnStopped };
+
+    service.chatStream(request, callbacks);
+
+    await vi.waitFor(() => {
+      expect(onTurnStopped).toHaveBeenCalled();
+    });
+    expect(onTurnStopped).toHaveBeenCalledWith(null, ['a', 'b'], null);
+  });
+
+  it('keeps the stream open after turn_stopped so that the trailing done still arrives', async () => {
+    mockFetchWithEvents([
+      { event: 'turn_stopped', data: { turnId: 'turn-1', executedSkillLabels: [], executedCount: 0 } },
+      { event: 'done', data: {} },
+    ]);
+    const order: string[] = [];
+    const callbacks: StreamCallbacks = {
+      onTurnStopped: () => order.push('turn_stopped'),
+      onDone: () => order.push('done'),
+    };
+
+    service.chatStream(request, callbacks);
+
+    await vi.waitFor(() => {
+      expect(order).toEqual(['turn_stopped', 'done']);
+    });
   });
 
   it('dispatches multiple status events that arrive before stream_start, in wire order', async () => {

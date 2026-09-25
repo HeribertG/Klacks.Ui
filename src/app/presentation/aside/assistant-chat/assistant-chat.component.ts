@@ -238,6 +238,8 @@ export class AssistantChatComponent {
   private streamRafHandle: number | null = null;
   private streamPreviousClean = '';
   private scrollMarkersDispatched = 0;
+  private isCurrentTurnStopped: () => boolean = () => false;
+  private fastPathNavigationTimer: ReturnType<typeof setTimeout> | null = null;
 
   private static readonly SCROLL_MARKER_REGEX = /\[SCROLL:\s*([\w-]+)\s*\]/gi;
   private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
@@ -302,6 +304,7 @@ export class AssistantChatComponent {
       // A visible aside means the instance is only swapped (floating-mode switch), not closed.
       if (!this.asideService.isVisible()) {
         this.turnControl.cancelRunningExecutions();
+        this.clearFastPathNavigation();
       }
       void this.turnControl.stop('panel-closed');
     });
@@ -500,6 +503,13 @@ export class AssistantChatComponent {
     }
   }
 
+  private clearFastPathNavigation(): void {
+    if (this.fastPathNavigationTimer !== null) {
+      clearTimeout(this.fastPathNavigationTimer);
+      this.fastPathNavigationTimer = null;
+    }
+  }
+
   private hardAbortStream(): void {
     if (this.currentStreamController) {
       this.currentStreamController.abort();
@@ -547,7 +557,7 @@ export class AssistantChatComponent {
     this.streamPreviousClean = nextContent;
 
     const ttsClean = this.stripForTts(ttsDelta);
-    if (ttsClean) {
+    if (ttsClean && !this.isCurrentTurnStopped()) {
       this.orchestrator.onStreamContent(ttsClean);
     }
   }
@@ -615,6 +625,8 @@ export class AssistantChatComponent {
     };
     this.orchestrator.addMessage(assistantMessage);
     const turnSeq = this.turnControl.beginTurn(assistantMessageId);
+    const isStopped = this.turnControl.captureCancellation(turnSeq);
+    this.isCurrentTurnStopped = isStopped;
     this.chatStageStatus.startMessage(assistantMessageId);
     this.currentRawStream = '';
     this.streamBuffer = '';
@@ -710,7 +722,10 @@ export class AssistantChatComponent {
             } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith(WORKPLACE_ROUTE_PREFIX)) {
               const navigateTo = data.navigateTo;
               const target = data.target || undefined;
-              setTimeout(() => {
+              this.clearFastPathNavigation();
+              this.fastPathNavigationTimer = setTimeout(() => {
+                this.fastPathNavigationTimer = null;
+                if (isStopped()) return;
                 void this.klacksyNavigation
                   .navigateAndScroll(navigateTo, target)
                   .then((outcome) =>
@@ -726,8 +741,13 @@ export class AssistantChatComponent {
             this.cdr.detectChanges();
           });
         },
-        onTurnStopped: (executedSkillLabels: string[]) => {
-          this.turnControl.notifyTurnStopped(executedSkillLabels);
+        onTurnStopped: (turnId: string | null, executedSkillLabels: string[], executedCount: number | null) => {
+          this.ngZone.run(() => {
+            if (this.turnControl.notifyTurnStopped(turnId, executedSkillLabels, executedCount)) {
+              this.chatStageStatus.clear();
+              this.cdr.detectChanges();
+            }
+          });
         },
         onDone: () => {
           this.ngZone.run(() => {
@@ -744,7 +764,9 @@ export class AssistantChatComponent {
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
-            this.maybeAutoSpeak(doneMessage);
+            if (!isStopped()) {
+              this.maybeAutoSpeak(doneMessage);
+            }
             setTimeout(() => this.chatInput()?.nativeElement?.focus(), 0);
           });
         },

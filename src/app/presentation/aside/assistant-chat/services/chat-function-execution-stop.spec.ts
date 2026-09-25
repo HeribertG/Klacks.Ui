@@ -144,7 +144,7 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     expect(turnControl.isStopping()).toBe(true);
 
     await run([uiActionCall, navigationCall('/workplace/clients')], seq);
-    turnControl.notifyTurnStopped([]);
+    turnControl.notifyTurnStopped('turn-1', [], 0);
     await stopping;
 
     expect(executeStep).not.toHaveBeenCalled();
@@ -156,7 +156,7 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     const seq = turnControl.beginTurn('assistant-1');
     turnControl.setTurnId('turn-1');
     const stopping = turnControl.stop('user-button');
-    turnControl.notifyTurnStopped(['open_client_dialog']);
+    turnControl.notifyTurnStopped('turn-1', ['open_client_dialog'], 1);
     await stopping;
     expect(turnControl.isTurnRunning()).toBe(false);
     expect(turnControl.isStopping()).toBe(false);

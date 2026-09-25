@@ -28,7 +28,8 @@ export interface StreamCallbacks {
   onFunctionCall?: (data: { functionName: string; parameters: Record<string, unknown> }) => void;
   onFunctionResult?: (data: { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string; uiActionTrackingId?: string }) => void;
   onMetadata?: (data: StreamMetadata) => void;
-  onTurnStopped?: (executedSkillLabels: string[]) => void;
+  /** turnId is null and executedCount is null when the event omits them; executedCount may exceed the label count when a label is unavailable. */
+  onTurnStopped?: (turnId: string | null, executedSkillLabels: string[], executedCount: number | null) => void;
   onDone?: () => void;
   onError?: (message: string) => void;
 }
@@ -181,7 +182,11 @@ export class DataAssistantStreamService {
         break;
       case 'turn_stopped':
         callbacks.onTurnStopped?.(
-          Array.isArray(data['executedSkillLabels']) ? (data['executedSkillLabels'] as string[]) : [],
+          typeof data['turnId'] === 'string' ? data['turnId'] : null,
+          Array.isArray(data['executedSkillLabels'])
+            ? data['executedSkillLabels'].filter((label): label is string => typeof label === 'string')
+            : [],
+          typeof data['executedCount'] === 'number' ? data['executedCount'] : null,
         );
         break;
       case 'done':

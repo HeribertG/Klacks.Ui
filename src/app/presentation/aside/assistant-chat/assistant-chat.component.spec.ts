@@ -21,6 +21,7 @@ import { ChatFunctionExecutionService } from './services/chat-function-execution
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { ChatStageStatusService } from './services/chat-stage-status.service';
 import { ChatTurnControlService } from './services/chat-turn-control.service';
+import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
@@ -137,16 +138,19 @@ describe('AssistantChatComponent', () => {
     let mockTurnControl: any;
     let mockChatFunctionExecution: any;
     const TURN_SEQ = 7;
+    let turnStopped: boolean;
 
     beforeEach(async () => {
         mockChatFunctionExecution = { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) };
+        turnStopped = false;
         mockTurnControl = {
             isTurnRunning: signal(false),
             isStopping: signal(false),
             beginTurn: vi.fn(() => TURN_SEQ),
             endTurn: vi.fn(),
             setTurnId: vi.fn(),
-            notifyTurnStopped: vi.fn(),
+            notifyTurnStopped: vi.fn(() => true),
+            captureCancellation: vi.fn(() => () => turnStopped),
             registerHooks: vi.fn(),
             stop: vi.fn(() => Promise.resolve()),
             cancelRunningExecutions: vi.fn(),
@@ -731,14 +735,144 @@ describe('AssistantChatComponent', () => {
             expect(mockTurnControl.setTurnId).toHaveBeenCalledWith('turn-9');
         });
 
-        it('forwards onTurnStopped to notifyTurnStopped', async () => {
+        it('forwards onTurnStopped to notifyTurnStopped with the turnId, the labels and the executed count', async () => {
             component.inputText.set('hello');
             await component.sendMessage();
             const callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
 
-            callbacks.onTurnStopped(['create_client']);
+            callbacks.onTurnStopped('turn-9', ['create_client'], 2);
 
-            expect(mockTurnControl.notifyTurnStopped).toHaveBeenCalledWith(['create_client']);
+            expect(mockTurnControl.notifyTurnStopped).toHaveBeenCalledWith('turn-9', ['create_client'], 2);
+        });
+
+        describe('after a confirmed stop', () => {
+            let callbacks: any;
+            let stageStatus: ChatStageStatusService;
+
+            beforeEach(async () => {
+                stageStatus = TestBed.inject(ChatStageStatusService);
+                component.inputText.set('hello');
+                await component.sendMessage();
+                callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+            });
+
+            it('closes the tool steps that never got a result, once the turn_stopped is accepted', () => {
+                callbacks.onFunctionCall({ functionName: 'update_client', parameters: {} });
+                callbacks.onFunctionCall({ functionName: 'delete_client', parameters: {} });
+                callbacks.onFunctionResult({ functionName: 'update_client', functionResult: '', executionType: '' });
+                expect(stageStatus.toolSteps().some((step) => !step.done)).toBe(true);
+
+                callbacks.onTurnStopped('turn-9', ['update_client'], 1);
+
+                expect(stageStatus.toolSteps()).toEqual([]);
+                expect(stageStatus.activeMessageId()).toBeNull();
+            });
+
+            it('keeps the tool steps when the turn_stopped is not accepted (foreign or stale turn)', () => {
+                mockTurnControl.notifyTurnStopped.mockReturnValue(false);
+                callbacks.onFunctionCall({ functionName: 'update_client', parameters: {} });
+
+                callbacks.onTurnStopped('turn-foreign', [], 0);
+
+                expect(stageStatus.toolSteps().length).toBe(1);
+                expect(stageStatus.activeMessageId()).not.toBeNull();
+            });
+
+            it('does not read the partial answer aloud when done follows the confirmed stop', () => {
+                vi.spyOn(TestBed.inject(SpeechOutputModeService), 'isAutoSpeakMode').mockReturnValue(true);
+                const speakSpy = vi.spyOn(messageActions, 'speakMessage').mockImplementation(() => undefined);
+                callbacks.onContent('Teilantwort');
+                turnStopped = true;
+
+                callbacks.onDone();
+
+                expect(speakSpy).not.toHaveBeenCalled();
+            });
+
+            it('still reads a normally finished answer aloud in auto-speak mode', () => {
+                vi.spyOn(TestBed.inject(SpeechOutputModeService), 'isAutoSpeakMode').mockReturnValue(true);
+                const speakSpy = vi.spyOn(messageActions, 'speakMessage').mockImplementation(() => undefined);
+                callbacks.onContent('Fertige Antwort');
+
+                callbacks.onDone();
+
+                expect(speakSpy).toHaveBeenCalledTimes(1);
+            });
+
+            it('does not feed text still buffered at the stop to the sentence-wise speech output', () => {
+                callbacks.onContent('Halbfertiger Satz.');
+                turnStopped = true;
+
+                callbacks.onDone();
+
+                expect(component.messages.at(-1)?.content).toContain('Halbfertiger Satz.');
+                expect(component.orchestrator.onStreamContent).not.toHaveBeenCalled();
+            });
+
+            it('still feeds the streamed text to the speech output while the turn is not stopped', () => {
+                callbacks.onContent('Fertiger Satz.');
+
+                callbacks.onDone();
+
+                expect(component.orchestrator.onStreamContent).toHaveBeenCalled();
+            });
+        });
+
+        describe('fast-path navigation timer', () => {
+            let callbacks: any;
+            let navigation: KlacksyNavigationService;
+            let asideService: AsideService;
+
+            beforeEach(async () => {
+                vi.useFakeTimers();
+                navigation = TestBed.inject(KlacksyNavigationService);
+                asideService = TestBed.inject(AsideService);
+                vi.spyOn(navigation, 'navigateAndScroll').mockResolvedValue({ success: true });
+                component.inputText.set('open the clients');
+                await component.sendMessage();
+                callbacks = mockLlmService.sendMessageStream.mock.calls[0][2];
+            });
+
+            afterEach(() => {
+                vi.useRealTimers();
+            });
+
+            it('navigates once the timer fires while the turn is not stopped', async () => {
+                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+
+                await vi.advanceTimersByTimeAsync(10);
+
+                expect(navigation.navigateAndScroll).toHaveBeenCalledWith('/workplace/clients', undefined);
+            });
+
+            it('does not navigate when the turn was stopped before the timer fired', async () => {
+                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                turnStopped = true;
+
+                await vi.advanceTimersByTimeAsync(10);
+
+                expect(navigation.navigateAndScroll).not.toHaveBeenCalled();
+            });
+
+            it('does not navigate when the panel was closed before the timer fired', async () => {
+                asideService.hide();
+                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+
+                fixture.destroy();
+                await vi.advanceTimersByTimeAsync(10);
+
+                expect(navigation.navigateAndScroll).not.toHaveBeenCalled();
+            });
+
+            it('still navigates when only the component instance is swapped and the aside stays visible', async () => {
+                asideService.show();
+                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+
+                fixture.destroy();
+                await vi.advanceTimersByTimeAsync(10);
+
+                expect(navigation.navigateAndScroll).toHaveBeenCalledWith('/workplace/clients', undefined);
+            });
         });
 
         it('hands the sequence number of its own turn to executeFunctionCalls', async () => {

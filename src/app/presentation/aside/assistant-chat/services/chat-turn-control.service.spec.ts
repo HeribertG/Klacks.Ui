@@ -124,7 +124,7 @@ describe('ChatTurnControlService', () => {
     service.registerHooks(hooks);
 
     const stopping = service.stop('user-button');
-    service.notifyTurnStopped(['create_client']);
+    service.notifyTurnStopped('turn-1', ['create_client'], 1);
     await stopping;
 
     expect(hooks.hardAbort).not.toHaveBeenCalled();
@@ -172,7 +172,7 @@ describe('ChatTurnControlService', () => {
     service.setTurnId('turn-a');
 
     const stopA = service.stop('user-button');
-    service.notifyTurnStopped(['skill-a']);
+    service.notifyTurnStopped('turn-a', ['skill-a'], 1);
     await stopA;
 
     hooks.hardAbort.mockClear();
@@ -223,7 +223,7 @@ describe('ChatTurnControlService', () => {
     service.registerHooks(hooksB);
     const stopB = service.stop('user-button'); // also suspends on its own grace wait
 
-    service.notifyTurnStopped(['skill-b']); // B's real server confirmation arrives
+    service.notifyTurnStopped('turn-b', ['skill-b'], 1); // B's real server confirmation arrives
 
     await Promise.all([stopA, stopB]);
 
@@ -329,7 +329,7 @@ describe('ChatTurnControlService', () => {
       const seq = service.beginTurn('msg-1');
       service.setTurnId('turn-1');
       const stopping = service.stop('user-button');
-      service.notifyTurnStopped([]);
+      service.notifyTurnStopped('turn-1', [], 0);
       await stopping;
 
       const isCancelled = service.captureCancellation(seq);
@@ -450,7 +450,7 @@ describe('ChatTurnControlService', () => {
       expect(service.isStopping()).toBe(false);
 
       const stopping = service.stop('user-button');
-      service.notifyTurnStopped([]);
+      service.notifyTurnStopped('turn-1', [], 0);
       await stopping;
       expect(hooks.silence).toHaveBeenCalledTimes(1);
     });
@@ -541,6 +541,211 @@ describe('ChatTurnControlService', () => {
         wasInterrupted: true,
         interruptedSummary: { executed: [] },
       });
+    });
+  });
+
+  describe('turn_stopped confirmation', () => {
+    function startStopWaiting() {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+      const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => true };
+      service.registerHooks(hooks);
+      return { hooks, stopping: service.stop('user-button') };
+    }
+
+    it('shows the confirmed summary although done ended the turn in the same read as turn_stopped', async () => {
+      const { hooks, stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', ['create_client'], 1);
+      service.endTurn();
+      await stopping;
+
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledTimes(1);
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: { executed: ['create_client'] },
+      });
+    });
+
+    it('writes the interruption notice once, when the confirmation is accepted', async () => {
+      const { stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', ['create_client'], 1);
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledTimes(1);
+      await stopping;
+
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledTimes(1);
+      expect(service.isTurnRunning()).toBe(false);
+      expect(service.isStopping()).toBe(false);
+    });
+
+    it('reports an accepted event and does not hard-abort on it', async () => {
+      const { hooks, stopping } = startStopWaiting();
+
+      const accepted = service.notifyTurnStopped('turn-1', [], 0);
+      await stopping;
+
+      expect(accepted).toBe(true);
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+    });
+
+    it('ignores a turn_stopped that names another turn and keeps waiting for the own one', async () => {
+      const { hooks, stopping } = startStopWaiting();
+
+      const accepted = service.notifyTurnStopped('turn-foreign', ['create_client'], 1);
+      expect(accepted).toBe(false);
+      expect(mockOrchestrator.updateMessage).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(TURN_STOP_GRACE_MS);
+      await stopping;
+
+      expect(hooks.hardAbort).toHaveBeenCalledOnce();
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: null,
+      });
+    });
+
+    it('ignores a turn_stopped without a turnId', async () => {
+      const { hooks, stopping } = startStopWaiting();
+
+      const accepted = service.notifyTurnStopped(null, [], 0);
+      await vi.advanceTimersByTimeAsync(TURN_STOP_GRACE_MS);
+      await stopping;
+
+      expect(accepted).toBe(false);
+      expect(hooks.hardAbort).toHaveBeenCalledOnce();
+    });
+
+    it('ignores a turn_stopped when no stop is waiting for it', () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+
+      const accepted = service.notifyTurnStopped('turn-1', ['create_client'], 1);
+
+      expect(accepted).toBe(false);
+      expect(mockOrchestrator.updateMessage).not.toHaveBeenCalled();
+      expect(service.isTurnRunning()).toBe(true);
+    });
+
+    it('ignores a late turn_stopped of an earlier turn once a newer turn has its own id', async () => {
+      service.beginTurn('msg-a');
+      service.setTurnId('turn-a');
+      service.registerHooks({ silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false });
+      const stopA = service.stop('user-button');
+      service.beginTurn('msg-b');
+      service.setTurnId('turn-b');
+      await stopA;
+
+      const accepted = service.notifyTurnStopped('turn-a', ['skill-a'], 1);
+
+      expect(accepted).toBe(false);
+      expect(mockOrchestrator.updateMessage).not.toHaveBeenCalled();
+    });
+
+    it('lists the labels when every executed action has one', async () => {
+      const { stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', ['a', 'b'], 2);
+      await stopping;
+
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: { executed: ['a', 'b'] },
+      });
+    });
+
+    it('states that nothing was executed for zero labels and a zero count', async () => {
+      const { stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', [], 0);
+      await stopping;
+
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: { executed: [] },
+      });
+    });
+
+    it('falls back to the cautious sentence when the count exceeds the labels', async () => {
+      const { hooks, stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', ['a'], 2);
+      await stopping;
+
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: null,
+      });
+    });
+
+    it('falls back to the cautious sentence when an action ran but no label is available', async () => {
+      const { hooks, stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', [], 1);
+      await stopping;
+
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: null,
+      });
+    });
+
+    it('trusts the labels when the server sends no count', async () => {
+      const { stopping } = startStopWaiting();
+
+      service.notifyTurnStopped('turn-1', ['a'], null);
+      await stopping;
+
+      expect(mockOrchestrator.updateMessage).toHaveBeenCalledWith('msg-1', {
+        wasInterrupted: true,
+        interruptedSummary: { executed: ['a'] },
+      });
+    });
+  });
+
+  describe('cancel request', () => {
+    it('posts the cancel for the turnId of stream_start and keeps the full grace wait on a 404', async () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+      mockAssistantService.cancelTurn.mockReturnValue(throwError(() => ({ status: 404 })));
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+      service.registerHooks(hooks);
+
+      const stopping = service.stop('user-button');
+      await vi.advanceTimersByTimeAsync(TURN_STOP_GRACE_MS - 1);
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1);
+      await stopping;
+
+      expect(mockAssistantService.cancelTurn).toHaveBeenCalledTimes(1);
+      expect(mockAssistantService.cancelTurn).toHaveBeenCalledWith('turn-1');
+      expect(hooks.hardAbort).toHaveBeenCalledOnce();
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
+
+    it('logs an unexpected cancel failure but still accepts the turn_stopped confirmation', async () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+      mockAssistantService.cancelTurn.mockReturnValue(throwError(() => ({ status: 500 })));
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+      service.registerHooks(hooks);
+
+      const stopping = service.stop('user-button');
+      await Promise.resolve();
+      await Promise.resolve();
+      service.notifyTurnStopped('turn-1', [], 0);
+      await stopping;
+
+      expect(warn).toHaveBeenCalled();
+      expect(hooks.hardAbort).not.toHaveBeenCalled();
+      warn.mockRestore();
     });
   });
 });

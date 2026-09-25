@@ -51,7 +51,7 @@ export class ChatTurnControlService {
   private turnId: string | null = null;
   private activeMessageId: string | null = null;
   private hooks: TurnHooks | null = null;
-  private turnStoppedResolver: ((labels: string[] | null) => void) | null = null;
+  private turnStoppedResolver: ((confirmed: boolean) => void) | null = null;
   private turnStoppedTimer: ReturnType<typeof setTimeout> | null = null;
   private turnEpoch = 0;
   private turnSeq = 0;
@@ -79,7 +79,7 @@ export class ChatTurnControlService {
   beginTurn(messageId: string): number {
     this.turnEpoch++;
     this.turnSeq++;
-    this.resolveTurnStoppedWait(null);
+    this.resolveTurnStoppedWait(false);
     this._isTurnRunning.set(true);
     this._isStopping.set(false);
     this.turnId = null;
@@ -87,7 +87,7 @@ export class ChatTurnControlService {
     return this.turnSeq;
   }
 
-  /** Called from the stream_start SSE event once the backend assigns a turnId (absent until Etappe 2 ships). */
+  /** Called from the stream_start SSE event once the backend assigns the turnId that the cancel endpoint and turn_stopped refer to. */
   setTurnId(turnId: string): void {
     this.turnId = turnId;
   }
@@ -104,7 +104,7 @@ export class ChatTurnControlService {
     this._isStopping.set(false);
     this.turnId = null;
     this.activeMessageId = null;
-    this.resolveTurnStoppedWait(null);
+    this.resolveTurnStoppedWait(false);
   }
 
   /**
@@ -198,14 +198,28 @@ export class ChatTurnControlService {
   }
 
   /**
-   * Resolves a pending stop()'s wait for the server's turn_stopped SSE event (Etappe 2). KNOWN GAP:
-   * carries no turn identity - Etappe 2 must add a turnId to the turn_stopped SSE event and this
-   * signature must become notifyTurnStopped(turnId, labels), compared against this.turnId, before
-   * two turns can ever legitimately be suspended waiting at once (currently impossible: the backend
-   * never sends a turnId yet, so this.turnId is always null and this wait path never executes).
+   * Handles the server's turn_stopped event for the stop this service is waiting on. The event is
+   * accepted only while a stop() is suspended on it and only when it names this service's own turn:
+   * a stale or foreign event changes nothing. The interruption notice is written to the message right
+   * here, not when stop() resumes, because the server sends done straight after turn_stopped and both
+   * usually arrive in one read: the stream callback for done ends the turn (epoch change) before the
+   * suspended stop() continues, and that continuation then correctly bails out.
+   * @param turnId - Id of the stopped turn as sent by the server; null when the event carried none
+   * @param executedSkillLabels - User-language labels of the actions that really ran; may be shorter than executedCount
+   * @param executedCount - Number of actions that really ran, including any without a label; null when the server sent none
+   * @returns Whether the event was accepted as the confirmation of the pending stop
    */
-  notifyTurnStopped(executedSkillLabels: string[]): void {
-    this.resolveTurnStoppedWait(executedSkillLabels);
+  notifyTurnStopped(turnId: string | null, executedSkillLabels: string[], executedCount: number | null): boolean {
+    if (this.turnStoppedResolver === null || turnId === null || turnId !== this.turnId) return false;
+    const messageId = this.activeMessageId;
+    if (messageId) {
+      this.orchestrator.updateMessage(messageId, {
+        wasInterrupted: true,
+        interruptedSummary: this.summarizeExecuted(executedSkillLabels, executedCount ?? executedSkillLabels.length),
+      });
+    }
+    this.resolveTurnStoppedWait(true);
+    return true;
   }
 
   /**
@@ -235,7 +249,7 @@ export class ChatTurnControlService {
       });
     }
 
-    const summary = tid && waitsForServer ? await this.waitForTurnStopped(TURN_STOP_GRACE_MS) : null;
+    const confirmed = tid && waitsForServer ? await this.waitForTurnStopped(TURN_STOP_GRACE_MS) : false;
 
     if (epoch !== this.turnEpoch) {
       // A newer turn already began and owns endTurn() duty now; touch nothing and let it be.
@@ -247,14 +261,7 @@ export class ChatTurnControlService {
     // every future stop() via the reentrancy guard. finally guarantees endTurn() still runs, while
     // the exception itself still propagates to whoever is awaiting this stop() call.
     try {
-      if (summary !== null) {
-        if (messageId) {
-          this.orchestrator.updateMessage(messageId, {
-            wasInterrupted: true,
-            interruptedSummary: { executed: summary },
-          });
-        }
-      } else {
+      if (!confirmed) {
         const hadToolSteps = this.hooks?.hadToolSteps() ?? false;
         this.hooks?.hardAbort();
         if (messageId) {
@@ -269,26 +276,30 @@ export class ChatTurnControlService {
     }
   }
 
-  private waitForTurnStopped(timeoutMs: number): Promise<string[] | null> {
+  private waitForTurnStopped(timeoutMs: number): Promise<boolean> {
     return new Promise((resolve) => {
       this.turnStoppedResolver = resolve;
-      this.turnStoppedTimer = setTimeout(() => this.resolveTurnStoppedWait(null), timeoutMs);
+      this.turnStoppedTimer = setTimeout(() => this.resolveTurnStoppedWait(false), timeoutMs);
     });
+  }
+
+  private summarizeExecuted(labels: string[], executedCount: number): { executed: string[] } | null {
+    return executedCount > labels.length ? null : { executed: labels };
   }
 
   /**
    * The single funnel through which a pending wait can ever settle - by server notification or by
    * timeout - so the timer for one turn's wait can never act on a later turn's still-live resolver.
-   * @param labels - Executed skill labels from the server, or null on a local timeout
+   * @param confirmed - True when the server confirmed the stop, false on a local timeout or when the turn ended otherwise
    */
-  private resolveTurnStoppedWait(labels: string[] | null): void {
+  private resolveTurnStoppedWait(confirmed: boolean): void {
     if (this.turnStoppedTimer !== null) {
       clearTimeout(this.turnStoppedTimer);
       this.turnStoppedTimer = null;
     }
     const resolver = this.turnStoppedResolver;
     this.turnStoppedResolver = null;
-    resolver?.(labels);
+    resolver?.(confirmed);
   }
 
   private updateExecutions(mutate: (executions: Map<number, RunningExecution>) => void): void {
