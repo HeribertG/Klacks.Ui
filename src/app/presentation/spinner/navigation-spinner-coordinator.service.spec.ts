@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   NavigationCancel,
@@ -12,6 +12,7 @@ import {
   NavigationStart,
   Router,
   RouterEvent,
+  RouterOutlet,
   provideRouter,
 } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -19,11 +20,24 @@ import { Subject } from 'rxjs';
 import { ILoadingIndicator, LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { NavigationSpinnerCoordinator } from './navigation-spinner-coordinator.service';
 
-@Component({ template: 'home', standalone: true })
+@Component({ selector: 'app-home-stub', template: 'home', standalone: true })
 class HomeStubComponent {}
 
-@Component({ template: 'legal', standalone: true })
+@Component({ selector: 'app-legal-stub', template: 'legal', standalone: true })
 class LegalStubComponent {}
+
+let shellDestroyed = false;
+
+@Component({ selector: 'app-shell-stub', template: '<router-outlet />', standalone: true, imports: [RouterOutlet] })
+class ShellStubComponent {
+  constructor() {
+    shellDestroyed = false;
+  }
+
+  ngOnDestroy(): void {
+    shellDestroyed = true;
+  }
+}
 
 describe('NavigationSpinnerCoordinator', () => {
   const URL_HOME = '/home';
@@ -192,6 +206,75 @@ describe('NavigationSpinnerCoordinator', () => {
 
       // Assert
       expect(seenDuringNavigation).toBe(true);
+    });
+  });
+
+  describe('with a guard redirect and a shell destroyed mid navigation', () => {
+    const observeSpinnerPerEvent = (router: Router): string[] => {
+      const log: string[] = [];
+      router.events.subscribe((event) => {
+        if (event instanceof NavigationStart) {
+          log.push(`start:${indicator.showProgressSpinner}`);
+        } else if (event instanceof NavigationCancel) {
+          log.push(`cancel:${indicator.showProgressSpinner}`);
+        } else if (event instanceof NavigationEnd) {
+          log.push(`end:${indicator.showProgressSpinner}`);
+        }
+      });
+      return log;
+    };
+
+    beforeEach(() => {
+      shellDestroyed = false;
+      indicator = { showProgressSpinner: false, interceptorSuppressed: false };
+      TestBed.configureTestingModule({
+        providers: [
+          provideRouter([
+            { path: 'home', component: HomeStubComponent },
+            { path: 'imprint', component: LegalStubComponent },
+            { path: 'redirected', component: LegalStubComponent, canActivate: [() => inject(Router).parseUrl('/home')] },
+            {
+              path: 'shell',
+              component: ShellStubComponent,
+              children: [{ path: 'page', component: HomeStubComponent }],
+            },
+          ]),
+          { provide: LOADING_INDICATOR_TOKEN, useValue: indicator },
+        ],
+      });
+      TestBed.inject(NavigationSpinnerCoordinator).start();
+    });
+
+    it('turns the spinner on for the redirect navigation and leaves it off after start, cancel, start, end', async () => {
+      // Arrange
+      const router = TestBed.inject(Router);
+      const harness = await RouterTestingHarness.create();
+      const log = observeSpinnerPerEvent(router);
+
+      // Act
+      await harness.navigateByUrl('/redirected');
+
+      // Assert
+      expect(log).toEqual(['start:true', 'cancel:false', 'start:true', 'end:false']);
+      expect(router.url).toBe(URL_HOME);
+      expect(indicator.showProgressSpinner).toBe(false);
+    });
+
+    it('leaves the spinner off when the component hosting the navigation is destroyed by the navigation itself', async () => {
+      // Arrange
+      const router = TestBed.inject(Router);
+      const harness = await RouterTestingHarness.create();
+      await harness.navigateByUrl('/shell/page');
+      expect(shellDestroyed).toBe(false);
+      const log = observeSpinnerPerEvent(router);
+
+      // Act
+      await harness.navigateByUrl(URL_LEGAL);
+
+      // Assert
+      expect(shellDestroyed).toBe(true);
+      expect(log).toEqual(['start:true', 'end:false']);
+      expect(indicator.showProgressSpinner).toBe(false);
     });
   });
 });
