@@ -116,42 +116,50 @@
                   />
                 </label>
               </td>
-              <td class="table-cell">
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  class="form-control number-cell"
-                  [id]="'proactive-governance-daily-budget-' + rule.triggerKind"
-                  [value]="rule.dailyActionBudget"
-                  [disabled]="savingKind() !== null"
-                  (change)="onChangeDailyActionBudget(rule, $any($event.target).value)"
-                />
-              </td>
-              <td class="table-cell">
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  class="form-control number-cell"
-                  [id]="'proactive-governance-window-limit-' + rule.triggerKind"
-                  [value]="rule.windowActionLimit"
-                  [disabled]="savingKind() !== null"
-                  (change)="onChangeWindowActionLimit(rule, $any($event.target).value)"
-                />
-              </td>
-              <td class="table-cell">
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  class="form-control number-cell"
-                  [id]="'proactive-governance-window-minutes-' + rule.triggerKind"
-                  [value]="rule.windowMinutes"
-                  [disabled]="savingKind() !== null"
-                  (change)="onChangeWindowMinutes(rule, $any($event.target).value)"
-                />
-              </td>
+              @if (budgetApplies(rule)) {
+                <td class="table-cell">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    class="form-control number-cell"
+                    [id]="'proactive-governance-daily-budget-' + rule.triggerKind"
+                    [value]="rule.dailyActionBudget"
+                    [disabled]="savingKind() !== null"
+                    (change)="onChangeDailyActionBudget(rule, $any($event.target).value)"
+                  />
+                </td>
+                <td class="table-cell">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    class="form-control number-cell"
+                    [id]="'proactive-governance-window-limit-' + rule.triggerKind"
+                    [value]="rule.windowActionLimit"
+                    [disabled]="savingKind() !== null"
+                    (change)="onChangeWindowActionLimit(rule, $any($event.target).value)"
+                  />
+                </td>
+                <td class="table-cell">
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    class="form-control number-cell"
+                    [id]="'proactive-governance-window-minutes-' + rule.triggerKind"
+                    [value]="rule.windowMinutes"
+                    [disabled]="savingKind() !== null"
+                    (change)="onChangeWindowMinutes(rule, $any($event.target).value)"
+                  />
+                </td>
+              } @else {
+                <td class="table-cell fixed-limit-cell" colspan="3">
+                  <span class="settings-hint fixed-limit-note">{{
+                    "setting.proactiveGovernance.fixed-run-limit-note" | translate: { limit: rule.fixedRunLimit }
+                  }}</span>
+                </td>
+              }
             </tr>
           }
         </tbody>

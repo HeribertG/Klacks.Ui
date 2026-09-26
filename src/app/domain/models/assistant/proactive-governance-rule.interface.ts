@@ -13,6 +13,8 @@
  * @param windowActionLimit - Actions allowed inside one window before the breaker trips
  * @param windowMinutes - Length of that window in minutes
  * @param isStored - False when the row is the fail-safe default rather than a saved rule
+ * @param budgetApplies - False when this finding type ignores the three budget fields and a fixed per-run cap applies instead
+ * @param fixedRunLimit - That fixed per-run cap when budgetApplies is false, otherwise null
  * @param isScenarioCapable - False when this finding type cannot prepare a scenario, so the prepare step is not selectable
  */
 export interface IProactiveGovernanceRule {
@@ -28,4 +30,6 @@ export interface IProactiveGovernanceRule {
   windowMinutes: number;
   isStored: boolean;
   isScenarioCapable: boolean;
+  budgetApplies: boolean;
+  fixedRunLimit: number | null;
 }

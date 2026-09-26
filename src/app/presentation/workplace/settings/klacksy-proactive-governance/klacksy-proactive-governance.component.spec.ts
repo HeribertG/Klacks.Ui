@@ -34,6 +34,8 @@ describe('KlacksyProactiveGovernanceComponent', () => {
     windowMinutes: 60,
     isStored: true,
     isScenarioCapable: true,
+    budgetApplies: true,
+    fixedRunLimit: null,
     ...overrides,
   });
 
@@ -210,5 +212,43 @@ describe('KlacksyProactiveGovernanceComponent', () => {
       triggerKind: 'unstaffed_shift',
       dailyActionBudget: 9,
     });
+  });
+
+  it('treats a rule as budget-governed unless the backend says otherwise', () => {
+    expect(component.budgetApplies(rule())).toBe(true);
+    expect(component.budgetApplies(rule({ budgetApplies: false, fixedRunLimit: 3 }))).toBe(false);
+  });
+
+  it('shows the budget inputs for a budget-governed rule', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('#proactive-governance-daily-budget-unstaffed_shift')).not.toBeNull();
+    expect(host.querySelector('#proactive-governance-window-limit-unstaffed_shift')).not.toBeNull();
+    expect(host.querySelector('#proactive-governance-window-minutes-unstaffed_shift')).not.toBeNull();
+    expect(host.querySelector('.fixed-limit-note')).toBeNull();
+  });
+
+  it('replaces the inert budget inputs with the fixed-limit note when the budget does not apply', async () => {
+    mockDataGovernanceService.get.mockReturnValue(
+      of(
+        governance({
+          rules: [rule({ triggerKind: 'period_auto_close', budgetApplies: false, fixedRunLimit: 3 })],
+        })
+      )
+    );
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('#proactive-governance-daily-budget-period_auto_close')).toBeNull();
+    expect(host.querySelector('#proactive-governance-window-limit-period_auto_close')).toBeNull();
+    expect(host.querySelector('#proactive-governance-window-minutes-period_auto_close')).toBeNull();
+    expect(host.querySelector('.fixed-limit-note')).not.toBeNull();
+    expect(host.querySelector('#proactive-governance-max-action-period_auto_close')).not.toBeNull();
   });
 });

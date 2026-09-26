@@ -55,6 +55,10 @@ export class KlacksyProactiveGovernanceComponent implements OnInit {
     return step === PROACTIVE_MAX_ACTION.Prepare && !rule.isScenarioCapable && rule.maxAction !== step;
   }
 
+  budgetApplies(rule: IProactiveGovernanceRule): boolean {
+    return rule.budgetApplies !== false;
+  }
+
   async ngOnInit(): Promise<void> {
     try {
       await firstValueFrom(this.proactiveGovernanceService.get());

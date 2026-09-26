@@ -1590,6 +1590,7 @@
   "setting.proactiveGovernance.column-daily-budget": "Par jour",
   "setting.proactiveGovernance.column-window-limit": "Par fenêtre",
   "setting.proactiveGovernance.column-window-minutes": "Fenêtre (min.)",
+  "setting.proactiveGovernance.fixed-run-limit-note": "Pour cette règle, une limite fixe de {{limit}} clôtures automatiques par exécution s'applique à la place.",
   "setting.proactiveGovernance.maxAction-0": "Signaler uniquement",
   "setting.proactiveGovernance.maxAction-1": "Préparer un scénario",
   "setting.proactiveGovernance.maxAction-2": "Exécuter",
