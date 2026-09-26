@@ -7,7 +7,8 @@
  * navigation - can never swallow the terminal navigation event and leave the spinner on.
  * @param loadingIndicator - Global progress spinner that is switched on and off around navigations
  */
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   NavigationCancel,
   NavigationEnd,
@@ -24,6 +25,7 @@ import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indic
 export class NavigationSpinnerCoordinator {
   private readonly router = inject(Router);
   private readonly loadingIndicator = inject(LOADING_INDICATOR_TOKEN);
+  private readonly destroyRef = inject(DestroyRef);
 
   private started = false;
 
@@ -33,7 +35,7 @@ export class NavigationSpinnerCoordinator {
     }
     this.started = true;
 
-    this.router.events.subscribe((event) => {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.loadingIndicator.showProgressSpinner = true;
       } else if (
