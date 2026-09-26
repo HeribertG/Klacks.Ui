@@ -224,4 +224,23 @@ describe('LoginComponent', () => {
         await savePromise;
         expect(component.isClicked()).toBe(false);
     });
+    describe('title', () => {
+        it('should render the login title as the page heading using the themed title class', () => {
+            fixture.detectChanges();
+
+            const heading: HTMLElement | null = fixture.nativeElement.querySelector('h1');
+
+            expect(heading).not.toBeNull();
+            expect(heading!.classList).toContain('login-title');
+        });
+
+        it('should not style the login title with the Bootstrap heading classes that ignore the theme', () => {
+            fixture.detectChanges();
+
+            const heading: HTMLElement = fixture.nativeElement.querySelector('.login-title');
+
+            expect(heading.classList).not.toContain('h4');
+            expect(fixture.nativeElement.querySelector('p.h4')).toBeNull();
+        });
+    });
 });

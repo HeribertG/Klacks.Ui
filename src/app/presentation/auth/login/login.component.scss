@@ -17,13 +17,22 @@ $login-background: "../../../../assets/png/login-background.png" !default;
   flex-direction: column;
   border-radius: 5px;
   width: 600px;
-  max-width: 600px;
-  min-width: 600px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
 .big-gap-top {
   padding-top: 40px;
+}
+
+.login-title {
+  margin: 40px 0 15px;
+  font-size: var(--fontSizeHeadline);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+  color: var(--colorHeadline);
 }
 
 input {
@@ -155,4 +164,34 @@ label {
 .legal-separator {
   margin: 0 8px;
   color: var(--standartBorderColor);
+}
+
+@media (max-width: 640px) {
+  .background {
+    padding: 0 16px;
+  }
+
+  .first {
+    padding-inline-start: 20px;
+    padding-inline-end: 20px;
+  }
+
+  label,
+  .input-password {
+    width: 100%;
+  }
+
+  .right {
+    width: 100%;
+    padding-inline-end: 20px;
+    box-sizing: border-box;
+  }
+
+  .oauth2-divider {
+    margin: 20px;
+  }
+
+  .oauth2-providers {
+    padding: 0 20px;
+  }
 }
