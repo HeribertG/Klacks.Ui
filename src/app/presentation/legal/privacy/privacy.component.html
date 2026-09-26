@@ -3,9 +3,7 @@
     <h1>{{ "legal.privacy.title" | translate }}</h1>
     <div class="legal-content" [innerHTML]="'legal.privacy.content' | translate"></div>
     <div class="legal-back">
-      <button class="btn btn-primary" [routerLink]="['/login']">
-        {{ "legal.back-to-login" | translate }}
-      </button>
+      <app-legal-back-button></app-legal-back-button>
     </div>
   </div>
 </div>
