@@ -20,18 +20,15 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { RouterModule } from '@angular/router';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
-import { LanguageConfigService } from 'src/app/application/services/language-config.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
@@ -62,11 +59,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   readonly forgotPasswordModal = viewChild.required('forgotPasswordModal', { read: TemplateRef });
 
   private auth = inject(AuthService);
-  private languageConfigService = inject(LanguageConfigService);
-  private localStorageService = inject(LocalStorageService);
   private oauth2HandshakeStorage = inject(OAuth2HandshakeStorageService);
   private navigationService = inject(NavigationService);
-  private translateService = inject(TranslateService);
   private modalService = inject(NgbModal);
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
@@ -90,11 +84,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
   public oauth2Loading = signal(false);
 
   ngOnInit(): void {
-    this.translateService.setDefaultLang(this.languageConfigService.getDefaultLanguage());
-
-    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    this.translateService.use(this.languageConfigService.resolveInitialLanguage(savedLang));
-
     this.loadOAuth2Providers();
   }
 

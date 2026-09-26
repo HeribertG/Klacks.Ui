@@ -1,12 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service running application startup tasks: seeds the initial UI language
- * (stored user choice wins, otherwise the backend default language), applies
- * the persisted theme and loads icons, logo and the application title.
+ * Service running application startup tasks: resolves the initial UI language (stored user choice wins,
+ * then the supported browser language, then the backend default language), persists it when the visitor
+ * has not chosen one yet, activates it in the translation service and the locale for every route
+ * (including directly opened legal pages), applies the persisted theme and loads icons, logo and the
+ * application title.
  */
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { DataSettingsVariousService } from '../../infrastructure/api/settings/data-settings-various.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -15,6 +18,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -29,6 +33,8 @@ export class ApplicationInitService {
   private assistantService = inject(DataManagementAssistantService);
   private authorizationService = inject(AuthorizationService);
   private languageConfigService = inject(LanguageConfigService);
+  private translateService = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private destroy$ = new Subject<void>();
 
   public initialize(): void {
@@ -41,17 +47,21 @@ export class ApplicationInitService {
 
   public initializeBasics(): void {
     // Basic settings that don't require authentication
-    this.setDefaults();
+    this.initializeLanguage();
     this.setTheme();
   }
 
-  private setDefaults(): void {
-    if (!this.localStorageService.get(StorageKeys.CURRENT_LANG)) {
-      this.localStorageService.set(
-        StorageKeys.CURRENT_LANG,
-        this.languageConfigService.getDefaultLanguage()
-      );
+  private initializeLanguage(): void {
+    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
+    const lang = this.languageConfigService.resolveInitialLanguage(savedLang);
+
+    if (!savedLang) {
+      this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
     }
+
+    this.translateService.setDefaultLang(this.languageConfigService.getDefaultLanguage());
+    this.translateService.use(lang);
+    void this.localeService.switchLocale(lang);
   }
 
   private setTheme(): void {

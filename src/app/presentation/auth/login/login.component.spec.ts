@@ -137,33 +137,11 @@ describe('LoginComponent', () => {
         expect(component.isClicked()).toBe(false);
     });
 
-    it('should set the backend default language on ngOnInit', () => {
-        localStorageService.get.mockReturnValue(null);
-
+    it('should leave the UI language to the application startup instead of initializing it again', () => {
         component.ngOnInit();
 
-        expect(translateService.setDefaultLang).toHaveBeenCalledWith('fr');
-    });
-
-    it('should use saved language if available', () => {
-        const savedLang = 'de';
-        localStorageService.get.mockReturnValue(savedLang);
-        languageConfigService.resolveInitialLanguage.mockReturnValue(savedLang);
-
-        component.ngOnInit();
-
-        expect(languageConfigService.resolveInitialLanguage).toHaveBeenCalledWith(savedLang);
-        expect(translateService.use).toHaveBeenCalledWith(savedLang);
-    });
-
-    it('should fall back to the browser language when nothing is saved', () => {
-        localStorageService.get.mockReturnValue(null);
-        languageConfigService.resolveInitialLanguage.mockReturnValue('it');
-
-        component.ngOnInit();
-
-        expect(languageConfigService.resolveInitialLanguage).toHaveBeenCalledWith(null);
-        expect(translateService.use).toHaveBeenCalledWith('it');
+        expect(translateService.setDefaultLang).not.toHaveBeenCalled();
+        expect(translateService.use).not.toHaveBeenCalled();
     });
 
     it('should check token validity on ngAfterViewInit', () => {
