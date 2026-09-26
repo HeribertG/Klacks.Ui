@@ -141,6 +141,8 @@
       <button
         type="button"
         class="feedback-btn"
+        [disabled]="turnControl.isFeedbackLocked(message().id)"
+        [attr.aria-disabled]="turnControl.isFeedbackLocked(message().id) ? 'true' : null"
         (click)="actions.submitHelpfulFeedback(message())"
         [attr.aria-label]="'assistant-chat.feedback.helpful' | translate"
         [title]="'assistant-chat.feedback.helpful' | translate"
@@ -160,6 +162,8 @@
         type="button"
         class="correction-btn"
         [class.is-active]="message().notHelpfulSubmitted"
+        [disabled]="turnControl.isFeedbackLocked(message().id)"
+        [attr.aria-disabled]="turnControl.isFeedbackLocked(message().id) ? 'true' : null"
         (click)="actions.onNotHelpfulClick(message())"
         [attr.aria-label]="'assistant-chat.correction.not-helpful' | translate"
         [title]="'assistant-chat.correction.not-helpful' | translate"

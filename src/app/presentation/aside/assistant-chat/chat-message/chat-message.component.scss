@@ -420,9 +420,15 @@
   opacity: 0.55;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     opacity: 1;
     background: var(--backgroundColorFocus);
+  }
+
+  // Locked right after a stop (see ChatTurnControlService.isFeedbackLocked): same box, so nothing jumps.
+  &:disabled {
+    cursor: default;
+    pointer-events: none;
   }
 }
 
@@ -457,9 +463,15 @@
   opacity: 0.55;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     opacity: 1;
     background: var(--backgroundColorFocus);
+  }
+
+  // Locked right after a stop (see ChatTurnControlService.isFeedbackLocked): same box, so nothing jumps.
+  &:disabled {
+    cursor: default;
+    pointer-events: none;
   }
 }
 

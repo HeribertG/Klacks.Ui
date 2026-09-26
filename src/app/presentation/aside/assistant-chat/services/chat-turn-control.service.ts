@@ -23,6 +23,9 @@ export type TurnStopReason =
 /** Milliseconds the UI waits for the backend's turn_stopped event before falling back to a hard local abort. */
 export const TURN_STOP_GRACE_MS = 3000;
 
+/** Milliseconds the thumbs of a just-stopped message stay disabled after its turn ended, so a second click aimed at the stop button cannot land on them. */
+export const FEEDBACK_LOCK_AFTER_STOP_MS = 700;
+
 interface RunningExecution {
   messageId: string | null;
   cancelRequested: boolean;
@@ -56,6 +59,8 @@ export class ChatTurnControlService {
   private turnEpoch = 0;
   private turnSeq = 0;
   private readonly stoppedSeqs = new Set<number>();
+  private readonly _feedbackLockedMessageId = signal<string | null>(null);
+  private feedbackUnlockTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly _executions = signal<ReadonlyMap<number, RunningExecution>>(new Map());
 
   /**
@@ -80,6 +85,7 @@ export class ChatTurnControlService {
     this.turnEpoch++;
     this.turnSeq++;
     this.resolveTurnStoppedWait(false);
+    this.scheduleFeedbackUnlock();
     this._isTurnRunning.set(true);
     this._isStopping.set(false);
     this.turnId = null;
@@ -105,6 +111,7 @@ export class ChatTurnControlService {
     this.turnId = null;
     this.activeMessageId = null;
     this.resolveTurnStoppedWait(false);
+    this.scheduleFeedbackUnlock();
   }
 
   /**
@@ -119,6 +126,17 @@ export class ChatTurnControlService {
    */
   captureCancellation(seq: number): () => boolean {
     return () => this.stoppedSeqs.has(seq);
+  }
+
+  /**
+   * Whether the thumbs of the given assistant message must not react yet. After a stop the thumbs render at the
+   * spot of the stop button, so a second click aimed at the stop button would otherwise rate the stopped turn
+   * as not helpful. Locked from the stop request until FEEDBACK_LOCK_AFTER_STOP_MS after the turn ended. Reads
+   * a signal, so templates calling it stay reactive.
+   * @param messageId - The assistant ChatMessage whose feedback controls are asked about
+   */
+  isFeedbackLocked(messageId: string): boolean {
+    return this._feedbackLockedMessageId() === messageId;
   }
 
   /**
@@ -238,6 +256,8 @@ export class ChatTurnControlService {
     this.hooks?.silence();
 
     const messageId = this.activeMessageId;
+    this.clearFeedbackUnlockTimer();
+    this._feedbackLockedMessageId.set(messageId);
     const tid = this.turnId;
     const waitsForServer = reason !== 'superseded' && reason !== 'panel-closed';
 
@@ -281,6 +301,21 @@ export class ChatTurnControlService {
       this.turnStoppedResolver = resolve;
       this.turnStoppedTimer = setTimeout(() => this.resolveTurnStoppedWait(false), timeoutMs);
     });
+  }
+
+  /** Starts the countdown that releases the feedback lock; a no-op when nothing is locked or the countdown already runs. */
+  private scheduleFeedbackUnlock(): void {
+    if (this._feedbackLockedMessageId() === null || this.feedbackUnlockTimer !== null) return;
+    this.feedbackUnlockTimer = setTimeout(() => {
+      this.feedbackUnlockTimer = null;
+      this._feedbackLockedMessageId.set(null);
+    }, FEEDBACK_LOCK_AFTER_STOP_MS);
+  }
+
+  private clearFeedbackUnlockTimer(): void {
+    if (this.feedbackUnlockTimer === null) return;
+    clearTimeout(this.feedbackUnlockTimer);
+    this.feedbackUnlockTimer = null;
   }
 
   private summarizeExecuted(labels: string[], executedCount: number): { executed: string[] } | null {

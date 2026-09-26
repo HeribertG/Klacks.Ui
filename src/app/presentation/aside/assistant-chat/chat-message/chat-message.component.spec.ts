@@ -23,10 +23,12 @@ describe('ChatMessageComponent', () => {
   let component: ChatMessageComponent;
   let stageStatus: ChatStageStatusService;
   let executingMessageIds: ReturnType<typeof signal<string[]>>;
+  let feedbackLockedMessageIds: ReturnType<typeof signal<string[]>>;
   let turnControlMock: {
     stop: ReturnType<typeof vi.fn>;
     cancelRunningExecutions: ReturnType<typeof vi.fn>;
     isMessageExecuting: (messageId: string) => boolean;
+    isFeedbackLocked: (messageId: string) => boolean;
   };
   let actionsMock: {
     correctionMenuMessageId: ReturnType<typeof signal<string | null>>;
@@ -85,10 +87,12 @@ describe('ChatMessageComponent', () => {
 
   beforeEach(async () => {
     executingMessageIds = signal<string[]>([]);
+    feedbackLockedMessageIds = signal<string[]>([]);
     turnControlMock = {
       stop: vi.fn(() => Promise.resolve()),
       cancelRunningExecutions: vi.fn(),
       isMessageExecuting: (messageId: string) => executingMessageIds().includes(messageId),
+      isFeedbackLocked: (messageId: string) => feedbackLockedMessageIds().includes(messageId),
     };
     actionsMock = {
       correctionMenuMessageId: signal<string | null>(null),
@@ -614,6 +618,79 @@ describe('ChatMessageComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('.interrupted-notice')).toBeNull();
+    });
+  });
+
+  describe('feedback lock right after a stop', () => {
+    const respondedMessage: ChatMessage = {
+      ...baseAssistantMessage,
+      respondedToUserMessage: 'Wie spät ist es?',
+      wasInterrupted: true,
+      interruptedSummary: { executed: [] },
+    };
+
+    function feedbackButtons(): HTMLButtonElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.feedback-btn, .correction-btn'));
+    }
+
+    it('keeps the thumbs enabled for a normal answer', () => {
+      fixture.componentRef.setInput('message', { ...respondedMessage, wasInterrupted: false });
+      fixture.detectChanges();
+
+      const buttons = feedbackButtons();
+      expect(buttons.length).toBe(2);
+      for (const button of buttons) {
+        expect(button.disabled).toBe(false);
+        expect(button.getAttribute('aria-disabled')).toBeNull();
+      }
+    });
+
+    it('disables both thumbs and marks them aria-disabled while the feedback of the message is locked', () => {
+      feedbackLockedMessageIds.set([respondedMessage.id]);
+      fixture.componentRef.setInput('message', respondedMessage);
+      fixture.detectChanges();
+
+      const buttons = feedbackButtons();
+      expect(buttons.length).toBe(2);
+      for (const button of buttons) {
+        expect(button.disabled).toBe(true);
+        expect(button.getAttribute('aria-disabled')).toBe('true');
+      }
+    });
+
+    it('does not open the correction menu when the locked thumbs-down button is clicked', () => {
+      feedbackLockedMessageIds.set([respondedMessage.id]);
+      fixture.componentRef.setInput('message', respondedMessage);
+      fixture.detectChanges();
+
+      fixture.nativeElement.querySelector('.correction-btn').click();
+
+      expect(actionsMock.onNotHelpfulClick).not.toHaveBeenCalled();
+    });
+
+    it('does not lock the thumbs of another message', () => {
+      feedbackLockedMessageIds.set(['some-other-message']);
+      fixture.componentRef.setInput('message', respondedMessage);
+      fixture.detectChanges();
+
+      for (const button of feedbackButtons()) {
+        expect(button.disabled).toBe(false);
+      }
+    });
+
+    it('enables the thumbs again once the lock is released', () => {
+      feedbackLockedMessageIds.set([respondedMessage.id]);
+      fixture.componentRef.setInput('message', respondedMessage);
+      fixture.detectChanges();
+
+      feedbackLockedMessageIds.set([]);
+      fixture.detectChanges();
+
+      for (const button of feedbackButtons()) {
+        expect(button.disabled).toBe(false);
+      }
+      fixture.nativeElement.querySelector('.correction-btn').click();
+      expect(actionsMock.onNotHelpfulClick).toHaveBeenCalledWith(respondedMessage);
     });
   });
 });

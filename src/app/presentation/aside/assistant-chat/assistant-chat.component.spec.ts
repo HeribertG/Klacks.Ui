@@ -162,6 +162,7 @@ describe('AssistantChatComponent', () => {
             stop: vi.fn(() => Promise.resolve()),
             cancelRunningExecutions: vi.fn(),
             isMessageExecuting: vi.fn(() => false),
+            isFeedbackLocked: vi.fn(() => false),
         };
 
         const inboxHeadingMessageIdSig = signal<string | null>(null);

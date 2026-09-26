@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
-import { ChatTurnControlService, TURN_STOP_GRACE_MS } from './chat-turn-control.service';
+import { ChatTurnControlService, FEEDBACK_LOCK_AFTER_STOP_MS, TURN_STOP_GRACE_MS } from './chat-turn-control.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 
@@ -746,6 +746,79 @@ describe('ChatTurnControlService', () => {
       expect(warn).toHaveBeenCalled();
       expect(hooks.hardAbort).not.toHaveBeenCalled();
       warn.mockRestore();
+    });
+  });
+
+  describe('feedback lock after a stop', () => {
+    const hooks = { silence: vi.fn(), hardAbort: vi.fn(), hadToolSteps: () => false };
+
+    beforeEach(() => {
+      service.registerHooks(hooks);
+    });
+
+    it('does not lock the feedback controls of a message that was never stopped', () => {
+      service.beginTurn('msg-1');
+      service.endTurn();
+
+      expect(service.isFeedbackLocked('msg-1')).toBe(false);
+    });
+
+    it('locks the feedback controls of the message from the moment stop() is requested', () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+
+      void service.stop('user-button');
+
+      expect(service.isFeedbackLocked('msg-1')).toBe(true);
+      expect(service.isFeedbackLocked('msg-2')).toBe(false);
+    });
+
+    it('keeps the lock for the whole wait on turn_stopped, however long it takes', async () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+
+      const stopping = service.stop('user-button');
+      await vi.advanceTimersByTimeAsync(TURN_STOP_GRACE_MS - 1);
+
+      expect(service.isFeedbackLocked('msg-1')).toBe(true);
+      await vi.advanceTimersByTimeAsync(1);
+      await stopping;
+    });
+
+    it('releases the lock FEEDBACK_LOCK_AFTER_STOP_MS after a confirmed stop ended the turn', async () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+
+      const stopping = service.stop('user-button');
+      service.endTurn();
+      await stopping;
+
+      await vi.advanceTimersByTimeAsync(FEEDBACK_LOCK_AFTER_STOP_MS - 1);
+      expect(service.isFeedbackLocked('msg-1')).toBe(true);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(service.isFeedbackLocked('msg-1')).toBe(false);
+    });
+
+    it('releases the lock FEEDBACK_LOCK_AFTER_STOP_MS after a hard abort ended the turn', async () => {
+      service.beginTurn('msg-1');
+
+      await service.stop('user-button');
+
+      expect(service.isFeedbackLocked('msg-1')).toBe(true);
+      await vi.advanceTimersByTimeAsync(FEEDBACK_LOCK_AFTER_STOP_MS);
+      expect(service.isFeedbackLocked('msg-1')).toBe(false);
+    });
+
+    it('still releases the lock when a newer turn begins while the stop is waiting', async () => {
+      service.beginTurn('msg-1');
+      service.setTurnId('turn-1');
+
+      const stopping = service.stop('user-button');
+      service.beginTurn('msg-2');
+      await stopping;
+
+      await vi.advanceTimersByTimeAsync(FEEDBACK_LOCK_AFTER_STOP_MS);
+      expect(service.isFeedbackLocked('msg-1')).toBe(false);
     });
   });
 });
