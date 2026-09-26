@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   NavigationCancel,
@@ -29,7 +29,7 @@ class LegalStubComponent {}
 let shellDestroyed = false;
 
 @Component({ selector: 'app-shell-stub', template: '<router-outlet />', standalone: true, imports: [RouterOutlet] })
-class ShellStubComponent {
+class ShellStubComponent implements OnDestroy {
   constructor() {
     shellDestroyed = false;
   }
