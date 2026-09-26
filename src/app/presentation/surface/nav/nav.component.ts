@@ -12,13 +12,11 @@ import {
   effect,
   viewChild,
   viewChildren,
-  DestroyRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -41,7 +39,6 @@ import { UrlParameterService } from 'src/app/presentation/services/url-parameter
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { InboxVisibilityService } from 'src/app/domain/services/email/inbox-visibility.service';
-import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { PluginNavItem } from 'src/app/domain/models/plugins/plugin-nav-item';
 import { IconAvailabilityComponent } from '../../icons/icon-availability.component';
@@ -112,12 +109,10 @@ export class NavComponent implements OnInit {
   private directionService = inject(DirectionService);
   private themeService = inject(ThemeService);
   private urlParameterService = inject(UrlParameterService);
-  private destroyRef = inject(DestroyRef);
 
   public inboxService = inject(InboxService);
   public inboxVisibilityService = inject(InboxVisibilityService);
   public featurePluginState = inject(FeaturePluginStateService);
-  private spinnerService = inject(LOADING_INDICATOR_TOKEN);
 
   public tooltipPlacement = computed(() => (this.directionService.direction() === 'rtl' ? 'left' : 'right'));
 
@@ -184,18 +179,6 @@ export class NavComponent implements OnInit {
     this.inboxVisibilityService.ensureSettingsLoaded();
     this.inboxService.refreshUnreadCount();
     this.featurePluginState.ensureLoaded();
-
-    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
-      if (event instanceof NavigationStart) {
-        this.spinnerService.showProgressSpinner = true;
-      } else if (
-        event instanceof NavigationEnd ||
-        event instanceof NavigationCancel ||
-        event instanceof NavigationError
-      ) {
-        this.spinnerService.showProgressSpinner = false;
-      }
-    });
   }
 
   private setupEffects(): void {

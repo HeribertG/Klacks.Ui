@@ -23,6 +23,7 @@ import { RELOAD_GUARD_STORAGE } from './domain/interfaces/reload-guard-storage.i
 import { AppReloadCoordinator } from './presentation/services/app-reload-coordinator.service';
 import { ChunkLoadRecoveryService } from './application/services/chunk-load-recovery.service';
 import { AppVersionWatchService } from './application/services/app-version-watch.service';
+import { NavigationSpinnerCoordinator } from './presentation/spinner/navigation-spinner-coordinator.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -133,6 +134,18 @@ describe('AppComponent', () => {
 
     // Assert
     expect(started).toEqual(['coordinator', 'chunk-recovery', 'version-watch']);
+  });
+
+  it('starts the navigation spinner coordinator once so it outlives the workplace shell', () => {
+    // Arrange
+    const start = vi.spyOn(TestBed.inject(NavigationSpinnerCoordinator), 'start');
+    const fixture = TestBed.createComponent(AppComponent);
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(start).toHaveBeenCalledTimes(1);
   });
 
   // Position, edge anchor, stacking order and zone visibility for every floating overlay (toasts,

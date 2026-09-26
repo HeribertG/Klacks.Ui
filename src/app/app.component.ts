@@ -2,7 +2,7 @@
 
 /**
  * Root component: hosts the router outlet and the global overlays, starts the application-wide
- * services (data refresh, reload coordination, chunk recovery, version watch, SignalR) and signs out
+ * services (data refresh, reload coordination, chunk recovery, version watch, navigation spinner, SignalR) and signs out
  * a user whose SignalR authentication failed for good.
  */
 import { ChangeDetectionStrategy, Component, OnInit, effect, inject, DestroyRef } from '@angular/core';
@@ -27,6 +27,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { AppReloadCoordinator } from 'src/app/presentation/services/app-reload-coordinator.service';
 import { ChunkLoadRecoveryService } from 'src/app/application/services/chunk-load-recovery.service';
 import { AppVersionWatchService } from 'src/app/application/services/app-version-watch.service';
+import { NavigationSpinnerCoordinator } from 'src/app/presentation/spinner/navigation-spinner-coordinator.service';
 
 @Component({
   selector: 'app-root',
@@ -56,6 +57,7 @@ export class AppComponent implements OnInit {
   private readonly appReloadCoordinator = inject(AppReloadCoordinator);
   private readonly chunkLoadRecovery = inject(ChunkLoadRecoveryService);
   private readonly appVersionWatch = inject(AppVersionWatchService);
+  private readonly navigationSpinner = inject(NavigationSpinnerCoordinator);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   public title = 'klacks';
@@ -76,6 +78,7 @@ export class AppComponent implements OnInit {
     this.appReloadCoordinator.start();
     this.chunkLoadRecovery.start();
     this.appVersionWatch.start();
+    this.navigationSpinner.start();
     if (this.authService.authenticated()) {
       void this.signalRService.startConnection();
       void this.assistantSignalR.startConnection();
