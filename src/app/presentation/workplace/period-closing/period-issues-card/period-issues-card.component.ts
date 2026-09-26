@@ -6,9 +6,11 @@
  * @param periodLabel - Human-readable period label shown in the PDF header
  * @param unstaffedShiftCount - Period-wide total of unfilled shift slots (sum of needed - engaged)
  * @param unstaffedShiftTruncated - True when the shift query hit the page limit and count is a lower bound
+ * @param startExpanded - Whether a freshly created card starts expanded (used when Klacksy pointed at the card)
+ * @param expandedChange - Emits the card's expanded state so the host can remember it across re-creations
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
@@ -36,6 +38,10 @@ export class PeriodIssuesCardComponent {
   public periodLabel = input<string>('');
   public unstaffedShiftCount = input<number>(0);
   public unstaffedShiftTruncated = input<boolean>(false);
+  public startExpanded = input<boolean>(false);
+  public expandedChange = output<boolean>();
+
+  private card = viewChild(ExpandableCardComponent);
 
   public byDate = computed<IssueGroup[]>(() => {
     const map = new Map<string, PeriodIssue[]>();
@@ -55,6 +61,10 @@ export class PeriodIssuesCardComponent {
   public hasIssues = computed(() => this.issues().length > 0 || this.unstaffedShiftCount() > 0);
   public hasUnstaffed = computed(() => this.unstaffedShiftCount() > 0);
   public canExport = computed(() => this.issues().length > 0);
+
+  expand(): void {
+    this.card()?.expand();
+  }
 
   onPdfExport(): void {
     this.pdfExportService.exportToPdf(

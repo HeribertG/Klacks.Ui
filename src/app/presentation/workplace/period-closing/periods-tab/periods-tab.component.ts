@@ -3,6 +3,8 @@
 /**
  * Day-level sealed management for a selected billing period.
  * Shows all days in the period with seal checkboxes and bulk actions.
+ * The selected period and its group are reported to the assistant page context, and the issues card
+ * opens when Klacksy points at it.
  * Seal and unseal always require an explicit confirmation dialog; the
  * unseal confirmation additionally warns when an export already exists.
  * A seal refused over open errors is re-offered for confirmation carrying the
@@ -12,9 +14,11 @@
  * @param toastShowService - Toast notifications
  * @param translate - i18n service
  * @param modalService - Global confirmation modal service
+ * @param pageContext - Assistant page context that receives the selected period and group
+ * @param eventBus - Domain event bus delivering Klacksy target requests
  */
 
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -38,6 +42,10 @@ import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-c
 import { companyTimeZone, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
 
 const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
@@ -76,6 +84,9 @@ export class PeriodsTabComponent implements OnInit {
   private translate = inject(TranslateService);
   private modalService = inject(ModalService);
   private localeService = inject(LocaleService);
+  private pageContext = inject(AssistantPageContextService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
+  private issuesCard = viewChild(PeriodIssuesCardComponent);
 
   public readonly bulkUnsealKey = BULK_UNSEAL_KEY;
 
@@ -92,6 +103,7 @@ export class PeriodsTabComponent implements OnInit {
   public bulkLoading = signal<boolean>(false);
   public unsealReasonDay = signal<string | null>(null);
   public unsealReasonText = signal<string>('');
+  public issuesExpanded = signal<boolean>(false);
 
   public selectedPeriod = computed<UsedPeriod | null>(() => {
     const key = this.selectedPeriodKey();
@@ -145,6 +157,20 @@ export class PeriodsTabComponent implements OnInit {
   public sealedDayCount = computed(() => this.displayDays().filter((s) => s.isDaySealed).length);
   public partialDayCount = computed(() => this.displayDays().filter((s) => !s.isDaySealed && this.hasEntries(s) && !s.isFullySealed).length);
   public emptyDayCount = computed(() => this.displayDays().filter((s) => !s.isDaySealed && !this.hasEntries(s)).length);
+
+  constructor() {
+    this.eventBus
+      .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ target }) => {
+        if (target === PERIOD_CLOSING_ISSUES_TARGET) {
+          this.issuesExpanded.set(true);
+          this.issuesCard()?.expand();
+        }
+      });
+
+    this.destroyRef.onDestroy(() => this.clearPageContext());
+  }
 
   ngOnInit(): void {
     this.loadUsedPeriods();
@@ -219,6 +245,7 @@ export class PeriodsTabComponent implements OnInit {
 
   loadSummary(): void {
     const period = this.selectedPeriod();
+    this.publishPageContext(period);
     if (!period) {
       this.summary.set([]);
       this.issues.set([]);
@@ -260,6 +287,21 @@ export class PeriodsTabComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  private publishPageContext(period: UsedPeriod | null): void {
+    if (!period) {
+      this.clearPageContext();
+      return;
+    }
+    const bounds = this.getPeriodBounds(period);
+    this.pageContext.setSelectedPeriod(bounds.start, bounds.end);
+    this.pageContext.setSelectedGroupId(period.groupId ?? undefined);
+  }
+
+  private clearPageContext(): void {
+    this.pageContext.setSelectedPeriod(undefined, undefined);
+    this.pageContext.setSelectedGroupId(undefined);
   }
 
   onDaySealToggle(row: SealedPeriodSummary, event: Event): void {

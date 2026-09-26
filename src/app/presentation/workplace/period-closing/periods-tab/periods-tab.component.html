@@ -8,7 +8,7 @@
   <div class="first periods-tab-body">
     <!-- Period dropdown -->
     <section class="filter-row">
-      <div class="filter-field">
+      <div class="filter-field" data-klacksy-target="period-closing-period-select" data-klacksy-label-key="periodClosing.form.period" data-klacksy-category="period-closing">
         <label class="form-label" for="periodsSelect">{{ 'periodClosing.form.period' | translate }}</label>
         @if (!hasPeriods() && !loadingPeriods()) {
           <div class="text-muted">{{ 'periodClosing.form.periodEmpty' | translate }}</div>
@@ -52,6 +52,7 @@
         }
       </div>
 
+      <div data-klacksy-target="period-closing-day-table" data-klacksy-label-key="periodClosing.periods.tableHeader" data-klacksy-category="period-closing">
       <app-expandable-card
           [headerTitle]="'periodClosing.periods.tableHeader' | translate"
           [initiallyExpanded]="true">
@@ -102,21 +103,26 @@
               </tbody>
             </table>
         </app-expandable-card>
+      </div>
     }
 
     <!-- Period issues card -->
     @if (!loading() && selectedPeriod(); as period) {
-      <app-period-issues-card
-        [issues]="issues()"
-        [periodLabel]="formatPeriodLabel(period)"
-        [unstaffedShiftCount]="unstaffedShiftCount()"
-        [unstaffedShiftTruncated]="unstaffedShiftTruncated()">
-      </app-period-issues-card>
+      <div data-klacksy-target="period-closing-issues" data-klacksy-label-key="periodClosing.issues.header" data-klacksy-category="period-closing">
+        <app-period-issues-card
+          [issues]="issues()"
+          [periodLabel]="formatPeriodLabel(period)"
+          [unstaffedShiftCount]="unstaffedShiftCount()"
+          [unstaffedShiftTruncated]="unstaffedShiftTruncated()"
+          [startExpanded]="issuesExpanded()"
+          (expandedChange)="issuesExpanded.set($event)">
+        </app-period-issues-card>
+      </div>
     }
 
     <!-- Unseal reason dialog (inline) -->
     @if (unsealReasonDay()) {
-      <div class="reason-dialog">
+      <div class="reason-dialog" data-klacksy-target="period-closing-unseal-reason" data-klacksy-label-key="periodClosing.form.reason" data-klacksy-category="period-closing">
         <label class="form-label" for="unsealReason">{{ 'periodClosing.form.reason' | translate }}</label>
         <textarea
           id="unsealReason"
@@ -148,6 +154,7 @@
         <button
           type="button"
           class="btn btn-primary btn-sm"
+          data-klacksy-target="period-closing-seal-all" data-klacksy-label-key="periodClosing.action.sealAll" data-klacksy-category="period-closing"
           (click)="onBulkSeal()"
           [disabled]="bulkLoading() || allSealed()">
           @if (bulkLoading()) {
@@ -158,6 +165,7 @@
         <button
           type="button"
           class="btn btn-danger btn-sm"
+          data-klacksy-target="period-closing-unseal-all" data-klacksy-label-key="periodClosing.action.unsealAll" data-klacksy-category="period-closing"
           (click)="onBulkUnseal()"
           [disabled]="bulkLoading() || sealedDayCount() === 0">
           {{ 'periodClosing.action.unsealAll' | translate }}

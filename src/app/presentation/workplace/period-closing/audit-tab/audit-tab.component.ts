@@ -18,7 +18,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, finalize } from 'rxjs';
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -37,6 +37,7 @@ import {
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
+import { AUTONOMOUS_ACTOR_LABEL_KEY, AUTONOMOUS_ACTOR_NAME } from './audit-actor.constants';
 
 interface AuditActionDisplay {
   labelKey: string;
@@ -67,6 +68,7 @@ const AUDIT_ACTION_DISPLAY: Record<PeriodAuditAction, AuditActionDisplay> = {
 export class AuditTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
   private modalService = inject(NgbModal);
+  private translate = inject(TranslateService);
 
   public isLoading = signal(false);
   public startDate = signal<NgbDateStruct | null>(firstOfMonth(0));
@@ -116,6 +118,9 @@ export class AuditTabComponent implements OnInit {
   }
 
   displayUser(name: string | null | undefined, fallback: string): string {
+    if (name === AUTONOMOUS_ACTOR_NAME) {
+      return this.translate.instant(AUTONOMOUS_ACTOR_LABEL_KEY);
+    }
     return name && name.trim().length > 0 ? name : fallback;
   }
 

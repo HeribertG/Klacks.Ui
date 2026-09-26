@@ -121,7 +121,7 @@
   <div id="audit-tab-line" class="container-line"></div>
 
   <div class="first audit-tab-body">
-    <section class="filter-row">
+    <section class="filter-row" data-klacksy-target="period-closing-audit-filter" data-klacksy-label-key="periodClosing.form.startDate" data-klacksy-category="period-closing">
       <div class="filter-field">
         <label class="form-label" for="auditStartDate">{{ 'periodClosing.form.startDate' | translate }}</label>
         <app-date-input
@@ -149,6 +149,7 @@
       </div>
     </section>
 
+    <div data-klacksy-target="period-closing-audit-actions" data-klacksy-label-key="periodClosing.section.actions" data-klacksy-category="period-closing">
     <app-expandable-card
       [headerTitle]="'periodClosing.section.actions' | translate"
       [initiallyExpanded]="true">
@@ -210,7 +211,9 @@
         <p class="empty-state">{{ 'periodClosing.audit.empty' | translate }}</p>
       }
     </app-expandable-card>
+    </div>
 
+    <div data-klacksy-target="period-closing-audit-exports" data-klacksy-label-key="periodClosing.section.exports" data-klacksy-category="period-closing">
     <app-expandable-card
       [headerTitle]="'periodClosing.section.exports' | translate"
       [initiallyExpanded]="true">
@@ -278,6 +281,7 @@
         <p class="empty-state">{{ 'periodClosing.export.empty' | translate }}</p>
       }
     </app-expandable-card>
+    </div>
   </div>
 
   <div class="bottom-border-space"></div>

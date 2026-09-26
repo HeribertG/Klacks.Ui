@@ -11,6 +11,7 @@
         <a
           id="exports-tab-tab-single"
           class="nav-link"
+          data-klacksy-target="period-closing-export-tab-single" data-klacksy-label-key="periodClosing.exportsTabs.singleOrder" data-klacksy-category="period-closing"
           [class.active]="activeTab() === 'single'"
           role="tab"
           [attr.aria-selected]="activeTab() === 'single'"
@@ -25,6 +26,7 @@
         <a
           id="exports-tab-tab-employee"
           class="nav-link"
+          data-klacksy-target="period-closing-export-tab-employee" data-klacksy-label-key="periodClosing.exportsTabs.employeeHours" data-klacksy-category="period-closing"
           [class.active]="activeTab() === 'employee'"
           role="tab"
           [attr.aria-selected]="activeTab() === 'employee'"
@@ -39,6 +41,7 @@
         <a
           id="exports-tab-tab-range"
           class="nav-link"
+          data-klacksy-target="period-closing-export-tab-range" data-klacksy-label-key="periodClosing.exportsTabs.rangeOrders" data-klacksy-category="period-closing"
           [class.active]="activeTab() === 'range'"
           role="tab"
           [attr.aria-selected]="activeTab() === 'range'"
@@ -55,7 +58,7 @@
   <div class="standard-tab-body">
   @if (activeTab() === 'single') {
   <div class="first exports-tab-body">
-    <section class="filter-row">
+    <section class="filter-row" data-klacksy-target="period-closing-export-single-filter" data-klacksy-label-key="periodClosing.form.filterFrom" data-klacksy-category="period-closing">
       <div class="filter-field">
         <label class="form-label" for="exportsFilterFrom">{{ 'periodClosing.form.filterFrom' | translate }}</label>
         <app-date-input
@@ -84,7 +87,7 @@
     </section>
 
     <section class="filter-row">
-      <div class="filter-field filter-field-wide order-search">
+      <div class="filter-field filter-field-wide order-search" data-klacksy-target="period-closing-export-single-order" data-klacksy-label-key="periodClosing.form.order" data-klacksy-category="period-closing">
         <label class="form-label" for="exportsSearch">{{ 'periodClosing.form.order' | translate }}</label>
         <app-search-input
           inputId="exportsSearch"
@@ -119,7 +122,7 @@
           </ul>
         }
       </div>
-      <div class="filter-field">
+      <div class="filter-field" data-klacksy-target="period-closing-export-single-format" data-klacksy-label-key="periodClosing.form.format" data-klacksy-category="period-closing">
         <label class="form-label" for="exportFormat">{{ 'periodClosing.form.format' | translate }}</label>
         <select
           id="exportFormat"
@@ -131,7 +134,7 @@
           }
         </select>
       </div>
-      <div class="filter-field filter-action">
+      <div class="filter-field filter-action" data-klacksy-target="period-closing-export-single-export" data-klacksy-label-key="periodClosing.action.export" data-klacksy-category="period-closing">
         <button
           type="button"
           class="btn btn-primary btn-sm"
@@ -153,7 +156,7 @@
       {{ 'periodClosing.clientExport.description' | translate }}
     </p>
 
-    <section class="filter-row">
+    <section class="filter-row" data-klacksy-target="period-closing-export-employee-form" data-klacksy-label-key="periodClosing.clientExport.title" data-klacksy-category="period-closing">
       <div class="filter-field">
         <label class="form-label" for="clientExportFrom">{{ 'periodClosing.form.filterFrom' | translate }}</label>
         <app-date-input
@@ -172,7 +175,7 @@
           (valueChange)="clientExportUntil.set($event ?? null)">
         </app-date-input>
       </div>
-      <div class="filter-field">
+      <div class="filter-field" data-klacksy-target="period-closing-export-employee-format" data-klacksy-label-key="periodClosing.form.format" data-klacksy-category="period-closing">
         <label class="form-label" for="clientExportFormat">{{ 'periodClosing.form.format' | translate }}</label>
         <select
           id="clientExportFormat"
@@ -185,7 +188,7 @@
         </select>
       </div>
       @if (isPayrollFormat()) {
-      <div class="filter-field">
+      <div class="filter-field" data-klacksy-target="period-closing-export-employee-group" data-klacksy-label-key="periodClosing.clientExport.group" data-klacksy-category="period-closing">
         <label class="form-label" for="clientExportGroup">{{ 'periodClosing.clientExport.group' | translate }}</label>
         <select
           id="clientExportGroup"
@@ -199,7 +202,7 @@
         </select>
       </div>
       }
-      <div class="filter-field filter-action">
+      <div class="filter-field filter-action" data-klacksy-target="period-closing-export-employee-export" data-klacksy-label-key="periodClosing.action.export" data-klacksy-category="period-closing">
         <button
           type="button"
           class="btn btn-primary btn-sm"

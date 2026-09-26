@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuditTabComponent } from './audit-tab.component';
+import { AUTONOMOUS_ACTOR_LABEL_KEY, AUTONOMOUS_ACTOR_NAME } from './audit-actor.constants';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { PeriodAuditAction, PeriodAuditLog } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
 
@@ -93,5 +94,14 @@ describe('AuditTabComponent', () => {
     const badge = actionBadge(0);
     expect(badge.classList.contains('badge-unknown')).toBe(true);
     expect(badge.classList.contains('badge-unseal')).toBe(false);
+  });
+
+  it('shows the autonomous actor through its translation instead of the stored English marker', () => {
+    expect(component.displayUser(AUTONOMOUS_ACTOR_NAME, 'admin-id')).toBe(AUTONOMOUS_ACTOR_LABEL_KEY);
+  });
+
+  it('keeps every other actor name and falls back to the id when the name is empty', () => {
+    expect(component.displayUser('Ada Lovelace', 'admin-id')).toBe('Ada Lovelace');
+    expect(component.displayUser('', 'admin-id')).toBe('admin-id');
   });
 });

@@ -13,7 +13,8 @@
  * @param activeTab - Which of the three export tabs is currently visible
  */
 
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -43,13 +44,15 @@ import { OrderRangeExportSectionComponent } from './order-range-export-section/o
 import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from './export-format-options.constants';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { EXPORTS_TAB_TARGETS, ExportsTabKey } from '../period-closing-target.constants';
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
 const ORDER_FAMILY = 'order';
 const PAYROLL_FAMILY = 'payroll';
 const GROUP_LIST_PAGE_SIZE = 10000;
 
-type ExportsTab = 'single' | 'employee' | 'range';
-const DEFAULT_EXPORTS_TAB: ExportsTab = 'single';
+const DEFAULT_EXPORTS_TAB: ExportsTabKey = 'single';
 
 @Component({
   selector: 'app-exports-tab',
@@ -73,8 +76,10 @@ export class ExportsTabComponent implements OnInit {
   private groupApi = inject(DataGroupService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
+  private destroyRef = inject(DestroyRef);
 
-  public activeTab = signal<ExportsTab>(DEFAULT_EXPORTS_TAB);
+  public activeTab = signal<ExportsTabKey>(DEFAULT_EXPORTS_TAB);
 
   public filterFrom = signal<NgbDateStruct | null>(firstOfMonth(-1));
   public filterUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
@@ -107,6 +112,18 @@ export class ExportsTabComponent implements OnInit {
   public isPayrollFormat = computed<boolean>(() =>
     this.payrollFormatKeys().has(this.clientExportFormat()),
   );
+
+  constructor() {
+    this.eventBus
+      .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ target }) => {
+        const tab = EXPORTS_TAB_TARGETS[target];
+        if (tab) {
+          this.setTab(tab);
+        }
+      });
+  }
 
   ngOnInit(): void {
     this.exportFormatsApi.getFormats().subscribe({
@@ -172,7 +189,7 @@ export class ExportsTabComponent implements OnInit {
     return term !== selectedLabel;
   });
 
-  setTab(tab: ExportsTab): void {
+  setTab(tab: ExportsTabKey): void {
     this.activeTab.set(tab);
   }
 

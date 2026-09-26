@@ -3,7 +3,7 @@
     {{ 'periodClosing.rangeExport.description' | translate }}
   </p>
 
-  <section class="filter-row">
+  <section class="filter-row" data-klacksy-target="period-closing-export-range-form" data-klacksy-label-key="periodClosing.rangeExport.title" data-klacksy-category="period-closing">
     <div class="filter-field">
       <label class="form-label" for="rangeExportFrom">{{ 'periodClosing.form.filterFrom' | translate }}</label>
       <app-date-input
@@ -22,7 +22,7 @@
         (valueChange)="rangeUntil.set($event ?? null)">
       </app-date-input>
     </div>
-    <div class="filter-field">
+    <div class="filter-field" data-klacksy-target="period-closing-export-range-format" data-klacksy-label-key="periodClosing.form.format" data-klacksy-category="period-closing">
       <label class="form-label" for="rangeExportFormat">{{ 'periodClosing.form.format' | translate }}</label>
       <select
         id="rangeExportFormat"
@@ -41,7 +41,7 @@
         (clicked)="reloadOrders()"
       />
     </div>
-    <div class="filter-field filter-action">
+    <div class="filter-field filter-action" data-klacksy-target="period-closing-export-range-export" data-klacksy-label-key="periodClosing.rangeExport.action.exportZip" data-klacksy-category="period-closing">
       <button
         type="button"
         class="btn btn-primary btn-sm"

@@ -1,6 +1,7 @@
 <app-expandable-card
   [headerTitle]="'periodClosing.issues.header' | translate"
-  [initiallyExpanded]="false">
+  [initiallyExpanded]="startExpanded()"
+  (expandedChange)="expandedChange.emit($event)">
 
   <div class="issues-summary">
     <div class="issues-summary-badges">

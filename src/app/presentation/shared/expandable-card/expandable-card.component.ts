@@ -29,6 +29,7 @@ export class ExpandableCardComponent implements OnInit, AfterViewInit {
 
   isExpanded = true;
   private viewInitialized = false;
+  private expandRequested = false;
 
   ngOnInit(): void {
     this.isExpanded = true;
@@ -38,6 +39,9 @@ export class ExpandableCardComponent implements OnInit, AfterViewInit {
     this.viewInitialized = true;
     if (!this.initiallyExpanded) {
       setTimeout(() => {
+        if (this.expandRequested) {
+          return;
+        }
         this.isExpanded = false;
         this.cdr.markForCheck();
         this.expandedChange.emit(false);
@@ -45,6 +49,16 @@ export class ExpandableCardComponent implements OnInit, AfterViewInit {
     } else {
       this.expandedChange.emit(true);
     }
+  }
+
+  expand(): void {
+    this.expandRequested = true;
+    if (this.isExpanded) {
+      return;
+    }
+    this.isExpanded = true;
+    this.cdr.markForCheck();
+    this.expandedChange.emit(true);
   }
 
   toggle(): void {

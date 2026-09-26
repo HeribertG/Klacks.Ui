@@ -54,6 +54,42 @@ describe('ExpandableCardComponent', () => {
         });
     });
 
+    describe('expand', () => {
+        it('should open a collapsed card and emit true', async () => {
+            const emitted: boolean[] = [];
+            component.expandedChange.subscribe((v: boolean) => emitted.push(v));
+            component.initiallyExpanded = false;
+            component.ngAfterViewInit();
+            await vi.waitFor(() => expect(component.isExpanded).toBe(false));
+
+            component.expand();
+
+            expect(component.isExpanded).toBe(true);
+            expect(emitted[emitted.length - 1]).toBe(true);
+        });
+
+        it('should not emit when the card is already expanded', () => {
+            const emitted: boolean[] = [];
+            component.ngOnInit();
+            component.expandedChange.subscribe((v: boolean) => emitted.push(v));
+
+            component.expand();
+
+            expect(component.isExpanded).toBe(true);
+            expect(emitted).toEqual([]);
+        });
+
+        it('should survive the pending initial collapse', async () => {
+            component.initiallyExpanded = false;
+            component.ngAfterViewInit();
+
+            component.expand();
+            await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+            expect(component.isExpanded).toBe(true);
+        });
+    });
+
     describe('toggle', () => {
         it('should toggle isExpanded from true to false', () => {
             component.isExpanded = true;

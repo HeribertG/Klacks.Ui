@@ -2,7 +2,8 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { PeriodsTabComponent } from './periods-tab.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
@@ -12,6 +13,11 @@ import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/m
 import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
+import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
 
 const PERIOD: UsedPeriod = {
   startDate: '2026-05-01',
@@ -88,6 +94,11 @@ describe('PeriodsTabComponent', () => {
     unseal: ReturnType<typeof vi.fn>;
   };
   let modalService: { openModal: ReturnType<typeof vi.fn> };
+  let targetRequested$: Subject<{ target: string }>;
+  let pageContext: {
+    setSelectedPeriod: ReturnType<typeof vi.fn>;
+    setSelectedGroupId: ReturnType<typeof vi.fn>;
+  };
   let toastShowService: {
     showInfo: ReturnType<typeof vi.fn>;
     showSuccess: ReturnType<typeof vi.fn>;
@@ -111,6 +122,8 @@ describe('PeriodsTabComponent', () => {
       unseal: vi.fn().mockReturnValue(of(1)),
     };
     modalService = { openModal: vi.fn() };
+    targetRequested$ = new Subject<{ target: string }>();
+    pageContext = { setSelectedPeriod: vi.fn(), setSelectedGroupId: vi.fn() };
     toastShowService = {
       showInfo: vi.fn(),
       showSuccess: vi.fn(),
@@ -127,6 +140,11 @@ describe('PeriodsTabComponent', () => {
         { provide: DataShiftScheduleService, useValue: shiftScheduleApi },
         { provide: ModalService, useValue: modalService },
         { provide: ToastShowService, useValue: toastShowService },
+        { provide: AssistantPageContextService, useValue: pageContext },
+        {
+          provide: EVENT_BUS_TOKEN,
+          useValue: { emit: vi.fn(), on: vi.fn().mockReturnValue(targetRequested$.asObservable()), onAny: vi.fn() },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -428,6 +446,87 @@ describe('PeriodsTabComponent', () => {
       queryParamMap$.next({ get: (key: string) => queryParams[key] ?? null });
 
       expect(created.selectedPeriod()).toEqual(NEWER_GROUP_PERIOD);
+    });
+  });
+
+  describe('assistant page context', () => {
+    it('reports the selected period without a group', () => {
+      expect(pageContext.setSelectedPeriod).toHaveBeenLastCalledWith(PERIOD.startDate, PERIOD.endDate);
+      expect(pageContext.setSelectedGroupId).toHaveBeenLastCalledWith(undefined);
+    });
+
+    it('reports the group of the selected period and follows a period change', () => {
+      api.getUsedPeriods.mockReturnValue(of([PERIOD, GROUP_PERIOD]));
+      const created = TestBed.createComponent(PeriodsTabComponent);
+      created.detectChanges();
+
+      created.componentInstance.onPeriodChange(created.componentInstance.periodKey(GROUP_PERIOD));
+
+      expect(pageContext.setSelectedPeriod).toHaveBeenLastCalledWith(GROUP_PERIOD.startDate, GROUP_PERIOD.endDate);
+      expect(pageContext.setSelectedGroupId).toHaveBeenLastCalledWith('group-bern');
+    });
+
+    it('clears the period and group when the page is left', () => {
+      pageContext.setSelectedPeriod.mockClear();
+      pageContext.setSelectedGroupId.mockClear();
+
+      fixture.destroy();
+
+      expect(pageContext.setSelectedPeriod).toHaveBeenCalledWith(undefined, undefined);
+      expect(pageContext.setSelectedGroupId).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  describe('klacksy issues card target', () => {
+    async function flushCollapseTimer(): Promise<void> {
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    }
+
+    function issuesCardExpandable(host: ComponentFixture<PeriodsTabComponent>): ExpandableCardComponent {
+      const card = host.debugElement.query(By.directive(PeriodIssuesCardComponent));
+      return card.query(By.directive(ExpandableCardComponent)).componentInstance;
+    }
+
+    it('expands the rendered issues card when the target is requested', async () => {
+      await flushCollapseTimer();
+      expect(issuesCardExpandable(fixture).isExpanded).toBe(false);
+
+      targetRequested$.next({ target: PERIOD_CLOSING_ISSUES_TARGET });
+
+      expect(issuesCardExpandable(fixture).isExpanded).toBe(true);
+      expect(component.issuesExpanded()).toBe(true);
+    });
+
+    it('ignores other targets', async () => {
+      await flushCollapseTimer();
+
+      targetRequested$.next({ target: 'period-closing-day-table' });
+
+      expect(issuesCardExpandable(fixture).isExpanded).toBe(false);
+      expect(component.issuesExpanded()).toBe(false);
+    });
+
+    it('starts a card that appears after the request expanded', async () => {
+      const periods$ = new Subject<UsedPeriod[]>();
+      api.getUsedPeriods.mockReturnValue(periods$.asObservable());
+      const created = TestBed.createComponent(PeriodsTabComponent);
+      created.detectChanges();
+      expect(created.debugElement.query(By.directive(PeriodIssuesCardComponent))).toBeNull();
+
+      targetRequested$.next({ target: PERIOD_CLOSING_ISSUES_TARGET });
+      periods$.next([PERIOD]);
+      created.detectChanges();
+      await flushCollapseTimer();
+      created.detectChanges();
+
+      expect(issuesCardExpandable(created).isExpanded).toBe(true);
+    });
+
+    it('remembers a manual collapse for the next re-created card', async () => {
+      targetRequested$.next({ target: PERIOD_CLOSING_ISSUES_TARGET });
+      issuesCardExpandable(fixture).toggle();
+
+      expect(component.issuesExpanded()).toBe(false);
     });
   });
 });
