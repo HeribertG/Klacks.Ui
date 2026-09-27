@@ -2,9 +2,9 @@
 
 /**
  * Footer component displaying legal links (imprint, privacy policy),
- * a donation link opening a donation dialog (Swiss QR / EPC QR with
- * predefined amounts and copy fallback), and a link to the external
- * documentation.
+ * a donation link opening a donation dialog (Swiss QR for CHF, EPC QR for EUR,
+ * SWIFT transfer data for USD, predefined amounts and copy fallback), and a
+ * link to the external documentation.
  */
 import { Component, ChangeDetectionStrategy, TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -16,6 +16,7 @@ import { DonationConfigService, DonationCurrency } from 'src/app/application/ser
 
 const MAX_DONATION_AMOUNT = 999999999.99;
 const COPY_FEEDBACK_DURATION_MS = 2000;
+const QR_CURRENCIES: readonly DonationCurrency[] = ['CHF', 'EUR'];
 
 @Component({
   selector: 'app-footer',
@@ -35,6 +36,7 @@ export class FooterComponent {
   readonly donationModal = viewChild.required('donationModal', { read: TemplateRef });
 
   public readonly amountOptions = [5, 10, 25, 50];
+  public readonly bic = DonationQrService.BIC;
   public readonly donationCurrency = signal<DonationCurrency>('CHF');
   public readonly selectedAmount = signal<number>(25);
   public readonly customAmount = signal<string>('');
@@ -93,6 +95,10 @@ export class FooterComponent {
     void this.refreshQr();
   }
 
+  isQrCurrency(): boolean {
+    return QR_CURRENCIES.includes(this.donationCurrency());
+  }
+
   isSelectedAmount(amount: number): boolean {
     return this.customAmount() === '' && this.selectedAmount() === amount;
   }
@@ -114,6 +120,10 @@ export class FooterComponent {
     void this.copyText('IBAN', DonationQrService.IBAN_DISPLAY);
   }
 
+  copyBic(): void {
+    void this.copyText('BIC', DonationQrService.BIC);
+  }
+
   copyAmount(): void {
     void this.copyText(
       'AMOUNT',
@@ -128,6 +138,10 @@ export class FooterComponent {
   private async refreshQr(): Promise<void> {
     const amount = this.effectiveAmount();
     const currency = this.donationCurrency();
+    if (!this.isQrCurrency()) {
+      this.qrDataUrl.set('');
+      return;
+    }
     const payload =
       currency === 'CHF'
         ? this.donationQrService.buildSwissQrPayload(amount, currency)

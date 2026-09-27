@@ -28,7 +28,7 @@ export const environment = {
   // Alle Werte leer/false lassen, um die jeweilige Zahlweise im Spenden-Dialog auszublenden.
   donation: {
     paypalMeBaseUrl: '', // z. B. 'https://paypal.me/deinname'
-    stripePaymentLinks: [] as { currency: 'CHF' | 'EUR'; amount: number; url: string }[],
+    stripePaymentLinks: [] as { currency: 'CHF' | 'EUR' | 'USD'; amount: number; url: string }[],
     stripePublishableKey: '', // öffentlicher Stripe-Key, z. B. 'pk_live_...'
     twintEnabled: false,
     twintLinkUrl: '', // z. B. Payrexx/RaiseNow-Zahlungs-Link

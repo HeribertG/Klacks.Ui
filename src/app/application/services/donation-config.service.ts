@@ -10,7 +10,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
-export type DonationCurrency = 'CHF' | 'EUR';
+export type DonationCurrency = 'CHF' | 'EUR' | 'USD';
 
 export interface DonationStripePaymentLink {
   currency: DonationCurrency;

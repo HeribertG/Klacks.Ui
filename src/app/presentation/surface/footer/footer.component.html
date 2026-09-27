@@ -32,17 +32,26 @@
 
     <div class="donation-currency">
       <button
+        id="donation-currency-chf"
         type="button"
         class="donation-currency-btn"
         [class.active]="donationCurrency() === 'CHF'"
         (click)="selectCurrency('CHF')"
       >CHF – {{ "donation.switzerland" | translate }}</button>
       <button
+        id="donation-currency-eur"
         type="button"
         class="donation-currency-btn"
         [class.active]="donationCurrency() === 'EUR'"
         (click)="selectCurrency('EUR')"
       >EUR – {{ "donation.europe" | translate }}</button>
+      <button
+        id="donation-currency-usd"
+        type="button"
+        class="donation-currency-btn"
+        [class.active]="donationCurrency() === 'USD'"
+        (click)="selectCurrency('USD')"
+      >USD – {{ "donation.international" | translate }}</button>
     </div>
 
     <div class="donation-amounts">
@@ -69,11 +78,15 @@
       />
     </div>
 
-    <div class="donation-qr">
-      @if (qrDataUrl()) {
-        <img [src]="qrDataUrl()" [alt]="'donation.qr-alt' | translate" />
-      }
-    </div>
+    @if (isQrCurrency()) {
+      <div class="donation-qr">
+        @if (qrDataUrl()) {
+          <img [src]="qrDataUrl()" [alt]="'donation.qr-alt' | translate" />
+        }
+      </div>
+    } @else {
+      <p class="donation-usd-hint">{{ "donation.usd-hint" | translate }}</p>
+    }
 
     <div class="form-group donation-iban">
       <label for="donation-iban">{{ "donation.iban-label" | translate }}</label>
@@ -86,10 +99,28 @@
       />
     </div>
 
+    @if (!isQrCurrency()) {
+      <div class="form-group donation-iban">
+        <label for="donation-bic">{{ "donation.bic-label" | translate }}</label>
+        <input
+          id="donation-bic"
+          type="text"
+          class="form-control"
+          [value]="bic"
+          readonly
+        />
+      </div>
+    }
+
     <div class="donation-copy">
       <button type="button" class="donation-copy-btn" (click)="copyIban()">
         {{ copiedKey() === 'IBAN' ? ("donation.copied" | translate) : ("donation.copy-iban" | translate) }}
       </button>
+      @if (!isQrCurrency()) {
+        <button type="button" class="donation-copy-btn" (click)="copyBic()">
+          {{ copiedKey() === 'BIC' ? ("donation.copied" | translate) : ("donation.copy-bic" | translate) }}
+        </button>
+      }
       <button type="button" class="donation-copy-btn" (click)="copyAmount()">
         {{ copiedKey() === 'AMOUNT' ? ("donation.copied" | translate) : ("donation.copy-amount" | translate) }}
       </button>
