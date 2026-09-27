@@ -437,16 +437,16 @@ export class BaseDrawScheduleService {
     );
   }
 
+  /**
+   * The selection overlays are translucent and drawn straight onto the visible canvas, so drawing them
+   * again without first blitting the body back from the render canvas stacks another layer each time
+   * (window focus/blur, context menu, keyboard paging) until the selected row turns opaque. Every entry
+   * point therefore repaints the body first, which makes the overlay idempotent.
+   */
   @CanvasAvailable('queue')
   drawGridSelectedCell() {
-    const showHandle = this.showFillHandle && !this.hasPositionCollection;
-    this.gridRender.drawGridSelectedCell(
-      this.position,
-      this.isFocused,
-      this.firstVisibleRow,
-      this.firstVisibleCol,
-      showHandle
-    );
+    this.renderGrid();
+    this.setSelection();
   }
 
   private addCell(row: number, col: number): void {
@@ -541,8 +541,6 @@ export class BaseDrawScheduleService {
       this.refresh();
     }
 
-    this.drawSelection();
-
     this.drawGridSelectedCell();
   }
 
@@ -591,11 +589,8 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   drawSelection() {
-    this.gridRender.drawSelection(
-      this.cellManipulation.PositionCollection.getAll(),
-      this.firstVisibleRow,
-      this.firstVisibleCol
-    );
+    this.renderGrid();
+    this.setSelection();
   }
 
   createSelection(pos: MyPosition): void {
