@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { vi } from 'vitest';
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
+import { ShiftPlacementService } from './shift-placement.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuItem, AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { BreakCellParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
@@ -86,6 +87,7 @@ describe('ScheduleEntryActionsService', () => {
     TestBed.configureTestingModule({
       providers: [
         ScheduleEntryActionsService,
+        ShiftPlacementService,
         { provide: TranslateService, useValue: { currentLang: 'de' } },
         { provide: DataManagementScheduleService, useValue: dataManagement },
         { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [ABSENCE_ITEM] } },

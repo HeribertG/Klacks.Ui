@@ -29,7 +29,9 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, compareDate, formatDateOnly, getDayIndex } from 'src/app/shared/helpers/date.helper';
 import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
+import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { defaultTimeRangePlacement, resolveTimeRangePlacement } from 'src/app/shared/helpers/time-range-placement.helper';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -638,9 +640,7 @@ export class ScheduleDataService extends BaseDataService {
               clientId: client.id,
               date: date,
               shiftId: matchingShift.shiftId,
-              workTime: matchingShift.workTime,
-              startTime: matchingShift.startShift,
-              endTime: matchingShift.endShift,
+              ...this.bulkWorkTimes(matchingShift, copiedEntry),
             });
           }
         }
@@ -704,9 +704,7 @@ export class ScheduleDataService extends BaseDataService {
             clientId: client.id,
             date: date,
             shiftId: matchingShift.shiftId,
-            workTime: matchingShift.workTime,
-            startTime: matchingShift.startShift,
-            endTime: matchingShift.endShift,
+            ...this.bulkWorkTimes(matchingShift),
           });
         }
       }
@@ -717,52 +715,58 @@ export class ScheduleDataService extends BaseDataService {
     }
   }
 
-  private findShiftByAbbreviationAndDate(
-    abbreviation: string,
-    date: Date,
-  ):
-    | {
-        shiftId: string;
-        workTime: number;
-        startShift: string;
-        endShift: string;
-      }
-    | undefined {
+  private findShiftByAbbreviationAndDate(abbreviation: string, date: Date): IShiftSchedule | undefined {
     const upperAbbr = abbreviation.toUpperCase();
-    const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
+    return this.dataManagementSchedule.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === upperAbbr &&
         isSameCalendarDate(shift.date, date),
     );
-
-    if (matchingShift) {
-      return {
-        shiftId: matchingShift.shiftId,
-        workTime: matchingShift.workTime,
-        startShift: matchingShift.startShift,
-        endShift: matchingShift.endShift,
-      };
-    }
-    return undefined;
   }
 
-  private findShiftByIdAndDate(
-    shiftId: string,
-    date: Date,
-  ): { shiftId: string; workTime: number; startShift: string; endShift: string } | undefined {
-    const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
+  private findShiftByIdAndDate(shiftId: string, date: Date): IShiftSchedule | undefined {
+    return this.dataManagementSchedule.shiftSchedules.find(
       (shift) => shift.shiftId === shiftId && isSameCalendarDate(shift.date, date),
     );
+  }
 
-    if (matchingShift) {
-      return {
-        shiftId: matchingShift.shiftId,
-        workTime: matchingShift.workTime,
-        startShift: matchingShift.startShift,
-        endShift: matchingShift.endShift,
-      };
+  /**
+   * Times for a pasted shift. A fixed shift books its own times. A TimeRange shift never books its window:
+   * a copied work keeps the span it was given, anything else gets the engagement duration at the window
+   * start - a bulk paste cannot ask per cell.
+   * @param shift - The shift schedule row for the target day
+   * @param copiedEntry - The copied cell, when the paste comes from inside the schedule
+   */
+  private bulkWorkTimes(
+    shift: IShiftSchedule,
+    copiedEntry?: IScheduleCell,
+  ): { workTime: number; startTime: string; endTime: string } {
+    if (!shift.isTimeRange) {
+      return { workTime: shift.workTime, startTime: shift.startShift, endTime: shift.endShift };
     }
-    return undefined;
+
+    if (copiedEntry?.startTime && copiedEntry.endTime) {
+      const copiedPlacement = resolveTimeRangePlacement(
+        shift.startShift,
+        shift.endShift,
+        timeToMinutes(copiedEntry.startTime),
+        timeToMinutes(copiedEntry.endTime),
+      );
+      if (copiedPlacement) {
+        return {
+          workTime: copiedPlacement.workTime,
+          startTime: copiedPlacement.startTime,
+          endTime: copiedPlacement.endTime,
+        };
+      }
+    }
+
+    const { workTime, startTime, endTime } = defaultTimeRangePlacement(
+      shift.startShift,
+      shift.endShift,
+      shift.workTime,
+    );
+    return { workTime, startTime, endTime };
   }
 
   private findAbsenceByAbbreviation(

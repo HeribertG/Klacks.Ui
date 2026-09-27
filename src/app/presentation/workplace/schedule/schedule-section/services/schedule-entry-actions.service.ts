@@ -33,6 +33,7 @@ import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/sha
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { ScheduleDataService } from './schedule-data.service';
+import { ShiftPlacementService } from './shift-placement.service';
 
 /** Both bounds equal means no times were recorded; the duration carries the truth instead. */
 const NO_TIMES_RECORDED = '00:00:00';
@@ -52,6 +53,7 @@ export class ScheduleEntryActionsService {
   private dataBreakService = inject(DataBreakService);
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
   private scheduleCommandService = inject(DataManagementScheduleCommandService);
+  private shiftPlacement = inject(ShiftPlacementService);
 
   addWorkFromShiftMenu(
     shiftId: string,
@@ -77,14 +79,7 @@ export class ScheduleEntryActionsService {
 
     if (!shift) return;
 
-    this.dataManagement.addWorkScheduleEntry({
-      clientId: client.id,
-      date: targetDate,
-      shiftId: shift.shiftId,
-      workTime: shift.workTime,
-      startTime: shift.startShift,
-      endTime: shift.endShift,
-    });
+    void this.shiftPlacement.placeShift(shift, client.id, targetDate);
   }
 
   addBreakFromAbsenceMenu(

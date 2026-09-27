@@ -66,6 +66,8 @@ import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replac
 import { WorkEditDialogComponent } from '../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ExpensesDialogComponent } from '../dialogs/expenses-dialog/expenses-dialog.component';
 import { ContainerWorkEditDialogComponent } from '../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
+import { TimeRangeWorkDialogComponent } from '../dialogs/time-range-work-dialog/time-range-work-dialog.component';
+import { ShiftPlacementService } from './services/shift-placement.service';
 import { TravelDialogComponent } from '../dialogs/travel-dialog/travel-dialog.component';
 import { BriefingDialogComponent } from '../dialogs/briefing-dialog/briefing-dialog.component';
 import { ContainerSplitDialogComponent } from '../dialogs/container-split-dialog/container-split-dialog.component';
@@ -118,6 +120,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     TravelDialogComponent,
     BriefingDialogComponent,
     ContainerSplitDialogComponent,
+    TimeRangeWorkDialogComponent,
   ],
   providers: [
     ScrollService,
@@ -137,6 +140,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     ScheduleEntryActionsService,
     ScheduleDialogService,
     ScheduleDragDropService,
+    ShiftPlacementService,
     ScheduleCellDropHandlerService,
     ScheduleMenuDispatcherService,
     ScheduleNavigationService,
@@ -166,6 +170,7 @@ export class ScheduleSectionComponent
   readonly travelDialog = viewChild.required(TravelDialogComponent);
   readonly briefingDialog = viewChild.required(BriefingDialogComponent);
   readonly containerSplitDialog = viewChild.required(ContainerSplitDialogComponent);
+  readonly timeRangeWorkDialog = viewChild.required(TimeRangeWorkDialogComponent);
 
   horizontalSize = input(200);
   zoom = input(1.0);
@@ -202,6 +207,7 @@ export class ScheduleSectionComponent
   private cdr = inject(ChangeDetectorRef);
   private timelineSelection = inject(TimelineSelectionService);
   private appSettings = inject(AppSettingsManagementService);
+  private shiftPlacement = inject(ShiftPlacementService);
 
   public readonly defaultVScrollbarSize = 17;
   public readonly defaultHScrollbarSize = 17;
@@ -230,6 +236,7 @@ export class ScheduleSectionComponent
       tableSurface.drawSchedule.showFillHandle = true;
     }
     this.facade.dialog.setDialogs(this.correctionDialog(), this.replacementDialog(), this.workEditDialog(), this.expensesDialog(), this.containerWorkEditDialog(), this.travelDialog(), this.briefingDialog(), this.containerSplitDialog());
+    this.shiftPlacement.setTimeRangeDialog(this.timeRangeWorkDialog());
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
     this.splitEl().dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {

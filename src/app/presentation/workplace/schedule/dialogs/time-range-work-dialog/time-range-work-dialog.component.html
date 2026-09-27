@@ -1,0 +1,81 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #timeRangeWorkModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "dialog.timeRangeWork.title" | translate }}</div>
+    <span class="filler"></span>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="onCancel()"
+    >
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+      >&times;</span>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    <div class="window-hint">
+      {{
+        "dialog.timeRangeWork.window"
+          | translate
+            : {
+                shift: shiftName,
+                start: windowStartLabel,
+                end: windowEndLabel,
+                hours: workTimeHours
+              }
+      }}
+    </div>
+
+    <div class="form-group time-row">
+      <app-time-input
+        [label]="'dialog.workEdit.startTime' | translate"
+        [value]="startTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="trwStartHours"
+        minutesId="trwStartMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.workEdit.endTime' | translate"
+        [value]="endTime"
+        [disabled]="true"
+        [forDuration]="false"
+        hoursId="trwEndHours"
+        minutesId="trwEndMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.workEdit.duration' | translate"
+        [value]="duration"
+        (valueChange)="onTimeChange()"
+        [forDuration]="true"
+        hoursId="trwDurationHours"
+        minutesId="trwDurationMinutes"
+      ></app-time-input>
+    </div>
+
+    @if (errorKey) {
+      <div class="error-message">{{ errorKey | translate }}</div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="cancel-btn" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </button>
+    <button
+      type="button"
+      class="save-btn"
+      (click)="onSave()"
+      [disabled]="!isValid()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

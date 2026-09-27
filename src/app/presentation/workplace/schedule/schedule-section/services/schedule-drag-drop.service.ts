@@ -33,6 +33,7 @@ import { ShiftDropResult } from '../../services/shift-to-schedule-drag-drop.serv
 import { CellValueChangeEvent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
+import { ShiftPlacementService } from './shift-placement.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
@@ -65,6 +66,7 @@ export class ScheduleDragDropService {
   private absenceLookup = inject(AbsenceLookupService);
   private appSettingsManagement = inject(AppSettingsManagementService);
   private entryActions = inject(ScheduleEntryActionsService);
+  private shiftPlacement = inject(ShiftPlacementService);
   private translateService = inject(TranslateService);
   private scrollService = inject(ScrollService);
   private settings = inject(BaseSettingsService);
@@ -128,6 +130,14 @@ export class ScheduleDragDropService {
   }
 
   handleShiftDrop(result: ShiftDropResult): void {
+    const shift = this.dataManagement.shiftSchedules.find(
+      (s) => s.shiftId === result.shiftId && isSameCalendarDate(s.date, result.targetDate),
+    );
+    if (shift) {
+      void this.shiftPlacement.placeShift(shift, result.targetClientId, result.targetDate);
+      return;
+    }
+
     this.dataManagement.addWorkScheduleEntry({
       clientId: result.targetClientId,
       date: result.targetDate,
@@ -222,14 +232,7 @@ export class ScheduleDragDropService {
     if (!matchingShift) {
       return false;
     }
-    this.dataManagement.addWorkScheduleEntry({
-      clientId: ctx.clientId,
-      date: ctx.date,
-      shiftId: matchingShift.shiftId,
-      workTime: matchingShift.workTime,
-      startTime: matchingShift.startShift,
-      endTime: matchingShift.endShift,
-    });
+    void this.shiftPlacement.placeShift(matchingShift, ctx.clientId, ctx.date);
     return true;
   }
 
