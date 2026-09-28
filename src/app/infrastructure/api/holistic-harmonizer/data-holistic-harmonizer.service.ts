@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
  * Infrastructure service for Holistic Harmonizer (Wizard 3, LLM-driven schedule harmonizer).

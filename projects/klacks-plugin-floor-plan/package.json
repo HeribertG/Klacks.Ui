@@ -1,6 +1,7 @@
 {
   "name": "klacks-plugin-floor-plan",
   "version": "0.0.1",
+  "license": "AGPL-3.0-only",
   "peerDependencies": {
     "@angular/common": "^21.2.0",
     "@angular/core": "^21.2.0",

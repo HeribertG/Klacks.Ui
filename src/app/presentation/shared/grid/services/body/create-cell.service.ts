@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable } from '@angular/core';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';

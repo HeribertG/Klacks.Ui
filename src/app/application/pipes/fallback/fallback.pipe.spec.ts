@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { FallbackPipe } from './fallback.pipe';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';

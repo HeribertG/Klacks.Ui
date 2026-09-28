@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { isDevBuild, parseBuildInfo, toDisplayVersion } from './build-info.helper';
 import { DEV_BUILD_KEY, DEV_BUILD_VERSION } from 'src/app/domain/constants/build-info.constants';

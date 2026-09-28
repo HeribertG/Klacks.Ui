@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 export const SCHEDULING_CONSTANTS = {
   SUCCESS_COVERAGE_THRESHOLD: 0.8,

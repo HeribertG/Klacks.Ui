@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';

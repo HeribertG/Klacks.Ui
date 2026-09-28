@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 export const FOOTER_TO_COLUMN_MAP: Record<string, string> = {
   'sum.hours': 'entry.hours',

@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Directive, ElementRef, HostListener, inject, OnDestroy } from '@angular/core';
 import { AvailabilitySettingService } from '../services/availability-setting.service';

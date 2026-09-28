@@ -1,8 +1,7 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
  * @copyright 2025 Heribert Gasparoli
- * @license Proprietary
  *
  * @description
  * Service synchronizing horizontal scroll position between ScheduleSection

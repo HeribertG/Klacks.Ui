@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 export { RenderAvailabilityGridService } from './render-availability-grid.service';
 export { AvailabilityCalculationService } from './availability-calculation.service';

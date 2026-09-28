@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID, APP_INITIALIZER, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';

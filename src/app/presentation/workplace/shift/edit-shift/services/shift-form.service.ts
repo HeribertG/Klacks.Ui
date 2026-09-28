@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject, signal, effect } from '@angular/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';

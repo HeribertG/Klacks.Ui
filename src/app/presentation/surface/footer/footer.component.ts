@@ -1,10 +1,10 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
  * Footer component displaying legal links (imprint, privacy policy),
  * a donation link opening a donation dialog (Swiss QR for CHF, EPC QR for EUR,
- * SWIFT transfer data for USD, predefined amounts and copy fallback), and a
- * link to the external documentation.
+ * SWIFT transfer data for USD, predefined amounts and copy fallback), a
+ * link to the external documentation and the AGPL-3.0 source code link.
  */
 import { Component, ChangeDetectionStrategy, TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -13,6 +13,9 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DonationQrService } from 'src/app/application/services/donation-qr.service';
 import { DonationCheckoutService } from 'src/app/application/services/donation-checkout.service';
 import { DonationConfigService, DonationCurrency } from 'src/app/application/services/donation-config.service';
+import { SOURCE_CODE_API_REPOSITORY_URL } from 'src/app/domain/constants/source-code.constants';
+import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
+import { toSourceCodeUrl } from 'src/app/domain/helpers/source-code-url.helper';
 
 const MAX_DONATION_AMOUNT = 999999999.99;
 const COPY_FEEDBACK_DURATION_MS = 2000;
@@ -37,6 +40,7 @@ export class FooterComponent {
 
   public readonly amountOptions = [5, 10, 25, 50];
   public readonly bic = DonationQrService.BIC;
+  public readonly sourceCodeUrl = toSourceCodeUrl(SOURCE_CODE_API_REPOSITORY_URL, inject(BUILD_INFO));
   public readonly donationCurrency = signal<DonationCurrency>('CHF');
   public readonly selectedAmount = signal<number>(25);
   public readonly customAmount = signal<string>('');

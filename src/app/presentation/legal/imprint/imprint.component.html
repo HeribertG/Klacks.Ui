@@ -2,6 +2,25 @@
   <div class="legal-container">
     <h1>{{ "legal.imprint.title" | translate }}</h1>
     <div class="legal-content" [innerHTML]="'legal.imprint.content' | translate"></div>
+    <section class="legal-content" id="imprint-license">
+      <h2>{{ "legal.license.title" | translate }}</h2>
+      <p>{{ "legal.license.text" | translate }}</p>
+      <ul>
+        <li>
+          {{ "legal.license.server" | translate }}
+          <a id="imprint-source-code-api-link" [href]="apiRepositoryUrl" target="_blank" rel="noopener noreferrer">{{ apiRepositoryUrl }}</a>
+        </li>
+        <li>
+          {{ "legal.license.web-client" | translate }}
+          <a id="imprint-source-code-ui-link" [href]="uiRepositoryUrl" target="_blank" rel="noopener noreferrer">{{ uiRepositoryUrl }}</a>
+        </li>
+      </ul>
+      <p>
+        <a id="imprint-license-link" [href]="licenseUrl" target="_blank" rel="noopener noreferrer">{{
+          "legal.license.full-text" | translate
+        }}</a>
+      </p>
+    </section>
     <div class="legal-back">
       <app-legal-back-button></app-legal-back-button>
     </div>

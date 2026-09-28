@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { providePluginHost } from './provide-plugin-host';
 import { PLUGIN_ASSISTANT_LAUNCHER } from 'klacks-plugin-contracts';

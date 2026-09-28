@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';

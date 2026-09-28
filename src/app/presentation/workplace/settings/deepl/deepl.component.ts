@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, effect } from '@angular/core';
 import { form } from '@angular/forms/signals';

@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { IGroup, IGroupVisibility } from 'src/app/domain/models/group/group-class';

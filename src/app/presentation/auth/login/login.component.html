@@ -146,6 +146,13 @@
       <a [routerLink]="['/imprint']">{{ "legal.imprint-link" | translate }}</a>
       <span class="legal-separator">|</span>
       <a [routerLink]="['/privacy']">{{ "legal.privacy-link" | translate }}</a>
+      <span class="legal-separator">|</span>
+      <a
+        id="login-source-code-link"
+        [href]="sourceCodeUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+      >{{ "legal.source-code-link" | translate }}</a>
     </div>
   </div>
   }
