@@ -23,6 +23,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
 import { WIZARD_LIMITS } from 'src/app/infrastructure/api/wizard/wizard-limits.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';
+import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
@@ -64,6 +66,7 @@ export class WizardDialogComponent {
   private readonly ngbModal = inject(NgbModal);
   readonly wizardService = inject(DataWizardService);
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
+  private readonly scheduleLoadCompletion = inject(ScheduleLoadCompletionService);
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly translate = inject(TranslateService);
   private readonly localStorageService = inject(LocalStorageService);
@@ -73,6 +76,7 @@ export class WizardDialogComponent {
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
+  private readonly _waitingForData = signal(false);
   private readonly _applyError = signal<string | null>(null);
   readonly applyError = this._applyError.asReadonly();
 
@@ -85,6 +89,7 @@ export class WizardDialogComponent {
   readonly overrideBlockRequested = signal(false);
 
   private startPromise: Promise<string> | null = null;
+  private startAttempt = 0;
 
   readonly appliedCount = signal(0);
 
@@ -99,6 +104,7 @@ export class WizardDialogComponent {
   readonly phase = computed<WizardPhase>(() => {
     const ap = this._applyPhase();
     if (ap !== null) return ap;
+    if (this._waitingForData()) return 'running';
     if (this._localError() !== null) return 'error';
     switch (this.wizardService.status()) {
       case 'running':   return 'running';
@@ -244,6 +250,19 @@ export class WizardDialogComponent {
     });
     this.modalRef.dismissed.pipe(take(1)).subscribe(() => this.cancelIfRunning());
 
+    void this.startWhenLoaded();
+  }
+
+  private async startWhenLoaded(): Promise<void> {
+    const attempt = ++this.startAttempt;
+    this._waitingForData.set(true);
+    const outcome = await this.scheduleLoadCompletion.awaitFullyLoaded();
+    if (attempt !== this.startAttempt) return;
+    this._waitingForData.set(false);
+    if (outcome !== SCHEDULE_LOAD_OUTCOME.Complete) {
+      this._localError.set(this.translate.instant('wizard.dialog.error.dataIncomplete'));
+      return;
+    }
     const request = this.buildRequest();
     if (!request) {
       if (this._localError() === null) {
@@ -291,15 +310,14 @@ export class WizardDialogComponent {
     this._complianceViolations.set([]);
     this._overrideApplied.set(false);
     this.overrideBlockRequested.set(false);
-    await this.wizardService.stopConnection();
-    const request = this.buildRequest();
-    if (!request) {
-      if (this._localError() === null) {
-        this._localError.set(this.translate.instant('wizard.dialog.error.noData'));
-      }
-      return;
+    this._waitingForData.set(true);
+    try {
+      await this.wizardService.stopConnection();
+    } catch (err: unknown) {
+      this._waitingForData.set(false);
+      throw err;
     }
-    this.startRun(request);
+    await this.startWhenLoaded();
   }
 
   private loadAuctionRatio(): number {
@@ -340,6 +358,7 @@ export class WizardDialogComponent {
   }
 
   private async runApply(jobId: string, override: boolean): Promise<void> {
+    if (this._waitingForData()) return;
     this._applyError.set(null);
     this._applyPhase.set('applying');
     try {
@@ -387,6 +406,8 @@ export class WizardDialogComponent {
   }
 
   private cancelIfRunning(): void {
+    this.startAttempt++;
+    this._waitingForData.set(false);
     if (this.wizardService.status() === 'running') {
       const jobId = this.wizardService.currentJobId();
       if (jobId) {

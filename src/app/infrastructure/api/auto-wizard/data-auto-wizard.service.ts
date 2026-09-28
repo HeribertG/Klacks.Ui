@@ -117,6 +117,57 @@ export class DataAutoWizardService implements OnDestroy {
     }
   }
 
+  /**
+   * Re-attaches to a job started before a page reload. A running job is rejoined on the hub; a job
+   * that already ended surfaces through status/result/failureReason like a live event would.
+   * Returns false when the server no longer knows the job or the status could not be read.
+   */
+  async resume(jobId: string): Promise<boolean> {
+    let state: AutoWizardJobStatusResponse;
+    try {
+      state = await firstValueFrom(
+        this.http.get<AutoWizardJobStatusResponse>(`${this.apiBase}/Status/${jobId}`),
+      );
+    } catch {
+      return false;
+    }
+
+    switch (state.status) {
+      case 'running':
+        this.resetState();
+        this.currentJobId.set(jobId);
+        this.status.set('running');
+        try {
+          await this.ensureConnected();
+          await this.joinJobGroup(jobId);
+        } catch (error) {
+          this.failureReason.set(this.normaliseReason(this.extractMessage(error)));
+          this.status.set('failed');
+          return true;
+        }
+        await this.reconcileJobState(jobId);
+        return true;
+      case 'completed':
+        if (!state.result) {
+          return false;
+        }
+        this.resetState();
+        this.currentJobId.set(jobId);
+        this.result.set(state.result);
+        this.status.set('completed');
+        return true;
+      case 'cancelled':
+      case 'failed':
+        this.resetState();
+        this.currentJobId.set(jobId);
+        this.failureReason.set(this.normaliseReason(state.reason));
+        this.status.set('failed');
+        return true;
+      default:
+        return false;
+    }
+  }
+
   async cancel(jobId: string): Promise<boolean> {
     const response = await firstValueFrom(
       this.http.post<AutoWizardCancelResponse>(`${this.apiBase}/Cancel`, { jobId }),
@@ -124,14 +175,20 @@ export class DataAutoWizardService implements OnDestroy {
     return response.cancelled;
   }
 
+  /**
+   * Leaves the job group, closes the hub and stops tracking the job, so a following session in the
+   * same tab (e.g. another user after logout) starts idle. Idempotent.
+   */
   async stopConnection(): Promise<void> {
     const connection = this.hubConnection;
+    const jobId = this.currentJobId();
+    this.resetState();
+    this.status.set('idle');
     if (!connection) {
       return;
     }
     this.hubConnection = null;
 
-    const jobId = this.currentJobId();
     if (jobId) {
       try {
         await connection.send(AutoWizardSignalRConstants.HubMethods.LeaveJob, jobId);

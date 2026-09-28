@@ -27,6 +27,8 @@ import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/dat
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
+import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
+import { AutoWizardJobTrackerService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-job-tracker.service';
 
 /**
  * Realtime hub services whose authenticated push channel must be torn down on logout
@@ -42,6 +44,7 @@ const REALTIME_CONNECTION_SERVICES: ProviderToken<{
   EmailSignalRService,
   DataHarmonizerService,
   DataHolisticHarmonizerService,
+  DataAutoWizardService,
 ];
 
 @Injectable({
@@ -127,8 +130,8 @@ export class AuthService {
 
   /**
    * Tears down all authenticated realtime hub connections and clears session-scoped state that
-   * outlives token removal (the recoverable form draft, the loaded company clock and the
-   * container-lock instance id).
+   * outlives token removal (the recoverable form draft, the loaded company clock, the
+   * container-lock instance id and the AutoWizard run and its unopened results).
    * Every step is best-effort and isolated so a single failure never blocks logout. Services are
    * resolved lazily through the Injector to avoid a construction-time DI cycle.
    */
@@ -155,8 +158,16 @@ export class AuthService {
 
     try {
       sessionStorage.removeItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID);
+      sessionStorage.removeItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB);
+      sessionStorage.removeItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO);
     } catch {
       // sessionStorage unavailable - ignore.
+    }
+
+    try {
+      this.injector.get(AutoWizardJobTrackerService).reset();
+    } catch {
+      // AutoWizard tracker not resolvable - ignore.
     }
   }
 

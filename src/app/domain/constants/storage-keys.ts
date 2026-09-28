@@ -19,4 +19,6 @@ export class StorageKeys {
   public static readonly SETUP_CONSULTATION_OFFERED = 'klacks.setupConsultation.offeredSession';
   public static readonly PLUGIN_ASSISTANT_OFFERED_PREFIX = 'klacks.pluginAssistantOffer.offeredSession.';
   public static readonly COMPANY_CLOCK_UTC_WARNING_DISMISSED = 'klacks.companyClock.utcWarningDismissedSession';
+  public static readonly AUTO_WIZARD_ACTIVE_JOB = 'klacks.autoWizard.activeJobSession';
+  public static readonly AUTO_WIZARD_PENDING_SCENARIO = 'klacks.autoWizard.pendingScenarioSession';
 }

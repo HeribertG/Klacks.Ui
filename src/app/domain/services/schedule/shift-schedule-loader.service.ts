@@ -92,6 +92,18 @@ export class ShiftScheduleLoaderService {
     return this.uniqueShiftCount() < this._totalAvailableShifts;
   }
 
+  get isInitialPending(): boolean {
+    return this.chunkLoader.isInitialPending();
+  }
+
+  get isInitialFailed(): boolean {
+    return this.chunkLoader.isInitialFailed();
+  }
+
+  get isAutoLoadEnabled(): boolean {
+    return this.chunkLoader.isAutoLoadEnabled;
+  }
+
   get shiftLoadingProgress(): number {
     if (this._totalAvailableShifts === 0) return 0;
     return Math.round((this.uniqueShiftCount() / this._totalAvailableShifts) * 100);

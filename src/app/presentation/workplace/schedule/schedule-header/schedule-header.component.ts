@@ -181,6 +181,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private readonly wizardDropdownMode = signal(false);
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
   readonly isAutoWizardRunning = this.autoWizardOrchestrator.isRunning;
+  readonly isAutoWizardRunningForCurrentGroup = this.autoWizardOrchestrator.isRunningForCurrentGroup;
+  readonly autoWizardRunningElsewhereGroupName = this.autoWizardOrchestrator.runningElsewhereGroupName;
 
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
 

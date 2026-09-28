@@ -87,3 +87,103 @@ describe('DataManagementScheduleService default period', () => {
     expect(service.workFilter.currentMonth).toBe(3);
   });
 });
+
+describe('DataManagementScheduleService load completion', () => {
+  interface LoaderStub {
+    isInitialPending: boolean;
+    isInitialFailed: boolean;
+    isLoadingMore: boolean;
+    isAutoLoadEnabled: boolean;
+    hasMoreClients?: boolean;
+    hasMoreShifts?: boolean;
+  }
+
+  let workLoader: LoaderStub;
+  let shiftLoader: LoaderStub;
+  let service: DataManagementScheduleService;
+
+  function idleLoader(): LoaderStub {
+    return { isInitialPending: false, isInitialFailed: false, isLoadingMore: false, isAutoLoadEnabled: false };
+  }
+
+  beforeEach(() => {
+    workLoader = { ...idleLoader(), hasMoreClients: false };
+    shiftLoader = { ...idleLoader(), hasMoreShifts: false, isRead: signal(0) } as LoaderStub;
+    TestBed.configureTestingModule({
+      providers: [
+        DataManagementScheduleService,
+        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: { register: vi.fn() } },
+        { provide: BreakPlaceholderScheduleLoaderService, useValue: { isLoaded: signal(false) } },
+        { provide: ShiftScheduleLoaderService, useValue: shiftLoader },
+        { provide: WorkScheduleLoaderService, useValue: workLoader },
+        { provide: DataManagementWorkService, useValue: {} },
+        { provide: AvailableShiftsCalculatorService, useValue: {} },
+        {
+          provide: ScheduleEntryCrudService,
+          useValue: { scheduleRefreshed: signal(false), shiftScheduleRefreshed: signal(false) },
+        },
+        { provide: AnalyseScenarioService, useValue: { activeToken: signal(null) } },
+        { provide: ClientSortPreferenceService, useValue: {} },
+        { provide: AssistantPageContextService, useValue: {} },
+      ],
+    });
+    service = TestBed.inject(DataManagementScheduleService);
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('is fully loaded when both loaders are idle with nothing left', () => {
+    // Assert
+    expect(service.isScheduleFullyLoaded).toBe(true);
+    expect(service.isScheduleLoadStalled).toBe(false);
+  });
+
+  it('is not fully loaded while a debounced read is still waiting to start', () => {
+    // Act
+    service.readDatas(false);
+
+    // Assert
+    expect(service.isScheduleFullyLoaded).toBe(false);
+    expect(service.isScheduleLoadStalled).toBe(false);
+  });
+
+  it('is not fully loaded while the initial employee response is pending', () => {
+    // Arrange
+    workLoader.isInitialPending = true;
+
+    // Assert
+    expect(service.isScheduleFullyLoaded).toBe(false);
+    expect(service.isScheduleLoadStalled).toBe(false);
+  });
+
+  it('is not fully loaded while shift chunks remain to be loaded', () => {
+    // Arrange
+    shiftLoader.hasMoreShifts = true;
+    shiftLoader.isAutoLoadEnabled = true;
+
+    // Assert
+    expect(service.isScheduleFullyLoaded).toBe(false);
+    expect(service.isScheduleLoadStalled).toBe(false);
+  });
+
+  it('reports a stall when auto-loading stopped with employees still missing', () => {
+    // Arrange
+    workLoader.hasMoreClients = true;
+    workLoader.isAutoLoadEnabled = false;
+
+    // Assert
+    expect(service.isScheduleFullyLoaded).toBe(false);
+    expect(service.isScheduleLoadStalled).toBe(true);
+  });
+
+  it('reports a stall when the initial shift request failed even though stale data looks complete', () => {
+    // Arrange
+    shiftLoader.isInitialFailed = true;
+
+    // Assert
+    expect(service.isScheduleFullyLoaded).toBe(false);
+    expect(service.isScheduleLoadStalled).toBe(true);
+  });
+});

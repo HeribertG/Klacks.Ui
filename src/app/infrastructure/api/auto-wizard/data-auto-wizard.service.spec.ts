@@ -267,5 +267,77 @@ describe('DataAutoWizardService', () => {
     expect(service.status()).toBe('running');
     expect(service.failureReason()).toBeNull();
   });
+  it('stopping the connection ends tracking the job so a following session starts idle', async () => {
+    const connection = await startJob();
+
+    await service.stopConnection();
+
+    expect(connection.sendCalls).toContainEqual({ method: 'LeaveJob', args: ['job-1'] });
+    expect(service.status()).toBe('idle');
+    expect(service.currentJobId()).toBeNull();
+    expect(service.result()).toBeNull();
+  });
+
+  describe('resume', () => {
+    async function resumeWith(status: object): Promise<boolean> {
+      const promise = service.resume('job-9');
+      await tick();
+      httpMock.expectOne((req) => req.url.endsWith('AutoWizard/Status/job-9')).flush(status);
+      await tick();
+      return promise;
+    }
+
+    it('rejoins a job the server still runs and stays running', async () => {
+      const promise = service.resume('job-9');
+      await tick();
+      httpMock.expectOne((req) => req.url.endsWith('AutoWizard/Status/job-9'))
+        .flush({ status: 'running', result: null, reason: null });
+      await tick();
+      httpMock.expectOne((req) => req.url.endsWith('AutoWizard/Status/job-9'))
+        .flush({ status: 'running', result: null, reason: null });
+
+      const tracked = await promise;
+
+      expect(tracked).toBe(true);
+      expect(service.status()).toBe('running');
+      expect(service.currentJobId()).toBe('job-9');
+      expect(connections[connections.length - 1].sendCalls).toContainEqual({ method: 'JoinJob', args: ['job-9'] });
+    });
+
+    it('reports a job that finished while the page was gone as completed', async () => {
+      const tracked = await resumeWith({ status: 'completed', result: makeResult('job-9'), reason: null });
+
+      expect(tracked).toBe(true);
+      expect(service.status()).toBe('completed');
+      expect(service.result()?.finalScenarioId).toBe('scenario-1');
+      expect(connections).toHaveLength(0);
+    });
+
+    it('reports a failed job with the server reason', async () => {
+      const tracked = await resumeWith({ status: 'failed', result: null, reason: 'model unreachable' });
+
+      expect(tracked).toBe(true);
+      expect(service.status()).toBe('failed');
+      expect(service.failureReason()).toBe('model unreachable');
+    });
+
+    it('does not track a job the server no longer knows', async () => {
+      const tracked = await resumeWith({ status: 'unknown', result: null, reason: null });
+
+      expect(tracked).toBe(false);
+      expect(service.status()).toBe('idle');
+      expect(service.currentJobId()).toBeNull();
+    });
+
+    it('does not track the job when the status request fails', async () => {
+      const promise = service.resume('job-9');
+      await tick();
+      httpMock.expectOne((req) => req.url.endsWith('AutoWizard/Status/job-9'))
+        .flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(await promise).toBe(false);
+      expect(service.status()).toBe('idle');
+    });
+  });
 });
 

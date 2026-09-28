@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { WizardDialogComponent } from './wizard-dialog.component';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
@@ -13,6 +14,8 @@ import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-cl
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';
+import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
 
 function createWizardServiceMock() {
   return {
@@ -55,6 +58,7 @@ function createScheduleMock() {
 
 describe('WizardDialogComponent', () => {
   let component: WizardDialogComponent;
+  let fixture: ComponentFixture<WizardDialogComponent>;
   let wizardServiceMock: ReturnType<typeof createWizardServiceMock>;
   let scheduleMock: ReturnType<typeof createScheduleMock>;
   let analyseScenarioServiceMock: { isScenarioMode: ReturnType<typeof vi.fn> };
@@ -85,6 +89,7 @@ describe('WizardDialogComponent', () => {
           },
         },
         { provide: AuthorizationService, useValue: authorizationServiceMock },
+        { provide: ScheduleLoadCompletionService, useValue: { awaitFullyLoaded: vi.fn().mockResolvedValue(SCHEDULE_LOAD_OUTCOME.Complete) } },
         {
           provide: NgbModal,
           useValue: {
@@ -97,7 +102,7 @@ describe('WizardDialogComponent', () => {
       ],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(WizardDialogComponent);
+    fixture = TestBed.createComponent(WizardDialogComponent);
     component = fixture.componentInstance;
   });
 
@@ -300,5 +305,87 @@ describe('WizardDialogComponent', () => {
     await component.onApply();
 
     expect(component.canRetryWithOverride()).toBe(false);
+  });
+
+  describe('start waits for the schedule to finish loading', () => {
+    let resolveLoad: (outcome: string) => void;
+
+    beforeEach(() => {
+      Object.assign(scheduleMock, {
+        periodStartDate: new Date(2026, 3, 1),
+        periodEndDate: new Date(2026, 3, 30),
+        clients: [{ id: 'agent-1' }] as IClientWork[],
+        shiftSchedules: [{ shiftId: 'shift-1' }] as IShiftSchedule[],
+      });
+      vi.mocked(TestBed.inject(NgbModal).open).mockReturnValue({
+        dismissed: new Subject<unknown>(),
+        close: vi.fn(),
+      } as unknown as NgbModalRef);
+      const completion = TestBed.inject(ScheduleLoadCompletionService);
+      vi.mocked(completion.awaitFullyLoaded).mockImplementation(
+        () => new Promise((resolve) => { resolveLoad = resolve as (outcome: string) => void; }),
+      );
+      fixture.detectChanges();
+    });
+
+    it('starts the run only after loading completed', async () => {
+      // Arrange
+      component.open();
+      const startedBeforeLoad = wizardServiceMock.start.mock.calls.length;
+
+      // Act
+      resolveLoad(SCHEDULE_LOAD_OUTCOME.Complete);
+      await vi.waitFor(() => expect(wizardServiceMock.start).toHaveBeenCalled());
+
+      // Assert
+      expect(startedBeforeLoad).toBe(0);
+    });
+
+    it('does not start and shows an error when loading stalled', async () => {
+      // Arrange
+      component.open();
+
+      // Act
+      resolveLoad(SCHEDULE_LOAD_OUTCOME.Stalled);
+      await vi.waitFor(() => expect(component.errorMessage()).toBe('wizard.dialog.error.dataIncomplete'));
+
+      // Assert
+      expect(wizardServiceMock.start).not.toHaveBeenCalled();
+    });
+
+    it('hides the previous result and blocks apply while a retry waits for the data', async () => {
+      // Arrange
+      wizardServiceMock.status.set('completed');
+      wizardServiceMock.currentJobId.set('job-old');
+
+      // Act
+      const retry = component.onRetryRun();
+      const phaseBeforeStop = component.phase();
+      await vi.waitFor(() => expect(wizardServiceMock.stopConnection).toHaveBeenCalled());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const phaseWhileWaiting = component.phase();
+      await component.onApply();
+      resolveLoad(SCHEDULE_LOAD_OUTCOME.Stalled);
+      await retry;
+
+      // Assert
+      expect(phaseBeforeStop).toBe('running');
+      expect(phaseWhileWaiting).toBe('running');
+      expect(wizardServiceMock.apply).not.toHaveBeenCalled();
+      expect(wizardServiceMock.applyAsScenario).not.toHaveBeenCalled();
+    });
+
+    it('does not start when the dialog was cancelled while waiting', async () => {
+      // Arrange
+      component.open();
+      component.onCancel();
+
+      // Act
+      resolveLoad(SCHEDULE_LOAD_OUTCOME.Complete);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Assert
+      expect(wizardServiceMock.start).not.toHaveBeenCalled();
+    });
   });
 });

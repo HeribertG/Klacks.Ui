@@ -54,6 +54,8 @@ export class WorkScheduleLoaderService {
 
   private _isLoadingMore = signal(false);
   private _isRead = signal(0);
+  private _initialPending = signal(false);
+  private _initialFailed = signal(false);
   private _currentLoadId = 0;
   private _loadMoreSubscription: Subscription | null = null;
 
@@ -126,6 +128,7 @@ export class WorkScheduleLoaderService {
                 return EMPTY;
               }
               console.error('Error loading work schedule:', err);
+              this.markInitialFailed();
               this._pendingOnLoaded?.();
               return EMPTY;
             }),
@@ -145,6 +148,7 @@ export class WorkScheduleLoaderService {
         );
         this.mergeClientAvailabilities(response.clientAvailabilities);
         this._totalAvailableClients = response.totalClientCount;
+        this._initialPending.set(false);
         this.startDate = parseCalendarDate(response.startDate);
         this.endDate = parseCalendarDate(response.endDate);
         this.updateClientNeededRows();
@@ -169,9 +173,15 @@ export class WorkScheduleLoaderService {
       },
         error: (err) => {
           console.error('Critical error in work schedule pipeline:', err);
+          this.markInitialFailed();
           this._pendingOnLoaded?.();
         },
       });
+  }
+
+  private markInitialFailed(): void {
+    this._initialPending.set(false);
+    this._initialFailed.set(true);
   }
 
   private subscribeToSignalREvents(): void {
@@ -244,6 +254,18 @@ export class WorkScheduleLoaderService {
 
   get hasMoreClients(): boolean {
     return this.clients.length < this._totalAvailableClients;
+  }
+
+  get isInitialPending(): boolean {
+    return this._initialPending();
+  }
+
+  get isInitialFailed(): boolean {
+    return this._initialFailed();
+  }
+
+  get isAutoLoadEnabled(): boolean {
+    return this._autoLoadEnabled;
   }
 
   get clientLoadingProgress(): number {
@@ -325,6 +347,8 @@ export class WorkScheduleLoaderService {
       analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
 
+    this._initialFailed.set(false);
+    this._initialPending.set(true);
     this.loadTrigger$.next(this._currentFilter);
   }
 

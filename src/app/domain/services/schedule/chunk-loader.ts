@@ -20,6 +20,8 @@
  * @param hasMore - Returns true while more chunks should be fetched
  * @param nextChunkFilter - Builds the filter for the next auto-load chunk
  * @param destroyRef - DestroyRef of the hosting service for subscription teardown
+ * @param isInitialPending - True from load() until the initial response or an unhandled initial error
+ * @param isInitialFailed - True when the initial request of the current load failed without recovery
  */
 import {
   DestroyRef,
@@ -72,6 +74,12 @@ export class ChunkLoader<TFilter extends ChunkLoaderFilter, TResponse> {
 
   public readonly isLoadingMore: WritableSignal<boolean> = signal(false);
   public readonly isRead: WritableSignal<number> = signal(0);
+  public readonly isInitialPending: WritableSignal<boolean> = signal(false);
+  public readonly isInitialFailed: WritableSignal<boolean> = signal(false);
+
+  get isAutoLoadEnabled(): boolean {
+    return this.autoLoadEnabled;
+  }
 
   constructor(private readonly config: ChunkLoaderConfig<TFilter, TResponse>) {
     this.currentChunkSize = config.initialChunkSize ?? DEFAULT_INITIAL_CHUNK_SIZE;
@@ -85,10 +93,14 @@ export class ChunkLoader<TFilter extends ChunkLoaderFilter, TResponse> {
     this.currentChunkSize = this.config.initialChunkSize ?? DEFAULT_INITIAL_CHUNK_SIZE;
     this.isLoadingMore.set(false);
     this.pendingOnLoaded = onLoaded;
+    this.isInitialFailed.set(false);
+    this.isInitialPending.set(true);
     this.loadTrigger$.next(initialFilter);
   }
 
   retryInitial(filter: TFilter): void {
+    this.isInitialFailed.set(false);
+    this.isInitialPending.set(true);
     this.loadTrigger$.next(filter);
   }
 
@@ -104,6 +116,7 @@ export class ChunkLoader<TFilter extends ChunkLoaderFilter, TResponse> {
             catchError((err) => {
               const handled = this.config.onInitialError?.(err) ?? false;
               if (!handled) {
+                this.markInitialFailed();
                 console.error('Error loading initial chunk:', err);
                 this.firePendingOnLoaded();
               }
@@ -115,6 +128,7 @@ export class ChunkLoader<TFilter extends ChunkLoaderFilter, TResponse> {
       )
       .subscribe({
         next: (response) => {
+          this.isInitialPending.set(false);
           this.config.onInitialResponse(response);
           this.isRead.update((v) => v + 1);
           this.firePendingOnLoaded();
@@ -128,6 +142,7 @@ export class ChunkLoader<TFilter extends ChunkLoaderFilter, TResponse> {
           }
         },
         error: (err) => {
+          this.markInitialFailed();
           console.error('Critical error in chunk load pipeline:', err);
           this.firePendingOnLoaded();
         },
@@ -184,6 +199,11 @@ export class ChunkLoader<TFilter extends ChunkLoaderFilter, TResponse> {
           this.autoLoadEnabled = false;
         },
       });
+  }
+
+  private markInitialFailed(): void {
+    this.isInitialPending.set(false);
+    this.isInitialFailed.set(true);
   }
 
   private firePendingOnLoaded(): void {

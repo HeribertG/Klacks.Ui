@@ -16,6 +16,8 @@ import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signal
 import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
+import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
+import { AutoWizardJobTrackerService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-job-tracker.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 
 describe('AuthService', () => {
@@ -311,11 +313,15 @@ describe('AuthService logout session cleanup', () => {
     const signalRMock = { stopConnection: vi.fn().mockResolvedValue(undefined) };
     const draftRecoveryMock = { clear: vi.fn().mockResolvedValue(true) };
     const companyClockMock = { loadIfAuthenticated: vi.fn().mockResolvedValue(undefined), reset: vi.fn() };
+    const autoWizardMock = { stopConnection: vi.fn().mockResolvedValue(undefined) };
+    const autoWizardTrackerMock = { reset: vi.fn() };
 
     beforeEach(() => {
         signalRMock.stopConnection.mockClear();
         draftRecoveryMock.clear.mockClear();
         companyClockMock.reset.mockClear();
+        autoWizardMock.stopConnection.mockClear();
+        autoWizardTrackerMock.reset.mockClear();
         TestBed.configureTestingModule({
             imports: [RouterTestingModule],
             providers: [
@@ -330,6 +336,8 @@ describe('AuthService logout session cleanup', () => {
                 { provide: DataHolisticHarmonizerService, useValue: { stopConnection: vi.fn().mockResolvedValue(undefined) } },
                 { provide: DraftRecoveryService, useValue: draftRecoveryMock },
                 { provide: CompanyClockService, useValue: companyClockMock },
+                { provide: DataAutoWizardService, useValue: autoWizardMock },
+                { provide: AutoWizardJobTrackerService, useValue: autoWizardTrackerMock },
             ],
         });
         service = TestBed.inject(AuthService);
@@ -353,6 +361,20 @@ describe('AuthService logout session cleanup', () => {
             sessionStorage.getItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID)
         ).toBeNull();
 
+        httpMock.expectOne(logoutUrl).flush(null);
+    });
+
+    it('should forget the AutoWizard run of the previous user on logout', () => {
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+        sessionStorage.setItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB, '{"jobId":"job-1"}');
+        sessionStorage.setItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO, '[]');
+
+        service.logOut();
+
+        expect(autoWizardMock.stopConnection).toHaveBeenCalled();
+        expect(autoWizardTrackerMock.reset).toHaveBeenCalledTimes(1);
+        expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB)).toBeNull();
+        expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO)).toBeNull();
         httpMock.expectOne(logoutUrl).flush(null);
     });
 

@@ -84,6 +84,7 @@ export class DataManagementScheduleService implements ILoadable {
   private readonly SPINNER_SAFETY_TIMEOUT_MS = 30_000;
 
   private readDatasTrigger$ = new Subject<boolean>();
+  private _readPending = false;
   private spinnerSafetyCancel$ = new Subject<void>();
   private destroyRef = inject(DestroyRef);
 
@@ -302,6 +303,36 @@ export class DataManagementScheduleService implements ILoadable {
     return this.shiftLoader.hasMoreShifts;
   }
 
+  get isScheduleFullyLoaded(): boolean {
+    return !this._readPending
+      && !this.workScheduleLoader.isInitialPending
+      && !this.workScheduleLoader.isInitialFailed
+      && !this.workScheduleLoader.isLoadingMore
+      && !this.workScheduleLoader.hasMoreClients
+      && !this.shiftLoader.isInitialPending
+      && !this.shiftLoader.isInitialFailed
+      && !this.shiftLoader.isLoadingMore
+      && !this.shiftLoader.hasMoreShifts;
+  }
+
+  get isScheduleLoadStalled(): boolean {
+    if (this._readPending) {
+      return false;
+    }
+    if (this.workScheduleLoader.isInitialFailed || this.shiftLoader.isInitialFailed) {
+      return true;
+    }
+    const clientsStalled = this.workScheduleLoader.hasMoreClients
+      && !this.workScheduleLoader.isAutoLoadEnabled
+      && !this.workScheduleLoader.isLoadingMore
+      && !this.workScheduleLoader.isInitialPending;
+    const shiftsStalled = this.shiftLoader.hasMoreShifts
+      && !this.shiftLoader.isAutoLoadEnabled
+      && !this.shiftLoader.isLoadingMore
+      && !this.shiftLoader.isInitialPending;
+    return clientsStalled || shiftsStalled;
+  }
+
   get shiftLoadingProgress(): number {
     return this.shiftLoader.shiftLoadingProgress;
   }
@@ -321,10 +352,12 @@ export class DataManagementScheduleService implements ILoadable {
     }
     this._showProgressSpinner.set(true);
     this.spinnerSafetyCancel$.next();
+    this._readPending = true;
     this.readDatasTrigger$.next(resetScroll);
   }
 
   private executeReadDatas(resetScroll: boolean): void {
+    this._readPending = false;
     const dates = this.workScheduleLoader.calculateVisibleDates(this.workFilter);
     this._cachedStartDate = parseCalendarDate(dates.startDate);
     this._cachedEndDate = parseCalendarDate(dates.endDate);

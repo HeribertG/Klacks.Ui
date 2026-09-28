@@ -112,9 +112,11 @@
         class="icon-button wizard-button"
         [class.disabled]="isAutoWizardRunning()"
         (click)="onAutoWizardClick()"
-        ngbTooltip="{{ 'autoWizard.tooltip' | translate }}"
+        [ngbTooltip]="autoWizardRunningElsewhereGroupName() !== null
+          ? ('autoWizard.runningForGroupTooltip' | translate: { group: autoWizardRunningElsewhereGroupName() })
+          : ('autoWizard.tooltip' | translate)"
       >
-        @if (isAutoWizardRunning()) {
+        @if (isAutoWizardRunningForCurrentGroup()) {
           <span class="spinner-border spinner-border-sm"></span>
         } @else {
           <app-icon-wizard />
