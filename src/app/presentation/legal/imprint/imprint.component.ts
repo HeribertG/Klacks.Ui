@@ -5,6 +5,7 @@
  * Accessible without authentication from the login page and main menu.
  * @param apiRepositoryUrl - Public repository of the server (Klacks.Api)
  * @param uiRepositoryUrl - Public repository of the web client (Klacks.Ui)
+ * @param commercialLicenseUrl - Commercial license page on the Klacks website in the UI language
  */
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,6 +17,7 @@ import {
 } from 'src/app/domain/constants/source-code.constants';
 import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
 import { toSourceCodeUrl } from 'src/app/domain/helpers/source-code-url.helper';
+import { commercialLicenseUrlSignal } from 'src/app/domain/helpers/commercial-license-url.helper';
 
 @Component({
   selector: 'app-imprint',
@@ -31,4 +33,5 @@ export class ImprintComponent {
   readonly apiRepositoryUrl = toSourceCodeUrl(SOURCE_CODE_API_REPOSITORY_URL, this.buildInfo);
   readonly uiRepositoryUrl = toSourceCodeUrl(SOURCE_CODE_UI_REPOSITORY_URL, this.buildInfo);
   readonly licenseUrl = SOURCE_CODE_LICENSE_URL;
+  readonly commercialLicenseUrl = commercialLicenseUrlSignal();
 }

@@ -3469,6 +3469,8 @@
   "legal.license.server": "Server (Klacks.Api):",
   "legal.license.web-client": "Client web (Klacks.Ui):",
   "legal.license.full-text": "Testo completo della licenza (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "Per gli utilizzi non coperti dalla AGPL, come l'integrazione in un prodotto chiuso o le modifiche non pubblicate, offriamo una licenza commerciale:",
+  "legal.commercial-license-link": "Licenza commerciale",
   "donation.title": "Donazione",
   "donation.text": "Klacks è gratuito. Se Klacks ti semplifica il lavoro, apprezziamo un piccolo contributo.",
   "donation.iban-label": "Bonifico bancario",

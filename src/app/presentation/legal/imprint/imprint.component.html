@@ -16,6 +16,12 @@
         </li>
       </ul>
       <p>
+        {{ "legal.license.commercial-text" | translate }}
+        <a id="imprint-commercial-license-link" [href]="commercialLicenseUrl()" target="_blank" rel="noopener noreferrer">{{
+          "legal.commercial-license-link" | translate
+        }}</a>
+      </p>
+      <p>
         <a id="imprint-license-link" [href]="licenseUrl" target="_blank" rel="noopener noreferrer">{{
           "legal.license.full-text" | translate
         }}</a>

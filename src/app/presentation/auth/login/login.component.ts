@@ -26,6 +26,7 @@ import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { SOURCE_CODE_API_REPOSITORY_URL } from 'src/app/domain/constants/source-code.constants';
 import { BUILD_INFO } from 'src/app/domain/interfaces/build-info.interface';
 import { toSourceCodeUrl } from 'src/app/domain/helpers/source-code-url.helper';
+import { commercialLicenseUrlSignal } from 'src/app/domain/helpers/commercial-license-url.helper';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { SetupGateService } from 'src/app/presentation/auth/setup-gate.service';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
@@ -61,6 +62,7 @@ interface LoginFormModel {
 export class LoginComponent implements OnInit, AfterViewInit {
   readonly forgotPasswordModal = viewChild.required('forgotPasswordModal', { read: TemplateRef });
   readonly sourceCodeUrl = toSourceCodeUrl(SOURCE_CODE_API_REPOSITORY_URL, inject(BUILD_INFO));
+  readonly commercialLicenseUrl = commercialLicenseUrlSignal();
 
   private auth = inject(AuthService);
   private oauth2HandshakeStorage = inject(OAuth2HandshakeStorageService);
