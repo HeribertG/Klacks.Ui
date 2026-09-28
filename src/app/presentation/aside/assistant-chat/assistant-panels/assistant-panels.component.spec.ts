@@ -78,6 +78,8 @@ describe('AssistantPanelsComponent', () => {
     | 'isMuteSuggestion'
     | 'isSetupNotice'
     | 'startSetupConsultation'
+    | 'isGroupingFeasibilityNotice'
+    | 'openGroupingReport'
     | 'toggleDismissMenu'
     | 'dismissProactiveMessage'
     | 'onProactiveActionClick'
@@ -173,6 +175,8 @@ describe('AssistantPanelsComponent', () => {
       isMuteSuggestion: vi.fn().mockReturnValue(false),
       isSetupNotice: vi.fn().mockReturnValue(false),
       startSetupConsultation: vi.fn(),
+      isGroupingFeasibilityNotice: vi.fn().mockReturnValue(false),
+      openGroupingReport: vi.fn(),
       toggleDismissMenu: vi.fn(),
       dismissProactiveMessage: vi.fn(),
       onProactiveActionClick: vi.fn(),

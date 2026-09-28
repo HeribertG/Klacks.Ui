@@ -279,6 +279,15 @@
         {{ "setupConsultation.startButton" | translate }}
       </button>
       }
+      @if (isGroupingFeasibilityNotice(message())) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-grouping-report-btn"
+        (click)="actions.openGroupingReport(message())"
+      >
+        {{ "groupingFeasibility.openReport" | translate }}
+      </button>
+      }
       @if (isMuteSuggestion(message())) {
       <button
         type="button"

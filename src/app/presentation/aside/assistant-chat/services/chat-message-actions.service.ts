@@ -52,6 +52,7 @@ import {
   PROACTIVE_TRIGGER_KIND,
 } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { PROACTIVE_MAX_ACTION } from 'src/app/domain/constants/proactive-max-action.constants';
+import { GROUPING_FEASIBILITY_TRIGGER_PHRASE_KEY } from 'src/app/domain/constants/grouping-feasibility.constants';
 import {
   PROACTIVE_REACTION,
   ProactiveReaction,
@@ -306,6 +307,22 @@ export class ChatMessageActionsService {
       return;
     }
     void this.orchestrator.submitText(this.translateService.instant(SETUP_CONSULTATION_TRIGGER_PHRASE_KEY));
+  }
+
+  isGroupingFeasibilityNotice(message: ChatMessage): boolean {
+    return message.proactiveKind === PROACTIVE_TRIGGER_KIND.GroupingFeasibility;
+  }
+
+  /**
+   * Open the full grouping report from a proactive grouping_feasibility message by sending the report
+   * recipe's own trigger phrase in the user's language.
+   * @param message - The proactive message the button belongs to
+   */
+  openGroupingReport(message: ChatMessage): void {
+    if (!this.isGroupingFeasibilityNotice(message)) {
+      return;
+    }
+    void this.orchestrator.submitText(this.translateService.instant(GROUPING_FEASIBILITY_TRIGGER_PHRASE_KEY));
   }
 
   toggleDismissMenu(messageId: string): void {

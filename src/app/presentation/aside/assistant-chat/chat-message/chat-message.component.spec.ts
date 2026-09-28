@@ -40,6 +40,8 @@ describe('ChatMessageComponent', () => {
     isMuteSuggestion: ReturnType<typeof vi.fn>;
     isSetupNotice: ReturnType<typeof vi.fn>;
     startSetupConsultation: ReturnType<typeof vi.fn>;
+    isGroupingFeasibilityNotice: ReturnType<typeof vi.fn>;
+    openGroupingReport: ReturnType<typeof vi.fn>;
     toggleDismissMenu: ReturnType<typeof vi.fn>;
     dismissProactiveMessage: ReturnType<typeof vi.fn>;
     onProactiveActionClick: ReturnType<typeof vi.fn>;
@@ -104,6 +106,8 @@ describe('ChatMessageComponent', () => {
       isMuteSuggestion: vi.fn().mockReturnValue(false),
       isSetupNotice: vi.fn().mockReturnValue(false),
       startSetupConsultation: vi.fn(),
+      isGroupingFeasibilityNotice: vi.fn().mockReturnValue(false),
+      openGroupingReport: vi.fn(),
       toggleDismissMenu: vi.fn(),
       dismissProactiveMessage: vi.fn(),
       onProactiveActionClick: vi.fn(),
@@ -223,6 +227,22 @@ describe('ChatMessageComponent', () => {
     expect(muteButton).toBeTruthy();
     muteButton.click();
     expect(actionsMock.submitMuteSuggestion).toHaveBeenCalledWith(muteMessage);
+  });
+
+  it('renders the open-report button only for a grouping feasibility notice and forwards the click', () => {
+    const groupingMessage: ChatMessage = { ...proactiveMessage, proactiveKind: 'grouping_feasibility' };
+    fixture.componentRef.setInput('message', groupingMessage);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.proactive-grouping-report-btn')).toBeNull();
+
+    actionsMock.isGroupingFeasibilityNotice.mockReturnValue(true);
+    fixture.componentRef.setInput('message', { ...groupingMessage });
+    fixture.detectChanges();
+
+    const reportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.proactive-grouping-report-btn');
+    expect(reportButton).toBeTruthy();
+    reportButton.click();
+    expect(actionsMock.openGroupingReport).toHaveBeenCalledWith(expect.objectContaining({ proactiveKind: 'grouping_feasibility' }));
   });
 
   it('renders the delegate button only when the message can be delegated', () => {

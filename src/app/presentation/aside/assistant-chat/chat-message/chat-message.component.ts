@@ -149,6 +149,10 @@ export class ChatMessageComponent {
     return this.actions.isSetupNotice(message);
   }
 
+  protected isGroupingFeasibilityNotice(message: ChatMessage): boolean {
+    return this.actions.isGroupingFeasibilityNotice(message);
+  }
+
   /**
    * Stops what is running behind this bubble: the streaming turn while it streams, otherwise (after
    * Done) the client-side execution of its UI actions and navigations.
