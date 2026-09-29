@@ -1,7 +1,6 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
-@use "../../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../../assets/standard-styles/settings-list-row.scss";
 
 input {
@@ -40,13 +39,13 @@ button.btn-info {
 }
 
 .checkbox-container .form-check-input:checked {
-  background-color: colors.$standartBlueColor;
-  border-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
+  border-color: var(--primaryActionColor);
 }
 
 .checkbox-container .form-check-input:focus {
-  border-color: colors.$standartBlueColor;
-  box-shadow: 0 0 0 0.2rem rgba(colors.$standartBlueColor, 0.25);
+  border-color: var(--primaryActionColor);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primaryActionColor) 25%, transparent);
 }
 
 .checkbox-container .form-check-label {

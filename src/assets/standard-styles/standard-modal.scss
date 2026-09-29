@@ -84,7 +84,7 @@
 
     &:focus {
       outline: none;
-      border-color: colors.$standartBlueColor;
+      border-color: var(--primaryActionColor);
       background-color: var(--standartTextBackground);
     }
 
@@ -163,7 +163,7 @@
   font-size: 13px;
   margin-top: 10px;
   padding-inline-end: 30px;
-  color: colors.$standartBlueColor;
+  color: var(--primaryActionColor);
 }
 
 .darkgrey-font {
@@ -202,17 +202,17 @@
 }
 
 .color-blue {
-  color: colors.$standartBlueColor;
+  color: var(--primaryActionColor);
 }
 
 .ownStyle-add {
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   font-size: 13px;
   color: colors.$standartWhiteColor;
 }
 
 .ownStyle-save {
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   font-size: 13px;
   color: colors.$standartWhiteColor;
 }

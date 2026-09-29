@@ -1,4 +1,3 @@
-@use "../../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-manual.scss";
 
@@ -135,8 +134,8 @@
 
   &.active {
     background: var(--backgroundColorHover);
-    border-color: colors.$standartBlueColor;
-    color: colors.$standartBlueColor;
+    border-color: var(--primaryActionColor);
+    color: var(--primaryActionColor);
   }
 
   &.italic {
@@ -230,7 +229,7 @@
   transition: all 0.2s;
 
   &.cdk-drop-list-dragging {
-    border-color: colors.$standartBlueColor;
+    border-color: var(--primaryActionColor);
     background: var(--backgroundColorFocus);
   }
 }
@@ -276,8 +275,8 @@
   transition: border-color 0.15s;
 
   &.chip-active {
-    border-color: colors.$standartBlueColor;
-    outline: 1px solid colors.$standartBlueColor;
+    border-color: var(--primaryActionColor);
+    outline: 1px solid var(--primaryActionColor);
   }
 
   .chip-label {
@@ -307,7 +306,7 @@
 
   &.active {
     font-weight: 900;
-    color: colors.$standartBlueColor;
+    color: var(--primaryActionColor);
   }
 
   &.remove {
@@ -339,8 +338,8 @@
   transition: border-color 0.15s;
 
   &.column-active {
-    border-color: colors.$standartBlueColor;
-    outline: 1px solid colors.$standartBlueColor;
+    border-color: var(--primaryActionColor);
+    outline: 1px solid var(--primaryActionColor);
   }
 
   .column-header {
@@ -484,8 +483,8 @@
     background 0.15s;
 
   &.cdk-drop-list-dragging {
-    border-color: colors.$standartBlueColor;
-    background: rgba(colors.$standartBlueColor, 0.05);
+    border-color: var(--primaryActionColor);
+    background: color-mix(in srgb, var(--primaryActionColor) 5%, transparent);
   }
 }
 
@@ -511,8 +510,8 @@
   transition: border-color 0.15s;
 
   &.chip-active {
-    border-color: colors.$standartBlueColor;
-    outline: 1px solid colors.$standartBlueColor;
+    border-color: var(--primaryActionColor);
+    outline: 1px solid var(--primaryActionColor);
   }
 
   &.image-chip {
@@ -668,13 +667,13 @@
   white-space: nowrap;
 
   &.work-badge {
-    background: rgba(colors.$standartBlueColor, 0.12);
-    color: colors.$standartBlueColor;
+    background: color-mix(in srgb, var(--primaryActionColor) 12%, transparent);
+    color: var(--primaryActionColor);
   }
 
   &.expense-badge {
-    background: rgba(colors.$standartGreenColor, 0.12);
-    color: colors.$standartGreenColor;
+    background: color-mix(in srgb, var(--accentColor) 12%, transparent);
+    color: var(--accentColor);
   }
 }
 
@@ -696,7 +695,7 @@
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  border: 1px solid colors.$standartBlueColor;
+  border: 1px solid var(--primaryActionColor);
   background: var(--backgroundColorFocus);
   border-radius: 4px;
   padding: 4px 8px;
@@ -976,8 +975,8 @@
   }
 
   &.status-valid {
-    color: colors.$standartGreenColor;
-    background: rgba(colors.$standartGreenColor, 0.1);
+    color: var(--accentColor);
+    background: color-mix(in srgb, var(--accentColor) 10%, transparent);
   }
 
   &.status-error {
@@ -1224,7 +1223,7 @@
   font-size: var(--fontSizeXSmall);
 
   &.status-valid {
-    color: #1bc5bd;
+    color: var(--accentColor);
   }
 
   &.status-error {

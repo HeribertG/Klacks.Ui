@@ -1,6 +1,4 @@
-@use "sass:color";
 @use "../../../../../../src/assets/standard-styles/standard-card-interior";
-@use "../../../../../../src/assets/standard-styles/colors" as colors;
 
 :host {
   display: block;
@@ -79,11 +77,11 @@
 .add-button {
   font-size: 13px;
   text-decoration: underline;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
   cursor: pointer;
 
   &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    color: var(--accentDarkColor);
   }
 }
 

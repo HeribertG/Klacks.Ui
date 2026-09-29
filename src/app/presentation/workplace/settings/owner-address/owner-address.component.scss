@@ -74,7 +74,7 @@ select {
   color: var(--colorWorkplaceHeadline);
   button {
     &.active {
-      background-color: colors.$standartGreenColor;
+      background-color: var(--accentColor);
       color: colors.$standartWhiteColor;
     }
   }

@@ -48,7 +48,7 @@
     }
 
     .warning-button {
-      background: colors.$standartGreenColor;
+      background: var(--accentColor);
       color: var(--onAccent);
       border: none;
       padding: 8px 16px;
@@ -58,7 +58,7 @@
       transition: background 0.2s ease;
 
       &:hover {
-        background: colors.$splitButtonGreenColor;
+        background: var(--accentHoverColor);
       }
 
       &:focus {
@@ -106,8 +106,8 @@
     color: var(--colorLabel);
 
     &:hover {
-      border-color: colors.$standartGreenColor;
-      box-shadow: 0 0 0 2px rgba(colors.$standartGreenColor, 0.1);
+      border-color: var(--accentColor);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accentColor) 10%, transparent);
     }
 
     .model-name {
@@ -118,7 +118,7 @@
 
     .model-cost {
       font-size: var(--fontSizeSmall);
-      color: colors.$standartGreenColor;
+      color: var(--accentColor);
       font-weight: 600;
     }
 
@@ -167,8 +167,8 @@
       }
 
       &.selected {
-        background: rgba(colors.$standartGreenColor, 0.1);
-        border-inline-start: 3px solid colors.$standartGreenColor;
+        background: color-mix(in srgb, var(--accentColor) 10%, transparent);
+        border-inline-start: 3px solid var(--accentColor);
       }
 
       .model-info {
@@ -192,17 +192,17 @@
           font-size: var(--fontSizeXSmall);
 
           .input-cost {
-            color: colors.$standartBlueColor;
+            color: var(--primaryActionColor);
           }
 
           .output-cost {
-            color: colors.$standartGreenColor;
+            color: var(--accentColor);
           }
         }
       }
 
       .provider-badge {
-        background: colors.$standartGreenColor;
+        background: var(--accentColor);
         color: colors.$standartWhiteColor;
         padding: 4px 8px;
         border-radius: 12px;
@@ -232,8 +232,8 @@
   padding: 16px 20px;
   background: linear-gradient(
     135deg,
-    colors.$standartGreenColor,
-    colors.$splitButtonGreenColor
+    var(--accentColor),
+    var(--accentHoverColor)
   );
   color: colors.$standartWhiteColor;
   border-bottom: 1px solid var(--cardBorderColor);
@@ -385,7 +385,7 @@
 }
 
 .action-btn {
-  background: colors.$standartGreenColor;
+  background: var(--accentColor);
   color: colors.$standartWhiteColor;
   border: none;
   border-radius: 12px;
@@ -395,14 +395,14 @@
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: colors.$splitButtonGreenColor;
+    background: var(--accentHoverColor);
   }
 
   &.navigate-btn {
-    background: colors.$standartBlueColor;
+    background: var(--primaryActionColor);
 
     &:hover {
-      background: colors.$splitButtonBlueColor;
+      background: var(--primaryActionHoverColor);
     }
   }
 }
@@ -426,16 +426,16 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: colors.$standartWhiteColor;
-    border-color: colors.$standartGreenColor;
-    box-shadow: 0 2px 6px rgba(colors.$standartGreenColor, 0.3);
+    border-color: var(--accentColor);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--accentColor) 30%, transparent);
     transform: translateY(-1px);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(colors.$standartGreenColor, 0.3);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--accentColor) 30%, transparent);
   }
 }
 
@@ -523,8 +523,8 @@
   flex: 1;
 
   &:focus-within {
-    border-color: colors.$standartGreenColor;
-    box-shadow: 0 0 0 3px rgba(colors.$standartGreenColor, 0.1);
+    border-color: var(--accentColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accentColor) 10%, transparent);
   }
 }
 
@@ -677,7 +677,7 @@
 }
 
 .btn-send {
-  background: colors.$standartGreenColor;
+  background: var(--accentColor);
   border: none;
   color: colors.$standartWhiteColor;
   border-radius: 8px;
@@ -689,7 +689,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover:not(:disabled) {
-    background: colors.$splitButtonGreenColor;
+    background: var(--accentHoverColor);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-1px);
   }
@@ -712,10 +712,10 @@
 
 @keyframes auto-send-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(colors.$standartGreenColor, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accentColor) 70%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(colors.$standartGreenColor, 0);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--accentColor) 0%, transparent);
   }
 }
 
@@ -776,7 +776,7 @@
   }
 
   .onboarding-card-fill {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     height: 100%;
     transition: width 0.3s ease;
   }
@@ -787,7 +787,7 @@
   }
 
   .onboarding-card-start {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: var(--onAccent);
     border: none;
     border-radius: 4px;

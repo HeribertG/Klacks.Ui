@@ -1,6 +1,5 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../../assets/standard-styles/colors.scss";
 
 .custom-container {
   margin: 30px;
@@ -100,7 +99,7 @@
   }
 
   &.running {
-    color: var(--standartBlueColor);
+    color: var(--primaryActionColor);
   }
 
   &.success {

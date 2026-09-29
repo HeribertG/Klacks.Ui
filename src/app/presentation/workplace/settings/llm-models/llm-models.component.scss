@@ -1,7 +1,5 @@
 @use "../../../../../assets/standard-styles/standard-grid.scss";
-@use "sass:color";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../assets/standard-styles/datepicker.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
@@ -23,7 +21,7 @@
     width: 32px;
     height: 32px;
     border: 3px solid var(--cardBorderColor);
-    border-top: 3px solid colors.$standartGreenColor;
+    border-top: 3px solid var(--accentColor);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 16px;
@@ -84,7 +82,7 @@
       }
 
       .detail-value {
-        color: colors.$standartGreenColor;
+        color: var(--accentColor);
         font-weight: 600;
         font-size: var(--fontSizeSmall);
       }

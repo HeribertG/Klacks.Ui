@@ -77,7 +77,7 @@ label {
 .ownStyle-button {
   width: 180px;
   height: 40px;
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   font-weight: 600;
   font-size: 14px;
   color: colors.$standartWhiteColor;
@@ -102,7 +102,7 @@ label {
 .add-button {
   margin-inline-start: 5px;
   margin-top: 5px;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
   font-weight: 800;
   font-size: 18px;
 }
@@ -186,7 +186,7 @@ btn-outline-secondary {
 .container-search-button {
   font-weight: 600;
   font-size: 13px;
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   color: colors.$standartWhiteColor;
 }
 .container-search-button-disabled {

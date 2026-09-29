@@ -1,5 +1,4 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 :host {
   display: block;
@@ -66,7 +65,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(colors.$standartGreenColor, 0.5);
+  background-color: color-mix(in srgb, var(--accentColor) 50%, transparent);
   border: 1px solid var(--gridColorLine);
   border-radius: 50%;
   font-size: var(--fontSizeLabel);

@@ -57,7 +57,7 @@ export class DashboardShiftsOverviewComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('Failed to load shift data');
+        this.error.set('dashboard.error.loadShifts');
         console.error('Error loading shifts:', err);
         this.isLoading.set(false);
       },

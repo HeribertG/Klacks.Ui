@@ -77,8 +77,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   &:focus-within {
-    border-color: colors.$standartGreenColor;
-    box-shadow: 0 0 0 3px rgba(colors.$standartGreenColor, 0.1);
+    border-color: var(--accentColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accentColor) 10%, transparent);
   }
 }
 
@@ -126,7 +126,7 @@
   }
 
   &.voice-enabled {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: white;
     border-radius: 50%;
   }
@@ -136,7 +136,7 @@
     animation: pulse-red 1s infinite;
 
     &.voice-enabled {
-      background: colors.$standartGreenColor;
+      background: var(--accentColor);
       color: white;
       animation: pulse-green 1s infinite;
     }
@@ -181,7 +181,7 @@
 }
 
 .btn-send {
-  background: colors.$standartGreenColor;
+  background: var(--accentColor);
   border: none;
   color: colors.$standartWhiteColor;
   border-radius: 8px;
@@ -193,7 +193,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover:not(:disabled) {
-    background: colors.$splitButtonGreenColor;
+    background: var(--accentHoverColor);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-1px);
   }

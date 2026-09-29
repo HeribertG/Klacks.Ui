@@ -66,7 +66,7 @@ app-group-select {
   width: 20px;
   height: 20px;
   &:hover {
-    fill: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    fill: var(--accentDarkColor);
   }
 }
 
@@ -90,8 +90,8 @@ app-group-select {
   position: absolute;
   top: -10px;
   inset-inline-end: -14px;
-  background-color: colors.$standartGreenColor;
-  color: var(--onAccent);
+  background-color: var(--highlightBadgeBackground);
+  color: var(--highlightBadgeColor);
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;

@@ -19,7 +19,7 @@
     }
 
     .message-bubble {
-      background: colors.$standartGreenColor;
+      background: var(--accentColor);
       color: colors.$standartWhiteColor;
     }
   }
@@ -79,7 +79,7 @@
   }
 
   .message-wrapper.user & {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: colors.$standartWhiteColor;
   }
 
@@ -321,22 +321,22 @@
 
   &:hover {
     background: var(--backgroundColorFocus);
-    color: colors.$standartGreenColor;
-    border-color: colors.$standartGreenColor;
+    color: var(--accentColor);
+    border-color: var(--accentColor);
   }
 
   &.loading {
     cursor: wait;
-    border-color: colors.$standartGreenColor;
+    border-color: var(--accentColor);
   }
 
   &.playing {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: colors.$standartWhiteColor;
-    border-color: colors.$standartGreenColor;
+    border-color: var(--accentColor);
 
     &:hover {
-      background: colors.$splitButtonGreenColor;
+      background: var(--accentHoverColor);
       color: colors.$standartWhiteColor;
     }
   }
@@ -345,7 +345,7 @@
     width: 14px;
     height: 14px;
     border: 2px solid var(--cardBorderColor);
-    border-top-color: colors.$standartGreenColor;
+    border-top-color: var(--accentColor);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }

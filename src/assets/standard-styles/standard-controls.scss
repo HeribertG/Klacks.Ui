@@ -175,8 +175,8 @@ span[type="button"] {
   &:focus {
     color: var(--standartTextColor);
     background-color: var(--standartTextBackground);
-    border-color: var(--standartFocusBorderColor, #86b7fe);
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: var(--controlFocusBorderColor);
+    box-shadow: 0 0 0 0.25rem var(--controlFocusRingColor);
   }
 
   &:disabled {

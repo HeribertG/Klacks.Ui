@@ -84,7 +84,7 @@
   }
 
   &.outbound {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: colors.$standartWhiteColor;
     border-bottom-right-radius: 4px;
   }

@@ -6,6 +6,7 @@ import {
   input,
   computed
 } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface PieChartData {
   label: string;
@@ -36,7 +37,7 @@ interface PieChartGeometry {
   templateUrl: './pie-chart.component.html',
   styleUrls: ['./pie-chart.component.scss'],
   standalone: true,
-  imports: [],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PieChartComponent {

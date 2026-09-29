@@ -54,7 +54,7 @@
     }
 
     &.badge-info {
-      background-color: colors.$standartBlueColor;
+      background-color: var(--primaryActionColor);
       color: colors.$standartWhiteColor;
     }
 
@@ -155,6 +155,6 @@
 
   input[type='range'] {
     flex: 1 1 auto;
-    accent-color: colors.$standartBlueColor;
+    accent-color: var(--primaryActionColor);
   }
 }

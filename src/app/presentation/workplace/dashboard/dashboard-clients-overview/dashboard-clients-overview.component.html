@@ -7,7 +7,7 @@
 
   @if (error()) {
     <div class="container-dashboard-error">
-      <p class="container-dashboard-error-message">{{ error() }}</p>
+      <p class="container-dashboard-error-message">{{ (error() ?? '') | translate }}</p>
     </div>
   }
 

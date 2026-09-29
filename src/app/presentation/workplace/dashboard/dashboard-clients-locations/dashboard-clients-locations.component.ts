@@ -45,7 +45,7 @@ export interface LocationData {
 
 export interface MapTileProvider {
   id: string;
-  name: string;
+  nameKey: string;
   url: string;
   attribution: string;
   maxZoom: number;
@@ -103,42 +103,42 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   public readonly tileProviders: MapTileProvider[] = [
     {
       id: 'osm-standard',
-      name: 'OpenStreetMap Standard',
+      nameKey: 'dashboard.locations.tile.osmStandard',
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     },
     {
       id: 'osm-de',
-      name: 'OpenStreetMap DE',
+      nameKey: 'dashboard.locations.tile.osmDe',
       url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     },
     {
       id: 'carto-positron',
-      name: 'CartoDB Positron (Hell)',
+      nameKey: 'dashboard.locations.tile.cartoPositron',
       url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 19,
     },
     {
       id: 'carto-dark',
-      name: 'CartoDB Dark Matter (Dunkel)',
+      nameKey: 'dashboard.locations.tile.cartoDark',
       url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 19,
     },
     {
       id: 'carto-voyager',
-      name: 'CartoDB Voyager (Modern)',
+      nameKey: 'dashboard.locations.tile.cartoVoyager',
       url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 19,
     },
     {
       id: 'opentopomap',
-      name: 'OpenTopoMap (Topografisch)',
+      nameKey: 'dashboard.locations.tile.openTopoMap',
       url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
       maxZoom: 17,
@@ -275,7 +275,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       },
       error: (err) => {
         this.shouldInitializeMap = false;
-        this.error.set('Failed to load location data');
+        this.error.set('dashboard.error.loadLocations');
         console.error('Error loading locations:', err);
         this.isLoading.set(false);
       },
@@ -319,7 +319,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       },
       error: (err) => {
         this.shouldInitializeMap = false;
-        this.error.set('Failed to load group data');
+        this.error.set('dashboard.error.loadGroups');
         console.error('Error loading group data:', err);
         this.isLoading.set(false);
       },
@@ -436,6 +436,12 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
     this.markerClusterGroup.clearLayers();
     const bounds: any[] = [];
+    const totalLabel = this.translateService.instant('dashboard.clients.total');
+    const clientsLabel = this.translateService.instant('dashboard.locations.clients');
+    const employeeLabel = this.translateService.instant('address.edit-address.membership.type.employee');
+    const externEmpLabel = this.translateService.instant('address.edit-address.membership.type.externEmp');
+    const customerLabel = this.translateService.instant('address.edit-address.membership.type.customer');
+    const streetViewLabel = this.translateService.instant('dashboard.locations.streetView');
 
     locations.forEach((location) => {
       if (location.latitude && location.longitude) {
@@ -447,13 +453,13 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
         const popupContent = `
           <div style="min-width: 200px;">
             <h4 style="margin: 0 0 10px 0;">${location.city}, ${location.country}</h4>
-            <p style="margin: 5px 0;"><strong>Total:</strong> ${location.count} Clients</p>
-            ${location.employeeCount > 0 ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>Employees:</strong> ${location.employeeCount}</p>` : ''}
-            ${location.externEmpCount > 0 ? `<p style="margin: 5px 0; color: #6993ff;"><strong>Extern Emp:</strong> ${location.externEmpCount}</p>` : ''}
-            ${location.customerCount > 0 ? `<p style="margin: 5px 0; color: #ffa800;"><strong>Customers:</strong> ${location.customerCount}</p>` : ''}
+            <p style="margin: 5px 0;"><strong>${totalLabel}:</strong> ${location.count} ${clientsLabel}</p>
+            ${location.employeeCount > 0 ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>${employeeLabel}:</strong> ${location.employeeCount}</p>` : ''}
+            ${location.externEmpCount > 0 ? `<p style="margin: 5px 0; color: #6993ff;"><strong>${externEmpLabel}:</strong> ${location.externEmpCount}</p>` : ''}
+            ${location.customerCount > 0 ? `<p style="margin: 5px 0; color: #ffa800;"><strong>${customerLabel}:</strong> ${location.customerCount}</p>` : ''}
             <div style="margin-top: 10px;">
               <a href="${streetViewUrl}" target="_blank" class="btn btn-primary" style="color: white;">
-                ${streetViewIcon} Street View
+                ${streetViewIcon} ${streetViewLabel}
               </a>
             </div>
           </div>
@@ -527,12 +533,13 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
           const streetViewUrl = `https://www.google.com/maps/@${lat},${lon},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192`;
           const streetViewIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="14" height="14" fill="white"><path d="M320 64A64 64 0 1 0 192 64a64 64 0 1 0 128 0zm-96 96c-35.3 0-64 28.7-64 64l0 48c0 17.7 14.3 32 32 32l1.8 0 11.1 99.5c1.8 16.2 15.5 28.5 31.8 28.5l38.7 0c16.3 0 30-12.3 31.8-28.5L318.2 304l1.8 0c17.7 0 32-14.3 32-32l0-48c0-35.3-28.7-64-64-64l-64 0zM132.3 394.2c13-2.4 21.7-14.9 19.3-27.9s-14.9-21.7-27.9-19.3c-32.4 5.9-60.9 14.2-82 24.8c-10.5 5.3-20.3 11.7-27.8 19.6C6.4 399.5 0 410.5 0 424c0 21.4 15.5 36.1 29.1 45c14.7 9.6 34.3 17.3 56.4 23.4C130.2 504.7 190.4 512 256 512s125.8-7.3 170.4-19.6c22.1-6.1 41.8-13.8 56.4-23.4c13.7-8.9 29.1-23.6 29.1-45c0-13.5-6.4-24.5-13.9-32.6c-7.5-8-17.3-14.4-27.8-19.6c-21-10.6-49.5-18.9-82-24.8c-13-2.4-25.5 6.3-27.9 19.3s6.3 25.5 19.3 27.9c30.2 5.5 53.7 12.8 69 20.5c3.2 1.6 5.8 3.1 7.9 4.5c3.6 2.4 3.6 7.2 0 9.6c-8.8 5.7-23.1 11.8-43 17.3C374.3 457 318.5 464 256 464s-118.3-7-157.7-17.9c-19.9-5.5-34.2-11.6-43-17.3c-3.6-2.4-3.6-7.2 0-9.6c2.1-1.4 4.8-2.9 7.9-4.5c15.3-7.7 38.8-14.9 69-20.5z"/></svg>`;
+          const streetViewLabel = this.translateService.instant('dashboard.locations.streetView');
           const popupContent = `
             <div style="min-width: 200px;">
               <strong>${displayName}</strong>
               <div style="margin-top: 10px;">
                 <a href="${streetViewUrl}" target="_blank" class="btn btn-primary" style="color: white;">
-                  ${streetViewIcon} Street View
+                  ${streetViewIcon} ${streetViewLabel}
                 </a>
               </div>
             </div>

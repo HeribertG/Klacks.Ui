@@ -74,7 +74,7 @@ export class DashboardShiftCoverageComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.error.set('Failed to load shift coverage statistics');
+        this.error.set('dashboard.error.loadShiftCoverage');
         console.error('Error loading shift coverage:', err);
         this.isLoading.set(false);
       },

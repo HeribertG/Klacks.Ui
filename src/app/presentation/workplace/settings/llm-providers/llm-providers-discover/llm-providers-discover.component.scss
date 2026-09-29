@@ -85,7 +85,7 @@
     color: var(--onAccent);
 
     &.reachable {
-      background-color: colors.$standartGreenColor;
+      background-color: var(--accentColor);
     }
 
     &.needs-key {

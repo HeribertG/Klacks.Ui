@@ -1,4 +1,3 @@
-@use "../../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 
@@ -32,7 +31,7 @@
 
         &:focus {
           outline: none;
-          border-color: colors.$standartBlueColor;
+          border-color: var(--primaryActionColor);
           background-color: var(--standartTextBackground);
         }
 
@@ -60,7 +59,7 @@
           color: var(--standartTextColor);
 
           &:hover {
-            background-color: rgba(colors.$standartBlueColor, 0.1);
+            background-color: color-mix(in srgb, var(--primaryActionColor) 10%, transparent);
           }
         }
       }
@@ -88,9 +87,9 @@
 
   .conflict-btn {
     &.active {
-      background-color: colors.$standartBlueColor;
+      background-color: var(--primaryActionColor);
       color: var(--onAccent);
-      border-color: colors.$standartBlueColor;
+      border-color: var(--primaryActionColor);
     }
   }
 }

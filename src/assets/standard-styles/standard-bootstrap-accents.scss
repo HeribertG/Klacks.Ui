@@ -1,0 +1,52 @@
+$controlFocusRingWidth: 0.25rem;
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--controlFocusBorderColor);
+  box-shadow: 0 0 0 $controlFocusRingWidth var(--controlFocusRingColor);
+}
+
+.form-check-input:checked,
+.form-check-input[type="checkbox"]:indeterminate {
+  background-color: var(--bootstrapPrimaryColor);
+  border-color: var(--bootstrapPrimaryColor);
+}
+
+.progress,
+.progress-stacked {
+  --bs-progress-bar-bg: var(--bootstrapPrimaryColor);
+}
+
+.list-group {
+  --bs-list-group-active-bg: var(--bootstrapPrimaryColor);
+  --bs-list-group-active-border-color: var(--bootstrapPrimaryColor);
+}
+
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--bootstrapPrimaryColor);
+}
+
+:root[data-theme="klacks"] .btn-primary {
+  --bs-btn-bg: var(--primaryActionColor);
+  --bs-btn-border-color: var(--primaryActionColor);
+  --bs-btn-hover-bg: var(--primaryActionHoverColor);
+  --bs-btn-hover-border-color: var(--primaryActionHoverColor);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  --bs-btn-active-bg: var(--primaryActionHoverColor);
+  --bs-btn-active-border-color: var(--primaryActionHoverColor);
+  --bs-btn-disabled-bg: var(--primaryActionColor);
+  --bs-btn-disabled-border-color: var(--primaryActionColor);
+}
+
+:root[data-theme="klacks"] .btn-outline-primary {
+  --bs-btn-color: var(--primaryActionColor);
+  --bs-btn-border-color: var(--primaryActionColor);
+  --bs-btn-hover-bg: var(--primaryActionColor);
+  --bs-btn-hover-border-color: var(--primaryActionColor);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  --bs-btn-active-bg: var(--primaryActionColor);
+  --bs-btn-active-border-color: var(--primaryActionColor);
+  --bs-btn-disabled-color: var(--primaryActionColor);
+  --bs-btn-disabled-border-color: var(--primaryActionColor);
+}

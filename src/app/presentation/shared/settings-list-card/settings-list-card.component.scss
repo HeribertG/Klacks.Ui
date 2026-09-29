@@ -1,6 +1,4 @@
-@use "sass:color";
 @use "../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../assets/standard-styles/colors.scss" as colors;
 
 .container-header-row {
   display: flex;
@@ -79,11 +77,11 @@
 .add-button {
   font-size: 13px;
   text-decoration: underline;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
   cursor: pointer;
 
   &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    color: var(--accentDarkColor);
   }
 }
 

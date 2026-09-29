@@ -1,7 +1,5 @@
 @use "./../../../../assets/standard-styles/standard-modal.scss";
 @use "./../../../../assets/standard-styles/standard-controls.scss";
-@use "./../../../../assets/standard-styles/colors.scss" as colors;
-@use "sass:color";
 
 $header_height: 65px;
 $savebar_height: var(--savebar_height);
@@ -78,13 +76,13 @@ app-footer.full-width {
   cursor: pointer;
 
   &:focus {
-    outline: 2px solid colors.$standartBlueColor;
+    outline: 2px solid var(--primaryActionColor);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
   &:focus-visible {
-    outline: 2px solid colors.$standartBlueColor;
+    outline: 2px solid var(--primaryActionColor);
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -98,7 +96,7 @@ app-footer.full-width {
 
 .blue-font {
   margin-top: 10px;
-  color: colors.$standartBlueColor;
+  color: var(--primaryActionColor);
 }
 
 .container {

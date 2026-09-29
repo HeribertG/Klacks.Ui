@@ -1,5 +1,3 @@
-@use "../../../../../assets/standard-styles/colors.scss";
-
 :host {
   --v-shift-scrollbar-size: 17px;
 }
@@ -89,8 +87,8 @@
       }
 
       &.filtered {
-        color: colors.$standartGreenColor;
-        border-color: colors.$standartGreenColor;
+        color: var(--accentColor);
+        border-color: var(--accentColor);
       }
     }
 

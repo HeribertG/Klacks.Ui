@@ -8,7 +8,7 @@
 }
 
 .container-search-button {
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   color: colors.$standartWhiteColor;
   font-size: 13px;
   font-weight: normal;

@@ -181,7 +181,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
     const groupId = this.selectedGroupId() ?? undefined;
     this.dataDashboardService.getResourceMonitor(this.selectedYear(), groupId).subscribe({
       next: (data) => { this.dailyData.set(data.dailyData); this.isLoading.set(false); },
-      error: () => { this.error.set('Failed to load resource monitor data'); this.isLoading.set(false); },
+      error: () => { this.error.set('dashboard.error.loadResourceMonitor'); this.isLoading.set(false); },
     });
   }
 

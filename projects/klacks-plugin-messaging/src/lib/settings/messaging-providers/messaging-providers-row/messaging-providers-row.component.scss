@@ -1,6 +1,5 @@
 @use "../../../../../../../src/assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../../src/assets/standard-styles/standard-controls.scss";
-@use "../../../../../../../src/assets/standard-styles/colors.scss" as colors;
 
 .first {
   padding-left: 30px;
@@ -64,7 +63,7 @@ span {
 }
 
 .status-enabled {
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   color: white;
 }
 
@@ -93,11 +92,11 @@ span {
 }
 
 .test-btn {
-  border-color: colors.$standartGreenColor;
-  color: colors.$standartGreenColor;
+  border-color: var(--accentColor);
+  color: var(--accentColor);
 
   &:hover {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: white;
   }
 }

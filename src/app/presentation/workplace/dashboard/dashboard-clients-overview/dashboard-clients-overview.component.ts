@@ -58,7 +58,7 @@ export class DashboardClientsOverviewComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('Failed to load group data');
+        this.error.set('dashboard.error.loadGroups');
         console.error('Error loading groups:', err);
         this.isLoading.set(false);
       },

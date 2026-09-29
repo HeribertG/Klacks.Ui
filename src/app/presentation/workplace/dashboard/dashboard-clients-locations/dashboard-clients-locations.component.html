@@ -11,7 +11,7 @@
   </div>
   } @if (error()) {
   <div class="container-dashboard-error">
-    <p class="container-dashboard-error-message">{{ error() }}</p>
+    <p class="container-dashboard-error-message">{{ (error() ?? '') | translate }}</p>
   </div>
   } @if (!isLoading() && !error()) {
   <div class="container-dashboard-card-content">
@@ -47,7 +47,7 @@
         [formField]="mapSettingsForm.tileProvider"
       >
         @for (provider of tileProviders; track provider.id) {
-        <option [value]="provider.id">{{ provider.name }}</option>
+        <option [value]="provider.id">{{ provider.nameKey | translate }}</option>
         }
       </select>
     </div>

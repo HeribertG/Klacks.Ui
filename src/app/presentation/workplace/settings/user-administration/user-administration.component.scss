@@ -1,8 +1,6 @@
 @use "../../../../../assets/standard-styles/standard-grid.scss";
-@use "sass:color";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
-@use "../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-tabs.scss";
 @use "../../../../../assets/standard-styles/standard-manual.scss";
@@ -11,11 +9,11 @@
   padding-inline-end: 50px;
   font-size: var(--fontSizeLabel);
   text-decoration: underline;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
   cursor: pointer;
 
   &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    color: var(--accentDarkColor);
   }
 }
 

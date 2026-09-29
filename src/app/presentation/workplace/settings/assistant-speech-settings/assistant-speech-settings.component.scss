@@ -1,9 +1,7 @@
-@use "sass:color";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-slider.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
-@use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 :host {
   display: block;
@@ -139,10 +137,10 @@ select {
 .btn-add {
   font-size: var(--fontSizeTitle);
   font-weight: bold;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
 
   &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    color: var(--accentDarkColor);
   }
 }
 
@@ -159,11 +157,11 @@ select {
 .add-button {
   font-size: var(--fontSizeLabel);
   text-decoration: underline;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
   cursor: pointer;
 
   &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    color: var(--accentDarkColor);
   }
 }
 

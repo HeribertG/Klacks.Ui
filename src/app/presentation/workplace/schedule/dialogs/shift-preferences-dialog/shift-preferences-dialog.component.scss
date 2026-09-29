@@ -35,10 +35,10 @@
   }
 
   &.preferred {
-    background-color: colors.$standartBlueColor;
+    background-color: var(--primaryActionColor);
 
     &:hover:not(:disabled) {
-      background-color: colors.$splitButtonBlueColor;
+      background-color: var(--primaryActionHoverColor);
     }
   }
 
@@ -75,7 +75,7 @@
   color: colors.$standartWhiteColor;
 
   &.preferred-header {
-    background-color: colors.$standartBlueColor;
+    background-color: var(--primaryActionColor);
   }
 
   &.blacklist-header {

@@ -30,12 +30,12 @@
 .new-btn {
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   color: colors.$standartWhiteColor;
   border-radius: 4px;
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: colors.$splitButtonGreenColor;
+    background-color: var(--accentHoverColor);
   }
 }

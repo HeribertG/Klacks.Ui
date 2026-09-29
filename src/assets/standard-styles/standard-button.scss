@@ -54,7 +54,7 @@
   &:focus,
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primaryActionColor) 30%, transparent);
   }
 }
 
@@ -75,14 +75,14 @@
 .btn-primary,
 .btn.btn-primary {
   @extend %btn-klacks-base;
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   color: colors.$standartWhiteColor;
-  border-color: colors.$standartBlueColor;
+  border-color: var(--primaryActionColor);
 
   &:hover:not(:disabled):not(.disabled),
   &:focus:not(:disabled):not(.disabled) {
-    background-color: colors.$splitButtonBlueColor;
-    border-color: colors.$splitButtonBlueColor;
+    background-color: var(--primaryActionHoverColor);
+    border-color: var(--primaryActionHoverColor);
     color: colors.$standartWhiteColor;
   }
 }
@@ -91,14 +91,14 @@
 .btn-success,
 .btn.btn-success {
   @extend %btn-klacks-base;
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   color: colors.$standartWhiteColor;
-  border-color: colors.$standartGreenColor;
+  border-color: var(--accentColor);
 
   &:hover:not(:disabled):not(.disabled),
   &:focus:not(:disabled):not(.disabled) {
-    background-color: colors.$splitButtonGreenColor;
-    border-color: colors.$splitButtonGreenColor;
+    background-color: var(--accentHoverColor);
+    border-color: var(--accentHoverColor);
     color: colors.$standartWhiteColor;
   }
 }
@@ -142,12 +142,12 @@
 .btn.btn-outline-primary {
   @extend %btn-klacks-base;
   background-color: transparent;
-  color: colors.$standartBlueColor;
-  border-color: colors.$standartBlueColor;
+  color: var(--primaryActionColor);
+  border-color: var(--primaryActionColor);
 
   &:hover:not(:disabled):not(.disabled),
   &:focus:not(:disabled):not(.disabled) {
-    background-color: colors.$standartBlueColor;
+    background-color: var(--primaryActionColor);
     color: colors.$standartWhiteColor;
   }
 }
@@ -156,12 +156,12 @@
 .btn.btn-outline-success {
   @extend %btn-klacks-base;
   background-color: transparent;
-  color: colors.$standartGreenColor;
-  border-color: colors.$standartGreenColor;
+  color: var(--accentColor);
+  border-color: var(--accentColor);
 
   &:hover:not(:disabled):not(.disabled),
   &:focus:not(:disabled):not(.disabled) {
-    background-color: colors.$standartGreenColor;
+    background-color: var(--accentColor);
     color: colors.$standartWhiteColor;
   }
 }

@@ -4,7 +4,7 @@
   width: 180px;
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   color: colors.$standartWhiteColor;
   margin-inline-end: 20px;
   border: 2px solid transparent;
@@ -13,14 +13,14 @@
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: colors.$splitButtonBlueColor;
+    background-color: var(--primaryActionHoverColor);
   }
 
   &:focus,
   &:focus-visible {
     outline: none;
     border: 2px solid colors.$standartWhiteColor;
-    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primaryActionColor) 30%, transparent);
   }
 
   &:active:not(:disabled) {
@@ -37,7 +37,7 @@
   width: 80px;
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartBlueColor;
+  background-color: var(--primaryActionColor);
   color: colors.$standartWhiteColor;
   margin-inline-end: 20px;
   border: none;
@@ -45,7 +45,7 @@
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: colors.$splitButtonBlueColor;
+    background-color: var(--primaryActionHoverColor);
   }
 
   &:disabled {
@@ -58,7 +58,7 @@
   width: 180px;
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   color: colors.$standartWhiteColor;
   margin-inline-end: 20px;
   border: none;
@@ -66,7 +66,7 @@
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: colors.$splitButtonGreenColor;
+    background-color: var(--accentHoverColor);
   }
 
   &:disabled {
@@ -100,7 +100,7 @@
   width: 180px;
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   color: colors.$standartWhiteColor;
   margin-inline-end: 20px;
   border: none;
@@ -108,7 +108,7 @@
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: colors.$splitButtonGreenColor;
+    background-color: var(--accentHoverColor);
   }
 
   &:disabled {
@@ -130,7 +130,7 @@
   }
 
   &.blue-font {
-    color: colors.$standartBlueColor;
+    color: var(--primaryActionColor);
   }
 }
 

@@ -1,4 +1,3 @@
-@use "../../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
@@ -51,9 +50,9 @@
   }
 
   &.active {
-    border-color: colors.$standartBlueColor;
-    background: rgba(colors.$standartBlueColor, 0.06);
-    outline: 1px solid colors.$standartBlueColor;
+    border-color: var(--primaryActionColor);
+    background: color-mix(in srgb, var(--primaryActionColor) 6%, transparent);
+    outline: 1px solid var(--primaryActionColor);
   }
 }
 

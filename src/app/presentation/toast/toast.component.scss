@@ -57,7 +57,7 @@
   .bg-assistant-interactive {
     background: var(--backgroundColorCard) !important;
     color: var(--standartTextColor) !important;
-    border: 2px solid colors.$standartGreenColor !important;
+    border: 2px solid var(--accentColor) !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   }
 
@@ -65,7 +65,7 @@
   .bg-action {
     background: var(--backgroundColorCard) !important;
     color: var(--standartTextColor) !important;
-    border: 2px solid colors.$standartGreenColor !important;
+    border: 2px solid var(--accentColor) !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
   }
 
@@ -91,9 +91,9 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
     &:hover {
-      background: colors.$standartGreenColor;
+      background: var(--accentColor);
       color: colors.$standartWhiteColor;
-      border-color: colors.$standartGreenColor;
+      border-color: var(--accentColor);
       transform: translateY(-1px);
     }
 
@@ -119,7 +119,7 @@
   .undo-progress-bar {
     width: 100%;
     height: 100%;
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     animation-name: undo-countdown;
     animation-timing-function: linear;
     animation-fill-mode: forwards;
@@ -161,9 +161,9 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
     &:hover {
-      background: colors.$standartGreenColor;
+      background: var(--accentColor);
       color: colors.$standartWhiteColor;
-      border-color: colors.$standartGreenColor;
+      border-color: var(--accentColor);
       transform: translateY(-1px);
     }
 
@@ -198,7 +198,7 @@
     }
 
     input[type="checkbox"] {
-      accent-color: colors.$standartGreenColor;
+      accent-color: var(--accentColor);
       width: 16px;
       height: 16px;
       cursor: pointer;
@@ -215,7 +215,7 @@
     justify-content: center;
     width: 100%;
     padding: 8px;
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: colors.$standartWhiteColor;
     border: none;
     border-radius: 8px;
@@ -224,7 +224,7 @@
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
-      background: colors.$splitButtonGreenColor;
+      background: var(--accentHoverColor);
     }
 
     &:disabled {
@@ -257,7 +257,7 @@
     font-size: var(--fontSizeLabel);
 
     &:focus {
-      border-color: colors.$standartGreenColor !important;
+      border-color: var(--accentColor) !important;
       box-shadow: 0 0 0 0.1rem color-mix(in srgb, var(--standartGreenColor) 25%, transparent) !important;
       outline: none;
     }

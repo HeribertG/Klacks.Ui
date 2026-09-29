@@ -1,6 +1,5 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../../../assets/standard-styles/colors.scss" as colors;
 
 .first {
   padding-inline-start: 30px;
@@ -72,7 +71,7 @@ span {
 }
 
 .status-core {
-  background-color: colors.$standartGreenColor;
+  background-color: var(--accentColor);
   color: var(--onAccent);
 }
 
@@ -96,11 +95,11 @@ span {
 }
 
 .install-btn {
-  border-color: colors.$standartGreenColor;
-  color: colors.$standartGreenColor;
+  border-color: var(--accentColor);
+  color: var(--accentColor);
 
   &:hover {
-    background: colors.$standartGreenColor;
+    background: var(--accentColor);
     color: var(--onAccent);
   }
 }

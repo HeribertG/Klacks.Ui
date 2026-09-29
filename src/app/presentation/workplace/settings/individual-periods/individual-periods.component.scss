@@ -4,7 +4,6 @@
 @use '../../../../../assets/standard-styles/standard-controls.scss';
 @use '../../../../../assets/standard-styles/standard-modal.scss';
 @use '../../../../../assets/standard-styles/settings-list-card-modal.scss';
-@use '../../../../../assets/standard-styles/colors.scss' as colors;
 
 .icon {
   cursor: pointer;
@@ -19,10 +18,10 @@
 .add-button {
   font-size: var(--fontSizeLabel);
   text-decoration: underline;
-  color: colors.$standartGreenColor;
+  color: var(--accentColor);
   cursor: pointer;
 
   &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+    color: var(--accentDarkColor);
   }
 }

@@ -29,7 +29,7 @@
     flex-flow: column;
     width: auto;
     height: auto;
-    background-color: colors.$standartGreenColor;
+    background-color: var(--accentColor);
     color:colors.$standartWhiteColor;
     opacity: 0;
     position: fixed;

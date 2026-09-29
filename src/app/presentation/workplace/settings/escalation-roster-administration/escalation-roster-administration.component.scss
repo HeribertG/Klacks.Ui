@@ -1,5 +1,4 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../assets/standard-styles/colors.scss";
 
 .escalation-roster-empty {
   margin-top: 8px;
@@ -71,7 +70,7 @@
 .escalation-roster-manage-link {
   font-size: var(--fontSizeSmall);
   text-decoration: underline;
-  color: colors.$standartBlueColor;
+  color: var(--primaryActionColor);
   white-space: nowrap;
   margin-inline-start: auto;
 }
@@ -142,7 +141,7 @@
   display: block;
   font-size: var(--fontSizeXSmall);
   text-decoration: underline;
-  color: colors.$standartBlueColor;
+  color: var(--primaryActionColor);
   cursor: pointer;
   margin-top: 2px;
 }

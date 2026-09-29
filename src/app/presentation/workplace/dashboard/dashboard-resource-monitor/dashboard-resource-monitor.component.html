@@ -28,7 +28,7 @@
     </ul>
     <div class="rm-controls-wrapper">
       <div class="rm-controls">
-        <div class="custom-slider" placement="bottom" ngbTooltip="Zoom" autoClose="true">
+        <div class="custom-slider" placement="bottom" ngbTooltip="{{ 'floor-plan.toolbar.zoom' | translate }}" autoClose="true">
           <ngx-slider
             [value]="zoom()"
             (valueChange)="zoom.set($event)"
@@ -57,7 +57,7 @@
       </div>
     } @else if (error()) {
       <div class="container-dashboard-error">
-        <p class="container-dashboard-error-message">{{ error() }}</p>
+        <p class="container-dashboard-error-message">{{ (error() ?? '') | translate }}</p>
       </div>
     } @else {
       <div class="container-dashboard-card-content rm-content">
