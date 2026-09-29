@@ -56,7 +56,8 @@ export class PlanExecutionPanelComponent {
   public readonly isApproving = this.planService.isApproving;
   public readonly isAborting = this.planService.isAborting;
 
-  public readonly canAbort = computed(() => this.isExecuting() || this.isPaused());
+  public readonly isDrafting = computed(() => this.plan()?.status === PlanStatus.Drafting);
+  public readonly canAbort = computed(() => this.isExecuting() || this.isPaused() || this.isDrafting());
   public readonly isBusy = computed(() => this.isApproving() || this.isAborting());
 
   public readonly rows = computed<IPlanStepRow[]>(() => {

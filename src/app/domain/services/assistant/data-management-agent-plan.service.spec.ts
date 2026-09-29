@@ -117,6 +117,36 @@ describe('DataManagementAgentPlanService', () => {
       expect(service.activePlan()).toEqual(abortedPlan);
     });
 
+    it('clears the active plan when a drafting plan is aborted', () => {
+      service.activePlan.set(makePlan({ status: PlanStatus.Drafting }));
+      dataAgentPlanServiceSpy.abort.mockReturnValue(of(makePlan({ status: PlanStatus.Aborted })));
+
+      service.abort('plan-1').subscribe();
+
+      expect(service.activePlan()).toBeNull();
+      expect(service.totalSteps()).toBe(0);
+    });
+
+    it('keeps an aborted executing plan visible so the outcome stays readable', () => {
+      service.activePlan.set(makePlan({ status: PlanStatus.Executing }));
+      const abortedPlan = makePlan({ status: PlanStatus.Aborted });
+      dataAgentPlanServiceSpy.abort.mockReturnValue(of(abortedPlan));
+
+      service.abort('plan-1').subscribe();
+
+      expect(service.activePlan()).toEqual(abortedPlan);
+    });
+
+    it('does not clear a drafting plan when the response is not aborted', () => {
+      service.activePlan.set(makePlan({ status: PlanStatus.Drafting }));
+      const stillDrafting = makePlan({ status: PlanStatus.Drafting });
+      dataAgentPlanServiceSpy.abort.mockReturnValue(of(stillDrafting));
+
+      service.abort('plan-1').subscribe();
+
+      expect(service.activePlan()).toEqual(stillDrafting);
+    });
+
     it('reloads the plan and rethrows on a 409 conflict', () => {
       const staleConflict = new HttpErrorResponse({ status: 409 });
       const refreshedPlan = makePlan({ status: PlanStatus.Completed });

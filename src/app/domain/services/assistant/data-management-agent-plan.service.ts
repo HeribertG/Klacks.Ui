@@ -8,6 +8,7 @@
  * `hasVisiblePlan` intentionally stays true once a plan reaches a terminal status
  * (completed/aborted/failed) so the panel can still show the outcome: only
  * `refreshActivePlan` (called once per chat-open) filters terminal plans out again.
+ * The exception is a drafting plan that was aborted: nothing ran, so it is cleared instead of kept.
  * @param dataAgentPlanService - HTTP API
  * @param signalRService - assistant SignalR connection for live plan updates
  */
@@ -93,8 +94,15 @@ export class DataManagementAgentPlanService implements OnDestroy {
 
   abort(planId: string): Observable<IAgentPlan> {
     this.isAborting.set(true);
+    const wasDrafting = this.activePlan()?.status === PlanStatus.Drafting;
     return this.dataAgentPlanService.abort(planId).pipe(
-      tap((plan) => this.activePlan.set(plan)),
+      tap((plan) => {
+        if (wasDrafting && plan.status === PlanStatus.Aborted) {
+          this.clearActivePlan();
+        } else {
+          this.activePlan.set(plan);
+        }
+      }),
       catchError((error: unknown) => this.recoverAfterConflict(planId, error)),
       finalize(() => this.isAborting.set(false)),
     );

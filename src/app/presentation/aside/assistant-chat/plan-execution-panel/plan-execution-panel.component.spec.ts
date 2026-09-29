@@ -2,6 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { runInInjectionContext, Injector, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { PlanExecutionPanelComponent } from './plan-execution-panel.component';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import {
@@ -56,6 +57,7 @@ describe('PlanExecutionPanelComponent', () => {
     };
 
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
         { provide: DataManagementAgentPlanService, useValue: serviceMock },
       ],
@@ -119,6 +121,32 @@ describe('PlanExecutionPanelComponent', () => {
     const component = setupComponent(makePlan(PlanStatus.PausedForApproval, 1));
 
     expect(component.canAbort()).toBe(true);
+  });
+
+  it('allows abort while drafting', () => {
+    const component = setupComponent(makePlan(PlanStatus.Drafting, 0));
+
+    expect(component.isDrafting()).toBe(true);
+    expect(component.canAbort()).toBe(true);
+  });
+
+  it('emits abortRequested when Abort clicked while drafting', () => {
+    const component = setupComponent(makePlan(PlanStatus.Drafting, 0));
+
+    let emitted: string | undefined;
+    component.abortRequested.subscribe((id: string) => (emitted = id));
+    component.onAbortClick();
+
+    expect(emitted).toBe('plan-1');
+  });
+
+  it('renders the abort button for a drafting plan', () => {
+    setupComponent(makePlan(PlanStatus.Drafting, 0));
+    const fixture = TestBed.createComponent(PlanExecutionPanelComponent);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('[data-klacksy-target="plan-execution-panel.abort"]');
+    expect(button).not.toBeNull();
   });
 
   it('does not allow abort once completed', () => {
