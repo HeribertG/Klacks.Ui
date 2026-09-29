@@ -1254,6 +1254,8 @@
   "setting.holiday-rules.states": "LAND",
   "setting.holiday-rules.states-modal": "Land",
   "setting.holiday-rules.sub-rule": "Subregel",
+  "setting.holiday-rules.unofficial": "Inoffiziell",
+  "setting.holiday-rules.unofficial-hint": "Kein gesetzlicher Feiertag",
   "setting.home.header": "Mein Profil",
   "setting.macro.add": "+ Macro hinzufügen",
   "setting.macro.add-modal": "Macro erfassen",

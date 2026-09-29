@@ -307,3 +307,19 @@ t .table-cell-top {
   cursor: -moz-grab; /* Firefox 1.5-26 */
   cursor: grab; /* W3C standards syntax, should come least */
 }
+
+.grid-status-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--badgeCustomerColor);
+  background-color: var(--badgeCustomerBackground);
+  color: var(--standartTextColor);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: help;
+}

@@ -292,7 +292,18 @@
             (click)="onClickedRow(data)"
             [class.active]="data.id === highlightRowId"
           >
-            <td [id]="'calendar-rules-cell-name-' + i" class="table-cell">{{ data.name | fallback : currentLang }}</td>
+            <td [id]="'calendar-rules-cell-name-' + i" class="table-cell">
+              {{ data.name | fallback : currentLang }}
+              @if (data.isMandatory === false) {
+              <span
+                [id]="'calendar-rules-unofficial-badge-' + i"
+                class="grid-status-badge"
+                [ngbTooltip]="'setting.holiday-rules.unofficial-hint' | translate"
+                container="body"
+                >{{ 'setting.holiday-rules.unofficial' | translate }}</span
+              >
+              }
+            </td>
             <td [id]="'calendar-rules-cell-country-' + i" class="table-cell cell-center">
               {{ data.country }}
             </td>

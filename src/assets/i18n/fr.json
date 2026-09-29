@@ -1254,6 +1254,8 @@
   "setting.holiday-rules.states": "DÉP.",
   "setting.holiday-rules.states-modal": "Département",
   "setting.holiday-rules.sub-rule": "Sous-règle",
+  "setting.holiday-rules.unofficial": "Non officiel",
+  "setting.holiday-rules.unofficial-hint": "Pas un jour férié légal",
   "setting.home.header": "Mon profil",
   "setting.macro.add": "+ Ajouter une macro",
   "setting.macro.add-modal": "Ajouter une macro",

@@ -1254,6 +1254,8 @@
   "setting.holiday-rules.states": "STATE",
   "setting.holiday-rules.states-modal": "State",
   "setting.holiday-rules.sub-rule": "Sub-rule",
+  "setting.holiday-rules.unofficial": "Unofficial",
+  "setting.holiday-rules.unofficial-hint": "Not a statutory public holiday",
   "setting.home.header": "My Profile",
   "setting.macro.add": "+ Add Macro",
   "setting.macro.add-modal": "Add Macro",

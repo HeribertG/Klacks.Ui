@@ -1254,6 +1254,8 @@
   "setting.holiday-rules.states": "DIP.",
   "setting.holiday-rules.states-modal": "Dipartimenti",
   "setting.holiday-rules.sub-rule": "Sottoregola",
+  "setting.holiday-rules.unofficial": "Non ufficiale",
+  "setting.holiday-rules.unofficial-hint": "Non è un giorno festivo legale",
   "setting.home.header": "Il mio profilo",
   "setting.macro.add": "+ Aggiungi Macro",
   "setting.macro.add-modal": "Aggiungi macro",
