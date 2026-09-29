@@ -1002,3 +1002,144 @@ $voiceStateSpeakingColor: #10b981;
   --colorScrollbarButton: #8a929c;
   --colorScrollbarButtonActive: #e5eaee;
 }
+
+:root[data-theme="klacks"] {
+  --VersionNumberColor: #bdc3c7;
+  --backgroundColorWorkplace: #e8eeed;
+  --backgroundColorWindow: #f4f6f5;
+  --colorWorkplaceHeadline: #16181d;
+  --colorWorkplaceHeadlineDecoration: rgb(22, 24, 29);
+
+  --backgroundColorSubCards: #e1e9e8;
+  --backgroundColorHeaderNav: white;
+  --backgroundColorHeaderWorkplace: #e1e9e8;
+  --backgroundColorCard: white;
+  --colorHeadline: #16181d;
+  --colorSubHeadline: #b6b6c3;
+  --colorLabel: #464e5f;
+  --colorInactive: #777777;
+  --colorLink: #0b4f4d;
+  --standartBorderColor: #ced4da;
+  --backgroundColorImgIconContainer: white;
+
+  --colorLine: #e1e9e8;
+  --gridColorLine: #b6b6c3;
+  --gridColorText: #464e5f;
+  --gridColorTextUpdate: #0b5f5c;
+  --gridColorTextDelete: red;
+  --gridColorCellComment: grey;
+  --gridBackgroundColorCellComment: #fdf0d2;
+  --gridBackgroundColorCellShadow: dimgrey;
+  --gridBackgroundColorRowHover: #eef4f3;
+  --gridBackgroundColorInfo: #fdf0d2;
+
+  --cardBorderColor: #cfd8dc;
+  --inputBorderColor: #ced4da;
+  --backgroundColorFocus: #e1e9e8;
+  --backgroundColorHover: #fafafa;
+
+  --standartTextColor: #464e5f;
+  --standartTextBackground: white;
+  --standartTextCaretColor: dimgray;
+  --standartTextBackgroundReadOnly: #e1e9e8;
+
+  --backgroundColoPagination: white;
+  --backgroundColoPaginationSelected: #e1e9e8;
+  --coloPaginationSelected: #464e5f;
+  --paginationBorderColor: #e1e9e8;
+  --paginationBorderColorSelected: grey;
+
+  --iconStandartColor: #16181d;
+  --iconSelectedColor: #0e6e6b;
+
+  --backgroundOption: white;
+  --colorOption: #464e5f;
+
+  --SpinnerColor: #0e6e6b;
+
+  --backgroundOwnHeadLine: #e1e9e8;
+  --backgroundOwnHeadLineHover: #d3dedc;
+
+  --backgroundColorDropZone: white;
+  --backgroundColorDropZoneHover: #e3f1ef;
+
+  --backgroundColorContributionTypeName: #e3f1ef;
+  --backgroundColorContributionTypeVat: #fdf0d2;
+
+  --colorPlaceholder: #e5e7e9;
+
+  --backgroundColorMenuDisabled: #e1e9e8;
+  --bColorMenuDisabled: #464e5f;
+
+  --standartRedColor: red;
+  --standartGreenColor: #0e6e6b;
+  --waveColor: white;
+  --waveBackgroundColor: #0e6e6b;
+
+  --backgroundFindCustomerList: #0e6e6b;
+  --backgroundHoverFindCustomerList: #0b4f4d;
+  --lightBorderColorFindCustomerList: #d5ecea;
+  --darkBorderColorFindCustomerList: #0b4f4d;
+  --colorFindCustomerList: white;
+
+  --colorHoverOnCalenderDay: black;
+
+  --gridContainerBackground: #2f3d3c;
+  --gridHeaderBackground: #d3dedc;
+  --gridHeaderColor: #4d4d4d;
+  --gridHeaderBorderColor: #d3dedc;
+  --gridRowHeaderColor: #000000;
+
+  --inboxColorLine: white;
+
+  --emailReaderBackground: #fafafa;
+  --emailReaderText: #1a1a1a;
+  --emailReaderMetaLabel: #555555;
+  --emailReaderMetaValue: #333333;
+  --emailReaderMuted: #777777;
+  --emailReaderBorder: #e0e0e0;
+  --emailReaderMetaBackground: #f0f0f0;
+  --emailReaderButtonBorder: #d0d0d0;
+  --emailReaderButtonHover: #e8e8e8;
+  --emailReaderFocusOutline: #0e6e6b;
+
+  --taskRowPossibleBackground: rgba(76, 175, 80, 0.08);
+  --taskRowViolationBackground: rgba(244, 67, 54, 0.12);
+
+  --badgeEmployeeBackground: #d5ecea;
+  --badgeEmployeeColor: #0b5f5c;
+  --badgeExternBackground: #dbeafe;
+  --badgeExternColor: #2563eb;
+  --badgeCustomerBackground: #fdf0d2;
+  --badgeCustomerColor: #8a5a00;
+  --countBoxBackground: #d5ecea;
+
+  --onAccent: #ffffff;
+  --alertSuccessBackground: #d4edda;
+  --alertSuccessText: #155724;
+  --alertSuccessBorder: #c3e6cb;
+  --alertWarningBackground: #fff3cd;
+  --alertWarningText: #856404;
+  --alertWarningBorder: #ffeaa7;
+  --alertDangerBackground: #f8d7da;
+  --alertDangerText: #721c24;
+  --alertDangerBorder: #f5c6cb;
+  --alertNeutralBackground: #e2e3e5;
+  --alertNeutralText: #383d41;
+  --alertNeutralBorder: #d6d8db;
+  --colorWarning: #c2410c;
+  --colorInfo: #3b82f6;
+  --colorNeutral: #6c757d;
+  --colorMuted: #b6b6c3;
+  --colorSubtleLine: #dee2e6;
+  --colorScrollbarThumb: #dee2e6;
+  --colorScrollbarThumbHover: #adb5bd;
+  --colorFocus: #0e6e6b;
+  --standartBlueColor: #6993ff;
+  --standartOrangeColor: #f2a516;
+  --standartTealColor: #0e6e6b;
+  --standartPurpleColor: #7d5fc4;
+  --standartGreyColor: #6c757d;
+  --colorScrollbarButton: #a9a9a9;
+  --colorScrollbarButtonActive: #0b4f4d;
+}

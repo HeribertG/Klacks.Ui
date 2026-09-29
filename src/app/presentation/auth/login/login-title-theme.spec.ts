@@ -3,7 +3,7 @@
 /**
  * Guards the login title against the Bootstrap heading colour that ignores the selected theme: the title rule
  * must take its colour from the shared headline token, and that token must stay readable on the login card
- * background in every one of the seven themes.
+ * background in every one of the eight themes.
  */
 
 import { readFileSync } from 'fs';
@@ -21,6 +21,7 @@ const THEME_SELECTORS = [
   ':root[data-theme="warm"] {',
   ':root[data-theme="oled"] {',
   ':root[data-theme="dimmed"] {',
+  ':root[data-theme="klacks"] {',
 ] as const;
 const HEADLINE_TOKEN = '--colorHeadline';
 const CARD_TOKEN = '--backgroundColorCard';

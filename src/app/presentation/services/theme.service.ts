@@ -9,10 +9,11 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
-export type ThemeMode = 'light' | 'dark' | 'high-contrast' | 'blue' | 'warm' | 'oled' | 'dimmed';
+export type ThemeMode = 'light' | 'klacks' | 'dark' | 'high-contrast' | 'blue' | 'warm' | 'oled' | 'dimmed';
 
 export const AVAILABLE_THEMES: { value: ThemeMode; label: string }[] = [
   { value: 'light', label: 'Light' },
+  { value: 'klacks', label: 'Klacks' },
   { value: 'dark', label: 'Dark' },
   { value: 'high-contrast', label: 'High Contrast' },
   { value: 'blue', label: 'Blue' },
