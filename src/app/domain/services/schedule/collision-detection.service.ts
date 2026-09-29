@@ -30,11 +30,18 @@ import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-ent
 import { DataManagementScheduleService } from './data-management-schedule.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import {
+  addDays,
   formatDateOnly,
   isoWeekMondayOf,
 } from 'src/app/shared/helpers/date.helper';
-import { WEEK_SCOPED_VALIDATION_KEYS } from 'src/app/domain/constants/schedule-validation-keys.constants';
-import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
+import {
+  SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
+  WEEK_SCOPED_VALIDATION_KEYS,
+} from 'src/app/domain/constants/schedule-validation-keys.constants';
+import {
+  calendarDateKey,
+  parseCalendarDate,
+} from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -316,7 +323,9 @@ export class CollisionDetectionService implements OnDestroy {
     // Those entries can carry any date of the week, so matching the checked day alone would leave them
     // behind as stale entries once the violation is resolved. Deliberately not filtered by type: after
     // the compliance escalation the same violation can arrive as warning or as error.
+    // Rest violations are dated with the previous block's owner day, so the pair (X-1 -> X) sits on X-1.
     const weekMonday = isoWeekMondayOf(date);
+    const previousDay = this.previousCalendarDay(date);
     const keysToRemove: string[] = [];
     for (const [key, validation] of this.validations) {
       if (validation.clientId !== clientId) {
@@ -326,13 +335,22 @@ export class CollisionDetectionService implements OnDestroy {
       const matchesCheckedWeek =
         WEEK_SCOPED_VALIDATION_KEYS.includes(validation.comment) &&
         isoWeekMondayOf(validation.date) === weekMonday;
-      if (matchesCheckedDay || matchesCheckedWeek) {
+      const matchesRestViolationPair =
+        validation.comment === SCHEDULE_VALIDATION_KEY_REST_VIOLATION &&
+        previousDay !== null &&
+        validation.date === previousDay;
+      if (matchesCheckedDay || matchesCheckedWeek || matchesRestViolationPair) {
         keysToRemove.push(key);
       }
     }
     for (const key of keysToRemove) {
       this.validations.delete(key);
     }
+  }
+
+  private previousCalendarDay(date: string): string | null {
+    const parsed = parseCalendarDate(date);
+    return parsed ? formatDateOnly(addDays(parsed, -1)) : null;
   }
 
   private buildCollisionKey(workId1: string, workId2: string): string {

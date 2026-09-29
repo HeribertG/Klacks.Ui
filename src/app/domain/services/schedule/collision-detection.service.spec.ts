@@ -694,6 +694,105 @@ describe('CollisionDetectionService', () => {
     });
   });
 
+  describe('rest-violation retraction across browser time zones', () => {
+    const REST_KEY = 'schedule.error-list.rest-violation';
+
+    function seed(entries: IScheduleValidationNotification[]): void {
+      scheduleValidationsDetected$.next({ isFullRefresh: true, entries });
+      flushAndTick();
+    }
+
+    function recheck(
+      clientId: string,
+      checkedDate: string,
+      entries: IScheduleValidationNotification[] = [],
+    ): void {
+      scheduleValidationsDetected$.next({
+        isFullRefresh: false,
+        checkedClientId: clientId,
+        checkedDate,
+        entries,
+      });
+      flushAndTick();
+    }
+
+    function dates(): string[] {
+      return service.errorEntries().map((e) => e.date).sort();
+    }
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it('retracts a rest violation dated the day before the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: REST_KEY })]);
+          expect(dates()).toEqual(['2026-03-10']);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('keeps a rest violation dated the day after the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-12', comment: REST_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-12']);
+        });
+
+        it('keeps a rest violation of another client dated the day before', () => {
+          seed([createValidation({ clientId: 'client-2', date: '2026-03-10', comment: REST_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-10']);
+        });
+
+        it('keeps a non rest-violation entry dated the day before', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: 'schedule.error-list.understaffed' })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-10']);
+        });
+
+        it('replaces entries dated the re-checked day with the pushed entries', () => {
+          seed([createValidation({
+            clientId: 'client-1',
+            date: '2026-03-11',
+            comment: REST_KEY,
+            commentParams: { hours: '8' },
+          })]);
+
+          recheck('client-1', '2026-03-11', [createValidation({
+            clientId: 'client-1',
+            date: '2026-03-11',
+            comment: REST_KEY,
+            commentParams: { hours: '9' },
+          })]);
+
+          expect(service.errorEntries().length).toBe(1);
+          expect(service.errorEntries()[0].commentParams).toEqual({ hours: '9' });
+        });
+
+        it.each([
+          ['month boundary', '2026-03-01', '2026-02-28'],
+          ['year boundary', '2026-01-01', '2025-12-31'],
+          ['spring DST change (Europe)', '2026-03-30', '2026-03-29'],
+          ['spring DST change (US)', '2026-03-09', '2026-03-08'],
+          ['autumn DST change (Europe)', '2026-10-26', '2026-10-25'],
+        ])('retracts the previous-day rest violation across a %s', (_label, checkedDate, previousDate) => {
+          seed([createValidation({ clientId: 'client-1', date: previousDate, comment: REST_KEY })]);
+
+          recheck('client-1', checkedDate);
+
+          expect(dates()).toEqual([]);
+        });
+      });
+    }
+  });
+
   describe('understaffed shift dates across browser time zones', () => {
     for (const zone of CALENDAR_TEST_ZONES) {
       describe(zone, () => {
