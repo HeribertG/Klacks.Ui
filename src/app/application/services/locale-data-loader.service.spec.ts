@@ -14,6 +14,7 @@ import { LocaleDataLoaderService, SUPPORTED_APP_LANGUAGES } from './locale-data-
 const EXPECTED_DAY_COUNT = 7;
 const EXPECTED_MONTH_COUNT = 12;
 const SAMPLE_DATE = new Date(2026, 8, 12);
+const DATE_TIME_FORMATS = ['short', 'medium', 'long', 'full', 'shortTime', 'mediumTime'];
 
 describe('LocaleDataLoaderService', () => {
   let loader: LocaleDataLoaderService;
@@ -42,6 +43,14 @@ describe('LocaleDataLoaderService', () => {
       expect(() => formatDate(SAMPLE_DATE, 'shortDate', code)).not.toThrow();
     }
   );
+
+  it.each(
+    [...SUPPORTED_APP_LANGUAGES].flatMap((code) => DATE_TIME_FORMATS.map((format) => [code, format]))
+  )('should format %s with the %s date-time pattern (DatePipe presets)', async (code, format) => {
+    await loader.ensureLoaded(code);
+
+    expect(() => formatDate(SAMPLE_DATE, format, code)).not.toThrow();
+  });
 
   it('should also register the native Angular locale id for chinese variants', async () => {
     await loader.ensureLoaded('zh-CN');
