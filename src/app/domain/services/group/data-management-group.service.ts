@@ -112,6 +112,12 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   public groupTree: GroupTree = new GroupTree();
   public flatNodeList: Group[] = [];
+  /**
+   * Ids of every group in the caller's full tree, undefined until the full tree was read once. The backend
+   * limits the tree to the groups a non-admin can see, so a membership whose group is missing here belongs to
+   * a group the caller may not see.
+   */
+  public visibleGroupIds = signal<ReadonlySet<string> | undefined>(undefined);
   public selectedNode = signal<Group | undefined>(undefined);
   public expandedNodes = signal(new Set<string>());
 
@@ -174,6 +180,9 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
           this.groupTree.rootId = tree.rootId;
           this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
           this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+          if (!rootId) {
+            this.publishVisibleGroupIds();
+          }
 
           if (preserveExpandedState) {
             this.expandedNodes.set(previousExpandedNodes);
@@ -334,6 +343,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     this._showProgressSpinner.set(false);
   }
 
+  private publishVisibleGroupIds(): void {
+    const ids = this.flatNodeList.map((node) => node.id).filter((id): id is string => !!id);
+    this.visibleGroupIds.set(new Set(ids));
+  }
+
   private loadFlatNodeListForParentSelection() {
     this.dataGroupService.getGroupTree()
       .pipe(takeUntil(this.destroy$))
@@ -343,6 +357,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
           this.groupTree.rootId = tree.rootId;
           this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
           this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+          this.publishVisibleGroupIds();
           this.fireIsReadEvent();
         },
         error: (error) => {

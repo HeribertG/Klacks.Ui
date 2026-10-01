@@ -105,6 +105,15 @@ button {
   margin-bottom: 3px;
 }
 
+.onwListItem {
+  text-align: center;
+  vertical-align: middle;
+  color: var(--colorFindClientList);
+  padding: 5px;
+  margin-bottom: 3px;
+  cursor: default;
+}
+
 .onwListButton.onwPaginationBlockRight {
   background-color: var(--backgroundHoverFindClientList) !important;
   border-top: 1px solid var(--darkBorderColorFindClientList);

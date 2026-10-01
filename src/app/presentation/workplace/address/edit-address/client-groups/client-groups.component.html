@@ -54,6 +54,9 @@
           @for (groupItem of sortedGroupItems; track trackByIndex($index)) {
           <tr class="table-row">
             <td class="table-cell cell-center-vertical">
+              @if (isOutsideVisibleGroups(groupItem)) {
+              <span id="groupName-{{ $index }}" class="form-control-plaintext">{{ groupItem.groupName }}</span>
+              } @else {
               <app-group-select
                 id="groupId-{{ $index }}"
                 [index]="$index"
@@ -64,13 +67,14 @@
                 name="groupId-{{ $index }}"
                 (groupSelected)="onGroupChanged(groupItem, $event)"
               ></app-group-select>
+              }
             </td>
             <td class="table-cell">
               <div class="input-group">
                 <input
                   class="form-control"
                   name="validFrom-{{ $index }}"
-                  [disabled]="isDisabled()"
+                  [disabled]="isDisabled() || isOutsideVisibleGroups(groupItem)"
                   aria-labelledby="valid from"
                   id="valid-from-{{ $index }}"
                   [ngModel]="getGroupValidFrom(groupItem)"
@@ -100,7 +104,7 @@
                 <input
                   class="form-control"
                   name="validUntil-{{ $index }}"
-                  [disabled]="isDisabled()"
+                  [disabled]="isDisabled() || isOutsideVisibleGroups(groupItem)"
                   aria-label="valid-until-{{ $index }}"
                   aria-labelledby="validUntil"
                   id="valid-until-{{ $index }}"
@@ -126,7 +130,7 @@
               </div>
             </td>
             <td class="table-cell cell-right cell-center-vertical">
-              @if (!isDisabled()) {
+              @if (!isDisabled() && !isOutsideVisibleGroups(groupItem)) {
               <div id="delete-group-{{ $index }}" class="icon" (click)="removeGroup(groupItem)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>

@@ -16,6 +16,7 @@ import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
@@ -27,6 +28,7 @@ import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { isOutsideVisibleGroups } from 'src/app/shared/helpers/group-visibility.helper';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
@@ -55,6 +57,7 @@ export class ClientGroupsComponent implements OnInit {
   readonly isChangingEvent = output<boolean>();
 
   public dataManagementClientService = inject(DataManagementClientService);
+  private dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   public sortingService = inject(TableSortingService);
   private cardVisibility = inject(EditAddressCardVisibilityService);
@@ -119,6 +122,15 @@ export class ClientGroupsComponent implements OnInit {
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.hasPermission(PERMISSIONS.CanEditClients)
     );
+  }
+
+  /**
+   * True for a stored membership in a group the caller may not see. Its row shows the group name read-only:
+   * the picker cannot display a group missing from the caller's tree, and the server refuses any change to it.
+   * @param groupItem - Membership row of the edited client
+   */
+  isOutsideVisibleGroups(groupItem: IClientGroupItem): boolean {
+    return isOutsideVisibleGroups(this.dataManagementGroupService.visibleGroupIds(), groupItem.groupId);
   }
 
   getMinDate(): NgbDateStruct {

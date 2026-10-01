@@ -111,8 +111,9 @@
           }})</label
         >
         <ul class="findUl">
-          @for (c of dataManagementClientService.sortedFindClient(); track c.id;
+          @for (c of dataManagementClientService.sortedFindClient(); track $index;
           let i = $index) {
+          @if (c.id) {
           <li
             id="find-client-{{ i }}"
             type="button"
@@ -121,6 +122,11 @@
           >
             {{ c.firstName }} {{ c.name }}
           </li>
+          } @else {
+          <li id="find-client-{{ i }}" class="onwListItem">
+            {{ c.firstName }} {{ c.name }}
+          </li>
+          }
           }
         </ul>
       </div>
