@@ -196,6 +196,13 @@ export class AllAddressListComponent
     this.navigationService.navigateToEditAddress();
   }
 
+  onImportClients(): void {
+    this.allAddressStateService.saveCurrentFilter();
+    this.navigationService.navigateToClientImport(
+      this.dataManagementClientService.currentFilter.selectedGroup
+    );
+  }
+
   onChangeCheckBox(i: number, value: any): void {
     try {
       const isChecked = value.currentTarget.checked;

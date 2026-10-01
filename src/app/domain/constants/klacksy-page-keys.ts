@@ -91,6 +91,7 @@ export interface KlacksyPageKeyEntry {
 export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'dashboard', route: '/workplace/dashboard', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'client-list', route: '/workplace/client', requiredPermission: null, hasEntityParam: false, llmHint: 'employee overview' },
+  { pageKey: 'import-employees', route: '/workplace/client/import', requiredPermission: ROLE_ADMIN, hasEntityParam: false, llmHint: 'import employees from an Excel or CSV file' },
   { pageKey: 'new-employee', route: '/workplace/edit-address', requiredPermission: PERMISSIONS.CanViewClients, actionPermission: PERMISSIONS.CanCreateClients, hasEntityParam: false, llmHint: 'create employee form' },
   { pageKey: 'edit-employee', route: '/workplace/edit-address', requiredPermission: PERMISSIONS.CanViewClients, actionPermission: PERMISSIONS.CanEditClients, hasEntityParam: true, llmHint: 'edit existing employee' },
   { pageKey: 'schedule', route: '/workplace/schedule', requiredPermission: null, hasEntityParam: false },

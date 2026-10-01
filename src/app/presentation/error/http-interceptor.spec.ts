@@ -29,6 +29,11 @@ const KLACKSY_LEARNING_PHRASE_URL = '/api/backend/assistant/learning/phrases/1';
 const CONFLICT = { status: 409, statusText: 'Conflict' };
 const SERVER_ERROR = { status: 500, statusText: 'Internal Server Error' };
 
+const CLIENT_IMPORT_PARSE_URL = '/api/backend/ClientImport/Parse';
+const BAD_REQUEST = { status: 400, statusText: 'Bad Request' };
+const PAYLOAD_TOO_LARGE = { status: 413, statusText: 'Payload Too Large' };
+const TOO_MANY_REQUESTS = { status: 429, statusText: 'Too Many Requests' };
+
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
@@ -227,6 +232,22 @@ describe('ResponseInterceptor', () => {
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
       expect(captured.status).toBe(CONFLICT.status);
     });
+  });
+
+  describe('client import pass-through (the import page shows its own errors and keeps its state)', () => {
+    it.each([BAD_REQUEST, CONFLICT, PAYLOAD_TOO_LARGE, TOO_MANY_REQUESTS, SERVER_ERROR])(
+      'neither toasts nor navigates to the error page for a $status',
+      (response) => {
+        const navigationService = TestBed.inject(NavigationService) as any;
+        const captured = expectRequestToFail(CLIENT_IMPORT_PARSE_URL);
+
+        httpMock.expectOne(CLIENT_IMPORT_PARSE_URL).flush({ code: 'file-empty' }, response);
+
+        expect(toastShowService.showError).not.toHaveBeenCalled();
+        expect(navigationService.navigateToError).not.toHaveBeenCalled();
+        expect(captured.status).toBe(response.status);
+      },
+    );
   });
 
   describe('knowledge index sync status pass-through (background poll stops quietly)', () => {

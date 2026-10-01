@@ -1,0 +1,55 @@
+<div class="container-header">
+  {{ "clientImport.file.header" | translate }}
+</div>
+<div class="container-line"></div>
+
+<div class="form-group first import-file-body">
+  <p class="import-hint">{{ "clientImport.file.intro" | translate }}</p>
+
+  <button
+    id="client-import-drop-zone"
+    type="button"
+    class="fileupload-zone"
+    [class.disabled]="state.isParsing()"
+    [disabled]="state.isParsing()"
+    appDragDropFileUpload
+    (click)="onChooseFile()"
+    (fileDropped)="onFilesDropped($event)"
+  >
+    @if (state.isParsing()) {
+      {{ "clientImport.file.reading" | translate }}
+    } @else {
+      {{ "clientImport.file.dropZone" | translate }}
+    }
+  </button>
+  <input
+    #fileInput
+    id="client-import-file-input"
+    type="file"
+    class="hidden-file-input"
+    [accept]="accept"
+    aria-hidden="true"
+    tabindex="-1"
+    (change)="onFileSelected($event)"
+  />
+
+  @if (fileErrorKey(); as errorKey) {
+    <div id="client-import-file-error" class="import-error" role="alert">
+      {{ errorKey | translate }}
+    </div>
+  }
+
+  <div class="import-template">
+    <span class="import-hint">{{ "clientImport.file.templateHint" | translate }}</span>
+    <button
+      id="client-import-template-button"
+      type="button"
+      class="btn btn-outline-primary btn-sm"
+      (click)="onDownloadTemplate()"
+    >
+      {{ "clientImport.file.downloadTemplate" | translate }}
+    </button>
+  </div>
+
+  <p class="import-hint">{{ "clientImport.file.privacy" | translate }}</p>
+</div>

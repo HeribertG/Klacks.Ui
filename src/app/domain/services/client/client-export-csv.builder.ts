@@ -4,7 +4,9 @@
  * Builds the client list CSV content with locale-aware birthdates and caller-supplied, already
  * translated column captions, so the exported file follows the application language instead of a
  * fixed Swiss layout. Column order, the comma separator and the leading byte order mark that lets
- * Excel read the UTF-8 file are unchanged.
+ * Excel read the UTF-8 file are unchanged. Cells starting with a spreadsheet formula trigger are
+ * prefixed with a single quote (mirror of the backend CsvFormulaGuard) so opening the file never
+ * evaluates user-controlled text as a formula.
  * @param items - Export rows as delivered by the backend export endpoint
  * @param headers - Column captions in column order, already resolved through TranslateService
  * @param locale - Active application language code, used to format the birthdate
@@ -13,6 +15,8 @@
 import {
   CLIENT_EXPORT_CSV_BOM,
   CLIENT_EXPORT_CSV_ESCAPED_QUOTE,
+  CLIENT_EXPORT_CSV_FORMULA_GUARD_PREFIX,
+  CLIENT_EXPORT_CSV_FORMULA_TRIGGERS,
   CLIENT_EXPORT_CSV_LINE_BREAK,
   CLIENT_EXPORT_CSV_QUOTE,
   CLIENT_EXPORT_CSV_SEPARATOR,
@@ -27,8 +31,16 @@ const BIRTHDATE_STYLE: LocaleDateStyle = 'numericDate';
 const EMPTY_CELL = '';
 const QUOTE_PATTERN = /"/g;
 
+const FORMULA_TRIGGERS: ReadonlySet<string> = new Set(CLIENT_EXPORT_CSV_FORMULA_TRIGGERS);
+
+export function neutralizeCsvFormula(text: string): string {
+  return text.length > 0 && FORMULA_TRIGGERS.has(text[0])
+    ? CLIENT_EXPORT_CSV_FORMULA_GUARD_PREFIX + text
+    : text;
+}
+
 function toCsvCell(value: string | number | null | undefined): string {
-  const text = value === null || value === undefined ? EMPTY_CELL : String(value);
+  const text = neutralizeCsvFormula(value === null || value === undefined ? EMPTY_CELL : String(value));
   const escaped = text.replace(QUOTE_PATTERN, CLIENT_EXPORT_CSV_ESCAPED_QUOTE);
   return `${CLIENT_EXPORT_CSV_QUOTE}${escaped}${CLIENT_EXPORT_CSV_QUOTE}`;
 }

@@ -1,0 +1,51 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
+:host {
+  display: block;
+}
+
+.import-file-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  padding-bottom: 25px;
+}
+
+.import-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.fileupload-zone {
+  width: 100%;
+  border: 2px dashed var(--colorLine);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--standartTextColor);
+
+  &.disabled {
+    cursor: progress;
+    opacity: 0.6;
+  }
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.import-error {
+  font-size: 13px;
+  color: var(--standartRedColor);
+}
+
+.import-template {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

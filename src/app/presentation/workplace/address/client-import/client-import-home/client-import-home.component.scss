@@ -1,0 +1,52 @@
+@use "../../../../../../assets/standard-styles/standard-home-page.scss";
+
+.import-steps {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  margin: 12px 0 16px;
+  padding-inline-start: 30px;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.import-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &.active {
+    color: var(--standartTextColor);
+    font-weight: 600;
+  }
+
+  &.done .import-step-number {
+    background-color: var(--accentColor);
+    color: var(--backgroundColorCard);
+  }
+
+  &.active .import-step-number {
+    border-color: var(--accentColor);
+  }
+}
+
+.import-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--colorLine);
+  border-radius: 50%;
+}
+
+.import-wide {
+  width: auto;
+  max-width: 100%;
+  min-width: 940px;
+}
+
+.import-preview {
+  min-width: 0;
+  max-width: 100%;
+}

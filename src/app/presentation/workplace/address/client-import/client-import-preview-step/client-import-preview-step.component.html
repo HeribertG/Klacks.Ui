@@ -1,0 +1,229 @@
+<div class="container-header">
+  {{ "clientImport.preview.header" | translate }}
+</div>
+<div class="container-line"></div>
+
+<div class="form-group first import-section">
+  @if (state.preview(); as preview) {
+    <div id="client-import-summary" class="import-summary">
+      <span>{{ countKey(countKeys.total, preview.summary.total) | translate: { count: preview.summary.total } }}</span>
+      <span class="summary-ready">
+        {{ countKey(countKeys.ready, state.readyRowCount()) | translate: { count: state.readyRowCount() } }}
+      </span>
+      <span>{{ countKey(countKeys.skipped, preview.summary.skipped) | translate: { count: preview.summary.skipped } }}</span>
+      <span class="summary-error">
+        {{ countKey(countKeys.errors, state.errorRowCount()) | translate: { count: state.errorRowCount() } }}
+      </span>
+      <span>
+        {{ countKey(countKeys.duplicates, preview.summary.duplicates) | translate: { count: preview.summary.duplicates } }}
+      </span>
+      <span>{{ countKey(countKeys.warnings, preview.summary.warnings) | translate: { count: preview.summary.warnings } }}</span>
+    </div>
+
+    @if (unmappedColumnNames().length > 0) {
+      <p class="import-hint">
+        {{ "clientImport.preview.unmappedColumns" | translate: { columns: unmappedColumnNames().join(", ") } }}
+      </p>
+    }
+    @for (target of state.ignoredTargetHints(); track target) {
+      <p class="import-hint">
+        {{ "clientImport.preview.ignoredTarget" | translate: { target: (targetKeyPrefix + target | translate) } }}
+      </p>
+    }
+
+    @if (state.issueSummary().length > 0) {
+      <div id="client-import-notes" class="import-notes">
+        <div class="import-notes-title">{{ "clientImport.preview.notesTitle" | translate }}</div>
+        <ul class="import-notes-list">
+          @for (entry of state.issueSummary(); track $index) {
+            <li>
+              {{ issueKey(entry.issue) | translate: issueParams(entry.issue) }}
+              <span class="import-notes-scope">({{ noteScopeKey(entry) | translate: noteScopeParams(entry) }})</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+
+  <div class="import-toolbar">
+    <label class="import-check" for="client-import-only-problems">
+      <input
+        id="client-import-only-problems"
+        type="checkbox"
+        [checked]="state.showOnlyProblems()"
+        (change)="onToggleOnlyProblems($event)"
+      />
+      {{ "clientImport.preview.onlyProblems" | translate }}
+    </label>
+    <span class="import-status" aria-live="polite">
+      @if (state.isPreviewPending()) {
+        {{ "clientImport.preview.updating" | translate }}
+      } @else if (state.previewFailed()) {
+        <span class="issue-error">{{ state.previewErrorKey() | translate }}</span>
+      }
+    </span>
+  </div>
+
+  <div class="import-table-wrapper">
+    <table id="client-import-preview-table" class="table table-borderless import-table">
+      <thead>
+        <tr>
+          <th class="table-header">#</th>
+          <th class="table-header">{{ "clientImport.preview.status" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.name" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.gender" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.birthdate" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.address" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.contact" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.entryDate" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.assignment" | translate }}</th>
+          <th class="table-header">{{ "clientImport.preview.issues" | translate }}</th>
+          <th class="table-header import-sticky-action">{{ "clientImport.preview.actions" | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of state.visibleRows(); track row.rowIndex) {
+          <tr
+            class="table-row"
+            [class.row-error]="row.status === Status.Error"
+            [class.row-skipped]="row.status === Status.Skipped"
+          >
+            <td class="table-cell">{{ row.rowIndex + rowNumberOffset }}</td>
+            <td class="table-cell">{{ "clientImport.status." + row.status | translate }}</td>
+            <td class="table-cell" [class]="cellClass(row, 'name')">
+              {{ row.record.title }} {{ row.record.firstName }} {{ row.record.lastName }}
+            </td>
+            <td class="table-cell" [class]="cellClass(row, 'gender')">
+              @if (needsGender(row)) {
+                <select
+                  class="form-select form-select-sm import-gender-select"
+                  [id]="'client-import-gender-' + row.rowIndex"
+                  [attr.aria-label]="'clientImport.preview.gender' | translate"
+                  (change)="onGenderChange(row, $event)"
+                >
+                  <option value="" [selected]="selectedGender(row) === ''">
+                    {{ "clientImport.preview.chooseGender" | translate }}
+                  </option>
+                  @for (gender of genders; track gender) {
+                    <option [value]="gender" [selected]="selectedGender(row) === gender">
+                      {{ "clientImport.gender." + gender | translate }}
+                    </option>
+                  }
+                </select>
+              } @else if (row.record.gender) {
+                {{ "clientImport.gender." + row.record.gender | translate }}
+              }
+            </td>
+            <td class="table-cell" [class]="cellClass(row, 'birthdate')">
+              {{ row.record.birthdate | calendarDate: "numericDate" }}
+            </td>
+            <td class="table-cell import-wrap-cell" [class]="cellClass(row, 'address')">
+              <div>{{ row.record.street }}</div>
+              @if (row.record.addressLine2) {
+                <div>{{ row.record.addressLine2 }}</div>
+              }
+              <div>{{ row.record.zip }} {{ row.record.city }}</div>
+              <div>{{ row.record.state }} {{ countryName(row.record.country) }}</div>
+            </td>
+            <td class="table-cell import-wrap-cell" [class]="cellClass(row, 'contact')">
+              <div>{{ row.record.email }}</div>
+              <div>{{ row.record.phone }}</div>
+              <div>{{ row.record.mobile }}</div>
+            </td>
+            <td class="table-cell" [class]="cellClass(row, 'dates')">
+              <div>{{ row.record.entryDate | calendarDate: "numericDate" }}</div>
+              @if (row.record.exitDate) {
+                <div>{{ "clientImport.preview.exitDate" | translate }} {{ row.record.exitDate | calendarDate: "numericDate" }}</div>
+              }
+            </td>
+            <td class="table-cell" [class]="cellClass(row, 'assignment')">
+              <div>{{ row.record.contractName }}</div>
+              <div>{{ row.record.groupName }}</div>
+            </td>
+            <td class="table-cell import-issues">
+              @for (issue of rowIssues(row); track $index) {
+                <div [class]="severityClass(issue)">{{ issueKey(issue) | translate: issueParams(issue) }}</div>
+              }
+              @if (row.duplicateOfName) {
+                <div class="issue-warning">
+                  {{ "clientImport.preview.duplicateOf" | translate: { name: row.duplicateOfName } }}
+                </div>
+              } @else if (row.duplicateOfRowIndex !== null) {
+                <div class="issue-warning">
+                  {{ "clientImport.preview.duplicateOfRow" | translate: { row: row.duplicateOfRowIndex + rowNumberOffset } }}
+                </div>
+              }
+            </td>
+            <td class="table-cell import-sticky-action">
+              <div class="import-row-actions">
+              <label class="import-check" [for]="'client-import-skip-' + row.rowIndex">
+                <input
+                  type="checkbox"
+                  [id]="'client-import-skip-' + row.rowIndex"
+                  [checked]="isSkipped(row)"
+                  [disabled]="isSkipLocked(row)"
+                  (change)="onToggleSkip(row, $event)"
+                />
+                {{ "clientImport.preview.skip" | translate }}
+              </label>
+              @if (isDuplicate(row)) {
+                <label class="import-check" [for]="'client-import-duplicate-' + row.rowIndex">
+                  <input
+                    type="checkbox"
+                    [id]="'client-import-duplicate-' + row.rowIndex"
+                    [checked]="createsDuplicate(row)"
+                    (change)="onToggleCreateDuplicate(row, $event)"
+                  />
+                  {{ "clientImport.preview.createAnyway" | translate }}
+                </label>
+              }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td class="table-cell" colspan="11">
+              @if (state.isPreviewPending()) {
+                {{ "clientImport.preview.updating" | translate }}
+              } @else {
+                {{ "clientImport.preview.noRows" | translate }}
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (state.errorRowCount() > 0) {
+    <p id="client-import-commit-blocked" class="issue-error">
+      {{ countKey(countKeys.commitBlocked, state.errorRowCount()) | translate: { count: state.errorRowCount() } }}
+    </p>
+  }
+
+  <div class="import-actions">
+    <button
+      id="client-import-back"
+      type="button"
+      class="btn btn-outline-primary btn-sm"
+      [disabled]="state.isCommitting()"
+      (click)="onBack()"
+    >
+      {{ "clientImport.action.back" | translate }}
+    </button>
+    <button
+      id="client-import-commit"
+      type="button"
+      class="btn new-btn"
+      [disabled]="!state.canCommit()"
+      (click)="onCommit()"
+    >
+      @if (state.isCommitting()) {
+        {{ "clientImport.action.committing" | translate }}
+      } @else {
+        {{ countKey(countKeys.commit, state.readyRowCount()) | translate: { count: state.readyRowCount() } }}
+      }
+    </button>
+  </div>
+</div>

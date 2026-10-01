@@ -1,0 +1,31 @@
+<div class="container-header">
+  {{ "clientImport.result.header" | translate }}
+</div>
+<div class="container-line"></div>
+
+<div class="form-group first import-section">
+  @if (state.commitResult(); as result) {
+    <p id="client-import-result-created" class="import-result-main">
+      {{ countKey(countKeys.created, result.created) | translate: { count: result.created } }}
+    </p>
+    @if (result.skipped > 0) {
+      <p id="client-import-result-skipped" class="import-hint">
+        {{ countKey(countKeys.resultSkipped, result.skipped) | translate: { count: result.skipped } }}
+      </p>
+    }
+    @if (result.geocodingQueued > 0) {
+      <p id="client-import-result-geocoding" class="import-hint">
+        {{ countKey(countKeys.geocodingQueued, result.geocodingQueued) | translate: { count: result.geocodingQueued } }}
+      </p>
+    }
+  }
+
+  <div class="import-actions">
+    <button id="client-import-another" type="button" class="btn btn-outline-primary btn-sm" (click)="onImportAnother()">
+      {{ "clientImport.action.importAnother" | translate }}
+    </button>
+    <button id="client-import-to-list" type="button" class="btn new-btn" (click)="onBackToList()">
+      {{ "clientImport.action.toList" | translate }}
+    </button>
+  </div>
+</div>

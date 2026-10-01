@@ -1,0 +1,103 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../../assets/standard-styles/modal-buttons.scss";
+
+:host {
+  display: block;
+}
+
+.import-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  padding-bottom: 20px;
+}
+
+.import-hint {
+  display: block;
+  margin: 0;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.import-warning {
+  display: block;
+  font-size: 12px;
+  color: var(--standartOrangeColor);
+}
+
+.import-file-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.import-select {
+  max-width: 280px;
+}
+
+.import-target-select {
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.import-table {
+  font-size: 13px;
+}
+
+.import-ignored td {
+  color: var(--colorLabel);
+}
+
+.import-samples {
+  max-width: 360px;
+}
+
+.import-sample {
+  display: inline-block;
+  margin-inline-end: 8px;
+  padding: 0 6px;
+  border: 1px solid var(--colorLine);
+  border-radius: 4px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.import-options {
+  display: flex;
+  gap: 32px;
+}
+
+.import-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.import-policy-grid {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 320px);
+  gap: 10px 16px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.import-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.import-error {
+  font-size: 13px;
+  color: var(--standartRedColor);
+}

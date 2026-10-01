@@ -23,6 +23,7 @@ import { TranslationService } from 'src/app/domain/services/translation/translat
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { environment } from 'src/environments/environment';
 import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/klacksy-learning.constants';
+import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-import.constants';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -146,6 +147,12 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
 
     if (this.isKlacksyLearningPassThroughError(url, error.status)) {
+      return throwError(() => error);
+    }
+
+    // The import page shows every failure of its own endpoints inline or as a translated toast; the
+    // generic 500 handling would navigate to the error page and throw away the whole import wizard.
+    if (url.includes(`${CLIENT_IMPORT_API_SEGMENT}/`)) {
       return throwError(() => error);
     }
 

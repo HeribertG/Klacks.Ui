@@ -21,3 +21,5 @@ export const CLIENT_EXPORT_CSV_QUOTE = '"';
 export const CLIENT_EXPORT_CSV_ESCAPED_QUOTE = '""';
 export const CLIENT_EXPORT_CSV_MIME_TYPE = 'text/csv;charset=utf-8;';
 export const CLIENT_EXPORT_FILE_NAME = 'clients.csv';
+export const CLIENT_EXPORT_CSV_FORMULA_TRIGGERS = ['=', '+', '-', '@', '\t', '\r'] as const;
+export const CLIENT_EXPORT_CSV_FORMULA_GUARD_PREFIX = "'";

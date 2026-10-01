@@ -1,0 +1,34 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/modal-buttons.scss";
+
+:host {
+  display: block;
+}
+
+.import-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 20px;
+  padding-bottom: 25px;
+}
+
+.import-result-main {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--standartTextColor);
+}
+
+.import-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.import-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}

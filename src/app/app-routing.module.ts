@@ -68,6 +68,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'client/import',
+        loadComponent: () =>
+          import('./presentation/workplace/address/client-import/client-import-home/client-import-home.component').then(
+            (m) => m.ClientImportHomeComponent,
+          ),
+        canActivate: [permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: ROLE_ADMIN },
+      },
+      {
         path: 'client',
         loadComponent: () =>
           import('./presentation/workplace/address/all-address/all-address-home/all-address-home.component').then(

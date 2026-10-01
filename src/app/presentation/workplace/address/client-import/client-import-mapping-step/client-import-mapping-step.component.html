@@ -1,0 +1,282 @@
+@if (state.parseResult(); as parsed) {
+  <div class="container-header">
+    {{ "clientImport.mapping.header" | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div class="form-group first import-section">
+    <div class="import-file-info">
+      <span id="client-import-file-name">{{ parsed.fileName }}</span>
+      <span class="import-hint">
+        {{ countKey(countKeys.rowCount, parsed.rows.length) | translate: { count: parsed.rows.length } }}
+      </span>
+      @if (hasSeveralSheets()) {
+        <label for="client-import-sheet">{{ "clientImport.mapping.sheet" | translate }}</label>
+        <select
+          id="client-import-sheet"
+          class="form-select form-select-sm import-select"
+          [disabled]="state.isParsing()"
+          (change)="onSheetChange($event)"
+        >
+          @for (sheet of parsed.sheets; track sheet) {
+            <option [value]="sheet" [selected]="sheet === parsed.sheetName">{{ sheet }}</option>
+          }
+        </select>
+      }
+    </div>
+
+    @if (fileErrorKey(); as errorKey) {
+      <div id="client-import-sheet-error" class="import-error" role="alert">
+        {{ errorKey | translate }}
+      </div>
+    }
+
+    <p class="import-hint">{{ "clientImport.mapping.intro" | translate }}</p>
+
+    <table id="client-import-mapping-table" class="table table-borderless import-table">
+      <thead>
+        <tr>
+          <th class="table-header">{{ "clientImport.mapping.column" | translate }}</th>
+          <th class="table-header">{{ "clientImport.mapping.samples" | translate }}</th>
+          <th class="table-header">{{ "clientImport.mapping.target" | translate }}</th>
+          <th class="table-header">{{ "clientImport.mapping.confidence" | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.column.index) {
+          <tr class="table-row" [class.import-ignored]="row.mapping?.target === Ignore">
+            <td class="table-cell">{{ row.column.header }}</td>
+            <td class="table-cell import-samples">
+              @for (sample of row.column.samples; track $index) {
+                <span class="import-sample">{{ sample }}</span>
+              }
+            </td>
+            <td class="table-cell">
+              <select
+                class="form-select form-select-sm import-select import-target-select"
+                [id]="'client-import-target-' + row.column.index"
+                [attr.aria-label]="row.column.header"
+                (change)="onTargetChange(row.column.index, $event)"
+              >
+                @for (target of targets; track target) {
+                  <option [value]="target" [selected]="row.mapping?.target === target">
+                    {{ targetKeyPrefix + target | translate }}
+                  </option>
+                }
+              </select>
+            </td>
+            <td class="table-cell">
+              @if (row.mapping && row.mapping.target !== Ignore) {
+                {{ row.mapping.confidence | percent }}
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="import-options">
+      @if (state.isDateTargetMapped()) {
+        <div class="import-option">
+          <label for="client-import-date-format">{{ "clientImport.mapping.dateFormat" | translate }}</label>
+          <select
+            id="client-import-date-format"
+            class="form-select form-select-sm import-select"
+            (change)="onDateFormatChange($event)"
+          >
+            @for (format of dateFormats; track format) {
+              <option [value]="format" [selected]="state.dateFormat() === format">
+                {{ "clientImport.dateFormat." + format | translate }}
+              </option>
+            }
+          </select>
+          @if (state.dateFormatNeedsChoice()) {
+            <small class="import-warning">{{ "clientImport.mapping.dateFormatAmbiguous" | translate }}</small>
+          }
+        </div>
+      }
+      @if (state.isFullNameMapped()) {
+        <div class="import-option">
+          <label for="client-import-name-order">{{ "clientImport.mapping.nameOrder" | translate }}</label>
+          <select
+            id="client-import-name-order"
+            class="form-select form-select-sm import-select"
+            (change)="onNameOrderChange($event)"
+          >
+            @for (order of nameOrders; track order) {
+              <option [value]="order" [selected]="state.nameOrder() === order">
+                {{ "clientImport.nameOrder." + order | translate }}
+              </option>
+            }
+          </select>
+          @if (state.isFirstOrLastNameMapped()) {
+            <small id="client-import-full-name-hint" class="import-hint">
+              {{ "clientImport.mapping.fullNameHint" | translate }}
+            </small>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="container-header">
+    {{ "clientImport.policy.header" | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div class="form-group first import-section">
+    <p class="import-hint">{{ "clientImport.policy.intro" | translate }}</p>
+
+    <div class="import-policy-grid">
+      <label for="client-import-contract">{{ "clientImport.policy.contract" | translate }}</label>
+      <select
+        id="client-import-contract"
+        class="form-select form-select-sm import-select"
+        (change)="onOptionalPolicyChange('contractId', $event)"
+      >
+        <option [value]="noSelection" [selected]="state.policy().contractId === null">
+          {{ "clientImport.policy.contractNone" | translate }}
+        </option>
+        @for (contract of state.contracts(); track contract.id) {
+          <option [value]="contract.id" [selected]="state.policy().contractId === contract.id">
+            {{ contract.name }}
+          </option>
+        }
+      </select>
+
+      <label for="client-import-group">{{ "clientImport.policy.group" | translate }}</label>
+      <div>
+        <select
+          id="client-import-group"
+          class="form-select form-select-sm import-select"
+          (change)="onOptionalPolicyChange('groupId', $event)"
+        >
+          <option [value]="noSelection" [selected]="state.policy().groupId === null">
+            {{ "clientImport.policy.groupNone" | translate }}
+          </option>
+          @for (group of state.groups(); track group.id) {
+            <option [value]="group.id" [selected]="state.policy().groupId === group.id">
+              {{ optionLabel(group) }}
+            </option>
+          }
+        </select>
+        @if (state.groupPresetFromFilter()) {
+          <small id="client-import-group-preset" class="import-hint">
+            {{ "clientImport.policy.groupFromFilter" | translate }}
+          </small>
+        }
+      </div>
+
+      <label for="client-import-entry-date">{{ "clientImport.policy.entryDate" | translate }}</label>
+      <div>
+        <input
+          id="client-import-entry-date"
+          type="date"
+          class="form-control form-control-sm import-select"
+          [value]="state.policy().entryDate ?? ''"
+          (change)="onEntryDateChange($event)"
+        />
+        <small class="import-hint">{{ "clientImport.policy.entryDateHint" | translate }}</small>
+      </div>
+
+      <label for="client-import-country">{{ "clientImport.policy.defaultCountry" | translate }}</label>
+      <select
+        id="client-import-country"
+        class="form-select form-select-sm import-select"
+        (change)="onOptionalPolicyChange('defaultCountry', $event)"
+      >
+        <option [value]="noSelection" [selected]="state.policy().defaultCountry === null">
+          {{ "clientImport.policy.defaultCountryInstallation" | translate }}
+        </option>
+        @for (country of state.countries(); track country.abbreviation) {
+          <option
+            [value]="country.abbreviation"
+            [selected]="state.policy().defaultCountry === country.abbreviation"
+          >
+            {{ countryLabel(country) }}
+          </option>
+        }
+      </select>
+
+      <label for="client-import-email-type">{{ "clientImport.policy.emailType" | translate }}</label>
+      <select
+        id="client-import-email-type"
+        class="form-select form-select-sm import-select"
+        (change)="onPolicyChange('emailType', $event)"
+      >
+        @for (type of emailTypes; track type) {
+          <option [value]="type" [selected]="state.policy().emailType === type">
+            {{ "clientImport.policy.communication." + type | translate }}
+          </option>
+        }
+      </select>
+
+      <label for="client-import-phone-type">{{ "clientImport.policy.phoneType" | translate }}</label>
+      <select
+        id="client-import-phone-type"
+        class="form-select form-select-sm import-select"
+        (change)="onPolicyChange('phoneType', $event)"
+      >
+        @for (type of phoneTypes; track type) {
+          <option [value]="type" [selected]="state.policy().phoneType === type">
+            {{ "clientImport.policy.communication." + type | translate }}
+          </option>
+        }
+      </select>
+
+      <label for="client-import-mobile-type">{{ "clientImport.policy.mobileType" | translate }}</label>
+      <select
+        id="client-import-mobile-type"
+        class="form-select form-select-sm import-select"
+        (change)="onPolicyChange('mobileType', $event)"
+      >
+        @for (type of mobileTypes; track type) {
+          <option [value]="type" [selected]="state.policy().mobileType === type">
+            {{ "clientImport.policy.communication." + type | translate }}
+          </option>
+        }
+      </select>
+
+      <label for="client-import-former">{{ "clientImport.policy.formerEmployeesLabel" | translate }}</label>
+      <select
+        id="client-import-former"
+        class="form-select form-select-sm import-select"
+        (change)="onPolicyChange('formerEmployees', $event)"
+      >
+        @for (option of formerEmployeeOptions; track option) {
+          <option [value]="option" [selected]="state.policy().formerEmployees === option">
+            {{ "clientImport.policy.formerEmployees." + option | translate }}
+          </option>
+        }
+      </select>
+
+      <label for="client-import-duplicates">{{ "clientImport.policy.duplicatesLabel" | translate }}</label>
+      <select
+        id="client-import-duplicates"
+        class="form-select form-select-sm import-select"
+        (change)="onPolicyChange('duplicates', $event)"
+      >
+        @for (option of duplicateOptions; track option) {
+          <option [value]="option" [selected]="state.policy().duplicates === option">
+            {{ "clientImport.policy.duplicates." + option | translate }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="import-actions">
+      <button id="client-import-restart" type="button" class="btn btn-outline-primary btn-sm" (click)="onRestart()">
+        {{ "clientImport.action.otherFile" | translate }}
+      </button>
+      <button
+        id="client-import-to-preview"
+        type="button"
+        class="btn new-btn"
+        [disabled]="state.isParsing()"
+        (click)="onNext()"
+      >
+        {{ "clientImport.action.toPreview" | translate }}
+      </button>
+    </div>
+  </div>
+}

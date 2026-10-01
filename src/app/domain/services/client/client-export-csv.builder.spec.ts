@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
-import { buildClientExportCsv } from './client-export-csv.builder';
+import { buildClientExportCsv, neutralizeCsvFormula } from './client-export-csv.builder';
 import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
 
 const HEADERS = ['No.', 'Company', 'First name', 'Last name', 'Date of birth', 'Type'];
@@ -57,5 +57,30 @@ describe('buildClientExportCsv', () => {
     const lines = buildClientExportCsv([item({ company: 'Ac"me' })], HEADERS, 'de').split('\r\n');
 
     expect(lines[1]).toContain('"Ac""me"');
+  });
+
+  it.each([
+    ['=HYPERLINK("http://evil","x")', `"'=HYPERLINK(""http://evil"",""x"")"`],
+    ['+41 44 000 00 00', `"'+41 44 000 00 00"`],
+    ['-2+3', `"'-2+3"`],
+    ['@SUM(A1)', `"'@SUM(A1)"`],
+    ['\tcmd', `"'\tcmd"`],
+    ['\rcmd', `"'\rcmd"`],
+  ])('neutralises the formula trigger in %j with a leading single quote', (company, expectedCell) => {
+    const csv = buildClientExportCsv([item({ company })], HEADERS, 'de');
+
+    expect(csv).toContain(`"7",${expectedCell},"Ada"`);
+  });
+
+  it('neutralises formula triggers in the translated header captions as well', () => {
+    const [headerLine] = buildClientExportCsv([], ['=cmd', 'Company'], 'en').split('\r\n');
+
+    expect(headerLine).toContain(`"'=cmd"`);
+  });
+
+  it('leaves values without a formula trigger untouched', () => {
+    expect(neutralizeCsvFormula('Ada')).toBe('Ada');
+    expect(neutralizeCsvFormula('a=b')).toBe('a=b');
+    expect(neutralizeCsvFormula('')).toBe('');
   });
 });

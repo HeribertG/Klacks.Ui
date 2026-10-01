@@ -1,0 +1,46 @@
+<div id="client-import-home-container" class="container-dashboard">
+  <div id="client-import-headline" class="container-headline">
+    {{ "clientImport.title" | translate }}
+  </div>
+
+  <ol id="client-import-steps" class="import-steps">
+    @for (step of steps; track step; let i = $index) {
+      <li
+        class="import-step"
+        [class.active]="state.step() === step"
+        [class.done]="isStepDone(step)"
+        [attr.aria-current]="state.step() === step ? 'step' : null"
+      >
+        <span class="import-step-number">{{ i + 1 }}</span>
+        {{ stepKeyPrefix + step | translate }}
+      </li>
+    }
+  </ol>
+
+  <div class="container-profilline">
+    @switch (state.step()) {
+      @case (Step.File) {
+        <app-client-import-file-step
+          class="container-profile first border-right-card border-bottom-card"
+        ></app-client-import-file-step>
+      }
+      @case (Step.Mapping) {
+        <app-client-import-mapping-step
+          class="container-profile import-wide first border-right-card border-bottom-card"
+        ></app-client-import-mapping-step>
+      }
+      @case (Step.Preview) {
+        <app-client-import-preview-step
+          class="container-profile import-preview first border-right-card border-bottom-card"
+        ></app-client-import-preview-step>
+      }
+      @case (Step.Result) {
+        <app-client-import-result-step
+          class="container-profile first border-right-card border-bottom-card"
+        ></app-client-import-result-step>
+      }
+    }
+  </div>
+
+  <div class="bottom-border-space"></div>
+</div>
