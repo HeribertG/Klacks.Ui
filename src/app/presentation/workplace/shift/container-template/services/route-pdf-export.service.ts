@@ -21,6 +21,11 @@ import {
 import { MapRenderingService } from './map-rendering.service';
 import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
 import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
+import {
+  formatSecondsAsHHMM,
+  parseTimeSpanToSeconds,
+} from 'src/app/shared/helpers/time-span-format.helper';
 
 export type RouteInfo = IRouteInfo;
 export type RouteLocation = IRouteLocation;
@@ -64,6 +69,9 @@ const DIRECTION_NEW_PAGE_START_Y = 15;
 
 const METERS_PER_KM = 1000;
 const MINUTES_PER_HOUR = 60;
+const SECONDS_PER_MINUTE = 60;
+const ROW_NO_VALUE = '-';
+const ROW_NO_TRAVEL_TIME = '00:00';
 const HOURS_PER_DAY = 24;
 
 const PDF_ORIENTATION_LANDSCAPE = 'landscape' as const;
@@ -138,7 +146,7 @@ export class RoutePdfExportService {
       `${
         this.translateService.instant('pdf.total-travel-time') ||
         'Total Travel Time'
-      }: ${this.formatTimeSpan(routeInfo.estimatedTravelTime)}`,
+      }: ${this.buildSummaryTravelTime(routeInfo)}`,
       PDF_MARGIN,
       PDF_SUMMARY_START_Y + PDF_LINE_SPACING * 3
     );
@@ -350,17 +358,12 @@ export class RoutePdfExportService {
       }));
   }
 
-  private buildRouteTableData(
+  buildRouteTableData(
     items: IContainerTemplateItem[],
     routeInfo: RouteInfo,
     timeFrom: string
   ): string[][] {
     const data: string[][] = [];
-
-    const distanceFromStart =
-      routeInfo.distanceFromStartBaseKm > 0
-        ? `${routeInfo.distanceFromStartBaseKm.toFixed(2)} km`
-        : '-';
 
     const formattedTimeFrom = this.formatTimeToHHMM(timeFrom);
 
@@ -371,24 +374,22 @@ export class RoutePdfExportService {
       }`,
       formattedTimeFrom,
       formattedTimeFrom,
-      this.formatTimeSpan(routeInfo.travelTimeFromStartBase),
-      distanceFromStart,
+      ROW_NO_TRAVEL_TIME,
+      ROW_NO_VALUE,
     ]);
 
     let currentTimeMinutes = this.timeStringToMinutes(timeFrom);
 
-    const routeStepMap = new Map<string, RouteLocation>();
-    if (routeInfo.optimizedRoute) {
-      routeInfo.optimizedRoute.forEach((step) => {
-        if (step.shiftId) {
-          routeStepMap.set(step.shiftId, step);
-        }
-      });
-    }
-
     items.forEach((item, index) => {
-      const travelMinutes = this.parseTravelTime(item.travelTimeBefore);
-      const arrivalMinutes = currentTimeMinutes + travelMinutes;
+      const arrivingLeg = this.findArrivingLeg(routeInfo, item.shiftId);
+      const itemTravelMinutes = this.parseTravelTime(item.travelTimeBefore);
+      const legMinutes = arrivingLeg
+        ? this.legToMinutes(arrivingLeg.travelTimeToNext)
+        : undefined;
+      const plannedTravelMinutes =
+        itemTravelMinutes > 0 ? itemTravelMinutes : legMinutes ?? 0;
+      const displayedTravelMinutes = legMinutes ?? itemTravelMinutes;
+      const arrivalMinutes = currentTimeMinutes + plannedTravelMinutes;
       const arrivalTime = this.minutesToTimeString(arrivalMinutes);
 
       const workMinutes = item.shift?.workTime
@@ -399,9 +400,8 @@ export class RoutePdfExportService {
 
       const address = formatClientWithAddress(item);
 
-      const routeStep = routeStepMap.get(item.shiftId || '');
-      const distanceToNext = routeStep?.distanceToNextKm
-        ? `${routeStep.distanceToNextKm.toFixed(2)} km`
+      const distanceFromPrevious = arrivingLeg?.distanceToNextKm
+        ? `${arrivingLeg.distanceToNextKm.toFixed(2)} km`
         : '-';
 
       data.push([
@@ -409,16 +409,16 @@ export class RoutePdfExportService {
         address,
         arrivalTime,
         departureTime,
-        this.formatTimeSpan(item.travelTimeBefore),
-        distanceToNext,
+        formatSecondsAsHHMM(displayedTravelMinutes * SECONDS_PER_MINUTE),
+        distanceFromPrevious,
       ]);
 
       currentTimeMinutes = departureMinutes;
     });
 
     if (routeInfo.distanceToEndBaseKm > 0) {
-      const returnTravelMinutes = this.parseTravelTime(
-        routeInfo.travelTimeToEndBase
+      const returnTravelMinutes = this.legToMinutes(
+        this.findEndLeg(routeInfo)?.travelTimeToNext ?? routeInfo.travelTimeToEndBase
       );
       const arrivalAtBase = currentTimeMinutes + returnTravelMinutes;
 
@@ -429,7 +429,7 @@ export class RoutePdfExportService {
         }`,
         this.minutesToTimeString(arrivalAtBase),
         '-',
-        this.formatTimeSpan(routeInfo.travelTimeToEndBase),
+        formatSecondsAsHHMM(returnTravelMinutes * SECONDS_PER_MINUTE),
         `${routeInfo.distanceToEndBaseKm.toFixed(2)} km`,
       ]);
     }
@@ -437,19 +437,31 @@ export class RoutePdfExportService {
     return data;
   }
 
+  buildSummaryTravelTime(routeInfo: RouteInfo): string {
+    const drivingMinutes = calculateRouteDrivingMinutes(routeInfo.optimizedRoute);
+    return drivingMinutes > 0
+      ? formatSecondsAsHHMM(drivingMinutes * SECONDS_PER_MINUTE)
+      : ROW_NO_VALUE;
+  }
 
-  private formatTimeSpan(timeSpan: string): string {
-    if (!timeSpan) return '-';
-    const parts = timeSpan.split(':');
-    if (parts.length >= 2) {
-      const hours = parseInt(parts[0], 10);
-      const minutes = parseInt(parts[1], 10);
-      if (hours > 0) {
-        return `${hours}h ${minutes}m`;
-      }
-      return `${minutes}m`;
+  private findEndLeg(routeInfo: RouteInfo): RouteLocation | undefined {
+    const route = routeInfo.optimizedRoute;
+    return route && route.length >= 2 ? route[route.length - 2] : undefined;
+  }
+
+  private findArrivingLeg(
+    routeInfo: RouteInfo,
+    shiftId: string | undefined,
+  ): RouteLocation | undefined {
+    if (!shiftId || !routeInfo.optimizedRoute) {
+      return undefined;
     }
-    return timeSpan;
+    const stepIndex = routeInfo.optimizedRoute.findIndex((step) => step.shiftId === shiftId);
+    return stepIndex > 0 ? routeInfo.optimizedRoute[stepIndex - 1] : undefined;
+  }
+
+  private legToMinutes(travelTimeToNext: string | undefined): number {
+    return Math.round(parseTimeSpanToSeconds(travelTimeToNext) / SECONDS_PER_MINUTE);
   }
 
   private parseTravelTime(travelTime: string): number {

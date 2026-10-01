@@ -5,6 +5,10 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import {
+  resolveItemEndTime,
+  resolveItemStartTime,
+} from 'src/app/shared/helpers/container-template-format.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -136,9 +140,7 @@ export class TimeRangeService {
     const isContainerItem = 'shiftId' in item;
 
     if (isContainerItem) {
-      return item.absenceId
-        ? item.startItem
-        : (item.timeRangeStartItem || item.startItem);
+      return resolveItemStartTime(item);
     }
 
     return (item as IShift).startShift;
@@ -150,9 +152,7 @@ export class TimeRangeService {
     const isContainerItem = 'shiftId' in item;
 
     if (isContainerItem) {
-      return item.absenceId
-        ? item.endItem
-        : (item.timeRangeEndItem || item.endItem);
+      return resolveItemEndTime(item);
     }
 
     return (item as IShift).endShift;

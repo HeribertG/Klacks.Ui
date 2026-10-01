@@ -51,6 +51,7 @@ export interface IRouteOptimizationResult {
   segmentDirections?: IRouteSegmentDirections[];
   totalBriefingDebriefingTime: string;
   placedTimeBlocks?: ITimeBlockResult[];
+  isEstimated?: boolean;
 }
 
 export interface IAutofillResult extends IRouteOptimizationResult {

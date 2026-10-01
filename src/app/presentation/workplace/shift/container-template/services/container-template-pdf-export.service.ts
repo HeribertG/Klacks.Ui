@@ -18,7 +18,11 @@ import {
   IRouteInfo,
 } from 'src/app/domain/models/container/container-template-class';
 import { RoutePdfExportService } from './route-pdf-export.service';
-import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
+import {
+  formatClientWithAddress,
+  resolveItemEndTime,
+  resolveItemStartTime,
+} from 'src/app/shared/helpers/container-template-format.helper';
 import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 
 export type { RouteInfo, RouteLocation } from './route-pdf-export.service';
@@ -167,17 +171,11 @@ export class ContainerTemplatePdfExportService {
   }
 
   private formatStartTime(item: IContainerTemplateItem): string {
-    const timeString = item.shift?.isTimeRange
-      ? item.timeRangeStartItem || item.startItem || ''
-      : item.startItem || '';
-    return this.formatTimeToHHMM(timeString);
+    return this.formatTimeToHHMM(resolveItemStartTime(item) || '');
   }
 
   private formatEndTime(item: IContainerTemplateItem): string {
-    const timeString = item.shift?.isTimeRange
-      ? item.timeRangeEndItem || item.endItem || ''
-      : item.endItem || '';
-    return this.formatTimeToHHMM(timeString);
+    return this.formatTimeToHHMM(resolveItemEndTime(item) || '');
   }
 
   private formatTimeToHHMM(timeString: string): string {

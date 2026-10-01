@@ -11,6 +11,7 @@
  * replaces an earlier toast of the same name
  * @param updateText - Changes the text of a shown toast, e.g. a countdown
  * @param dismiss - Removes a shown toast
+ * @param dismissByName - Removes the shown toast with the given name, if any
  *
  * Error toasts are swallowed while the backend is known to be down: every pending request fails at
  * once there, and a stack of identical failures tells the user nothing the outage overlay does not
@@ -129,6 +130,11 @@ export class ToastShowService {
 
   dismiss(toast: IToast): void {
     this.toastService.removeById(toast.id);
+  }
+
+  dismissByName(name: string): void {
+    const existing = this.toastService.toasts().find((x) => x.name === name);
+    this.toastService.remove(existing);
   }
 
   showInteractiveReply(

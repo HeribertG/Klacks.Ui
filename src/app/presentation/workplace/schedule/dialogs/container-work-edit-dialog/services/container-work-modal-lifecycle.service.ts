@@ -24,6 +24,7 @@ import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-abse
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
+import { resolveItemEndTime, resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerWorkOptions } from '../open-container-work-options';
@@ -395,8 +396,8 @@ export class ContainerWorkModalLifecycleService {
         debriefingTime: this.getWorkChangeTime(workChanges, DESCRIPTION_DEBRIEFING),
         travelTimeBefore: this.getWorkChangeTime(workChanges, DESCRIPTION_TRAVEL_BEFORE),
         travelTimeAfter: this.getWorkChangeTime(workChanges, DESCRIPTION_TRAVEL_AFTER),
-        timeRangeStartItem: shift?.isTimeRange ? subWork.startTime : '',
-        timeRangeEndItem: shift?.isTimeRange ? subWork.endTime : '',
+        timeRangeStartItem: shift?.isTimeRange ? subWork.startTime : null,
+        timeRangeEndItem: shift?.isTimeRange ? subWork.endTime : null,
         transportMode: subWork.transportMode ?? undefined,
       });
     }
@@ -413,8 +414,8 @@ export class ContainerWorkModalLifecycleService {
         debriefingTime: EMPTY_TIME,
         travelTimeBefore: EMPTY_TIME,
         travelTimeAfter: EMPTY_TIME,
-        timeRangeStartItem: '',
-        timeRangeEndItem: '',
+        timeRangeStartItem: null,
+        timeRangeEndItem: null,
       });
     }
 
@@ -439,8 +440,8 @@ export class ContainerWorkModalLifecycleService {
           shiftId: item.shiftId,
           clientId: item.shift?.clientId || '',
           currentDate: this.currentDate ? formatDateOnly(this.currentDate) : '',
-          startTime: item.shift?.isTimeRange ? (item.timeRangeStartItem || item.startItem || '') : (item.startItem || ''),
-          endTime: item.shift?.isTimeRange ? (item.timeRangeEndItem || item.endItem || '') : (item.endItem || ''),
+          startTime: resolveItemStartTime(item) || '',
+          endTime: resolveItemEndTime(item) || '',
           workTime: item.shift?.workTime || 0,
           parentWorkId: this.workId,
           information: null,
@@ -468,8 +469,8 @@ export class ContainerWorkModalLifecycleService {
   }
 
   private addWorkChangesForItem(workChanges: WorkChangeResource[], item: IContainerTemplateItem, workId: string): void {
-    const startTime = item.shift?.isTimeRange ? (item.timeRangeStartItem || item.startItem || '') : (item.startItem || '');
-    const endTime = item.shift?.isTimeRange ? (item.timeRangeEndItem || item.endItem || '') : (item.endItem || '');
+    const startTime = resolveItemStartTime(item) || '';
+    const endTime = resolveItemEndTime(item) || '';
 
     if (item.briefingTime && item.briefingTime !== EMPTY_TIME) {
       const durationMinutes = this.parseTimeToMinutes(item.briefingTime);

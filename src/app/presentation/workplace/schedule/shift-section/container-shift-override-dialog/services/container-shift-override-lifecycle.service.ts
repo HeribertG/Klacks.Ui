@@ -222,8 +222,8 @@ export class ContainerShiftOverrideLifecycleService {
       debriefingTime: item.debriefingTime ?? EMPTY_TIME,
       travelTimeBefore: item.travelTimeBefore ?? EMPTY_TIME,
       travelTimeAfter: item.travelTimeAfter ?? EMPTY_TIME,
-      timeRangeStartItem: item.timeRangeStartItem ?? '',
-      timeRangeEndItem: item.timeRangeEndItem ?? '',
+      timeRangeStartItem: item.timeRangeStartItem ?? null,
+      timeRangeEndItem: item.timeRangeEndItem ?? null,
       transportMode: item.transportMode,
     };
   }
@@ -280,8 +280,8 @@ export class ContainerShiftOverrideLifecycleService {
       debriefingTime: item.debriefingTime ?? EMPTY_TIME,
       travelTimeBefore: item.travelTimeBefore ?? EMPTY_TIME,
       travelTimeAfter: item.travelTimeAfter ?? EMPTY_TIME,
-      timeRangeStartItem: item.timeRangeStartItem ?? '',
-      timeRangeEndItem: item.timeRangeEndItem ?? '',
+      timeRangeStartItem: item.timeRangeStartItem ?? null,
+      timeRangeEndItem: item.timeRangeEndItem ?? null,
       transportMode: item.transportMode as TransportModeEnum | undefined,
     }));
   }

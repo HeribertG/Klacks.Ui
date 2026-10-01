@@ -286,4 +286,24 @@ describe('ToastShowService', () => {
       expect(toastService.toasts().length).toBe(0);
     });
   });
+
+  describe('dismissByName', () => {
+    it('should remove only the toast with the given name', () => {
+      service.showInfo('Working...', 'busy-toast');
+      service.showInfo('Other', 'other-toast');
+
+      service.dismissByName('busy-toast');
+
+      const names = toastService.toasts().map((toast) => toast.name);
+      expect(names).toEqual(['other-toast']);
+    });
+
+    it('should do nothing when no toast has the name', () => {
+      service.showInfo('Other', 'other-toast');
+
+      service.dismissByName('missing');
+
+      expect(toastService.toasts().length).toBe(1);
+    });
+  });
 });

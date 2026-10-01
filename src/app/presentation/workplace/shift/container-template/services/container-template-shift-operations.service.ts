@@ -203,13 +203,17 @@ export class ContainerTemplateShiftOperationsService {
       debriefingTime: '00:00',
       travelTimeAfter: '00:00',
       travelTimeBefore: '00:00',
-      timeRangeStartItem: '',
-      timeRangeEndItem: '',
+      timeRangeStartItem: null,
+      timeRangeEndItem: null,
     };
   }
 
   hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
-    if (!item.shift?.isTimeRange || !item.timeRangeStartItem) {
+    if (
+      !item.shift?.isTimeRange ||
+      !item.timeRangeStartItem ||
+      !item.timeRangeEndItem
+    ) {
       return false;
     }
     const plannedStart = timeToMinutes(item.timeRangeStartItem);

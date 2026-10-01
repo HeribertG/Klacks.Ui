@@ -5,7 +5,22 @@
  * @param convertAbsencesToTimeBlocks - Converts absence items to ITimeBlock[] with midnight-safe duration
  * @param applyPlacedTimeBlocks - Inserts placed absence items at optimized positions
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
+import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { ContainerTemplateRouteService } from './container-template-route.service';
+import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import {
   IContainerTemplateItem,
@@ -311,5 +326,68 @@ describe('applyPlacedTimeBlocks', () => {
     expect(result).toHaveLength(2);
     expect(result[0].shiftId).toBe('s1');
     expect(result[1].absenceId).toBe('a1');
+  });
+});
+
+describe('ContainerTemplateRouteService.interleaveAbsencesWithShifts', () => {
+  let service: ContainerTemplateRouteService;
+
+  const fixedTimeShiftItem = (
+    id: string,
+    start: string,
+    storedTimeRangeStart: string | null,
+  ): IContainerTemplateItem =>
+    ({
+      shiftId: id,
+      shift: { isTimeRange: false } as IShift,
+      startItem: start,
+      endItem: '23:00:00',
+      timeRangeStartItem: storedTimeRangeStart,
+      timeRangeEndItem: storedTimeRangeStart,
+    }) as IContainerTemplateItem;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        ContainerTemplateRouteService,
+        { provide: RouteOptimizationService, useValue: {} },
+        { provide: DataManagementContainerService, useValue: {} },
+        { provide: ContainerTemplateShiftService, useValue: {} },
+        { provide: ContainerTemplateItemManipulationService, useValue: {} },
+        { provide: ToastShowService, useValue: {} },
+        { provide: TranslateService, useValue: {} },
+        { provide: SpinnerService, useValue: {} },
+        { provide: WorkplaceStateService, useValue: {} },
+        { provide: AddressProviderService, useValue: {} },
+        { provide: AppSettingsManagementService, useValue: {} },
+        { provide: TableSortingService, useValue: {} },
+        { provide: DataShiftService, useValue: {} },
+      ],
+    });
+    service = TestBed.inject(ContainerTemplateRouteService);
+  });
+
+  it('should place an absence by the fixed start of a fixed-time shift despite a stored 00:00 time range', () => {
+    const shifts = [
+      fixedTimeShiftItem('s1', '10:00:00', '00:00:00'),
+      fixedTimeShiftItem('s2', '14:00:00', '00:00:00'),
+    ];
+    const absence = createAbsenceItem({ startItem: '12:00:00', endItem: '12:30:00' });
+
+    const result = service.interleaveAbsencesWithShifts([absence], shifts);
+
+    expect(result.map((item) => item.shiftId ?? item.absenceId)).toEqual(['s1', 'absence-1', 's2']);
+  });
+
+  it('should place an absence by the fixed start of a fixed-time shift without a time range', () => {
+    const shifts = [
+      fixedTimeShiftItem('s1', '10:00:00', null),
+      fixedTimeShiftItem('s2', '14:00:00', null),
+    ];
+    const absence = createAbsenceItem({ startItem: '12:00:00', endItem: '12:30:00' });
+
+    const result = service.interleaveAbsencesWithShifts([absence], shifts);
+
+    expect(result.map((item) => item.shiftId ?? item.absenceId)).toEqual(['s1', 'absence-1', 's2']);
   });
 });

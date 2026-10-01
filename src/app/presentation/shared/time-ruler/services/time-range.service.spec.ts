@@ -3,6 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TimeRangeService } from './time-range.service';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 
 describe('TimeRangeService', () => {
     let service: TimeRangeService;
@@ -39,6 +40,60 @@ describe('TimeRangeService', () => {
             const shift = shiftWith('08:00:00', '15:30:00');
 
             expect(service.getShiftEndMinutes(shift)).toBe(930);
+        });
+    });
+
+    describe('container template items', () => {
+        const itemWith = (
+            isTimeRange: boolean,
+            fixed: [string, string],
+            timeRange: [string, string],
+        ): IContainerTemplateItem =>
+            ({
+                shiftId: 'shift-1',
+                shift: { isTimeRange } as IShift,
+                startItem: fixed[0],
+                endItem: fixed[1],
+                timeRangeStartItem: timeRange[0],
+                timeRangeEndItem: timeRange[1],
+            }) as IContainerTemplateItem;
+
+        it('should ignore a persisted 00:00-00:00 time range on a fixed-time shift', () => {
+            const item = itemWith(false, ['08:00:00', '16:00:00'], ['00:00:00', '00:00:00']);
+
+            expect(service.getShiftStartMinutes(item)).toBe(480);
+            expect(service.getShiftEndMinutes(item)).toBe(960);
+        });
+
+        it('should fall back to the fixed times when the time range is empty on a fixed-time shift', () => {
+            const item = itemWith(false, ['08:00:00', '16:00:00'], ['', '']);
+
+            expect(service.getShiftStartMinutes(item)).toBe(480);
+            expect(service.getShiftEndMinutes(item)).toBe(960);
+        });
+
+        it('should use the time range of a time-range shift', () => {
+            const item = itemWith(true, ['06:00:00', '22:00:00'], ['09:00:00', '10:30:00']);
+
+            expect(service.getShiftStartMinutes(item)).toBe(540);
+            expect(service.getShiftEndMinutes(item)).toBe(630);
+        });
+
+        it('should fall back to the fixed times when a time-range shift has no time range set', () => {
+            const item = itemWith(true, ['06:00:00', '22:00:00'], ['', '']);
+
+            expect(service.getShiftStartMinutes(item)).toBe(360);
+            expect(service.getShiftEndMinutes(item)).toBe(1320);
+        });
+
+        it('should use the fixed times for an absence item', () => {
+            const item = {
+                ...itemWith(false, ['08:00:00', '09:00:00'], ['00:00:00', '00:00:00']),
+                absenceId: 'absence-1',
+            } as IContainerTemplateItem;
+
+            expect(service.getShiftStartMinutes(item)).toBe(480);
+            expect(service.getShiftEndMinutes(item)).toBe(540);
         });
     });
 

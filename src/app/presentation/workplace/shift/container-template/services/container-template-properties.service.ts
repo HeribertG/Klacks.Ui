@@ -9,6 +9,7 @@ import { Injectable, inject, TemplateRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
 import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -50,7 +51,7 @@ export class ContainerTemplatePropertiesService {
     this.currentIsHoliday = isHoliday ?? false;
 
     this.editedProperties = {
-      timeRangeStartItem: this.contextMenuTargetItem.timeRangeStartItem || '',
+      timeRangeStartItem: resolveItemStartTime(this.contextMenuTargetItem) || '',
       briefingTime: this.contextMenuTargetItem.briefingTime || '00:00',
       debriefingTime: this.contextMenuTargetItem.debriefingTime || '00:00',
       travelTimeBefore: this.contextMenuTargetItem.travelTimeBefore || '00:00',
