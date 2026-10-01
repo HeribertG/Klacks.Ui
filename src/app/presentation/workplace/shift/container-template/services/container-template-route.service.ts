@@ -11,7 +11,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { Subject, TimeoutError, of } from 'rxjs';
-import { takeUntil, catchError } from 'rxjs';
+import { takeUntil, catchError, finalize } from 'rxjs';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { TranslateService } from '@ngx-translate/core';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
@@ -29,6 +29,7 @@ import {
   RouteOptimizationService,
   ITimeBlock,
   IAutofillResult,
+  IRouteOptimizationResult,
 } from 'src/app/domain/services/route-optimization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
@@ -41,8 +42,19 @@ import {
   timeToString,
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
-import { convertShiftToContainerTemplateItem } from 'src/app/shared/helpers/container-template-format.helper';
+import {
+  convertShiftToContainerTemplateItem,
+  resolveItemStartTime,
+} from 'src/app/shared/helpers/container-template-format.helper';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
+import { formatSecondsAsHHMM } from 'src/app/shared/helpers/time-span-format.helper';
+
+const MIDNIGHT_TIME = '00:00';
+const SECONDS_PER_MINUTE = 60;
+const ROUTE_OPTIMIZING_TOAST_NAME = 'route-optimizing';
+const TRAVEL_TIMES_ESTIMATED_TOAST_NAME = 'travel-times-estimated';
+const TRAVEL_TIMES_ESTIMATED_KEY = 'shift.container-template.toast.travel-times-estimated';
 
 export interface AutofillRequest {
   containerShift: IShift | null;
@@ -252,7 +264,20 @@ export class ContainerTemplateRouteService {
       ),
       'Autofill',
     );
+    this.warnIfTravelTimesEstimated(result);
     onStateChanged?.();
+  }
+
+  private warnIfTravelTimesEstimated(result: IRouteOptimizationResult): void {
+    if (!result.isEstimated) {
+      return;
+    }
+    this.toastService.showInfo(
+      this.translateService.instant(TRAVEL_TIMES_ESTIMATED_KEY),
+      TRAVEL_TIMES_ESTIMATED_TOAST_NAME,
+      '',
+      TOAST_ICONS.WARNING,
+    );
   }
 
   convertAutofillResultToItems(
@@ -299,7 +324,7 @@ export class ContainerTemplateRouteService {
       this.translateService.instant(
         'shift.container-template.toast.optimizing-route',
       ),
-      '',
+      ROUTE_OPTIMIZING_TOAST_NAME,
       '',
       TOAST_ICONS.ROUTE,
     );
@@ -318,7 +343,10 @@ export class ContainerTemplateRouteService {
         timeBlocks,
         containerFromTime,
       )
-      .pipe(takeUntil(destroy$))
+      .pipe(
+        takeUntil(destroy$),
+        finalize(() => this.toastService.dismissByName(ROUTE_OPTIMIZING_TOAST_NAME)),
+      )
       .subscribe({
         next: (result) => {
           this.isOptimizing = false;
@@ -345,13 +373,16 @@ export class ContainerTemplateRouteService {
               'shift.container-template.toast.route-optimized-details',
               {
                 distance: result.totalDistanceKm.toFixed(2),
-                time: result.estimatedTravelTime,
+                time: formatSecondsAsHHMM(
+                  calculateRouteDrivingMinutes(result.optimizedRoute) * SECONDS_PER_MINUTE,
+                ),
               },
             ),
             this.translateService.instant(
               'shift.container-template.toast.route-optimized',
             ),
           );
+          this.warnIfTravelTimesEstimated(result);
           onStateChanged?.();
         },
         error: (error) => {
@@ -567,18 +598,18 @@ export class ContainerTemplateRouteService {
     const result: IContainerTemplateItem[] = [...reorderedShiftItems];
 
     const sortedAbsences = [...absenceItems].sort((a, b) => {
-      const aStart = timeToMinutes(a.startItem || '00:00');
-      const bStart = timeToMinutes(b.startItem || '00:00');
+      const aStart = timeToMinutes(a.startItem || MIDNIGHT_TIME);
+      const bStart = timeToMinutes(b.startItem || MIDNIGHT_TIME);
       return aStart - bStart;
     });
 
     for (const absence of sortedAbsences) {
-      const absenceStart = timeToMinutes(absence.startItem || '00:00');
+      const absenceStart = timeToMinutes(absence.startItem || MIDNIGHT_TIME);
       let insertIdx = result.length;
 
       for (let i = 0; i < result.length; i++) {
         const itemStart = timeToMinutes(
-          result[i].timeRangeStartItem || result[i].startItem || '00:00',
+          resolveItemStartTime(result[i]) || MIDNIGHT_TIME,
         );
         if (absenceStart < itemStart) {
           insertIdx = i;

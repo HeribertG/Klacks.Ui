@@ -22,6 +22,7 @@ import {
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
 
+import { resolveItemEndTime } from 'src/app/shared/helpers/container-template-format.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 const ABSENCE_DEFAULT_DURATION_MINUTES = 15;
@@ -51,7 +52,7 @@ export class ContainerTemplateAbsenceService {
     let startMinutes: number;
 
     if (previousItem) {
-      const endTime = previousItem.timeRangeEndItem || previousItem.endItem || '';
+      const endTime = resolveItemEndTime(previousItem) || '';
       startMinutes = endTime
         ? timeToMinutes(endTime)
         : timeToMinutes(timeToString(parseInt(timeFrom.hours), parseInt(timeFrom.minutes)));

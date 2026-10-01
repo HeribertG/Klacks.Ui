@@ -37,8 +37,8 @@ export interface IContainerShiftOverrideItem {
   debriefingTime: string;
   travelTimeAfter: string;
   travelTimeBefore: string;
-  timeRangeStartItem: string;
-  timeRangeEndItem: string;
+  timeRangeStartItem: string | null;
+  timeRangeEndItem: string | null;
   transportMode?: TransportModeEnum;
   shift?: IShift;
   absence?: IAbsence;

@@ -5,6 +5,9 @@
  * @param formatClientWithAddress - Formats client name with customer address for display/PDF
  * @param formatWorkTime - Formats decimal work hours to "H:MM" string
  * @param convertShiftToContainerTemplateItem - Converts an IShift to an IContainerTemplateItem
+ * @param usesItemTimeRange - Whether an item's stored time range applies (time-range shift, not an absence)
+ * @param resolveItemStartTime - Effective start time of an item, ignoring a time range that does not apply
+ * @param resolveItemEndTime - Effective end time of an item, ignoring a time range that does not apply
  */
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import {
@@ -61,7 +64,23 @@ export function convertShiftToContainerTemplateItem(
     debriefingTime: shift.debriefingTime,
     travelTimeAfter: shift.travelTimeAfter,
     travelTimeBefore: shift.travelTimeBefore,
-    timeRangeStartItem: shift.isTimeRange ? shift.startShift : '',
-    timeRangeEndItem: shift.isTimeRange ? shift.endShift : '',
+    timeRangeStartItem: shift.isTimeRange ? shift.startShift : null,
+    timeRangeEndItem: shift.isTimeRange ? shift.endShift : null,
   };
+}
+
+export function usesItemTimeRange(item: IContainerTemplateItem): boolean {
+  return !item.absenceId && !!item.shift?.isTimeRange;
+}
+
+export function resolveItemStartTime(item: IContainerTemplateItem): string | undefined {
+  return usesItemTimeRange(item)
+    ? item.timeRangeStartItem || item.startItem
+    : item.startItem;
+}
+
+export function resolveItemEndTime(item: IContainerTemplateItem): string | undefined {
+  return usesItemTimeRange(item)
+    ? item.timeRangeEndItem || item.endItem
+    : item.endItem;
 }

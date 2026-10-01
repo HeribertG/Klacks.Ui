@@ -15,14 +15,14 @@ const MINUTES_PER_DAY = HOURS_PER_DAY * MINUTES_PER_HOUR;
  * Formats a time string from "HH:mm:ss" to "HH:mm"
  *
  * @param time - Time string in format "HH:mm:ss" or undefined
- * @returns Formatted time string "HH:mm" or empty string if input is undefined
+ * @returns Formatted time string "HH:mm" or empty string if input is undefined or null
  *
  * @example
  * formatTime("14:30:00") // "14:30"
  * formatTime("09:05:15") // "09:05"
  * formatTime(undefined)  // ""
  */
-export function formatTime(time: string | undefined): string {
+export function formatTime(time: string | null | undefined): string {
   if (!time) {
     return '';
   }

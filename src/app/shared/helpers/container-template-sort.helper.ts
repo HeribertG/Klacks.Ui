@@ -9,16 +9,14 @@
  */
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
 
 function parseTimeToMinutes(time: string | undefined | null): number {
   return time ? timeToMinutes(time) : 0;
 }
 
 function getItemStartMinutes(item: IContainerTemplateItem): number {
-  const time = item.absenceId
-    ? item.startItem
-    : (item.timeRangeStartItem || item.startItem);
-  return parseTimeToMinutes(time);
+  return parseTimeToMinutes(resolveItemStartTime(item));
 }
 
 export function sortContainerItemsChronologically(

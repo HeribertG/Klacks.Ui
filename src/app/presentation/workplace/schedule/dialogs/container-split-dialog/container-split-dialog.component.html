@@ -28,15 +28,39 @@
     } @else {
       <div class="form-group">
         <label>{{ "dialog.containerSplit.splitTime" | translate }}</label>
-        <app-time-input
-          [value]="splitTimeOwn()"
-          [forDuration]="false"
-          [showLabel]="false"
-          (timeChange)="onSplitTimeOwnChanged($event)"
-        />
-        @if (splitTime() && !isSplitTimeValid()) {
-          <div class="error-message">
-            {{ "dialog.containerSplit.error.invalidTime" | translate }}
+        @if (hasSplitPoints()) {
+          <div class="split-points">
+            <span class="darkgrey-font">{{
+              "dialog.containerSplit.splitPoints" | translate
+            }}</span>
+            @for (gap of splitGaps(); track gap.start) {
+              <button
+                type="button"
+                class="normal-btn split-point-btn"
+                [class.active]="isSplitGapSelected(gap)"
+                (click)="selectSplitGap(gap)"
+              >
+                @if (gap.beforeLabel && gap.afterLabel) {
+                  {{ gap.beforeLabel }} | {{ gap.afterLabel }}:
+                }
+                {{ gap.start }}&ndash;{{ gap.end }}
+              </button>
+            }
+          </div>
+          <app-time-input
+            [value]="splitTimeOwn()"
+            [forDuration]="false"
+            [showLabel]="false"
+            (timeChange)="onSplitTimeOwnChanged($event)"
+          />
+          @if (splitTime() && !isSplitTimeValid()) {
+            <div class="error-message">
+              {{ "dialog.containerSplit.error.invalidTime" | translate }}
+            </div>
+          }
+        } @else {
+          <div class="error-message no-split-point">
+            {{ "dialog.containerSplit.noSplitPoint" | translate }}
           </div>
         }
       </div>
@@ -76,46 +100,6 @@
           </div>
         }
       </div>
-
-      @if (categorization()?.conflicts?.length) {
-        <div class="form-group">
-          <label>{{
-            "dialog.containerSplit.conflicts.title" | translate
-          }}</label>
-          @for (
-            conflict of categorization()!.conflicts;
-            track conflict.subWork.id
-          ) {
-            <div class="conflict-row">
-              <span class="conflict-time">
-                {{ conflict.subWork.startTime }} &ndash;
-                {{ conflict.subWork.endTime }}
-              </span>
-              <button
-                type="button"
-                class="normal-btn conflict-btn"
-                [class.active]="conflict.resolution === 'before'"
-                (click)="resolveConflict(conflict, 'before')"
-              >
-                {{ "dialog.containerSplit.conflicts.before" | translate }}
-              </button>
-              <button
-                type="button"
-                class="normal-btn conflict-btn"
-                [class.active]="conflict.resolution === 'after'"
-                (click)="resolveConflict(conflict, 'after')"
-              >
-                {{ "dialog.containerSplit.conflicts.after" | translate }}
-              </button>
-            </div>
-          }
-          @if (!allConflictsResolved()) {
-            <div class="darkgrey-font">
-              {{ "dialog.containerSplit.conflicts.unresolvedHint" | translate }}
-            </div>
-          }
-        </div>
-      }
     }
   </div>
 

@@ -73,19 +73,14 @@
   color: var(--colorRed);
 }
 
-.conflict-row {
+.split-points {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 6px;
+  margin-bottom: 8px;
 
-  .conflict-time {
-    flex: 1;
-    font-size: 13px;
-    color: var(--standartTextColor);
-  }
-
-  .conflict-btn {
+  .split-point-btn {
     &.active {
       background-color: var(--primaryActionColor);
       color: var(--onAccent);
