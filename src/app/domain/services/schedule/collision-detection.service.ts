@@ -42,7 +42,9 @@ import {
   calendarDateKey,
   parseCalendarDate,
 } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateParams } from 'src/app/domain/helpers/date-params.helper';
 import { resolveMultiLanguageParams } from 'src/app/domain/helpers/multi-language-params.helper';
+import { LocaleService } from 'src/app/application/services/locale.service';
 
 @Injectable({
   providedIn: 'root',
@@ -52,6 +54,7 @@ export class CollisionDetectionService implements OnDestroy {
   private dataManagement = inject(DataManagementScheduleService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private translate = inject(TranslateService);
+  private localeService = inject(LocaleService);
   private collisions = new Map<string, ICollisionNotification>();
   private validations = new Map<string, IScheduleValidationNotification>();
   private subscriptions: Subscription[] = [];
@@ -214,7 +217,10 @@ export class CollisionDetectionService implements OnDestroy {
       localized['period'] = this.translate.instant(`counter-period.${period.toLowerCase()}`);
     }
 
-    return resolveMultiLanguageParams(localized, this.translate.currentLang);
+    return formatDateParams(
+      resolveMultiLanguageParams(localized, this.translate.currentLang),
+      this.localeService.getLocale(),
+    );
   }
 
   private addUnderstaffedShiftEntries(entries: ScheduleErrorEntry[]): void {

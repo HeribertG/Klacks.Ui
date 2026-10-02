@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import {
   formatCalendarDate,
+  formatMonthDay,
   localeDatePattern,
   localeNumericDatePattern,
 } from './locale-date-format.helper';
@@ -86,6 +87,46 @@ describe('locale-date-format.helper', () => {
 
     it('should keep the calendar day of a UTC-midnight wire value', () => {
       expect(formatCalendarDate('2026-12-31T00:00:00Z', 'de')).toBe('31.12.2026');
+    });
+  });
+
+  describe('formatMonthDay', () => {
+    it.each([
+      ['de', '03-01', '1. März'],
+      ['en', '03-01', 'March 1'],
+      ['fr', '10-31', '31 octobre'],
+      ['ja', '12-24', '12月24日'],
+    ])('should format a month-day in %s', (locale, monthDay, expected) => {
+      expect(formatMonthDay(monthDay, locale)).toBe(expected);
+    });
+
+    it('should accept the leap day', () => {
+      expect(formatMonthDay('02-29', 'de')).toBe('29. Februar');
+    });
+
+    it.each(['02-30', '13-01', '00-10', '3-1', '2026-03-01', 'abc', ''])(
+      'should return null for "%s"',
+      (value) => {
+        expect(formatMonthDay(value, 'de')).toBeNull();
+      }
+    );
+
+    it('should return null for missing values', () => {
+      expect(formatMonthDay(null, 'de')).toBeNull();
+      expect(formatMonthDay(undefined, 'de')).toBeNull();
+    });
+
+    it('should keep a latin day number for thai', () => {
+      expect(formatMonthDay('03-01', 'th')).toMatch(/^1\s/);
+    });
+
+    describe.each(CALENDAR_TEST_ZONES)('in browser zone %s', (zone) => {
+      useTimeZone(zone);
+
+      it('should not depend on the browser zone', () => {
+        expect(formatMonthDay('03-01', 'de')).toBe('1. März');
+        expect(formatMonthDay('12-31', 'de')).toBe('31. Dezember');
+      });
     });
   });
 });

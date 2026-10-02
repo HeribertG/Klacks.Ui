@@ -6,6 +6,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { signal as angularSignal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CollisionDetectionService } from './collision-detection.service';
+import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
 import {
@@ -862,6 +864,57 @@ describe('CollisionDetectionService', () => {
           const entry = service.errorEntries().find((e) => e.comment === HOLIDAY_WORK_KEY);
           expect(entry?.commentParams).toEqual({ holiday: expected });
           expect(entry?.date).toBe('2026-03-19');
+        });
+      });
+    }
+  });
+
+  describe('date parameters in the reader locale across browser time zones', () => {
+    const EXPIRING_SOON_KEY = 'schedule.error-list.qualification-expiring-soon';
+    const COMPENSATORY_REST_KEY = 'schedule.error-list.compensatory-rest-due';
+
+    function pushFindings(): void {
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [
+          createValidation({
+            date: '2026-03-02',
+            comment: EXPIRING_SOON_KEY,
+            commentParams: { qualificationId: 'q-1', validUntil: '2026-12-31' },
+          }),
+          createValidation({
+            date: '2026-03-01',
+            comment: COMPENSATORY_REST_KEY,
+            commentParams: { shortfallHours: '2.5', triggerDate: '2026-03-01', dueDate: '2026-03-15' },
+          }),
+        ],
+      });
+      flushAndTick();
+    }
+
+    beforeEach(async () => {
+      await TestBed.inject(LocaleDataLoaderService).ensureLoaded('de');
+    });
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it('shows the dates in the locale format, not as ISO strings', () => {
+          TestBed.inject(LocaleService).setLocale('de');
+
+          pushFindings();
+
+          const entries = service.errorEntries();
+          expect(entries.find((e) => e.comment === EXPIRING_SOON_KEY)?.commentParams).toEqual({
+            qualificationId: 'q-1',
+            validUntil: '31.12.2026',
+          });
+          expect(entries.find((e) => e.comment === COMPENSATORY_REST_KEY)?.commentParams).toEqual({
+            shortfallHours: '2.5',
+            triggerDate: '01.03.2026',
+            dueDate: '15.03.2026',
+          });
         });
       });
     }

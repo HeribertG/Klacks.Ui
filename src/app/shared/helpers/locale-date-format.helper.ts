@@ -12,6 +12,8 @@
  * @param locale - Angular locale id whose data is registered (see LocaleDataLoaderService)
  * @param style - Field layout: "numericDate" (31.12.2026), "weekdayDate" (Donnerstag 31.12.2026)
  *   or "monthYear" (Dezember 2026, but year-first as 2026年12月 in Japanese and Chinese)
+ * @param monthDay - Yearly recurring day without a year in the wire form "MM-dd" (formatMonthDay,
+ *   e.g. "03-01" becomes "1. März"); anchored on a fixed leap year in UTC, so it is time-zone independent
  */
 
 import { FormatWidth, formatDate, getLocaleDateFormat } from '@angular/common';
@@ -32,6 +34,16 @@ const MONTH_YEAR_OPTIONS: Intl.DateTimeFormatOptions = {
   ...GREGORIAN_LATIN_INTL_OPTIONS,
   month: 'long',
   year: 'numeric',
+};
+
+const MONTH_DAY_PATTERN = /^(\d{2})-(\d{2})$/;
+const MONTH_DAY_ANCHOR_YEAR = 2000;
+
+const MONTH_DAY_OPTIONS: Intl.DateTimeFormatOptions = {
+  ...GREGORIAN_LATIN_INTL_OPTIONS,
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
 };
 
 export function localeNumericDatePattern(locale: string): string {
@@ -61,4 +73,18 @@ export function formatCalendarDate(
   return style === 'monthYear'
     ? new Intl.DateTimeFormat(locale, MONTH_YEAR_OPTIONS).format(date)
     : formatDate(date, localeDatePattern(locale, style), locale);
+}
+
+export function formatMonthDay(monthDay: string | null | undefined, locale: string): string | null {
+  const match = monthDay ? MONTH_DAY_PATTERN.exec(monthDay) : null;
+  if (!match) {
+    return null;
+  }
+
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  const anchor = new Date(Date.UTC(MONTH_DAY_ANCHOR_YEAR, month - 1, day));
+  const isRoundTripStable = anchor.getUTCMonth() === month - 1 && anchor.getUTCDate() === day;
+
+  return isRoundTripStable ? new Intl.DateTimeFormat(locale, MONTH_DAY_OPTIONS).format(anchor) : null;
 }
