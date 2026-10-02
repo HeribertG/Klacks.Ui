@@ -25,7 +25,7 @@ import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.se
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import { CALENDAR_TEST_ZONES, currentTimeZone, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('ScheduleHomeComponent', () => {
   const clientId = '131e24fe-2acf-4bd5-b70c-5af888321338';
@@ -179,6 +179,132 @@ describe('ScheduleHomeComponent', () => {
       // Assert
       expect(mockDataClientService.getClient).not.toHaveBeenCalled();
       expect(workFilter.searchString).toBe('1148');
+    });
+  });
+
+  describe('applyDateQueryParam', () => {
+    const groupId = 'b2f0c1aa-0000-4000-8000-000000000001';
+
+    function setupDate(queryParams: Record<string, string>, groupInterval: number | undefined, filterInterval = 2): any {
+      setup(queryParams);
+      mockGroupSelectionService.selectedGroup = groupInterval === undefined
+        ? undefined
+        : { id: groupId, paymentInterval: groupInterval };
+      Object.assign(workFilter, { paymentInterval: filterInterval, currentMonth: 1, currentYear: 2020, currentWeek: 1 });
+      return workFilter;
+    }
+
+    function applyDateQueryParam(): void {
+      (component as unknown as { applyDateQueryParam(): void }).applyDateQueryParam();
+    }
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it('opens the month of the date for a monthly group', () => {
+          // Arrange
+          const filter = setupDate({ groupId, date: '2026-10-19' }, 2);
+
+          // Act
+          applyDateQueryParam();
+
+          // Assert
+          expect(filter.paymentInterval).toBe(2);
+          expect(filter.currentMonth).toBe(10);
+          expect(filter.currentYear).toBe(2026);
+        });
+
+        it('opens the ISO week of the date for a weekly group, across the year boundary', () => {
+          // Arrange
+          const filter = setupDate({ groupId, date: '2027-01-01' }, 0);
+
+          // Act
+          applyDateQueryParam();
+
+          // Assert
+          expect(filter.paymentInterval).toBe(0);
+          expect(filter.currentWeek).toBe(53);
+          expect(filter.currentYear).toBe(2026);
+        });
+      });
+    }
+
+    it('opens the ISO week of the date for a biweekly group', () => {
+      // Arrange
+      const filter = setupDate({ groupId, date: '2026-10-19' }, 1);
+
+      // Act
+      applyDateQueryParam();
+
+      // Assert
+      expect(filter.currentWeek).toBe(43);
+      expect(filter.currentYear).toBe(2026);
+    });
+
+    it('treats a monthly-target-hours group as monthly', () => {
+      // Arrange
+      const filter = setupDate({ groupId, date: '2026-12-31' }, 4);
+
+      // Act
+      applyDateQueryParam();
+
+      // Assert
+      expect(filter.currentMonth).toBe(12);
+      expect(filter.currentYear).toBe(2026);
+    });
+
+    it('keeps the interval of the filter when no group is selected', () => {
+      // Arrange
+      const filter = setupDate({ date: '2026-03-04' }, undefined, 0);
+
+      // Act
+      applyDateQueryParam();
+
+      // Assert
+      expect(filter.paymentInterval).toBe(0);
+      expect(filter.currentWeek).toBe(10);
+      expect(filter.currentYear).toBe(2026);
+    });
+
+    it('leaves the period untouched without a date', () => {
+      // Arrange
+      const filter = setupDate({ groupId }, 2);
+
+      // Act
+      applyDateQueryParam();
+
+      // Assert
+      expect(filter.currentMonth).toBe(1);
+      expect(filter.currentYear).toBe(2020);
+    });
+
+    it('leaves the period untouched for a malformed date', () => {
+      // Arrange
+      const filter = setupDate({ groupId, date: 'not-a-date' }, 2);
+
+      // Act
+      applyDateQueryParam();
+
+      // Assert
+      expect(filter.currentMonth).toBe(1);
+      expect(filter.currentYear).toBe(2020);
+    });
+
+    it('re-applies the date of the next message while the page stays open', async () => {
+      // Arrange
+      const filter = setupDate({}, 2);
+      (component as unknown as { setupActionQueryParamReaction(): void }).setupActionQueryParamReaction();
+      const dataManagement = TestBed.inject(DataManagementScheduleService) as unknown as { readDatas: ReturnType<typeof vi.fn> };
+
+      // Act
+      navigateTo({ groupId, date: '2026-11-03' });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Assert
+      expect(filter.currentMonth).toBe(11);
+      expect(filter.currentYear).toBe(2026);
+      expect(dataManagement.readDatas).toHaveBeenCalled();
     });
   });
 

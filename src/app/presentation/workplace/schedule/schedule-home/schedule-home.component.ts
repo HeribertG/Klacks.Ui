@@ -14,6 +14,9 @@
  * - Uses: AllScheduleStateService for state management
  * - Uses: HolidayCollectionService for holiday data
  * - Part of: Workplace module routing
+ *
+ * One-click actions (proactive messages, skills) may open the page with the query params groupId,
+ * clientId and date; date opens the period that contains that calendar day.
  */
 import {
   ChangeDetectionStrategy,
@@ -79,6 +82,16 @@ import { BreakBlockRendererService } from '../schedule-section/timeline/renderer
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
+import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+
+const GROUP_QUERY_PARAM = 'groupId';
+const CLIENT_QUERY_PARAM = 'clientId';
+const DATE_QUERY_PARAM = 'date';
+const ISO_WEEK_THURSDAY_OFFSET = 4;
+const SUNDAY_AS_ISO_WEEKDAY = 7;
+const MONTH_INDEX_OFFSET = 1;
 
 interface ResolvedCalendarChips {
   tokens: StateCountryToken[];
@@ -142,6 +155,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private dataGroupService = inject(DataGroupService);
   private dataClientService = inject(DataClientService);
   private searchStateService = inject(SearchStateService);
+  private calendarUtil = inject(CalendarUtilService);
   private destroyRef = inject(DestroyRef);
   private analyseScenarioService = inject(AnalyseScenarioService);
 
@@ -164,6 +178,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     await this.applyGroupQueryParam();
     await this.allScheduleStateService.initializeWorkplaceState();
     await this.applyClientQueryParam();
+    this.applyDateQueryParam();
     this.isInitialized = true;
     this.cdr.markForCheck();
 
@@ -186,17 +201,18 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
 
   private async reapplyActionQueryParams(): Promise<void> {
     const params = this.route.snapshot.queryParamMap;
-    if (!params.get('clientId') && !params.get('groupId')) {
+    if (!params.get(CLIENT_QUERY_PARAM) && !params.get(GROUP_QUERY_PARAM) && !params.get(DATE_QUERY_PARAM)) {
       return;
     }
 
     await this.applyGroupQueryParam();
     await this.applyClientQueryParam();
+    this.applyDateQueryParam();
     this.dataManagementSchedule.readDatas();
   }
 
   private async applyGroupQueryParam(): Promise<void> {
-    const groupId = this.route.snapshot.queryParamMap.get('groupId');
+    const groupId = this.route.snapshot.queryParamMap.get(GROUP_QUERY_PARAM);
     if (!groupId) return;
 
     if (this.groupSelectionService.selectedGroup?.id === groupId) return;
@@ -224,7 +240,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
    * client outside the selected group would otherwise yield an empty grid.
    */
   private async applyClientQueryParam(): Promise<void> {
-    const clientId = this.route.snapshot.queryParamMap.get('clientId');
+    const clientId = this.route.snapshot.queryParamMap.get(CLIENT_QUERY_PARAM);
     if (!clientId) return;
 
     try {
@@ -239,6 +255,40 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     } catch {
       // ignore: invalid id or no permission → fall back to the unfiltered schedule
     }
+  }
+
+  /**
+   * Opens the period that contains the calendar day of a one-click action (date query param, e.g. the
+   * first unstaffed day of a collective proactive message). Runs after the stored filter was restored and
+   * after the group was applied, so neither can move the period again. The period type follows the
+   * selected group's payment interval exactly like the group selection does; weekly and biweekly periods
+   * are addressed by ISO week and ISO week-year, every other interval by calendar month.
+   * The value is parsed with parseCalendarDate, so the day never shifts with the browser time zone.
+   */
+  private applyDateQueryParam(): void {
+    const day = parseCalendarDate(this.route.snapshot.queryParamMap.get(DATE_QUERY_PARAM));
+    if (!day) return;
+
+    const filter = this.dataManagementSchedule.workFilter;
+    const groupInterval = this.groupSelectionService.selectedGroup?.paymentInterval;
+    if (groupInterval !== undefined && groupInterval !== null) {
+      filter.paymentInterval = groupInterval;
+    }
+
+    if (filter.paymentInterval === PaymentInterval.Weekly || filter.paymentInterval === PaymentInterval.Biweekly) {
+      filter.currentWeek = this.calendarUtil.getISO8601WeekNumber(day);
+      filter.currentYear = this.isoWeekYear(day);
+      return;
+    }
+
+    filter.currentMonth = day.getMonth() + MONTH_INDEX_OFFSET;
+    filter.currentYear = day.getFullYear();
+  }
+
+  private isoWeekYear(day: Date): number {
+    const isoWeekday = day.getDay() || SUNDAY_AS_ISO_WEEKDAY;
+    const thursday = new Date(day.getFullYear(), day.getMonth(), day.getDate() + ISO_WEEK_THURSDAY_OFFSET - isoWeekday);
+    return thursday.getFullYear();
   }
 
   /**
