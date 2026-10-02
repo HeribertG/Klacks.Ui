@@ -11,6 +11,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -67,6 +68,7 @@ import { ExportFormatsSettingComponent } from '../export-formats-setting/export-
 import { ExportFormatOverridesSettingComponent } from '../export-format-overrides-setting/export-format-overrides-setting.component';
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
+import { ClientImportCardComponent } from '../client-import-card/client-import-card.component';
 import { IndividualPeriodsComponent } from '../individual-periods/individual-periods.component';
 import { MonthlyTargetHoursComponent } from '../monthly-target-hours/monthly-target-hours.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
@@ -151,6 +153,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     ExportFormatOverridesSettingComponent,
     UpdatesSettingComponent,
     QualificationsComponent,
+    ClientImportCardComponent,
     IndividualPeriodsComponent,
     MonthlyTargetHoursComponent,
     PersonalAccessTokensComponent,
@@ -177,6 +180,7 @@ export class SettingsHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   public featurePluginState = inject(FeaturePluginStateService);
+  public authorizationService = inject(AuthorizationService);
   public messagingPluginName = MESSAGING_PLUGIN_NAME;
 
   private eventBus = inject(EVENT_BUS_TOKEN);

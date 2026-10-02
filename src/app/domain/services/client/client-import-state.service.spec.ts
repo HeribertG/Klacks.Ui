@@ -142,30 +142,14 @@ describe('ClientImportStateService', () => {
   });
 
   describe('initialization', () => {
-    it('flattens the group tree with depth and presets a filtered group that exists', async () => {
-      await service.initialize('g2');
+    it('flattens the group tree with depth and leaves the group rule unset', async () => {
+      await service.initialize();
 
       expect(service.groups()).toEqual([
         { id: 'g1', name: 'Zürich', depth: 0 },
         { id: 'g2', name: 'Altstadt', depth: 1 },
       ]);
-      expect(service.policy().groupId).toBe('g2');
-      expect(service.groupPresetFromFilter()).toBe(true);
-    });
-
-    it('ignores a preset group id that is not in the group list', async () => {
-      await service.initialize('unknown');
-
       expect(service.policy().groupId).toBeNull();
-      expect(service.groupPresetFromFilter()).toBe(false);
-    });
-
-    it('clears the "from filter" hint once the user picks another group', async () => {
-      await service.initialize('g2');
-
-      service.updatePolicy({ groupId: 'g1' });
-
-      expect(service.groupPresetFromFilter()).toBe(false);
     });
   });
 

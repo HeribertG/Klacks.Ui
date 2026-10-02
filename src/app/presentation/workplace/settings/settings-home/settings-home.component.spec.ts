@@ -15,6 +15,7 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 
 describe('SettingsHomeComponent', () => {
   let fixture: ComponentFixture<SettingsHomeComponent>;
@@ -54,6 +55,7 @@ describe('SettingsHomeComponent', () => {
         { provide: LocalStorageService, useValue: localStorageMock },
         { provide: SavebarService, useValue: { setSavebarVisibility: vi.fn() } },
         { provide: FeaturePluginStateService, useValue: {} },
+        { provide: AuthorizationService, useValue: { isAdmin: true } },
         { provide: LayoutService, useValue: { setContainerToNormalSize: vi.fn() } },
         { provide: SearchService, useValue: { setSearchVisibility: vi.fn() } },
         { provide: EVENT_BUS_TOKEN, useValue: eventBusMock },
@@ -163,6 +165,7 @@ describe('SettingsHomeComponent', () => {
     ['llm-models', 'llm'],
     ['klacksy-autonomy', 'klacksy'],
     ['updates', 'system'],
+    ['identity-providers', 'organization'],
     ['email-config', 'communication'],
     ['imap-setting', 'communication'],
     ['data-retention', 'general'],

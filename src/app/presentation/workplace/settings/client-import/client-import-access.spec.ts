@@ -3,7 +3,8 @@
 /**
  * Pins the access rule of the employee import: it is admin only. The route demands the Admin role
  * through permissionGuard (not a floor-level right such as CanCreateClients), Klacksy's page key says
- * the same, and the list button is gated by isAdmin in the template.
+ * the same, the Settings card that opens the import is gated by isAdmin in the template, and the employee
+ * list no longer offers the import.
  */
 
 import { readFileSync } from 'fs';
@@ -20,9 +21,12 @@ import { CLIENT_IMPORT_ROUTE } from 'src/app/domain/constants/client-import.cons
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LIST_TEMPLATE = resolve(
   HERE,
-  '../all-address/all-address-list/all-address-list.component.html',
+  '../../address/all-address/all-address-list/all-address-list.component.html',
 );
-const IMPORT_ROUTE_PATH = 'client/import';
+const SETTINGS_TEMPLATE = resolve(HERE, '../settings-home/settings-home.component.html');
+const IMPORT_ROUTE_PATH = 'settings/client-import';
+const IMPORT_CARD_SELECTOR = '<app-client-import-card';
+const LEGACY_LIST_BUTTON_ID = 'import-clients-button';
 const WORKPLACE_PATH = 'workplace';
 
 function findRoute(candidates: Route[], path: string): Route | undefined {
@@ -57,12 +61,18 @@ describe('client import access', () => {
     expect(entry?.requiredPermission).toBe(ROLE_ADMIN);
   });
 
-  it('shows the import button in the list only to admins', () => {
-    const template = readFileSync(LIST_TEMPLATE, 'utf8');
-    const button = template.indexOf('id="import-clients-button"');
-    const gate = template.lastIndexOf('@if (', button);
+  it('shows the import card in the settings only to admins', () => {
+    const template = readFileSync(SETTINGS_TEMPLATE, 'utf8');
+    const card = template.indexOf(IMPORT_CARD_SELECTOR);
+    const gate = template.lastIndexOf('@if (', card);
 
-    expect(button).toBeGreaterThan(-1);
+    expect(card).toBeGreaterThan(-1);
     expect(template.slice(gate, template.indexOf(')', gate) + 1)).toBe('@if (authorizationService.isAdmin)');
+  });
+
+  it('no longer offers the import in the employee list', () => {
+    const template = readFileSync(LIST_TEMPLATE, 'utf8');
+
+    expect(template).not.toContain(LEGACY_LIST_BUTTON_ID);
   });
 });

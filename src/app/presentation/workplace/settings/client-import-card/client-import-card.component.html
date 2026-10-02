@@ -1,0 +1,17 @@
+<div id="client-import-card-container" class="container-dashboard">
+  <div id="client-import-card-header" class="container-header">{{ 'clientImport.title' | translate }}</div>
+  <div id="client-import-card-line" class="container-line"></div>
+
+  <div class="info-text settings-hint">{{ 'clientImport.settings.description' | translate }}</div>
+
+  <div id="client-import-card-actions" class="action-row">
+    <button
+      type="button"
+      id="settings-client-import-open"
+      class="btn btn-primary"
+      (click)="openImport()"
+    >
+      {{ 'clientImport.button.open' | translate }}
+    </button>
+  </div>
+</div>

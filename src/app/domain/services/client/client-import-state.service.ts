@@ -108,7 +108,6 @@ export class ClientImportStateService {
   readonly dateFormat = signal<ClientImportDateFormat>(ClientImportDateFormat.DayMonthYear);
   readonly nameOrder = signal<ClientImportNameOrder>(ClientImportNameOrder.FirstLast);
   readonly policy = signal<IClientImportPolicy>({ ...CLIENT_IMPORT_DEFAULT_POLICY });
-  readonly groupPresetFromFilter = signal(false);
   readonly rowOverrides = signal<IClientImportRowOverride[]>([]);
   readonly preview = signal<IClientImportPreviewResult | null>(null);
   readonly previewFailed = signal(false);
@@ -218,7 +217,7 @@ export class ClientImportStateService {
       });
   }
 
-  async initialize(presetGroupId: string | null): Promise<void> {
+  async initialize(): Promise<void> {
     const [contracts, groups, countries] = await Promise.all([
       this.loadOrEmpty(this.dataContractService.getList(CONTRACT_PAGE, CONTRACT_PAGE_SIZE)),
       this.loadOrEmpty(this.dataGroupService.getGroupTree().pipe(map((tree) => tree.nodes))),
@@ -228,11 +227,6 @@ export class ClientImportStateService {
     this.contracts.set(this.toContractOptions(contracts));
     this.groups.set(this.flattenGroups(groups, ROOT_DEPTH));
     this.countries.set(countries);
-
-    if (presetGroupId && this.groups().some((group) => group.id === presetGroupId)) {
-      this.policy.update((policy) => ({ ...policy, groupId: presetGroupId }));
-      this.groupPresetFromFilter.set(true);
-    }
   }
 
   async selectFile(file: File): Promise<boolean> {
@@ -285,9 +279,6 @@ export class ClientImportStateService {
 
   updatePolicy(change: Partial<IClientImportPolicy>): void {
     this.policy.update((policy) => ({ ...policy, ...change }));
-    if (change.groupId !== undefined) {
-      this.groupPresetFromFilter.set(false);
-    }
     this.schedulePreview();
   }
 

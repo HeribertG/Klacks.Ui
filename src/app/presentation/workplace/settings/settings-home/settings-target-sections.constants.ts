@@ -9,7 +9,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'user-management': 'users',
   'escalation-roster': 'users',
   'group-scope': 'users',
-  'identity-providers': 'users',
+  'identity-providers': 'organization',
   'branches': 'organization',
   'contracts': 'organization',
   'states': 'organization',

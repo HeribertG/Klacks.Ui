@@ -1,0 +1,13 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.info-text {
+  margin-inline-start: 30px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.action-row {
+  margin-inline-start: 30px;
+  margin-top: 12px;
+}

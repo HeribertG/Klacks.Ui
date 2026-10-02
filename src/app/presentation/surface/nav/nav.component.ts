@@ -47,6 +47,8 @@ import { PluginIconComponent } from '../../icons/plugin-icon.component';
 import { IconPeriodClosingComponent } from '../../icons/icon-period-closing.component';
 import { TooltipAutoCloseDirective } from '../../directives/tooltip-auto-close.directive';
 
+const ROUTE_SEGMENT_SEPARATOR = '/';
+
 type NavigationPage =
   | 'absence'
   | 'group'
@@ -212,7 +214,7 @@ export class NavComponent implements OnInit {
   }
 
   private updateCurrentPage(): void {
-    const page = this.urlParameterService.getWorkplaceSubRoute() as NavigationPage;
+    const page = this.urlParameterService.getWorkplaceSubRoute().split(ROUTE_SEGMENT_SEPARATOR)[0] as NavigationPage;
     this.currentPage.set(page);
   }
 

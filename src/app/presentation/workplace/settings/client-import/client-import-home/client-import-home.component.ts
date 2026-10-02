@@ -1,21 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Route page of the employee import. Provides the page-scoped import state, reads the group the
- * employee list was filtered by (query parameter) as preset for the group rule, and shows the step
- * indicator plus the component of the current step.
+ * Route page of the employee import (Settings). Provides the page-scoped import state, registers Settings
+ * as the active manager for savebar and search, and shows the step indicator plus the component of the current step.
  * @param state - Page-scoped state machine of the import (File, Mapping, Preview, Result)
  */
 
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { ClientImportStateService } from 'src/app/domain/services/client/client-import-state.service';
 import { ClientImportStep } from 'src/app/domain/enums/client-import.enums';
-import { CLIENT_IMPORT_GROUP_QUERY_PARAM } from 'src/app/domain/constants/client-import.constants';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { ClientImportFileStepComponent } from '../client-import-file-step/client-import-file-step.component';
 import { ClientImportMappingStepComponent } from '../client-import-mapping-step/client-import-mapping-step.component';
 import { ClientImportPreviewStepComponent } from '../client-import-preview-step/client-import-preview-step.component';
@@ -44,18 +43,18 @@ export class ClientImportHomeComponent implements OnInit {
   readonly steps: readonly ClientImportStep[] = Object.values(ClientImportStep);
   readonly stepKeyPrefix = STEP_KEY_PREFIX;
 
-  private route = inject(ActivatedRoute);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  private workplaceStateService = inject(WorkplaceStateService);
 
   ngOnInit(): void {
+    this.workplaceStateService.setActiveManagerByRoute(RouteName.SETTINGS);
     this.layoutService.setContainerToNormalSize();
     this.savebarService.setSavebarVisibility(false);
     this.searchService.setSearchVisibility(false);
 
-    const presetGroupId = this.route.snapshot.queryParamMap.get(CLIENT_IMPORT_GROUP_QUERY_PARAM);
-    void this.state.initialize(presetGroupId);
+    void this.state.initialize();
   }
 
   isStepDone(step: ClientImportStep): boolean {

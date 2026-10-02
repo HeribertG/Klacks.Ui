@@ -2,7 +2,7 @@
 
 /**
  * Last step of the employee import: shows how many employees were created and skipped and how many
- * addresses were queued for background geocoding, and leads back to the employee list.
+ * addresses were queued for background geocoding, and leads to the employee list.
  * @param state - Page-scoped import state provided by the import page
  */
 

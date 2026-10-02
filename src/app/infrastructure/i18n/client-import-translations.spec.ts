@@ -39,8 +39,8 @@ const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'] as const;
 const HERE = dirname(fileURLToPath(import.meta.url));
 const I18N_DIR = resolve(HERE, '../../../assets/i18n');
 const SOURCE_PATHS = [
-  resolve(HERE, '../../presentation/workplace/address/client-import'),
-  resolve(HERE, '../../presentation/workplace/address/all-address/all-address-list'),
+  resolve(HERE, '../../presentation/workplace/settings/client-import'),
+  resolve(HERE, '../../presentation/workplace/settings/client-import-card'),
   resolve(HERE, '../../domain/constants/client-import.constants.ts'),
 ];
 const LITERAL_KEY_PATTERN = /["'](clientImport\.[A-Za-z0-9.-]*[A-Za-z0-9])["']/g;

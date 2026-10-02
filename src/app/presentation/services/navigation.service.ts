@@ -11,10 +11,7 @@ import { Router } from '@angular/router';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
-import {
-  CLIENT_IMPORT_GROUP_QUERY_PARAM,
-  CLIENT_IMPORT_ROUTE,
-} from 'src/app/domain/constants/client-import.constants';
+import { CLIENT_IMPORT_ROUTE } from 'src/app/domain/constants/client-import.constants';
 
 interface ReturnUrlPayload {
   url: string;
@@ -64,9 +61,8 @@ export class NavigationService {
     this.router.navigate(['/workplace/client']);
   }
 
-  navigateToClientImport(presetGroupId?: string): void {
-    const queryParams = presetGroupId ? { [CLIENT_IMPORT_GROUP_QUERY_PARAM]: presetGroupId } : {};
-    this.router.navigate([CLIENT_IMPORT_ROUTE], { queryParams });
+  navigateToClientImport(): void {
+    this.router.navigate([CLIENT_IMPORT_ROUTE]);
   }
 
   navigateToProfile(): void {
