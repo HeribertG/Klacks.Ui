@@ -31,6 +31,7 @@ describe('WorkNotificationService', () => {
 
   let shiftScheduleLoaderMock: {
     updateShiftEngaged: ReturnType<typeof vi.fn>;
+    refreshSporadicShifts: ReturnType<typeof vi.fn>;
     shiftSchedules: unknown[];
   };
 
@@ -74,6 +75,7 @@ describe('WorkNotificationService', () => {
 
     shiftScheduleLoaderMock = {
       updateShiftEngaged: vi.fn().mockReturnValue(false),
+      refreshSporadicShifts: vi.fn().mockResolvedValue(undefined),
       shiftSchedules: [],
     };
 
@@ -380,6 +382,44 @@ describe('WorkNotificationService', () => {
 
       // Assert
       expect(availableShiftsCalcMock.calculate).toHaveBeenCalled();
+    });
+
+    it('should reload the sporadic state once for a burst of notifications because other days of its range change too', async () => {
+      // Arrange
+      shiftScheduleLoaderMock.updateShiftEngaged.mockReturnValue(true);
+      const notification: IShiftStatsNotification = {
+        shiftId: 'shift-1',
+        date: new Date(),
+        engaged: 5,
+        sourceConnectionId: 'other-connection',
+      };
+
+      // Act
+      shiftStatsUpdated$.next(notification);
+      shiftStatsUpdated$.next({ ...notification, date: new Date(Date.now() + 86400000) });
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Assert
+      expect(shiftScheduleLoaderMock.refreshSporadicShifts).toHaveBeenCalledTimes(1);
+      expect(shiftScheduleLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1']);
+    });
+
+    it('should NOT reload the sporadic state when the shift is not loaded', async () => {
+      // Arrange
+      shiftScheduleLoaderMock.updateShiftEngaged.mockReturnValue(false);
+      const notification: IShiftStatsNotification = {
+        shiftId: 'shift-1',
+        date: new Date(),
+        engaged: 5,
+        sourceConnectionId: 'other-connection',
+      };
+
+      // Act
+      shiftStatsUpdated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Assert
+      expect(shiftScheduleLoaderMock.refreshSporadicShifts).not.toHaveBeenCalled();
     });
 
     it('should NOT recalculate available shifts when update returns false', async () => {

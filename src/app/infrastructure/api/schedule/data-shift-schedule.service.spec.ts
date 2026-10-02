@@ -70,6 +70,37 @@ describe('DataShiftScheduleService', () => {
         }
     });
 
+    describe('getShiftSchedulePartial', () => {
+        const partialUrl = `${environment.baseUrl}Shifts/Schedule/Partial`;
+
+        it('posts the shift/date pairs with calendar dates as UTC midnight', () => {
+            service
+                .getShiftSchedulePartial({
+                    shiftDatePairs: [{ shiftId: 'shift-1', date: new Date(2026, 9, 5) }],
+                    analyseToken: 'token-1',
+                })
+                .subscribe();
+
+            const req = httpTestingController.expectOne(partialUrl);
+            expect(req.request.method).toBe('POST');
+            expect(req.request.body).toEqual({
+                shiftDatePairs: [{ shiftId: 'shift-1', date: '2026-10-05T00:00:00.000Z' }],
+                analyseToken: 'token-1',
+            });
+            req.flush({ shifts: [], totalCount: 0 });
+        });
+
+        it('does not retry a rejected request', () => {
+            const onError = vi.fn();
+            service.getShiftSchedulePartial({ shiftDatePairs: [] }).subscribe({ error: onError });
+
+            httpTestingController.expectOne(partialUrl).flush(null, { status: 400, statusText: 'Bad Request' });
+
+            expect(onError).toHaveBeenCalledTimes(1);
+            httpTestingController.expectNone(partialUrl);
+        });
+    });
+
     describe('unparsable holidayDates', () => {
         it('reports the error through the observable instead of throwing', () => {
             const filter = mockFilter();

@@ -11,6 +11,8 @@ import { ToastShowService } from '../toast/toast-show.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataTranslationService } from 'src/app/infrastructure/api/translation/data-translation.service';
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
+import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
+import { WorkConflictMessageService } from './work-conflict-message.service';
 
 const API_REQUEST_URL = '/api/backend/resource';
 const FOREIGN_REQUEST_URL = 'https://third-party.example.com/api/route';
@@ -33,6 +35,10 @@ const CLIENT_IMPORT_PARSE_URL = '/api/backend/ClientImport/Parse';
 const BAD_REQUEST = { status: 400, statusText: 'Bad Request' };
 const PAYLOAD_TOO_LARGE = { status: 413, statusText: 'Payload Too Large' };
 const TOO_MANY_REQUESTS = { status: 429, statusText: 'Too Many Requests' };
+
+const WORKS_URL = '/api/backend/Works/';
+const WORK_BOOKING_BODY = { clientId: 'client-1', shiftId: 'shift-1', currentDate: '2027-03-10T00:00:00.000Z' };
+const WORK_CONFLICT_MESSAGE = 'Anna Muster is missing the mandatory qualification';
 
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
@@ -86,6 +92,9 @@ describe('ResponseInterceptor', () => {
       reportReachable: vi.fn(),
       reportUnavailable: vi.fn(),
     };
+    const workConflictMessageServiceSpy = {
+      buildMessage: vi.fn(() => WORK_CONFLICT_MESSAGE),
+    };
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -101,6 +110,7 @@ describe('ResponseInterceptor', () => {
         { provide: TranslateService, useValue: translateServiceSpy },
         { provide: DataTranslationService, useValue: dataTranslationServiceSpy },
         { provide: BackendAvailabilityService, useValue: backendAvailabilityServiceSpy },
+        { provide: WorkConflictMessageService, useValue: workConflictMessageServiceSpy },
       ],
     });
 
@@ -231,6 +241,52 @@ describe('ResponseInterceptor', () => {
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
       expect(captured.status).toBe(CONFLICT.status);
+    });
+  });
+
+  describe('refused work booking (structured 409)', () => {
+    const bookWork = (): { status: number | null } => {
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(WORKS_URL, WORK_BOOKING_BODY).subscribe({
+        error: (error: HttpErrorResponse) => {
+          captured.status = error.status;
+        },
+      });
+      return captured;
+    };
+
+    it('shows the one localized sentence instead of the generic conflict toast', () => {
+      const captured = bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush(
+        { detail: 'Work blocked: client 123', errorCode: WORK_CONFLICT.ERROR_CODES.BLOCKED },
+        CONFLICT,
+      );
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(captured.status).toBe(CONFLICT.status);
+    });
+
+    it('hands the employee and the shift of the request to the message builder', () => {
+      const workConflictMessageService = TestBed.inject(WorkConflictMessageService) as any;
+      bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.ERROR_CODES.SPORADIC_DAY_FULL }, CONFLICT);
+
+      expect(workConflictMessageService.buildMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ status: CONFLICT.status }),
+        { clientId: 'client-1', shiftId: 'shift-1' },
+      );
+    });
+
+    it('keeps the generic toast for a 409 without a work-conflict error code', () => {
+      bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush({ detail: 'something else' }, CONFLICT);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
     });
   });
 

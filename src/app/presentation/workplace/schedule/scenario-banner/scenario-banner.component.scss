@@ -1,0 +1,54 @@
+$indicator-size: 10px;
+$gap: 8px;
+$padding-inline: 12px;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.scenario-banner {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+  height: 100%;
+  box-sizing: border-box;
+  padding-inline: $padding-inline;
+  background-color: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  border-block: 1px solid var(--alertWarningBorder);
+  border-inline-start: 4px solid var(--colorWarning);
+  font-size: var(--fontSizeSmall);
+}
+
+.scenario-banner-indicator {
+  flex-shrink: 0;
+  width: $indicator-size;
+  height: $indicator-size;
+  border-radius: 50%;
+  background-color: var(--colorWarning);
+}
+
+.scenario-banner-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.scenario-banner-label {
+  margin-inline-end: 4px;
+}
+
+.scenario-banner-name {
+  font-weight: 700;
+  margin-inline-end: $gap;
+}
+
+.scenario-banner-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: $gap;
+  white-space: nowrap;
+}

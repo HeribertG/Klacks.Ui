@@ -26,6 +26,9 @@ export class WorkNotificationService {
   private destroyRef = inject(DestroyRef);
 
   private readonly REFRESH_DEBOUNCE_MS = 500;
+  private readonly SPORADIC_REFRESH_DEBOUNCE_MS = 200;
+  private _pendingSporadicShiftIds = new Set<string>();
+  private _sporadicRefreshTimer: ReturnType<typeof setTimeout> | null = null;
   private _pendingRefreshes = new Map<string, { minTimestamp: number; maxTimestamp: number }>();
   private _refreshDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -194,6 +197,7 @@ export class WorkNotificationService {
     );
 
     if (updated) {
+      this.scheduleSporadicRefresh(notification.shiftId);
       this.availableShiftsCalc.calculate(
         this.shiftScheduleLoader.shiftSchedules,
         this.dataManagementSchedule.currentFilter
@@ -202,6 +206,19 @@ export class WorkNotificationService {
       this.shiftUpdateSignal.set(notification.shiftId);
       setTimeout(() => this.shiftUpdateSignal.set(null), 100);
     }
+  }
+
+  private scheduleSporadicRefresh(shiftId: string): void {
+    this._pendingSporadicShiftIds.add(shiftId);
+    if (this._sporadicRefreshTimer) {
+      return;
+    }
+    this._sporadicRefreshTimer = setTimeout(() => {
+      const shiftIds = [...this._pendingSporadicShiftIds];
+      this._pendingSporadicShiftIds.clear();
+      this._sporadicRefreshTimer = null;
+      void this.shiftScheduleLoader.refreshSporadicShifts(shiftIds);
+    }, this.SPORADIC_REFRESH_DEBOUNCE_MS);
   }
 
   private isClientDisplayed(clientId: string): boolean {

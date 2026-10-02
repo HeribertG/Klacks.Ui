@@ -6,6 +6,7 @@
 $header_height: 65px;
 $main-header_height: 65px;
 $nav_width: 100px;
+$scenario-banner_height: 40px;
 
 .schedule-main-header {
   order: 1;
@@ -14,12 +15,22 @@ $nav_width: 100px;
   background-color: var(--backgroundColorWorkplace);
 }
 
-.schedule-body {
+.schedule-scenario-banner {
   order: 2;
+  height: $scenario-banner_height;
+  width: calc(100vw - #{$nav_width});
+}
+
+.schedule-body {
+  order: 3;
   flex: 1;
   height: calc(100vh - (#{$main-header_height} + #{$header_height} + var(--footer_height, 0px)));
   background-color: var(--backgroundColorWorkplace);
   box-sizing: content-box;
   overflow-x: hidden;
   overflow-y: hidden;
+
+  &.with-scenario-banner {
+    height: calc(100vh - (#{$main-header_height} + #{$header_height} + #{$scenario-banner_height} + var(--footer_height, 0px)));
+  }
 }

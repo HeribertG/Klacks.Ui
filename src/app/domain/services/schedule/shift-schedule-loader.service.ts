@@ -8,9 +8,11 @@
  *
  * @param shiftSchedules - Array of all loaded shift-date assignments
  * @param shiftScheduleFilter - Current filter for the shift schedule query
+ * @param shiftIds - Shifts whose sporadic booking state is re-read from the backend after a write
  */
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import {
   IShiftSchedule,
   IShiftScheduleFilter,
@@ -152,6 +154,45 @@ export class ShiftScheduleLoaderService {
     }
 
     return updated;
+  }
+
+  async refreshSporadicShifts(shiftIds: readonly string[]): Promise<void> {
+    const wanted = new Set(shiftIds);
+    const shiftDatePairs = this.shiftSchedules
+      .filter((shift) => shift.isSporadic && wanted.has(shift.shiftId))
+      .map((shift) => ({ shiftId: shift.shiftId, date: shift.date }));
+
+    if (shiftDatePairs.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.dataShiftSchedule.getShiftSchedulePartial({
+          shiftDatePairs,
+          analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
+        }),
+      );
+      this.applySporadicState(response.shifts);
+    } catch (error) {
+      console.error('Failed to reload the sporadic shift state:', error);
+    }
+  }
+
+  private applySporadicState(fresh: IShiftSchedule[]): void {
+    for (const update of fresh) {
+      for (const shift of this.shiftSchedules) {
+        if (shift.shiftId === update.shiftId && isSameCalendarDate(shift.date, update.date)) {
+          shift.engaged = update.engaged;
+          shift.sporadicStatus = update.sporadicStatus;
+        }
+      }
+    }
+
+    if (this._activeWorkFilter) {
+      this.availableShiftsCalc.calculate(this.shiftSchedules, this._activeWorkFilter);
+    }
+    this._isRead.update((v) => v + 1);
   }
 
   private uniqueShiftCount(): number {

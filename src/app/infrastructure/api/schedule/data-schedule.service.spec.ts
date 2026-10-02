@@ -6,7 +6,7 @@ import { DataScheduleService } from './data-schedule.service';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { environment } from 'src/environments/environment';
 import { Client, Address, Communication, Annotation } from 'src/app/domain/models/client/client-class';
-import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('DataScheduleService', () => {
@@ -47,6 +47,59 @@ describe('DataScheduleService', () => {
         const req = httpTestingController.expectOne(`${environment.baseUrl}Works/`);
         expect(req.request.method).toEqual('POST');
         req.flush(newWork); // Simuliere die Antwort
+    });
+
+    describe('rejected writes', () => {
+        const worksUrl = `${environment.baseUrl}Works/`;
+
+        it('sends a booking the server rejected (409) only once', () => {
+            let failure: HttpErrorResponse | undefined;
+            service.addWork(mockWork()).subscribe({ error: (e: HttpErrorResponse) => (failure = e) });
+
+            httpTestingController
+                .expectOne(worksUrl)
+                .flush({ title: 'Conflict' }, { status: 409, statusText: 'Conflict' });
+
+            expect(failure?.status).toBe(409);
+            httpTestingController.expectNone(worksUrl);
+        });
+
+        it('sends an update the server rejected (409) only once', () => {
+            let failure: HttpErrorResponse | undefined;
+            service.updateWork(mockWork()).subscribe({ error: (e: HttpErrorResponse) => (failure = e) });
+
+            httpTestingController
+                .expectOne(worksUrl)
+                .flush({ title: 'Conflict' }, { status: 409, statusText: 'Conflict' });
+
+            expect(failure?.status).toBe(409);
+            httpTestingController.expectNone(worksUrl);
+        });
+
+        it('sends a bulk booking the server rejected (409) only once', () => {
+            let failure: HttpErrorResponse | undefined;
+            service
+                .bulkAddWorks({ entries: [], periodStart: '2026-01-01', periodEnd: '2026-01-31' } as never)
+                .subscribe({ error: (e: HttpErrorResponse) => (failure = e) });
+
+            httpTestingController
+                .expectOne(`${worksUrl}Bulk`)
+                .flush({ title: 'Conflict' }, { status: 409, statusText: 'Conflict' });
+
+            expect(failure?.status).toBe(409);
+            httpTestingController.expectNone(`${worksUrl}Bulk`);
+        });
+
+        it('still retries a transient server error of a booking', () => {
+            const created = mockWork();
+            let result: unknown;
+            service.addWork(created).subscribe((work) => (result = work));
+
+            httpTestingController.expectOne(worksUrl).flush(null, { status: 503, statusText: 'Unavailable' });
+            httpTestingController.expectOne(worksUrl).flush(created);
+
+            expect(result).toEqual(created);
+        });
     });
 
     it('should update an existing work item', () => {

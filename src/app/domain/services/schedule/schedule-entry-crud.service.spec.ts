@@ -91,6 +91,7 @@ describe('ScheduleEntryCrudService', () => {
 
   let shiftLoaderMock: {
     shiftSchedules: IShiftSchedule[];
+    refreshSporadicShifts: ReturnType<typeof vi.fn>;
   };
 
   let workScheduleLoaderMock: {
@@ -147,6 +148,7 @@ describe('ScheduleEntryCrudService', () => {
 
     shiftLoaderMock = {
       shiftSchedules: [],
+      refreshSporadicShifts: vi.fn().mockResolvedValue(undefined),
     };
 
     workScheduleLoaderMock = {
@@ -314,6 +316,135 @@ describe('ScheduleEntryCrudService', () => {
       expect(service.scheduleRefreshed()).toBe(true);
       await new Promise(resolve => setTimeout(resolve, 150));
       expect(service.scheduleRefreshed()).toBe(false);
+    });
+  });
+
+  describe('addWorkScheduleEntry rejected by the backend', () => {
+    const params: ScheduleCellParams = {
+      clientId: 'client-1',
+      date: new Date(2025, 0, 15),
+      shiftId: 'shift-1',
+      workTime: 480,
+      startTime: '08:00:00',
+      endTime: '16:00:00',
+    };
+
+    beforeEach(() => {
+      shiftLoaderMock.shiftSchedules = [
+        createMockShiftSchedule({ shiftId: 'shift-1', date: new Date(2025, 0, 15), engaged: 2 }),
+      ];
+      workCrudMock.createWork.mockRejectedValue(new HttpErrorResponse({ status: 409 }));
+    });
+
+    it('rolls the optimistic engaged count back', async () => {
+      // Act
+      await service.addWorkScheduleEntry(params, createMockWorkFilter()).catch(() => undefined);
+
+      // Assert
+      expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(2);
+    });
+
+    it('recalculates the available shifts after the rollback', async () => {
+      // Act
+      await service.addWorkScheduleEntry(params, createMockWorkFilter()).catch(() => undefined);
+
+      // Assert
+      expect(availableShiftsCalcMock.calculate).toHaveBeenCalledTimes(2);
+    });
+
+    it('rethrows the error so the caller can react', async () => {
+      // Act
+      const result = service.addWorkScheduleEntry(params, createMockWorkFilter());
+
+      // Assert
+      await expect(result).rejects.toBeInstanceOf(HttpErrorResponse);
+    });
+
+    it('reloads the sporadic state because a refusal means the grid was stale', async () => {
+      // Act
+      await service.addWorkScheduleEntry(params, createMockWorkFilter()).catch(() => undefined);
+
+      // Assert
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1']);
+    });
+
+    it('does not roll back when only applying the response fails afterwards', async () => {
+      // Arrange
+      workCrudMock.createWork.mockResolvedValue({ id: 'work-1' });
+      workScheduleLoaderMock.replaceClientEntriesForDays.mockImplementation(() => {
+        throw new Error('render failed');
+      });
+      workCrudMock.createWork.mockResolvedValue({ id: 'work-1', scheduleEntries: [{ clientId: 'client-1' }] });
+
+      // Act
+      await service.addWorkScheduleEntry(params, createMockWorkFilter()).catch(() => undefined);
+
+      // Assert
+      expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(3);
+    });
+  });
+
+  describe('sporadic state reload', () => {
+    const params: ScheduleCellParams = {
+      clientId: 'client-1',
+      date: new Date(2025, 0, 15),
+      shiftId: 'shift-1',
+      workTime: 480,
+      startTime: '08:00:00',
+      endTime: '16:00:00',
+    };
+
+    beforeEach(() => {
+      shiftLoaderMock.shiftSchedules = [
+        createMockShiftSchedule({ shiftId: 'shift-1', date: new Date(2025, 0, 15), engaged: 0, isSporadic: true }),
+      ];
+    });
+
+    it('reloads the shift after a successful booking', async () => {
+      // Act
+      await service.addWorkScheduleEntry(params, createMockWorkFilter());
+
+      // Assert
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1']);
+    });
+
+    it('reloads the shift after deleting a work entry', async () => {
+      // Act
+      await service.deleteWorkScheduleEntry(
+        { id: 'w', sourceId: 'w', clientId: 'client-1', date: new Date(2025, 0, 15), entryId: 'shift-1', entryType: WorkScheduleEntryType.Work },
+        createMockWorkFilter(),
+      );
+
+      // Assert
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1']);
+    });
+
+    it('reloads each distinct shift once after a bulk booking', async () => {
+      // Arrange
+      const entries = [
+        params,
+        { ...params, date: new Date(2025, 0, 16) },
+        { ...params, shiftId: 'shift-2' },
+      ];
+
+      // Act
+      await service.bulkAddWorkScheduleEntries(entries, createMockWorkFilter());
+
+      // Assert
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledTimes(1);
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1', 'shift-2']);
+    });
+
+    it('rolls a rejected bulk booking back and reloads the sporadic state', async () => {
+      // Arrange
+      workCrudMock.bulkCreateWorks.mockRejectedValue(new HttpErrorResponse({ status: 409 }));
+
+      // Act
+      await service.bulkAddWorkScheduleEntries([params], createMockWorkFilter()).catch(() => undefined);
+
+      // Assert
+      expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(0);
+      expect(shiftLoaderMock.refreshSporadicShifts).toHaveBeenCalledWith(['shift-1']);
     });
   });
 

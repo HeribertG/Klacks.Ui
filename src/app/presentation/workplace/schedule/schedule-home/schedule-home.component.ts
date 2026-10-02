@@ -10,7 +10,7 @@
  * and refresh triggers for the child components.
  *
  * @relations
- * - Contains: ScheduleHeaderComponent, ScheduleContainerComponent
+ * - Contains: ScheduleHeaderComponent, ScenarioBannerComponent (while a scenario is open), ScheduleContainerComponent
  * - Uses: AllScheduleStateService for state management
  * - Uses: HolidayCollectionService for holiday data
  * - Part of: Workplace module routing
@@ -77,6 +77,8 @@ import { WorkBlockRendererService } from '../schedule-section/timeline/renderers
 import { WorkChangeBlockRendererService } from '../schedule-section/timeline/renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../schedule-section/timeline/renderers/break-block-renderer.service';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
 
 interface ResolvedCalendarChips {
   tokens: StateCountryToken[];
@@ -90,7 +92,7 @@ interface ResolvedCalendarChips {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [FullViewportDirective],
-  imports: [ScheduleHeaderComponent, ScheduleContainerComponent],
+  imports: [ScheduleHeaderComponent, ScheduleContainerComponent, ScenarioBannerComponent],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },
     { provide: ScheduleDataService, useExisting: BaseDataService },
@@ -141,6 +143,9 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private dataClientService = inject(DataClientService);
   private searchStateService = inject(SearchStateService);
   private destroyRef = inject(DestroyRef);
+  private analyseScenarioService = inject(AnalyseScenarioService);
+
+  public readonly isScenarioMode = this.analyseScenarioService.isScenarioMode;
 
   public currentZoom = 1.0;
   public refreshTrigger = false;

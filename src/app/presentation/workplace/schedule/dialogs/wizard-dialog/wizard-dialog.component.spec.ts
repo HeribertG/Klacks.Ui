@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WizardDialogComponent } from './wizard-dialog.component';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -305,6 +305,18 @@ describe('WizardDialogComponent', () => {
     await component.onApply();
 
     expect(component.canRetryWithOverride()).toBe(false);
+  });
+
+  it('sends the current UI language when applying as a scenario so the server names it in that language', async () => {
+    TestBed.inject(TranslateService).use('de');
+    Object.assign(scheduleMock, { workFilter: { selectedGroup: 'group-1' } });
+    analyseScenarioServiceMock.isScenarioMode.mockReturnValue(false);
+    wizardServiceMock.status.set('completed');
+    wizardServiceMock.currentJobId.set('job-1');
+
+    await component.onApply();
+
+    expect(wizardServiceMock.applyAsScenario).toHaveBeenCalledWith('job-1', 'group-1', false, 'de');
   });
 
   describe('start waits for the schedule to finish loading', () => {

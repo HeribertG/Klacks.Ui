@@ -14,17 +14,19 @@
   </button>
   <div ngbDropdownMenu>
     @if (analyseScenarioService.isScenarioMode()) {
-      <button ngbDropdownItem (click)="onExitScenario()">
+      <button id="scenario-selector-exit-item" ngbDropdownItem (click)="onExitScenario()">
         {{ "scenario.exit" | translate }}
       </button>
       <div class="dropdown-divider"></div>
-      <button ngbDropdownItem class="text-success" (click)="onAccept()">
-        {{ "scenario.accept" | translate }}
-      </button>
-      <button ngbDropdownItem class="text-danger" (click)="onReject()">
-        {{ "scenario.reject" | translate }}
-      </button>
-      <button ngbDropdownItem (click)="onRename()">
+      @if (canDecide()) {
+        <button id="scenario-selector-accept-item" ngbDropdownItem class="text-success" (click)="onAccept()">
+          {{ "scenario.accept" | translate }}
+        </button>
+        <button id="scenario-selector-reject-item" ngbDropdownItem class="text-danger" (click)="onReject()">
+          {{ "scenario.reject" | translate }}
+        </button>
+      }
+      <button id="scenario-selector-rename-item" ngbDropdownItem (click)="onRename()">
         {{ "scenario.rename" | translate }}
       </button>
       <div class="dropdown-divider"></div>
@@ -32,6 +34,7 @@
     @for (scenario of analyseScenarioService.scenarios(); track scenario.id) {
       <button
         ngbDropdownItem
+        [attr.data-scenario-id]="scenario.id"
         (click)="onSelectScenario(scenario)"
         [class.active]="
           scenario.id === analyseScenarioService.activeScenario()?.id
@@ -41,12 +44,12 @@
       </button>
     }
 
-    <button class="new-btn" ngbDropdownItem (click)="onCreateNew()">
+    <button id="scenario-selector-create-item" class="new-btn" ngbDropdownItem (click)="onCreateNew()">
       + {{ "scenario.create" | translate }}
     </button>
     @if (analyseScenarioService.scenarios().length > 0) {
       <div class="dropdown-divider"></div>
-      <button ngbDropdownItem class="text-danger" (click)="onDeleteAll()">
+      <button id="scenario-selector-delete-all-item" ngbDropdownItem class="text-danger" (click)="onDeleteAll()">
         {{ "scenario.deleteAll" | translate }}
       </button>
     }

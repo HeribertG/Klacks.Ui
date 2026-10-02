@@ -64,6 +64,16 @@ export interface IShiftScheduleFilter {
   analyseToken?: string;
 }
 
+export interface IShiftDatePair {
+  shiftId: string;
+  date: Date;
+}
+
+export interface IShiftSchedulePartialFilter {
+  shiftDatePairs: IShiftDatePair[];
+  analyseToken?: string;
+}
+
 export interface IShiftScheduleResponse {
   shifts: IShiftSchedule[];
   totalCount: number;

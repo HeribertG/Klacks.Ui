@@ -1,88 +1,64 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { throwError } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { ScenarioSelectorComponent } from './scenario-selector.component';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { ModalService } from 'src/app/presentation/modal/modal.service';
-import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { TranslateService } from '@ngx-translate/core';
-import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { ScenarioActionsService } from '../../services/scenario-actions.service';
 
-describe('ScenarioSelectorComponent - blocked accept offers the override only to admin or supervisor', () => {
-  let held: Set<string>;
-  let modalService: { openModal: ReturnType<typeof vi.fn> };
-  let toastShowService: { showError: ReturnType<typeof vi.fn> };
+describe('ScenarioSelectorComponent - decisions go through the shared scenario actions', () => {
+  let actions: {
+    canDecide: ReturnType<typeof signal<boolean>>;
+    confirmAccept: ReturnType<typeof vi.fn>;
+    confirmReject: ReturnType<typeof vi.fn>;
+    exit: ReturnType<typeof vi.fn>;
+  };
   let component: ScenarioSelectorComponent;
 
-  const scenario = { id: 'scenario-1', token: 'token-1' } as IAnalyseScenario;
-
-  const createComponent = (): ScenarioSelectorComponent => {
-    modalService = { openModal: vi.fn() };
-    toastShowService = { showError: vi.fn() };
+  beforeEach(() => {
+    actions = { canDecide: signal(true), confirmAccept: vi.fn(), confirmReject: vi.fn(), exit: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
-        {
-          provide: AnalyseScenarioService,
-          useValue: {
-            activeScenario: () => scenario,
-            acceptScenario: vi.fn().mockReturnValue(
-              throwError(() => new HttpErrorResponse({ status: 409, error: { detail: 'blocked' } })),
-            ),
-          },
-        },
+        { provide: AnalyseScenarioService, useValue: { activeScenario: () => null } },
         { provide: DataManagementScheduleService, useValue: { workFilter: { selectedGroup: undefined } } },
-        { provide: ModalService, useValue: modalService },
-        {
-          provide: AuthorizationService,
-          useValue: {
-            hasPermission: (permission: string) => held.has(permission),
-            hasAnyPermission: (...permissions: string[]) => permissions.some((p) => held.has(p)),
-          },
-        },
-        { provide: ToastShowService, useValue: toastShowService },
-        { provide: TranslateService, useValue: { instant: (key: string) => key } },
+        { provide: ScenarioActionsService, useValue: actions },
       ],
     });
 
-    return TestBed.runInInjectionContext(() => new ScenarioSelectorComponent());
-  };
-
-  beforeEach(() => {
-    held = new Set<string>();
+    component = TestBed.runInInjectionContext(() => new ScenarioSelectorComponent());
   });
 
-  it('shows a plain error toast to a planer instead of an override option', () => {
-    component = createComponent();
-
+  it('asks for confirmation through the shared flow when accepting', () => {
+    // Act
     component.onAccept();
 
-    expect(modalService.openModal).not.toHaveBeenCalled();
-    expect(toastShowService.showError).toHaveBeenCalledWith('blocked');
+    // Assert
+    expect(actions.confirmAccept).toHaveBeenCalledTimes(1);
   });
 
-  it('offers the confirmed override to a supervisor', () => {
-    held.add(ROLE_AUTHORISED);
-    component = createComponent();
+  it('asks for confirmation through the shared flow when rejecting', () => {
+    // Act
+    component.onReject();
 
-    component.onAccept();
-
-    expect(modalService.openModal).toHaveBeenCalled();
-    expect(toastShowService.showError).not.toHaveBeenCalled();
+    // Assert
+    expect(actions.confirmReject).toHaveBeenCalledTimes(1);
   });
 
-  it('offers the confirmed override to an admin', () => {
-    held.add(ROLE_ADMIN);
-    component = createComponent();
+  it('returns to the original through the shared flow', () => {
+    // Act
+    component.onExitScenario();
 
-    component.onAccept();
+    // Assert
+    expect(actions.exit).toHaveBeenCalledTimes(1);
+  });
 
-    expect(modalService.openModal).toHaveBeenCalled();
-    expect(toastShowService.showError).not.toHaveBeenCalled();
+  it('exposes the shared decision right to its template', () => {
+    // Arrange
+    actions.canDecide.set(false);
+
+    // Assert
+    expect(component.canDecide()).toBe(false);
   });
 });

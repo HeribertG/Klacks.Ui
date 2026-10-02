@@ -61,6 +61,7 @@ export interface HolisticHarmonizerRunResponse {
 export interface HolisticHarmonizerApplyRequest {
   jobId: string;
   groupId: string | null;
+  language: string | null;
 }
 
 export interface HolisticHarmonizerApplyResponse {
