@@ -5,6 +5,7 @@
  * @param routeInfo - Contains optimized route, segments, distances, and travel times
  * @param items - Container template items with shift and address data
  * @param mapRenderingService - Renders the route map as a canvas element
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
@@ -19,6 +20,7 @@ import {
   IRouteLocation,
 } from 'src/app/domain/models/container/container-template-class';
 import { MapRenderingService } from './map-rendering.service';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
 import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
@@ -88,6 +90,7 @@ export class RoutePdfExportService {
   private translateService = inject(TranslateService);
   private localeService = inject(LocaleService);
   private mapRenderingService = inject(MapRenderingService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
   async exportRouteToPdf(
     items: IContainerTemplateItem[],
@@ -100,6 +103,7 @@ export class RoutePdfExportService {
     const pdf = new jsPDF(PDF_ORIENTATION_LANDSCAPE);
 
     const translatedWeekday = translateWeekday(weekday);
+    await this.pdfUnicodeText.prepareDocument(pdf, [items, routeInfo, containerName, translatedWeekday]);
     const title = `${containerName} - ${translatedWeekday}`;
     pdf.setFontSize(FONT_SIZE_TITLE);
     pdf.text(title, PDF_MARGIN, PDF_TITLE_Y);

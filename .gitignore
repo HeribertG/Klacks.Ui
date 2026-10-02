@@ -45,6 +45,8 @@ test-results/
 *.shS
 *.txt
 *.py
+!src/assets/fonts/OFL.txt
+!tools/fonts/*.py
 *.log
 html/
 

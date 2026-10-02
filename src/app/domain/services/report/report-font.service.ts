@@ -67,8 +67,17 @@ export class ReportFontService {
       }
     }
 
+    await this.registerFontsForScripts(doc, required);
+  }
+
+  /**
+   * Loads and registers the fonts of the given scripts; WinAnsi needs no embedded font and is skipped.
+   */
+  async registerFontsForScripts(doc: jsPDF, scripts: Iterable<ReportScript>): Promise<void> {
     const registered = this.registeredFonts.get(doc) ?? new Set<ReportScript>();
-    const missing = [...required].filter(script => !registered.has(script));
+    const missing = [...new Set(scripts)].filter(
+      script => script !== ReportScript.WinAnsi && !registered.has(script)
+    );
     if (missing.length === 0) {
       this.registeredFonts.set(doc, registered);
       return;

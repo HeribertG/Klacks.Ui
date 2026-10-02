@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -44,6 +45,7 @@ describe('InboxEmailPdfExportService', () => {
         InboxEmailPdfExportService,
         { provide: TranslateService, useValue: translateSpy },
         { provide: LocaleService, useValue: GERMAN_LOCALE_SERVICE },
+        { provide: PdfUnicodeTextService, useValue: { prepareDocument: vi.fn().mockResolvedValue(undefined) } },
       ],
     });
 
@@ -76,15 +78,15 @@ describe('InboxEmailPdfExportService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('renders the subject as a bold title', () => {
-    service.exportEmail(baseData);
+  it('renders the subject as a bold title', async () => {
+    await service.exportEmail(baseData);
 
     expect(mockPdf.setFont).toHaveBeenCalledWith('helvetica', 'bold');
     expect(mockPdf.text).toHaveBeenCalledWith(['Test Subject'], 20, 20);
   });
 
-  it('renders from, to, date and folder as translated meta lines', () => {
-    service.exportEmail(baseData);
+  it('renders from, to, date and folder as translated meta lines', async () => {
+    await service.exportEmail(baseData);
 
     expect(mockTranslateService.instant).toHaveBeenCalledWith('inbox.detail.from');
     expect(mockTranslateService.instant).toHaveBeenCalledWith('inbox.detail.to');
@@ -102,8 +104,8 @@ describe('InboxEmailPdfExportService', () => {
     );
   });
 
-  it('uses the plain from address when no display name is set', () => {
-    service.exportEmail({ ...baseData, fromName: '' });
+  it('uses the plain from address when no display name is set', async () => {
+    await service.exportEmail({ ...baseData, fromName: '' });
 
     expect(mockPdf.text).toHaveBeenCalledWith(
       expect.stringContaining('jane@klacks.ch'),
@@ -117,14 +119,14 @@ describe('InboxEmailPdfExportService', () => {
     );
   });
 
-  it('renders the plain body text when no HTML body is present', () => {
-    service.exportEmail(baseData);
+  it('renders the plain body text when no HTML body is present', async () => {
+    await service.exportEmail(baseData);
 
     expect(mockPdf.text).toHaveBeenCalledWith('Plain body text', 20, expect.any(Number));
   });
 
-  it('strips HTML tags from the body while keeping block-level line breaks', () => {
-    service.exportEmail({
+  it('strips HTML tags from the body while keeping block-level line breaks', async () => {
+    await service.exportEmail({
       ...baseData,
       bodyHtml: '<p>First paragraph</p><p>Second paragraph</p>',
       bodyText: 'ignored when HTML is present',
@@ -139,11 +141,11 @@ describe('InboxEmailPdfExportService', () => {
     );
   });
 
-  it('converts the jsPDF line height from points to millimetres for body line spacing', () => {
+  it('converts the jsPDF line height from points to millimetres for body line spacing', async () => {
     mockPdf.getLineHeight.mockReturnValue(11.5);
     mockPdf.splitTextToSize.mockImplementation((text: string) => (text ? ['line 1', 'line 2', 'line 3'] : ['']));
 
-    service.exportEmail(baseData);
+    await service.exportEmail(baseData);
 
     const bodyCalls = mockPdf.text.mock.calls.filter((call: unknown[]) => call[0] === 'line 1' || call[0] === 'line 2' || call[0] === 'line 3');
     expect(bodyCalls.length).toBe(3);
@@ -151,21 +153,23 @@ describe('InboxEmailPdfExportService', () => {
     expect(deltaY).toBeCloseTo(11.5 / (72 / 25.4), 5);
   });
 
-  it('adds a new page when the body overflows the current page', () => {
+  it('adds a new page when the body overflows the current page', async () => {
     mockPdf.splitTextToSize.mockReturnValue(Array.from({ length: 80 }, (_, i) => `line ${i}`));
 
-    service.exportEmail(baseData);
+    await service.exportEmail(baseData);
 
     expect(mockPdf.addPage).toHaveBeenCalled();
   });
 
-  it('opens the generated PDF blob in a new tab', () => {
-    const openSpy = vi.spyOn(window, 'open').mockReturnValue({} as Window);
+  it('opens the generated PDF blob in a new tab', async () => {
+    const pendingTab = { closed: false, location: { href: '' } };
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(pendingTab as unknown as Window);
 
     try {
-      service.exportEmail(baseData);
+      await service.exportEmail(baseData);
 
-      expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('blob:'), '_blank');
+      expect(openSpy).toHaveBeenCalledWith('', '_blank');
+      expect(pendingTab.location.href).toContain('blob:');
     } finally {
       openSpy.mockRestore();
     }

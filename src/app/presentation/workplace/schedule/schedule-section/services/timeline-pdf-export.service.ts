@@ -5,14 +5,16 @@
  * Renders one row per client with a 24-hour time ruler and time-positioned
  * Work, WorkChange and Break blocks, replicating the on-screen timeline appearance.
  * @param rowHeight - Fixed height per client row (150 pt ≈ 3 clients per A4-landscape page)
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF, GState } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -53,6 +55,7 @@ export class TimelinePdfExportService {
   private workChangeRenderer = inject(WorkChangeBlockRendererService);
   private breakRenderer = inject(BreakBlockRendererService);
   private rangeService = inject(ScheduleTimelineRangeService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
   private readonly A4_LANDSCAPE = { width: 841.89, height: 595.28 };
   private readonly MARGINS = { top: 40, left: 20, right: 20, bottom: 20 };
@@ -77,7 +80,7 @@ export class TimelinePdfExportService {
     return document.documentElement.dir === 'rtl';
   }
 
-  exportTimeline(): void {
+  async exportTimeline(): Promise<void> {
     const clients = this.dataManagementSchedule.clients;
     if (!clients || clients.length === 0) {
       return;
@@ -117,76 +120,83 @@ export class TimelinePdfExportService {
     });
 
     const title = this.buildTitle();
-    const totalPages = pages.length;
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [title, clientBlocks, days]);
+      const totalPages = pages.length;
 
-    for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-      if (pageIdx > 0) {
-        pdf.addPage();
-      }
-
-      this.addPageHeader(pdf, title, pageIdx + 1, totalPages);
-
-      let currentY = contentStartY;
-
-      this.drawingService.drawColumnHeaders(pdf, this.MARGINS.left, currentY, config, days, colWidth);
-      currentY += config.columnHeaderHeight;
-
-      const pageBlocks = pages[pageIdx];
-
-      const scheduleX = this.isRtl
-        ? this.MARGINS.left
-        : this.MARGINS.left + config.rowHeaderWidth;
-
-      const displayFromMinutes = this.rangeService.displayFromMinutes();
-      const totalMinutes = this.rangeService.totalMinutes();
-      const pixelsPerMinute = this.ROW_HEIGHT / totalMinutes;
-
-      for (let blockIdx = 0; blockIdx < pageBlocks.length; blockIdx++) {
-        const block = pageBlocks[blockIdx];
-
-        this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name, block.slot1, block.slot2, block.slot3, displayFromMinutes, totalMinutes);
-
-        for (let col = 0; col < coreDays; col++) {
-          const dayIdx = this.isRtl ? coreDays - 1 - col : col;
-          const cellX = scheduleX + col * colWidth;
-          this.drawTimelineCellBackground(pdf, cellX, currentY, colWidth, days[dayIdx].weekdayType, displayFromMinutes, totalMinutes);
-
-          for (const entry of block.overflowEntries[dayIdx]) {
-            const minutes = this.toMinutesRange(entry);
-            if (!minutes) continue;
-            const overflowEnd = minutes.end - this.DAY_TOTAL_MINUTES;
-            if (overflowEnd > 0) {
-              this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, 0, overflowEnd, displayFromMinutes, totalMinutes);
-            }
-          }
-
-          for (const entry of block.todayEntries[dayIdx]) {
-            const minutes = this.toMinutesRange(entry);
-            if (!minutes) continue;
-            const endToday = Math.min(minutes.end, this.DAY_TOTAL_MINUTES);
-            this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, minutes.start, endToday, displayFromMinutes, totalMinutes);
-          }
-
-          this.drawCollisionOverlay(
-            pdf, cellX, currentY, colWidth, pixelsPerMinute,
-            block.todayEntries[dayIdx], block.overflowEntries[dayIdx],
-            displayFromMinutes, totalMinutes,
-          );
+      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+        if (pageIdx > 0) {
+          pdf.addPage();
         }
 
-        this.drawingService.drawGridLines(
-          pdf, scheduleX, currentY, colWidth, coreDays, 1, this.ROW_HEIGHT, config,
-        );
+        this.addPageHeader(pdf, title, pageIdx + 1, totalPages);
 
-        currentY += this.ROW_HEIGHT;
+        let currentY = contentStartY;
 
-        const isLast = blockIdx === pageBlocks.length - 1;
-        this.drawingService.drawRowSeparator(pdf, this.MARGINS.left, currentY, availableWidth, !isLast);
+        this.drawingService.drawColumnHeaders(pdf, this.MARGINS.left, currentY, config, days, colWidth);
+        currentY += config.columnHeaderHeight;
+
+        const pageBlocks = pages[pageIdx];
+
+        const scheduleX = this.isRtl
+          ? this.MARGINS.left
+          : this.MARGINS.left + config.rowHeaderWidth;
+
+        const displayFromMinutes = this.rangeService.displayFromMinutes();
+        const totalMinutes = this.rangeService.totalMinutes();
+        const pixelsPerMinute = this.ROW_HEIGHT / totalMinutes;
+
+        for (let blockIdx = 0; blockIdx < pageBlocks.length; blockIdx++) {
+          const block = pageBlocks[blockIdx];
+
+          this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name, block.slot1, block.slot2, block.slot3, displayFromMinutes, totalMinutes);
+
+          for (let col = 0; col < coreDays; col++) {
+            const dayIdx = this.isRtl ? coreDays - 1 - col : col;
+            const cellX = scheduleX + col * colWidth;
+            this.drawTimelineCellBackground(pdf, cellX, currentY, colWidth, days[dayIdx].weekdayType, displayFromMinutes, totalMinutes);
+
+            for (const entry of block.overflowEntries[dayIdx]) {
+              const minutes = this.toMinutesRange(entry);
+              if (!minutes) continue;
+              const overflowEnd = minutes.end - this.DAY_TOTAL_MINUTES;
+              if (overflowEnd > 0) {
+                this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, 0, overflowEnd, displayFromMinutes, totalMinutes);
+              }
+            }
+
+            for (const entry of block.todayEntries[dayIdx]) {
+              const minutes = this.toMinutesRange(entry);
+              if (!minutes) continue;
+              const endToday = Math.min(minutes.end, this.DAY_TOTAL_MINUTES);
+              this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, minutes.start, endToday, displayFromMinutes, totalMinutes);
+            }
+
+            this.drawCollisionOverlay(
+              pdf, cellX, currentY, colWidth, pixelsPerMinute,
+              block.todayEntries[dayIdx], block.overflowEntries[dayIdx],
+              displayFromMinutes, totalMinutes,
+            );
+          }
+
+          this.drawingService.drawGridLines(
+            pdf, scheduleX, currentY, colWidth, coreDays, 1, this.ROW_HEIGHT, config,
+          );
+
+          currentY += this.ROW_HEIGHT;
+
+          const isLast = blockIdx === pageBlocks.length - 1;
+          this.drawingService.drawRowSeparator(pdf, this.MARGINS.left, currentY, availableWidth, !isLast);
+        }
       }
-    }
 
-    const fileName = `timeline-schedule-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const fileName = `timeline-schedule-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   private buildTitle(): string {

@@ -2,9 +2,11 @@
 
 import {
   ReportScript,
+  containsRightToLeftText,
   detectScripts,
   getFontDefinition,
   resolveHanScript,
+  resolveLanguageScript,
   resolveScriptForText,
 } from './report-font.model';
 
@@ -90,6 +92,37 @@ describe('report-font.model', () => {
 
     it('has no font for WinAnsi because the built-in fonts cover it', () => {
       expect(getFontDefinition(ReportScript.WinAnsi)).toBeUndefined();
+    });
+  });
+
+  describe('resolveLanguageScript', () => {
+    it('maps every language outside WinAnsi to the font its labels need', () => {
+      expect(resolveLanguageScript('ar')).toBe(ReportScript.Arabic);
+      expect(resolveLanguageScript('he')).toBe(ReportScript.Hebrew);
+      expect(resolveLanguageScript('th')).toBe(ReportScript.Thai);
+      expect(resolveLanguageScript('ja')).toBe(ReportScript.Japanese);
+      expect(resolveLanguageScript('ko')).toBe(ReportScript.Korean);
+      expect(resolveLanguageScript('zh-CN')).toBe(ReportScript.ChineseSimplified);
+      expect(resolveLanguageScript('zh-TW')).toBe(ReportScript.ChineseTraditional);
+      for (const language of ['cs', 'el', 'pl', 'ro', 'vi']) {
+        expect(resolveLanguageScript(language)).toBe(ReportScript.Extended);
+      }
+    });
+
+    it('needs no embedded font for the WinAnsi languages', () => {
+      for (const language of ['de', 'en', 'fr', 'it', 'da', 'es', 'fi', 'id', 'ms', 'nb', 'nl', 'pt', 'sv', '']) {
+        expect(resolveLanguageScript(language)).toBe(ReportScript.WinAnsi);
+      }
+    });
+  });
+
+  describe('containsRightToLeftText', () => {
+    it('detects Hebrew and Arabic only', () => {
+      expect(containsRightToLeftText('סיכום 12')).toBe(true);
+      expect(containsRightToLeftText('ملخص المسار')).toBe(true);
+      expect(containsRightToLeftText('Route 12 – Zürich')).toBe(false);
+      expect(containsRightToLeftText('สรุปเส้นทาง')).toBe(false);
+      expect(containsRightToLeftText('')).toBe(false);
     });
   });
 });

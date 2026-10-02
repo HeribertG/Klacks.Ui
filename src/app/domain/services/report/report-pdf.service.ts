@@ -3,6 +3,7 @@
 /**
  * Service for PDF generation from report templates using jsPDF/autoTable.
  * @param context - ReportGenerationContext with template, provider, data, and time period
+ * @param pdfUnicodeText - Applies bidi order (Hebrew/Arabic) and Thai mark positions to every drawn text
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -26,6 +27,7 @@ import { IScheduleCell } from '../../models/schedule/work-schedule-class';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportFontService } from './report-font.service';
+import { PdfUnicodeTextService } from './pdf-unicode-text.service';
 import { ReportRowFilterService, ReportParameterContext } from './report-row-filter.service';
 import { ReportParameterValues } from '../../models/report/report-parameter.model';
 import { buildParameterVariables } from '../../helpers/report-parameter.helper';
@@ -64,6 +66,7 @@ export class ReportPdfService {
   private http = inject(HttpClient);
   private formulaService = inject(FormulaEvaluationService);
   private fontService = inject(ReportFontService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
   private rowFilterService = inject(ReportRowFilterService);
 
   private get isRtl(): boolean {
@@ -86,6 +89,7 @@ export class ReportPdfService {
       this.collectRenderTexts(template, data, context),
       this.collectTemplateFontFamilies(template)
     );
+    this.pdfUnicodeText.enableScriptShaping(doc);
 
     const parameterContext: ReportParameterContext = {
       parameters: template.parameters,

@@ -5,6 +5,7 @@
  * Delegates template export to internal logic and route export to RoutePdfExportService.
  * @param items - Container template items with shift and address data
  * @param routeInfo - Route information for the route PDF export
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
@@ -18,12 +19,13 @@ import {
   IRouteInfo,
 } from 'src/app/domain/models/container/container-template-class';
 import { RoutePdfExportService } from './route-pdf-export.service';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import {
   formatClientWithAddress,
   resolveItemEndTime,
   resolveItemStartTime,
 } from 'src/app/shared/helpers/container-template-format.helper';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 export type { RouteInfo, RouteLocation } from './route-pdf-export.service';
 
@@ -58,99 +60,107 @@ export class ContainerTemplatePdfExportService {
   private translateService = inject(TranslateService);
   private localeService = inject(LocaleService);
   private routePdfExportService = inject(RoutePdfExportService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
-  exportContainerTemplateToPdf(
+  async exportContainerTemplateToPdf(
     items: IContainerTemplateItem[],
     containerName: string,
     weekday: string,
     timeFrom: string,
     timeTo: string
-  ): void {
+  ): Promise<void> {
     const pdf = new jsPDF(PDF_ORIENTATION_LANDSCAPE);
 
     const translatedWeekday = this.translateWeekday(weekday);
-    const title = `${containerName} - ${translatedWeekday}`;
-    pdf.setFontSize(FONT_SIZE_TITLE);
-    pdf.text(title, PDF_MARGIN, PDF_TITLE_Y);
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [items, containerName, translatedWeekday]);
+      const title = `${containerName} - ${translatedWeekday}`;
+      pdf.setFontSize(FONT_SIZE_TITLE);
+      pdf.text(title, PDF_MARGIN, PDF_TITLE_Y);
 
-    pdf.setFontSize(FONT_SIZE_NORMAL);
-    pdf.text(
-      `${this.translateService.instant(
-        'pdf.generated'
-      )}: ${formatCalendarDate(companyToday(), this.localeService.getLocale()) ?? ''}`,
-      PDF_MARGIN,
-      PDF_GENERATED_Y
-    );
-    pdf.text(
-      `${this.translateService.instant(
-        'shift.container-template.time-range'
-      )}: ${timeFrom} - ${timeTo}`,
-      PDF_MARGIN,
-      PDF_TIME_RANGE_Y
-    );
-
-    const tableData = items.map((item) => [
-      item.shift?.name || '',
-      item.shift?.description || '',
-      this.formatStartTime(item),
-      this.formatEndTime(item),
-      this.formatDuration(item),
-      formatClientWithAddress(item),
-    ]);
-
-    const headers = [
-      this.translateService.instant('shift.container-template.shift-name'),
-      this.translateService.instant('shift.container-template.description'),
-      this.translateService.instant('shift.container-template.start-time'),
-      this.translateService.instant('shift.container-template.end-time'),
-      this.translateService.instant('shift.container-template.duration'),
-      this.translateService.instant('shift.container-template.address'),
-    ];
-
-    autoTable(pdf, {
-      head: [headers],
-      body: tableData,
-      startY: PDF_SUMMARY_START_Y,
-      theme: PDF_TABLE_THEME_STRIPED,
-      headStyles: {
-        fillColor: TABLE_HEADER_COLOR,
-        textColor: TABLE_TEXT_COLOR_WHITE,
-        fontSize: FONT_SIZE_HEADER,
-        fontStyle: FONT_STYLE_BOLD,
-      },
-      styles: {
-        fontSize: FONT_SIZE_NORMAL,
-        cellPadding: CELL_PADDING_NORMAL,
-      },
-      columnStyles: {
-        0: { cellWidth: COLUMN_WIDTH_EXTRA_WIDE },
-        1: { cellWidth: 'auto' },
-        2: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
-        3: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
-        4: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
-        5: { cellWidth: 'auto' },
-      },
-    });
-
-    const pageCount = pdf.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(FONT_SIZE_TINY);
+      pdf.setFontSize(FONT_SIZE_NORMAL);
       pdf.text(
         `${this.translateService.instant(
-          'pdf.page'
-        )} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
-        pdf.internal.pageSize.width - PDF_PAGE_NUMBER_OFFSET_X,
-        pdf.internal.pageSize.height - PDF_PAGE_NUMBER_OFFSET_Y
+          'pdf.generated'
+        )}: ${formatCalendarDate(companyToday(), this.localeService.getLocale()) ?? ''}`,
+        PDF_MARGIN,
+        PDF_GENERATED_Y
       );
-    }
+      pdf.text(
+        `${this.translateService.instant(
+          'shift.container-template.time-range'
+        )}: ${timeFrom} - ${timeTo}`,
+        PDF_MARGIN,
+        PDF_TIME_RANGE_Y
+      );
 
-    const timestamp = new Date().getTime();
-    const sanitizedName = containerName
-      .replace(/[^a-z0-9]/gi, '_')
-      .toLowerCase();
-    const fileName = `container-template-${sanitizedName}-${weekday}-${timestamp}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const tableData = items.map((item) => [
+        item.shift?.name || '',
+        item.shift?.description || '',
+        this.formatStartTime(item),
+        this.formatEndTime(item),
+        this.formatDuration(item),
+        formatClientWithAddress(item),
+      ]);
+
+      const headers = [
+        this.translateService.instant('shift.container-template.shift-name'),
+        this.translateService.instant('shift.container-template.description'),
+        this.translateService.instant('shift.container-template.start-time'),
+        this.translateService.instant('shift.container-template.end-time'),
+        this.translateService.instant('shift.container-template.duration'),
+        this.translateService.instant('shift.container-template.address'),
+      ];
+
+      autoTable(pdf, {
+        head: [headers],
+        body: tableData,
+        startY: PDF_SUMMARY_START_Y,
+        theme: PDF_TABLE_THEME_STRIPED,
+        headStyles: {
+          fillColor: TABLE_HEADER_COLOR,
+          textColor: TABLE_TEXT_COLOR_WHITE,
+          fontSize: FONT_SIZE_HEADER,
+          fontStyle: FONT_STYLE_BOLD,
+        },
+        styles: {
+          fontSize: FONT_SIZE_NORMAL,
+          cellPadding: CELL_PADDING_NORMAL,
+        },
+        columnStyles: {
+          0: { cellWidth: COLUMN_WIDTH_EXTRA_WIDE },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
+          3: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
+          4: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
+          5: { cellWidth: 'auto' },
+        },
+      });
+
+      const pageCount = pdf.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(FONT_SIZE_TINY);
+        pdf.text(
+          `${this.translateService.instant(
+            'pdf.page'
+          )} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
+          pdf.internal.pageSize.width - PDF_PAGE_NUMBER_OFFSET_X,
+          pdf.internal.pageSize.height - PDF_PAGE_NUMBER_OFFSET_Y
+        );
+      }
+
+      const timestamp = new Date().getTime();
+      const sanitizedName = containerName
+        .replace(/[^a-z0-9]/gi, '_')
+        .toLowerCase();
+      const fileName = `container-template-${sanitizedName}-${weekday}-${timestamp}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   async exportRouteToPdf(

@@ -3,14 +3,16 @@
 /**
  * Exports the currently displayed inbox email as a PDF opened in a new browser tab.
  * @param data - Subject, body (HTML or plain text) and metadata of the email exactly as shown to the user
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
 import { jsPDF } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { htmlToPlainText } from 'src/app/shared/helpers/html-sanitizer.helper';
 
 export interface InboxEmailPrintData {
@@ -39,15 +41,23 @@ const PDF_META_TO_BODY_GAP = 5;
 export class InboxEmailPdfExportService {
   private translateService = inject(TranslateService);
   private localeService = inject(LocaleService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
-  exportEmail(data: InboxEmailPrintData): void {
+  async exportEmail(data: InboxEmailPrintData): Promise<void> {
     const pdf = this.createPdfInstance();
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [data, this.resolvePlainText(data)]);
 
-    const bodyStartY = this.renderHeader(pdf, data);
-    this.renderBody(pdf, data, bodyStartY);
+      const bodyStartY = this.renderHeader(pdf, data);
+      this.renderBody(pdf, data, bodyStartY);
 
-    const fileName = `email-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const fileName = `email-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   private createPdfInstance(): jsPDF {

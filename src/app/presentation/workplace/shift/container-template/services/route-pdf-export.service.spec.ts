@@ -16,6 +16,7 @@ import {
 } from 'src/app/domain/models/container/container-template-class';
 import { MapRenderingService } from './map-rendering.service';
 import { RoutePdfExportService } from './route-pdf-export.service';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 
 const BASE = 'Neuwiesenstrasse 20, 8401 Winterthur';
 const SHIFT_A = 'shift-a';
@@ -87,6 +88,7 @@ describe('RoutePdfExportService', () => {
         { provide: TranslateService, useValue: { instant: (key: string) => key } },
         { provide: LocaleService, useValue: { getLocale: () => 'de-CH' } },
         { provide: MapRenderingService, useValue: {} },
+        { provide: PdfUnicodeTextService, useValue: { prepareDocument: async () => undefined } },
       ],
     });
     service = TestBed.inject(RoutePdfExportService);

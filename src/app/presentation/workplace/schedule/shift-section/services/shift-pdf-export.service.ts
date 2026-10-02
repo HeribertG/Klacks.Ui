@@ -3,14 +3,16 @@
 /**
  * Exports the shift-section schedule (shift capacity per day) as a landscape PDF,
  * coloring weekend and holiday columns via the configured week settings.
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -68,6 +70,7 @@ export class ShiftPdfExportService {
   private groupSelectionService = inject(GroupSelectionService);
   private holidayCollection = inject(HolidayCollectionService);
   private weekConfiguration = inject(WeekConfigurationService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
   private readonly A4_LANDSCAPE = {
     width: 841.89,
@@ -87,7 +90,7 @@ export class ShiftPdfExportService {
   private readonly FONT_SIZE_NORMAL = 9;
   private readonly SHIFT_SUB_ROW_HEIGHT = 18;
 
-  exportShiftSchedule(): void {
+  async exportShiftSchedule(): Promise<void> {
     const shiftSchedules = this.dataManagementSchedule.shiftSchedules;
 
     if (!shiftSchedules || shiftSchedules.length === 0) {
@@ -139,110 +142,117 @@ export class ShiftPdfExportService {
     });
 
     const title = this.buildTitle();
-    const totalPages = pages.length;
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [title, shiftBlocks, days]);
+      const totalPages = pages.length;
 
-    for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-      if (pageIdx > 0) {
-        pdf.addPage();
-      }
+      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+        if (pageIdx > 0) {
+          pdf.addPage();
+        }
 
-      this.addPageHeader(pdf, title, pageIdx + 1, totalPages);
+        this.addPageHeader(pdf, title, pageIdx + 1, totalPages);
 
-      let currentY = contentStartY;
+        let currentY = contentStartY;
 
-      this.drawingService.drawColumnHeaders(
-        pdf,
-        this.MARGINS.left,
-        currentY,
-        config,
-        days,
-        colWidth,
-      );
-
-      currentY += config.columnHeaderHeight;
-
-      const pageBlocks = pages[pageIdx];
-
-      for (let blockIdx = 0; blockIdx < pageBlocks.length; blockIdx++) {
-        const block = pageBlocks[blockIdx];
-        const blockHeight = config.subRowHeight;
-
-        this.drawingService.drawRowHeader(
+        this.drawingService.drawColumnHeaders(
           pdf,
           this.MARGINS.left,
           currentY,
           config,
-          blockHeight,
-          block.name,
-          block.slot1,
-          block.slot2,
-          block.slot3,
+          days,
+          colWidth,
         );
 
-        const scheduleX = this.MARGINS.left + config.rowHeaderWidth;
+        currentY += config.columnHeaderHeight;
 
-        for (let col = 0; col < coreDays; col++) {
-          const cellData = block.cells[col];
-          const cellX = scheduleX + col * colWidth;
-          const weekdayType = days[col].weekdayType;
+        const pageBlocks = pages[pageIdx];
 
-          if (cellData?.highlighted) {
-            const baseBg = this.getWeekdayBackgroundColor(weekdayType);
-            const darkened = this.drawingService.darkenColor(baseBg, 60);
-            pdf.setFillColor(darkened);
-            pdf.rect(cellX, currentY, colWidth, blockHeight, 'F');
-          } else {
-            this.drawingService.drawDayBackground(
-              pdf, cellX, currentY, colWidth, blockHeight, weekdayType,
+        for (let blockIdx = 0; blockIdx < pageBlocks.length; blockIdx++) {
+          const block = pageBlocks[blockIdx];
+          const blockHeight = config.subRowHeight;
+
+          this.drawingService.drawRowHeader(
+            pdf,
+            this.MARGINS.left,
+            currentY,
+            config,
+            blockHeight,
+            block.name,
+            block.slot1,
+            block.slot2,
+            block.slot3,
+          );
+
+          const scheduleX = this.MARGINS.left + config.rowHeaderWidth;
+
+          for (let col = 0; col < coreDays; col++) {
+            const cellData = block.cells[col];
+            const cellX = scheduleX + col * colWidth;
+            const weekdayType = days[col].weekdayType;
+
+            if (cellData?.highlighted) {
+              const baseBg = this.getWeekdayBackgroundColor(weekdayType);
+              const darkened = this.drawingService.darkenColor(baseBg, 60);
+              pdf.setFillColor(darkened);
+              pdf.rect(cellX, currentY, colWidth, blockHeight, 'F');
+            } else {
+              this.drawingService.drawDayBackground(
+                pdf, cellX, currentY, colWidth, blockHeight, weekdayType,
+              );
+            }
+          }
+
+          for (let col = 0; col < coreDays; col++) {
+            const cellData = block.cells[col];
+            if (!cellData || cellData.isEmpty) continue;
+
+            const cellX = scheduleX + col * colWidth;
+            this.drawingService.drawCellContent(
+              pdf,
+              cellX,
+              currentY,
+              colWidth,
+              config.subRowHeight,
+              cellData.mainText,
+              '',
+              '',
+              cellData.backgroundColor,
+              cellData.fontColor,
             );
           }
-        }
 
-        for (let col = 0; col < coreDays; col++) {
-          const cellData = block.cells[col];
-          if (!cellData || cellData.isEmpty) continue;
-
-          const cellX = scheduleX + col * colWidth;
-          this.drawingService.drawCellContent(
+          this.drawingService.drawGridLines(
             pdf,
-            cellX,
+            scheduleX,
             currentY,
             colWidth,
-            config.subRowHeight,
-            cellData.mainText,
-            '',
-            '',
-            cellData.backgroundColor,
-            cellData.fontColor,
+            coreDays,
+            1,
+            blockHeight,
+            config,
+          );
+
+          currentY += blockHeight;
+
+          const isLast = blockIdx === pageBlocks.length - 1;
+          this.drawingService.drawRowSeparator(
+            pdf,
+            this.MARGINS.left,
+            currentY,
+            availableWidth,
+            !isLast,
           );
         }
-
-        this.drawingService.drawGridLines(
-          pdf,
-          scheduleX,
-          currentY,
-          colWidth,
-          coreDays,
-          1,
-          blockHeight,
-          config,
-        );
-
-        currentY += blockHeight;
-
-        const isLast = blockIdx === pageBlocks.length - 1;
-        this.drawingService.drawRowSeparator(
-          pdf,
-          this.MARGINS.left,
-          currentY,
-          availableWidth,
-          !isLast,
-        );
       }
-    }
 
-    const fileName = `shift-schedule-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const fileName = `shift-schedule-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   private buildTitle(): string {

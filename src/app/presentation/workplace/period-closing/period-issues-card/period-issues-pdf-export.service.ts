@@ -9,16 +9,18 @@
  * @param periodLabel - Human-readable period label (e.g. "April 2026") rendered under the title
  * @param unstaffedShiftCount - Period-wide total of unfilled shift slots, rendered as a summary line
  * @param unstaffedShiftTruncated - When true the count is rendered with a trailing "+" lower-bound marker
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 const PDF_MARGIN = 20;
 const PDF_TITLE_FONT_SIZE = 16;
@@ -44,29 +46,37 @@ const COLUMN_WIDTH_CLIENT = 55;
 export class PeriodIssuesPdfExportService {
   private translateService = inject(TranslateService);
   private localeService = inject(LocaleService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
   private get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
   }
 
-  exportToPdf(
+  async exportToPdf(
     issues: PeriodIssue[],
     periodLabel: string,
     unstaffedShiftCount: number,
     unstaffedShiftTruncated: boolean,
-  ): void {
+  ): Promise<void> {
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
       format: 'a4',
     });
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [issues, periodLabel]);
 
-    this.renderHeader(pdf, periodLabel, unstaffedShiftCount, unstaffedShiftTruncated);
-    this.renderTable(pdf, issues);
-    this.renderPageNumbers(pdf);
+      this.renderHeader(pdf, periodLabel, unstaffedShiftCount, unstaffedShiftTruncated);
+      this.renderTable(pdf, issues);
+      this.renderPageNumbers(pdf);
 
-    const fileName = `period-issues-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const fileName = `period-issues-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   private renderHeader(

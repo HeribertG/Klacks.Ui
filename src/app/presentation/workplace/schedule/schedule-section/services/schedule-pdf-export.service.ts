@@ -1,12 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/**
+ * PDF export service for the schedule grid: one row per client with the work entries of every visible day.
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
+ */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -27,6 +32,7 @@ export class SchedulePdfExportService {
   private gridSettingsService = inject(GridSettingsService);
   private drawingService = inject(SchedulePdfDrawingService);
   private groupSelectionService = inject(GroupSelectionService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
   private readonly A4_LANDSCAPE = {
     width: 841.89,
@@ -49,7 +55,7 @@ export class SchedulePdfExportService {
     return document.documentElement.dir === 'rtl';
   }
 
-  exportSchedule(): void {
+  async exportSchedule(): Promise<void> {
     const config = this.drawingService.createDefaultConfig();
     const clients = this.dataManagementSchedule.clients;
 
@@ -87,121 +93,128 @@ export class SchedulePdfExportService {
     });
 
     const title = this.buildTitle();
-    const totalPages = pages.length;
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [title, clientBlocks, days]);
+      const totalPages = pages.length;
 
-    for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-      if (pageIdx > 0) {
-        pdf.addPage();
-      }
+      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+        if (pageIdx > 0) {
+          pdf.addPage();
+        }
 
-      this.addPageHeader(pdf, title, pageIdx + 1, totalPages);
+        this.addPageHeader(pdf, title, pageIdx + 1, totalPages);
 
-      let currentY = contentStartY;
+        let currentY = contentStartY;
 
-      this.drawingService.drawColumnHeaders(
-        pdf,
-        this.MARGINS.left,
-        currentY,
-        config,
-        days,
-        colWidth,
-      );
-
-      currentY += config.columnHeaderHeight;
-
-      const pageClients = pages[pageIdx];
-
-      for (let blockIdx = 0; blockIdx < pageClients.length; blockIdx++) {
-        const block = pageClients[blockIdx];
-        const blockHeight = block.subRows.length * config.subRowHeight;
-
-        this.drawingService.drawRowHeader(
+        this.drawingService.drawColumnHeaders(
           pdf,
           this.MARGINS.left,
           currentY,
           config,
-          blockHeight,
-          block.name,
-          block.slot1,
-          block.slot2,
-          block.slot3,
+          days,
+          colWidth,
         );
 
-        const scheduleX = this.isRtl ? this.MARGINS.left : this.MARGINS.left + config.rowHeaderWidth;
+        currentY += config.columnHeaderHeight;
 
-        for (let col = 0; col < coreDays; col++) {
-          const dayIdx = this.isRtl ? coreDays - 1 - col : col;
-          const cellX = scheduleX + col * colWidth;
-          this.drawingService.drawDayBackground(
+        const pageClients = pages[pageIdx];
+
+        for (let blockIdx = 0; blockIdx < pageClients.length; blockIdx++) {
+          const block = pageClients[blockIdx];
+          const blockHeight = block.subRows.length * config.subRowHeight;
+
+          this.drawingService.drawRowHeader(
             pdf,
-            cellX,
+            this.MARGINS.left,
             currentY,
-            colWidth,
+            config,
             blockHeight,
-            days[dayIdx].weekdayType,
+            block.name,
+            block.slot1,
+            block.slot2,
+            block.slot3,
           );
-        }
 
-        for (let subRowIdx = 0; subRowIdx < block.subRows.length; subRowIdx++) {
-          const subRow = block.subRows[subRowIdx];
-          const subRowY = currentY + subRowIdx * config.subRowHeight;
+          const scheduleX = this.isRtl ? this.MARGINS.left : this.MARGINS.left + config.rowHeaderWidth;
 
           for (let col = 0; col < coreDays; col++) {
             const dayIdx = this.isRtl ? coreDays - 1 - col : col;
-            const cellData = subRow[dayIdx];
-            if (!cellData) continue;
-
             const cellX = scheduleX + col * colWidth;
+            this.drawingService.drawDayBackground(
+              pdf,
+              cellX,
+              currentY,
+              colWidth,
+              blockHeight,
+              days[dayIdx].weekdayType,
+            );
+          }
 
-            if (cellData.sealed && !cellData.backgroundColor) {
-              const dayBg = this.drawingService.darkenColor('#ffffff', 30);
-              pdf.setFillColor(dayBg);
-              pdf.rect(cellX, subRowY, colWidth, config.subRowHeight, 'F');
-            }
+          for (let subRowIdx = 0; subRowIdx < block.subRows.length; subRowIdx++) {
+            const subRow = block.subRows[subRowIdx];
+            const subRowY = currentY + subRowIdx * config.subRowHeight;
 
-            if (!cellData.isEmpty) {
-              this.drawingService.drawCellContent(
-                pdf,
-                cellX,
-                subRowY,
-                colWidth,
-                config.subRowHeight,
-                cellData.mainText,
-                '',
-                '',
-                cellData.backgroundColor,
-                cellData.fontColor,
-              );
+            for (let col = 0; col < coreDays; col++) {
+              const dayIdx = this.isRtl ? coreDays - 1 - col : col;
+              const cellData = subRow[dayIdx];
+              if (!cellData) continue;
+
+              const cellX = scheduleX + col * colWidth;
+
+              if (cellData.sealed && !cellData.backgroundColor) {
+                const dayBg = this.drawingService.darkenColor('#ffffff', 30);
+                pdf.setFillColor(dayBg);
+                pdf.rect(cellX, subRowY, colWidth, config.subRowHeight, 'F');
+              }
+
+              if (!cellData.isEmpty) {
+                this.drawingService.drawCellContent(
+                  pdf,
+                  cellX,
+                  subRowY,
+                  colWidth,
+                  config.subRowHeight,
+                  cellData.mainText,
+                  '',
+                  '',
+                  cellData.backgroundColor,
+                  cellData.fontColor,
+                );
+              }
             }
           }
+
+          this.drawingService.drawGridLines(
+            pdf,
+            scheduleX,
+            currentY,
+            colWidth,
+            coreDays,
+            block.subRows.length,
+            blockHeight,
+            config,
+          );
+
+          currentY += blockHeight;
+
+          const isLast = blockIdx === pageClients.length - 1;
+          this.drawingService.drawRowSeparator(
+            pdf,
+            this.MARGINS.left,
+            currentY,
+            availableWidth,
+            !isLast,
+          );
         }
-
-        this.drawingService.drawGridLines(
-          pdf,
-          scheduleX,
-          currentY,
-          colWidth,
-          coreDays,
-          block.subRows.length,
-          blockHeight,
-          config,
-        );
-
-        currentY += blockHeight;
-
-        const isLast = blockIdx === pageClients.length - 1;
-        this.drawingService.drawRowSeparator(
-          pdf,
-          this.MARGINS.left,
-          currentY,
-          availableWidth,
-          !isLast,
-        );
       }
-    }
 
-    const fileName = `schedule-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const fileName = `schedule-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   private buildTitle(): string {

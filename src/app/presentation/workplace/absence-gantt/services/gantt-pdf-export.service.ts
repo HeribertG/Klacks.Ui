@@ -1,12 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/**
+ * PDF export of the absence Gantt chart (A3 landscape): legend, month headers and one row per client.
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
+ */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
@@ -28,6 +33,7 @@ export class GanttPdfExportService {
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   private ganttPdfDrawingService = inject(GanttPdfDrawingService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
   // A3 landscape dimensions in points (1 point = 1/72 inch)
   private readonly A3_LANDSCAPE = {
@@ -101,6 +107,12 @@ export class GanttPdfExportService {
     }
   }
 
+  private collectClientNames(): string[] {
+    return Array.from({ length: this.dataManagementBreak.rows }, (_, index) =>
+      this.dataManagementBreak.readClientName(index)
+    );
+  }
+
   private get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
   }
@@ -160,193 +172,200 @@ export class GanttPdfExportService {
     const { title = `Gantt Chart ${currentYear}` } = options;
 
     const pdf = this.createPdfInstance();
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [title, this.getSelectedAbsenceTypes(), this.collectClientNames()]);
 
-    const config = this.ganttPdfDrawingService.createDefaultConfig();
+      const config = this.ganttPdfDrawingService.createDefaultConfig();
 
-    // Use the current year from the BreakFilter
-    config.year = this.dataManagementBreak.breakFilter.currentYear;
-    config.startDate = new Date(config.year, 0, 1);
+      // Use the current year from the BreakFilter
+      config.year = this.dataManagementBreak.breakFilter.currentYear;
+      config.startDate = new Date(config.year, 0, 1);
 
-    config.rowHeight = this.ROW_HEIGHT;
+      config.rowHeight = this.ROW_HEIGHT;
 
-    // Collect selected absence types for legend
-    const selectedAbsenceTypes = this.getSelectedAbsenceTypes();
+      // Collect selected absence types for legend
+      const selectedAbsenceTypes = this.getSelectedAbsenceTypes();
 
-    // Pre-compute legend height to calculate totalPages before drawing
-    const availableWidth =
-      this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
-    let legendHeight = 0;
-    if (selectedAbsenceTypes.length > 0) {
-      const estimatedItemWidth = selectedAbsenceTypes.reduce((total, type) => {
-        return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH;
-      }, 0);
-      const needsMultipleLines = estimatedItemWidth > availableWidth;
-      legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE;
-    }
+      // Pre-compute legend height to calculate totalPages before drawing
+      const availableWidth =
+        this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
+      let legendHeight = 0;
+      if (selectedAbsenceTypes.length > 0) {
+        const estimatedItemWidth = selectedAbsenceTypes.reduce((total, type) => {
+          return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH;
+        }, 0);
+        const needsMultipleLines = estimatedItemWidth > availableWidth;
+        legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE;
+      }
 
-    let currentY = this.MARGINS.top + this.HEADER_OFFSET;
-    if (legendHeight > 0) {
-      currentY += legendHeight + this.SPACING_AFTER_LEGEND;
-    }
-    currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
+      let currentY = this.MARGINS.top + this.HEADER_OFFSET;
+      if (legendHeight > 0) {
+        currentY += legendHeight + this.SPACING_AFTER_LEGEND;
+      }
+      currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
 
-    const totalClients = this.dataManagementBreak.rows;
-    const availableHeight =
-      this.A3_LANDSCAPE.height - this.MARGINS.bottom - currentY;
-    const maxRowsPerPage = Math.floor(availableHeight / this.ROW_HEIGHT) - this.SAFETY_ROW_BUFFER;
-    const totalPages = Math.max(1, Math.ceil(totalClients / maxRowsPerPage));
+      const totalClients = this.dataManagementBreak.rows;
+      const availableHeight =
+        this.A3_LANDSCAPE.height - this.MARGINS.bottom - currentY;
+      const maxRowsPerPage = Math.floor(availableHeight / this.ROW_HEIGHT) - this.SAFETY_ROW_BUFFER;
+      const totalPages = Math.max(1, Math.ceil(totalClients / maxRowsPerPage));
 
-    // Now draw first page header with correct totalPages
-    this.addPageHeader(pdf, title, 1, totalPages);
+      // Now draw first page header with correct totalPages
+      this.addPageHeader(pdf, title, 1, totalPages);
 
-    // Reset currentY for actual drawing
-    currentY = this.MARGINS.top + this.HEADER_OFFSET;
+      // Reset currentY for actual drawing
+      currentY = this.MARGINS.top + this.HEADER_OFFSET;
 
-    // Draw legend ABOVE the month headers (if absence types are selected)
-    if (selectedAbsenceTypes.length > 0) {
-      this.ganttPdfDrawingService.drawLegend(
-        pdf,
-        this.MARGINS.left,
-        currentY,
-        availableWidth,
-        legendHeight,
-        selectedAbsenceTypes,
-      );
-
-      currentY += legendHeight + this.SPACING_AFTER_LEGEND;
-    }
-
-    this.ganttPdfDrawingService.drawMonthHeaders(
-      pdf,
-      this.MARGINS.left,
-      currentY,
-      config,
-      this.MONTH_HEADER_HEIGHT,
-    );
-
-    // Draw separator line under month headers
-    this.ganttPdfDrawingService.drawRowSeparatorLine(
-      pdf,
-      this.MARGINS.left,
-      currentY + this.MONTH_HEADER_HEIGHT,
-      config,
-    );
-
-    currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
-
-    for (let clientIndex = 0; clientIndex < totalClients; clientIndex++) {
-      // Get client name and break data
-      const clientName = this.dataManagementBreak.readClientName(clientIndex);
-      const clientBreaks = this.dataManagementBreak.readData(clientIndex) || [];
-
-      // Check if new page is needed
-      if (clientIndex > 0 && clientIndex % maxRowsPerPage === 0) {
-        // New page
-        pdf.addPage();
-        this.addPageHeader(
-          pdf,
-          title,
-          Math.floor(clientIndex / maxRowsPerPage) + 1,
-          totalPages,
-        );
-
-        // Reset Y position and draw headers again
-        currentY = this.MARGINS.top + this.HEADER_OFFSET;
-
-        // Draw legend (ABOVE the month headers)
-        if (selectedAbsenceTypes.length > 0) {
-          const availableWidth =
-            this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
-
-          // Same dynamic height calculation as on first page
-          const estimatedItemWidth = selectedAbsenceTypes.reduce(
-            (total, type) => {
-              return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH;
-            },
-            0,
-          );
-          const needsMultipleLines = estimatedItemWidth > availableWidth;
-          const legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE;
-
-          this.ganttPdfDrawingService.drawLegend(
-            pdf,
-            this.MARGINS.left,
-            currentY,
-            availableWidth,
-            legendHeight,
-            selectedAbsenceTypes,
-          );
-
-          currentY += legendHeight + this.SPACING_AFTER_LEGEND;
-        }
-
-        this.ganttPdfDrawingService.drawMonthHeaders(
+      // Draw legend ABOVE the month headers (if absence types are selected)
+      if (selectedAbsenceTypes.length > 0) {
+        this.ganttPdfDrawingService.drawLegend(
           pdf,
           this.MARGINS.left,
           currentY,
-          config,
-          this.MONTH_HEADER_HEIGHT,
+          availableWidth,
+          legendHeight,
+          selectedAbsenceTypes,
         );
 
-        this.ganttPdfDrawingService.drawRowSeparatorLine(
-          pdf,
-          this.MARGINS.left,
-          currentY + this.MONTH_HEADER_HEIGHT,
-          config,
-        );
-
-        currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
+        currentY += legendHeight + this.SPACING_AFTER_LEGEND;
       }
 
-      const isLastRow = clientIndex === totalClients - 1;
-      const isLastRowOnPage = (clientIndex + 1) % maxRowsPerPage === 0;
-      const isFirstRowAfterHeaders = clientIndex % maxRowsPerPage === 0; // First row on each page
-
-      // Draw complete row with real client names and break data
-      this.ganttPdfDrawingService.drawCompleteRow(
+      this.ganttPdfDrawingService.drawMonthHeaders(
         pdf,
         this.MARGINS.left,
         currentY,
         config,
-        clientName || `Client ${clientIndex + 1}`,
-        false,
-        this.CLIENT_NAME_WIDTH,
-        !isLastRow && !isLastRowOnPage, // No separator after last row or last row on page
-        isFirstRowAfterHeaders, // First row after headers has no top border
-        clientBreaks, // Real break data for this client
+        this.MONTH_HEADER_HEIGHT,
       );
 
-      currentY += this.ROW_HEIGHT;
+      // Draw separator line under month headers
+      this.ganttPdfDrawingService.drawRowSeparatorLine(
+        pdf,
+        this.MARGINS.left,
+        currentY + this.MONTH_HEADER_HEIGHT,
+        config,
+      );
 
-      // Reset Y for new page
-      if (isLastRowOnPage && !isLastRow) {
-        currentY = this.MARGINS.top + this.HEADER_OFFSET;
+      currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
+
+      for (let clientIndex = 0; clientIndex < totalClients; clientIndex++) {
+        // Get client name and break data
+        const clientName = this.dataManagementBreak.readClientName(clientIndex);
+        const clientBreaks = this.dataManagementBreak.readData(clientIndex) || [];
+
+        // Check if new page is needed
+        if (clientIndex > 0 && clientIndex % maxRowsPerPage === 0) {
+          // New page
+          pdf.addPage();
+          this.addPageHeader(
+            pdf,
+            title,
+            Math.floor(clientIndex / maxRowsPerPage) + 1,
+            totalPages,
+          );
+
+          // Reset Y position and draw headers again
+          currentY = this.MARGINS.top + this.HEADER_OFFSET;
+
+          // Draw legend (ABOVE the month headers)
+          if (selectedAbsenceTypes.length > 0) {
+            const availableWidth =
+              this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
+
+            // Same dynamic height calculation as on first page
+            const estimatedItemWidth = selectedAbsenceTypes.reduce(
+              (total, type) => {
+                return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH;
+              },
+              0,
+            );
+            const needsMultipleLines = estimatedItemWidth > availableWidth;
+            const legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE;
+
+            this.ganttPdfDrawingService.drawLegend(
+              pdf,
+              this.MARGINS.left,
+              currentY,
+              availableWidth,
+              legendHeight,
+              selectedAbsenceTypes,
+            );
+
+            currentY += legendHeight + this.SPACING_AFTER_LEGEND;
+          }
+
+          this.ganttPdfDrawingService.drawMonthHeaders(
+            pdf,
+            this.MARGINS.left,
+            currentY,
+            config,
+            this.MONTH_HEADER_HEIGHT,
+          );
+
+          this.ganttPdfDrawingService.drawRowSeparatorLine(
+            pdf,
+            this.MARGINS.left,
+            currentY + this.MONTH_HEADER_HEIGHT,
+            config,
+          );
+
+          currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
+        }
+
+        const isLastRow = clientIndex === totalClients - 1;
+        const isLastRowOnPage = (clientIndex + 1) % maxRowsPerPage === 0;
+        const isFirstRowAfterHeaders = clientIndex % maxRowsPerPage === 0; // First row on each page
+
+        // Draw complete row with real client names and break data
+        this.ganttPdfDrawingService.drawCompleteRow(
+          pdf,
+          this.MARGINS.left,
+          currentY,
+          config,
+          clientName || `Client ${clientIndex + 1}`,
+          false,
+          this.CLIENT_NAME_WIDTH,
+          !isLastRow && !isLastRowOnPage, // No separator after last row or last row on page
+          isFirstRowAfterHeaders, // First row after headers has no top border
+          clientBreaks, // Real break data for this client
+        );
+
+        currentY += this.ROW_HEIGHT;
+
+        // Reset Y for new page
+        if (isLastRowOnPage && !isLastRow) {
+          currentY = this.MARGINS.top + this.HEADER_OFFSET;
+        }
       }
+
+      if (totalClients > 0) {
+        pdf.setFontSize(this.FONT_SIZE_NORMAL);
+        const totalText = `Total ${totalClients} clients exported`;
+        const yearText = `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(config.year)} days)`;
+        const footerX = this.isRtl
+          ? this.A3_LANDSCAPE.width - this.MARGINS.right - Math.max(pdf.getTextWidth(totalText), pdf.getTextWidth(yearText))
+          : this.MARGINS.left;
+
+        pdf.text(totalText, footerX, currentY + this.FOOTER_SPACING);
+        pdf.text(yearText, footerX, currentY + this.FOOTER_YEAR_OFFSET);
+      } else {
+        pdf.setFontSize(this.FONT_SIZE_NO_DATA);
+        const noDataText = 'No client data available';
+        const ensureText = 'Please ensure that data has been loaded';
+        const footerX = this.isRtl
+          ? this.A3_LANDSCAPE.width - this.MARGINS.right - Math.max(pdf.getTextWidth(noDataText), pdf.getTextWidth(ensureText))
+          : this.MARGINS.left;
+
+        pdf.text(noDataText, footerX, currentY + this.FOOTER_SPACING);
+        pdf.text(ensureText, footerX, currentY + this.FOOTER_SPACING * 2);
+      }
+
+      const fileName = `gantt-real-data-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
     }
-
-    if (totalClients > 0) {
-      pdf.setFontSize(this.FONT_SIZE_NORMAL);
-      const totalText = `Total ${totalClients} clients exported`;
-      const yearText = `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(config.year)} days)`;
-      const footerX = this.isRtl
-        ? this.A3_LANDSCAPE.width - this.MARGINS.right - Math.max(pdf.getTextWidth(totalText), pdf.getTextWidth(yearText))
-        : this.MARGINS.left;
-
-      pdf.text(totalText, footerX, currentY + this.FOOTER_SPACING);
-      pdf.text(yearText, footerX, currentY + this.FOOTER_YEAR_OFFSET);
-    } else {
-      pdf.setFontSize(this.FONT_SIZE_NO_DATA);
-      const noDataText = 'No client data available';
-      const ensureText = 'Please ensure that data has been loaded';
-      const footerX = this.isRtl
-        ? this.A3_LANDSCAPE.width - this.MARGINS.right - Math.max(pdf.getTextWidth(noDataText), pdf.getTextWidth(ensureText))
-        : this.MARGINS.left;
-
-      pdf.text(noDataText, footerX, currentY + this.FOOTER_SPACING);
-      pdf.text(ensureText, footerX, currentY + this.FOOTER_SPACING * 2);
-    }
-
-    const fileName = `gantt-real-data-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
   }
 }

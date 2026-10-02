@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -83,6 +84,7 @@ describe('GanttPdfExportService', () => {
                     useValue: dataAbsenceSpy,
                 },
                 { provide: GanttPdfDrawingService, useValue: drawingSpy },
+                { provide: PdfUnicodeTextService, useValue: { prepareDocument: vi.fn().mockResolvedValue(undefined) } },
             ],
         });
 
@@ -315,12 +317,14 @@ describe('GanttPdfExportService', () => {
         });
 
         it('should open the generated PDF blob in a new tab', async () => {
-            const openSpy = vi.spyOn(window, 'open').mockReturnValue({} as Window);
+            const pendingTab = { closed: false, location: { href: '' } };
+            const openSpy = vi.spyOn(window, 'open').mockReturnValue(pendingTab as unknown as Window);
 
             try {
                 await service.exportTest2DDrawing();
 
-                expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('blob:'), '_blank');
+                expect(openSpy).toHaveBeenCalledWith('', '_blank');
+                expect(pendingTab.location.href).toContain('blob:');
             } finally {
                 openSpy.mockRestore();
             }

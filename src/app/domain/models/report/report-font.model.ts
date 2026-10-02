@@ -8,6 +8,7 @@
  * @param family - Font family name registered in the jsPDF document
  * @param regularFile - TTF file name of the regular weight inside the font asset folder
  * @param boldFile - Optional TTF file name of the bold weight
+ * @param uiLanguage - Active UI language; decides the Han font and the script a translated label needs
  */
 
 export const REPORT_FONT_ASSET_PATH = 'assets/fonts/';
@@ -204,4 +205,65 @@ export function resolveHanScript(uiLanguage: string): ReportScript {
 
 export function getFontDefinition(script: ReportScript): UnicodeFontDefinition | undefined {
   return UNICODE_FONTS.find(font => font.script === script);
+}
+
+const LANGUAGE_SCRIPTS: Readonly<Record<string, ReportScript>> = {
+  ar: ReportScript.Arabic,
+  he: ReportScript.Hebrew,
+  th: ReportScript.Thai,
+  ja: ReportScript.Japanese,
+  ko: ReportScript.Korean,
+  'zh-cn': ReportScript.ChineseSimplified,
+  'zh-tw': ReportScript.ChineseTraditional,
+  cs: ReportScript.Extended,
+  el: ReportScript.Extended,
+  pl: ReportScript.Extended,
+  ro: ReportScript.Extended,
+  vi: ReportScript.Extended,
+};
+
+const RIGHT_TO_LEFT_SCRIPTS: ReadonlySet<ReportScript> = new Set([ReportScript.Hebrew, ReportScript.Arabic]);
+
+const RIGHT_TO_LEFT_LANGUAGES: ReadonlySet<string> = new Set(['ar', 'he']);
+
+/**
+ * jsPDF BidiEngine options that turn a logical string containing Hebrew or Arabic into the visual
+ * left-to-right glyph order a PDF content stream expects, including mirrored brackets.
+ * The paragraph direction follows the UI language: an Arabic or Hebrew UI reads the whole line
+ * right-to-left, any other UI keeps the line left-to-right and only reverses the RTL runs.
+ * The jsPDF default treats input as already visual, which leaves Hebrew reversed.
+ */
+export function resolveBidiTextOptions(uiLanguage: string) {
+  return {
+    isInputVisual: false,
+    isOutputVisual: true,
+    isInputRtl: RIGHT_TO_LEFT_LANGUAGES.has((uiLanguage || '').toLowerCase()),
+    isOutputRtl: false,
+    isSymmetricSwapping: true,
+  } as const;
+}
+
+/**
+ * Returns the script the translated texts of a UI language are written in, or WinAnsi
+ * when the standard PDF fonts already cover the language.
+ */
+export function resolveLanguageScript(uiLanguage: string): ReportScript {
+  return LANGUAGE_SCRIPTS[(uiLanguage || '').toLowerCase()] ?? ReportScript.WinAnsi;
+}
+
+export function containsRightToLeftText(text: string): boolean {
+  if (!text) {
+    return false;
+  }
+  for (const char of text) {
+    const code = char.codePointAt(0);
+    if (code !== undefined && RIGHT_TO_LEFT_SCRIPTS.has(findScriptForCodePoint(code))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function isUnicodeFontFamily(family: string): boolean {
+  return UNICODE_FONTS.some(font => font.family === family);
 }

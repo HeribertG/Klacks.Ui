@@ -3,16 +3,18 @@
 /**
  * Service for PDF generation of the schedule error list in report format.
  * @param entries - The ScheduleErrorEntry entries to export
+ * @param pdfUnicodeText - Embeds the fonts and bidi handling every UI language needs
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
+import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
-import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
+import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 const PDF_MARGIN = 20;
 const PDF_TITLE_FONT_SIZE = 16;
@@ -36,20 +38,28 @@ const COLUMN_WIDTH_CLIENT = 55;
 export class ScheduleErrorListPdfExportService {
   private translateService = inject(TranslateService);
   private localeService = inject(LocaleService);
+  private pdfUnicodeText = inject(PdfUnicodeTextService);
 
-  exportToPdf(entries: ScheduleErrorEntry[]): void {
+  async exportToPdf(entries: ScheduleErrorEntry[]): Promise<void> {
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
       format: 'a4',
     });
+    const pendingTab = openPendingBlobTab();
+    try {
+      await this.pdfUnicodeText.prepareDocument(pdf, [entries]);
 
-    this.renderHeader(pdf);
-    this.renderTable(pdf, entries);
-    this.renderPageNumbers(pdf);
+      this.renderHeader(pdf);
+      this.renderTable(pdf, entries);
+      this.renderPageNumbers(pdf);
 
-    const fileName = `schedule-error-list-${new Date().getTime()}.pdf`;
-    openBlobInNewTab(pdf.output('blob'), fileName);
+      const fileName = `schedule-error-list-${new Date().getTime()}.pdf`;
+      pendingTab.show(pdf.output('blob'), fileName);
+    } catch (error) {
+      pendingTab.cancel();
+      throw error;
+    }
   }
 
   private renderHeader(pdf: jsPDF): void {
