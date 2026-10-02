@@ -14,11 +14,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ModalService, ModalType } from '../modal.service';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { DeletewindowComponent } from '../deletewindow/deletewindow.component';
 import { MessageWindowComponent } from '../message-window/message-window.component';
+
+const MODAL_OPEN_OPTIONS: NgbModalOptions = { centered: true };
 
 @Component({
   selector: 'app-modal',
@@ -72,7 +74,7 @@ export class ModalComponent implements OnInit, AfterViewInit {
 
   open(content: any, modalType: ModalType): void {
     this.modalService.contentInputString = '';
-    this.ngbModal.open(content, { size: 'sm', centered: true }).result.then(
+    this.ngbModal.open(content, MODAL_OPEN_OPTIONS).result.then(
       () => {
         this.modalService.result(modalType);
       },

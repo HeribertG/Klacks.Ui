@@ -42,10 +42,10 @@
   padding: 15px 20px;
   border-top: 1px solid var(--cardBorderColor);
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
-  gap: 16px;
+  gap: 12px 16px;
 }
 
 .container-header-modal {
