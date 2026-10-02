@@ -84,9 +84,13 @@ export class DataHarmonizerService implements OnDestroy {
     return response.cancelled;
   }
 
-  async applyAsScenario(jobId: string, groupId: string | null): Promise<HarmonizerApplyAsScenarioResponse> {
+  async applyAsScenario(
+    jobId: string,
+    groupId: string | null,
+    language: string | null = null,
+  ): Promise<HarmonizerApplyAsScenarioResponse> {
     const response = await firstValueFrom(
-      this.http.post<HarmonizerApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId }),
+      this.http.post<HarmonizerApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId, language }),
     );
     return response;
   }

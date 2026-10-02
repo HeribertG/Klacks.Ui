@@ -3,7 +3,12 @@
   <app-schedule-header (zoomChange)="onZoomChange($event)" (pdfExportRequested)="onPdfExport()">
   </app-schedule-header>
 </div>
-<div id="schedule-body" class="schedule-body">
+@if (isScenarioMode()) {
+<div class="schedule-scenario-banner">
+  <app-scenario-banner />
+</div>
+}
+<div id="schedule-body" class="schedule-body" [class.with-scenario-banner]="isScenarioMode()">
   <app-schedule-container [zoom]="currentZoom" [refreshTrigger]="refreshTrigger"></app-schedule-container>
 </div>
 }

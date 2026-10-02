@@ -5,6 +5,7 @@ import { IWork, Work } from 'src/app/domain/models/schedule/schedule-class';
 import { environment } from 'src/environments/environment';
 import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { retryTransientHttpErrors } from 'src/app/shared/helpers/http-retry.helper';
 import { HttpClient } from '@angular/common/http';
 import { BulkDeleteWorksRequest } from '../dtos/bulk-delete-works-request.dto';
 import { BulkAddWorksRequest } from '../dtos/bulk-add-works-request.dto';
@@ -26,19 +27,19 @@ export class DataScheduleService {
   addWork(value: Work) {
     return defer(() => this.httpClient
       .post<IWork>(`${environment.baseUrl}Works/`, this.toWirePayload(value))
-      .pipe(retry(3)));
+      .pipe(retryTransientHttpErrors()));
   }
 
   updateWork(value: Work) {
     return defer(() => this.httpClient
       .put<IWork>(`${environment.baseUrl}Works/`, this.toWirePayload(value))
-      .pipe(retry(3)));
+      .pipe(retryTransientHttpErrors()));
   }
 
   reassignWorkClient(id: string, targetClientId: string) {
     return this.httpClient
       .post<ReassignWorkClientResponse>(`${environment.baseUrl}Works/${id}/ReassignClient`, { targetClientId })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   deleteWork(id: string, periodStart: string, periodEnd: string) {
@@ -57,13 +58,13 @@ export class DataScheduleService {
   bulkAddWorks(request: BulkAddWorksRequest) {
     return this.httpClient
       .post<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, request)
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   restoreWork(id: string) {
     return this.httpClient
       .post<IWork>(`${environment.baseUrl}Works/${id}/Restore`, {})
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   confirmWork(workId: string) {

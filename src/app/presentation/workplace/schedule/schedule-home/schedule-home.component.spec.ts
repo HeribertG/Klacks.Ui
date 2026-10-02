@@ -24,6 +24,7 @@ import { ScheduleViewModeService } from '../services/schedule-view-mode.service'
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('ScheduleHomeComponent', () => {
@@ -76,6 +77,7 @@ describe('ScheduleHomeComponent', () => {
         { provide: TimelinePdfExportService, useValue: {} },
         { provide: ScheduleViewModeService, useValue: {} },
         { provide: DataGroupService, useValue: {} },
+        { provide: AnalyseScenarioService, useValue: { isScenarioMode: () => false } },
       ],
     });
 

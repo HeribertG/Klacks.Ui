@@ -96,10 +96,11 @@ export class DataWizardService implements OnDestroy {
     jobId: string,
     groupId: string | null,
     overrideBlock = false,
+    language: string | null = null,
   ): Promise<WizardApplyAsScenarioResponse> {
     return firstValueFrom(
       this.http
-        .post<WizardApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId, overrideBlock })
+        .post<WizardApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId, overrideBlock, language })
         .pipe(timeout(DataWizardService.APPLY_TIMEOUT_MS)),
     );
   }

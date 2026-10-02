@@ -84,8 +84,12 @@ export class DataHolisticHarmonizerService implements OnDestroy {
     return response.cancelled;
   }
 
-  async applyAsScenario(jobId: string, groupId: string | null): Promise<HolisticHarmonizerApplyResponse> {
-    const payload: HolisticHarmonizerApplyRequest = { jobId, groupId };
+  async applyAsScenario(
+    jobId: string,
+    groupId: string | null,
+    language: string | null = null,
+  ): Promise<HolisticHarmonizerApplyResponse> {
+    const payload: HolisticHarmonizerApplyRequest = { jobId, groupId, language };
     return firstValueFrom(
       this.http
         .post<HolisticHarmonizerApplyResponse>(`${this.apiBase}/ApplyAsScenario`, payload)

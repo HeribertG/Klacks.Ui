@@ -227,7 +227,7 @@ export class HolisticHarmonizerDialogComponent {
     this._applyPhase.set('applying');
     try {
       const groupId = this.dataManagementSchedule.workFilter.selectedGroup ?? null;
-      const response = await this.holisticHarmonizerService.applyAsScenario(jobId, groupId);
+      const response = await this.holisticHarmonizerService.applyAsScenario(jobId, groupId, this.translate.currentLang ?? null);
       const newScenario = {
         id: response.scenarioId,
         name: response.scenarioName,

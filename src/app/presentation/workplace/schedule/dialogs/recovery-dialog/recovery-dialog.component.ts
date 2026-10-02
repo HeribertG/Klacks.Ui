@@ -154,6 +154,7 @@ export class RecoveryDialogComponent {
           absenceId: selectedAbsenceId,
           untilDate: selectedUntilDate || undefined,
           overrideBlock: overrideBlock || undefined,
+          language: this.translateService.currentLang || undefined,
         }),
       );
 

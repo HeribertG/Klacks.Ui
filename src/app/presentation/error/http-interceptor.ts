@@ -11,7 +11,7 @@ import {
   HttpResponse,
   HttpStatusCode,
 } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { catchError, tap } from 'rxjs/operators';
@@ -24,6 +24,8 @@ import { BackendAvailabilityService } from 'src/app/application/services/backend
 import { environment } from 'src/environments/environment';
 import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/klacksy-learning.constants';
 import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-import.constants';
+import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
+import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -35,6 +37,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private translateService = inject(TranslateService);
   private translationService = inject(TranslationService);
   private backendAvailabilityService = inject(BackendAvailabilityService);
+  private injector = inject(Injector);
 
   private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
   private static readonly API_PATH_PREFIX = '/api/';
@@ -176,6 +179,12 @@ export class ResponseInterceptor implements HttpInterceptor {
       return this.handleRegistrationError(error);
     }
 
+    const workConflictMessage = this.buildWorkConflictMessage(error, req);
+    if (workConflictMessage !== null) {
+      this.toastShowService.showError(workConflictMessage, WORK_CONFLICT.TOAST_NAME);
+      return throwError(() => error);
+    }
+
     // API-spezifische Errors für alle Endpunkte
     if (this.isApiError(url, method)) {
       return this.handleApiError(error, method, url);
@@ -204,6 +213,19 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     // Generic Error Handling
     return this.handleGenericError(error);
+  }
+
+  // A refused work booking carries codes and ids only; the message with employee, qualification and
+  // shift names is built from the loaded schedule data, looked up lazily because that service graph
+  // itself depends on HttpClient and therefore on this interceptor.
+  private buildWorkConflictMessage(error: HttpErrorResponse, req: HttpRequest<any>): string | null {
+    if (!readWorkConflictProblem(error)) {
+      return null;
+    }
+    return this.injector.get(WorkConflictMessageService).buildMessage(error, {
+      clientId: req.body?.clientId,
+      shiftId: req.body?.shiftId,
+    });
   }
 
   private isKlacksyLearningPassThroughError(url: string, status: number): boolean {

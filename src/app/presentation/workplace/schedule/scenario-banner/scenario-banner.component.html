@@ -1,0 +1,23 @@
+@if (activeScenario(); as scenario) {
+  <div id="scenario-banner" class="scenario-banner" role="status" aria-live="polite">
+    <span class="scenario-banner-indicator" aria-hidden="true"></span>
+    <div class="scenario-banner-text" [title]="scenario.name + ' - ' + ('scenario.banner.hint' | translate)">
+      <span class="scenario-banner-label">{{ "scenario.banner.label" | translate }}</span>
+      <span id="scenario-banner-name" class="scenario-banner-name">{{ scenario.name }}</span>
+      <span class="scenario-banner-hint">{{ "scenario.banner.hint" | translate }}</span>
+    </div>
+    <div class="scenario-banner-actions">
+      @if (canDecide()) {
+        <button id="scenario-banner-accept-btn" type="button" class="btn btn-sm btn-success" (click)="onAccept()">
+          {{ "scenario.accept" | translate }}
+        </button>
+        <button id="scenario-banner-reject-btn" type="button" class="btn btn-sm btn-danger" (click)="onReject()">
+          {{ "scenario.reject" | translate }}
+        </button>
+      }
+      <button id="scenario-banner-exit-btn" type="button" class="btn btn-sm btn-outline-secondary" (click)="onExit()">
+        {{ "scenario.exit" | translate }}
+      </button>
+    </div>
+  </div>
+}

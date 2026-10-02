@@ -189,7 +189,7 @@ export class ScheduleEntryCrudService {
     return clientRanges;
   }
 
-  addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): Promise<void> {
+  async addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): Promise<void> {
     this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
 
     const periodStart = this.workScheduleLoader.startDate
@@ -199,17 +199,22 @@ export class ScheduleEntryCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(companyToday());
 
-    return this.workCrud.createWork({ ...params, periodStart, periodEnd }).then((response) => {
-      if (response.periodHours) {
-        this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
-      }
-      if (response.scheduleEntries && response.scheduleEntries.length > 0) {
-        const startDate = addDays(params.date, -1);
-        const endDate = addDays(params.date, 1);
-        this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
-        this.triggerScheduleRefresh();
-      }
+    const response = await this.workCrud.createWork({ ...params, periodStart, periodEnd }).catch((error: unknown) => {
+      this.updateShiftEngagedLocally(params.shiftId, params.date, -1, workFilter);
+      this.reloadSporadicState([params.shiftId]);
+      throw error;
     });
+
+    if (response.periodHours) {
+      this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
+    }
+    if (response.scheduleEntries && response.scheduleEntries.length > 0) {
+      const startDate = addDays(params.date, -1);
+      const endDate = addDays(params.date, 1);
+      this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
+      this.triggerScheduleRefresh();
+    }
+    this.reloadSporadicState([params.shiftId]);
   }
 
   async reassignWorkScheduleEntry(workId: string, sourceClientId: string, targetClientId: string, date: Date): Promise<void> {
@@ -255,6 +260,10 @@ export class ScheduleEntryCrudService {
       })),
       periodStart,
       periodEnd,
+    }).catch((error: unknown) => {
+      this.bulkUpdateShiftEngagedLocally(entries.map(e => ({ entryId: e.shiftId, date: e.date })), workFilter);
+      this.reloadSporadicState(entries.map(e => e.shiftId));
+      throw error;
     });
 
     if (response.periodHours) {
@@ -270,6 +279,7 @@ export class ScheduleEntryCrudService {
     }
 
     this.workScheduleLoader.updateClientNeededRows();
+    this.reloadSporadicState(entries.map(e => e.shiftId));
   }
 
   private calculateBulkAddClientDateRanges(entries: ScheduleCellParams[]): Map<string, { start: Date; end: Date }> {
@@ -334,6 +344,7 @@ export class ScheduleEntryCrudService {
         const response = await this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd);
         this.applySingleClientScheduleResponse(response, params.clientId, params.date);
         this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
+        this.reloadSporadicState([params.entryId]);
         this.offerWorkRestoreUndo(params, workFilter);
         break;
       }
@@ -394,6 +405,7 @@ export class ScheduleEntryCrudService {
       const response = await this.workCrud.restoreWorkById(params.sourceId);
       this.applySingleClientScheduleResponse(response, params.clientId, params.date);
       this.updateShiftEngagedLocally(params.entryId, params.date, 1, workFilter);
+      this.reloadSporadicState([params.entryId]);
     } catch (error) {
       this.eventBus.emit<ErrorEvent>(DomainEventType.ERROR, { message: this.resolveRestoreErrorKey(error) });
     }
@@ -447,6 +459,7 @@ export class ScheduleEntryCrudService {
 
     this.bulkUpdateShiftEngagedLocally(entries, workFilter);
     this.workScheduleLoader.updateClientNeededRows();
+    this.reloadSporadicState(entries.map(e => e.entryId));
   }
 
   private groupEntriesByType(entries: DeleteWorkScheduleEntryParams[]): Map<WorkScheduleEntryType, DeleteWorkScheduleEntryParams[]> {
@@ -624,6 +637,10 @@ export class ScheduleEntryCrudService {
     }
 
     this.recalculateAndTriggerShiftRefresh(workFilter);
+  }
+
+  private reloadSporadicState(shiftIds: readonly string[]): void {
+    void this.shiftLoader.refreshSporadicShifts([...new Set(shiftIds)]);
   }
 
   private recalculateAndTriggerShiftRefresh(workFilter: IWorkFilter): void {

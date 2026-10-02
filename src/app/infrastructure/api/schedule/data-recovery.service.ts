@@ -21,6 +21,8 @@ export interface ICoverAbsenceRequest {
   untilDate?: string;
   /** Let a supervisor push the proposal through a rule that only blocks in escalation mode. */
   overrideBlock?: boolean;
+  /** The planner's language; the server writes the scenario name in it, falling back to the installation language. */
+  language?: string;
 }
 
 export interface ICoveredSlot {

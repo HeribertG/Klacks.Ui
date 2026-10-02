@@ -370,7 +370,7 @@ export class WizardDialogComponent {
         this._overrideApplied.set(result.overrideApplied);
       } else {
         const groupId = this.dataManagementSchedule.workFilter.selectedGroup ?? null;
-        const result = await this.wizardService.applyAsScenario(jobId, groupId, override);
+        const result = await this.wizardService.applyAsScenario(jobId, groupId, override, this.translate.currentLang ?? null);
         const newScenario = {
           id: result.scenarioId,
           name: result.scenarioName,

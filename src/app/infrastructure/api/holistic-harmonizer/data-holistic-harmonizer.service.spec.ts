@@ -234,4 +234,26 @@ describe('DataHolisticHarmonizerService', () => {
 
     expect(connection.stopCalls).toBeGreaterThanOrEqual(1);
   });
+
+  it('sends the planner language with applyAsScenario', async () => {
+    await startJob();
+
+    const promise = service.applyAsScenario('job-1', null, 'de');
+    await tick();
+    const request = httpMock.expectOne((req) => req.url.endsWith('HolisticHarmonizer/ApplyAsScenario'));
+    expect(request.request.body.language).toBe('de');
+    request.flush({ scenarioId: 'scenario-1' });
+    await promise;
+  });
+
+  it('sends a null language with applyAsScenario when none is given', async () => {
+    await startJob();
+
+    const promise = service.applyAsScenario('job-1', null);
+    await tick();
+    const request = httpMock.expectOne((req) => req.url.endsWith('HolisticHarmonizer/ApplyAsScenario'));
+    expect(request.request.body.language).toBeNull();
+    request.flush({ scenarioId: 'scenario-1' });
+    await promise;
+  });
 });
