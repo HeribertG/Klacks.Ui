@@ -39,7 +39,7 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { AbsenceDetailFormModel } from 'src/app/presentation/view-models/absence-detail-form.model';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
-import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 
 import { transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
 
@@ -214,12 +214,13 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!this.editingAbsenceDetail.detailName) {
       this.editingAbsenceDetail.detailName = new MultiLanguage();
     }
-    this.editingAbsenceDetail.detailName[this.currentLang] = formData.detailName;
+    const langKey = toLanguageKey(this.currentLang);
+    this.editingAbsenceDetail.detailName[langKey] = formData.detailName;
 
     if (!this.editingAbsenceDetail.description) {
       this.editingAbsenceDetail.description = new MultiLanguage();
     }
-    this.editingAbsenceDetail.description[this.currentLang] = formData.description;
+    this.editingAbsenceDetail.description[langKey] = formData.description;
 
     this.absenceDetailFormModel.internalMode = this.selectedMode();
     this.absenceDetailFormModel.applyToAbsenceDetail();

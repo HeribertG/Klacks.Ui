@@ -5,11 +5,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { of } from 'rxjs';
 
 import { CalendarRulesComponent } from './calendar-rules.component';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { CalendarRule } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 const BADGE_SELECTOR = '.grid-status-badge';
 const BADGE_KEY = 'setting.holiday-rules.unofficial';
@@ -98,5 +101,96 @@ describe('CalendarRulesComponent unofficial badge', () => {
     fixture.detectChanges();
     const tooltip = document.querySelector('ngb-tooltip-window');
     expect(tooltip?.textContent).toContain('Kein gesetzlicher Feiertag');
+  });
+});
+
+describe('CalendarRulesComponent mixed-case locale', () => {
+  let fixture: ComponentFixture<CalendarRulesComponent>;
+  let component: CalendarRulesComponent;
+  let element: HTMLElement;
+
+  function buildLocalizedRule(): CalendarRule {
+    const rule = new CalendarRule();
+    rule.id = 'rule-localized';
+    rule.name = { de: 'Neujahr', en: 'New Year', 'zh-cn': '元旦', 'zh-tw': '元旦（繁）' } as MultiLanguage;
+    rule.description = { de: 'Erster Tag', en: 'First day', 'zh-cn': '一月一日', 'zh-tw': '一月一日（繁）' } as MultiLanguage;
+    rule.country = 'CH';
+    rule.state = 'ZH';
+    rule.isMandatory = true;
+    return rule;
+  }
+
+  async function setup(locale: string): Promise<void> {
+    const dataServiceStub = {
+      init: vi.fn(),
+      readPage: vi.fn(),
+      isRead: signal(false),
+      isPageRead: signal(false),
+      currentFilter: {},
+      filteredRulesToken: [],
+      listWrapper: { calendarRules: [buildLocalizedRule()] },
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [CalendarRulesComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: DataManagementCalendarRulesService, useValue: dataServiceStub },
+        { provide: ManualLoaderService, useValue: { loadManual: () => of('') } },
+      ],
+    }).compileComponents();
+
+    TestBed.inject(TranslateService).use(locale);
+    vi.spyOn(TestBed.inject(NgbModal), 'open').mockReturnValue({
+      result: new Promise<never>(() => undefined),
+    } as unknown as NgbModalRef);
+
+    fixture = TestBed.createComponent(CalendarRulesComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    element = fixture.nativeElement as HTMLElement;
+  }
+
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('renders the plugin-language name and description for zh-CN (zh-cn key)', async () => {
+    await setup('zh-CN');
+
+    const name = element.querySelector('#calendar-rules-cell-name-0') as HTMLElement;
+    const description = element.querySelector('#calendar-rules-cell-description-0') as HTMLElement;
+    expect(name.textContent).toContain('元旦');
+    expect(name.textContent).not.toContain('New Year');
+    expect(description.textContent).toContain('一月一日');
+  });
+
+  it('renders the plugin-language name for zh-TW (zh-tw key)', async () => {
+    await setup('zh-TW');
+
+    const name = element.querySelector('#calendar-rules-cell-name-0') as HTMLElement;
+    expect(name.textContent).toContain('元旦（繁）');
+  });
+
+  it('loads the current-language values into the edit form for zh-CN', async () => {
+    await setup('zh-CN');
+
+    component.onEditRule(null, buildLocalizedRule());
+
+    expect(component.ruleFormModel().name).toBe('元旦');
+    expect(component.ruleFormModel().description).toBe('一月一日');
+  });
+
+  it('writes edits into the lower-case key and preserves the other languages', async () => {
+    await setup('zh-CN');
+    component.onEditRule(null, buildLocalizedRule());
+    fixture.detectChanges();
+
+    component.ruleFormModel.update((m) => ({ ...m, name: '新年', description: '新的一天' }));
+    fixture.detectChanges();
+
+    expect(component.currentRule.name!['zh-cn']).toBe('新年');
+    expect(component.currentRule.description!['zh-cn']).toBe('新的一天');
+    expect(component.currentRule.name!['zh-CN']).toBeUndefined();
+    expect(component.currentRule.name!.de).toBe('Neujahr');
   });
 });

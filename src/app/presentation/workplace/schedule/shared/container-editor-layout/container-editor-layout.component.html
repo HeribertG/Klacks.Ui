@@ -392,18 +392,14 @@
                         <td>
                           {{
                             item.absenceId
-                              ? item.absence?.name?.[
-                                  translateService.currentLang
-                                ] || item.absence?.name?.["de"]
+                              ? (item.absence?.name | fallback: translateService.currentLang)
                               : item.shift?.name
                           }}
                         </td>
                         <td>
                           {{
                             item.absenceId
-                              ? item.absence?.abbreviation?.[
-                                  translateService.currentLang
-                                ] || item.absence?.abbreviation?.["de"]
+                              ? (item.absence?.abbreviation | fallback: translateService.currentLang)
                               : item.shift?.abbreviation
                           }}
                         </td>
@@ -552,24 +548,13 @@
                               ></span>
                             </td>
                             <td>
-                              {{
-                                absence.name?.[translateService.currentLang] ||
-                                  absence.name?.["de"]
-                              }}
+                              {{ absence.name | fallback: translateService.currentLang }}
                             </td>
                             <td>
-                              {{
-                                absence.abbreviation?.[
-                                  translateService.currentLang
-                                ] || absence.abbreviation?.["de"]
-                              }}
+                              {{ absence.abbreviation | fallback: translateService.currentLang }}
                             </td>
                             <td>
-                              {{
-                                absence.description?.[
-                                  translateService.currentLang
-                                ] || absence.description?.["de"]
-                              }}
+                              {{ absence.description | fallback: translateService.currentLang }}
                             </td>
                           </tr>
                         }

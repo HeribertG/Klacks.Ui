@@ -12,6 +12,14 @@ export function initializeLanguageHelper(service: ILanguageConfig): void {
   languageConfigService = service;
 }
 
+/**
+ * Returns the lower-case MultiLanguage key for a UI language code (e.g. "zh-CN" -> "zh-cn").
+ * @param language - UI language code; null or undefined yields an empty key
+ */
+export function toLanguageKey(language: string | null | undefined): string {
+  return (language ?? '').toLowerCase();
+}
+
 export function getLocalizedValue(
   source: IMultiLanguage | undefined | null,
   language: string
@@ -22,6 +30,7 @@ export function getLocalizedValue(
 
   const fallbackOrder = languageConfigService?.getFallbackOrder() ?? CORE_LANGUAGE_FALLBACK_ORDER;
   const candidates = [
+    source[toLanguageKey(language)],
     source[language as keyof IMultiLanguage],
     source[DomainMessages.DEFAULT_LANG as keyof IMultiLanguage],
     ...fallbackOrder.map((lang) => source[lang as keyof IMultiLanguage]),

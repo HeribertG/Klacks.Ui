@@ -55,6 +55,7 @@ import {
 } from 'src/app/shared/helpers/container-template-format.helper';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-container-editor-layout',
@@ -86,6 +87,7 @@ import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.con
     IconTransportMixComponent,
     SearchInputComponent,
     LongPressContextDirective,
+    FallbackPipe,
   ],
   templateUrl: './container-editor-layout.component.html',
   styleUrl: './container-editor-layout.component.scss',

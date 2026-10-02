@@ -44,6 +44,7 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 
 interface CalendarSelectionFormModel {
   name: string;
@@ -286,15 +287,15 @@ export class CalendarSelectionComponent
     const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     if (token.state === token.country) {
       return `${
-        token.countryName[lang] || token.countryName.en || token.country
+        getLocalizedValue(token.countryName, lang) || token.country
       } (${this.translate.instant('setting.calendar-selection.modal.national')})`;
     }
-    return token.stateName[lang] || token.stateName.en || token.state;
+    return getLocalizedValue(token.stateName, lang) || token.state;
   }
 
   getCountryLabel(token: StateCountryToken): string {
     const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
-    return token.countryName[lang] || token.countryName.en || token.country;
+    return getLocalizedValue(token.countryName, lang) || token.country;
   }
 
   getSelectedTokenLabel(token: ISelectedCalendar): string {

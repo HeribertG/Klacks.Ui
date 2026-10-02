@@ -10,6 +10,7 @@ import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
@@ -112,7 +113,7 @@ export class EditShiftMacroComponent
   private readCorrectDescription() {
     if (this.macro && this.macro.description) {
       const ml = this.macro.description as IMultiLanguage;
-      this.macroDescription = ml[this.currentLang.toString()] as string;
+      this.macroDescription = ml[toLanguageKey(this.currentLang.toString())] as string;
     }
   }
 }

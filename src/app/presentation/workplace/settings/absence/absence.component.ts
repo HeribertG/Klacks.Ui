@@ -47,7 +47,7 @@ import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
-import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 interface AbsenceFormModel {
   name: string;
   abbreviation: string;
@@ -380,7 +380,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
 
   private applyFormToAbsence(): void {
     const formData = this.formModel();
-    const lang = this.currentLang;
+    const lang = toLanguageKey(this.currentLang);
 
     if (!this.currentAbsence.name) {
       this.currentAbsence.name = new MultiLanguage();

@@ -30,10 +30,8 @@ import {
   ICalendarRule,
 } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
-import {
-  IMultiLanguage,
-  MultiLanguage,
-} from 'src/app/domain/models/translation/multi-language-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -191,20 +189,22 @@ export class CalendarRulesComponent
     if (!this.currentRule.description) {
       this.currentRule.description = new MultiLanguage();
     }
-    this.currentRule.name[this.currentLang as keyof IMultiLanguage] = formData.name;
+    const langKey = toLanguageKey(this.currentLang);
+    this.currentRule.name[langKey] = formData.name;
     this.currentRule.rule = formData.rule;
     this.currentRule.subRule = formData.subRule;
-    this.currentRule.description[this.currentLang as keyof IMultiLanguage] = formData.description;
+    this.currentRule.description[langKey] = formData.description;
     this.currentRule.isMandatory = formData.isMandatory;
     this.currentRule.isPaid = formData.isPaid;
   }
 
   private loadRuleToForm(): void {
+    const langKey = toLanguageKey(this.currentLang);
     this.ruleFormModel.set({
-      name: this.currentRule.name?.[this.currentLang as keyof IMultiLanguage] ?? '',
+      name: this.currentRule.name?.[langKey] ?? '',
       rule: this.currentRule.rule ?? '',
       subRule: this.currentRule.subRule ?? '',
-      description: this.currentRule.description?.[this.currentLang as keyof IMultiLanguage] ?? '',
+      description: this.currentRule.description?.[langKey] ?? '',
       isMandatory: this.currentRule.isMandatory ?? false,
       isPaid: this.currentRule.isPaid ?? false,
     });

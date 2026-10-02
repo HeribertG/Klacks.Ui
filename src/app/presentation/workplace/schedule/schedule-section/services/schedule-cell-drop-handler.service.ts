@@ -16,6 +16,7 @@ import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/sched
 import { Break } from 'src/app/domain/models/break/break-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -103,7 +104,7 @@ export class ScheduleCellDropHandlerService {
     if (!abbreviation) return undefined;
     const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const description: IMultiLanguage = {};
-    description[language as keyof IMultiLanguage] = abbreviation;
+    description[toLanguageKey(language)] = abbreviation;
     return description as MultiLanguage;
   }
 }

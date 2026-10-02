@@ -100,6 +100,7 @@ import { ContainerLockResourceType } from 'src/app/domain/models/container/conta
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-container-template',
@@ -128,6 +129,7 @@ import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.con
     IconWizardComponent,
     NgxSliderModule,
     LongPressContextDirective,
+    FallbackPipe,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -202,6 +204,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
   public translateService = inject(TranslateService);
+
   public sortingService = inject(TableSortingService);
   public addressProvider = inject(AddressProviderService);
   private cdr = inject(ChangeDetectorRef);

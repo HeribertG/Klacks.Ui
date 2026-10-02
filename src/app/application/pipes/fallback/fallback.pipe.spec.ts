@@ -64,6 +64,17 @@ describe('FallbackPipe', () => {
         expect(pipe.transform(multiLang, 'it')).toBe('bonjour');
     });
 
+    it('should resolve a mixed-case locale against the lower-case key (zh-CN -> zh-cn)', () => {
+        const multiLang: IMultiLanguage = {
+            de: 'Neujahr',
+            en: 'New Year',
+            'zh-cn': '元旦',
+            'zh-tw': '元旦（繁）',
+        };
+        expect(pipe.transform(multiLang, 'zh-CN')).toBe('元旦');
+        expect(pipe.transform(multiLang, 'zh-TW')).toBe('元旦（繁）');
+    });
+
     it('should return empty string if no translation exists at all', () => {
         const multiLang: IMultiLanguage = {
             de: '',

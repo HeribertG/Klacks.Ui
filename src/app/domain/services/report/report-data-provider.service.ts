@@ -41,6 +41,7 @@ import { IContract } from 'src/app/domain/models/contract/contract-class';
 import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
 import { IClientAvailabilityRange } from 'src/app/domain/models/client-availability/client-availability-range.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -983,7 +984,7 @@ export class ReportDataProviderService {
       case 'expense.description':
         if (entry.description) {
           const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
-          return (entry.description as Record<string, string>)[lang] ?? '';
+          return getLocalizedValue(entry.description as IMultiLanguage, lang);
         }
         return '';
       case 'expense.amount':
