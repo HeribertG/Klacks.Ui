@@ -11,6 +11,7 @@
 
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScenarioActionsService } from '../services/scenario-actions.service';
 
@@ -19,7 +20,7 @@ import { ScenarioActionsService } from '../services/scenario-actions.service';
   templateUrl: './scenario-banner.component.html',
   styleUrls: ['./scenario-banner.component.scss'],
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScenarioBannerComponent {

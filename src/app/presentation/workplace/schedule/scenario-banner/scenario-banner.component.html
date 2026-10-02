@@ -11,8 +11,15 @@
         <button id="scenario-banner-accept-btn" type="button" class="btn btn-sm btn-success" (click)="onAccept()">
           {{ "scenario.accept" | translate }}
         </button>
-        <button id="scenario-banner-reject-btn" type="button" class="btn btn-sm btn-danger" (click)="onReject()">
-          {{ "scenario.reject" | translate }}
+        <button
+          id="scenario-banner-reject-btn"
+          type="button"
+          class="scenario-banner-icon-btn"
+          [title]="'scenario.reject' | translate"
+          [attr.aria-label]="'scenario.reject' | translate"
+          (click)="onReject()"
+        >
+          <app-icon-trash-red aria-hidden="true"></app-icon-trash-red>
         </button>
       }
       <button id="scenario-banner-exit-btn" type="button" class="btn btn-sm btn-outline-secondary" (click)="onExit()">

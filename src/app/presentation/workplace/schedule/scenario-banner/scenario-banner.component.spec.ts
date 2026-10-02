@@ -79,6 +79,18 @@ describe('ScenarioBannerComponent', () => {
     expect(actions.exit).toHaveBeenCalledTimes(1);
   });
 
+  it('offers reject as an icon-only button with an accessible name and tooltip from the translation key', () => {
+    // Act
+    const host = render();
+    const rejectButton = button(host, 'scenario-banner-reject-btn')!;
+
+    // Assert
+    expect(rejectButton.querySelector('app-icon-trash-red')).not.toBeNull();
+    expect(rejectButton.textContent?.trim()).toBe('');
+    expect(rejectButton.getAttribute('aria-label')).toBe('scenario.reject');
+    expect(rejectButton.getAttribute('title')).toBe('scenario.reject');
+  });
+
   it('hides accept and reject from a user who may not decide, but keeps back-to-original', () => {
     // Arrange
     canDecide.set(false);
