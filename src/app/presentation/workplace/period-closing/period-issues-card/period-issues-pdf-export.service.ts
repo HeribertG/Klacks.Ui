@@ -20,6 +20,7 @@ import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicod
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
+import { resolveMultiLanguageParams } from 'src/app/domain/helpers/multi-language-params.helper';
 import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 const PDF_MARGIN = 20;
@@ -138,7 +139,10 @@ export class PeriodIssuesPdfExportService {
       this.translateService.instant(`periodClosing.issues.severity.${issue.severity}`),
       issue.date,
       issue.clientName,
-      this.translateService.instant(issue.messageKey, issue.messageParams || {}),
+      this.translateService.instant(
+        issue.messageKey,
+        resolveMultiLanguageParams(issue.messageParams, this.translateService.currentLang),
+      ),
     ]);
 
     const totalLabel = this.translateService.instant('periodClosing.issues.pdf.total');

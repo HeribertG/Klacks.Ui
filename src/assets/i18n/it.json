@@ -884,6 +884,7 @@
   "schedule.error-list.filter.info": "Informazione",
   "schedule.error-list.qualification-missing": "Qualifica richiesta mancante",
   "schedule.error-list.qualification-expired": "Qualifica richiesta scaduta",
+  "schedule.error-list.qualification-expiring-soon": "Qualifica richiesta in scadenza (valida fino al {{validUntil}})",
   "schedule.error-list.qualification-level": "Livello di qualifica insufficiente",
   "schedule.error-list.column.date": "Data",
   "schedule.error-list.column.client": "Collaboratore",

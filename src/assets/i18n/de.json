@@ -885,6 +885,7 @@
   "schedule.error-list.filter.info": "Mitteilung",
   "schedule.error-list.qualification-missing": "Erforderliche Qualifikation fehlt",
   "schedule.error-list.qualification-expired": "Erforderliche Qualifikation abgelaufen",
+  "schedule.error-list.qualification-expiring-soon": "Erforderliche Qualifikation läuft bald ab (gültig bis {{validUntil}})",
   "schedule.error-list.qualification-level": "Qualifikations-Level zu niedrig",
   "schedule.error-list.column.date": "Datum",
   "schedule.error-list.column.client": "Mitarbeiter",

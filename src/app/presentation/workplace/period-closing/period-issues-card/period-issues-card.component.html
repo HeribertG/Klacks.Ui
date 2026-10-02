@@ -43,7 +43,7 @@
             @for (item of group.items; track $index) {
               <li class="issues-item issues-item-{{item.severity}}">
                 <span class="issues-client">{{ item.clientName }}</span>
-                <span class="issues-message">{{ item.messageKey | translate:item.messageParams }}</span>
+                <span class="issues-message">{{ item.messageKey | translate: (item.messageParams | localizedParams) }}</span>
               </li>
             }
           </ul>

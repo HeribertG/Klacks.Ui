@@ -21,7 +21,7 @@
           <tr [class]="rowClass(entry)">
             <td>{{ entry.date }}</td>
             <td>{{ entry.clientName }}</td>
-            <td>{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
+            <td>{{ entry.comment | translate: (entry.commentParams | localizedParams) }}</td>
           </tr>
         }
       </tbody>

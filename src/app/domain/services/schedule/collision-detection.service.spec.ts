@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { signal as angularSignal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CollisionDetectionService } from './collision-detection.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
@@ -818,6 +818,51 @@ describe('CollisionDetectionService', () => {
             expect(infoDates).toEqual(['2026-08-03']);
           },
         );
+      });
+    }
+  });
+  describe('holiday-work entry in the reader language across browser time zones', () => {
+    const HOLIDAY_WORK_KEY = 'schedule.error-list.holiday-work';
+    const ST_JOSEPH = JSON.stringify({
+      de: 'Josefstag',
+      en: "St. Joseph's Day",
+      fr: 'Saint-Joseph',
+      it: 'San Giuseppe',
+      ja: '聖ヨセフの日',
+      'zh-cn': '圣约瑟节',
+    });
+
+    function pushHolidayWork(): void {
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [
+          createValidation({
+            date: '2026-03-19',
+            comment: HOLIDAY_WORK_KEY,
+            commentParams: { holiday: 'Josefstag', holidayI18n: ST_JOSEPH },
+          }),
+        ],
+      });
+      flushAndTick();
+    }
+
+    for (const zone of CALENDAR_TEST_ZONES) {
+      describe(zone, () => {
+        useTimeZone(zone);
+
+        it.each([
+          ['ja', '聖ヨセフの日'],
+          ['zh-CN', '圣约瑟节'],
+          ['de', 'Josefstag'],
+        ])('names the holiday in %s and keeps the calendar day', (language, expected) => {
+          TestBed.inject(TranslateService).use(language);
+
+          pushHolidayWork();
+
+          const entry = service.errorEntries().find((e) => e.comment === HOLIDAY_WORK_KEY);
+          expect(entry?.commentParams).toEqual({ holiday: expected });
+          expect(entry?.date).toBe('2026-03-19');
+        });
       });
     }
   });

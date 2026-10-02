@@ -41,7 +41,7 @@
             <li class="recovery-list-item recovery-warning">
               <span class="recovery-date">{{ warning.date }}</span>
               <span class="recovery-name">{{ warning.clientName }}</span>
-              <span class="recovery-reason">{{ warning.comment | translate: warning.commentParams }}</span>
+              <span class="recovery-reason">{{ warning.comment | translate: (warning.commentParams | localizedParams) }}</span>
             </li>
           }
         </ul>

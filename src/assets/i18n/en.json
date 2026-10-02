@@ -885,6 +885,7 @@
   "schedule.error-list.filter.info": "Info",
   "schedule.error-list.qualification-missing": "Required qualification missing",
   "schedule.error-list.qualification-expired": "Required qualification expired",
+  "schedule.error-list.qualification-expiring-soon": "Required qualification expires soon (valid until {{validUntil}})",
   "schedule.error-list.qualification-level": "Qualification level too low",
   "schedule.error-list.column.date": "Date",
   "schedule.error-list.column.client": "Employee",

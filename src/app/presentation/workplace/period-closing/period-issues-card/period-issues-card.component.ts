@@ -13,6 +13,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
@@ -28,7 +29,7 @@ interface IssueGroup {
   templateUrl: './period-issues-card.component.html',
   styleUrls: ['./period-issues-card.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, ExpandableCardComponent, PdfIconComponent],
+  imports: [CommonModule, TranslateModule, ExpandableCardComponent, PdfIconComponent, LocalizedParamsPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodIssuesCardComponent {

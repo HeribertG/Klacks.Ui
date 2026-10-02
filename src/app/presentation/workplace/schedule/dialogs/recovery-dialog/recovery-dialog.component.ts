@@ -13,6 +13,7 @@ import { ChangeDetectionStrategy, Component, TemplateRef, inject, signal, viewCh
 import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
 import { firstValueFrom } from 'rxjs';
 import {
   DataRecoveryService,
@@ -34,7 +35,7 @@ const RECOVERY_CREATOR = 'recovery';
   templateUrl: './recovery-dialog.component.html',
   styleUrls: ['./recovery-dialog.component.scss'],
   standalone: true,
-  imports: [FormField, TranslateModule],
+  imports: [FormField, TranslateModule, LocalizedParamsPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AbsenceLookupService],
 })

@@ -42,6 +42,7 @@ import {
   calendarDateKey,
   parseCalendarDate,
 } from 'src/app/shared/helpers/calendar-date.helper';
+import { resolveMultiLanguageParams } from 'src/app/domain/helpers/multi-language-params.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -213,7 +214,7 @@ export class CollisionDetectionService implements OnDestroy {
       localized['period'] = this.translate.instant(`counter-period.${period.toLowerCase()}`);
     }
 
-    return localized;
+    return resolveMultiLanguageParams(localized, this.translate.currentLang);
   }
 
   private addUnderstaffedShiftEntries(entries: ScheduleErrorEntry[]): void {
