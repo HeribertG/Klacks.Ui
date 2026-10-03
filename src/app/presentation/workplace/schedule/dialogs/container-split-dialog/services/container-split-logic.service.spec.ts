@@ -283,4 +283,28 @@ describe('ContainerSplitLogicService', () => {
       expect(result.afterWorks.map((w) => w.id)).toEqual(['2']);
     });
   });
+
+  describe('splitCrossesMidnight', () => {
+    it('is false when the split lies on the start day of the container', () => {
+      expect(service.splitCrossesMidnight('23:30', '22:00')).toBe(false);
+    });
+
+    it('is true when the split lies after midnight of a container crossing midnight', () => {
+      expect(service.splitCrossesMidnight('00:15', '22:00')).toBe(true);
+    });
+
+    it('is false for a day container', () => {
+      expect(service.splitCrossesMidnight('12:00', '08:00')).toBe(false);
+    });
+  });
+
+  describe('durationHours', () => {
+    it('returns the duration in hours, not minutes', () => {
+      expect(service.durationHours('12:00', '15:30')).toBe(3.5);
+    });
+
+    it('wraps across midnight', () => {
+      expect(service.durationHours('23:45', '06:00')).toBe(6.25);
+    });
+  });
 });

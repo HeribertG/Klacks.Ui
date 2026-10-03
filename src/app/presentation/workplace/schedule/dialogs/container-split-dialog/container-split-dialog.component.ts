@@ -43,6 +43,7 @@ import { ContainerLockService } from 'src/app/domain/services/container/containe
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
+import { addDays } from 'src/app/shared/helpers/date.helper';
 
 export interface IOpenContainerSplitOptions {
   workId: string;
@@ -283,10 +284,11 @@ export class ContainerSplitDialogComponent {
     const work = new Work();
     work.clientId = clientId;
     work.shiftId = this.shiftId;
-    work.currentDate = new Date(this.currentDate());
+    const dayOffset = this.logicService.splitCrossesMidnight(splitTime, this.containerStart()) ? 1 : 0;
+    work.currentDate = addDays(this.currentDate(), dayOffset);
     work.startTime = splitTime;
     work.endTime = originalEndTime;
-    work.workTime = this.minutesBetween(splitTime, originalEndTime);
+    work.workTime = this.logicService.durationHours(splitTime, originalEndTime);
     work.analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
 
     this.dataSchedule.addWork(work).subscribe({
@@ -410,12 +412,6 @@ export class ContainerSplitDialogComponent {
           this.refreshScheduleIfCopyCreated();
         },
       });
-  }
-
-  private minutesBetween(startTime: string, endTime: string): number {
-    const [sh, sm] = startTime.split(':').map(Number);
-    const [eh, em] = endTime.split(':').map(Number);
-    return (eh * 60 + em) - (sh * 60 + sm);
   }
 
   private buildDisplayName(client: IClientForReplacement): string {

@@ -118,6 +118,14 @@ export class ContainerSplitLogicService {
     };
   }
 
+  splitCrossesMidnight(splitTime: string, containerStart: string): boolean {
+    return this.toMinutes(splitTime) < this.toMinutes(containerStart);
+  }
+
+  durationHours(startTime: string, endTime: string): number {
+    return this.spanLength(this.toMinutes(startTime), this.toMinutes(endTime)) / MINUTES_PER_HOUR;
+  }
+
   toTimeParts(time: string): { hours: string; minutes: string } {
     const [hours, minutes] = time.split(TIME_SEPARATOR);
     return { hours, minutes };
