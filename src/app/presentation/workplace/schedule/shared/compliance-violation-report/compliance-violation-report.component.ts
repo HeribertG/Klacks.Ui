@@ -12,13 +12,14 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 
 @Component({
   selector: 'app-compliance-violation-report',
   templateUrl: './compliance-violation-report.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, LocalizedParamsPipe],
+  imports: [CommonModule, TranslateModule, LocalizedParamsPipe, CalendarDatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComplianceViolationReportComponent {

@@ -34,6 +34,7 @@ import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualifica
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { SkippedPlacementsReportComponent } from 'src/app/presentation/workplace/schedule/shared/skipped-placements-report/skipped-placements-report.component';
@@ -57,6 +58,7 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
     QualificationGapReportComponent,
     ComplianceViolationReportComponent,
     SkippedPlacementsReportComponent,
+    CalendarDatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

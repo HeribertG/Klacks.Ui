@@ -14,7 +14,7 @@
         <ul class="recovery-list">
           @for (slot of outcome.covered; track slot.shiftId + slot.date) {
             <li class="recovery-list-item">
-              <span class="recovery-date">{{ slot.date }}</span>
+              <span class="recovery-date">{{ slot.date | calendarDate: 'numericDate' }}</span>
               <span class="recovery-name">{{ slot.replacementName }}</span>
               <span class="recovery-tier badge text-bg-light">{{ tierKey(slot.tier) | translate }}</span>
             </li>
@@ -27,7 +27,7 @@
         <ul class="recovery-list">
           @for (slot of outcome.uncovered; track slot.shiftId + slot.date) {
             <li class="recovery-list-item recovery-uncovered">
-              <span class="recovery-date">{{ slot.date }}</span>
+              <span class="recovery-date">{{ slot.date | calendarDate: 'numericDate' }}</span>
               <span class="recovery-reason">{{ uncoveredReasonKey(slot.reason) | translate }}</span>
             </li>
           }
@@ -39,7 +39,7 @@
         <ul class="recovery-list">
           @for (warning of outcome.complianceWarnings; track warning.clientId + warning.date + warning.comment) {
             <li class="recovery-list-item recovery-warning">
-              <span class="recovery-date">{{ warning.date }}</span>
+              <span class="recovery-date">{{ warning.date | calendarDate: 'numericDate' }}</span>
               <span class="recovery-name">{{ warning.clientName }}</span>
               <span class="recovery-reason">{{ warning.comment | translate: (warning.commentParams | localizedParams) }}</span>
             </li>

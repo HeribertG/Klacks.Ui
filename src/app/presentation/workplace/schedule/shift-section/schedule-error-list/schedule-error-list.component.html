@@ -59,7 +59,7 @@
             <td class="table-cell col-icon cell-center">
               <fa-icon [icon]="getEntryIcon(entry.type)" [class]="'icon-' + entry.type"></fa-icon>
             </td>
-            <td class="table-cell col-date">{{ entry.date }}</td>
+            <td class="table-cell col-date">{{ entry.date | calendarDate: 'numericDate' }}</td>
             <td class="table-cell col-client">{{ entry.clientName }}</td>
             <td class="table-cell">{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
           </tr>

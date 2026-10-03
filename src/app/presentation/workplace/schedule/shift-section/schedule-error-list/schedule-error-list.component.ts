@@ -20,11 +20,12 @@ import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-ent
 import { ShowInScheduleService } from 'src/app/presentation/workplace/schedule/services/show-in-schedule.service';
 import { ScheduleErrorListPdfExportService } from './schedule-error-list-pdf-export.service';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 @Component({
   selector: 'app-schedule-error-list',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule, PdfIconComponent],
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, PdfIconComponent, CalendarDatePipe],
   templateUrl: './schedule-error-list.component.html',
   styleUrls: ['./schedule-error-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

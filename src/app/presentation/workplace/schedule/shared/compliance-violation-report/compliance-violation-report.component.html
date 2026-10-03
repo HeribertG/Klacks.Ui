@@ -19,7 +19,7 @@
       <tbody>
         @for (entry of entries(); track $index) {
           <tr [class]="rowClass(entry)">
-            <td>{{ entry.date }}</td>
+            <td>{{ entry.date | calendarDate: 'numericDate' }}</td>
             <td>{{ entry.clientName }}</td>
             <td>{{ entry.comment | translate: (entry.commentParams | localizedParams) }}</td>
           </tr>

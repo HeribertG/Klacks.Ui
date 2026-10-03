@@ -87,7 +87,7 @@ export class ScheduleErrorListPdfExportService {
 
     const bodyData = entries.map((entry) => [
       this.translateService.instant(`schedule.error-list.pdf.type.${entry.type}`),
-      entry.date,
+      formatCalendarDate(entry.date, this.localeService.getLocale()) ?? entry.date,
       entry.clientName,
       this.translateService.instant(entry.comment, entry.commentParams || {}),
     ]);

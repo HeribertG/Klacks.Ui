@@ -149,7 +149,7 @@
                   class="result-grid-row"
                   *cdkVirtualFor="let row of sortedTokenRows(); trackBy: trackRow"
                 >
-                  <span>{{ row.date }}</span>
+                  <span>{{ row.date | calendarDate: 'numericDate' }}</span>
                   <span class="cell-ellipsis">{{ row.shiftName }}</span>
                   <span class="cell-ellipsis">{{ row.agentName }}</span>
                   <span class="text-end">{{ formatHours(row.hours) }}</span>

@@ -138,7 +138,7 @@ export class PeriodIssuesPdfExportService {
 
     const bodyData = issues.map((issue) => [
       this.translateService.instant(`periodClosing.issues.severity.${issue.severity}`),
-      issue.date,
+      formatCalendarDate(issue.date, this.localeService.getLocale()) ?? issue.date,
       issue.clientName,
       this.translateService.instant(
         issue.messageKey,

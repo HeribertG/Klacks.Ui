@@ -15,7 +15,7 @@
       <tbody>
         @for (entry of entries(); track $index) {
           <tr class="table-danger">
-            <td>{{ entry.date }}</td>
+            <td>{{ entry.date | calendarDate: 'numericDate' }}</td>
             <td>{{ entry.clientName ?? entry.clientId }}</td>
             <td>{{ entry.shiftName ?? '' }}</td>
             <td>{{ reasonLabelKey(entry) | translate }}</td>

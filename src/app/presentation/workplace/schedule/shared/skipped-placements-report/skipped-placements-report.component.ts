@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 const REASON_SHORT_LABEL_KEYS: Record<string, string> = {
   'schedule.error-list.rest-violation': 'schedule.compliance.reasonShort.restViolation',
@@ -35,7 +36,7 @@ const REASON_SHORT_LABEL_KEYS: Record<string, string> = {
   selector: 'app-skipped-placements-report',
   templateUrl: './skipped-placements-report.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, CalendarDatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SkippedPlacementsReportComponent {

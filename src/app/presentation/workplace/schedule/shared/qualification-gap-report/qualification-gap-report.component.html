@@ -27,7 +27,7 @@
               }
             </td>
             <td>{{ gap.shiftName }}</td>
-            <td>{{ gap.date }}</td>
+            <td>{{ gap.date | calendarDate: 'numericDate' }}</td>
             @if (hasAgentColumn()) {
               <td>{{ gap.agentName }}</td>
             }

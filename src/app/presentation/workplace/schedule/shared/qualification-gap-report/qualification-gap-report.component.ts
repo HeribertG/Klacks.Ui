@@ -10,6 +10,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import {
   QualificationGapDetail,
   QualificationGapReason,
@@ -20,7 +21,7 @@ import {
   selector: 'app-qualification-gap-report',
   templateUrl: './qualification-gap-report.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, CalendarDatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QualificationGapReportComponent {
