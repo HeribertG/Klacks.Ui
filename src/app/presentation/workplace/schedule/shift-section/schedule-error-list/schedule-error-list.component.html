@@ -61,7 +61,7 @@
             </td>
             <td class="table-cell col-date">{{ entry.date | calendarDate: 'numericDate' }}</td>
             <td class="table-cell col-client">{{ entry.clientName }}</td>
-            <td class="table-cell">{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
+            <td class="table-cell" [title]="entry.tooltip ?? ''">{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
           </tr>
         } @empty {
           <tr>

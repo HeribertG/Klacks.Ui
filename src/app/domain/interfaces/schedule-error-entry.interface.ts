@@ -9,4 +9,5 @@ export interface ScheduleErrorEntry {
   clientName: string;
   comment: string;
   commentParams?: Record<string, string>;
+  tooltip?: string;
 }

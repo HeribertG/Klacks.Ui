@@ -481,6 +481,63 @@ describe('CollisionDetectionService', () => {
     });
   });
 
+  describe('Team-scoped planning-rule entries', () => {
+    const emptyGuid = '00000000-0000-0000-0000-000000000000';
+
+    it('should list a planning-rule finding without client as team entry and drop other client-less entries', () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({
+            type: 'warning',
+            clientId: emptyGuid,
+            clientName: '',
+            comment: 'schedule.error-list.planning-rule',
+            commentParams: { kind: 'TeamFairness', observed: '3', limit: '1', ruleId: 'rule-1' },
+          }),
+          createValidation({ clientId: emptyGuid, comment: 'schedule.error-list.understaffed' }),
+        ],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      flushAndTick();
+
+      // Assert
+      const entries = service.errorEntries();
+      expect(entries.length).toBe(1);
+      expect(entries[0].clientName).toBe('schedule.error-list.team-entry');
+      expect(entries[0].commentParams?.['kind']).toBe('planning-rule-kind.teamfairness');
+      expect(entries[0].tooltip).toBe('rule-1');
+    });
+
+    it('should list an invalid planning rule as team entry with the rule id only as tooltip', () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({
+            type: 'error',
+            clientId: emptyGuid,
+            clientName: '',
+            comment: 'schedule.error-list.planning-rule-invalid',
+            commentParams: { ruleId: 'rule-9' },
+          }),
+        ],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      flushAndTick();
+
+      // Assert
+      const entry = service.errorEntries()[0];
+      expect(entry.type).toBe('error');
+      expect(entry.tooltip).toBe('rule-9');
+    });
+  });
+
   describe('Edge Cases', () => {
     it('should deduplicate collisions by sorted work ID pair', () => {
       // Arrange

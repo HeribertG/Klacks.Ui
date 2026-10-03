@@ -35,7 +35,14 @@ import {
   isoWeekMondayOf,
 } from 'src/app/shared/helpers/date.helper';
 import {
+  PLANNING_RULE_ID_PARAM,
+  PLANNING_RULE_KIND_KEY_PREFIX,
+  PLANNING_RULE_KIND_PARAM,
+  SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY,
+  SCHEDULE_VALIDATION_KEY_PLANNING_RULE,
+  SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID,
   SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
+  TEAM_SCOPED_VALIDATION_KEYS,
   WEEK_SCOPED_VALIDATION_KEYS,
 } from 'src/app/domain/constants/schedule-validation-keys.constants';
 import {
@@ -174,8 +181,9 @@ export class CollisionDetectionService implements OnDestroy {
     }
 
     for (const validation of this.validations.values()) {
-      if (validation.clientId === this.emptyGuid) continue;
-      if (!visibleClientIds.has(validation.clientId)) continue;
+      const isTeamEntry = validation.clientId === this.emptyGuid;
+      if (isTeamEntry && !TEAM_SCOPED_VALIDATION_KEYS.includes(validation.comment)) continue;
+      if (!isTeamEntry && !visibleClientIds.has(validation.clientId)) continue;
       if (startDate && validation.date < startDate) continue;
       if (endDate && validation.date > endDate) continue;
 
@@ -183,9 +191,15 @@ export class CollisionDetectionService implements OnDestroy {
         type: validation.type,
         date: validation.date,
         clientId: validation.clientId,
-        clientName: validation.clientName,
+        clientName: isTeamEntry
+          ? this.translate.instant(SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY)
+          : validation.clientName,
         comment: validation.comment,
-        commentParams: this.localizeCommentParams(validation.commentParams),
+        commentParams: this.localizeCommentParams(
+          validation.comment,
+          validation.commentParams,
+        ),
+        tooltip: this.planningRuleTooltip(validation.comment, validation.commentParams),
       });
     }
 
@@ -194,7 +208,18 @@ export class CollisionDetectionService implements OnDestroy {
     this.errorEntries.set(entries);
   }
 
+  private planningRuleTooltip(
+    comment: string,
+    params: Record<string, string> | undefined,
+  ): string | undefined {
+    const isPlanningRule =
+      comment === SCHEDULE_VALIDATION_KEY_PLANNING_RULE ||
+      comment === SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID;
+    return isPlanningRule ? params?.[PLANNING_RULE_ID_PARAM] : undefined;
+  }
+
   private localizeCommentParams(
+    comment: string,
     params: Record<string, string> | undefined
   ): Record<string, string> | undefined {
     if (!params) {
@@ -202,6 +227,12 @@ export class CollisionDetectionService implements OnDestroy {
     }
 
     const localized = { ...params };
+    const kind = localized[PLANNING_RULE_KIND_PARAM];
+    if (kind && comment === SCHEDULE_VALIDATION_KEY_PLANNING_RULE) {
+      localized[PLANNING_RULE_KIND_PARAM] = this.translate.instant(
+        `${PLANNING_RULE_KIND_KEY_PREFIX}${kind.toLowerCase()}`,
+      );
+    }
     const dayOfWeek = localized['dayOfWeek'];
     if (dayOfWeek) {
       localized['dayOfWeek'] = this.translate.instant(dayOfWeek.toLowerCase());

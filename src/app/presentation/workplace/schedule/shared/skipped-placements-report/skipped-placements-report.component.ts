@@ -27,6 +27,7 @@ const REASON_SHORT_LABEL_KEYS: Record<string, string> = {
   'schedule.error-list.rolling-average': 'schedule.compliance.reasonShort.rollingAverage',
   'schedule.error-list.rest-day-rotation': 'schedule.compliance.reasonShort.restDayRotation',
   'schedule.error-list.counter-rule': 'schedule.compliance.reasonShort.counterRule',
+  'schedule.error-list.planning-rule': 'schedule.compliance.reasonShort.planningRule',
   'schedule.error-list.compensatory-rest-due': 'schedule.compliance.reasonShort.compensatoryRestDue',
   'schedule.error-list.compensatory-rest-overdue': 'schedule.compliance.reasonShort.compensatoryRestOverdue',
   'schedule.error-list.restricted-time-window': 'schedule.compliance.reasonShort.restrictedTimeWindow',

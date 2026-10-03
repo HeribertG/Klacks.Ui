@@ -18,6 +18,25 @@ export const SCHEDULE_VALIDATION_KEY_REST_VIOLATION =
 export const SCHEDULE_VALIDATION_KEY_CONSECUTIVE_DAYS =
   'schedule.error-list.consecutive-days';
 
+export const SCHEDULE_VALIDATION_KEY_PLANNING_RULE =
+  'schedule.error-list.planning-rule';
+export const SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID =
+  'schedule.error-list.planning-rule-invalid';
+
+/**
+ * Validation keys the backend may send without a client (ClientId = empty GUID): team fairness and an invalid
+ * planning rule concern the team or the company, not one person, and are listed as a team entry.
+ */
+export const TEAM_SCOPED_VALIDATION_KEYS: readonly string[] = [
+  SCHEDULE_VALIDATION_KEY_PLANNING_RULE,
+  SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID,
+];
+
+export const SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY = 'schedule.error-list.team-entry';
+export const PLANNING_RULE_KIND_KEY_PREFIX = 'planning-rule-kind.';
+export const PLANNING_RULE_KIND_PARAM = 'kind';
+export const PLANNING_RULE_ID_PARAM = 'ruleId';
+
 export const WEEK_SCOPED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_WEEKLY_OVERTIME,
   SCHEDULE_VALIDATION_KEY_MIN_REST_DAYS,
