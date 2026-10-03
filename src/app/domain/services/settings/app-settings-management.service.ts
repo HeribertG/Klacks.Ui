@@ -50,6 +50,7 @@ import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/mode
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { SttEngine, TtsProvider, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
+import { parseHolisticHarmonizerMode } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
@@ -225,6 +226,7 @@ export class AppSettingsManagementService {
     [AppSetting.ASSISTANT_BARGE_IN_ENABLED, (v, m) => (m.speech.bargeInEnabled = v === 'true')],
 
     [AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, (v, m) => (m.holisticHarmonizer.llmModelId = v)],
+    [AppSetting.HOLISTIC_HARMONIZER_MODE, (v, m) => (m.holisticHarmonizer.mode = parseHolisticHarmonizerMode(v))],
 
     [AppSetting.UPDATE_AUTO_ENABLED, (v, m) => (m.update.autoEnabled = (v ?? '').toLowerCase() === 'true')],
     [AppSetting.UPDATE_CHANNEL, (v, m) => (m.update.channel = v || 'Stable')],
@@ -611,6 +613,7 @@ export class AppSettingsManagementService {
     { key: AppSetting.ASSISTANT_BARGE_IN_ENABLED, getCurrent: () => String(this.speechSettings().bargeInEnabled), getOriginal: () => String(this.speechSettingsOriginal().bargeInEnabled) },
 
     { key: AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, getCurrent: () => this.holisticHarmonizerSettings().llmModelId, getOriginal: () => this.holisticHarmonizerSettingsOriginal().llmModelId },
+    { key: AppSetting.HOLISTIC_HARMONIZER_MODE, getCurrent: () => this.holisticHarmonizerSettings().mode, getOriginal: () => this.holisticHarmonizerSettingsOriginal().mode },
 
     { key: AppSetting.UPDATE_AUTO_ENABLED, getCurrent: () => String(this.updateConfigSettings().autoEnabled), getOriginal: () => String(this.updateConfigSettingsOriginal().autoEnabled) },
     { key: AppSetting.UPDATE_CHANNEL, getCurrent: () => this.updateConfigSettings().channel, getOriginal: () => this.updateConfigSettingsOriginal().channel },

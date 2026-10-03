@@ -8,10 +8,17 @@
       @case ('running') {
         <div class="holisticHarmonizer-running">
           <p class="holisticHarmonizer-running-text">{{ 'holisticHarmonizer.dialog.running' | translate }}</p>
-          @if (selectedLlmModelId()) {
+          @if (isLlmMode()) {
+            @if (selectedLlmModelId()) {
+              <p class="holisticHarmonizer-llm-model">
+                <strong>{{ 'holisticHarmonizer.dialog.selected-model' | translate }}:</strong>
+                <span>{{ selectedLlmModelId() }}</span>
+              </p>
+            }
+          } @else {
             <p class="holisticHarmonizer-llm-model">
-              <strong>{{ 'holisticHarmonizer.dialog.selected-model' | translate }}:</strong>
-              <span>{{ selectedLlmModelId() }}</span>
+              <strong>{{ 'setting.holisticHarmonizer.mode' | translate }}:</strong>
+              <span>{{ 'setting.holisticHarmonizer.modeDeterministic' | translate }}</span>
             </p>
           }
           <div class="holisticHarmonizer-progress">

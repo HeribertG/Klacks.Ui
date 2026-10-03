@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Settings card for the LLM-driven schedule harmonizer (Holistic Harmonizer).
- * Lets the operator pick which LLM model the wizard uses globally and run a one-click
- * compatibility check across all enabled models (latency + JSON-format compliance).
+ * Settings card for wizard stage 3 (Holistic Harmonizer). Lets the operator choose the method - the
+ * deterministic local search (default, no AI) or the LLM vision engine - and, in LLM mode only, pick the
+ * model and run a one-click compatibility check across all enabled models (latency + JSON-format compliance).
+ * @param mode - Selected stage-3 method
+ * @param isLlmMode - True when the LLM engine is selected; gates the model picker and the model check
  */
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -15,6 +17,11 @@ import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holist
 import { HolisticHarmonizerModelCheckDto } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { filterModelsWithActiveProvider } from 'src/app/domain/services/assistant/assistant-model-provider-filter';
+import {
+  HOLISTIC_HARMONIZER_MODE,
+  HolisticHarmonizerMode,
+  parseHolisticHarmonizerMode,
+} from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 
 @Component({
   selector: 'app-wizard-settings',
@@ -30,6 +37,9 @@ export class WizardSettingsComponent implements OnInit {
   private readonly dataHolisticHarmonizerService = inject(DataHolisticHarmonizerService);
   private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
 
+  readonly modes = HOLISTIC_HARMONIZER_MODE;
+  readonly mode = signal<HolisticHarmonizerMode>(HOLISTIC_HARMONIZER_MODE.deterministic);
+  readonly isLlmMode = computed(() => this.mode() === HOLISTIC_HARMONIZER_MODE.llm);
   readonly llmModelId = signal<string>('');
   readonly llmModels = signal<{ value: string; label: string }[]>([]);
   readonly checkResults = signal<HolisticHarmonizerModelCheckDto[]>([]);
@@ -40,6 +50,7 @@ export class WizardSettingsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.appSettingsService.loadSettingsAsync();
+    this.mode.set(this.appSettingsService.holisticHarmonizerSettings().mode);
     this.llmModelId.set(this.appSettingsService.holisticHarmonizerSettings().llmModelId);
     this.isInitialized = true;
 
@@ -65,6 +76,11 @@ export class WizardSettingsComponent implements OnInit {
     }
   }
 
+  onModeChange(mode: string): void {
+    this.mode.set(parseHolisticHarmonizerMode(mode));
+    this.onSettingChanged();
+  }
+
   onLlmModelChange(modelId: string): void {
     this.llmModelId.set(modelId);
     this.onSettingChanged();
@@ -76,6 +92,7 @@ export class WizardSettingsComponent implements OnInit {
     }
     this.appSettingsService.holisticHarmonizerSettings.set({
       ...this.appSettingsService.holisticHarmonizerSettings(),
+      mode: this.mode(),
       llmModelId: this.llmModelId(),
     });
   }

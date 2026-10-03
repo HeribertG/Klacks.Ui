@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Dialog for Holistic Harmonizer (LLM-driven schedule harmonizer). Starts an async run that
- * streams iteration progress over SignalR until completion, cancellation, or failure. The
- * accepted result can be applied as a new AnalyseScenario via the shared harmonizer apply pipeline.
+ * Dialog for wizard stage 3 (Holistic Harmonizer). Starts an async run - deterministic local search by
+ * default, the LLM vision engine only in LLM mode - that streams progress over SignalR until completion,
+ * cancellation, or failure. The accepted result can be applied as a new AnalyseScenario via the shared
+ * harmonizer apply pipeline.
  * @param phase - Derived UI phase (running/done/cancelled/applying/applied/error)
+ * @param isLlmMode - True when the stage-3 method setting selects the LLM engine (model line + model gate)
  * @param progressPercent - Iteration progress as a percentage of MaxIterations
  * @param fitnessDeltaPercent - Fitness improvement after - before, in percent
  */
@@ -41,6 +43,7 @@ import {
 } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { HOLISTIC_HARMONIZER_MODE } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
 
 @Component({
@@ -71,6 +74,10 @@ export class HolisticHarmonizerDialogComponent {
   readonly complianceBlockingCount = computed(() => this._appliedComplianceReport()?.blockingIssues.length ?? 0);
 
   readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
+
+  readonly isLlmMode = computed(
+    () => this.appSettings.holisticHarmonizerSettings().mode === HOLISTIC_HARMONIZER_MODE.llm,
+  );
 
   readonly phase = computed<HolisticHarmonizerPhase>(() => {
     const ap = this._applyPhase();
@@ -193,7 +200,7 @@ export class HolisticHarmonizerDialogComponent {
     });
     this.modalRef.dismissed.pipe(take(1)).subscribe(() => this.cancelIfRunning());
 
-    if (!this.selectedLlmModelId()) {
+    if (this.isLlmMode() && !this.selectedLlmModelId()) {
       this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noModel'));
       return;
     }
