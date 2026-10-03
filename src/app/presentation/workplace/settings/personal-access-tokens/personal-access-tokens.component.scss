@@ -38,6 +38,33 @@
   }
 }
 
+.access-mode-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.access-mode-legend {
+  font-size: var(--fontSizeLabel);
+  margin-bottom: 5px;
+}
+
+.radio-label {
+  display: block;
+  margin-top: 5px;
+
+  input[type="radio"] {
+    width: auto;
+    margin-inline-end: 6px;
+  }
+}
+
+.access-mode-hint {
+  display: block;
+  margin-inline-start: 22px;
+}
+
 .expiry-hint {
   display: block;
   margin-top: 5px;

@@ -1,8 +1,8 @@
-<h2>Manuel des Personal Access Tokens</h2>
+<h2>Manuel des jetons d'accès personnels</h2>
 
-<h3>Que sont les Personal Access Tokens ?</h3>
+<h3>Que sont les jetons d'accès personnels ?</h3>
 <p>
-Les Personal Access Tokens (PATs) sont des clés d'API durables qui permettent aux outils
+Les jetons d'accès personnels (PAT) sont des clés d'API durables qui permettent aux outils
 et services externes d'accéder à Klacks de manière sécurisée — sans nom d'utilisateur
 ni mot de passe.
 </p>
@@ -10,59 +10,66 @@ ni mot de passe.
 <p><strong>Cas d'utilisation typiques :</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — permet aux assistants IA comme Claude Desktop d'accéder directement aux compétences Klacksy</li>
-  <li>Scripts d'automatisation et pipelines CI/CD</li>
-  <li>Outils de monitoring et d'intégration externes</li>
+  <li>Agents et assistants IA qui travaillent avec Klacks via MCP</li>
 </ul>
 
 <h4>Concept de sécurité</h4>
 <p>
-Klacks ne stocke jamais le token en clair. Après la création, seul un <strong>hachage SHA-256</strong>
-du token est enregistré dans la base de données. Le token lui-même n'est affiché qu'une
+Klacks ne stocke jamais le jeton en clair. Après la création, seul un <strong>hachage SHA-256</strong>
+du jeton est enregistré dans la base de données. Le jeton lui-même n'est affiché qu'une
 seule fois, immédiatement après sa création, et ne peut pas être récupéré ultérieurement.
 </p>
 
 <p>
-<em>Remarque : copiez ou notez votre token immédiatement après sa création. En cas de perte,
-vous devez créer un nouveau token et révoquer l'ancien.</em>
+<em>Remarque : copiez ou notez votre jeton immédiatement après sa création. En cas de perte,
+vous devez créer un nouveau jeton et révoquer l'ancien.</em>
 </p>
 
 <hr>
 
-<h3>Créer un token</h3>
+<h3>Créer un jeton</h3>
 
 <h4>Étape par étape</h4>
 <ul>
-  <li>Accédez à <strong>Configuration → Personal Access Tokens</strong></li>
-  <li>Cliquez sur <strong>Créer un nouveau token</strong></li>
-  <li>Saisissez un <strong>nom</strong> explicite (p. ex. <code>Claude Desktop</code> ou <code>Pipeline CI</code>)</li>
+  <li>Accédez à <strong>Configuration → Jetons d'accès personnels</strong></li>
+  <li>Cliquez sur <strong>Créer un jeton</strong></li>
+  <li>Saisissez un <strong>nom</strong> explicite (p. ex. <code>Claude Desktop</code> ou <code>Agent IA planification</code>)</li>
   <li>Sélectionnez la <strong>durée de validité</strong> souhaitée (1–730 jours, par défaut : 365 jours)</li>
   <li>Cliquez sur <strong>Créer</strong></li>
-  <li>Copiez immédiatement le token affiché — il n'est visible qu'une seule fois</li>
+  <li>Copiez immédiatement le jeton affiché — il n'est visible qu'une seule fois</li>
 </ul>
 
-<h4>Format du token</h4>
+<h4>Format du jeton</h4>
 <pre>
 klacks_pat_&lt;chaîne aléatoire&gt;
 </pre>
 
-<p>Chaque token commence par le préfixe <code>klacks_pat_</code> suivi d'une chaîne aléatoire
+<p>Chaque jeton commence par le préfixe <code>klacks_pat_</code> suivi d'une chaîne aléatoire
 cryptographiquement sécurisée.</p>
 
 <h4>Durées de validité</h4>
 <table>
   <tr><th>Durée</th><th>Utilisation recommandée</th></tr>
   <tr><td>1–30 jours</td><td>Tests à court terme et développement</td></tr>
-  <tr><td>90–180 jours</td><td>Pipelines CI/CD avec rotation régulière</td></tr>
+  <tr><td>90–180 jours</td><td>Agents IA avec rotation régulière</td></tr>
   <tr><td>365 jours (par défaut)</td><td>Intégrations permanentes (p. ex. Claude Desktop)</td></tr>
   <tr><td>730 jours</td><td>Intégrations système à long terme</td></tr>
 </table>
 
+<h4>Mode d’accès</h4>
+<p>Lors de la création, vous définissez ce qu’un agent externe peut faire avec le jeton :</p>
+<ul>
+  <li><strong>Lecture seule</strong> (par défaut) — l’agent voit et utilise exclusivement des outils de lecture. Toute tentative de modifier des données est refusée.</li>
+  <li><strong>Lecture et écriture</strong> — l’agent peut en plus modifier des données sans qu’une personne valide chaque modification. Ne choisissez ce mode que pour des agents auxquels vous confiez des modifications.</li>
+</ul>
+<p>Le mode est affiché dans la liste des jetons et ne peut pas être modifié ultérieurement ; créez un nouveau jeton si nécessaire. Les jetons existants et ceux émis via une connexion OAuth (p. ex. un connecteur MCP) ont le mode « Lecture et écriture ».</p>
+
 <hr>
 
-<h3>Utiliser un token</h3>
+<h3>Utiliser un jeton</h3>
 
-<h4>Token Bearer dans l'en-tête HTTP</h4>
-<p>Le token est transmis en tant que Bearer token dans l'en-tête <code>Authorization</code> de chaque requête API :</p>
+<h4>Jeton Bearer dans l'en-tête HTTP</h4>
+<p>Le jeton est transmis en tant que jeton Bearer dans l'en-tête <code>Authorization</code> de chaque requête MCP vers le point de terminaison <code>/mcp</code> :</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ planifier des équipes, gérer des groupes et bien plus encore.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;votre-domaine-klacks&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;votre-domaine-klacks&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -94,53 +103,48 @@ planifier des équipes, gérer des groupes et bien plus encore.
 </pre>
 
 <p>Remplacez <code>&lt;votre-domaine-klacks&gt;</code> par l'adresse de votre installation Klacks
-et <code>klacks_pat_...</code> par le token que vous avez créé.</p>
+et <code>klacks_pat_...</code> par le jeton que vous avez créé.</p>
 
-<h4>Requête API directe (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;votre-domaine-klacks&gt;/api/clients
-</pre>
+<p><strong>Remarque :</strong> Les jetons ne fonctionnent que pour l'accès MCP des agents IA (point de terminaison <code>/mcp</code>). L'API REST de Klacks (p. ex. <code>/api/clients</code>) ne les accepte pas ; elle exige le jeton de connexion.</p>
 
 <hr>
 
 <h3>Gestion et sécurité</h3>
 
-<h4>Vue d'ensemble des tokens</h4>
+<h4>Vue d'ensemble des jetons</h4>
 <p>
-Sous <strong>Configuration → Personal Access Tokens</strong>, vous pouvez voir tous vos tokens
+Sous <strong>Configuration → Jetons d'accès personnels</strong>, vous pouvez voir tous vos jetons
 avec leur nom, date de création, date d'expiration et dernière utilisation.
-Le token en clair n'est jamais affiché dans cette vue.
+Le jeton en clair n'est jamais affiché dans cette vue.
 </p>
 
-<h4>Révoquer un token</h4>
+<h4>Révoquer un jeton</h4>
 <p>
-Un token peut être révoqué à tout moment. Après révocation, toutes les requêtes utilisant
-ce token sont immédiatement rejetées. Révoquez un token immédiatement lorsque :
+Un jeton peut être révoqué à tout moment. Après révocation, toutes les requêtes utilisant
+ce jeton sont immédiatement rejetées. Révoquez un jeton immédiatement lorsque :
 </p>
 <ul>
-  <li>Le token a été accidentellement partagé ou exposé</li>
+  <li>Le jeton a été accidentellement partagé ou exposé</li>
   <li>Un appareil ou service n'est plus utilisé</li>
   <li>Vous remarquez une activité suspecte</li>
 </ul>
 
 <h4>Expiration</h4>
 <p>
-Les tokens expirés sont automatiquement rejetés. Klacks met en évidence dans la vue
-d'ensemble les tokens qui expirent dans les 30 prochains jours afin que vous puissiez
+Les jetons expirés sont automatiquement rejetés. Klacks met en évidence dans la vue
+d'ensemble les jetons qui expirent dans les 30 prochains jours afin que vous puissiez
 créer des remplacements à temps.
 </p>
 
 <h4>Conseils de sécurité</h4>
 <ul>
-  <li>Utilisez un token distinct pour chaque service ou outil</li>
-  <li>Choisissez des noms descriptifs pour identifier clairement les tokens</li>
-  <li>Ne stockez jamais les tokens en clair dans les systèmes de contrôle de version</li>
-  <li>Renouvelez les tokens régulièrement, en particulier pour les pipelines CI/CD</li>
-  <li>Révoquez immédiatement les tokens en cas de suspicion d'abus</li>
+  <li>Utilisez un jeton distinct pour chaque service ou outil</li>
+  <li>Choisissez des noms descriptifs pour identifier clairement les jetons</li>
+  <li>Ne stockez jamais les jetons en clair dans les systèmes de contrôle de version</li>
+  <li>Renouvelez les jetons régulièrement</li>
+  <li>Révoquez immédiatement les jetons en cas de suspicion d'abus</li>
 </ul>
 
 <p>
-<em>Chaque token est lié à votre compte utilisateur et dispose des mêmes droits que votre
-compte. Traitez les tokens avec le même soin que votre mot de passe.</em>
+<em>Chaque jeton est lié à votre compte utilisateur. Via MCP, il dispose des droits de votre compte, plafonnés au niveau superviseur : même si votre compte est administrateur, le jeton ne porte jamais de droits d'administrateur. Le mode d'accès limite en outre ce que l'agent peut faire : avec « Lecture seule », il n'utilise que des fonctions de lecture ; avec « Lecture et écriture », il effectue les modifications sans aucune confirmation supplémentaire. Traitez les jetons avec le même soin que votre mot de passe.</em>
 </p>

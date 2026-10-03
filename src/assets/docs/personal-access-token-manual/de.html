@@ -9,8 +9,7 @@ Diensten einen sicheren Zugriff auf Klacks ermöglichen — ohne Benutzername un
 <p><strong>Typische Anwendungsfälle:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — erlaubt KI-Assistenten wie Claude Desktop direkten Zugriff auf Klacksy-Skills</li>
-  <li>Automatisierungsskripte und CI/CD-Pipelines</li>
-  <li>Externe Monitoring- und Integrationswerkzeuge</li>
+  <li>KI-Agenten und Assistenten, die über MCP mit Klacks arbeiten</li>
 </ul>
 
 <h4>Sicherheitskonzept</h4>
@@ -34,7 +33,7 @@ muss ein neues Token erstellt und das alte widerrufen werden.</em>
 <ul>
   <li>Navigieren Sie zu <strong>Konfiguration → Personal Access Tokens</strong></li>
   <li>Klicken Sie auf <strong>Neues Token erstellen</strong></li>
-  <li>Vergeben Sie einen aussagekräftigen <strong>Namen</strong> (z.B. <code>Claude Desktop</code> oder <code>CI-Pipeline</code>)</li>
+  <li>Vergeben Sie einen aussagekräftigen <strong>Namen</strong> (z.B. <code>Claude Desktop</code> oder <code>KI-Agent Planung</code>)</li>
   <li>Wählen Sie die gewünschte <strong>Gültigkeitsdauer</strong> (1–730 Tage, Standard: 365 Tage)</li>
   <li>Klicken Sie auf <strong>Erstellen</strong></li>
   <li>Kopieren Sie das angezeigte Token sofort — es wird nur einmalig angezeigt</li>
@@ -52,17 +51,25 @@ sicheren Zufallszeichenfolge.</p>
 <table>
   <tr><th>Dauer</th><th>Empfohlener Einsatz</th></tr>
   <tr><td>1–30 Tage</td><td>Kurzfristige Tests und Entwicklung</td></tr>
-  <tr><td>90–180 Tage</td><td>CI/CD-Pipelines mit regelmässiger Rotation</td></tr>
+  <tr><td>90–180 Tage</td><td>KI-Agenten mit regelmässiger Rotation</td></tr>
   <tr><td>365 Tage (Standard)</td><td>Dauerhafte Integrationen (z.B. Claude Desktop)</td></tr>
   <tr><td>730 Tage</td><td>Langfristige Systemintegrationen</td></tr>
 </table>
+
+<h4>Zugriffsmodus</h4>
+<p>Beim Erstellen legen Sie fest, was ein externer Agent mit dem Token tun darf:</p>
+<ul>
+  <li><strong>Nur lesen</strong> (Standard) — der Agent sieht und nutzt ausschliesslich lesende Werkzeuge. Jeder Versuch, Daten zu ändern, wird abgelehnt.</li>
+  <li><strong>Lesen und schreiben</strong> — der Agent kann zusätzlich Daten ändern, ohne dass ein Mensch die einzelne Änderung noch einmal freigibt. Wählen Sie diesen Modus nur für Agenten, denen Sie Änderungen anvertrauen.</li>
+</ul>
+<p>Der Modus wird in der Token-Übersicht angezeigt und lässt sich nachträglich nicht ändern; erstellen Sie bei Bedarf ein neues Token. Bereits vorhandene Tokens und Tokens aus einer OAuth-Anmeldung (z. B. einem MCP-Connector) haben den Modus «Lesen und schreiben».</p>
 
 <hr>
 
 <h3>Token verwenden</h3>
 
 <h4>Bearer-Token im HTTP-Header</h4>
-<p>Das Token wird als Bearer-Token im <code>Authorization</code>-Header jeder API-Anfrage übermittelt:</p>
+<p>Das Token wird als Bearer-Token im <code>Authorization</code>-Header jeder MCP-Anfrage an den Endpoint <code>/mcp</code> übermittelt:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ Gruppen verwalten und vieles mehr.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;ihre-klacks-domain&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;ihre-klacks-domain&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ Gruppen verwalten und vieles mehr.
 <p>Ersetzen Sie <code>&lt;ihre-klacks-domain&gt;</code> durch die Adresse Ihrer Klacks-Installation
 und <code>klacks_pat_...</code> durch Ihr erstelltes Token.</p>
 
-<h4>Direkte API-Anfrage (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;ihre-klacks-domain&gt;/api/clients
-</pre>
+<p><strong>Hinweis:</strong> Tokens gelten nur für den MCP-Zugang von KI-Agenten (Endpoint <code>/mcp</code>). Die REST-API von Klacks (z. B. <code>/api/clients</code>) akzeptiert sie nicht; sie verlangt das Login-Token.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ Tokens erstellen können.
   <li>Verwenden Sie pro Dienst oder Werkzeug ein separates Token</li>
   <li>Wählen Sie aussagekräftige Namen, um Tokens eindeutig zuordnen zu können</li>
   <li>Speichern Sie Tokens niemals im Klartext in Versionsverwaltungssystemen</li>
-  <li>Rotieren Sie Tokens regelmässig, besonders bei CI/CD-Einsatz</li>
+  <li>Rotieren Sie Tokens regelmässig</li>
   <li>Widerrufen Sie Tokens sofort bei Verdacht auf Missbrauch</li>
 </ul>
 
 <p>
-<em>Jedes Token ist an Ihren Benutzeraccount gebunden und verfügt über dieselben
-Berechtigungen wie Ihr Konto. Behandeln Sie Tokens mit der gleichen Sorgfalt
-wie Ihr Passwort.</em>
+<em>Jedes Token ist an Ihren Benutzeraccount gebunden. Über MCP gelten die Berechtigungen Ihres Kontos, höchstens jedoch auf Supervisor-Stufe: Auch wenn Ihr Konto Administrator ist, trägt das Token nie Administrator-Rechte. Zusätzlich begrenzt der Zugriffsmodus, was der Agent tun darf: Mit «Nur lesen» nutzt er ausschliesslich lesende Funktionen; mit «Lesen und schreiben» führt er Änderungen ohne weitere Bestätigung aus. Behandeln Sie Tokens mit der gleichen Sorgfalt wie Ihr Passwort.</em>
 </p>

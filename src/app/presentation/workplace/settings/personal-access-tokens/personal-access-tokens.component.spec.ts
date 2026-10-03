@@ -34,6 +34,7 @@ describe('PersonalAccessTokensComponent', () => {
       createdAt: '2026-06-01T08:00:00Z',
       expiresAt: '2027-06-01T08:00:00Z',
       lastUsedAt: '2026-06-10T12:00:00Z',
+      accessMode: 'Write',
     },
     {
       id: '2',
@@ -42,6 +43,7 @@ describe('PersonalAccessTokensComponent', () => {
       createdAt: '2026-05-01T08:00:00Z',
       expiresAt: '2026-12-01T08:00:00Z',
       lastUsedAt: undefined,
+      accessMode: 'Read',
     },
   ];
 
@@ -51,6 +53,7 @@ describe('PersonalAccessTokensComponent', () => {
     tokenPrefix: 'pat_ghi3',
     expiresAt: '2027-06-12T08:00:00Z',
     token: 'pat_ghi3_full_plaintext_secret_value',
+    accessMode: 'Read',
   };
 
   beforeEach(async () => {
@@ -164,6 +167,7 @@ describe('PersonalAccessTokensComponent', () => {
       expect(component.createdToken).toBeNull();
       expect((component as any).formModel().name).toBe('');
       expect((component as any).formModel().expiresInDays).toBe('365');
+      expect((component as any).formModel().accessMode).toBe('Read');
 
       const deferredOpen = setTimeoutSpy.mock.calls.at(-1)?.[0] as () => void;
       setTimeoutSpy.mockRestore();
@@ -177,7 +181,7 @@ describe('PersonalAccessTokensComponent', () => {
   describe('Create Token', () => {
     it('should create a token and keep the plaintext for one-time display', async () => {
       // Arrange
-      (component as any).formModel.set({ name: 'New Token', expiresInDays: '365' });
+      (component as any).formModel.set({ name: 'New Token', expiresInDays: '365', accessMode: 'Read' });
       mockTokenService.createToken.mockReturnValue(of(mockCreatedToken));
 
       // Act
@@ -187,6 +191,7 @@ describe('PersonalAccessTokensComponent', () => {
       expect(mockTokenService.createToken).toHaveBeenCalledWith({
         name: 'New Token',
         expiresInDays: 365,
+        accessMode: 'Read',
       });
       expect(component.createdToken).toEqual(mockCreatedToken);
       expect(mockToastService.showSuccess).toHaveBeenCalled();
@@ -194,19 +199,50 @@ describe('PersonalAccessTokensComponent', () => {
 
     it('should omit expiresInDays when the field is empty', async () => {
       // Arrange
-      (component as any).formModel.set({ name: 'New Token', expiresInDays: '' });
+      (component as any).formModel.set({ name: 'New Token', expiresInDays: '', accessMode: 'Read' });
       mockTokenService.createToken.mockReturnValue(of(mockCreatedToken));
 
       // Act
       await component.onCreateToken();
 
       // Assert
-      expect(mockTokenService.createToken).toHaveBeenCalledWith({ name: 'New Token' });
+      expect(mockTokenService.createToken).toHaveBeenCalledWith({ name: 'New Token', accessMode: 'Read' });
+    });
+
+    it('should send the Write access mode when the user chose it', async () => {
+      // Arrange
+      (component as any).formModel.set({ name: 'Agent', expiresInDays: '30', accessMode: 'Write' });
+      mockTokenService.createToken.mockReturnValue(of({ ...mockCreatedToken, accessMode: 'Write' }));
+
+      // Act
+      await component.onCreateToken();
+
+      // Assert
+      expect(mockTokenService.createToken).toHaveBeenCalledWith({
+        name: 'Agent',
+        expiresInDays: 30,
+        accessMode: 'Write',
+      });
+    });
+
+    it('should preselect Read even after a Write token was created before', () => {
+      // Arrange
+      (component as any).formModel.set({ name: 'Agent', expiresInDays: '30', accessMode: 'Write' });
+
+      // Act
+      component.onClickAdd();
+
+      // Assert
+      expect((component as any).formModel().accessMode).toBe('Read');
+    });
+
+    it('should offer exactly the Read and Write access modes, Read first', () => {
+      expect(component.accessModes.map((mode) => mode.value)).toEqual(['Read', 'Write']);
     });
 
     it('should handle create error', async () => {
       // Arrange
-      (component as any).formModel.set({ name: 'New Token', expiresInDays: '365' });
+      (component as any).formModel.set({ name: 'New Token', expiresInDays: '365', accessMode: 'Read' });
       mockTokenService.createToken.mockReturnValue(throwError(() => new Error('Save failed')));
 
       // Act
@@ -231,7 +267,7 @@ describe('PersonalAccessTokensComponent', () => {
 
     it('should not create twice while a created token is displayed', async () => {
       // Arrange
-      (component as any).formModel.set({ name: 'New Token', expiresInDays: '365' });
+      (component as any).formModel.set({ name: 'New Token', expiresInDays: '365', accessMode: 'Read' });
       component.createdToken = mockCreatedToken;
 
       // Act
@@ -320,6 +356,7 @@ describe('PersonalAccessTokensComponent', () => {
         id: '',
         name: 'Test',
         tokenPrefix: 'pat_x',
+        accessMode: 'Read',
       };
 
       // Act
@@ -363,6 +400,51 @@ describe('PersonalAccessTokensComponent', () => {
       // Assert
       expect(mockToastService.showError).toHaveBeenCalled();
       expect(mockTranslateService.instant).toHaveBeenCalledWith('setting.personal-access-tokens.error.delete');
+    });
+  });
+
+  describe('Access Mode Radios', () => {
+    const renderModal = () => {
+      fixture.detectChanges();
+      const view = component
+        .tokenModal()
+        .createEmbeddedView({ $implicit: { dismiss: vi.fn(), close: vi.fn() } });
+      view.detectChanges();
+      const root = document.createElement('div');
+      view.rootNodes.forEach((node: Node) => root.appendChild(node));
+      document.body.appendChild(root);
+      return { view, root };
+    };
+
+    const radio = (root: HTMLElement, mode: string) =>
+      root.querySelector<HTMLInputElement>(`#personal-access-tokens-modal-access-mode-${mode}`)!;
+
+    it('should render Read checked and Write unchecked by default', () => {
+      // Act
+      const { root, view } = renderModal();
+
+      // Assert
+      expect(radio(root, 'Read')).toBeTruthy();
+      expect(radio(root, 'Read').checked).toBe(true);
+      expect(radio(root, 'Write').checked).toBe(false);
+      view.destroy();
+      root.remove();
+    });
+
+    it('should switch the form model to Write when the Write radio is chosen', () => {
+      // Arrange
+      const { root, view } = renderModal();
+
+      // Act
+      radio(root, 'Write').click();
+      TestBed.tick();
+      view.detectChanges();
+
+      // Assert
+      expect((component as any).formModel().accessMode).toBe('Write');
+      expect(radio(root, 'Read').checked).toBe(false);
+      view.destroy();
+      root.remove();
     });
   });
 

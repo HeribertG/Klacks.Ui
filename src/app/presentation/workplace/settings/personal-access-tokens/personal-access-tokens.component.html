@@ -116,6 +116,29 @@
           </div>
         </div>
 
+        <div id="personal-access-tokens-modal-access-mode-row" class="row-line-modal-inline">
+          <fieldset id="personal-access-tokens-modal-access-mode" class="model-field access-mode-group">
+            <legend class="access-mode-legend">{{
+              'setting.personal-access-tokens.modal.access-mode' | translate
+            }}</legend>
+            @for (mode of accessModes; track mode.value) {
+            <label
+              [id]="'personal-access-tokens-modal-access-mode-' + mode.value + '-label'"
+              class="radio-label"
+            >
+              <input
+                type="radio"
+                [id]="'personal-access-tokens-modal-access-mode-' + mode.value"
+                [value]="mode.value"
+                [formField]="tokenForm.accessMode"
+              />
+              <span class="access-mode-label">{{ mode.labelKey | translate }}</span>
+              <small class="access-mode-hint settings-hint">{{ mode.hintKey | translate }}</small>
+            </label>
+            }
+          </fieldset>
+        </div>
+
         @if (getValidationErrors().length > 0) {
         <div id="personal-access-tokens-modal-validation-row" class="row-line-modal-inline">
           <div class="validation-errors-section">

@@ -57,23 +57,23 @@ describe('DataPersonalAccessTokenService', () => {
       token: 'pat_ghi3_full_plaintext_secret_value',
     };
 
-    service.createToken({ name: 'New Token', expiresInDays: 365 }).subscribe((result) => {
+    service.createToken({ name: 'New Token', expiresInDays: 365, accessMode: 'Write' }).subscribe((result) => {
       expect(result.token).toBe(created.token);
       expect(result.tokenPrefix).toBe('pat_ghi3');
     });
 
     const req = httpMock.expectOne(base);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ name: 'New Token', expiresInDays: 365 });
+    expect(req.request.body).toEqual({ name: 'New Token', expiresInDays: 365, accessMode: 'Write' });
     req.flush(created);
   });
 
   it('creates a token without expiry so the server default applies', () => {
-    service.createToken({ name: 'Default Expiry' }).subscribe();
+    service.createToken({ name: 'Default Expiry', accessMode: 'Read' }).subscribe();
 
     const req = httpMock.expectOne(base);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ name: 'Default Expiry' });
+    expect(req.request.body).toEqual({ name: 'Default Expiry', accessMode: 'Read' });
     req.flush({
       id: '4',
       name: 'Default Expiry',

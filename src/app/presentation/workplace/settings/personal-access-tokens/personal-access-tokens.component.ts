@@ -4,6 +4,7 @@
  * Settings card for managing personal access tokens with one-time plaintext display after creation.
  * @param tokens - Token metadata list of the current user (never contains the secret)
  * @param createdToken - Create response holding the plaintext token until the modal is closed
+ * @param accessModes - Selectable access modes; Read is preselected (secure by default)
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -36,7 +37,10 @@ import {
   IPersonalAccessToken,
   IPersonalAccessTokenCreate,
   IPersonalAccessTokenCreated,
+  PERSONAL_ACCESS_TOKEN_ACCESS_MODE,
+  PERSONAL_ACCESS_TOKEN_DEFAULT_ACCESS_MODE,
   PERSONAL_ACCESS_TOKEN_EXPIRY,
+  PersonalAccessTokenAccessMode,
 } from 'src/app/domain/models/settings/personal-access-token';
 import {
   ModalService,
@@ -49,6 +53,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 interface PersonalAccessTokenFormModel {
   name: string;
   expiresInDays: string;
+  accessMode: PersonalAccessTokenAccessMode;
 }
 
 const PERSONAL_ACCESS_TOKENS_CONTEXT = 'personal-access-tokens';
@@ -88,12 +93,26 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
   createdToken: IPersonalAccessTokenCreated | null = null;
   private isSaving = false;
 
+  readonly accessModes = [
+    {
+      value: PERSONAL_ACCESS_TOKEN_ACCESS_MODE.READ,
+      labelKey: 'setting.personal-access-tokens.access-mode.read',
+      hintKey: 'setting.personal-access-tokens.modal.access-mode-read-hint',
+    },
+    {
+      value: PERSONAL_ACCESS_TOKEN_ACCESS_MODE.WRITE,
+      labelKey: 'setting.personal-access-tokens.access-mode.write',
+      hintKey: 'setting.personal-access-tokens.modal.access-mode-write-hint',
+    },
+  ] as const;
+
   tabId = signal('token');
   manualContent = signal('');
 
   private formModel = signal<PersonalAccessTokenFormModel>({
     name: '',
     expiresInDays: String(PERSONAL_ACCESS_TOKEN_EXPIRY.DEFAULT_DAYS),
+    accessMode: PERSONAL_ACCESS_TOKEN_DEFAULT_ACCESS_MODE,
   });
 
   tokenForm = form(this.formModel, f => {
@@ -148,6 +167,7 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
     this.formModel.set({
       name: '',
       expiresInDays: String(PERSONAL_ACCESS_TOKEN_EXPIRY.DEFAULT_DAYS),
+      accessMode: PERSONAL_ACCESS_TOKEN_DEFAULT_ACCESS_MODE,
     });
     this.tabId.set('token');
     this.loadManual();
@@ -187,7 +207,10 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
 
     this.isSaving = true;
     const formData = this.formModel();
-    const request: IPersonalAccessTokenCreate = { name: formData.name.trim() };
+    const request: IPersonalAccessTokenCreate = {
+      name: formData.name.trim(),
+      accessMode: formData.accessMode,
+    };
     const expiresInDays = parseInt(formData.expiresInDays, 10);
     if (!isNaN(expiresInDays)) {
       request.expiresInDays = expiresInDays;
