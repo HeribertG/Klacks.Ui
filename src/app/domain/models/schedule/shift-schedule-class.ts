@@ -22,6 +22,7 @@ export interface IShiftSchedule {
   sporadicScope: ShiftSporadic;
   engaged: number;
   sporadicStatus: SporadicStatus;
+  periodBookedDays: number;
   qualifications: IScheduleQualification[];
 }
 
@@ -43,6 +44,7 @@ export class ShiftSchedule implements IShiftSchedule {
   sporadicScope = ShiftSporadic.Week;
   engaged = 0;
   sporadicStatus = SporadicStatus.None;
+  periodBookedDays = 0;
   qualifications: IScheduleQualification[] = [];
 }
 

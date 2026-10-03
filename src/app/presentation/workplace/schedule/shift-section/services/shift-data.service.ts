@@ -62,6 +62,7 @@ interface DayInfo {
   sporadicScope: ShiftSporadic;
   engaged: number;
   sporadicStatus: SporadicStatus;
+  periodBookedDays: number;
 }
 
 interface ShiftRow {
@@ -152,9 +153,10 @@ export class ShiftDataService extends BaseDataService {
           );
         }
         if (dayInfo.quantity > 1) {
+          const quantityUsed = shiftRow.isSporadic ? dayInfo.periodBookedDays : dayInfo.engaged;
           badges.push(
             new CellBadge(
-              `${dayInfo.engaged}/${dayInfo.quantity}`,
+              `${quantityUsed}/${dayInfo.quantity}`,
               '#1bc5bd',
               '#ffffff',
               IconCornerEnum.TopRight
@@ -300,6 +302,7 @@ export class ShiftDataService extends BaseDataService {
         sporadicScope: schedule.sporadicScope,
         engaged: schedule.engaged,
         sporadicStatus: schedule.sporadicStatus ?? SporadicStatus.None,
+        periodBookedDays: schedule.periodBookedDays ?? 0,
       });
     }
 

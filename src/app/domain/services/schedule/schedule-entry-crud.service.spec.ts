@@ -76,6 +76,7 @@ function createMockShiftSchedule(overrides: Partial<IShiftSchedule> = {}): IShif
     quantity: 5,
     sporadicScope: ShiftSporadic.Week,
     sporadicStatus: SporadicStatus.None,
+    periodBookedDays: 0,
     engaged: 2,
     qualifications: [],
     ...overrides,

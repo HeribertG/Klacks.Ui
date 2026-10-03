@@ -35,6 +35,7 @@ function row(overrides: Partial<IShiftSchedule>): IShiftSchedule {
     sporadicScope: ShiftSporadic.Week,
     engaged: 0,
     sporadicStatus: SporadicStatus.None,
+    periodBookedDays: 0,
     qualifications: [{ qualificationId: 'q-1', emoji: null, name: { de: 'Q' }, level: 1 } as never],
     ...overrides,
   };
@@ -106,6 +107,24 @@ describe('ShiftScheduleLoaderService.refreshSporadicShifts', () => {
     expect([wednesday.engaged, wednesday.sporadicStatus]).toEqual([0, SporadicStatus.None]);
     expect(monday.qualifications).toHaveLength(1);
     expect(fixed.sporadicStatus).toBe(SporadicStatus.None);
+  });
+
+  it('takes the sporadic period usage from the response for every refreshed day', async () => {
+    dataShiftSchedule.getShiftSchedulePartial.mockReturnValue(
+      of({
+        shifts: [
+          { shiftId: SPORADIC_SHIFT_ID, date: '2026-10-05', engaged: 1, sporadicStatus: SporadicStatus.Booked, periodBookedDays: 1 },
+          { shiftId: SPORADIC_SHIFT_ID, date: '2026-10-06', engaged: 0, sporadicStatus: SporadicStatus.Blocked, periodBookedDays: 1 },
+          { shiftId: SPORADIC_SHIFT_ID, date: '2026-10-07', engaged: 0, sporadicStatus: SporadicStatus.Blocked, periodBookedDays: 1 },
+        ],
+        totalCount: 3,
+      }),
+    );
+
+    await service.refreshSporadicShifts([SPORADIC_SHIFT_ID]);
+
+    const [monday, tuesday, wednesday] = service.shiftSchedules;
+    expect([monday.periodBookedDays, tuesday.periodBookedDays, wednesday.periodBookedDays]).toEqual([1, 1, 1]);
   });
 
   it('signals the grid to re-read the rows', async () => {

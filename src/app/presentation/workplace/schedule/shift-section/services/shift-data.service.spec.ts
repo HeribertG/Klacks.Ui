@@ -14,6 +14,7 @@ import { WorkNotificationService } from 'src/app/domain/services/schedule/work-n
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 import { IShiftSchedule, ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { IconCornerEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import {
     activeJanuaryOffsetMinutes,
     CALENDAR_TEST_ZONES,
@@ -31,6 +32,25 @@ function createShiftSchedule(wireDate: string): IShiftSchedule {
     schedule.date = wireDate as unknown as Date;
     schedule.sumEmployees = 1;
     schedule.quantity = 1;
+    return schedule;
+}
+
+interface BadgeDay {
+    date: string;
+    engaged: number;
+    periodBookedDays: number;
+}
+
+function createBadgeSchedule(
+    day: BadgeDay,
+    isSporadic: boolean,
+    quantity: number,
+): IShiftSchedule {
+    const schedule = createShiftSchedule(day.date);
+    schedule.isSporadic = isSporadic;
+    schedule.quantity = quantity;
+    schedule.engaged = day.engaged;
+    schedule.periodBookedDays = day.periodBookedDays;
     return schedule;
 }
 
@@ -106,6 +126,52 @@ describe('ShiftDataService', () => {
                         expect(service.getItemMainText(0, 3)).toBe('');
                     },
                 );
+
+                describe('quantity badge', () => {
+                    const quantityBadgeText = (col: number): string | undefined =>
+                        service.getCell(0, col).badges?.find((b) => b.corner === IconCornerEnum.TopRight)?.text;
+
+                    const columnOf = (dateKey: string): number =>
+                        Array.from({ length: service.columns }, (_, col) => col)
+                            .find((col) => service.getDateKeyForColumn(col) === dateKey)!;
+
+                    it('shows the sporadic week usage on every day of the booked week and 0 in the next week', () => {
+                        const bookedWeek = ['2026-11-30', '2026-12-01', '2026-12-02', '2026-12-03', '2026-12-04', '2026-12-05', '2026-12-06'];
+                        const nextWeek = ['2026-12-07', '2026-12-08', '2026-12-09'];
+                        const bookedDays = new Set(['2026-12-01', '2026-12-03']);
+                        dataManagement.visibleStartDate = parseCalendarDate('2026-11-30');
+                        dataManagement.visibleEndDate = parseCalendarDate('2026-12-09');
+                        dataManagement.shiftSchedules = [
+                            ...bookedWeek.map((date) => createBadgeSchedule(
+                                { date, engaged: bookedDays.has(date) ? 1 : 0, periodBookedDays: 2 }, true, 2)),
+                            ...nextWeek.map((date) => createBadgeSchedule(
+                                { date, engaged: 0, periodBookedDays: 0 }, true, 2)),
+                        ];
+
+                        service.setMetrics();
+
+                        for (const date of bookedWeek) {
+                            expect(quantityBadgeText(columnOf(date)), date).toBe('2/2');
+                        }
+                        for (const date of nextWeek) {
+                            expect(quantityBadgeText(columnOf(date)), date).toBe('0/2');
+                        }
+                    });
+
+                    it('keeps the per-day engaged count for a normal shift', () => {
+                        dataManagement.visibleStartDate = parseCalendarDate('2026-12-01');
+                        dataManagement.visibleEndDate = parseCalendarDate('2026-12-02');
+                        dataManagement.shiftSchedules = [
+                            createBadgeSchedule({ date: '2026-12-01', engaged: 1, periodBookedDays: 0 }, false, 3),
+                            createBadgeSchedule({ date: '2026-12-02', engaged: 0, periodBookedDays: 0 }, false, 3),
+                        ];
+
+                        service.setMetrics();
+
+                        expect(quantityBadgeText(columnOf('2026-12-01'))).toBe('1/3');
+                        expect(quantityBadgeText(columnOf('2026-12-02'))).toBe('0/3');
+                    });
+                });
 
                 it('counts one column per calendar day across the autumn DST switch', () => {
                     dataManagement.visibleStartDate = parseCalendarDate('2026-10-20');

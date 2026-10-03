@@ -185,6 +185,7 @@ export class ShiftScheduleLoaderService {
         if (shift.shiftId === update.shiftId && isSameCalendarDate(shift.date, update.date)) {
           shift.engaged = update.engaged;
           shift.sporadicStatus = update.sporadicStatus;
+          shift.periodBookedDays = update.periodBookedDays;
         }
       }
     }
