@@ -2,7 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { jsPDF } from 'jspdf';
 import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
@@ -13,32 +14,15 @@ import {
   CELL_DATE_LOCALES,
   CELL_DATE_WIRE_VALUE,
 } from 'src/app/shared/testing/calendar-date-cell.testing';
+import { autoTableBodyCell, stubPdfTabAndBlobUrl } from 'src/app/shared/testing/pdf-table-capture.testing';
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { PeriodIssuesPdfExportService } from './period-issues-pdf-export.service';
 
 const DATE_COLUMN_INDEX = 1;
 
-const autoTableCalls = vi.hoisted(() => [] as { body: string[][] }[]);
-
-vi.mock('jspdf', () => ({
-  jsPDF: class {
-    internal = { pageSize: { width: 297, height: 210, getWidth: () => 297, getHeight: () => 210 } };
-    setFontSize = vi.fn();
-    setFont = vi.fn();
-    text = vi.fn();
-    setPage = vi.fn();
-    getNumberOfPages = () => 1;
-    output = () => new Blob();
-  },
-}));
-vi.mock('jspdf-autotable', () => ({
-  default: (_pdf: unknown, options: { body: string[][] }) => autoTableCalls.push(options),
-}));
-vi.mock('src/app/shared/helpers/file-download.helper', () => ({
-  openPendingBlobTab: () => ({ show: vi.fn(), cancel: vi.fn() }),
-}));
-
 describe('PeriodIssuesPdfExportService date column', () => {
+  let prepareDocument: ReturnType<typeof vi.fn>;
+  let restoreBrowserApis: () => void;
   let service: PeriodIssuesPdfExportService;
 
   const issues: PeriodIssue[] = [
@@ -54,20 +38,25 @@ describe('PeriodIssuesPdfExportService date column', () => {
   ];
 
   beforeEach(async () => {
-    autoTableCalls.length = 0;
+    restoreBrowserApis = stubPdfTabAndBlobUrl();
+    prepareDocument = vi.fn();
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [{ provide: PdfUnicodeTextService, useValue: { prepareDocument: vi.fn() } }],
+      providers: [{ provide: PdfUnicodeTextService, useValue: { prepareDocument } }],
     });
     const loader = TestBed.inject(LocaleDataLoaderService);
     await Promise.all(CELL_DATE_LOCALES.map((code) => loader.ensureLoaded(code)));
     service = TestBed.inject(PeriodIssuesPdfExportService);
   });
 
+  afterEach(() => {
+    restoreBrowserApis();
+  });
+
   async function exportedDateCell(locale: string, date = CELL_DATE_WIRE_VALUE): Promise<string> {
     TestBed.inject(LocaleService).setLocale(locale);
     await service.exportToPdf([{ ...issues[0], date }], 'December 2026', 0, false);
-    return autoTableCalls[0].body[0][DATE_COLUMN_INDEX];
+    return autoTableBodyCell(prepareDocument.mock.calls[0][0] as jsPDF, 0, DATE_COLUMN_INDEX);
   }
 
   it.each(CELL_DATE_EXPECTATIONS)('writes the date in %s as %s', async (locale, expected) => {
