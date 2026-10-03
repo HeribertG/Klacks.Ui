@@ -178,10 +178,10 @@ export class WorkSettings implements IWorkSettings {
   probationPeriod = 3;
   noticePeriod = 30;
   paymentInterval = 2;
-  nightRate = 0.1;
-  holidayRate = 0.1;
-  saRate = 0.1;
-  soRate = 0.1;
+  nightRate = 0;
+  holidayRate = 0;
+  saRate = 0;
+  soRate = 0;
   dayVisibleBefore = 3;
   dayVisibleAfter = 3;
 }
