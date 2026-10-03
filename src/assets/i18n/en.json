@@ -907,6 +907,7 @@
   "schedule.error-list.rest-day-rotation": "Rest-day rotation violated: only {{actualFree}} free days ({{dayOfWeek}}) in {{windowWeeks}} weeks (min. {{minFree}})",
   "schedule.error-list.counter-rule": "Counter rule reached: {{count}}× {{event}} per {{period}} (threshold {{threshold}})",
   "schedule.error-list.planning-rule": "Planning rule violated ({{kind}}): {{observed}} (limit {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Planning rule {{ruleId}} is invalid and is not checked - please fix or revoke it",
   "schedule.error-list.restricted-time-window": "Restricted time window violated: work between {{dailyStart}} and {{dailyEnd}} is not allowed from {{seasonFrom}} to {{seasonTo}} ({{groupTag}})",
   "schedule.error-list.compensatory-rest-due": "Compensatory rest due: {{shortfallHours}} h shortfall from {{triggerDate}}, compensate by {{dueDate}}",
   "schedule.error-list.compensatory-rest-overdue": "Compensatory rest OVERDUE: {{shortfallHours}} h shortfall from {{triggerDate}}, was due by {{dueDate}}",
