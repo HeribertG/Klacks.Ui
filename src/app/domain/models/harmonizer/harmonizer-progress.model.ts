@@ -2,6 +2,7 @@
 
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
 
 export interface HarmonizerProgress {
   jobId: string;
@@ -26,6 +27,7 @@ export interface HarmonizerResult {
   rowResults: HarmonizerRowResult[];
   qualificationGaps?: QualificationGapDetail[];
   planningRuleWarnings?: ScheduleErrorEntry[] | null;
+  planningRuleRemaining?: PlanningRuleRemaining | null;
 }
 
 export type HarmonizerStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

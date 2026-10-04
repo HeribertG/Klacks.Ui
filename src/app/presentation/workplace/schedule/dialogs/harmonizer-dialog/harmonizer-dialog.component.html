@@ -51,6 +51,7 @@
               <app-qualification-gap-report [gaps]="r.qualificationGaps" />
             }
             <app-planning-rule-warning-report [warnings]="planningRuleWarnings()" />
+            <app-planning-rule-remaining-report [remaining]="planningRuleRemaining()" />
             @if (complianceEntries().length > 0) {
               <app-compliance-violation-report [entries]="complianceEntries()" [blockingCount]="complianceBlockingCount()" />
             }

@@ -105,6 +105,25 @@
         />
       </div>
 
+      <div id="scheduling-rule-modal-max-daily-span-hours-item" class="rule-config-item">
+        <label for="maxDailySpanHours">{{ 'setting.schedulingRule.maxDailySpanHours' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          [formField]="ruleForm.maxDailySpanHours"
+          class="form-control rule-input"
+          id="maxDailySpanHours"
+          aria-label="maxDailySpanHours"
+          [title]="'setting.schedulingRule.maxDailySpanHoursHint' | translate"
+        />
+        <small id="maxDailySpanHoursSource" class="form-text text-muted">{{
+          maxDailySpanSource().key | translate: maxDailySpanSource().params
+        }}</small>
+        <small id="maxDailySpanHoursHint" class="form-text text-muted">{{
+          'setting.schedulingRule.maxDailySpanHoursHint' | translate
+        }}</small>
+      </div>
+
       <div id="scheduling-rule-modal-max-optimal-gap-item" class="rule-config-item">
         <label for="maxOptimalGap">{{ 'setting.schedulingRule.maxOptimalGap' | translate }}</label>
         <input

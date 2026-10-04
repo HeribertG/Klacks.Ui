@@ -17,6 +17,8 @@ import {
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { ScheduleErrorListPdfExportService } from './schedule-error-list-pdf-export.service';
 import { ScheduleErrorListComponent } from './schedule-error-list.component';
+import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
+import { SCHEDULE_VALIDATION_KEY_PLANNING_RULE } from 'src/app/domain/constants/schedule-validation-keys.constants';
 
 const CLIENT_ID = 'c1';
 const EARLIER_DAY = '2026-12-25';
@@ -88,4 +90,57 @@ describe('ScheduleErrorListComponent date column', () => {
       });
     });
   }
+});
+
+describe('ScheduleErrorListComponent pre-existing planning-rule findings', () => {
+  const ruleFinding = (clientId: string): ScheduleErrorEntry => ({
+    type: 'error',
+    date: EARLIER_DAY,
+    clientId,
+    clientName: clientId,
+    comment: SCHEDULE_VALIDATION_KEY_PLANNING_RULE,
+    commentParams: { ruleId: 'r1' },
+  });
+  const entries = signal<ScheduleErrorEntry[]>([]);
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ScheduleErrorListComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: CollisionDetectionService, useValue: { errorEntries: entries } },
+        { provide: ShowInScheduleService, useValue: { showScheduleByClient: vi.fn() } },
+        { provide: ScheduleErrorListPdfExportService, useValue: { exportToPdf: vi.fn() } },
+      ],
+    });
+  });
+
+  it('marks only the hard findings that existed when the finished run started', () => {
+    const runResult = signal<object | null>(null);
+    entries.set([ruleFinding('old')]);
+    TestBed.inject(PlanningRulePreExistingService).captureBeforeRun(entries(), runResult);
+    entries.set([ruleFinding('old'), ruleFinding('new')]);
+    runResult.set({});
+
+    const fixture = TestBed.createComponent(ScheduleErrorListComponent);
+    fixture.detectChanges();
+    const rows = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr.table-row'));
+
+    expect(rows.map((row) => row.querySelector('.badge-pre-existing') !== null)).toEqual([true, false]);
+    expect(fixture.componentInstance.filteredEntries().map((e) => e.preExisting ?? false)).toEqual([true, false]);
+  });
+
+  it('keeps two rule findings of one client on the same day apart, each with its own marker', () => {
+    const runResult = signal<object | null>(null);
+    const otherRule: ScheduleErrorEntry = { ...ruleFinding('c1'), commentParams: { ruleId: 'r2' } };
+    entries.set([ruleFinding('c1')]);
+    TestBed.inject(PlanningRulePreExistingService).captureBeforeRun(entries(), runResult);
+    entries.set([ruleFinding('c1'), otherRule]);
+    runResult.set({});
+
+    const fixture = TestBed.createComponent(ScheduleErrorListComponent);
+    fixture.detectChanges();
+    const rows = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr.table-row'));
+
+    expect(rows.map((row) => row.querySelector('.badge-pre-existing') !== null)).toEqual([true, false]);
+  });
 });

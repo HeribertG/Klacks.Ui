@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
+
 export interface IAppContactSettings {
   name: string;
   addressName: string;
@@ -94,6 +96,7 @@ export interface ISchedulingDefaultSettings {
   schedulingMaxWorkDays: number;
   schedulingMinRestDays: number;
   schedulingMinPauseHours: number;
+  schedulingMaxDailySpanHours: number;
   schedulingMaxOptimalGap: number;
   schedulingMaxDailyHours: number;
   schedulingMaxWeeklyHours: number;
@@ -127,7 +130,8 @@ export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
   fullTime = 180;
   schedulingMaxWorkDays = 5;
   schedulingMinRestDays = 2;
-  schedulingMinPauseHours = 12;
+  schedulingMinPauseHours = SCHEDULING_DEFAULT_MIN_REST_HOURS;
+  schedulingMaxDailySpanHours = 0;
   schedulingMaxOptimalGap = 2;
   schedulingMaxDailyHours = 10;
   schedulingMaxWeeklyHours = 50;

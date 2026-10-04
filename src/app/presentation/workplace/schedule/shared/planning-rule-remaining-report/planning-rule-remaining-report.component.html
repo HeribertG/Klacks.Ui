@@ -1,0 +1,5 @@
+@if (notice(); as n) {
+  <div id="planning-rule-remaining-report" class="alert alert-warning planning-rule-remaining-report" role="alert">
+    ⚠ {{ n.key | translate: n.params }}
+  </div>
+}

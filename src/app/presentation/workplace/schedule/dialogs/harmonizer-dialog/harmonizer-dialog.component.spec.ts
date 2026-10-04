@@ -14,6 +14,7 @@ import {
   HarmonizerStatus,
 } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 
 const RULE_ID = 'rule-invalid-1';
 const INVALID_RULE_KEY = 'schedule.error-list.planning-rule-invalid';
@@ -62,6 +63,7 @@ describe('HarmonizerDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HarmonizerDialogComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataHarmonizerService, useValue: harmonizerServiceMock },
         { provide: DataManagementScheduleService, useValue: { clients: [], readDatas: vi.fn() } },
         { provide: AnalyseScenarioService, useValue: { activeToken: () => null } },
@@ -76,6 +78,12 @@ describe('HarmonizerDialogComponent', () => {
   it('has no planning-rule warnings when the result carries none', () => {
     harmonizerServiceMock.result.set(harmonizerResult(null));
     expect(component.planningRuleWarnings()).toEqual([]);
+  });
+
+  it('exposes the remaining hard planning-rule counts of the run result', () => {
+    expect(component.planningRuleRemaining()).toBeNull();
+    harmonizerServiceMock.result.set({ ...harmonizerResult(null), planningRuleRemaining: { hardBefore: 2, hardAfter: 1 } });
+    expect(component.planningRuleRemaining()).toEqual({ hardBefore: 2, hardAfter: 1 });
   });
 
   it('exposes the planning-rule warnings of the run result', () => {

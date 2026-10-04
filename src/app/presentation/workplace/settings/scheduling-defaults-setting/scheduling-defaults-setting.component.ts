@@ -12,6 +12,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
 
 interface SchedulingDefaultsFormModel {
   defaultWorkingHours: number;
@@ -23,6 +24,7 @@ interface SchedulingDefaultsFormModel {
   schedulingMaxWorkDays: number;
   schedulingMinRestDays: number;
   schedulingMinPauseHours: number;
+  schedulingMaxDailySpanHours: number;
   schedulingMaxOptimalGap: number;
   schedulingMaxDailyHours: number;
   schedulingMaxWeeklyHours: number;
@@ -79,7 +81,8 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     fullTime: 180,
     schedulingMaxWorkDays: 5,
     schedulingMinRestDays: 2,
-    schedulingMinPauseHours: 12,
+    schedulingMinPauseHours: SCHEDULING_DEFAULT_MIN_REST_HOURS,
+    schedulingMaxDailySpanHours: 0,
     schedulingMaxOptimalGap: 2,
     schedulingMaxDailyHours: 10,
     schedulingMaxWeeklyHours: 50,
@@ -153,6 +156,7 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       schedulingMaxWorkDays: sched.schedulingMaxWorkDays,
       schedulingMinRestDays: sched.schedulingMinRestDays,
       schedulingMinPauseHours: sched.schedulingMinPauseHours,
+      schedulingMaxDailySpanHours: sched.schedulingMaxDailySpanHours,
       schedulingMaxOptimalGap: sched.schedulingMaxOptimalGap,
       schedulingMaxDailyHours: sched.schedulingMaxDailyHours,
       schedulingMaxWeeklyHours: sched.schedulingMaxWeeklyHours,
@@ -201,6 +205,7 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       schedulingMaxWorkDays: data.schedulingMaxWorkDays,
       schedulingMinRestDays: data.schedulingMinRestDays,
       schedulingMinPauseHours: data.schedulingMinPauseHours,
+      schedulingMaxDailySpanHours: data.schedulingMaxDailySpanHours,
       schedulingMaxOptimalGap: data.schedulingMaxOptimalGap,
       schedulingMaxDailyHours: data.schedulingMaxDailyHours,
       schedulingMaxWeeklyHours: data.schedulingMaxWeeklyHours,

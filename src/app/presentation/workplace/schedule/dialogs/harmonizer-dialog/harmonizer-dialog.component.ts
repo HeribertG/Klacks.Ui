@@ -32,6 +32,9 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { PlanningRuleWarningReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-warning-report/planning-rule-warning-report.component';
+import { PlanningRuleRemainingReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-remaining-report/planning-rule-remaining-report.component';
+import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import {
   ScenarioComplianceReport,
   toComplianceEntries,
@@ -50,6 +53,7 @@ type HarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | '
     QualificationGapReportComponent,
     ComplianceViolationReportComponent,
     PlanningRuleWarningReportComponent,
+    PlanningRuleRemainingReportComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,6 +65,8 @@ export class HarmonizerDialogComponent {
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly translate = inject(TranslateService);
+  private readonly collisionService = inject(CollisionDetectionService);
+  private readonly planningRulePreExisting = inject(PlanningRulePreExistingService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
@@ -72,6 +78,7 @@ export class HarmonizerDialogComponent {
   readonly complianceBlockingCount = computed(() => this._appliedComplianceReport()?.blockingIssues.length ?? 0);
 
   readonly planningRuleWarnings = computed(() => this.harmonizerService.result()?.planningRuleWarnings ?? []);
+  readonly planningRuleRemaining = computed(() => this.harmonizerService.result()?.planningRuleRemaining ?? null);
 
   readonly phase = computed<HarmonizerPhase>(() => {
     const ap = this._applyPhase();
@@ -137,6 +144,7 @@ export class HarmonizerDialogComponent {
       }
       return;
     }
+    this.planningRulePreExisting.captureBeforeRun(this.collisionService.errorEntries(), this.harmonizerService.result);
     this.harmonizerService.start(request).catch((err: unknown) => {
       // The same selection is already being harmonized; a second run would only compete with it.
       const conflict = readAutofillRunConflict(err);

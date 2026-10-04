@@ -15,6 +15,7 @@ import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+import { SCHEDULE_ERROR_LIST_PRE_EXISTING_KEY } from 'src/app/domain/constants/schedule-validation-keys.constants';
 
 const PDF_MARGIN = 20;
 const PDF_TITLE_FONT_SIZE = 16;
@@ -89,7 +90,7 @@ export class ScheduleErrorListPdfExportService {
       this.translateService.instant(`schedule.error-list.pdf.type.${entry.type}`),
       formatCalendarDate(entry.date, this.localeService.getLocale()) ?? entry.date,
       entry.clientName,
-      this.translateService.instant(entry.comment, entry.commentParams || {}),
+      this.commentText(entry),
     ]);
 
     const totalLabel = this.translateService.instant('schedule.error-list.pdf.total');
@@ -127,6 +128,13 @@ export class ScheduleErrorListPdfExportService {
         3: { cellWidth: 'auto' },
       },
     });
+  }
+
+  private commentText(entry: ScheduleErrorEntry): string {
+    const comment = this.translateService.instant(entry.comment, entry.commentParams || {});
+    return entry.preExisting
+      ? `${comment} (${this.translateService.instant(SCHEDULE_ERROR_LIST_PRE_EXISTING_KEY)})`
+      : comment;
   }
 
   private renderPageNumbers(pdf: jsPDF): void {

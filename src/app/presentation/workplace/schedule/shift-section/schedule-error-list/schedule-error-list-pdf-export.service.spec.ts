@@ -19,6 +19,7 @@ import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zo
 import { ScheduleErrorListPdfExportService } from './schedule-error-list-pdf-export.service';
 
 const DATE_COLUMN_INDEX = 1;
+const COMMENT_COLUMN_INDEX = 3;
 
 describe('ScheduleErrorListPdfExportService date column', () => {
   let prepareDocument: ReturnType<typeof vi.fn>;
@@ -60,6 +61,15 @@ describe('ScheduleErrorListPdfExportService date column', () => {
 
     expect(cell).toMatch(/2026/);
     expect(cell).not.toMatch(ARABIC_INDIC_DIGITS);
+  });
+
+  it('appends the pre-existing marker to the comment of a marked finding', async () => {
+    TestBed.inject(LocaleService).setLocale('de');
+    await service.exportToPdf([{ ...entries[0], preExisting: true }, entries[0]]);
+    const pdf = prepareDocument.mock.calls[0][0] as jsPDF;
+
+    expect(autoTableBodyCell(pdf, 0, COMMENT_COLUMN_INDEX)).toBe('text (schedule.error-list.pre-existing)');
+    expect(autoTableBodyCell(pdf, 1, COMMENT_COLUMN_INDEX)).toBe('text');
   });
 
   it('leaves an unparsable value as sent', async () => {

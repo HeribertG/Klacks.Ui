@@ -9,6 +9,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { isDailySpanInRange } from 'src/app/domain/helpers/daily-work-frame.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -105,6 +106,7 @@ export class DataManagementSchedulingRuleService {
     rule.maxWorkDays = sched.schedulingMaxWorkDays;
     rule.minRestDays = sched.schedulingMinRestDays;
     rule.minPauseHours = sched.schedulingMinPauseHours;
+    rule.maxDailySpanHours = null;
     rule.maxOptimalGap = sched.schedulingMaxOptimalGap;
     rule.maxDailyHours = sched.schedulingMaxDailyHours;
     rule.maxWeeklyHours = sched.schedulingMaxWeeklyHours;
@@ -200,6 +202,12 @@ export class DataManagementSchedulingRuleService {
     if (rule.minPauseHours !== null && rule.minPauseHours < 0) {
       errors.push(
         this.translate.instant('setting.schedulingRule.validation.valuesPositive')
+      );
+    }
+
+    if (!isDailySpanInRange(rule.maxDailySpanHours)) {
+      errors.push(
+        this.translate.instant('setting.schedulingRule.validation.dailySpanRange')
       );
     }
 

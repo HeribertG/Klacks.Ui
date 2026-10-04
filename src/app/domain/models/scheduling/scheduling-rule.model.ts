@@ -8,6 +8,7 @@ export interface ISchedulingRule {
   maxWorkDays: number | null;
   minRestDays: number | null;
   minPauseHours: number | null;
+  maxDailySpanHours: number | null;
   maxOptimalGap: number | null;
   maxDailyHours: number | null;
   maxWeeklyHours: number | null;
@@ -42,6 +43,7 @@ export class SchedulingRule implements ISchedulingRule {
   maxWorkDays: number | null = null;
   minRestDays: number | null = null;
   minPauseHours: number | null = null;
+  maxDailySpanHours: number | null = null;
   maxOptimalGap: number | null = null;
   maxDailyHours: number | null = null;
   maxWeeklyHours: number | null = null;

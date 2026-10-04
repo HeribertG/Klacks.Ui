@@ -27,6 +27,9 @@ import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
 import { AutoWizardJobContext } from './auto-wizard-job-context.interface';
 import { AutoWizardPendingScenario } from './auto-wizard-pending-scenario.interface';
 import { SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID } from 'src/app/domain/constants/schedule-validation-keys.constants';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
+import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
+import { describePlanningRuleRemaining } from 'src/app/domain/helpers/planning-rule-remaining.helper';
 
 const TOAST_CONTEXT = 'auto-wizard';
 
@@ -39,6 +42,8 @@ export class AutoWizardOrchestratorService {
   private readonly translateService = inject(TranslateService);
   private readonly scheduleLoadCompletion = inject(ScheduleLoadCompletionService);
   private readonly tracker = inject(AutoWizardJobTrackerService);
+  private readonly collisionService = inject(CollisionDetectionService);
+  private readonly planningRulePreExisting = inject(PlanningRulePreExistingService);
 
   readonly isRunning = computed(
     () => this.tracker.activeJob() !== null || this.dataAutoWizardService.status() === 'running',
@@ -144,6 +149,10 @@ export class AutoWizardOrchestratorService {
       return false;
     }
 
+    this.planningRulePreExisting.captureBeforeRun(
+      this.collisionService.errorEntries(),
+      this.dataAutoWizardService.result,
+    );
     try {
       const jobId = await this.dataAutoWizardService.start({
         periodFrom: scope.periodFrom,
@@ -250,6 +259,16 @@ export class AutoWizardOrchestratorService {
     if ((result?.planningRuleWarnings?.length ?? 0) > 0) {
       this.toastShowService.showError(
         this.translateService.instant(SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID),
+        TOAST_CONTEXT,
+        '',
+        TOAST_ICONS.WARNING,
+      );
+    }
+
+    const remaining = describePlanningRuleRemaining(result?.planningRuleRemaining, false);
+    if (remaining) {
+      this.toastShowService.showError(
+        this.translateService.instant(remaining.key, remaining.params),
         TOAST_CONTEXT,
         '',
         TOAST_ICONS.WARNING,

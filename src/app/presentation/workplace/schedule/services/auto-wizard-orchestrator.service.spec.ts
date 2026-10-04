@@ -16,6 +16,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 
 const selectedGroupId = signal<string | undefined>(undefined);
 const visibleEntity = signal<string>(EntityName.SCHEDULE);
@@ -26,6 +27,7 @@ beforeEach(() => {
   visibleEntity.set(EntityName.SCHEDULE);
   TestBed.configureTestingModule({
     providers: [
+      { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
       {
         provide: GroupSelectionService,
         useValue: {
@@ -70,6 +72,7 @@ async function runExceedsLimits(startDate: Date, endDate: Date): Promise<number 
 
   TestBed.configureTestingModule({
     providers: [
+      { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
       {
         provide: DataAutoWizardService,
         useValue: { status: signal('idle'), start: vi.fn().mockResolvedValue('job-1') } as unknown as DataAutoWizardService,
@@ -124,6 +127,7 @@ describe('AutoWizardOrchestratorService while the schedule is still loading', ()
     const showError = vi.fn();
     TestBed.configureTestingModule({
       providers: [
+        { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataAutoWizardService, useValue: { status: signal('idle'), start } as unknown as DataAutoWizardService },
         { provide: DataManagementScheduleService, useValue: buildScheduleStub(new Date(2026, 5, 1), new Date(2026, 5, 7)) },
         { provide: AnalyseScenarioService, useValue: { activeToken: () => null } as unknown as AnalyseScenarioService },
@@ -147,6 +151,7 @@ describe('AutoWizardOrchestratorService while the schedule is still loading', ()
     const awaitFullyLoaded = vi.fn(() => new Promise((resolve) => { resolveLoad = resolve as (outcome: string) => void; }));
     TestBed.configureTestingModule({
       providers: [
+        { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataAutoWizardService, useValue: { status: signal('idle'), start: vi.fn() } as unknown as DataAutoWizardService },
         { provide: DataManagementScheduleService, useValue: buildScheduleStub(new Date(2026, 5, 1), new Date(2026, 5, 7)) },
         { provide: AnalyseScenarioService, useValue: { activeToken: () => null } as unknown as AnalyseScenarioService },
@@ -227,6 +232,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     const instant = vi.fn((key: string, _params?: object) => key);
     TestBed.configureTestingModule({
       providers: [
+        { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataAutoWizardService, useValue: wizard },
         { provide: DataManagementScheduleService, useValue: schedule },
         {
@@ -384,6 +390,59 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     expect(h.showError).toHaveBeenCalledTimes(1);
     expect(h.showError).toHaveBeenCalledWith(
       'schedule.error-list.planning-rule-invalid',
+      'auto-wizard',
+      '',
+      expect.anything(),
+    );
+  });
+
+  it('reports the remaining hard rule violations with both counts, without calling them pre-existing', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+
+    // Act
+    h.wizard.result.set({
+      jobId: 'job-1',
+      finalScenarioId: 'scenario-1',
+      finalScenarioToken: 'token-1',
+      finalScenarioName: 'Auto Plan',
+      elapsedMs: 1,
+      planningRuleRemaining: { hardBefore: 3, hardAfter: 2 },
+    });
+    h.wizard.status.set('completed');
+    TestBed.tick();
+
+    // Assert
+    expect(h.showError).toHaveBeenCalledTimes(1);
+    expect(h.showError).toHaveBeenCalledWith(
+      'schedule.planning-rule-remaining.counts',
+      'auto-wizard',
+      '',
+      expect.anything(),
+    );
+  });
+
+  it('warns that the run added hard rule violations when the count rose', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+
+    // Act
+    h.wizard.result.set({
+      jobId: 'job-1',
+      finalScenarioId: 'scenario-1',
+      finalScenarioToken: 'token-1',
+      finalScenarioName: 'Auto Plan',
+      elapsedMs: 1,
+      planningRuleRemaining: { hardBefore: 1, hardAfter: 2 },
+    });
+    h.wizard.status.set('completed');
+    TestBed.tick();
+
+    // Assert
+    expect(h.showError).toHaveBeenCalledWith(
+      'schedule.planning-rule-remaining.added',
       'auto-wizard',
       '',
       expect.anything(),

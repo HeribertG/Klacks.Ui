@@ -9,6 +9,7 @@
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { ScenarioComplianceReport } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
 
 export interface HolisticHarmonizerRunRequest {
   periodFrom: string;
@@ -58,6 +59,7 @@ export interface HolisticHarmonizerRunResponse {
   llmParsingError: string | null;
   llmRawResponsePreview: string | null;
   planningRuleWarnings?: ScheduleErrorEntry[] | null;
+  planningRuleRemaining?: PlanningRuleRemaining | null;
 }
 
 export interface HolisticHarmonizerApplyRequest {

@@ -92,6 +92,17 @@
   width: 180px;
 }
 
+.badge-pre-existing {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--colorWarning);
+  border-radius: 4px;
+  color: var(--colorWarning);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 .empty-message {
   text-align: center;
   padding: 20px;

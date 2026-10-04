@@ -10,4 +10,5 @@ export interface ScheduleErrorEntry {
   comment: string;
   commentParams?: Record<string, string>;
   tooltip?: string;
+  preExisting?: boolean;
 }

@@ -20,6 +20,7 @@ import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
 import { AutoWizardSignalRConstants } from '../../signalr/signalr.constants';
 import { AUTO_WIZARD_LIMITS } from './auto-wizard-limits.constants';
 
@@ -48,6 +49,7 @@ export interface AutoWizardResult {
   elapsedMs: number;
   qualificationGaps?: QualificationGapDetail[];
   planningRuleWarnings?: ScheduleErrorEntry[] | null;
+  planningRuleRemaining?: PlanningRuleRemaining | null;
 }
 
 /**

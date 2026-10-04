@@ -111,6 +111,7 @@
             }
 
             <app-planning-rule-warning-report [warnings]="planningRuleWarnings()" />
+            <app-planning-rule-remaining-report [remaining]="planningRuleRemaining()" />
 
             @if (r.batches.length > 0) {
               <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.batches-section-title' | translate }}</h5>

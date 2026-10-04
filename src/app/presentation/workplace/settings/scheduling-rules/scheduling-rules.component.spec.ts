@@ -13,6 +13,8 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/app-settings.model';
 
 describe('SchedulingRulesComponent tri-state weekday flags', () => {
   let component: SchedulingRulesComponent;
@@ -39,6 +41,10 @@ describe('SchedulingRulesComponent tri-state weekday flags', () => {
         { provide: ModalService, useValue: { componentContext: '', Filing: '', deleteMessage: '', resultEvent: new Subject<ModalType>(), setDefault: vi.fn(), openModel: vi.fn() } },
         { provide: ManualLoaderService, useValue: { loadManual: vi.fn(() => of('')) } },
         { provide: DataRefreshRegistry, useValue: { register: vi.fn(() => () => undefined) } },
+        {
+          provide: DataManagementSettingsService,
+          useValue: { appSettings: { schedulingDefaultSettings: signal(new SchedulingDefaultSettings()) } },
+        },
       ],
     }).compileComponents();
 
@@ -360,6 +366,10 @@ describe('SchedulingRulesComponent opened through the real NgbModal', () => {
         { provide: ModalService, useValue: { componentContext: '', Filing: '', deleteMessage: '', resultEvent: new Subject<ModalType>(), setDefault: vi.fn(), openModel: vi.fn() } },
         { provide: ManualLoaderService, useValue: { loadManual: vi.fn(() => of('')) } },
         { provide: DataRefreshRegistry, useValue: { register: vi.fn(() => () => undefined) } },
+        {
+          provide: DataManagementSettingsService,
+          useValue: { appSettings: { schedulingDefaultSettings: signal(new SchedulingDefaultSettings()) } },
+        },
       ],
     }).compileComponents();
 

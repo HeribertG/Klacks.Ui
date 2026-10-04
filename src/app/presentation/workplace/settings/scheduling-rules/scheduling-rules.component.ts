@@ -17,6 +17,7 @@ import {
   viewChild,
   TemplateRef,
   signal,
+  computed,
   ChangeDetectorRef,
 } from '@angular/core';
 
@@ -42,6 +43,8 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
+import { describeDailySpanSource } from 'src/app/domain/helpers/daily-work-frame.helper';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
 type SchedulingRuleTriStateField =
   | 'workOnMonday'
@@ -63,6 +66,7 @@ interface SchedulingRuleFormModel {
   maxWorkDays: number | null;
   minRestDays: number | null;
   minPauseHours: number | null;
+  maxDailySpanHours: number | null;
   maxOptimalGap: number | null;
   maxDailyHours: number | null;
   maxWeeklyHours: number | null;
@@ -121,6 +125,7 @@ export class SchedulingRulesComponent
   private manualLoader = inject(ManualLoaderService);
   private cdr = inject(ChangeDetectorRef);
   private refreshRegistry = inject(DataRefreshRegistry);
+  private settingsService = inject(DataManagementSettingsService);
   private unregisterRefresh?: () => void;
 
   public editingRule: ISchedulingRule | null = null;
@@ -136,6 +141,7 @@ export class SchedulingRulesComponent
     maxWorkDays: null,
     minRestDays: null,
     minPauseHours: null,
+    maxDailySpanHours: null,
     maxOptimalGap: null,
     maxDailyHours: null,
     maxWeeklyHours: null,
@@ -162,6 +168,16 @@ export class SchedulingRulesComponent
     workOnSaturday: null,
     workOnSunday: null,
     performsShiftWork: null,
+  });
+
+  readonly maxDailySpanSource = computed(() => {
+    const model = this.formModel();
+    const sched = this.settingsService.appSettings.schedulingDefaultSettings();
+    return describeDailySpanSource(
+      model.maxDailySpanHours,
+      sched.schedulingMaxDailySpanHours,
+      model.minPauseHours ?? sched.schedulingMinPauseHours,
+    );
   });
 
   ruleForm = form(this.formModel, f => {
@@ -296,6 +312,7 @@ export class SchedulingRulesComponent
       maxWorkDays: rule.maxWorkDays,
       minRestDays: rule.minRestDays,
       minPauseHours: rule.minPauseHours,
+      maxDailySpanHours: rule.maxDailySpanHours ?? null,
       maxOptimalGap: rule.maxOptimalGap,
       maxDailyHours: rule.maxDailyHours,
       maxWeeklyHours: rule.maxWeeklyHours,
@@ -332,6 +349,7 @@ export class SchedulingRulesComponent
     this.editingRule.maxWorkDays = formData.maxWorkDays;
     this.editingRule.minRestDays = formData.minRestDays;
     this.editingRule.minPauseHours = formData.minPauseHours;
+    this.editingRule.maxDailySpanHours = formData.maxDailySpanHours;
     this.editingRule.maxOptimalGap = formData.maxOptimalGap;
     this.editingRule.maxDailyHours = formData.maxDailyHours;
     this.editingRule.maxWeeklyHours = formData.maxWeeklyHours;

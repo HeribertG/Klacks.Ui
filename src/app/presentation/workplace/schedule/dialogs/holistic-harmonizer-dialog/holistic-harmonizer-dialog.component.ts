@@ -38,6 +38,9 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { PlanningRuleWarningReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-warning-report/planning-rule-warning-report.component';
+import { PlanningRuleRemainingReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-remaining-report/planning-rule-remaining-report.component';
+import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import {
   ScenarioComplianceReport,
   toComplianceEntries,
@@ -58,6 +61,7 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
     QualificationGapReportComponent,
     ComplianceViolationReportComponent,
     PlanningRuleWarningReportComponent,
+    PlanningRuleRemainingReportComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -70,6 +74,8 @@ export class HolisticHarmonizerDialogComponent {
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly appSettings = inject(AppSettingsManagementService);
   private readonly translate = inject(TranslateService);
+  private readonly collisionService = inject(CollisionDetectionService);
+  private readonly planningRulePreExisting = inject(PlanningRulePreExistingService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
@@ -82,6 +88,9 @@ export class HolisticHarmonizerDialogComponent {
 
   readonly planningRuleWarnings = computed(
     () => this.holisticHarmonizerService.result()?.planningRuleWarnings ?? [],
+  );
+  readonly planningRuleRemaining = computed(
+    () => this.holisticHarmonizerService.result()?.planningRuleRemaining ?? null,
   );
 
   readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
@@ -222,6 +231,10 @@ export class HolisticHarmonizerDialogComponent {
       return;
     }
 
+    this.planningRulePreExisting.captureBeforeRun(
+      this.collisionService.errorEntries(),
+      this.holisticHarmonizerService.result,
+    );
     this.startPromise = this.holisticHarmonizerService.start(request);
     this.startPromise.catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);

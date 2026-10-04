@@ -22,6 +22,14 @@ export const SCHEDULE_VALIDATION_KEY_PLANNING_RULE =
   'schedule.error-list.planning-rule';
 export const SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID =
   'schedule.error-list.planning-rule-invalid';
+export const SCHEDULE_VALIDATION_KEY_COUNTER_RULE =
+  'schedule.error-list.counter-rule';
+
+/**
+ * Parameters that identify one rule finding independent of its observed value: the planning-rule id, or for a
+ * counter rule (which carries no id) its event, period and threshold.
+ */
+export const RULE_FINDING_IDENTITY_PARAMS: readonly string[] = ['ruleId', 'event', 'period', 'threshold'];
 
 /**
  * Validation keys the backend may send without a client (ClientId = empty GUID): team fairness and an invalid
@@ -42,3 +50,9 @@ export const WEEK_SCOPED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_MIN_REST_DAYS,
   SCHEDULE_VALIDATION_KEY_CONSECUTIVE_DAYS,
 ];
+
+export const SCHEDULE_ERROR_LIST_PRE_EXISTING_KEY = 'schedule.error-list.pre-existing';
+export const SCHEDULE_ERROR_LIST_PRE_EXISTING_HINT_KEY = 'schedule.error-list.pre-existing-hint';
+export const PLANNING_RULE_REMAINING_PRE_EXISTING_KEY = 'schedule.planning-rule-remaining.pre-existing';
+export const PLANNING_RULE_REMAINING_ADDED_KEY = 'schedule.planning-rule-remaining.added';
+export const PLANNING_RULE_REMAINING_COUNTS_KEY = 'schedule.planning-rule-remaining.counts';

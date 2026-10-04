@@ -152,6 +152,25 @@
           />
         </div>
       </div>
+      <div id="scheduling-defaults-daily-span-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdSchedulingMaxDailySpanHours">{{
+            "settings.work.scheduling-max-daily-span-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMaxDailySpanHours"
+            aria-label="sdSchedulingMaxDailySpanHours"
+            id="sdSchedulingMaxDailySpanHours"
+            [title]="'settings.work.scheduling-max-daily-span-hours-hint' | translate"
+          />
+          <small id="sdSchedulingMaxDailySpanHoursHint" class="form-text text-muted">{{
+            "settings.work.scheduling-max-daily-span-hours-hint" | translate
+          }}</small>
+        </div>
+      </div>
       <div id="scheduling-defaults-daily-weekly-row" class="row-line">
         <div class="form-group firstColumn">
           <label for="sdSchedulingMaxDailyHours">{{

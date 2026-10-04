@@ -53,6 +53,7 @@ import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app
 import { parseHolisticHarmonizerMode } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
+import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 const SAVE_SETTING_FAILED_MESSAGE = 'Failed to save app setting:';
@@ -183,7 +184,8 @@ export class AppSettingsManagementService {
     [AppSetting.WORK_FULL_TIME, (v, m) => (m.schedulingDefaults.fullTime = parseFloat(v) || 0)],
     [AppSetting.SCHEDULING_MAX_WORK_DAYS, (v, m) => (m.schedulingDefaults.schedulingMaxWorkDays = parseInt(v, 10) || 5)],
     [AppSetting.SCHEDULING_MIN_REST_DAYS, (v, m) => (m.schedulingDefaults.schedulingMinRestDays = parseInt(v, 10) || 2)],
-    [AppSetting.SCHEDULING_MIN_PAUSE_HOURS, (v, m) => (m.schedulingDefaults.schedulingMinPauseHours = parseFloat(v) || 12)],
+    [AppSetting.SCHEDULING_MIN_PAUSE_HOURS, (v, m) => (m.schedulingDefaults.schedulingMinPauseHours = parseFloat(v) || SCHEDULING_DEFAULT_MIN_REST_HOURS)],
+    [AppSetting.SCHEDULING_MAX_DAILY_SPAN_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxDailySpanHours = parseFloat(v) || 0)],
     [AppSetting.SCHEDULING_MAX_OPTIMAL_GAP, (v, m) => (m.schedulingDefaults.schedulingMaxOptimalGap = parseFloat(v) || 2)],
     [AppSetting.SCHEDULING_MAX_DAILY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxDailyHours = parseFloat(v) || 10)],
     [AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxWeeklyHours = parseFloat(v) || 50)],
@@ -562,6 +564,7 @@ export class AppSettingsManagementService {
     { key: AppSetting.SCHEDULING_MAX_WORK_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxWorkDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxWorkDays.toString() },
     { key: AppSetting.SCHEDULING_MIN_REST_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMinRestDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMinRestDays.toString() },
     { key: AppSetting.SCHEDULING_MIN_PAUSE_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMinPauseHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMinPauseHours.toString() },
+    { key: AppSetting.SCHEDULING_MAX_DAILY_SPAN_HOURS, getCurrent: () => String(this.schedulingDefaultSettings().schedulingMaxDailySpanHours ?? 0), getOriginal: () => String(this.schedulingDefaultSettingsOriginal().schedulingMaxDailySpanHours ?? 0) },
     { key: AppSetting.SCHEDULING_MAX_OPTIMAL_GAP, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxOptimalGap.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxOptimalGap.toString() },
     { key: AppSetting.SCHEDULING_MAX_DAILY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxDailyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxDailyHours.toString() },
     { key: AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxWeeklyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxWeeklyHours.toString() },
