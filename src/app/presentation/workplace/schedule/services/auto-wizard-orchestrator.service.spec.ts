@@ -354,6 +354,54 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB)).toBeNull();
   });
 
+  it('warns once about skipped invalid planning rules, apart from the completion notice', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+    const warning = {
+      type: 'warning',
+      clientId: '00000000-0000-0000-0000-000000000000',
+      clientName: '',
+      date: '2026-06-01',
+      comment: 'schedule.error-list.planning-rule-invalid',
+      commentParams: { ruleId: 'rule-1' },
+    };
+
+    // Act
+    h.wizard.result.set({
+      jobId: 'job-1',
+      finalScenarioId: 'scenario-1',
+      finalScenarioToken: 'token-1',
+      finalScenarioName: 'Auto Plan',
+      elapsedMs: 1,
+      planningRuleWarnings: [warning, { ...warning, commentParams: { ruleId: 'rule-2' } }],
+    });
+    h.wizard.status.set('completed');
+    TestBed.tick();
+
+    // Assert
+    expect(h.showInfo).toHaveBeenCalledWith('autoWizard.toast.completed', 'auto-wizard', '', expect.anything());
+    expect(h.showError).toHaveBeenCalledTimes(1);
+    expect(h.showError).toHaveBeenCalledWith(
+      'schedule.error-list.planning-rule-invalid',
+      'auto-wizard',
+      '',
+      expect.anything(),
+    );
+  });
+
+  it('shows no planning-rule warning when the run skipped no rule', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+
+    // Act
+    complete(h);
+
+    // Assert
+    expect(h.showError).not.toHaveBeenCalled();
+  });
+
   it('announces a result for another group by name and opens it once that group is shown', async () => {
     // Arrange
     const h = setup();

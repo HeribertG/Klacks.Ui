@@ -26,6 +26,7 @@ import { getDayIndex } from 'src/app/shared/helpers/date.helper';
 import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
 import { AutoWizardJobContext } from './auto-wizard-job-context.interface';
 import { AutoWizardPendingScenario } from './auto-wizard-pending-scenario.interface';
+import { SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID } from 'src/app/domain/constants/schedule-validation-keys.constants';
 
 const TOAST_CONTEXT = 'auto-wizard';
 
@@ -240,6 +241,15 @@ export class AutoWizardOrchestratorService {
     if (gapCount > 0) {
       this.toastShowService.showError(
         this.translateService.instant('autoWizard.toast.qualificationGaps', { count: gapCount }),
+        TOAST_CONTEXT,
+        '',
+        TOAST_ICONS.WARNING,
+      );
+    }
+
+    if ((result?.planningRuleWarnings?.length ?? 0) > 0) {
+      this.toastShowService.showError(
+        this.translateService.instant(SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID),
         TOAST_CONTEXT,
         '',
         TOAST_ICONS.WARNING,
