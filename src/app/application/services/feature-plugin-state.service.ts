@@ -4,19 +4,23 @@
  * Caches feature plugin state and provides reactive signals for plugin availability.
  * Loads plugin info from the API once and exposes navigation items for the sidebar.
  * @param plugins - Signal holding all discovered feature plugins
- * @param pluginNavItems - Computed signal of enabled plugins that have navigation metadata
+ * @param pluginNavItems - Computed signal of enabled plugins that have navigation metadata and whose page the
+ *   user may open (FEATURE_PLUGIN_REQUIRED_PERMISSIONS)
  */
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { PluginNavItem } from 'src/app/domain/models/plugins/plugin-nav-item';
+import { FEATURE_PLUGIN_REQUIRED_PERMISSIONS } from 'src/app/domain/constants/feature-plugin.constants';
+import { AuthorizationService } from './authorization.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FeaturePluginStateService {
   private dataService = inject(DataFeaturePluginService);
+  private authorizationService = inject(AuthorizationService);
 
   private _plugins = signal<FeaturePluginInfo[]>([]);
   private _loaded = false;
@@ -27,6 +31,7 @@ export class FeaturePluginStateService {
   public pluginNavItems = computed<PluginNavItem[]>(() => {
     return this._plugins()
       .filter((p) => p.isInstalled && p.isEnabled && p.isOperational && p.navigation)
+      .filter((p) => this.mayOpenPluginPage(p.name))
       .map((p) => ({
         name: p.name,
         route: p.navigation!.route,
@@ -37,6 +42,11 @@ export class FeaturePluginStateService {
       }))
       .sort((a, b) => a.position - b.position);
   });
+
+  private mayOpenPluginPage(name: string): boolean {
+    const requiredPermission = FEATURE_PLUGIN_REQUIRED_PERMISSIONS[name];
+    return !requiredPermission || this.authorizationService.hasPermission(requiredPermission);
+  }
 
   public isPluginEnabled(name: string): boolean {
     const plugin = this._plugins().find((p) => p.name === name);

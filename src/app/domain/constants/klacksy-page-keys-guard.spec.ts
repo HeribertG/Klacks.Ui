@@ -268,11 +268,22 @@ describe('Klacksy page-keys mirror the Angular /workplace guards', () => {
   });
 
   it('never mistakes a featurePluginGuard-protected route for a rights-guarded one (guards are distinct function references)', () => {
-    const messaging = children.find((c) => c.path === 'messaging');
     const floorPlan = children.find((c) => c.path === 'floor-plan');
-    expect(messaging?.canActivate?.includes(permissionGuard)).toBe(false);
     expect(floorPlan?.canActivate?.includes(permissionGuard)).toBe(false);
-    expect(declaredPermission(messaging as Route)).toBeNull();
     expect(declaredPermission(floorPlan as Route)).toBeNull();
+  });
+
+  // The messaging plugin answers its message, send and broadcast routes only for Admin and Authorised, and the
+  // received-email endpoints behind the inbox do the same. A planner without a role would reach either page
+  // and meet nothing but 403s, so both routes carry the feature guard AND the rights guard.
+  it('gates the messaging and inbox pages to Admin and Authorised on top of their feature guard', () => {
+    const messaging = children.find((c) => c.path === 'messaging');
+    const inbox = children.find((c) => c.path === 'inbox');
+    expect(messaging?.canActivate?.includes(permissionGuard)).toBe(true);
+    expect(inbox?.canActivate?.includes(permissionGuard)).toBe(true);
+    expect(declaredPermission(messaging as Route)).toBe(ROLE_AUTHORISED);
+    expect(declaredPermission(inbox as Route)).toBe(ROLE_AUTHORISED);
+    expect(KLACKSY_PAGE_KEYS.find((pk) => pk.pageKey === 'messaging')?.requiredPermission).toBe(ROLE_AUTHORISED);
+    expect(KLACKSY_PAGE_KEYS.find((pk) => pk.pageKey === 'inbox')?.requiredPermission).toBe(ROLE_AUTHORISED);
   });
 });

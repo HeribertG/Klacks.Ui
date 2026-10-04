@@ -26,8 +26,7 @@
  *
  * `requiredPermission` is the exact right the Angular route demands: the value the route
  * carries in data[ROUTE_DATA_REQUIRED_PERMISSION] for permissionGuard, and null for a route
- * that demands none (including the feature-gated inbox, where the gate is availability, not a
- * right). Klacksy must be neither laxer nor stricter than the guard the user actually hits when
+ * that demands none. Klacksy must be neither laxer nor stricter than the guard the user actually hits when
  * clicking, so it never offers a navigation that the guard would then reject, nor refuses one a
  * click would allow. Both sides therefore reference the same constants from
  * permissions.constants.ts, which mirror Klacks.Api/Domain/Constants; klacksy-page-keys-guard.spec
@@ -60,7 +59,7 @@
  */
 
 import { FLOOR_PLAN_PLUGIN_NAME, MESSAGING_PLUGIN_NAME } from './feature-plugin.constants';
-import { PERMISSIONS, ROLE_ADMIN } from './permissions.constants';
+import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from './permissions.constants';
 
 export const KLACKSY_FEATURE_INBOX = 'inbox';
 
@@ -108,8 +107,8 @@ export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'edit-shift', route: '/workplace/edit-shift', requiredPermission: PERMISSIONS.CanViewShifts, actionPermission: PERMISSIONS.CanEditShifts, hasEntityParam: true, llmHint: 'edit shift template' },
   { pageKey: 'cut-shift', route: '/workplace/cut-shift', requiredPermission: PERMISSIONS.CanEditShifts, hasEntityParam: true, llmHint: 'split or trim a shift' },
   { pageKey: 'container-template', route: '/workplace/container-template', requiredPermission: PERMISSIONS.CanEditShifts, hasEntityParam: true, llmHint: 'edit shift container template' },
-  { pageKey: 'inbox', route: '/workplace/inbox', requiredPermission: null, hasEntityParam: false, requiredFeature: KLACKSY_FEATURE_INBOX },
-  { pageKey: 'messaging', route: '/workplace/messaging', requiredPermission: null, hasEntityParam: false, llmHint: 'send and read messages to employees', requiredFeature: MESSAGING_PLUGIN_NAME },
+  { pageKey: 'inbox', route: '/workplace/inbox', requiredPermission: ROLE_AUTHORISED, hasEntityParam: false, requiredFeature: KLACKSY_FEATURE_INBOX },
+  { pageKey: 'messaging', route: '/workplace/messaging', requiredPermission: ROLE_AUTHORISED, hasEntityParam: false, llmHint: 'send and read messages to employees', requiredFeature: MESSAGING_PLUGIN_NAME },
   { pageKey: 'floor-plan', route: '/workplace/floor-plan', requiredPermission: null, hasEntityParam: false, llmHint: 'site floor plans with markers', requiredFeature: FLOOR_PLAN_PLUGIN_NAME },
   { pageKey: 'profile', route: '/workplace/profile', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'period-closing', route: '/workplace/period-closing', requiredPermission: ROLE_ADMIN, hasEntityParam: false },

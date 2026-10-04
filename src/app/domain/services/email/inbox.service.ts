@@ -9,7 +9,12 @@ import {
   IReceivedEmailListItem,
 } from 'src/app/domain/models/email/received-email.model';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
-import { SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
+import {
+  INBOX_REQUIRED_PERMISSION,
+  SPECIAL_USE_JUNK,
+  SPECIAL_USE_TRASH,
+} from 'src/app/domain/constants/email.constants';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 
@@ -27,6 +32,7 @@ export class InboxService {
   private dataReceivedEmailService = inject(DataReceivedEmailService);
   private dataEmailFolderService = inject(DataEmailFolderService);
   private emailSignalRService = inject(EmailSignalRService);
+  private authorizationService = inject(AuthorizationService);
   private destroyRef = inject(DestroyRef);
 
   emails = signal<IReceivedEmailListItem[]>([]);
@@ -270,7 +276,16 @@ export class InboxService {
     });
   }
 
+  /**
+   * Reloads the unread badge, the folders and the group tree. The sidebar calls it for every user on start,
+   * but the received-email endpoints answer only INBOX_REQUIRED_PERMISSION, so a user without it is skipped
+   * instead of collecting three 403 toasts.
+   */
   refreshUnreadCount(): void {
+    if (!this.authorizationService.hasPermission(INBOX_REQUIRED_PERMISSION)) {
+      return;
+    }
+
     this.dataReceivedEmailService.getUnreadCount().subscribe({
       next: (count) => {
         this.unreadCount.set(count);

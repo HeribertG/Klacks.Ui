@@ -7,8 +7,13 @@ import { permissionGuard } from './presentation/auth/permission.guard';
 import { ROUTE_DATA_REQUIRED_PERMISSION } from './presentation/auth/route-data.constants';
 import { InboxGuard } from './presentation/auth/inbox.guard';
 import { featurePluginGuard } from './presentation/auth/feature-plugin.guard';
-import { MESSAGING_PLUGIN_NAME, FLOOR_PLAN_PLUGIN_NAME } from './domain/constants/feature-plugin.constants';
+import {
+  MESSAGING_PLUGIN_NAME,
+  MESSAGING_PLUGIN_REQUIRED_PERMISSION,
+  FLOOR_PLAN_PLUGIN_NAME,
+} from './domain/constants/feature-plugin.constants';
 import { PERMISSIONS, ROLE_ADMIN } from './domain/constants/permissions.constants';
+import { INBOX_REQUIRED_PERMISSION } from './domain/constants/email.constants';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
@@ -225,7 +230,8 @@ export const routes: Routes = [
           import('./presentation/workplace/inbox/inbox-home/inbox-home.component').then(
             (m) => m.InboxHomeComponent,
           ),
-        canActivate: [InboxGuard],
+        canActivate: [InboxGuard, permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: INBOX_REQUIRED_PERMISSION },
       },
       {
         path: 'messaging',
@@ -233,7 +239,8 @@ export const routes: Routes = [
           import('klacks-plugin-messaging').then(
             (m) => m.MESSAGING_ROUTES,
           ),
-        canActivate: [AuthGuard, featurePluginGuard(MESSAGING_PLUGIN_NAME)],
+        canActivate: [AuthGuard, featurePluginGuard(MESSAGING_PLUGIN_NAME), permissionGuard],
+        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: MESSAGING_PLUGIN_REQUIRED_PERMISSION },
       },
       {
         path: 'floor-plan',
