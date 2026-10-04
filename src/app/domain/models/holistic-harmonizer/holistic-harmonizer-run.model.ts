@@ -8,6 +8,7 @@
 
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { ScenarioComplianceReport } from 'src/app/domain/models/schedule/scenario-compliance-report.model';
+import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 
 export interface HolisticHarmonizerRunRequest {
   periodFrom: string;
@@ -56,6 +57,7 @@ export interface HolisticHarmonizerRunResponse {
   qualificationGaps?: QualificationGapDetail[];
   llmParsingError: string | null;
   llmRawResponsePreview: string | null;
+  planningRuleWarnings?: ScheduleErrorEntry[] | null;
 }
 
 export interface HolisticHarmonizerApplyRequest {

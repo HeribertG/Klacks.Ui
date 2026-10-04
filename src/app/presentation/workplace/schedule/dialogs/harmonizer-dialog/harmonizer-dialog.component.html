@@ -50,6 +50,7 @@
             @if (r.qualificationGaps?.length) {
               <app-qualification-gap-report [gaps]="r.qualificationGaps" />
             }
+            <app-planning-rule-warning-report [warnings]="planningRuleWarnings()" />
             @if (complianceEntries().length > 0) {
               <app-compliance-violation-report [entries]="complianceEntries()" [blockingCount]="complianceBlockingCount()" />
             }

@@ -37,6 +37,7 @@ import {
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
+import { PlanningRuleWarningReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-warning-report/planning-rule-warning-report.component';
 import {
   ScenarioComplianceReport,
   toComplianceEntries,
@@ -51,7 +52,13 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
   templateUrl: './holistic-harmonizer-dialog.component.html',
   styleUrls: ['./holistic-harmonizer-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, QualificationGapReportComponent, ComplianceViolationReportComponent],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    QualificationGapReportComponent,
+    ComplianceViolationReportComponent,
+    PlanningRuleWarningReportComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HolisticHarmonizerDialogComponent {
@@ -72,6 +79,10 @@ export class HolisticHarmonizerDialogComponent {
 
   readonly complianceEntries = computed(() => toComplianceEntries(this._appliedComplianceReport()));
   readonly complianceBlockingCount = computed(() => this._appliedComplianceReport()?.blockingIssues.length ?? 0);
+
+  readonly planningRuleWarnings = computed(
+    () => this.holisticHarmonizerService.result()?.planningRuleWarnings ?? [],
+  );
 
   readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
 

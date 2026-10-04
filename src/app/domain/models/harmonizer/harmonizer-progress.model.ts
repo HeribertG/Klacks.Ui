@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
+import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 
 export interface HarmonizerProgress {
   jobId: string;
@@ -24,6 +25,7 @@ export interface HarmonizerResult {
   generationsRun: number;
   rowResults: HarmonizerRowResult[];
   qualificationGaps?: QualificationGapDetail[];
+  planningRuleWarnings?: ScheduleErrorEntry[] | null;
 }
 
 export type HarmonizerStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

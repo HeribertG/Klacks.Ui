@@ -35,12 +35,7 @@ import {
   isoWeekMondayOf,
 } from 'src/app/shared/helpers/date.helper';
 import {
-  PLANNING_RULE_ID_PARAM,
-  PLANNING_RULE_KIND_KEY_PREFIX,
-  PLANNING_RULE_KIND_PARAM,
   SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY,
-  SCHEDULE_VALIDATION_KEY_PLANNING_RULE,
-  SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID,
   SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
   TEAM_SCOPED_VALIDATION_KEYS,
   WEEK_SCOPED_VALIDATION_KEYS,
@@ -50,6 +45,10 @@ import {
   parseCalendarDate,
 } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateParams } from 'src/app/domain/helpers/date-params.helper';
+import {
+  localizePlanningRuleKind,
+  planningRuleTooltip,
+} from 'src/app/domain/helpers/planning-rule-entry.helper';
 import { resolveMultiLanguageParams } from 'src/app/domain/helpers/multi-language-params.helper';
 import { LocaleService } from 'src/app/application/services/locale.service';
 
@@ -199,23 +198,13 @@ export class CollisionDetectionService implements OnDestroy {
           validation.comment,
           validation.commentParams,
         ),
-        tooltip: this.planningRuleTooltip(validation.comment, validation.commentParams),
+        tooltip: planningRuleTooltip(validation.comment, validation.commentParams),
       });
     }
 
     this.addUnderstaffedShiftEntries(entries);
 
     this.errorEntries.set(entries);
-  }
-
-  private planningRuleTooltip(
-    comment: string,
-    params: Record<string, string> | undefined,
-  ): string | undefined {
-    const isPlanningRule =
-      comment === SCHEDULE_VALIDATION_KEY_PLANNING_RULE ||
-      comment === SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID;
-    return isPlanningRule ? params?.[PLANNING_RULE_ID_PARAM] : undefined;
   }
 
   private localizeCommentParams(
@@ -226,13 +215,9 @@ export class CollisionDetectionService implements OnDestroy {
       return params;
     }
 
-    const localized = { ...params };
-    const kind = localized[PLANNING_RULE_KIND_PARAM];
-    if (kind && comment === SCHEDULE_VALIDATION_KEY_PLANNING_RULE) {
-      localized[PLANNING_RULE_KIND_PARAM] = this.translate.instant(
-        `${PLANNING_RULE_KIND_KEY_PREFIX}${kind.toLowerCase()}`,
-      );
-    }
+    const localized = {
+      ...localizePlanningRuleKind(comment, params, (key) => this.translate.instant(key)),
+    };
     const dayOfWeek = localized['dayOfWeek'];
     if (dayOfWeek) {
       localized['dayOfWeek'] = this.translate.instant(dayOfWeek.toLowerCase());

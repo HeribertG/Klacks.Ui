@@ -1,0 +1,9 @@
+@if (rows().length > 0) {
+  <div class="alert alert-warning planning-rule-warning-report" role="alert">
+    @for (row of rows(); track $index) {
+      <div class="planning-rule-warning" [title]="row.tooltip ?? ''">
+        ⚠ {{ row.comment | translate: (row.commentParams | localizedParams) }}
+      </div>
+    }
+  </div>
+}
