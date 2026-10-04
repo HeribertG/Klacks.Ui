@@ -25,7 +25,7 @@
   <tr><td><strong>Non</strong></td><td>vide</td><td>Défini par cette règle : aucun travail n'a lieu ce jour-là. Cela vaut pour chaque contrat auquel la règle est attribuée - même si le contrat prévoit expressément ce jour.</td></tr>
 </table>
 <p><strong>Attention :</strong> "Non" est un blocage explicite et non un état neutre. Définir certains jours sur "oui" ne bloque pas les autres : pour chaque jour laissé sur "non défini", le contrat continue de s'appliquer. Pour exclure un jour, il faut le définir expressément sur "non".</p>
-<p>Le <strong>travail posté</strong> suit la même logique : "non défini" reprend la valeur du contrat, tandis que "oui" et "non" la définissent par cette règle.</p>
+<p>Le <strong>travail posté</strong> fonctionne différemment : le contrat passe en premier. "Oui" et "non" sont le standard de cette règle pour les contrats qui laissent le travail posté sur standard - une valeur explicite dans le contrat a toujours la priorité. "Non défini" signifie que le paramètre par défaut de l'installation s'applique, sauf si le contrat définit une valeur. Sans travail posté, les taux de majoration propres au contrat (nuit, jour férié, week-end) sont ignorés et les taux standard s'appliquent.</p>
 
 <hr>
 

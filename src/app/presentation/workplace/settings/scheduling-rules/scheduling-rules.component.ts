@@ -188,6 +188,12 @@ export class SchedulingRulesComponent
     disabled: 'setting.schedulingRule.triState-disabled',
   };
 
+  private static readonly SHIFT_WORK_TOOLTIP_KEYS: Record<string, string> = {
+    unset: 'setting.schedulingRule.shiftWork-unset',
+    enabled: 'setting.schedulingRule.shiftWork-enabled',
+    disabled: 'setting.schedulingRule.shiftWork-disabled',
+  };
+
   isTriStateChecked(field: SchedulingRuleTriStateField): boolean {
     return this.formModel()[field] === true;
   }
@@ -197,12 +203,13 @@ export class SchedulingRulesComponent
   }
 
   triStateTooltipKey(field: SchedulingRuleTriStateField): string {
+    const keys = field === this.shiftWorkField
+      ? SchedulingRulesComponent.SHIFT_WORK_TOOLTIP_KEYS
+      : SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS;
     if (this.isTriStateUnset(field)) {
-      return SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS['unset'];
+      return keys['unset'];
     }
-    return this.isTriStateChecked(field)
-      ? SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS['enabled']
-      : SchedulingRulesComponent.TRI_STATE_TOOLTIP_KEYS['disabled'];
+    return this.isTriStateChecked(field) ? keys['enabled'] : keys['disabled'];
   }
 
   cycleTriState(field: SchedulingRuleTriStateField, target?: EventTarget | null): void {

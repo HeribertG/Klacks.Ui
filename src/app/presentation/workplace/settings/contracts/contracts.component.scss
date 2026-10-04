@@ -192,6 +192,24 @@
   padding-bottom: 10px;
 }
 
+.contract-rates-hint {
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding-bottom: 6px;
+}
+
+.tri-state-checkbox {
+  cursor: pointer;
+}
+
+input[type="checkbox"].tri-state-checkbox:indeterminate {
+  outline: 1px solid var(--colorNeutral);
+}
+
+.tri-state-legend {
+  margin-top: 6px;
+}
+
 .workdays-label {
   white-space: nowrap;
 }

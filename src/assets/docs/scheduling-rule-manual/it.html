@@ -25,7 +25,7 @@
   <tr><td><strong>No</strong></td><td>vuota</td><td>Specificato da questa regola: in questo giorno non si lavora. Vale per ogni contratto a cui la regola è assegnata - anche se il contratto prevede espressamente quel giorno.</td></tr>
 </table>
 <p><strong>Attenzione:</strong> "No" è un blocco esplicito e non uno stato neutro. Impostare singoli giorni su "sì" non blocca gli altri: per ogni giorno lasciato su "non specificato" continua a valere il contratto. Per escludere un giorno occorre impostarlo espressamente su "no".</p>
-<p>Il <strong>lavoro a turni</strong> segue la stessa logica: "non specificato" eredita il valore dal contratto, mentre "sì" e "no" lo specificano tramite questa regola.</p>
+<p>Il <strong>lavoro a turni</strong> funziona diversamente: prima viene il contratto. "Sì" e "no" sono lo standard di questa regola per i contratti che lasciano il lavoro a turni su standard - un valore esplicito nel contratto ha sempre la precedenza. "Non specificato" significa che si applica l'impostazione predefinita dell'installazione, a meno che il contratto non definisca un valore. Senza lavoro a turni, le aliquote di maggiorazione proprie del contratto (notte, festivi, fine settimana) vengono ignorate e si applicano le aliquote standard.</p>
 
 <hr>
 

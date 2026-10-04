@@ -50,17 +50,24 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
+import { CONTRACT_RATE_KEYS, normalizeRateInput } from 'src/app/domain/helpers/contract-rate.helper';
 
 interface ContractFormModel {
   name: string;
-  nightRate: number;
-  holidayRate: number;
-  we1Rate: number;
-  we2Rate: number;
-  we3Rate: number;
+  nightRate: number | null;
+  holidayRate: number | null;
+  we1Rate: number | null;
+  we2Rate: number | null;
+  we3Rate: number | null;
   nightStart: string;
   nightEnd: string;
 }
+
+const MIN_RATE_PERCENT = 0;
+const MAX_RATE_PERCENT = 100;
+
+const clampRate = (value: number | null): number | null =>
+  value == null ? null : Math.max(MIN_RATE_PERCENT, Math.min(MAX_RATE_PERCENT, value));
 
 @Component({
   selector: 'app-contracts',
@@ -103,15 +110,13 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
-  private weRateNullTracking = { we1Rate: false, we2Rate: false, we3Rate: false, nightStart: false, nightEnd: false };
-
   private formModel = signal<ContractFormModel>({
     name: '',
-    nightRate: 0,
-    holidayRate: 0,
-    we1Rate: 0,
-    we2Rate: 0,
-    we3Rate: 0,
+    nightRate: null,
+    holidayRate: null,
+    we1Rate: null,
+    we2Rate: null,
+    we3Rate: null,
     nightStart: '',
     nightEnd: '',
   });
@@ -122,24 +127,22 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
 
   private rateClampEffect = effect(() => {
     const current = this.formModel();
-    const clamped = {
-      ...current,
-      nightRate: Math.max(0, Math.min(100, current.nightRate)),
-      holidayRate: Math.max(0, Math.min(100, current.holidayRate)),
-      we1Rate: Math.max(0, Math.min(100, current.we1Rate)),
-      we2Rate: Math.max(0, Math.min(100, current.we2Rate)),
-      we3Rate: Math.max(0, Math.min(100, current.we3Rate)),
-    };
-    if (
-      clamped.nightRate !== current.nightRate ||
-      clamped.holidayRate !== current.holidayRate ||
-      clamped.we1Rate !== current.we1Rate ||
-      clamped.we2Rate !== current.we2Rate ||
-      clamped.we3Rate !== current.we3Rate
-    ) {
+    const clamped = { ...current };
+    for (const key of CONTRACT_RATE_KEYS) {
+      clamped[key] = clampRate(normalizeRateInput(current[key]));
+    }
+    if (CONTRACT_RATE_KEYS.some(key => clamped[key] !== current[key])) {
       this.formModel.set(clamped);
     }
   });
+
+  performsShiftWork = signal<boolean | null>(null);
+
+  private static readonly SHIFT_WORK_TOOLTIP_KEYS = {
+    unset: 'setting.contract.performsShiftWork-unset',
+    enabled: 'setting.contract.performsShiftWork-enabled',
+    disabled: 'setting.contract.performsShiftWork-disabled',
+  } as const;
 
   guaranteedHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
   guaranteedHoursInherited = signal<boolean>(false);
@@ -235,23 +238,17 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
   message = DomainMessages.DELETE_ENTRY;
 
   private initFormSignals(contract: IContract): void {
-    this.weRateNullTracking = {
-      we1Rate: contract.we1Rate === null,
-      we2Rate: contract.we2Rate === null,
-      we3Rate: contract.we3Rate === null,
-      nightStart: contract.nightStart === null,
-      nightEnd: contract.nightEnd === null,
-    };
     this.formModel.set({
       name: contract.name || '',
-      nightRate: contract.nightRate ?? 0,
-      holidayRate: contract.holidayRate ?? 0,
-      we1Rate: contract.we1Rate ?? 0,
-      we2Rate: contract.we2Rate ?? 0,
-      we3Rate: contract.we3Rate ?? 0,
+      nightRate: contract.nightRate ?? null,
+      holidayRate: contract.holidayRate ?? null,
+      we1Rate: contract.we1Rate ?? null,
+      we2Rate: contract.we2Rate ?? null,
+      we3Rate: contract.we3Rate ?? null,
       nightStart: contract.nightStart ?? '',
       nightEnd: contract.nightEnd ?? '',
     });
+    this.performsShiftWork.set(contract.performsShiftWork ?? null);
     this.guaranteedHoursInherited.set(contract.guaranteedHours == null);
     this.guaranteedHours.set(transformNullableNumberToOwnTime(contract.guaranteedHours, true));
     this.minimumHours.set(transformNumberToOwnTime(contract.minimumHours ?? 0, true));
@@ -271,13 +268,12 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     if (!this.editingContract) return;
     const formData = this.formModel();
     this.editingContract.name = formData.name;
-    this.editingContract.nightRate = formData.nightRate;
-    this.editingContract.holidayRate = formData.holidayRate;
-    this.editingContract.we1Rate = (this.weRateNullTracking.we1Rate && formData.we1Rate === 0) ? null : formData.we1Rate;
-    this.editingContract.we2Rate = (this.weRateNullTracking.we2Rate && formData.we2Rate === 0) ? null : formData.we2Rate;
-    this.editingContract.we3Rate = (this.weRateNullTracking.we3Rate && formData.we3Rate === 0) ? null : formData.we3Rate;
-    this.editingContract.nightStart = (this.weRateNullTracking.nightStart && formData.nightStart === '') ? null : (formData.nightStart || null);
-    this.editingContract.nightEnd = (this.weRateNullTracking.nightEnd && formData.nightEnd === '') ? null : (formData.nightEnd || null);
+    for (const key of CONTRACT_RATE_KEYS) {
+      this.editingContract[key] = clampRate(normalizeRateInput(formData[key]));
+    }
+    this.editingContract.nightStart = formData.nightStart || null;
+    this.editingContract.nightEnd = formData.nightEnd || null;
+    this.editingContract.performsShiftWork = this.performsShiftWork();
     this.editingContract.guaranteedHours = this.guaranteedHoursInherited()
       ? undefined
       : transformOwnTimeToNumber(this.guaranteedHours());
@@ -660,6 +656,49 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     if (this.editingContract) {
       this.editingContract.percent = parsed;
     }
+  }
+
+  isShiftWorkChecked(): boolean {
+    return this.performsShiftWork() === true;
+  }
+
+  isShiftWorkUnset(): boolean {
+    return this.performsShiftWork() == null;
+  }
+
+  shiftWorkTooltipKey(): string {
+    const keys = ContractsComponent.SHIFT_WORK_TOOLTIP_KEYS;
+    if (this.isShiftWorkUnset()) {
+      return keys.unset;
+    }
+    return this.isShiftWorkChecked() ? keys.enabled : keys.disabled;
+  }
+
+  /**
+   * Cycles the contract's shift-work flag through standard (null), yes and no. The DOM checkbox is
+   * re-synchronised because a native click always toggles `checked` and clears `indeterminate`.
+   * @param target - The checkbox that was clicked, if any
+   */
+  cycleShiftWork(target?: EventTarget | null): void {
+    const current = this.performsShiftWork();
+    const next = current == null ? true : current ? false : null;
+    this.performsShiftWork.set(next);
+    if (this.editingContract) {
+      this.editingContract.performsShiftWork = next;
+    }
+
+    const checkbox = target as HTMLInputElement | null;
+    if (!checkbox) {
+      return;
+    }
+
+    const applyDomState = (): void => {
+      checkbox.checked = next === true;
+      checkbox.indeterminate = next == null;
+    };
+
+    applyDomState();
+    queueMicrotask(applyDomState);
   }
 
   getPaymentIntervalLabel(value?: PaymentInterval): string {

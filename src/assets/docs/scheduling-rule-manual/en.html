@@ -25,7 +25,7 @@
   <tr><td><strong>No</strong></td><td>empty</td><td>Prescribed by this rule: no work takes place on this day. This applies to every contract the rule is assigned to - even if the contract explicitly provides for that day.</td></tr>
 </table>
 <p><strong>Note:</strong> "No" is an explicit block, not a neutral state. Setting individual days to "yes" does not block the rest: for every day left at "not prescribed", the contract still applies. To exclude a day, you must set it to "no" explicitly.</p>
-<p><strong>Shift work</strong> follows the same logic: "not prescribed" takes the value from the contract, while "yes" and "no" prescribe it through this rule.</p>
+<p><strong>Shift work</strong> works differently: the contract comes first. "Yes" and "no" are this rule's standard for contracts that leave shift work on standard - an explicit value in the contract always takes precedence. "Not prescribed" means the installation default applies unless the contract sets a value. Without shift work, the contract's own surcharge rates (night, holiday, weekend) are ignored and the standard rates apply.</p>
 
 <hr>
 

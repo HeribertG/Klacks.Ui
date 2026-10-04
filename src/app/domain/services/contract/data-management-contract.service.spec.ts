@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementContractService } from './data-management-contract.service';
 import { DataManagementSchedulingRuleService } from '../scheduling/data-management-scheduling-rule.service';
@@ -12,6 +12,8 @@ import { DataContractService } from 'src/app/infrastructure/api/contract/data-co
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
 import { Contract, IContract } from '../../models/contract/contract-class';
+import { signal } from '@angular/core';
+import { of } from 'rxjs';
 
 function rule(id: string, name: string): ISchedulingRule {
   return { id, name } as ISchedulingRule;
@@ -116,5 +118,85 @@ describe('DataManagementContractService - assigned scheduling rule', () => {
 
       expect(errors.length).toBe(1);
     });
+  });
+});
+
+describe('DataManagementContractService - standard rates', () => {
+  let service: DataManagementContractService;
+  let addContract: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    addContract = vi.fn((contract: IContract) => of({ ...contract, id: 'new-id' }));
+
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        {
+          provide: DataManagementSchedulingRuleService,
+          useValue: { readRuleById: vi.fn(), readSelectableRules: vi.fn().mockResolvedValue([]) },
+        },
+        { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn(), on: vi.fn() } },
+        { provide: DataContractService, useValue: { addContract, getList: vi.fn(() => of([])) } },
+        {
+          provide: DataManagementSettingsService,
+          useValue: {
+            nightRate: 10,
+            holidayRate: 20,
+            saRate: 30,
+            soRate: 40,
+            appSettings: {
+              schedulingDefaultSettings: signal({ maximumHours: 200, minimumHours: 0, fullTime: 180 }),
+              workSettings: signal({ paymentInterval: 2 }),
+              surchargeModeSettings: signal({ we3Rate: 0.5, nightStart: '23:00', nightEnd: '06:00' }),
+            },
+          },
+        },
+        { provide: DataManagementCalendarSelectionService, useValue: {} },
+        { provide: DataManagementIndividualPeriodService, useValue: {} },
+      ],
+    });
+
+    service = TestBed.inject(DataManagementContractService);
+  });
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
+
+  it('a new contract does not copy the settings rates, every rate stays on standard', () => {
+    const created = service.createContract();
+
+    expect(created.nightRate).toBeNull();
+    expect(created.holidayRate).toBeNull();
+    expect(created.we1Rate).toBeNull();
+    expect(created.we2Rate).toBeNull();
+    expect(created.we3Rate).toBeNull();
+    expect(created.performsShiftWork).toBeNull();
+  });
+
+  it('saving sends null for standard rates and keeps an explicit 0', async () => {
+    service.editContract = {
+      ...new Contract(),
+      id: undefined,
+      name: 'Contract',
+      nightRate: null,
+      holidayRate: 0,
+      we1Rate: 25,
+      we2Rate: null,
+      we3Rate: 0,
+      performsShiftWork: null,
+    };
+
+    await service.saveContract();
+
+    const sent = addContract.mock.calls[0][0] as IContract;
+    expect(sent.nightRate).toBeNull();
+    expect(sent.holidayRate).toBe(0);
+    expect(sent.we1Rate).toBe(0.25);
+    expect(sent.we2Rate).toBeNull();
+    expect(sent.we3Rate).toBe(0);
+    expect(sent.performsShiftWork).toBeNull();
   });
 });

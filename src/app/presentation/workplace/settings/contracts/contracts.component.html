@@ -176,6 +176,7 @@
               class="form-control rate-input"
               id="nightRate"
               aria-label="nightRate"
+              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
             />
             <span class="rate-unit">%</span>
           </div>
@@ -195,6 +196,7 @@
               class="form-control rate-input"
               id="holidayRate"
               aria-label="holidayRate"
+              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
             />
             <span class="rate-unit">%</span>
           </div>
@@ -214,6 +216,7 @@
               class="form-control rate-input"
               id="we1Rate"
               aria-label="we1Rate"
+              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
             />
             <span class="rate-unit">%</span>
           </div>
@@ -233,6 +236,7 @@
               class="form-control rate-input"
               id="we2Rate"
               aria-label="we2Rate"
+              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
             />
             <span class="rate-unit">%</span>
           </div>
@@ -257,6 +261,7 @@
               class="form-control rate-input"
               id="we3Rate"
               aria-label="we3Rate"
+              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
             />
             <span class="rate-unit">%</span>
           </div>
@@ -293,6 +298,10 @@
             aria-label="contractNightEnd"
           />
         </div>
+      </div>
+
+      <div id="contract-modal-rates-hint" class="settings-hint contract-rates-hint">
+        {{ "setting.contract.rates-standard-hint" | translate }}
       </div>
 
       <!-- Work Days -->
@@ -346,13 +355,21 @@
 
       <!-- Shift Work -->
       <div id="contract-modal-shift-work-row" class="contract-shift-work">
-        <label class="checkbox-label">
+        <label class="checkbox-label" [title]="shiftWorkTooltipKey() | translate">
           <input
+            id="contract-modal-performs-shift-work"
             type="checkbox"
-            [(ngModel)]="editingContract.performsShiftWork"
+            class="tri-state-checkbox"
+            [checked]="isShiftWorkChecked()"
+            [indeterminate]="isShiftWorkUnset()"
+            (change)="cycleShiftWork($event.currentTarget)"
+            [attr.aria-label]="'setting.contract.performsShiftWork-modal' | translate"
           />
           {{ "setting.contract.performsShiftWork-modal" | translate }}
         </label>
+        <div id="contract-modal-shift-work-legend" class="tri-state-legend settings-hint">
+          {{ shiftWorkTooltipKey() | translate }}
+        </div>
       </div>
 
       <!-- Validity Period -->

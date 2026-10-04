@@ -18,8 +18,8 @@ export interface IContract {
   maximumHours: number;
   minimumHours: number;
   fullTime: number;
-  nightRate: number;
-  holidayRate: number;
+  nightRate: number | null;
+  holidayRate: number | null;
   we1Rate: number | null;
   we2Rate: number | null;
   we3Rate: number | null;
@@ -40,7 +40,7 @@ export interface IContract {
   workOnFriday: boolean;
   workOnSaturday: boolean;
   workOnSunday: boolean;
-  performsShiftWork: boolean;
+  performsShiftWork: boolean | null;
 }
 
 export class Contract implements IContract {
@@ -50,8 +50,8 @@ export class Contract implements IContract {
   maximumHours = 0;
   minimumHours = 0;
   fullTime = 0;
-  nightRate = 0;
-  holidayRate = 0;
+  nightRate: number | null = null;
+  holidayRate: number | null = null;
   we1Rate: number | null = null;
   we2Rate: number | null = null;
   we3Rate: number | null = null;
@@ -73,5 +73,5 @@ export class Contract implements IContract {
   workOnFriday = true;
   workOnSaturday = false;
   workOnSunday = false;
-  performsShiftWork = false;
+  performsShiftWork: boolean | null = null;
 }

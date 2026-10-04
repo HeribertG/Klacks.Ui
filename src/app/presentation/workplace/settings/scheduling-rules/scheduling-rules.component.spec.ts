@@ -410,4 +410,15 @@ describe('SchedulingRulesComponent opened through the real NgbModal', () => {
     expect(component.editingRule!.performsShiftWork).toBe(true);
     expect(shiftWork.checked).toBe(true);
   });
+
+  it('explains the shift-work flag as the rule standard behind the contract, not as overriding it', async () => {
+    await openModalFor(new SchedulingRule());
+
+    expect(component.triStateTooltipKey(component.shiftWorkField)).toBe('setting.schedulingRule.shiftWork-unset');
+    component.cycleTriState(component.shiftWorkField);
+    expect(component.triStateTooltipKey(component.shiftWorkField)).toBe('setting.schedulingRule.shiftWork-enabled');
+    component.cycleTriState(component.shiftWorkField);
+    expect(component.triStateTooltipKey(component.shiftWorkField)).toBe('setting.schedulingRule.shiftWork-disabled');
+    expect(component.triStateTooltipKey('workOnMonday')).toBe('setting.schedulingRule.triState-unset');
+  });
 });

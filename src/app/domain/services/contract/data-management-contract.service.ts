@@ -28,6 +28,11 @@ import { OwnTime } from '../../models/schedule/schedule-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import {
+  convertContractRates,
+  factorToPercent,
+  percentToFactor,
+} from 'src/app/domain/helpers/contract-rate.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -194,11 +199,7 @@ export class DataManagementContractService {
 
       if (result && Array.isArray(result)) {
         for (const contract of result) {
-          contract.nightRate = (contract.nightRate ?? 0) * 100;
-          contract.holidayRate = (contract.holidayRate ?? 0) * 100;
-          contract.we1Rate = contract.we1Rate == null ? null : contract.we1Rate * 100;
-          contract.we2Rate = contract.we2Rate == null ? null : contract.we2Rate * 100;
-          contract.we3Rate = contract.we3Rate == null ? null : contract.we3Rate * 100;
+          convertContractRates(contract, factorToPercent);
         }
         this.contracts.push(...result);
       }
@@ -227,11 +228,7 @@ export class DataManagementContractService {
       );
 
       if (result) {
-        result.nightRate = (result.nightRate ?? 0) * 100;
-        result.holidayRate = (result.holidayRate ?? 0) * 100;
-        result.we1Rate = result.we1Rate == null ? null : result.we1Rate * 100;
-        result.we2Rate = result.we2Rate == null ? null : result.we2Rate * 100;
-        result.we3Rate = result.we3Rate == null ? null : result.we3Rate * 100;
+        convertContractRates(result, factorToPercent);
         this.prepareContract(result);
       }
     } catch (error) {
@@ -257,11 +254,6 @@ export class DataManagementContractService {
     newContract.maximumHours = sched.maximumHours;
     newContract.minimumHours = sched.minimumHours;
     newContract.fullTime = sched.fullTime;
-    newContract.nightRate = this.settingsService.nightRate;
-    newContract.holidayRate = this.settingsService.holidayRate;
-    newContract.we1Rate = this.settingsService.saRate;
-    newContract.we2Rate = this.settingsService.soRate;
-    newContract.we3Rate = this.settingsService.appSettings.surchargeModeSettings().we3Rate * 100;
     newContract.nightStart = this.settingsService.appSettings.surchargeModeSettings().nightStart;
     newContract.nightEnd = this.settingsService.appSettings.surchargeModeSettings().nightEnd;
     newContract.paymentInterval = work.paymentInterval;
@@ -324,11 +316,7 @@ export class DataManagementContractService {
 
     try {
       const contractToSave = { ...this.editContract };
-      contractToSave.nightRate = (contractToSave.nightRate ?? 0) / 100;
-      contractToSave.holidayRate = (contractToSave.holidayRate ?? 0) / 100;
-      contractToSave.we1Rate = contractToSave.we1Rate == null ? null : contractToSave.we1Rate / 100;
-      contractToSave.we2Rate = contractToSave.we2Rate == null ? null : contractToSave.we2Rate / 100;
-      contractToSave.we3Rate = contractToSave.we3Rate == null ? null : contractToSave.we3Rate / 100;
+      convertContractRates(contractToSave, percentToFactor);
 
       const action = contractToSave.id
         ? this.dataContractService.updateContract(contractToSave)

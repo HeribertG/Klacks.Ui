@@ -642,4 +642,123 @@ describe('ContractsComponent', () => {
       expect(mockModalService.openModel).not.toHaveBeenCalled();
     });
   });
+
+  describe('Standard rates and tri-state shift work', () => {
+    let modalView: EmbeddedViewRef<unknown> | undefined;
+
+    const queryModal = <T extends Element>(selector: string): T | null => {
+      for (const node of (modalView?.rootNodes ?? []) as Element[]) {
+        if (typeof node.querySelector !== 'function') continue;
+        if (node.matches?.(selector)) return node as unknown as T;
+        const hit = node.querySelector(selector);
+        if (hit) return hit as T;
+      }
+      return null;
+    };
+
+    const renderModal = () => {
+      fixture.detectChanges();
+      const viewContainer = fixture.debugElement.injector.get(ViewContainerRef);
+      modalView = viewContainer.createEmbeddedView(component.contractModal(), {
+        $implicit: { close: () => undefined, dismiss: () => undefined },
+      });
+      fixture.detectChanges();
+    };
+
+    afterEach(() => {
+      modalView?.destroy();
+      modalView = undefined;
+    });
+
+    it('keeps standard (null) rates null and explicit zero at zero when saving', () => {
+      component.onClickEdit({
+        ...mockContract,
+        nightRate: null,
+        holidayRate: 0,
+        we1Rate: null,
+        we2Rate: 0,
+        we3Rate: 25,
+      });
+
+      component.isFormValid();
+
+      expect(component.editingContract!.nightRate).toBeNull();
+      expect(component.editingContract!.holidayRate).toBe(0);
+      expect(component.editingContract!.we1Rate).toBeNull();
+      expect(component.editingContract!.we2Rate).toBe(0);
+      expect(component.editingContract!.we3Rate).toBe(25);
+    });
+
+    it('a cleared rate input saves as standard (null), a typed 0 saves as 0', () => {
+      component.onClickEdit({ ...mockContract, nightRate: 10, holidayRate: 15 });
+      renderModal();
+
+      const night = queryModal<HTMLInputElement>('#nightRate')!;
+      const holiday = queryModal<HTMLInputElement>('#holidayRate')!;
+      night.value = '';
+      night.dispatchEvent(new Event('input'));
+      holiday.value = '0';
+      holiday.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      component.isFormValid();
+
+      expect(component.editingContract!.nightRate).toBeNull();
+      expect(component.editingContract!.holidayRate).toBe(0);
+    });
+
+    it('shows the standard placeholder in an empty rate input', () => {
+      component.onClickEdit({ ...mockContract, nightRate: null });
+      renderModal();
+
+      const night = queryModal<HTMLInputElement>('#nightRate')!;
+      expect(night.value).toBe('');
+      expect(night.placeholder).toBe('setting.contract.rate-standard-placeholder');
+    });
+
+    it('clamps an explicit rate above 100 percent but leaves standard untouched', () => {
+      component.onClickEdit({ ...mockContract, nightRate: 150, holidayRate: null });
+      fixture.detectChanges();
+
+      component.isFormValid();
+
+      expect(component.editingContract!.nightRate).toBe(100);
+      expect(component.editingContract!.holidayRate).toBeNull();
+    });
+
+    it('cycles shift work through standard, yes and no and writes it to the contract', () => {
+      component.onClickEdit({ ...mockContract, performsShiftWork: null });
+      expect(component.isShiftWorkUnset()).toBe(true);
+      expect(component.shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-unset');
+
+      component.cycleShiftWork();
+      expect(component.editingContract!.performsShiftWork).toBe(true);
+      expect(component.shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-enabled');
+
+      component.cycleShiftWork();
+      expect(component.editingContract!.performsShiftWork).toBe(false);
+      expect(component.shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-disabled');
+
+      component.cycleShiftWork();
+      expect(component.editingContract!.performsShiftWork).toBeNull();
+
+      component.isFormValid();
+      expect(component.editingContract!.performsShiftWork).toBeNull();
+    });
+
+    it('renders standard shift work as an indeterminate checkbox and cycles on click', () => {
+      component.onClickEdit({ ...mockContract, performsShiftWork: null });
+      renderModal();
+
+      const checkbox = queryModal<HTMLInputElement>('#contract-modal-performs-shift-work')!;
+      expect(checkbox.indeterminate).toBe(true);
+
+      checkbox.click();
+      fixture.detectChanges();
+
+      expect(component.editingContract!.performsShiftWork).toBe(true);
+      expect(checkbox.checked).toBe(true);
+      expect(checkbox.indeterminate).toBe(false);
+    });
+  });
 });
