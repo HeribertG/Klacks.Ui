@@ -10,6 +10,7 @@
   <tr><td><strong>Max. giorni lavorativi</strong></td><td>Numero massimo di giorni lavorativi per settimana.</td></tr>
   <tr><td><strong>Min. giorni di riposo tra due blocchi lavorativi</strong></td><td>Numero minimo di giorni di riposo tra due blocchi lavorativi consecutivi.</td></tr>
   <tr><td><strong>Min. ore libere tra due giorni lavorativi</strong></td><td>Tempo minimo di riposo (in ore) tra la fine di un giorno lavorativo e l'inizio del successivo.</td></tr>
+  <tr><td><strong>Arco giornaliero di lavoro (h)</strong></td><td>Durata massima di una giornata lavorativa dal primo inizio all'ultima fine, pause incluse. Vuoto: vale il valore aziendale; 0: 24 ore meno il riposo minimo. Vedi «Arco giornaliero di lavoro e turni spezzati».</td></tr>
   <tr><td><strong>Max. intervallo ottimale tra turni (ore)</strong></td><td>Intervallo di tempo massimo (in ore) tra due turni consecutivi considerato ottimale.</td></tr>
   <tr><td><strong>Max. giorni lavorativi consecutivi</strong></td><td>Numero massimo di giorni lavorativi consecutivi senza giorno di riposo.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Attenzione:</strong> "No" è un blocco esplicito e non uno stato neutro. Impostare singoli giorni su "sì" non blocca gli altri: per ogni giorno lasciato su "non specificato" continua a valere il contratto. Per escludere un giorno occorre impostarlo espressamente su "no".</p>
 <p>Il <strong>lavoro a turni</strong> funziona diversamente: prima viene il contratto. "Sì" e "no" sono lo standard di questa regola per i contratti che lasciano il lavoro a turni su standard - un valore esplicito nel contratto ha sempre la precedenza. "Non specificato" significa che si applica l'impostazione predefinita dell'installazione, a meno che il contratto non definisca un valore. Senza lavoro a turni, le aliquote di maggiorazione proprie del contratto (notte, festivi, fine settimana) vengono ignorate e si applicano le aliquote standard.</p>
+
+<hr>
+
+<h3>Arco giornaliero di lavoro e turni spezzati</h3>
+<p>Un turno spezzato (p. es. 07:00-11:00 e 16:00-20:00) è <strong>un'unica</strong> giornata lavorativa: la pausa tra le due parti non è un periodo di riposo e non viene segnalata come violazione del riposo, finché l'intera giornata, dal primo inizio all'ultima fine, rimane entro l'<strong>arco giornaliero di lavoro</strong>. Se una parte supera l'arco, inizia una nuova giornata lavorativa e la breve pausa che la precede conta come riposo troppo breve.</p>
+<p>L'arco applicabile è stabilito dal diritto del <strong>luogo di lavoro</strong>. In Svizzera i contratti collettivi dichiarati di obbligatorietà generale (GAV/LMV) hanno forza di legge. Klacks cerca il valore in quest'ordine:</p>
+<ol>
+  <li><strong>Valore di questa regola di pianificazione</strong> - p. es. da un contratto collettivo. Un pacchetto di settore può impostarlo, ma solo con una fonte verificata; oggi nessun pacchetto fornisce un valore del genere.</li>
+  <li><strong>Valore aziendale dalle impostazioni</strong> (regole di pianificazione, valori predefiniti) - il pacchetto regionale vi inserisce il diritto nazionale, p. es. Svizzera: 14 ore (ArG art. 10 cpv. 3).</li>
+  <li><strong>24 ore meno il riposo minimo</strong> - quando non è impostato alcun arco da nessuna parte (p. es. 13 ore con 11 ore di riposo, direttiva UE 2003/88 art. 3).</li>
+</ol>
+<p>Sotto il campo Klacks mostra quale valore si applica e da dove proviene. Un arco più lungo di 24 ore meno il riposo minimo vale solo per le giornate lavorative all'interno di un unico giorno di calendario: un turno serale e un turno mattutino del giorno successivo non vengono mai riuniti in un'unica giornata lavorativa.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Campo</th><th>Descrizione</th></tr>
   <tr><td><strong>Giorni di ferie all'anno</strong></td><td>Numero di giorni di ferie per anno solare.</td></tr>
 </table>
+
+<hr>
+
+<h3>Violazioni di regole residue dopo un'esecuzione del Wizard</h3>
+<p>Il Wizard 2 e la fase 3 (anche come passi dell'AutoWizard) verificano le regole di pianificazione e di conteggio rigide con una protezione: non effettuano alcuna modifica che aumenti nel complesso il superamento di una regola rigida da parte di una persona. Non <strong>riparano</strong> però le violazioni esistenti, e una violazione può spostarsi all'interno della stessa regola (ad esempio su un altro giorno). Il primo passo dell'AutoWizard non pianifica ancora con queste regole. Un piano può quindi contenere ancora violazioni rigide dopo l'esecuzione.</p>
+<ul>
+  <li><strong>Risultato del Wizard:</strong> dopo l'esecuzione Klacks mostra quante violazioni rigide restano. Dopo il Wizard 2 e la fase 3 Klacks indica che nessuna regola rigida è peggiorata nel complesso. Dopo l'AutoWizard Klacks indica il numero prima e dopo; se sono più di prima, Klacks segnala esplicitamente che l'esecuzione ha aggiunto violazioni.</li>
+  <li><strong>Lista errori:</strong> ogni violazione rigida già presente all'inizio dell'ultima esecuzione è contrassegnata con <strong>«preesistente - da verificare»</strong>, anche nel PDF. Una violazione senza contrassegno non faceva parte dello stato iniziale dell'ultima esecuzione: è sorta in seguito oppure non era visualizzata all'avvio (altro periodo o gruppo, oppure la lista errori era ancora in caricamento). Il contrassegno vale per la sessione del browser e per l'ultima esecuzione avviata.</li>
+  <li><strong>Cosa fare:</strong> i pianificatori controllano le voci contrassegnate e le correggono a mano. I supervisori e gli amministratori possono sovrascrivere deliberatamente una violazione quando esiste un motivo aziendale. Gli amministratori verificano se la regola stessa è corretta.</li>
+</ul>
 
 <hr>
 

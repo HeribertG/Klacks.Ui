@@ -10,6 +10,7 @@
   <tr><td><strong>Max. Arbeitstage</strong></td><td>Weiche Regel (Soft-Cap): bevorzugte Blocklänge in Arbeitstagen am Stück, bevor ein Ruhetag eingeplant wird (z. B. "5 Tage arbeiten, dann Ruhe"). Ein Verstoss macht den Plan nicht ungültig, nur weniger optimal — die harte Obergrenze ist "Max. aufeinanderfolgende Arbeitstage" weiter unten.</td></tr>
   <tr><td><strong>Min. Ruhetage zwischen zwei Arbeitsblöcken</strong></td><td>Mindestanzahl freier Tage zwischen zwei aufeinanderfolgenden Arbeitsblöcken.</td></tr>
   <tr><td><strong>Min. Freistunden zwischen zwei Arbeitstagen</strong></td><td>Minimale Ruhezeit (in Stunden) zwischen dem Ende eines Arbeitstages und dem Beginn des nächsten.</td></tr>
+  <tr><td><strong>Tagesrahmen (Std.)</strong></td><td>Längste Spanne eines Arbeitstages vom ersten Beginn bis zum letzten Ende, Pausen eingeschlossen. Leer übernimmt den Firmenwert, 0 bedeutet 24 Std. minus Mindestruhe. Siehe „Tagesrahmen und geteilte Dienste“.</td></tr>
   <tr><td><strong>Max. optimale Lücke zwischen Schichten (Std.)</strong></td><td>Maximaler zeitlicher Abstand (in Stunden) zwischen zwei aufeinanderfolgenden Schichten, der als optimal gilt.</td></tr>
   <tr><td><strong>Max. aufeinanderfolgende Arbeitstage</strong></td><td>Maximale Anzahl von Arbeitstagen in Folge ohne Ruhetag.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Achtung:</strong> "Nein" ist eine ausdrückliche Sperre und kein neutraler Zustand. Einzelne Tage auf "ja" zu setzen sperrt die übrigen nicht: Für jeden Tag, der auf "nicht vorgegeben" steht, gilt weiterhin der Vertrag. Wer einen Tag ausschliessen will, muss ihn ausdrücklich auf "nein" setzen.</p>
 <p><strong>Schichtarbeit</strong> funktioniert anders: Der Vertrag geht vor. "Ja" und "nein" sind der Standard dieser Regel für Verträge, die Schichtarbeit auf Standard lassen - ein ausdrücklicher Wert im Vertrag hat immer Vorrang. "Nicht vorgegeben" bedeutet: Es gilt die Voreinstellung der Installation, sofern der Vertrag keinen Wert festlegt. Ohne Schichtarbeit werden die eigenen Zuschlagssätze des Vertrags (Nacht, Feiertag, Wochenende) ignoriert und es gelten die Standardsätze.</p>
+
+<hr>
+
+<h3>Tagesrahmen und geteilte Dienste</h3>
+<p>Ein geteilter Dienst (z. B. 07:00–11:00 und 16:00–20:00) ist <strong>ein</strong> Arbeitstag: Die Pause dazwischen ist keine Ruhezeit und wird nicht als Ruhezeitverstoss gemeldet, solange der ganze Tag vom ersten Beginn bis zum letzten Ende im <strong>Tagesrahmen</strong> bleibt. Reicht ein Teil über den Rahmen hinaus, beginnt ein neuer Arbeitstag, und die kurze Pause davor gilt als zu kurze Ruhezeit.</p>
+<p>Welcher Rahmen gilt, bestimmt das Recht des <strong>Arbeitsorts</strong>. In der Schweiz haben allgemeinverbindlich erklärte Gesamt- und Landesmantelverträge (GAV/LMV) Gesetzescharakter. Klacks sucht den Wert in dieser Reihenfolge:</p>
+<ol>
+  <li><strong>Wert dieser Planungsregel</strong> – z. B. aus einem Gesamt- oder Tarifvertrag. Ein Branchenpaket kann ihn setzen, aber nur mit belegter Quelle; heute liefert kein Paket einen solchen Wert.</li>
+  <li><strong>Firmenwert aus den Einstellungen</strong> (Planungsregeln, Standardwerte) – das Regionspaket trägt hier das Landesgesetz ein, z. B. Schweiz: 14 Std. (ArG Art. 10 Abs. 3).</li>
+  <li><strong>24 Std. minus Mindestruhe</strong> – wenn nirgends ein Rahmen hinterlegt ist (z. B. 13 Std. bei 11 Std. Ruhe, EU-Richtlinie 2003/88 Art. 3).</li>
+</ol>
+<p>Unter dem Feld zeigt Klacks, welcher Wert gilt und woher er kommt. Ein Rahmen über 24 Std. minus Mindestruhe gilt nur für Arbeitstage innerhalb eines Kalendertages: Ein Abend- und ein Morgendienst am Folgetag werden nie zu einem Arbeitstag zusammengefasst.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Feld</th><th>Beschreibung</th></tr>
   <tr><td><strong>Urlaubstage pro Jahr</strong></td><td>Anzahl der Urlaubstage, die pro Kalenderjahr zustehen.</td></tr>
 </table>
+
+<hr>
+
+<h3>Verbleibende Regelverstösse nach einem Wizard-Lauf</h3>
+<p>Wizard 2 und Stufe 3 (auch als Schritte des AutoWizards) prüfen harte Planungs- und Zähler-Regeln mit einer Schutzregel: Sie nehmen keine Änderung vor, die eine Person insgesamt weiter über eine harte Regel hinausbringt. Bestehende Verstösse <strong>beheben sie aber nicht</strong>, und ein Verstoss kann sich innerhalb derselben Regel verschieben (z. B. auf einen anderen Tag). Der erste Schritt des AutoWizards plant noch ohne diese Regeln. Ein Plan kann nach dem Lauf also weiterhin harte Verstösse enthalten.</p>
+<ul>
+  <li><strong>Wizard-Ergebnis:</strong> Nach dem Lauf zeigt Klacks, wie viele harte Verstösse geblieben sind. Nach Wizard 2 und Stufe 3 hält Klacks fest, dass sich keine harte Regel insgesamt verschlechtert hat. Nach dem AutoWizard nennt Klacks die Zahl vorher und nachher. Sind es mehr als vorher, meldet Klacks ausdrücklich, dass der Lauf Verstösse hinzugefügt hat.</li>
+  <li><strong>Fehlerliste:</strong> Jeder harte Verstoss, der schon bestand, als der letzte Lauf begann, trägt die Markierung <strong>„vorbestehend – bitte prüfen“</strong>, auch im PDF. Ein Verstoss ohne Markierung gehörte nicht zum Ausgangsstand des letzten Laufs: Er ist später entstanden oder war beim Start nicht sichtbar (andere Periode oder Gruppe, oder die Fehlerliste lud noch). Die Markierung gilt für die Sitzung im Browser und für den zuletzt gestarteten Lauf.</li>
+  <li><strong>Was tun:</strong> Planer prüfen die markierten Einträge und korrigieren sie von Hand. Supervisoren und Admins können einen Verstoss bewusst übersteuern, wenn er fachlich begründet ist. Admins prüfen, ob die Regel selbst stimmt.</li>
+</ul>
 
 <hr>
 

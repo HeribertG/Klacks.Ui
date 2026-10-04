@@ -10,6 +10,7 @@
   <tr><td><strong>Max. Work Days</strong></td><td>Maximum number of work days per week.</td></tr>
   <tr><td><strong>Min. Rest Days Between Two Work Blocks</strong></td><td>Minimum number of days off between two consecutive work blocks.</td></tr>
   <tr><td><strong>Min. Free Hours Between Two Work Days</strong></td><td>Minimum rest time (in hours) between the end of one work day and the start of the next.</td></tr>
+  <tr><td><strong>Daily Work Frame (hrs)</strong></td><td>Longest span of one work day from the first start to the last end, breaks included. Empty uses the company value, 0 means 24 hrs minus the minimum rest. See "Daily work frame and split shifts".</td></tr>
   <tr><td><strong>Max. Optimal Gap Between Shifts (hrs)</strong></td><td>Maximum time gap (in hours) between two consecutive shifts considered optimal.</td></tr>
   <tr><td><strong>Max. Consecutive Work Days</strong></td><td>Maximum number of consecutive work days without a rest day.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Note:</strong> "No" is an explicit block, not a neutral state. Setting individual days to "yes" does not block the rest: for every day left at "not prescribed", the contract still applies. To exclude a day, you must set it to "no" explicitly.</p>
 <p><strong>Shift work</strong> works differently: the contract comes first. "Yes" and "no" are this rule's standard for contracts that leave shift work on standard - an explicit value in the contract always takes precedence. "Not prescribed" means the installation default applies unless the contract sets a value. Without shift work, the contract's own surcharge rates (night, holiday, weekend) are ignored and the standard rates apply.</p>
+
+<hr>
+
+<h3>Daily work frame and split shifts</h3>
+<p>A split shift (e.g. 07:00-11:00 and 16:00-20:00) is <strong>one</strong> work day: the break between the parts is not a rest period and is not reported as a rest violation, as long as the whole day from the first start to the last end stays within the <strong>daily work frame</strong>. If a part reaches beyond the frame, a new work day begins, and the short break before it counts as too short a rest.</p>
+<p>Which frame applies is set by the law of the <strong>place of work</strong>. In Switzerland, collective agreements declared generally binding (GAV/LMV) have the force of law. Klacks looks for the value in this order:</p>
+<ol>
+  <li><strong>Value of this planning rule</strong> - e.g. from a collective agreement. An industry package can set it, but only with a verified source; no package ships such a value today.</li>
+  <li><strong>Company value from the settings</strong> (planning rules, default values) - the region package enters the national law here, e.g. Switzerland: 14 hrs (ArG Art. 10 para. 3).</li>
+  <li><strong>24 hrs minus the minimum rest</strong> - when no frame is set anywhere (e.g. 13 hrs with 11 hrs of rest, EU Directive 2003/88 Art. 3).</li>
+</ol>
+<p>Below the field, Klacks shows which value applies and where it comes from. A frame longer than 24 hrs minus the minimum rest only applies to work days within one calendar day: an evening shift and a morning shift on the next day are never merged into one work day.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Field</th><th>Description</th></tr>
   <tr><td><strong>Vacation Days Per Year</strong></td><td>Number of vacation days per calendar year.</td></tr>
 </table>
+
+<hr>
+
+<h3>Remaining rule violations after a wizard run</h3>
+<p>Wizard 2 and stage 3 (also as steps of the AutoWizard) check hard planning and counter rules with a guard: they make no change that increases how far a person exceeds a hard rule in total. They do <strong>not repair</strong> existing violations, though, and a violation can shift within the same rule (for example to another day). The first step of the AutoWizard does not plan with these rules yet. A plan can therefore still contain hard violations after the run.</p>
+<ul>
+  <li><strong>Wizard result:</strong> after the run, Klacks shows how many hard violations remain. After Wizard 2 and stage 3, Klacks states that no hard rule got worse in total. After the AutoWizard, Klacks gives the count before and after. If there are more than before, Klacks says explicitly that the run added violations.</li>
+  <li><strong>Error list:</strong> every hard violation that already existed when the last run started is marked <strong>"pre-existing - please check"</strong>, in the PDF as well. A violation without the marker was not part of the starting state of the last run: it arose later, or it was not shown when the run started (another period or group, or the error list was still loading). The marker applies to the browser session and to the run started last.</li>
+  <li><strong>What to do:</strong> planners check the marked entries and correct them by hand. Supervisors and admins can deliberately override a violation when there is a business reason. Admins check whether the rule itself is right.</li>
+</ul>
 
 <hr>
 

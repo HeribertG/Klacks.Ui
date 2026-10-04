@@ -10,6 +10,7 @@
   <tr><td><strong>Max. jours de travail</strong></td><td>Nombre maximum de jours de travail par semaine.</td></tr>
   <tr><td><strong>Min. jours de repos entre deux blocs de travail</strong></td><td>Nombre minimum de jours de repos entre deux blocs de travail consécutifs.</td></tr>
   <tr><td><strong>Min. heures libres entre deux jours de travail</strong></td><td>Temps de repos minimum (en heures) entre la fin d'un jour de travail et le début du suivant.</td></tr>
+  <tr><td><strong>Cadre journalier de travail (h)</strong></td><td>Durée maximale d'une journée de travail, du premier début à la dernière fin, pauses comprises. Vide : la valeur de l'entreprise s'applique ; 0 : 24 h moins le repos minimal. Voir « Cadre journalier de travail et services fractionnés ».</td></tr>
   <tr><td><strong>Max. écart optimal entre quarts (h)</strong></td><td>Écart de temps maximum (en heures) entre deux quarts consécutifs considéré comme optimal.</td></tr>
   <tr><td><strong>Max. jours de travail consécutifs</strong></td><td>Nombre maximum de jours de travail consécutifs sans jour de repos.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Attention :</strong> "Non" est un blocage explicite et non un état neutre. Définir certains jours sur "oui" ne bloque pas les autres : pour chaque jour laissé sur "non défini", le contrat continue de s'appliquer. Pour exclure un jour, il faut le définir expressément sur "non".</p>
 <p>Le <strong>travail posté</strong> fonctionne différemment : le contrat passe en premier. "Oui" et "non" sont le standard de cette règle pour les contrats qui laissent le travail posté sur standard - une valeur explicite dans le contrat a toujours la priorité. "Non défini" signifie que le paramètre par défaut de l'installation s'applique, sauf si le contrat définit une valeur. Sans travail posté, les taux de majoration propres au contrat (nuit, jour férié, week-end) sont ignorés et les taux standard s'appliquent.</p>
+
+<hr>
+
+<h3>Cadre journalier de travail et services fractionnés</h3>
+<p>Un service fractionné (p. ex. 07:00-11:00 et 16:00-20:00) compte comme <strong>une seule</strong> journée de travail : la pause entre les parties n'est pas un temps de repos et n'est pas signalée comme violation du repos, tant que toute la journée, du premier début à la dernière fin, reste dans le <strong>cadre journalier de travail</strong>. Si une partie dépasse le cadre, une nouvelle journée de travail commence et la courte pause qui la précède compte comme un repos trop court.</p>
+<p>Le cadre applicable est fixé par le droit du <strong>lieu de travail</strong>. En Suisse, les conventions collectives déclarées de force obligatoire générale (GAV/LMV) ont force de loi. Klacks cherche la valeur dans cet ordre :</p>
+<ol>
+  <li><strong>Valeur de cette règle de planification</strong> - p. ex. issue d'une convention collective. Un pack sectoriel peut la définir, mais uniquement avec une source vérifiée ; aucun pack ne fournit aujourd'hui une telle valeur.</li>
+  <li><strong>Valeur de l'entreprise dans les paramètres</strong> (règles de planification, valeurs par défaut) - le pack régional y inscrit le droit national, p. ex. Suisse : 14 h (ArG art. 10 al. 3).</li>
+  <li><strong>24 h moins le repos minimal</strong> - lorsqu'aucun cadre n'est défini nulle part (p. ex. 13 h avec 11 h de repos, directive 2003/88 de l'UE, art. 3).</li>
+</ol>
+<p>Sous le champ, Klacks indique quelle valeur s'applique et d'où elle provient. Un cadre supérieur à 24 h moins le repos minimal ne s'applique qu'aux journées de travail à l'intérieur d'un même jour calendaire : un quart du soir et un quart du matin du lendemain ne sont jamais regroupés en une seule journée de travail.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Champ</th><th>Description</th></tr>
   <tr><td><strong>Jours de vacances par an</strong></td><td>Nombre de jours de vacances par année civile.</td></tr>
 </table>
+
+<hr>
+
+<h3>Violations de règles restantes après une exécution du Wizard</h3>
+<p>Le Wizard 2 et l'étape 3 (également comme étapes de l'AutoWizard) contrôlent les règles de planification et de comptage strictes à l'aide d'une garde : ils n'effectuent aucune modification qui augmenterait au total le dépassement d'une règle stricte par une personne. Ils ne <strong>réparent pas</strong> en revanche les violations existantes, et une violation peut se déplacer au sein de la même règle (par exemple vers un autre jour). La première étape de l'AutoWizard ne planifie pas encore avec ces règles. Un plan peut donc encore contenir des violations strictes après l'exécution.</p>
+<ul>
+  <li><strong>Résultat du Wizard :</strong> après l'exécution, Klacks indique combien de violations strictes subsistent. Après le Wizard 2 et l'étape 3, Klacks indique qu'aucune règle stricte ne s'est aggravée au total. Après l'AutoWizard, Klacks indique le nombre avant et après ; s'il y en a davantage qu'avant, Klacks signale explicitement que l'exécution a ajouté des violations.</li>
+  <li><strong>Liste des erreurs :</strong> chaque violation stricte qui existait déjà au début de la dernière exécution est marquée <strong>« préexistant - à vérifier »</strong>, également dans le PDF. Une violation sans ce marqueur ne faisait pas partie de l'état initial de la dernière exécution : elle est apparue plus tard ou n'était pas affichée au démarrage (autre période ou groupe, ou liste des erreurs encore en cours de chargement). Le marqueur vaut pour la session du navigateur et pour l'exécution lancée en dernier.</li>
+  <li><strong>Que faire :</strong> les planificateurs vérifient les entrées marquées et les corrigent à la main. Les superviseurs et les administrateurs peuvent déroger délibérément à une violation lorsqu'il existe une raison professionnelle. Les administrateurs vérifient si la règle elle-même est correcte.</li>
+</ul>
 
 <hr>
 
