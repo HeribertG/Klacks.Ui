@@ -377,11 +377,11 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event === this.page + 1) {
       this.isNextPage = true;
       this.firstItemOnLastPage =
-        this.dataManagementGroupService.paginationDataService.firstItem;
+        this.dataManagementGroupService.paginationDataService?.firstItem;
     } else if (event === this.page - 1) {
       this.isPreviousPage = true;
       this.firstItemOnLastPage =
-        this.dataManagementGroupService.paginationDataService.firstItem;
+        this.dataManagementGroupService.paginationDataService?.firstItem;
     }
 
     this.page = event;
@@ -417,6 +417,12 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
+      effect(() => {
+        this.dataManagementGroupService.listVersion();
+        this.page = this.dataManagementGroupService.currentFilter.requiredPage + 1;
+        this.cdr.markForCheck();
+      });
+
       this.effectRef = effect(() => {
         const isRead = this.dataManagementGroupService.isRead();
         if (isRead) {

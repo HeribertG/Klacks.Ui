@@ -70,12 +70,22 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit {
       });
   }
 
+  onOpenChange(isOpen: boolean): void {
+    if (!isOpen) {
+      this.onClose();
+    }
+  }
+
   onClose() {
     const values = this.navFilterFormModel();
     const f = this.dataManagementGroupService.currentFilter;
     f.activeDateRange = values.activeDateRange;
     f.formerDateRange = values.formerDateRange;
     f.futureDateRange = values.futureDateRange;
+    f.requiredPage = 0;
+    f.firstItemOnLastPage = undefined;
+    f.isPreviousPage = undefined;
+    f.isNextPage = undefined;
     this.dataManagementGroupService.readPage(false);
   }
 }

@@ -2,10 +2,11 @@
   <ul id="all-group-nav-list" class="list-group">
     <!-- Gültigkeit -->
     <li class="list-group-item-action">
-      <div id="all-group-validity-dropdown" ngbDropdown>
+      <div id="all-group-validity-dropdown" ngbDropdown (openChange)="onOpenChange($event)">
         <button
           class="btn btn-outline-primary btn-sm max-width"
           id="all-group-validity-dropdown-toggle"
+          type="button"
           ngbDropdownToggle
         >
           {{ "address.all-address.all-address-nav.validity" | translate }}
@@ -43,7 +44,7 @@
           </div>
           <div class="dropdown-divider"></div>
 
-          <button id="all-group-validity-close" ngbDropdownItem (click)="onClose()">
+          <button id="all-group-validity-close" type="button" ngbDropdownItem>
             {{ "close" | translate }}
           </button>
         </div>

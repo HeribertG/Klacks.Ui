@@ -83,6 +83,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   public isReset = signal(false);
   public isRead = signal(false);
+  public readonly listVersion = signal(0);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public showTree = signal(true);
@@ -286,6 +287,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
           firstItem: x.firstItemOnPage,
           maxPages: x.maxPages,
         };
+        this.listVersion.update((version) => version + 1);
       });
 
     if (isSecondRead) {

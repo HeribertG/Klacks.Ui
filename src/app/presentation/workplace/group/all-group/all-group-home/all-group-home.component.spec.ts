@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Component } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { AllGroupHomeComponent } from './all-group-home.component';
@@ -11,6 +11,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 
 @Component({ selector: 'app-all-group-list', template: '', standalone: true })
 class FakeAllGroupListComponent {}
@@ -20,6 +21,12 @@ class FakeAllGroupNavComponent {}
 
 @Component({ selector: 'app-tree-group', template: '', standalone: true })
 class FakeTreeGroupComponent {}
+
+@Component({ selector: 'app-nav-toggle', template: '', standalone: true })
+class FakeNavToggleComponent {
+  readonly open = model(false);
+  readonly filterActive = input(false);
+}
 
 describe('AllGroupHomeComponent - group nav visibility', () => {
   let held: Set<string>;
@@ -41,11 +48,12 @@ describe('AllGroupHomeComponent - group nav visibility', () => {
         { provide: SavebarService, useValue: { setSavebarVisibility: vi.fn() } },
         { provide: LayoutService, useValue: { setContainerToNormalSize: vi.fn() } },
         { provide: SearchService, useValue: { setSearchVisibility: vi.fn(), setGroupViewMode: vi.fn() } },
+        { provide: DataManagementGroupService, useValue: { currentFilter: { isDefault: () => true } } },
       ],
     });
 
     TestBed.overrideComponent(AllGroupHomeComponent, {
-      set: { imports: [TranslateModule, FakeAllGroupListComponent, FakeAllGroupNavComponent, FakeTreeGroupComponent] },
+      set: { imports: [TranslateModule, FakeAllGroupListComponent, FakeAllGroupNavComponent, FakeTreeGroupComponent, FakeNavToggleComponent] },
     });
 
     const createdFixture = TestBed.createComponent(AllGroupHomeComponent);
