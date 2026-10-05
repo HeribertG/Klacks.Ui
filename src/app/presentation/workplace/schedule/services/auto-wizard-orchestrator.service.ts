@@ -30,6 +30,8 @@ import { SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID } from 'src/app/domain/co
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
 import { describePlanningRuleRemaining } from 'src/app/domain/helpers/planning-rule-remaining.helper';
+import { scenarioOpenSlotReasonKey } from 'src/app/domain/helpers/scenario-summary-reason.helper';
+import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 
 const TOAST_CONTEXT = 'auto-wizard';
 
@@ -256,6 +258,8 @@ export class AutoWizardOrchestratorService {
       );
     }
 
+    this.announceOpenSlots(result?.summary);
+
     if ((result?.planningRuleWarnings?.length ?? 0) > 0) {
       this.toastShowService.showError(
         this.translateService.instant(SCHEDULE_VALIDATION_KEY_PLANNING_RULE_INVALID),
@@ -274,6 +278,21 @@ export class AutoWizardOrchestratorService {
         TOAST_ICONS.WARNING,
       );
     }
+  }
+
+  private announceOpenSlots(summary: ScenarioSummary | null | undefined): void {
+    if (!summary || summary.openSlots <= 0) {
+      return;
+    }
+    const topReason = summary.openSlotReasons?.[0];
+    const params = { open: summary.openSlots, demanded: summary.demandedSlots };
+    const message = topReason
+      ? this.translateService.instant('autoWizard.toast.openSlots', {
+          ...params,
+          reason: this.translateService.instant(scenarioOpenSlotReasonKey(topReason.reasonCode)),
+        })
+      : this.translateService.instant('autoWizard.toast.openSlotsNoReason', params);
+    this.toastShowService.showError(message, TOAST_CONTEXT, '', TOAST_ICONS.WARNING);
   }
 
   private handleFailed(): void {

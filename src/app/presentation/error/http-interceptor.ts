@@ -149,6 +149,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    if (url.includes('AnalyseScenarios/') && url.includes('/Summary') && error.status === 404) {
+      return throwError(() => error);
+    }
+
     if (this.isKlacksyLearningPassThroughError(url, error.status)) {
       return throwError(() => error);
     }

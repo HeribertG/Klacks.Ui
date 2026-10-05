@@ -17,6 +17,7 @@ import {
   ICreateAnalyseScenarioRequest,
   isWizard4Candidate,
 } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';
 
@@ -59,6 +60,10 @@ export class AnalyseScenarioService {
 
   exitScenario(): void {
     this.activeScenario.set(null);
+  }
+
+  loadSummary(id: string): Observable<ScenarioSummary> {
+    return this.dataService.getSummary(id);
   }
 
   createScenario(request: ICreateAnalyseScenarioRequest): Observable<IAnalyseScenario> {

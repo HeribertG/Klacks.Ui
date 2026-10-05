@@ -1,0 +1,118 @@
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+$cell-padding-block: 6px;
+$cell-padding-inline: 8px;
+$section-gap: 16px;
+
+:host {
+  display: none;
+}
+
+.summary-state {
+  color: var(--standartTextColor);
+}
+
+.summary-state-error {
+  color: var(--standartRedColor);
+}
+
+.summary-subject {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-block-end: 8px;
+}
+
+.summary-name {
+  font-weight: 600;
+  color: var(--colorHeadline);
+}
+
+.summary-period {
+  color: var(--colorLabel);
+  font-size: 13px;
+}
+
+.summary-total {
+  margin-block-end: $section-gap;
+  font-weight: 600;
+  color: var(--standartTextColor);
+}
+
+.summary-total-open {
+  color: var(--standartRedColor);
+}
+
+.summary-section-title {
+  margin-block: $section-gap 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--colorHeadline);
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--standartTextColor);
+
+  th,
+  td {
+    padding: $cell-padding-block $cell-padding-inline;
+    border-block-end: 1px solid var(--cardBorderColor);
+    text-align: start;
+  }
+
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--colorLabel);
+  }
+
+  .summary-number {
+    text-align: end;
+    white-space: nowrap;
+  }
+}
+
+.summary-abbreviation {
+  color: var(--colorLabel);
+}
+
+.summary-open {
+  font-weight: 600;
+  color: var(--standartRedColor);
+}
+
+.summary-reasons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summary-reason {
+  padding: $cell-padding-block $cell-padding-inline;
+  border-block-end: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+}
+
+.summary-reason-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary-reason-text {
+  font-weight: 500;
+}
+
+.summary-reason-count {
+  white-space: nowrap;
+  color: var(--standartRedColor);
+}
+
+.summary-reason-shifts {
+  margin-block-start: 2px;
+  font-size: 12px;
+  color: var(--colorLabel);
+}

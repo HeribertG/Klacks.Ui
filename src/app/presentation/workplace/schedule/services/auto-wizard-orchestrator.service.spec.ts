@@ -9,6 +9,7 @@ import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/da
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';
 import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
@@ -447,6 +448,132 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       '',
       expect.anything(),
     );
+  });
+
+  describe('open slots of the scenario summary', () => {
+    const summary = (overrides: Record<string, unknown> = {}) => ({
+      token: 'token-1',
+      fromDate: '2026-06-01',
+      untilDate: '2026-06-07',
+      agentCount: 4,
+      workCount: 30,
+      demandedSlots: 40,
+      filledSlots: 30,
+      openSlots: 10,
+      shifts: [],
+      openSlotReasons: [
+        { reasonCode: 'NO_AGENT_PERFORMS_SHIFT_WORK', slotCount: 7, shiftNames: ['Night'] },
+        { reasonCode: 'CAPACITY_OR_RULES', slotCount: 3, shiftNames: ['Early'] },
+      ],
+      ...overrides,
+    });
+
+    async function completeWithSummary(h: Harness, value: unknown): Promise<void> {
+      await h.orchestrator.start();
+      h.wizard.result.set({
+        jobId: 'job-1',
+        finalScenarioId: 'scenario-1',
+        finalScenarioToken: 'token-1',
+        finalScenarioName: 'Auto Plan',
+        elapsedMs: 1,
+        summary: value,
+      });
+      h.wizard.status.set('completed');
+      TestBed.tick();
+    }
+
+    it('warns with the counts and the translated first reason when slots stay open', async () => {
+      // Arrange
+      const h = setup();
+
+      // Act
+      await completeWithSummary(h, summary());
+
+      // Assert
+      expect(h.showError).toHaveBeenCalledTimes(1);
+      expect(h.showError).toHaveBeenCalledWith(
+        'autoWizard.toast.openSlots',
+        'auto-wizard',
+        '',
+        TOAST_ICONS.WARNING,
+      );
+      expect(paramsOf(h, 'autoWizard.toast.openSlots')).toEqual({
+        open: 10,
+        demanded: 40,
+        reason: 'scenarioSummary.reason.NO_AGENT_PERFORMS_SHIFT_WORK',
+      });
+    });
+
+    it('falls back to the generic reason text for a code this client does not know', async () => {
+      // Arrange
+      const h = setup();
+
+      // Act
+      await completeWithSummary(
+        h,
+        summary({ openSlotReasons: [{ reasonCode: 'SOMETHING_NEW', slotCount: 10, shiftNames: [] }] }),
+      );
+
+      // Assert
+      expect(paramsOf(h, 'autoWizard.toast.openSlots')?.['reason']).toBe('scenarioSummary.reason.CAPACITY_OR_RULES');
+    });
+
+    it('uses the reason-less text when slots stay open without a reported reason', async () => {
+      // Arrange
+      const h = setup();
+
+      // Act
+      await completeWithSummary(h, summary({ openSlotReasons: [] }));
+
+      // Assert
+      expect(h.showError).toHaveBeenCalledWith('autoWizard.toast.openSlotsNoReason', 'auto-wizard', '', TOAST_ICONS.WARNING);
+      expect(paramsOf(h, 'autoWizard.toast.openSlotsNoReason')).toEqual({ open: 10, demanded: 40 });
+    });
+
+    it('shows no open-slot warning when every slot is filled', async () => {
+      // Arrange
+      const h = setup();
+
+      // Act
+      await completeWithSummary(h, summary({ openSlots: 0, filledSlots: 40, openSlotReasons: [] }));
+
+      // Assert
+      expect(h.showError).not.toHaveBeenCalled();
+    });
+
+    it('shows no open-slot warning when the result carries no summary', async () => {
+      // Arrange
+      const h = setup();
+
+      // Act
+      await completeWithSummary(h, undefined);
+
+      // Assert
+      expect(h.showError).not.toHaveBeenCalled();
+    });
+
+    it('also warns when the result belongs to another group', async () => {
+      // Arrange
+      const h = setup();
+      await h.orchestrator.start();
+      selectedGroupId.set(OTHER_GROUP);
+
+      // Act
+      h.wizard.result.set({
+        jobId: 'job-1',
+        finalScenarioId: 'scenario-1',
+        finalScenarioToken: 'token-1',
+        finalScenarioName: 'Auto Plan',
+        elapsedMs: 1,
+        summary: summary(),
+      });
+      h.wizard.status.set('completed');
+      TestBed.tick();
+
+      // Assert
+      expect(h.showInfo).toHaveBeenCalledWith('autoWizard.toast.completedForGroup', 'auto-wizard', '', expect.anything());
+      expect(h.showError).toHaveBeenCalledWith('autoWizard.toast.openSlots', 'auto-wizard', '', TOAST_ICONS.WARNING);
+    });
   });
 
   it('shows no planning-rule warning when the run skipped no rule', async () => {
