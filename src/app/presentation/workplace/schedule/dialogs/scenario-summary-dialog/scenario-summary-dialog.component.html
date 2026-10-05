@@ -1,0 +1,103 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #scenarioSummaryModal>
+  <div class="modal-header">
+    <div id="scenario-summary-title" class="container-header-modal modal-title">
+      {{ 'scenarioSummary.title' | translate }}
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" aria-label="Close" (click)="onClose()">
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    @switch (loadState()) {
+      @case (states.Loading) {
+        <div id="scenario-summary-loading" class="summary-state">
+          <span class="spinner-border spinner-border-sm me-2"></span>{{ 'scenarioSummary.loading' | translate }}
+        </div>
+      }
+      @case (states.NotFound) {
+        <div id="scenario-summary-not-found" class="summary-state">
+          {{ 'scenarioSummary.notAvailable' | translate }}
+        </div>
+      }
+      @case (states.Failed) {
+        <div id="scenario-summary-failed" class="summary-state summary-state-error">
+          {{ 'scenarioSummary.loadFailed' | translate }}
+        </div>
+      }
+      @case (states.Loaded) {
+        @if (summary(); as data) {
+          <div class="summary-subject">
+            <span id="scenario-summary-name" class="summary-name">{{ scenarioName() }}</span>
+            <span id="scenario-summary-period" class="summary-period">{{ periodText() }}</span>
+          </div>
+
+          <div id="scenario-summary-total" class="summary-total" [class.summary-total-open]="data.openSlots > 0">
+            {{
+              'scenarioSummary.total'
+                | translate: { filled: data.filledSlots, demanded: data.demandedSlots, open: data.openSlots }
+            }}
+          </div>
+
+          @if (data.shifts.length > 0) {
+            <h5 class="summary-section-title">{{ 'scenarioSummary.shiftsTitle' | translate }}</h5>
+            <table id="scenario-summary-shifts" class="summary-table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'scenarioSummary.col.shift' | translate }}</th>
+                  <th scope="col" class="summary-number">{{ 'scenarioSummary.col.covered' | translate }}</th>
+                  <th scope="col" class="summary-number">{{ 'scenarioSummary.col.open' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (shift of data.shifts; track shift.shiftId) {
+                  <tr class="summary-shift-row">
+                    <td>
+                      {{ shift.shiftName }}
+                      @if (shift.abbreviation) {
+                        <span class="summary-abbreviation">({{ shift.abbreviation }})</span>
+                      }
+                    </td>
+                    <td class="summary-number">{{ shift.filledSlots }} / {{ shift.demandedSlots }}</td>
+                    <td class="summary-number" [class.summary-open]="shift.openSlots > 0">{{ shift.openSlots }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+
+          @if (data.openSlotReasons.length > 0) {
+            <h5 class="summary-section-title">{{ 'scenarioSummary.reasonsTitle' | translate }}</h5>
+            <ul id="scenario-summary-reasons" class="summary-reasons">
+              @for (reason of data.openSlotReasons; track reason.reasonCode) {
+                <li class="summary-reason">
+                  <div class="summary-reason-head">
+                    <span class="summary-reason-text">{{ reasonKey(reason.reasonCode) | translate }}</span>
+                    <span class="summary-reason-count">
+                      {{ 'scenarioSummary.reasonCount' | translate: { count: reason.slotCount } }}
+                    </span>
+                  </div>
+                  @if (reason.shiftNames.length > 0) {
+                    <div class="summary-reason-shifts">{{ shiftNames(reason.shiftNames) }}</div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        }
+      }
+    }
+  </div>
+
+  <div class="modal-footer">
+    <button id="scenario-summary-close-btn" type="button" class="btn save-btn" (click)="onClose()">
+      {{ 'close' | translate }}
+    </button>
+  </div>
+</ng-template>

@@ -7,6 +7,9 @@
       <span class="scenario-banner-hint">{{ "scenario.banner.hint" | translate }}</span>
     </div>
     <div class="scenario-banner-actions">
+      <button id="scenario-banner-summary-btn" type="button" class="btn btn-sm btn-outline-secondary" (click)="onShowSummary()">
+        {{ "scenarioSummary.button" | translate }}
+      </button>
       @if (canDecide()) {
         <button id="scenario-banner-accept-btn" type="button" class="btn btn-sm btn-success" (click)="onAccept()">
           {{ "scenario.accept" | translate }}
@@ -28,3 +31,5 @@
     </div>
   </div>
 }
+
+<app-scenario-summary-dialog #summaryDialog />

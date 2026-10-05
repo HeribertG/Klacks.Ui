@@ -15,6 +15,7 @@ import {
   IAnalyseScenario,
   ICreateAnalyseScenarioRequest,
 } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,18 @@ export class DataAnalyseScenarioService {
     return this.httpClient
       .get<IAnalyseScenario>(`${this.baseUrl}/${id}`)
       .pipe(retry(3));
+  }
+
+  getSummary(id: string): Observable<ScenarioSummary> {
+    return this.httpClient.get<ScenarioSummary>(`${this.baseUrl}/${id}/Summary`).pipe(
+      retry({
+        count: 3,
+        delay: (error: unknown) =>
+          error instanceof HttpErrorResponse && error.status === HttpStatusCode.NotFound
+            ? throwError(() => error)
+            : of(null),
+      }),
+    );
   }
 
   create(request: ICreateAnalyseScenarioRequest): Observable<IAnalyseScenario> {
