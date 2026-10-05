@@ -17,6 +17,7 @@ $login-background: "../../../../assets/png/login-background.png" !default;
   flex-direction: column;
   border-radius: 5px;
   width: 600px;
+  min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
 }
