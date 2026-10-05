@@ -1,6 +1,42 @@
 <div id="messaging-home-container" class="container-dashboard">
   <div id="messaging-home-headline" class="container-headline">
     {{ "messaging.page.title" | translate }}
+    <span class="nav-toggle">
+      <button
+        id="messaging-nav-toggle"
+        type="button"
+        class="btn btn-sm nav-toggle-button"
+        [class.nav-toggle-open]="navOpen()"
+        [attr.aria-expanded]="navOpen()"
+        (click)="toggleNav()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M3 4h18l-7 8.5V20l-4-2v-5.5z" />
+        </svg>
+        <span>{{ "accessibility.filter" | translate }}</span>
+        @if (filterActive()) {
+        <span class="nav-toggle-dot"></span>
+        }
+      </button>
+    </span>
+  </div>
+
+  <div
+    id="messaging-nav"
+    class="container-address-nav nav-collapsible border-right-card border-bottom-card"
+    [class.nav-open]="navOpen()"
+  >
+    <lib-messaging-nav
+      [hasMore]="messagingChat.hasMore()"
+      (filterChanged)="onFilterChanged($event)"
+    ></lib-messaging-nav>
   </div>
 
   <div class="container-profilline">
@@ -8,16 +44,6 @@
       #messagingChat
       class="container-profile first border-right-card border-bottom-card"
     ></lib-messaging-chat>
-  </div>
-
-  <div
-    id="messaging-nav"
-    class="container-address-nav border-right-card border-bottom-card"
-  >
-    <lib-messaging-nav
-      [hasMore]="messagingChat.hasMore()"
-      (filterChanged)="onFilterChanged($event)"
-    ></lib-messaging-nav>
   </div>
 
   <div class="bottom-border-space"></div>

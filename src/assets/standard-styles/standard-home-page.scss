@@ -120,23 +120,24 @@
 
 @media screen and (max-width : nav.$nav-collapse-max-width) {
   .container-address-nav.nav-collapsible {
-    position: static;
+    position: absolute;
+    top: auto;
+    inset-inline-end: 35px;
     display: none;
-    margin-inline-start: 2px;
-    margin-bottom: 12px;
-    width: auto;
-    max-width: 940px;
+    margin-inline-start: 0;
+    width: 190px;
+    z-index: 20;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 
     &.nav-open {
       display: block;
     }
+  }
 
-    ::ng-deep .list-group {
-      display: flex;
-      flex-flow: row wrap;
-      align-items: flex-start;
-      column-gap: 20px;
-    }
+  .nav-collapsible ~ .container-profilline > .container-profile {
+    width: 100%;
+    min-width: 0;
+    max-width: 940px;
   }
 }
 

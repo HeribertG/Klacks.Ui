@@ -5,7 +5,7 @@
  * Wraps the chat area and filter navigation sidebar.
  */
 
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, OnInit, OnDestroy, inject, signal, ViewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { PLUGIN_WORKPLACE_HOST, PLUGIN_GROUP_SELECTION, IPluginClient } from 'klacks-plugin-contracts';
@@ -33,6 +33,9 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
   private groupSelection = inject(PLUGIN_GROUP_SELECTION);
   private destroy$ = new Subject<void>();
 
+  readonly navOpen = signal(false);
+  readonly filterActive = signal(false);
+
   ngOnInit(): void {
     this.host.setContainerToNormalSize();
     this.host.setSearchVisibility(true);
@@ -59,8 +62,38 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onFilterChanged(filter: { direction?: MessageDirection; scope?: MessageScope; providerIds?: string[] }): void {
+  onFilterChanged(filter: { direction?: MessageDirection; scope?: MessageScope; providerIds?: string[]; showAll?: boolean }): void {
+    this.filterActive.set(
+      filter.direction !== undefined ||
+      filter.scope !== undefined ||
+      (filter.providerIds?.length ?? 0) > 0 ||
+      filter.showAll === true,
+    );
     this.messagingChat.applyFilter(filter);
+  }
+
+  toggleNav(): void {
+    this.navOpen.update((value) => !value);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.navOpen()) {
+      return;
+    }
+    const insideToggleOrPanel = event.composedPath().some(
+      (node) =>
+        node instanceof HTMLElement &&
+        (node.matches('.nav-toggle') || node.matches('.container-address-nav')),
+    );
+    if (!insideToggleOrPanel) {
+      this.navOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.navOpen.set(false);
   }
 
   private onClientSelected(client: IPluginClient): void {

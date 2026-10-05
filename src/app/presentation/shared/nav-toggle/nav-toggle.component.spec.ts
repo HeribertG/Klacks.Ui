@@ -26,6 +26,33 @@ describe('NavToggleComponent', () => {
     expect(button.getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('closes on a click outside and keeps open for clicks inside the panel', () => {
+    const fixture = create();
+    const panel = document.createElement('div');
+    panel.className = 'container-address-nav';
+    const inner = document.createElement('span');
+    panel.appendChild(inner);
+    document.body.appendChild(panel);
+    fixture.componentInstance.open.set(true);
+
+    inner.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+    expect(fixture.componentInstance.open()).toBe(true);
+
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+    expect(fixture.componentInstance.open()).toBe(false);
+
+    panel.remove();
+  });
+
+  it('closes on Escape', () => {
+    const fixture = create();
+    fixture.componentInstance.open.set(true);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(fixture.componentInstance.open()).toBe(false);
+  });
+
   it('shows the indicator dot only while a filter is active', () => {
     const fixture = create();
     expect(fixture.nativeElement.querySelector('.nav-toggle-dot')).toBeNull();

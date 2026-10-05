@@ -1,1 +1,10 @@
 $nav-collapse-max-width: 1279px;
+
+@mixin collapsible-host {
+  @media screen and (max-width: $nav-collapse-max-width) {
+    :host {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+}
