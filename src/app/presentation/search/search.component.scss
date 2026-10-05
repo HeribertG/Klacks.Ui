@@ -3,7 +3,12 @@
 .container-search {
   margin-top: 10px;
   padding-inline-start: 60px;
-  width: 400px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media screen and (max-width: 1279px) {
+    padding-inline-start: 0;
+  }
 }
 
 .include-address {

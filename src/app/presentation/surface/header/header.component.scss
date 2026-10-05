@@ -3,6 +3,11 @@
 @use "../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../assets/standard-styles/menu.scss";
 
+.icon,
+.icon1 {
+  flex-shrink: 0;
+}
+
 .icon {
   cursor: pointer;
   margin-inline-start: 29px;
@@ -41,15 +46,31 @@
   display: none;
 }
 
-app-search {
+app-search,
+app-search-client {
+  flex: 0 1 400px;
+  min-width: 160px;
   margin-inline-start: 35px;
-  width: 200px;
+  margin-inline-end: 5px;
 }
 
 app-group-select {
+  flex: 0 1 400px;
+  min-width: 140px;
   padding-inline-end: 35px;
   padding-top: 12px;
-  width: 400px;
+}
+
+.filler {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+app-signalr-status-indicator,
+.escalation-btn-container,
+.assistant-btn-container,
+.icon-logOut {
+  flex-shrink: 0;
 }
 
 .assistant-btn-container {
