@@ -59,72 +59,6 @@
     }
   </button>
 
-  @if (isEmailConfigured()) {
-    <button
-      id="schedule-send-email-btn"
-      type="button"
-      class="send-email-button"
-      [class.disabled]="isSendDisabled()"
-      (click)="onSendAllSchedules()"
-      ngbTooltip="{{ 'schedule.sendEmail.tooltip' | translate }}"
-    >
-      @if (isSending()) {
-        <span class="spinner-border spinner-border-sm"></span>
-      } @else {
-        <app-icon-fly />
-      }
-    </button>
-  }
-
-  @if (canUseAutofill()) {
-    @if (isWizardDropdownMode()) {
-      <div ngbDropdown class="wizard-dropdown">
-        <button
-          id="schedule-wizard-btn"
-          type="button"
-          class="icon-button wizard-button"
-          ngbDropdownToggle
-        >
-          <app-icon-wizard />
-        </button>
-        <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
-          <button ngbDropdownItem (click)="onWizardClick()">
-            {{ "autoWizard.menu.plan" | translate }}
-          </button>
-          <button ngbDropdownItem (click)="onHarmonizerClick()">
-            {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
-          </button>
-          <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
-            {{ "autoWizard.menu.holisticHarmonizer" | translate }}
-          </button>
-          <button ngbDropdownItem (click)="onWizard4Click()">
-            {{ "autoWizard.menu.backgroundOptimizer" | translate }}
-          </button>
-          <button ngbDropdownItem (click)="onRecoveryClick()">
-            {{ "autoWizard.menu.recovery" | translate }}
-          </button>
-        </div>
-      </div>
-    } @else {
-      <button
-        id="schedule-wizard-btn"
-        type="button"
-        class="icon-button wizard-button"
-        [class.disabled]="isAutoWizardRunning()"
-        (click)="onAutoWizardClick()"
-        [ngbTooltip]="autoWizardRunningElsewhereGroupName() !== null
-          ? ('autoWizard.runningForGroupTooltip' | translate: { group: autoWizardRunningElsewhereGroupName() })
-          : ('autoWizard.tooltip' | translate)"
-      >
-        @if (isAutoWizardRunningForCurrentGroup()) {
-          <span class="spinner-border spinner-border-sm"></span>
-        } @else {
-          <app-icon-wizard />
-        }
-      </button>
-    }
-  }
-
   <app-wizard-dialog #wizardDialog />
 
   <app-harmonizer-dialog #harmonizerDialog />
@@ -133,86 +67,179 @@
   <app-wizard4-dialog #wizard4Dialog />
   <app-recovery-dialog #recoveryDialog />
 
-  @if (!isTimelineMode()) {
-    <button
-      id="schedule-break-placeholder-toggle"
-      type="button"
-      class="icon-button break-placeholder-toggle"
-      [class.active]="showBreakPlaceholders"
-      (click)="toggleBreakPlaceholders()"
-      ngbTooltip="{{ 'schedule.breakPlaceholder.toggle' | translate }}"
-    >
-      <app-icon-break-placeholder #breakPlaceholderIcon />
-    </button>
-  }
 
-  @if (!isTimelineMode()) {
-    <button
-      id="schedule-commands-toggle"
-      type="button"
-      class="icon-button break-placeholder-toggle"
-      [class.active]="showScheduleCommands"
-      (click)="toggleScheduleCommands()"
-      ngbTooltip="{{ 'schedule.toolbar.toggle-commands' | translate }}"
-    >
-      <app-icon-thunder-circle #scheduleCommandsIcon />
-    </button>
-  }
+  <div id="schedule-header-tools" class="header-tools" [class.header-tools-open]="toolsOpen()">
+    @if (isEmailConfigured()) {
+      <button
+        id="schedule-send-email-btn"
+        type="button"
+        class="send-email-button"
+        [class.disabled]="isSendDisabled()"
+        (click)="onSendAllSchedules()"
+        ngbTooltip="{{ 'schedule.sendEmail.tooltip' | translate }}"
+      >
+        @if (isSending()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+          <app-icon-fly />
+        }
+        <span class="tool-label">{{ "schedule.sendEmail.tooltip" | translate }}</span>
+      </button>
+    }
 
-  @if (hasAvailabilityData()) {
-    <button
-      id="schedule-availability-check-btn"
-      type="button"
-      class="icon-button availability-check-button"
-      [class.active]="showAvailability"
-      (click)="onAvailabilityCheck()"
-      ngbTooltip="{{ 'schedule.availability.toggle' | translate }}"
-    >
-      <app-icon-availability-check #availabilityCheckIcon />
-    </button>
-  }
-
-  <div ngbDropdown class="recalculate-dropdown">
-    <button
-      id="schedule-recalculate-btn"
-      type="button"
-      class="recalculate-button"
-      [class.disabled]="isRecalculating()"
-      ngbDropdownToggle
-    >
-      @if (isRecalculating()) {
-        <span class="spinner-border spinner-border-sm"></span>
+    @if (canUseAutofill()) {
+      @if (isWizardDropdownMode()) {
+        <div ngbDropdown class="wizard-dropdown">
+          <button
+            id="schedule-wizard-btn"
+            type="button"
+            class="icon-button wizard-button"
+            ngbDropdownToggle
+          >
+            <app-icon-wizard />
+            <span class="tool-label">{{ "autoWizard.dropdown.tooltip" | translate }}</span>
+          </button>
+          <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
+            <button ngbDropdownItem (click)="onWizardClick()">
+              {{ "autoWizard.menu.plan" | translate }}
+            </button>
+            <button ngbDropdownItem (click)="onHarmonizerClick()">
+              {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
+            </button>
+            <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
+              {{ "autoWizard.menu.holisticHarmonizer" | translate }}
+            </button>
+            <button ngbDropdownItem (click)="onWizard4Click()">
+              {{ "autoWizard.menu.backgroundOptimizer" | translate }}
+            </button>
+            <button ngbDropdownItem (click)="onRecoveryClick()">
+              {{ "autoWizard.menu.recovery" | translate }}
+            </button>
+          </div>
+        </div>
       } @else {
-        <app-icon-calc />
+        <button
+          id="schedule-wizard-btn"
+          type="button"
+          class="icon-button wizard-button"
+          [class.disabled]="isAutoWizardRunning()"
+          (click)="onAutoWizardClick()"
+          [ngbTooltip]="autoWizardRunningElsewhereGroupName() !== null
+            ? ('autoWizard.runningForGroupTooltip' | translate: { group: autoWizardRunningElsewhereGroupName() })
+            : ('autoWizard.tooltip' | translate)"
+        >
+          @if (isAutoWizardRunningForCurrentGroup()) {
+            <span class="spinner-border spinner-border-sm"></span>
+          } @else {
+            <app-icon-wizard />
+          }
+          <span class="tool-label">{{ "autoWizard.dropdown.tooltip" | translate }}</span>
+        </button>
       }
-    </button>
-    <div ngbDropdownMenu aria-labelledby="schedule-recalculate-btn">
-      <button ngbDropdownItem (click)="onRecalculatePeriodHours()">
-        {{ "schedule.recalculate.menu.normal" | translate }}
+    }
+
+
+    @if (!isTimelineMode()) {
+      <button
+        id="schedule-break-placeholder-toggle"
+        type="button"
+        class="icon-button break-placeholder-toggle"
+        [class.active]="showBreakPlaceholders"
+        (click)="toggleBreakPlaceholders()"
+        ngbTooltip="{{ 'schedule.breakPlaceholder.toggle' | translate }}"
+      >
+        <app-icon-break-placeholder #breakPlaceholderIcon />
+        <span class="tool-label">{{ "schedule.breakPlaceholder.toggle" | translate }}</span>
       </button>
-      <button ngbDropdownItem (click)="onThoroughRecalculateClick()">
-        {{ "schedule.recalculate.menu.thorough" | translate }}
+    }
+
+    @if (!isTimelineMode()) {
+      <button
+        id="schedule-commands-toggle"
+        type="button"
+        class="icon-button break-placeholder-toggle"
+        [class.active]="showScheduleCommands"
+        (click)="toggleScheduleCommands()"
+        ngbTooltip="{{ 'schedule.toolbar.toggle-commands' | translate }}"
+      >
+        <app-icon-thunder-circle #scheduleCommandsIcon />
+        <span class="tool-label">{{ "schedule.toolbar.toggle-commands" | translate }}</span>
       </button>
+    }
+
+    @if (hasAvailabilityData()) {
+      <button
+        id="schedule-availability-check-btn"
+        type="button"
+        class="icon-button availability-check-button"
+        [class.active]="showAvailability"
+        (click)="onAvailabilityCheck()"
+        ngbTooltip="{{ 'schedule.availability.toggle' | translate }}"
+      >
+        <app-icon-availability-check #availabilityCheckIcon />
+        <span class="tool-label">{{ "schedule.availability.toggle" | translate }}</span>
+      </button>
+    }
+
+    <div ngbDropdown class="recalculate-dropdown">
+      <button
+        id="schedule-recalculate-btn"
+        type="button"
+        class="recalculate-button"
+        [class.disabled]="isRecalculating()"
+        ngbDropdownToggle
+      >
+        @if (isRecalculating()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+          <app-icon-calc />
+        }
+        <span class="tool-label">{{ "schedule.recalculate.tooltip" | translate }}</span>
+      </button>
+      <div ngbDropdownMenu aria-labelledby="schedule-recalculate-btn">
+        <button ngbDropdownItem (click)="onRecalculatePeriodHours()">
+          {{ "schedule.recalculate.menu.normal" | translate }}
+        </button>
+        <button ngbDropdownItem (click)="onThoroughRecalculateClick()">
+          {{ "schedule.recalculate.menu.thorough" | translate }}
+        </button>
+      </div>
     </div>
-  </div>
 
-  <app-scenario-selector ngbTooltip="{{ 'scenario.select' | translate }}" />
+    <div class="tool-scenario">
+      <app-scenario-selector ngbTooltip="{{ 'scenario.select' | translate }}" />
+      <span class="tool-label">{{ "scenario.select" | translate }}</span>
+    </div>
 
-  <div
-    class="main-switch-wrapper view-mode-switch"
-    ngbTooltip="{{ 'schedule.toolbar.timeline-view' | translate }}"
-  >
-    <label class="main-switch" for="schedule-view-mode-toggle">
-      <input
-        type="checkbox"
-        id="schedule-view-mode-toggle"
-        name="scheduleViewModeToggle"
-        aria-labelledby="schedule-view-mode-toggle-label"
-        [checked]="isTimelineMode()"
-        (change)="onViewModeToggleChanged($any($event.target).checked)"
-      />
-      <div class="slider round"></div>
-    </label>
+    <div
+      class="main-switch-wrapper view-mode-switch"
+      ngbTooltip="{{ 'schedule.toolbar.timeline-view' | translate }}"
+    >
+      <label class="main-switch" for="schedule-view-mode-toggle">
+        <input
+          type="checkbox"
+          id="schedule-view-mode-toggle"
+          name="scheduleViewModeToggle"
+          aria-labelledby="schedule-view-mode-toggle-label"
+          [checked]="isTimelineMode()"
+          (change)="onViewModeToggleChanged($any($event.target).checked)"
+        />
+        <div class="slider round"></div>
+      </label>
+      <span class="tool-label">{{ "schedule.toolbar.timeline-view" | translate }}</span>
+    </div>
+
+    <button
+      id="schedule-pdf-export-btn"
+      type="button"
+      class="icon-button pdf-export-button"
+      (click)="onPdfExport()"
+      ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}"
+    >
+      <app-icon-pdf-icon></app-icon-pdf-icon>
+      <span class="tool-label">{{ "schedule.pdf.schedule" | translate }}</span>
+    </button>
+
   </div>
 
   @if (isTimelineMode()) {
@@ -240,16 +267,6 @@
 
   <span class="filler"></span>
 
-  <button
-    id="schedule-pdf-export-btn"
-    type="button"
-    class="icon-button pdf-export-button"
-    (click)="onPdfExport()"
-    ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}"
-  >
-    <app-icon-pdf-icon></app-icon-pdf-icon>
-  </button>
-
   <div class="custom-slider">
     @if (!isTimelineMode()) {
       <ngx-slider
@@ -267,4 +284,27 @@
       ></ngx-slider>
     }
   </div>
+
+  <button
+    id="schedule-tools-toggle"
+    type="button"
+    class="btn btn-sm btn-nav header-tools-toggle"
+    [class.header-tools-toggle-open]="toolsOpen()"
+    [attr.aria-expanded]="toolsOpen()"
+    [attr.aria-label]="'accessibility.menu' | translate"
+    (click)="toggleTools()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <rect x="3" y="5" width="18" height="2" rx="1" />
+      <rect x="3" y="11" width="18" height="2" rx="1" />
+      <rect x="3" y="17" width="18" height="2" rx="1" />
+    </svg>
+  </button>
 </div>

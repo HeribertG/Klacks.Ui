@@ -4,6 +4,7 @@
 @use "../../../../../assets/standard-styles/validation.scss";
 @use "../../../../../assets/standard-styles/toggle-switch.scss";
 @use "../../../../../assets/standard-styles/menu.scss";
+@use "../../../../../assets/standard-styles/nav-collapse.scss" as nav;
 
 .custom-control-inline {
   display: flex;
@@ -262,4 +263,115 @@ app-holistic-harmonizer-dialog {
 
 .spinner-border {
   color: var(--iconStandartColor);
+}
+
+.header-tools {
+  display: contents;
+}
+
+.header-tools-toggle {
+  display: none;
+}
+
+.tool-label {
+  display: none;
+}
+
+.tool-scenario {
+  display: contents;
+}
+
+.timeline-range-selector,
+.filler {
+  order: 1;
+}
+
+.pdf-export-button,
+.custom-slider {
+  order: 2;
+}
+
+@media screen and (max-width: nav.$nav-collapse-max-width) {
+  .custom-control-inline {
+    position: relative;
+  }
+
+  .header-tools-toggle {
+    display: inline-flex;
+    align-items: center;
+    order: 3;
+    margin-inline-end: 5px;
+    color: var(--iconStandartColor);
+    opacity: 1;
+  }
+
+  .custom-slider {
+    padding-inline-end: 8px;
+    margin-inline-end: 0;
+  }
+
+  .header-tools-toggle-open {
+    color: var(--bootstrapPrimaryColor);
+  }
+
+  .header-tools {
+    display: none;
+    position: absolute;
+    top: 100%;
+    inset-inline-end: 5px;
+    z-index: 30;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    min-width: 250px;
+    padding: 16px 20px;
+    background-color: var(--backgroundColorCard);
+    border: 1px solid var(--cardBorderColor);
+    border-radius: 5px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+
+    &.header-tools-open {
+      display: flex;
+    }
+
+    .tool-label {
+      display: inline;
+      font-size: 13px;
+      color: var(--standartTextColor);
+      white-space: nowrap;
+    }
+
+    .send-email-button,
+    .wizard-button,
+    .break-placeholder-toggle,
+    .availability-check-button,
+    .recalculate-button,
+    .pdf-export-button {
+      width: 100%;
+      margin: 0;
+      justify-content: flex-start;
+      gap: 12px;
+    }
+
+    .wizard-dropdown,
+    .recalculate-dropdown {
+      display: block;
+    }
+
+    .tool-scenario,
+    .view-mode-switch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+    }
+
+    app-scenario-selector {
+      margin: 0;
+    }
+  }
+
+  .timeline-range-selector {
+    margin-inline-start: 8px;
+  }
 }

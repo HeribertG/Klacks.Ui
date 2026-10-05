@@ -176,6 +176,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   public readonly timelineViewRange = this.timelineRangeService.viewRange;
 
   isSending = signal(false);
+  toolsOpen = signal(false);
   isRecalculating = signal(false);
 
   private readonly wizardDropdownMode = signal(false);
@@ -390,6 +391,30 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onRecoveryClick(): void {
     void this.recoveryDialog().open();
+  }
+
+  toggleTools(): void {
+    this.toolsOpen.update((value) => !value);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClickCloseTools(event: MouseEvent): void {
+    if (!this.toolsOpen()) {
+      return;
+    }
+    const insideToolsOrToggle = event.composedPath().some(
+      (node) =>
+        node instanceof HTMLElement &&
+        (node.matches('.header-tools') || node.matches('.header-tools-toggle')),
+    );
+    if (!insideToolsOrToggle) {
+      this.toolsOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeCloseTools(): void {
+    this.toolsOpen.set(false);
   }
 
   @HostListener('document:keydown', ['$event'])
