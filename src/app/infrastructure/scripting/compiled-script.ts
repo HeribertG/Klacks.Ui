@@ -8,6 +8,7 @@ import { ScriptValue } from './script-value';
 import { StringInputStream } from './stringInput';
 import { SyntaxAnalyser } from './syntaxAnalyser';
 import { Code } from './code';
+import { normalizeIdentifierName } from './identifier-name';
 
 export class CompiledScript {
   private readonly _instructions: unknown[][];
@@ -76,7 +77,7 @@ export class CompiledScript {
     for (let i = 0; i < external.cloneCount(); i++) {
       const id = external.cloneItem(i);
       if (id && id.name) {
-        externalSymbols.set(id.name, id);
+        externalSymbols.set(normalizeIdentifierName(id.name), id);
       }
     }
 
@@ -89,19 +90,20 @@ export class CompiledScript {
   }
 
   setExternalValue(name: string, value: unknown): void {
-    const identifier = this._externalSymbols.get(name);
+    const key = normalizeIdentifierName(name);
+    const identifier = this._externalSymbols.get(key);
     if (identifier) {
       identifier.value = ScriptValue.fromObject(value);
     } else {
       const newId = new Identifier();
       newId.name = name;
       newId.value = ScriptValue.fromObject(value);
-      this._externalSymbols.set(name, newId);
+      this._externalSymbols.set(key, newId);
     }
   }
 
   getExternalValue(name: string): ScriptValue | null {
-    const identifier = this._externalSymbols.get(name);
+    const identifier = this._externalSymbols.get(normalizeIdentifierName(name));
     return identifier?.value ?? null;
   }
 

@@ -10,7 +10,7 @@ import {
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { compareDate, getDayIndex } from 'src/app/shared/helpers/date.helper';
+import { getDayIndex } from 'src/app/shared/helpers/date.helper';
 
 const WEEKDAY_KEYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -159,7 +159,7 @@ export class AvailabilityCalculationService {
     if (!holidays || holidays.holidayList.length === 0) {
       return false;
     }
-    return holidays.holidayList.some((x) => compareDate(x.currentDate, date));
+    return holidays.holidayForDate(date) !== undefined;
   }
 
   public isOfficialHoliday(date: Date): boolean {
@@ -167,7 +167,6 @@ export class AvailabilityCalculationService {
     if (!holidays || holidays.holidayList.length === 0) {
       return false;
     }
-    const found = holidays.holidayList.find((x) => compareDate(x.currentDate, date));
-    return found?.officially === true;
+    return holidays.holidayForDate(date)?.officially === true;
   }
 }

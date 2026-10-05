@@ -135,7 +135,11 @@
         </div>
 
         <div class="modal-checkbox-container">
-          <label class="checkbox-label">
+          <label
+            class="checkbox-label"
+            [ngbTooltip]="'setting.holiday-rules.is-paid-hint' | translate"
+            container="body"
+          >
             <input
               id="calendar-rules-modal-is-paid"
               type="checkbox"

@@ -7,6 +7,16 @@ import { AvailabilitySettingService } from '../availability-setting.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import {
+  OFFICIAL_AND_REMINDER_ORDERINGS,
+  OFFICIAL_RULE,
+  REMINDER_RULE,
+  SAME_DATE_HOLIDAY_YEAR,
+  SECOND_REMINDER_RULE,
+  buildHolidaysListHelper,
+  sameDateHolidayDate,
+} from 'src/app/shared/testing/holiday-list.testing';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 function buildSettingsStub(): AvailabilitySettingService {
@@ -19,18 +29,46 @@ function buildSettingsStub(): AvailabilitySettingService {
   } as unknown as AvailabilitySettingService;
 }
 
-function buildService(): AvailabilityCalculationService {
+function buildService(holidays?: HolidaysListHelper): AvailabilityCalculationService {
   TestBed.configureTestingModule({
     providers: [
       AvailabilityCalculationService,
       { provide: AvailabilitySettingService, useValue: buildSettingsStub() },
-      { provide: HolidayCollectionService, useValue: {} },
+      { provide: HolidayCollectionService, useValue: holidays ? { holidays } : {} },
       { provide: WeekConfigurationService, useValue: {} },
       { provide: TranslateService, useValue: { currentLang: 'de', instant: (key: string) => key } },
     ],
   });
   return TestBed.inject(AvailabilityCalculationService);
 }
+
+describe('AvailabilityCalculationService holiday status with two entries on the same date', () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it.each(OFFICIAL_AND_REMINDER_ORDERINGS)('reports the date as an official holiday (%s)', (_label, rules) => {
+    const service = buildService(buildHolidaysListHelper(rules));
+
+    expect(service.isHoliday(sameDateHolidayDate())).toBe(true);
+    expect(service.isOfficialHoliday(sameDateHolidayDate())).toBe(true);
+  });
+
+  it('reports an unofficial holiday when no entry on the date is official', () => {
+    const service = buildService(buildHolidaysListHelper([REMINDER_RULE, SECOND_REMINDER_RULE]));
+
+    expect(service.isHoliday(sameDateHolidayDate())).toBe(true);
+    expect(service.isOfficialHoliday(sameDateHolidayDate())).toBe(false);
+  });
+
+  it('reports no holiday for another date', () => {
+    const service = buildService(buildHolidaysListHelper([OFFICIAL_RULE, REMINDER_RULE]));
+    const otherDate = new Date(SAME_DATE_HOLIDAY_YEAR, 11, 24);
+
+    expect(service.isHoliday(otherDate)).toBe(false);
+    expect(service.isOfficialHoliday(otherDate)).toBe(false);
+  });
+});
 
 describe('AvailabilityCalculationService.dateHourToColumn across a DST transition', () => {
   afterEach(() => {

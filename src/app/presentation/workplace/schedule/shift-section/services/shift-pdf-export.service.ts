@@ -21,7 +21,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { SchedulePdfDrawingService, ScheduleDrawingConfig } from '../../schedule-section/services/schedule-pdf-drawing.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, compareDate, getDayIndex } from 'src/app/shared/helpers/date.helper';
+import { addDays, getDayIndex } from 'src/app/shared/helpers/date.helper';
 import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -333,8 +333,7 @@ export class ShiftPdfExportService {
   }
 
   private getWeekdayType(date: Date): number {
-    const holidays = this.holidayCollection.holidays.holidayList;
-    const holiday = holidays.find((x) => compareDate(x.currentDate, date));
+    const holiday = this.holidayCollection.holidays.holidayForDate(date);
 
     if (holiday) {
       return holiday.officially

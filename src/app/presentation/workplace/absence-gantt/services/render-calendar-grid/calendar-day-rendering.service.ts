@@ -8,7 +8,6 @@ import { HolidayCollectionService } from '../../../../shared/grid/services/holid
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { compareDate } from 'src/app/shared/helpers/date.helper';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
@@ -60,18 +59,14 @@ export class CalendarDayRenderingService {
 
     this.ensureCorrectYearLoaded(date);
 
-    return this.holidayCollection.holidays.holidayList.some(
-      (x) => compareDate(x.currentDate, date)
-    );
+    return this.holidayCollection.holidays.holidayForDate(date) !== undefined;
   }
 
   @CanvasAvailable('queue')
   private drawHolidayBackground(dayRect: Rectangle, date: Date): void {
     this.ensureCorrectYearLoaded(date);
 
-    const holiday = this.holidayCollection.holidays!.holidayList.find(
-      (x) => compareDate(x.currentDate, date)
-    );
+    const holiday = this.holidayCollection.holidays!.holidayForDate(date);
     if (holiday) {
       const color = holiday.officially
         ? this.gridColors.backGroundColorOfficiallyHoliday

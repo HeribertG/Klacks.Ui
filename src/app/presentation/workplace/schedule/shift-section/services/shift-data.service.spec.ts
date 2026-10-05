@@ -13,6 +13,16 @@ import { WeekConfigurationService } from 'src/app/domain/services/settings/week-
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 import { IShiftSchedule, ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
+import {
+    OFFICIAL_AND_REMINDER_ORDERINGS,
+    OFFICIAL_HOLIDAY_NAME,
+    REMINDER_RULE,
+    SAME_DATE_HOLIDAY_YEAR,
+    SECOND_REMINDER_RULE,
+    buildHolidaysListHelper,
+} from 'src/app/shared/testing/holiday-list.testing';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { IconCornerEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import {
@@ -63,8 +73,10 @@ describe('ShiftDataService', () => {
         visibleStartDate: Date | null;
         visibleEndDate: Date | null;
     };
+    let holidayCollection: { holidays: HolidaysListHelper; currentYear: number };
 
     beforeEach(() => {
+        holidayCollection = { holidays: new HolidaysListHelper(), currentYear: SAME_DATE_HOLIDAY_YEAR };
         dataManagement = {
             workFilter: { currentYear: 2024, currentMonth: 1, paymentInterval: 2 },
             clients: [],
@@ -77,7 +89,7 @@ describe('ShiftDataService', () => {
             providers: [
                 ShiftDataService,
                 { provide: ScrollService, useValue: { maxRows: 0, maxCols: 0 } },
-                { provide: HolidayCollectionService, useValue: { holidays: { holidayList: [] } } },
+                { provide: HolidayCollectionService, useValue: holidayCollection },
                 { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
                 { provide: DataManagementScheduleService, useValue: dataManagement },
                 { provide: AppSettingsManagementService, useValue: {
@@ -98,6 +110,35 @@ describe('ShiftDataService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    describe('two holiday entries on the same date', () => {
+        const COLUMN_OF_HOLIDAY = 1;
+
+        beforeEach(() => {
+            service.startDate = new Date(SAME_DATE_HOLIDAY_YEAR, 11, 24);
+        });
+
+        it.each(OFFICIAL_AND_REMINDER_ORDERINGS)('getWeekday reports an official holiday (%s)', (_label, rules) => {
+            holidayCollection.holidays = buildHolidaysListHelper(rules);
+
+            expect(service.getWeekday(COLUMN_OF_HOLIDAY)).toBe(WeekDaysEnum.OfficiallyHoliday);
+        });
+
+        it.each(OFFICIAL_AND_REMINDER_ORDERINGS)('holidayInfo returns the official entry (%s)', (_label, rules) => {
+            holidayCollection.holidays = buildHolidaysListHelper(rules);
+
+            const holiday = service.holidayInfo(COLUMN_OF_HOLIDAY);
+
+            expect(holiday?.officially).toBe(true);
+            expect(holiday?.currentName).toEqual({ en: OFFICIAL_HOLIDAY_NAME });
+        });
+
+        it('getWeekday reports an unofficial holiday when no entry on the date is official', () => {
+            holidayCollection.holidays = buildHolidaysListHelper([REMINDER_RULE, SECOND_REMINDER_RULE]);
+
+            expect(service.getWeekday(COLUMN_OF_HOLIDAY)).toBe(WeekDaysEnum.Holiday);
+        });
     });
 
     describe('shift section calendar dates across browser time zones', () => {

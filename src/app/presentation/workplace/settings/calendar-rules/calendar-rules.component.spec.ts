@@ -194,3 +194,75 @@ describe('CalendarRulesComponent mixed-case locale', () => {
     expect(component.currentRule.name!.de).toBe('Neujahr');
   });
 });
+
+describe('CalendarRulesComponent new-rule paid default', () => {
+  let fixture: ComponentFixture<CalendarRulesComponent>;
+  let component: CalendarRulesComponent;
+
+  beforeEach(async () => {
+    const dataServiceStub = {
+      init: vi.fn(),
+      readPage: vi.fn(),
+      isRead: signal(false),
+      isPageRead: signal(false),
+      currentFilter: { countries: [], list: [] },
+      filteredRulesToken: [],
+      listWrapper: { calendarRules: [] },
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [CalendarRulesComponent, TranslateModule.forRoot()],
+      providers: [
+        { provide: DataManagementCalendarRulesService, useValue: dataServiceStub },
+        { provide: ManualLoaderService, useValue: { loadManual: () => of('') } },
+      ],
+    }).compileComponents();
+
+    vi.spyOn(TestBed.inject(NgbModal), 'open').mockReturnValue({
+      result: new Promise<never>(() => undefined),
+    } as unknown as NgbModalRef);
+
+    fixture = TestBed.createComponent(CalendarRulesComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('starts the rule form as paid before any rule is loaded', () => {
+    expect(component.ruleFormModel().isPaid).toBe(true);
+  });
+
+  it('opens a new rule as paid', () => {
+    component.createNewRule(null);
+
+    expect(component.currentRule.isPaid).toBe(true);
+    expect(component.ruleFormModel().isPaid).toBe(true);
+  });
+
+  it('treats a rule without an isPaid value as paid in the form', () => {
+    const rule = new CalendarRule();
+    rule.id = 'rule-without-paid-flag';
+    rule.name = { de: 'Neujahr' } as MultiLanguage;
+    rule.description = { de: '' } as MultiLanguage;
+    (rule as { isPaid?: boolean }).isPaid = undefined;
+
+    component.onEditRule(null, rule);
+
+    expect(component.ruleFormModel().isPaid).toBe(true);
+  });
+
+  it('keeps an explicitly unpaid rule unpaid in the form', () => {
+    const rule = new CalendarRule();
+    rule.id = 'rule-unpaid';
+    rule.name = { de: 'Josefstag' } as MultiLanguage;
+    rule.description = { de: '' } as MultiLanguage;
+    rule.isPaid = false;
+
+    component.onEditRule(null, rule);
+
+    expect(component.ruleFormModel().isPaid).toBe(false);
+  });
+});

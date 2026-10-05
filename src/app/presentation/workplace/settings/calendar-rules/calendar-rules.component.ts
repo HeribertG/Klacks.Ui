@@ -50,6 +50,8 @@ import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
+const NEW_RULE_IS_PAID = true;
+
 interface RuleFormModel {
   name: string;
   rule: string;
@@ -118,7 +120,7 @@ export class CalendarRulesComponent
     subRule: '',
     description: '',
     isMandatory: false,
-    isPaid: false,
+    isPaid: NEW_RULE_IS_PAID,
   });
   ruleForm = form(this.ruleFormModel);
 
@@ -206,7 +208,7 @@ export class CalendarRulesComponent
       subRule: this.currentRule.subRule ?? '',
       description: this.currentRule.description?.[langKey] ?? '',
       isMandatory: this.currentRule.isMandatory ?? false,
-      isPaid: this.currentRule.isPaid ?? false,
+      isPaid: this.currentRule.isPaid ?? NEW_RULE_IS_PAID,
     });
   }
 

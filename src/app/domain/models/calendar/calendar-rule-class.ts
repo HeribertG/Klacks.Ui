@@ -11,6 +11,7 @@ import { MultiLanguage } from '../translation/multi-language-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getGregorianDateForHijriInYear } from './hijri-calendar';
 import { getGregorianDateForLunarInYear } from './lunar-calendar';
+import { compareDate } from 'src/app/shared/helpers/date.helper';
 
 export interface ICalendarRulesFilter extends IBaseFilter {
   list: StateCountryToken[];
@@ -297,31 +298,40 @@ export class HolidaysListHelper {
   }
 
   public isHoliday(currentDate: Date): HolidayStatus {
-    if (!this.holidayList || this.holidayList.length === 0) {
+    const holiday = this.holidayForDate(currentDate);
+
+    if (!holiday) {
       return HolidayStatus.NotAHoliday;
     }
 
-    const holidayFound = this.holidayList.find(
-      (x) => x.currentDate.getTime() === currentDate.getTime()
-    );
-
-    if (holidayFound) {
-      return holidayFound.officially
-        ? HolidayStatus.OfficialHoliday
-        : HolidayStatus.UnofficialHoliday;
-    }
-
-    return HolidayStatus.NotAHoliday;
+    return holiday.officially
+      ? HolidayStatus.OfficialHoliday
+      : HolidayStatus.UnofficialHoliday;
   }
 
-  public holidayInfo(currentDate: Date): HolidayDate | undefined {
-    if (!this.holidayList || this.holidayList.length === 0) {
-      return undefined;
+  /**
+   * Returns the holiday on the given calendar day. When several entries fall on the same day (for example a
+   * merged selection whose second calendar only marks the day as a reminder), an official entry always wins;
+   * among equally official entries the first one in rule order is returned. The decision is made by scanning,
+   * not by the list order, because holidayList is public and callers may reorder it.
+   * @param currentDate - Day to look up; only the calendar day is compared, not the time of day
+   */
+  public holidayForDate(currentDate: Date): HolidayDate | undefined {
+    let firstOnDate: HolidayDate | undefined;
+
+    for (const holiday of this.holidayList) {
+      if (!compareDate(holiday.currentDate, currentDate)) {
+        continue;
+      }
+
+      if (holiday.officially) {
+        return holiday;
+      }
+
+      firstOnDate ??= holiday;
     }
 
-    return this.holidayList.find(
-      (x) => x.currentDate.getTime() === currentDate.getTime()
-    );
+    return firstOnDate;
   }
 
   public daysIntoYear(date: Date): number {

@@ -12,6 +12,15 @@ import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-cla
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
+import {
+    OFFICIAL_AND_REMINDER_ORDERINGS,
+    REMINDER_RULE,
+    SAME_DATE_HOLIDAY_YEAR,
+    SECOND_REMINDER_RULE,
+    buildCalendarRule,
+    buildHolidaysListHelper,
+    sameDateHolidayDate,
+} from 'src/app/shared/testing/holiday-list.testing';
 
 describe('CalendarDayRenderingService', () => {
     let service: CalendarDayRenderingService;
@@ -151,16 +160,40 @@ describe('CalendarDayRenderingService', () => {
 
         it('should handle holidays when present', () => {
             mockCalculationService.startDate = new Date(2024, 0, 1);
-            mockHolidayCollection.holidays = {
-                holidayList: [
-                    { currentDate: new Date(2024, 0, 1), officially: true, name: 'New Year' }
-                ]
-            };
+            mockHolidayCollection.holidays = buildHolidaysListHelper(
+                [buildCalendarRule('new-year', 'CH', 'New Year', true, '01/01')],
+                2024
+            );
             const headerDayRank: CalendarHeaderDayRank[] = [];
 
             service.drawDayBackgrounds(1, headerDayRank);
 
             expect(fillRectSpy).toHaveBeenCalled();
+        });
+
+        describe('two holiday entries on the same date', () => {
+            beforeEach(() => {
+                mockCalculationService.startDate = sameDateHolidayDate();
+                mockCurrentYear = SAME_DATE_HOLIDAY_YEAR;
+            });
+
+            it.each(OFFICIAL_AND_REMINDER_ORDERINGS)('paints the official color (%s)', (_label, rules) => {
+                mockHolidayCollection.holidays = buildHolidaysListHelper(rules);
+
+                service.drawDayBackgrounds(1, []);
+
+                expect(fillRectSpy).toHaveBeenCalledTimes(1);
+                expect(fillRectSpy.mock.calls[0][1]).toBe(mockGridColors.backGroundColorOfficiallyHoliday);
+            });
+
+            it('paints the unofficial color when no entry on the date is official', () => {
+                mockHolidayCollection.holidays = buildHolidaysListHelper([REMINDER_RULE, SECOND_REMINDER_RULE]);
+
+                service.drawDayBackgrounds(1, []);
+
+                expect(fillRectSpy).toHaveBeenCalledTimes(1);
+                expect(fillRectSpy.mock.calls[0][1]).toBe(mockGridColors.backGroundColorHolyday);
+            });
         });
 
         it('should handle empty holiday list', () => {
