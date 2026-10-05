@@ -163,6 +163,18 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
 
   selectedGroup: string | undefined = undefined;
 
+  isDefault(): boolean {
+    return (
+      this.activeDateRange &&
+      !this.formerDateRange &&
+      !this.futureDateRange &&
+      !this.showDeleteEntries &&
+      this.scopeFromFlag === undefined &&
+      this.scopeUntilFlag === undefined &&
+      this.scopeFrom === undefined &&
+      this.scopeUntil === undefined
+    );
+  }
 }
 
 export interface IGroupTree {

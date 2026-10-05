@@ -1,0 +1,36 @@
+@use '../../../../assets/standard-styles/nav-collapse.scss' as nav;
+
+:host {
+  display: none;
+  margin-inline-start: auto;
+  padding-inline-end: 10px;
+}
+
+@media screen and (max-width: nav.$nav-collapse-max-width) {
+  :host {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.nav-toggle-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--standartTextColor);
+  background-color: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+}
+
+.nav-toggle-open {
+  border-color: var(--bootstrapPrimaryColor);
+}
+
+.nav-toggle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--standartGreenColor);
+}

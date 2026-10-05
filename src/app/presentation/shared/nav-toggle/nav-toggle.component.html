@@ -1,0 +1,22 @@
+<button
+  type="button"
+  class="btn btn-sm nav-toggle-button"
+  [class.nav-toggle-open]="open()"
+  [attr.aria-expanded]="open()"
+  (click)="toggle()"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M3 4h18l-7 8.5V20l-4-2v-5.5z" />
+  </svg>
+  <span>{{ "accessibility.filter" | translate }}</span>
+  @if (filterActive()) {
+  <span class="nav-toggle-dot"></span>
+  }
+</button>

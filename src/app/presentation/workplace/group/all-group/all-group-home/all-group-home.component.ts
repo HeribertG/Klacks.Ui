@@ -6,10 +6,13 @@ import {
   inject,
   OnInit,
   effect,
+  signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { NavToggleComponent } from 'src/app/presentation/shared/nav-toggle/nav-toggle.component';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { AllGroupListComponent } from '../all-group-list/all-group-list.component';
 import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
@@ -31,7 +34,8 @@ import { SearchService } from 'src/app/application/services/search.service';
     TranslateModule,
     AllGroupListComponent,
     AllGroupNavComponent,
-    TreeGroupComponent
+    TreeGroupComponent,
+    NavToggleComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,6 +50,9 @@ export class AllGroupHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private cdr = inject(ChangeDetectorRef);
+  private dataManagementGroupService = inject(DataManagementGroupService);
+
+  readonly navOpen = signal(false);
 
   private readonly STORAGE_KEY = 'group-view-mode';
   private _showGrid = true;
@@ -64,6 +71,10 @@ export class AllGroupHomeComponent implements OnInit {
         }, 10);
       }
     });
+  }
+
+  isFilterActive(): boolean {
+    return !this.dataManagementGroupService.currentFilter.isDefault();
   }
 
   get showGrid(): boolean {
