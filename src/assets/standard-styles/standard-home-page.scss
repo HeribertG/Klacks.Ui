@@ -122,7 +122,7 @@
   .container-address-nav.nav-collapsible {
     position: absolute;
     top: auto;
-    inset-inline-end: 35px;
+    inset-inline-end: 5px;
     display: none;
     margin-inline-start: 0;
     width: 190px;
@@ -131,6 +131,10 @@
 
     &.nav-open {
       display: block;
+    }
+
+    ::ng-deep .list-group > li:last-child {
+      padding-bottom: 0;
     }
   }
 

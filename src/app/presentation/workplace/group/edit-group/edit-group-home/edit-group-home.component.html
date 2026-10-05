@@ -15,6 +15,15 @@
       </button>
     </div>
     }
+    <app-nav-toggle id="edit-group-nav-toggle" [(open)]="navOpen"></app-nav-toggle>
+  </div>
+
+  <div
+    id="edit-group-nav-container"
+    class="container-address-nav nav-collapsible border-right-card border-bottom-card"
+    [class.nav-open]="navOpen()"
+  >
+    <app-edit-group-nav id="edit-group-nav"></app-edit-group-nav>
   </div>
 
   <div id="edit-group-item-container" class="container-profilline" data-klacksy-target="group-item">
@@ -42,13 +51,6 @@
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-group-members>
-  </div>
-
-  <div
-    id="edit-group-nav-container"
-    class="container-address-nav border-right-card border-bottom-card"
-  >
-    <app-edit-group-nav id="edit-group-nav"></app-edit-group-nav>
   </div>
 
   <div class="bottom-border-space"></div>

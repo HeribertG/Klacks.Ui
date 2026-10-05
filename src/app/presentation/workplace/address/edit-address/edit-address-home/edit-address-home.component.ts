@@ -22,6 +22,7 @@ import { ClientQualificationsComponent } from '../client-qualifications/client-q
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { ClientImageComponent } from '../client-image/client-image.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { NavToggleComponent } from 'src/app/presentation/shared/nav-toggle/nav-toggle.component';
 import { ClientMessengerContactsComponent } from 'klacks-plugin-messaging';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
@@ -62,6 +63,7 @@ import { EditAddressCardVisibilityService } from '../edit-address-card-visibilit
     NoteComponent,
     ClientImageComponent,
     EditAddressNavComponent,
+    NavToggleComponent,
     ClientMessengerContactsComponent,
     NgbTooltipModule,
     PdfIconComponent
@@ -69,6 +71,7 @@ import { EditAddressCardVisibilityService } from '../edit-address-card-visibilit
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponentDeactivate {
+  readonly navOpen = signal(false);
   private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementClientService = inject(DataManagementClientService);
   public dataManagementGroupService = inject(DataManagementGroupService);

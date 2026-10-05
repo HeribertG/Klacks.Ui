@@ -1,1 +1,19 @@
 @use "../../../../../../assets/standard-styles/standard-home-page.scss";
+@use "../../../../../../assets/standard-styles/nav-collapse.scss" as nav;
+
+@include nav.collapsible-host;
+
+.container-dashboard,
+.container-edit-address {
+  position: relative;
+}
+
+.headline-actions + app-nav-toggle {
+  margin-inline-start: 8px;
+}
+
+.container-headline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

@@ -4,6 +4,7 @@
  * Toggle button shown in the page headline on narrow screens to open/close the filter navigation panel.
  * @param open - Two-way bound open state of the navigation panel
  * @param filterActive - True when the list is filtered, shows an indicator dot on the button
+ * @param label - Translation key of the button text
  * The panel closes on Escape and on clicks outside the button and the nav panel.
  */
 
@@ -23,6 +24,7 @@ export class NavToggleComponent {
 
   readonly open = model(false);
   readonly filterActive = input(false);
+  readonly label = input('accessibility.filter');
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 

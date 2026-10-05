@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { NavToggleComponent } from 'src/app/presentation/shared/nav-toggle/nav-toggle.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -41,6 +42,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     EditGroupItemComponent,
     EditGroupMembersComponent,
     EditGroupNavComponent,
+    NavToggleComponent,
     EditGroupParentComponent,
     NgbTooltipModule,
     PdfIconComponent
@@ -48,6 +50,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupHomeComponent implements OnInit {
+  readonly navOpen = signal(false);
 
   private workplaceStateService = inject(
     WorkplaceStateService

@@ -15,7 +15,23 @@
       </button>
     </div>
     }
+    @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
+    <app-nav-toggle
+      id="edit-address-nav-toggle"
+      label="accessibility.menu"
+      [(open)]="navOpen"
+    ></app-nav-toggle>
+    }
   </div>
+
+  @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
+  <div
+    class="container-address-nav nav-collapsible border-right-card border-bottom-card"
+    [class.nav-open]="navOpen()"
+  >
+    <app-edit-address-nav></app-edit-address-nav>
+  </div>
+  }
 
   <div class="container-profilline" data-klacksy-target="address-persona">
     <app-address-persona
@@ -94,11 +110,5 @@
     >
     </app-client-image>
   </div>
-
-  @if (authorizationService.hasPermission(PERMISSIONS.CanEditClients)) {
-  <div class="container-address-nav border-right-card border-bottom-card">
-    <app-edit-address-nav></app-edit-address-nav>
-  </div>
-  }
 </div>
 <div class="bottom-border-space"></div>

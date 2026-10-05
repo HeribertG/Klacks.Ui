@@ -1,7 +1,19 @@
 <div class="container-dashboard" id="edit-shift-home-container" data-klacksy-target="shift-form">
   <div class="container-headline" id="edit-shift-headline">
     {{ "shift.edit-shift.home.header" | translate }}
+    @if (isNavVisible) {
+    <app-nav-toggle id="edit-shift-nav-toggle" [(open)]="navOpen"></app-nav-toggle>
+    }
   </div>
+
+  @if (isNavVisible) {
+    <div
+      class="container-address-nav nav-collapsible border-right-card border-bottom-card"
+      [class.nav-open]="navOpen()"
+    >
+      <app-edit-shift-nav></app-edit-shift-nav>
+    </div>
+  }
 
   <div class="container-profilline" data-klacksy-target="shift-item">
     <app-edit-shift-item
@@ -81,12 +93,6 @@
         class="container-profile first border-right-card border-bottom-card"
       >
       </app-edit-shift-expenses>
-    </div>
-  }
-
-  @if (isNavVisible) {
-    <div class="container-address-nav border-right-card border-bottom-card">
-      <app-edit-shift-nav></app-edit-shift-nav>
     </div>
   }
 </div>

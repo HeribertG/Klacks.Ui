@@ -1,4 +1,5 @@
 @use "../../../../../../assets/standard-styles/standard-home-page.scss";
+@use "../../../../../../assets/standard-styles/nav-collapse.scss" as nav;
 
 .container-headline {
   display: flex;
@@ -33,4 +34,15 @@
     cursor: not-allowed;
     opacity: 0.5;
   }
+}
+
+@include nav.collapsible-host;
+
+.container-dashboard,
+.container-edit-address {
+  position: relative;
+}
+
+.headline-actions + app-nav-toggle {
+  margin-inline-start: 8px;
 }

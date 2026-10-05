@@ -10,10 +10,12 @@ import {
   inject,
   OnInit,
   OnDestroy,
+  signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
+import { NavToggleComponent } from 'src/app/presentation/shared/nav-toggle/nav-toggle.component';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -50,6 +52,7 @@ import { DraftRecoveryService } from 'src/app/presentation/services/draft-recove
     EditShiftAddressComponent,
     EditShiftSpecialFeatureComponent,
     EditShiftNavComponent,
+    NavToggleComponent,
     EditShiftGroupComponent,
     EditShiftExpensesComponent,
     ShiftQualificationsComponent,
@@ -57,6 +60,7 @@ import { DraftRecoveryService } from 'src/app/presentation/services/draft-recove
 })
 export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
+  readonly navOpen = signal(false);
   private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
   public dataManagementGroupService = inject(DataManagementGroupService);
