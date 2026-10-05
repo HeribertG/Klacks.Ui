@@ -2,6 +2,18 @@
 
 import { TestBed } from '@angular/core/testing';
 import { HolidayStatus, HolidaysListHelper, ICalendarRule, } from './calendar/calendar-rule-class';
+import {
+    OFFICIAL_AND_REMINDER_ORDERINGS,
+    OFFICIAL_HOLIDAY_NAME,
+    OFFICIAL_RULE,
+    REMINDER_HOLIDAY_NAME,
+    REMINDER_RULE,
+    SAME_DATE_HOLIDAY_YEAR,
+    SECOND_REMINDER_RULE,
+    buildCalendarRule,
+    buildHolidaysListHelper,
+    sameDateHolidayDate,
+} from 'src/app/shared/testing/holiday-list.testing';
 
 describe('HolidaysListHelper', () => {
     let holidaysHelper: HolidaysListHelper;
@@ -581,5 +593,65 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.currentYear = 2023;
         holidaysHelper.computeHolidays();
         expect(holidaysHelper.isHoliday(new Date('9/1/2023'))).not.toBe(HolidayStatus.OfficialHoliday);
+    });
+});
+
+describe('HolidaysListHelper with several entries on the same date', () => {
+    it.each(OFFICIAL_AND_REMINDER_ORDERINGS)('returns the official entry (%s)', (_label, rules) => {
+        const helper = buildHolidaysListHelper(rules);
+
+        const holiday = helper.holidayForDate(sameDateHolidayDate());
+
+        expect(holiday?.officially).toBe(true);
+        expect(holiday?.currentName).toEqual({ en: OFFICIAL_HOLIDAY_NAME });
+    });
+
+    it('returns the official entry regardless of the order of the public holiday list', () => {
+        const helper = buildHolidaysListHelper([OFFICIAL_RULE, REMINDER_RULE]);
+        helper.holidayList = [...helper.holidayList].reverse();
+
+        expect(helper.holidayForDate(sameDateHolidayDate())?.officially).toBe(true);
+    });
+
+    it('returns the first entry in rule order when no entry on the date is official', () => {
+        const helper = buildHolidaysListHelper([REMINDER_RULE, SECOND_REMINDER_RULE]);
+
+        const holiday = helper.holidayForDate(sameDateHolidayDate());
+
+        expect(holiday?.officially).toBe(false);
+        expect(holiday?.currentName).toEqual({ en: REMINDER_HOLIDAY_NAME });
+    });
+
+    it('returns undefined for a date without a holiday and for an empty list', () => {
+        const helper = buildHolidaysListHelper([OFFICIAL_RULE, REMINDER_RULE]);
+
+        expect(helper.holidayForDate(new Date(SAME_DATE_HOLIDAY_YEAR, 11, 24))).toBeUndefined();
+        expect(new HolidaysListHelper().holidayForDate(sameDateHolidayDate())).toBeUndefined();
+    });
+
+    it('matches the calendar day even when the queried date carries a time of day', () => {
+        const helper = buildHolidaysListHelper([REMINDER_RULE, OFFICIAL_RULE]);
+
+        expect(helper.holidayForDate(new Date(SAME_DATE_HOLIDAY_YEAR, 11, 25, 13, 45))?.officially).toBe(true);
+    });
+
+    it.each(OFFICIAL_AND_REMINDER_ORDERINGS)('reports the date as official holiday (%s)', (_label, rules) => {
+        const helper = buildHolidaysListHelper(rules);
+
+        expect(helper.isHoliday(sameDateHolidayDate())).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('reports an unofficial holiday only when no entry on the date is official', () => {
+        const helper = buildHolidaysListHelper([REMINDER_RULE, SECOND_REMINDER_RULE]);
+
+        expect(helper.isHoliday(sameDateHolidayDate())).toBe(HolidayStatus.UnofficialHoliday);
+    });
+
+    it('resolves other dates independently of the same-date rule', () => {
+        const newYearReminder = buildCalendarRule('new-year', 'US', 'New year reminder', false, '01/01');
+        const helper = buildHolidaysListHelper([REMINDER_RULE, OFFICIAL_RULE, newYearReminder]);
+
+        expect(helper.holidayForDate(sameDateHolidayDate())?.officially).toBe(true);
+        expect(helper.holidayForDate(new Date(SAME_DATE_HOLIDAY_YEAR + 1, 0, 1))?.officially).toBe(false);
     });
 });

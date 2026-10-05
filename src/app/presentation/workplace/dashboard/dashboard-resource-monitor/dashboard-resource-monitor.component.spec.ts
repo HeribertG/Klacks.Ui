@@ -14,16 +14,37 @@ import { WeekConfigurationService } from 'src/app/domain/services/settings/week-
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import {
+  OFFICIAL_AND_REMINDER_ORDERINGS,
+  OFFICIAL_HOLIDAY_NAME,
+  OFFICIAL_RULE,
+  REMINDER_HOLIDAY_NAME,
+  REMINDER_RULE,
+  SECOND_REMINDER_RULE,
+  buildHolidaysListHelper,
+} from 'src/app/shared/testing/holiday-list.testing';
 
 const SEPTEMBER_SAMPLE_DATE = '2026-09-15';
+const SAME_DATE_HOLIDAY_WIRE_DATE = '2026-12-25';
+const OFFICIAL_HOLIDAY_COLOR = '#48C9B0';
+const UNOFFICIAL_HOLIDAY_COLOR = '#F7DC6F';
 
 describe('DashboardResourceMonitorComponent', () => {
   let component: DashboardResourceMonitorComponent;
   let fixture: ComponentFixture<DashboardResourceMonitorComponent>;
   let mockLocaleService: { getLocale: ReturnType<typeof vi.fn>; locale: ReturnType<typeof signal<string>> };
+  let mockDataDashboardService: { getResourceMonitor: ReturnType<typeof vi.fn> };
+  let mockHolidayCollectionService: {
+    isReset: ReturnType<typeof signal<boolean>>;
+    currentYear: number;
+    holidays: HolidaysListHelper;
+    readDataAsync: ReturnType<typeof vi.fn>;
+    setSelection: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
-    const mockDataDashboardService = {
+    mockDataDashboardService = {
       getResourceMonitor: vi.fn().mockReturnValue(
         of({
           dailyData: [
@@ -42,13 +63,14 @@ describe('DashboardResourceMonitorComponent', () => {
       backGroundColor: '#f2eded',
       backGroundColorSaturday: '#F5F5DC',
       backGroundColorSunday: '#95b9d0',
-      backGroundColorOfficiallyHoliday: '#48C9B0',
+      backGroundColorOfficiallyHoliday: OFFICIAL_HOLIDAY_COLOR,
+      backGroundColorHolyday: UNOFFICIAL_HOLIDAY_COLOR,
     };
     const mockWeekConfigurationService = { getWeekendSlot: vi.fn().mockReturnValue(null) };
-    const mockHolidayCollectionService = {
+    mockHolidayCollectionService = {
       isReset: signal(false),
       currentYear: 2026,
-      holidays: { holidayInfo: vi.fn().mockReturnValue(null) },
+      holidays: new HolidaysListHelper(),
       readDataAsync: vi.fn().mockResolvedValue(undefined),
       setSelection: vi.fn(),
     };
@@ -73,7 +95,13 @@ describe('DashboardResourceMonitorComponent', () => {
         { provide: LocaleService, useValue: mockLocaleService },
       ],
     })
-      .overrideComponent(DashboardResourceMonitorComponent, { set: { imports: [], template: '' } })
+      .overrideComponent(DashboardResourceMonitorComponent, {
+        set: {
+          imports: [],
+          template: '',
+          providers: [{ provide: HolidayCollectionService, useValue: mockHolidayCollectionService }],
+        },
+      })
       .compileComponents();
 
     fixture = TestBed.createComponent(DashboardResourceMonitorComponent);
@@ -103,5 +131,56 @@ describe('DashboardResourceMonitorComponent', () => {
 
     expect(label.length).toBeGreaterThan(0);
     expect(/^\d+$/.test(label)).toBe(false);
+  });
+
+  describe('holiday special days', () => {
+    beforeEach(() => {
+      mockDataDashboardService.getResourceMonitor.mockReturnValue(
+        of({
+          dailyData: [
+            { date: SAME_DATE_HOLIDAY_WIRE_DATE, dienstCount: 0, absenzCount: 0, wunschCount: 0, maxCount: 0, totalCount: 0 },
+          ],
+        })
+      );
+    });
+
+    it.each(OFFICIAL_AND_REMINDER_ORDERINGS)(
+      'paints the official color and names the official entry when two entries share the date (%s)',
+      (_label, rules) => {
+        mockHolidayCollectionService.holidays = buildHolidaysListHelper(rules);
+        component.ngOnInit();
+
+        const holidays = component.specialDays().filter((day) => day.type === 'holiday');
+
+        expect(holidays).toHaveLength(1);
+        expect(holidays[0].color).toBe(OFFICIAL_HOLIDAY_COLOR);
+        expect(holidays[0].tooltip).toBe(OFFICIAL_HOLIDAY_NAME);
+      }
+    );
+
+    it('paints the unofficial holiday color for a reminder-only date', () => {
+      mockHolidayCollectionService.holidays = buildHolidaysListHelper([REMINDER_RULE, SECOND_REMINDER_RULE]);
+      component.ngOnInit();
+
+      const holidays = component.specialDays().filter((day) => day.type === 'holiday');
+
+      expect(holidays).toHaveLength(1);
+      expect(holidays[0].color).toBe(UNOFFICIAL_HOLIDAY_COLOR);
+      expect(holidays[0].tooltip).toBe(REMINDER_HOLIDAY_NAME);
+    });
+
+    it('adds no holiday special day for a date without a holiday', () => {
+      mockHolidayCollectionService.holidays = buildHolidaysListHelper([OFFICIAL_RULE, REMINDER_RULE]);
+      mockDataDashboardService.getResourceMonitor.mockReturnValue(
+        of({
+          dailyData: [
+            { date: SEPTEMBER_SAMPLE_DATE, dienstCount: 0, absenzCount: 0, wunschCount: 0, maxCount: 0, totalCount: 0 },
+          ],
+        })
+      );
+      component.ngOnInit();
+
+      expect(component.specialDays().filter((day) => day.type === 'holiday')).toHaveLength(0);
+    });
   });
 });

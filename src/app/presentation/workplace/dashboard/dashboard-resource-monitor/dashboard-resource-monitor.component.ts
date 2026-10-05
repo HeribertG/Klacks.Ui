@@ -111,7 +111,8 @@ export class DashboardResourceMonitorComponent implements OnInit {
     const lang = this.currentLang();
     const satColor = this.gridColorService.backGroundColorSaturday;
     const sunColor = this.gridColorService.backGroundColorSunday;
-    const holColor = this.gridColorService.backGroundColorOfficiallyHoliday;
+    const officialHolidayColor = this.gridColorService.backGroundColorOfficiallyHoliday;
+    const unofficialHolidayColor = this.gridColorService.backGroundColorHolyday;
     return this.dailyData().flatMap((d, i) => {
       const date = parseCalendarDate(d.date);
       if (!date) return [];
@@ -119,12 +120,12 @@ export class DashboardResourceMonitorComponent implements OnInit {
       const result: ISpecialDay[] = [];
       if (weekendSlot === 1) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
       else if (weekendSlot === 2) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor });
-      const holidayInfo = this.holidayCollection.holidays.holidayInfo(date);
+      const holidayInfo = this.holidayCollection.holidays.holidayForDate(date);
       if (holidayInfo) {
         result.push({
           index: i,
           type: 'holiday' as SpecialDayType,
-          color: holColor,
+          color: holidayInfo.officially ? officialHolidayColor : unofficialHolidayColor,
           tooltip: getLocalizedValue(holidayInfo.currentName, lang) ?? undefined,
         });
       }

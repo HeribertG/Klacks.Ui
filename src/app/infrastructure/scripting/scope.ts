@@ -2,6 +2,7 @@
 
 import { Identifier, IdentifierTypes } from './identifier';
 import { ScriptValue } from './script-value';
+import { normalizeIdentifierName } from './identifier-name';
 
 export class Entry {
   constructor(
@@ -36,7 +37,8 @@ export class Scope {
   }
 
   retrieve(name: string): Identifier | null {
-    const result = this._variables.find((x) => x.key === name);
+    const key = normalizeIdentifierName(name);
+    const result = this._variables.find((x) => x.key === key);
     if (result && result.value instanceof Identifier) {
       return result.value;
     }
@@ -44,7 +46,8 @@ export class Scope {
   }
 
   exists(name: string): boolean {
-    return this._variables.some((x) => x.key === name);
+    const key = normalizeIdentifierName(name);
+    return this._variables.some((x) => x.key === key);
   }
 
   getVariable(name: string): Identifier | null {
@@ -52,7 +55,8 @@ export class Scope {
       return null;
     }
 
-    const result = this._variables.find((x) => x.key === name);
+    const key = normalizeIdentifierName(name);
+    const result = this._variables.find((x) => x.key === key);
     if (result && result.value instanceof Identifier) {
       return result.value;
     }
@@ -60,12 +64,13 @@ export class Scope {
   }
 
   setVariable(value: Identifier, name: string): void {
-    const existingIndex = this._variables.findIndex((x) => x.key === name);
+    const key = normalizeIdentifierName(name);
+    const existingIndex = this._variables.findIndex((x) => x.key === key);
     if (existingIndex >= 0) {
       this._variables.splice(existingIndex, 1);
     }
 
-    const entry = new Entry(name, value);
+    const entry = new Entry(key, value);
     if (this._variables.length === 0) {
       this._variables.push(entry);
     } else {

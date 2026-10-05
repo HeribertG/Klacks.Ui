@@ -110,8 +110,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Startzeit, z.B. "08:30" – mit <code>TimeToHours()</code> in Dezimalstunden umwandelbar</td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Endzeit, z.B. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Wochentag ISO-8601 (1=Mo, 2=Di, 3=Mi, 4=Do, 5=Fr, 6=Sa, 7=So)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Ist aktueller Tag ein offizieller Feiertag</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Ist Folgetag ein offizieller Feiertag</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Bei Einsätzen: nur dann 1, wenn der Tag im Vertragskalender des Mitarbeiters ein offizieller Feiertag ist UND die Regel als «Zeitzuschlag bei Arbeit» markiert ist. Bei Abwesenheiten: 1, wenn der Tag ein offizieller Feiertag ist.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Wie holiday, aber für den Folgetag (Dienste über Mitternacht).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Nachtzuschlag-Satz aus Contract (z.B. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Feiertagszuschlag-Satz aus Contract (z.B. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Zuschlag-Satz für konfigurierbaren Wochenendtag 1 (z.B. Samstag)</td></tr>

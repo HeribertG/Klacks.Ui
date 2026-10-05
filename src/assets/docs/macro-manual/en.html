@@ -111,8 +111,8 @@ IMPORT amount, discount
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Start time, e.g. "08:30" – convertible to decimal hours with <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>End time, e.g. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Weekday ISO-8601 (1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Is current day an official holiday</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Is next day an official holiday</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>For works: 1 only when the day is an official holiday in the employee's contract calendar AND the rule is marked «Time surcharge when working». For absences: 1 when the day is an official holiday.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Like holiday, but for the following day (shifts across midnight).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Night surcharge rate from Contract (e.g. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Holiday surcharge rate from Contract (e.g. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Surcharge rate for configurable weekend day 1 (e.g. Saturday)</td></tr>

@@ -114,8 +114,8 @@ IMPORT montant, rabais
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Heure de début, ex. "08:30" – convertible en heures décimales avec <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Heure de fin, ex. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Jour de la semaine ISO-8601 (1=Lun, 2=Mar, 3=Mer, 4=Jeu, 5=Ven, 6=Sam, 7=Dim)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Le jour actuel est-il un jour férié officiel</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Le lendemain est-il un jour férié officiel</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Pour les engagements : 1 uniquement si le jour est un jour férié officiel dans le calendrier du contrat de l'employé ET que la règle est marquée « Supplément de temps en cas de travail ». Pour les absences : 1 si le jour est un jour férié officiel.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Comme holiday, mais pour le jour suivant (services qui dépassent minuit).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Taux de supplément de nuit du Contract (ex. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Taux de supplément jour férié du Contract (ex. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Taux de supplément pour le jour de week-end configurable 1 (ex. samedi)</td></tr>

@@ -101,8 +101,8 @@ export class ScriptExecutionContext {
     this.scopes = new Scopes();
 
     const externalScope = new Scope();
-    for (const [name, identifier] of this.script.externalSymbols) {
-      externalScope.allocate(name, identifier.value, identifier.idType);
+    for (const identifier of this.script.externalSymbols.values()) {
+      externalScope.allocate(identifier.name, identifier.value, identifier.idType);
     }
     this.scopes.pushScope(externalScope);
     this.scopes.pushScope();

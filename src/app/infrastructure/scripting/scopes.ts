@@ -3,6 +3,7 @@
 import { Scope, Entry } from './scope';
 import { Identifier, IdentifierTypes } from './identifier';
 import { ScriptValue } from './script-value';
+import { normalizeIdentifierName } from './identifier-name';
 
 export class Scopes {
   private _scopes: Scope[] = [];
@@ -54,7 +55,7 @@ export class Scopes {
       const scope = this._scopes[i];
       const variable = scope.getVariable(name);
 
-      if (variable && variable.name === name) {
+      if (variable && normalizeIdentifierName(variable.name) === normalizeIdentifierName(name)) {
         if (idType === IdentifierTypes.idNone) {
           return true;
         }

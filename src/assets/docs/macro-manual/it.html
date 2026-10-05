@@ -112,8 +112,8 @@ IMPORT importo, sconto
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Ora di inizio, es. "08:30" – convertibile in ore decimali con <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Ora di fine, es. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Giorno della settimana ISO-8601 (1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab, 7=Dom)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Indica se il giorno corrente è un giorno festivo ufficiale</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Indica se il giorno successivo è un giorno festivo ufficiale</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Per gli impieghi: 1 solo se il giorno è un festivo ufficiale nel calendario del contratto del dipendente E la regola è contrassegnata «Supplemento di tempo in caso di lavoro». Per le assenze: 1 se il giorno è un festivo ufficiale.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Come holiday, ma per il giorno successivo (turni a cavallo della mezzanotte).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Tasso del supplemento notturno dal Contract (es. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Tasso del supplemento festivo dal Contract (es. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Tasso del supplemento per il giorno di fine settimana configurabile 1 (es. sabato)</td></tr>

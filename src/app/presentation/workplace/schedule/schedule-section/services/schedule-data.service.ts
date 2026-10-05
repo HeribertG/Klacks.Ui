@@ -26,7 +26,7 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, compareDate, formatDateOnly, getDayIndex } from 'src/app/shared/helpers/date.helper';
+import { addDays, formatDateOnly, getDayIndex } from 'src/app/shared/helpers/date.helper';
 import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { defaultTimeRangePlacement, resolveTimeRangePlacement } from 'src/app/shared/helpers/time-range-placement.helper';
@@ -455,9 +455,7 @@ export class ScheduleDataService extends BaseDataService {
       if (this.holidayCollection) {
         this.ensureCorrectYearLoaded(today);
 
-        const result = this.holidayCollection.holidays.holidayList.find((x) =>
-          compareDate(x.currentDate, today),
-        );
+        const result = this.holidayCollection.holidays.holidayForDate(today);
 
         if (result) {
           return result.officially
@@ -505,9 +503,7 @@ export class ScheduleDataService extends BaseDataService {
       if (this.holidayCollection) {
         this.ensureCorrectYearLoaded(today);
 
-        return this.holidayCollection.holidays.holidayList.find((x) =>
-          compareDate(x.currentDate, today),
-        );
+        return this.holidayCollection.holidays.holidayForDate(today);
       }
     }
     return undefined;
