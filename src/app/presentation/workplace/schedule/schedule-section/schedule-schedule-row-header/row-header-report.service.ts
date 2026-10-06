@@ -11,7 +11,7 @@
  * @param dataService - Grid data (rows, groups, clients)
  * @param dataManagementSchedule - Visible time period for report
  * @param scheduleChangeService - Tracks and clears per-client dirty state after schedule send
- * @param authService - Decides whether the "cover absence" entry is offered (Admin or Authorised)
+ * @param authService - Decides whether the "cover absence" entry is offered (anyone who may edit the schedule)
  * @param recoveryLauncher - Opens the recovery dialog pre-filled with the row's employee
  */
 import { inject, Injectable, computed } from '@angular/core';
@@ -29,7 +29,7 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 
 @Injectable()
@@ -98,9 +98,9 @@ export class RowHeaderReportService {
     }
   }
 
-  /** Mirrors the backend gate of the recovery endpoint: admins and supervisors may propose a cover. */
+  /** Whoever may edit the schedule may ask for a cover proposal; the backend endpoint is open to every authenticated user. */
   private canCoverAbsence(): boolean {
-    return this.authService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED);
+    return this.authService.hasPermission(PERMISSIONS.CanEditSchedule);
   }
 
   navigateToAddress(contextMenuRow: number): void {

@@ -8,7 +8,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScheduleDataService } from './schedule-data.service';
@@ -135,30 +135,24 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
   const keysOf = (context: ContextMenuContext): string[] =>
     service.createContextMenu(context).list.map((item) => item.key);
 
-  it('offers "cover absence" on an unlocked work cell to an admin', () => {
-    held.add(ROLE_ADMIN);
+  it('offers "cover absence" on an unlocked work cell to anyone who may edit the schedule (planner floor)', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
 
     expect(keysOf(buildContext(WorkScheduleEntryType.Work))).toContain('coverAbsence');
   });
 
-  it('offers "cover absence" on an unlocked work cell to a supervisor', () => {
-    held.add(ROLE_AUTHORISED);
-
-    expect(keysOf(buildContext(WorkScheduleEntryType.Work))).toContain('coverAbsence');
-  });
-
-  it('hides "cover absence" from a planner without a role, mirroring the backend gate', () => {
+  it('hides "cover absence" from a read-only user without the schedule edit right', () => {
     expect(keysOf(buildContext(WorkScheduleEntryType.Work))).not.toContain('coverAbsence');
   });
 
   it('hides "cover absence" on a break cell', () => {
-    held.add(ROLE_ADMIN);
+    held.add(PERMISSIONS.CanEditSchedule);
 
     expect(keysOf(buildContext(WorkScheduleEntryType.Break))).not.toContain('coverAbsence');
   });
 
   it('hides "cover absence" on a locked work cell, which the engine could only report as locked', () => {
-    held.add(ROLE_ADMIN);
+    held.add(PERMISSIONS.CanEditSchedule);
 
     expect(keysOf(buildContext(WorkScheduleEntryType.Work, 1))).not.toContain('coverAbsence');
   });

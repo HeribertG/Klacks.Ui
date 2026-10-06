@@ -91,18 +91,20 @@
         </select>
       </div>
 
-      <div class="form-check mb-3">
-        <input
-          id="recovery-override"
-          type="checkbox"
-          class="form-check-input"
-          [formField]="recoveryForm.overrideBlock"
-        />
-        <label class="form-check-label" for="recovery-override">
-          {{ 'recovery.dialog.overrideBlock' | translate }}
-        </label>
-        <div class="form-text">{{ 'recovery.dialog.overrideBlockHint' | translate }}</div>
-      </div>
+      @if (canOverride()) {
+        <div class="form-check mb-3">
+          <input
+            id="recovery-override"
+            type="checkbox"
+            class="form-check-input"
+            [formField]="recoveryForm.overrideBlock"
+          />
+          <label class="form-check-label" for="recovery-override">
+            {{ 'recovery.dialog.overrideBlock' | translate }}
+          </label>
+          <div class="form-text">{{ 'recovery.dialog.overrideBlockHint' | translate }}</div>
+        </div>
+      }
 
       <div class="form-check mb-3">
         <input

@@ -12,7 +12,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 
 describe('RowHeaderReportService - cover absence', () => {
@@ -60,19 +60,13 @@ describe('RowHeaderReportService - cover absence', () => {
 
   const menuKeys = (): string[] => service.createContextMenu().list.map((item) => item.key);
 
-  it('offers "cover absence" in the row menu to an admin', () => {
-    held.add(ROLE_ADMIN);
+  it('offers "cover absence" in the row menu to anyone who may edit the schedule (planner floor)', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
 
     expect(menuKeys()).toContain('coverAbsence');
   });
 
-  it('offers "cover absence" in the row menu to a supervisor', () => {
-    held.add(ROLE_AUTHORISED);
-
-    expect(menuKeys()).toContain('coverAbsence');
-  });
-
-  it('hides "cover absence" from a planner without a role', () => {
+  it('hides "cover absence" from a read-only user without the schedule edit right', () => {
     expect(menuKeys()).not.toContain('coverAbsence');
   });
 

@@ -10,7 +10,7 @@
  * @param clients - Visible schedule employees to pick the absent one from
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
  */
-import { ChangeDetectionStrategy, Component, DestroyRef, TemplateRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -31,6 +31,8 @@ import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { IAnalyseScenario, AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { companyToday, formatDateOnly } from 'src/app/shared/helpers/calendar-date.helper';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import {
   IRecoveryDialogPreset,
   RecoveryDialogLauncherService,
@@ -68,6 +70,7 @@ export class RecoveryDialogComponent {
   private readonly translateService = inject(TranslateService);
   private readonly launcher = inject(RecoveryDialogLauncherService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authorizationService = inject(AuthorizationService);
 
   private modalRef: NgbModalRef | null = null;
 
@@ -80,6 +83,11 @@ export class RecoveryDialogComponent {
 
   /** Result of the last run; while it is set the dialog shows the review step instead of the form. */
   protected readonly result = signal<ICoverAbsenceOutcome | null>(null);
+
+  /** Only a supervisor may override a blocking rule (ISupervisorOverrideAuthorizer), so others never see the box. */
+  protected readonly canOverride = computed(() =>
+    this.authorizationService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED),
+  );
   protected readonly localError = signal<string | null>(null);
 
   private readonly formModel = signal<IRecoveryFormModel>(this.emptyModel());

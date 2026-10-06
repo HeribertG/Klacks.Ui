@@ -32,7 +32,7 @@ import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/sche
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
@@ -220,9 +220,9 @@ export class ScheduleContextMenuService {
     return menuData;
   }
 
-  /** Mirrors the backend gate of the recovery endpoint: admins and supervisors may propose a cover. */
+  /** Whoever may edit the schedule may ask for a cover proposal; the backend endpoint is open to every authenticated user. */
   private canCoverAbsence(): boolean {
-    return this.authService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED);
+    return this.authService.hasPermission(PERMISSIONS.CanEditSchedule);
   }
 
   private canUnconfirmEntry(entry: IScheduleCell): boolean {

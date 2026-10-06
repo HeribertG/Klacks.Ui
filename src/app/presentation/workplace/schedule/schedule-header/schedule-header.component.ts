@@ -57,7 +57,7 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
-import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import {
   ScheduleTimelineRangeService,
@@ -189,10 +189,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
 
-  /** Mirrors the backend gate of the recovery endpoint (Admin or Authorised), independent of the wizard mode. */
-  readonly canCoverAbsence = computed(() =>
-    this.authorizationService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED),
-  );
+  /** Whoever may edit the schedule may ask for a cover proposal, independent of the admin-only wizard mode. */
+  readonly canCoverAbsence = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule));
 
   constructor() {
     this.scheduleSignalR.thoroughRecalculationCompleted$

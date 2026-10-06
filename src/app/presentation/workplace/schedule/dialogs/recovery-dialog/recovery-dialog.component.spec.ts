@@ -13,6 +13,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { companyToday, formatDateOnly } from 'src/app/shared/helpers/calendar-date.helper';
 import { addDays } from 'src/app/shared/helpers/date.helper';
@@ -40,6 +41,7 @@ describe('RecoveryDialogComponent', () => {
   let scenarios: ReturnType<typeof signal<IAnalyseScenario[]>>;
   let schedule: { clients: unknown[]; periodStartDate: Date | null; periodEndDate: Date | null; workFilter: { selectedGroup: string }; readDatas: ReturnType<typeof vi.fn> };
   let launcher: RecoveryDialogLauncherService;
+  let isSupervisor: boolean;
 
   const formModel = (): any => (component as any).formModel();
 
@@ -50,6 +52,7 @@ describe('RecoveryDialogComponent', () => {
     selectScenario = vi.fn();
     readDatas = vi.fn();
     scenarios = signal<IAnalyseScenario[]>([]);
+    isSupervisor = true;
     const today = companyToday();
     schedule = {
       clients: [{ id: 'client-1', firstName: 'Anna', name: 'Muster' }],
@@ -67,6 +70,10 @@ describe('RecoveryDialogComponent', () => {
         { provide: AnalyseScenarioService, useValue: { scenarios, selectScenario } },
         { provide: DataManagementScheduleService, useValue: schedule },
         { provide: ToastShowService, useValue: { showError: vi.fn() } },
+        {
+          provide: AuthorizationService,
+          useValue: { hasPermission: () => true, hasAnyPermission: () => isSupervisor },
+        },
       ],
     })
       .overrideComponent(RecoveryDialogComponent, {
@@ -182,6 +189,15 @@ describe('RecoveryDialogComponent', () => {
 
     expect(formModel().selectedAbsenceId).toBe(SICK_ABSENCE_ID);
     expect(formModel().selectedClientId).toBe('client-2');
+  });
+
+  it('offers the rule override to a supervisor only', () => {
+    expect((component as any).canOverride()).toBe(true);
+
+    isSupervisor = false;
+    const planner = TestBed.createComponent(RecoveryDialogComponent).componentInstance;
+
+    expect((planner as any).canOverride()).toBe(false);
   });
 
   it('refuses to submit while the end lies before the start', async () => {
