@@ -403,6 +403,10 @@ export class ScheduleScheduleRowHeaderComponent
         this.contextMenu().closeMenu(true);
         this.openShiftPreferencesDialog(this.contextMenuRow);
         break;
+      case 'coverAbsence':
+        this.contextMenu().closeMenu(true);
+        this.reportHelper.requestAbsenceCover(this.contextMenuRow);
+        break;
     }
   }
 

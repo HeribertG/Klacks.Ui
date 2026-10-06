@@ -139,6 +139,19 @@
     }
 
 
+    @if (canCoverAbsence()) {
+      <button
+        id="schedule-cover-absence-btn"
+        type="button"
+        class="icon-button cover-absence-button"
+        (click)="onRecoveryClick()"
+        ngbTooltip="{{ 'recovery.toolbar.tooltip' | translate }}"
+      >
+        <app-icon-absence-cover />
+        <span class="tool-label">{{ "recovery.toolbar.label" | translate }}</span>
+      </button>
+    }
+
     @if (!isTimelineMode()) {
       <button
         id="schedule-break-placeholder-toggle"

@@ -5,11 +5,13 @@
  * range - with an absence type; the deterministic recovery engine proposes a rule-compliant replacement as
  * an isolated, propose-only scenario. The dialog then shows WHAT was proposed instead of a toast with two
  * numbers: which slot got whom, how far the engine had to search, what stayed open and why. The dialog
- * never accepts the scenario; a person decides.
+ * never accepts the scenario; a person decides. It opens either from the toolbar or, pre-filled with the
+ * employee and day, from a right-click on a work cell or an employee row (RecoveryDialogLauncherService).
  * @param clients - Visible schedule employees to pick the absent one from
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
  */
-import { ChangeDetectionStrategy, Component, TemplateRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, TemplateRef, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,8 +30,22 @@ import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper'
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { IAnalyseScenario, AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { companyToday, formatDateOnly } from 'src/app/shared/helpers/calendar-date.helper';
+import {
+  IRecoveryDialogPreset,
+  RecoveryDialogLauncherService,
+} from '../../services/recovery-dialog-launcher.service';
 
 const RECOVERY_CREATOR = 'recovery';
+
+interface IRecoveryFormModel {
+  selectedClientId: string;
+  selectedAbsenceId: string;
+  selectedDate: string;
+  selectedUntilDate: string;
+  overrideBlock: boolean;
+  notifyEscalationRoster: boolean;
+}
 
 @Component({
   selector: 'app-recovery-dialog',
@@ -50,8 +66,13 @@ export class RecoveryDialogComponent {
   private readonly absenceLookup = inject(AbsenceLookupService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly translateService = inject(TranslateService);
+  private readonly launcher = inject(RecoveryDialogLauncherService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private modalRef: NgbModalRef | null = null;
+
+  /** Absence type of the previous run, so a planner reporting several sick calls picks it only once. */
+  private lastAbsenceId = '';
 
   protected readonly clients = signal<IClientWork[]>([]);
   protected readonly absences = signal<IAbsence[]>([]);
@@ -61,37 +82,32 @@ export class RecoveryDialogComponent {
   protected readonly result = signal<ICoverAbsenceOutcome | null>(null);
   protected readonly localError = signal<string | null>(null);
 
-  private readonly formModel = signal<{
-    selectedClientId: string;
-    selectedAbsenceId: string;
-    selectedDate: string;
-    selectedUntilDate: string;
-    overrideBlock: boolean;
-  }>({
-    selectedClientId: '',
-    selectedAbsenceId: '',
-    selectedDate: '',
-    selectedUntilDate: '',
-    overrideBlock: false,
-  });
+  private readonly formModel = signal<IRecoveryFormModel>(this.emptyModel());
   protected readonly recoveryForm = form(this.formModel);
 
-  async open(): Promise<void> {
+  constructor() {
+    this.launcher.requests$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((preset) => void this.open(preset));
+  }
+
+  async open(preset: IRecoveryDialogPreset = {}): Promise<void> {
     this.clients.set(this.dataManagementSchedule.clients);
     await this.absenceLookup.loadIfNeeded();
     this.absences.set(this.absenceLookup.absences());
 
-    const start = this.dataManagementSchedule.periodStartDate;
     this.result.set(null);
     this.localError.set(null);
     this.formModel.set({
-      selectedClientId: '',
-      selectedAbsenceId: '',
-      selectedDate: start ? this.toIsoDate(start) : '',
-      selectedUntilDate: '',
-      overrideBlock: false,
+      ...this.emptyModel(),
+      selectedClientId: preset.clientId ?? '',
+      selectedAbsenceId: this.rememberedAbsenceId(),
+      selectedDate: preset.date ? formatDateOnly(preset.date) : this.defaultDate(),
+      selectedUntilDate: preset.untilDate ? formatDateOnly(preset.untilDate) : '',
     });
 
+    // Re-opening while a previous instance is still up (two quick right-clicks) must not stack modals.
+    this.modalRef?.close();
     this.modalRef = this.ngbModal.open(this.modalTemplate(), { centered: true, size: 'md' });
   }
 
@@ -143,8 +159,14 @@ export class RecoveryDialogComponent {
       return;
     }
 
-    const { selectedClientId, selectedAbsenceId, selectedDate, selectedUntilDate, overrideBlock } =
-      this.formModel();
+    const {
+      selectedClientId,
+      selectedAbsenceId,
+      selectedDate,
+      selectedUntilDate,
+      overrideBlock,
+      notifyEscalationRoster,
+    } = this.formModel();
     this.isSubmitting.set(true);
     this.localError.set(null);
     try {
@@ -156,9 +178,11 @@ export class RecoveryDialogComponent {
           absenceId: selectedAbsenceId,
           untilDate: selectedUntilDate || undefined,
           overrideBlock: overrideBlock || undefined,
+          notifyEscalationRoster,
           language: this.translateService.currentLang || undefined,
         }),
       );
+      this.lastAbsenceId = selectedAbsenceId;
 
       const newScenario: IAnalyseScenario = {
         id: outcome.scenarioId,
@@ -188,6 +212,7 @@ export class RecoveryDialogComponent {
 
   onClose(): void {
     this.modalRef?.close();
+    this.modalRef = null;
   }
 
   /** Back to the form to try another day or another absence without reopening the dialog. */
@@ -213,10 +238,30 @@ export class RecoveryDialogComponent {
     return this.translateService.instant('recovery.dialog.failed');
   }
 
-  private toIsoDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  /** Today when it lies inside the visible period (the usual sick call), otherwise the period start. */
+  private defaultDate(): string {
+    const start = this.dataManagementSchedule.periodStartDate;
+    const end = this.dataManagementSchedule.periodEndDate;
+    const today = companyToday();
+    if (start && end && today >= start && today <= end) {
+      return formatDateOnly(today);
+    }
+    return start ? formatDateOnly(start) : '';
+  }
+
+  /** The previously used absence type, as long as it is still in the catalog. */
+  private rememberedAbsenceId(): string {
+    return this.absences().some((absence) => absence.id === this.lastAbsenceId) ? this.lastAbsenceId : '';
+  }
+
+  private emptyModel(): IRecoveryFormModel {
+    return {
+      selectedClientId: '',
+      selectedAbsenceId: '',
+      selectedDate: '',
+      selectedUntilDate: '',
+      overrideBlock: false,
+      notifyEscalationRoster: false,
+    };
   }
 }

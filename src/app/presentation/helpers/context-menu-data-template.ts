@@ -202,6 +202,18 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static coverAbsence(): MenuItem[] {
+    return [
+      new MenuItem(
+        'coverAbsence',
+        DomainMessages.COVER_ABSENCE,
+        false,
+        '',
+        'fa-solid fa-user-injured',
+      ),
+    ];
+  }
+
   public static splitContainer(): MenuItem[] {
     return [
       new MenuItem(

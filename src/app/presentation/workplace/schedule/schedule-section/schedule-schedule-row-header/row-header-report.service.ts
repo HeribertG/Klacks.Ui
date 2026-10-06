@@ -11,6 +11,8 @@
  * @param dataService - Grid data (rows, groups, clients)
  * @param dataManagementSchedule - Visible time period for report
  * @param scheduleChangeService - Tracks and clears per-client dirty state after schedule send
+ * @param authService - Decides whether the "cover absence" entry is offered (Admin or Authorised)
+ * @param recoveryLauncher - Opens the recovery dialog pre-filled with the row's employee
  */
 import { inject, Injectable, computed } from '@angular/core';
 import { Router } from '@angular/router';
@@ -26,6 +28,9 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 
 @Injectable()
 export class RowHeaderReportService {
@@ -38,6 +43,8 @@ export class RowHeaderReportService {
   private dataService = inject(BaseDataService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private scheduleChangeService = inject(ScheduleChangeService);
+  private authService = inject(AuthorizationService);
+  private recoveryLauncher = inject(RecoveryDialogLauncherService);
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -64,7 +71,36 @@ export class RowHeaderReportService {
     }
     menuData.list.push(...MenuDataTemplate.divider());
     menuData.list.push(...MenuDataTemplate.shiftPreferences());
+    if (this.canCoverAbsence()) {
+      menuData.list.push(...MenuDataTemplate.divider());
+      menuData.list.push(...MenuDataTemplate.coverAbsence());
+    }
     return menuData;
+  }
+
+  /**
+   * Opens the recovery dialog for the row's employee; the day stays open because a row click carries
+   * no date, so the dialog falls back to today inside the visible period.
+   */
+  requestAbsenceCover(contextMenuRow: number): void {
+    if (contextMenuRow < 0 || contextMenuRow >= this.dataService.rows) {
+      return;
+    }
+
+    const groupIndex = this.dataService.rowGroupIndex[contextMenuRow];
+    if (groupIndex === undefined) {
+      return;
+    }
+
+    const client = this.dataService.getGroupIndex(groupIndex);
+    if (client?.id) {
+      this.recoveryLauncher.requestOpen({ clientId: client.id });
+    }
+  }
+
+  /** Mirrors the backend gate of the recovery endpoint: admins and supervisors may propose a cover. */
+  private canCoverAbsence(): boolean {
+    return this.authService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED);
   }
 
   navigateToAddress(contextMenuRow: number): void {

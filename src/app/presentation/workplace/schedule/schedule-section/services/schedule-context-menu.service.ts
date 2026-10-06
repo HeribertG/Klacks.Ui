@@ -157,6 +157,11 @@ export class ScheduleContextMenuService {
           }
         }
 
+        if (entry?.entryType === WorkScheduleEntryType.Work && this.canCoverAbsence()) {
+          menuData.list.push(...MenuDataTemplate.divider());
+          menuData.list.push(...MenuDataTemplate.coverAbsence());
+        }
+
         if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {
           menuData.list.push(...MenuDataTemplate.divider());
           if (this.lockLevelService.canConfirm(entry)) {
@@ -213,6 +218,11 @@ export class ScheduleContextMenuService {
     }
 
     return menuData;
+  }
+
+  /** Mirrors the backend gate of the recovery endpoint: admins and supervisors may propose a cover. */
+  private canCoverAbsence(): boolean {
+    return this.authService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED);
   }
 
   private canUnconfirmEntry(entry: IScheduleCell): boolean {

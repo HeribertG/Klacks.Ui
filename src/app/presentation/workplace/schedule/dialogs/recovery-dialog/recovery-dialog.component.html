@@ -8,6 +8,9 @@
       <p class="recovery-description">
         {{ 'recovery.dialog.reviewIntro' | translate: { covered: outcome.covered.length, uncovered: outcome.uncovered.length } }}
       </p>
+      <p class="recovery-scenario text-muted">
+        {{ 'recovery.dialog.scenarioCreated' | translate: { name: outcome.scenarioName } }}
+      </p>
 
       @if (outcome.covered.length > 0) {
         <h6 class="recovery-section-title">{{ 'recovery.dialog.coveredTitle' | translate }}</h6>
@@ -99,6 +102,19 @@
           {{ 'recovery.dialog.overrideBlock' | translate }}
         </label>
         <div class="form-text">{{ 'recovery.dialog.overrideBlockHint' | translate }}</div>
+      </div>
+
+      <div class="form-check mb-3">
+        <input
+          id="recovery-notify-roster"
+          type="checkbox"
+          class="form-check-input"
+          [formField]="recoveryForm.notifyEscalationRoster"
+        />
+        <label class="form-check-label" for="recovery-notify-roster">
+          {{ 'recovery.dialog.notifyRoster' | translate }}
+        </label>
+        <div class="form-text">{{ 'recovery.dialog.notifyRosterHint' | translate }}</div>
       </div>
 
       <p class="recovery-hint text-muted">{{ 'recovery.dialog.proposeOnlyHint' | translate }}</p>

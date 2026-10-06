@@ -104,6 +104,13 @@ export class ScheduleMenuDispatcherService {
         dataService,
         host.contextMenuEntry ?? undefined,
       ),
+    coverAbsence: (dataService, _k, host) =>
+      this.facade.dialog.openRecoveryDialog(
+        host.contextMenuRow,
+        host.contextMenuColumn,
+        dataService,
+        host.contextMenuEntry ?? undefined,
+      ),
     splitContainer: (dataService, _k, host) =>
       this.facade.dialog.openContainerSplitDialog(
         host.contextMenuRow,

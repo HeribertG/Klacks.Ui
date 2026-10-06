@@ -21,6 +21,11 @@ export interface ICoverAbsenceRequest {
   untilDate?: string;
   /** Let a supervisor push the proposal through a rule that only blocks in escalation mode. */
   overrideBlock?: boolean;
+  /**
+   * Wake the group's escalation roster (planner call list) for the affected shifts. Off when the planner
+   * handles the absence interactively; the backend defaults to on for unattended callers (skill/MCP).
+   */
+  notifyEscalationRoster?: boolean;
   /** The planner's language; the server writes the scenario name in it, falling back to the installation language. */
   language?: string;
 }
@@ -30,14 +35,25 @@ export interface ICoveredSlot {
   date: string;
   replacementClientId: string;
   replacementName: string;
-  /** How far the search had to go: 0 is a straight replacement, higher means a swap chain. */
+  /**
+   * How far the search had to go: 0 direct in-group replacement, 1 in-group swap, 2 borrowed from
+   * another group, 3 swap with another group (engine EscalationTier).
+   */
   tier: number;
+  /** The cloned work in the scenario the proposal is attached to; absent on older backends. */
+  workId?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
 }
 
 export interface IUncoveredSlot {
   shiftId: string;
   date: string;
   reason: string;
+  /** The cloned work in the scenario that stayed open; absent on older backends. */
+  workId?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
 }
 
 export interface ICoverAbsenceOutcome {

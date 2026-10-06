@@ -51,12 +51,13 @@ import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmoniz
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
 import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
 import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dialog.component';
+import { IconAbsenceCoverComponent } from 'src/app/presentation/icons/icon-absence-cover.component';
 import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
-import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import {
   ScheduleTimelineRangeService,
@@ -113,6 +114,7 @@ const DEFAULT_ZOOM_VALUE = 100;
     HolisticHarmonizerDialogComponent,
     Wizard4DialogComponent,
     RecoveryDialogComponent,
+    IconAbsenceCoverComponent,
     ScenarioSelectorComponent,
   ],
   providers: [],
@@ -186,6 +188,11 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly autoWizardRunningElsewhereGroupName = this.autoWizardOrchestrator.runningElsewhereGroupName;
 
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
+
+  /** Mirrors the backend gate of the recovery endpoint (Admin or Authorised), independent of the wizard mode. */
+  readonly canCoverAbsence = computed(() =>
+    this.authorizationService.hasAnyPermission(ROLE_ADMIN, ROLE_AUTHORISED),
+  );
 
   constructor() {
     this.scheduleSignalR.thoroughRecalculationCompleted$

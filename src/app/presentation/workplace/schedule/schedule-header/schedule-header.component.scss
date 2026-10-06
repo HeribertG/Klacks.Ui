@@ -131,7 +131,8 @@
   }
 }
 
-.wizard-button {
+.wizard-button,
+.cover-absence-button {
   background: none;
   border: none;
   padding: 0;
@@ -343,6 +344,7 @@ app-holistic-harmonizer-dialog {
 
     .send-email-button,
     .wizard-button,
+    .cover-absence-button,
     .break-placeholder-toggle,
     .availability-check-button,
     .recalculate-button,

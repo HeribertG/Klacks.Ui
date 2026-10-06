@@ -11,9 +11,10 @@
  * @relations
  * - Used by: ScheduleSectionComponent
  * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent, TravelDialogComponent, BriefingDialogComponent, ContainerWorkEditDialogComponent, ContainerSplitDialogComponent
+ * - Requests: RecoveryDialogComponent via RecoveryDialogLauncherService (the dialog lives in the schedule header)
  * - Uses: ScheduleDataService for entry lookup
  */
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { CorrectionDialogComponent } from '../../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../../dialogs/replacement-dialog/replacement-dialog.component';
@@ -26,9 +27,12 @@ import { ContainerSplitDialogComponent } from '../../dialogs/container-split-dia
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { ScheduleDataService } from './schedule-data.service';
+import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 
 @Injectable()
 export class ScheduleDialogService {
+  private readonly recoveryLauncher = inject(RecoveryDialogLauncherService);
+
   private correctionDialog: CorrectionDialogComponent | null = null;
   private replacementDialog: ReplacementDialogComponent | null = null;
   private workEditDialog: WorkEditDialogComponent | null = null;
@@ -99,6 +103,19 @@ export class ScheduleDialogService {
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
       this.replacementDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
+    }
+  }
+
+  /**
+   * Opens the recovery dialog pre-filled with the employee and day of the right-clicked work, so a sick
+   * call is two clicks away instead of a hidden menu plus a dropdown search.
+   */
+  openRecoveryDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && entry.clientId && date) {
+      this.recoveryLauncher.requestOpen({ clientId: entry.clientId, date });
     }
   }
 

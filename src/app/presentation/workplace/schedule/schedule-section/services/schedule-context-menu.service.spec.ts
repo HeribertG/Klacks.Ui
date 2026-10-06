@@ -81,3 +81,85 @@ describe('ScheduleContextMenuService - role seniority gates unconfirm', () => {
     expect(canUnconfirm).toHaveBeenCalledWith(expect.anything(), true, true);
   });
 });
+
+describe('ScheduleContextMenuService - cover absence entry', () => {
+  let service: ScheduleContextMenuService;
+  let held: Set<string>;
+
+  beforeEach(() => {
+    held = new Set<string>();
+    const hasPermission = (permission: string): boolean => held.has(permission);
+
+    TestBed.configureTestingModule({
+      providers: [
+        ScheduleContextMenuService,
+        { provide: TranslateService, useValue: { currentLang: 'en', instant: (key: string) => key } },
+        { provide: BaseCellManipulationService, useValue: { hasClipboardData: () => false } },
+        { provide: DataManagementScheduleService, useValue: { shiftSchedules: [] } },
+        { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [] } },
+        { provide: WorkLockLevelService, useValue: { canUnconfirm: () => false, canConfirm: () => false } },
+        {
+          provide: AuthorizationService,
+          useValue: {
+            hasPermission,
+            hasAnyPermission: (...permissions: string[]) => permissions.some(hasPermission),
+          },
+        },
+      ],
+    });
+
+    service = TestBed.inject(ScheduleContextMenuService);
+  });
+
+  const buildContext = (entryType: WorkScheduleEntryType, lockLevel = 0): ContextMenuContext => {
+    const entry = new ScheduleCell();
+    entry.entryType = entryType;
+    entry.lockLevel = lockLevel;
+    entry.isGroupRestricted = false;
+    entry.entryId = 'shift-1';
+    entry.sourceId = 'work-1';
+
+    return {
+      row: 0,
+      column: 0,
+      entry,
+      dataService: {
+        isCellOutsideMembershipPeriod: () => false,
+        isCellOutsideGroupPeriod: () => false,
+        isColumnSealed: () => false,
+        getAllEntriesForClientAndColumn: () => [],
+      } as unknown as ScheduleDataService,
+    };
+  };
+
+  const keysOf = (context: ContextMenuContext): string[] =>
+    service.createContextMenu(context).list.map((item) => item.key);
+
+  it('offers "cover absence" on an unlocked work cell to an admin', () => {
+    held.add(ROLE_ADMIN);
+
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work))).toContain('coverAbsence');
+  });
+
+  it('offers "cover absence" on an unlocked work cell to a supervisor', () => {
+    held.add(ROLE_AUTHORISED);
+
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work))).toContain('coverAbsence');
+  });
+
+  it('hides "cover absence" from a planner without a role, mirroring the backend gate', () => {
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work))).not.toContain('coverAbsence');
+  });
+
+  it('hides "cover absence" on a break cell', () => {
+    held.add(ROLE_ADMIN);
+
+    expect(keysOf(buildContext(WorkScheduleEntryType.Break))).not.toContain('coverAbsence');
+  });
+
+  it('hides "cover absence" on a locked work cell, which the engine could only report as locked', () => {
+    held.add(ROLE_ADMIN);
+
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work, 1))).not.toContain('coverAbsence');
+  });
+});
