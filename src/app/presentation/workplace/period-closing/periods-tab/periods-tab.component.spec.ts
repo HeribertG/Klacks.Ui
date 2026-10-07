@@ -62,6 +62,8 @@ const EXPORT_LOG: ExportLog = {
   exportedAt: '2026-05-08T10:00:00Z',
   exportedBy: 'user-1',
   exportedByName: 'Test User',
+  skippedEntryCount: 0,
+  absenceMappingInvalid: false,
 };
 
 const GROUP_PERIOD: UsedPeriod = {

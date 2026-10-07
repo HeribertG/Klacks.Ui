@@ -15,4 +15,6 @@ export interface ExportLog {
   exportedAt: string;
   exportedBy: string;
   exportedByName: string | null;
+  skippedEntryCount: number;
+  absenceMappingInvalid: boolean;
 }

@@ -98,6 +98,16 @@
         <dt>{{ 'periodClosing.modal.records' | translate }}</dt>
         <dd>{{ entry.recordCount }}</dd>
 
+        @if (entry.skippedEntryCount > 0 || entry.absenceMappingInvalid) {
+          <dt>{{ 'periodClosing.modal.skipped' | translate }}</dt>
+          <dd>
+            {{ entry.skippedEntryCount }}
+            @if (entry.absenceMappingInvalid) {
+              – {{ 'periodClosing.modal.mappingInvalid' | translate }}
+            }
+          </dd>
+        }
+
         <dt>{{ 'periodClosing.modal.language' | translate }}</dt>
         <dd>{{ entry.language }}</dd>
 
@@ -272,6 +282,15 @@
                   </td>
                   <td [id]="'export-log-cell-records-' + i" class="table-cell cell-right">
                     {{ e.recordCount }}
+                    @if (e.skippedEntryCount > 0 || e.absenceMappingInvalid) {
+                      <span
+                        [id]="'export-log-cell-skipped-' + i"
+                        class="badge badge-skipped"
+                        [title]="'periodClosing.export.skippedTooltip' | translate: { count: e.skippedEntryCount }"
+                      >
+                        {{ 'periodClosing.export.skippedBadge' | translate: { count: e.skippedEntryCount } }}
+                      </span>
+                    }
                   </td>
                 </tr>
               }

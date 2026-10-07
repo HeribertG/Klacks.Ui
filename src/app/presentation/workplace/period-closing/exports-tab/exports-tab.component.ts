@@ -9,7 +9,8 @@
  * "Employee hours" downloads hours/expenses/breaks for all employees (internal
  * and external) as XML for a date range, independent of individual orders.
  * "Orders in range" delegates to app-order-range-export-section, which downloads
- * a ZIP of every sealed order in a date range.
+ * a ZIP of every sealed order in a date range. A payroll download whose formatter could not write every entry
+ * (response header X-Klacks-Export-Skipped) or whose absence mapping is invalid shows an info toast.
  * @param activeTab - Which of the three export tabs is currently visible
  */
 
@@ -37,7 +38,10 @@ import {
 import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
+  EXPORT_MAPPING_INVALID_HEADER,
+  EXPORT_SKIPPED_ENTRIES_HEADER,
   extractFileNameFromContentDisposition,
+  parseSkippedEntryCount,
   triggerBlobDownload,
 } from 'src/app/shared/helpers/file-download.helper';
 import { OrderRangeExportSectionComponent } from './order-range-export-section/order-range-export-section.component';
@@ -323,6 +327,9 @@ export class ExportsTabComponent implements OnInit {
         const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
         const header = this.translate.instant('periodClosing.clientExport.title');
         this.toastShowService.showSuccess(msg, header);
+        if (isPayroll) {
+          this.reportSkippedEntries(res.headers.get(EXPORT_SKIPPED_ENTRIES_HEADER), res.headers.get(EXPORT_MAPPING_INVALID_HEADER), format);
+        }
         this.clientExportBusy.set(false);
       },
       error: (err) => {
@@ -331,6 +338,21 @@ export class ExportsTabComponent implements OnInit {
         this.clientExportBusy.set(false);
       },
     });
+  }
+
+  private reportSkippedEntries(skippedHeader: string | null, mappingInvalidHeader: string | null, format: string): void {
+    const skipped = parseSkippedEntryCount(skippedHeader);
+    const formatLabel = this.translate.instant(`${FORMAT_LABEL_PREFIX}${format}`);
+    if (skipped > 0) {
+      this.toastShowService.showInfo(
+        this.translate.instant('periodClosing.clientExport.skippedEntries', { count: skipped, format: formatLabel }),
+      );
+    }
+    if (mappingInvalidHeader) {
+      this.toastShowService.showInfo(
+        this.translate.instant('periodClosing.clientExport.mappingInvalid', { format: formatLabel }),
+      );
+    }
   }
 
   formatOrderLabel(order: SealedOrderListItem): string {

@@ -164,6 +164,12 @@
   color: var(--onAccent);
 }
 
+.badge-skipped {
+  margin-left: 6px;
+  background-color: var(--standartOrangeColor);
+  color: var(--onAccent);
+}
+
 .badge-unknown {
   background-color: var(--standartGreyColor);
   color: var(--onAccent);
