@@ -1154,8 +1154,8 @@ export class ReportDataProviderService {
   private getScheduleAbbreviation(entry: IScheduleCell): string {
     if (entry.entryType === WorkScheduleEntryType.Expenses) {
       return entry.taxable
-        ? this.translate.instant('workChange.abbr.expenses')
-        : this.translate.instant('workChange.abbr.reimbursement');
+        ? this.translate.instant('workChange.abbr.reimbursement')
+        : this.translate.instant('workChange.abbr.expenses');
     }
     if (entry.entryType === WorkScheduleEntryType.WorkChange) {
       return this.translate.instant(this.resolveWorkChangeAbbrKey(entry));

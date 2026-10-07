@@ -32,6 +32,7 @@ import {
     SECOND_REMINDER_RULE,
     buildHolidaysListHelper,
 } from 'src/app/shared/testing/holiday-list.testing';
+import { ScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import {
@@ -322,5 +323,46 @@ describe('ScheduleDataService', () => {
                 });
             });
         }
+    });
+
+    describe('expense entry wording', () => {
+        const ROW = 0;
+        const COL = 0;
+        const EXPENSE_TOOLTIP_KEY = 'workChange.tooltip.expenses';
+        const ALLOWANCE_TOOLTIP_KEY = 'workChange.tooltip.reimbursement';
+        const EXPENSE_ABBR_KEY = 'workChange.abbr.expenses';
+        const ALLOWANCE_ABBR_KEY = 'workChange.abbr.reimbursement';
+
+        function expenseEntry(taxable: boolean): ScheduleCell {
+            return Object.assign(new ScheduleCell(), {
+                entryType: WorkScheduleEntryType.Expenses,
+                taxable,
+                amount: 12.5,
+            });
+        }
+
+        beforeEach(() => {
+            const translate = TestBed.inject(TranslateService);
+            vi.mocked(translate.instant).mockImplementation((key: string | string[]) => String(key));
+            Object.assign(TestBed.inject(GridColorService), { surchargeColor: '#surcharge', workChangeColor: '#workchange' });
+        });
+
+        it('labels a non-taxable expense (Spesen) with the expenses tooltip and abbreviation', () => {
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(expenseEntry(false));
+
+            const cell = service.getCell(ROW, COL);
+
+            expect(cell.tooltip).toBe(EXPENSE_TOOLTIP_KEY);
+            expect(cell.mainText).toBe(EXPENSE_ABBR_KEY);
+        });
+
+        it('labels a taxable allowance (Verguetung) with the reimbursement tooltip and abbreviation', () => {
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(expenseEntry(true));
+
+            const cell = service.getCell(ROW, COL);
+
+            expect(cell.tooltip).toBe(ALLOWANCE_TOOLTIP_KEY);
+            expect(cell.mainText).toBe(ALLOWANCE_ABBR_KEY);
+        });
     });
 });

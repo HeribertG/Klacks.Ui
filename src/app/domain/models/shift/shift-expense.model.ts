@@ -4,7 +4,7 @@
  * Model for default expenses attached to a shift template.
  * @param shiftId - The shift this default expense belongs to
  * @param amount - Expense amount in currency
- * @param taxable - True = taxable (Spesen), False = reimbursement (Vergütung)
+ * @param taxable - True = taxable wage supplement (Vergütung), False = non-taxable reimbursement of advanced money (Spesen)
  */
 export interface IShiftExpense {
   id: string | undefined;
@@ -19,5 +19,5 @@ export class ShiftExpense implements IShiftExpense {
   shiftId = '';
   amount = 0;
   description = '';
-  taxable = true;
+  taxable = false;
 }

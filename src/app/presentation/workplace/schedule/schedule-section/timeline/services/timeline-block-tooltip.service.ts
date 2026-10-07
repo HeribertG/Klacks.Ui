@@ -52,8 +52,8 @@ export class TimelineBlockTooltipService {
       case WorkScheduleEntryType.Expenses:
         return this.translate.instant(
           entry.taxable
-            ? 'workChange.tooltip.expenses'
-            : 'workChange.tooltip.reimbursement',
+            ? 'workChange.tooltip.reimbursement'
+            : 'workChange.tooltip.expenses',
         );
       default:
         return this.resolveRenderer(entry)?.getLabel(entry)?.trim() ?? '';

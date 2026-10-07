@@ -861,8 +861,8 @@ export class ScheduleDataService extends BaseDataService {
       cell.secondSubText = this.formatAmount(entry.amount);
       cell.backgroundColor = this.gridColorService.surchargeColor;
       cell.tooltip = entry.taxable
-        ? this.translateService.instant('workChange.tooltip.expenses')
-        : this.translateService.instant('workChange.tooltip.reimbursement');
+        ? this.translateService.instant('workChange.tooltip.reimbursement')
+        : this.translateService.instant('workChange.tooltip.expenses');
     } else {
       cell.firstSubText = this.formatWorkChangeTime(entry.changeTime);
       cell.secondSubText = formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
@@ -892,8 +892,8 @@ export class ScheduleDataService extends BaseDataService {
   private getWorkChangeAbbreviation(entry: IScheduleCell): string {
     if (entry.entryType === WorkScheduleEntryType.Expenses) {
       return entry.taxable
-        ? this.translateService.instant('workChange.abbr.expenses')
-        : this.translateService.instant('workChange.abbr.reimbursement');
+        ? this.translateService.instant('workChange.abbr.reimbursement')
+        : this.translateService.instant('workChange.abbr.expenses');
     }
 
     if (entry.replaceClientId) {
