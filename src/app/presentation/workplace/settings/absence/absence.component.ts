@@ -62,6 +62,7 @@ interface AbsenceFormModel {
   hideInGantt: boolean;
   macroId: string;
   isUnpaid: boolean;
+  isOnCall: boolean;
 }
 
 @Component({
@@ -139,6 +140,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     hideInGantt: false,
     macroId: '',
     isUnpaid: false,
+    isOnCall: false,
   });
 
   absenceForm = form(this.formModel, f => {
@@ -375,6 +377,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
       hideInGantt: absence.hideInGantt || false,
       macroId: absence.macroId || '',
       isUnpaid: absence.isUnpaid || false,
+      isOnCall: absence.isOnCall || false,
     });
   }
 
@@ -406,6 +409,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     this.currentAbsence.color = formData.color;
     this.currentAbsence.hideInGantt = formData.hideInGantt;
     this.currentAbsence.isUnpaid = formData.isUnpaid;
+    this.currentAbsence.isOnCall = formData.isOnCall;
     this.currentAbsence.macroId = formData.macroId || undefined;
   }
 

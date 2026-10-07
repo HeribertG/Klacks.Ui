@@ -45,6 +45,7 @@ export interface IAbsence {
   withHoliday: boolean;
   appliesToContainer: boolean;
   isUnpaid: boolean;
+  isOnCall: boolean;
 }
 
 export class Absence implements IAbsence {
@@ -63,6 +64,7 @@ export class Absence implements IAbsence {
   withHoliday = false;
   appliesToContainer = false;
   isUnpaid = false;
+  isOnCall = false;
 }
 
 export class CalendarHeaderDayRank {

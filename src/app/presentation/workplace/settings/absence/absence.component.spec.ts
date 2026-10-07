@@ -301,6 +301,7 @@ describe('AbsenceComponent', () => {
         color: '#00FF00',
         hideInGantt: false,
         isUnpaid: false,
+        isOnCall: false,
       });
 
       // Act
@@ -326,6 +327,7 @@ describe('AbsenceComponent', () => {
         color: '#0000FF',
         hideInGantt: true,
         isUnpaid: false,
+        isOnCall: false,
       });
 
       // Act
@@ -353,6 +355,7 @@ describe('AbsenceComponent', () => {
         color: '#ABCDEF',
         hideInGantt: true,
         isUnpaid: false,
+        isOnCall: false,
       });
 
       // Act

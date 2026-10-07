@@ -37,7 +37,8 @@ export interface ICoveredSlot {
   replacementName: string;
   /**
    * How far the search had to go: 0 direct in-group replacement, 1 in-group swap, 2 borrowed from
-   * another group, 3 swap with another group (engine EscalationTier).
+   * another group, 3 swap with another group, 5 on-call person of the own group, 6 on-call person of
+   * another group (engine EscalationTier). The value is a label identifier only, never an ordering.
    */
   tier: number;
   /** The cloned work in the scenario the proposal is attached to; absent on older backends. */

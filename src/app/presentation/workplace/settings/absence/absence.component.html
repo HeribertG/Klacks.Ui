@@ -140,6 +140,19 @@
           {{ "setting.absence.modal.applies-to-container" | translate }}
         </label>
       </div>
+      <div id="absence-modal-on-call-row" class="row-line">
+        <label
+          class="checkbox-label"
+          [attr.title]="'setting.absence.modal.is-on-call-hint' | translate"
+        >
+          <input
+            id="absence-modal-is-on-call"
+            type="checkbox"
+            [formField]="absenceForm.isOnCall"
+          />
+          {{ "setting.absence.modal.is-on-call" | translate }}
+        </label>
+      </div>
       <div id="absence-modal-color-row" class="row-line box">
         <label for="color" class="form-label">{{
           "setting.absence.modal.color" | translate

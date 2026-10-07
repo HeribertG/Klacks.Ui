@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
@@ -17,6 +20,10 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { companyToday, formatDateOnly } from 'src/app/shared/helpers/calendar-date.helper';
 import { addDays } from 'src/app/shared/helpers/date.helper';
+
+const I18N_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../../../assets/i18n');
+const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
+const COVERING_TIERS = [0, 1, 2, 3, 5, 6];
 
 const GROUP_ID = 'group-1';
 const SICK_ABSENCE_ID = 'absence-sick';
@@ -198,6 +205,25 @@ describe('RecoveryDialogComponent', () => {
     const planner = TestBed.createComponent(RecoveryDialogComponent).componentInstance;
 
     expect((planner as any).canOverride()).toBe(false);
+  });
+
+  it('maps every engine tier that can cover a slot to its own label key, on-call included', () => {
+    const tiers = [0, 1, 2, 3, 5, 6];
+
+    const keys = tiers.map((tier) => (component as any).tierKey(tier));
+
+    expect(keys).toEqual(tiers.map((tier) => `recovery.dialog.tier.${tier}`));
+  });
+
+  it('has a non-empty label for every covering tier in all four core catalogues', () => {
+    for (const language of CORE_LANGUAGES) {
+      const catalogue = JSON.parse(readFileSync(resolve(I18N_DIR, `${language}.json`), 'utf8')) as Record<string, string>;
+      for (const tier of COVERING_TIERS) {
+        expect(catalogue[`recovery.dialog.tier.${tier}`], `${language} tier ${tier}`).toBeTruthy();
+      }
+      expect(catalogue['schedule.error-list.on-call-overlap'], `${language} on-call-overlap`).toContain('{{workTimeRange}}');
+      expect(catalogue['schedule.error-list.on-call-overlap'], `${language} on-call-overlap`).toContain('{{onCallTimeRange}}');
+    }
   });
 
   it('refuses to submit while the end lies before the start', async () => {
