@@ -55,6 +55,69 @@
   color: var(--bs-secondary-color, var(--colorNeutral));
 }
 
+.recovery-list-covered {
+  max-height: none;
+  overflow-y: visible;
+}
+
+.recovery-covered,
+.recovery-alternative {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+}
+
+.recovery-covered-head,
+.recovery-covered-contact,
+.recovery-covered-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.recovery-covered-actions {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recovery-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.recovery-phone {
+  word-break: break-all;
+}
+
+.recovery-alternatives {
+  margin-left: 1rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.recovery-alternatives-title {
+  font-weight: 600;
+}
+
+.recovery-alternatives-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recovery-alternative {
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.recovery-alternatives-loading,
+.recovery-alternatives-failed,
+.recovery-alternatives-empty {
+  margin-bottom: 0;
+  font-size: 0.85rem;
+}
+
 .recovery-uncovered .recovery-date,
 .recovery-warning .recovery-date {
   font-weight: 600;

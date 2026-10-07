@@ -14,12 +14,117 @@
 
       @if (outcome.covered.length > 0) {
         <h6 class="recovery-section-title">{{ 'recovery.dialog.coveredTitle' | translate }}</h6>
-        <ul class="recovery-list">
-          @for (slot of outcome.covered; track slot.shiftId + slot.date) {
-            <li class="recovery-list-item">
-              <span class="recovery-date">{{ slot.date | calendarDate: 'numericDate' }}</span>
-              <span class="recovery-name">{{ slot.replacementName }}</span>
-              <span class="recovery-tier badge text-bg-light">{{ tierKey(slot.tier) | translate }}</span>
+        <ul class="recovery-list recovery-list-covered">
+          @for (slot of outcome.covered; track slotKey(slot)) {
+            <li class="recovery-list-item recovery-covered" [attr.data-slot]="slotKey(slot)">
+              <div class="recovery-covered-head">
+                <span class="recovery-date">{{ slot.date | calendarDate: 'numericDate' }}</span>
+                <span class="recovery-name">{{ slot.replacementName }}</span>
+                <span class="recovery-tier badge text-bg-light">{{ tierKey(slot.tier) | translate }}</span>
+              </div>
+              <div class="recovery-covered-contact">
+                @if (hasSlotTimes(slot)) {
+                  <span class="recovery-time">
+                    {{ 'recovery.dialog.slotTime' | translate: { start: displayTime(slot.startTime), end: displayTime(slot.endTime) } }}
+                  </span>
+                }
+                @if (slot.phone; as phone) {
+                  <a
+                    class="recovery-phone"
+                    [href]="phoneHref(phone)"
+                    [attr.aria-label]="'recovery.dialog.callPhone' | translate: { phone: phone }"
+                    >{{ phone }}</a
+                  >
+                } @else {
+                  <span class="recovery-no-phone text-muted">{{ 'recovery.dialog.noPhone' | translate }}</span>
+                }
+                <span class="recovery-outcome-state badge text-bg-secondary">
+                  {{ outcomeStateKey(slotOutcome(slot)) | translate }}
+                </span>
+              </div>
+              <div class="recovery-covered-actions">
+                <app-recovery-outcome-buttons
+                  [name]="slot.replacementName"
+                  [activeOutcome]="slotOutcome(slot)"
+                  [disabled]="isSlotOutcomeDisabled(slot)"
+                  (outcomeSelected)="onSlotOutcome(slot, $event)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link recovery-alternatives-toggle"
+                  [attr.aria-expanded]="isExpanded(slot)"
+                  [disabled]="!hasSlotTimes(slot)"
+                  (click)="onToggleAlternatives(slot)"
+                >
+                  {{ (isExpanded(slot) ? 'recovery.dialog.hideAlternatives' : 'recovery.dialog.alternatives') | translate }}
+                </button>
+              </div>
+              @if (isExpanded(slot)) {
+                <div class="recovery-alternatives">
+                  <div class="recovery-alternatives-title">{{ 'recovery.dialog.alternativesTitle' | translate }}</div>
+                  <p class="recovery-hint text-muted">{{ 'recovery.dialog.alternativeOutcomeHint' | translate }}</p>
+                  @let state = alternativesOf(slot);
+                  @switch (state.status) {
+                    @case (alternativesStatus.Loaded) {
+                      @if (state.candidates.length === 0) {
+                        <p class="recovery-alternatives-empty text-muted">
+                          {{ 'recovery.dialog.noAlternatives' | translate }}
+                        </p>
+                      } @else {
+                        <ul class="recovery-alternatives-list">
+                          @for (candidate of state.candidates; track candidate.clientId) {
+                            <li class="recovery-alternative" [attr.data-candidate]="candidate.clientId">
+                              <div class="recovery-covered-head">
+                                <span class="recovery-name">{{ candidate.name }}</span>
+                                @if (candidate.isOnCall) {
+                                  <span class="badge text-bg-info">{{ 'recovery.dialog.onCall' | translate }}</span>
+                                }
+                                @if (candidate.softConflicts.length > 0) {
+                                  <span class="badge text-bg-warning">
+                                    {{ 'recovery.dialog.conflicts' | translate: { count: candidate.softConflicts.length } }}
+                                  </span>
+                                }
+                              </div>
+                              <div class="recovery-covered-contact">
+                                @if (candidate.phone; as phone) {
+                                  <a
+                                    class="recovery-phone"
+                                    [href]="phoneHref(phone)"
+                                    [attr.aria-label]="'recovery.dialog.callPhone' | translate: { phone: phone }"
+                                    >{{ phone }}</a
+                                  >
+                                } @else {
+                                  <span class="recovery-no-phone text-muted">{{ 'recovery.dialog.noPhone' | translate }}</span>
+                                }
+                                <span class="recovery-outcome-state badge text-bg-secondary">
+                                  {{ outcomeStateKey(alternativeOutcome(slot, candidate)) | translate }}
+                                </span>
+                              </div>
+                              <app-recovery-outcome-buttons
+                                [name]="candidate.name"
+                                [activeOutcome]="alternativeOutcome(slot, candidate)"
+                                [disabled]="isAlternativeOutcomeDisabled(slot, candidate)"
+                                (outcomeSelected)="onAlternativeOutcome(slot, candidate, $event)"
+                              />
+                            </li>
+                          }
+                        </ul>
+                      }
+                    }
+                    @case (alternativesStatus.Failed) {
+                      <p class="recovery-alternatives-failed text-danger">
+                        {{ 'recovery.dialog.alternativesFailed' | translate }}
+                      </p>
+                    }
+                    @default {
+                      <p class="recovery-alternatives-loading text-muted">
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                        {{ 'recovery.dialog.alternativesLoading' | translate }}
+                      </p>
+                    }
+                  }
+                </div>
+              }
             </li>
           }
         </ul>

@@ -1,0 +1,19 @@
+<div
+  class="d-flex flex-wrap gap-1"
+  role="group"
+  [attr.aria-label]="'recovery.dialog.outcome.groupLabel' | translate: { name: name() }"
+>
+  @for (action of actions; track action.outcome) {
+    <button
+      type="button"
+      class="btn btn-sm"
+      [class]="isActive(action) ? action.activeClass + ' active' : action.idleClass"
+      [attr.aria-pressed]="isActive(action)"
+      [attr.data-outcome]="action.outcome"
+      [disabled]="disabled()"
+      (click)="onSelect(action)"
+    >
+      {{ action.labelKey | translate }}
+    </button>
+  }
+</div>
