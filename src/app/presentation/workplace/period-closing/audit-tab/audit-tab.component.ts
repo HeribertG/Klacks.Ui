@@ -4,7 +4,8 @@
  * Audit tab: lists period-audit events (seal, unseal, day approval, work/break
  * confirmation) and export runs for the selected date range. Displays two compact
  * tables inside sub-sections; clicking a row opens a detail modal with all fields
- * that are hidden in the row view.
+ * that are hidden in the row view. Payroll export runs show a supplementary badge and
+ * their person count, and a stored run can be downloaded again while its file is kept.
  */
 
 import {
@@ -20,6 +21,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, finalize } from 'rxjs';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
@@ -36,6 +38,11 @@ import {
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
+import {
+  CONTENT_DISPOSITION_HEADER,
+  extractFileNameFromContentDisposition,
+  triggerBlobDownload,
+} from 'src/app/shared/helpers/file-download.helper';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { AUTONOMOUS_ACTOR_LABEL_KEY, AUTONOMOUS_ACTOR_NAME } from './audit-actor.constants';
 
@@ -69,6 +76,7 @@ export class AuditTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
   private modalService = inject(NgbModal);
   private translate = inject(TranslateService);
+  private toastShowService = inject(ToastShowService);
 
   public isLoading = signal(false);
   public startDate = signal<NgbDateStruct | null>(firstOfMonth(0));
@@ -77,6 +85,7 @@ export class AuditTabComponent implements OnInit {
   public exportEntries = signal<ExportLog[]>([]);
   public selectedAudit = signal<PeriodAuditLog | null>(null);
   public selectedExport = signal<ExportLog | null>(null);
+  public downloadingId = signal<string | null>(null);
 
   private readonly auditModalTemplate = viewChild<TemplateRef<unknown>>('auditDetailModal');
   private readonly exportModalTemplate = viewChild<TemplateRef<unknown>>('exportDetailModal');
@@ -115,6 +124,28 @@ export class AuditTabComponent implements OnInit {
     if (!template) return;
     this.selectedExport.set(entry);
     this.modalService.open(template, { size: 'lg', centered: true });
+  }
+
+  downloadExport(entry: ExportLog): void {
+    this.downloadingId.set(entry.id);
+    this.api.downloadStoredPayrollExport(entry.id).subscribe({
+      next: (res) => {
+        const blob = res.body;
+        if (!blob) {
+          this.toastShowService.showError('Empty response body');
+          this.downloadingId.set(null);
+          return;
+        }
+        const fileName = extractFileNameFromContentDisposition(res.headers.get(CONTENT_DISPOSITION_HEADER))
+          ?? entry.fileName;
+        triggerBlobDownload(blob, fileName);
+        this.downloadingId.set(null);
+      },
+      error: (err) => {
+        this.toastShowService.showError(err?.message ?? 'Error');
+        this.downloadingId.set(null);
+      },
+    });
   }
 
   displayUser(name: string | null | undefined, fallback: string): string {

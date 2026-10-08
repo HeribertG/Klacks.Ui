@@ -64,6 +64,9 @@ const EXPORT_LOG: ExportLog = {
   exportedByName: 'Test User',
   skippedEntryCount: 0,
   absenceMappingInvalid: false,
+  isSupplementary: false,
+  personCount: 0,
+  hasArtifact: false,
 };
 
 const GROUP_PERIOD: UsedPeriod = {

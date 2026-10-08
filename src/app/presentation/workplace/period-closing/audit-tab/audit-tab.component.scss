@@ -109,6 +109,24 @@
   min-width: 240px;
 }
 
+.header-persons {
+  width: 90px;
+  min-width: 90px;
+
+  .table-header-cell {
+    justify-content: flex-end;
+  }
+
+  .gap {
+    text-align: end;
+  }
+}
+
+.header-actions {
+  width: 130px;
+  min-width: 130px;
+}
+
 .header-records {
   width: 100px;
   min-width: 100px;
@@ -167,6 +185,12 @@
 .badge-skipped {
   margin-left: 6px;
   background-color: var(--standartOrangeColor);
+  color: var(--onAccent);
+}
+
+.badge-supplementary {
+  margin-left: 6px;
+  background-color: var(--standartPurpleColor);
   color: var(--onAccent);
 }
 

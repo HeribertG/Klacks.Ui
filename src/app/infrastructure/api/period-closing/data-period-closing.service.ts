@@ -2,7 +2,8 @@
 
 /**
  * Service that wraps the PeriodClosing backend endpoints: seal/unseal,
- * sealed-period summary, audit log, and export log.
+ * sealed-period summary, audit log, and export log, plus the person-based
+ * payroll export (preview, export, re-download of a stored run).
  */
 
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
@@ -14,6 +15,8 @@ import { ExportLog } from './models/export-log';
 import { IOrderRangeExportFilter } from './models/order-range-export-filter';
 import { ISealedOrderDetails } from './models/sealed-order-details';
 import { PeriodAuditLog } from './models/period-audit-log';
+import { PayrollExportPreview } from './models/payroll-export-preview';
+import { PayrollExportRequest } from './models/payroll-export-request';
 import { PeriodIssue } from './models/period-issue';
 import { SealedOrderListItem } from './models/sealed-order-list-item';
 import { SealedPeriodSummary } from './models/sealed-period-summary';
@@ -25,6 +28,7 @@ import { UsedPeriod } from './models/used-period';
 export class DataPeriodClosingService {
   private httpClient = inject(HttpClient);
   private readonly base = `${environment.baseUrl}PeriodClosing`;
+  private readonly payrollExportUrl = `${environment.baseUrl}PayrollExport`;
 
   seal(request: SealRequest): Observable<number> {
     return this.httpClient.post<number>(`${this.base}/Seal`, request);
@@ -93,16 +97,30 @@ export class DataPeriodClosingService {
     );
   }
 
-  downloadPayrollExport(request: {
-    groupId: string;
-    fromDate: string;
-    untilDate: string;
-    language: string;
-    format: string;
-  }): Observable<HttpResponse<Blob>> {
+  getPayrollExportPreview(
+    fromDate: string,
+    untilDate: string,
+    format: string,
+    clientIds?: string[]
+  ): Observable<PayrollExportPreview> {
+    let params = new HttpParams().set('fromDate', fromDate).set('untilDate', untilDate).set('format', format);
+    for (const clientId of clientIds ?? []) {
+      params = params.append('clientIds', clientId);
+    }
+    return this.httpClient.get<PayrollExportPreview>(`${this.payrollExportUrl}/Preview`, { params });
+  }
+
+  downloadPayrollExport(request: PayrollExportRequest): Observable<HttpResponse<Blob>> {
     return this.httpClient.post(
-      `${environment.baseUrl}PayrollExport`,
+      this.payrollExportUrl,
       request,
+      { responseType: 'blob', observe: 'response' }
+    );
+  }
+
+  downloadStoredPayrollExport(exportLogId: string): Observable<HttpResponse<Blob>> {
+    return this.httpClient.get(
+      `${this.payrollExportUrl}/${exportLogId}/download`,
       { responseType: 'blob', observe: 'response' }
     );
   }

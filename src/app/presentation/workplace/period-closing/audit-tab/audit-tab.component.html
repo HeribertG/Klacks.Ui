@@ -98,6 +98,14 @@
         <dt>{{ 'periodClosing.modal.records' | translate }}</dt>
         <dd>{{ entry.recordCount }}</dd>
 
+        <dt>{{ 'periodClosing.modal.persons' | translate }}</dt>
+        <dd>
+          {{ entry.personCount }}
+          @if (entry.isSupplementary) {
+            – {{ 'periodClosing.export.supplementaryBadge' | translate }}
+          }
+        </dd>
+
         @if (entry.skippedEntryCount > 0 || entry.absenceMappingInvalid) {
           <dt>{{ 'periodClosing.modal.skipped' | translate }}</dt>
           <dd>
@@ -117,6 +125,18 @@
     </div>
   }
   <div class="modal-footer">
+    @if (selectedExport(); as entry) {
+      @if (entry.hasArtifact) {
+        <button
+          id="export-detail-download"
+          type="button"
+          class="btn save-btn"
+          [disabled]="downloadingId() === entry.id"
+          (click)="downloadExport(entry)">
+          {{ 'periodClosing.export.download' | translate }}
+        </button>
+      }
+    }
     <button type="button" class="btn save-btn" (click)="modal.close()">
       {{ 'close' | translate }}
     </button>
@@ -251,9 +271,19 @@
                     <p class="gap noselect">{{ 'periodClosing.export.columnUser' | translate }}</p>
                   </div>
                 </th>
+                <th id="export-log-header-persons" class="table-header header-persons">
+                  <div class="table-header-cell">
+                    <p class="gap noselect">{{ 'periodClosing.export.columnPersons' | translate }}</p>
+                  </div>
+                </th>
                 <th id="export-log-header-records" class="table-header header-records">
                   <div class="table-header-cell">
                     <p class="gap noselect">{{ 'periodClosing.export.columnRecords' | translate }}</p>
+                  </div>
+                </th>
+                <th id="export-log-header-actions" class="table-header header-actions">
+                  <div class="table-header-cell">
+                    <p class="gap noselect">{{ 'periodClosing.export.columnDownload' | translate }}</p>
                   </div>
                 </th>
               </tr>
@@ -276,9 +306,17 @@
                   </td>
                   <td [id]="'export-log-cell-file-' + i" class="table-cell file-cell" [title]="e.fileName">
                     {{ e.fileName }}
+                    @if (e.isSupplementary) {
+                      <span [id]="'export-log-cell-supplementary-' + i" class="badge badge-supplementary">
+                        {{ 'periodClosing.export.supplementaryBadge' | translate }}
+                      </span>
+                    }
                   </td>
                   <td [id]="'export-log-cell-user-' + i" class="table-cell">
                     {{ displayUser(e.exportedByName, e.exportedBy) }}
+                  </td>
+                  <td [id]="'export-log-cell-persons-' + i" class="table-cell cell-right">
+                    {{ e.personCount }}
                   </td>
                   <td [id]="'export-log-cell-records-' + i" class="table-cell cell-right">
                     {{ e.recordCount }}
@@ -290,6 +328,21 @@
                       >
                         {{ 'periodClosing.export.skippedBadge' | translate: { count: e.skippedEntryCount } }}
                       </span>
+                    }
+                  </td>
+                  <td [id]="'export-log-cell-actions-' + i" class="table-cell cell-right">
+                    @if (e.hasArtifact) {
+                      <button
+                        [id]="'export-log-download-' + i"
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        [disabled]="downloadingId() === e.id"
+                        [attr.aria-label]="'periodClosing.export.download' | translate"
+                        (click)="downloadExport(e); $event.stopPropagation()"
+                        (keydown.enter)="$event.stopPropagation()"
+                      >
+                        {{ 'periodClosing.export.download' | translate }}
+                      </button>
                     }
                   </td>
                 </tr>

@@ -21,7 +21,6 @@ export const EXPORTS_TAB_TARGETS: Readonly<Record<string, ExportsTabKey>> = {
   [`${EXPORTS_TAB_TARGET_PREFIX}tab-employee`]: 'employee',
   [`${EXPORTS_TAB_TARGET_PREFIX}employee-form`]: 'employee',
   [`${EXPORTS_TAB_TARGET_PREFIX}employee-format`]: 'employee',
-  [`${EXPORTS_TAB_TARGET_PREFIX}employee-group`]: 'employee',
   [`${EXPORTS_TAB_TARGET_PREFIX}employee-export`]: 'employee',
   [`${EXPORTS_TAB_TARGET_PREFIX}tab-range`]: 'range',
   [`${EXPORTS_TAB_TARGET_PREFIX}range-form`]: 'range',

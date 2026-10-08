@@ -46,25 +46,15 @@ import { AssistantPageContextService } from 'src/app/domain/services/assistant/a
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
+import { errorCountToReconfirm } from '../period-seal-conflict';
 
 const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
 const ISO_DATE_LENGTH = 10;
 
-// The backend answers a seal that would pass over unresolved errors with 409.
-const HTTP_STATUS_CONFLICT = 409;
-
 interface PeriodGroup {
   intervalKey: string;
   periods: UsedPeriod[];
-}
-
-/**
- * Body of the 409 the seal endpoint answers with while the period still holds errors. The count is
- * what the confirmation is issued for, so the retry can tell the backend which state was confirmed.
- */
-interface SealConflictBody {
-  currentErrorCount?: number;
 }
 
 @Component({
@@ -448,7 +438,7 @@ export class PeriodsTabComponent implements OnInit {
         },
         error: (err) => {
           this.bulkLoading.set(false);
-          const retryCount = this.errorCountToReconfirm(err, acknowledgeViolations, acknowledgedErrorCount);
+          const retryCount = errorCountToReconfirm(err, acknowledgeViolations, acknowledgedErrorCount);
           if (retryCount !== undefined) {
             this.openViolationConfirmation(() => this.executeBulkSeal(period, true, retryCount));
             return;
@@ -456,31 +446,6 @@ export class PeriodsTabComponent implements OnInit {
           this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
         },
       });
-  }
-
-  /**
-   * Decides whether a failed seal should be re-offered for confirmation, and with which error count.
-   * Returns undefined when it must not: anything but a 409, or a repeated refusal reporting the very
-   * count that was just confirmed - retrying that would loop forever. A 409 without a machine-readable
-   * count comes from a backend that does not re-check and is confirmed the legacy way (count null).
-   * @param err - the failed HTTP response
-   * @param acknowledgeViolations - whether this attempt already carried a confirmation
-   * @param acknowledgedErrorCount - the count that confirmation was issued for
-   */
-  private errorCountToReconfirm(
-    err: { status?: number; error?: SealConflictBody } | null | undefined,
-    acknowledgeViolations: boolean,
-    acknowledgedErrorCount: number | null
-  ): number | null | undefined {
-    if (err?.status !== HTTP_STATUS_CONFLICT) {
-      return undefined;
-    }
-    const reported = err?.error?.currentErrorCount;
-    const currentErrorCount = typeof reported === 'number' ? reported : null;
-    if (!acknowledgeViolations) {
-      return currentErrorCount;
-    }
-    return currentErrorCount !== null && currentErrorCount !== acknowledgedErrorCount ? currentErrorCount : undefined;
   }
 
   /**
@@ -546,7 +511,7 @@ export class PeriodsTabComponent implements OnInit {
         },
         error: (err) => {
           this.sealingDay.set(null);
-          const retryCount = this.errorCountToReconfirm(err, acknowledgeViolations, acknowledgedErrorCount);
+          const retryCount = errorCountToReconfirm(err, acknowledgeViolations, acknowledgedErrorCount);
           if (retryCount !== undefined) {
             this.openViolationConfirmation(() => this.sealDay(date, true, retryCount));
             return;

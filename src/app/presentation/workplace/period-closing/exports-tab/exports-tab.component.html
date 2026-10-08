@@ -163,7 +163,7 @@
           inputId="clientExportFrom"
           [showLabel]="false"
           [value]="clientExportFrom()"
-          (valueChange)="clientExportFrom.set($event ?? null)">
+          (valueChange)="setClientExportFrom($event ?? null)">
         </app-date-input>
       </div>
       <div class="filter-field">
@@ -172,7 +172,7 @@
           inputId="clientExportUntil"
           [showLabel]="false"
           [value]="clientExportUntil()"
-          (valueChange)="clientExportUntil.set($event ?? null)">
+          (valueChange)="setClientExportUntil($event ?? null)">
         </app-date-input>
       </div>
       <div class="filter-field" data-klacksy-target="period-closing-export-employee-format" data-klacksy-label-key="periodClosing.form.format" data-klacksy-category="period-closing">
@@ -181,32 +181,17 @@
           id="clientExportFormat"
           class="form-select form-select-sm"
           [ngModel]="clientExportFormat()"
-          (ngModelChange)="clientExportFormat.set($event)">
+          (ngModelChange)="setClientExportFormat($event)">
           @for (f of clientExportFormats(); track f.key) {
             <option [value]="f.key">{{ f.labelKey | translate }}</option>
           }
         </select>
       </div>
-      @if (isPayrollFormat()) {
-      <div class="filter-field" data-klacksy-target="period-closing-export-employee-group" data-klacksy-label-key="periodClosing.clientExport.group" data-klacksy-category="period-closing">
-        <label class="form-label" for="clientExportGroup">{{ 'periodClosing.clientExport.group' | translate }}</label>
-        <select
-          id="clientExportGroup"
-          class="form-select form-select-sm"
-          [ngModel]="selectedGroupId()"
-          (ngModelChange)="selectedGroupId.set($event)">
-          <option [ngValue]="null">{{ 'periodClosing.clientExport.groupPlaceholder' | translate }}</option>
-          @for (g of groups(); track g.id) {
-            <option [ngValue]="g.id">{{ g.name }}</option>
-          }
-        </select>
-      </div>
-      }
       <div class="filter-field filter-action" data-klacksy-target="period-closing-export-employee-export" data-klacksy-label-key="periodClosing.action.export" data-klacksy-category="period-closing">
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          [disabled]="clientExportBusy() || (isPayrollFormat() && !selectedGroupId())"
+          [disabled]="clientExportBusy()"
           (click)="onClientPeriodExport()">
           @if (clientExportBusy()) {
             <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
@@ -215,7 +200,139 @@
         </button>
       </div>
     </section>
-  </div>
+
+    @if (isPayrollFormat()) {
+    <section id="payroll-export-panel" class="payroll-panel">
+      @if (hasPayrollBlockers()) {
+      <div id="payroll-blockers" class="payroll-blockers" role="alert">
+        <p class="payroll-panel-title">
+          {{ 'periodClosing.payroll.blockedTitle' | translate: { count: payrollBlockerTotal() } }}
+        </p>
+        @if (blockersTruncated()) {
+        <p id="payroll-blockers-truncated" class="payroll-note">
+          {{ 'periodClosing.payroll.blockersTruncated' | translate: { shown: payrollBlockers().length, total: payrollBlockerTotal() } }}
+        </p>
+        }
+        <div class="payroll-table-scroll">
+          <table id="payroll-blockers-table" class="table table-sm payroll-table">
+            <thead>
+              <tr>
+                <th>{{ 'periodClosing.payroll.column.person' | translate }}</th>
+                <th>{{ 'periodClosing.payroll.column.idNumber' | translate }}</th>
+                <th>{{ 'periodClosing.payroll.column.date' | translate }}</th>
+                <th>{{ 'periodClosing.payroll.column.group' | translate }}</th>
+                <th>{{ 'periodClosing.payroll.column.reason' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (blocker of payrollBlockers(); track $index) {
+              <tr [id]="'payroll-blocker-row-' + $index">
+                <td>{{ blocker.clientName }}</td>
+                <td>{{ blocker.idNumber }}</td>
+                <td>{{ formatBlockerDate(blocker) }}</td>
+                <td>{{ formatBlockerGroup(blocker) }}</td>
+                <td>
+                  {{ blockerReasonKey(blocker) | translate }}
+                  @if (blocker.requiresGlobalClose) {
+                  <span class="payroll-hint">{{ 'periodClosing.payroll.globalCloseOnly' | translate }}</span>
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (needsGlobalClose()) {
+        <div class="payroll-actions">
+          <button
+            id="payroll-global-close"
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="globalCloseBusy() || clientExportBusy()"
+            (click)="onGlobalCloseRequested()">
+            @if (globalCloseBusy()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            {{ 'periodClosing.payroll.globalCloseAction' | translate }}
+          </button>
+        </div>
+        }
+      </div>
+      } @else if (payrollPreview(); as preview) {
+        @if (preview.personCount === 0) {
+        <p id="payroll-no-data" class="payroll-note">{{ 'periodClosing.payroll.noData' | translate }}</p>
+        } @else if (payrollPersons().length === 0) {
+        <p id="payroll-nothing-new" class="payroll-note">
+          {{ 'periodClosing.payroll.nothingNew' | translate: { count: preview.alreadyExportedCount } }}
+        </p>
+        } @else {
+        <p id="payroll-summary" class="payroll-panel-title">
+          {{ 'periodClosing.payroll.summary' | translate: { newCount: newPersonCount(), changedCount: changedPersonCount(), alreadyCount: preview.alreadyExportedCount } }}
+        </p>
+        @if (changedPersonCount() > 0) {
+        <p id="payroll-supplementary-note" class="payroll-note">{{ 'periodClosing.payroll.supplementaryNote' | translate }}</p>
+        }
+        <div class="payroll-table-scroll">
+          <table id="payroll-persons-table" class="table table-sm payroll-table">
+            <thead>
+              <tr>
+                <th class="payroll-check-cell">
+                  <input
+                    id="payroll-select-all"
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="allPersonsSelected()"
+                    [attr.aria-label]="'periodClosing.payroll.selectAll' | translate"
+                    (change)="toggleAllPersons()" />
+                </th>
+                <th>{{ 'periodClosing.payroll.column.person' | translate }}</th>
+                <th>{{ 'periodClosing.payroll.column.idNumber' | translate }}</th>
+                <th>{{ 'periodClosing.payroll.column.status' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (person of payrollPersons(); track person.clientId; let i = $index) {
+              <tr [id]="'payroll-person-row-' + i">
+                <td class="payroll-check-cell">
+                  <input
+                    [id]="'payroll-person-check-' + i"
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="isPersonSelected(person)"
+                    [attr.aria-label]="person.clientName"
+                    (change)="togglePerson(person)" />
+                </td>
+                <td>{{ person.clientName }}</td>
+                <td>{{ person.idNumber }}</td>
+                <td>
+                  @if (person.isNew) {
+                    {{ 'periodClosing.payroll.status.new' | translate }}
+                  } @else {
+                    {{ 'periodClosing.payroll.status.changed' | translate: { revision: person.previousRevision } }}
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="payroll-actions">
+          <button
+            id="payroll-confirm-export"
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="clientExportBusy() || !canConfirmPayrollExport()"
+            (click)="onPayrollExportConfirmed()">
+            @if (clientExportBusy()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            {{ 'periodClosing.payroll.confirmExport' | translate: { count: selectedPersonCount() } }}
+          </button>
+        </div>
+        }
+      }
+    </section>
+    }  </div>
   }
 
   @if (activeTab() === 'range') {

@@ -17,4 +17,7 @@ export interface ExportLog {
   exportedByName: string | null;
   skippedEntryCount: number;
   absenceMappingInvalid: boolean;
+  isSupplementary: boolean;
+  personCount: number;
+  hasArtifact: boolean;
 }
