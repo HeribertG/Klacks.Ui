@@ -538,6 +538,32 @@ describe('CollisionDetectionService', () => {
     });
   });
 
+  describe('Day directive entries', () => {
+    it('should replace the directive by its translated kind name', () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({
+            type: 'error',
+            clientId: 'client-1',
+            comment: 'schedule.error-list.day-directive',
+            commentParams: { directive: 'NoNight' },
+          }),
+        ],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      flushAndTick();
+
+      // Assert
+      const entry = service.errorEntries()[0];
+      expect(entry.comment).toBe('schedule.error-list.day-directive');
+      expect(entry.commentParams?.['directive']).toBe('day-directive-kind.nonight');
+    });
+  });
+
   describe('Edge Cases', () => {
     it('should deduplicate collisions by sorted work ID pair', () => {
       // Arrange

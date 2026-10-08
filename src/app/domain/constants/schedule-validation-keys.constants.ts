@@ -45,6 +45,13 @@ export const PLANNING_RULE_KIND_KEY_PREFIX = 'planning-rule-kind.';
 export const PLANNING_RULE_KIND_PARAM = 'kind';
 export const PLANNING_RULE_ID_PARAM = 'ruleId';
 
+/**
+ * A day directive finding carries the combined directive (backend enum ScheduleCommandKeyword, e.g. NoNight) in this
+ * param; the error list shows its translated name from DAY_DIRECTIVE_KIND_KEY_PREFIX + lower-cased value.
+ */
+export const DAY_DIRECTIVE_PARAM = 'directive';
+export const DAY_DIRECTIVE_KIND_KEY_PREFIX = 'day-directive-kind.';
+
 export const WEEK_SCOPED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_WEEKLY_OVERTIME,
   SCHEDULE_VALIDATION_KEY_MIN_REST_DAYS,

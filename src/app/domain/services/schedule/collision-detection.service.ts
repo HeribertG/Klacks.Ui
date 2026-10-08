@@ -35,6 +35,8 @@ import {
   isoWeekMondayOf,
 } from 'src/app/shared/helpers/date.helper';
 import {
+  DAY_DIRECTIVE_KIND_KEY_PREFIX,
+  DAY_DIRECTIVE_PARAM,
   SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY,
   SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
   TEAM_SCOPED_VALIDATION_KEYS,
@@ -221,6 +223,13 @@ export class CollisionDetectionService implements OnDestroy {
     const dayOfWeek = localized['dayOfWeek'];
     if (dayOfWeek) {
       localized['dayOfWeek'] = this.translate.instant(dayOfWeek.toLowerCase());
+    }
+
+    const directive = localized[DAY_DIRECTIVE_PARAM];
+    if (directive) {
+      localized[DAY_DIRECTIVE_PARAM] = this.translate.instant(
+        `${DAY_DIRECTIVE_KIND_KEY_PREFIX}${directive.toLowerCase()}`
+      );
     }
 
     const event = localized['event'];
