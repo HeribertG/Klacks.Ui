@@ -301,6 +301,8 @@
   "address.edit-address.contracts.add-contract": "Ajouter un contrat",
   "address.edit-address.address-persona.validation.company-required": "La société est obligatoire pour les personnes morales",
   "address.edit-address.address-persona.validation.legal-entity-must-be-customer": "Les personnes morales doivent être de type 'Client'",
+  "address.edit-address.address-persona.validation.address-type-not-allowed-for-client-type": "Le type ne peut pas être modifié : le client possède des adresses de type {{types}} qui ne sont pas autorisées pour le nouveau type",
+  "address.edit-address.address-persona.validation.address-type-not-allowed": "Ce type d'adresse n'est pas autorisé pour le type de client sélectionné.",
   "address.edit-address.address-persona.validation.address-required": "Le code postal, la ville et le pays sont obligatoires pour les personnes morales",
   "address.edit-address.address-persona.validation.firstname-required": "Le prénom est obligatoire",
   "address.edit-address.address-persona.validation.name-required": "Le nom est obligatoire",

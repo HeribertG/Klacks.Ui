@@ -63,12 +63,21 @@ import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.c
 import { DataMessagingInvitationService, TelegramInvitationResult } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
-import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import { AddressTypeEnum, GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import {
+  findDisallowedAddressTypes,
+  getAllowedAddressTypes,
+  isAddressTypeAllowed,
+} from 'src/app/domain/helpers/address-type-rules.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-location-pin.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
+
+const ADDRESS_TYPE_LIST_SEPARATOR = ', ';
+const ADDRESS_TYPE_NOT_ALLOWED_KEY =
+  'address.edit-address.address-persona.validation.address-type-not-allowed-for-client-type';
 
 interface AddressPersonaFormModel {
   company: string;
@@ -641,6 +650,11 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     return '';
   }
 
+  get allowedAddressTypes(): AddressTypeEnum[] {
+    const client = this.dataManagementClientService.editClient();
+    return client ? getAllowedAddressTypes(+client.type) : [];
+  }
+
   onDeleteCurrentAddress() {
     this.dataManagementClientService.removeCurrentAddress();
     this.isChangingEvent.emit(true);
@@ -662,7 +676,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
           this.dataManagementClientService.editClient()!.addresses[
             this.dataManagementClientService.currentAddressIndex()
           ].validFrom = transformNgbDateStructToDate(this.addressValidFrom)!;
-          this.dataManagementClientService.editClient()!.type = +this.editClientType;
+          this.applyClientType(+this.editClientType);
           this.dataManagementClientService.editClient()!.addresses[
             this.dataManagementClientService.currentAddressIndex()
           ].type = +this.addressType;
@@ -673,10 +687,28 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
       );
   }
 
+  private applyClientType(newType: number): void {
+    const client = this.dataManagementClientService.editClient()!;
+    if (newType === +client.type) { return; }
+    const blocked = findDisallowedAddressTypes(
+      newType,
+      client.addresses.filter((address) => !address.isDeleted),
+    );
+    if (blocked.length > 0) {
+      const types = blocked.map((type) => this.onAddressTypeName(type)).join(ADDRESS_TYPE_LIST_SEPARATOR);
+      this.toastShowService.showError(this.translateService.instant(ADDRESS_TYPE_NOT_ALLOWED_KEY, { types }));
+      return;
+    }
+    client.type = newType;
+  }
+
   openNewAddress(content: any) {
-    this.newAddressType = +this.dataManagementClientService.editClient()!.addresses[
+    const currentType = +this.dataManagementClientService.editClient()!.addresses[
       this.dataManagementClientService.currentAddressIndex()
     ].type;
+    this.newAddressType = isAddressTypeAllowed(+this.dataManagementClientService.editClient()!.type, currentType)
+      ? currentType
+      : AddressTypeEnum.customer;
     this.newAddressValidFrom = transformDateToNgbDateStruct(companyToday())!;
     this.ngbModal
       .open(content, { size: 'md', centered: true, windowClass: 'custom-class' })

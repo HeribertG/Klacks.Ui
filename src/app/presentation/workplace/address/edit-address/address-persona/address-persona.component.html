@@ -132,6 +132,7 @@
         </div>
       </div>
 
+      @if (allowedAddressTypes.length > 1) {
       <div class="form-group">
         <label for="newAddressType">{{
           "address.edit-address.address-persona.modal-new-address-typ.type"
@@ -144,17 +145,14 @@
           name="newAddressType"
           [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.type' | translate"
         >
-          <option value="0" [selected]="newAddressType === 0">
-            {{ onAddressTypeName(0) }}
+          @for (type of allowedAddressTypes; track type) {
+          <option [ngValue]="type">
+            {{ onAddressTypeName(type) }}
           </option>
-          <option value="1" [selected]="newAddressType === 1">
-            {{ onAddressTypeName(1) }}
-          </option>
-          <option value="2" [selected]="newAddressType === 2">
-            {{ onAddressTypeName(2) }}
-          </option>
+          }
         </select>
       </div>
+      }
     </div>
   </form>
 

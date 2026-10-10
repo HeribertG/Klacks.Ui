@@ -302,6 +302,8 @@
   "address.edit-address.contracts.add-contract": "Vertrag hinzufügen",
   "address.edit-address.address-persona.validation.company-required": "Firma ist bei juristischen Personen erforderlich",
   "address.edit-address.address-persona.validation.legal-entity-must-be-customer": "Juristische Personen müssen vom Typ 'Kunde' sein",
+  "address.edit-address.address-persona.validation.address-type-not-allowed-for-client-type": "Die Änderung des Typs ist nicht möglich: Der Kunde hat Adressen der Art {{types}}, die für den neuen Typ nicht erlaubt sind",
+  "address.edit-address.address-persona.validation.address-type-not-allowed": "Diese Adressart ist für den gewählten Client-Typ nicht erlaubt.",
   "address.edit-address.address-persona.validation.address-required": "PLZ, Ort und Land sind bei juristischen Personen erforderlich",
   "address.edit-address.address-persona.validation.firstname-required": "Vorname ist erforderlich",
   "address.edit-address.address-persona.validation.name-required": "Nachname ist erforderlich",

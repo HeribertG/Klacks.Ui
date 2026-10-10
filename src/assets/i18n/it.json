@@ -301,6 +301,8 @@
   "address.edit-address.contracts.add-contract": "Aggiungi contratto",
   "address.edit-address.address-persona.validation.company-required": "L'azienda è obbligatoria per le persone giuridiche",
   "address.edit-address.address-persona.validation.legal-entity-must-be-customer": "Le persone giuridiche devono essere di tipo 'Cliente'",
+  "address.edit-address.address-persona.validation.address-type-not-allowed-for-client-type": "Il tipo non può essere modificato: il cliente ha indirizzi di tipo {{types}} non consentiti per il nuovo tipo",
+  "address.edit-address.address-persona.validation.address-type-not-allowed": "Questo tipo di indirizzo non è consentito per il tipo di cliente selezionato.",
   "address.edit-address.address-persona.validation.address-required": "CAP, città e paese sono obbligatori per le persone giuridiche",
   "address.edit-address.address-persona.validation.firstname-required": "Il nome è obbligatorio",
   "address.edit-address.address-persona.validation.name-required": "Il cognome è obbligatorio",

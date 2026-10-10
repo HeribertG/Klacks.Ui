@@ -302,6 +302,8 @@
   "address.edit-address.contracts.add-contract": "Add Contract",
   "address.edit-address.address-persona.validation.company-required": "Company is required for legal entities",
   "address.edit-address.address-persona.validation.legal-entity-must-be-customer": "Legal entities must be of type 'Customer'",
+  "address.edit-address.address-persona.validation.address-type-not-allowed-for-client-type": "The type cannot be changed: the client has addresses of type {{types}} that are not allowed for the new type",
+  "address.edit-address.address-persona.validation.address-type-not-allowed": "This address type is not allowed for the selected client type.",
   "address.edit-address.address-persona.validation.address-required": "Zip, city and country are required for legal entities",
   "address.edit-address.address-persona.validation.firstname-required": "First name is required",
   "address.edit-address.address-persona.validation.name-required": "Last name is required",
