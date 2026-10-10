@@ -321,3 +321,8 @@
     </svg>
   </button>
 </div>
+<app-progress-line
+  class="autofill-progress-line"
+  [active]="isAutoWizardRunningForCurrentView()"
+  [label]="'autoWizard.tooltip' | translate"
+/>

@@ -217,6 +217,53 @@ describe('AutoWizardJobTrackerService', () => {
     expect(tracker.pendingScenarios()).toEqual([]);
   });
 
+  it('shows the run only for the group and the period it was started for', () => {
+    // Arrange
+    selectedGroupId.set('g1');
+    tracker.begin({ ...JOB, groupId: 'g1' });
+    TestBed.tick();
+    const sameView = tracker.isRunningForCurrentView();
+
+    // Act
+    showPeriod(new Date(2026, 5, 8), new Date(2026, 5, 14));
+    const otherPeriod = tracker.isRunningForCurrentView();
+    selectedGroupId.set('g2');
+    showPeriod(new Date(2026, 5, 1), new Date(2026, 5, 7));
+    const otherGroup = tracker.isRunningForCurrentView();
+
+    // Assert
+    expect(sameView).toBe(true);
+    expect(otherPeriod).toBe(false);
+    expect(otherGroup).toBe(false);
+  });
+
+  it('shows the run again when the planner returns to its group and period', () => {
+    // Arrange
+    selectedGroupId.set('g1');
+    tracker.begin({ ...JOB, groupId: 'g1' });
+    showPeriod(new Date(2026, 5, 8), new Date(2026, 5, 14));
+    const away = tracker.isRunningForCurrentView();
+
+    // Act
+    showPeriod(new Date(2026, 5, 1), new Date(2026, 5, 7));
+
+    // Assert
+    expect(away).toBe(false);
+    expect(tracker.isRunningForCurrentView()).toBe(true);
+  });
+
+  it('shows no run once the job finished', () => {
+    // Arrange
+    tracker.begin(JOB);
+    tracker.finish();
+
+    // Act
+    const running = tracker.isRunningForCurrentView();
+
+    // Assert
+    expect(running).toBe(false);
+  });
+
   it('forgets the running job and every pending scenario on reset', () => {
     // Arrange
     tracker.begin(JOB);

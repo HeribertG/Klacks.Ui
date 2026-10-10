@@ -9,6 +9,7 @@
  * that group's schedule is shown; a run started before a page reload is re-attached.
  * @param isRunning - True while any run exists (waiting for the schedule data or running on the server)
  * @param isRunningForCurrentGroup - True while the run belongs to the currently selected group
+ * @param isRunningForCurrentView - True while the run belongs to the shown group and the shown period
  * @param runningElsewhereGroupName - Group name of a run that belongs to another group, else null
  */
 
@@ -51,6 +52,7 @@ export class AutoWizardOrchestratorService {
     () => this.tracker.activeJob() !== null || this.dataAutoWizardService.status() === 'running',
   );
   readonly isRunningForCurrentGroup = this.tracker.isRunningForCurrentGroup;
+  readonly isRunningForCurrentView = this.tracker.isRunningForCurrentView;
   readonly runningElsewhereGroupName = this.tracker.runningElsewhereGroupName;
 
   constructor() {

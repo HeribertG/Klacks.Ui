@@ -46,6 +46,7 @@ import { IconThunderCircleComponent } from 'src/app/presentation/icons/icon-thun
 import { IconAvailabilityCheckComponent } from 'src/app/presentation/icons/icon-availability-check.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
+import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
@@ -109,6 +110,7 @@ const DEFAULT_ZOOM_VALUE = 100;
     IconCalcComponent,
     IconAvailabilityCheckComponent,
     IconWizardComponent,
+    ProgressLineComponent,
     WizardDialogComponent,
     HarmonizerDialogComponent,
     HolisticHarmonizerDialogComponent,
@@ -185,6 +187,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
   readonly isAutoWizardRunning = this.autoWizardOrchestrator.isRunning;
   readonly isAutoWizardRunningForCurrentGroup = this.autoWizardOrchestrator.isRunningForCurrentGroup;
+  readonly isAutoWizardRunningForCurrentView = this.autoWizardOrchestrator.isRunningForCurrentView;
   readonly autoWizardRunningElsewhereGroupName = this.autoWizardOrchestrator.runningElsewhereGroupName;
 
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));

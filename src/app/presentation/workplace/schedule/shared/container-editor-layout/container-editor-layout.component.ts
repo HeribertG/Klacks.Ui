@@ -56,6 +56,7 @@ import {
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
 
 @Component({
   selector: 'app-container-editor-layout',
@@ -64,6 +65,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
   },
   imports: [
     FormsModule,
+    ProgressLineComponent,
     AngularSplitModule,
     TranslateModule,
     DragDropModule,

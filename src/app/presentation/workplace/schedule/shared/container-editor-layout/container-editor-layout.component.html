@@ -290,9 +290,7 @@
               </div>
             </div>
             @if (isAutofillRunning() || isOptimizing()) {
-              <div class="autofill-progress">
-                <div class="autofill-progress-bar"></div>
-              </div>
+              <app-progress-line [active]="true" />
             }
 
             <div class="shifts-grid-container">

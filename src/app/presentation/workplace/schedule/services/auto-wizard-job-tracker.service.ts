@@ -8,6 +8,7 @@
  * @param activeJob - Scope of the run in progress (null = none)
  * @param pendingScenarios - Results waiting for the planner to show their group and period, newest one per group
  * @param isRunningForCurrentGroup - True while a run exists for the currently selected group
+ * @param isRunningForCurrentView - True while a run exists for the shown group AND the shown period
  * @param runningElsewhereGroupName - Group name of a run for another group than the selected one
  */
 
@@ -48,6 +49,12 @@ export class AutoWizardJobTrackerService {
   readonly isRunningForCurrentGroup = computed(() => {
     const job = this._activeJob();
     return job !== null && job.groupId === this.currentGroupId();
+  });
+
+  readonly isRunningForCurrentView = computed(() => {
+    const job = this._activeJob();
+    this.dataManagementSchedule.isRead();
+    return job !== null && this.isShowing(job.groupId, job.periodFrom, job.periodUntil);
   });
 
   readonly runningElsewhereGroupName = computed(() => {

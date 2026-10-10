@@ -1,0 +1,51 @@
+$progress-line-height: 2px;
+$progress-line-bar-width: 30%;
+$progress-line-cycle: 1.2s;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.progress-line {
+  height: $progress-line-height;
+  width: 100%;
+  overflow: hidden;
+}
+
+.progress-line-bar {
+  height: 100%;
+  width: $progress-line-bar-width;
+  background-color: var(--standartGreenColor);
+  animation: progress-line-slide $progress-line-cycle ease-in-out infinite;
+}
+
+@keyframes progress-line-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@keyframes progress-line-slide-rtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-400%);
+  }
+}
+
+:host-context([dir="rtl"]) .progress-line-bar {
+  animation-name: progress-line-slide-rtl;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-line-bar {
+    width: 100%;
+    animation: none;
+    opacity: 0.6;
+  }
+}

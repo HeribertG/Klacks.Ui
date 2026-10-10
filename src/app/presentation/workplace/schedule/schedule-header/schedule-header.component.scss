@@ -6,6 +6,12 @@
 @use "../../../../../assets/standard-styles/menu.scss";
 @use "../../../../../assets/standard-styles/nav-collapse.scss" as nav;
 
+:host {
+  display: block;
+  position: relative;
+  height: 100%;
+}
+
 .custom-control-inline {
   display: flex;
   align-items: center;
@@ -376,4 +382,10 @@ app-holistic-harmonizer-dialog {
   .timeline-range-selector {
     margin-inline-start: 8px;
   }
+}
+
+.autofill-progress-line {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
 }
