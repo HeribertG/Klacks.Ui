@@ -160,13 +160,8 @@
       <p class="recovery-description">{{ 'recovery.dialog.description' | translate }}</p>
 
       <div class="mb-3">
-        <label class="form-label" for="recovery-client">{{ 'recovery.dialog.employee' | translate }}</label>
-        <select id="recovery-client" class="form-select" [formField]="recoveryForm.selectedClientId">
-          <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
-          @for (client of clients(); track client.id) {
-            <option [value]="client.id">{{ clientLabel(client) }}</option>
-          }
-        </select>
+        <span class="form-label d-block">{{ 'recovery.dialog.employee' | translate }}</span>
+        <div id="recovery-client" class="recovery-selected-employee">{{ selectedClientLabel() }}</div>
       </div>
 
       <div class="row">

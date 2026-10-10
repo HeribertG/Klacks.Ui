@@ -25,7 +25,8 @@ import {
   input,
   output,
   viewChild,
-  computed
+  computed,
+  untracked
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
@@ -57,7 +58,7 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
 import { TooltipState } from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
@@ -96,6 +97,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { TimelineSelectionService } from './timeline/services/timeline-selection.service';
+import { ScheduleSelectionService } from '../services/schedule-selection.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent;
@@ -206,6 +208,7 @@ export class ScheduleSectionComponent
   private simpleEffects = inject(ScheduleSimpleEffectsService);
   private cdr = inject(ChangeDetectorRef);
   private timelineSelection = inject(TimelineSelectionService);
+  private scheduleSelection = inject(ScheduleSelectionService);
   private appSettings = inject(AppSettingsManagementService);
   private shiftPlacement = inject(ShiftPlacementService);
 
@@ -275,6 +278,7 @@ export class ScheduleSectionComponent
     this.destroy$.next();
     this.destroy$.complete();
     this.facade.gridRender.overlayRenderer = undefined;
+    this.scheduleSelection.clear();
 
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
@@ -302,6 +306,7 @@ export class ScheduleSectionComponent
       this.wireDataReadEffect();
       this.wireHScrollPositionEffect();
       this.wireHoveredCellEffect();
+      this.wireSelectedWorkEffect();
       this.simpleEffects.register(this);
     });
   }
@@ -385,6 +390,28 @@ export class ScheduleSectionComponent
       this.hScrollbar.value = position;
       this.scrollService.horizontalScrollPosition = position;
       this.cdr.markForCheck();
+    }));
+  }
+
+  private wireSelectedWorkEffect(): void {
+    this.effects.push(effect(() => {
+      this.dataManagement.isRead();
+      const position = this.cellManipulation.positionSignal();
+      const block = this.timelineSelection.selectedBlock();
+      const isTable = this.viewMode() === 'table';
+
+      const row = isTable ? position.row : block?.row ?? -1;
+      const column = isTable ? position.column : block?.col ?? -1;
+      const entry = isTable
+        ? untracked(() => this.scheduleService.getWorkScheduleEntryForCell(row, column))
+        : block?.entry;
+      const date = row >= 0 && column >= 0 ? untracked(() => this.scheduleService.getDateForColumn(column)) : undefined;
+
+      if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+        this.scheduleSelection.select({ clientId: entry.clientId, date });
+      } else {
+        this.scheduleSelection.clear();
+      }
     }));
   }
 

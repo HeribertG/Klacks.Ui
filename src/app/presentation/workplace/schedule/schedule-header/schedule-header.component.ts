@@ -80,6 +80,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { AutoWizardOrchestratorService } from '../services/auto-wizard-orchestrator.service';
+import { ScheduleSelectionService } from '../services/schedule-selection.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
@@ -172,6 +173,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private analyseScenarioService = inject(AnalyseScenarioService);
   private authorizationService = inject(AuthorizationService);
   private autoWizardOrchestrator = inject(AutoWizardOrchestratorService);
+  private scheduleSelection = inject(ScheduleSelectionService);
   private scheduleSignalR = inject(SCHEDULE_SIGNALR);
   private destroyRef = inject(DestroyRef);
   private modalService = inject(ModalService);
@@ -193,7 +195,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
 
   /** Whoever may edit the schedule may ask for a cover proposal, independent of the admin-only wizard mode. */
-  readonly canCoverAbsence = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule));
+  readonly canCoverAbsence = computed(
+    () => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule) && this.scheduleSelection.selectedWork() !== null,
+  );
 
   constructor() {
     this.scheduleSignalR.thoroughRecalculationCompleted$
@@ -398,7 +402,11 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   onRecoveryClick(): void {
-    void this.recoveryDialog().open();
+    const selectedWork = this.scheduleSelection.selectedWork();
+    if (!selectedWork) {
+      return;
+    }
+    void this.recoveryDialog().open({ clientId: selectedWork.clientId, date: selectedWork.date });
   }
 
   toggleTools(): void {

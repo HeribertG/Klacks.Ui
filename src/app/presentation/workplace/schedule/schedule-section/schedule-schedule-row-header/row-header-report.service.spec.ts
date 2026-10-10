@@ -19,9 +19,11 @@ describe('RowHeaderReportService - cover absence', () => {
   let service: RowHeaderReportService;
   let held: Set<string>;
   let requestOpen: ReturnType<typeof vi.fn>;
+  let workScheduleEntries: { clientId: string; entryType: number }[];
 
   beforeEach(() => {
     held = new Set<string>();
+    workScheduleEntries = [];
     requestOpen = vi.fn();
     const hasPermission = (permission: string): boolean => held.has(permission);
 
@@ -42,7 +44,7 @@ describe('RowHeaderReportService - cover absence', () => {
             getGroupIndex: (index: number) => [{ id: 'client-a' }, { id: '' }][index],
           },
         },
-        { provide: DataManagementScheduleService, useValue: {} },
+        { provide: DataManagementScheduleService, useValue: { workScheduleEntries } },
         { provide: ScheduleChangeService, useValue: {} },
         {
           provide: AuthorizationService,
@@ -58,12 +60,21 @@ describe('RowHeaderReportService - cover absence', () => {
     service = TestBed.inject(RowHeaderReportService);
   });
 
-  const menuKeys = (): string[] => service.createContextMenu().list.map((item) => item.key);
+  const menuKeys = (clientId?: string): string[] => service.createContextMenu(clientId).list.map((item) => item.key);
 
   it('offers "cover absence" in the row menu to anyone who may edit the schedule (planner floor)', () => {
     held.add(PERMISSIONS.CanEditSchedule);
 
     expect(menuKeys()).toContain('coverAbsence');
+  });
+
+  it('offers "cover absence" only for an employee that carries a work', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+    workScheduleEntries.push({ clientId: 'client-with-work', entryType: 0 }, { clientId: 'client-with-break', entryType: 3 });
+
+    expect(menuKeys('client-with-work')).toContain('coverAbsence');
+    expect(menuKeys('client-with-break')).not.toContain('coverAbsence');
+    expect(menuKeys('client-without-entries')).not.toContain('coverAbsence');
   });
 
   it('hides "cover absence" from a read-only user without the schedule edit right', () => {

@@ -375,7 +375,7 @@ export class ScheduleScheduleRowHeaderComponent
     }
 
     this.contextMenuRow = row;
-    contextMenu.menuData = this.reportHelper.createContextMenu();
+    contextMenu.menuData = this.reportHelper.createContextMenu(client.id);
 
     contextMenu.openMenu({
       clientX: event.clientX,

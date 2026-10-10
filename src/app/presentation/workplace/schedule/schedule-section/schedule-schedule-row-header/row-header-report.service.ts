@@ -30,6 +30,7 @@ import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-clas
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { collectClientIdsWithWork } from 'src/app/domain/helpers/schedule-work-clients.helper';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 
 @Injectable()
@@ -60,7 +61,7 @@ export class RowHeaderReportService {
     this.reportDefaults.load();
   }
 
-  createContextMenu(): Menu {
+  createContextMenu(clientId?: string): Menu {
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.goToAddress());
     if (this.reportDefaults.hasDefault('schedule')) {
@@ -71,7 +72,7 @@ export class RowHeaderReportService {
     }
     menuData.list.push(...MenuDataTemplate.divider());
     menuData.list.push(...MenuDataTemplate.shiftPreferences());
-    if (this.canCoverAbsence()) {
+    if (this.canCoverAbsence() && this.hasWork(clientId)) {
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.coverAbsence());
     }
@@ -96,6 +97,11 @@ export class RowHeaderReportService {
     if (client?.id) {
       this.recoveryLauncher.requestOpen({ clientId: client.id });
     }
+  }
+
+  /** Only an employee with a Work in the shown schedule can be covered; without a row's client the menu stays unrestricted. */
+  private hasWork(clientId?: string): boolean {
+    return clientId === undefined || collectClientIdsWithWork(this.dataManagementSchedule.workScheduleEntries).has(clientId);
   }
 
   /** Whoever may edit the schedule may ask for a cover proposal; the backend endpoint is open to every authenticated user. */

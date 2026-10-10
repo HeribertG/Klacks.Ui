@@ -10,7 +10,7 @@
  * In the review step the planner calls the proposed stand-in and records the response (Ablösung/Einsprung
  * request book); alternatives per slot can be listed and their contact attempts recorded as well, without
  * changing the proposal.
- * @param clients - Visible schedule employees to pick the absent one from
+ * @param clients - Visible schedule employees, used to show the name of the preselected absent employee
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
  * @param slotOutcomes - Saved responses of the proposed stand-ins, keyed by replacement-request id
  * @param alternatives - Loaded alternative stand-ins per covered slot
@@ -163,6 +163,12 @@ export class RecoveryDialogComponent {
     this.modalRef?.close();
     this.modalRef = this.ngbModal.open(this.modalTemplate(), { centered: true, size: 'md' });
   }
+
+  protected readonly selectedClientLabel = computed(() => {
+    const selectedClientId = this.formModel().selectedClientId;
+    const client = this.clients().find((candidate) => candidate.id === selectedClientId);
+    return client ? this.clientLabel(client) : '';
+  });
 
   protected clientLabel(client: IClientWork): string {
     return [client.firstName, client.name].filter(Boolean).join(' ') || client.id;
