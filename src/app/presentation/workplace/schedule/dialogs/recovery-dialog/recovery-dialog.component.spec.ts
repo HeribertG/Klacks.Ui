@@ -172,6 +172,26 @@ describe('RecoveryDialogComponent', () => {
     });
   });
 
+  it('shows the preset day in the datepicker and writes a picked day back as a calendar date', async () => {
+    await component.open({ clientId: 'client-1', date: new Date(2026, 9, 6) });
+
+    expect((component as any).selectedDateStruct()).toEqual({ year: 2026, month: 10, day: 6 });
+
+    (component as any).onDateChange({ year: 2026, month: 10, day: 9 });
+
+    expect(formModel().selectedDate).toBe('2026-10-09');
+  });
+
+  it('clears the until day when the datepicker is emptied', async () => {
+    await component.open({ clientId: 'client-1', date: new Date(2026, 9, 6), untilDate: new Date(2026, 9, 8) });
+    expect((component as any).selectedUntilDateStruct()).toEqual({ year: 2026, month: 10, day: 8 });
+
+    (component as any).onUntilDateChange(null);
+
+    expect(formModel().selectedUntilDate).toBe('');
+    expect((component as any).selectedUntilDateStruct()).toBeNull();
+  });
+
   it('defaults the day to today while today lies inside the visible period', async () => {
     await component.open();
 

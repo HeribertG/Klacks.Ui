@@ -1,3 +1,6 @@
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
 .recovery-description {
   margin-bottom: 1rem;
 }
@@ -6,6 +9,19 @@
   margin-top: -0.5rem;
   margin-bottom: 1rem;
   font-size: 0.85rem;
+}
+
+.form-text {
+  color: var(--colorLabel);
+}
+
+.recovery-selected-employee {
+  font-weight: 600;
+  color: var(--standartTextColor);
+}
+
+.recovery-calendar-toggle {
+  cursor: pointer;
 }
 
 .recovery-hint {

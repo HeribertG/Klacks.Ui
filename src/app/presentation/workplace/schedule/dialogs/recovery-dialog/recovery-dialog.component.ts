@@ -21,7 +21,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule, NgbDateStruct, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
@@ -87,7 +91,16 @@ interface IRecoveryFormModel {
   templateUrl: './recovery-dialog.component.html',
   styleUrls: ['./recovery-dialog.component.scss'],
   standalone: true,
-  imports: [FormField, TranslateModule, LocalizedParamsPipe, CalendarDatePipe, RecoveryOutcomeButtonsComponent],
+  imports: [
+    FormField,
+    FormsModule,
+    NgbDatepickerModule,
+    FontAwesomeModule,
+    TranslateModule,
+    LocalizedParamsPipe,
+    CalendarDatePipe,
+    RecoveryOutcomeButtonsComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AbsenceLookupService],
 })
@@ -162,6 +175,29 @@ export class RecoveryDialogComponent {
     // Re-opening while a previous instance is still up (two quick right-clicks) must not stack modals.
     this.modalRef?.close();
     this.modalRef = this.ngbModal.open(this.modalTemplate(), { centered: true, size: 'md' });
+  }
+
+  protected readonly faCalendar = faCalendar;
+
+  protected readonly selectedDateStruct = computed<NgbDateStruct | null>(
+    () => transformDateToNgbDateStruct(this.formModel().selectedDate) ?? null,
+  );
+
+  protected readonly selectedUntilDateStruct = computed<NgbDateStruct | null>(
+    () => transformDateToNgbDateStruct(this.formModel().selectedUntilDate) ?? null,
+  );
+
+  protected onDateChange(value: NgbDateStruct | null): void {
+    this.formModel.update((model) => ({ ...model, selectedDate: this.toDateWire(value) }));
+  }
+
+  protected onUntilDateChange(value: NgbDateStruct | null): void {
+    this.formModel.update((model) => ({ ...model, selectedUntilDate: this.toDateWire(value) }));
+  }
+
+  private toDateWire(value: NgbDateStruct | null): string {
+    const date = transformNgbDateStructToDate(value ?? undefined);
+    return date ? formatDateOnly(date) : '';
   }
 
   protected readonly selectedClientLabel = computed(() => {

@@ -1,7 +1,13 @@
 <ng-template #recoveryModal>
   <div class="modal-header">
-    <h4 class="modal-title">{{ 'recovery.dialog.title' | translate }}</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
+    <div class="modal-title">{{ 'recovery.dialog.title' | translate }}</div>
+    <span class="filler"></span>
+    <div class="close" role="button" tabindex="0" aria-label="Close" (click)="onClose()" (keydown.enter)="onClose()">
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+      >&times;</span>
+    </div>
   </div>
   <div class="modal-body">
     @if (result(); as outcome) {
@@ -159,29 +165,54 @@
     } @else {
       <p class="recovery-description">{{ 'recovery.dialog.description' | translate }}</p>
 
-      <div class="mb-3">
-        <span class="form-label d-block">{{ 'recovery.dialog.employee' | translate }}</span>
-        <div id="recovery-client" class="recovery-selected-employee">{{ selectedClientLabel() }}</div>
+      <div class="form-group">
+        <label class="form-label" id="recovery-client-label">{{ 'recovery.dialog.employee' | translate }}</label>
+        <div id="recovery-client" class="recovery-selected-employee" aria-labelledby="recovery-client-label">
+          {{ selectedClientLabel() }}
+        </div>
       </div>
 
       <div class="row">
-        <div class="col mb-3">
+        <div class="col form-group">
           <label class="form-label" for="recovery-date">{{ 'recovery.dialog.date' | translate }}</label>
-          <input id="recovery-date" type="date" class="form-control" [formField]="recoveryForm.selectedDate" />
+          <div class="input-group">
+            <input
+              id="recovery-date"
+              class="form-control"
+              ngbDatepicker
+              #recoveryDate="ngbDatepicker"
+              [ngModel]="selectedDateStruct()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onDateChange($event)"
+              [attr.aria-label]="'recovery.dialog.date' | translate"
+            />
+            <span class="input-group-text recovery-calendar-toggle" (click)="recoveryDate.toggle()">
+              <fa-icon [icon]="faCalendar"></fa-icon>
+            </span>
+          </div>
         </div>
-        <div class="col mb-3">
+        <div class="col form-group">
           <label class="form-label" for="recovery-until-date">{{ 'recovery.dialog.untilDate' | translate }}</label>
-          <input
-            id="recovery-until-date"
-            type="date"
-            class="form-control"
-            [formField]="recoveryForm.selectedUntilDate"
-          />
+          <div class="input-group">
+            <input
+              id="recovery-until-date"
+              class="form-control"
+              ngbDatepicker
+              #recoveryUntilDate="ngbDatepicker"
+              [ngModel]="selectedUntilDateStruct()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onUntilDateChange($event)"
+              [attr.aria-label]="'recovery.dialog.untilDate' | translate"
+            />
+            <span class="input-group-text recovery-calendar-toggle" (click)="recoveryUntilDate.toggle()">
+              <fa-icon [icon]="faCalendar"></fa-icon>
+            </span>
+          </div>
           <div class="form-text">{{ 'recovery.dialog.untilDateHint' | translate }}</div>
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="form-group">
         <label class="form-label" for="recovery-absence">{{ 'recovery.dialog.absenceType' | translate }}</label>
         <select id="recovery-absence" class="form-select" [formField]="recoveryForm.selectedAbsenceId">
           <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
@@ -192,28 +223,18 @@
       </div>
 
       @if (canOverride()) {
-        <div class="form-check mb-3">
-          <input
-            id="recovery-override"
-            type="checkbox"
-            class="form-check-input"
-            [formField]="recoveryForm.overrideBlock"
-          />
-          <label class="form-check-label" for="recovery-override">
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label" for="recovery-override">
+            <input id="recovery-override" type="checkbox" [formField]="recoveryForm.overrideBlock" />
             {{ 'recovery.dialog.overrideBlock' | translate }}
           </label>
           <div class="form-text">{{ 'recovery.dialog.overrideBlockHint' | translate }}</div>
         </div>
       }
 
-      <div class="form-check mb-3">
-        <input
-          id="recovery-notify-roster"
-          type="checkbox"
-          class="form-check-input"
-          [formField]="recoveryForm.notifyEscalationRoster"
-        />
-        <label class="form-check-label" for="recovery-notify-roster">
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label" for="recovery-notify-roster">
+          <input id="recovery-notify-roster" type="checkbox" [formField]="recoveryForm.notifyEscalationRoster" />
           {{ 'recovery.dialog.notifyRoster' | translate }}
         </label>
         <div class="form-text">{{ 'recovery.dialog.notifyRosterHint' | translate }}</div>
@@ -228,17 +249,17 @@
   </div>
   <div class="modal-footer">
     @if (result()) {
-      <button type="button" class="btn btn-secondary" (click)="onBackToForm()">
+      <span class="link-button red-font" role="button" tabindex="0" (click)="onBackToForm()" (keydown.enter)="onBackToForm()">
         {{ 'recovery.dialog.back' | translate }}
-      </button>
-      <button type="button" class="btn btn-primary" (click)="onClose()">
+      </span>
+      <button type="button" class="btn save-btn" (click)="onClose()">
         {{ 'recovery.dialog.done' | translate }}
       </button>
     } @else {
-      <button type="button" class="btn btn-secondary" (click)="onClose()">
+      <span class="link-button red-font" role="button" tabindex="0" (click)="onClose()" (keydown.enter)="onClose()">
         {{ 'recovery.dialog.close' | translate }}
-      </button>
-      <button type="button" class="btn btn-primary" [disabled]="!canSubmit()" (click)="onSubmit()">
+      </span>
+      <button type="button" class="btn save-btn" [disabled]="!canSubmit()" (click)="onSubmit()">
         @if (isSubmitting()) {
           <span class="spinner-border spinner-border-sm me-1"></span>
         }
