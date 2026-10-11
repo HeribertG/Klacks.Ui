@@ -32,6 +32,8 @@ import {
 export type RouteInfo = IRouteInfo;
 export type RouteLocation = IRouteLocation;
 
+const ROUTE_MAP_FAILED_KEY = 'geoServices.routePdf.mapFailed';
+
 const PDF_MARGIN = 14;
 const PDF_TITLE_Y = 15;
 const PDF_GENERATED_Y = 22;
@@ -175,7 +177,7 @@ export class RoutePdfExportService {
         }
       } catch {
         pdf.setFontSize(FONT_SIZE_NORMAL);
-        pdf.text('Map could not be generated', PDF_MARGIN, currentY);
+        pdf.text(this.translateService.instant(ROUTE_MAP_FAILED_KEY), PDF_MARGIN, currentY);
       }
     }
 

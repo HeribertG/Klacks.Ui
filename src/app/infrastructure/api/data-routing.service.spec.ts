@@ -2,8 +2,9 @@
 
 /**
  * Tests for DataRoutingService.
- * Verifies that route requests go through the backend proxy (so the OpenRouteService API key
- * never reaches the browser) and that OSRM is only used when the proxy reports no route.
+ * Verifies that route requests only ever go to the own backend (OpenRouteService proxy first, then the
+ * OSRM proxy), that switched-off services are not requested at all, and that the raw waypoints come back
+ * when no route can be obtained.
  */
 
 import { TestBed } from '@angular/core/testing';
@@ -17,24 +18,41 @@ import {
   RouteCoordinateWithName,
 } from './data-routing.service';
 import { environment } from 'src/environments/environment';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 
-const PROXY_URL = `${environment.baseUrl}Routing/Directions`;
-const OSRM_URL_PREFIX = 'https://router.project-osrm.org/route/v1/driving/';
-const ORS_HOST = 'openrouteservice.org';
+const DIRECTIONS_URL = `${environment.baseUrl}Routing/Directions`;
+const OSRM_ROUTE_URL = `${environment.baseUrl}Routing/OsrmRoute`;
 
 const WAYPOINTS: RouteCoordinateWithName[] = [
   { name: 'Start', lat: 47.3769, lon: 8.5417 },
   { name: 'Ziel', lat: 46.948, lon: 7.4474 },
 ];
 
+const RAW_WAYPOINTS: RouteCoordinate[] = [
+  { lat: 47.3769, lon: 8.5417 },
+  { lat: 46.948, lon: 7.4474 },
+];
+
+const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
 describe('DataRoutingService', () => {
   let service: DataRoutingService;
   let httpMock: HttpTestingController;
+  let config: GeoServicesConfigMock;
+
+  const route = async (coordinates: RouteCoordinateWithName[] = WAYPOINTS): Promise<{ value?: RouteCoordinate[] }> => {
+    const captured: { value?: RouteCoordinate[] } = {};
+    service.getRoute(coordinates).subscribe((r) => (captured.value = r));
+    await settle();
+    return captured;
+  };
 
   beforeEach(() => {
+    config = createGeoServicesConfigMock({ routingEnabled: true, openRouteServiceEnabled: true });
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [DataRoutingService],
+      providers: [DataRoutingService, { provide: GeoServicesConfigService, useValue: config }],
     });
     service = TestBed.inject(DataRoutingService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -44,88 +62,99 @@ describe('DataRoutingService', () => {
     httpMock.verify();
   });
 
-  it('never calls openrouteservice.org directly', () => {
-    service.getRoute(WAYPOINTS).subscribe();
+  it('uses the OpenRouteService proxy geometry when the backend returns a route', async () => {
+    const result = await route();
 
-    const request = httpMock.expectOne(PROXY_URL);
-    expect(request.request.url).not.toContain(ORS_HOST);
-    request.flush([{ lat: 47.3, lon: 8.5 }]);
-  });
-
-  it('uses the proxy geometry when the backend returns a route', () => {
-    let result: RouteCoordinate[] | undefined;
-    service.getRoute(WAYPOINTS).subscribe((r) => (result = r));
-
-    httpMock.expectOne(PROXY_URL).flush([
+    httpMock.expectOne(DIRECTIONS_URL).flush([
       { lat: 47.3, lon: 8.5 },
       { lat: 47.1, lon: 8.0 },
     ]);
 
-    expect(result).toEqual([
+    expect(result.value).toEqual([
       { lat: 47.3, lon: 8.5 },
       { lat: 47.1, lon: 8.0 },
     ]);
+    expect(config.ensureLoaded).toHaveBeenCalled();
   });
 
-  it('falls back to OSRM when the proxy answers 204 No Content', () => {
-    let result: RouteCoordinate[] | undefined;
-    service.getRoute(WAYPOINTS).subscribe((r) => (result = r));
+  it('falls back to the OSRM proxy when the OpenRouteService proxy answers 204 No Content', async () => {
+    const result = await route();
 
-    httpMock
-      .expectOne(PROXY_URL)
-      .flush(null, { status: 204, statusText: 'No Content' });
+    httpMock.expectOne(DIRECTIONS_URL).flush(null, { status: 204, statusText: 'No Content' });
+    const osrmRequest = httpMock.expectOne(OSRM_ROUTE_URL);
+    expect(osrmRequest.request.method).toBe('POST');
+    expect(osrmRequest.request.body).toEqual(RAW_WAYPOINTS);
+    osrmRequest.flush({ status: 'Ok', points: [{ lat: 47.3, lon: 8.5 }] });
 
-    const osrmRequest = httpMock.expectOne((r) =>
-      r.url.startsWith(OSRM_URL_PREFIX)
-    );
-    osrmRequest.flush({
-      code: 'Ok',
-      routes: [{ geometry: { coordinates: [[8.5, 47.3]] } }],
-    });
-
-    expect(result).toEqual([{ lat: 47.3, lon: 8.5 }]);
+    expect(result.value).toEqual([{ lat: 47.3, lon: 8.5 }]);
   });
 
-  it('falls back to OSRM when the proxy fails', () => {
-    let result: RouteCoordinate[] | undefined;
-    service.getRoute(WAYPOINTS).subscribe((r) => (result = r));
+  it('falls back to the OSRM proxy when the OpenRouteService proxy fails', async () => {
+    const result = await route();
 
-    httpMock
-      .expectOne(PROXY_URL)
-      .flush(null, { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne(DIRECTIONS_URL).flush(null, { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne(OSRM_ROUTE_URL).flush({ status: 'Ok', points: [{ lat: 46.94, lon: 7.44 }] });
 
-    httpMock
-      .expectOne((r) => r.url.startsWith(OSRM_URL_PREFIX))
-      .flush({
-        code: 'Ok',
-        routes: [{ geometry: { coordinates: [[7.44, 46.94]] } }],
-      });
-
-    expect(result).toEqual([{ lat: 46.94, lon: 7.44 }]);
+    expect(result.value).toEqual([{ lat: 46.94, lon: 7.44 }]);
   });
 
-  it('returns the raw waypoints when both routing paths fail', () => {
-    let result: RouteCoordinate[] | undefined;
-    service.getRoute(WAYPOINTS).subscribe((r) => (result = r));
+  it.each(['NoRoute', 'Disabled', 'Unavailable'])(
+    'returns the raw waypoints when the OSRM proxy reports %s',
+    async (status) => {
+      const result = await route();
 
-    httpMock
-      .expectOne(PROXY_URL)
-      .flush(null, { status: 500, statusText: 'Server Error' });
+      httpMock.expectOne(DIRECTIONS_URL).flush(null, { status: 204, statusText: 'No Content' });
+      httpMock.expectOne(OSRM_ROUTE_URL).flush({ status, points: [] });
 
-    httpMock
-      .expectOne((r) => r.url.startsWith(OSRM_URL_PREFIX))
-      .flush(null, { status: 500, statusText: 'Server Error' });
+      expect(result.value).toEqual(RAW_WAYPOINTS);
+    },
+  );
 
-    expect(result).toEqual([
-      { lat: 47.3769, lon: 8.5417 },
-      { lat: 46.948, lon: 7.4474 },
-    ]);
+  it('returns the raw waypoints when both routing proxies fail', async () => {
+    const result = await route();
+
+    httpMock.expectOne(DIRECTIONS_URL).flush(null, { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne(OSRM_ROUTE_URL).flush(null, { status: 429, statusText: 'Too Many Requests' });
+
+    expect(result.value).toEqual(RAW_WAYPOINTS);
   });
 
-  it('does not call any routing service for a single waypoint', () => {
-    let result: RouteCoordinate[] | undefined;
-    service.getRoute([WAYPOINTS[0]]).subscribe((r) => (result = r));
+  it('skips the OpenRouteService proxy when OpenRouteService is disabled', async () => {
+    config.openRouteServiceEnabled.set(false);
 
-    expect(result).toEqual([{ lat: 47.3769, lon: 8.5417 }]);
+    const result = await route();
+
+    httpMock.expectNone(DIRECTIONS_URL);
+    httpMock.expectOne(OSRM_ROUTE_URL).flush({ status: 'Ok', points: [{ lat: 47.3, lon: 8.5 }] });
+
+    expect(result.value).toEqual([{ lat: 47.3, lon: 8.5 }]);
+  });
+
+  it('skips the OSRM proxy when routing is disabled', async () => {
+    config.routingEnabled.set(false);
+
+    const result = await route();
+
+    httpMock.expectOne(DIRECTIONS_URL).flush(null, { status: 204, statusText: 'No Content' });
+    httpMock.expectNone(OSRM_ROUTE_URL);
+
+    expect(result.value).toEqual(RAW_WAYPOINTS);
+  });
+
+  it('sends no request at all and returns the waypoints when every routing service is disabled', async () => {
+    config.routingEnabled.set(false);
+    config.openRouteServiceEnabled.set(false);
+
+    const result = await route();
+
+    httpMock.expectNone(() => true);
+    expect(result.value).toEqual(RAW_WAYPOINTS);
+  });
+
+  it('does not call any routing service for a single waypoint', async () => {
+    const result = await route([WAYPOINTS[0]]);
+
+    httpMock.expectNone(() => true);
+    expect(result.value).toEqual([{ lat: 47.3769, lon: 8.5417 }]);
   });
 });

@@ -8,6 +8,8 @@
  * @param itemManipulationService - Applies optimized route data to template items
  * @param addressProvider - Provides address lookup for start/end base resolution
  * @param appSettingsService - Provides OpenRouteService API key availability
+ * @param geoServicesConfig - Tells whether the installation allows OpenRouteService at all; the transport
+ *   modes that need it are only offered when it is enabled and an API key is stored
  */
 import { Injectable, inject } from '@angular/core';
 import { Subject, TimeoutError, of } from 'rxjs';
@@ -37,6 +39,7 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import {
   timeToString,
@@ -82,6 +85,7 @@ export class ContainerTemplateRouteService {
   private appSettingsService = inject(AppSettingsManagementService);
   private sortingService = inject(TableSortingService);
   private dataShiftService = inject(DataShiftService);
+  private geoServicesConfig = inject(GeoServicesConfigService);
 
   public selectedStartBase = '';
   public selectedEndBase = '';
@@ -92,12 +96,16 @@ export class ContainerTemplateRouteService {
   public isOptimizing = false;
   public isOverrideMode = false;
 
+  constructor() {
+    void this.geoServicesConfig.ensureLoaded();
+  }
+
   get hasRouteInfo(): boolean {
     return this.lastRouteInfo !== null;
   }
 
   get hasOpenRouteServiceApiKey(): boolean {
-    return !!this.appSettingsService.openRouteServiceApiKey();
+    return this.geoServicesConfig.openRouteServiceEnabled() && !!this.appSettingsService.openRouteServiceApiKey();
   }
 
   get isTransportModeMix(): boolean {

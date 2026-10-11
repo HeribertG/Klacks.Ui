@@ -1,15 +1,24 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Service for fetching route geometries for map display.
+ * Service for fetching route geometries for map display, exclusively through the backend.
+ * OpenRouteService (Routing/Directions, holds the API key) is asked first when the installation enables it;
+ * when it reports no route, the backend OSRM proxy (Routing/OsrmRoute) is asked when routing is enabled.
+ * Whatever is switched off is not requested at all, and when no route can be obtained the raw waypoints are
+ * returned, so the map shows straight lines instead of failing.
  * @param coordinates - List of coordinates with name, lat/lon
- * Routes are requested through the backend proxy, which holds the OpenRouteService API key.
- * When the proxy reports no route (key not configured, service unavailable), OSRM is used instead.
  */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, switchMap, catchError, of } from 'rxjs';
+import { Observable, map, switchMap, catchError, of, from } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import {
+  ROUTING_DIRECTIONS_PATH,
+  ROUTING_OSRM_ROUTE_PATH,
+} from 'src/app/domain/constants/geo-services-api.constants';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { IRouteGeometryResult } from 'src/app/domain/models/geo/route-geometry-result.interface';
+import { RouteGeometryStatus } from 'src/app/domain/models/geo/route-geometry-status.model';
 
 export interface RouteCoordinate {
   lat: number;
@@ -20,70 +29,60 @@ export interface RouteCoordinateWithName extends RouteCoordinate {
   name: string;
 }
 
-interface OsrmResponse {
-  code: string;
-  routes: {
-    geometry: {
-      coordinates: [number, number][];
-    };
-  }[];
-}
-
-const OSRM_ROUTE_URL = 'https://router.project-osrm.org/route/v1/driving/';
-const ROUTING_DIRECTIONS_PATH = 'Routing/Directions';
+const MIN_ROUTE_WAYPOINTS = 2;
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataRoutingService {
   private httpClient = inject(HttpClient);
+  private geoServicesConfig = inject(GeoServicesConfigService);
 
   getRoute(coordinates: RouteCoordinateWithName[]): Observable<RouteCoordinate[]> {
-    if (coordinates.length < 2) {
-      return of(coordinates.map((c) => ({ lat: c.lat, lon: c.lon })));
+    const waypoints = this.toWaypoints(coordinates);
+    if (coordinates.length < MIN_ROUTE_WAYPOINTS) {
+      return of(waypoints);
     }
 
-    return this.getProxiedRoute(coordinates).pipe(
-      switchMap((route) =>
-        route.length > 0 ? of(route) : this.getOsrmRoute(coordinates)
-      ),
-      catchError(() => this.getOsrmRoute(coordinates))
+    return from(this.geoServicesConfig.ensureLoaded()).pipe(
+      switchMap(() => this.getOpenRouteServiceRoute(waypoints)),
+      switchMap((route) => (route.length > 0 ? of(route) : this.getOsrmRoute(waypoints))),
+      map((route) => (route.length > 0 ? route : waypoints)),
+      catchError(() => of(waypoints)),
     );
   }
 
-  private getProxiedRoute(
-    coordinates: RouteCoordinateWithName[]
-  ): Observable<RouteCoordinate[]> {
-    const body = coordinates.map((c) => ({ lat: c.lat, lon: c.lon }));
+  private getOpenRouteServiceRoute(waypoints: RouteCoordinate[]): Observable<RouteCoordinate[]> {
+    if (!this.geoServicesConfig.openRouteServiceEnabled()) {
+      return of([]);
+    }
 
     return this.httpClient
-      .post<RouteCoordinate[] | null>(
-        `${environment.baseUrl}${ROUTING_DIRECTIONS_PATH}`,
-        body
-      )
-      .pipe(map((route) => route ?? []));
+      .post<RouteCoordinate[] | null>(`${environment.baseUrl}${ROUTING_DIRECTIONS_PATH}`, waypoints)
+      .pipe(
+        map((route) => route ?? []),
+        catchError(() => of([])),
+      );
   }
 
-  private getOsrmRoute(
-    coordinates: RouteCoordinateWithName[]
-  ): Observable<RouteCoordinate[]> {
-    const coordString = coordinates.map((c) => `${c.lon},${c.lat}`).join(';');
-    const url = `${OSRM_ROUTE_URL}${coordString}?overview=full&geometries=geojson`;
+  private getOsrmRoute(waypoints: RouteCoordinate[]): Observable<RouteCoordinate[]> {
+    if (!this.geoServicesConfig.routingEnabled()) {
+      return of([]);
+    }
 
-    return this.httpClient.get<OsrmResponse>(url).pipe(
-      map((data) => {
-        if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-          throw new Error('No route found');
-        }
+    return this.httpClient
+      .post<IRouteGeometryResult>(`${environment.baseUrl}${ROUTING_OSRM_ROUTE_PATH}`, waypoints)
+      .pipe(
+        map((result) =>
+          result?.status === RouteGeometryStatus.Ok
+            ? result.points.map((point) => ({ lat: point.lat, lon: point.lon }))
+            : [],
+        ),
+        catchError(() => of([])),
+      );
+  }
 
-        return data.routes[0].geometry.coordinates.map((coord) => ({
-          lon: coord[0],
-          lat: coord[1],
-        }));
-      }),
-      catchError(() =>
-        of(coordinates.map((c) => ({ lat: c.lat, lon: c.lon })))
-      )
-    );
+  private toWaypoints(coordinates: RouteCoordinateWithName[]): RouteCoordinate[] {
+    return coordinates.map((c) => ({ lat: c.lat, lon: c.lon }));
   }
 }

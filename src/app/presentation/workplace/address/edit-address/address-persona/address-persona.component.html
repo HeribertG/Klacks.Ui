@@ -177,7 +177,7 @@
   <app-expandable-card [headerTitle]="headerTitle" (expandedChange)="onExpandedChange($event)">
 
     <div headerActions class="header-actions">
-      @if (isCustomerWithCoordinates()) {
+      @if (showExternalMapLinks()) {
       <button
         type="button"
         class="btn map-btn-osm"

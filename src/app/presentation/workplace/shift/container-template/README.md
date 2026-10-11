@@ -564,9 +564,9 @@ Das Container Template Modul enthält eine vollständige Route-Optimierungs- und
 ### Features
 
 - **Route-Optimierung** mit Ant Colony Optimization Algorithmus
-- **Echte Straßendistanzen** via OSRM (Open Source Routing Machine) API
+- **Echte Straßendistanzen** via OSRM bzw. OpenRouteService, ausschliesslich serverseitig (siehe Geodienste-Konfiguration)
 - **PDF-Export** mit:
-  - OpenStreetMap-basierte Karte mit Route
+  - Karte mit Route auf der konfigurierten Kachelquelle (ohne Kacheln: heller Hintergrund)
   - Detaillierte Routentabelle mit Ankunfts-/Abfahrtszeiten
   - Individuelle Distanzen für jeden Streckenabschnitt
 - **Reisezeit-Visualisierung** als gelbe Balken im Time Ruler
@@ -719,18 +719,9 @@ Task<RouteOptimizationResult> OptimizeRouteAsync(
 ```
 
 **Distanzberechnung:**
-- Verwendet **OSRM Table API** (`router.project-osrm.org/table/v1/driving/`) für echte Straßendistanzen
-- Fallback auf Haversine-Distanz (Luftlinie) wenn OSRM nicht erreichbar
+- `DistanceMatrixBuilder` fragt OpenRouteService bzw. OSRM über die Basis-URLs aus `IGeoServicesPolicy` ab
+  (Umgebungsvariablen `GeoServices__*`); ist ein Dienst abgeschaltet, gilt die Haversine-Distanz (Luftlinie)
 - Ergebnisse werden 7 Tage gecacht
-
-```csharp
-private async Task<double[,]> GetOsrmDistanceMatrixAsync(List<Location> locations)
-{
-    var coordinates = string.Join(";", locations.Select(l => $"{l.Longitude:F6},{l.Latitude:F6}"));
-    var url = $"{OSRM_BASE_URL}/table/v1/driving/{coordinates}?annotations=distance";
-    // ... API call und Matrix-Parsing
-}
-```
 
 **Route-Struktur:**
 Die `OptimizedRoute` enthält die vollständige Route inklusive:
@@ -786,38 +777,15 @@ export interface IRouteOptimizationResult {
 1. **exportContainerTemplateToPdf()** - Exportiert Shift-Liste als PDF
 2. **exportRouteToPdf()** - Exportiert Route mit Karte als PDF
 
-**Karten-Generierung:**
+**Karten-Generierung** (`MapRenderingService`):
 
-Die Karte wird mit echten OpenStreetMap-Tiles und OSRM-Routing erstellt:
-
-```typescript
-private async generateRouteMapCanvas(coordinates): Promise<HTMLCanvasElement | null> {
-    // 1. OSRM Route API für echte Straßenroute
-    const routeGeometry = await this.getOsrmRoute(coordinates);
-
-    // 2. OpenStreetMap Tiles laden
-    await this.loadOsmTiles(ctx, centerLat, centerLon, zoom, width, height);
-
-    // 3. Route auf Karte zeichnen (blaue Linie)
-    // 4. Nummerierte Marker für Stopps
-}
-
-private async getOsrmRoute(coordinates): Promise<{lat, lon}[]> {
-    const coordString = coordinates.map(c => `${c.lon},${c.lat}`).join(';');
-    const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
-    // Gibt detaillierte Straßengeometrie zurück
-}
-```
-
-**OSM Tile Loading:**
-
-```typescript
-private async loadOsmTiles(ctx, centerLat, centerLon, zoom, width, height) {
-    // Berechnet benötigte Tiles basierend auf Zoom und Canvas-Größe
-    // Lädt Tiles von https://{a|b|c}.tile.openstreetmap.org/{zoom}/{x}/{y}.png
-    // Zeichnet Tiles auf Canvas
-}
-```
+- Wartet auf `GeoServicesConfigService.ensureLoaded()` (fail-closed: ohne Konfiguration keine externen Requests).
+- Routengeometrie über `DataRoutingService`: zuerst `POST Routing/Directions` (OpenRouteService-Proxy, nur wenn
+  aktiviert), dann `POST Routing/OsrmRoute` (OSRM-Proxy, nur wenn aktiviert), sonst gerade Linien zwischen den Stopps.
+  Der Browser ruft nie OSRM oder Nominatim direkt auf.
+- Kacheln aus `mapTiles` der Konfiguration (`urlTemplate`, `subdomains`, `attribution`). Sind sie aus, wird keine
+  Kachel geladen; die Route steht auf hellem Hintergrund mit dem Hinweis `geoServices.routePdf.tilesDisabled`.
+- Eigene Kachelserver müssen CORS senden, sonst ist das Canvas „tainted“ und der PDF-Export schlägt fehl.
 
 ### Datenmodell
 
@@ -886,8 +854,8 @@ Das generierte PDF enthält:
    - Gesamtdistanz (km)
    - Geschätzte Fahrzeit
 
-3. **Karte** (OpenStreetMap)
-   - Straßenkarte mit Route
+3. **Karte** (konfigurierte Kachelquelle)
+   - Straßenkarte mit Route (ohne Kacheln: heller Hintergrund)
    - Nummerierte Marker (grün = Start, rot = Ende/Zwischenstopps)
    - Blaue Linie entlang der Straßen
 
@@ -936,19 +904,13 @@ GET /api/RouteOptimization/optimize-route
 }
 ```
 
-### Externe APIs
+### Geodienste (Konfiguration)
 
-1. **OSRM Table API** (Distanzmatrix)
-   - URL: `https://router.project-osrm.org/table/v1/driving/{coordinates}?annotations=distance`
-   - Gibt Distanzen in Metern zurück
-
-2. **OSRM Route API** (Straßengeometrie)
-   - URL: `https://router.project-osrm.org/route/v1/driving/{coordinates}?overview=full&geometries=geojson`
-   - Gibt GeoJSON mit detaillierter Straßengeometrie zurück
-
-3. **OpenStreetMap Tiles**
-   - URL: `https://{a|b|c}.tile.openstreetmap.org/{zoom}/{x}/{y}.png`
-   - Standard Web Mercator Projektion
+Alle Geodienste sind installationsweit über Umgebungsvariablen konfigurierbar (`GeoServices__NoOutboundTraffic`,
+`GeoServices__Geocoding__*`, `GeoServices__Routing__*`, `GeoServices__OpenRouteService__*`, `GeoServices__MapTiles__*`).
+Die UI liest den Stand über `GET GeoServicesConfig` (`GeoServicesConfigService`), Geocoding und Routing laufen über
+die Backend-Proxies `GET Geocoding/Search` und `POST Routing/OsrmRoute`. Details: `docs/PLAN-geo-services-config-2026-10-11.md`
+im Super-Repo und `deploy/onprem/README.md` in Klacks.Api.
 
 ### Konfiguration
 
@@ -972,19 +934,19 @@ addressProvider = inject(AddressProviderService);
 
 #### Distanzen sind Luftlinie statt Straßendistanz
 
-**Ursache:** OSRM API nicht erreichbar
+**Ursache:** Routing abgeschaltet (`GeoServices__*`, NoOutbound) oder der Routing-Dienst ist nicht erreichbar
 
 **Lösung:**
-- Prüfen, ob `router.project-osrm.org` erreichbar ist
-- Backend-Logs prüfen: "Failed to get OSRM distance matrix, falling back to Haversine distances"
+- Admin-Statuskarte „Kartendienste“ in den Einstellungen prüfen
+- Backend-Logs prüfen (Startbericht der Geodienste, „Blocked outbound geo request“)
 
 #### Karte zeigt keine Route
 
-**Ursache:** Koordinaten fehlen oder OSRM Route API Fehler
+**Ursache:** Koordinaten fehlen oder Routing ist abgeschaltet bzw. nicht erreichbar
 
 **Lösung:**
 - Prüfen, ob `Address.Latitude` und `Address.Longitude` in der Datenbank gesetzt sind
-- Browser-Konsole auf CORS-Fehler prüfen
+- Admin-Statuskarte „Kartendienste“ prüfen
 
 #### Start/End-Base fehlen auf der Karte
 

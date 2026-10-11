@@ -1,14 +1,21 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Service for rendering route maps on canvas elements with OSM tiles.
- * Creates an HTMLCanvasElement with map viewport, route line, and marker positions.
+ * Service for rendering route maps on canvas elements with the tile source the installation configured.
+ * Creates an HTMLCanvasElement with map viewport, route line, and marker positions. When map tiles are
+ * switched off (or the geo services configuration could not be loaded) no tile is requested: the route is
+ * drawn on a plain light background with a translated hint instead.
  * @param coordinates - List of coordinates (lat, lon, name) for the route points
- * @param dataRoutingService - Provides the OSRM route geometry between the coordinates
+ * @param dataRoutingService - Provides the route geometry between the coordinates through the backend
+ * @param geoServicesConfig - Provides the configured tile source (url template, subdomains, attribution)
  */
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { DataRoutingService } from 'src/app/infrastructure/api/data-routing.service';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { IMapTileConfig } from 'src/app/domain/models/settings/map-tile-config.interface';
+import { buildMapTileUrl } from 'src/app/shared/helpers/map-tile-url.helper';
 
 const MAP_WIDTH = 1200;
 const MAP_HEIGHT = 720;
@@ -29,10 +36,10 @@ const MARKER_COLOR_END = '#AA2222';
 const MARKER_COLOR_DEFAULT = '#CC4444';
 
 const TILE_SIZE = 256;
-const OSM_ATTRIBUTION_WIDTH = 160;
-const OSM_ATTRIBUTION_HEIGHT = 18;
-const OSM_ATTRIBUTION_MARGIN = 5;
-const OSM_ATTRIBUTION_TEXT_OFFSET = 8;
+const ATTRIBUTION_HEIGHT = 18;
+const ATTRIBUTION_MARGIN = 5;
+const ATTRIBUTION_TEXT_OFFSET = 8;
+const ATTRIBUTION_TEXT_PADDING = 16;
 
 const ZOOM_THRESHOLDS = [
   { span: 2, zoom: 8 },
@@ -57,14 +64,17 @@ const COLOR_SHADOW = 'rgba(0, 0, 0, 0.3)';
 const COLOR_ATTRIBUTION_BG = 'rgba(255, 255, 255, 0.9)';
 const COLOR_TRANSPARENT = 'transparent';
 
-const OSM_SUBDOMAINS = ['a', 'b', 'c'];
-const OSM_ATTRIBUTION_TEXT = '© OpenStreetMap contributors';
+const TILES_DISABLED_KEY = 'geoServices.routePdf.tilesDisabled';
+const TILES_FAILED_KEY = 'geoServices.routePdf.tilesFailed';
+const CANVAS_FONT_FAMILY = 'Arial';
 
 const PAGE_NUMBER_OFFSET_Y = 10;
 
 @Injectable()
 export class MapRenderingService {
   private dataRoutingService = inject(DataRoutingService);
+  private geoServicesConfig = inject(GeoServicesConfigService);
+  private translateService = inject(TranslateService);
 
   async generateRouteMapCanvas(
     coordinates: { lat: number; lon: number; name: string }[]
@@ -82,9 +92,11 @@ export class MapRenderingService {
       return null;
     }
 
+    await this.geoServicesConfig.ensureLoaded();
+
     let routeGeometry: { lat: number; lon: number }[] = [];
     try {
-      routeGeometry = await this.getOsrmRoute(coordinates);
+      routeGeometry = await this.getRoute(coordinates);
     } catch {
       routeGeometry = coordinates.map((c) => ({ lat: c.lat, lon: c.lon }));
     }
@@ -120,26 +132,26 @@ export class MapRenderingService {
       }
     }
 
-    try {
-      await this.loadOsmTiles(
-        ctx,
-        centerLat,
-        centerLon,
-        zoom,
-        canvas.width,
-        canvas.height
-      );
-    } catch {
-      ctx.fillStyle = COLOR_GRAY_LIGHT;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = COLOR_GRAY_MEDIUM;
-      ctx.font = `${MARKER_RADIUS_NORMAL}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        'Map tiles could not be loaded',
-        canvas.width / 2,
-        canvas.height / 2
-      );
+    const mapTiles = this.geoServicesConfig.mapTiles();
+    let tilesDrawn = false;
+    if (mapTiles?.urlTemplate) {
+      try {
+        await this.loadTiles(
+          ctx,
+          mapTiles,
+          centerLat,
+          centerLon,
+          zoom,
+          canvas.width,
+          canvas.height
+        );
+        tilesDrawn = true;
+      } catch {
+        this.drawPlainBackground(ctx, canvas, TILES_FAILED_KEY);
+      }
+    } else {
+      const hintKey = this.geoServicesConfig.loadState() === 'failed' ? TILES_FAILED_KEY : TILES_DISABLED_KEY;
+      this.drawPlainBackground(ctx, canvas, hintKey);
     }
 
     const toPixelX = (lon: number) =>
@@ -152,9 +164,28 @@ export class MapRenderingService {
     }
 
     this.drawMarkers(ctx, coordinates, toPixelX, toPixelY);
-    this.drawAttribution(ctx, canvas);
+    if (tilesDrawn && mapTiles?.attribution) {
+      this.drawAttribution(ctx, canvas, mapTiles.attribution);
+    }
 
     return canvas;
+  }
+
+  private drawPlainBackground(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    hintKey: string
+  ): void {
+    ctx.fillStyle = COLOR_GRAY_LIGHT;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = COLOR_GRAY_MEDIUM;
+    ctx.font = `${MARKER_RADIUS_NORMAL}px ${CANVAS_FONT_FAMILY}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      this.translateService.instant(hintKey),
+      canvas.width / 2,
+      canvas.height - MARKER_RADIUS_NORMAL * 2
+    );
   }
 
   private drawRouteLine(
@@ -257,27 +288,29 @@ export class MapRenderingService {
 
   private drawAttribution(
     ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement
+    canvas: HTMLCanvasElement,
+    attribution: string
   ): void {
     const isRtl = document.documentElement.dir === 'rtl';
+    ctx.font = CANVAS_FONT_NORMAL_10;
+    const width = ctx.measureText(attribution).width + ATTRIBUTION_TEXT_PADDING;
     ctx.fillStyle = COLOR_ATTRIBUTION_BG;
     ctx.fillRect(
-      isRtl ? canvas.width - OSM_ATTRIBUTION_WIDTH - OSM_ATTRIBUTION_MARGIN : OSM_ATTRIBUTION_MARGIN,
-      canvas.height - OSM_ATTRIBUTION_HEIGHT - OSM_ATTRIBUTION_MARGIN + 1,
-      OSM_ATTRIBUTION_WIDTH,
-      OSM_ATTRIBUTION_HEIGHT
+      isRtl ? canvas.width - width - ATTRIBUTION_MARGIN : ATTRIBUTION_MARGIN,
+      canvas.height - ATTRIBUTION_HEIGHT - ATTRIBUTION_MARGIN + 1,
+      width,
+      ATTRIBUTION_HEIGHT
     );
     ctx.fillStyle = COLOR_GRAY_DARK;
-    ctx.font = CANVAS_FONT_NORMAL_10;
     ctx.textAlign = isRtl ? 'right' : 'left';
     ctx.fillText(
-      OSM_ATTRIBUTION_TEXT,
-      isRtl ? canvas.width - OSM_ATTRIBUTION_TEXT_OFFSET : OSM_ATTRIBUTION_TEXT_OFFSET,
+      attribution,
+      isRtl ? canvas.width - ATTRIBUTION_TEXT_OFFSET : ATTRIBUTION_TEXT_OFFSET,
       canvas.height - PAGE_NUMBER_OFFSET_Y
     );
   }
 
-  private async getOsrmRoute(
+  private async getRoute(
     coordinates: { lat: number; lon: number; name: string }[]
   ): Promise<{ lat: number; lon: number }[]> {
     if (coordinates.length < 2) {
@@ -287,8 +320,9 @@ export class MapRenderingService {
     return await firstValueFrom(this.dataRoutingService.getRoute(coordinates));
   }
 
-  private async loadOsmTiles(
+  private async loadTiles(
     ctx: CanvasRenderingContext2D,
+    mapTiles: IMapTileConfig,
     centerLat: number,
     centerLon: number,
     zoom: number,
@@ -331,6 +365,7 @@ export class MapRenderingService {
           tilePromises.push(
             this.loadAndDrawTile(
               ctx,
+              mapTiles,
               tileX,
               tileY,
               zoom,
@@ -347,6 +382,7 @@ export class MapRenderingService {
 
   private loadAndDrawTile(
     ctx: CanvasRenderingContext2D,
+    mapTiles: IMapTileConfig,
     tileX: number,
     tileY: number,
     zoom: number,
@@ -368,8 +404,7 @@ export class MapRenderingService {
         resolve();
       };
 
-      const subdomain = OSM_SUBDOMAINS[(tileX + tileY) % OSM_SUBDOMAINS.length];
-      img.src = `https://${subdomain}.tile.openstreetmap.org/${zoom}/${tileX}/${tileY}.png`;
+      img.src = buildMapTileUrl(mapTiles.urlTemplate ?? '', mapTiles.subdomains, zoom, tileX, tileY);
     });
   }
 

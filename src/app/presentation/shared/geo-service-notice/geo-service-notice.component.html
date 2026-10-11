@@ -1,0 +1,12 @@
+@if (loadFailed()) {
+  <div class="alert alert-warning d-flex align-items-center gap-2 geo-service-notice-failed" role="alert">
+    <span>{{ keys.loadFailed | translate }}</span>
+    <button type="button" class="btn btn-link p-0 geo-service-notice-retry" (click)="retry()">
+      {{ keys.retry | translate }}
+    </button>
+  </div>
+} @else if (serviceDisabled()) {
+  <div class="alert alert-info geo-service-notice-disabled" role="status">
+    {{ disabledKey() | translate }}
+  </div>
+}

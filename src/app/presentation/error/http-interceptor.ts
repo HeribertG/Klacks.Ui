@@ -24,6 +24,7 @@ import { BackendAvailabilityService } from 'src/app/application/services/backend
 import { environment } from 'src/environments/environment';
 import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/klacksy-learning.constants';
 import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-import.constants';
+import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
 
@@ -123,6 +124,10 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
 
     if (url.includes('Addresses/Validate')) {
+      return throwError(() => error);
+    }
+
+    if (this.isGeoServicesPassThrough(url)) {
       return throwError(() => error);
     }
 
@@ -230,6 +235,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       clientId: req.body?.clientId,
       shiftId: req.body?.shiftId,
     });
+  }
+
+  private isGeoServicesPassThrough(url: string): boolean {
+    return GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS.some((path) => url.includes(path));
   }
 
   private isKlacksyLearningPassThroughError(url: string, status: number): boolean {

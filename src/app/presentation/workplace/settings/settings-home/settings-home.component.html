@@ -927,6 +927,16 @@
         </app-deepl>
       </div>
 
+      @if (authorizationService.isAdmin) {
+        <div id="settings-home-geo-services-row" class="container-profilline">
+          <app-geo-services-status
+            id="settings-geo-services-status"
+            class="container-setting-small first border-right-card border-bottom-card"
+          >
+          </app-geo-services-status>
+        </div>
+      }
+
       <div id="settings-home-web-search-row" class="container-profilline">
         <app-web-search
           id="settings-web-search"

@@ -16,6 +16,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { createGeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
@@ -362,6 +364,7 @@ describe('ContainerTemplateRouteService.interleaveAbsencesWithShifts', () => {
         { provide: AppSettingsManagementService, useValue: {} },
         { provide: TableSortingService, useValue: {} },
         { provide: DataShiftService, useValue: {} },
+        { provide: GeoServicesConfigService, useValue: createGeoServicesConfigMock() },
       ],
     });
     service = TestBed.inject(ContainerTemplateRouteService);
@@ -389,5 +392,47 @@ describe('ContainerTemplateRouteService.interleaveAbsencesWithShifts', () => {
     const result = service.interleaveAbsencesWithShifts([absence], shifts);
 
     expect(result.map((item) => item.shiftId ?? item.absenceId)).toEqual(['s1', 'absence-1', 's2']);
+  });
+});
+
+describe('ContainerTemplateRouteService OpenRouteService transport modes', () => {
+  const API_KEY = 'stored-key';
+
+  const setup = (openRouteServiceEnabled: boolean, apiKey: string): ContainerTemplateRouteService => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        ContainerTemplateRouteService,
+        { provide: RouteOptimizationService, useValue: {} },
+        { provide: DataManagementContainerService, useValue: {} },
+        { provide: ContainerTemplateShiftService, useValue: {} },
+        { provide: ContainerTemplateItemManipulationService, useValue: {} },
+        { provide: ToastShowService, useValue: {} },
+        { provide: TranslateService, useValue: {} },
+        { provide: SpinnerService, useValue: {} },
+        { provide: WorkplaceStateService, useValue: {} },
+        { provide: AddressProviderService, useValue: {} },
+        { provide: AppSettingsManagementService, useValue: { openRouteServiceApiKey: () => apiKey } },
+        { provide: TableSortingService, useValue: {} },
+        { provide: DataShiftService, useValue: {} },
+        {
+          provide: GeoServicesConfigService,
+          useValue: createGeoServicesConfigMock({ openRouteServiceEnabled }),
+        },
+      ],
+    });
+    return TestBed.inject(ContainerTemplateRouteService);
+  };
+
+  it('offers the OpenRouteService transport modes when the service is enabled and a key is stored', () => {
+    expect(setup(true, API_KEY).hasOpenRouteServiceApiKey).toBe(true);
+  });
+
+  it('hides them when the installation disables OpenRouteService even though a key is stored', () => {
+    expect(setup(false, API_KEY).hasOpenRouteServiceApiKey).toBe(false);
+  });
+
+  it('hides them when no key is stored', () => {
+    expect(setup(true, '').hasOpenRouteServiceApiKey).toBe(false);
   });
 });

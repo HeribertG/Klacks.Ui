@@ -74,6 +74,12 @@ import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-locati
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import {
+  OPEN_STREET_MAP_LINK_TEMPLATE,
+  STREET_VIEW_LINK_TEMPLATE,
+} from 'src/app/domain/constants/external-map-link.constants';
+import { buildExternalMapLink } from 'src/app/shared/helpers/external-map-link.helper';
 
 const ADDRESS_TYPE_LIST_SEPARATOR = ', ';
 const ADDRESS_TYPE_NOT_ALLOWED_KEY =
@@ -132,6 +138,9 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   private appSettingsService = inject(AppSettingsManagementService);
   private weekConfiguration = inject(WeekConfigurationService);
   private cardVisibility = inject(EditAddressCardVisibilityService);
+  private geoServicesConfig = inject(GeoServicesConfigService);
+
+  readonly externalMapLinksEnabled = this.geoServicesConfig.externalMapLinksEnabled;
 
   readonly isReadOnly = input(false);
   readonly isChangingEvent = output<boolean>();
@@ -298,6 +307,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
     this.newAddressString = DomainMessages.NEW_ADDRESS;
     void this.appSettingsService.loadSettingsAsync();
+    void this.geoServicesConfig.ensureLoaded();
     this.loadTelegramProviderAvailability();
   }
 
@@ -415,22 +425,25 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     return !!address?.latitude && !!address?.longitude;
   }
 
+  showExternalMapLinks(): boolean {
+    return this.externalMapLinksEnabled() && this.isCustomerWithCoordinates();
+  }
+
   openOpenStreetMap(): void {
-    const client = this.dataManagementClientService.editClient();
-    if (!client) { return; }
-    const address = client.addresses[this.dataManagementClientService.currentAddressIndex()];
-    if (!address?.latitude || !address?.longitude) { return; }
-    const url = `https://www.openstreetmap.org/?mlat=${address.latitude}&mlon=${address.longitude}#map=17/${address.latitude}/${address.longitude}`;
-    window.open(url, '_blank');
+    this.openExternalMapLink(OPEN_STREET_MAP_LINK_TEMPLATE);
   }
 
   openStreetView(): void {
+    this.openExternalMapLink(STREET_VIEW_LINK_TEMPLATE);
+  }
+
+  private openExternalMapLink(template: string): void {
+    if (!this.externalMapLinksEnabled()) { return; }
     const client = this.dataManagementClientService.editClient();
     if (!client) { return; }
     const address = client.addresses[this.dataManagementClientService.currentAddressIndex()];
     if (!address?.latitude || !address?.longitude) { return; }
-    const url = `https://www.google.com/maps/@${address.latitude},${address.longitude},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192`;
-    window.open(url, '_blank');
+    window.open(buildExternalMapLink(template, address.latitude, address.longitude), '_blank');
   }
 
   getCurrentStateName(): string {

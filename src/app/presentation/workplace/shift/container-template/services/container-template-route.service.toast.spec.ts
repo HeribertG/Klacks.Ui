@@ -16,6 +16,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
+import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { createGeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
@@ -97,6 +99,7 @@ describe('ContainerTemplateRouteService optimizeRoute toast', () => {
         { provide: AppSettingsManagementService, useValue: {} },
         { provide: TableSortingService, useValue: {} },
         { provide: DataShiftService, useValue: {} },
+        { provide: GeoServicesConfigService, useValue: createGeoServicesConfigMock() },
       ],
     });
     service = TestBed.inject(ContainerTemplateRouteService);

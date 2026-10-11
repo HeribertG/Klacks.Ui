@@ -1,0 +1,22 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
+}
+
+.geo-services-status-table {
+  margin-bottom: 8px;
+}
+
+.status-disabled,
+.status-reason {
+  color: var(--colorLabel);
+}
+
+.status-reason {
+  margin-inline-start: 4px;
+}

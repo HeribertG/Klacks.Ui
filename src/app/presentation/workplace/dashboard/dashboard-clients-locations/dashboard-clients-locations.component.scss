@@ -14,17 +14,6 @@ app-search-input {
   opacity: 1;
 }
 
-.map-controls {
-  margin-top: -15px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  width: 100%;
-  color: var(--colorLabel);
-  font-size: 13px;
-}
-
 .locations-container {
   display: flex;
   flex-direction: column;
@@ -247,7 +236,4 @@ app-search-input {
 
 .location-card > .btn {
   flex-shrink: 0;
-}
-.map-style {
-  width: 250px;
 }

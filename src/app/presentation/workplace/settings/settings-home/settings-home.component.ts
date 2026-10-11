@@ -39,6 +39,7 @@ import { LLMProvidersComponent } from '../llm-providers/llm-providers.component'
 import { LlmSyncLogComponent } from '../llm-sync-log/llm-sync-log.component';
 import { KlacksyModelCheckComponent } from '../klacksy-model-check/klacksy-model-check.component';
 import { OpenrouteComponent } from '../openroute/openroute.component';
+import { GeoServicesStatusComponent } from '../geo-services-status/geo-services-status.component';
 import { DeeplComponent } from '../deepl/deepl.component';
 import { WebSearchComponent } from '../web-search/web-search.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
@@ -123,6 +124,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     LlmSyncLogComponent,
     KlacksyModelCheckComponent,
     OpenrouteComponent,
+    GeoServicesStatusComponent,
     DeeplComponent,
     WebSearchComponent,
     WorkSettingComponent,

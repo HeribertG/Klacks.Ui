@@ -24,6 +24,8 @@
     } @else {
 
     @if (mapMarkers().length > 0) {
+    @if (mapTilesEnabled()) {
+    @if (geocodingEnabled()) {
     <app-search-input
       inputId="address-search"
       placeholderKey="dashboard.locations.searchPlaceholder"
@@ -31,26 +33,17 @@
       (valueChange)="onSearchQueryChange($event)"
       (searchSubmit)="onSearchAddress()"
     ></app-search-input>
+    } @else {
+    <app-geo-service-notice service="geocoding"></app-geo-service-notice>
+    }
     <div
       #mapContainer
       id="map-container"
       style="height: 600px; margin-bottom: 20px; width: 100%"
     ></div>
-
-    <div class="map-controls">
-      <label for="map-style-select"
-        >{{ "dashboard.locations.mapStyle" | translate }}:</label
-      >
-      <select
-        class="form-select map-style"
-        id="map-style-select"
-        [formField]="mapSettingsForm.tileProvider"
-      >
-        @for (provider of tileProviders; track provider.id) {
-        <option [value]="provider.id">{{ provider.nameKey | translate }}</option>
-        }
-      </select>
-    </div>
+    } @else {
+    <app-geo-service-notice service="map"></app-geo-service-notice>
+    }
     }
 
     <div class="locations-container">
@@ -93,7 +86,7 @@
             {{ totalClients() }}</span
           >
         </div>
-        @if (mapMarkers().length > 0) {
+        @if (mapMarkers().length > 0 && mapTilesEnabled()) {
         <button
           type="button"
           class="container-dashboard-btn"
@@ -154,7 +147,7 @@
               "dashboard.locations.clients" | translate
             }}</span>
           </div>
-          @if (location.latitude && location.longitude) {
+          @if (location.latitude && location.longitude && externalMapLinksEnabled()) {
           <button
             type="button"
             class="btn btn-primary"

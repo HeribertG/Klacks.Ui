@@ -1,51 +1,47 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/**
+ * Searches an address through the backend geocoding proxy; the browser never contacts a geocoder itself.
+ * A switched-off service answers with status Disabled, a failed request is reported as Unavailable, so the
+ * caller can tell "no hit" apart from "not possible right now".
+ * @param query - Free-text address to search for
+ * @param language - Preferred language of the returned display name
+ */
+
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
-import { Observable, map, retry } from 'rxjs';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { Observable, catchError, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
-
 import { DomainMessages } from 'src/app/domain/constants/messages';
-export interface GeocodingResult {
-  lat: number;
-  lon: number;
-  displayName: string;
-}
+import { GEOCODING_SEARCH_PATH } from 'src/app/domain/constants/geo-services-api.constants';
+import { IGeocodingSearchResult } from 'src/app/domain/models/geo/geocoding-search-result.interface';
+import { GeocodingSearchStatus } from 'src/app/domain/models/geo/geocoding-search-status.model';
 
-interface NominatimResult {
-  lat: string;
-  lon: string;
-  display_name: string;
-}
+const QUERY_PARAM = 'query';
+const LANGUAGE_PARAM = 'language';
+
+const UNAVAILABLE_RESULT: IGeocodingSearchResult = {
+  status: GeocodingSearchStatus.Unavailable,
+  latitude: null,
+  longitude: null,
+  displayName: null,
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataGeocodingService {
   private httpClient = inject(HttpClient);
-  private readonly NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
 
-  searchAddress(query: string, language = DomainMessages.DEFAULT_LANG): Observable<GeocodingResult | null> {
-    const url = `${this.NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+  searchAddress(query: string, language: string = DomainMessages.DEFAULT_LANG): Observable<IGeocodingSearchResult> {
+    const params = new HttpParams().set(QUERY_PARAM, query).set(LANGUAGE_PARAM, language);
 
-    return this.httpClient.get<NominatimResult[]>(url, {
-      headers: {
-        'Accept-Language': language,
-      },
-      context: new HttpContext().set(SKIP_LOADING, true),
-    }).pipe(
-      retry(3),
-      map(results => {
-        if (results && results.length > 0) {
-          const result = results[0];
-          return {
-            lat: parseFloat(result.lat),
-            lon: parseFloat(result.lon),
-            displayName: result.display_name,
-          };
-        }
-        return null;
+    return this.httpClient
+      .get<IGeocodingSearchResult>(`${environment.baseUrl}${GEOCODING_SEARCH_PATH}`, {
+        params,
+        context: new HttpContext().set(SKIP_LOADING, true),
       })
-    );
+      .pipe(catchError(() => of(UNAVAILABLE_RESULT)));
   }
 }

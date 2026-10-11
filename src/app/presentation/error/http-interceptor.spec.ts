@@ -44,6 +44,12 @@ const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
 
+const GEO_SERVICES_URLS = [
+  '/api/backend/GeoServicesConfig',
+  '/api/backend/Geocoding/Search?query=Bern&language=de',
+  '/api/backend/Routing/OsrmRoute',
+];
+
 describe('ResponseInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
@@ -326,6 +332,24 @@ describe('ResponseInterceptor', () => {
         expect(captured.status).toBe(response.status);
       },
     );
+  });
+
+  describe('geo services pass-through (callers fail closed and offer a retry)', () => {
+    it.each(
+      GEO_SERVICES_URLS.flatMap((url) =>
+        [BAD_REQUEST, TOO_MANY_REQUESTS, SERVER_ERROR].map((response) => ({ url, ...response })),
+      ),
+    )('neither toasts nor navigates to the error page for a $status on $url', ({ url, status, statusText }) => {
+      const navigationService = TestBed.inject(NavigationService) as any;
+      const captured = expectRequestToFail(url);
+
+      httpMock.expectOne(url).flush(null, { status, statusText });
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(toastShowService.showInfo).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(status);
+    });
   });
 
   describe('knowledge index sync status pass-through (background poll stops quietly)', () => {

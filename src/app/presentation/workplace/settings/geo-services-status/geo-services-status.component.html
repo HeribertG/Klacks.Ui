@@ -1,0 +1,51 @@
+<div id="geo-services-status-form">
+  <div id="geo-services-status-header" class="container-header">
+    {{ keys.title | translate }}
+  </div>
+
+  <div id="geo-services-status-line" class="container-line"></div>
+
+  <div class="geo-services-status-body first">
+    @if (loadFailed()) {
+      <div id="geo-services-status-load-failed" class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+        <span>{{ noticeKeys.loadFailed | translate }}</span>
+        <button id="geo-services-status-retry" type="button" class="btn btn-link p-0" (click)="retry()">
+          {{ noticeKeys.retry | translate }}
+        </button>
+      </div>
+    }
+
+    @if (config(); as config) {
+      <p id="geo-services-status-no-outbound" class="settings-hint">
+        {{ keys.noOutbound | translate }}:
+        <strong>{{ (config.noOutboundTraffic ? keys.enabled : keys.disabled) | translate }}</strong>
+      </p>
+
+      <table class="table table-sm geo-services-status-table">
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr [id]="'geo-services-status-' + row.id">
+              <td>{{ row.labelKey | translate }}</td>
+              <td>
+                <span [class.status-enabled]="row.enabled" [class.status-disabled]="!row.enabled">
+                  {{ (row.enabled ? keys.enabled : keys.disabled) | translate }}
+                </span>
+                @if (row.reasonKey) {
+                  <span class="status-reason">({{ row.reasonKey | translate }})</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (config.mapTiles.enabled && config.mapTiles.attribution) {
+        <p id="geo-services-status-attribution" class="settings-hint">
+          {{ keys.attribution | translate }}: {{ config.mapTiles.attribution }}
+        </p>
+      }
+    }
+
+    <p class="settings-hint">{{ keys.envHint | translate }}</p>
+  </div>
+</div>
