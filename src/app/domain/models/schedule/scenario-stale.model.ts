@@ -2,9 +2,9 @@
 
 /**
  * The server refuses to accept a scenario whose original plan changed after the scenario was created (another
- * scenario accepted in between, or edits by hand) with a 409 carrying this error code, because accepting would
- * overwrite those changes. It is neither the compliance block nor "not active": the client asks the user and retries
- * with overrideStale.
+ * scenario accepted in between, edits, seals or a background recalculation) with a 409 carrying this error code,
+ * because accepting would overwrite those changes. It is neither the compliance block nor "not active": the client
+ * asks the user and retries with overrideStale.
  */
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
