@@ -46,7 +46,7 @@ const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
 
 const GEO_SERVICES_URLS = [
   '/api/backend/GeoServicesConfig',
-  '/api/backend/Geocoding/Search?query=Bern&language=de',
+  '/api/backend/Geocoding/Search',
   '/api/backend/Routing/OsrmRoute',
 ];
 
@@ -349,6 +349,20 @@ describe('ResponseInterceptor', () => {
       expect(toastShowService.showInfo).not.toHaveBeenCalled();
       expect(navigationService.navigateToError).not.toHaveBeenCalled();
       expect(captured.status).toBe(status);
+    });
+
+    it.each(
+      GEO_SERVICES_URLS.flatMap((url) =>
+        [BAD_REQUEST, TOO_MANY_REQUESTS, SERVER_ERROR].map((response) => ({ url, ...response })),
+      ),
+    )('leaves the unsaved-changes flag and the spinner alone for a $status on $url', ({ url, status, statusText }) => {
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(url);
+
+      httpMock.expectOne(url).flush(null, { status, statusText });
+
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(workplaceStateService.showProgressSpinner).not.toHaveBeenCalled();
     });
   });
 

@@ -12,7 +12,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@a
 import { TranslateModule } from '@ngx-translate/core';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { IGeoServiceStatus } from 'src/app/domain/models/settings/geo-service-status.interface';
-import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/presentation/shared/geo-service-notice/geo-service-notice.component';
+import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
 
 export const GEO_SERVICES_STATUS_KEYS = {
   title: 'geoServices.status.title',

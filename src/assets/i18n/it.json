@@ -474,7 +474,6 @@
   "dashboard.locations.searchNotFound": "Indirizzo non trovato",
   "geoServices.notice.mapDisabled": "La mappa è stata disattivata dal gestore per questa installazione.",
   "geoServices.notice.geocodingDisabled": "La ricerca degli indirizzi è stata disattivata dal gestore per questa installazione.",
-  "geoServices.notice.routingDisabled": "Il calcolo del percorso è stato disattivato dal gestore per questa installazione; al suo posto vengono mostrate linee rette.",
   "geoServices.notice.loadFailed": "Impossibile caricare le impostazioni della mappa. Le mappe e la ricerca degli indirizzi restano disattivate finché non saranno disponibili.",
   "geoServices.notice.retry": "Riprova",
   "geoServices.search.unavailable": "La ricerca degli indirizzi non è al momento disponibile.",

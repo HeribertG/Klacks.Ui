@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { ClientType, DashboardClientsLocationsComponent } from './dashboard-clients-locations.component';
+import { ClientType, DashboardClientsLocationsComponent, LocationData } from './dashboard-clients-locations.component';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -25,6 +25,13 @@ const MAP_NOTICE_SELECTOR = 'app-geo-service-notice[service="map"]';
 const GEOCODING_NOTICE_SELECTOR = 'app-geo-service-notice[service="geocoding"]';
 const SEARCH_INPUT_SELECTOR = 'app-search-input';
 const STREET_VIEW_BUTTON_SELECTOR = '.location-card > .btn';
+const XSS_PAYLOAD = '<img src=x onerror=alert(1)>';
+
+interface MarkerRenderingAccess {
+  map: { fitBounds: ReturnType<typeof vi.fn>; remove: ReturnType<typeof vi.fn> };
+  markerClusterGroup: { clearLayers: ReturnType<typeof vi.fn>; addLayer: ReturnType<typeof vi.fn> };
+  loadMarkersOnMap(locations: LocationData[]): void;
+}
 
 const CLIENTS: IClientLocationResource[] = [
   { id: '1', type: ClientType.Customer, currentAddress: { city: 'Bern', country: 'CH', zip: '3000', latitude: 46.9, longitude: 7.4 } },
@@ -148,6 +155,37 @@ describe('DashboardClientsLocationsComponent', () => {
     expect(bern.count).toBe(3);
     expect(bern.latitude).toBeCloseTo(47.0);
     expect(bern.longitude).toBeCloseTo(7.5);
+  });
+
+  it('renders city and country of a marker popup as text, never as markup', async () => {
+    await setup();
+    const bindPopup = vi.fn();
+    vi.stubGlobal('L', { marker: vi.fn(() => ({ bindPopup })) });
+    const component = fixture.componentInstance as unknown as MarkerRenderingAccess;
+    component.map = { fitBounds: vi.fn(), remove: vi.fn() };
+    component.markerClusterGroup = { clearLayers: vi.fn(), addLayer: vi.fn() };
+
+    try {
+      component.loadMarkersOnMap([
+        {
+          city: XSS_PAYLOAD,
+          country: XSS_PAYLOAD,
+          count: 1,
+          employeeCount: 1,
+          externEmpCount: 0,
+          customerCount: 0,
+          latitude: 46.9,
+          longitude: 7.4,
+        },
+      ]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+
+    const popup = document.createElement('div');
+    popup.innerHTML = bindPopup.mock.calls[0][0] as string;
+    expect(popup.querySelector('img')).toBeNull();
+    expect(popup.querySelector('h4')?.textContent).toBe(`${XSS_PAYLOAD}, ${XSS_PAYLOAD}`);
   });
 
   it.each([GeocodingSearchStatus.Disabled, GeocodingSearchStatus.Unavailable])(

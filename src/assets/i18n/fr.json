@@ -474,7 +474,6 @@
   "dashboard.locations.searchNotFound": "Adresse introuvable",
   "geoServices.notice.mapDisabled": "La carte a été désactivée par l'exploitant pour cette installation.",
   "geoServices.notice.geocodingDisabled": "La recherche d'adresses a été désactivée par l'exploitant pour cette installation.",
-  "geoServices.notice.routingDisabled": "Le calcul d'itinéraire a été désactivé par l'exploitant pour cette installation ; des lignes droites sont affichées à la place.",
   "geoServices.notice.loadFailed": "Les paramètres de la carte n'ont pas pu être chargés. Les cartes et la recherche d'adresses restent désactivées tant qu'ils ne sont pas disponibles.",
   "geoServices.notice.retry": "Réessayer",
   "geoServices.search.unavailable": "La recherche d'adresses n'est pas disponible pour le moment.",

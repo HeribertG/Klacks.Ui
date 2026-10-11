@@ -475,7 +475,6 @@
   "dashboard.locations.searchNotFound": "Adresse nicht gefunden",
   "geoServices.notice.mapDisabled": "Die Karte ist für diese Installation vom Betreiber abgeschaltet.",
   "geoServices.notice.geocodingDisabled": "Die Adresssuche ist für diese Installation vom Betreiber abgeschaltet.",
-  "geoServices.notice.routingDisabled": "Die Routenberechnung ist für diese Installation vom Betreiber abgeschaltet; stattdessen werden gerade Linien angezeigt.",
   "geoServices.notice.loadFailed": "Die Karteneinstellungen konnten nicht geladen werden. Karten und Adresssuche bleiben ausgeschaltet, bis sie verfügbar sind.",
   "geoServices.notice.retry": "Erneut versuchen",
   "geoServices.search.unavailable": "Die Adresssuche ist zurzeit nicht verfügbar.",

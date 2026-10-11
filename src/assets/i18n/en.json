@@ -475,7 +475,6 @@
   "dashboard.locations.searchNotFound": "Address not found",
   "geoServices.notice.mapDisabled": "The map is switched off for this installation by the operator.",
   "geoServices.notice.geocodingDisabled": "Address search is switched off for this installation by the operator.",
-  "geoServices.notice.routingDisabled": "Route calculation is switched off for this installation by the operator; straight lines are shown instead.",
   "geoServices.notice.loadFailed": "The map settings could not be loaded. Maps and address search stay off until they are available.",
   "geoServices.notice.retry": "Try again",
   "geoServices.search.unavailable": "Address search is currently not available.",

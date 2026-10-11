@@ -11,6 +11,10 @@ export const GEO_SERVICES_CONFIG_PATH = 'GeoServicesConfig';
 
 export const GEOCODING_SEARCH_PATH = 'Geocoding/Search';
 
+export const GEOCODING_QUERY_MIN_LENGTH = 2;
+
+export const GEOCODING_QUERY_MAX_LENGTH = 200;
+
 export const ROUTING_DIRECTIONS_PATH = 'Routing/Directions';
 
 export const ROUTING_OSRM_ROUTE_PATH = 'Routing/OsrmRoute';

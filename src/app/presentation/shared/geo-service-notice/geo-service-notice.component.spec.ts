@@ -3,11 +3,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
-import {
-  GEO_SERVICE_NOTICE_KEYS,
-  GeoServiceNoticeComponent,
-  GeoServiceNoticeService,
-} from './geo-service-notice.component';
+import { GeoServiceNoticeComponent, GeoServiceNoticeService } from './geo-service-notice.component';
+import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 
@@ -61,20 +58,11 @@ describe('GeoServiceNoticeComponent', () => {
   it.each<[GeoServiceNoticeService, string]>([
     ['map', GEO_SERVICE_NOTICE_KEYS.mapDisabled],
     ['geocoding', GEO_SERVICE_NOTICE_KEYS.geocodingDisabled],
-    ['routing', GEO_SERVICE_NOTICE_KEYS.routingDisabled],
   ])('shows the operator notice for a disabled %s service', async (service, key) => {
     await setup(service);
 
     expect(find(DISABLED_SELECTOR)?.textContent?.trim()).toBe(key);
     expect(find(FAILED_SELECTOR)).toBeNull();
-  });
-
-  it('treats routing as available when only OpenRouteService is enabled', async () => {
-    config.openRouteServiceEnabled.set(true);
-
-    await setup('routing');
-
-    expect(find(DISABLED_SELECTOR)).toBeNull();
   });
 
   it('shows the load failure with a retry that reloads the configuration', async () => {

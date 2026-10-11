@@ -402,11 +402,11 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
     this.markerClusterGroup.clearLayers();
     const bounds: any[] = [];
-    const totalLabel = this.translateService.instant('dashboard.clients.total');
-    const clientsLabel = this.translateService.instant('dashboard.locations.clients');
-    const employeeLabel = this.translateService.instant('address.edit-address.membership.type.employee');
-    const externEmpLabel = this.translateService.instant('address.edit-address.membership.type.externEmp');
-    const customerLabel = this.translateService.instant('address.edit-address.membership.type.customer');
+    const totalLabel = this.translateEscaped('dashboard.clients.total');
+    const clientsLabel = this.translateEscaped('dashboard.locations.clients');
+    const employeeLabel = this.translateEscaped('address.edit-address.membership.type.employee');
+    const externEmpLabel = this.translateEscaped('address.edit-address.membership.type.externEmp');
+    const customerLabel = this.translateEscaped('address.edit-address.membership.type.customer');
 
     locations.forEach((location) => {
       if (location.latitude && location.longitude) {
@@ -414,7 +414,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
         const popupContent = `
           <div style="min-width: 200px;">
-            <h4 style="margin: 0 0 10px 0;">${location.city}, ${location.country}</h4>
+            <h4 style="margin: 0 0 10px 0;">${this.escapeHtml(location.city)}, ${this.escapeHtml(location.country)}</h4>
             <p style="margin: 5px 0;"><strong>${totalLabel}:</strong> ${location.count} ${clientsLabel}</p>
             ${location.employeeCount > 0 ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>${employeeLabel}:</strong> ${location.employeeCount}</p>` : ''}
             ${location.externEmpCount > 0 ? `<p style="margin: 5px 0; color: #6993ff;"><strong>${externEmpLabel}:</strong> ${location.externEmpCount}</p>` : ''}
@@ -530,7 +530,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     }
 
     const url = buildExternalMapLink(STREET_VIEW_LINK_TEMPLATE, latitude, longitude);
-    const label = this.translateService.instant(STREET_VIEW_LABEL_KEY);
+    const label = this.translateEscaped(STREET_VIEW_LABEL_KEY);
     return `
       <div style="margin-top: 10px;">
         <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="color: white;">
@@ -538,6 +538,10 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
         </a>
       </div>
     `;
+  }
+
+  private translateEscaped(key: string): string {
+    return this.escapeHtml(this.translateService.instant(key));
   }
 
   private escapeHtml(text: string): string {

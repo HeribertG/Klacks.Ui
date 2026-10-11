@@ -9,7 +9,7 @@
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
-import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/presentation/shared/geo-service-notice/geo-service-notice.component';
+import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
 import { GEO_SERVICES_STATUS_KEYS } from 'src/app/presentation/workplace/settings/geo-services-status/geo-services-status.component';
 
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'] as const;

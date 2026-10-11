@@ -1,31 +1,23 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Inline notice shown in place of a map, an address search or a route when the geo service behind it is
- * not available. A failed configuration load shows a warning with a retry button (fail-closed); a service
- * the operator switched off shows a permanent, non-dismissable info line; while the configuration is still
+ * Inline notice shown in place of a map or an address search when the geo service behind it is not
+ * available. A failed configuration load shows a warning with a retry button (fail-closed); a service the
+ * operator switched off shows a permanent, non-dismissable info line; while the configuration is still
  * loading or the service is active, nothing is rendered.
- * @param service - Which capability the notice stands in for: the map tiles, the geocoding search or routing
+ * @param service - Which capability the notice stands in for: the map tiles or the geocoding search
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
 
-export type GeoServiceNoticeService = 'map' | 'geocoding' | 'routing';
-
-export const GEO_SERVICE_NOTICE_KEYS = {
-  mapDisabled: 'geoServices.notice.mapDisabled',
-  geocodingDisabled: 'geoServices.notice.geocodingDisabled',
-  routingDisabled: 'geoServices.notice.routingDisabled',
-  loadFailed: 'geoServices.notice.loadFailed',
-  retry: 'geoServices.notice.retry',
-} as const;
+export type GeoServiceNoticeService = 'map' | 'geocoding';
 
 const DISABLED_KEY_BY_SERVICE: Record<GeoServiceNoticeService, string> = {
   map: GEO_SERVICE_NOTICE_KEYS.mapDisabled,
   geocoding: GEO_SERVICE_NOTICE_KEYS.geocodingDisabled,
-  routing: GEO_SERVICE_NOTICE_KEYS.routingDisabled,
 };
 
 @Component({
@@ -60,8 +52,6 @@ export class GeoServiceNoticeComponent {
         return this.geoServicesConfig.mapTilesEnabled();
       case 'geocoding':
         return this.geoServicesConfig.geocodingEnabled();
-      case 'routing':
-        return this.geoServicesConfig.routingEnabled() || this.geoServicesConfig.openRouteServiceEnabled();
     }
   }
 }
