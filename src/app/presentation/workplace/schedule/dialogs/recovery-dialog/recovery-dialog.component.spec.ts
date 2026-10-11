@@ -194,6 +194,19 @@ describe('RecoveryDialogComponent', () => {
     expect((component as any).selectedUntilDateStruct()).toBeNull();
   });
 
+  it('renders the calendar toggles as labelled buttons', async () => {
+    await component.open({ clientId: 'client-1', date: new Date(2026, 9, 6) });
+
+    const toggles = host.querySelectorAll('.recovery-calendar-toggle');
+
+    expect(toggles.length).toBe(2);
+    toggles.forEach((toggle) => {
+      expect(toggle.tagName).toBe('BUTTON');
+      expect(toggle.getAttribute('type')).toBe('button');
+      expect(toggle.getAttribute('aria-label')).toBeTruthy();
+    });
+  });
+
   it('defaults the day to today while today lies inside the visible period', async () => {
     await component.open();
 

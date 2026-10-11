@@ -15,6 +15,14 @@
   color: var(--colorLabel);
 }
 
+.recovery-field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
 .recovery-selected-employee {
   font-weight: 600;
   color: var(--standartTextColor);

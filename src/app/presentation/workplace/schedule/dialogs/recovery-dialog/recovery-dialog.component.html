@@ -166,8 +166,8 @@
       <p class="recovery-description">{{ 'recovery.dialog.description' | translate }}</p>
 
       <div class="form-group">
-        <label class="form-label" id="recovery-client-label">{{ 'recovery.dialog.employee' | translate }}</label>
-        <div id="recovery-client" class="recovery-selected-employee" aria-labelledby="recovery-client-label">
+        <span class="form-label recovery-field-label" id="recovery-client-label">{{ 'recovery.dialog.employee' | translate }}</span>
+        <div id="recovery-client" class="recovery-selected-employee" role="group" aria-labelledby="recovery-client-label">
           {{ selectedClientLabel() }}
         </div>
       </div>
@@ -186,9 +186,14 @@
               (ngModelChange)="onDateChange($event)"
               [attr.aria-label]="'recovery.dialog.date' | translate"
             />
-            <span class="input-group-text recovery-calendar-toggle" (click)="recoveryDate.toggle()">
+            <button
+              type="button"
+              class="input-group-text recovery-calendar-toggle"
+              [attr.aria-label]="'recovery.dialog.date' | translate"
+              (click)="recoveryDate.toggle()"
+            >
               <fa-icon [icon]="faCalendar"></fa-icon>
-            </span>
+            </button>
           </div>
         </div>
         <div class="col form-group">
@@ -204,9 +209,14 @@
               (ngModelChange)="onUntilDateChange($event)"
               [attr.aria-label]="'recovery.dialog.untilDate' | translate"
             />
-            <span class="input-group-text recovery-calendar-toggle" (click)="recoveryUntilDate.toggle()">
+            <button
+              type="button"
+              class="input-group-text recovery-calendar-toggle"
+              [attr.aria-label]="'recovery.dialog.untilDate' | translate"
+              (click)="recoveryUntilDate.toggle()"
+            >
               <fa-icon [icon]="faCalendar"></fa-icon>
-            </span>
+            </button>
           </div>
           <div class="form-text">{{ 'recovery.dialog.untilDateHint' | translate }}</div>
         </div>
