@@ -65,11 +65,23 @@ describe('DataAnalyseScenarioService', () => {
     });
 
     it('should append overrideBlock query param when requested', () => {
-      service.accept('scenario-1', true).subscribe();
+      service.accept('scenario-1', { overrideBlock: true, overrideStale: false }).subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/scenario-1/Accept?overrideBlock=true`);
       expect(req.request.method).toBe('POST');
       req.flush(null);
+    });
+
+    it('should append overrideStale query param when requested', () => {
+      service.accept('scenario-1', { overrideBlock: false, overrideStale: true }).subscribe();
+
+      httpMock.expectOne(`${baseUrl}/scenario-1/Accept?overrideStale=true`).flush(null);
+    });
+
+    it('should append both override params when both are acknowledged', () => {
+      service.accept('scenario-1', { overrideBlock: true, overrideStale: true }).subscribe();
+
+      httpMock.expectOne(`${baseUrl}/scenario-1/Accept?overrideBlock=true&overrideStale=true`).flush(null);
     });
   });
 

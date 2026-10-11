@@ -13,6 +13,9 @@ import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constan
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { SCENARIO_NOT_ACTIVE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-not-active.model';
+import { SCENARIO_STALE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-stale.model';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 
 interface OpenModalOptions {
   type: ModalType;
@@ -23,6 +26,7 @@ interface OpenModalOptions {
 describe('ScenarioActionsService', () => {
   const GROUP_ID = 'group-1';
   const scenario = { id: 'scenario-1', token: 'token-1', name: 'Plan A' } as IAnalyseScenario;
+  const NO_OVERRIDES = { overrideBlock: false, overrideStale: false };
 
   let held: Set<string>;
   let modalService: { openModal: ReturnType<typeof vi.fn> };
@@ -54,8 +58,12 @@ describe('ScenarioActionsService', () => {
         { provide: ToastShowService, useValue: toastShowService },
         {
           provide: TranslateService,
-          useValue: { instant: (key: string, params?: Record<string, string>) => (params ? `${key}:${params['name']}` : key) },
+          useValue: {
+            instant: (key: string, params?: Record<string, unknown>) =>
+              params ? `${key}:${Object.values(params).join('|')}` : key,
+          },
         },
+        { provide: LocaleService, useValue: { getLocale: () => 'de-CH' } },
       ],
     });
 
@@ -91,7 +99,7 @@ describe('ScenarioActionsService', () => {
       expect(lastModal().message).toBe('scenario.accept.confirm:Plan A');
 
       lastModal().onConfirm();
-      expect(scenarioService.acceptScenario).toHaveBeenCalledWith('scenario-1');
+      expect(scenarioService.acceptScenario).toHaveBeenCalledWith('scenario-1', NO_OVERRIDES);
     });
 
     it('asks before rejecting and only rejects once confirmed', () => {
@@ -169,7 +177,7 @@ describe('ScenarioActionsService', () => {
 
       scenarioService.acceptScenario.mockReturnValue(of(undefined));
       lastModal().onConfirm();
-      expect(scenarioService.acceptScenario).toHaveBeenLastCalledWith('scenario-1', true);
+      expect(scenarioService.acceptScenario).toHaveBeenLastCalledWith('scenario-1', { overrideBlock: true, overrideStale: false });
     });
 
     it('offers the confirmed override to an admin', () => {
@@ -184,6 +192,125 @@ describe('ScenarioActionsService', () => {
       // Assert
       expect(modalService.openModal).toHaveBeenCalledTimes(2);
       expect(toastShowService.showError).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('a stale scenario (the original plan changed after it was created)', () => {
+    const stale = (acceptedScenarioNames: string[] = ['Plan B']): HttpErrorResponse =>
+      conflict({
+        detail: 'stale',
+        errorCode: SCENARIO_STALE_ERROR_CODE,
+        changedEntryCount: 3,
+        lastChangeUtc: '2026-04-20T10:00:00Z',
+        acceptedScenarioNames,
+      });
+
+    beforeEach(() => setCompanyTimeZone('UTC'));
+    afterEach(() => setCompanyTimeZone(null));
+
+    it('asks before overwriting the newer changes and names what changed', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => stale()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(modalService.openModal).toHaveBeenCalledTimes(2);
+      const message = lastModal().message;
+      expect(message).toContain('scenario.accept.staleMessage:3|');
+      expect(message).toContain('20.04.2026');
+      expect(message).toContain('10:00');
+      expect(message).toContain('scenario.accept.staleAcceptedScenarios:Plan B');
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+    });
+
+    it('accepts again with only the stale acknowledgement once confirmed', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => stale()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(2);
+      expect(scenarioService.acceptScenario).toHaveBeenLastCalledWith('scenario-1', {
+        overrideBlock: false,
+        overrideStale: true,
+      });
+    });
+
+    it('leaves out the accepted-scenarios line when none were accepted', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => stale([])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(lastModal().message).not.toContain('scenario.accept.staleAcceptedScenarios');
+    });
+
+    it('shows the stale warning to a planer too, it is not a supervisor right', () => {
+      // Arrange
+      held.add(PERMISSIONS.CanEditSchedule);
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => stale()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(modalService.openModal).toHaveBeenCalledTimes(2);
+      expect(lastModal().message).toContain('scenario.accept.staleMessage');
+    });
+
+    it('still shows the compliance block after the stale confirmation and keeps both acknowledgements', () => {
+      // Arrange
+      held.add(ROLE_AUTHORISED);
+      scenarioService.acceptScenario
+        .mockReturnValueOnce(throwError(() => stale()))
+        .mockReturnValueOnce(throwError(() => conflict({ detail: 'blocked' })))
+        .mockReturnValueOnce(of(undefined));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(modalService.openModal).toHaveBeenCalledTimes(3);
+      expect(lastModal().message).toBe('blocked');
+
+      lastModal().onConfirm();
+      expect(scenarioService.acceptScenario).toHaveBeenLastCalledWith('scenario-1', {
+        overrideBlock: true,
+        overrideStale: true,
+      });
+    });
+
+    it('never offers the compliance override for the stale conflict itself', () => {
+      // Arrange
+      held.add(ROLE_ADMIN);
+      scenarioService.acceptScenario.mockReturnValueOnce(throwError(() => stale()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(lastModal().message).not.toBe('stale');
+      expect(lastModal().message).toContain('scenario.accept.staleMessage');
     });
   });
 

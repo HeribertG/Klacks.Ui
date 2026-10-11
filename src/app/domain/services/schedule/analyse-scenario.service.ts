@@ -20,6 +20,8 @@ import {
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';
+import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
+import { NO_SCENARIO_ACCEPT_OVERRIDES } from 'src/app/domain/models/schedule/scenario-stale.model';
 
 @Injectable({
   providedIn: 'root',
@@ -75,8 +77,8 @@ export class AnalyseScenarioService {
     );
   }
 
-  acceptScenario(id: string, overrideBlock = false): Observable<void> {
-    return this.dataService.accept(id, overrideBlock).pipe(
+  acceptScenario(id: string, overrides: IScenarioAcceptOverrides = NO_SCENARIO_ACCEPT_OVERRIDES): Observable<void> {
+    return this.dataService.accept(id, overrides).pipe(
       tap(() => {
         this.scenarios.update(list => list.filter(s => s.id !== id));
         this.activeScenario.set(null);
