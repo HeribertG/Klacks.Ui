@@ -31,6 +31,7 @@ import {
 } from './scrollbar.service';
 import { CheckContext } from 'src/app/domain/services/check-context.decorator';
 import { SCROLLBAR_CONSTANTS } from './constants';
+import { maxScrollValue } from './scroll-range.helper';
 import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import {
   Subject,
@@ -121,7 +122,7 @@ export class ScrollbarComponent
   }
 
   set value(newValue: number) {
-    const upper = (this.maxValue ?? 0) - (this.visibleValue ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+    const upper = maxScrollValue(this.maxValue ?? 0, this.visibleValue ?? 0);
     const clampedValue = Math.max(
       0,
       Math.min(

@@ -179,7 +179,6 @@ export class ScheduleSectionComponent
   refreshTrigger = input(false);
 
   horizontalSizeChange = output<number>();
-  hScrollPositionChange = output<number>();
 
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
@@ -251,7 +250,6 @@ export class ScheduleSectionComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
         this.hScrollService.setPosition(value);
-        this.hScrollPositionChange.emit(value);
       });
 
     this.scheduleHScrollbar().maxValueChange
@@ -372,7 +370,6 @@ export class ScheduleSectionComponent
     this.hScrollbar.value = dayBefore;
     this.scrollService.horizontalScrollPosition = dayBefore;
     this.hScrollService.forceSetPosition(dayBefore);
-    this.hScrollPositionChange.emit(dayBefore);
 
     const innerScrollbar = this.scheduleHScrollbar()?.scrollbar();
     if (innerScrollbar) {
@@ -431,6 +428,18 @@ export class ScheduleSectionComponent
     }));
   }
 
+
+  onSurfaceHScroll(value: number): void {
+    const position = this.hScrollService.requestPosition(value);
+    if (this.hScrollbar.value !== position) {
+      this.hScrollbar.value = position;
+    }
+  }
+
+  onMaxValueHScrollbarChange(value: number): void {
+    this.hScrollbar.maxValue = value;
+    this.hScrollService.setMaxValue(value);
+  }
 
   onVisibleValueHScrollbarChange(value: number): void {
     this.hScrollbar.visibleValue = value;

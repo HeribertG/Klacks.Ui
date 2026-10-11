@@ -154,7 +154,6 @@ export class ShiftSectionComponent
   horizontalSize = input(0);
   zoom = input(1.0);
   refreshTrigger = input(false);
-  hScrollPosition = input(0);
 
   public activeTab: 'shifts' | 'errors' = 'shifts';
 
@@ -210,10 +209,7 @@ export class ShiftSectionComponent
   }
 
   onHScrollChange(value: number): void {
-    if (this.hScrollService.isLocked()) {
-      return;
-    }
-    this.hScrollService.setPosition(value);
+    this.hScrollService.requestPosition(value);
   }
 
   private updateScrollbarSizes() {
@@ -340,9 +336,10 @@ export class ShiftSectionComponent
 
   private wireHScrollPositionEffect(): void {
     this.effects.push(effect(() => {
-      const position = this.hScrollPosition();
+      const position = this.hScrollService.horizontalPosition();
       this.hScrollPositionValue = position;
       this.scrollService.horizontalScrollPosition = position;
+      this.cdr.markForCheck();
     }));
   }
 

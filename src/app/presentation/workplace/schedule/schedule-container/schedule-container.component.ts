@@ -55,7 +55,6 @@ export class ScheduleContainerComponent {
   readonly zoom = input(1.0);
   readonly refreshTrigger = input(false);
   public horizontalSize = 205;
-  public hScrollPosition = 0;
   public IsInfoVisible = false;
 
   direction = inject(DirectionService).direction;
@@ -82,10 +81,6 @@ export class ScheduleContainerComponent {
 
   onHorizontalSizeChange(newSize: number): void {
     this.horizontalSize = newSize;
-  }
-
-  onHScrollPositionChange(position: number): void {
-    this.hScrollPosition = position;
   }
 
   onDocumentMouseMove(event: MouseEvent): void {
