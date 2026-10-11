@@ -3331,6 +3331,7 @@
   "schedule.compliance.reasonShort.compensatoryRestDue": "Repos compensatoire dû",
   "schedule.compliance.reasonShort.compensatoryRestOverdue": "Repos compensatoire en retard",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Plage horaire restreinte violée",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Poste absent du nouveau scénario",
   "schedule.compliance.reasonShort.other": "Règle de conformité violée",
   "schedule.scenario.accept.blockedTitle": "Scénario bloqué",
   "schedule.scenario.accept.overrideConfirmTitle": "Confirmer le dépassement superviseur",

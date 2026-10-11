@@ -48,6 +48,12 @@ describe('SkippedPlacementsReportComponent', () => {
       .toBe('schedule.compliance.reasonShort.overtime');
   });
 
+  it('maps a placement on a shift without a clone in the new scenario to its own label key', () => {
+    const component = TestBed.createComponent(SkippedPlacementsReportComponent).componentInstance;
+    expect(component.reasonLabelKey({ clientId: '', date: '', shiftId: null, reasonKey: 'schedule.error-list.shift-not-in-scenario' }))
+      .toBe('schedule.compliance.reasonShort.shiftNotInScenario');
+  });
+
   it('falls back to the generic label key for an unknown reasonKey', () => {
     const component = TestBed.createComponent(SkippedPlacementsReportComponent).componentInstance;
     expect(component.reasonLabelKey({ clientId: '', date: '', shiftId: null, reasonKey: 'schedule.error-list.unknown-key' }))

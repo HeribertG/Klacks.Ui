@@ -76,6 +76,7 @@ describe('RecoveryDialogComponent', () => {
   let modalClose: ReturnType<typeof vi.fn>;
   let coverAbsence: ReturnType<typeof vi.fn>;
   let selectScenario: ReturnType<typeof vi.fn>;
+  let activeToken: ReturnType<typeof signal<string | null>>;
   let readDatas: ReturnType<typeof vi.fn>;
   let scenarios: ReturnType<typeof signal<IAnalyseScenario[]>>;
   let schedule: { clients: unknown[]; periodStartDate: Date | null; periodEndDate: Date | null; workFilter: { selectedGroup: string }; readDatas: ReturnType<typeof vi.fn> };
@@ -110,6 +111,7 @@ describe('RecoveryDialogComponent', () => {
     showError = vi.fn();
     coverAbsence = vi.fn().mockReturnValue(of(outcome));
     selectScenario = vi.fn();
+    activeToken = signal<string | null>(null);
     readDatas = vi.fn();
     scenarios = signal<IAnalyseScenario[]>([]);
     isSupervisor = true;
@@ -130,7 +132,7 @@ describe('RecoveryDialogComponent', () => {
           provide: DataRecoveryService,
           useValue: { coverAbsence, updateRequestOutcome, getCandidates, recordRequest, getRequests },
         },
-        { provide: AnalyseScenarioService, useValue: { scenarios, selectScenario } },
+        { provide: AnalyseScenarioService, useValue: { scenarios, selectScenario, activeToken } },
         { provide: DataManagementScheduleService, useValue: schedule },
         { provide: ToastShowService, useValue: { showError } },
         {
@@ -248,6 +250,25 @@ describe('RecoveryDialogComponent', () => {
     expect(scenarios().map((s) => s.id)).toEqual(['scenario-1']);
     expect(readDatas).toHaveBeenCalled();
     expect((component as any).result()).toEqual(outcome);
+  });
+
+  it('builds the cover on the real plan when no scenario is active', async () => {
+    await component.open({ clientId: 'client-1', date: new Date(2026, 9, 6) });
+    (component as any).formModel.update((model: any) => ({ ...model, selectedAbsenceId: SICK_ABSENCE_ID }));
+
+    await component.onSubmit();
+
+    expect(coverAbsence.mock.calls[0][0].analyseToken).toBeUndefined();
+  });
+
+  it('builds the cover on the active scenario by sending its token', async () => {
+    activeToken.set('source-token');
+    await component.open({ clientId: 'client-1', date: new Date(2026, 9, 6) });
+    (component as any).formModel.update((model: any) => ({ ...model, selectedAbsenceId: SICK_ABSENCE_ID }));
+
+    await component.onSubmit();
+
+    expect(coverAbsence).toHaveBeenCalledWith(expect.objectContaining({ analyseToken: 'source-token' }));
   });
 
   it('passes the roster flag through when the planner ticks it', async () => {

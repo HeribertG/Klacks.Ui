@@ -37,6 +37,15 @@ describe('DataRecoveryService', () => {
     await promise;
   });
 
+  it('posts the scenario token the cover is built on', async () => {
+    const promise = firstValueFrom(service.coverAbsence({ ...REQUEST, analyseToken: 'token-1' }));
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('Recovery/CoverAbsence'));
+    expect(request.request.body.analyseToken).toBe('token-1');
+    request.flush({ scenarioId: 'scenario-1' });
+    await promise;
+  });
+
   it('omits the language when none is given', async () => {
     const promise = firstValueFrom(service.coverAbsence(REQUEST));
 

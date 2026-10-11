@@ -3333,6 +3333,7 @@
   "schedule.compliance.reasonShort.compensatoryRestDue": "Ausgleichsruhe fällig",
   "schedule.compliance.reasonShort.compensatoryRestOverdue": "Ausgleichsruhe überfällig",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Gesperrtes Zeitfenster verletzt",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Schicht nicht im neuen Szenario",
   "schedule.compliance.reasonShort.other": "Compliance-Regel verletzt",
   "schedule.scenario.accept.blockedTitle": "Szenario blockiert",
   "schedule.scenario.accept.overrideConfirmTitle": "Supervisor-Override bestätigen",

@@ -37,6 +37,11 @@ export interface ICoverAbsenceRequest {
   language?: string;
   /** When the absence was reported (ISO UTC); the server uses "now" when omitted. */
   reportedAtUtc?: string;
+  /**
+   * Token of the scenario the planner works in; the server builds the cover on that scenario (a copy of it plus the
+   * absence) instead of the real plan. Omit in the original plan.
+   */
+  analyseToken?: string;
 }
 
 export interface ICoveredSlot {
