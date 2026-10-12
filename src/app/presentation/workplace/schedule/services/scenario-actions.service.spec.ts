@@ -356,9 +356,11 @@ describe('ScenarioActionsService', () => {
   describe('entries on locked days', () => {
     const acceptResult = (skippedLockedTotal: number): IScenarioAcceptResult => ({
       accepted: true,
-      skippedLockedWorks: skippedLockedTotal,
+      skippedLockedWorks: 0,
       skippedLockedBreaks: 0,
       skippedLockedNotes: 0,
+      skippedLockedWorkChanges: 0,
+      skippedLockedExpenses: skippedLockedTotal,
       skippedLockedTotal,
     });
 

@@ -90,7 +90,9 @@ describe('DataAnalyseScenarioService', () => {
         skippedLockedWorks: 2,
         skippedLockedBreaks: 1,
         skippedLockedNotes: 0,
-        skippedLockedTotal: 3,
+        skippedLockedWorkChanges: 1,
+        skippedLockedExpenses: 2,
+        skippedLockedTotal: 6,
       };
       let received: unknown;
       service.accept('scenario-1').subscribe((result) => (received = result));

@@ -92,9 +92,7 @@ export class ScenarioActionsService {
   }
 
   private reportLockedSkips(result: IScenarioAcceptResult | null): void {
-    const skipped = result
-      ? (result.skippedLockedWorks ?? 0) + (result.skippedLockedBreaks ?? 0) + (result.skippedLockedNotes ?? 0)
-      : 0;
+    const skipped = result?.skippedLockedTotal ?? 0;
     if (skipped <= 0) return;
 
     this.toastShowService.showInfo(
