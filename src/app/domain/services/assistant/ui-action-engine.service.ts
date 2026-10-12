@@ -23,6 +23,21 @@ const POLL_INTERVAL = 200;
 const DEFAULT_DELAY = 500;
 const SEARCH_DELAY = 500;
 const ALL_GROUPS_VALUES = ['all', 'alle', 'alle gruppen', 'all groups', '*'];
+const API_PATH_SEPARATOR_PATTERN = /[/\\]+/;
+const API_CALL_DENIED_PATH_SEGMENTS = [
+  'assistant',
+  'skills',
+  'accounts',
+  'settings',
+  'generalsettings',
+  'oauth2',
+  'identityproviders',
+  'personal-access-tokens',
+  'bot-tokens',
+  'erp-import-tokens',
+  'internal',
+  'admin',
+];
 
 @Injectable({ providedIn: 'root' })
 export class UiActionEngineService {
@@ -318,9 +333,14 @@ export class UiActionEngineService {
     if (!resolvedUrl) {
       throw new Error('apiCall action requires apiUrl');
     }
-    if (!this.isSameOriginUrl(resolvedUrl)) {
+    const parsedUrl = this.parseSameOriginUrl(resolvedUrl);
+    if (!parsedUrl) {
       throw new Error('apiCall action only accepts same-origin or relative URLs');
     }
+    if (this.isDeniedApiPath(parsedUrl.pathname)) {
+      throw new Error('apiCall action target path is not allowed');
+    }
+    const requestUrl = `${parsedUrl.pathname}${parsedUrl.search}`;
 
     const method = (step.apiMethod || 'GET').toUpperCase();
     const body = this.resolveApiBody(step.apiBody, context);
@@ -328,19 +348,19 @@ export class UiActionEngineService {
     let response$;
     switch (method) {
       case 'GET':
-        response$ = this.http.get(resolvedUrl);
+        response$ = this.http.get(requestUrl);
         break;
       case 'POST':
-        response$ = this.http.post(resolvedUrl, body ?? null);
+        response$ = this.http.post(requestUrl, body ?? null);
         break;
       case 'PUT':
-        response$ = this.http.put(resolvedUrl, body ?? null);
+        response$ = this.http.put(requestUrl, body ?? null);
         break;
       case 'DELETE':
-        response$ = this.http.delete(resolvedUrl);
+        response$ = this.http.delete(requestUrl);
         break;
       case 'PATCH':
-        response$ = this.http.patch(resolvedUrl, body ?? null);
+        response$ = this.http.patch(requestUrl, body ?? null);
         break;
       default:
         throw new Error(`apiCall action does not support HTTP method '${method}'`);
@@ -389,14 +409,26 @@ export class UiActionEngineService {
     return resolved;
   }
 
-  private isSameOriginUrl(url: string): boolean {
-    if (url.startsWith('/')) return true;
+  private parseSameOriginUrl(url: string): URL | null {
     try {
       const parsed = new URL(url, window.location.origin);
-      return parsed.origin === window.location.origin;
+      return parsed.origin === window.location.origin ? parsed : null;
     } catch {
-      return false;
+      return null;
     }
+  }
+
+  private isDeniedApiPath(pathname: string): boolean {
+    let decodedPath: string;
+    try {
+      decodedPath = decodeURIComponent(pathname);
+    } catch {
+      return true;
+    }
+    return decodedPath
+      .toLowerCase()
+      .split(API_PATH_SEPARATOR_PATTERN)
+      .some(segment => API_CALL_DENIED_PATH_SEGMENTS.includes(segment));
   }
 
   private async executeSearch(step: IUiActionStep, context: IUiActionContext): Promise<void> {

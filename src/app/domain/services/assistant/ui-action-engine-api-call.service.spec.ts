@@ -79,6 +79,64 @@ describe('UiActionEngineService apiCall', () => {
     await expect(service.executeConfig(config, context)).rejects.toThrow(/same-origin/);
   });
 
+  const runApiCall = (apiUrl: string, apiMethod = 'GET') =>
+    service.executeConfig(
+      { steps: [{ action: 'apiCall', apiUrl, apiMethod }] },
+      { params: {}, results: {}, callId: 'c' },
+    );
+
+  it('accepts a same-origin absolute URL and requests it as a relative path', async () => {
+    const promise = runApiCall(`${window.location.origin}/api/backend/Clients/1?x=2`);
+
+    const req = httpMock.expectOne('/api/backend/Clients/1?x=2');
+    req.flush({});
+
+    await promise;
+  });
+
+  it.each([
+    ['protocol-relative URL', '//evil.example.com/x'],
+    ['absolute external URL', 'https://evil.example.com'],
+    ['backslash host escape', '/\\evil.example.com'],
+    ['backslash host escape with scheme', '\\\\evil.example.com/x'],
+    ['tab-obfuscated protocol-relative URL', '/\t/evil.example.com/x'],
+    ['javascript scheme', 'javascript:alert(1)'],
+  ])('rejects %s', async (_label, url) => {
+    await expect(runApiCall(url)).rejects.toThrow(/same-origin/);
+    httpMock.expectNone(() => true);
+  });
+
+  it.each([
+    '/api/backend/Assistant/chat',
+    '/api/backend/assistant/plans',
+    '/api/backend/Skills/execute',
+    '/api/backend/Accounts/LoginUser',
+    '/api/backend/Settings/anything',
+    '/api/backend/GeneralSettings/GetSettingsList',
+    '/api/backend/personal-access-tokens',
+    '/api/backend/OAuth2/token',
+    '/api/internal/Database/reset',
+    '/api/admin/klacksy-training',
+    '/assistant/chat',
+    '/api/backend/Clients/../Assistant/chat',
+    '/api/backend/%41ssistant/chat',
+    '/api/backend/Clients/%2e%2e/Skills/execute',
+    '/api/backend\\Skills\\execute',
+    `${window.location.origin}/api/backend/Accounts/LoginUser`,
+  ])('rejects denied target path %s', async url => {
+    await expect(runApiCall(url, 'POST')).rejects.toThrow(/target path is not allowed/);
+    httpMock.expectNone(() => true);
+  });
+
+  it('accepts a normal data path whose name merely contains a denied word', async () => {
+    const promise = runApiCall('/api/backend/Clients/1');
+
+    const req = httpMock.expectOne('/api/backend/Clients/1');
+    req.flush({});
+
+    await promise;
+  });
+
   it('posts apiBody with template substitution', async () => {
     const config: IUiActionConfig = {
       steps: [
