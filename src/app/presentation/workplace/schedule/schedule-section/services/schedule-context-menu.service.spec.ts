@@ -215,6 +215,16 @@ describe('ScheduleContextMenuService - expenses entry', () => {
     expect(keys).toContain('del');
   });
 
+  it('lets a planner edit and delete schedule notes and keyword commands, whose endpoints carry no role gate', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+
+    for (const entryType of [WorkScheduleEntryType.ScheduleNote, WorkScheduleEntryType.ScheduleCommand]) {
+      const keys = keysOf(entryType);
+      expect(keys).toContain('edit');
+      expect(keys).toContain('del');
+    }
+  });
+
   it('lets a planner delete a work change, whose endpoint carries no role gate', () => {
     held.add(PERMISSIONS.CanEditSchedule);
 
