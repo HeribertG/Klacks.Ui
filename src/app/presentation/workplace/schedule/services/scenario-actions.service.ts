@@ -10,6 +10,8 @@
  * - any other 409: the compliance block, which offers the authorised-only supervisor override (overrideBlock).
  * A 409 carrying the "scenario not active" code means the scenario was already decided elsewhere, so the list is
  * reloaded and the view returns to the original plan instead of offering an override that cannot succeed.
+ * After a successful accept, entries the backend did not take over because they fall on a locked day are reported
+ * in a toast with a warning icon and their number.
  * @param canDecide - Whether the signed-in user may accept or reject (schedule edit right)
  */
 
@@ -30,10 +32,13 @@ import {
 } from 'src/app/domain/models/schedule/scenario-stale.model';
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
 import { IScenarioStaleness } from 'src/app/domain/interfaces/scenario-staleness.interface';
+import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
+import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 
 const SCENARIO_NAME_SEPARATOR = ', ';
+const LOCKED_SKIPPED_TOAST_NAME = 'scenario-accept-locked-skipped';
 
 @Injectable({ providedIn: 'root' })
 export class ScenarioActionsService {
@@ -81,9 +86,23 @@ export class ScenarioActionsService {
 
   private accept(id: string, overrides: IScenarioAcceptOverrides): void {
     this.analyseScenarioService.acceptScenario(id, overrides).subscribe({
-      next: () => undefined,
+      next: (result) => this.reportLockedSkips(result),
       error: (err: HttpErrorResponse) => this.handleAcceptError(id, overrides, err),
     });
+  }
+
+  private reportLockedSkips(result: IScenarioAcceptResult | null): void {
+    const skipped = result
+      ? (result.skippedLockedWorks ?? 0) + (result.skippedLockedBreaks ?? 0) + (result.skippedLockedNotes ?? 0)
+      : 0;
+    if (skipped <= 0) return;
+
+    this.toastShowService.showInfo(
+      this.translateService.instant('scenario.accept.lockedSkipped', { count: skipped }),
+      LOCKED_SKIPPED_TOAST_NAME,
+      '',
+      TOAST_ICONS.WARNING,
+    );
   }
 
   private reject(id: string): void {

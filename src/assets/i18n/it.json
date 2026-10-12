@@ -3578,6 +3578,7 @@
   "scenario.accept.staleMessage": "La pianificazione è stata modificata dopo la creazione di questo scenario ({{count}} voci, ultima modifica {{lastChange}}). L'accettazione sostituisce il periodo dello scenario con il suo contenuto e sovrascrive queste modifiche.",
   "scenario.accept.staleAcceptedScenarios": "Scenari accettati da allora: {{names}}",
   "scenario.accept.staleConfirmButton": "Accetta comunque",
+  "scenario.accept.lockedSkipped": "Non acquisite perché il giorno o la voce è bloccato: {{count}} voci",
   "scenario.banner.hint": "Stai modificando uno scenario – la pianificazione originale resta invariata.",
   "scenario.banner.label": "Scenario:",
   "scenario.notActive": "Questo scenario è già stato accettato o rifiutato. L'elenco degli scenari è stato aggiornato.",

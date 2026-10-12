@@ -16,6 +16,8 @@ import { SCENARIO_NOT_ACTIVE_ERROR_CODE } from 'src/app/domain/models/schedule/s
 import { SCENARIO_STALE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-stale.model';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
+import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 
 interface OpenModalOptions {
   type: ModalType;
@@ -30,7 +32,7 @@ describe('ScenarioActionsService', () => {
 
   let held: Set<string>;
   let modalService: { openModal: ReturnType<typeof vi.fn> };
-  let toastShowService: { showError: ReturnType<typeof vi.fn> };
+  let toastShowService: { showError: ReturnType<typeof vi.fn>; showInfo: ReturnType<typeof vi.fn> };
   let scenarioService: {
     activeScenario: () => IAnalyseScenario | null;
     acceptScenario: ReturnType<typeof vi.fn>;
@@ -75,7 +77,7 @@ describe('ScenarioActionsService', () => {
   beforeEach(() => {
     held = new Set<string>();
     modalService = { openModal: vi.fn() };
-    toastShowService = { showError: vi.fn() };
+    toastShowService = { showError: vi.fn(), showInfo: vi.fn() };
     scenarioService = {
       activeScenario: () => scenario,
       acceptScenario: vi.fn().mockReturnValue(of(undefined)),
@@ -348,6 +350,58 @@ describe('ScenarioActionsService', () => {
       expect(toastShowService.showError).toHaveBeenCalledWith('scenario.notActive');
       expect(scenarioService.exitScenario).toHaveBeenCalled();
       expect(scenarioService.loadScenarios).toHaveBeenCalledWith(GROUP_ID);
+    });
+  });
+
+  describe('entries on locked days', () => {
+    const acceptResult = (skippedLockedTotal: number): IScenarioAcceptResult => ({
+      accepted: true,
+      skippedLockedWorks: skippedLockedTotal,
+      skippedLockedBreaks: 0,
+      skippedLockedNotes: 0,
+      skippedLockedTotal,
+    });
+
+    it('warns with the number of entries that were not taken over', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValue(of(acceptResult(3)));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(toastShowService.showInfo).toHaveBeenCalledTimes(1);
+      const [message, , , icon] = toastShowService.showInfo.mock.calls[0];
+      expect(message).toBe('scenario.accept.lockedSkipped:3');
+      expect(icon).toBe(TOAST_ICONS.WARNING);
+    });
+
+    it('shows nothing when every entry was taken over', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValue(of(acceptResult(0)));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(toastShowService.showInfo).not.toHaveBeenCalled();
+    });
+
+    it('shows nothing for an empty response of an older backend', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValue(of(null));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(toastShowService.showInfo).not.toHaveBeenCalled();
     });
   });
 

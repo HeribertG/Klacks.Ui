@@ -83,6 +83,22 @@ describe('DataAnalyseScenarioService', () => {
 
       httpMock.expectOne(`${baseUrl}/scenario-1/Accept?overrideBlock=true&overrideStale=true`).flush(null);
     });
+
+    it('should pass the number of entries not taken over on locked days through', () => {
+      const body = {
+        accepted: true,
+        skippedLockedWorks: 2,
+        skippedLockedBreaks: 1,
+        skippedLockedNotes: 0,
+        skippedLockedTotal: 3,
+      };
+      let received: unknown;
+      service.accept('scenario-1').subscribe((result) => (received = result));
+
+      httpMock.expectOne(`${baseUrl}/scenario-1/Accept`).flush(body);
+
+      expect(received).toEqual(body);
+    });
   });
 
   describe('getSummary', () => {

@@ -5,7 +5,8 @@
  * @param groupId - Group ID for filtering scenarios
  * @param id - Scenario ID for individual queries and actions
  * @param request - Request object for creating a new scenario
- * @param overrides - Acknowledgements for accept (supervisor compliance override, stale-scenario overwrite)
+ * @param overrides - Acknowledgements for accept (supervisor compliance override, stale-scenario overwrite); the accept
+ * answers with the number of entries not taken over because of a locked day
  */
 
 import { inject, Injectable } from '@angular/core';
@@ -18,6 +19,7 @@ import {
 } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
+import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { NO_SCENARIO_ACCEPT_OVERRIDES } from 'src/app/domain/models/schedule/scenario-stale.model';
 
 const OVERRIDE_BLOCK_PARAM = 'overrideBlock';
@@ -61,13 +63,13 @@ export class DataAnalyseScenarioService {
       .pipe(retry(3));
   }
 
-  accept(id: string, overrides: IScenarioAcceptOverrides = NO_SCENARIO_ACCEPT_OVERRIDES): Observable<void> {
+  accept(id: string, overrides: IScenarioAcceptOverrides = NO_SCENARIO_ACCEPT_OVERRIDES): Observable<IScenarioAcceptResult | null> {
     const flags = [
       overrides.overrideBlock ? `${OVERRIDE_BLOCK_PARAM}=true` : null,
       overrides.overrideStale ? `${OVERRIDE_STALE_PARAM}=true` : null,
     ].filter((flag): flag is string => flag !== null);
     const query = flags.length > 0 ? `?${flags.join('&')}` : '';
-    return this.httpClient.post<void>(`${this.baseUrl}/${id}/Accept${query}`, {}).pipe(
+    return this.httpClient.post<IScenarioAcceptResult | null>(`${this.baseUrl}/${id}/Accept${query}`, {}).pipe(
       retry({
         count: 3,
         delay: (error: unknown) =>

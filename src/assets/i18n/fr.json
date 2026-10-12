@@ -3578,6 +3578,7 @@
   "scenario.accept.staleMessage": "Le planning a été modifié depuis la création de ce scénario ({{count}} entrées, dernière modification {{lastChange}}). L'acceptation remplace la période du scénario par son contenu et écrase ces modifications.",
   "scenario.accept.staleAcceptedScenarios": "Scénarios acceptés depuis : {{names}}",
   "scenario.accept.staleConfirmButton": "Accepter quand même",
+  "scenario.accept.lockedSkipped": "Non repris parce que le jour ou l'entrée est verrouillé : {{count}} entrées",
   "scenario.banner.hint": "Vous modifiez un scénario – le planning original reste inchangé.",
   "scenario.banner.label": "Scénario :",
   "scenario.notActive": "Ce scénario a déjà été accepté ou rejeté. La liste des scénarios a été actualisée.",
