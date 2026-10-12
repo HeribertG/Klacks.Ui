@@ -45,6 +45,12 @@
             }}
           </div>
 
+          @if ((data.expensesWithChangedEmployee ?? 0) > 0) {
+            <div id="scenario-summary-expenses-changed-employee" class="summary-warning" role="alert">
+              {{ 'scenarioSummary.expensesWithChangedEmployee' | translate: { count: data.expensesWithChangedEmployee } }}
+            </div>
+          }
+
           @if (data.shifts.length > 0) {
             <h5 class="summary-section-title">{{ 'scenarioSummary.shiftsTitle' | translate }}</h5>
             <table id="scenario-summary-shifts" class="summary-table">

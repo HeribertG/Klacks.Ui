@@ -44,6 +44,17 @@ $section-gap: 16px;
   color: var(--standartRedColor);
 }
 
+.summary-warning {
+  margin-block-end: $section-gap;
+  padding: $cell-padding-block $cell-padding-inline;
+  border: 1px solid var(--alertWarningBorder);
+  border-inline-start: 4px solid var(--colorWarning);
+  border-radius: 4px;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  font-weight: 500;
+}
+
 .summary-section-title {
   margin-block: $section-gap 8px;
   font-size: 14px;

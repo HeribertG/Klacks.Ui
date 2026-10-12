@@ -14,4 +14,5 @@ export interface ScenarioSummary {
   openSlots: number;
   shifts: ScenarioShiftCoverage[];
   openSlotReasons: ScenarioOpenSlotReason[];
+  expensesWithChangedEmployee?: number;
 }

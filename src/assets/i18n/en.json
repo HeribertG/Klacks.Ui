@@ -4560,6 +4560,7 @@
   "scenarioSummary.col.open": "Open",
   "scenarioSummary.reasonsTitle": "Reasons for open slots",
   "scenarioSummary.reasonCount": "Open: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Expenses and allowances on a shift of another person: {{count}} – please check.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "No employees in the group",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "No active contract",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "No employee works on this weekday (contract)",

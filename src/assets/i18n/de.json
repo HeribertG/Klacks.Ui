@@ -4560,6 +4560,7 @@
   "scenarioSummary.col.open": "Offen",
   "scenarioSummary.reasonsTitle": "Gründe für offene Plätze",
   "scenarioSummary.reasonCount": "Offen: {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Spesen und Vergütungen an einem Dienst einer anderen Person: {{count}} – bitte prüfen.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Keine Mitarbeiter in der Gruppe",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Kein aktiver Vertrag",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Kein Mitarbeiter arbeitet an diesem Wochentag (Vertrag)",

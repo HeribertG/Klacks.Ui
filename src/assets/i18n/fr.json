@@ -4552,6 +4552,7 @@
   "scenarioSummary.col.open": "Ouverts",
   "scenarioSummary.reasonsTitle": "Raisons des postes ouverts",
   "scenarioSummary.reasonCount": "Ouverts : {{count}}",
+  "scenarioSummary.expensesWithChangedEmployee": "Frais et indemnités rattachés à l'équipe d'une autre personne : {{count}} – veuillez vérifier.",
   "scenarioSummary.reason.NO_AGENT_IN_SCOPE": "Aucun employé dans le groupe",
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Aucun contrat actif",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Aucun employé ne travaille ce jour de la semaine (contrat)",

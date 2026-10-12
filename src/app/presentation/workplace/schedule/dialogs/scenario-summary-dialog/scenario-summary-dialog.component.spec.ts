@@ -3,12 +3,16 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, throwError } from 'rxjs';
 import { ScenarioSummaryDialogComponent } from './scenario-summary-dialog.component';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
+
+const TEST_LANGUAGE = 'en';
+const EXPENSES_NOTICE_KEY = 'scenarioSummary.expensesWithChangedEmployee';
+const EXPENSES_NOTICE_SELECTOR = '#scenario-summary-expenses-changed-employee';
 
 describe('ScenarioSummaryDialogComponent', () => {
   const scenario = { id: 'scenario-1', token: 'token-1', name: 'Oktober Variante B' } as IAnalyseScenario;
@@ -105,6 +109,53 @@ describe('ScenarioSummaryDialogComponent', () => {
     // Assert
     expect(modal('#scenario-summary-total')).not.toBeNull();
     expect(modal('#scenario-summary-reasons')).toBeNull();
+  });
+
+  it('warns with the count when expenses now sit on a work of another employee', () => {
+    // Arrange
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(TEST_LANGUAGE, { [EXPENSES_NOTICE_KEY]: 'Moved: {{count}}' });
+    translate.use(TEST_LANGUAGE);
+    const pending = new Subject<ScenarioSummary>();
+    loadSummary.mockReturnValue(pending);
+    dialog.open(scenario);
+
+    // Act
+    pending.next({ ...summary, expensesWithChangedEmployee: 4 });
+    TestBed.tick();
+
+    // Assert
+    expect(modal(EXPENSES_NOTICE_SELECTOR)?.textContent?.trim()).toBe('Moved: 4');
+  });
+
+  it('shows no moved-expenses warning when the count is zero', () => {
+    // Arrange
+    const pending = new Subject<ScenarioSummary>();
+    loadSummary.mockReturnValue(pending);
+    dialog.open(scenario);
+
+    // Act
+    pending.next({ ...summary, expensesWithChangedEmployee: 0 });
+    TestBed.tick();
+
+    // Assert
+    expect(modal('#scenario-summary-total')).not.toBeNull();
+    expect(modal(EXPENSES_NOTICE_SELECTOR)).toBeNull();
+  });
+
+  it('shows no moved-expenses warning when the backend sends no count', () => {
+    // Arrange
+    const pending = new Subject<ScenarioSummary>();
+    loadSummary.mockReturnValue(pending);
+    dialog.open(scenario);
+
+    // Act
+    pending.next(summary);
+    TestBed.tick();
+
+    // Assert
+    expect(modal('#scenario-summary-total')).not.toBeNull();
+    expect(modal(EXPENSES_NOTICE_SELECTOR)).toBeNull();
   });
 
   it('says that no summary exists when the backend does not know the scenario', () => {

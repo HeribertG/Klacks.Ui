@@ -35,6 +35,7 @@ const SUMMARY_KEYS = [
   'scenarioSummary.col.open',
   'scenarioSummary.reasonsTitle',
   'scenarioSummary.reasonCount',
+  'scenarioSummary.expensesWithChangedEmployee',
   ...REASON_KEYS,
 ] as const;
 const ALL_KEYS = [TOAST_KEY, TOAST_NO_REASON_KEY, ...SUMMARY_KEYS];
@@ -68,13 +69,14 @@ describe('scenario summary translations', () => {
     });
   });
 
-  it.each(CORE_LANGUAGES)('interpolates the summary total and the reason count in %s', (language) => {
+  it.each(CORE_LANGUAGES)('interpolates the summary total, the reason count and the moved-expenses notice in %s', (language) => {
     const translations = byLanguage.get(language)!;
 
     ['{{filled}}', '{{demanded}}', '{{open}}'].forEach((placeholder) => {
       expect(translations['scenarioSummary.total'], `${language}: ${placeholder}`).toContain(placeholder);
     });
     expect(translations['scenarioSummary.reasonCount']).toContain('{{count}}');
+    expect(translations['scenarioSummary.expensesWithChangedEmployee']).toContain('{{count}}');
   });
 
   it.each(NON_ENGLISH_CORE_LANGUAGES)('does not fall back to the English text in %s', (language) => {
