@@ -157,3 +157,67 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
     expect(keysOf(buildContext(WorkScheduleEntryType.Work, 1))).not.toContain('coverAbsence');
   });
 });
+
+describe('ScheduleContextMenuService - expenses entry', () => {
+  let service: ScheduleContextMenuService;
+  let held: Set<string>;
+
+  beforeEach(() => {
+    held = new Set<string>();
+    const hasPermission = (permission: string): boolean => held.has(permission);
+
+    TestBed.configureTestingModule({
+      providers: [
+        ScheduleContextMenuService,
+        { provide: TranslateService, useValue: { currentLang: 'en', instant: (key: string) => key } },
+        { provide: BaseCellManipulationService, useValue: { hasClipboardData: () => false } },
+        { provide: DataManagementScheduleService, useValue: { shiftSchedules: [] } },
+        { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [] } },
+        { provide: WorkLockLevelService, useValue: { canUnconfirm: () => false, canConfirm: () => false } },
+        {
+          provide: AuthorizationService,
+          useValue: {
+            hasPermission,
+            hasAnyPermission: (...permissions: string[]) => permissions.some(hasPermission),
+          },
+        },
+      ],
+    });
+
+    service = TestBed.inject(ScheduleContextMenuService);
+  });
+
+  const keysOf = (entryType: WorkScheduleEntryType): string[] => {
+    const entry = new ScheduleCell();
+    entry.entryType = entryType;
+    entry.lockLevel = 0;
+    entry.isGroupRestricted = false;
+
+    return service
+      .createContextMenu({
+        row: 0,
+        column: 0,
+        entry,
+        dataService: {
+          isCellOutsideMembershipPeriod: () => false,
+          isCellOutsideGroupPeriod: () => false,
+        } as unknown as ScheduleDataService,
+      })
+      .list.map((item) => item.key);
+  };
+
+  it('lets a planner edit and delete an expense, whose endpoints carry no role gate', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+
+    const keys = keysOf(WorkScheduleEntryType.Expenses);
+
+    expect(keys).toContain('edit');
+    expect(keys).toContain('del');
+  });
+
+  it('lets a planner delete a work change, whose endpoint carries no role gate', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+
+    expect(keysOf(WorkScheduleEntryType.WorkChange)).toContain('del');
+  });
+});
