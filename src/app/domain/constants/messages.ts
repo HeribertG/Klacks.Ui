@@ -35,12 +35,6 @@ export class DomainMessages {
 
   public static NEW_ENTRY = 'neuer Eintrag';
   public static NOT_DEFINED = 'nicht definiert';
-  public static NOT_REGISTER_UPERCASECHARACTER =
-    'Passwörter müssen mindestens ein Zeichen in Großbuchstaben enthalten.';
-  public static NOT_REGISTER_DIGIT =
-    'Passwörter müssen mindestens eine Zahl haben.';
-  public static NOT_REGISTER_ALPHANUMERICCHARACTER =
-    'Passwörter müssen mindestens ein nicht alphabetisches Zeichen enthalten.';
   public static NOT_REGISTER = 'Konnte Account nicht speichern';
   public static REGISTER =
     'Die Account Daten wurden in der Zwischenablage gespeichert';

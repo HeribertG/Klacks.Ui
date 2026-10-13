@@ -14,6 +14,7 @@ import {
 } from 'src/app/domain/models/authentification-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { readAccountRegistrationRejectionReasons } from 'src/app/domain/helpers/account-registration-rejection.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -145,6 +146,10 @@ export class UserAdministrationManagementService {
           });
         });
     } else if (error.status === 400) {
+      // A rejected registration already got a toast with its translated reasons from the response interceptor.
+      if (readAccountRegistrationRejectionReasons(error) !== null) {
+        return;
+      }
       const errorKey = this.mapValidationErrorToI18nKey(error.error);
       this.eventBus.emit(DomainEventType.ERROR, {
         message: '',

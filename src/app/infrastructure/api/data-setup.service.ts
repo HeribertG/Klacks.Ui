@@ -11,6 +11,10 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { SetupOwnAdminRequest } from 'src/app/domain/models/setup/setup-own-admin-request.interface';
 import { SetupStatus } from 'src/app/domain/models/setup/setup-status.interface';
+import {
+  SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT,
+  SETUP_STATUS_API_SEGMENT,
+} from 'src/app/domain/constants/setup.constants';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -21,13 +25,13 @@ export class DataSetupService {
 
   getStatus(): Observable<SetupStatus> {
     return this.httpClient
-      .get<SetupStatus>(`${environment.baseUrl}Setup/Status`)
+      .get<SetupStatus>(`${environment.baseUrl}${SETUP_STATUS_API_SEGMENT}`)
       .pipe(retry(3));
   }
 
   completeOwnAdmin(value: SetupOwnAdminRequest): Observable<void> {
     return this.httpClient.post<void>(
-      `${environment.baseUrl}Setup/CompleteOwnAdmin`,
+      `${environment.baseUrl}${SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT}`,
       value
     );
   }

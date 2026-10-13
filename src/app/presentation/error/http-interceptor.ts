@@ -27,6 +27,14 @@ import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-impor
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
+import {
+  SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT,
+  SETUP_STATUS_API_SEGMENT,
+} from 'src/app/domain/constants/setup.constants';
+import {
+  accountRegistrationReasonKeys,
+  readAccountRegistrationRejectionReasons,
+} from 'src/app/domain/helpers/account-registration-rejection.helper';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -48,6 +56,17 @@ export class ResponseInterceptor implements HttpInterceptor {
     HttpStatusCode.NotFound,
     HttpStatusCode.Conflict,
   ];
+  private static readonly SETUP_OWN_ADMIN_PASS_THROUGH_STATUS_CODES = [
+    HttpStatusCode.BadRequest,
+    HttpStatusCode.Conflict,
+    HttpStatusCode.InternalServerError,
+  ];
+  private static readonly SETUP_STATUS_PASS_THROUGH_STATUS_CODES = [
+    HttpStatusCode.NotFound,
+    HttpStatusCode.InternalServerError,
+  ];
+  private static readonly REGISTRATION_TOAST_NAME = 'ACCOUNT_REGISTRATION';
+  private static readonly TOAST_LINE_BREAK = '\n';
 
   private static readonly ERROR_PATTERNS = {
     POSTCODE: 'PostcodeCh',
@@ -169,6 +188,13 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    // The own-admin setup page shows every failure of its submit inline (a rolled-back 500 included, so the operator
+    // can retry without losing the form), and both the setup gate and the page treat a failed status read as "no
+    // policy known"; a toast or the error page here would throw the setup form away.
+    if (this.isSetupOwnAdminPassThroughError(url, error.status)) {
+      return throwError(() => error);
+    }
+
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
       return throwError(() => error);
@@ -240,6 +266,15 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private isGeoServicesPassThrough(url: string): boolean {
     return GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS.some((path) => url.includes(path));
+  }
+
+  private isSetupOwnAdminPassThroughError(url: string, status: number): boolean {
+    return (
+      (url.includes(SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT) &&
+        ResponseInterceptor.SETUP_OWN_ADMIN_PASS_THROUGH_STATUS_CODES.includes(status)) ||
+      (url.includes(SETUP_STATUS_API_SEGMENT) &&
+        ResponseInterceptor.SETUP_STATUS_PASS_THROUGH_STATUS_CODES.includes(status))
+    );
   }
 
   private isKlacksyLearningPassThroughError(url: string, status: number): boolean {
@@ -469,36 +504,12 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private handleRegistrationError(error: HttpErrorResponse): Observable<never> {
-    let msg = DomainMessages.NOT_REGISTER + '\n\r';
+    const reasonTexts = accountRegistrationReasonKeys(readAccountRegistrationRejectionReasons(error) ?? []).map(
+      (key) => this.translateService.instant(key)
+    );
+    const msg = [DomainMessages.NOT_REGISTER, ...reasonTexts].join(ResponseInterceptor.TOAST_LINE_BREAK);
 
-    try {
-      const modelState = error.error?.modelState;
-      const errorMappings = [
-        {
-          check: modelState?.PasswordRequiresDigit?.errors?.length > 0,
-          message: DomainMessages.NOT_REGISTER_DIGIT,
-        },
-        {
-          check: modelState?.PasswordRequiresUpper?.errors?.length > 0,
-          message: DomainMessages.NOT_REGISTER_UPERCASECHARACTER,
-        },
-        {
-          check:
-            modelState?.PasswordRequiresNonAlphanumeric?.errors?.length > 0,
-          message: DomainMessages.NOT_REGISTER_ALPHANUMERICCHARACTER,
-        },
-      ];
-
-      errorMappings.forEach((mapping) => {
-        if (mapping.check) {
-          msg += mapping.message + '\n\r';
-        }
-      });
-    } catch (e) {
-      console.error('Error parsing registration validation errors:', e);
-    }
-
-    this.toastShowService.showInfo(msg, 'wrong passwordCharacter');
+    this.toastShowService.showInfo(msg, ResponseInterceptor.REGISTRATION_TOAST_NAME);
     return throwError(() => error);
   }
 

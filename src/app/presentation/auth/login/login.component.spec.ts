@@ -209,13 +209,13 @@ describe('LoginComponent', () => {
             const heading: HTMLElement | null = fixture.nativeElement.querySelector('h1');
 
             expect(heading).not.toBeNull();
-            expect(heading!.classList).toContain('login-title');
+            expect(heading!.classList).toContain('auth-title');
         });
 
         it('should not style the login title with the Bootstrap heading classes that ignore the theme', () => {
             fixture.detectChanges();
 
-            const heading: HTMLElement = fixture.nativeElement.querySelector('.login-title');
+            const heading: HTMLElement = fixture.nativeElement.querySelector('.auth-title');
 
             expect(heading.classList).not.toContain('h4');
             expect(fixture.nativeElement.querySelector('p.h4')).toBeNull();

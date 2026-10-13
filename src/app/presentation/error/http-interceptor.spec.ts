@@ -13,6 +13,11 @@ import { DataTranslationService } from 'src/app/infrastructure/api/translation/d
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService } from './work-conflict-message.service';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import {
+  ACCOUNT_REGISTRATION_REASONS,
+  ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
+} from 'src/app/domain/constants/account-registration.constants';
 
 const API_REQUEST_URL = '/api/backend/resource';
 const FOREIGN_REQUEST_URL = 'https://third-party.example.com/api/route';
@@ -43,6 +48,19 @@ const WORK_CONFLICT_MESSAGE = 'Anna Muster is missing the mandatory qualificatio
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
+
+const SETUP_COMPLETE_OWN_ADMIN_URL = '/api/backend/Setup/CompleteOwnAdmin';
+const SETUP_STATUS_URL = '/api/backend/Setup/Status';
+const REGISTER_USER_URL = '/api/backend/Accounts/RegisterUser/';
+const REGISTRATION_TOAST_NAME = 'ACCOUNT_REGISTRATION';
+const UNKNOWN_REASON_KEY = 'accountRegistration.reason.unknown';
+const registrationRejection = (reasons: string[]) => ({
+  title: 'Bad Request',
+  status: BAD_REQUEST.status,
+  detail: 'rejected',
+  errorCode: ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
+  reasons,
+});
 
 const GEO_SERVICES_URLS = [
   '/api/backend/GeoServicesConfig',
@@ -427,6 +445,84 @@ describe('ResponseInterceptor', () => {
       httpMock.expectOne(API_REQUEST_URL).flush(null, NOT_FOUND);
 
       expect(workplaceStateService.isDirty).toBe(false);
+    });
+  });
+
+  describe('own-admin setup pass-through (the setup page shows its errors inline)', () => {
+    it.each([
+      { body: registrationRejection([ACCOUNT_REGISTRATION_REASONS.PASSWORD_TOO_SHORT]), ...BAD_REQUEST },
+      { body: { title: 'Bad Request', errors: { FirstName: ['required'] } }, ...BAD_REQUEST },
+      { body: { title: 'Conflict' }, ...CONFLICT },
+    ])('neither toasts nor navigates for a $status', ({ body, status, statusText }) => {
+      const navigationService = TestBed.inject(NavigationService) as any;
+      const captured = expectRequestToFail(SETUP_COMPLETE_OWN_ADMIN_URL);
+
+      httpMock.expectOne(SETUP_COMPLETE_OWN_ADMIN_URL).flush(body, { status, statusText });
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(toastShowService.showInfo).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(status);
+    });
+
+    it('passes a rolled-back 500 through so the form stays and shows the error inline', () => {
+      const navigationService = TestBed.inject(NavigationService) as any;
+      const captured = expectRequestToFail(SETUP_COMPLETE_OWN_ADMIN_URL);
+
+      httpMock.expectOne(SETUP_COMPLETE_OWN_ADMIN_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+
+    it.each([NOT_FOUND, SERVER_ERROR])('passes a failed status read ($status) through without toast or error page', (failure) => {
+      const navigationService = TestBed.inject(NavigationService) as any;
+      const captured = expectRequestToFail(SETUP_STATUS_URL);
+
+      httpMock.expectOne(SETUP_STATUS_URL).flush(null, failure);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(toastShowService.showInfo).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(failure.status);
+    });
+  });
+
+  describe('rejected registration in the user administration', () => {
+    it('lists the translated reasons under the generic message', () => {
+      const captured = expectRequestToFail(REGISTER_USER_URL);
+
+      httpMock
+        .expectOne(REGISTER_USER_URL)
+        .flush(
+          registrationRejection([
+            ACCOUNT_REGISTRATION_REASONS.PASSWORD_REQUIRES_DIGIT,
+            ACCOUNT_REGISTRATION_REASONS.DUPLICATE_EMAIL,
+            'SomethingNewFromIdentity',
+          ]),
+          BAD_REQUEST
+        );
+
+      expect(toastShowService.showInfo).toHaveBeenCalledWith(
+        [
+          DomainMessages.NOT_REGISTER,
+          'accountRegistration.reason.PasswordRequiresDigit',
+          'accountRegistration.reason.DuplicateEmail',
+          UNKNOWN_REASON_KEY,
+        ].join('\n'),
+        REGISTRATION_TOAST_NAME
+      );
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
+    it('shows only the generic message when the 400 carries no rejection reasons', () => {
+      expectRequestToFail(REGISTER_USER_URL);
+
+      httpMock.expectOne(REGISTER_USER_URL).flush({ title: 'Bad Request' }, BAD_REQUEST);
+
+      expect(toastShowService.showInfo).toHaveBeenCalledWith(DomainMessages.NOT_REGISTER, REGISTRATION_TOAST_NAME);
     });
   });
 });

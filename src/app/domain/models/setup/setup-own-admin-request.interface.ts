@@ -3,7 +3,8 @@
 /**
  * Request body for POST Setup/CompleteOwnAdmin. Mirrors the backend's RegistrationResource
  * deliberately as its own interface rather than reusing IAuthentication, which carries fields
- * such as id/isAdmin/modelState that do not exist on this DTO.
+ * such as id/isAdmin/modelState that do not exist on this DTO. There is no user name: the server derives it
+ * itself and the new admin signs in with the email address.
  */
 export interface SetupOwnAdminRequest {
   appName: string;
@@ -14,5 +15,4 @@ export interface SetupOwnAdminRequest {
   password: string;
   sendEmail: boolean;
   title: string;
-  userName: string;
 }

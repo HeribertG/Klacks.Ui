@@ -9,6 +9,11 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+    ACCOUNT_REGISTRATION_REASONS,
+    ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
+} from 'src/app/domain/constants/account-registration.constants';
 
 describe('UserAdministrationManagementService', () => {
     let service: UserAdministrationManagementService;
@@ -134,6 +139,25 @@ describe('UserAdministrationManagementService', () => {
             expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
                 code: expect.any(String),
             }));
+        });
+
+        it('should not add an error event to a rejected registration the interceptor already reported', () => {
+            service = TestBed.inject(UserAdministrationManagementService);
+            const newAccount = { firstName: 'John', lastName: 'Doe', email: 'john@test.com' } as IAuthentication;
+            const rejection = new HttpErrorResponse({
+                status: 400,
+                error: {
+                    errorCode: ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
+                    reasons: [ACCOUNT_REGISTRATION_REASONS.DUPLICATE_EMAIL],
+                },
+            });
+            mockUserAdministrationService.addAccount.mockReturnValue(throwError(() => rejection));
+
+            service.addAccount(newAccount);
+
+            expect(mockEventBus.emit).not.toHaveBeenCalledWith(DomainEventType.ERROR, expect.anything());
+            expect(mockUserAdministrationService.requestPasswordReset).not.toHaveBeenCalled();
+            expect(service.isLoading()).toBe(false);
         });
     });
 

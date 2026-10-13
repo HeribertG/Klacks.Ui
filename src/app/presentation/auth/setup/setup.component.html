@@ -1,87 +1,147 @@
+<ng-template #errorLines let-keys>
+  @for (key of keys; track key) {
+    <span class="field-error-line">
+      <fa-icon [icon]="faCircleExclamation" aria-hidden="true"></fa-icon>
+      <span>{{ key | translate }}</span>
+    </span>
+  }
+</ng-template>
+
 <div class="background">
-  <div class="container first border-right border-bottom">
+  <div class="container first">
     <form (ngSubmit)="onSave()">
-      <p class="h4 big-gap-top center">{{ "setup.header" | translate }}</p>
-      <p class="intro">{{ "setup.intro" | translate }}</p>
+      <h1 class="auth-title">{{ "setup.header" | translate }}</h1>
+      <p class="intro first">{{ "setup.intro" | translate }}</p>
 
-      <div class="form-group first big-gap-top">
-        <label class="mylabel" for="setupForm-firstName">{{
-          "setup.firstName" | translate
-        }}</label>
+      <div class="setup-field first">
+        <label class="setup-label" [for]="fieldIds.firstName">{{ "setup.firstName" | translate }}</label>
         <input
           type="text"
           class="form-control"
-          id="setupForm-firstName"
+          autocomplete="given-name"
+          aria-required="true"
+          [id]="fieldIds.firstName"
           [formField]="setupForm.firstName"
+          [class.is-invalid]="fieldErrors().firstName.length > 0"
+          [attr.aria-invalid]="fieldErrors().firstName.length > 0 ? true : null"
+          [attr.aria-describedby]="fieldErrors().firstName.length > 0 ? errorIds.firstName : null"
         />
+        @if (fieldErrors().firstName.length > 0) {
+          <div class="field-error" [id]="errorIds.firstName">
+            <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: fieldErrors().firstName }" />
+          </div>
+        }
       </div>
 
-      <div class="form-group first">
-        <label class="mylabel" for="setupForm-lastName">{{
-          "setup.lastName" | translate
-        }}</label>
+      <div class="setup-field first">
+        <label class="setup-label" [for]="fieldIds.lastName">{{ "setup.lastName" | translate }}</label>
         <input
           type="text"
           class="form-control"
-          id="setupForm-lastName"
+          autocomplete="family-name"
+          aria-required="true"
+          [id]="fieldIds.lastName"
           [formField]="setupForm.lastName"
+          [class.is-invalid]="fieldErrors().lastName.length > 0"
+          [attr.aria-invalid]="fieldErrors().lastName.length > 0 ? true : null"
+          [attr.aria-describedby]="fieldErrors().lastName.length > 0 ? errorIds.lastName : null"
         />
+        @if (fieldErrors().lastName.length > 0) {
+          <div class="field-error" [id]="errorIds.lastName">
+            <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: fieldErrors().lastName }" />
+          </div>
+        }
       </div>
 
-      <div class="form-group first">
-        <label class="mylabel" for="setupForm-email">{{
-          "setup.email" | translate
-        }}</label>
+      <div class="setup-field first">
+        <label class="setup-label" [for]="fieldIds.email">{{ "setup.email" | translate }}</label>
         <input
           type="email"
           class="form-control"
-          id="setupForm-email"
+          autocomplete="email"
+          aria-required="true"
+          [id]="fieldIds.email"
           [formField]="setupForm.email"
+          [class.is-invalid]="fieldErrors().email.length > 0"
+          [attr.aria-invalid]="fieldErrors().email.length > 0 ? true : null"
+          [attr.aria-describedby]="fieldErrors().email.length > 0 ? errorIds.email : null"
         />
+        @if (fieldErrors().email.length > 0) {
+          <div class="field-error" [id]="errorIds.email">
+            <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: fieldErrors().email }" />
+          </div>
+        }
       </div>
 
-      <div class="form-group first">
-        <label class="mylabel" for="setupForm-userName">{{
-          "setup.userName" | translate
-        }}</label>
-        <input
-          type="text"
-          class="form-control"
-          id="setupForm-userName"
-          [formField]="setupForm.userName"
-        />
-      </div>
-
-      <div class="form-group first">
+      <div class="setup-field first">
+        <label class="setup-label" [for]="fieldIds.password">{{ "setup.password" | translate }}</label>
         <div class="input-group">
-          <label class="mylabel" for="setupForm-password">{{
-            "setup.password" | translate
-          }}</label>
           <app-password-input
             [value]="setupFormModel().password"
             (valueChange)="updatePassword($event)"
-            inputId="setupForm-password"
-            inputClass="input-password"
+            [inputId]="fieldIds.password"
             autocomplete="new-password"
+            [required]="true"
+            [invalid]="passwordInvalid()"
+            [describedBy]="passwordDescribedBy()"
           />
         </div>
+        @if (fieldErrors().password.length > 0) {
+          <div class="field-error" [id]="errorIds.password">
+            <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: fieldErrors().password }" />
+          </div>
+        }
+        @if (passwordRules().length > 0) {
+          <div class="password-rules" [id]="passwordRulesId">
+            <span class="password-rules-title" [id]="passwordRulesTitleId">{{ "setup.passwordRules" | translate }}</span>
+            <ul class="password-rules-list" [attr.aria-labelledby]="passwordRulesTitleId">
+              @for (rule of passwordRules(); track rule.id) {
+                <li class="password-rule" [class.met]="rule.met" [class.unmet-error]="showUnmetRulesAsErrors() && !rule.met">
+                  <span class="password-rule-state" role="checkbox" aria-readonly="true" [attr.aria-checked]="rule.met">
+                    <fa-icon class="password-rule-icon" [icon]="rule.met ? faCheck : faXmark" aria-hidden="true"></fa-icon>
+                    <span>{{ rule.labelKey | translate: { count: requiredLength() } }}</span>
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
       </div>
 
-      <div class="center">
-        <button
-          type="submit"
-          class="btn btn-primary center"
-          id="setup-submit"
-          [disabled]="isSaving()"
-        >
+      <div class="setup-field first">
+        <label class="setup-label" [for]="fieldIds.passwordConfirm">{{ "setup.passwordConfirm" | translate }}</label>
+        <div class="input-group">
+          <app-password-input
+            [value]="setupFormModel().passwordConfirm"
+            (valueChange)="updatePasswordConfirm($event)"
+            [inputId]="fieldIds.passwordConfirm"
+            autocomplete="new-password"
+            [required]="true"
+            [invalid]="fieldErrors().passwordConfirm.length > 0"
+            [describedBy]="fieldErrors().passwordConfirm.length > 0 ? errorIds.passwordConfirm : null"
+          />
+        </div>
+        @if (fieldErrors().passwordConfirm.length > 0) {
+          <div class="field-error" [id]="errorIds.passwordConfirm">
+            <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: fieldErrors().passwordConfirm }" />
+          </div>
+        }
+      </div>
+
+      @if (generalErrorKeys().length > 0) {
+        <div class="general-error first" role="alert" tabindex="-1" [id]="generalErrorId">
+          <ng-container *ngTemplateOutlet="errorLines; context: { $implicit: generalErrorKeys() }" />
+        </div>
+      }
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="setup-submit" [disabled]="isSaving()">
           @if (isSaving()) {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span class="spinner-border spinner-border-sm spinner-gap" role="status" aria-hidden="true"></span>
           }
           {{ "setup.submit" | translate }}
         </button>
       </div>
-
-      <p></p>
     </form>
   </div>
 </div>

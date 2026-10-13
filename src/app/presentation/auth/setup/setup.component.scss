@@ -1,59 +1,103 @@
 @use "../../../../assets/standard-styles/colors.scss";
-
-$setup-background: "../../../../assets/png/login-background.png" !default;
-
-.background {
-  display: flex;
-  background-image: url(#{$setup-background});
-  background-size: cover;
-  height: 100vh;
-}
-
-.container {
-  background-color: var(--backgroundColorCard);
-  align-self: center;
-  display: flex;
-  justify-content: flex-start space-around;
-  flex-direction: column;
-  border-radius: 5px;
-  width: 600px;
-  max-width: 600px;
-  min-width: 600px;
-  box-sizing: border-box;
-}
-
-.big-gap-top {
-  padding-top: 40px;
-}
+@use "../../../../assets/standard-styles/required-field.scss";
+@use "../auth-card";
 
 .intro {
-  padding-inline-start: 50px;
-  padding-inline-end: 50px;
-  color: var(--colorNeutral);
-  font-size: 14px;
+  margin-bottom: 0;
+  color: var(--colorLabel);
+  font-size: var(--fontSizeBase);
+}
+
+.setup-field {
+  margin-top: 16px;
+}
+
+.setup-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--colorLabel);
 }
 
 input {
   height: var(--controlHeight);
 }
 
-label {
-  width: 341px;
+.field-error,
+.general-error {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+  color: var(--alertDangerText);
+  font-size: var(--fontSizeLabel);
 }
 
-.first {
-  padding-inline-start: 50px;
-  padding-inline-end: 50px;
+.general-error {
+  margin-top: 20px;
+
+  &:focus {
+    outline: 2px solid var(--colorFocus);
+    outline-offset: 2px;
+  }
 }
 
-.center {
-  margin-top: 10px;
-  margin-bottom: 15px;
+.field-error-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  text-align: start;
+}
+
+.password-rules {
+  margin-top: 8px;
+  color: var(--colorLabel);
+  font-size: var(--fontSizeLabel);
+}
+
+.password-rules-title {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.password-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.password-rule {
+  color: var(--colorLabel);
+
+  &.met {
+    color: var(--alertSuccessText);
+  }
+
+  &.unmet-error {
+    color: var(--alertDangerText);
+  }
+}
+
+.password-rule-state {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  text-align: start;
+}
+
+.password-rule-icon {
+  flex: 0 0 auto;
+  width: 1em;
+}
+
+.actions {
+  margin-top: 20px;
+  margin-bottom: 24px;
   text-align: center;
 }
 
-.input-password {
-  border-start-start-radius: 5px !important;
-  border-end-start-radius: 5px !important;
-  width: 355px;
+.spinner-gap {
+  margin-inline-end: 0.5rem;
 }

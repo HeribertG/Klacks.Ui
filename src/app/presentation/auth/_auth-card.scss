@@ -1,0 +1,47 @@
+// Shared look of the card pages shown before sign-in (login, own-admin setup): background image, centred card
+// that fits narrow screens and scrolls when it is taller than the viewport, and the themed page title.
+// The url() is relative to this partial; the Angular Sass importer rebases it for each component stylesheet.
+
+.background {
+  display: flex;
+  height: 100vh;
+  overflow-y: auto;
+  padding-block: 1rem;
+  box-sizing: border-box;
+  background-image: url("../../../assets/png/login-background.png");
+  background-size: cover;
+}
+
+.container {
+  background-color: var(--backgroundColorCard);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  width: min(600px, calc(100% - 2rem));
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.auth-title {
+  margin: 40px 0 15px;
+  font-size: var(--fontSizeHeadline);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+  color: var(--colorHeadline);
+}
+
+.first {
+  padding-inline-start: 50px;
+  padding-inline-end: 50px;
+}
+
+@media (max-width: 640px) {
+  .first {
+    padding-inline-start: 20px;
+    padding-inline-end: 20px;
+  }
+}

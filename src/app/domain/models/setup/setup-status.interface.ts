@@ -3,6 +3,9 @@
 /**
  * Response body for GET Setup/Status.
  */
+import { PasswordPolicy } from './password-policy.interface';
+
 export interface SetupStatus {
   requiresOwnAdmin: boolean;
+  passwordPolicy: PasswordPolicy;
 }
