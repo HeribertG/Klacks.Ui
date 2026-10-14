@@ -54,6 +54,12 @@ describe('SkippedPlacementsReportComponent', () => {
       .toBe('schedule.compliance.reasonShort.shiftNotInScenario');
   });
 
+  it('maps a placement outside the membership or group period to its own label key', () => {
+    const component = TestBed.createComponent(SkippedPlacementsReportComponent).componentInstance;
+    expect(component.reasonLabelKey({ clientId: '', date: '', shiftId: null, reasonKey: 'schedule.error-list.outside-planning-period' }))
+      .toBe('schedule.compliance.reasonShort.outsidePlanningPeriod');
+  });
+
   it('falls back to the generic label key for an unknown reasonKey', () => {
     const component = TestBed.createComponent(SkippedPlacementsReportComponent).componentInstance;
     expect(component.reasonLabelKey({ clientId: '', date: '', shiftId: null, reasonKey: 'schedule.error-list.unknown-key' }))

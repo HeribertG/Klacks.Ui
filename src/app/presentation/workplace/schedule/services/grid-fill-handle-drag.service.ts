@@ -3,7 +3,8 @@
 /**
  * Service for controlling the fill handle drag logic in the schedule grid.
  * Manages start, update, end, and visual representation of the fill handle drag
- * as well as automatic edge scrolling and data adoption (Work/Break).
+ * as well as automatic edge scrolling and data adoption (Work/Break). Like paste and drag-and-drop, it never fills a
+ * cell outside the employee's membership or group period (the backend refuses the whole bulk request for such a cell).
  * @param fillHandleService - State management of the fill handle drag
  * @param gridData - Abstract grid data source (cast to ScheduleDataService)
  * @param gridSettings - Grid display settings (cell size, zoom, header)
@@ -317,7 +318,7 @@ export class GridFillHandleDragService {
         continue;
       }
 
-      if (scheduleDataService.isCellOutsideMembershipPeriod(result.row, col)) {
+      if (this.isCellOutsidePlanningPeriod(scheduleDataService, result.row, col)) {
         continue;
       }
 
@@ -379,7 +380,7 @@ export class GridFillHandleDragService {
         continue;
       }
 
-      if (scheduleDataService.isCellOutsideMembershipPeriod(result.row, col)) {
+      if (this.isCellOutsidePlanningPeriod(scheduleDataService, result.row, col)) {
         continue;
       }
 
@@ -428,6 +429,13 @@ export class GridFillHandleDragService {
     if (entriesToAdd.length > 0) {
       await this.dataManagementSchedule.bulkAddWorkScheduleEntries(entriesToAdd);
     }
+  }
+
+  private isCellOutsidePlanningPeriod(scheduleDataService: ScheduleDataService, row: number, col: number): boolean {
+    return (
+      scheduleDataService.isCellOutsideMembershipPeriod(row, col) ||
+      scheduleDataService.isCellOutsideGroupPeriod(row, col)
+    );
   }
 
   private isOverFillHandle(event: MouseEvent, selectedPos: MyPosition): boolean {

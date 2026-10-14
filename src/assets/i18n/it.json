@@ -3344,6 +3344,7 @@
   "schedule.compliance.reasonShort.compensatoryRestOverdue": "Riposo compensativo scaduto",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Fascia oraria riservata violata",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Turno non presente nel nuovo scenario",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Fuori dal periodo di adesione o di gruppo",
   "schedule.compliance.reasonShort.other": "Regola di conformità violata",
   "schedule.scenario.accept.blockedTitle": "Scenario bloccato",
   "schedule.scenario.accept.overrideConfirmTitle": "Conferma override del supervisore",

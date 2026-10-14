@@ -3346,6 +3346,7 @@
   "schedule.compliance.reasonShort.compensatoryRestOverdue": "Compensatory rest overdue",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Restricted time window violated",
   "schedule.compliance.reasonShort.shiftNotInScenario": "Shift not in the new scenario",
+  "schedule.compliance.reasonShort.outsidePlanningPeriod": "Outside membership or group period",
   "schedule.compliance.reasonShort.other": "Compliance rule violated",
   "schedule.scenario.accept.blockedTitle": "Scenario blocked",
   "schedule.scenario.accept.overrideConfirmTitle": "Confirm supervisor override",

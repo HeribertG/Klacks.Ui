@@ -2,7 +2,8 @@
 
 /**
  * Shared read-only report listing wizard placements that were skipped because they would have
- * violated a Block-mode compliance rule, or because a scenario built on a scenario had no clone of their shift. The backend's SkippedPlacementDto carries only a bare
+ * violated a Block-mode compliance rule, because a scenario built on a scenario had no clone of their shift, or because
+ * the day lies outside the employee's membership or group period. The backend's SkippedPlacementDto carries only a bare
  * translation key without interpolation params, so reasons are shown as short category labels
  * instead of the full interpolated sentence used elsewhere for the same key.
  * @param entries - The skipped placements to display; the report renders nothing when empty
@@ -32,6 +33,7 @@ const REASON_SHORT_LABEL_KEYS: Record<string, string> = {
   'schedule.error-list.compensatory-rest-overdue': 'schedule.compliance.reasonShort.compensatoryRestOverdue',
   'schedule.error-list.restricted-time-window': 'schedule.compliance.reasonShort.restrictedTimeWindow',
   'schedule.error-list.shift-not-in-scenario': 'schedule.compliance.reasonShort.shiftNotInScenario',
+  'schedule.error-list.outside-planning-period': 'schedule.compliance.reasonShort.outsidePlanningPeriod',
 };
 
 @Component({
