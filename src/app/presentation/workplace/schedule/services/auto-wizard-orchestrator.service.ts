@@ -11,6 +11,10 @@
  * @param isRunning - True while any run exists (waiting for the schedule data or running on the server)
  * @param isRunningForCurrentGroup - True while the run belongs to the currently selected group
  * @param runningElsewhereGroupName - Group name of a run that belongs to another group, else null
+ * @param isStartBlocked - True while the own run exists or the server reports a run (of anyone) for the shown group
+ *   and period; a start is then ignored, so a second planner cannot start a parallel run on the same plan
+ * @param busyGroupName - Group name for the busy tooltip: the own run's group when it runs elsewhere, else the shown
+ *   group while a run is visible for it, else null
  */
 
 import { Injectable, computed, effect, inject } from '@angular/core';
@@ -55,6 +59,15 @@ export class AutoWizardOrchestratorService {
   );
   readonly isRunningForCurrentGroup = this.tracker.isRunningForCurrentGroup;
   readonly runningElsewhereGroupName = this.tracker.runningElsewhereGroupName;
+  readonly isStartBlocked = computed(() => this.isRunning() || this.autofillRunPresence.isRunningForCurrentView());
+  readonly busyGroupName = computed(() => {
+    const elsewhere = this.tracker.runningElsewhereGroupName();
+    if (elsewhere !== null) {
+      return elsewhere;
+    }
+    this.dataManagementSchedule.isRead();
+    return this.autofillRunPresence.isRunningForCurrentView() ? this.tracker.currentGroupName() : null;
+  });
 
   constructor() {
     effect(() => {
@@ -69,7 +82,7 @@ export class AutoWizardOrchestratorService {
   }
 
   async start(): Promise<void> {
-    if (this.isRunning()) return;
+    if (this.isStartBlocked()) return;
 
     const scope = this.captureScope();
     this.tracker.begin(scope);

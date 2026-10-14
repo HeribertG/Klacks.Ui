@@ -122,10 +122,10 @@
           id="schedule-wizard-btn"
           type="button"
           class="icon-button wizard-button"
-          [class.disabled]="isAutoWizardRunning()"
+          [class.disabled]="isAutoWizardStartBlocked()"
           (click)="onAutoWizardClick()"
-          [ngbTooltip]="autoWizardRunningElsewhereGroupName() !== null
-            ? ('autoWizard.runningForGroupTooltip' | translate: { group: autoWizardRunningElsewhereGroupName() })
+          [ngbTooltip]="autoWizardBusyGroupName() !== null
+            ? ('autoWizard.runningForGroupTooltip' | translate: { group: autoWizardBusyGroupName() })
             : ('autoWizard.tooltip' | translate)"
         >
           @if (isAutoWizardRunningForCurrentGroup()) {

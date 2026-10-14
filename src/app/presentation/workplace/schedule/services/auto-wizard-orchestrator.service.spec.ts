@@ -21,6 +21,7 @@ import { CollisionDetectionService } from 'src/app/domain/services/schedule/coll
 import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 
 const selectedGroupId = signal<string | undefined>(undefined);
+const presenceRunningForView = signal(false);
 const visibleEntity = signal<string>(EntityName.SCHEDULE);
 
 beforeEach(() => {
@@ -43,7 +44,10 @@ beforeEach(() => {
         },
       },
       { provide: ENTITY_STATE_PROVIDER_TOKEN, useValue: { nameOfVisibleEntity: visibleEntity } },
-      { provide: AutofillRunPresenceService, useValue: { refresh: vi.fn() } },
+      {
+        provide: AutofillRunPresenceService,
+        useValue: { refresh: vi.fn(), isRunningForCurrentView: presenceRunningForView },
+      },
     ],
   });
 });
@@ -212,6 +216,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
 
   function setup(options: { awaitFullyLoaded?: () => Promise<unknown>; resume?: Mock } = {}): Harness {
     selectedGroupId.set(JOB_GROUP);
+    presenceRunningForView.set(false);
     const schedule = {
       periodStartDate: new Date(2026, 5, 1),
       periodEndDate: new Date(2026, 5, 7),
@@ -238,7 +243,10 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     TestBed.configureTestingModule({
       providers: [
         { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
-        { provide: AutofillRunPresenceService, useValue: { refresh: refreshPresence } },
+        {
+          provide: AutofillRunPresenceService,
+          useValue: { refresh: refreshPresence, isRunningForCurrentView: presenceRunningForView },
+        },
         { provide: DataAutoWizardService, useValue: wizard },
         { provide: DataManagementScheduleService, useValue: schedule },
         {
@@ -355,6 +363,47 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
 
     // Assert
     expect(h.refreshPresence).not.toHaveBeenCalled();
+  });
+
+  it('ignores a start while the server reports a run of another planner for the shown group and period', async () => {
+    // Arrange
+    const h = setup();
+    presenceRunningForView.set(true);
+
+    // Act
+    await h.orchestrator.start();
+
+    // Assert
+    expect(h.wizard.start).not.toHaveBeenCalled();
+    expect(h.orchestrator.isStartBlocked()).toBe(true);
+    expect(h.orchestrator.busyGroupName()).toBe('Name-g1');
+  });
+
+  it('is not blocked and names no group while no run is visible', () => {
+    // Arrange
+    const h = setup();
+
+    // Act
+    const blocked = h.orchestrator.isStartBlocked();
+
+    // Assert
+    expect(blocked).toBe(false);
+    expect(h.orchestrator.busyGroupName()).toBeNull();
+  });
+
+  it('names the group of the own run when it runs elsewhere, even while another run is visible here', async () => {
+    // Arrange
+    const h = setup();
+    await h.orchestrator.start();
+    h.wizard.status.set('running');
+    selectedGroupId.set(OTHER_GROUP);
+
+    // Act
+    presenceRunningForView.set(true);
+
+    // Assert
+    expect(h.orchestrator.busyGroupName()).toBe('Name-g1');
+    expect(h.orchestrator.isStartBlocked()).toBe(true);
   });
 
   it('shows the spinner only on the group the run belongs to', async () => {
