@@ -30,5 +30,6 @@ export interface IEscalationChainSummary {
   shiftStartUtc: string | null;
   deadlineUtc: string;
   canAcknowledge: boolean;
+  canCancel: boolean;
   stages: IEscalationStageSummary[];
 }

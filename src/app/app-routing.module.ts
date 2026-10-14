@@ -151,8 +151,6 @@ export const routes: Routes = [
           import('./presentation/workplace/escalations/escalation-intervention-list/escalation-intervention-list.component').then(
             (m) => m.EscalationInterventionListComponent,
           ),
-        canActivate: [permissionGuard],
-        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: ROLE_ADMIN },
       },
       {
         path: 'group',

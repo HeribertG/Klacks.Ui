@@ -8,7 +8,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { DataManagementEscalationChainService } from 'src/app/domain/services/assistant/data-management-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -42,14 +42,14 @@ describe('HeaderComponent - escalations visibility', () => {
     held = new Set<string>();
   });
 
-  it('hides the escalations entry for a planer or a supervisor without the admin role', () => {
+  it('hides the escalations entry for a user without the schedule view right', () => {
     const component = createComponent();
 
     expect(component.canViewEscalations()).toBe(false);
   });
 
-  it('shows the escalations entry for an admin', () => {
-    held.add(ROLE_ADMIN);
+  it('shows the escalations entry for every user with the schedule view right', () => {
+    held.add(PERMISSIONS.CanViewSchedule);
     const component = createComponent();
 
     expect(component.canViewEscalations()).toBe(true);

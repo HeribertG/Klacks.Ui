@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Admin page for the escalation intervention list: every currently Running escalation chain, who
- * was woken, who acknowledged, and the two actions that resolve a chain - "übernehmen" (only shown
- * when the viewer currently holds the Notified stage on that specific chain) and "abbrechen" (Owner
- * decision B7: mandatory reason, admins may cancel any of this list's chains). A take-over answered with
+ * Page for the escalation intervention list, open to every signed-in planner: the currently Running escalation
+ * chains the server lets the viewer see (group visibility; administrators see all), who was woken, who
+ * acknowledged, and the two actions that resolve a chain - "übernehmen" (only shown when the viewer currently holds
+ * the Notified stage on that specific chain) and "abbrechen" (Owner decision B7: mandatory reason, only shown when the
+ * server marks the chain cancellable for the viewer: administrator, supervisor or member of that chain's roster). A take-over answered with
  * 409 means the row is stale, so it gets a toast and a refresh instead of the generic error, because
  * retrying would never succeed. Which toast depends on the response body: only an Exhausted chain means
  * the deadline lapsed unanswered; Acknowledged, Cancelled and Superseded mean somebody else resolved it,
@@ -47,6 +48,8 @@ interface CancelFormModel {
 }
 
 const HTTP_STATUS_CONFLICT = 409;
+const HTTP_STATUS_FORBIDDEN = 403;
+const CANCEL_FORBIDDEN_TOAST_NAME = 'escalation-cancel-forbidden';
 const ACKNOWLEDGE_ERROR_CODE = 'ESCALATION_ACKNOWLEDGE_ERROR';
 const CANCEL_ERROR_CODE = 'ESCALATION_CANCEL_ERROR';
 const ACKNOWLEDGE_TOO_LATE_KEY = 'escalation.intervention.acknowledge-too-late';
@@ -157,8 +160,21 @@ export class EscalationInterventionListComponent implements OnInit, OnDestroy {
       .cancel(chainId, reason)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
-        error: () => this.emitError(CANCEL_ERROR_CODE),
+        error: (error: unknown) => this.onCancelError(error),
       });
+  }
+
+  private onCancelError(error: unknown): void {
+    if (error instanceof HttpErrorResponse && error.status === HTTP_STATUS_FORBIDDEN) {
+      this.toastShowService.showError(
+        this.translateService.instant(ACKNOWLEDGE_ALREADY_HANDLED_KEY),
+        CANCEL_FORBIDDEN_TOAST_NAME,
+      );
+      this.escalationChainService.refresh();
+      return;
+    }
+
+    this.emitError(CANCEL_ERROR_CODE);
   }
 
   isCancelReasonValid(): boolean {

@@ -37,6 +37,7 @@ describe('EscalationInterventionListComponent', () => {
         shiftStartUtc: '2026-08-17T06:00:00Z',
         deadlineUtc: new Date(Date.now() + 20 * 60000).toISOString(),
         canAcknowledge: false,
+        canCancel: true,
         stages: [
             { rank: 1, userId: 'user-a', userDisplayName: 'Planner A', status: 'Notified', notifiedAtUtc: '2026-08-17T03:00:00Z', dueAtUtc: '2026-08-17T03:20:00Z', respondedAtUtc: null },
         ],
@@ -177,6 +178,17 @@ describe('EscalationInterventionListComponent', () => {
         });
     });
 
+    describe('cancel button visibility', () => {
+        it('shows the cancel button only for chains the server marks cancellable', () => {
+            mockEscalationService.runningChains.set([chain({ id: 'own', canCancel: true }), chain({ id: 'foreign', canCancel: false })]);
+            fixture.detectChanges();
+
+            const buttons = fixture.nativeElement.querySelectorAll('.escalation-intervention-cancel-btn');
+
+            expect(buttons.length).toBe(1);
+        });
+    });
+
     describe('cancel flow', () => {
         let modalRef: any;
         let resolveModal: () => void;
@@ -217,6 +229,19 @@ describe('EscalationInterventionListComponent', () => {
             (component as any).confirmCancel();
 
             expect(mockEscalationService.cancel).toHaveBeenCalledWith('chain-1', 'no reachable planner');
+        });
+
+        it('shows the neutral toast and refreshes when the server answers 403', () => {
+            mockEscalationService.cancel.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
+            component.onCancelClick(chain());
+            component.cancelFormModel.set({ reason: 'a reason' });
+            mockEscalationService.refresh.mockClear();
+
+            (component as any).confirmCancel();
+
+            expect(mockToastShowService.showError).toHaveBeenCalledTimes(1);
+            expect(mockEscalationService.refresh).toHaveBeenCalledTimes(1);
+            expect(mockEventBus.emit).not.toHaveBeenCalled();
         });
 
         it('does not cancel when the modal is dismissed', async () => {

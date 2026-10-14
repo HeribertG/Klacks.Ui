@@ -49,13 +49,15 @@
               {{ 'escalation.intervention.acknowledge' | translate }}
             </button>
           }
-          <button
-            type="button"
-            class="link-button red-font escalation-intervention-cancel-btn"
-            (click)="onCancelClick(chain)"
-          >
-            {{ 'escalation.intervention.cancel' | translate }}
-          </button>
+          @if (chain.canCancel) {
+            <button
+              type="button"
+              class="link-button red-font escalation-intervention-cancel-btn"
+              (click)="onCancelClick(chain)"
+            >
+              {{ 'escalation.intervention.cancel' | translate }}
+            </button>
+          }
         </div>
       </li>
     }

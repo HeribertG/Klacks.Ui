@@ -97,7 +97,7 @@ export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'absences', route: '/workplace/absence', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'client-availability', route: '/workplace/client-availability', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'settings', route: '/workplace/settings', requiredPermission: PERMISSIONS.CanViewSettings, hasEntityParam: false },
-  { pageKey: 'escalations', route: '/workplace/escalations', requiredPermission: ROLE_ADMIN, hasEntityParam: false, llmHint: 'open escalation interventions list' },
+  { pageKey: 'escalations', route: '/workplace/escalations', requiredPermission: null, hasEntityParam: false, llmHint: 'open escalation interventions list' },
   { pageKey: 'group-list', route: '/workplace/group', requiredPermission: PERMISSIONS.CanViewGroups, hasEntityParam: false },
   { pageKey: 'new-group', route: '/workplace/edit-group', requiredPermission: PERMISSIONS.CanViewGroups, actionPermission: PERMISSIONS.CanCreateGroups, hasEntityParam: false, llmHint: 'create group form' },
   { pageKey: 'edit-group', route: '/workplace/edit-group', requiredPermission: PERMISSIONS.CanViewGroups, actionPermission: PERMISSIONS.CanEditGroups, hasEntityParam: true, llmHint: 'edit existing group' },

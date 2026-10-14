@@ -2,12 +2,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 import { DataManagementEscalationChainService } from './data-management-escalation-chain.service';
 import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant/data-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
 
 describe('DataManagementEscalationChainService', () => {
@@ -15,6 +16,9 @@ describe('DataManagementEscalationChainService', () => {
     let mockDataService: any;
     let mockAuthorizationService: { hasPermission: (p: string) => boolean };
     let isAdmin: boolean;
+    let canViewSchedule: boolean;
+    let inboxChanged$: Subject<unknown>;
+    let proactiveMessage$: Subject<unknown>;
 
     const chain = (overrides: Partial<IEscalationChainSummary> = {}): IEscalationChainSummary => ({
         id: 'chain-1',
@@ -25,6 +29,7 @@ describe('DataManagementEscalationChainService', () => {
         shiftStartUtc: '2026-08-17T06:00:00Z',
         deadlineUtc: '2026-08-17T04:00:00Z',
         canAcknowledge: false,
+        canCancel: true,
         stages: [],
         ...overrides,
     });
@@ -38,12 +43,19 @@ describe('DataManagementEscalationChainService', () => {
             cancel: vi.fn(() => of(undefined)),
         };
         isAdmin = true;
-        mockAuthorizationService = { hasPermission: (p: string) => (p === ROLE_ADMIN ? isAdmin : false) };
+        canViewSchedule = true;
+        inboxChanged$ = new Subject<unknown>();
+        proactiveMessage$ = new Subject<unknown>();
+        mockAuthorizationService = {
+            hasPermission: (p: string) =>
+                p === ROLE_ADMIN ? isAdmin : p === PERMISSIONS.CanViewSchedule ? canViewSchedule : false,
+        };
 
         TestBed.configureTestingModule({
             providers: [
                 { provide: DataEscalationChainService, useValue: mockDataService },
                 { provide: AuthorizationService, useValue: mockAuthorizationService },
+                { provide: AssistantSignalRService, useValue: { proactiveInboxChanged$: inboxChanged$, proactiveMessage$ } },
             ],
         });
 
@@ -60,9 +72,67 @@ describe('DataManagementEscalationChainService', () => {
         expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
     });
 
-    it('does not poll when not admin', () => {
+    it('does not poll without the schedule view right', () => {
+        isAdmin = false;
+        canViewSchedule = false;
+        vi.advanceTimersByTime(0);
+        vi.advanceTimersByTime(600000);
+
+        expect(mockDataService.getRunning).not.toHaveBeenCalled();
+    });
+
+    it('polls a planner who is not an admin only every five minutes', () => {
         isAdmin = false;
         vi.advanceTimersByTime(0);
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+
+        vi.advanceTimersByTime(240000);
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+
+        vi.advanceTimersByTime(60000);
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(2);
+    });
+
+    it('refreshes at once when the per-user inbox push arrives', () => {
+        isAdmin = false;
+        vi.advanceTimersByTime(0);
+        mockDataService.getRunning.mockClear();
+
+        inboxChanged$.next({ unreadCount: 1 });
+
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+    });
+
+    it('refreshes at once when the stage alert arrives as a proactive message', () => {
+        isAdmin = false;
+        vi.advanceTimersByTime(0);
+        mockDataService.getRunning.mockClear();
+
+        proactiveMessage$.next({ messageId: 'row-1' });
+
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+    });
+
+    it('polls at the first tick that passes the permission check, not only at the next five-minute tick', () => {
+        isAdmin = false;
+        canViewSchedule = false;
+        vi.advanceTimersByTime(0);
+        expect(mockDataService.getRunning).not.toHaveBeenCalled();
+
+        canViewSchedule = true;
+        vi.advanceTimersByTime(60000);
+
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+
+        vi.advanceTimersByTime(60000);
+        expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores the inbox push without the schedule view right', () => {
+        canViewSchedule = false;
+        vi.advanceTimersByTime(0);
+
+        inboxChanged$.next({ unreadCount: 1 });
 
         expect(mockDataService.getRunning).not.toHaveBeenCalled();
     });
