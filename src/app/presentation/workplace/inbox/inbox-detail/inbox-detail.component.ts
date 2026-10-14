@@ -9,6 +9,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faLanguage } from '@fortawesome/free-solid-svg-icons';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { TranslationService } from 'src/app/domain/services/translation/translation.service';
 import { ITranslatedEmail } from 'src/app/domain/models/email/received-email.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -30,10 +32,15 @@ export class InboxDetailComponent {
   protected readonly faLanguage = faLanguage;
 
   inboxService = inject(InboxService);
+  private authorizationService = inject(AuthorizationService);
   translationService = inject(TranslationService);
   private sanitizer = inject(DomSanitizer);
   private translateService = inject(TranslateService);
   private inboxEmailPdfExportService = inject(InboxEmailPdfExportService);
+
+  get isAdmin(): boolean {
+    return this.authorizationService.hasPermission(ROLE_ADMIN);
+  }
 
   email = this.inboxService.selectedEmail;
   isTrashFolder = this.inboxService.isTrashFolder;
@@ -148,6 +155,9 @@ export class InboxDetailComponent {
   }
 
   onPermanentlyDelete(): void {
+    if (!this.isAdmin) {
+      return;
+    }
     const e = this.email();
     if (e) {
       this.inboxService.permanentlyDeleteEmail(e.id);

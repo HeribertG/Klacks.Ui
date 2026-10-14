@@ -51,14 +51,16 @@
         >
           {{ 'inbox.detail.restore' | translate }}
         </button>
-        <button
-          type="button"
-          class="action-button action-button--danger"
-          (click)="onPermanentlyDelete()"
-          [attr.aria-label]="'inbox.detail.permanently-delete' | translate"
-        >
-          {{ 'inbox.detail.permanently-delete' | translate }}
-        </button>
+        @if (isAdmin) {
+          <button
+            type="button"
+            class="action-button action-button--danger"
+            (click)="onPermanentlyDelete()"
+            [attr.aria-label]="'inbox.detail.permanently-delete' | translate"
+          >
+            {{ 'inbox.detail.permanently-delete' | translate }}
+          </button>
+        }
       } @else {
         <button
           type="button"

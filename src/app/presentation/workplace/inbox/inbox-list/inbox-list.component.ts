@@ -16,6 +16,8 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email.model';
 import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -38,6 +40,7 @@ interface InboxListFilterFormModel {
 })
 export class InboxListComponent implements OnInit, AfterViewInit {
   inboxService = inject(InboxService);
+  private authorizationService = inject(AuthorizationService);
   private destroyRef = inject(DestroyRef);
 
   readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
@@ -47,6 +50,10 @@ export class InboxListComponent implements OnInit, AfterViewInit {
 
   filterFormModel = signal<InboxListFilterFormModel>({ readFilter: 'all' });
   filterForm = form(this.filterFormModel);
+
+  get isAdmin(): boolean {
+    return this.authorizationService.hasPermission(ROLE_ADMIN);
+  }
 
   constructor() {
     effect(() => {
@@ -124,7 +131,9 @@ export class InboxListComponent implements OnInit, AfterViewInit {
 
     if (isTrash) {
       menuData.list.push(new MenuItem('restore', DomainMessages.EMAIL_RESTORE, false, '', 'fa-solid fa-rotate-left'));
-      menuData.list.push(new MenuItem('permanentlyDelete', DomainMessages.EMAIL_PERMANENTLY_DELETE, false, '', 'fa-solid fa-trash'));
+      if (this.isAdmin) {
+        menuData.list.push(new MenuItem('permanentlyDelete', DomainMessages.EMAIL_PERMANENTLY_DELETE, false, '', 'fa-solid fa-trash'));
+      }
     } else {
       if (isJunk) {
         menuData.list.push(new MenuItem('markAsNotSpam', DomainMessages.EMAIL_MARK_AS_NOT_SPAM, false, '', 'fa-solid fa-check'));
@@ -187,7 +196,9 @@ export class InboxListComponent implements OnInit, AfterViewInit {
         this.inboxService.restoreEmail(emailId);
         break;
       case 'permanentlyDelete':
-        this.inboxService.permanentlyDeleteEmail(emailId);
+        if (this.isAdmin) {
+          this.inboxService.permanentlyDeleteEmail(emailId);
+        }
         break;
       case 'markAsSpam': {
         const junkFolder = this.inboxService.getImapNameBySpecialUse(SPECIAL_USE_JUNK);
