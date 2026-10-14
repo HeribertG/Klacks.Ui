@@ -1,0 +1,158 @@
+{
+  "repo_notes": [
+    {
+      "content": "The project runs on Angular 22 (@angular/core ^22.0.2, @angular/cli and @angular/build ^22.0.3) with TypeScript ^6.0.2. Always take framework, library and tooling versions from package.json in the current revision; do not carry over versions from earlier documentation.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Layered architecture under src/app/: presentation (components, directives, pipes, guards), application (orchestration services, cross-cutting concerns, translate helpers), domain (models, enums, interfaces, constants, domain services), infrastructure (API clients, SignalR, storage, i18n, scripting, speech) and shared (helpers, pipes, testing utilities). There is no single 'services' folder: application/services alone contains hundreds of *.service.ts files, and domain/services mirrors the same feature split (schedule, shift, client, contract, absence, expenses, report, scheduling, settings, speech, update, workchange, ...). Document services by the layer and feature they belong to, not by an assumed flat directory.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Bootstrap is standalone (src/main.ts uses bootstrapApplication with appConfig) while routing is still NgModule-based (src/app/app-routing.module.ts, RouterModule.forRoot with urlUpdateStrategy 'eager' and PreloadAllModules). Change detection is zone-based (provideZoneChangeDetection() in main.ts) even though Angular Signals are used for reactive state. Nearly all routes are lazy through loadComponent or loadChildren.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Supported locales are exactly four: de, en, fr and it (src/assets/i18n/*.json, loaded at runtime by KlacksTranslateLoader). Do not state any other locale count. The same four locales exist for every in-app manual.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "src/assets/docs contains 33 in-app manuals, each as de.html / en.html / fr.html / it.html (132 files), loaded at runtime and served with no-cache. One manual exists per messaging channel; that set of messaging-* manual folders is the authoritative list of supported messaging channels.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Testing is Vitest with jsdom (vitest.config.ts: environment 'jsdom', pool 'forks', setupFiles src/test-setup.ts, 10s test/hook timeouts) executed through the Angular unit-test builder. spec files are in the hundreds. There is no end-to-end suite and no browser installation needed on CI.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Source line numbers and file references drift quickly in this repository because it is under active daily development. Prefer citing files, classes, services and tokens, and treat any line-range citation as a hint rather than a stable fact. If a cited path no longer exists, describe the current file that took its place instead of repeating the stale path.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "src/assets/docs for user-facing behaviour plus the feature folders under src/app/presentation/workplace are the source of truth for what the application can do. Keep feature descriptions tied to code that exists in the current revision; do not invent capabilities or configuration options.",
+      "author": "Hermes Agent"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Klacks.UI - Project Overview",
+      "purpose": "Front page. Describe what the application is (web frontend for workforce scheduling and deployment planning in the Klacks ecosystem), the current framework and language versions from package.json, the four-layer architecture, the Canvas-based grid rendering approach, the SignalR real-time layer, the two feature plugins, and how the repository is laid out. Keep it to an accurate summary with links to the child pages."
+    },
+    {
+      "title": "Technology Stack and Dependencies",
+      "purpose": "Document the runtime and development dependencies from package.json and their purpose: Angular 22, TypeScript 6, RxJS, zone.js, @microsoft/signalr, Bootstrap 5 and @ng-bootstrap, @ngx-translate, fabric, jspdf, file-saver, @huggingface/transformers, date-fns, dompurify, sass, Vitest, jsdom, ESLint with angular-eslint, and the esbuild/vite toolchain. Note that .npmrc enables legacy-peer-deps and explain why, and note that Angular/TypeScript versions must be read from the current package.json."
+    },
+    {
+      "title": "Getting Started and Project Setup",
+      "purpose": "Document local setup and the npm scripts in package.json: installation from package-lock.json with npm ci, ng serve (npm start), npm run start:ssl, npm run build, npm run watch, the environment files under src/environments and the fileReplacements in angular.json, plus the Node version used by CI and Docker."
+    },
+    {
+      "title": "Application Shell and Bootstrap",
+      "purpose": "Document src/main.ts, src/app/app.config.ts and src/app/app.component.ts: standalone bootstrap with bootstrapApplication, provideZoneChangeDetection, the provider list (router, HttpClient with interceptors, ngx-translate, ng-bootstrap, locale data, error handler), the AppComponent shell with router-outlet, header, nav, toast container and save bar, and the WorkPlace shell component."
+    },
+    {
+      "title": "Routing and Navigation",
+      "purpose": "Document src/app/app-routing.module.ts: the public routes (login, oauth2/callback, imprint, privacy, error, no-access, page-not-found, setup), the /workplace parent route with every child route and the permission or guard attached to it, lazy loading via loadComponent and loadChildren, PreloadAllModules preloading and urlUpdateStrategy 'eager'. Include a route-to-component table."
+    },
+    {
+      "title": "Authentication, Authorization and Session Interceptors",
+      "purpose": "Document the auth and permission model under src/app/presentation/auth and src/app/domain/constants/permissions.constants.ts: JWT handling, AuthInterceptor, TokenRefreshInterceptor, SetupRequiredInterceptor, AuthGuard, permissionGuard with ROUTE_DATA_REQUIRED_PERMISSION, InboxGuard, featurePluginGuard, CanDeactivateGuard, PERMISSIONS and ROLE_ADMIN, the OAuth2 callback component, login flow and logout, and how identity providers and personal access tokens are configured."
+    },
+    {
+      "title": "Layered Architecture and Cross-Cutting Concerns",
+      "purpose": "Document the four layers plus shared, the dependency direction between them, and the cross-cutting tokens and services wired in app.config.ts: EVENT_BUS_TOKEN with EventBus and DomainEventHandler, MANAGEABLE_SERVICE_REGISTRY_TOKEN with ManageableServiceRegistry and the manageable-service factory driving the save bar, ENTITY_STATE_PROVIDER_TOKEN with WorkplaceStateService, FILTER_STORAGE_TOKEN and the storage implementations, LOADING_INDICATOR_TOKEN with LoadingInterceptor, ResponseInterceptor, AppErrorHandler, app-reload-request and chunk-load-recovery, and app-version-watch polling version.json."
+    },
+    {
+      "title": "State Management with Angular Signals",
+      "purpose": "Document how reactive state is modelled: signals and computed values in services, base-state.service.ts as the shared base, service interfaces and injection tokens, and the conventions a service follows to be registered as manageable or stateful. Compare this with the zone-based change detection used at bootstrap."
+    },
+    {
+      "title": "REST API and Data Layer",
+      "purpose": "Document src/app/infrastructure/api: the base URL configuration in src/environments, the HTTP interceptors, response and error handling, and the data services grouped by feature (including the wizard and harmonizer subfolders). Explain how domain services under src/app/domain/services consume the API layer and how data refresh coordination works (data-refresh-coordinator, data-refresh-registry)."
+    },
+    {
+      "title": "Real-Time Communication with SignalR",
+      "purpose": "Document src/app/infrastructure/signalr: signalr.service.ts, signalr-connection.helper.ts, signalr-connection-state.ts, signalr-connection-status.service.ts, signalr-token.helper.ts and signalr-group.helper.ts, plus the dedicated email and assistant hub services. Cover connection lifecycle, reconnection and token handling, group subscriptions, and which features depend on live updates."
+    },
+    {
+      "title": "Canvas-Based Grid Rendering Engine",
+      "purpose": "Explain why the large grids are rendered on an HTML5 Canvas 2D context instead of the DOM, and document the shared rendering building blocks under src/app/presentation/shared/grid and presentation/shared/time-ruler: the grid surface template, the cell creation and drawing pipeline, row header rendering, scrollbar and time ruler rendering, and the shared drawing helpers. List the render services by the feature that owns them."
+    },
+    {
+      "title": "Schedule Module",
+      "purpose": "Document src/app/presentation/workplace/schedule and the schedule domain services: the schedule section and its grid, the shift section and schedule header, the timeline, the work schedule grid, schedule notes and schedule commands, drag and edit interactions for assignments, and how the schedule data service hydrates and updates the canvas."
+    },
+    {
+      "title": "Collision Detection and Error List",
+      "purpose": "Document how scheduling conflicts are detected and surfaced: the collision detection logic in the domain layer, the error list presentation, how violations of scheduling rules, restricted time windows, rest periods and compliance rules are represented, and how the user is guided to resolve them."
+    },
+    {
+      "title": "Shift Management, Shift Cuts and Container Templates",
+      "purpose": "Document the shift feature under src/app/presentation/workplace/shift and the shift domain services: the shift list, create and edit shift flows, shift cuts, the container template editor, and the canvas-based route map rendering service used by container templates."
+    },
+    {
+      "title": "Absence and Client Availability",
+      "purpose": "Document the absence module (Gantt-style view for vacations, sickness and other absence types, plus absence detail handling) and the client availability grid (drawing service and canvas manager), including the domain services that back both and how they interact with the schedule."
+    },
+    {
+      "title": "Clients, Groups and Address Book",
+      "purpose": "Document the client and address management features: the address list and edit flows, the address book presentation, the group list, the group hierarchy and tree view, group selection, and the related domain services for clients, groups and contracts."
+    },
+    {
+      "title": "KlacksScript Scripting Engine",
+      "purpose": "Document src/app/infrastructure/scripting as an interpreter: the lexical analyser, the syntax analysers split by concern (declarations, control flow, expressions, statements, built-ins), the opcode set, scopes and scope resolution, script execution context and result types, error reporting, and the public entry point in script.service.ts. Mention that the language, macros and formulas are documented for users under src/assets/docs."
+    },
+    {
+      "title": "Scheduling Rules, Formulas and Configuration",
+      "purpose": "Document the rule and configuration model of the application: scheduling rules, calendar rules, counter rules, period caps, surcharge modes, restricted time windows, compensatory rest, overtime, compliance enforcement, active industries, skill relations and formulas, including where each is configured and how the settings modules under src/app/presentation/workplace/settings and the corresponding manuals under src/assets/docs relate to the domain services."
+    },
+    {
+      "title": "Klacksy Assistant, Voice and Local Speech Recognition",
+      "purpose": "Document the in-app assistant: the aside shell and assistant chat under src/app/presentation/aside, the assistant service and its SignalR hub, navigation control and telemetry services under src/app/domain/services/klacksy, the voice shell components (transcript overlay, microphone selection), and local speech-to-text in src/app/infrastructure/services/speech (Whisper via @huggingface/transformers, silence-based chunking, earcon feedback, audio capture). Also cover the assistant configuration (LLM providers) and the Klacksy training module."
+    },
+    {
+      "title": "Feature Plugins and Plugin Contracts",
+      "purpose": "Document the plugin architecture: the contracts library projects/klacks-plugin-contracts (its public API, tokens, plugin-client, workplace host, event stream, manual loader, voice and toast contracts, group selection), how the application declares and enables a plugin by name, the feature plugin constants and store, the featurePluginGuard, how plugin routes are loaded with loadChildren, and the build order requirement that contracts are built before the plugins and the app."
+    },
+    {
+      "title": "Floor Plan Plugin",
+      "purpose": "Document projects/klacks-plugin-floor-plan: the Fabric.js-based floor plan editor, its canvas service, object data model, connector, join, merge and anchor snap services, context menu, and how it integrates with the workplace through the plugin contracts."
+    },
+    {
+      "title": "Messaging Plugin",
+      "purpose": "Document projects/klacks-plugin-messaging: the messaging feature and route set, its integration with the plugin contracts, and the supported messaging channels as reflected by the messaging-* manuals under src/assets/docs. Describe channel configuration at the level the code supports and do not invent capabilities."
+    },
+    {
+      "title": "Inbox and Email Module",
+      "purpose": "Document the inbox feature under src/app/presentation/workplace/inbox together with the email domain services and the email SignalR hub: mailbox structure, message handling, live updates, and the InboxGuard that gates the route."
+    },
+    {
+      "title": "Workplace Modules: Dashboard, Profile, Settings and Admin Areas",
+      "purpose": "Document the remaining workplace modules: the dashboard home, the user profile module, the settings module (which settings are organisational, user-level, integration-related or rule-related, how they are saved through the manageable service registry and the save bar, and how they reach the backend), plus the admin-facing modules for escalations (intervention list), period closing and the Klacksy training review, including their ROLE_ADMIN route protection and the services behind each of them."
+    },
+    {
+      "title": "Internationalization and Localization",
+      "purpose": "Document internationalization with @ngx-translate and exactly four locales (de, en, fr, it): the runtime JSON files under src/assets/i18n, KlacksTranslateLoader, TranslateStringConstantsService, Angular locale data loading, the custom ng-bootstrap datepicker i18n and week start services, direction handling, and how the nginx cache policy treats translation files. Do not state a different number of locales."
+    },
+    {
+      "title": "In-App Manuals and User Documentation",
+      "purpose": "Document src/assets/docs: the 33 manuals, each in de, en, fr and it (132 HTML files), how manuals are declared and opened from the application (including the plugin manual loader contract), and the runtime caching behaviour for /assets/docs/*.html. List the manual topics."
+    },
+    {
+      "title": "Testing Infrastructure",
+      "purpose": "Document the test setup: vitest.config.ts (jsdom environment, globals, forks pool, setup file, timeouts), src/test-setup.ts (zone.js testing, TestBed environment, ResizeObserver polyfill), the npm test scripts including the report generator under scripts/, the difference between npm test and npm run test:no-report, the existing shared testing utilities under src/app/shared/testing, and the CI workflow that runs the suite. Do not claim an end-to-end test suite."
+    },
+    {
+      "title": "Build, Docker and Deployment",
+      "purpose": "Document the production build and release path: angular.json build configuration (outputPath dist/klacks.ui, production file replacements, output hashing, budgets), the two-stage Dockerfile (node:22-alpine pinned to BUILDPLATFORM, npm ci --legacy-peer-deps, contracts built first, ng build --configuration=production, then nginx:alpine), nginx.conf caching rules for index.html, version.json, i18n and docs assets and hashed bundles, build identity stamping via tools/write-build-info.ts and version.json polling, and the GitHub Actions workflows for tests, CodeQL and the Hetzner deployment including the paths that do not trigger a deploy."
+    },
+    {
+      "title": "Maintenance Tooling: Synonyms and Wake Words",
+      "purpose": "Document the tsx scripts under tools/ and their npm script wrappers: write-build-info, scan-klacksy-targets, generate-synonyms, generate-declines, validate-synonyms, gate:synonyms, backtranslate-synonyms and wake-word-lint. Explain what each produces, where the reports land, and how the synonym gate and Husky pre-commit hook keep translations and wake words consistent."
+    },
+    {
+      "title": "Glossary",
+      "purpose": "Define the domain and code vocabulary used across the wiki and the codebase, for example shift, shift cut, container template, work change, absence, client availability, group, escalations, period closing, surcharge, counter rule, restricted time window, compensatory rest, Klacksy, KlacksScript, feature plugin, workplace, and the layer names. Keep every definition consistent with how the term is used in the code."
+    }
+  ]
+}
