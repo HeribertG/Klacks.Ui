@@ -17,6 +17,8 @@ export const SignalRConstants = {
     ScheduleChangeTracked: 'ScheduleChangeTracked',
     CollisionsDetected: 'CollisionsDetected',
     ScheduleValidationsDetected: 'ScheduleValidationsDetected',
+    AutofillRunStarted: 'AutofillRunStarted',
+    AutofillRunEnded: 'AutofillRunEnded',
   },
 
   HubMethods: {

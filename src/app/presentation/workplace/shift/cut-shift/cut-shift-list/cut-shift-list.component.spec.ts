@@ -33,8 +33,8 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
         TestBed.configureTestingModule({
             imports: [CutShiftListComponent],
             providers: [
-                // AnalyseScenarioService listens here for background-optimiser candidates on construction.
-                { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>() } },
+                // AnalyseScenarioService listens here for background-optimiser candidates and ended autofill runs on construction.
+                { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>(), autofillRunEnded$: new Subject<never>() } },
                 provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: NgbModal, useValue: mockModalService },

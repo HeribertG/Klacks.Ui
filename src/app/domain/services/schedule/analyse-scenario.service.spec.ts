@@ -2,6 +2,7 @@
 
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IWizard4CandidateNotification } from 'src/app/domain/interfaces/wizard4-candidate-notification.interface';
+import { IAutofillRunPresence } from 'src/app/domain/interfaces/autofill-run-presence.interface';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { of, Subject } from 'rxjs';
@@ -29,9 +30,11 @@ describe('AnalyseScenarioService', () => {
   let service: AnalyseScenarioService;
 
   let wizard4CandidatesChanged$: Subject<IWizard4CandidateNotification>;
+  let autofillRunEnded$: Subject<IAutofillRunPresence>;
 
   beforeEach(() => {
     wizard4CandidatesChanged$ = new Subject<IWizard4CandidateNotification>();
+    autofillRunEnded$ = new Subject<IAutofillRunPresence>();
     // Arrange
     TestBed.configureTestingModule({
       providers: [
@@ -39,7 +42,7 @@ describe('AnalyseScenarioService', () => {
         { provide: DataAnalyseScenarioService, useValue: { getByGroup: () => of([]) } },
         {
           provide: SCHEDULE_SIGNALR,
-          useValue: { wizard4CandidatesChanged$ },
+          useValue: { wizard4CandidatesChanged$, autofillRunEnded$ },
         },
       ],
     });
@@ -164,6 +167,63 @@ describe('AnalyseScenarioService', () => {
 
       // Assert
       expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('autofill runs', () => {
+    it('should reload the list of the last loaded group when an autofill run ends', () => {
+      // Arrange
+      service.loadScenarios('group-7');
+      const loadSpy = vi.spyOn(service, 'loadScenarios').mockImplementation(() => {});
+
+      // Act
+      autofillRunEnded$.next({
+        runId: 'run-1',
+        groupId: 'group-7',
+        periodFrom: '2026-08-01',
+        periodUntil: '2026-08-31',
+        progressPercent: null,
+      });
+
+      // Assert
+      expect(loadSpy).toHaveBeenCalledTimes(1);
+      expect(loadSpy).toHaveBeenCalledWith('group-7');
+    });
+
+    it('should not reload the list when an autofill run of another group ends', () => {
+      // Arrange
+      service.loadScenarios('group-7');
+      const loadSpy = vi.spyOn(service, 'loadScenarios').mockImplementation(() => {});
+
+      // Act
+      autofillRunEnded$.next({
+        runId: 'run-2',
+        groupId: 'group-8',
+        periodFrom: '2026-08-01',
+        periodUntil: '2026-08-31',
+        progressPercent: null,
+      });
+
+      // Assert
+      expect(loadSpy).not.toHaveBeenCalled();
+    });
+
+    it('should reload the unfiltered list when an autofill run of any group ends', () => {
+      // Arrange
+      service.loadScenarios(undefined);
+      const loadSpy = vi.spyOn(service, 'loadScenarios').mockImplementation(() => {});
+
+      // Act
+      autofillRunEnded$.next({
+        runId: 'run-3',
+        groupId: 'group-8',
+        periodFrom: '2026-08-01',
+        periodUntil: '2026-08-31',
+        progressPercent: null,
+      });
+
+      // Assert
+      expect(loadSpy).toHaveBeenCalledWith(undefined);
     });
   });
 

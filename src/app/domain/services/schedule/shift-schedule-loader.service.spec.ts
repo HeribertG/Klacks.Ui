@@ -59,7 +59,7 @@ describe('ShiftScheduleLoaderService.refreshSporadicShifts', () => {
         { provide: DataShiftScheduleService, useValue: dataShiftSchedule },
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalc },
         { provide: AnalyseScenarioService, useValue: { activeToken: () => null } },
-        { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>() } },
+        { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>(), autofillRunEnded$: new Subject<never>() } },
       ],
     });
     service = TestBed.inject(ShiftScheduleLoaderService);

@@ -6,10 +6,10 @@
  * schedule reload, toasts). Extracted from ScheduleHeaderComponent so the header
  * only binds the click and the running state. The run is bound to the group and period of the
  * click: a result for a group the planner is not looking at is announced by name and opened once
- * that group's schedule is shown; a run started before a page reload is re-attached.
+ * that group's schedule is shown; a run started before a page reload is re-attached. Right after the server accepted
+ * the start it asks for the run presence, so the progress line does not wait for the push.
  * @param isRunning - True while any run exists (waiting for the schedule data or running on the server)
  * @param isRunningForCurrentGroup - True while the run belongs to the currently selected group
- * @param isRunningForCurrentView - True while the run belongs to the shown group and the shown period
  * @param runningElsewhereGroupName - Group name of a run that belongs to another group, else null
  */
 
@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
 import { AUTO_WIZARD_LIMITS } from 'src/app/infrastructure/api/auto-wizard/auto-wizard-limits.constants';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';
 import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
@@ -47,12 +48,12 @@ export class AutoWizardOrchestratorService {
   private readonly tracker = inject(AutoWizardJobTrackerService);
   private readonly collisionService = inject(CollisionDetectionService);
   private readonly planningRulePreExisting = inject(PlanningRulePreExistingService);
+  private readonly autofillRunPresence = inject(AutofillRunPresenceService);
 
   readonly isRunning = computed(
     () => this.tracker.activeJob() !== null || this.dataAutoWizardService.status() === 'running',
   );
   readonly isRunningForCurrentGroup = this.tracker.isRunningForCurrentGroup;
-  readonly isRunningForCurrentView = this.tracker.isRunningForCurrentView;
   readonly runningElsewhereGroupName = this.tracker.runningElsewhereGroupName;
 
   constructor() {
@@ -169,6 +170,7 @@ export class AutoWizardOrchestratorService {
         agentOrderIsUserDefined: this.dataManagementSchedule.isIndividualClientSortActive,
       });
       this.tracker.attachJobId(jobId);
+      this.autofillRunPresence.refresh();
       this.toastShowService.showInfo(
         this.translateService.instant('autoWizard.toast.started'),
         TOAST_CONTEXT,

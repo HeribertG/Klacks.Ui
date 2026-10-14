@@ -202,8 +202,8 @@ describe('ScheduleEntryCrudService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        // AnalyseScenarioService listens for background-optimiser candidates on connect.
-        { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>() } },
+        // AnalyseScenarioService listens for background-optimiser candidates and ended autofill runs on connect.
+        { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>(), autofillRunEnded$: new Subject<never>() } },
         ScheduleEntryCrudService,
         { provide: DataWorkScheduleService, useValue: dataWorkScheduleMock },
         { provide: DataWorkChangeService, useValue: workChangeServiceMock },

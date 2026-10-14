@@ -25,6 +25,7 @@ import { environment } from 'src/environments/environment';
 import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/klacksy-learning.constants';
 import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-import.constants';
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
+import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
 import {
@@ -51,6 +52,10 @@ export class ResponseInterceptor implements HttpInterceptor {
   private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
   private static readonly API_PATH_PREFIX = '/api/';
   private static readonly KNOWLEDGE_INDEX_SYNC_STATUS_PATH = 'knowledge-index/sync-status';
+  private static readonly QUIET_BACKGROUND_POLL_PATHS: readonly string[] = [
+    ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH,
+    AUTOFILL_RUNS_ACTIVE_PATH,
+  ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
     HttpStatusCode.NotFound,
@@ -114,13 +119,15 @@ export class ResponseInterceptor implements HttpInterceptor {
     );
   }
 
-  // A background poll (currently only the knowledge-index sync status, checked every 10s for up to
-  // ~20 minutes) must not touch UI state on failure: unlike a user-triggered request, its error has
-  // nothing to do with whatever the user is editing elsewhere on the page, so it must not clear the
-  // unsaved-changes flag or the spinner/save-state out from under them. The geo service proxies follow the
-  // same rule: an address search or route lookup may fail while an unsaved client form is open.
+  // A background poll (the knowledge-index sync status, checked every 10s for up to ~20 minutes, and the
+  // autofill run presence the schedule reads after each load) must not touch UI state on failure: unlike a
+  // user-triggered request, its error has nothing to do with whatever the user is editing elsewhere on the
+  // page, so it must not clear the unsaved-changes flag or the spinner/save-state out from under them. The
+  // geo service proxies follow the same rule: an address search or route lookup may fail while an unsaved
+  // client form is open.
   private isQuietBackgroundPoll(error: HttpErrorResponse): boolean {
-    return (error.url || '').includes(ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH);
+    const url = error.url || '';
+    return ResponseInterceptor.QUIET_BACKGROUND_POLL_PATHS.some((path) => url.includes(path));
   }
 
   private resetUIState(error: HttpErrorResponse): void {

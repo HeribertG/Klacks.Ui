@@ -18,6 +18,7 @@ import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-st
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
+import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 
 const selectedGroupId = signal<string | undefined>(undefined);
 const visibleEntity = signal<string>(EntityName.SCHEDULE);
@@ -42,6 +43,7 @@ beforeEach(() => {
         },
       },
       { provide: ENTITY_STATE_PROVIDER_TOKEN, useValue: { nameOfVisibleEntity: visibleEntity } },
+      { provide: AutofillRunPresenceService, useValue: { refresh: vi.fn() } },
     ],
   });
 });
@@ -205,6 +207,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     showInfo: Mock;
     showError: Mock;
     instant: Mock;
+    refreshPresence: Mock;
   }
 
   function setup(options: { awaitFullyLoaded?: () => Promise<unknown>; resume?: Mock } = {}): Harness {
@@ -231,9 +234,11 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     const showInfo = vi.fn();
     const showError = vi.fn();
     const instant = vi.fn((key: string, _params?: object) => key);
+    const refreshPresence = vi.fn();
     TestBed.configureTestingModule({
       providers: [
         { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
+        { provide: AutofillRunPresenceService, useValue: { refresh: refreshPresence } },
         { provide: DataAutoWizardService, useValue: wizard },
         { provide: DataManagementScheduleService, useValue: schedule },
         {
@@ -251,7 +256,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       ],
     });
     const orchestrator = TestBed.inject(AutoWizardOrchestratorService);
-    return { orchestrator, schedule, wizard, selectScenario, showInfo, showError, instant };
+    return { orchestrator, schedule, wizard, selectScenario, showInfo, showError, instant, refreshPresence };
   }
 
   function deferredLoad(): { awaitFullyLoaded: () => Promise<unknown>; resolve: (outcome: string) => void } {
@@ -295,6 +300,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     expect(h.wizard.start).not.toHaveBeenCalled();
     expect(h.showError).toHaveBeenCalledWith('autoWizard.toast.scopeChanged', 'auto-wizard');
     expect(h.orchestrator.isRunning()).toBe(false);
+    expect(h.refreshPresence).not.toHaveBeenCalled();
   });
 
   it('does not start when the period changes while the schedule is still loading', async () => {
@@ -326,6 +332,29 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     );
     const stored = JSON.parse(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB) ?? '{}');
     expect(stored).toEqual(expect.objectContaining({ jobId: 'job-1', groupId: JOB_GROUP, groupName: 'Name-g1' }));
+  });
+
+  it('asks for the run presence once the server accepted the start, so the progress line need not wait for the push', async () => {
+    // Arrange
+    const h = setup();
+
+    // Act
+    await h.orchestrator.start();
+
+    // Assert
+    expect(h.refreshPresence).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not ask for the run presence when the server refused the start', async () => {
+    // Arrange
+    const h = setup();
+    h.wizard.start.mockRejectedValue(new Error('refused'));
+
+    // Act
+    await h.orchestrator.start();
+
+    // Assert
+    expect(h.refreshPresence).not.toHaveBeenCalled();
   });
 
   it('shows the spinner only on the group the run belongs to', async () => {

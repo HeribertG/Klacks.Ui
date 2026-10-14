@@ -80,6 +80,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { AutoWizardOrchestratorService } from '../services/auto-wizard-orchestrator.service';
+import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 import { ScheduleSelectionService } from '../services/schedule-selection.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -173,6 +174,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private analyseScenarioService = inject(AnalyseScenarioService);
   private authorizationService = inject(AuthorizationService);
   private autoWizardOrchestrator = inject(AutoWizardOrchestratorService);
+  private autofillRunPresence = inject(AutofillRunPresenceService);
   private scheduleSelection = inject(ScheduleSelectionService);
   private scheduleSignalR = inject(SCHEDULE_SIGNALR);
   private destroyRef = inject(DestroyRef);
@@ -189,7 +191,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
   readonly isAutoWizardRunning = this.autoWizardOrchestrator.isRunning;
   readonly isAutoWizardRunningForCurrentGroup = this.autoWizardOrchestrator.isRunningForCurrentGroup;
-  readonly isAutoWizardRunningForCurrentView = this.autoWizardOrchestrator.isRunningForCurrentView;
+  readonly isAutoWizardRunningForCurrentView = this.autofillRunPresence.isRunningForCurrentView;
   readonly autoWizardRunningElsewhereGroupName = this.autoWizardOrchestrator.runningElsewhereGroupName;
 
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));

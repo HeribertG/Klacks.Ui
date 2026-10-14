@@ -4,6 +4,8 @@
  * Facade service for SignalR: owns all event Subject streams and implements IScheduleSignalR.
  * Delegates connection lifecycle to SignalRConnectionHelper, group membership to SignalRGroupHelper
  * and token management to SignalRTokenHelper. Exposes telemetry and FSM state for diagnostics.
+ * connected$ fires after every established connection (automatic reconnect, full reconnect after the connection
+ * closed, connection refresh) once the schedule groups were joined again, so consumers re-read what pushes may have missed.
  */
 import { inject, Injectable, OnDestroy, Signal } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -26,6 +28,7 @@ import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
+import { IAutofillRunPresence } from 'src/app/domain/interfaces/autofill-run-presence.interface';
 import * as signalR from '@microsoft/signalr';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRGroupHelper } from './signalr-group.helper';
@@ -71,7 +74,9 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   public scheduleChangeTracked$ = new Subject<IScheduleChangeNotification>();
   public collisionsDetected$ = new Subject<ICollisionListNotification>();
   public scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
-  public reconnected$ = new Subject<void>();
+  public autofillRunStarted$ = new Subject<IAutofillRunPresence>();
+  public autofillRunEnded$ = new Subject<IAutofillRunPresence>();
+  public connected$ = new Subject<void>();
 
   constructor() {
     this._tokenHelper = new SignalRTokenHelper(this._localStorage, this._dataAuthService);
@@ -130,6 +135,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     this.startProactiveTokenRefresh();
     this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
     await this._groupHelper.flush();
+    this.connected$.next();
   }
 
   private async onConnectionReconnecting(): Promise<void> {
@@ -149,7 +155,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       this.reconnectAttemptWithExpiredToken = false;
     }
     await this._groupHelper.flush();
-    this.reconnected$.next();
+    this.connected$.next();
   }
 
   private onConnectionClosed(): void {
@@ -216,7 +222,9 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     this.scheduleChangeTracked$.complete();
     this.collisionsDetected$.complete();
     this.scheduleValidationsDetected$.complete();
-    this.reconnected$.complete();
+    this.autofillRunStarted$.complete();
+    this.autofillRunEnded$.complete();
+    this.connected$.complete();
   }
 
   private registerEventHandlers(hub: signalR.HubConnection): void {
@@ -238,6 +246,8 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     hub.on(SignalRConstants.Events.ScheduleChangeTracked, onPush(this.scheduleChangeTracked$));
     hub.on(SignalRConstants.Events.CollisionsDetected, onPush(this.collisionsDetected$));
     hub.on(SignalRConstants.Events.ScheduleValidationsDetected, onPush(this.scheduleValidationsDetected$));
+    hub.on(SignalRConstants.Events.AutofillRunStarted, onPush(this.autofillRunStarted$));
+    hub.on(SignalRConstants.Events.AutofillRunEnded, onPush(this.autofillRunEnded$));
   }
 
   private startProactiveTokenRefresh(): void {

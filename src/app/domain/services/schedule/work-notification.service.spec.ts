@@ -61,8 +61,9 @@ describe('WorkNotificationService', () => {
       workDeleted$: workDeleted$.asObservable(),
       shiftStatsUpdated$: shiftStatsUpdated$.asObservable(),
       scheduleUpdated$: scheduleUpdated$.asObservable(),
-      // AnalyseScenarioService listens here for background-optimiser candidates on construction.
+      // AnalyseScenarioService listens here for background-optimiser candidates and ended autofill runs on construction.
       wizard4CandidatesChanged$: new Subject<never>(),
+      autofillRunEnded$: new Subject<never>(),
     };
 
     dataManagementMock = {

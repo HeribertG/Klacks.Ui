@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Domain service for managing what-if analysis scenarios.
+ * Domain service for managing what-if analysis scenarios. The list reloads by itself when the background optimiser
+ * changes its candidates and when an autofill run of the loaded group (or of any group, for the unfiltered list) ends,
+ * so every viewer of the group sees the run's new scenario.
  * @param activeScenario - The currently selected scenario (or null)
  * @param scenarios - List of all active scenarios for the current group
  * @param isScenarioMode - Whether a scenario is actively selected
@@ -10,7 +12,7 @@
 
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, filter, map, tap } from 'rxjs';
 import {
   AnalyseScenarioStatus,
   IAnalyseScenario,
@@ -47,6 +49,12 @@ export class AnalyseScenarioService {
     // list would keep offering a scenario that is already gone until the next manual reload.
     this.signalRService.wizard4CandidatesChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadScenarios(this._lastLoadedGroupId));
+    this.signalRService.autofillRunEnded$
+      .pipe(
+        filter((run) => !this._lastLoadedGroupId || run.groupId === this._lastLoadedGroupId),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe(() => this.loadScenarios(this._lastLoadedGroupId));
   }
 

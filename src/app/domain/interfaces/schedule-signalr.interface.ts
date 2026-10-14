@@ -15,6 +15,7 @@ import {
 import { IScheduleChangeNotification } from './schedule-change-notification.interface';
 import { ICollisionListNotification } from './collision-notification.interface';
 import { IScheduleValidationListNotification } from './schedule-validation-list-notification.interface';
+import { IAutofillRunPresence } from './autofill-run-presence.interface';
 
 export interface IScheduleSignalR {
   workCreated$: Observable<IWorkNotification>;
@@ -30,6 +31,9 @@ export interface IScheduleSignalR {
   scheduleChangeTracked$: Observable<IScheduleChangeNotification>;
   collisionsDetected$: Observable<ICollisionListNotification>;
   scheduleValidationsDetected$: Observable<IScheduleValidationListNotification>;
+  autofillRunStarted$: Observable<IAutofillRunPresence>;
+  autofillRunEnded$: Observable<IAutofillRunPresence>;
+  connected$: Observable<void>;
   connectionId: string;
   joinScheduleGroup(startDate: string, endDate: string, analyseToken?: string | null): Promise<void>;
   leaveScheduleGroup(startDate: string, endDate: string, analyseToken?: string | null): Promise<void>;
