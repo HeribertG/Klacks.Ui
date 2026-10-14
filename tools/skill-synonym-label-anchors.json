@@ -1,0 +1,8 @@
+{
+  "get_surcharge_mode_settings": ["setting.surchargeMode.headline", "setting.surchargeMode.rateMode.fixedperhour", "setting.surchargeMode.minimums-header", "settings.work.night-rate"],
+  "update_surcharge_mode_settings": ["setting.surchargeMode.headline", "setting.surchargeMode.rateMode.fixedperhour", "setting.surchargeMode.minimums-header", "settings.work.night-rate"],
+  "explain_surcharge_mode": ["setting.surchargeMode.headline", "setting.surchargeMode.rateMode.fixedperhour", "setting.surchargeMode.minimums-header", "settings.work.night-rate"],
+  "get_overtime_settings": ["setting.overtime.headline", "setting.overtime.rateMode.fixedperhour", "setting.overtime.tier1.rate"],
+  "update_overtime_settings": ["setting.overtime.headline", "setting.overtime.rateMode.fixedperhour", "setting.overtime.tier1.rate"],
+  "explain_overtime_model": ["setting.overtime.headline", "setting.overtime.rateMode.fixedperhour", "setting.overtime.tier1.rate"]
+}

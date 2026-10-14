@@ -11,6 +11,11 @@
  * default LLM batch size, --dry-run prints the coverage plan without calling the LLM,
  * --top-up appends extra phrases to entries below the minimum phrase count (existing
  * phrases are always kept and never replaced).
+ * --label-anchors=<file> runs ONLY a targeted pass: the JSON file maps skill names to translation keys;
+ * for each mapped skill the generator reads those on-screen labels from the locale's translations.json
+ * and appends up to 2 phrases that reuse their wording, so users who type what the screen now says still
+ * hit the skill after a terminology change. Existing phrases are kept, phrases another skill already owns
+ * in that locale are dropped.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
@@ -68,6 +73,8 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const TOP_UP = process.argv.includes('--top-up');
 const MIN_PHRASES = 4;
 const MAX_PHRASES = 6;
+const LABEL_ANCHORS_FILE = process.argv.find(a => a.startsWith('--label-anchors='))?.split('=')[1] ?? '';
+const LABEL_ANCHOR_EXTRA_PHRASES = 2;
 
 let cachedConfig: LlmConfig | null = null;
 
@@ -159,9 +166,64 @@ function buildBatchPrompt(locale: string, langName: string, batch: SkillSeed[], 
   ].join('\n');
 }
 
-async function callLlm(locale: string, langName: string, batch: SkillSeed[], enforceMinLen: boolean): Promise<Record<string, string[]>> {
+function buildLabelAnchorPrompt(
+  langName: string,
+  batch: SkillSeed[],
+  labels: Record<string, string[]>,
+  existing: Record<string, string[]>,
+  enforceMinLen: boolean,
+): string {
+  const blocks = batch.map((s, i) =>
+    `${i + 1}) skill_name="${s.name}" | description: ${s.description} | on-screen labels: ${labels[s.name].join(' / ')} | existing phrases (do not repeat): ${(existing[s.name] ?? []).join(' / ')}`,
+  ).join('\n');
+
+  const lengthRule = enforceMinLen
+    ? `Every phrase MUST be at least ${MIN_PHRASE_LEN} characters long (count actual characters of the script).`
+    : `Every phrase must be a real, usable expression.`;
+
+  return [
+    `You generate in-app assistant trigger synonyms for Klacksy, the assistant of Klacks — a workforce scheduling application.`,
+    `The ${langName} screens of Klacks now use the on-screen labels listed per skill. In Klacks these terms are time credits in hours, never money or wages.`,
+    `Task: for EACH skill, write exactly ${LABEL_ANCHOR_EXTRA_PHRASES} new phrases a native ${langName} speaker would naturally type in a chat assistant to trigger this skill, reusing the wording of the on-screen labels the way a user who read the screen would.`,
+    `The phrases must fit the skill's own purpose (looking up vs. changing vs. explaining) and must differ from the existing phrases.`,
+    lengthRule,
+    `Rules: lowercase where the script has case, no markdown, exclude the assistant name "klacksy".`,
+    `Output STRICT JSON: an object mapping each exact skill_name to an array of phrase strings.`,
+    ``,
+    `Skills:`,
+    blocks,
+  ].join('\n');
+}
+
+function loadTranslations(locale: string): Record<string, string> {
+  const file = join(PLUGINS_ROOT, locale, 'translations.json');
+  if (!existsSync(file)) return {};
+  const flat: Record<string, string> = {};
+  const walk = (node: unknown, prefix: string): void => {
+    if (node && typeof node === 'object') {
+      for (const [k, v] of Object.entries(node as Record<string, unknown>)) walk(v, prefix ? `${prefix}.${k}` : k);
+    } else if (typeof node === 'string') {
+      flat[prefix] = node;
+    }
+  };
+  walk(JSON.parse(readFileSync(file, 'utf8').replace(/^﻿/, '')), '');
+  return flat;
+}
+
+function loadLabelAnchors(): Record<string, string[]> {
+  if (!LABEL_ANCHORS_FILE) return {};
+  return JSON.parse(readFileSync(resolve(process.cwd(), LABEL_ANCHORS_FILE), 'utf8')) as Record<string, string[]>;
+}
+
+async function callLlm(
+  locale: string,
+  langName: string,
+  batch: SkillSeed[],
+  enforceMinLen: boolean,
+  promptOverride?: string,
+): Promise<Record<string, string[]>> {
   const { url, key, model } = resolveConfig();
-  const prompt = buildBatchPrompt(locale, langName, batch, enforceMinLen);
+  const prompt = promptOverride ?? buildBatchPrompt(locale, langName, batch, enforceMinLen);
   const body = JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], response_format: { type: 'json_object' } });
 
   const maxAttempts = 4;
@@ -238,9 +300,61 @@ function chunk<T>(arr: T[], size: number): T[][] {
 
 interface LocaleResult { locale: string; before: number; after: number; total: number; calls: number; errors: number; shortfallRetries: number; }
 
+async function processLabelAnchors(
+  locale: string,
+  coreSkills: SkillSeed[],
+  anchors: Record<string, string[]>,
+): Promise<LocaleResult> {
+  const langName = LOCALE_NAMES[locale] ?? locale;
+  const enforceMinLen = MIN_PHRASE_LEN_LOCALES.has(locale);
+  const translations = loadTranslations(locale);
+  let pack = loadPack(locale);
+  const labels: Record<string, string[]> = {};
+  for (const [skillName, keys] of Object.entries(anchors)) {
+    const texts = [...new Set(keys.map(k => translations[k]).filter((t): t is string => !!t))];
+    if (texts.length) labels[skillName] = texts;
+  }
+  const batch = coreSkills.filter(s => s.name in labels && Array.isArray(pack[s.name]));
+  const result: LocaleResult = { locale, before: batch.length, after: batch.length, total: batch.length, calls: 0, errors: 0, shortfallRetries: 0 };
+  if (!batch.length || DRY_RUN) {
+    if (DRY_RUN) console.log(`→ ${locale}: label-anchor plan ${batch.map(s => `${s.name}=[${labels[s.name].join(' / ')}]`).join('; ')}`);
+    return result;
+  }
+
+  let fresh: Record<string, string[]>;
+  try {
+    fresh = await callLlm(locale, langName, batch, enforceMinLen, buildLabelAnchorPrompt(langName, batch, labels, pack, enforceMinLen));
+    result.calls++;
+  } catch (e) {
+    console.error(`  ✗ label-anchor batch failed ${locale}: ${e}`);
+    result.errors++;
+    return result;
+  }
+
+  pack = loadPack(locale);
+  const owner = new Map<string, string>();
+  for (const [skillName, phrases] of Object.entries(pack)) for (const p of phrases) owner.set(p, skillName);
+  for (const skill of batch) {
+    const existing = pack[skill.name];
+    const added = (fresh[skill.name] ?? [])
+      .filter(p => !enforceMinLen || p.length >= MIN_PHRASE_LEN)
+      .filter(p => !owner.has(p))
+      .slice(0, LABEL_ANCHOR_EXTRA_PHRASES);
+    for (const p of added) owner.set(p, skill.name);
+    if (added.length) {
+      pack[skill.name] = [...existing, ...added];
+      console.log(`  + ${locale}/${skill.name}: ${added.join(' | ')}`);
+    }
+  }
+  writePack(locale, pack);
+  return result;
+}
+
 async function processLocale(locale: string, coreSkills: SkillSeed[]): Promise<LocaleResult> {
   const langName = LOCALE_NAMES[locale] ?? locale;
   const enforceMinLen = MIN_PHRASE_LEN_LOCALES.has(locale);
+  const anchors = loadLabelAnchors();
+  if (Object.keys(anchors).length) return processLabelAnchors(locale, coreSkills, anchors);
   let pack = loadPack(locale);
   const before = Object.keys(pack).filter(k => coreSkills.some(s => s.name === k)).length;
   const missing = coreSkills.filter(s => !(s.name in pack));
