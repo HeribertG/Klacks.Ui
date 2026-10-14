@@ -5,7 +5,7 @@
       "author": "Hermes Agent"
     },
     {
-      "content": "Layered architecture under src/app/: presentation (components, directives, pipes, guards), application (orchestration services, cross-cutting concerns, translate helpers), domain (models, enums, interfaces, constants, domain services), infrastructure (API clients, SignalR, storage, i18n, scripting, speech) and shared (helpers, pipes, testing utilities). There is no single 'services' folder: application/services alone contains hundreds of *.service.ts files, and domain/services mirrors the same feature split (schedule, shift, client, contract, absence, expenses, report, scheduling, settings, speech, update, workchange, ...). Document services by the layer and feature they belong to, not by an assumed flat directory.",
+      "content": "Layered architecture under src/app/: presentation (components, directives, pipes, guards, plus many feature-local services next to their components), application (a small flat services folder with cross-cutting and orchestration services, helpers, interfaces, pipes, translate helpers), domain (models, enums, interfaces, constants, domain services split by feature: schedule, shift, client, contract, absence, expenses, report, scheduling, settings, speech, update, workchange, ...), infrastructure (API data services grouped by feature under api/, SignalR, storage, i18n, scripting, speech, plugin wiring) and shared (helpers, pipes, testing utilities). Services are spread across all four layers and there is no single 'services' folder. Document services by the layer and feature they belong to, not by an assumed flat directory, and do not state service counts.",
       "author": "Hermes Agent"
     },
     {
@@ -13,15 +13,15 @@
       "author": "Hermes Agent"
     },
     {
-      "content": "Supported locales are exactly four: de, en, fr and it (src/assets/i18n/*.json, loaded at runtime by KlacksTranslateLoader). Do not state any other locale count. The same four locales exist for every in-app manual.",
+      "content": "The application bundle ships four core languages: de, en, fr and it (src/assets/i18n/*.json; CORE_LANGUAGES in klacks-translate-loader.ts and LanguageConfigService). Further languages are language plugins installed on the backend: KlacksTranslateLoader merges the core JSON (English as the base for a non-core language) with the translations the backend serves under config/translations/{lang}, and ManualLoaderService loads plugin manuals from config/language-plugins/{code}/docs/{manual} with an English fallback. The Klacks backend currently provides 21 language plugins, 25 languages in total, including the right-to-left languages Arabic and Hebrew (DirectionService). Distinguish the bundled core languages from plugin languages; the bundled in-app manuals exist in the four core languages.",
       "author": "Hermes Agent"
     },
     {
-      "content": "src/assets/docs contains 33 in-app manuals, each as de.html / en.html / fr.html / it.html (132 files), loaded at runtime and served with no-cache. One manual exists per messaging channel; that set of messaging-* manual folders is the authoritative list of supported messaging channels.",
+      "content": "src/assets/docs contains 33 in-app manuals, each bundled as de.html / en.html / fr.html / it.html (132 files), loaded at runtime and served with no-cache; manuals in plugin languages come from the backend. The messaging-* manuals map one-to-one to the provider types the messaging plugin offers (PROVIDER_TYPES in projects/klacks-plugin-messaging/src/lib/settings/messaging-providers/messaging-provider-edit/messaging-provider-edit.component.ts and the MessengerType enum). Message delivery is implemented in the backend messaging plugin, which is not part of this repository, so do not describe the maturity or capabilities of individual channels beyond what this repository shows.",
       "author": "Hermes Agent"
     },
     {
-      "content": "Testing is Vitest with jsdom (vitest.config.ts: environment 'jsdom', pool 'forks', setupFiles src/test-setup.ts, 10s test/hook timeouts) executed through the Angular unit-test builder. spec files are in the hundreds. There is no end-to-end suite and no browser installation needed on CI.",
+      "content": "Testing is Vitest with jsdom (vitest.config.ts: environment 'jsdom', pool 'forks', setupFiles src/test-setup.ts, 10s test/hook timeouts) executed through the Angular unit-test builder. spec files are in the hundreds, and no browser installation is needed on CI. End-to-end tests are not part of this repository: they live in the separate repository HeribertG/Klacks.E2ETest (Playwright for .NET with NUnit).",
       "author": "Hermes Agent"
     },
     {
@@ -35,7 +35,7 @@
   ],
   "pages": [
     {
-      "title": "Klacks.UI - Project Overview",
+      "title": "Klacks.Ui - Project Overview",
       "purpose": "Front page. Describe what the application is (web frontend for workforce scheduling and deployment planning in the Klacks ecosystem), the current framework and language versions from package.json, the four-layer architecture, the Canvas-based grid rendering approach, the SignalR real-time layer, the two feature plugins, and how the repository is laid out. Keep it to an accurate summary with links to the child pages."
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "title": "Application Shell and Bootstrap",
-      "purpose": "Document src/main.ts, src/app/app.config.ts and src/app/app.component.ts: standalone bootstrap with bootstrapApplication, provideZoneChangeDetection, the provider list (router, HttpClient with interceptors, ngx-translate, ng-bootstrap, locale data, error handler), the AppComponent shell with router-outlet, header, nav, toast container and save bar, and the WorkPlace shell component."
+      "purpose": "Document src/main.ts, src/app/app.config.ts and src/app/app.component.ts: standalone bootstrap with bootstrapApplication, provideZoneChangeDetection, the provider list (router, HttpClient with interceptors, ngx-translate, ng-bootstrap, locale data, error handler). AppComponent (app.component.html) is a thin root: skip link, the main element with the root router-outlet, the overlay rail (toasts, assistant panels, transcript overlay, voice shell), the backend-unavailable overlay, the aside and the tooltip. The workplace shell is HomeComponent (src/app/presentation/surface/home/home.component.html) with modal, spinner wrapper, header, nav, company clock warning, the main area with the nested router-outlet, save bar and footer."
     },
     {
       "title": "Routing and Navigation",
@@ -107,8 +107,8 @@
       "purpose": "Document the rule and configuration model of the application: scheduling rules, calendar rules, counter rules, period caps, surcharge modes, restricted time windows, compensatory rest, overtime, compliance enforcement, active industries, skill relations and formulas, including where each is configured and how the settings modules under src/app/presentation/workplace/settings and the corresponding manuals under src/assets/docs relate to the domain services."
     },
     {
-      "title": "Klacksy Assistant, Voice and Local Speech Recognition",
-      "purpose": "Document the in-app assistant: the aside shell and assistant chat under src/app/presentation/aside, the assistant service and its SignalR hub, navigation control and telemetry services under src/app/domain/services/klacksy, the voice shell components (transcript overlay, microphone selection), and local speech-to-text in src/app/infrastructure/services/speech (Whisper via @huggingface/transformers, silence-based chunking, earcon feedback, audio capture). Also cover the assistant configuration (LLM providers) and the Klacksy training module."
+      "title": "Klacksy Assistant, Voice and Speech Recognition",
+      "purpose": "Document the in-app assistant: the aside shell and assistant chat under src/app/presentation/aside (chat services in assistant-chat/services, panel visibility in aside.service.ts), the assistant SignalR hub, navigation control and telemetry services under src/app/domain/services/klacksy, the voice shell components under src/app/presentation/voice-shell (icon, input, transcript overlay) and microphone device selection (src/app/domain/services/speech/microphone-selection.service.ts, used by the profile microphone test). Speech-to-text: voice input from the chat, the voice shell and the messaging plugin runs through ConversationOrchestratorService with the engine chosen in the speech settings. The default engine 'browser' runs Whisper (onnx-community/whisper-tiny via @huggingface/transformers, model downloaded from the Hugging Face Hub and cached by the browser) inside the browser; Groq Whisper and custom providers receive the recorded audio through the backend (assistant stt/transcribe); Deepgram and AssemblyAI stream the audio over a WebSocket to the backend STT proxy (assistant stt/stream). Whether audio leaves the browser depends on the configured engine; never state that it never does. SpeechRecognitionService also contains a Web Speech API recognizer; check its callers in the current revision before describing it as an active input path. Also cover audio capture with silence detection, earcon feedback, optional transcript enhancement, the assistant configuration (LLM providers) and the Klacksy training module."
     },
     {
       "title": "Feature Plugins and Plugin Contracts",
@@ -120,7 +120,7 @@
     },
     {
       "title": "Messaging Plugin",
-      "purpose": "Document projects/klacks-plugin-messaging: the messaging feature and route set, its integration with the plugin contracts, and the supported messaging channels as reflected by the messaging-* manuals under src/assets/docs. Describe channel configuration at the level the code supports and do not invent capabilities."
+      "purpose": "Document projects/klacks-plugin-messaging: the messaging feature and route set, its integration with the plugin contracts, and the provider types its settings offer (PROVIDER_TYPES in messaging-provider-edit.component.ts, MessengerType enum), each with a messaging-* manual under src/assets/docs. Message delivery is implemented by the backend messaging plugin outside this repository; describe channel configuration at the level the code supports and do not invent capabilities."
     },
     {
       "title": "Inbox and Email Module",
@@ -132,23 +132,23 @@
     },
     {
       "title": "Internationalization and Localization",
-      "purpose": "Document internationalization with @ngx-translate and exactly four locales (de, en, fr, it): the runtime JSON files under src/assets/i18n, KlacksTranslateLoader, TranslateStringConstantsService, Angular locale data loading, the custom ng-bootstrap datepicker i18n and week start services, direction handling, and how the nginx cache policy treats translation files. Do not state a different number of locales."
+      "purpose": "Document internationalization with @ngx-translate: the four core languages bundled as runtime JSON under src/assets/i18n (de, en, fr, it), the language plugins installed on the backend (translations from config/translations/{lang} merged by KlacksTranslateLoader, plugin manuals from config/language-plugins/{code}/docs/{manual}, installation through DataLanguagePluginService), LanguageConfigService, TranslateStringConstantsService, Angular locale data loading, the custom ng-bootstrap datepicker i18n and week start services, right-to-left handling in DirectionService, and how the nginx cache policy treats translation files. The backend currently provides 21 language plugins, 25 languages in total."
     },
     {
       "title": "In-App Manuals and User Documentation",
-      "purpose": "Document src/assets/docs: the 33 manuals, each in de, en, fr and it (132 HTML files), how manuals are declared and opened from the application (including the plugin manual loader contract), and the runtime caching behaviour for /assets/docs/*.html. List the manual topics."
+      "purpose": "Document src/assets/docs: the 33 manuals bundled in de, en, fr and it (132 HTML files), manuals for plugin languages loaded from the backend with an English fallback (ManualLoaderService), how manuals are declared and opened from the application (including the plugin manual loader contract), and the runtime caching behaviour for /assets/docs/*.html. List the manual topics."
     },
     {
       "title": "Testing Infrastructure",
-      "purpose": "Document the test setup: vitest.config.ts (jsdom environment, globals, forks pool, setup file, timeouts), src/test-setup.ts (zone.js testing, TestBed environment, ResizeObserver polyfill), the npm test scripts including the report generator under scripts/, the difference between npm test and npm run test:no-report, the existing shared testing utilities under src/app/shared/testing, and the CI workflow that runs the suite. Do not claim an end-to-end test suite."
+      "purpose": "Document the test setup: vitest.config.ts (jsdom environment, globals, forks pool, setup file, timeouts), src/test-setup.ts (zone.js testing, TestBed environment, ResizeObserver polyfill), the npm test scripts including the report generator under scripts/, the difference between npm test and npm run test:no-report, the existing shared testing utilities under src/app/shared/testing, and the CI workflows that run the suite and lint. End-to-end tests live in the separate repository HeribertG/Klacks.E2ETest (Playwright for .NET); mention them as an external suite, not as part of this repository."
     },
     {
       "title": "Build, Docker and Deployment",
-      "purpose": "Document the production build and release path: angular.json build configuration (outputPath dist/klacks.ui, production file replacements, output hashing, budgets), the two-stage Dockerfile (node:22-alpine pinned to BUILDPLATFORM, npm ci --legacy-peer-deps, contracts built first, ng build --configuration=production, then nginx:alpine), nginx.conf caching rules for index.html, version.json, i18n and docs assets and hashed bundles, build identity stamping via tools/write-build-info.ts and version.json polling, and the GitHub Actions workflows for tests, CodeQL and the Hetzner deployment including the paths that do not trigger a deploy."
+      "purpose": "Document the production build and release path: angular.json build configuration (outputPath dist/klacks.ui, production file replacements, output hashing, budgets), the two-stage Dockerfile (node:22-alpine pinned to BUILDPLATFORM, npm ci --legacy-peer-deps, contracts built first, ng build --configuration=production, then nginx:alpine), nginx.conf caching rules for index.html, version.json, i18n and docs assets and hashed bundles, build identity stamping via tools/write-build-info.ts and version.json polling, and the GitHub Actions workflows: tests.yml (Vitest and lint), codeql.yml, and deploy.yml, whose test job runs on pushes to main and whose build-and-push job runs only on v* tags and publishes the linux/amd64 and linux/arm64 klacks-ui image to ghcr.io. deploy.yml does not deploy to a server; the Klacks.Api release deployment pulls the klacks-ui image of the same version, which is why both repositories carry the same vX.Y.Z tag. Include the paths that keep pushes to main from starting deploy.yml."
     },
     {
       "title": "Maintenance Tooling: Synonyms and Wake Words",
-      "purpose": "Document the tsx scripts under tools/ and their npm script wrappers: write-build-info, scan-klacksy-targets, generate-synonyms, generate-declines, validate-synonyms, gate:synonyms, backtranslate-synonyms and wake-word-lint. Explain what each produces, where the reports land, and how the synonym gate and Husky pre-commit hook keep translations and wake words consistent."
+      "purpose": "Document the tsx scripts under tools/ and their npm script wrappers: write-build-info, scan-klacksy-targets, generate-synonyms, generate-declines, validate-synonyms, gate:synonyms, backtranslate-synonyms and wake-word-lint. Explain what each produces and where the reports land. The Husky pre-commit hook runs only npm run scan:targets (the Klacksy navigation target scan); the synonym gate and the wake-word lint are not part of the hook."
     },
     {
       "title": "Glossary",

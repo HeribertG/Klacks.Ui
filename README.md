@@ -1,4 +1,4 @@
-# Klacks.UI
+# Klacks.Ui
 
 [DeepWiki documentation for this repository](https://deepwiki.com/HeribertG/Klacks.Ui)
 [![Tests](https://github.com/HeribertG/Klacks.Ui/actions/workflows/tests.yml/badge.svg)](https://github.com/HeribertG/Klacks.Ui/actions/workflows/tests.yml)
@@ -29,7 +29,7 @@ Versions as declared in `package.json`.
 | UI / styling | Bootstrap `^5.3.3`, `@ng-bootstrap/ng-bootstrap` `^21.0.0`, SCSS (`sass` `^1.85.0`) |
 | i18n | `@ngx-translate/core` `^15.0.0` with runtime JSON loading |
 | Diagrams / editor | `fabric` `^7.4.0` (floor plan plugin), `jspdf` `^4.2.0`, `file-saver` `^2.0.5` |
-| Speech | `@huggingface/transformers` `^3.8.1` (local Whisper STT) |
+| Speech | `@huggingface/transformers` `^3.8.1` (in-browser Whisper for the default `browser` STT engine) |
 | Dates | `date-fns` `^4.1.0` |
 | Sanitizing | `dompurify` `^3.4.12` |
 | Tests | Vitest `^4.0.14` with jsdom `^27.2.0` |
@@ -64,8 +64,9 @@ npm run test                # full suite + test-results/report.html, opened via 
 ```
 
 Vitest is configured in `vitest.config.ts`: `environment: 'jsdom'`, `pool: 'forks'`, global
-setup in `src/test-setup.ts`, 10 s test and hook timeouts. The suite currently holds **402 spec
-files** and needs no browser install on CI.
+setup in `src/test-setup.ts`, 10 s test and hook timeouts. The unit tests run headless and need
+no browser install on CI. End-to-end tests (Playwright for .NET) are not part of this repository;
+they live in [Klacks.E2ETest](https://github.com/HeribertG/Klacks.E2ETest).
 
 ## Project layout
 
@@ -81,8 +82,8 @@ projects/
   klacks-plugin-messaging/    messaging plugin
   klacks-plugin-floor-plan/   floor plan editor plugin
 src/assets/
-  i18n/             de / en / fr / it translation JSON
-  docs/             33 in-app manuals, each in all four locales
+  i18n/             de / en / fr / it core translation JSON
+  docs/             33 in-app manuals, each in the four core languages
 tools/              build, synonym and wake-word maintenance scripts
 scripts/            test runner and HTML test report generator
 ```
@@ -138,6 +139,7 @@ Under `/workplace` (shell `HomeComponent`, `AuthGuard` on the parent):
 | `/workplace/period-closing` | Period closing (admin) |
 | `/workplace/klacksy-training` | Klacksy training review (admin) |
 | `/workplace/profile`, `/workplace/settings` | User profile, settings |
+| `/workplace/settings/client-import` | Employee import (admin) |
 
 ### Canvas rendering
 
@@ -166,14 +168,32 @@ built-ins are documented in the macro and formula manuals under `src/assets/docs
 
 ### Klacksy assistant and voice
 
-- Chat assistant: `presentation/aside/assistant-chat/`, service in `presentation/aside/aside.service.ts`,
-  navigation control in `domain/services/klacksy/klacksy-navigation.service.ts`, telemetry in
+- Chat assistant: `presentation/aside/assistant-chat/` with its chat services in `services/`;
+  the aside panel visibility lives in `presentation/aside/aside.service.ts`. Navigation control in
+  `domain/services/klacksy/klacksy-navigation.service.ts`, telemetry in
   `klacksy-telemetry.service.ts`.
-- Voice shell: `presentation/voice-shell/` (transcript overlay, mic selection).
-- Local speech-to-text: `infrastructure/services/speech/whisper-streaming.service.ts` runs the
-  ONNX `whisper-tiny` model in the browser through `@huggingface/transformers`, with
-  silence-based chunking and earcon feedback — audio is transcribed locally, no audio leaves the
-  browser. See the Klacksy training and LLM provider manuals.
+- Voice shell: `presentation/voice-shell/` (shell icon, voice input, transcript overlay), hosted in
+  the overlay rail.
+- Microphone choice: `domain/services/speech/microphone-selection.service.ts` keeps the selected
+  input device; it is picked and tested in the profile's microphone test
+  (`presentation/workplace/profile/profile-microphone-test/`).
+- Speech-to-text: voice input from the assistant chat, the voice shell and the messaging plugin runs
+  through `ConversationOrchestratorService`
+  (`presentation/aside/assistant-chat/services/conversation-orchestrator.service.ts`). It records
+  audio with silence detection and earcon feedback and transcribes it with the engine selected in the
+  speech settings:
+  - `browser` (default): Whisper (`onnx-community/whisper-tiny`, ONNX on WebAssembly via
+    `@huggingface/transformers`) runs in the browser
+    (`infrastructure/services/speech/whisper-streaming.service.ts`). The model is downloaded from the
+    Hugging Face Hub on first use and cached by the browser.
+  - Groq Whisper and custom providers: the recorded audio is sent to the backend
+    (`assistant/stt/transcribe`), which forwards it to the configured provider.
+  - Deepgram and AssemblyAI: the audio is streamed over a WebSocket to the backend STT proxy
+    (`assistant/stt/stream`).
+
+  Whether audio leaves the browser therefore depends on the configured engine. Optional transcript
+  enhancement sends the transcribed text to the backend (`assistant/transcription/enhance`). See
+  the Klacksy training and LLM provider manuals.
 
 ### Feature plugins
 
@@ -195,21 +215,31 @@ npx ng build klacks-plugin-contracts
 
 ## Internationalization
 
-Four locales — **de, en, fr, it** — served as runtime JSON from `src/assets/i18n/` and loaded by
-`KlacksTranslateLoader` (`infrastructure/i18n/`). Locale handling additionally covers Angular
-locale data (`locale-data-loader.service.ts`), a custom datepicker i18n and week start
-(`custom-datepicker-i18n.service.ts`, `datepicker-week-start.service.ts`) and text direction
-(`presentation/services/direction.service.ts`).
+The bundle ships four core languages — **de, en, fr, it** — as runtime JSON in `src/assets/i18n/`.
+Further languages are language plugins installed on the backend: `KlacksTranslateLoader`
+(`infrastructure/i18n/klacks-translate-loader.ts`) merges the core file (English as the base for a
+non-core language) with the translations the backend serves under `config/translations/{lang}`, and
+`ManualLoaderService` loads plugin manuals from `config/language-plugins/{code}/docs/{manual}`,
+falling back to English. The Klacks backend currently provides 21 language plugins, 25 languages in
+total, including the right-to-left languages Arabic and Hebrew.
+
+Locale handling additionally covers Angular locale data (`locale-data-loader.service.ts`), a custom
+datepicker i18n and week start (`custom-datepicker-i18n.service.ts`,
+`datepicker-week-start.service.ts`) and text direction
+(`application/services/direction.service.ts`).
 
 ## In-app manuals
 
 `src/assets/docs/` holds 33 manuals, each as `de.html` / `en.html` / `fr.html` / `it.html`
-(132 files), loaded at runtime. Topics include scheduling rules, calendar rules, surcharge modes,
-overtime, compensatory rest, period caps, restricted time windows, counter rules, compliance
-enforcement, formulas, macros, reports, resource monitor, ERP import, active industries, skill
-relations, user administration, identity provider, personal access tokens, LLM providers,
-Klacksy training, and one manual per messaging channel: Telegram, WhatsApp, Signal, Slack, Teams,
-SMS, Viber, WeChat, LINE, Zalo, Threema and KakaoTalk.
+(132 files), loaded at runtime; manuals in plugin languages come from the backend (see above).
+Topics include scheduling rules, calendar rules, surcharge modes, overtime, compensatory rest,
+period caps, restricted time windows, counter rules, compliance enforcement, formulas, macros,
+reports, resource monitor, ERP import, active industries, skill relations, user administration,
+identity provider, personal access tokens, LLM providers, Klacksy training, and one manual for each
+provider type the messaging plugin offers (`PROVIDER_TYPES` in
+`messaging-provider-edit.component.ts`): Telegram, WhatsApp, Signal, Slack, Teams, SMS, Viber,
+WeChat, LINE, Zalo, Threema and KakaoTalk. Message delivery itself is implemented by the backend
+messaging plugin, which is not part of this repository.
 
 ## Build and deployment
 
@@ -233,20 +263,26 @@ one-year caching for hashed assets.
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
-| `tests.yml` | push / PR to `main` | Node 22, Vitest headless in jsdom |
-| `deploy.yml` | push to `main`, tags `v*`, manual | tests, then build and deploy to Hetzner |
+| `tests.yml` | push / PR to `main` | Node 22, Vitest headless in jsdom (`npm run test:no-report`), then `npm run lint` |
+| `deploy.yml` | push to `main`, tags `v*`, manual | job `test` (contracts build, Vitest, `ng lint`) on every run; job `build-and-push` only on a `v*` tag |
 | `codeql.yml` | push / PR to `main`, weekly | CodeQL analysis for JavaScript/TypeScript |
 
-`deploy.yml` ignores changes to `README.md` and `docs/**`, so documentation-only commits do not
-trigger a deployment.
+A push to `main` therefore only runs tests and lint. On a `v*` tag, `build-and-push` builds the
+Docker image for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/heribertg/klacks-ui`.
+`deploy.yml` itself does not deploy to a server: the Klacks.Api release deployment pulls
+`klacks-ui` in the same version, so both repositories are tagged with the same `vX.Y.Z` (see the
+comment at the end of `deploy.yml`). Pushes to `main` that only change `README.md` or `docs/**` do
+not start `deploy.yml`.
 
 ## Maintenance tooling
 
-`tools/` contains Node/`tsx` scripts driven from npm, covering build info, wake-word analysis and
-the translation synonym pipeline (`scan:targets`, `generate:synonyms`, `generate:declines`,
-`validate:synonyms`, `gate:synonyms`, `backtranslate:synonyms`, `wake-word-lint`).
+`tools/` contains Node/`tsx` scripts, most of them driven from npm: build info
+(`write-build-info.ts`), the Klacksy navigation target scan (`scan:targets`), the translation
+synonym pipeline (`generate:synonyms`, `generate:declines`, `validate:synonyms`, `gate:synonyms`,
+`backtranslate:synonyms`) and wake-word analysis (`wake-word-lint`).
 
-Git hooks run through Husky (`prepare` → `husky`), with a `pre-commit` hook.
+Git hooks run through Husky (`prepare` → `husky`). The `pre-commit` hook runs only
+`npm run scan:targets`.
 
 ## Security
 
@@ -255,4 +291,14 @@ Please report vulnerabilities through GitHub Security Advisories, not public iss
 
 ## License
 
-[MIT](LICENSE) — Copyright (c) 2025-2026 Heribert Gasparoli.
+Klacks is licensed under the [GNU Affero General Public License v3.0 only](LICENSE)
+(AGPL-3.0-only) since 2026-09-28. Versions released up to and including v1.0.35 were published
+under the MIT license.
+
+There are no license fees. Hosting and operation (servers, maintenance, and an external AI model if
+you use one) still cost money; what you do not pay is a fee per employee.
+
+If you want to build Klacks into a closed product or keep your changes private, a commercial license
+is available; see the [license page](https://klacks-software.ch/en/land-gb/lizenz).
+
+Copyright (c) 2025-2026 Heribert Gasparoli.
