@@ -15,6 +15,7 @@ import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } f
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
 import {
   IAppContactSettings,
@@ -108,6 +109,7 @@ interface SettingsModels {
 })
 export class AppSettingsManagementService {
   private dataSettingsService = inject(DataSettingsVariousService);
+  private settingsListReader = inject(SettingsListReaderService);
   private destroyRef = inject(DestroyRef);
 
   private readonly settingsHandlerMap = new Map<string, (value: string, models: SettingsModels) => void>([
@@ -398,7 +400,7 @@ export class AppSettingsManagementService {
   loadSettings(): void {
     this.isLoading.set(true);
 
-    this.dataSettingsService
+    this.settingsListReader
       .readSettingList()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -420,7 +422,7 @@ export class AppSettingsManagementService {
 
   async loadSettingsAsync(): Promise<void> {
     try {
-      const settings = await firstValueFrom(this.dataSettingsService.readSettingList());
+      const settings = await firstValueFrom(this.settingsListReader.readSettingList());
       if (settings) {
         this.settingsList = settings as ISetting[];
         this.applySettingsToModels(settings as ISetting[]);

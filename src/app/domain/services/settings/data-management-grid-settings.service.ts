@@ -4,6 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { ISetting, Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -12,6 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class DataManagementGridSettingsService {
   public dataSettingsVariousService = inject(DataSettingsVariousService);
+  private settingsListReader = inject(SettingsListReaderService);
   private destroy$ = new Subject<void>();
 
   public backgroundColorHoliday = '';
@@ -32,7 +34,7 @@ export class DataManagementGridSettingsService {
   private borderColorDummy = '';
 
   readSettingList() {
-    this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
+    this.settingsListReader.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
       if (l) {
         this.settingList = l as ISetting[];
         this.resetSetting();

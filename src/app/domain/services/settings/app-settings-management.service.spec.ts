@@ -4,6 +4,7 @@
 import { TestBed } from '@angular/core/testing';
 import { AppSettingsManagementService } from './app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { of, throwError } from 'rxjs';
 import { ISetting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
 
@@ -29,7 +30,8 @@ describe('AppSettingsManagementService', () => {
         TestBed.configureTestingModule({
             providers: [
                 AppSettingsManagementService,
-                { provide: DataSettingsVariousService, useValue: dataSettingsServiceSpy }
+                { provide: DataSettingsVariousService, useValue: dataSettingsServiceSpy },
+                { provide: AuthorizationService, useValue: { isAdmin: true } }
             ]
         });
 

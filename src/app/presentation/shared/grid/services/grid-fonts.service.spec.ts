@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { DEFAULT_GRID_FONT_STACK } from 'src/app/domain/constants/grid-font.constants';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { GridFontsService } from './grid-fonts.service';
 import { ensureFontFallback } from './ensure-font-fallback';
 
@@ -20,6 +21,7 @@ describe('GridFontsService font fallback', () => {
           provide: DataSettingsVariousService,
           useValue: { readSettingList: () => of(settings) },
         },
+        { provide: AuthorizationService, useValue: { isAdmin: true } },
       ],
     });
     service = TestBed.inject(GridFontsService);

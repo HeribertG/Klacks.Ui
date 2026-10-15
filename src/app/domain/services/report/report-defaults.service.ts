@@ -3,11 +3,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { AppSetting, ISetting } from 'src/app/domain/models/settings/settings-various-class';
 
 @Injectable({ providedIn: 'root' })
 export class ReportDefaultsService {
   private settingsApi = inject(DataSettingsVariousService);
+  private settingsListReader = inject(SettingsListReaderService);
 
   defaults = signal<Record<string, string>>({});
   private settingId: string | undefined;
@@ -15,7 +17,7 @@ export class ReportDefaultsService {
 
   async load(): Promise<void> {
     try {
-      const allSettings = await firstValueFrom(this.settingsApi.readSettingList());
+      const allSettings = await firstValueFrom(this.settingsListReader.readSettingList());
       const setting = allSettings.find(s => s.type === AppSetting.REPORT_DEFAULT_TEMPLATES);
       if (setting) {
         this.settingId = setting.id;

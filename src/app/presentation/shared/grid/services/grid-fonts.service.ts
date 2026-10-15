@@ -4,6 +4,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ISetting, Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { DEFAULT_GRID_FONT_STACK } from 'src/app/domain/constants/grid-font.constants';
@@ -16,6 +17,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class GridFontsService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private settingsListReader = inject(SettingsListReaderService);
   private pixelToPt = inject(PixelToPtService);
 
   public isReset = signal(false);
@@ -188,7 +190,7 @@ export class GridFontsService {
 
   async readDataAsync(): Promise<void> {
     const settings = await firstValueFrom(
-      this.dataSettingsVariousService.readSettingList()
+      this.settingsListReader.readSettingList()
     );
     this.settingList = [];
     this.settingListDummy = [];
@@ -209,7 +211,7 @@ export class GridFontsService {
   }
 
   private readSettingList() {
-    this.dataSettingsVariousService.readSettingList().subscribe((l) => {
+    this.settingsListReader.readSettingList().subscribe((l) => {
       this.settingList = [];
       this.settingListDummy = [];
       this.resetSettingList();

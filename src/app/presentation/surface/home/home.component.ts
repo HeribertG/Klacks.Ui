@@ -19,6 +19,7 @@ import { CompanyClockWarningComponent } from '../company-clock-warning/company-c
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 
@@ -45,6 +46,7 @@ export class HomeComponent implements OnInit {
   private spinnerService = inject(SpinnerService);
   private onboardingService = inject(OnboardingService);
   private asideService = inject(AsideService);
+  private authorizationService = inject(AuthorizationService);
 
   public layoutService = inject(LayoutService);
 
@@ -55,6 +57,10 @@ export class HomeComponent implements OnInit {
   }
 
   private openAsideOnFreshDatabase(): void {
+    if (!this.authorizationService.isAdmin) {
+      return;
+    }
+
     this.onboardingService.refreshState().subscribe({
       next: (state) => {
         if (state.shouldOffer) {

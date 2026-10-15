@@ -6,6 +6,7 @@ import {
   Setting,
 } from 'src/app/domain/models/settings/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { Subject, firstValueFrom } from 'rxjs';
@@ -18,6 +19,7 @@ import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helpe
 })
 export class GridColorService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private settingsListReader = inject(SettingsListReaderService);
   private gridTheme = inject(GridThemeService);
   private destroy$ = new Subject<void>();
 
@@ -142,7 +144,7 @@ export class GridColorService {
 
   async readDataAsync(): Promise<void> {
     const settings = await firstValueFrom(
-      this.dataSettingsVariousService.readSettingList()
+      this.settingsListReader.readSettingList()
     );
     this.settingList = [];
     this.settingListDummy = [];
@@ -164,7 +166,7 @@ export class GridColorService {
   }
 
   private readSettingList() {
-    this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
+    this.settingsListReader.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
       this.settingList = [];
       this.settingListDummy = [];
       this.resetSettingList();
