@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * API service for the escalation intervention list: running chains, take-over and cancel. The take-over
+ * API service for the escalation intervention list: running chains, the unresolved ones of the last week, take-over and cancel. The take-over
  * answers 409 with the same result body when the chain had already ended, so its caller must handle that
  * status rather than treat every failure alike.
  * @param chainId - Id of the escalation chain to act on
@@ -14,6 +14,7 @@ import { environment } from 'src/environments/environment';
 import {
   IEscalationAcknowledgeResult,
   IEscalationChainSummary,
+  IUnresolvedEscalationChain,
 } from 'src/app/domain/interfaces/escalation-chain.interface';
 
 @Injectable({
@@ -27,6 +28,12 @@ export class DataEscalationChainService {
   getRunning(): Observable<IEscalationChainSummary[]> {
     return this.httpClient.get<IEscalationChainSummary[]>(
       `${this.baseUrl}escalation-chains`,
+    );
+  }
+
+  getUnresolved(): Observable<IUnresolvedEscalationChain[]> {
+    return this.httpClient.get<IUnresolvedEscalationChain[]>(
+      `${this.baseUrl}escalation-chains/unresolved`,
     );
   }
 

@@ -89,6 +89,7 @@ import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 const GROUP_QUERY_PARAM = 'groupId';
 const CLIENT_QUERY_PARAM = 'clientId';
 const DATE_QUERY_PARAM = 'date';
+const SCENARIO_QUERY_PARAM = 'scenarioId';
 const ISO_WEEK_THURSDAY_OFFSET = 4;
 const SUNDAY_AS_ISO_WEEKDAY = 7;
 const MONTH_INDEX_OFFSET = 1;
@@ -179,6 +180,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     await this.allScheduleStateService.initializeWorkplaceState();
     await this.applyClientQueryParam();
     this.applyDateQueryParam();
+    await this.applyScenarioQueryParam();
     this.isInitialized = true;
     this.cdr.markForCheck();
 
@@ -201,13 +203,19 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
 
   private async reapplyActionQueryParams(): Promise<void> {
     const params = this.route.snapshot.queryParamMap;
-    if (!params.get(CLIENT_QUERY_PARAM) && !params.get(GROUP_QUERY_PARAM) && !params.get(DATE_QUERY_PARAM)) {
+    if (
+      !params.get(CLIENT_QUERY_PARAM) &&
+      !params.get(GROUP_QUERY_PARAM) &&
+      !params.get(DATE_QUERY_PARAM) &&
+      !params.get(SCENARIO_QUERY_PARAM)
+    ) {
       return;
     }
 
     await this.applyGroupQueryParam();
     await this.applyClientQueryParam();
     this.applyDateQueryParam();
+    await this.applyScenarioQueryParam();
     this.dataManagementSchedule.readDatas();
   }
 
@@ -254,6 +262,22 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
       this.searchStateService.setRestoreSearch(searchString);
     } catch {
       // ignore: invalid id or no permission → fall back to the unfiltered schedule
+    }
+  }
+
+  /**
+   * Opens a scenario directly when the page is reached through a deep link carrying its id (the escalation
+   * list's "open scenario"). Only an active scenario is entered; an accepted, rejected or deleted one leaves
+   * the real schedule showing, because there is nothing left to review.
+   */
+  private async applyScenarioQueryParam(): Promise<void> {
+    const scenarioId = this.route.snapshot.queryParamMap.get(SCENARIO_QUERY_PARAM);
+    if (!scenarioId) return;
+
+    try {
+      await this.analyseScenarioService.openScenarioById(scenarioId);
+    } catch {
+      // ignore: unknown id or no permission → the real schedule stays open
     }
   }
 

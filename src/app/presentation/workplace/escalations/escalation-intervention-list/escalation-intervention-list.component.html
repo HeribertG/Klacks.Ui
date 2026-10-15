@@ -1,67 +1,268 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div id="escalation-intervention-container">
-  <div id="escalation-intervention-header" class="container-header">
+<div id="escalation-intervention-container" class="container-dashboard">
+  <div id="escalation-intervention-header" class="container-headline">
     {{ 'escalation.intervention.title' | translate }}
   </div>
+  <p id="escalation-intervention-intro" class="hint-text escalation-intervention-intro">
+    {{ 'escalation.intervention.intro' | translate }}
+  </p>
 
-  @if (escalationChainService.runningChains().length === 0) {
-    <p id="escalation-intervention-empty" class="escalation-intervention-empty">
-      {{ 'escalation.intervention.empty' | translate }}
-    </p>
+  @if (chains().length === 0) {
+    <div class="container-profilline">
+      <div class="container-profile first border-right-card border-bottom-card">
+        <p id="escalation-intervention-empty" class="escalation-intervention-empty">
+          {{ 'escalation.intervention.empty' | translate }}
+        </p>
+      </div>
+    </div>
   }
 
-  <ul id="escalation-intervention-list" class="escalation-intervention-list">
-    @for (chain of escalationChainService.runningChains(); track chain.id) {
-      <li class="escalation-intervention-card">
-        <div class="escalation-intervention-card-header">
-          <span class="escalation-intervention-client">
-            @if (isProactiveApproval(chain)) {
-              {{ 'assistant.escalation.purpose.proactiveApproval' | translate }}
-            } @else {
-              {{ chain.absentClientName }}
-            }
-          </span>
-          <span class="escalation-intervention-deadline">
-            {{ 'escalation.intervention.deadline-in' | translate: { minutes: minutesUntil(chain.deadlineUtc) } }}
-          </span>
+  @for (chain of activeChains(); track chain.id) {
+    @let approval = isProactiveApproval(chain);
+    @let current = currentStageOf(chain);
+    @let next = nextStageOf(chain);
+    @let percent = progressPercent(chain);
+    <div class="container-profilline escalation-intervention-card">
+      <div class="container-profile first border-right-card border-bottom-card">
+        <app-expandable-card
+          [headerTitle]="approval
+            ? ('escalation.intervention.title-approval' | translate: { finding: findingLabel(chain) })
+            : ('escalation.intervention.title-absence' | translate: { name: chain.absentClientName })"
+        >
+        <div headerActions [class]="'escalation-intervention-header-time urgency-' + urgencyOf(chain)">
+          {{ remainingText(chain) }}
         </div>
 
-        <ul class="escalation-intervention-stage-list">
-          @for (stage of chain.stages; track stage.rank) {
-            <li class="escalation-intervention-stage" [class]="'stage-status-' + stage.status.toLowerCase()">
-              <span class="escalation-intervention-stage-rank">{{ stage.rank }}</span>
-              <span class="escalation-intervention-stage-name">{{ stage.userDisplayName }}</span>
-              <span class="escalation-intervention-stage-status">
-                {{ 'escalation.intervention.stage-status.' + stage.status.toLowerCase() | translate }}
-              </span>
+        <div class="escalation-intervention-body">
+          <div class="escalation-intervention-meta">
+            @if (!approval && chain.shiftStartUtc) {
+              <span>{{ 'escalation.intervention.shift-at' | translate: { dateTime: (chain.shiftStartUtc | companyDateTime: 'dayMonthTime') } }}</span>
+            }
+            @if (chain.groupName) {
+              <span>{{ 'escalation.intervention.group' | translate: { group: chain.groupName } }}</span>
+            }
+          </div>
+
+          <p class="escalation-intervention-explain">
+            {{ (approval ? 'escalation.intervention.explain-approval' : 'escalation.intervention.explain-absence') | translate }}
+          </p>
+
+          <div class="escalation-intervention-time" [class]="'escalation-intervention-time urgency-' + urgencyOf(chain)">
+            <div class="escalation-intervention-time-text">
+              @if (isTimeOver(chain)) {
+                {{ 'escalation.intervention.time-over' | translate }}
+              } @else {
+                {{ 'escalation.intervention.time-left' | translate: { duration: remainingText(chain), dateTime: (chain.deadlineUtc | companyDateTime: 'dayMonthTime') } }}
+              }
+            </div>
+            @if (percent !== null) {
+              <div
+                class="progress escalation-intervention-progress"
+                role="progressbar"
+                [attr.aria-label]="'escalation.intervention.progress-label' | translate"
+                [attr.aria-valuenow]="percent"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <div class="progress-bar" [style.width.%]="percent"></div>
+              </div>
+            }
+          </div>
+
+          @if (current) {
+            <p class="escalation-intervention-turn">
+              @if (chain.canAcknowledge) {
+                {{ 'escalation.intervention.turn-self' | translate: { time: (current.dueAtUtc | companyDateTime: 'dayMonthTime') } }}
+              } @else {
+                {{ 'escalation.intervention.turn-other' | translate: { name: current.userDisplayName, time: (current.dueAtUtc | companyDateTime: 'dayMonthTime') } }}
+              }
+              @if (next) {
+                {{ 'escalation.intervention.turn-next' | translate: { name: next.userDisplayName } }}
+              }
+            </p>
+          }
+
+          <div class="escalation-intervention-order-heading">{{ 'escalation.intervention.order-heading' | translate }}</div>
+          <ul class="escalation-intervention-stage-list">
+            @for (stage of chain.stages; track stage.rank) {
+              <li [class]="'escalation-intervention-stage stage-status-' + stage.status.toLowerCase()">
+                <span class="escalation-intervention-stage-rank">{{ stage.rank }}.</span>
+                <span class="escalation-intervention-stage-name">{{ stage.userDisplayName }}</span>
+                <span class="escalation-intervention-stage-status">
+                  {{ 'escalation.intervention.stage-status.' + stage.status.toLowerCase() | translate }}
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        @if (chain.canCancel || chain.canAcknowledge || canOpenScenario(chain)) {
+          <div class="escalation-intervention-actions">
+            @if (canOpenScenario(chain)) {
+              <button
+                type="button"
+                class="btn btn-outline-primary btn-sm escalation-intervention-open-scenario-btn"
+                (click)="onOpenScenario(chain)"
+              >
+                {{ 'escalation.intervention.open-scenario' | translate }}
+              </button>
+            }
+            @if (chain.canCancel) {
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm escalation-intervention-cancel-btn"
+                (click)="onCancelClick(chain)"
+              >
+                {{ 'escalation.intervention.cancel' | translate }}
+              </button>
+            }
+            @if (chain.canAcknowledge) {
+              <button
+                type="button"
+                class="btn btn-primary btn-sm escalation-intervention-acknowledge-btn"
+                (click)="onAcknowledge(chain)"
+              >
+                {{ (approval ? 'escalation.intervention.approve' : 'escalation.intervention.acknowledge') | translate }}
+              </button>
+            }
+          </div>
+        }
+        </app-expandable-card>
+      </div>
+    </div>
+  }
+
+  @if (registeredChains().length > 0) {
+    <div class="container-profilline">
+      <div id="escalation-registered-card" class="container-profile first border-right-card border-bottom-card">
+        <app-expandable-card
+          [headerTitle]="'escalation.intervention.registered.title' | translate: { count: registeredChains().length }"
+        >
+
+        <div class="escalation-intervention-body">
+          <p class="escalation-intervention-explain">{{ 'escalation.intervention.registered.intro' | translate }}</p>
+          <ul class="escalation-unresolved-list">
+            @for (chain of registeredChains(); track chain.id) {
+              <li class="escalation-unresolved-item escalation-registered-item">
+                <div class="escalation-unresolved-title">
+                  {{ 'escalation.intervention.title-absence' | translate: { name: chain.absentClientName } }}
+                </div>
+                <div class="escalation-intervention-meta">
+                  @if (chain.shiftStartUtc) {
+                    <span>{{ 'escalation.intervention.shift-at' | translate: { dateTime: (chain.shiftStartUtc | companyDateTime: 'dayMonthTime') } }}</span>
+                  }
+                  @if (chain.groupName) {
+                    <span>{{ 'escalation.intervention.group' | translate: { group: chain.groupName } }}</span>
+                  }
+                </div>
+                <div class="escalation-unresolved-outcome">
+                  {{ 'escalation.intervention.wake-later' | translate: { dateTime: (chain.wakeNotBeforeUtc | companyDateTime: 'dayMonthTime') } }}
+                </div>
+                @if (canOpenScenario(chain) || chain.canCancel) {
+                  <div class="escalation-unresolved-scenario">
+                    @if (canOpenScenario(chain)) {
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm escalation-intervention-open-scenario-btn"
+                        (click)="onOpenScenario(chain)"
+                      >
+                        {{ 'escalation.intervention.open-scenario' | translate }}
+                      </button>
+                    }
+                    @if (chain.canCancel) {
+                      <button
+                        type="button"
+                        class="btn btn-outline-danger btn-sm escalation-intervention-cancel-btn"
+                        (click)="onCancelClick(chain)"
+                      >
+                        {{ 'escalation.intervention.cancel' | translate }}
+                      </button>
+                    }
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+        </app-expandable-card>
+      </div>
+    </div>
+  }
+
+  <div class="container-profilline">
+    <div id="escalation-unresolved-card" class="container-profile first border-right-card border-bottom-card">
+      <app-expandable-card [headerTitle]="'escalation.intervention.unresolved.title' | translate">
+
+      <div class="escalation-intervention-body">
+        <p class="escalation-intervention-explain">{{ 'escalation.intervention.unresolved.intro' | translate }}</p>
+
+        @if (unresolvedChains().length === 0) {
+          <p id="escalation-unresolved-empty" class="escalation-unresolved-empty">
+            {{ 'escalation.intervention.unresolved.empty' | translate }}
+          </p>
+        }
+
+        <ul class="escalation-unresolved-list">
+          @for (item of unresolvedChains(); track item.id) {
+            @let itemApproval = isProactiveApproval(item);
+            <li class="escalation-unresolved-item">
+              <div class="escalation-unresolved-title">
+                @if (itemApproval) {
+                  {{ 'escalation.intervention.title-approval' | translate: { finding: findingLabel(item) } }}
+                } @else {
+                  {{ 'escalation.intervention.title-absence' | translate: { name: item.absentClientName } }}
+                }
+              </div>
+              <div class="escalation-intervention-meta">
+                @if (!itemApproval && item.shiftStartUtc) {
+                  <span>{{ 'escalation.intervention.shift-at' | translate: { dateTime: (item.shiftStartUtc | companyDateTime: 'dayMonthTime') } }}</span>
+                }
+                @if (item.groupName) {
+                  <span>{{ 'escalation.intervention.group' | translate: { group: item.groupName } }}</span>
+                }
+              </div>
+              <div class="escalation-unresolved-outcome">
+                @if (isCancelled(item)) {
+                  {{ 'escalation.intervention.unresolved.cancelled-by' | translate: { name: item.cancelledByUserName, dateTime: (item.endedAtUtc | companyDateTime: 'dayMonthTime') } }}
+                } @else if (item.notifiedStageCount === 1) {
+                  {{ 'escalation.intervention.unresolved.exhausted-one' | translate: { dateTime: (item.endedAtUtc | companyDateTime: 'dayMonthTime') } }}
+                } @else if (item.notifiedStageCount > 1) {
+                  {{ 'escalation.intervention.unresolved.exhausted' | translate: { dateTime: (item.endedAtUtc | companyDateTime: 'dayMonthTime'), count: item.notifiedStageCount } }}
+                } @else {
+                  {{ 'escalation.intervention.unresolved.exhausted-nobody' | translate: { dateTime: (item.endedAtUtc | companyDateTime: 'dayMonthTime') } }}
+                }
+              </div>
+              @if (item.cancelReason) {
+                <div class="escalation-unresolved-reason">
+                  {{ 'escalation.intervention.unresolved.reason' | translate: { reason: item.cancelReason } }}
+                </div>
+              } @else if (item.cancelReasonHidden) {
+                <div class="escalation-unresolved-reason escalation-unresolved-reason-hidden">
+                  {{ 'escalation.intervention.unresolved.reason-hidden' | translate }}
+                </div>
+              }
+              @if (item.scenarioStatus) {
+                <div class="escalation-unresolved-scenario">
+                  <span>{{ 'escalation.intervention.unresolved.scenario-' + item.scenarioStatus.toLowerCase() | translate }}</span>
+                  @if (item.scenarioId) {
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm escalation-unresolved-open-scenario-btn"
+                      (click)="onOpenScenario(item)"
+                    >
+                      {{ 'escalation.intervention.open-scenario' | translate }}
+                    </button>
+                  }
+                </div>
+              }
             </li>
           }
         </ul>
-
-        <div class="escalation-intervention-actions">
-          @if (chain.canAcknowledge) {
-            <button
-              type="button"
-              class="btn escalation-intervention-acknowledge-btn"
-              (click)="onAcknowledge(chain)"
-            >
-              {{ 'escalation.intervention.acknowledge' | translate }}
-            </button>
-          }
-          @if (chain.canCancel) {
-            <button
-              type="button"
-              class="link-button red-font escalation-intervention-cancel-btn"
-              (click)="onCancelClick(chain)"
-            >
-              {{ 'escalation.intervention.cancel' | translate }}
-            </button>
-          }
-        </div>
-      </li>
-    }
-  </ul>
+      </div>
+      </app-expandable-card>
+    </div>
+  </div>
 </div>
 
 <ng-template #cancelReasonModal let-modal>

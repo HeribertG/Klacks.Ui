@@ -36,6 +36,12 @@ describe('EscalationInterventionListComponent', () => {
         absentClientName: 'Anna Adler',
         shiftStartUtc: '2026-08-17T06:00:00Z',
         deadlineUtc: new Date(Date.now() + 20 * 60000).toISOString(),
+        startedAtUtc: new Date(Date.now() - 60 * 60000).toISOString(),
+        groupName: 'Station Nord',
+        findingKind: null,
+        groupId: null,
+        scenarioId: null,
+        wakeNotBeforeUtc: null,
         canAcknowledge: false,
         canCancel: true,
         stages: [
@@ -47,7 +53,9 @@ describe('EscalationInterventionListComponent', () => {
     beforeEach(async () => {
         mockEscalationService = {
             runningChains: signal<IEscalationChainSummary[]>([]),
+            unresolvedChains: signal([]),
             refresh: vi.fn(),
+            refreshUnresolved: vi.fn(),
             acknowledge: vi.fn(() => of({ outcome: 'Acknowledged', chainStatus: 'Acknowledged' })),
             cancel: vi.fn(() => of(undefined)),
         };
@@ -83,9 +91,12 @@ describe('EscalationInterventionListComponent', () => {
         expect(mockEscalationService.refresh).toHaveBeenCalledTimes(1);
     });
 
-    it('computes minutes until the deadline', () => {
-        const inTwentyMinutes = new Date(Date.now() + 20 * 60000).toISOString();
-        expect(component.minutesUntil(inTwentyMinutes)).toBe(20);
+    it('shows the remaining reaction time as minutes when less than an hour is left', () => {
+        expect(component.remainingText(chain())).toBe('escalation.intervention.duration-minutes');
+    });
+
+    it('falls back to the generic finding label for an unknown finding kind', () => {
+        expect(component.findingLabel(chain({ findingKind: 'not_a_kind' }))).toBe('escalation.intervention.finding-unknown');
     });
 
     it('acknowledges a chain', () => {

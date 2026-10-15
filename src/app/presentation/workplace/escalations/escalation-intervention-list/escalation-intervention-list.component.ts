@@ -19,10 +19,12 @@ import {
   OnDestroy,
   inject,
   signal,
+  computed,
   viewChild,
   TemplateRef,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -39,9 +41,24 @@ import {
   ESCALATION_PURPOSE_PROACTIVE_APPROVAL,
   IEscalationAcknowledgeResult,
   IEscalationChainSummary,
+  IEscalationStageSummary,
+  IUnresolvedEscalationChain,
+  ESCALATION_CHAIN_STATUS_CANCELLED,
 } from 'src/app/domain/interfaces/escalation-chain.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { calendarDateKey, companyCalendarDayOf } from 'src/app/shared/helpers/calendar-date.helper';
+import {
+  EscalationUrgency,
+  currentStage,
+  nextStage,
+  remainingMs,
+  remainingPercent,
+  splitDuration,
+  urgency,
+} from './escalation-chain-display.helper';
 
 interface CancelFormModel {
   reason: string;
@@ -55,13 +72,23 @@ const CANCEL_ERROR_CODE = 'ESCALATION_CANCEL_ERROR';
 const ACKNOWLEDGE_TOO_LATE_KEY = 'escalation.intervention.acknowledge-too-late';
 const ACKNOWLEDGE_ALREADY_HANDLED_KEY = 'escalation.intervention.acknowledge-already-handled';
 const ACKNOWLEDGE_CONFLICT_TOAST_NAME = 'escalation-acknowledge-conflict';
+const CLOCK_TICK_MS = 30000;
+const SCHEDULE_ROUTE = '/workplace/schedule';
+const SCENARIO_QUERY_PARAM = 'scenarioId';
+const GROUP_QUERY_PARAM = 'groupId';
+const DATE_QUERY_PARAM = 'date';
+const FINDING_KIND_KEY_PREFIX = 'setting.proactiveGovernance.kind.';
+const FINDING_UNKNOWN_KEY = 'escalation.intervention.finding-unknown';
+const DURATION_DAYS_KEY = 'escalation.intervention.duration-days';
+const DURATION_HOURS_KEY = 'escalation.intervention.duration-hours';
+const DURATION_MINUTES_KEY = 'escalation.intervention.duration-minutes';
 
 @Component({
   selector: 'app-escalation-intervention-list',
   templateUrl: './escalation-intervention-list.component.html',
   styleUrls: ['./escalation-intervention-list.component.scss'],
   standalone: true,
-  imports: [TranslateModule, NgbModule, FormField],
+  imports: [TranslateModule, NgbModule, FormField, CompanyDateTimePipe, ExpandableCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EscalationInterventionListComponent implements OnInit, OnDestroy {
@@ -75,9 +102,17 @@ export class EscalationInterventionListComponent implements OnInit, OnDestroy {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private router = inject(Router);
   private ngUnsubscribe = new Subject<void>();
 
   private pendingCancelChainId: string | null = null;
+  private clockTimer: ReturnType<typeof setInterval> | null = null;
+
+  readonly nowMs = signal(Date.now());
+  readonly chains = computed(() => this.escalationChainService.runningChains());
+  readonly activeChains = computed(() => this.chains().filter((chain) => !chain.wakeNotBeforeUtc));
+  readonly registeredChains = computed(() => this.chains().filter((chain) => !!chain.wakeNotBeforeUtc));
+  readonly unresolvedChains = computed(() => this.escalationChainService.unresolvedChains());
 
   readonly cancelFormModel = signal<CancelFormModel>({ reason: '' });
   cancelForm = form(this.cancelFormModel);
@@ -87,19 +122,86 @@ export class EscalationInterventionListComponent implements OnInit, OnDestroy {
     this.searchService.setSearchVisibility(false);
     this.layoutService.setContainerToNormalSize();
     this.escalationChainService.refresh();
+    this.escalationChainService.refreshUnresolved();
+    this.clockTimer = setInterval(() => this.nowMs.set(Date.now()), CLOCK_TICK_MS);
   }
 
   ngOnDestroy(): void {
+    if (this.clockTimer) {
+      clearInterval(this.clockTimer);
+    }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
 
-  minutesUntil(deadlineUtc: string): number {
-    const diffMs = new Date(deadlineUtc).getTime() - Date.now();
-    return Math.round(diffMs / 60000);
+  findingLabel(chain: { findingKind: string | null }): string {
+    if (!chain.findingKind) {
+      return this.translateService.instant(FINDING_UNKNOWN_KEY);
+    }
+
+    const key = FINDING_KIND_KEY_PREFIX + chain.findingKind;
+    const label = this.translateService.instant(key);
+    return label === key ? this.translateService.instant(FINDING_UNKNOWN_KEY) : label;
   }
 
-  isProactiveApproval(chain: IEscalationChainSummary): boolean {
+  remainingText(chain: IEscalationChainSummary): string {
+    const duration = splitDuration(remainingMs(chain, this.nowMs()));
+    if (duration.days > 0) {
+      return this.translateService.instant(DURATION_DAYS_KEY, duration);
+    }
+
+    if (duration.hours > 0) {
+      return this.translateService.instant(DURATION_HOURS_KEY, duration);
+    }
+
+    return this.translateService.instant(DURATION_MINUTES_KEY, duration);
+  }
+
+  isTimeOver(chain: IEscalationChainSummary): boolean {
+    return remainingMs(chain, this.nowMs()) === 0;
+  }
+
+  progressPercent(chain: IEscalationChainSummary): number | null {
+    return remainingPercent(chain, this.nowMs());
+  }
+
+  urgencyOf(chain: IEscalationChainSummary): EscalationUrgency {
+    return urgency(chain, this.nowMs());
+  }
+
+  currentStageOf(chain: IEscalationChainSummary): IEscalationStageSummary | null {
+    return currentStage(chain);
+  }
+
+  nextStageOf(chain: IEscalationChainSummary): IEscalationStageSummary | null {
+    return nextStage(chain);
+  }
+
+  canOpenScenario(chain: IEscalationChainSummary): boolean {
+    return !this.isProactiveApproval(chain) && !!chain.scenarioId;
+  }
+
+  isCancelled(chain: IUnresolvedEscalationChain): boolean {
+    return chain.status === ESCALATION_CHAIN_STATUS_CANCELLED;
+  }
+
+  onOpenScenario(chain: Pick<IEscalationChainSummary, 'scenarioId' | 'groupId' | 'shiftStartUtc'>): void {
+    if (!chain.scenarioId) {
+      return;
+    }
+
+    const queryParams: Record<string, string> = { [SCENARIO_QUERY_PARAM]: chain.scenarioId };
+    if (chain.groupId) {
+      queryParams[GROUP_QUERY_PARAM] = chain.groupId;
+    }
+    if (chain.shiftStartUtc) {
+      queryParams[DATE_QUERY_PARAM] = calendarDateKey(companyCalendarDayOf(chain.shiftStartUtc));
+    }
+
+    void this.router.navigate([SCHEDULE_ROUTE], { queryParams });
+  }
+
+  isProactiveApproval(chain: { purpose: string }): boolean {
     return chain.purpose === ESCALATION_PURPOSE_PROACTIVE_APPROVAL;
   }
 

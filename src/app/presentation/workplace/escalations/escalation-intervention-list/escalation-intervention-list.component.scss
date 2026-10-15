@@ -1,60 +1,94 @@
-#escalation-intervention-container {
-  padding: 20px;
+@use "../../../../../assets/standard-styles/standard-home-page.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/modal-buttons.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.escalation-intervention-intro {
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.escalation-intervention-body {
+  padding: 15px 30px 0;
+  color: var(--standartTextColor);
+  font-size: var(--fontSizeLabel);
+}
+
+.escalation-intervention-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-weight: 600;
+  color: var(--colorLabel);
+}
+
+.escalation-intervention-explain {
+  margin: 8px 0 15px;
+  line-height: 1.5;
+}
+
+.escalation-intervention-time {
+  --escalation-urgency-color: var(--standartGreenColor);
+
+  &.urgency-warning {
+    --escalation-urgency-color: var(--standartOrangeColor);
+  }
+
+  &.urgency-critical {
+    --escalation-urgency-color: var(--standartRedColor);
+  }
+}
+
+.escalation-intervention-time-text {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--escalation-urgency-color);
+}
+
+.escalation-intervention-progress {
+  height: 8px;
+  background-color: var(--colorLine);
+
+  .progress-bar {
+    margin-inline-start: auto;
+    background-color: var(--escalation-urgency-color);
+  }
+}
+
+.escalation-intervention-turn {
+  margin: 12px 0 0;
+}
+
+.escalation-intervention-order-heading {
+  margin-top: 15px;
+  font-weight: 600;
+  color: var(--colorLabel);
 }
 
 .escalation-intervention-empty {
+  margin: 0;
+  padding: 25px 30px;
   color: var(--colorLabel);
-  margin-top: 12px;
-}
-
-.escalation-intervention-list {
-  list-style: none;
-  margin: 16px 0 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.escalation-intervention-card {
-  border: 1px solid var(--cardBorderColor);
-  border-radius: 8px;
-  background: var(--backgroundColorCard);
-  padding: 14px 18px;
-}
-
-.escalation-intervention-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 8px;
-}
-
-.escalation-intervention-client {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.escalation-intervention-deadline {
-  font-size: 13px;
-  color: var(--standartRedColor);
 }
 
 .escalation-intervention-stage-list {
   list-style: none;
-  margin: 0 0 10px 0;
-  padding: 0;
+  margin: 0;
+  padding: 4px 0 0;
 }
 
 .escalation-intervention-stage {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 3px 0;
-  font-size: 13px;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: var(--fontSizeLabel);
+  color: var(--standartTextColor);
 
   &.stage-status-notified {
     font-weight: 600;
+    color: var(--colorHeadline);
   }
 
   &.stage-status-acknowledged {
@@ -62,7 +96,8 @@
   }
 
   &.stage-status-expired,
-  &.stage-status-cancelled {
+  &.stage-status-cancelled,
+  &.stage-status-skipped {
     opacity: 0.5;
   }
 }
@@ -76,8 +111,74 @@
   flex: 1;
 }
 
+.escalation-intervention-stage-status {
+  color: var(--colorLabel);
+}
+
 .escalation-intervention-actions {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
+  gap: 12px;
+  padding: 15px 30px 25px;
+}
+
+.escalation-unresolved-empty {
+  margin: 0 0 25px;
+  color: var(--colorLabel);
+}
+
+.escalation-unresolved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 25px;
+}
+
+.escalation-unresolved-item {
+  padding: 12px 0;
+  border-top: 1px solid var(--colorLine);
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.escalation-unresolved-title {
+  font-weight: 600;
+  color: var(--colorHeadline);
+}
+
+.escalation-unresolved-outcome {
+  margin-top: 4px;
+}
+
+.escalation-unresolved-reason {
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.escalation-unresolved-reason-hidden {
+  color: var(--colorLabel);
+}
+
+.escalation-unresolved-scenario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.escalation-intervention-header-time {
+  padding-inline-end: 12px;
+  font-size: var(--fontSizeLabel);
+  font-weight: 600;
+  color: var(--standartGreenColor);
+
+  &.urgency-warning {
+    color: var(--standartOrangeColor);
+  }
+
+  &.urgency-critical {
+    color: var(--standartRedColor);
+  }
 }

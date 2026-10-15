@@ -9,7 +9,8 @@
  * chain and are rarely the woken one), every five minutes for everybody else. The first successful permission check
  * polls at once, whatever the tick, so rights that arrive after login do not delay the first load. A stage's
  * shortest window is 5 minutes (ESCALATION_STAGE_MIN_MINUTES), so the slower fallback never misses a whole stage.
- * Polling needs the CanViewSchedule right.
+ * Polling needs the CanViewSchedule right. The unresolved chains of the last week are history, not alarm: they are
+ * loaded only by the page (on open and after an own cancel), never by the badge poll.
  */
 
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
@@ -23,6 +24,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import {
   IEscalationAcknowledgeResult,
   IEscalationChainSummary,
+  IUnresolvedEscalationChain,
 } from 'src/app/domain/interfaces/escalation-chain.interface';
 
 const ADMIN_POLL_INTERVAL_MS = 60000;
@@ -40,6 +42,7 @@ export class DataManagementEscalationChainService implements OnDestroy {
   public readonly runningChains = signal<IEscalationChainSummary[]>([]);
   public readonly runningCount = computed(() => this.runningChains().length);
   public readonly hasRunning = computed(() => this.runningCount() > 0);
+  public readonly unresolvedChains = signal<IUnresolvedEscalationChain[]>([]);
 
   constructor() {
     timer(0, ADMIN_POLL_INTERVAL_MS)
@@ -86,12 +89,27 @@ export class DataManagementEscalationChainService implements OnDestroy {
       });
   }
 
+  refreshUnresolved(): void {
+    this.dataService
+      .getUnresolved()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (chains) => this.unresolvedChains.set(chains),
+        error: () => undefined,
+      });
+  }
+
   acknowledge(chainId: string): Observable<IEscalationAcknowledgeResult> {
     return this.dataService.acknowledge(chainId).pipe(tap(() => this.refresh()));
   }
 
   cancel(chainId: string, reason: string): Observable<void> {
-    return this.dataService.cancel(chainId, reason).pipe(tap(() => this.refresh()));
+    return this.dataService.cancel(chainId, reason).pipe(
+      tap(() => {
+        this.refresh();
+        this.refreshUnresolved();
+      }),
+    );
   }
 
   ngOnDestroy(): void {

@@ -12,7 +12,7 @@
 
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, filter, map, tap } from 'rxjs';
+import { Observable, filter, lastValueFrom, map, tap } from 'rxjs';
 import {
   AnalyseScenarioStatus,
   IAnalyseScenario,
@@ -71,6 +71,25 @@ export class AnalyseScenarioService {
 
   exitScenario(): void {
     this.activeScenario.set(null);
+  }
+
+  /**
+   * Enters a scenario reached by id (deep link). Only an active scenario is entered and added to the list; the
+   * result tells the caller whether the scenario is now active.
+   */
+  async openScenarioById(id: string): Promise<boolean> {
+    if (this.activeScenario()?.id === id) {
+      return true;
+    }
+
+    const scenario = await lastValueFrom(this.dataService.get(id));
+    if (scenario?.status !== AnalyseScenarioStatus.Active) {
+      return false;
+    }
+
+    this.scenarios.update((list) => (list.some((s) => s.id === scenario.id) ? list : [...list, scenario]));
+    this.selectScenario(scenario);
+    return true;
   }
 
   loadSummary(id: string): Observable<ScenarioSummary> {

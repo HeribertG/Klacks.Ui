@@ -106,7 +106,15 @@ export function toCalendarDateWire(value: Date | string): string {
 }
 
 export function companyToday(): Date {
-  const now = new Date();
+  return companyCalendarDayOf(new Date());
+}
+
+/**
+ * The calendar day an instant falls on in the company time zone (browser zone until it is known), as a
+ * local-midnight Date like parseCalendarDate returns.
+ */
+export function companyCalendarDayOf(instant: string | Date): Date {
+  const now = instant instanceof Date ? instant : new Date(instant);
   const zone = companyTimeZone();
 
   if (!zone) {
