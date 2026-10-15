@@ -4,7 +4,7 @@
  * State + actions for the escalation intervention list: the running-chain count feeds the header
  * badge, the full list feeds the dedicated page. The list is open to every signed-in planner, so the
  * refresh load is bounded: a woken planner is refreshed at once by the existing per-user pushes - the stage alert
- * itself arrives as a ProactiveMessage (live push of the wake-up), later hand-off and close-out notes as
+ * itself arrives as a ProactiveMessage of kind escalation_stage_alert (live push of the wake-up; other kinds are ignored), later hand-off and close-out notes as
  * ProactiveInboxChanged - and the periodic poll is only a fallback: every minute for administrators (who watch every
  * chain and are rarely the woken one), every five minutes for everybody else. The first successful permission check
  * polls at once, whatever the tick, so rights that arrive after login do not delay the first load. A stage's
@@ -18,6 +18,7 @@ import { takeUntil } from 'rxjs/operators';
 import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant/data-escalation-chain.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
+import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import {
   IEscalationAcknowledgeResult,
@@ -51,7 +52,11 @@ export class DataManagementEscalationChainService implements OnDestroy {
         this.refresh();
       });
 
-    merge(this.signalRService.proactiveInboxChanged$, this.signalRService.proactiveMessage$)
+    const stageAlerts$ = this.signalRService.proactiveMessage$.pipe(
+      filter((message) => message.kind === PROACTIVE_TRIGGER_KIND.EscalationStageAlert),
+    );
+
+    merge(this.signalRService.proactiveInboxChanged$, stageAlerts$)
       .pipe(
         filter(() => this.authorizationService.hasPermission(PERMISSIONS.CanViewSchedule)),
         takeUntil(this.destroy$),

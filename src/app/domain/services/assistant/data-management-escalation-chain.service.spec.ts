@@ -108,9 +108,19 @@ describe('DataManagementEscalationChainService', () => {
         vi.advanceTimersByTime(0);
         mockDataService.getRunning.mockClear();
 
-        proactiveMessage$.next({ messageId: 'row-1' });
+        proactiveMessage$.next({ messageId: 'row-1', kind: 'escalation_stage_alert' });
 
         expect(mockDataService.getRunning).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores proactive messages of any other kind', () => {
+        isAdmin = false;
+        vi.advanceTimersByTime(0);
+        mockDataService.getRunning.mockClear();
+
+        proactiveMessage$.next({ messageId: 'row-2', kind: 'morning_report' });
+
+        expect(mockDataService.getRunning).not.toHaveBeenCalled();
     });
 
     it('polls at the first tick that passes the permission check, not only at the next five-minute tick', () => {
