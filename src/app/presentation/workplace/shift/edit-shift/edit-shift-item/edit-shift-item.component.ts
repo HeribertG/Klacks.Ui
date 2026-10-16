@@ -306,8 +306,7 @@ export class EditShiftItemComponent
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
     if (!this.shiftEditPermission.canWriteCurrentShift()) return true;
-    const status = this.dataManagementShiftService.editShift?.status;
-    return status !== undefined && status !== ShiftStatus.OriginalOrder;
+    return this.shiftEditPermission.isCurrentShiftStatusLocked();
   }
 
   get isValidUntilDisabled(): boolean {

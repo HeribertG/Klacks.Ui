@@ -5,7 +5,7 @@ import { ShiftEditPermissionService } from './shift-edit-permission.service';
 import { AuthorizationService } from './authorization.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IShift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 
 describe('ShiftEditPermissionService', () => {
   let held: Set<string>;
@@ -64,5 +64,37 @@ describe('ShiftEditPermissionService', () => {
     shiftService.editShift = { id: 'shift-1' };
 
     expect(createService().canWriteCurrentShift()).toBe(false);
+  });
+
+  describe('isCurrentShiftStatusLocked', () => {
+    it('does not lock a new clientless shift that is prepared as SealedOrder', () => {
+      shiftService.editShift = { id: undefined, status: ShiftStatus.SealedOrder, isClientless: true };
+
+      expect(createService().isCurrentShiftStatusLocked()).toBe(false);
+    });
+
+    it('locks a saved SealedOrder shift', () => {
+      shiftService.editShift = { id: 'shift-1', status: ShiftStatus.SealedOrder };
+
+      expect(createService().isCurrentShiftStatusLocked()).toBe(true);
+    });
+
+    it('locks a saved cut shift', () => {
+      shiftService.editShift = { id: 'shift-1', status: ShiftStatus.SplitShift };
+
+      expect(createService().isCurrentShiftStatusLocked()).toBe(true);
+    });
+
+    it('does not lock an OriginalOrder shift', () => {
+      shiftService.editShift = { id: 'shift-1', status: ShiftStatus.OriginalOrder };
+
+      expect(createService().isCurrentShiftStatusLocked()).toBe(false);
+    });
+
+    it('does not lock while no shift is loaded', () => {
+      shiftService.editShift = undefined;
+
+      expect(createService().isCurrentShiftStatusLocked()).toBe(false);
+    });
   });
 });

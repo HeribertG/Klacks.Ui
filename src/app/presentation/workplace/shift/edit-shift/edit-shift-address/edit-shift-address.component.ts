@@ -22,7 +22,6 @@ import { DataClientService } from 'src/app/infrastructure/api/client/data-client
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -83,8 +82,7 @@ export class EditShiftAddressComponent implements OnInit {
   get isFieldsDisabled(): boolean {
     if (this.isReadOnly()) return true;
     if (!this.shiftEditPermission.canWriteCurrentShift()) return true;
-    const status = this.dataManagementShiftService.editShift?.status;
-    return status !== undefined && status !== ShiftStatus.OriginalOrder;
+    return this.shiftEditPermission.isCurrentShiftStatusLocked();
   }
 
   onClickVisibleTable() {

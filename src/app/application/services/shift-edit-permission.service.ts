@@ -7,10 +7,13 @@
  * neither right alone is the correct gate. Asking for both at once would let a create-only user
  * change existing shifts; asking only for CanEditShifts would hand a create-only user a form with
  * every field dead. The shift being edited decides: a shift without an id is being created.
+ * It also answers whether the status of the open shift freezes its fields: a new shift never does,
+ * because a clientless duty is prepared as SealedOrder before its first save.
  */
 import { Injectable, inject } from '@angular/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 
 @Injectable({ providedIn: 'root' })
@@ -23,5 +26,12 @@ export class ShiftEditPermissionService {
     const required = isNewShift ? PERMISSIONS.CanCreateShifts : PERMISSIONS.CanEditShifts;
 
     return this.authorizationService.hasPermission(required);
+  }
+
+  isCurrentShiftStatusLocked(): boolean {
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift?.id) return false;
+
+    return shift.status !== undefined && shift.status !== ShiftStatus.OriginalOrder;
   }
 }
