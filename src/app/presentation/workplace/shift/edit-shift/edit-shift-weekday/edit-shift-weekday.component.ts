@@ -75,7 +75,6 @@ export class EditShiftWeekdayComponent
   public visibleTable = 'inline';
   public disabledWorkTime = true;
   public areWeekdaysValid: boolean | undefined;
-  public isHolidayDisabled = false;
 
   private objectForUnsubscribe: Subscription | undefined;
   private effects: EffectRef[] = [];
@@ -130,7 +129,6 @@ export class EditShiftWeekdayComponent
     const shift = this.dataManagementShiftService.editShift;
     if (!shift) return;
 
-    // If holiday is selected, unselect weekdayOrHoliday
     if (shift.isHoliday) {
       shift.isWeekdayAndHoliday = false;
     }
@@ -143,7 +141,6 @@ export class EditShiftWeekdayComponent
     const shift = this.dataManagementShiftService.editShift;
     if (!shift) return;
 
-    // If weekdayOrHoliday is selected, unselect holiday
     if (shift.isWeekdayAndHoliday) {
       shift.isHoliday = false;
     }
@@ -186,43 +183,22 @@ export class EditShiftWeekdayComponent
   }
 
   public validateWeekdays() {
-    this.areWeekdaysValid = undefined;
-
     const shift = this.dataManagementShiftService.editShift;
     if (!shift) {
       this.areWeekdaysValid = undefined;
       return;
     }
 
-    // Check if all weekdays are selected
-    const allWeekdaysSelected = shift.isMonday && shift.isTuesday && shift.isWednesday && 
-                               shift.isThursday && shift.isFriday && shift.isSaturday && shift.isSunday;
-
-    if (allWeekdaysSelected) {
-      shift.isWeekdayAndHoliday = true;
-      shift.isHoliday = false;
-      this.isHolidayDisabled = true;
-      const dummy = this.dataManagementShiftService.editShiftDummy;
-      if (dummy) {
-        dummy.isWeekdayAndHoliday = true;
-        dummy.isHoliday = false;
-      }
-    } else {
-      this.isHolidayDisabled = false;
-    }
-
-    const hasAnyWeekdaySelected =
+    const hasAnyWeekdayTicked =
       shift.isMonday ||
       shift.isTuesday ||
       shift.isWednesday ||
       shift.isThursday ||
       shift.isFriday ||
       shift.isSaturday ||
-      shift.isSunday ||
-      shift.isHoliday ||
-      shift.isWeekdayAndHoliday;
+      shift.isSunday;
 
-    this.areWeekdaysValid = hasAnyWeekdaySelected;
+    this.areWeekdaysValid = hasAnyWeekdayTicked || shift.isHoliday;
   }
 
   private calculateWorkTime() {

@@ -9,6 +9,7 @@
  * @param tabService - Manages tab selection, weekday switching, and available tasks
  * @param lifecycleService - Manages initialization, lifecycle, and search state
  * @param shiftOpsService - Manages shift operations (arrangement, compaction, export)
+ * @param isHoliday - Whether the holiday template is edited; for an FT container it is the single template of every holiday, for +FT the one of the selected weekday
  */
 import {
   ChangeDetectionStrategy,
@@ -102,6 +103,7 @@ import { LongPressContextDirective } from 'src/app/presentation/directives/long-
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
+import { FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME } from 'src/app/domain/constants/container-template-holiday.constants';
 
 @Component({
   selector: 'app-container-template',
@@ -179,7 +181,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   public selectedWeekday: string | null = null;
   public isHoliday = false;
-  public isWeekdayAndHoliday = false;
+  private weekdayBeforeHoliday: string | null = null;
   public duration: OwnTime = OwnTime.forDuration('00', '00');
 
   public weekdays = [
@@ -452,10 +454,51 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private setActiveWeekdays(shift: IShift): void {
     const activeWeekdays = this.containerService.getActiveWeekdays(shift);
     this.weekdays = activeWeekdays;
+    this.isHoliday = false;
+    this.weekdayBeforeHoliday = null;
 
     if (activeWeekdays.length > 0) {
       this.selectedWeekday = activeWeekdays[0].value;
-      this.shiftService.setCurrentWeekday(this.selectedWeekday);
+    } else if (this.isEveryHolidayContainer) {
+      this.isHoliday = true;
+      this.selectedWeekday = FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME;
+    }
+    this.syncItemBufferKey();
+  }
+
+  get hasHolidayVariant(): boolean {
+    return !!this.containerShift?.isHoliday || !!this.containerShift?.isWeekdayAndHoliday;
+  }
+
+  get isEveryHolidayContainer(): boolean {
+    return !!this.containerShift?.isHoliday && !this.containerShift?.isWeekdayAndHoliday;
+  }
+
+  get isWeekdaySelectionLocked(): boolean {
+    return this.isHoliday && this.isEveryHolidayContainer;
+  }
+
+  get isHolidayVariantLocked(): boolean {
+    return this.isEveryHolidayContainer && this.weekdays.length === 0;
+  }
+
+  onHolidayVariantChange(): void {
+    if (this.isEveryHolidayContainer) {
+      if (this.isHoliday) {
+        this.weekdayBeforeHoliday = this.selectedWeekday;
+        this.selectedWeekday = FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME;
+      } else {
+        this.selectedWeekday = this.weekdayBeforeHoliday ?? this.weekdays[0]?.value ?? null;
+      }
+    }
+    this.onWeekdayChange();
+  }
+
+  private syncItemBufferKey(): void {
+    if (this.selectedWeekday) {
+      this.shiftService.setCurrentWeekday(
+        ContainerTemplateShiftService.bufferKey(this.selectedWeekday, this.isHoliday),
+      );
     }
   }
 
@@ -555,6 +598,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   onWeekdayChange(): void {
     this.tabService.onWeekdayChange(this.selectedWeekday);
+    this.syncItemBufferKey();
     if (this.selectedWeekday) {
       const weekdayNumber = this.containerService.getWeekdayNumber(
         this.selectedWeekday,
@@ -590,6 +634,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   updateAvailableTasks(): void {
     this.tabService.updateAvailableTasks(
       this.selectedWeekday,
+      this.isHoliday,
       this.templateGrid,
       this.currentSearchString,
       this.currentIncludeAddress,
@@ -599,6 +644,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   getFilteredRowsForSelectedWeekday(): IContainerTemplateSlot[][] {
     return this.tabService.getFilteredRowsForSelectedWeekday(
       this.selectedWeekday,
+      this.isHoliday,
       this.templateGrid,
     );
   }
@@ -607,6 +653,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return this.tabService.getTabLabel(
       rowIndex,
       this.selectedWeekday,
+      this.isHoliday,
       this.templateGrid,
     );
   }

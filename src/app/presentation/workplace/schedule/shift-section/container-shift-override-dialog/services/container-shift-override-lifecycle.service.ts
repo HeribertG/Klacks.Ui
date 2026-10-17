@@ -126,7 +126,7 @@ export class ContainerShiftOverrideLifecycleService {
         const weekdayIndex = this.weekdayNumber === -1 ? 1 : this.weekdayNumber;
         const template = templates.find(t =>
           this.isHoliday
-            ? t.isHoliday || t.isWeekdayAndHoliday
+            ? t.isHoliday && (!t.isWeekdayAndHoliday || t.weekday === weekdayIndex)
             : t.weekday === weekdayIndex && !t.isHoliday,
         );
         if (template) {

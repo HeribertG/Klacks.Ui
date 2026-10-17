@@ -3,6 +3,8 @@
 import { Injectable } from '@angular/core';
 import { IShift } from '../../models/shift/shift-class';
 import { IContainerTemplateSlot, IContainerTemplateGrid } from '../../models/container/container-template-slot';
+import { IContainerTemplateHolidayVariant } from '../../models/container/container-template-holiday-variant';
+import { FT_HOLIDAY_TEMPLATE_WEEKDAY } from '../../constants/container-template-holiday.constants';
 
 const DAYS_IN_WEEK = 7;
 
@@ -41,44 +43,24 @@ export class ContainerTemplateSlotCalculationService {
   calculateTemplateGrid(containerShift: IShift): IContainerTemplateGrid {
     const activeWeekdays = this.getActiveWeekdays(containerShift);
     const crossesMidnight = this.checkIfCrossesMidnight(containerShift);
-    const holidayVariants = this.getHolidayVariants(containerShift);
+    const weekdayVariants = this.getWeekdayVariants(containerShift);
 
     const slots: IContainerTemplateSlot[][] = [];
 
     for (const weekday of activeWeekdays) {
-      for (const holidayVariant of holidayVariants) {
-        if (crossesMidnight) {
-          const beforeMidnightSlot = this.createSlot(
-            containerShift,
-            weekday,
-            holidayVariant.isHoliday,
-            holidayVariant.isWeekdayAndHoliday,
-            0,
-            crossesMidnight
-          );
-          slots.push([beforeMidnightSlot]);
-
-          const afterMidnightSlot = this.createSlot(
-            containerShift,
-            weekday,
-            holidayVariant.isHoliday,
-            holidayVariant.isWeekdayAndHoliday,
-            1,
-            crossesMidnight
-          );
-          slots.push([afterMidnightSlot]);
-        } else {
-          const slot = this.createSlot(
-            containerShift,
-            weekday,
-            holidayVariant.isHoliday,
-            holidayVariant.isWeekdayAndHoliday,
-            0,
-            crossesMidnight
-          );
-          slots.push([slot]);
-        }
+      for (const variant of weekdayVariants) {
+        this.pushSlots(slots, containerShift, weekday, variant, crossesMidnight);
       }
+    }
+
+    if (this.isEveryHolidayContainer(containerShift)) {
+      this.pushSlots(
+        slots,
+        containerShift,
+        FT_HOLIDAY_TEMPLATE_WEEKDAY,
+        { isHoliday: true, isWeekdayAndHoliday: false },
+        crossesMidnight
+      );
     }
 
     return {
@@ -88,6 +70,28 @@ export class ContainerTemplateSlotCalculationService {
       totalRows: slots.length,
       totalDays: crossesMidnight ? 2 : 1
     };
+  }
+
+  private pushSlots(
+    slots: IContainerTemplateSlot[][],
+    containerShift: IShift,
+    weekday: number,
+    variant: IContainerTemplateHolidayVariant,
+    crossesMidnight: boolean
+  ): void {
+    const dayIndexes = crossesMidnight ? [0, 1] : [0];
+    for (const dayIndex of dayIndexes) {
+      slots.push([
+        this.createSlot(
+          containerShift,
+          weekday,
+          variant.isHoliday,
+          variant.isWeekdayAndHoliday,
+          dayIndex,
+          crossesMidnight
+        )
+      ]);
+    }
   }
 
   private getActiveWeekdays(shift: IShift): number[] {
@@ -102,23 +106,16 @@ export class ContainerTemplateSlotCalculationService {
     return weekdays;
   }
 
-  private getHolidayVariants(shift: IShift): {isHoliday: boolean, isWeekdayAndHoliday: boolean, label: string}[] {
-    const variants: {isHoliday: boolean, isWeekdayAndHoliday: boolean, label: string}[] = [];
-
-    if (!shift.isHoliday && !shift.isWeekdayAndHoliday) {
-      variants.push({ isHoliday: false, isWeekdayAndHoliday: false, label: HOLIDAY_LABELS.NORMAL });
-    }
-
+  private getWeekdayVariants(shift: IShift): IContainerTemplateHolidayVariant[] {
+    const variants: IContainerTemplateHolidayVariant[] = [{ isHoliday: false, isWeekdayAndHoliday: false }];
     if (shift.isWeekdayAndHoliday) {
-      variants.push({ isHoliday: false, isWeekdayAndHoliday: false, label: HOLIDAY_LABELS.WEEKDAY });
-      variants.push({ isHoliday: true, isWeekdayAndHoliday: true, label: HOLIDAY_LABELS.HOLIDAY });
+      variants.push({ isHoliday: true, isWeekdayAndHoliday: true });
     }
-
-    if (shift.isHoliday && !shift.isWeekdayAndHoliday) {
-      variants.push({ isHoliday: true, isWeekdayAndHoliday: false, label: HOLIDAY_LABELS.HOLIDAY });
-    }
-
     return variants;
+  }
+
+  private isEveryHolidayContainer(shift: IShift): boolean {
+    return shift.isHoliday && !shift.isWeekdayAndHoliday;
   }
 
   private checkIfCrossesMidnight(shift: IShift): boolean {

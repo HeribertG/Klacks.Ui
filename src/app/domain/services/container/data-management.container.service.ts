@@ -447,17 +447,16 @@ export class DataManagementContainerService
 
     let templates = this.editTemplates();
 
-    Object.entries(weekdayTasksMap).forEach(([weekdayName, tasks]) => {
+    Object.entries(weekdayTasksMap).forEach(([bufferKey, tasks]) => {
       if (tasks.length === 0) return;
 
+      const { weekdayName, isHoliday } = ContainerTemplateShiftService.parseBufferKey(bufferKey);
       const weekdayNumber = ContainerTaskService.WEEKDAY_NAME_TO_NUMBER[weekdayName];
-      const slotsForWeekday = grid.slots
+      const slot = grid.slots
         .flat()
-        .filter((slot) => slot.weekday === weekdayNumber);
+        .find((s) => s.weekday === weekdayNumber && s.isHoliday === isHoliday);
 
-      if (slotsForWeekday.length === 0) return;
-
-      const slot = slotsForWeekday[0];
+      if (!slot) return;
 
       const containerTemplateItems: IContainerTemplateItem[] = tasks.filter(
         (task: IContainerTemplateItem) => task.shiftId || task.absenceId
@@ -515,6 +514,7 @@ export class DataManagementContainerService
     templates.forEach((template) => {
       const weekdayName = ContainerTaskService.WEEKDAY_NUMBER_TO_NAME[template.weekday];
       if (weekdayName && template.containerTemplateItems) {
+        const bufferKey = ContainerTemplateShiftService.bufferKey(weekdayName, template.isHoliday);
         const enrichedItems = template.containerTemplateItems.map((item) => {
           const matchingShift = allLoadedShifts.find(
             (s) => s.id === item.shiftId
@@ -528,7 +528,7 @@ export class DataManagementContainerService
           return item;
         });
 
-        weekdayContainerTemplateItemsMap[weekdayName] = sortContainerItemsChronologically(
+        weekdayContainerTemplateItemsMap[bufferKey] = sortContainerItemsChronologically(
           enrichedItems,
           template.fromTime,
           template.untilTime,

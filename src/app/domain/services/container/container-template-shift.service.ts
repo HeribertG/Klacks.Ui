@@ -2,6 +2,7 @@
 
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
 import { IContainerTemplateItem } from '../../models/container/container-template-class';
+import { HOLIDAY_BUFFER_KEY_SUFFIX } from '../../constants/container-template-holiday.constants';
 
 export interface IWeekdayContainerTemplateItemsMap {
   monday: IContainerTemplateItem[];
@@ -11,12 +12,27 @@ export interface IWeekdayContainerTemplateItemsMap {
   friday: IContainerTemplateItem[];
   saturday: IContainerTemplateItem[];
   sunday: IContainerTemplateItem[];
+  [bufferKey: string]: IContainerTemplateItem[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContainerTemplateShiftService {
+  static bufferKey(weekdayName: string, isHoliday: boolean): string {
+    return isHoliday ? `${weekdayName}${HOLIDAY_BUFFER_KEY_SUFFIX}` : weekdayName;
+  }
+
+  static parseBufferKey(bufferKey: string): { weekdayName: string; isHoliday: boolean } {
+    if (bufferKey.endsWith(HOLIDAY_BUFFER_KEY_SUFFIX)) {
+      return {
+        weekdayName: bufferKey.slice(0, -HOLIDAY_BUFFER_KEY_SUFFIX.length),
+        isHoliday: true,
+      };
+    }
+    return { weekdayName: bufferKey, isHoliday: false };
+  }
+
   private currentWeekdaySignal: WritableSignal<string> = signal('monday');
   private weekdayContainerTemplateItemsSignal: WritableSignal<IWeekdayContainerTemplateItemsMap> =
     signal({
@@ -32,8 +48,7 @@ export class ContainerTemplateShiftService {
   public selectedContainerTemplateItemsSignal = computed(() => {
     const weekday =
       this.currentWeekdaySignal() as keyof IWeekdayContainerTemplateItemsMap;
-    const items = this.weekdayContainerTemplateItemsSignal()[weekday];
-    return items;
+    return this.weekdayContainerTemplateItemsSignal()[weekday] ?? [];
   });
 
   public selectedShiftSignal: WritableSignal<IContainerTemplateItem | null> =

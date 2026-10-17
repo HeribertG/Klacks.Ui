@@ -12,7 +12,6 @@ import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from '../../models/container/container-template-slot';
-import { IWeekdayContainerTemplateItemsMap } from './container-template-shift.service';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +41,7 @@ export class ContainerTaskService {
     saturday: 6,
   };
 
-  static readonly WEEKDAY_NUMBER_TO_NAME: Record<number, keyof IWeekdayContainerTemplateItemsMap> = {
+  static readonly WEEKDAY_NUMBER_TO_NAME: Record<number, string> = {
     0: 'sunday',
     1: 'monday',
     2: 'tuesday',

@@ -5,6 +5,7 @@
  * @param selectedTabIndex - Index of the currently selected container template tab
  * @param isEmploymentTabActive - Whether the employment overview tab is active
  * @param availableTasks - Currently filtered and sorted list of available shifts for drag-and-drop
+ * @param isHoliday - Whether the holiday variant of the selected weekday is edited; filters the tabs to that variant
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -62,12 +63,14 @@ export class ContainerTemplateTabService {
 
   updateAvailableTasks(
     selectedWeekday: string | null,
+    isHoliday: boolean,
     templateGrid: IContainerTemplateGrid | null,
     currentSearchString: string,
     currentIncludeAddress: boolean,
   ): void {
     const filteredRows = this.getFilteredRowsForSelectedWeekday(
       selectedWeekday,
+      isHoliday,
       templateGrid,
     );
     const row = filteredRows[this.selectedTabIndex];
@@ -113,6 +116,7 @@ export class ContainerTemplateTabService {
 
   getFilteredRowsForSelectedWeekday(
     selectedWeekday: string | null,
+    isHoliday: boolean,
     templateGrid: IContainerTemplateGrid | null,
   ): IContainerTemplateSlot[][] {
     if (!selectedWeekday) {
@@ -120,19 +124,20 @@ export class ContainerTemplateTabService {
     }
 
     const weekdayNumber = this.taskService.getWeekdayNumber(selectedWeekday);
-    return this.taskService.getFilteredRowsForWeekday(
-      templateGrid,
-      weekdayNumber,
-    );
+    return this.taskService
+      .getFilteredRowsForWeekday(templateGrid, weekdayNumber)
+      .filter((row) => row[0].isHoliday === isHoliday);
   }
 
   getTabLabel(
     rowIndex: number,
     selectedWeekday: string | null,
+    isHoliday: boolean,
     templateGrid: IContainerTemplateGrid | null,
   ): string {
     const filteredRows = this.getFilteredRowsForSelectedWeekday(
       selectedWeekday,
+      isHoliday,
       templateGrid,
     );
     if (filteredRows.length === 0 || rowIndex >= filteredRows.length) {

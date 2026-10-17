@@ -74,6 +74,7 @@
               name="weekday"
               [value]="day.value"
               [(ngModel)]="selectedWeekday"
+              [disabled]="isWeekdaySelectionLocked"
               (change)="onWeekdayChange()"
             />
             <span>{{ day.labelKey | translate }}</span>
@@ -82,29 +83,27 @@
       </div>
 
       <div class="holiday-checkboxes">
-        @if (containerShift?.isHoliday) {
+        @if (hasHolidayVariant) {
           <label
             class="holiday-checkbox"
             [ngbTooltip]="
-              'shift.container-template.tooltip.holiday-filter' | translate
+              (isEveryHolidayContainer
+                ? 'shift.container-template.tooltip.holiday-filter'
+                : 'shift.container-template.tooltip.holiday-plus-filter'
+              ) | translate
             "
           >
-            <input type="checkbox" [(ngModel)]="isHoliday" />
+            <input
+              type="checkbox"
+              [(ngModel)]="isHoliday"
+              [disabled]="isHolidayVariantLocked"
+              (change)="onHolidayVariantChange()"
+            />
             <span>{{
-              "shift.container-template.weekday.holiday" | translate
-            }}</span>
-          </label>
-        }
-        @if (containerShift?.isWeekdayAndHoliday) {
-          <label
-            class="holiday-checkbox"
-            [ngbTooltip]="
-              'shift.container-template.tooltip.holiday-plus-filter' | translate
-            "
-          >
-            <input type="checkbox" [(ngModel)]="isWeekdayAndHoliday" />
-            <span>{{
-              "shift.container-template.weekday.holiday-plus" | translate
+              (isEveryHolidayContainer
+                ? "shift.container-template.weekday.holiday"
+                : "shift.container-template.weekday.holiday-plus"
+              ) | translate
             }}</span>
           </label>
         }

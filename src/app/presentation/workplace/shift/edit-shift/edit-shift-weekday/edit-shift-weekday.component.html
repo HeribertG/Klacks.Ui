@@ -202,7 +202,7 @@
               [(ngModel)]="dataManagementShiftService.editShift.isHoliday"
               name="isHoliday"
               id="isHoliday"
-              [disabled]="isHolidayDisabled || isFieldsDisabled"
+              [disabled]="isFieldsDisabled"
               [class.is-invalid]="areWeekdaysValid === false"
               (change)="onHolidayChange()"
             />
