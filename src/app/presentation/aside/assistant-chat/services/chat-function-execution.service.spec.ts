@@ -19,7 +19,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { NavigationVerdictService } from './navigation-verdict.service';
-import { ONBOARDING_NAV_ICON, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
+import { ONBOARDING_KIND, ONBOARDING_NAV_ICON, START_GUIDED_TOUR_KIND_PARAM, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import {
   EXPLAIN_PAGE_SKILL_PREFIX,
   HEADER_LOGO_ICON_ID,
@@ -32,6 +32,7 @@ describe('ChatFunctionExecutionService', () => {
   let mockNavigateAndScroll: ReturnType<typeof vi.fn>;
   let mockEmit: ReturnType<typeof vi.fn>;
   let mockRequestTourStart: ReturnType<typeof vi.fn>;
+  let mockResolveTourKind: ReturnType<typeof vi.fn>;
   let mockReportUiActionResult: ReturnType<typeof vi.fn>;
   let mockExecuteFunction: ReturnType<typeof vi.fn>;
   let mockExecuteConfig: ReturnType<typeof vi.fn>;
@@ -45,6 +46,7 @@ describe('ChatFunctionExecutionService', () => {
     mockNavigateAndScroll = vi.fn(() => Promise.resolve({ success: true }));
     mockEmit = vi.fn();
     mockRequestTourStart = vi.fn();
+    mockResolveTourKind = vi.fn((requested?: string) => (requested === ONBOARDING_KIND.Setup ? ONBOARDING_KIND.Setup : ONBOARDING_KIND.Intro));
     mockReportUiActionResult = vi.fn(() => of({ found: true, updated: true, error: null }));
     mockExecuteFunction = vi.fn(() => of({ success: true }));
     mockExecuteConfig = vi.fn(() => Promise.resolve({ succeeded: true }));
@@ -61,7 +63,7 @@ describe('ChatFunctionExecutionService', () => {
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
         { provide: ChatTurnControlService, useValue: { captureCancellation: mockCaptureCancellation, beginExecution: vi.fn(), endExecution: vi.fn(() => false) } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: mockEmit } },
-        { provide: OnboardingService, useValue: { requestTourStart: mockRequestTourStart } },
+        { provide: OnboardingService, useValue: { requestTourStart: mockRequestTourStart, resolveTourKind: mockResolveTourKind } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: mockHighlightNavIcon, navigateAndScroll: mockNavigateAndScroll } },
         { provide: NavigationVerdictService, useValue: { apply: vi.fn(), report: vi.fn(), applySuspectedMiss: vi.fn() } },
         { provide: Router, useValue: routerMock },
@@ -182,6 +184,22 @@ describe('ChatFunctionExecutionService', () => {
     expect(mockRequestTourStart).toHaveBeenCalledTimes(1);
     expect(mockHighlightNavIcon).not.toHaveBeenCalled();
     expect(mockNavigateAndScroll).not.toHaveBeenCalled();
+  });
+
+  it('passes the kind parameter of start_guided_tour through the kind resolver', async () => {
+    await service.executeFunctionCalls([
+      { functionName: START_GUIDED_TOUR_SKILL, parameters: { [START_GUIDED_TOUR_KIND_PARAM]: ONBOARDING_KIND.Setup } },
+    ]);
+
+    expect(mockResolveTourKind).toHaveBeenCalledWith(ONBOARDING_KIND.Setup);
+    expect(mockRequestTourStart).toHaveBeenCalledWith(ONBOARDING_KIND.Setup);
+  });
+
+  it('resolves a start_guided_tour call without kind (intro fallback)', async () => {
+    await service.executeFunctionCalls([{ functionName: START_GUIDED_TOUR_SKILL }]);
+
+    expect(mockResolveTourKind).toHaveBeenCalledWith(undefined);
+    expect(mockRequestTourStart).toHaveBeenCalledWith(ONBOARDING_KIND.Intro);
   });
 
   it('does not report a UI action outcome when the turn was cancelled mid-run', async () => {

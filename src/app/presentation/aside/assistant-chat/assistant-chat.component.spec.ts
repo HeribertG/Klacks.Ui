@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
+import { BehaviorSubject, NEVER, Subject, of, throwError } from 'rxjs';
 import { CUSTOM_ELEMENTS_SCHEMA, Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -35,8 +35,23 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { IOnboardingAskField, ONBOARDING_STATION_LLM_PROVIDER, ONBOARDING_STATION_TITLE, ONBOARDING_STATIONS, ONBOARDING_TOUR_CHOICE } from 'src/app/domain/constants/onboarding-stations';
+import {
+    INTRO_MORE_REQUEST_KEY,
+    INTRO_STATION,
+    IOnboardingAskField,
+    ONBOARDING_KIND,
+    ONBOARDING_KNOWN_CHOICE,
+    ONBOARDING_OFFER_CHOICE,
+    ONBOARDING_SETTINGS_ROUTE,
+    ONBOARDING_STATION_LLM_PROVIDER,
+    ONBOARDING_STATION_TITLE,
+    ONBOARDING_STATIONS,
+    ONBOARDING_TOUR_CHOICE,
+} from 'src/app/domain/constants/onboarding-stations';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IOnboardingState, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
@@ -4168,6 +4183,187 @@ describe('AssistantChatComponent', () => {
             expect(scrollToSpy).toHaveBeenCalledWith(
                 expect.objectContaining({ top: container.scrollHeight, behavior: 'instant' }),
             );
+        });
+    });
+
+    describe('intro tour', () => {
+        let onboarding: OnboardingService;
+        let toastService: ToastShowService;
+        let showSpy: any;
+
+        const introState = (overrides: Partial<IOnboardingState> = {}): IOnboardingState => ({
+            kind: ONBOARDING_KIND.Intro,
+            shouldOffer: true,
+            showCard: false,
+            status: 'pending',
+            completedStations: [],
+            ...overrides,
+        });
+
+        const lastConfig = () => showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
+
+        beforeEach(() => {
+            sessionStorage.clear();
+            fixture.detectChanges();
+            onboarding = TestBed.inject(OnboardingService);
+            toastService = TestBed.inject(ToastShowService);
+            showSpy = vi.spyOn(toastService, 'showInteractiveReply').mockImplementation(() => undefined as any);
+        });
+
+        afterEach(() => sessionStorage.clear());
+
+        it('offers Ja / Später / Nein, reports the offer once and registers no timeout handler', () => {
+            const reportSpy = vi.spyOn(onboarding, 'reportOffered').mockImplementation(() => undefined);
+            const snoozeSpy = vi.spyOn(onboarding, 'snooze').mockImplementation(() => undefined);
+            onboarding.applyWelcome(introState());
+
+            (component as any).maybeOfferOnboarding();
+
+            expect(showSpy).toHaveBeenCalledTimes(1);
+            expect(lastConfig().options.map((o: any) => o.value)).toEqual([
+                ONBOARDING_OFFER_CHOICE.Accept,
+                ONBOARDING_OFFER_CHOICE.Snooze,
+                ONBOARDING_OFFER_CHOICE.Dismiss,
+            ]);
+            expect(showSpy.mock.calls[0][2]).toBeUndefined();
+            expect(reportSpy).toHaveBeenCalledTimes(1);
+            expect(snoozeSpy).not.toHaveBeenCalled();
+        });
+
+        it('offers a legacy account once and without the later chip', () => {
+            vi.spyOn(onboarding, 'reportOffered').mockImplementation(() => undefined);
+            onboarding.applyWelcome(introState({ status: 'legacy_offer', isLegacyOffer: true }));
+
+            (component as any).maybeOfferOnboarding();
+            (component as any).maybeOfferOnboarding();
+
+            expect(showSpy).toHaveBeenCalledTimes(1);
+            expect(lastConfig().options.map((o: any) => o.value)).toEqual([
+                ONBOARDING_OFFER_CHOICE.Accept,
+                ONBOARDING_OFFER_CHOICE.Dismiss,
+            ]);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.intro.offer.legacy-prompt');
+        });
+
+        it('drops a deferred greeting toast so it cannot replace the one-time legacy offer on reopen', () => {
+            vi.spyOn(onboarding, 'reportOffered').mockImplementation(() => undefined);
+            (component as any).pendingGreetingOptions = [{ label: 'Einstellungen öffnen', value: '/workplace/settings' }];
+            (component as any).pendingGreetingPrompt = 'prompt';
+            onboarding.applyWelcome(introState({ status: 'legacy_offer', isLegacyOffer: true }));
+
+            (component as any).maybeOfferOnboarding();
+
+            expect((component as any).pendingGreetingOptions).toEqual([]);
+            expect((component as any).pendingGreetingPrompt).toBeNull();
+        });
+
+        it('shows the single "I already know Klacks" chip only after the dismissal was saved', () => {
+            let saved: (() => void) | undefined;
+            vi.spyOn(onboarding, 'dismiss').mockImplementation((onSaved?: () => void) => {
+                saved = onSaved;
+            });
+            const depthSpy = vi.spyOn(onboarding, 'setAdvancedExplainDepth').mockReturnValue(of(undefined));
+
+            (component as any).handleIntroOfferChoice(ONBOARDING_OFFER_CHOICE.Dismiss);
+            expect(showSpy).not.toHaveBeenCalled();
+
+            saved!();
+            expect(lastConfig().options.map((o: any) => o.value)).toEqual([ONBOARDING_KNOWN_CHOICE]);
+
+            showSpy.mock.calls[showSpy.mock.calls.length - 1][1]([ONBOARDING_KNOWN_CHOICE]);
+            expect(depthSpy).toHaveBeenCalledTimes(1);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.intro.known.confirmed');
+        });
+
+        it('posts no confirmation when the explain-depth endpoint refuses', () => {
+            vi.spyOn(onboarding, 'dismiss').mockImplementation((onSaved?: () => void) => onSaved?.());
+            vi.spyOn(onboarding, 'setAdvancedExplainDepth').mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+
+            (component as any).handleIntroOfferChoice(ONBOARDING_OFFER_CHOICE.Dismiss);
+            showSpy.mock.calls[showSpy.mock.calls.length - 1][1]([ONBOARDING_KNOWN_CHOICE]);
+
+            expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.intro.known.confirmed');
+        });
+
+        it('shows Weiter and Mehr on an intro station with an explain skill', () => {
+            onboarding.applyWelcome(introState({ status: 'in_progress', shouldOffer: false }));
+            (component as any).tourIndex = 1;
+
+            (component as any).showStationChips(onboarding.stationAt(1));
+
+            expect(lastConfig().options.map((o: any) => o.value)).toEqual([
+                ONBOARDING_TOUR_CHOICE.Back,
+                ONBOARDING_TOUR_CHOICE.Done,
+                ONBOARDING_TOUR_CHOICE.More,
+                ONBOARDING_TOUR_CHOICE.Skip,
+                ONBOARDING_TOUR_CHOICE.End,
+            ]);
+        });
+
+        it('sends a chat question on Mehr and re-shows the chips of the active catalog after the answer', async () => {
+            onboarding.applyWelcome(introState({ status: 'in_progress', shouldOffer: false }));
+            const station = onboarding.stationAt(0)!;
+            (component as any).tourIndex = 0;
+            (component as any).showStationChips(station);
+            showSpy.mockClear();
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _convId: string, callbacks: any) => {
+                callbacks.onContent('Ausführliche Erklärung.');
+                callbacks.onMetadata({});
+                callbacks.onDone();
+                return new AbortController();
+            });
+
+            (component as any).handleStationChoice(station, ONBOARDING_TOUR_CHOICE.More);
+            await Promise.resolve();
+            await Promise.resolve();
+
+            expect(mockTranslateService.instant).toHaveBeenCalledWith(INTRO_MORE_REQUEST_KEY, expect.any(Object));
+            expect(mockLlmService.sendMessageStream).toHaveBeenCalledTimes(1);
+            expect(showSpy).toHaveBeenCalled();
+            expect(lastConfig().options.map((o: any) => o.value)).toContain(ONBOARDING_TOUR_CHOICE.More);
+            expect((component as any).tourIndex).toBe(0);
+        });
+
+        it('stays on the current page for the Klacksy station', () => {
+            vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
+            vi.spyOn(TestBed.inject(AuthorizationService), 'hasPermission').mockImplementation((p: string) => p === PERMISSIONS.CanUseAssistant);
+            onboarding.applyWelcome(introState({ status: 'in_progress', shouldOffer: false }));
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const navigateSpy = vi.spyOn(navigation, 'navigateAndScroll').mockResolvedValue({ success: true } as any);
+            vi.spyOn(navigation, 'highlightNavIcon').mockReturnValue(true);
+            const klacksyIndex = onboarding.catalog().findIndex((s) => s.id === INTRO_STATION.Klacksy);
+
+            (component as any).tourIndex = klacksyIndex;
+            (component as any).presentStationAtCursor();
+
+            expect(navigateSpy).not.toHaveBeenCalled();
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.intro.explain.klacksy');
+        });
+
+        it('keeps the chat input visible during the intro, unlike the setup tour', () => {
+            onboarding.applyWelcome(introState({ status: 'in_progress', shouldOffer: false }));
+            expect(component.isTourActive()).toBe(true);
+            expect(component.isInputHiddenByTour()).toBe(false);
+
+            onboarding.applyWelcome(null);
+            (onboarding as any).stateSignal.set({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: [] });
+            expect(component.isInputHiddenByTour()).toBe(true);
+        });
+
+        it('never starts the setup tour for a planner who asks for it', () => {
+            const saveSpy = vi.spyOn(TestBed.inject(DataAssistantService), 'saveOnboardingState').mockReturnValue(NEVER);
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const navigateSpy = vi.spyOn(navigation, 'navigateAndScroll').mockResolvedValue({ success: true } as any);
+            vi.spyOn(navigation, 'highlightNavIcon').mockReturnValue(true);
+            onboarding.applyWelcome({ shouldOffer: true, showCard: false, status: 'pending', completedStations: [] });
+
+            onboarding.requestTourStart(onboarding.resolveTourKind(ONBOARDING_KIND.Setup));
+            TestBed.tick();
+
+            expect(saveSpy).toHaveBeenCalledWith({ kind: ONBOARDING_KIND.Intro, status: 'in_progress' });
+            expect(onboarding.activeKind()).toBe(ONBOARDING_KIND.Intro);
+            expect(navigateSpy).toHaveBeenCalledWith(onboarding.stationAt(0)!.route, undefined);
+            expect(navigateSpy).not.toHaveBeenCalledWith(ONBOARDING_SETTINGS_ROUTE, expect.anything());
         });
     });
 });

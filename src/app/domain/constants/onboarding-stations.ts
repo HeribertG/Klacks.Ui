@@ -10,9 +10,15 @@
  * `route` overrides the default /workplace/settings destination for workspace stations;
  * `navIconId` is the main-nav icon Klacksy pulses so the user learns which icon opens the page;
  * `explainKey` is the i18n key of the message Klacksy posts for the station.
+ * The second catalog `INTRO_STATIONS` is the short per-account intro tour every user gets: `permission`
+ * mirrors the right the station's route demands in its guard data (undefined = no right beyond a session),
+ * `featureFlag` names a feature plugin that has to be enabled, `explainSkill` names the explain_page_*
+ * skill the "More" chip asks Klacksy to run, and a station without `route` stays on the current page.
  */
 
 import { AppSetting } from 'src/app/domain/models/settings/settings-various-class';
+import { MESSAGING_PLUGIN_NAME, MESSAGING_PLUGIN_REQUIRED_PERMISSION } from './feature-plugin.constants';
+import { PERMISSIONS, ROLE_ADMIN } from './permissions.constants';
 
 export type OnboardingStationType = 'ask' | 'navigate' | 'explain';
 
@@ -23,7 +29,18 @@ export interface IOnboardingStation {
   explainKey: string;
   navIconId: string;
   route?: string;
+  permission?: string;
+  featureFlag?: string;
+  explainSkill?: string;
+  pageNameKey?: string;
 }
+
+export const ONBOARDING_KIND = {
+  Setup: 'setup',
+  Intro: 'intro',
+} as const;
+
+export type OnboardingKind = (typeof ONBOARDING_KIND)[keyof typeof ONBOARDING_KIND];
 
 export const ONBOARDING_NAV_ICON = {
   Settings: 'open-settings',
@@ -35,6 +52,8 @@ export const ONBOARDING_NAV_ICON = {
   Shifts: 'open-shifts',
   Availability: 'open-availability',
   PeriodClosing: 'open-period-closing',
+  Messaging: 'open-plugin-messaging',
+  Assistant: 'header-assistant-button',
 } as const;
 
 export const ONBOARDING_ROUTE = {
@@ -43,6 +62,8 @@ export const ONBOARDING_ROUTE = {
   Availability: '/workplace/client-availability',
   PeriodClosing: '/workplace/period-closing',
   Schedule: '/workplace/schedule',
+  Absences: '/workplace/absence',
+  Messaging: '/workplace/messaging',
 } as const;
 
 /**
@@ -62,13 +83,31 @@ export const ONBOARDING_SETTINGS_ROUTE = '/workplace/settings';
 
 export const START_GUIDED_TOUR_SKILL = 'start_guided_tour';
 
+export const START_GUIDED_TOUR_KIND_PARAM = 'kind';
+
 export const ONBOARDING_STATUS = {
   Pending: 'pending',
   InProgress: 'in_progress',
   Snoozed: 'snoozed',
   Dismissed: 'dismissed',
   Completed: 'completed',
+  LegacyOffer: 'legacy_offer',
+  LegacyOffered: 'legacy_offered',
 } as const;
+
+export const ONBOARDING_OFFERED_EVENT = 'offered';
+
+export const ONBOARDING_SETUP_OPEN_STATUSES: readonly string[] = [
+  ONBOARDING_STATUS.Pending,
+  ONBOARDING_STATUS.InProgress,
+  ONBOARDING_STATUS.Snoozed,
+];
+
+export const ONBOARDING_RESTART_STATUSES: readonly string[] = [
+  ONBOARDING_STATUS.Completed,
+  ONBOARDING_STATUS.Dismissed,
+  ONBOARDING_STATUS.LegacyOffered,
+];
 
 export const ONBOARDING_OFFER_CHOICE = {
   Accept: 'accept',
@@ -81,7 +120,10 @@ export const ONBOARDING_TOUR_CHOICE = {
   Skip: 'skip',
   End: 'end',
   Back: 'back',
+  More: 'more',
 } as const;
+
+export const ONBOARDING_KNOWN_CHOICE = 'known';
 
 export const ONBOARDING_STATION_LLM_PROVIDER = 'llm-provider';
 export const ONBOARDING_STATION_DEFAULT_LANGUAGE = 'default-language';
@@ -111,6 +153,120 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'web-search', type: 'navigate', target: 'web-search', explainKey: EXPLAIN + 'web-search', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'plugins', type: 'explain', target: 'feature-plugins', explainKey: EXPLAIN + 'plugins', navIconId: ONBOARDING_NAV_ICON.Settings },
 ];
+
+export const INTRO_STATION = {
+  Schedule: 'intro-schedule',
+  Shifts: 'intro-shifts',
+  Absences: 'intro-absences',
+  People: 'intro-people',
+  PeriodClosing: 'intro-period-closing',
+  Klacksy: 'intro-klacksy',
+  Messaging: 'intro-messaging',
+} as const;
+
+export const INTRO_EXPLAIN_SKILL = {
+  Schedule: 'explain_page_schedule',
+  Shifts: 'explain_page_shifts',
+  Absences: 'explain_page_absence',
+  People: 'explain_page_employees',
+  PeriodClosing: 'explain_page_period_closing',
+} as const;
+
+const INTRO = 'assistant-chat.onboarding.intro.';
+const INTRO_EXPLAIN = INTRO + 'explain.';
+const INTRO_PAGE = INTRO + 'page.';
+
+export const INTRO_STATIONS: readonly IOnboardingStation[] = [
+  {
+    id: INTRO_STATION.Schedule,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'schedule',
+    navIconId: ONBOARDING_NAV_ICON.Schedules,
+    route: ONBOARDING_ROUTE.Schedule,
+    explainSkill: INTRO_EXPLAIN_SKILL.Schedule,
+    pageNameKey: INTRO_PAGE + 'schedule',
+  },
+  {
+    id: INTRO_STATION.Shifts,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'shifts',
+    navIconId: ONBOARDING_NAV_ICON.Shifts,
+    route: ONBOARDING_ROUTE.Shifts,
+    explainSkill: INTRO_EXPLAIN_SKILL.Shifts,
+    pageNameKey: INTRO_PAGE + 'shifts',
+  },
+  {
+    id: INTRO_STATION.Absences,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'absences',
+    navIconId: ONBOARDING_NAV_ICON.Absences,
+    route: ONBOARDING_ROUTE.Absences,
+    explainSkill: INTRO_EXPLAIN_SKILL.Absences,
+    pageNameKey: INTRO_PAGE + 'absences',
+  },
+  {
+    id: INTRO_STATION.People,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'people',
+    navIconId: ONBOARDING_NAV_ICON.Employees,
+    route: ONBOARDING_ROUTE.Employees,
+    explainSkill: INTRO_EXPLAIN_SKILL.People,
+    pageNameKey: INTRO_PAGE + 'people',
+  },
+  {
+    id: INTRO_STATION.PeriodClosing,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'period-closing',
+    navIconId: ONBOARDING_NAV_ICON.PeriodClosing,
+    route: ONBOARDING_ROUTE.PeriodClosing,
+    permission: ROLE_ADMIN,
+    explainSkill: INTRO_EXPLAIN_SKILL.PeriodClosing,
+    pageNameKey: INTRO_PAGE + 'period-closing',
+  },
+  {
+    id: INTRO_STATION.Klacksy,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'klacksy',
+    navIconId: ONBOARDING_NAV_ICON.Assistant,
+    permission: PERMISSIONS.CanUseAssistant,
+  },
+  {
+    id: INTRO_STATION.Messaging,
+    type: 'explain',
+    target: '',
+    explainKey: INTRO_EXPLAIN + 'messaging',
+    navIconId: ONBOARDING_NAV_ICON.Messaging,
+    route: ONBOARDING_ROUTE.Messaging,
+    permission: MESSAGING_PLUGIN_REQUIRED_PERMISSION,
+    featureFlag: MESSAGING_PLUGIN_NAME,
+  },
+];
+
+export const INTRO_ADMIN_SETUP_HINT_KEY = INTRO + 'admin-setup-hint';
+export const INTRO_MORE_REQUEST_KEY = INTRO + 'more-request';
+export const INTRO_MORE_PAGE_PARAM = 'page';
+
+/**
+ * Narrows the intro catalog to the stations the current user can actually open.
+ * @param hasPermission - Whether the user holds a right or role
+ * @param isFeatureEnabled - Whether a feature plugin is installed and enabled
+ */
+export function filterIntroStations(
+  hasPermission: (permission: string) => boolean,
+  isFeatureEnabled: (feature: string) => boolean,
+): readonly IOnboardingStation[] {
+  return INTRO_STATIONS.filter(
+    (station) =>
+      (!station.permission || hasPermission(station.permission)) &&
+      (!station.featureFlag || isFeatureEnabled(station.featureFlag)),
+  );
+}
 
 const ASK = 'assistant-chat.onboarding.ask.';
 

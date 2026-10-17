@@ -96,16 +96,22 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import {
+  INTRO_ADMIN_SETUP_HINT_KEY,
+  INTRO_MORE_PAGE_PARAM,
+  INTRO_MORE_REQUEST_KEY,
+  INTRO_STATION,
   IOnboardingAskField,
   IOnboardingStation,
   onboardingAskFields,
+  ONBOARDING_KIND,
+  ONBOARDING_KNOWN_CHOICE,
   ONBOARDING_OFFER_CHOICE,
   ONBOARDING_SETTINGS_ROUTE,
   ONBOARDING_STATION_DEFAULT_LANGUAGE,
   ONBOARDING_STATION_LLM_PROVIDER,
   ONBOARDING_STATION_TITLE,
-  ONBOARDING_STATIONS,
   ONBOARDING_TOUR_CHOICE,
+  OnboardingKind,
 } from 'src/app/domain/constants/onboarding-stations';
 
 const ONBOARDING_LLM_OFFLINE_KEY = 'assistant-chat.onboarding.llm.offline';
@@ -113,6 +119,31 @@ const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';
 const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-offline';
 const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
 const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
+const INTRO_KEY = 'assistant-chat.onboarding.intro.';
+const INTRO_OFFER_PROMPT_KEY = INTRO_KEY + 'offer.prompt';
+const INTRO_OFFER_LEGACY_PROMPT_KEY = INTRO_KEY + 'offer.legacy-prompt';
+const INTRO_OFFER_ACCEPT_KEY = INTRO_KEY + 'offer.accept';
+const INTRO_OFFER_SNOOZE_KEY = INTRO_KEY + 'offer.snooze';
+const INTRO_OFFER_DISMISS_KEY = INTRO_KEY + 'offer.dismiss';
+const INTRO_KNOWN_CHIP_KEY = INTRO_KEY + 'known.chip';
+const INTRO_KNOWN_CONFIRMED_KEY = INTRO_KEY + 'known.confirmed';
+const INTRO_TOUR_NEXT_KEY = INTRO_KEY + 'tour.next';
+const INTRO_TOUR_MORE_KEY = INTRO_KEY + 'tour.more';
+const INTRO_TOUR_COMPLETED_KEY = INTRO_KEY + 'tour.completed';
+const SETUP_CARD_KEY = 'assistant-chat.onboarding.card.';
+const INTRO_CARD_KEY = INTRO_KEY + 'card.';
+const SETUP_CARD_KEYS = {
+  title: SETUP_CARD_KEY + 'title',
+  dismiss: SETUP_CARD_KEY + 'dismiss',
+  start: SETUP_CARD_KEY + 'start',
+  resume: SETUP_CARD_KEY + 'resume',
+} as const;
+const INTRO_CARD_KEYS = {
+  title: INTRO_CARD_KEY + 'title',
+  dismiss: INTRO_CARD_KEY + 'dismiss',
+  start: INTRO_CARD_KEY + 'start',
+  resume: INTRO_CARD_KEY + 'resume',
+} as const;
 
 @Component({
   selector: 'app-assistant-chat',
@@ -227,9 +258,11 @@ export class AssistantChatComponent {
   );
 
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
+  readonly onboardingCardKeys = computed(() => (this.onboarding.isIntro() ? INTRO_CARD_KEYS : SETUP_CARD_KEYS));
+  readonly isInputHiddenByTour = computed(() => this.onboarding.isTourActive() && !this.onboarding.isIntro());
   readonly displayedTourProgress = computed(() => {
     const liveStep = this.liveTourStep();
-    return liveStep === null ? this.onboarding.progress() : Math.min(liveStep, this.onboarding.total);
+    return liveStep === null ? this.onboarding.progress() : Math.min(liveStep, this.onboarding.total());
   });
   conversationId = '';
   private currentStreamController: AbortController | null = null;
@@ -397,7 +430,11 @@ export class AssistantChatComponent {
   }
 
   private restartGuidedTour(): void {
-    this.onboarding.accept();
+    this.beginTour(this.onboarding.requestedTourKind() ?? this.onboarding.activeKind());
+  }
+
+  private beginTour(kind: OnboardingKind): void {
+    this.onboarding.accept(kind);
     this.maybePostLlmOfflineHint();
     this.tourIndex = this.onboarding.firstPendingIndex();
     this.presentStationAtCursor();
@@ -709,8 +746,9 @@ export class AssistantChatComponent {
             this.shouldScrollToBottom = true;
 
             const offerableNavigateTo = this.offerableNavigateTo(data);
-            if (this.isTourStationPending && this.tourIndex < ONBOARDING_STATIONS.length) {
-              this.showStationChips(ONBOARDING_STATIONS[this.tourIndex]);
+            const pendingStation = this.isTourStationPending ? this.onboarding.stationAt(this.tourIndex) : undefined;
+            if (pendingStation) {
+              this.showStationChips(pendingStation);
             } else if (data.suggestedReplies) {
               this.showRepliesAsToast(data.suggestedReplies);
             } else if (offerableNavigateTo || (data.suggestions && data.suggestions.length > 0)) {
@@ -1203,12 +1241,79 @@ export class AssistantChatComponent {
       return;
     }
     this.onboarding.markOfferedThisSession();
+    if (this.onboarding.isIntro()) {
+      this.showIntroOffer();
+      return;
+    }
     this.maybePostLlmOfflineHint();
     this.showOnboardingOffer();
   }
 
+  private showIntroOffer(): void {
+    const isLegacy = this.onboarding.isLegacyOffer();
+    const options: ISuggestedReply[] = [
+      { label: this.translateService.instant(INTRO_OFFER_ACCEPT_KEY), value: ONBOARDING_OFFER_CHOICE.Accept },
+    ];
+    if (!isLegacy) {
+      options.push({ label: this.translateService.instant(INTRO_OFFER_SNOOZE_KEY), value: ONBOARDING_OFFER_CHOICE.Snooze });
+    }
+    options.push({ label: this.translateService.instant(INTRO_OFFER_DISMISS_KEY), value: ONBOARDING_OFFER_CHOICE.Dismiss });
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      prompt: this.translateService.instant(isLegacy ? INTRO_OFFER_LEGACY_PROMPT_KEY : INTRO_OFFER_PROMPT_KEY),
+      options,
+    };
+    if (isLegacy) {
+      this.dropPendingGreetingToast();
+    }
+    this.toastShowService.dismissInteractiveReplies();
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values.length === 0) return;
+        this.handleIntroOfferChoice(values[0]);
+      });
+    });
+    this.onboarding.reportOffered();
+  }
+
+  private dropPendingGreetingToast(): void {
+    this.pendingGreetingOptions = [];
+    this.pendingGreetingPrompt = null;
+    this.pendingGreetingFocus = null;
+  }
+
+  private handleIntroOfferChoice(choice: string): void {
+    if (choice === ONBOARDING_OFFER_CHOICE.Accept) {
+      this.beginTour(ONBOARDING_KIND.Intro);
+    } else if (choice === ONBOARDING_OFFER_CHOICE.Snooze) {
+      this.onboarding.snooze();
+    } else if (choice === ONBOARDING_OFFER_CHOICE.Dismiss) {
+      this.onboarding.dismiss(() => this.ngZone.run(() => this.showKnownKlacksChip()));
+    }
+  }
+
+  private showKnownKlacksChip(): void {
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      options: [{ label: this.translateService.instant(INTRO_KNOWN_CHIP_KEY), value: ONBOARDING_KNOWN_CHOICE }],
+    };
+    this.toastShowService.dismissInteractiveReplies();
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values[0] !== ONBOARDING_KNOWN_CHOICE) return;
+        this.onboarding
+          .setAdvancedExplainDepth()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => this.ngZone.run(() => this.postKlacksyMessage(this.translateService.instant(INTRO_KNOWN_CONFIRMED_KEY))),
+            error: () => undefined,
+          });
+      });
+    });
+  }
+
   private maybePostLlmOfflineHint(): void {
-    if (this.llmOfflineHintShown || this.onboarding.llmLive()) {
+    if (this.llmOfflineHintShown || this.onboarding.llmLive() || this.onboarding.isIntro()) {
       return;
     }
     this.llmOfflineHintShown = true;
@@ -1254,10 +1359,7 @@ export class AssistantChatComponent {
   }
 
   startOnboardingTour(): void {
-    this.onboarding.accept();
-    this.maybePostLlmOfflineHint();
-    this.tourIndex = this.onboarding.firstPendingIndex();
-    this.presentStationAtCursor();
+    this.beginTour(this.onboarding.activeKind());
   }
 
   resumeTourOneStepBack(): void {
@@ -1275,11 +1377,15 @@ export class AssistantChatComponent {
   private presentStationAtCursor(): void {
     this.isTourStationPending = false;
     this.liveTourStep.set(this.tourIndex);
-    if (this.tourIndex >= ONBOARDING_STATIONS.length) {
+    const station = this.onboarding.stationAt(this.tourIndex);
+    if (!station) {
       this.completeTour();
       return;
     }
-    const station = ONBOARDING_STATIONS[this.tourIndex];
+    if (this.onboarding.isIntro()) {
+      this.presentIntroStation(station);
+      return;
+    }
     this.klacksyNavigation.navigateAndScroll(station.route ?? ONBOARDING_SETTINGS_ROUTE, station.target || undefined);
     this.klacksyNavigation.highlightNavIcon(station.navIconId);
     this.postKlacksyMessage(this.translateService.instant(station.explainKey));
@@ -1289,6 +1395,18 @@ export class AssistantChatComponent {
     }
     this.maybePostFreeProviderHint(station);
     this.maybePostDoubleClickEditHint(station);
+    this.showStationChips(station);
+  }
+
+  private presentIntroStation(station: IOnboardingStation): void {
+    if (station.route) {
+      this.klacksyNavigation.navigateAndScroll(station.route, station.target || undefined);
+    }
+    this.klacksyNavigation.highlightNavIcon(station.navIconId);
+    this.postKlacksyMessage(this.translateService.instant(station.explainKey));
+    if (station.id === INTRO_STATION.Klacksy && this.onboarding.showsAdminSetupHint()) {
+      this.postKlacksyMessage(this.translateService.instant(INTRO_ADMIN_SETUP_HINT_KEY));
+    }
     this.showStationChips(station);
   }
 
@@ -1359,8 +1477,15 @@ export class AssistantChatComponent {
     if (this.tourIndex > 0) {
       options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.back'), value: ONBOARDING_TOUR_CHOICE.Back });
     }
+    if (this.onboarding.isIntro()) {
+      options.push({ label: this.translateService.instant(INTRO_TOUR_NEXT_KEY), value: ONBOARDING_TOUR_CHOICE.Done });
+      if (station.explainSkill && station.pageNameKey && this.onboarding.llmLive()) {
+        options.push({ label: this.translateService.instant(INTRO_TOUR_MORE_KEY), value: ONBOARDING_TOUR_CHOICE.More });
+      }
+    } else {
+      options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.done'), value: ONBOARDING_TOUR_CHOICE.Done });
+    }
     options.push(
-      { label: this.translateService.instant('assistant-chat.onboarding.tour.done'), value: ONBOARDING_TOUR_CHOICE.Done },
       { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
       { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
     );
@@ -1383,6 +1508,10 @@ export class AssistantChatComponent {
       this.retreatTour();
       return;
     }
+    if (choice === ONBOARDING_TOUR_CHOICE.More) {
+      this.askKlacksyForStationDetails(station);
+      return;
+    }
     if (choice !== ONBOARDING_TOUR_CHOICE.Done && choice !== ONBOARDING_TOUR_CHOICE.Skip) {
       this.endTour();
       return;
@@ -1399,6 +1528,15 @@ export class AssistantChatComponent {
       return;
     }
     this.finishStationChoice(completedStationId);
+  }
+
+  private askKlacksyForStationDetails(station: IOnboardingStation): void {
+    if (!station.pageNameKey) {
+      return;
+    }
+    const page = this.translateService.instant(station.pageNameKey);
+    this.inputText.set(this.translateService.instant(INTRO_MORE_REQUEST_KEY, { [INTRO_MORE_PAGE_PARAM]: page }));
+    void this.sendMessage();
   }
 
   private finishStationChoice(completedStationId?: string): void {
@@ -1444,8 +1582,9 @@ export class AssistantChatComponent {
   private completeTour(): void {
     this.isTourStationPending = false;
     this.toastShowService.dismissInteractiveReplies();
+    const completedKey = this.onboarding.isIntro() ? INTRO_TOUR_COMPLETED_KEY : 'assistant-chat.onboarding.tour.completed';
     this.onboarding.completeTour();
-    this.postKlacksyMessage(this.translateService.instant('assistant-chat.onboarding.tour.completed'));
+    this.postKlacksyMessage(this.translateService.instant(completedKey));
   }
 
   private endTour(): void {

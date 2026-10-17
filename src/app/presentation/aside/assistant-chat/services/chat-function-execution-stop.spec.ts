@@ -64,7 +64,7 @@ describe('stop-turn cancellation across turn control, function execution and UI 
         { provide: DataManagementAssistantService, useValue: { reportUiActionResult, cancelTurn: vi.fn(() => of({ accepted: true })) } },
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn() } },
-        { provide: OnboardingService, useValue: { requestTourStart: vi.fn() } },
+        { provide: OnboardingService, useValue: { requestTourStart: vi.fn(), resolveTourKind: vi.fn() } },
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: vi.fn(() => true), navigateAndScroll: vi.fn(() => Promise.resolve({ success: true })) } },
         { provide: NavigationVerdictService, useValue: { apply: vi.fn(), report: vi.fn(), applySuspectedMiss: vi.fn() } },
         { provide: Router, useValue: { url: '/workplace/dashboard', navigate: vi.fn() } },

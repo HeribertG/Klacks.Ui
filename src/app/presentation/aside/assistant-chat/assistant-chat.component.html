@@ -96,23 +96,23 @@
   @if (onboarding.showCard()) {
   <div class="onboarding-card">
     <div class="onboarding-card-header">
-      <span class="onboarding-card-title">{{ 'assistant-chat.onboarding.card.title' | translate }}</span>
+      <span class="onboarding-card-title">{{ onboardingCardKeys().title | translate }}</span>
       <button
         type="button"
         class="onboarding-card-dismiss"
         (click)="dismissOnboarding()"
-        [attr.aria-label]="'assistant-chat.onboarding.card.dismiss' | translate"
+        [attr.aria-label]="onboardingCardKeys().dismiss | translate"
       >
         ×
       </button>
     </div>
     <div class="onboarding-card-progress-text">
-      {{ 'assistant-chat.onboarding.card.progress' | translate : { done: displayedTourProgress(), total: onboarding.total } }}
+      {{ 'assistant-chat.onboarding.card.progress' | translate : { done: displayedTourProgress(), total: onboarding.total() } }}
     </div>
     <div class="onboarding-card-bar">
       <div
         class="onboarding-card-fill"
-        [style.width.%]="onboarding.total ? (displayedTourProgress() / onboarding.total) * 100 : 0"
+        [style.width.%]="onboarding.total() ? (displayedTourProgress() / onboarding.total()) * 100 : 0"
       ></div>
     </div>
     <div class="onboarding-card-actions">
@@ -122,7 +122,7 @@
       </button>
       }
       <button type="button" class="onboarding-card-start" (click)="startOnboardingTour()">
-        {{ (displayedTourProgress() > 0 ? 'assistant-chat.onboarding.card.resume' : 'assistant-chat.onboarding.card.start') | translate }}
+        {{ (displayedTourProgress() > 0 ? onboardingCardKeys().resume : onboardingCardKeys().start) | translate }}
       </button>
     </div>
   </div>
@@ -155,7 +155,7 @@
   </div>
 
   <!-- Input Area (hidden for the entire setup tour: tour answers are captured on the real settings forms) -->
-  @if (!isTourActive()) {
+  @if (!isInputHiddenByTour()) {
   <div class="input-container" [class.disabled]="isInitializing() || hasNoApiKey()">
     <!-- Whisper loading indicator -->
     @if (speechService.isWhisperLoading()) {

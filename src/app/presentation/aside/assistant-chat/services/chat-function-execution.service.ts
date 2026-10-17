@@ -27,7 +27,7 @@ import {
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
+import { START_GUIDED_TOUR_KIND_PARAM, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { EXPLAIN_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES } from 'src/app/domain/constants/page-explain-icons.constants';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
 import { KlacksyNavigationService, NavigationResult } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
@@ -122,7 +122,8 @@ export class ChatFunctionExecutionService {
       if (success === false) continue;
 
       if (functionName === START_GUIDED_TOUR_SKILL) {
-        this.onboarding.requestTourStart();
+        const tourParams = call.Parameters || call.parameters || {};
+        this.onboarding.requestTourStart(this.onboarding.resolveTourKind(tourParams[START_GUIDED_TOUR_KIND_PARAM]));
         continue;
       }
 

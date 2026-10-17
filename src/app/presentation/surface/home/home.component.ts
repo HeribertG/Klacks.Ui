@@ -19,6 +19,7 @@ import { CompanyClockWarningComponent } from '../company-clock-warning/company-c
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { ONBOARDING_KIND } from 'src/app/domain/constants/onboarding-stations';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -61,7 +62,7 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    this.onboardingService.refreshState().subscribe({
+    this.onboardingService.refreshState(undefined, ONBOARDING_KIND.Setup).subscribe({
       next: (state) => {
         if (state.shouldOffer) {
           this.asideService.show();

@@ -270,6 +270,18 @@ export class DataAssistantService {
   }
 
   /**
+   * Stores the explanation-depth override "advanced" for the signed-in user (onboarding chip "I already
+   * know Klacks") without an LLM turn. Completes on 204; 409 (no agent yet) and 400 arrive as errors.
+   */
+  setAdvancedExplainDepth(): Observable<void> {
+    return this.httpClient.post<void>(
+      `${this.baseUrl}chat/onboarding/explain-depth/advanced`,
+      null,
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
+
+  /**
    * The skills that were offered to the model in the turn this message answered (C1). A POST because
    * the raw utterance travels in the body: the backend hashes it through MessageNormalizer, and a
    * query string would leak the user's message into the access logs. Skips the loading indicator -
