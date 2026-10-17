@@ -2,7 +2,9 @@
 
 /**
  * Model for a required qualification on a shift. MinLevel is the minimum proficiency level;
- * IsMandatory gates eligibility (true = hard requirement, false = soft preference).
+ * IsMandatory gates eligibility (true = hard requirement, false = soft preference). LevelBindingOverride decides
+ * whether a too-low level blocks on this shift: true = binding, false = hint only, null = as the qualification
+ * (IQualification.isLevelBinding).
  */
 import { QualificationLevel } from '../../enums/qualification-level.enum';
 
@@ -12,6 +14,7 @@ export interface IShiftRequiredQualification {
   qualificationId?: string;
   isMandatory: boolean;
   minLevel: QualificationLevel;
+  levelBindingOverride: boolean | null;
 }
 
 export class ShiftRequiredQualification implements IShiftRequiredQualification {
@@ -20,4 +23,5 @@ export class ShiftRequiredQualification implements IShiftRequiredQualification {
   qualificationId?: string;
   isMandatory = false;
   minLevel: QualificationLevel = QualificationLevel.Basic;
+  levelBindingOverride: boolean | null = null;
 }

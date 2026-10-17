@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Settings card for managing qualification master entries (name, emoji, time-limited flag, type, country).
+ * Settings card for managing qualification master entries (name, emoji, time-limited flag, binding minimum level,
+ * type, country). isLevelBindingValue holds the "minimum level is binding" checkbox of the open modal.
  * Uses NgbModal for create/edit and ModalService for delete confirmation.
  */
 import {
@@ -103,6 +104,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   selectedEmoji = signal<string>('');
   isTimeLimitedValue = signal<boolean>(false);
+  isLevelBindingValue = signal<boolean>(false);
   selectedType = signal<QualificationType>(QualificationType.Work);
   selectedCountries = signal<string[]>([]);
   emojiPickerOpen = signal<boolean>(false);
@@ -216,6 +218,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.editingQualification = {
       name: new MultiLanguage(),
       isTimeLimited: false,
+      isLevelBinding: false,
       type: QualificationType.Work,
       countries: [],
       category: QualificationCategory.None,
@@ -224,6 +227,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.formModel.set({ name: '', description: '' });
     this.selectedEmoji.set('');
     this.isTimeLimitedValue.set(false);
+    this.isLevelBindingValue.set(false);
     this.selectedType.set(QualificationType.Work);
     this.selectedCountries.set([]);
     this.selectedCategory.set(QualificationCategory.None);
@@ -246,6 +250,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     });
     this.selectedEmoji.set(q.emoji ?? '');
     this.isTimeLimitedValue.set(q.isTimeLimited);
+    this.isLevelBindingValue.set(q.isLevelBinding ?? false);
     this.selectedType.set(q.type ?? QualificationType.Work);
     this.selectedCountries.set(q.countries ?? []);
     this.selectedCategory.set(q.category ?? QualificationCategory.None);
@@ -272,6 +277,10 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   onTimeLimitedChange(event: Event): void {
     this.isTimeLimitedValue.set((event.target as HTMLInputElement).checked);
+  }
+
+  onLevelBindingChange(event: Event): void {
+    this.isLevelBindingValue.set((event.target as HTMLInputElement).checked);
   }
 
   private countries = signal<ICountry[]>([]);
@@ -327,6 +336,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       description,
       emoji: this.selectedEmoji() || undefined,
       isTimeLimited: this.isTimeLimitedValue(),
+      isLevelBinding: this.isLevelBindingValue(),
       type: this.selectedType(),
       countries: this.selectedCountries(),
       category: this.selectedCategory(),

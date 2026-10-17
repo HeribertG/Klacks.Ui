@@ -76,6 +76,9 @@
             <th class="table-header cell-center" style="width: 100px">
               {{ "shift.edit-shift.qualifications.table.mandatory" | translate }}
             </th>
+            <th class="table-header" style="width: 220px">
+              {{ "shift.edit-shift.qualifications.table.level-binding" | translate }}
+            </th>
             <th
               class="table-header action"
               style="width: 60px; max-width: 60px; min-width: 60px"
@@ -138,6 +141,34 @@
                 [ngModel]="row.isMandatory"
                 (ngModelChange)="onMandatoryChange($index, $event)"
               />
+            </td>
+            <td class="table-cell cell-center-vertical">
+              @let inherited = inheritedLevelBinding(row);
+              @let inheritedLabel = (inherited
+                ? "shift.edit-shift.qualifications.level-binding.binding"
+                : "shift.edit-shift.qualifications.level-binding.hint") | translate;
+              <select
+                class="form-select"
+                id="sqLevelBinding-{{ $index }}"
+                name="sqLevelBinding-{{ $index }}"
+                [disabled]="isDisabled()"
+                [ngModel]="row.levelBindingOverride ?? null"
+                (ngModelChange)="onLevelBindingChange($index, $event)"
+              >
+                <option [ngValue]="null">
+                  @if (inherited === undefined) {
+                  {{ "shift.edit-shift.qualifications.level-binding.inherit" | translate }}
+                  } @else {
+                  {{ "shift.edit-shift.qualifications.level-binding.inherit-current" | translate: { current: inheritedLabel } }}
+                  }
+                </option>
+                <option [ngValue]="true">
+                  {{ "shift.edit-shift.qualifications.level-binding.binding" | translate }}
+                </option>
+                <option [ngValue]="false">
+                  {{ "shift.edit-shift.qualifications.level-binding.hint" | translate }}
+                </option>
+              </select>
             </td>
             <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {

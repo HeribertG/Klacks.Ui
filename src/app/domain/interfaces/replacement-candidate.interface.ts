@@ -7,6 +7,7 @@ import { IScheduleValidationNotification } from './schedule-validation-notificat
  * @param softConflicts - Rule notes that do not block the stand-in but should be read before calling
  * @param targetHoursDeficit - Hours the person is still below the target, a hint for fair distribution
  * @param phone - Mobile number before fixed line; null when none is stored
+ * @param levelShortfall - Levels missing over the mandatory qualifications held below a non-binding minimum level; 0 = fully qualified
  */
 export interface IReplacementCandidate {
   clientId: string;
@@ -16,4 +17,5 @@ export interface IReplacementCandidate {
   targetHoursDeficit: number;
   isOnCall: boolean;
   phone?: string | null;
+  levelShortfall: number;
 }

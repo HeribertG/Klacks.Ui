@@ -4,7 +4,8 @@
  * Constants for the structured 409 answer of the backend when a work booking is refused.
  * @param ERROR_CODES - Machine-readable errorCode values of the 409 body (mirror of the backend WorkWriteConflictCodes)
  * @param QUALIFICATION_VALIDATION_KEYS - Validation keys of a mandatory-qualification gap carried in a conflict item
- * @param MESSAGE_KEYS - Translation keys of the user-facing messages
+ * @param MESSAGE_KEYS - Translation keys of the user-facing messages (QUALIFICATION_LEVEL_HELD names the held level
+ *   next to the required one; QUALIFICATION_LEVEL is the fallback when the held level is not sent)
  * @param TOAST_NAME - Toast name, so a repeated refusal replaces the shown toast instead of stacking
  * @param MAX_LINES - Number of conflicts spelled out in one toast
  */
@@ -23,6 +24,7 @@ export const WORK_CONFLICT = {
     QUALIFICATION_MISSING: 'schedule.workConflict.qualificationMissing',
     QUALIFICATION_EXPIRED: 'schedule.workConflict.qualificationExpired',
     QUALIFICATION_LEVEL: 'schedule.workConflict.qualificationLevel',
+    QUALIFICATION_LEVEL_HELD: 'schedule.workConflict.qualificationLevelHeld',
     BLOCKED: 'schedule.workConflict.blocked',
     SPORADIC_DAY_FULL: 'schedule.workConflict.sporadicDayFull',
     SPORADIC_RANGE_EXHAUSTED: 'schedule.workConflict.sporadicRangeExhausted',

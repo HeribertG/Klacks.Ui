@@ -11,6 +11,8 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { of } from 'rxjs';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
+import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { SessionStorageService } from 'src/app/infrastructure/storage/session-storage.service';
@@ -159,5 +161,64 @@ describe('DataManagementShiftService', () => {
                 });
             });
         }
+    });
+
+    describe('required qualification level binding', () => {
+        const requirement = (qualificationId: string, levelBindingOverride: boolean | null): ShiftRequiredQualification => {
+            const row = new ShiftRequiredQualification();
+            row.qualificationId = qualificationId;
+            row.isMandatory = true;
+            row.minLevel = QualificationLevel.Proficient;
+            row.levelBindingOverride = levelBindingOverride;
+            return row;
+        };
+
+        afterEach(() => {
+            TestBed.inject(HttpTestingController).verify();
+        });
+
+        it('defaults a new requirement row to "as the qualification" (null, not false)', () => {
+            expect(new ShiftRequiredQualification().levelBindingOverride).toBeNull();
+        });
+
+        it('treats switching a requirement from inherit (null) to hint only (false) as an unsaved change', () => {
+            const baseline = new Shift();
+            baseline.id = 'shift-1';
+            baseline.requiredQualifications = [requirement('q-1', null)];
+            service.editShiftDummy = baseline;
+            const edited = cloneObject<Shift>(baseline);
+            edited.requiredQualifications[0].levelBindingOverride = false;
+            service.editShift = edited;
+
+            const draft = service.captureDraft() as Shift | null;
+
+            expect(draft).not.toBeNull();
+            expect(draft!.requiredQualifications[0].levelBindingOverride).toBe(false);
+        });
+
+        it('keeps null, true and false through a draft restore and sends them unchanged in the shift PUT', () => {
+            const edited = new Shift();
+            edited.id = 'shift-1';
+            edited.name = 'Night care';
+            edited.requiredQualifications = [
+                requirement('q-inherit', null),
+                requirement('q-binding', true),
+                requirement('q-hint', false),
+            ];
+
+            service.restoreDraft(cloneObject<Shift>(edited));
+            TestBed.inject(DataShiftService).updateShift(service.editShift!).subscribe();
+
+            const req = TestBed.inject(HttpTestingController).expectOne(`${environment.baseUrl}Shifts/`);
+            expect(req.request.method).toBe('PUT');
+            expect(req.request.body.requiredQualifications.map(
+                (row: ShiftRequiredQualification) => [row.qualificationId, row.levelBindingOverride],
+            )).toEqual([
+                ['q-inherit', null],
+                ['q-binding', true],
+                ['q-hint', false],
+            ]);
+            req.flush(new Shift());
+        });
     });
 });

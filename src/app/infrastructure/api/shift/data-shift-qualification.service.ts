@@ -16,6 +16,7 @@ export interface SetShiftRequiredQualificationRequest {
   qualificationId: string;
   isMandatory: boolean;
   minLevel: QualificationLevel;
+  levelBindingOverride: boolean | null;
 }
 
 @Injectable({ providedIn: 'root' })

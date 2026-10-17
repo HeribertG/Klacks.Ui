@@ -28,6 +28,7 @@ describe('ShiftQualificationsComponent', () => {
     name: { de: 'Sicherheitsdienst', en: 'Security' },
     emoji: '🛡️',
     isTimeLimited: false,
+    isLevelBinding: false,
     type: QualificationType.Work,
     countries: ['CH'],
     category: QualificationCategory.Security,
@@ -37,6 +38,7 @@ describe('ShiftQualificationsComponent', () => {
     name: { de: 'Deutsch', en: 'German' },
     emoji: '🗣️',
     isTimeLimited: false,
+    isLevelBinding: false,
     type: QualificationType.Language,
     countries: ['CH'],
     category: QualificationCategory.None,
@@ -117,6 +119,82 @@ describe('ShiftQualificationsComponent', () => {
 
     expect(mockDataManagementShiftService.editShift.requiredQualifications).toHaveLength(0);
     expect(emitSpy).toHaveBeenCalledWith(true);
+  });
+
+  describe('level binding choice', () => {
+    const bindingSelect = (): HTMLSelectElement =>
+      fixture.nativeElement.querySelector('#sqLevelBinding-0') as HTMLSelectElement;
+
+    const choose = async (optionIndex: number): Promise<void> => {
+      const select = bindingSelect();
+      select.value = select.options[optionIndex].value;
+      select.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    };
+
+    const renderRow = async (): Promise<void> => {
+      component.addRow();
+      component.rows[0].qualificationId = securityWork.id;
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it('starts a new row at "as the qualification" (null)', () => {
+      component.addRow();
+
+      expect(component.rows[0].levelBindingOverride).toBeNull();
+    });
+
+    it('offers inherit, binding and hint only and writes null, true or false to the row', async () => {
+      await renderRow();
+      const emitSpy = vi.spyOn(component.isChangingEvent, 'emit');
+
+      expect(bindingSelect().options).toHaveLength(3);
+
+      await choose(1);
+      expect(component.rows[0].levelBindingOverride).toBe(true);
+
+      await choose(2);
+      expect(component.rows[0].levelBindingOverride).toBe(false);
+
+      await choose(0);
+      expect(component.rows[0].levelBindingOverride).toBeNull();
+      expect(emitSpy).toHaveBeenCalledWith(true);
+    });
+
+    it('keeps hint only (false) on the edited shift instead of collapsing it to null', () => {
+      component.addRow();
+
+      component.onLevelBindingChange(0, false);
+
+      expect(mockDataManagementShiftService.editShift.requiredQualifications[0].levelBindingOverride).toBe(false);
+    });
+
+    it('names what "as the qualification" currently means', async () => {
+      mockQualificationService.getQualificationList.mockReturnValue(
+        of([{ ...securityWork, isLevelBinding: true }, swissLanguage]),
+      );
+      component.ngOnInit();
+      await renderRow();
+
+      expect(component.inheritedLevelBinding(component.rows[0])).toBe(true);
+      expect(bindingSelect().options[0].textContent?.trim()).toBe(
+        'shift.edit-shift.qualifications.level-binding.inherit-current',
+      );
+    });
+
+    it('shows the plain inherit label while no qualification is chosen', async () => {
+      component.addRow();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.inheritedLevelBinding(component.rows[0])).toBeUndefined();
+      expect(bindingSelect().options[0].textContent?.trim()).toBe(
+        'shift.edit-shift.qualifications.level-binding.inherit',
+      );
+    });
   });
 
   it('should still list languages after switching from a work category filter', () => {

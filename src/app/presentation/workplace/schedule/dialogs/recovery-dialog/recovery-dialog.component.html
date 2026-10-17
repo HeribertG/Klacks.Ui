@@ -85,6 +85,11 @@
                                 @if (candidate.isOnCall) {
                                   <span class="badge text-bg-info">{{ 'recovery.dialog.onCall' | translate }}</span>
                                 }
+                                @if (candidate.levelShortfall > 0) {
+                                  <span class="badge text-bg-light recovery-level-shortfall">
+                                    {{ 'recovery.dialog.levelShortfall' | translate }}
+                                  </span>
+                                }
                                 @if (candidate.softConflicts.length > 0) {
                                   <span class="badge text-bg-warning">
                                     {{ 'recovery.dialog.conflicts' | translate: { count: candidate.softConflicts.length } }}

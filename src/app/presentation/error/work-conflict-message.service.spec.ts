@@ -29,7 +29,7 @@ function qualificationGap(code: string, extraParams: Record<string, string> = {}
         code,
         clientId: CLIENT_ID,
         date: WORK_DATE,
-        params: { qualificationId: QUALIFICATION_ID.toUpperCase(), minLevel: '2', ...extraParams },
+        params: { qualificationId: QUALIFICATION_ID.toUpperCase(), minLevel: 'Proficient', ...extraParams },
       },
     ],
   };
@@ -128,14 +128,44 @@ describe('WorkConflictMessageService', () => {
       expect(lastParams()['date']).toBe(formatCalendarDate(WORK_DATE, LOCALE));
     });
 
-    it('uses the level message and passes the required level', () => {
+    it('uses the level message with the level label when the held level is not sent', () => {
       service.buildMessage(
         conflict(qualificationGap(WORK_CONFLICT.QUALIFICATION_VALIDATION_KEYS.INSUFFICIENT_LEVEL)),
         { clientId: CLIENT_ID, shiftId: SHIFT_ID },
       );
 
       expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_LEVEL);
-      expect(lastParams()['level']).toBe('2');
+      expect(lastParams()['level']).toBe('shift.edit-shift.qualifications.level.3|{}');
+    });
+
+    it('names the held and the required level for a binding level gap instead of a missing qualification', () => {
+      service.buildMessage(
+        conflict(qualificationGap(WORK_CONFLICT.QUALIFICATION_VALIDATION_KEYS.INSUFFICIENT_LEVEL, {
+          heldLevel: 'Basic',
+          levelDelta: '1',
+        })),
+        { clientId: CLIENT_ID, shiftId: SHIFT_ID },
+      );
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_LEVEL_HELD);
+      expect(lastKey()).not.toBe(WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_MISSING);
+      expect(lastParams()).toMatchObject({
+        client: 'Anna Muster',
+        qualification: 'Erste Hilfe',
+        shift: 'Night watch',
+        level: 'shift.edit-shift.qualifications.level.3|{}',
+        heldLevel: 'shift.edit-shift.qualifications.level.2|{}',
+        levelDelta: '1',
+      });
+    });
+
+    it('keeps the missing message for a missing qualification even when level params are present', () => {
+      service.buildMessage(
+        conflict(qualificationGap(WORK_CONFLICT.QUALIFICATION_VALIDATION_KEYS.MISSING, { heldLevel: 'Basic' })),
+        { clientId: CLIENT_ID, shiftId: SHIFT_ID },
+      );
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_MISSING);
     });
 
     it('falls back to the generic refusal when the employee is not loaded', () => {

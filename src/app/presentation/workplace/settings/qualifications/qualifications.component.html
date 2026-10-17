@@ -151,6 +151,26 @@
           </div>
         </div>
 
+        <div id="qualifications-modal-level-binding-row" class="row-line-modal-inline">
+          <div class="model-field">
+            <span class="hint-text settings-hint">{{ 'setting.qualifications.modal.level-binding' | translate }}</span>
+            <div class="checkbox-field">
+              <input
+                id="qualifications-modal-level-binding"
+                type="checkbox"
+                [checked]="isLevelBindingValue()"
+                (change)="onLevelBindingChange($event)"
+              />
+              <label for="qualifications-modal-level-binding">
+                {{ 'setting.qualifications.modal.level-binding-label' | translate }}
+              </label>
+            </div>
+            <span id="qualifications-modal-level-binding-hint" class="settings-hint">
+              {{ 'setting.qualifications.modal.level-binding-hint' | translate }}
+            </span>
+          </div>
+        </div>
+
         <!-- Emoji picker — inline, not a dropdown -->
         @if (emojiPickerOpen()) {
           <div id="qualifications-emoji-picker" class="emoji-picker-inline">

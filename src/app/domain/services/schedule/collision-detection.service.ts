@@ -47,6 +47,11 @@ import {
   parseCalendarDate,
 } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateParams } from 'src/app/domain/helpers/date-params.helper';
+import { QUALIFICATION_LEVEL_VALIDATION } from 'src/app/domain/constants/qualification-level-validation.constants';
+import {
+  hasHeldQualificationLevel,
+  localizeQualificationLevelParams,
+} from 'src/app/domain/helpers/qualification-level-label.helper';
 import {
   localizePlanningRuleKind,
   planningRuleTooltip,
@@ -195,7 +200,7 @@ export class CollisionDetectionService implements OnDestroy {
         clientName: isTeamEntry
           ? this.translate.instant(SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY)
           : validation.clientName,
-        comment: validation.comment,
+        comment: this.displayComment(validation),
         commentParams: this.localizeCommentParams(
           validation.comment,
           validation.commentParams,
@@ -209,6 +214,12 @@ export class CollisionDetectionService implements OnDestroy {
     this.errorEntries.set(entries);
   }
 
+  private displayComment(validation: IScheduleValidationNotification): string {
+    return validation.comment === QUALIFICATION_LEVEL_VALIDATION.KEY && hasHeldQualificationLevel(validation.commentParams)
+      ? QUALIFICATION_LEVEL_VALIDATION.DETAIL_KEY
+      : validation.comment;
+  }
+
   private localizeCommentParams(
     comment: string,
     params: Record<string, string> | undefined
@@ -217,9 +228,11 @@ export class CollisionDetectionService implements OnDestroy {
       return params;
     }
 
-    const localized = {
-      ...localizePlanningRuleKind(comment, params, (key) => this.translate.instant(key)),
-    };
+    const translateKey = (key: string): string => this.translate.instant(key);
+    const ruleLocalized = localizePlanningRuleKind(comment, params, translateKey) ?? params;
+    const localized = comment === QUALIFICATION_LEVEL_VALIDATION.KEY
+      ? localizeQualificationLevelParams(ruleLocalized, translateKey)
+      : { ...ruleLocalized };
     const dayOfWeek = localized['dayOfWeek'];
     if (dayOfWeek) {
       localized['dayOfWeek'] = this.translate.instant(dayOfWeek.toLowerCase());

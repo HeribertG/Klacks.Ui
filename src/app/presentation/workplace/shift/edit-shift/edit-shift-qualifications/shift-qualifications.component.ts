@@ -2,7 +2,9 @@
 
 /**
  * Card component for managing required qualifications on a shift. Lists rows in a table with
- * emoji, qualification dropdown, min-level dropdown and a mandatory toggle. Changes are held
+ * emoji, qualification dropdown, min-level dropdown, a mandatory toggle and the level binding choice
+ * (levelBindingOverride: null = as the qualification, true = binding, false = hint only; the "as the
+ * qualification" option names what the qualification currently says). Changes are held
  * in-memory on the edited shift and persisted together with the shift via the savebar (shift PUT).
  * Editability follows the same gate as the group / macro cards: editable at any shift status for a
  * user holding the write right ShiftEditPermissionService demands, read-only for everyone else.
@@ -209,6 +211,17 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
     if (!row) return;
     row.minLevel = level;
     this.isChangingEvent.emit(true);
+  }
+
+  onLevelBindingChange(index: number, value: boolean | null): void {
+    const row = this.rows[index];
+    if (!row) return;
+    row.levelBindingOverride = value;
+    this.isChangingEvent.emit(true);
+  }
+
+  inheritedLevelBinding(row: IShiftRequiredQualification): boolean | undefined {
+    return this.getQualification(row.qualificationId)?.isLevelBinding;
   }
 
   onMandatoryChange(index: number, value: boolean): void {

@@ -7,6 +7,7 @@
  * @param description - Optional localized description
  * @param emoji - Optional emoji symbol for the qualification
  * @param isTimeLimited - Whether the qualification expires over time
+ * @param isLevelBinding - Default for every mandatory shift requirement: true = a level below the required minimum blocks like a missing qualification, false = only a warning
  * @param type - Category of the qualification (Language or Work)
  * @param countries - ISO 3166-1 alpha-2 country codes this qualification applies to (e.g. ["CH", "DE"])
  * @param category - Industry category of the qualification (None, Spitex, Security, Logistics)
@@ -21,6 +22,7 @@ export interface IQualification {
   description?: IMultiLanguage;
   emoji?: string;
   isTimeLimited: boolean;
+  isLevelBinding: boolean;
   type: QualificationType;
   countries: string[];
   category: QualificationCategory;

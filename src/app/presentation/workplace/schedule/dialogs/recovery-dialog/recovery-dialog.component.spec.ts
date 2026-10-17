@@ -369,6 +369,7 @@ describe('RecoveryDialogComponent', () => {
       targetHoursDeficit: 0,
       isOnCall: false,
       phone: null,
+      levelShortfall: 0,
       ...extra,
     });
 
@@ -512,6 +513,27 @@ describe('RecoveryDialogComponent', () => {
       expect(
         outcomeButton('[data-candidate="client-7"]', ReplacementRequestOutcome.NotReached).getAttribute('aria-pressed'),
       ).toBe('true');
+    });
+
+    it('marks only an alternative held below a non-binding minimum level with the level hint', async () => {
+      await submitWith([coveredSlot]);
+      getCandidates.mockReturnValue(
+        of({
+          eligible: [
+            candidate('client-8', 'Dora Dienst'),
+            candidate('client-7', 'Carla Cover', { levelShortfall: 1 }),
+          ],
+          excluded: [],
+        }),
+      );
+
+      (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+      await settle();
+
+      expect(query('[data-candidate="client-7"] .recovery-level-shortfall')?.textContent?.trim()).toBe(
+        'recovery.dialog.levelShortfall',
+      );
+      expect(query('[data-candidate="client-8"] .recovery-level-shortfall')).toBeNull();
     });
 
     it('shows the failed state when the alternatives cannot be loaded', async () => {

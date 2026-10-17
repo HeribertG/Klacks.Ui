@@ -25,8 +25,8 @@ describe('QualificationsComponent', () => {
   let mockModalService: ModalService;
 
   const mockQualifications: IQualification[] = [
-    { id: '1', name: { de: 'Erste Hilfe', en: 'First Aid' }, isTimeLimited: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None },
-    { id: '2', name: { de: 'Gabelstapler', en: 'Forklift' }, isTimeLimited: true, type: QualificationType.Work, countries: [], category: QualificationCategory.None },
+    { id: '1', name: { de: 'Erste Hilfe', en: 'First Aid' }, isTimeLimited: false, isLevelBinding: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None },
+    { id: '2', name: { de: 'Gabelstapler', en: 'Forklift' }, isTimeLimited: true, isLevelBinding: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None },
   ];
 
   beforeEach(async () => {
@@ -144,7 +144,7 @@ describe('QualificationsComponent', () => {
     });
 
     it('should not open delete modal if qualification has no id', () => {
-      component.openDeleteQualification({ name: { de: 'Test' }, isTimeLimited: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None });
+      component.openDeleteQualification({ name: { de: 'Test' }, isTimeLimited: false, isLevelBinding: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None });
 
       expect(mockModalService.componentContext).not.toBe('qualifications');
     });
@@ -158,6 +158,78 @@ describe('QualificationsComponent', () => {
       await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(mockDataQualService.deleteQualification).toHaveBeenCalledWith('1');
+    });
+  });
+
+  describe('Binding minimum level', () => {
+    const checkboxEvent = (checked: boolean): Event => ({ target: { checked } }) as unknown as Event;
+    const modal = { close: vi.fn() };
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('starts a new qualification with the checkbox off and sends isLevelBinding false', async () => {
+      mockDataQualService.addQualification.mockReturnValue(of({ ...mockQualifications[0], id: '3' }));
+
+      component.onClickAdd();
+      vi.advanceTimersByTime(10);
+      (component as any).formModel.set({ name: 'Kasse', description: '' });
+      await component.onSaveModal(modal);
+
+      expect(component.isLevelBindingValue()).toBe(false);
+      expect(mockDataQualService.addQualification).toHaveBeenCalledWith(
+        expect.objectContaining({ isLevelBinding: false }),
+      );
+    });
+
+    it('sends isLevelBinding true when the checkbox is ticked', async () => {
+      mockDataQualService.addQualification.mockReturnValue(of({ ...mockQualifications[0], id: '3' }));
+
+      component.onClickAdd();
+      vi.advanceTimersByTime(10);
+      (component as any).formModel.set({ name: 'Pflegefachperson', description: '' });
+      component.onLevelBindingChange(checkboxEvent(true));
+      await component.onSaveModal(modal);
+
+      expect(mockDataQualService.addQualification).toHaveBeenCalledWith(
+        expect.objectContaining({ isLevelBinding: true }),
+      );
+    });
+
+    it('keeps a binding qualification binding when it is edited and saved without touching the checkbox', async () => {
+      const binding: IQualification = { ...mockQualifications[0], isLevelBinding: true };
+      mockDataQualService.updateQualification.mockReturnValue(of(binding));
+
+      component.onClickEdit(binding);
+      vi.advanceTimersByTime(10);
+      (component as any).formModel.set({ name: 'Erste Hilfe', description: '' });
+      await component.onSaveModal(modal);
+
+      expect(component.isLevelBindingValue()).toBe(true);
+      expect(mockDataQualService.updateQualification).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '1', isLevelBinding: true }),
+      );
+    });
+
+    it('sends isLevelBinding false after the checkbox is cleared on edit', async () => {
+      const binding: IQualification = { ...mockQualifications[0], isLevelBinding: true };
+      mockDataQualService.updateQualification.mockReturnValue(of({ ...binding, isLevelBinding: false }));
+
+      component.onClickEdit(binding);
+      vi.advanceTimersByTime(10);
+      (component as any).formModel.set({ name: 'Erste Hilfe', description: '' });
+      component.onLevelBindingChange(checkboxEvent(false));
+      await component.onSaveModal(modal);
+
+      expect(mockDataQualService.updateQualification).toHaveBeenCalledWith(
+        expect.objectContaining({ isLevelBinding: false }),
+      );
     });
   });
 

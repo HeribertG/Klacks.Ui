@@ -565,6 +565,43 @@ describe('CollisionDetectionService', () => {
     });
   });
 
+  describe('Qualification level entries', () => {
+    const publish = (commentParams: Record<string, string>): void => {
+      scheduleValidationsDetected$.next({
+        isFullRefresh: true,
+        entries: [
+          createValidation({
+            type: 'warning',
+            clientId: 'client-1',
+            comment: 'schedule.error-list.qualification-level',
+            commentParams,
+          }),
+        ],
+      });
+      flushAndTick();
+    };
+
+    it('shows the detailed text with held and required level labels when the held level is sent', () => {
+      publish({ qualificationId: 'q-1', minLevel: 'Proficient', heldLevel: 'Basic', levelDelta: '1' });
+
+      const entry = service.errorEntries()[0];
+      expect(entry.comment).toBe('schedule.error-list.qualification-level-detail');
+      expect(entry.commentParams).toMatchObject({
+        minLevel: 'shift.edit-shift.qualifications.level.3',
+        heldLevel: 'shift.edit-shift.qualifications.level.2',
+        levelDelta: '1',
+      });
+    });
+
+    it('keeps the generic text when the held level is missing', () => {
+      publish({ qualificationId: 'q-1', minLevel: 'Proficient' });
+
+      const entry = service.errorEntries()[0];
+      expect(entry.comment).toBe('schedule.error-list.qualification-level');
+      expect(entry.commentParams?.['minLevel']).toBe('shift.edit-shift.qualifications.level.3');
+    });
+  });
+
   describe('Edge Cases', () => {
     it('should deduplicate collisions by sorted work ID pair', () => {
       // Arrange

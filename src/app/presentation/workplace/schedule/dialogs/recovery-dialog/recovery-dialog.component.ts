@@ -9,7 +9,8 @@
  * employee and day, from a right-click on a work cell or an employee row (RecoveryDialogLauncherService).
  * In the review step the planner calls the proposed stand-in and records the response (Ablösung/Einsprung
  * request book); alternatives per slot can be listed and their contact attempts recorded as well, without
- * changing the proposal. Submitted inside a scenario, the cover is built on that scenario (its token is sent), so the new
+ * changing the proposal. An alternative held below a non-binding minimum level (levelShortfall > 0) carries a
+ * "level too low" hint. Submitted inside a scenario, the cover is built on that scenario (its token is sent), so the new
  * scenario keeps everything the planner already changed there.
  * @param clients - Visible schedule employees, used to show the name of the preselected absent employee
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog

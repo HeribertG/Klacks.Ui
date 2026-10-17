@@ -16,6 +16,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { WORK_CONFLICT, WORK_CONFLICT_ERROR_CODE_VALUES } from 'src/app/domain/constants/work-conflict.constants';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { QUALIFICATION_LEVEL_VALIDATION } from 'src/app/domain/constants/qualification-level-validation.constants';
+import {
+  hasHeldQualificationLevel,
+  qualificationLevelLabel,
+} from 'src/app/domain/helpers/qualification-level-label.helper';
 import { IWorkConflictItem, IWorkConflictProblem } from 'src/app/domain/interfaces/work-conflict-problem.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
@@ -85,7 +90,7 @@ export class WorkConflictMessageService {
   }
 
   private describeConflict(conflict: IWorkConflictItem, problem: IWorkConflictProblem, target: WorkConflictTarget): string {
-    const messageKey = this.qualificationMessageKey(conflict.code);
+    const messageKey = this.qualificationMessageKey(conflict.code, conflict.params);
     const client = this.clientName(conflict.clientId || target.clientId);
     const qualification = this.qualificationName(
       problem.shiftId ?? target.shiftId,
@@ -96,12 +101,18 @@ export class WorkConflictMessageService {
       return this.describeGeneric(problem, target, conflict.date);
     }
 
+    const translateKey = (key: string): string => this.translate.instant(key);
     return this.translate.instant(messageKey, {
       client,
       qualification,
       shift: this.shiftName(problem, target),
       date: this.formatDate(conflict.date),
-      level: conflict.params?.[WORK_CONFLICT.MIN_LEVEL_PARAM] ?? '',
+      level: qualificationLevelLabel(conflict.params?.[WORK_CONFLICT.MIN_LEVEL_PARAM], translateKey),
+      heldLevel: qualificationLevelLabel(
+        conflict.params?.[QUALIFICATION_LEVEL_VALIDATION.HELD_LEVEL_PARAM],
+        translateKey,
+      ),
+      levelDelta: conflict.params?.[QUALIFICATION_LEVEL_VALIDATION.LEVEL_DELTA_PARAM] ?? '',
     });
   }
 
@@ -112,14 +123,16 @@ export class WorkConflictMessageService {
     });
   }
 
-  private qualificationMessageKey(code: string): string | null {
+  private qualificationMessageKey(code: string, params: Record<string, string> | undefined): string | null {
     switch (code) {
       case WORK_CONFLICT.QUALIFICATION_VALIDATION_KEYS.MISSING:
         return WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_MISSING;
       case WORK_CONFLICT.QUALIFICATION_VALIDATION_KEYS.EXPIRED:
         return WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_EXPIRED;
       case WORK_CONFLICT.QUALIFICATION_VALIDATION_KEYS.INSUFFICIENT_LEVEL:
-        return WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_LEVEL;
+        return hasHeldQualificationLevel(params)
+          ? WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_LEVEL_HELD
+          : WORK_CONFLICT.MESSAGE_KEYS.QUALIFICATION_LEVEL;
       default:
         return null;
     }
