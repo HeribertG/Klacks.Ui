@@ -337,6 +337,69 @@ describe('ResponseInterceptor', () => {
     });
   });
 
+  describe('refused work booking (structured 400)', () => {
+    const bookWork = (): { status: number | null } => {
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(WORKS_URL, WORK_BOOKING_BODY).subscribe({
+        error: (error: HttpErrorResponse) => {
+          captured.status = error.status;
+        },
+      });
+      return captured;
+    };
+
+    it('shows the localized sentence for a known refusal code and still fails the request with 400', () => {
+      const captured = bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush(
+        { detail: 'Day 2027-03-10 is sealed and cannot be modified.', errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED },
+        BAD_REQUEST,
+      );
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
+    it('hands the employee and the shift of the request to the message builder', () => {
+      const workConflictMessageService = TestBed.inject(WorkConflictMessageService) as any;
+      bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_MEMBERSHIP_PERIOD }, BAD_REQUEST);
+
+      expect(workConflictMessageService.buildMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ status: BAD_REQUEST.status }),
+        { clientId: 'client-1', shiftId: 'shift-1' },
+      );
+    });
+
+    it('keeps the generic toast for a 400 with an unknown code', () => {
+      bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush({ detail: 'something else', errorCode: 'SOMETHING_NEW' }, BAD_REQUEST);
+
+      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+    });
+
+    it('keeps the generic toast for a 400 without a code', () => {
+      bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush({ detail: 'Day 2027-03-10 is sealed and cannot be modified.' }, BAD_REQUEST);
+
+      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+    });
+
+    it('keeps the generic toast when the builder has no sentence for the known code', () => {
+      const workConflictMessageService = TestBed.inject(WorkConflictMessageService) as any;
+      workConflictMessageService.buildMessage.mockReturnValueOnce(null);
+      bookWork();
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_GROUP_PERIOD }, BAD_REQUEST);
+
+      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+    });
+  });
+
   describe('client import pass-through (the import page shows its own errors and keeps its state)', () => {
     it.each([BAD_REQUEST, CONFLICT, PAYLOAD_TOO_LARGE, TOO_MANY_REQUESTS, SERVER_ERROR])(
       'neither toasts nor navigates to the error page for a $status',
