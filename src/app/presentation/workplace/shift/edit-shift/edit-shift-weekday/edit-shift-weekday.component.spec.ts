@@ -2,6 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
+import { HolidayOptionExplainOfferService } from 'src/app/application/services/holiday-option-explain-offer.service';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
@@ -34,6 +35,7 @@ const ALL_WEEKDAYS: Partial<IShift> = {
 describe('EditShiftWeekdayComponent holiday options', () => {
   let editShift: Partial<IShift> | undefined;
   let editShiftDummy: Partial<IShift> | undefined;
+  let offerOnce: ReturnType<typeof vi.fn>;
 
   const createComponent = (): EditShiftWeekdayComponent => {
     TestBed.configureTestingModule({
@@ -55,6 +57,7 @@ describe('EditShiftWeekdayComponent holiday options', () => {
           useValue: { canWriteCurrentShift: () => true, isCurrentShiftStatusLocked: () => false },
         },
         { provide: ShiftFormService, useValue: {} },
+        { provide: HolidayOptionExplainOfferService, useValue: { offerOnce } },
         { provide: WorkTimeCalculationService, useValue: {} },
       ],
     });
@@ -64,6 +67,7 @@ describe('EditShiftWeekdayComponent holiday options', () => {
   };
 
   beforeEach(() => {
+    offerOnce = vi.fn().mockResolvedValue(undefined);
     editShift = { ...NO_WEEKDAYS };
     editShiftDummy = { ...NO_WEEKDAYS };
   });
@@ -184,6 +188,57 @@ describe('EditShiftWeekdayComponent holiday options', () => {
       component.onWeekdayOrHolidayChange();
 
       expect(component.areWeekdaysValid).toBe(false);
+    });
+  });
+
+  describe('FT/+FT explain offer', () => {
+    it('asks for the offer when FT is ticked', () => {
+      editShift = { ...NO_WEEKDAYS, isMonday: true, isHoliday: true };
+      const component = createComponent();
+
+      component.onHolidayChange();
+
+      expect(offerOnce).toHaveBeenCalledTimes(1);
+    });
+
+    it('asks for the offer when +FT is ticked', () => {
+      editShift = { ...NO_WEEKDAYS, isMonday: true, isWeekdayAndHoliday: true };
+      const component = createComponent();
+
+      component.onWeekdayOrHolidayChange();
+
+      expect(offerOnce).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not ask when FT or +FT is cleared', () => {
+      editShift = { ...NO_WEEKDAYS, isMonday: true };
+      const component = createComponent();
+
+      component.onHolidayChange();
+      component.onWeekdayOrHolidayChange();
+
+      expect(offerOnce).not.toHaveBeenCalled();
+    });
+
+    it('asks once per click when FT and then +FT are ticked; the service decides whether to show it', () => {
+      editShift = { ...NO_WEEKDAYS, isMonday: true, isHoliday: true };
+      const component = createComponent();
+
+      component.onHolidayChange();
+      editShift.isWeekdayAndHoliday = true;
+      component.onWeekdayOrHolidayChange();
+
+      expect(offerOnce).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not ask without an edited shift', () => {
+      editShift = undefined;
+      const component = createComponent();
+
+      component.onHolidayChange();
+      component.onWeekdayOrHolidayChange();
+
+      expect(offerOnce).not.toHaveBeenCalled();
     });
   });
 });

@@ -47,6 +47,7 @@ const WORK_CONFLICT_MESSAGE = 'Anna Muster is missing the mandatory qualificatio
 
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const AUTOFILL_RUNS_ACTIVE_URL = '/api/backend/AutofillRuns/Active';
+const EXPLAIN_OFFER_STATE_URL = '/api/backend/assistant/explain-offers/shift-holiday-options';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
 
@@ -494,6 +495,28 @@ describe('ResponseInterceptor', () => {
 
         // Act
         httpMock.expectOne(AUTOFILL_RUNS_ACTIVE_URL).flush(null, response);
+
+        // Assert
+        expect(toastShowService.showError).not.toHaveBeenCalled();
+        expect(toastShowService.showInfo).not.toHaveBeenCalled();
+        expect(navigationService.navigateToError).not.toHaveBeenCalled();
+        expect(workplaceStateService.isDirty).toBe(true);
+        expect(captured.status).toBe(response.status);
+      }
+    );
+  });
+
+  describe('explain offer state pass-through (background read fails quietly)', () => {
+    it.each([...QUIET_POLL_FAILURE_RESPONSES, BAD_REQUEST])(
+      'neither toasts, navigates to the error page nor clears the unsaved-changes flag for a $status',
+      (response) => {
+        // Arrange
+        const navigationService = TestBed.inject(NavigationService) as any;
+        workplaceStateService.isDirty = true;
+        const captured = expectRequestToFail(EXPLAIN_OFFER_STATE_URL);
+
+        // Act
+        httpMock.expectOne(EXPLAIN_OFFER_STATE_URL).flush(null, response);
 
         // Assert
         expect(toastShowService.showError).not.toHaveBeenCalled();

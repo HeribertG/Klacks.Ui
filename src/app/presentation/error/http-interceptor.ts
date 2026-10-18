@@ -26,6 +26,7 @@ import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/
 import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-import.constants';
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
+import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
 import {
@@ -55,6 +56,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private static readonly QUIET_BACKGROUND_POLL_PATHS: readonly string[] = [
     ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH,
     AUTOFILL_RUNS_ACTIVE_PATH,
+    EXPLAIN_OFFERS_PATH,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,

@@ -167,6 +167,17 @@ describe('ToastShowService', () => {
       expect(toastService.toasts().length).toBe(0);
     });
 
+    it('hasOpenInteractiveReply is true only while an interactive toast is shown', () => {
+      service.showInfo('plain info');
+      expect(service.hasOpenInteractiveReply()).toBe(false);
+
+      service.showInteractiveReply(config, () => undefined);
+      expect(service.hasOpenInteractiveReply()).toBe(true);
+
+      service.dismissInteractiveReplies();
+      expect(service.hasOpenInteractiveReply()).toBe(false);
+    });
+
     it('dismissInteractiveReplies must NOT remove a persistent interactive toast', () => {
       service.showInteractiveReply(config, () => undefined, undefined, true);
       const toast = toastService.toasts()[0];

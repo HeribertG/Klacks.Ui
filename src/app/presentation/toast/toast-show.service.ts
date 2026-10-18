@@ -12,6 +12,7 @@
  * @param updateText - Changes the text of a shown toast, e.g. a countdown
  * @param dismiss - Removes a shown toast
  * @param dismissByName - Removes the shown toast with the given name, if any
+ * @param hasOpenInteractiveReply - True while an interactive reply toast is shown, so an unrelated offer can wait
  *
  * Error toasts are swallowed while the backend is known to be down: every pending request fails at
  * once there, and a stack of identical failures tells the user nothing the outage overlay does not
@@ -160,6 +161,10 @@ export class ToastShowService {
         onDismissed,
       },
     });
+  }
+
+  hasOpenInteractiveReply(): boolean {
+    return this.toastService.toasts().some((t) => !!t.interactive);
   }
 
   dismissInteractiveReplies(): void {
