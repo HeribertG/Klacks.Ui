@@ -7,11 +7,13 @@
  * repeating show() + setTimeout(0) + submitText(). The user's own work wins over a launched question: while a turn
  * is running or stopping, or while the open chat holds a typed draft, the panel is only shown - nothing is prefilled
  * or sent, so the draft is not overwritten and the running turn is not superseded. The draft is only read while the
- * aside is visible, because a closed panel's chat is destroyed and its last draft is gone with it.
+ * aside is visible, because a closed panel's chat is destroyed and its last draft is gone with it. The turn state
+ * (ChatTurnControlService, which pulls in the assistant data services) is looked up only on a click, so pages that
+ * merely hold an offer service do not build that chain.
  * @param text - The question Klacksy receives as if the user had typed it; blank text sends nothing
  */
 
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';
@@ -22,7 +24,7 @@ const ASSISTANT_CHAT_MOUNT_DELAY_MS = 0;
 export class AssistantTurnLauncherService {
   private readonly asideService = inject(AsideService);
   private readonly conversationOrchestrator = inject(ConversationOrchestratorService);
-  private readonly turnControl = inject(ChatTurnControlService);
+  private readonly injector = inject(Injector);
 
   openAndAsk(text: string): void {
     if (!text.trim()) {
@@ -41,9 +43,10 @@ export class AssistantTurnLauncherService {
   }
 
   private isUserBusy(): boolean {
+    const turnControl = this.injector.get(ChatTurnControlService);
     return (
-      this.turnControl.isTurnRunning() ||
-      this.turnControl.isStopping() ||
+      turnControl.isTurnRunning() ||
+      turnControl.isStopping() ||
       (this.asideService.isVisible() && this.conversationOrchestrator.hasDraft())
     );
   }
