@@ -3,7 +3,8 @@
 /**
  * Facade service for typed toast notifications including interactive reply toasts.
  * @param showInfo - Shows an info toast (auto-hide 5s)
- * @param showError - Shows an error toast (auto-hide 8s)
+ * @param showError - Shows an error toast (auto-hide 8s); optional action buttons (e.g. "Why? Ask Klacksy") keep the
+ * auto-hide, choosing one removes the toast
  * @param showSuccess - Shows a success toast (auto-hide 2s)
  * @param showInteractiveReply - Shows an interactive toast with single/multi-select options
  * @param showUndo - Shows an undo offer toast that replaces any previous undo offer
@@ -62,7 +63,7 @@ export class ToastShowService {
     });
   }
 
-  showError(message: string, errorName = '', additionalMessage = '', icon = ''): void {
+  showError(message: string, errorName = '', additionalMessage = '', icon = '', actions?: IToastAction[]): void {
     if (this.backendAvailability.isOutageSuspected()) {
       return;
     }
@@ -81,6 +82,7 @@ export class ToastShowService {
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
       icon: icon,
+      actions: actions?.length ? actions : undefined,
     });
   }
 

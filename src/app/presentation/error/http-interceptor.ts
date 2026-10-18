@@ -28,7 +28,10 @@ import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/cons
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
-import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
+import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
+import { WorkConflictMessageService, WorkConflictTarget, readWorkConflictProblem } from './work-conflict-message.service';
+import { WorkRefusalExplainService } from 'src/app/application/services/work-refusal-explain.service';
+import { IToastAction } from '../toast/toast-action.interface';
 import {
   SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT,
   SETUP_STATUS_API_SEGMENT,
@@ -227,7 +230,13 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     const workConflictMessage = this.buildWorkConflictMessage(error, req);
     if (workConflictMessage !== null) {
-      this.toastShowService.showError(workConflictMessage, WORK_CONFLICT.TOAST_NAME);
+      this.toastShowService.showError(
+        workConflictMessage,
+        WORK_CONFLICT.TOAST_NAME,
+        '',
+        '',
+        this.buildAskKlacksyActions(error, req),
+      );
       return throwError(() => error);
     }
 
@@ -268,10 +277,31 @@ export class ResponseInterceptor implements HttpInterceptor {
     if (!readWorkConflictProblem(error)) {
       return null;
     }
-    return this.injector.get(WorkConflictMessageService).buildMessage(error, {
+    return this.injector.get(WorkConflictMessageService).buildMessage(error, this.workConflictTarget(req));
+  }
+
+  private buildAskKlacksyActions(error: HttpErrorResponse, req: HttpRequest<any>): IToastAction[] | undefined {
+    if (!this.isSingleBooking(req)) {
+      return undefined;
+    }
+    const subject = this.injector
+      .get(WorkConflictMessageService)
+      .resolveDiagnosisSubject(error, this.workConflictTarget(req));
+    const action = subject ? this.injector.get(WorkRefusalExplainService).buildAskAction(subject) : null;
+    return action ? [action] : undefined;
+  }
+
+  private isSingleBooking(req: HttpRequest<any>): boolean {
+    const path = req.url.split('?')[0];
+    return req.method === WORK_REFUSAL_EXPLAIN.SINGLE_BOOKING_METHOD && path.endsWith(WORK_REFUSAL_EXPLAIN.SINGLE_BOOKING_PATH);
+  }
+
+  private workConflictTarget(req: HttpRequest<any>): WorkConflictTarget {
+    return {
       clientId: req.body?.clientId,
       shiftId: req.body?.shiftId,
-    });
+      date: typeof req.body?.currentDate === 'string' ? req.body.currentDate : undefined,
+    };
   }
 
   private isGeoServicesPassThrough(url: string): boolean {

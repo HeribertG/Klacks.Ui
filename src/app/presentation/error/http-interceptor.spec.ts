@@ -13,6 +13,7 @@ import { DataTranslationService } from 'src/app/infrastructure/api/translation/d
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService } from './work-conflict-message.service';
+import { WorkRefusalExplainService } from 'src/app/application/services/work-refusal-explain.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ACCOUNT_REGISTRATION_REASONS,
@@ -44,6 +45,11 @@ const TOO_MANY_REQUESTS = { status: 429, statusText: 'Too Many Requests' };
 const WORKS_URL = '/api/backend/Works/';
 const WORK_BOOKING_BODY = { clientId: 'client-1', shiftId: 'shift-1', currentDate: '2027-03-10T00:00:00.000Z' };
 const WORK_CONFLICT_MESSAGE = 'Anna Muster is missing the mandatory qualification';
+const WORK_BOOKING_TARGET = { clientId: 'client-1', shiftId: 'shift-1', date: '2027-03-10T00:00:00.000Z' };
+const WORK_REFUSAL_SUBJECT = { client: 'Anna Muster', date: '10.03.2027', shift: 'Frühdienst' };
+const ASK_KLACKSY_ACTION = { label: 'Why? Ask Klacksy', onClick: () => undefined };
+const BULK_WORKS_URL = '/api/backend/Works/Bulk';
+const REASSIGN_WORK_URL = '/api/backend/Works/work-1/ReassignClient';
 
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const AUTOFILL_RUNS_ACTIVE_URL = '/api/backend/AutofillRuns/Active';
@@ -80,6 +86,9 @@ describe('ResponseInterceptor', () => {
     isSavedOrReset: boolean;
     showProgressSpinner: ReturnType<typeof vi.fn>;
   };
+
+  const shownWorkConflictMessage = (): boolean =>
+    toastShowService.showError.mock.calls.some((call: unknown[]) => call[0] === WORK_CONFLICT_MESSAGE);
 
   const expectRequestToFail = (url: string): { status: number | null } => {
     const captured: { status: number | null } = { status: null };
@@ -120,6 +129,10 @@ describe('ResponseInterceptor', () => {
     };
     const workConflictMessageServiceSpy = {
       buildMessage: vi.fn(() => WORK_CONFLICT_MESSAGE),
+      resolveDiagnosisSubject: vi.fn(() => null),
+    };
+    const workRefusalExplainServiceSpy = {
+      buildAskAction: vi.fn(() => ASK_KLACKSY_ACTION),
     };
 
     TestBed.configureTestingModule({
@@ -137,6 +150,7 @@ describe('ResponseInterceptor', () => {
         { provide: DataTranslationService, useValue: dataTranslationServiceSpy },
         { provide: BackendAvailabilityService, useValue: backendAvailabilityServiceSpy },
         { provide: WorkConflictMessageService, useValue: workConflictMessageServiceSpy },
+        { provide: WorkRefusalExplainService, useValue: workRefusalExplainServiceSpy },
       ],
     });
 
@@ -312,7 +326,7 @@ describe('ResponseInterceptor', () => {
       );
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
-      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
       expect(captured.status).toBe(CONFLICT.status);
     });
 
@@ -324,7 +338,7 @@ describe('ResponseInterceptor', () => {
 
       expect(workConflictMessageService.buildMessage).toHaveBeenCalledWith(
         expect.objectContaining({ status: CONFLICT.status }),
-        { clientId: 'client-1', shiftId: 'shift-1' },
+        WORK_BOOKING_TARGET,
       );
     });
 
@@ -334,7 +348,7 @@ describe('ResponseInterceptor', () => {
       httpMock.expectOne(WORKS_URL).flush({ detail: 'something else' }, CONFLICT);
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
-      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(shownWorkConflictMessage()).toBe(false);
     });
   });
 
@@ -358,7 +372,7 @@ describe('ResponseInterceptor', () => {
       );
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
-      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
       expect(captured.status).toBe(BAD_REQUEST.status);
     });
 
@@ -370,7 +384,7 @@ describe('ResponseInterceptor', () => {
 
       expect(workConflictMessageService.buildMessage).toHaveBeenCalledWith(
         expect.objectContaining({ status: BAD_REQUEST.status }),
-        { clientId: 'client-1', shiftId: 'shift-1' },
+        WORK_BOOKING_TARGET,
       );
     });
 
@@ -379,7 +393,7 @@ describe('ResponseInterceptor', () => {
 
       httpMock.expectOne(WORKS_URL).flush({ detail: 'something else', errorCode: 'SOMETHING_NEW' }, BAD_REQUEST);
 
-      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(shownWorkConflictMessage()).toBe(false);
     });
 
     it('keeps the generic toast for a 400 without a code', () => {
@@ -387,7 +401,7 @@ describe('ResponseInterceptor', () => {
 
       httpMock.expectOne(WORKS_URL).flush({ detail: 'Day 2027-03-10 is sealed and cannot be modified.' }, BAD_REQUEST);
 
-      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(shownWorkConflictMessage()).toBe(false);
     });
 
     it('keeps the generic toast when the builder has no sentence for the known code', () => {
@@ -397,7 +411,73 @@ describe('ResponseInterceptor', () => {
 
       httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_GROUP_PERIOD }, BAD_REQUEST);
 
-      expect(toastShowService.showError).not.toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
+      expect(shownWorkConflictMessage()).toBe(false);
+    });
+  });
+
+  describe('"Why? Ask Klacksy" on a refused single booking', () => {
+    const send = (method: 'POST' | 'PUT', url: string): void => {
+      httpClient.request(method, url, { body: WORK_BOOKING_BODY }).subscribe({ error: () => undefined });
+    };
+
+    const withResolvableSubject = (): any => {
+      const workConflictMessageService = TestBed.inject(WorkConflictMessageService) as any;
+      workConflictMessageService.resolveDiagnosisSubject.mockReturnValue(WORK_REFUSAL_SUBJECT);
+      return workConflictMessageService;
+    };
+
+    it('adds the action to the toast of a single booking whose person, day and shift are known', () => {
+      const workConflictMessageService = withResolvableSubject();
+      const workRefusalExplain = TestBed.inject(WorkRefusalExplainService) as any;
+      send('POST', WORKS_URL);
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED }, BAD_REQUEST);
+
+      expect(workConflictMessageService.resolveDiagnosisSubject).toHaveBeenCalledWith(
+        expect.objectContaining({ status: BAD_REQUEST.status }),
+        WORK_BOOKING_TARGET,
+      );
+      expect(workRefusalExplain.buildAskAction).toHaveBeenCalledWith(WORK_REFUSAL_SUBJECT);
+      expect(toastShowService.showError).toHaveBeenCalledWith(
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', [ASK_KLACKSY_ACTION]);
+    });
+
+    it('keeps the toast without action when the subject cannot be resolved', () => {
+      const workRefusalExplain = TestBed.inject(WorkRefusalExplainService) as any;
+      send('POST', WORKS_URL);
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.ERROR_CODES.BLOCKED }, CONFLICT);
+
+      expect(workRefusalExplain.buildAskAction).not.toHaveBeenCalled();
+      expect(toastShowService.showError).toHaveBeenCalledWith(
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+    });
+
+    it('keeps the toast without action when the explain service offers none', () => {
+      withResolvableSubject();
+      const workRefusalExplain = TestBed.inject(WorkRefusalExplainService) as any;
+      workRefusalExplain.buildAskAction.mockReturnValueOnce(null);
+      send('POST', WORKS_URL);
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED }, BAD_REQUEST);
+
+      expect(toastShowService.showError).toHaveBeenCalledWith(
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+    });
+
+    it.each([
+      { method: 'POST' as const, url: BULK_WORKS_URL },
+      { method: 'POST' as const, url: REASSIGN_WORK_URL },
+      { method: 'PUT' as const, url: WORKS_URL },
+    ])('offers no action for $method $url even when the ids are known', ({ method, url }) => {
+      const workConflictMessageService = withResolvableSubject();
+      send(method, url);
+
+      httpMock.expectOne(url).flush({ errorCode: WORK_CONFLICT.ERROR_CODES.BLOCKED }, CONFLICT);
+
+      expect(workConflictMessageService.resolveDiagnosisSubject).not.toHaveBeenCalled();
+      expect(toastShowService.showError).toHaveBeenCalledWith(
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
     });
   });
 

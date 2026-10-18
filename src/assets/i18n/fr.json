@@ -897,6 +897,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Cette entrée est scellée. Seul un superviseur ou un administrateur peut la modifier.",
   "schedule.workConflict.periodFrom": "à partir du {{from}}",
   "schedule.workConflict.periodUntil": "jusqu'au {{until}}",
+  "schedule.workConflict.askKlacksy": "Pourquoi ? Demander à Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Pourquoi n'est-il pas possible d'affecter {{client}} au service {{shift}} le {{date}} ? Qu'est-ce qui empêche d'affecter cette personne ce jour-là ?",
   "schedule.row-header.headline": "Nom",
   "schedule.filter.employees": "Employés",
   "schedule.filter.extern": "Ext",

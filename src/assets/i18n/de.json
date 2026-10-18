@@ -898,6 +898,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Dieser Eintrag ist versiegelt. Nur ein Supervisor oder ein Administrator kann ihn ändern.",
   "schedule.workConflict.periodFrom": "ab {{from}}",
   "schedule.workConflict.periodUntil": "bis {{until}}",
+  "schedule.workConflict.askKlacksy": "Warum? Klacksy fragen",
+  "schedule.workConflict.whyTriggerPhrase": "Warum kann {{client}} am {{date}} nicht für den Dienst {{shift}} eingeteilt werden? Was hindert die Einteilung dieser Person an diesem Tag?",
   "schedule.row-header.headline": "Name",
   "schedule.filter.employees": "Mitarbeiter",
   "schedule.filter.extern": "Extern",

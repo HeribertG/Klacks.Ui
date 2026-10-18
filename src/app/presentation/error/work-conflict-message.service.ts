@@ -7,8 +7,11 @@
  * @param isWorkConflict - True when the error is a 409 or 400 with one of the known error codes of that status
  * @param buildMessage - Translated message for such an error; null when it is not a work conflict or when the
  *   data needed for the sentence is missing (the caller then keeps its generic text)
+ * @param resolveDiagnosisSubject - Person name, company-local date and shift name of the refused cell, for the
+ *   "Why? Ask Klacksy" question; null when one of the three is unknown
  * @param target.clientId - Employee the booking was meant for (from the request body)
  * @param target.shiftId - Shift the booking was meant for (from the request body)
+ * @param target.date - Calendar day of the booking (wire value of the request body), used when the body lacks it
  */
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -27,12 +30,14 @@ import {
   qualificationLevelLabel,
 } from 'src/app/domain/helpers/qualification-level-label.helper';
 import { IWorkConflictItem, IWorkConflictProblem } from 'src/app/domain/interfaces/work-conflict-problem.interface';
+import { IWorkRefusalDiagnosisSubject } from 'src/app/domain/interfaces/work-refusal-diagnosis-subject.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 
 export interface WorkConflictTarget {
   clientId?: string;
   shiftId?: string;
+  date?: string;
 }
 
 export function readWorkConflictProblem(error: unknown): IWorkConflictProblem | null {
@@ -103,6 +108,18 @@ export class WorkConflictMessageService {
       default:
         return this.buildBlockedMessage(problem, target);
     }
+  }
+
+  resolveDiagnosisSubject(error: unknown, target: WorkConflictTarget): IWorkRefusalDiagnosisSubject | null {
+    const problem = readWorkConflictProblem(error);
+    if (!problem) {
+      return null;
+    }
+
+    const client = this.clientName(problem.clientId ?? target.clientId);
+    const shift = this.shiftName(problem, target);
+    const date = this.formatDate(problem.date ?? target.date);
+    return client && shift && date ? { client, date, shift } : null;
   }
 
   private buildOutsidePeriodMessage(

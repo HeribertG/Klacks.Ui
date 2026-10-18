@@ -897,6 +897,8 @@
   "schedule.workConflict.workSealedRoleRequired": "Questa voce è sigillata. Solo un supervisore o un amministratore può modificarla.",
   "schedule.workConflict.periodFrom": "dal {{from}}",
   "schedule.workConflict.periodUntil": "fino al {{until}}",
+  "schedule.workConflict.askKlacksy": "Perché? Chiedi a Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Cosa impedisce di assegnare questa persona quel giorno? Perché non è possibile assegnare {{client}} al turno {{shift}} il {{date}}?",
   "schedule.row-header.headline": "Nome",
   "schedule.filter.employees": "Dipendenti",
   "schedule.filter.extern": "Est",

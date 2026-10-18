@@ -9,8 +9,8 @@
  * starts the consultation deterministically instead of hoping the model emits the right marker.
  * @param translate - Resolves the offer text and, crucially, the per-language trigger phrase
  * @param toastShowService - Surfaces the offer as an interactive reply toast, independent of the Klacksy panel
- * @param conversationOrchestrator - Submits the trigger phrase as a real user turn once accepted
- * @param asideService - Opens the Klacksy panel, but only once the offer is accepted
+ * @param assistantTurnLauncher - Opens the Klacksy panel and sends the trigger phrase as a real user turn, but only
+ *   once the offer is accepted
  * @param onboarding - Single source of truth for whether the guided tour is running
  * @param scheduleSetupState - Tells an empty installation apart from a filtered-to-nothing list view
  */
@@ -18,8 +18,7 @@
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { OnboardingService } from './onboarding.service';
-import { AsideService } from 'src/app/presentation/aside/aside.service';
-import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { AssistantTurnLauncherService } from './assistant-turn-launcher.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DataScheduleSetupStateService } from 'src/app/infrastructure/api/assistant/data-schedule-setup-state.service';
@@ -30,17 +29,12 @@ const OFFER_ACCEPT_KEY = 'setupConsultation.offerAccept';
 const OFFER_DECLINE_KEY = 'setupConsultation.offerDecline';
 const TRIGGER_PHRASE_KEY = 'setupConsultation.triggerPhrase';
 const DECLINE_VALUE = 'none';
-/** AssistantChatComponent (and therefore the orchestrator's callbacks) only mounts once the aside
- * becomes visible, so submitText() is deferred one macrotask via setTimeout(0) after show() — the
- * same mount-timing workaround used by active-industries-settings.component.ts. */
-const ASSISTANT_CHAT_MOUNT_DELAY_MS = 0;
 
 @Injectable({ providedIn: 'root' })
 export class SetupConsultationOfferService {
   private readonly translate = inject(TranslateService);
   private readonly toastShowService = inject(ToastShowService);
-  private readonly conversationOrchestrator = inject(ConversationOrchestratorService);
-  private readonly asideService = inject(AsideService);
+  private readonly assistantTurnLauncher = inject(AssistantTurnLauncherService);
   private readonly onboarding = inject(OnboardingService);
   private readonly scheduleSetupState = inject(DataScheduleSetupStateService);
 
@@ -77,10 +71,7 @@ export class SetupConsultationOfferService {
         if (!values.includes(triggerPhrase)) {
           return;
         }
-        this.asideService.show();
-        setTimeout(() => {
-          void this.conversationOrchestrator.submitText(triggerPhrase);
-        }, ASSISTANT_CHAT_MOUNT_DELAY_MS);
+        this.assistantTurnLauncher.openAndAsk(triggerPhrase);
       },
     );
   }

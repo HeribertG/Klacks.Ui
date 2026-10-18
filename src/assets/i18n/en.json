@@ -898,6 +898,8 @@
   "schedule.workConflict.workSealedRoleRequired": "This entry is sealed. Only a supervisor or an administrator can change it.",
   "schedule.workConflict.periodFrom": "from {{from}}",
   "schedule.workConflict.periodUntil": "until {{until}}",
+  "schedule.workConflict.askKlacksy": "Why? Ask Klacksy",
+  "schedule.workConflict.whyTriggerPhrase": "Why can't {{client}} be scheduled for the shift {{shift}} on {{date}}? What stops assigning this person on that day?",
   "schedule.row-header.headline": "Name",
   "schedule.filter.employees": "Employees",
   "schedule.filter.extern": "Ext",

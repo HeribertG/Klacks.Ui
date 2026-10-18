@@ -8,6 +8,7 @@ import { LocaleService } from 'src/app/application/services/locale.service';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { WorkConflictMessageService } from './work-conflict-message.service';
 
 const CLIENT_ID = 'c0c0c0c0-0000-4000-8000-000000000001';
@@ -390,6 +391,67 @@ describe('WorkConflictMessageService', () => {
 
     it('returns no message for a 400 with an unknown code', () => {
       expect(service.buildMessage(refusal({ errorCode: 'SOMETHING_NEW' }), {})).toBeNull();
+    });
+  });
+
+  describe('resolveDiagnosisSubject', () => {
+    const target = { clientId: CLIENT_ID, shiftId: SHIFT_ID, date: '2027-03-10T00:00:00.000Z' };
+
+    describe.each(CALENDAR_TEST_ZONES)('in %s', (zone) => {
+      useTimeZone(zone);
+
+      it('names person, company-local day and shift of a sealed day refused on a single booking', () => {
+        const subject = service.resolveDiagnosisSubject(
+          refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+          target,
+        );
+
+        expect(subject).toEqual({
+          client: 'Anna Muster',
+          date: formatCalendarDate(WORK_DATE, LOCALE),
+          shift: 'Loaded shift',
+        });
+      });
+
+      it('takes the day of the request when the body carries none', () => {
+        const subject = service.resolveDiagnosisSubject(
+          refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.WORK_SEALED_ROLE_REQUIRED }),
+          target,
+        );
+
+        expect(subject?.date).toBe(formatCalendarDate(WORK_DATE, LOCALE));
+      });
+    });
+
+    it('prefers the shift name of the response', () => {
+      const subject = service.resolveDiagnosisSubject(conflict(qualificationGap('x')), target);
+
+      expect(subject?.shift).toBe('Night watch');
+    });
+
+    it('returns null when the person is not loaded', () => {
+      expect(service.resolveDiagnosisSubject(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+        { ...target, clientId: 'unknown' },
+      )).toBeNull();
+    });
+
+    it('returns null when the shift is unknown', () => {
+      expect(service.resolveDiagnosisSubject(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+        { ...target, shiftId: 'unknown' },
+      )).toBeNull();
+    });
+
+    it('returns null when no day is known', () => {
+      expect(service.resolveDiagnosisSubject(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.WORK_IN_CLOSED_PERIOD }),
+        { clientId: CLIENT_ID, shiftId: SHIFT_ID },
+      )).toBeNull();
+    });
+
+    it('returns null for an error that is not a refused booking', () => {
+      expect(service.resolveDiagnosisSubject(refusal({ errorCode: 'SOMETHING_NEW' }), target)).toBeNull();
     });
   });
 });

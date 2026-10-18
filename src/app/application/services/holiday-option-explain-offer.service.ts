@@ -11,8 +11,7 @@
  * the guided tour runs, while another interactive toast is open, or when a text is missing in the active language.
  * @param translate - Resolves the offer text, the chip labels and the trigger phrase
  * @param toastShowService - Shows the offer as an interactive reply toast
- * @param conversationOrchestrator - Sends the trigger phrase as a user turn once accepted
- * @param asideService - Opens the Klacksy panel once the offer is accepted
+ * @param assistantTurnLauncher - Opens the Klacksy panel and sends the trigger phrase as a user turn once accepted
  * @param onboarding - Whether the guided tour is running
  * @param offerState - Per-account offer state from the backend; records the reactions
  */
@@ -20,8 +19,7 @@
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { OnboardingService } from './onboarding.service';
-import { AsideService } from 'src/app/presentation/aside/aside.service';
-import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { AssistantTurnLauncherService } from './assistant-turn-launcher.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import {
@@ -32,9 +30,6 @@ import {
 } from 'src/app/domain/constants/explain-offer.constants';
 import { ExplainOfferStateService } from 'src/app/domain/services/assistant/explain-offer-state.service';
 
-/** AssistantChatComponent only mounts once the aside becomes visible, so submitText() is deferred one macrotask
- * after show() - same mount-timing workaround as PluginSetupAssistantOfferService. */
-const ASSISTANT_CHAT_MOUNT_DELAY_MS = 0;
 const SESSION_FLAG = 'true';
 const SESSION_KEY_SEPARATOR = '.';
 
@@ -42,8 +37,7 @@ const SESSION_KEY_SEPARATOR = '.';
 export class HolidayOptionExplainOfferService {
   private readonly translate = inject(TranslateService);
   private readonly toastShowService = inject(ToastShowService);
-  private readonly conversationOrchestrator = inject(ConversationOrchestratorService);
-  private readonly asideService = inject(AsideService);
+  private readonly assistantTurnLauncher = inject(AssistantTurnLauncherService);
   private readonly onboarding = inject(OnboardingService);
   private readonly offerState = inject(ExplainOfferStateService);
 
@@ -104,10 +98,7 @@ export class HolidayOptionExplainOfferService {
       return;
     }
 
-    this.asideService.show();
-    setTimeout(() => {
-      void this.conversationOrchestrator.submitText(triggerPhrase);
-    }, ASSISTANT_CHAT_MOUNT_DELAY_MS);
+    this.assistantTurnLauncher.openAndAsk(triggerPhrase);
   }
 
   private resolveTexts(): Record<keyof typeof HOLIDAY_OPTIONS_EXPLAIN_OFFER_KEYS, string> | null {

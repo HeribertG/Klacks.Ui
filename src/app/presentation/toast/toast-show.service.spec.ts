@@ -71,6 +71,22 @@ describe('ToastShowService', () => {
       expect(toast.showTextField).toBe(true);
       expect(toast.textFieldValue).toBe('Stack trace here');
     });
+
+    it('carries action buttons and keeps the auto-hide when actions are given', () => {
+      const action = { label: 'Why? Ask Klacksy', onClick: vi.fn() };
+      service.showError('Refused', 'WORK_CONFLICT', '', '', [action]);
+
+      const toast = toastService.toasts()[0];
+      expect(toast.actions).toEqual([action]);
+      expect(toast.autohide).toBe(true);
+      expect(toast.delay).toBe(8000);
+    });
+
+    it('creates no action list without actions', () => {
+      service.showError('Refused', 'WORK_CONFLICT', '', '', []);
+
+      expect(toastService.toasts()[0].actions).toBeUndefined();
+    });
   });
 
   describe('showInfo', () => {
