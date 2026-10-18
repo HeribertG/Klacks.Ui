@@ -7,8 +7,9 @@
  * @param isWorkConflict - True when the error is a 409 or 400 with one of the known error codes of that status
  * @param buildMessage - Translated message for such an error; null when it is not a work conflict or when the
  *   data needed for the sentence is missing (the caller then keeps its generic text)
- * @param resolveDiagnosisSubject - Person name, company-local date and shift name of the refused cell, for the
- *   "Why? Ask Klacksy" question; null when one of the three is unknown
+ * @param resolveDiagnosisSubject - Person name, employee number (when the person has one), company-local date and
+ *   shift name of the refused cell, for the "Why? Ask Klacksy" question; null when person name, date or shift is
+ *   unknown - a client without a person name (company only) gets no question
  * @param target.clientId - Employee the booking was meant for (from the request body)
  * @param target.shiftId - Shift the booking was meant for (from the request body)
  * @param target.date - Calendar day of the booking (wire value of the request body), used when the body lacks it
@@ -32,7 +33,10 @@ import {
 import { IWorkConflictItem, IWorkConflictProblem } from 'src/app/domain/interfaces/work-conflict-problem.interface';
 import { IWorkRefusalDiagnosisSubject } from 'src/app/domain/interfaces/work-refusal-diagnosis-subject.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+
+const NO_EMPLOYEE_NUMBER = 0;
 
 export interface WorkConflictTarget {
   clientId?: string;
@@ -116,10 +120,18 @@ export class WorkConflictMessageService {
       return null;
     }
 
-    const client = this.clientName(problem.clientId ?? target.clientId);
+    const person = this.loadedClient(problem.clientId ?? target.clientId);
+    const client = person ? personNameOf(person) : '';
     const shift = this.shiftName(problem, target);
     const date = this.formatDate(problem.date ?? target.date);
-    return client && shift && date ? { client, date, shift } : null;
+    if (!client || !shift || !date) {
+      return null;
+    }
+
+    const clientNumber = person?.idNumber ?? NO_EMPLOYEE_NUMBER;
+    return Number.isInteger(clientNumber) && clientNumber > NO_EMPLOYEE_NUMBER
+      ? { client, clientNumber, date, shift }
+      : { client, date, shift };
   }
 
   private buildOutsidePeriodMessage(
@@ -215,12 +227,15 @@ export class WorkConflictMessageService {
   }
 
   private clientName(clientId: string | undefined): string {
-    const client = this.schedule.clients.find((candidate) => sameId(candidate.id, clientId));
+    const client = this.loadedClient(clientId);
     if (!client) {
       return '';
     }
-    const personName = [client.firstName, client.name].filter((part) => !!part).join(' ').trim();
-    return personName || client.company || '';
+    return personNameOf(client) || client.company || '';
+  }
+
+  private loadedClient(clientId: string | undefined): IClientWork | undefined {
+    return this.schedule.clients.find((candidate) => sameId(candidate.id, clientId));
   }
 
   private qualificationName(shiftId: string | undefined, qualificationId: string | undefined): string {
@@ -237,6 +252,10 @@ export class WorkConflictMessageService {
   private formatDate(value: string | undefined): string {
     return formatCalendarDate(value, this.localeService.getLocale()) ?? '';
   }
+}
+
+function personNameOf(client: IClientWork): string {
+  return [client.firstName, client.name].filter((part) => !!part).join(' ').trim();
 }
 
 function sameId(first: string | undefined, second: string | undefined): boolean {

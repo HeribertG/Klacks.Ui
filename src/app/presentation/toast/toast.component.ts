@@ -8,7 +8,10 @@
  * removes the toast and runs the action. An action toast (e.g. a reload countdown) mutes its own
  * `ngb-toast` live region and gets `role="status"` instead of the default `role="alert"`; it is
  * announced once through `LiveRegionService`, so a text update such as a per-second countdown does not
- * repeat the announcement. Verified in the DOM by the component spec, not with a real screen reader.
+ * repeat the announcement. An assertive toast (an error toast with actions, e.g. "Why? Ask Klacksy")
+ * keeps `role="alert"` with `aria-live="assertive"`, is not announced a second time, does not hide on its
+ * own and carries a close button, so nobody has to catch it within a time limit (WCAG 2.2.1). Verified in
+ * the DOM by the component spec, not with a real screen reader.
  * @param toastService - Injected service providing the toast array
  */
 
@@ -38,6 +41,17 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
       >
         <ng-container [ngTemplateOutlet]="toastBody" [ngTemplateOutletContext]="{ $implicit: toast }"></ng-container>
       </ngb-toast>
+      } @else if (toast.assertive) {
+      <ngb-toast
+        [class]="toast.classname"
+        [autohide]="toast.autohide ?? true"
+        [delay]="toast.delay || 5000"
+        aria-live="assertive"
+        (hidden)="onToastHidden(toast)"
+        style="height: auto !important;"
+      >
+        <ng-container [ngTemplateOutlet]="toastBody" [ngTemplateOutletContext]="{ $implicit: toast }"></ng-container>
+      </ngb-toast>
       } @else {
       <ngb-toast
         [class]="toast.classname"
@@ -60,6 +74,16 @@ import { LiveRegionService } from 'src/app/application/services/live-region.serv
         <span class="toast-icon me-2">{{ t.icon }}</span>
         }
         <span class="toast-text">{{ t.textOrTpl }}</span>
+        @if (t.closable) {
+        <button
+          type="button"
+          class="toast-close-btn"
+          [attr.aria-label]="'close' | translate"
+          (click)="onCloseClick(t)"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+        }
       </div>
 
       @if (t.showTextField) {
@@ -250,7 +274,11 @@ export class ToastsContainerComponent {
   }
 
   isActionToast(toast: IToast): boolean {
-    return (toast.actions?.length ?? 0) > 0;
+    return (toast.actions?.length ?? 0) > 0 && !toast.assertive;
+  }
+
+  onCloseClick(toast: IToast): void {
+    this.toastService.remove(toast);
   }
 
   asToast(value: unknown): IToast {

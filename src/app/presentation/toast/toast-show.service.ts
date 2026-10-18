@@ -3,8 +3,9 @@
 /**
  * Facade service for typed toast notifications including interactive reply toasts.
  * @param showInfo - Shows an info toast (auto-hide 5s)
- * @param showError - Shows an error toast (auto-hide 8s); optional action buttons (e.g. "Why? Ask Klacksy") keep the
- * auto-hide, choosing one removes the toast
+ * @param showError - Shows an error toast (auto-hide 8s); the options object (instead of the positional
+ * additional message and icon) may add action buttons (e.g. "Why? Ask Klacksy"): such a toast stays a
+ * role="alert", does not hide on its own and gets a close button; choosing an action removes it
  * @param showSuccess - Shows a success toast (auto-hide 2s)
  * @param showInteractiveReply - Shows an interactive toast with single/multi-select options
  * @param showUndo - Shows an undo offer toast that replaces any previous undo offer
@@ -31,6 +32,7 @@ import { TOAST_ICONS } from './toast-icons.constants';
 import { UNDO_TOAST } from './undo-toast.constants';
 import { ACTION_TOAST } from './action-toast.constants';
 import { IToastAction } from './toast-action.interface';
+import { IErrorToastOptions } from './error-toast-options.interface';
 
 const INTERACTIVE_REPLY_DEFAULTS = {
   PROMPT_FALLBACK: 'Bitte wählen...',
@@ -63,7 +65,14 @@ export class ToastShowService {
     });
   }
 
-  showError(message: string, errorName = '', additionalMessage = '', icon = '', actions?: IToastAction[]): void {
+  showError(message: string, errorName?: string, additionalMessage?: string, icon?: string): void;
+  showError(message: string, errorName: string, options: IErrorToastOptions): void;
+  showError(
+    message: string,
+    errorName = '',
+    additionalMessageOrOptions: string | IErrorToastOptions = '',
+    icon = '',
+  ): void {
     if (this.backendAvailability.isOutageSuspected()) {
       return;
     }
@@ -73,16 +82,25 @@ export class ToastShowService {
       this.toastService.remove(existing);
     }
 
+    const options: IErrorToastOptions =
+      typeof additionalMessageOrOptions === 'string'
+        ? { additionalMessage: additionalMessageOrOptions, icon }
+        : additionalMessageOrOptions;
+    const additionalMessage = options.additionalMessage ?? '';
+    const actions = options.actions?.length ? options.actions : undefined;
+
     this.toastService.show(message, {
       classname: 'bg-danger text-light',
       delay: 8000,
       name: errorName,
-      autohide: true,
+      autohide: !actions,
       headertext: DomainMessages.ERROR_TOASTTITLE,
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
-      icon: icon,
-      actions: actions?.length ? actions : undefined,
+      icon: options.icon ?? '',
+      actions,
+      assertive: !!actions,
+      closable: !!actions,
     });
   }
 

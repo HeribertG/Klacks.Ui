@@ -7,6 +7,7 @@ import { HolidayOptionExplainOfferService } from './holiday-option-explain-offer
 import { OnboardingService } from './onboarding.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ExplainOfferStateService } from 'src/app/domain/services/assistant/explain-offer-state.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
@@ -49,8 +50,9 @@ describe('HolidayOptionExplainOfferService', () => {
       providers: [
         HolidayOptionExplainOfferService,
         { provide: ToastShowService, useValue: { showInteractiveReply, hasOpenInteractiveReply } },
-        { provide: ConversationOrchestratorService, useValue: { submitText } },
-        { provide: AsideService, useValue: { show } },
+        { provide: ConversationOrchestratorService, useValue: { submitText, hasDraft: () => false } },
+        { provide: ChatTurnControlService, useValue: { isTurnRunning: signal(false), isStopping: signal(false) } },
+        { provide: AsideService, useValue: { show, isVisible: signal(false) } },
         { provide: OnboardingService, useValue: { isTourActive: tourActive } },
         { provide: ExplainOfferStateService, useValue: { shouldOffer, record, currentUserId } },
         { provide: TranslateService, useValue: { instant } },

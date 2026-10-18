@@ -899,6 +899,7 @@
   "schedule.workConflict.periodUntil": "fino al {{until}}",
   "schedule.workConflict.askKlacksy": "Perché? Chiedi a Klacksy",
   "schedule.workConflict.whyTriggerPhrase": "Cosa impedisce di assegnare questa persona quel giorno? Perché non è possibile assegnare {{client}} al turno {{shift}} il {{date}}?",
+  "schedule.workConflict.clientWithNumber": "{{name}} (n. {{number}})",
   "schedule.row-header.headline": "Nome",
   "schedule.filter.employees": "Dipendenti",
   "schedule.filter.extern": "Est",

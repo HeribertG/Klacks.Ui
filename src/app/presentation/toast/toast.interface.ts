@@ -3,7 +3,8 @@
 /**
  * Defines the structure for toast notifications including interactive reply toasts.
  * @param IToast - Base toast with display properties, optional interactive options and optional
- * action buttons that keep the toast open until one is chosen
+ * action buttons that keep the toast open until one is chosen; `assertive` keeps an alert with actions (an
+ * error toast) on role="alert" with an assertive announcement, `closable` renders a close button
  * @param IInteractiveToastConfig - Configuration for single/multi-select interactive toasts
  */
 
@@ -26,6 +27,8 @@ export interface IToast {
   interactive?: IInteractiveToastConfig;
   undo?: IUndoToastConfig;
   actions?: IToastAction[];
+  assertive?: boolean;
+  closable?: boolean;
   persistent?: boolean;
 }
 

@@ -326,7 +326,7 @@ describe('ResponseInterceptor', () => {
       );
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
-      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
       expect(captured.status).toBe(CONFLICT.status);
     });
 
@@ -372,7 +372,7 @@ describe('ResponseInterceptor', () => {
       );
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
-      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
       expect(captured.status).toBe(BAD_REQUEST.status);
     });
 
@@ -439,7 +439,19 @@ describe('ResponseInterceptor', () => {
       );
       expect(workRefusalExplain.buildAskAction).toHaveBeenCalledWith(WORK_REFUSAL_SUBJECT);
       expect(toastShowService.showError).toHaveBeenCalledWith(
-        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', [ASK_KLACKSY_ACTION]);
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, { actions: [ASK_KLACKSY_ACTION] });
+    });
+
+    it('offers no action for a booking refused inside a scenario (the diagnosis reads the main plan)', () => {
+      const workConflictMessageService = withResolvableSubject();
+      httpClient
+        .post(WORKS_URL, { ...WORK_BOOKING_BODY, analyseToken: 'scenario-token' })
+        .subscribe({ error: () => undefined });
+
+      httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED }, BAD_REQUEST);
+
+      expect(workConflictMessageService.resolveDiagnosisSubject).not.toHaveBeenCalled();
+      expect(toastShowService.showError).toHaveBeenCalledWith(WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
     });
 
     it('keeps the toast without action when the subject cannot be resolved', () => {
@@ -450,7 +462,7 @@ describe('ResponseInterceptor', () => {
 
       expect(workRefusalExplain.buildAskAction).not.toHaveBeenCalled();
       expect(toastShowService.showError).toHaveBeenCalledWith(
-        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
     });
 
     it('keeps the toast without action when the explain service offers none', () => {
@@ -462,7 +474,7 @@ describe('ResponseInterceptor', () => {
       httpMock.expectOne(WORKS_URL).flush({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED }, BAD_REQUEST);
 
       expect(toastShowService.showError).toHaveBeenCalledWith(
-        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
     });
 
     it.each([
@@ -477,7 +489,7 @@ describe('ResponseInterceptor', () => {
 
       expect(workConflictMessageService.resolveDiagnosisSubject).not.toHaveBeenCalled();
       expect(toastShowService.showError).toHaveBeenCalledWith(
-        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME, '', '', undefined);
+        WORK_CONFLICT_MESSAGE, WORK_CONFLICT.TOAST_NAME);
     });
   });
 

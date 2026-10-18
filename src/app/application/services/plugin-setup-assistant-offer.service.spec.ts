@@ -7,6 +7,7 @@ import { PluginSetupAssistantOfferService } from './plugin-setup-assistant-offer
 import { OnboardingService } from './onboarding.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
@@ -40,8 +41,9 @@ describe('PluginSetupAssistantOfferService', () => {
       providers: [
         PluginSetupAssistantOfferService,
         { provide: ToastShowService, useValue: { showInteractiveReply } },
-        { provide: ConversationOrchestratorService, useValue: { submitText } },
-        { provide: AsideService, useValue: { show } },
+        { provide: ConversationOrchestratorService, useValue: { submitText, hasDraft: () => false } },
+        { provide: ChatTurnControlService, useValue: { isTurnRunning: signal(false), isStopping: signal(false) } },
+        { provide: AsideService, useValue: { show, isVisible: signal(false) } },
         { provide: OnboardingService, useValue: { isTourActive: tourActive } },
         { provide: TranslateService, useValue: { instant: (key: string) => 'tr:' + key } },
       ],

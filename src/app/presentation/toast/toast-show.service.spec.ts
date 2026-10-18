@@ -72,20 +72,35 @@ describe('ToastShowService', () => {
       expect(toast.textFieldValue).toBe('Stack trace here');
     });
 
-    it('carries action buttons and keeps the auto-hide when actions are given', () => {
+    it('keeps an error toast with actions open as a closable assertive alert', () => {
       const action = { label: 'Why? Ask Klacksy', onClick: vi.fn() };
-      service.showError('Refused', 'WORK_CONFLICT', '', '', [action]);
+      service.showError('Refused', 'WORK_CONFLICT', { actions: [action] });
 
       const toast = toastService.toasts()[0];
       expect(toast.actions).toEqual([action]);
-      expect(toast.autohide).toBe(true);
-      expect(toast.delay).toBe(8000);
+      expect(toast.autohide).toBe(false);
+      expect(toast.assertive).toBe(true);
+      expect(toast.closable).toBe(true);
+      expect(toast.classname).toBe('bg-danger text-light');
     });
 
-    it('creates no action list without actions', () => {
-      service.showError('Refused', 'WORK_CONFLICT', '', '', []);
+    it('keeps the auto-hide and creates no action list for an empty action list', () => {
+      service.showError('Refused', 'WORK_CONFLICT', { actions: [] });
 
-      expect(toastService.toasts()[0].actions).toBeUndefined();
+      const toast = toastService.toasts()[0];
+      expect(toast.actions).toBeUndefined();
+      expect(toast.autohide).toBe(true);
+      expect(toast.delay).toBe(8000);
+      expect(toast.closable).toBe(false);
+    });
+
+    it('takes additional message and icon from the options object', () => {
+      service.showError('Refused', 'X', { additionalMessage: 'details', icon: '!' });
+
+      const toast = toastService.toasts()[0];
+      expect(toast.textFieldValue).toBe('details');
+      expect(toast.showTextField).toBe(true);
+      expect(toast.icon).toBe('!');
     });
   });
 

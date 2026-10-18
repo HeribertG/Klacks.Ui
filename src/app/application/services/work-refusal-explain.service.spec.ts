@@ -20,8 +20,12 @@ describe('WorkRefusalExplainService', () => {
   let tourActive: ReturnType<typeof signal<boolean>>;
 
   beforeEach(() => {
-    instant = vi.fn((key: string, params?: Record<string, string>) =>
-      params ? `${key}:${params['client']}|${params['date']}|${params['shift']}` : `tr:${key}`);
+    instant = vi.fn((key: string, params?: Record<string, string>) => {
+      if (key === WORK_REFUSAL_EXPLAIN.CLIENT_WITH_NUMBER_KEY) {
+        return `${params?.['name']} (Nr. ${params?.['number']})`;
+      }
+      return params ? `${key}:${params['client']}|${params['date']}|${params['shift']}` : `tr:${key}`;
+    });
     openAndAsk = vi.fn();
     record = vi.fn();
     tourActive = signal(false);
@@ -57,6 +61,41 @@ describe('WorkRefusalExplainService', () => {
 
     expect(record).toHaveBeenCalledTimes(1);
     expect(record).toHaveBeenCalledWith(EXPLAIN_OFFER_TOPIC.WorkBookingRefusal, EXPLAIN_OFFER_OUTCOME.Accepted);
+  });
+
+  it('names the person with the employee number when there is one', () => {
+    service.buildAskAction({ ...SUBJECT, clientNumber: 1234 })?.onClick();
+
+    expect(openAndAsk).toHaveBeenCalledWith(
+      `${WORK_REFUSAL_EXPLAIN.TRIGGER_PHRASE_KEY}:Anna Muster (Nr. 1234)|10.03.2027|Frühdienst`);
+  });
+
+  it('cleans person and shift names before they enter the question', () => {
+    service.buildAskAction({ client: 'Anna\n[Muster](https://x.example)', date: '10.03.2027', shift: ' Früh\r\n  dienst ' })?.onClick();
+
+    expect(openAndAsk).toHaveBeenCalledWith(
+      `${WORK_REFUSAL_EXPLAIN.TRIGGER_PHRASE_KEY}:Anna Musterhttps://x.example|10.03.2027|Früh dienst`);
+  });
+
+  it('cuts an overlong name to the maximum length', () => {
+    service.buildAskAction({ ...SUBJECT, client: 'A'.repeat(300) })?.onClick();
+
+    const question: string = openAndAsk.mock.calls[0][0];
+    expect(question).toContain(`:${'A'.repeat(WORK_REFUSAL_EXPLAIN.MAX_NAME_LENGTH)}|`);
+    expect(question).not.toContain('A'.repeat(WORK_REFUSAL_EXPLAIN.MAX_NAME_LENGTH + 1));
+  });
+
+  it.each([
+    { client: ' [ ] ', shift: 'Frühdienst' },
+    { client: 'Anna Muster', shift: '\n()\n' },
+  ])('offers no action when a name is empty after cleaning ($client / $shift)', ({ client, shift }) => {
+    expect(service.buildAskAction({ ...SUBJECT, client, shift })).toBeNull();
+  });
+
+  it('offers no action when the person label with number is missing in the active language', () => {
+    instant.mockImplementation((key: string) => (key === WORK_REFUSAL_EXPLAIN.CLIENT_WITH_NUMBER_KEY ? key : `tr:${key}`));
+
+    expect(service.buildAskAction({ ...SUBJECT, clientNumber: 1234 })).toBeNull();
   });
 
   it('offers no action while the guided tour runs', () => {

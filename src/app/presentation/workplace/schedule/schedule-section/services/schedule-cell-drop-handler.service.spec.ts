@@ -5,6 +5,8 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { of, Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 import { ScheduleCellDropHandlerService } from './schedule-cell-drop-handler.service';
 import {
@@ -208,5 +210,55 @@ describe('ScheduleCellDropHandlerService', () => {
 
     expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
     errSpy.mockRestore();
+  });
+
+  describe('own toast of a failed move', () => {
+    const httpFailure = () => new HttpErrorResponse({ status: 409, url: '/api/backend/Works/x/ReassignClient' });
+    let showError: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      showError = vi.spyOn(TestBed.inject(ToastShowService), 'showError').mockImplementation(() => undefined);
+    });
+
+    const settle = async (): Promise<void> => {
+      await Promise.resolve();
+      await Promise.resolve();
+    };
+
+    it('is not shown for a Work move refused over HTTP, which the interceptor already reported', async () => {
+      dataManagement.reassignWorkScheduleEntry.mockRejectedValueOnce(httpFailure());
+
+      service.handleDrop({ source: workSource, action: 'move', targetClientId: 'client-target' });
+      await settle();
+
+      expect(showError).not.toHaveBeenCalled();
+    });
+
+    it('is shown for a Work move that failed without an HTTP error', async () => {
+      dataManagement.reassignWorkScheduleEntry.mockRejectedValueOnce(new Error('reassign failed'));
+
+      service.handleDrop({ source: workSource, action: 'move', targetClientId: 'client-target' });
+      await settle();
+
+      expect(showError).toHaveBeenCalledTimes(1);
+    });
+
+    it('is not shown for a Break move refused over HTTP', async () => {
+      scheduleEntryCrud.addBreakScheduleEntry.mockRejectedValueOnce(httpFailure());
+
+      service.handleDrop({ source: breakSource, action: 'move', targetClientId: 'client-target' });
+      await settle();
+
+      expect(showError).not.toHaveBeenCalled();
+    });
+
+    it('is shown for a Break move that failed without an HTTP error', async () => {
+      scheduleEntryCrud.addBreakScheduleEntry.mockRejectedValueOnce(new Error('break add failed'));
+
+      service.handleDrop({ source: breakSource, action: 'move', targetClientId: 'client-target' });
+      await settle();
+
+      expect(showError).toHaveBeenCalledTimes(1);
+    });
   });
 });

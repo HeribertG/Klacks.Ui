@@ -4,10 +4,13 @@
  * Executes the action chosen by ScheduleCellDragDropService when a drag ends:
  * delete (drop outside the table) or move (drop on another client row).
  * Work moves reassign the existing entity in place (preserves WorkChange/Expenses
- * children); Break moves are implemented as add-on-target + delete-source.
+ * children); Break moves are implemented as add-on-target + delete-source. A failed move shows its
+ * own toast only for a failure that is no HTTP error: an HttpErrorResponse already got its toast
+ * from ResponseInterceptor (refusal text, generic Works/Breaks text, or the outage overlay).
  * @param dataManagement - DataManagementScheduleService used for add/delete/reassign calls
  * @param scheduleEntryCrud - ScheduleEntryCrudService used for Break add
  */
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -24,6 +27,9 @@ import {
   ScheduleCellDragSource,
   ScheduleCellDropResult,
 } from './schedule-cell-drag-drop.service';
+
+const MOVE_WORK_FAILED_KEY = 'schedule.moveWork.moveFailed';
+const MOVE_BREAK_FAILED_KEY = 'schedule.moveBreak.moveFailed';
 
 @Injectable()
 export class ScheduleCellDropHandlerService {
@@ -72,7 +78,7 @@ export class ScheduleCellDropHandlerService {
   private moveWork(src: ScheduleCellDragSource, targetClientId: string): void {
     this.dataManagement
       .reassignWorkScheduleEntry(src.sourceId, src.clientId, targetClientId, src.date)
-      .catch(() => this.toastShowService.showError(this.translateService.instant('schedule.moveWork.moveFailed')));
+      .catch((error: unknown) => this.showMoveFailed(error, MOVE_WORK_FAILED_KEY));
   }
 
   private moveBreak(src: ScheduleCellDragSource, targetClientId: string): void {
@@ -97,7 +103,14 @@ export class ScheduleCellDropHandlerService {
     this.scheduleEntryCrud
       .addBreakScheduleEntry(breakEntry)
       .then(() => this.deleteEntry(src))
-      .catch(() => this.toastShowService.showError(this.translateService.instant('schedule.moveBreak.moveFailed')));
+      .catch((error: unknown) => this.showMoveFailed(error, MOVE_BREAK_FAILED_KEY));
+  }
+
+  private showMoveFailed(error: unknown, messageKey: string): void {
+    if (error instanceof HttpErrorResponse) {
+      return;
+    }
+    this.toastShowService.showError(this.translateService.instant(messageKey));
   }
 
   private buildBreakDescription(abbreviation: string): MultiLanguage | undefined {

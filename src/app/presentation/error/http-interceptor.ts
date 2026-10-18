@@ -230,13 +230,12 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     const workConflictMessage = this.buildWorkConflictMessage(error, req);
     if (workConflictMessage !== null) {
-      this.toastShowService.showError(
-        workConflictMessage,
-        WORK_CONFLICT.TOAST_NAME,
-        '',
-        '',
-        this.buildAskKlacksyActions(error, req),
-      );
+      const actions = this.buildAskKlacksyActions(error, req);
+      if (actions) {
+        this.toastShowService.showError(workConflictMessage, WORK_CONFLICT.TOAST_NAME, { actions });
+      } else {
+        this.toastShowService.showError(workConflictMessage, WORK_CONFLICT.TOAST_NAME);
+      }
       return throwError(() => error);
     }
 
@@ -281,7 +280,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private buildAskKlacksyActions(error: HttpErrorResponse, req: HttpRequest<any>): IToastAction[] | undefined {
-    if (!this.isSingleBooking(req)) {
+    if (!this.isSingleBooking(req) || this.isScenarioBooking(req)) {
       return undefined;
     }
     const subject = this.injector
@@ -294,6 +293,11 @@ export class ResponseInterceptor implements HttpInterceptor {
   private isSingleBooking(req: HttpRequest<any>): boolean {
     const path = req.url.split('?')[0];
     return req.method === WORK_REFUSAL_EXPLAIN.SINGLE_BOOKING_METHOD && path.endsWith(WORK_REFUSAL_EXPLAIN.SINGLE_BOOKING_PATH);
+  }
+
+  private isScenarioBooking(req: HttpRequest<any>): boolean {
+    const analyseToken = req.body?.analyseToken;
+    return typeof analyseToken === 'string' && analyseToken.trim() !== '';
   }
 
   private workConflictTarget(req: HttpRequest<any>): WorkConflictTarget {

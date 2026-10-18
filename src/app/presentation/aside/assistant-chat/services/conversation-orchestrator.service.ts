@@ -427,6 +427,13 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.isPlanningSignal.set(false);
   }
 
+  /**
+   * True when the chat input of the last mounted chat holds non-blank text the user typed and has not sent yet.
+   */
+  hasDraft(): boolean {
+    return !!this.callbacks?.getInputText().trim();
+  }
+
   async submitText(text: string): Promise<void> {
     if (!text.trim()) return;
     this.callbacks?.setInputText(text);

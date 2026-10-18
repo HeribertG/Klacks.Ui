@@ -194,6 +194,56 @@ describe('ToastsContainerComponent', () => {
     expect(ngbToast?.getAttribute('role')).toBe('alert');
   });
 
+  it('should keep an error toast with an action an assertive alert, announced only by itself', () => {
+    // Arrange
+    const announce = vi.spyOn(liveRegionService, 'announce');
+    toastShowService.showError('Booking refused', 'WORK_CONFLICT', { actions: [{ label: 'Why?', onClick: vi.fn() }] });
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    const ngbToast: HTMLElement | null = fixture.nativeElement.querySelector('ngb-toast');
+    expect(ngbToast?.getAttribute('role')).toBe('alert');
+    expect(ngbToast?.getAttribute('aria-live')).toBe('assertive');
+    expect(fixture.nativeElement.querySelector('.toast-action-btn')?.textContent?.trim()).toBe('Why?');
+    expect(announce).not.toHaveBeenCalled();
+  });
+
+  it('should not hide an error toast with an action on its own and close it with the close button', async () => {
+    // Arrange
+    vi.useFakeTimers();
+    const onClick = vi.fn();
+    toastShowService.showError('Booking refused', 'WORK_CONFLICT', { actions: [{ label: 'Why?', onClick }] });
+    fixture.detectChanges();
+
+    // Act
+    await vi.advanceTimersByTimeAsync(60000);
+    fixture.detectChanges();
+    const stillShown = toastService.toasts().length;
+    const close: HTMLButtonElement | null = fixture.nativeElement.querySelector('.toast-close-btn');
+    close?.click();
+    fixture.detectChanges();
+
+    // Assert
+    expect(stillShown).toBe(1);
+    expect(close?.type).toBe('button');
+    expect(close?.getAttribute('aria-label')).toBeTruthy();
+    expect(toastService.toasts().length).toBe(0);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('should render no close button on a plain error toast', () => {
+    // Arrange
+    toastShowService.showError('Plain error');
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(fixture.nativeElement.querySelector('.toast-close-btn')).toBeNull();
+  });
+
   it('should render single-select reply chips for an interactive toast', () => {
     // Arrange
     const onSelected = vi.fn();

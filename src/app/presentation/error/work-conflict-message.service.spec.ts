@@ -12,6 +12,8 @@ import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zo
 import { WorkConflictMessageService } from './work-conflict-message.service';
 
 const CLIENT_ID = 'c0c0c0c0-0000-4000-8000-000000000001';
+const NUMBERED_CLIENT_ID = 'c0c0c0c0-0000-4000-8000-000000000002';
+const COMPANY_CLIENT_ID = 'c0c0c0c0-0000-4000-8000-000000000003';
 const SHIFT_ID = 's0s0s0s0-0000-4000-8000-000000000002';
 const QUALIFICATION_ID = 'q0q0q0q0-0000-4000-8000-000000000003';
 const LOCALE = 'en';
@@ -55,7 +57,11 @@ describe('WorkConflictMessageService', () => {
         {
           provide: DataManagementScheduleService,
           useValue: {
-            clients: [{ id: CLIENT_ID, firstName: 'Anna', name: 'Muster' }],
+            clients: [
+              { id: CLIENT_ID, firstName: 'Anna', name: 'Muster', idNumber: -1 },
+              { id: NUMBERED_CLIENT_ID, firstName: 'Beat', name: 'Beispiel', idNumber: 1234 },
+              { id: COMPANY_CLIENT_ID, company: 'Muster AG', idNumber: 77 },
+            ],
             shiftSchedules: [
               {
                 shiftId: SHIFT_ID,
@@ -427,6 +433,32 @@ describe('WorkConflictMessageService', () => {
       const subject = service.resolveDiagnosisSubject(conflict(qualificationGap('x')), target);
 
       expect(subject?.shift).toBe('Night watch');
+    });
+
+    it('carries the employee number when the person has one', () => {
+      const subject = service.resolveDiagnosisSubject(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+        { ...target, clientId: NUMBERED_CLIENT_ID },
+      );
+
+      expect(subject?.client).toBe('Beat Beispiel');
+      expect(subject?.clientNumber).toBe(1234);
+    });
+
+    it('leaves the employee number out when the person has none', () => {
+      const subject = service.resolveDiagnosisSubject(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+        target,
+      );
+
+      expect(subject).not.toHaveProperty('clientNumber');
+    });
+
+    it('returns null for a client without a person name instead of falling back to the company', () => {
+      expect(service.resolveDiagnosisSubject(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+        { ...target, clientId: COMPANY_CLIENT_ID },
+      )).toBeNull();
     });
 
     it('returns null when the person is not loaded', () => {

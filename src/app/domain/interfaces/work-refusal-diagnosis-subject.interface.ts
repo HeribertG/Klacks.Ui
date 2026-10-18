@@ -2,6 +2,7 @@
 
 export interface IWorkRefusalDiagnosisSubject {
   client: string;
+  clientNumber?: number;
   date: string;
   shift: string;
 }
