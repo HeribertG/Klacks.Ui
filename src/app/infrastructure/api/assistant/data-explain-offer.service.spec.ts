@@ -30,7 +30,7 @@ describe('DataExplainOfferService', () => {
     expect(request.request.method).toBe('GET');
     expect(request.request.context.get(SKIP_LOADING)).toBe(true);
     expect(request.request.url).toContain(EXPLAIN_OFFERS_PATH);
-    request.flush({ topicKey: EXPLAIN_OFFER_TOPIC.ShiftHolidayOptions, enabled: true, shouldOffer: true });
+    request.flush({ topicKey: EXPLAIN_OFFER_TOPIC.ShiftHolidayOptions, shouldOffer: true });
   });
 
   it('posts only the outcome of a reaction', () => {

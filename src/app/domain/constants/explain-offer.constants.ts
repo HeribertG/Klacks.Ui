@@ -6,8 +6,6 @@
  * background read - no toast, no error page, no reset of an unsaved form), and the i18n keys of the FT/+FT offer.
  */
 
-import { IExplainOfferState } from 'src/app/domain/models/assistant/explain-offer-state.interface';
-
 export const EXPLAIN_OFFERS_PATH = 'assistant/explain-offers';
 
 export const EXPLAIN_OFFER_TOPIC = {
@@ -32,8 +30,3 @@ export const HOLIDAY_OPTIONS_EXPLAIN_OFFER_KEYS = {
   decline: 'shift.holidayOptions.explainOffer.decline',
   triggerPhrase: 'shift.holidayOptions.explainOffer.triggerPhrase',
 } as const;
-
-export const EXPLAIN_OFFER_STATE_OFF: Readonly<Pick<IExplainOfferState, 'enabled' | 'shouldOffer'>> = {
-  enabled: false,
-  shouldOffer: false,
-};

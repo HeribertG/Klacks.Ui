@@ -5,7 +5,8 @@
  * offer may be shown (the backend owns the dosage: setting, kill switch, beginner level, the user's mute) and keeps the
  * answer for the session; a reaction is sent fire-and-forget and closes the topic for the rest of the session. Several
  * people sign in on one office PC, so everything is keyed by the signed-in user id. Fail-closed: no user, an older
- * backend without the endpoint (404) or any other failure means "do not offer".
+ * backend without the endpoint (404) or any other failure means "do not offer" this time; a failed read is not kept, so
+ * the next trigger asks again (unless a reaction closed the topic meanwhile).
  * @param dataExplainOffer - HTTP API of the explain offers
  * @param localStorage - Source of the signed-in user id
  */
@@ -47,9 +48,14 @@ export class ExplainOfferStateService {
       return cached;
     }
 
-    const answer = firstValueFrom(this.dataExplainOffer.getState(topic))
+    const answer: Promise<boolean> = firstValueFrom(this.dataExplainOffer.getState(topic))
       .then((state) => state?.shouldOffer === true)
-      .catch(() => false);
+      .catch(() => {
+        if (this.answers.get(key) === answer) {
+          this.answers.delete(key);
+        }
+        return false;
+      });
     this.answers.set(key, answer);
     return answer;
   }

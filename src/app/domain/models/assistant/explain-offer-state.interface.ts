@@ -2,6 +2,5 @@
 
 export interface IExplainOfferState {
   topicKey: string;
-  enabled: boolean;
   shouldOffer: boolean;
 }

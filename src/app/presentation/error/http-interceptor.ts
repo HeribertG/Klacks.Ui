@@ -121,9 +121,10 @@ export class ResponseInterceptor implements HttpInterceptor {
     );
   }
 
-  // A background poll (the knowledge-index sync status, checked every 10s for up to ~20 minutes, and the
-  // autofill run presence the schedule reads after each load) must not touch UI state on failure: unlike a
-  // user-triggered request, its error has nothing to do with whatever the user is editing elsewhere on the
+  // A background poll or request (the knowledge-index sync status, checked every 10s for up to ~20 minutes,
+  // the autofill run presence the schedule reads after each load, and the explain-offer state and reactions,
+  // read and sent while the shift form is open with unsaved changes) must not touch UI state on failure: unlike
+  // a user-triggered request, its error has nothing to do with whatever the user is editing elsewhere on the
   // page, so it must not clear the unsaved-changes flag or the spinner/save-state out from under them. The
   // geo service proxies follow the same rule: an address search or route lookup may fail while an unsaved
   // client form is open.

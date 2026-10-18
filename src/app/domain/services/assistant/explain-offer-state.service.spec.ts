@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ExplainOfferStateService } from './explain-offer-state.service';
 import { DataExplainOfferService } from 'src/app/infrastructure/api/assistant/data-explain-offer.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -17,7 +17,7 @@ describe('ExplainOfferStateService', () => {
 
   beforeEach(() => {
     userId = 'user-a';
-    getState = vi.fn().mockReturnValue(of({ topicKey: TOPIC, enabled: true, shouldOffer: true }));
+    getState = vi.fn().mockReturnValue(of({ topicKey: TOPIC, shouldOffer: true }));
     recordReaction = vi.fn().mockReturnValue(of(undefined));
 
     TestBed.configureTestingModule({
@@ -53,8 +53,30 @@ describe('ExplainOfferStateService', () => {
     expect(await service.shouldOffer(TOPIC)).toBe(false);
   });
 
+  it('does not keep a failed read, so the next trigger asks again', async () => {
+    getState.mockReturnValueOnce(throwError(() => ({ status: 500 })));
+
+    expect(await service.shouldOffer(TOPIC)).toBe(false);
+    expect(await service.shouldOffer(TOPIC)).toBe(true);
+
+    expect(getState).toHaveBeenCalledTimes(2);
+  });
+
+  it('a read failing after a recorded reaction keeps the topic closed', async () => {
+    const pending = new Subject<never>();
+    getState.mockReturnValueOnce(pending.asObservable());
+
+    const first = service.shouldOffer(TOPIC);
+    service.record(TOPIC, EXPLAIN_OFFER_OUTCOME.Later);
+    pending.error({ status: 500 });
+
+    expect(await first).toBe(false);
+    expect(await service.shouldOffer(TOPIC)).toBe(false);
+    expect(getState).toHaveBeenCalledTimes(1);
+  });
+
   it('follows the backend answer', async () => {
-    getState.mockReturnValue(of({ topicKey: TOPIC, enabled: true, shouldOffer: false }));
+    getState.mockReturnValue(of({ topicKey: TOPIC, shouldOffer: false }));
 
     expect(await service.shouldOffer(TOPIC)).toBe(false);
   });
