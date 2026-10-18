@@ -20,6 +20,10 @@ function conflict(body: Record<string, unknown>): HttpErrorResponse {
   return new HttpErrorResponse({ status: 409, error: { title: 'Conflict', ...body } });
 }
 
+function refusal(body: Record<string, unknown>): HttpErrorResponse {
+  return new HttpErrorResponse({ status: 400, error: { title: 'Invalid request', ...body } });
+}
+
 function qualificationGap(code: string, extraParams: Record<string, string> = {}) {
   return {
     errorCode: WORK_CONFLICT.ERROR_CODES.BLOCKED,
@@ -86,8 +90,23 @@ describe('WorkConflictMessageService', () => {
       expect(service.isWorkConflict(conflict({ errorCode: 'PERIOD_VALIDATION_CONFLICT' }))).toBe(false);
     });
 
-    it('ignores a known error code on another status', () => {
+    it('ignores a known 409 error code on another status', () => {
       const error = new HttpErrorResponse({ status: 400, error: { errorCode: WORK_CONFLICT.ERROR_CODES.BLOCKED } });
+
+      expect(service.isWorkConflict(error)).toBe(false);
+    });
+
+    it('recognises a 400 with a known refusal code', () => {
+      expect(service.isWorkConflict(refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED }))).toBe(true);
+    });
+
+    it('ignores a 400 without a code or with an unrelated one', () => {
+      expect(service.isWorkConflict(refusal({}))).toBe(false);
+      expect(service.isWorkConflict(refusal({ errorCode: 'ACCOUNT_REGISTRATION_REJECTED' }))).toBe(false);
+    });
+
+    it('ignores a known refusal code on a 409', () => {
+      const error = new HttpErrorResponse({ status: 409, error: { errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED } });
 
       expect(service.isWorkConflict(error)).toBe(false);
     });
@@ -269,6 +288,108 @@ describe('WorkConflictMessageService', () => {
       );
 
       expect(lastParams()['shift']).toBe('Loaded shift');
+    });
+  });
+
+  describe('refused work booking (400 refusal codes)', () => {
+    const FROM = '2027-01-01';
+    const UNTIL = '2027-02-28';
+
+    function formatted(value: string): string {
+      return formatCalendarDate(value, LOCALE) ?? '';
+    }
+
+    it('explains a sealed day with its formatted date', () => {
+      service.buildMessage(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, code: WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED, date: WORK_DATE }),
+        { clientId: CLIENT_ID, shiftId: SHIFT_ID },
+      );
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.DAY_SEALED);
+      expect(lastParams()).toEqual({ date: formatted(WORK_DATE) });
+    });
+
+    it('names the employee and a closed membership period', () => {
+      service.buildMessage(
+        refusal({
+          errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_MEMBERSHIP_PERIOD,
+          clientId: CLIENT_ID.toUpperCase(),
+          date: WORK_DATE,
+          from: FROM,
+          until: UNTIL,
+        }),
+        {},
+      );
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.OUTSIDE_MEMBERSHIP_PERIOD);
+      expect(lastParams()).toEqual({
+        client: 'Anna Muster',
+        date: formatted(WORK_DATE),
+        period: `${formatted(FROM)}${WORK_CONFLICT.PERIOD_SEPARATOR}${formatted(UNTIL)}`,
+      });
+    });
+
+    it('falls back to the employee of the request when the body names none', () => {
+      service.buildMessage(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_GROUP_PERIOD, date: WORK_DATE, from: FROM, until: UNTIL }),
+        { clientId: CLIENT_ID },
+      );
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.OUTSIDE_GROUP_PERIOD);
+      expect(lastParams()['client']).toBe('Anna Muster');
+    });
+
+    it('describes an open end as "from"', () => {
+      service.buildMessage(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_GROUP_PERIOD, clientId: CLIENT_ID, date: WORK_DATE, from: FROM, until: null }),
+        {},
+      );
+
+      expect(instant).toHaveBeenCalledWith(WORK_CONFLICT.PERIOD_KEYS.FROM, { from: formatted(FROM) });
+    });
+
+    it('describes an open start as "until"', () => {
+      service.buildMessage(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_GROUP_PERIOD, clientId: CLIENT_ID, date: WORK_DATE, until: UNTIL }),
+        {},
+      );
+
+      expect(instant).toHaveBeenCalledWith(WORK_CONFLICT.PERIOD_KEYS.UNTIL, { until: formatted(UNTIL) });
+    });
+
+    it('returns null so the caller keeps its generic text when the employee is not loaded', () => {
+      const message = service.buildMessage(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_MEMBERSHIP_PERIOD, clientId: 'unknown', date: WORK_DATE, from: FROM }),
+        {},
+      );
+
+      expect(message).toBeNull();
+      expect(instant).not.toHaveBeenCalled();
+    });
+
+    it('returns null when the body carries no period bound', () => {
+      const message = service.buildMessage(
+        refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_MEMBERSHIP_PERIOD, clientId: CLIENT_ID, date: WORK_DATE }),
+        {},
+      );
+
+      expect(message).toBeNull();
+    });
+
+    it('explains a work in a closed period without parameters', () => {
+      service.buildMessage(refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.WORK_IN_CLOSED_PERIOD, lockLevel: 3 }), {});
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.WORK_IN_CLOSED_PERIOD);
+    });
+
+    it('explains a sealed work that needs a higher role', () => {
+      service.buildMessage(refusal({ errorCode: WORK_CONFLICT.REFUSAL_CODES.WORK_SEALED_ROLE_REQUIRED, lockLevel: 2 }), {});
+
+      expect(lastKey()).toBe(WORK_CONFLICT.MESSAGE_KEYS.WORK_SEALED_ROLE_REQUIRED);
+    });
+
+    it('returns no message for a 400 with an unknown code', () => {
+      expect(service.buildMessage(refusal({ errorCode: 'SOMETHING_NEW' }), {})).toBeNull();
     });
   });
 });

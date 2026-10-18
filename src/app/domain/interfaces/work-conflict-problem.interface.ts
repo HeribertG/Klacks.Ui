@@ -9,6 +9,9 @@ export interface IWorkConflictItem {
 
 export interface IWorkConflictProblem {
   errorCode: string;
+  clientId?: string;
+  from?: string | null;
+  until?: string | null;
   shiftId?: string;
   shiftName?: string;
   date?: string;

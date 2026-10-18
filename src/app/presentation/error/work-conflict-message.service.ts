@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Turns the structured 409 body of a refused work booking into a readable, translated sentence. The
- * backend sends only codes and ids; names of employee, shift and qualification are resolved here from
+ * Turns the structured body of a refused work booking (409 conflict or 400 refusal) into a readable, translated
+ * sentence. The backend sends only codes and ids; names of employee, shift and qualification are resolved here from
  * the data the schedule page has already loaded, so the sentence follows the user's language.
- * @param isWorkConflict - True when the error is a 409 with one of the known work-conflict error codes
- * @param buildMessage - Translated message for such an error; null when it is not a work conflict
+ * @param isWorkConflict - True when the error is a 409 or 400 with one of the known error codes of that status
+ * @param buildMessage - Translated message for such an error; null when it is not a work conflict or when the
+ *   data needed for the sentence is missing (the caller then keeps its generic text)
  * @param target.clientId - Employee the booking was meant for (from the request body)
  * @param target.shiftId - Shift the booking was meant for (from the request body)
  */
@@ -14,7 +15,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { WORK_CONFLICT, WORK_CONFLICT_ERROR_CODE_VALUES } from 'src/app/domain/constants/work-conflict.constants';
+import {
+  WORK_CONFLICT,
+  WORK_CONFLICT_ERROR_CODE_VALUES,
+  WORK_REFUSAL_ERROR_CODE_VALUES,
+} from 'src/app/domain/constants/work-conflict.constants';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { QUALIFICATION_LEVEL_VALIDATION } from 'src/app/domain/constants/qualification-level-validation.constants';
 import {
@@ -31,14 +36,24 @@ export interface WorkConflictTarget {
 }
 
 export function readWorkConflictProblem(error: unknown): IWorkConflictProblem | null {
-  if (!(error instanceof HttpErrorResponse) || error.status !== WORK_CONFLICT.CONFLICT_STATUS) {
+  if (!(error instanceof HttpErrorResponse)) {
     return null;
   }
+  const knownCodes = knownCodesOfStatus(error.status);
   const body = error.error as Partial<IWorkConflictProblem> | null | undefined;
   const code = body?.errorCode;
-  return typeof code === 'string' && WORK_CONFLICT_ERROR_CODE_VALUES.includes(code)
-    ? (body as IWorkConflictProblem)
-    : null;
+  return typeof code === 'string' && knownCodes.includes(code) ? (body as IWorkConflictProblem) : null;
+}
+
+function knownCodesOfStatus(status: number): readonly string[] {
+  switch (status) {
+    case WORK_CONFLICT.CONFLICT_STATUS:
+      return WORK_CONFLICT_ERROR_CODE_VALUES;
+    case WORK_CONFLICT.REFUSED_STATUS:
+      return WORK_REFUSAL_ERROR_CODE_VALUES;
+    default:
+      return [];
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -58,6 +73,18 @@ export class WorkConflictMessageService {
     }
 
     switch (problem.errorCode) {
+      case WORK_CONFLICT.REFUSAL_CODES.DAY_SEALED:
+        return this.translate.instant(WORK_CONFLICT.MESSAGE_KEYS.DAY_SEALED, {
+          date: this.formatDate(problem.date),
+        });
+      case WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_MEMBERSHIP_PERIOD:
+        return this.buildOutsidePeriodMessage(problem, target, WORK_CONFLICT.MESSAGE_KEYS.OUTSIDE_MEMBERSHIP_PERIOD);
+      case WORK_CONFLICT.REFUSAL_CODES.OUTSIDE_GROUP_PERIOD:
+        return this.buildOutsidePeriodMessage(problem, target, WORK_CONFLICT.MESSAGE_KEYS.OUTSIDE_GROUP_PERIOD);
+      case WORK_CONFLICT.REFUSAL_CODES.WORK_IN_CLOSED_PERIOD:
+        return this.translate.instant(WORK_CONFLICT.MESSAGE_KEYS.WORK_IN_CLOSED_PERIOD);
+      case WORK_CONFLICT.REFUSAL_CODES.WORK_SEALED_ROLE_REQUIRED:
+        return this.translate.instant(WORK_CONFLICT.MESSAGE_KEYS.WORK_SEALED_ROLE_REQUIRED);
       case WORK_CONFLICT.ERROR_CODES.SPORADIC_DAY_FULL:
         return this.translate.instant(WORK_CONFLICT.MESSAGE_KEYS.SPORADIC_DAY_FULL, {
           shift: this.shiftName(problem, target),
@@ -76,6 +103,34 @@ export class WorkConflictMessageService {
       default:
         return this.buildBlockedMessage(problem, target);
     }
+  }
+
+  private buildOutsidePeriodMessage(
+    problem: IWorkConflictProblem,
+    target: WorkConflictTarget,
+    messageKey: string,
+  ): string | null {
+    const client = this.clientName(problem.clientId ?? target.clientId);
+    if (!client) {
+      return null;
+    }
+    const period = this.describePeriod(problem.from, problem.until);
+    if (!period) {
+      return null;
+    }
+    return this.translate.instant(messageKey, { client, date: this.formatDate(problem.date), period });
+  }
+
+  private describePeriod(from: string | null | undefined, until: string | null | undefined): string {
+    const first = from ? this.formatDate(from) : '';
+    const last = until ? this.formatDate(until) : '';
+    if (first && last) {
+      return `${first}${WORK_CONFLICT.PERIOD_SEPARATOR}${last}`;
+    }
+    if (first) {
+      return this.translate.instant(WORK_CONFLICT.PERIOD_KEYS.FROM, { from: first });
+    }
+    return last ? this.translate.instant(WORK_CONFLICT.PERIOD_KEYS.UNTIL, { until: last }) : '';
   }
 
   private buildBlockedMessage(problem: IWorkConflictProblem, target: WorkConflictTarget): string {
