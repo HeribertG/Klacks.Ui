@@ -260,7 +260,7 @@ Klacks attribue chaque commande à un client :
 <ul>
   <li>
     Le fichier original reste dans le dossier du drop point (pour l'audit et les
-    nouvelles tentatives ; il n'est ni déplacé ni supprimé, il n'y a pas de
+    nouvelles tentatives ; il n'est pas déplacé, il n'y a pas de
     sous-dossiers). Son statut est affiché sur la page d'importation : pendant
     l'importation dans la zone <em>Entrée</em> (avec la progression), ensuite dans la zone
     <em>Traités</em> avec un résumé (commandes nouvelles, mises à jour, inchangées,
@@ -273,6 +273,9 @@ Klacks attribue chaque commande à un client :
     réception et les importations interrompues apparaissent dans la zone
     <em>Erreurs</em> avec la cause ; de là, ils peuvent être importés à nouveau via
     <em>Réimporter</em> ou supprimés. Un fichier corrigé doit être téléversé à nouveau.
+    Les fichiers traités avec succès (zone <em>Traités</em>) sont supprimés
+    automatiquement après 90 jours ; les fichiers de la zone <em>Erreurs</em> sont
+    conservés jusqu'à ce qu'ils soient réimportés via <em>Réimporter</em> ou supprimés.
   </li>
   <li>
     Les commandes incomplètes ou non valides sont rejetées (par exemple sans jour de

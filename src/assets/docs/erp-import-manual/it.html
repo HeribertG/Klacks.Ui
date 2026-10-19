@@ -259,7 +259,7 @@ Klacks assegna ogni ordine a un cliente:
 <ul>
   <li>
     Il file originale resta nella cartella del drop point (per audit e nuovi tentativi;
-    non viene né spostato né eliminato, non esistono sottocartelle). Lo stato è indicato
+    non viene spostato, non esistono sottocartelle). Lo stato è indicato
     nella pagina di importazione: durante l'importazione nell'area <em>In arrivo</em> (con
     l'avanzamento), poi nell'area <em>Elaborati</em> con un riepilogo (ordini nuovi,
     aggiornati, invariati, sostituiti e rifiutati), insieme al mittente e al canale di
@@ -271,6 +271,9 @@ Klacks assegna ogni ordine a un cliente:
     le importazioni interrotte appaiono nell'area <em>Errori</em> con il motivo; da lì
     possono essere importati di nuovo tramite <em>Reimporta</em> oppure eliminati. Un
     file corretto deve essere caricato di nuovo.
+    I file elaborati correttamente (area <em>Elaborati</em>) vengono eliminati
+    automaticamente dopo 90 giorni; i file nell'area <em>Errori</em> restano finché non
+    vengono importati di nuovo tramite <em>Reimporta</em> oppure eliminati.
   </li>
   <li>
     Gli ordini incompleti o non validi vengono rifiutati (ad esempio senza giorno

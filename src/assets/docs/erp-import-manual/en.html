@@ -251,7 +251,7 @@ Klacks assigns every order to a customer:
 <ul>
   <li>
     The original file stays in the drop point folder (for audit and retries; it is
-    neither moved nor deleted, and there are no sub-folders). Its status is shown on the
+    not moved, and there are no sub-folders). Its status is shown on the
     import page: while it is imported in the <em>Inbox</em> area (with progress), then in
     the <em>Processed</em> area with a summary (new, updated, unchanged, superseded and
     rejected orders), together with who delivered it and how (upload, ERP push or folder).
@@ -263,6 +263,9 @@ Klacks assigns every order to a customer:
     interrupted imports appear in the <em>Errors</em> area with the reason; from there
     they can be imported once more via <em>Import again</em> or deleted. A corrected
     file has to be uploaded anew.
+    Successfully processed files (<em>Processed</em> area) are deleted automatically
+    after 90 days; files in the <em>Errors</em> area stay until they are imported again
+    via <em>Import again</em> or deleted.
   </li>
   <li>
     Incomplete or invalid orders are rejected (for example without a weekday, with

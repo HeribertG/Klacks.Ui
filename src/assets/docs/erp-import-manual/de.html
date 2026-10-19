@@ -259,7 +259,7 @@ Klacks ordnet jede Bestellung einem Kunden zu:
 <ul>
   <li>
     Die Originaldatei bleibt im Ordner des Drop-Points liegen (für Audit und Wiederholung;
-    sie wird weder verschoben noch gelöscht, Unterordner gibt es keine). Der Status steht
+    sie wird nicht verschoben, Unterordner gibt es keine). Der Status steht
     auf der Import-Seite: während des Imports im Bereich <em>Eingang</em> (mit Fortschritt),
     danach im Bereich <em>Verarbeitet</em> mit einer Zusammenfassung (neue, aktualisierte,
     unveränderte, ersetzte und abgelehnte Bestellungen) sowie dem Absender und dem Weg, auf
@@ -271,6 +271,9 @@ Klacks ordnet jede Bestellung einem Kunden zu:
     und abgebrochene Importe erscheinen mit dem Grund im Bereich <em>Fehler</em>; von dort
     lassen sie sich per <em>Erneut importieren</em> nochmals importieren oder löschen. Eine
     korrigierte Datei muss neu hochgeladen werden.
+    Erfolgreich verarbeitete Dateien (Bereich <em>Verarbeitet</em>) werden nach 90 Tagen
+    automatisch gelöscht; Dateien im Bereich <em>Fehler</em> bleiben, bis sie per
+    <em>Erneut importieren</em> nochmals importiert oder gelöscht werden.
   </li>
   <li>
     Unvollständige oder ungültige Bestellungen werden abgelehnt (z.&nbsp;B. ohne
