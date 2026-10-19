@@ -238,19 +238,19 @@
           <span class="col-expand" role="columnheader">
             <span class="visually-hidden">{{ i18n.HEADER_EXPAND | translate }}</span>
           </span>
-          <span id="erp-drop-points-files-header-name" class="table-header col-name" role="columnheader">
+          <span id="erp-drop-points-files-header-name" class="table-header-no-border col-name" role="columnheader">
             {{ i18n.HEADER_FILE_NAME | translate }}
           </span>
-          <span id="erp-drop-points-files-header-size" class="table-header col-size" role="columnheader">
+          <span id="erp-drop-points-files-header-size" class="table-header-no-border col-size" role="columnheader">
             {{ i18n.HEADER_SIZE | translate }}
           </span>
-          <span id="erp-drop-points-files-header-date" class="table-header col-date" role="columnheader">
+          <span id="erp-drop-points-files-header-date" class="table-header-no-border col-date" role="columnheader">
             {{ i18n.HEADER_DATE | translate }}
           </span>
-          <span id="erp-drop-points-files-header-source" class="table-header col-source" role="columnheader">
+          <span id="erp-drop-points-files-header-source" class="table-header-no-border col-source" role="columnheader">
             {{ i18n.HEADER_SOURCE | translate }}
           </span>
-          <span id="erp-drop-points-files-header-detail" class="table-header col-detail" role="columnheader">
+          <span id="erp-drop-points-files-header-detail" class="table-header-no-border col-detail" role="columnheader">
             @switch (fileTab()) {
               @case ('inbox') {
                 {{ i18n.HEADER_STATUS | translate }}
@@ -264,7 +264,7 @@
             }
           </span>
           @if (fileTab() === 'failed') {
-            <span id="erp-drop-points-files-header-actions" class="table-header col-actions" role="columnheader">
+            <span id="erp-drop-points-files-header-actions" class="table-header-no-border col-actions" role="columnheader">
               <span class="visually-hidden">{{ i18n.HEADER_ACTIONS | translate }}</span>
             </span>
           }
