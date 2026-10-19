@@ -75,6 +75,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public pendingClientlessCreation = signal(false);
+  public defaultMacroPreselected = signal(false);
 
   public listWrapper: ITruncatedShift | undefined;
   public currentFilter: ShiftFilter = new ShiftFilter();
@@ -222,9 +223,38 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   createShift() {
     this.prepareShift(this.prepareNewShift());
+    this.preselectDefaultShiftMacro();
     if (this.onReadCompleted) {
       this.onReadCompleted();
     }
+  }
+
+  /**
+   * Preselects the macro the backend assigns to a new shift, so the macro card shows it before saving.
+   * The backend resolver is the only source of the default; the value is written into the baseline as
+   * well, so the untouched new shift does not count as changed. Only the macro card is told to redraw
+   * (not isReset, which would rebuild the shift form and drop input typed meanwhile). A failed lookup
+   * leaves the field empty and the backend fills it on create.
+   */
+  private preselectDefaultShiftMacro(): void {
+    const newShift = this.editShift;
+    this.dataMacroService.readDefaultShiftMacro()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          const macroId = result?.macroId;
+          if (!macroId || !newShift || this.editShift !== newShift || newShift.id || newShift.macroId) {
+            return;
+          }
+          newShift.macroId = macroId;
+          if (this.editShiftDummy && !this.editShiftDummy.macroId) {
+            this.editShiftDummy.macroId = macroId;
+          }
+          this.defaultMacroPreselected.set(true);
+          resetSignalAfterDelay(this.defaultMacroPreselected);
+        },
+        error: () => undefined,
+      });
   }
 
   private prepareNewShift(): IShift {

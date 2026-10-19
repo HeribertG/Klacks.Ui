@@ -221,4 +221,61 @@ describe('DataManagementShiftService', () => {
             req.flush(new Shift());
         });
     });
+
+    describe('default shift macro preselection', () => {
+        const defaultMacroUrl = `${environment.baseUrl}Macros/Macros/DefaultShift`;
+        const httpMock = () => TestBed.inject(HttpTestingController);
+
+        afterEach(() => {
+            httpMock().verify();
+        });
+
+        it('preselects the backend default macro on a new shift without marking it as changed', () => {
+            service.createShift();
+
+            httpMock().expectOne(defaultMacroUrl).flush({ macroId: 'macro-default' });
+
+            expect(service.editShift!.macroId).toBe('macro-default');
+            expect(service.editShiftDummy!.macroId).toBe('macro-default');
+            expect(service.captureDraft()).toBeNull();
+        });
+
+        it('leaves the macro empty when the backend has no default configured', () => {
+            service.createShift();
+
+            httpMock().expectOne(defaultMacroUrl).flush({ macroId: null });
+
+            expect(service.editShift!.macroId).toBeUndefined();
+        });
+
+        it('keeps a macro the user picked before the default arrived', () => {
+            service.createShift();
+            service.editShift!.macroId = 'macro-picked';
+
+            httpMock().expectOne(defaultMacroUrl).flush({ macroId: 'macro-default' });
+
+            expect(service.editShift!.macroId).toBe('macro-picked');
+        });
+
+        it('does not touch a shift that replaced the new one meanwhile', () => {
+            service.createShift();
+            const loaded = new Shift();
+            loaded.id = 'shift-1';
+            service.editShift = loaded;
+
+            httpMock().expectOne(defaultMacroUrl).flush({ macroId: 'macro-default' });
+
+            expect(service.editShift!.macroId).toBeUndefined();
+        });
+
+        it('leaves the macro empty when the lookup fails, so the backend fills it on save', () => {
+            service.createShift();
+
+            for (let attempt = 0; attempt < 4; attempt++) {
+                httpMock().expectOne(defaultMacroUrl).flush('failure', { status: 500, statusText: 'Server Error' });
+            }
+
+            expect(service.editShift!.macroId).toBeUndefined();
+        });
+    });
 });

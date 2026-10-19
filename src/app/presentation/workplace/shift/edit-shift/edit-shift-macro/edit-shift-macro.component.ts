@@ -55,6 +55,7 @@ export class EditShiftMacroComponent
     effect(() => {
       this.dataManagementShiftService.initIsRead();
       this.dataManagementShiftService.isReset();
+      this.dataManagementShiftService.defaultMacroPreselected();
       this.cdr.markForCheck();
     });
   }

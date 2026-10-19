@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IDefaultShiftMacro } from 'src/app/domain/models/settings/default-shift-macro.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,12 @@ export class DataMacroService {
   readMacroList() {
     return this.httpClient
       .get<IMacro[]>(`${environment.baseUrl}Macros/Macros`)
+      .pipe(retry(3));
+  }
+
+  readDefaultShiftMacro() {
+    return this.httpClient
+      .get<IDefaultShiftMacro>(`${environment.baseUrl}Macros/Macros/DefaultShift`)
       .pipe(retry(3));
   }
 
