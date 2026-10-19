@@ -157,7 +157,8 @@
               "default",
               "json"
             ],
-            "outputFile": "./test-results/results.json"
+            "outputFile": "./test-results/results.json",
+            "runnerConfig": "vitest.angular.config.ts"
           }
         },
         "lint": {
