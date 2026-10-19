@@ -5,9 +5,11 @@
  * @param getDefaultDropPoint - Loads the default drop point (the backend creates it on demand)
  * @param updateDropPoint - Updates the drop point, used to toggle the import on and off
  * @param uploadFile - Uploads an XML order file into the drop point and returns the storage key
- * @param getFiles - Loads the stored files grouped by state (pending, processed, error)
- * @param retryFile - Moves a failed file back into the inbox so the next run imports it again
- * @param deleteFile - Permanently removes a failed file from the error segment
+ * @param getFiles - Loads the import ledger rows grouped by tab (inbox, processed, failed); no automatic retry,
+ *   the polling counts failed requests itself
+ * @param retryFile - Re-queues a failed or interrupted file by its ledger id; the result carries the new status
+ *   (Received, or Failed again when the stored file changed or vanished after receipt)
+ * @param deleteFile - Deletes a failed or interrupted file (stored object and ledger row) by its ledger id
  * @param triggerImportRun - Triggers an immediate import run
  */
 
@@ -21,9 +23,10 @@ import {
   IErpDropPointFiles,
   IErpDropPointRequest,
 } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpOrderFileRetryResult } from 'src/app/domain/models/settings/erp-order-file-retry-result';
+import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 
 const DEFAULT_PATH_SEGMENT = 'default';
-const FILES_PATH_SEGMENT = 'files';
 const RETRY_PATH_SEGMENT = 'retry';
 const RUN_PATH_SEGMENT = 'run';
 const UPLOAD_FORM_FIELD = 'file';
@@ -34,6 +37,7 @@ const UPLOAD_FORM_FIELD = 'file';
 export class DataErpDropPointService {
   private httpClient = inject(HttpClient);
   private readonly apiUrl = `${environment.baseUrl}ErpDropPoints`;
+  private readonly filesUrl = `${environment.baseUrl}${ERP_DROP_POINT_FILES_PATH}`;
 
   getDefaultDropPoint(): Observable<IErpDropPoint> {
     return this.httpClient
@@ -51,23 +55,21 @@ export class DataErpDropPointService {
     const formData = new FormData();
     formData.append(UPLOAD_FORM_FIELD, file);
     return this.httpClient
-      .post<{ key: string }>(`${this.apiUrl}/${FILES_PATH_SEGMENT}`, formData);
+      .post<{ key: string }>(this.filesUrl, formData);
   }
 
   getFiles(): Observable<IErpDropPointFiles> {
-    return this.httpClient
-      .get<IErpDropPointFiles>(`${this.apiUrl}/${FILES_PATH_SEGMENT}`)
-      .pipe(retry(3));
+    return this.httpClient.get<IErpDropPointFiles>(this.filesUrl);
   }
 
-  retryFile(key: string): Observable<void> {
+  retryFile(id: string): Observable<IErpOrderFileRetryResult> {
     return this.httpClient
-      .post<void>(`${this.apiUrl}/${FILES_PATH_SEGMENT}/${RETRY_PATH_SEGMENT}`, { key });
+      .post<IErpOrderFileRetryResult>(`${this.filesUrl}/${encodeURIComponent(id)}/${RETRY_PATH_SEGMENT}`, null);
   }
 
-  deleteFile(key: string): Observable<void> {
+  deleteFile(id: string): Observable<void> {
     return this.httpClient
-      .delete<void>(`${this.apiUrl}/${FILES_PATH_SEGMENT}`, { body: { key } });
+      .delete<void>(`${this.filesUrl}/${encodeURIComponent(id)}`);
   }
 
   triggerImportRun(): Observable<void> {

@@ -16,22 +16,26 @@ export enum DomainEventType {
 
 export interface ErrorEvent {
   message: string;
+  messageParams?: Record<string, unknown>;
   code?: string;
   context?: string;
 }
 
 export interface SuccessEvent {
   message: string;
+  messageParams?: Record<string, unknown>;
   context?: string;
 }
 
 export interface WarningEvent {
   message: string;
+  messageParams?: Record<string, unknown>;
   context?: string;
 }
 
 export interface InfoEvent {
   message: string;
+  messageParams?: Record<string, unknown>;
   context?: string;
 }
 

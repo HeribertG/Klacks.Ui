@@ -2,11 +2,15 @@
 
 /**
  * Settings page for the automatically managed ERP drop point: the global import schedule with an
- * enable toggle and status line, an always-active upload drop zone, a file explorer over the drop
- * point content (pending, processed, error) and the push access token management, plus a manual
- * tab with the import handbook and a sample XML download.
+ * enable toggle and status line, an always-active upload drop zone, the import file list read from the
+ * import ledger (inbox with progress, processed with per-file summary, failed with retry and delete) and the
+ * push access token management, plus a manual tab with the import handbook and a sample XML download.
+ * The page keeps the domain service's import polling subscribed for its lifetime and (re)starts it after an
+ * upload, an accepted retry or a manual run unless the import is known to be disabled (a disabled import never picks
+ * files up), and after loading or refreshing the listing only when the import is enabled and files are pending.
  * @param activeTab - Currently visible page tab (import or manual)
- * @param fileTab - Currently visible file explorer tab (pending, processed or error)
+ * @param fileTab - Currently visible file list tab (inbox, processed or failed)
+ * @param isProcessedListCapped - True when the processed tab shows as many rows as the API returns at most
  */
 
 import {
@@ -24,7 +28,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,14 +36,20 @@ import { ErpDropPointTokensComponent } from './erp-drop-point-tokens/erp-drop-po
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
-import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { DataManagementErpDropPointService } from 'src/app/domain/services/settings/data-management-erp-drop-point.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { IErpDropPoint, IErpDropPointFile, IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPoint, IErpDropPointFiles, IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
+import { hasPendingErpImportFiles } from 'src/app/domain/helpers/erp-import-file.helper';
+import {
+  ERP_IMPORT_FILES_I18N,
+  ERP_IMPORT_LIST_LIMITS,
+  ERP_IMPORT_POLLING,
+} from 'src/app/domain/constants/erp-import-file.constants';
+import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { isValidCronExpression } from 'src/app/domain/helpers/cron-expression.helper';
-import { formatFileSize } from 'src/app/domain/helpers/file-size.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AssetDownloadService } from 'src/app/application/services/asset-download.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
@@ -50,15 +59,13 @@ import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 import { ERP_DROP_POINTS_TAB_TARGETS, ErpDropPointsPageTab } from './erp-drop-points-target.constants';
+import { ErpImportFilesTab, erpImportFilesColumnCount } from './erp-import-files-tab';
+import { ErpImportFileRowComponent } from './erp-import-file-row/erp-import-file-row.component';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
 const SAMPLE_FILE_NAME = 'sample-erp-order-import.xml';
 const SAMPLE_FILE_ASSET_PATH = `assets/docs/${ERP_IMPORT_MANUAL_NAME}/${SAMPLE_FILE_NAME}`;
 const XML_MIME_TYPE = 'application/xml';
-
-type FileTab = 'pending' | 'processed' | 'error';
-
-type ErpDropPointFileView = IErpDropPointFile & { errorReason?: string | null };
 
 interface ErpImportScheduleFormModel {
   cronExpression: string;
@@ -75,11 +82,11 @@ type IntlWithSupportedValues = typeof Intl & {
     FormsModule,
     FormField,
     TranslateModule,
-    DatePipe,
+    CompanyDateTimePipe,
     ErpDropPointTokensComponent,
+    ErpImportFileRowComponent,
     ExpandableCardComponent,
     IconRefreshGreyComponent,
-    TrashIconRedComponent,
     DragDropFileUploadDirective,
   ],
   templateUrl: './erp-drop-points.component.html',
@@ -110,20 +117,18 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   });
 
   readonly activeTab = signal<ErpDropPointsPageTab>('list');
-  readonly fileTab = signal<FileTab>('pending');
+  readonly fileTab = signal<ErpImportFilesTab>('inbox');
   readonly manualContent = signal<string>('');
 
-  readonly visibleFiles = computed<ErpDropPointFileView[]>(() => {
-    const files = this.dropPointService.files();
-    switch (this.fileTab()) {
-      case 'processed':
-        return files.processed;
-      case 'error':
-        return files.error;
-      default:
-        return files.pending;
-    }
-  });
+  readonly visibleFiles = computed<IErpImportFile[]>(() => this.dropPointService.files()[this.fileTab()]);
+  readonly isProcessedListCapped = computed(
+    () => this.dropPointService.files().processed.length >= ERP_IMPORT_LIST_LIMITS.PROCESSED_LISTING_CAP,
+  );
+
+  readonly columnCount = computed(() => erpImportFilesColumnCount(this.fileTab()));
+
+  protected readonly i18n = ERP_IMPORT_FILES_I18N;
+  protected readonly processedListingCap = ERP_IMPORT_LIST_LIMITS.PROCESSED_LISTING_CAP;
 
   public readonly timeZones: string[] = this.loadTimeZones();
   public selectedScheduleTimeZone = signal<string>(ErpImportScheduleDefaults.UseCompanyTimeZone);
@@ -143,6 +148,10 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
+    this.dropPointService.importPolling$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
+
     this.eventBus
       .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -167,8 +176,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    void this.dropPointService.loadDefaultDropPoint();
-    void this.dropPointService.loadFiles();
+    void this.initDropPointAndFiles();
     void this.initSchedule();
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
@@ -191,7 +199,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
     }
   }
 
-  setFileTab(tab: FileTab): void {
+  setFileTab(tab: ErpImportFilesTab): void {
     this.fileTab.set(tab);
   }
 
@@ -207,7 +215,9 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   }
 
   async onRunImport(): Promise<void> {
-    await this.dropPointService.triggerImportRun();
+    if (await this.dropPointService.triggerImportRun()) {
+      this.requestPollingUnlessImportDisabled(ERP_IMPORT_POLLING.RUN_START_GRACE_MS);
+    }
     this.cdr.markForCheck();
   }
 
@@ -239,37 +249,35 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   }
 
   async onRefreshFiles(): Promise<void> {
-    await this.dropPointService.loadFiles();
+    await this.reloadFiles();
     this.cdr.markForCheck();
   }
 
-  async onRetryFile(key: string): Promise<void> {
+  async onRetryFile(file: IErpImportFile): Promise<void> {
     if (this.dropPointService.isRetrying()) {
       return;
     }
-    const success = await this.dropPointService.retryFile(key);
-    if (success) {
+    const isQueued = await this.dropPointService.retryFile(file.id);
+    if (isQueued) {
+      this.requestPollingUnlessImportDisabled();
+    } else {
       await this.dropPointService.loadFiles();
     }
     this.cdr.markForCheck();
   }
 
-  onDeleteFile(file: ErpDropPointFileView): void {
+  onDeleteFile(file: IErpImportFile): void {
     if (this.dropPointService.isDeleting()) {
       return;
     }
     this.modalService.openModal({
       type: ModalType.Delete,
       title: this.translate.instant('delete'),
-      message: this.translate.instant('settings.erp-drop-points.files.confirm-delete', { name: file.fileName }),
+      message: this.translate.instant(ERP_IMPORT_FILES_I18N.CONFIRM_DELETE, { name: file.fileName }),
       confirmText: this.translate.instant('button.delete'),
       cancelText: this.translate.instant('cancel'),
-      onConfirm: () => void this.deleteFile(file.key),
+      onConfirm: () => void this.deleteFile(file.id),
     });
-  }
-
-  formatSize(sizeBytes: number): string {
-    return formatFileSize(sizeBytes);
   }
 
   onDownloadSample(): void {
@@ -284,26 +292,52 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   }
 
   private async uploadFiles(files: File[]): Promise<void> {
-    const uploadedKeys: string[] = [];
+    let hasUploaded = false;
     for (const file of files) {
-      const key = await this.dropPointService.uploadFile(file);
-      if (key) {
-        uploadedKeys.push(key);
+      if (await this.dropPointService.uploadFile(file)) {
+        hasUploaded = true;
       }
     }
-    if (uploadedKeys.length > 0) {
-      await this.dropPointService.loadFiles();
-      void this.dropPointService.watchProcessingResults(uploadedKeys);
+    if (hasUploaded) {
+      this.requestPollingUnlessImportDisabled();
     }
     this.cdr.markForCheck();
   }
 
-  private async deleteFile(key: string): Promise<void> {
-    const success = await this.dropPointService.deleteFile(key);
-    if (success) {
-      await this.dropPointService.loadFiles();
-    }
+  private async deleteFile(id: string): Promise<void> {
+    await this.dropPointService.deleteFile(id);
+    await this.dropPointService.loadFiles();
     this.cdr.markForCheck();
+  }
+
+  private async initDropPointAndFiles(): Promise<void> {
+    this.dropPointService.resetFileTracking();
+    const [dropPoint, files] = await Promise.all([
+      this.dropPointService.loadDefaultDropPoint(),
+      this.dropPointService.loadFiles(),
+    ]);
+    this.continuePollingIfPending(files, dropPoint?.isEnabled === true);
+  }
+
+  private async reloadFiles(): Promise<void> {
+    const files = await this.dropPointService.loadFiles();
+    this.continuePollingIfPending(files, this.isImportEnabled());
+  }
+
+  private continuePollingIfPending(files: IErpDropPointFiles, isImportEnabled: boolean): void {
+    if (isImportEnabled && hasPendingErpImportFiles(files)) {
+      this.dropPointService.requestPolling({ skipImmediateFetch: true });
+    }
+  }
+
+  private requestPollingUnlessImportDisabled(graceMs = 0): void {
+    if (this.dropPointService.defaultDropPoint()?.isEnabled !== false) {
+      this.dropPointService.requestPolling({ graceMs });
+    }
+  }
+
+  private isImportEnabled(): boolean {
+    return this.dropPointService.defaultDropPoint()?.isEnabled === true;
   }
 
   private buildUpdateRequest(dropPoint: IErpDropPoint, isEnabled: boolean): IErpDropPointRequest {

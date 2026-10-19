@@ -27,6 +27,7 @@ import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-impor
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
+import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
 import { WorkConflictMessageService, WorkConflictTarget, readWorkConflictProblem } from './work-conflict-message.service';
@@ -56,10 +57,11 @@ export class ResponseInterceptor implements HttpInterceptor {
   private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
   private static readonly API_PATH_PREFIX = '/api/';
   private static readonly KNOWLEDGE_INDEX_SYNC_STATUS_PATH = 'knowledge-index/sync-status';
-  private static readonly QUIET_BACKGROUND_POLL_PATHS: readonly string[] = [
+  private static readonly QUIET_CALLER_HANDLED_PATHS: readonly string[] = [
     ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH,
     AUTOFILL_RUNS_ACTIVE_PATH,
     EXPLAIN_OFFERS_PATH,
+    ERP_DROP_POINT_FILES_PATH,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
@@ -116,7 +118,7 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        if (!this.isQuietBackgroundPoll(error) && !this.isGeoServicesPassThrough(error.url || '')) {
+        if (!this.isQuietCallerHandledRequest(error) && !this.isGeoServicesPassThrough(error.url || '')) {
           this.resetUIState(error);
         }
         return this.handleSpecificErrors(error, req);
@@ -124,16 +126,18 @@ export class ResponseInterceptor implements HttpInterceptor {
     );
   }
 
-  // A background poll or request (the knowledge-index sync status, checked every 10s for up to ~20 minutes,
-  // the autofill run presence the schedule reads after each load, and the explain-offer state and reactions,
-  // read and sent while the shift form is open with unsaved changes) must not touch UI state on failure: unlike
-  // a user-triggered request, its error has nothing to do with whatever the user is editing elsewhere on the
-  // page, so it must not clear the unsaved-changes flag or the spinner/save-state out from under them. The
+  // Requests whose caller reports failures itself must not touch UI state on failure: background polls (the
+  // knowledge-index sync status, checked every 10s for up to ~20 minutes, the autofill run presence the schedule
+  // reads after each load, and the ERP import file list the settings page polls while imports run) as well as user
+  // actions handled by their page (the explain-offer state and reactions, read and sent while the shift form is open
+  // with unsaved changes, and the ERP file upload, retry and delete, which the settings page reports as translated
+  // toasts). Their error has nothing to do with whatever the user is editing elsewhere on the page, so it must not
+  // clear the unsaved-changes flag or the spinner/save-state out from under them, nor add a generic toast. The
   // geo service proxies follow the same rule: an address search or route lookup may fail while an unsaved
   // client form is open.
-  private isQuietBackgroundPoll(error: HttpErrorResponse): boolean {
+  private isQuietCallerHandledRequest(error: HttpErrorResponse): boolean {
     const url = error.url || '';
-    return ResponseInterceptor.QUIET_BACKGROUND_POLL_PATHS.some((path) => url.includes(path));
+    return ResponseInterceptor.QUIET_CALLER_HANDLED_PATHS.some((path) => url.includes(path));
   }
 
   private resetUIState(error: HttpErrorResponse): void {
@@ -164,8 +168,8 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    // Background poll of the language-plugins page: the caller stops polling quietly on failure.
-    if (this.isQuietBackgroundPoll(error)) {
+    // Background polls and page-handled user actions: the caller reports or ignores the failure itself.
+    if (this.isQuietCallerHandledRequest(error)) {
       return throwError(() => error);
     }
 

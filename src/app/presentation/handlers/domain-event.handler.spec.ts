@@ -8,7 +8,7 @@ import { DomainEventHandler } from './domain-event.handler';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { of, Subject } from 'rxjs';
-import { DomainEventType, ErrorEvent, SuccessEvent, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType, ErrorEvent, SuccessEvent, UndoOfferedEvent, WarningEvent } from 'src/app/domain/events/domain-events';
 
 describe('DomainEventHandler', () => {
     let handler: DomainEventHandler;
@@ -84,6 +84,31 @@ describe('DomainEventHandler', () => {
             expect(mockToastService.showSuccess).toHaveBeenCalledWith(
                 'translated:settings.erp-drop-points.success.upload',
                 'Success',
+                ''
+            );
+        });
+
+        it('should translate a parameterised message once with its parameters', () => {
+            const warningEvents = new Subject<WarningEvent>();
+            mockEventBus.on.mockImplementation((type: string) =>
+                type === DomainEventType.WARNING ? warningEvents.asObservable() : of()
+            );
+
+            handler = TestBed.inject(DomainEventHandler);
+            warningEvents.next({
+                message: 'settings.erp-drop-points.files.toast.completed-with-warnings',
+                messageParams: { name: 'orders.xml', summary: '2 neu' },
+                context: 'Warning',
+            });
+
+            expect(mockTranslate.instant).toHaveBeenCalledTimes(1);
+            expect(mockTranslate.instant).toHaveBeenCalledWith('settings.erp-drop-points.files.toast.completed-with-warnings', {
+                name: 'orders.xml',
+                summary: '2 neu',
+            });
+            expect(mockToastService.showInfo).toHaveBeenCalledWith(
+                'translated:settings.erp-drop-points.files.toast.completed-with-warnings',
+                'Warning',
                 ''
             );
         });

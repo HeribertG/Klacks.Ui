@@ -2,8 +2,10 @@
 
 /**
  * Bridges domain events from the event bus to toasts and navigation. Event messages are i18n
- * keys and are translated here; unknown keys fall through as plain text.
+ * keys and are translated here (once, with their optional parameters); unknown keys fall through as plain text.
+ * There is no warning toast: WARNING events are shown as info toasts.
  * @param event.message - Translation key (or plain text) shown as the toast body
+ * @param event.messageParams - Interpolation parameters of the message key
  * @param event.code / event.context - Toast name respectively header text
  * @param UNDO_OFFERED - Carries the undo callback the domain layer provides; only rendering happens here
  */
@@ -45,25 +47,25 @@ export class DomainEventHandler {
 
   private setupErrorHandler(): void {
     this.eventBus.on<ErrorEvent>(DomainEventType.ERROR).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
-      this.toastService.showError(this.translateMessage(event.message), event.code || 'Error');
+      this.toastService.showError(this.translateMessage(event.message, event.messageParams), event.code || 'Error');
     });
   }
 
   private setupSuccessHandler(): void {
     this.eventBus.on<SuccessEvent>(DomainEventType.SUCCESS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
-      this.toastService.showSuccess(this.translateMessage(event.message), event.context || '', '');
+      this.toastService.showSuccess(this.translateMessage(event.message, event.messageParams), event.context || '', '');
     });
   }
 
   private setupWarningHandler(): void {
     this.eventBus.on<WarningEvent>(DomainEventType.WARNING).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
-      this.toastService.showInfo(this.translateMessage(event.message), event.context || '', '');
+      this.toastService.showInfo(this.translateMessage(event.message, event.messageParams), event.context || '', '');
     });
   }
 
   private setupInfoHandler(): void {
     this.eventBus.on<InfoEvent>(DomainEventType.INFO).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
-      this.toastService.showInfo(this.translateMessage(event.message), event.context || '', '');
+      this.toastService.showInfo(this.translateMessage(event.message, event.messageParams), event.context || '', '');
     });
   }
 
@@ -74,8 +76,11 @@ export class DomainEventHandler {
     });
   }
 
-  private translateMessage(message: string): string {
-    return typeof message === 'string' ? this.translate.instant(message) : String(message);
+  private translateMessage(message: string, params?: Record<string, unknown>): string {
+    if (typeof message !== 'string') {
+      return String(message);
+    }
+    return params ? this.translate.instant(message, params) : this.translate.instant(message);
   }
 
   private setupNavigationHandler(): void {

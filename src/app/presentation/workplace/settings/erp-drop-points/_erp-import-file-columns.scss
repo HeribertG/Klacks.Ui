@@ -1,0 +1,44 @@
+.col-expand {
+  width: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.col-name {
+  flex: 2;
+  min-width: 0;
+}
+
+.col-size {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.col-date {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.col-source {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.col-detail {
+  flex: 3;
+  min-width: 0;
+}
+
+.col-actions {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.col-name,
+.col-source,
+.col-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

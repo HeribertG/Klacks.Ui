@@ -31,10 +31,10 @@ three transfer channels:
 <p>
 The drop point is the central mailbox for all import files. Klacks manages it
 automatically – nobody has to create or configure it. The page shows its content as a
-file view with three areas: <strong>Inbox</strong> (waiting for the next import run),
-<strong>Processed</strong> (archive) and <strong>Errors</strong> (unreadable or invalid
-files including the error reason). Failed files can be moved back to the inbox via the
-<em>Import again</em> button.
+import list with three areas: <strong>Inbox</strong> (received or currently being
+imported, with progress), <strong>Processed</strong> (with a summary per file) and
+<strong>Errors</strong> (unreadable or invalid files and interrupted imports including the
+reason). Failed files can be imported once more via the <em>Import again</em> button.
 </p>
 <ul>
   <li>
@@ -250,14 +250,19 @@ Klacks assigns every order to a customer:
 <h3>Error handling &amp; archive</h3>
 <ul>
   <li>
-    Processed files are moved to the <code>processed/</code> subfolder in the object
-    storage (archive, no deletion); they appear on the import page in the
-    <em>Processed</em> area.
+    The original file stays in the drop point folder (for audit and retries; it is
+    neither moved nor deleted, and there are no sub-folders). Its status is shown on the
+    import page: while it is imported in the <em>Inbox</em> area (with progress), then in
+    the <em>Processed</em> area with a summary (new, updated, unchanged, superseded and
+    rejected orders), together with who delivered it and how (upload, ERP push or folder).
+    A file identical to an earlier delivery only shows an info hint and is imported
+    anyway.
   </li>
   <li>
-    Unreadable or invalid files are moved to the <code>error/</code> subfolder and
-    appear in the <em>Errors</em> area; from there they can be moved back to the inbox
-    via <em>Import again</em>.
+    Unreadable files (e.g. broken XML), files that were changed after receipt and
+    interrupted imports appear in the <em>Errors</em> area with the reason; from there
+    they can be imported once more via <em>Import again</em> or deleted. A corrected
+    file has to be uploaded anew.
   </li>
   <li>
     Incomplete or invalid orders are rejected (for example without a weekday, with
@@ -266,8 +271,9 @@ Klacks assigns every order to a customer:
     of the same file are still imported.
   </li>
   <li>
-    A file with at least one rejected order moves to the <em>Error</em> area together
-    with the rejection reason — orders that were already imported stay imported.
+    A file with at least one rejected order still appears in the <em>Processed</em>
+    area, marked with a warning icon: the valid orders are imported and the rejected
+    ones can be expanded together with their reason.
   </li>
   <li>Errors are logged and the administrators are notified.</li>
 </ul>

@@ -32,11 +32,11 @@ Sono disponibili tre canali di trasferimento:
 <p>
 Il drop point è la cassetta postale centrale per tutti i file di importazione. Klacks
 lo gestisce automaticamente – nessuno deve crearlo o configurarlo. La pagina mostra il
-suo contenuto come vista dei file con tre aree: <strong>In arrivo</strong> (in attesa
-della prossima esecuzione di importazione), <strong>Elaborati</strong> (archivio) ed
-<strong>Errori</strong> (file illeggibili o non validi con il motivo dell'errore). I
-file in errore possono essere riportati in arrivo tramite il pulsante
-<em>Reimporta</em>.
+suo contenuto come elenco di importazione con tre aree: <strong>In arrivo</strong>
+(ricevuti o in corso di importazione, con l'avanzamento), <strong>Elaborati</strong> (con
+un riepilogo per file) ed <strong>Errori</strong> (file illeggibili o non validi e
+importazioni interrotte, con il motivo). I file in errore possono essere importati di
+nuovo tramite il pulsante <em>Reimporta</em>.
 </p>
 <ul>
   <li>
@@ -258,14 +258,19 @@ Klacks assegna ogni ordine a un cliente:
 <h3>Gestione degli errori &amp; archivio</h3>
 <ul>
   <li>
-    I file elaborati vengono spostati nella sottocartella <code>processed/</code>
-    dell'area di deposito (archivio, nessuna cancellazione); appaiono nella pagina di
-    importazione nell'area <em>Elaborati</em>.
+    Il file originale resta nella cartella del drop point (per audit e nuovi tentativi;
+    non viene né spostato né eliminato, non esistono sottocartelle). Lo stato è indicato
+    nella pagina di importazione: durante l'importazione nell'area <em>In arrivo</em> (con
+    l'avanzamento), poi nell'area <em>Elaborati</em> con un riepilogo (ordini nuovi,
+    aggiornati, invariati, sostituiti e rifiutati), insieme al mittente e al canale di
+    consegna (caricamento, push ERP o cartella). Un file identico a una consegna
+    precedente mostra solo un'indicazione informativa e viene comunque importato.
   </li>
   <li>
-    I file illeggibili o non validi vengono spostati nella sottocartella
-    <code>error/</code> e appaiono nell'area <em>Errori</em>; da lì possono essere
-    riportati in arrivo tramite <em>Reimporta</em>.
+    I file illeggibili (ad es. XML danneggiato), i file modificati dopo la ricezione e
+    le importazioni interrotte appaiono nell'area <em>Errori</em> con il motivo; da lì
+    possono essere importati di nuovo tramite <em>Reimporta</em> oppure eliminati. Un
+    file corretto deve essere caricato di nuovo.
   </li>
   <li>
     Gli ordini incompleti o non validi vengono rifiutati (ad esempio senza giorno
@@ -274,8 +279,9 @@ Klacks assegna ogni ordine a un cliente:
     altri ordini dello stesso file vengono comunque importati.
   </li>
   <li>
-    Un file con almeno un ordine rifiutato passa nell'area <em>Errore</em> insieme al
-    motivo del rifiuto — gli ordini già importati restano importati.
+    Un file con almeno un ordine rifiutato appare comunque nell'area
+    <em>Elaborati</em>, contrassegnato da un'icona di avviso: gli ordini validi vengono
+    importati e quelli rifiutati possono essere espansi con il relativo motivo.
   </li>
   <li>Gli errori vengono registrati e gli amministratori vengono avvisati.</li>
 </ul>

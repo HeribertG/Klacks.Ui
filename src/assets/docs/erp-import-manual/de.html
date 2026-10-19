@@ -32,10 +32,11 @@ Für die Übertragung gibt es drei Wege:
 <p>
 Der Drop-Point ist der zentrale Briefkasten für alle Import-Dateien. Klacks verwaltet
 ihn automatisch – niemand muss ihn anlegen oder konfigurieren. Die Seite zeigt seinen
-Inhalt als Datei-Ansicht mit drei Bereichen: <strong>Eingang</strong> (wartet auf den
-nächsten Import-Lauf), <strong>Verarbeitet</strong> (Archiv) und <strong>Fehler</strong>
-(nicht lesbare oder ungültige Dateien samt Fehlergrund). Fehler-Dateien lassen sich über
-den Button <em>Erneut importieren</em> zurück in den Eingang verschieben.
+Inhalt als Importliste mit drei Bereichen: <strong>Eingang</strong> (empfangen oder
+gerade im Import, mit Fortschritt), <strong>Verarbeitet</strong> (mit Zusammenfassung pro
+Datei) und <strong>Fehler</strong> (nicht lesbare oder ungültige Dateien sowie abgebrochene
+Importe samt Grund). Fehler-Dateien lassen sich über den Button <em>Erneut importieren</em>
+nochmals importieren.
 </p>
 <ul>
   <li>
@@ -257,14 +258,19 @@ Klacks ordnet jede Bestellung einem Kunden zu:
 <h3>Fehlerbehandlung &amp; Archiv</h3>
 <ul>
   <li>
-    Verarbeitete Dateien werden in der Dateiablage in den Unterordner
-    <code>processed/</code> verschoben (Archiv, keine Löschung); sie erscheinen auf der
-    Import-Seite im Bereich <em>Verarbeitet</em>.
+    Die Originaldatei bleibt im Ordner des Drop-Points liegen (für Audit und Wiederholung;
+    sie wird weder verschoben noch gelöscht, Unterordner gibt es keine). Der Status steht
+    auf der Import-Seite: während des Imports im Bereich <em>Eingang</em> (mit Fortschritt),
+    danach im Bereich <em>Verarbeitet</em> mit einer Zusammenfassung (neue, aktualisierte,
+    unveränderte, ersetzte und abgelehnte Bestellungen) sowie dem Absender und dem Weg, auf
+    dem die Datei kam (Upload, ERP-Push oder Ordner). Ist eine Datei inhaltsgleich mit
+    einer früheren Lieferung, erscheint nur ein Info-Hinweis; importiert wird sie trotzdem.
   </li>
   <li>
-    Nicht lesbare oder ungültige Dateien wandern in den Unterordner <code>error/</code>
-    und erscheinen im Bereich <em>Fehler</em>; von dort lassen sie sich per
-    <em>Erneut importieren</em> zurück in den Eingang verschieben.
+    Nicht lesbare Dateien (z.&nbsp;B. kaputtes XML), nach dem Empfang veränderte Dateien
+    und abgebrochene Importe erscheinen mit dem Grund im Bereich <em>Fehler</em>; von dort
+    lassen sie sich per <em>Erneut importieren</em> nochmals importieren oder löschen. Eine
+    korrigierte Datei muss neu hochgeladen werden.
   </li>
   <li>
     Unvollständige oder ungültige Bestellungen werden abgelehnt (z.&nbsp;B. ohne
@@ -273,9 +279,9 @@ Klacks ordnet jede Bestellung einem Kunden zu:
     derselben Datei werden trotzdem importiert.
   </li>
   <li>
-    Enthält eine Datei mindestens eine abgelehnte Bestellung, wandert sie mit dem
-    Ablehnungsgrund in den Bereich <em>Fehler</em> — die bereits importierten
-    Bestellungen bleiben dabei erhalten.
+    Enthält eine Datei mindestens eine abgelehnte Bestellung, erscheint sie trotzdem im
+    Bereich <em>Verarbeitet</em>, markiert mit einem Warn-Symbol: die gültigen Bestellungen
+    werden importiert, die abgelehnten lassen sich mit ihrem Grund aufklappen.
   </li>
   <li>Fehler werden protokolliert und die Administratoren benachrichtigt.</li>
 </ul>

@@ -32,11 +32,11 @@ Les systèmes ERP externes livrent leurs commandes à Klacks sous forme de
 <p>
 Le drop point est la boîte aux lettres centrale pour tous les fichiers d'importation.
 Klacks le gère automatiquement – personne ne doit le créer ni le configurer. La page
-affiche son contenu sous forme de vue de fichiers avec trois zones :
-<strong>Entrée</strong> (en attente de la prochaine exécution d'importation),
-<strong>Traités</strong> (archive) et <strong>Erreurs</strong> (fichiers illisibles ou
-invalides avec la cause de l'erreur). Les fichiers en erreur peuvent être replacés dans
-l'entrée via le bouton <em>Réimporter</em>.
+affiche son contenu sous forme de liste d'importation avec trois zones :
+<strong>Entrée</strong> (reçus ou en cours d'importation, avec la progression),
+<strong>Traités</strong> (avec un résumé par fichier) et <strong>Erreurs</strong>
+(fichiers illisibles ou invalides et importations interrompues, avec la cause). Les
+fichiers en erreur peuvent être importés à nouveau via le bouton <em>Réimporter</em>.
 </p>
 <ul>
   <li>
@@ -259,14 +259,20 @@ Klacks attribue chaque commande à un client :
 <h3>Gestion des erreurs &amp; archive</h3>
 <ul>
   <li>
-    Les fichiers traités sont déplacés dans le sous-dossier <code>processed/</code> de
-    l'espace de dépôt (archive, pas de suppression) ; ils apparaissent sur la page
-    d'importation dans la zone <em>Traités</em>.
+    Le fichier original reste dans le dossier du drop point (pour l'audit et les
+    nouvelles tentatives ; il n'est ni déplacé ni supprimé, il n'y a pas de
+    sous-dossiers). Son statut est affiché sur la page d'importation : pendant
+    l'importation dans la zone <em>Entrée</em> (avec la progression), ensuite dans la zone
+    <em>Traités</em> avec un résumé (commandes nouvelles, mises à jour, inchangées,
+    remplacées et rejetées), ainsi que l'expéditeur et le canal de livraison
+    (téléversement, push ERP ou dossier). Un fichier identique à une livraison
+    précédente affiche seulement une indication et est tout de même importé.
   </li>
   <li>
-    Les fichiers illisibles ou invalides sont déplacés dans le sous-dossier
-    <code>error/</code> et apparaissent dans la zone <em>Erreurs</em> ; de là, ils
-    peuvent être replacés dans l'entrée via <em>Réimporter</em>.
+    Les fichiers illisibles (p. ex. XML endommagé), les fichiers modifiés après leur
+    réception et les importations interrompues apparaissent dans la zone
+    <em>Erreurs</em> avec la cause ; de là, ils peuvent être importés à nouveau via
+    <em>Réimporter</em> ou supprimés. Un fichier corrigé doit être téléversé à nouveau.
   </li>
   <li>
     Les commandes incomplètes ou non valides sont rejetées (par exemple sans jour de
@@ -275,9 +281,9 @@ Klacks attribue chaque commande à un client :
     commandes du même fichier sont tout de même importées.
   </li>
   <li>
-    Un fichier contenant au moins une commande rejetée passe dans la zone
-    <em>Erreur</em> avec le motif du rejet — les commandes déjà importées restent
-    importées.
+    Un fichier contenant au moins une commande rejetée apparaît tout de même dans la
+    zone <em>Traités</em>, signalé par une icône d'avertissement : les commandes valides
+    sont importées et les commandes rejetées peuvent être dépliées avec leur motif.
   </li>
   <li>Les erreurs sont journalisées et les administrateurs sont notifiés.</li>
 </ul>

@@ -1,0 +1,119 @@
+<div [id]="'erp-drop-points-files-row-' + index()" class="file-row table-cell" role="row">
+  <span class="col-expand" role="cell">
+    @if (canExpand()) {
+      <button
+        [id]="'erp-drop-points-files-expand-btn-' + index()"
+        type="button"
+        class="expand-toggle"
+        [attr.aria-expanded]="isExpanded()"
+        [attr.aria-controls]="rejectedListId()"
+        [title]="i18n.REJECTED_ORDERS_TOGGLE | translate"
+        [attr.aria-label]="i18n.REJECTED_ORDERS_TOGGLE | translate"
+        (click)="toggleExpand()"
+      >
+        @if (isExpanded()) {
+          <app-icon-angle-down />
+        } @else {
+          <app-icon-angle-right />
+        }
+      </button>
+    }
+  </span>
+  <span class="col-name" role="cell" [title]="file().fileName">{{ file().fileName }}</span>
+  <span class="col-size" role="cell">{{ size() }}</span>
+  <span class="col-date" role="cell">{{ file().receivedAt | companyDateTime }}</span>
+  <span class="col-source" role="cell" [title]="(channelKey() | translate) + (file().uploadedBy ? sourceSeparator + file().uploadedBy : '')">
+    {{ channelKey() | translate }}@if (file().uploadedBy) {<span>{{ sourceSeparator }}{{ file().uploadedBy }}</span>}
+  </span>
+
+  @switch (tab()) {
+    @case ('inbox') {
+      <span [id]="'erp-drop-points-files-status-' + index()" class="col-detail" role="cell">
+        @if (statusText(); as status) {
+          {{ status.key | translate: status.params }}
+        }
+      </span>
+    }
+    @case ('processed') {
+      <span [id]="'erp-drop-points-files-result-' + index()" class="col-detail result-cell" role="cell">
+        @if (statusText(); as status) {
+          <span
+            class="status-icon"
+            [class.warning-icon]="isWarning()"
+            role="img"
+            [title]="status.key | translate"
+            [attr.aria-label]="status.key | translate"
+            >{{ statusGlyph() }}</span
+          >
+        }
+        @for (part of summary(); track part.key; let last = $last) {
+          <span class="summary-part">{{ part.key | translate: part.params }}@if (!last) {<span>{{ summarySeparator }}</span>}</span>
+        }
+      </span>
+    }
+    @case ('failed') {
+      <span [id]="'erp-drop-points-files-reason-' + index()" class="col-detail cell-error-reason" role="cell">
+        @if (failureReason(); as reason) {
+          <span [title]="reason.key | translate: reason.params">{{ reason.key | translate: reason.params }}</span>
+        } @else {
+          <span [title]="file().failureReason ?? ''">{{ file().failureReason }}</span>
+        }
+      </span>
+      <span class="col-actions file-actions" role="cell">
+        <button
+          [id]="'erp-drop-points-files-retry-btn-' + index()"
+          type="button"
+          class="btn save-btn retry-btn"
+          (click)="onRetry()"
+          [disabled]="isRetryDisabled()"
+        >
+          {{ i18n.RETRY | translate }}
+        </button>
+        <button
+          [id]="'erp-drop-points-files-delete-btn-' + index()"
+          type="button"
+          class="icon-button"
+          [title]="i18n.DELETE | translate"
+          [attr.aria-label]="i18n.DELETE | translate"
+          (click)="onDelete()"
+        >
+          <app-icon-trash-red></app-icon-trash-red>
+        </button>
+      </span>
+    }
+  }
+</div>
+
+@if (file().duplicateOfReceivedAt) {
+  <div [id]="'erp-drop-points-files-duplicate-hint-' + index()" class="row-hint settings-hint" role="row">
+    <span class="row-hint-cell" role="cell" [attr.aria-colspan]="columnCount()">
+      <app-icon-info />
+      <span>{{ i18n.DUPLICATE_HINT | translate: { date: (file().duplicateOfReceivedAt | companyDateTime) } }}</span>
+    </span>
+  </div>
+}
+
+@if (canExpand()) {
+  <div class="rejected-orders-row" role="row" [hidden]="!isExpanded()">
+    <div role="cell" [attr.aria-colspan]="columnCount()">
+      <ul [id]="rejectedListId()" class="rejected-orders">
+        @for (order of shownRejectedOrders(); track $index) {
+          <li class="rejected-order">
+            <span class="rejected-reference">{{ order.externalOrderReference }}</span>
+            <span class="rejected-reason">{{ order.reason }}</span>
+          </li>
+        }
+        @if (hiddenRejectedOrders() > 0) {
+          <li [id]="'erp-drop-points-files-rejected-more-' + index()" class="rejected-order rejected-more">
+            {{ i18n.REJECTED_MORE | translate: { count: hiddenRejectedOrders() } }}
+          </li>
+        }
+        @if (rejectedWithoutReference() > 0) {
+          <li class="rejected-order rejected-without-reference">
+            {{ i18n.REJECTED_WITHOUT_REFERENCE | translate: { count: rejectedWithoutReference() } }}
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+}

@@ -4,10 +4,11 @@
  * DTOs for the automatically managed ERP drop point (single mailbox polled by the backend importer).
  * @param IErpDropPoint - Drop point as returned by the default endpoint
  * @param IErpDropPointRequest - Update request body (used to toggle the import on and off)
- * @param IErpDropPointFile - Single stored file in the drop point (pending or processed)
- * @param IErpDropPointErrorFile - Failed file including the reason the import rejected it
- * @param IErpDropPointFiles - File listing grouped by processing state, newest first
+ * @param IErpDropPointFiles - Import ledger rows grouped by tab (inbox: received or importing, processed: completed
+ *   with or without warnings, newest 200; failed: failed or interrupted), each list newest received first
  */
+
+import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 
 export interface IErpDropPoint {
   id: string;
@@ -26,19 +27,8 @@ export interface IErpDropPointRequest {
   isEnabled: boolean;
 }
 
-export interface IErpDropPointFile {
-  key: string;
-  fileName: string;
-  sizeBytes: number;
-  lastModifiedUtc: string;
-}
-
-export interface IErpDropPointErrorFile extends IErpDropPointFile {
-  errorReason: string | null;
-}
-
 export interface IErpDropPointFiles {
-  pending: IErpDropPointFile[];
-  processed: IErpDropPointFile[];
-  error: IErpDropPointErrorFile[];
+  inbox: IErpImportFile[];
+  processed: IErpImportFile[];
+  failed: IErpImportFile[];
 }

@@ -10,6 +10,9 @@ import {
   IErpDropPointFiles,
   IErpDropPointRequest,
 } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
+import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
+import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';
 
 describe('DataErpDropPointService', () => {
   let service: DataErpDropPointService;
@@ -31,16 +34,34 @@ describe('DataErpDropPointService', () => {
     isEnabled: false,
   };
 
+  const fileId = '3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b';
+
+  const importFile = (id: string, status: ErpImportFileStatus): IErpImportFile => ({
+    id,
+    fileName: `${id}.xml`,
+    sizeBytes: 512,
+    status,
+    channel: ErpImportChannel.UiUpload,
+    uploadedBy: 'admin',
+    receivedAt: '2026-10-19T08:00:00Z',
+    startedAt: null,
+    finishedAt: null,
+    processedOrders: 0,
+    totalOrders: null,
+    newCount: 0,
+    updatedCount: 0,
+    unchangedCount: 0,
+    supersededCount: 0,
+    rejectedCount: 0,
+    failureReason: null,
+    duplicateOfReceivedAt: null,
+    rejectedOrders: [],
+  });
+
   const files: IErpDropPointFiles = {
-    pending: [
-      { key: 'inbox/orders.xml', fileName: 'orders.xml', sizeBytes: 2048, lastModifiedUtc: '2026-07-01T10:00:00Z' },
-    ],
-    processed: [
-      { key: 'processed/done.xml', fileName: 'done.xml', sizeBytes: 512, lastModifiedUtc: '2026-06-30T08:00:00Z' },
-    ],
-    error: [
-      { key: 'error/broken.xml', fileName: 'broken.xml', sizeBytes: 128, lastModifiedUtc: '2026-06-29T07:00:00Z', errorReason: 'Invalid XML' },
-    ],
+    inbox: [importFile('inbox-1', ErpImportFileStatus.Received)],
+    processed: [importFile('done-1', ErpImportFileStatus.Completed)],
+    failed: [importFile(fileId, ErpImportFileStatus.Failed)],
   };
 
   beforeEach(() => {
@@ -104,21 +125,43 @@ describe('DataErpDropPointService', () => {
     req.flush(files);
   });
 
-  it('retries a failed file via POST with the key in the body', () => {
-    service.retryFile('error/broken.xml').subscribe();
+  it('does not retry a failed file listing on its own (the polling counts failures)', () => {
+    let status: number | null = null;
+    service.getFiles().subscribe({ error: (error) => (status = error.status) });
 
-    const req = httpMock.expectOne(`${base}/files/retry`);
+    httpMock.expectOne(`${base}/files`).flush(null, { status: 500, statusText: 'Server Error' });
+
+    httpMock.expectNone(`${base}/files`);
+    expect(status).toBe(500);
+  });
+
+  it('retries a failed file by its ledger id via POST files/{id}/retry and returns the new status', () => {
+    const retryResult = { id: fileId, status: ErpImportFileStatus.Received, failureReason: null };
+    let received: unknown;
+
+    service.retryFile(fileId).subscribe((result) => (received = result));
+
+    const req = httpMock.expectOne(`${base}/files/${fileId}/retry`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ key: 'error/broken.xml' });
+    expect(req.request.body).toBeNull();
+    req.flush(retryResult);
+    expect(received).toEqual(retryResult);
+  });
+
+  it('deletes a failed file by its ledger id via DELETE files/{id} without a body', () => {
+    service.deleteFile(fileId).subscribe();
+
+    const req = httpMock.expectOne(`${base}/files/${fileId}`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toBeNull();
     req.flush(null);
   });
 
-  it('deletes a failed file via DELETE with the key in the body', () => {
-    service.deleteFile('error/broken.xml').subscribe();
+  it('url-encodes the file id so it can never address another route', () => {
+    service.deleteFile('a/b').subscribe();
 
-    const req = httpMock.expectOne(`${base}/files`);
+    const req = httpMock.expectOne(`${base}/files/a%2Fb`);
     expect(req.request.method).toBe('DELETE');
-    expect(req.request.body).toEqual({ key: 'error/broken.xml' });
     req.flush(null);
   });
 

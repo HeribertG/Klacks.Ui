@@ -113,7 +113,7 @@
       <span id="erp-drop-points-status-last-polled">
         {{ 'settings.erp-drop-points.last-polled-at' | translate }}:
         @if (dropPoint.lastPolledAt) {
-          {{ dropPoint.lastPolledAt | date: 'medium' }}
+          {{ dropPoint.lastPolledAt | companyDateTime }}
         } @else {
           {{ 'settings.erp-drop-points.never-polled' | translate }}
         }
@@ -159,14 +159,15 @@
 
 <app-expandable-card
   id="erp-drop-points-files-section"
-  [headerTitle]="'settings.erp-drop-points.files.headline' | translate"
+  [headerTitle]="i18n.HEADLINE | translate"
 >
   <button
     headerActions
     id="erp-drop-points-files-refresh-btn"
     type="button"
     class="header-action-button"
-    [title]="'settings.erp-drop-points.files.refresh' | translate"
+    [title]="i18n.REFRESH | translate"
+    [attr.aria-label]="i18n.REFRESH | translate"
     (click)="onRefreshFiles()"
   >
     <app-icon-refresh-grey />
@@ -178,14 +179,14 @@
       <a
         id="erp-drop-points-files-tab-pending"
         class="nav-link"
-        [class.active]="fileTab() === 'pending'"
+        [class.active]="fileTab() === 'inbox'"
         role="tab"
-        [attr.aria-selected]="fileTab() === 'pending'"
+        [attr.aria-selected]="fileTab() === 'inbox'"
         tabindex="0"
-        (click)="setFileTab('pending')"
-        (keydown.enter)="setFileTab('pending')"
+        (click)="setFileTab('inbox')"
+        (keydown.enter)="setFileTab('inbox')"
       >
-        {{ 'settings.erp-drop-points.files.tab.pending' | translate }} ({{ dropPointService.files().pending.length }})
+        {{ i18n.TAB_PENDING | translate }} ({{ dropPointService.files().inbox.length }})
       </a>
     </li>
     <li class="nav-item">
@@ -199,89 +200,95 @@
         (click)="setFileTab('processed')"
         (keydown.enter)="setFileTab('processed')"
       >
-        {{ 'settings.erp-drop-points.files.tab.processed' | translate }} ({{ dropPointService.files().processed.length }})
+        {{ i18n.TAB_PROCESSED | translate }} ({{ dropPointService.files().processed.length }})
       </a>
     </li>
     <li class="nav-item">
       <a
         id="erp-drop-points-files-tab-error"
         class="nav-link"
-        [class.active]="fileTab() === 'error'"
+        [class.active]="fileTab() === 'failed'"
         role="tab"
-        [attr.aria-selected]="fileTab() === 'error'"
+        [attr.aria-selected]="fileTab() === 'failed'"
         tabindex="0"
-        (click)="setFileTab('error')"
-        (keydown.enter)="setFileTab('error')"
+        (click)="setFileTab('failed')"
+        (keydown.enter)="setFileTab('failed')"
       >
-        {{ 'settings.erp-drop-points.files.tab.error' | translate }} ({{ dropPointService.files().error.length }})
+        {{ i18n.TAB_ERROR | translate }} ({{ dropPointService.files().failed.length }})
       </a>
     </li>
   </ul>
   </div>
 
+  @if (fileTab() === 'processed' && isProcessedListCapped()) {
+    <div id="erp-drop-points-files-processed-cap-hint" class="first files-cap-hint settings-hint">
+      {{ i18n.PROCESSED_CAP_HINT | translate: { count: processedListingCap } }}
+    </div>
+  }
+
   <div id="erp-drop-points-files-table-container" class="container-table files-table-height">
-    <table id="erp-drop-points-files-table" class="table table-borderless">
-      <thead id="erp-drop-points-files-table-header">
-        <tr id="erp-drop-points-files-header-row">
-          <th id="erp-drop-points-files-header-name" class="table-header header-file-name">
-            {{ 'settings.erp-drop-points.files.header.file-name' | translate }}
-          </th>
-          <th id="erp-drop-points-files-header-size" class="table-header header-file-size">
-            {{ 'settings.erp-drop-points.files.header.size' | translate }}
-          </th>
-          <th id="erp-drop-points-files-header-date" class="table-header header-file-date">
-            {{ 'settings.erp-drop-points.files.header.date' | translate }}
-          </th>
-          @if (fileTab() === 'error') {
-            <th id="erp-drop-points-files-header-error-reason" class="table-header header-error-reason">
-              {{ 'settings.erp-drop-points.files.header.error-reason' | translate }}
-            </th>
-            <th id="erp-drop-points-files-header-actions" class="table-header action header-file-action"></th>
-          }
-        </tr>
-      </thead>
-      <tbody id="erp-drop-points-files-table-body">
-        @for (file of visibleFiles(); track file.key; let i = $index) {
-          <tr [id]="'erp-drop-points-files-row-' + i" class="table-row">
-            <td class="table-cell cell-file-name" [title]="file.fileName">
-              {{ file.fileName }}
-            </td>
-            <td class="table-cell">{{ formatSize(file.sizeBytes) }}</td>
-            <td class="table-cell">{{ file.lastModifiedUtc | date: 'medium' }}</td>
-            @if (fileTab() === 'error') {
-              <td class="table-cell cell-error-reason" [title]="file.errorReason ?? ''">
-                {{ file.errorReason }}
-              </td>
-              <td class="table-cell cell-right file-actions">
-                <button
-                  [id]="'erp-drop-points-files-retry-btn-' + i"
-                  type="button"
-                  class="btn save-btn retry-btn"
-                  (click)="onRetryFile(file.key)"
-                  [disabled]="dropPointService.isRetrying()"
-                >
-                  {{ 'settings.erp-drop-points.files.retry' | translate }}
-                </button>
-                <div
-                  [id]="'erp-drop-points-files-delete-btn-' + i"
-                  class="icon"
-                  [title]="'settings.erp-drop-points.files.delete' | translate"
-                  (click)="onDeleteFile(file)"
-                >
-                  <app-icon-trash-red></app-icon-trash-red>
-                </div>
-              </td>
+    <div
+      id="erp-drop-points-files-table"
+      class="files-list"
+      role="table"
+      [attr.aria-label]="i18n.HEADLINE | translate"
+    >
+      <div role="rowgroup">
+        <div id="erp-drop-points-files-header-row" class="files-header" role="row">
+          <span class="col-expand" role="columnheader">
+            <span class="visually-hidden">{{ i18n.HEADER_EXPAND | translate }}</span>
+          </span>
+          <span id="erp-drop-points-files-header-name" class="table-header col-name" role="columnheader">
+            {{ i18n.HEADER_FILE_NAME | translate }}
+          </span>
+          <span id="erp-drop-points-files-header-size" class="table-header col-size" role="columnheader">
+            {{ i18n.HEADER_SIZE | translate }}
+          </span>
+          <span id="erp-drop-points-files-header-date" class="table-header col-date" role="columnheader">
+            {{ i18n.HEADER_DATE | translate }}
+          </span>
+          <span id="erp-drop-points-files-header-source" class="table-header col-source" role="columnheader">
+            {{ i18n.HEADER_SOURCE | translate }}
+          </span>
+          <span id="erp-drop-points-files-header-detail" class="table-header col-detail" role="columnheader">
+            @switch (fileTab()) {
+              @case ('inbox') {
+                {{ i18n.HEADER_STATUS | translate }}
+              }
+              @case ('processed') {
+                {{ i18n.HEADER_RESULT | translate }}
+              }
+              @case ('failed') {
+                {{ i18n.HEADER_ERROR_REASON | translate }}
+              }
             }
-          </tr>
+          </span>
+          @if (fileTab() === 'failed') {
+            <span id="erp-drop-points-files-header-actions" class="table-header col-actions" role="columnheader">
+              <span class="visually-hidden">{{ i18n.HEADER_ACTIONS | translate }}</span>
+            </span>
+          }
+        </div>
+      </div>
+      <div id="erp-drop-points-files-table-body" role="rowgroup">
+        @for (file of visibleFiles(); track file.id; let i = $index) {
+          <app-erp-import-file-row
+            [file]="file"
+            [index]="i"
+            [tab]="fileTab()"
+            [isRetryDisabled]="dropPointService.isRetrying()"
+            (retryRequested)="onRetryFile($event)"
+            (deleteRequested)="onDeleteFile($event)"
+          />
         } @empty {
-          <tr id="erp-drop-points-files-empty-row" class="table-row">
-            <td class="table-cell files-empty" [attr.colspan]="fileTab() === 'error' ? 5 : 3">
-              {{ 'settings.erp-drop-points.files.empty' | translate }}
-            </td>
-          </tr>
+          <div id="erp-drop-points-files-empty-row" class="files-empty table-cell" role="row">
+            <span role="cell" [attr.aria-colspan]="columnCount()">
+              {{ i18n.EMPTY | translate }}
+            </span>
+          </div>
         }
-      </tbody>
-    </table>
+      </div>
+    </div>
   </div>
 </app-expandable-card>
 

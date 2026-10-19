@@ -53,6 +53,8 @@ const REASSIGN_WORK_URL = '/api/backend/Works/work-1/ReassignClient';
 
 const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status';
 const AUTOFILL_RUNS_ACTIVE_URL = '/api/backend/AutofillRuns/Active';
+const ERP_IMPORT_FILES_URL = '/api/backend/ErpDropPoints/files';
+const ERP_IMPORT_FILE_RETRY_URL = '/api/backend/ErpDropPoints/files/3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b/retry';
 const EXPLAIN_OFFER_STATE_URL = '/api/backend/assistant/explain-offers/shift-holiday-options';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
@@ -596,6 +598,54 @@ describe('ResponseInterceptor', () => {
         expect(captured.status).toBe(response.status);
       }
     );
+  });
+
+  describe('ERP import file list pass-through (polled list and page-handled file actions fail quietly)', () => {
+    it.each([...QUIET_POLL_FAILURE_RESPONSES, BAD_REQUEST, CONFLICT])(
+      'neither toasts, navigates to the error page nor clears the unsaved-changes flag for a $status',
+      (response) => {
+        // Arrange
+        const navigationService = TestBed.inject(NavigationService) as any;
+        workplaceStateService.isDirty = true;
+        const captured = expectRequestToFail(ERP_IMPORT_FILES_URL);
+
+        // Act
+        httpMock.expectOne(ERP_IMPORT_FILES_URL).flush(null, response);
+
+        // Assert
+        expect(toastShowService.showError).not.toHaveBeenCalled();
+        expect(toastShowService.showInfo).not.toHaveBeenCalled();
+        expect(navigationService.navigateToError).not.toHaveBeenCalled();
+        expect(workplaceStateService.isDirty).toBe(true);
+        expect(captured.status).toBe(response.status);
+      }
+    );
+
+    it('leaves a refused retry to the page instead of adding a generic toast', () => {
+      // Arrange
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(ERP_IMPORT_FILE_RETRY_URL, null).subscribe({ error: (error: HttpErrorResponse) => (captured.status = error.status) });
+
+      // Act
+      httpMock.expectOne(ERP_IMPORT_FILE_RETRY_URL).flush(null, CONFLICT);
+
+      // Assert
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(CONFLICT.status);
+    });
+
+    it('leaves a rejected upload to the page so it can show the backend validation message', () => {
+      // Arrange
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(ERP_IMPORT_FILES_URL, new FormData()).subscribe({ error: (error: HttpErrorResponse) => (captured.status = error.status) });
+
+      // Act
+      httpMock.expectOne(ERP_IMPORT_FILES_URL).flush('File must not be empty.', BAD_REQUEST);
+
+      // Assert
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
   });
 
   describe('explain offer state pass-through (background read fails quietly)', () => {
