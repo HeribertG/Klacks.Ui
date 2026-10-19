@@ -28,7 +28,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { START_GUIDED_TOUR_KIND_PARAM, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
-import { EXPLAIN_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES } from 'src/app/domain/constants/page-explain-icons.constants';
+import { EXPLAIN_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES, PAGE_EXPLAIN_TARGETS } from 'src/app/domain/constants/page-explain-icons.constants';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
 import { KlacksyNavigationService, NavigationResult } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import {
@@ -37,6 +37,8 @@ import {
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { NavigationVerdictService } from './navigation-verdict.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { KLACKSY_PAGE_KEYS } from 'src/app/domain/constants/klacksy-page-keys';
 import { ChatTurnControlService } from './chat-turn-control.service';
 
 @Injectable()
@@ -49,10 +51,13 @@ export class ChatFunctionExecutionService {
   private klacksyNavigation = inject(KlacksyNavigationService);
   private assistantService = inject(DataManagementAssistantService);
   private navigationVerdict = inject(NavigationVerdictService);
+  private authorization = inject(AuthorizationService);
   private router = inject(Router);
   private turnControl = inject(ChatTurnControlService);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
+  private streamedExplainTurnSeq: number | null = null;
+  private readonly streamedExplainSkills = new Set<string>();
 
   /**
    * Runs the function calls of one turn. Once the user stopped that turn no further UI action, UI
@@ -81,7 +86,7 @@ export class ChatFunctionExecutionService {
     this.turnControl.beginExecution(turnSeq, assistantMessageId);
     let cutShort = false;
     try {
-      cutShort = await this.runFunctionCalls(functionCalls, isCancelled, assistantMessageId, utterance);
+      cutShort = await this.runFunctionCalls(functionCalls, isCancelled, assistantMessageId, utterance, turnSeq);
     } finally {
       const cancelledExplicitly = this.turnControl.endExecution(turnSeq);
       if (cutShort && cancelledExplicitly) {
@@ -106,8 +111,14 @@ export class ChatFunctionExecutionService {
   /**
    * @returns True when a cancel made the run skip UI action steps, UI actions or navigations
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async runFunctionCalls(functionCalls: any[], isCancelled: () => boolean, assistantMessageId?: string, utterance?: string): Promise<boolean> {
+  private async runFunctionCalls(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    functionCalls: any[],
+    isCancelled: () => boolean,
+    assistantMessageId?: string,
+    utterance?: string,
+    turnSeq?: number,
+  ): Promise<boolean> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uiActionCalls: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,7 +138,7 @@ export class ChatFunctionExecutionService {
         continue;
       }
 
-      if (functionName.startsWith(EXPLAIN_SKILL_PREFIX)) {
+      if (functionName.startsWith(EXPLAIN_SKILL_PREFIX) && !this.wasNavigatedWhileStreaming(functionName, turnSeq)) {
         this.bringUserToExplainedPage(functionName);
       }
 
@@ -207,14 +218,49 @@ export class ChatFunctionExecutionService {
     return false;
   }
 
+  /**
+   * Brings the user to the explained page while the answer is still streaming, so [SCROLL:...] markers
+   * in the answer find their targets; waiting for the metadata would run the navigation after them.
+   * @param functionName - Name of the skill call that just streamed in
+   * @param turnSeq - Turn the call belongs to; the metadata pass of that turn skips the navigation
+   */
+  navigateForStreamedExplainCall(functionName: string, turnSeq: number): void {
+    if (!functionName.startsWith(EXPLAIN_SKILL_PREFIX)) return;
+
+    if (this.streamedExplainTurnSeq !== turnSeq) {
+      this.streamedExplainTurnSeq = turnSeq;
+      this.streamedExplainSkills.clear();
+    }
+    if (this.streamedExplainSkills.has(functionName)) return;
+
+    this.streamedExplainSkills.add(functionName);
+    this.bringUserToExplainedPage(functionName);
+  }
+
+  private wasNavigatedWhileStreaming(functionName: string, turnSeq?: number): boolean {
+    return turnSeq !== undefined && this.streamedExplainTurnSeq === turnSeq && this.streamedExplainSkills.has(functionName);
+  }
+
   private bringUserToExplainedPage(functionName: string): void {
     const route = PAGE_EXPLAIN_ROUTES[functionName];
+    const target = PAGE_EXPLAIN_TARGETS[functionName];
+    // Explaining a concept must not throw a user without the page's right onto the no-access page.
+    if (route && !this.mayOpen(route)) return;
+    if (route && target) {
+      this.klacksyNavigation.navigateAndScroll(route, target);
+      return;
+    }
     if (route && !this.isCurrentRoute(route)) {
       this.klacksyNavigation.navigateAndScroll(route);
       return;
     }
 
     this.highlightExplainedPageNavIcon(functionName, route);
+  }
+
+  private mayOpen(route: string): boolean {
+    const requiredPermission = KLACKSY_PAGE_KEYS.find((page) => page.route === route)?.requiredPermission;
+    return !requiredPermission || this.authorization.hasPermission(requiredPermission);
   }
 
   private isCurrentRoute(route: string): boolean {

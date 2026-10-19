@@ -51,8 +51,7 @@ import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.inter
 import { SetupRequiredInterceptor } from './presentation/auth/setup-required.interceptor';
 import { Title } from '@angular/platform-browser';
 import { DomainEventHandler } from './presentation/handlers/domain-event.handler';
-import { EVENT_BUS_TOKEN } from './domain/interfaces/event-bus.interface';
-import { EventBus } from './application/services/event-bus.service';
+import { EVENT_BUS_PROVIDER } from './application/services/event-bus.provider';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from './domain/interfaces/manageable-service-registry.interface';
 import { ManageableServiceRegistry } from './application/services/manageable-service-registry';
 import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-provider.interface';
@@ -166,10 +165,7 @@ export const appConfig: ApplicationConfig = {
       provide: FILTER_STORAGE_TOKEN,
       useClass: SessionStorageService,
     },
-    {
-      provide: EVENT_BUS_TOKEN,
-      useClass: EventBus,
-    },
+    EVENT_BUS_PROVIDER,
     {
       provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN,
       useClass: ManageableServiceRegistry,

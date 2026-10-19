@@ -2,7 +2,8 @@
 
 /**
  * Maps explain_page_* skill names to the main-nav icon DOM ids Klacksy pulses while explaining a page,
- * and to the route of the explained page so the app can bring the user there automatically.
+ * and to the route of the explained page (plus, for single cards, the data-klacksy-target to scroll to)
+ * so the app can bring the user there automatically.
  * Icon entries list candidate ids tried in order until one exists (dashboard falls back from the
  * default logo icon to the custom company-logo image).
  */
@@ -15,6 +16,35 @@ export const EXPLAIN_SKILL_PREFIX = 'explain_';
 export const HEADER_LOGO_ICON_ID = 'header-logo-icon';
 export const HEADER_LOGO_IMAGE_ID = 'header-logo-image';
 
+const SETTINGS_ROUTE = '/workplace/settings';
+
+// Explain skills that document exactly one settings card, keyed to that card's data-klacksy-target.
+// Concept skills spanning several places (or a person/shift record) stay unmapped on purpose.
+const SETTINGS_CARD_EXPLAIN_TARGETS: Record<string, string> = {
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points`]: 'erp-drop-points',
+  explain_email_setup: 'email-config',
+  explain_report_designer: 'reports',
+  explain_spam_rules: 'spam-rules',
+  explain_identity_providers: 'identity-providers',
+  explain_export_formats_model: 'export-formats',
+  explain_calendar_model: 'calendar-rules',
+  explain_absence_type_flags: 'absence-types',
+  explain_active_industries: 'active-industries',
+  explain_surcharge_mode: 'surcharge-mode',
+  explain_overtime_model: 'overtime',
+  explain_individual_periods: 'individual-periods',
+  explain_scheduling_rules_model: 'scheduling-rules',
+  explain_whisper_setup: 'whisper-plugin',
+  explain_klacksy_speech_setup: 'assistant-speech',
+  explain_klacksy_learning: 'assistant-learning',
+  explain_klacksy_skill_relations: 'assistant-skill-relations',
+  explain_klacksy_autonomy: 'klacksy-autonomy',
+  explain_klacksy_personality: 'assistant-personality',
+  explain_klacksy_llm_setup: 'llm-provider',
+  explain_software_updates: 'updates',
+  explain_personal_access_tokens: 'personal-access-tokens',
+};
+
 export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
   [`${EXPLAIN_PAGE_SKILL_PREFIX}dashboard`]: '/workplace/dashboard',
   [`${EXPLAIN_PAGE_SKILL_PREFIX}schedule`]: '/workplace/schedule',
@@ -25,7 +55,7 @@ export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
   [`${EXPLAIN_PAGE_SKILL_PREFIX}groups`]: '/workplace/group',
   [`${EXPLAIN_PAGE_SKILL_PREFIX}period_closing`]: '/workplace/period-closing',
   [`${EXPLAIN_PAGE_SKILL_PREFIX}inbox`]: '/workplace/inbox',
-  [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_overview`]: '/workplace/settings',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_overview`]: SETTINGS_ROUTE,
   [`${EXPLAIN_PAGE_SKILL_PREFIX}profile`]: '/workplace/profile',
   explain_planning_divide_et_impera: '/workplace/schedule',
   explain_planning_sheets_modular: '/workplace/schedule',
@@ -36,6 +66,18 @@ export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
   explain_shift_time_range: '/workplace/shift',
   explain_shift_container: '/workplace/shift',
   explain_shift_lifecycle_order_to_shift: '/workplace/new-shift',
+  explain_payroll_export_handoff: '/workplace/period-closing',
+  explain_navigation_learning: '/workplace/klacksy-training',
+  ...Object.fromEntries(
+    Object.keys(SETTINGS_CARD_EXPLAIN_TARGETS).map((skill) => [skill, SETTINGS_ROUTE]),
+  ),
+};
+
+// Card-level explain skills whose card sits inside a long page (and, on settings, behind expert mode
+// and a collapsible section): navigating to the route alone would leave the card out of sight.
+export const PAGE_EXPLAIN_TARGETS: Record<string, string> = {
+  ...SETTINGS_CARD_EXPLAIN_TARGETS,
+  explain_payroll_export_handoff: 'period-closing-export-tab-employee',
 };
 
 export const PAGE_EXPLAIN_NAV_ICONS: Record<string, readonly string[]> = {

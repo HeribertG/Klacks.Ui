@@ -19,12 +19,14 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { NavigationVerdictService } from './navigation-verdict.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ONBOARDING_KIND, ONBOARDING_NAV_ICON, START_GUIDED_TOUR_KIND_PARAM, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import {
   EXPLAIN_PAGE_SKILL_PREFIX,
   HEADER_LOGO_ICON_ID,
   HEADER_LOGO_IMAGE_ID,
 } from 'src/app/domain/constants/page-explain-icons.constants';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 
 describe('ChatFunctionExecutionService', () => {
   let service: ChatFunctionExecutionService;
@@ -39,6 +41,7 @@ describe('ChatFunctionExecutionService', () => {
   let routerMock: { url: string };
   let cancelled: boolean;
   let mockCaptureCancellation: ReturnType<typeof vi.fn>;
+  let mockHasPermission: ReturnType<typeof vi.fn>;
   const TURN_SEQ = 3;
 
   beforeEach(() => {
@@ -53,6 +56,7 @@ describe('ChatFunctionExecutionService', () => {
     routerMock = { url: '/workplace/dashboard' };
     cancelled = false;
     mockCaptureCancellation = vi.fn(() => () => cancelled);
+    mockHasPermission = vi.fn(() => true);
 
     TestBed.configureTestingModule({
       providers: [
@@ -67,6 +71,7 @@ describe('ChatFunctionExecutionService', () => {
         { provide: KlacksyNavigationService, useValue: { highlightNavIcon: mockHighlightNavIcon, navigateAndScroll: mockNavigateAndScroll } },
         { provide: NavigationVerdictService, useValue: { apply: vi.fn(), report: vi.fn(), applySuspectedMiss: vi.fn() } },
         { provide: Router, useValue: routerMock },
+        { provide: AuthorizationService, useValue: { hasPermission: mockHasPermission } },
       ],
     });
     service = TestBed.inject(ChatFunctionExecutionService);
@@ -176,6 +181,74 @@ describe('ChatFunctionExecutionService', () => {
       skillName: `${EXPLAIN_PAGE_SKILL_PREFIX}schedule`,
       clientId: 'client-1',
     });
+  });
+
+  it('brings the user to the ERP card for the ERP explain skill', async () => {
+    await service.executeFunctionCalls([{ functionName: `${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points` }]);
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/settings', 'erp-drop-points');
+  });
+
+  it('still scrolls to the ERP card when the user is already on the settings page', async () => {
+    routerMock.url = '/workplace/settings';
+
+    await service.executeFunctionCalls([{ functionName: `${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points` }]);
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/settings', 'erp-drop-points');
+  });
+
+  it('brings the user to the settings card a concept skill explains', async () => {
+    await service.executeFunctionCalls([{ functionName: 'explain_whisper_setup' }]);
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/settings', 'whisper-plugin');
+  });
+
+  it('does not send a user to a page the route guard would refuse', async () => {
+    mockHasPermission.mockReturnValue(false);
+
+    await service.executeFunctionCalls([{ functionName: `${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points` }]);
+
+    expect(mockNavigateAndScroll).not.toHaveBeenCalled();
+    expect(mockHasPermission).toHaveBeenCalledWith(PERMISSIONS.CanViewSettings);
+  });
+
+  it('navigates as soon as an explain call streams in', () => {
+    service.navigateForStreamedExplainCall(`${EXPLAIN_PAGE_SKILL_PREFIX}schedule`, TURN_SEQ);
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/schedule');
+  });
+
+  it('ignores streamed calls that are not explain skills', () => {
+    service.navigateForStreamedExplainCall('search_clients', TURN_SEQ);
+
+    expect(mockNavigateAndScroll).not.toHaveBeenCalled();
+    expect(mockHighlightNavIcon).not.toHaveBeenCalled();
+  });
+
+  it('does not navigate a second time for an explain call that already navigated while streaming', async () => {
+    service.navigateForStreamedExplainCall(`${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points`, TURN_SEQ);
+
+    await service.executeFunctionCalls(
+      [{ functionName: `${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points` }],
+      undefined,
+      undefined,
+      TURN_SEQ,
+    );
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledTimes(1);
+  });
+
+  it('navigates in the metadata pass when the streamed explain call belonged to an earlier turn', async () => {
+    service.navigateForStreamedExplainCall(`${EXPLAIN_PAGE_SKILL_PREFIX}schedule`, TURN_SEQ);
+
+    await service.executeFunctionCalls(
+      [{ functionName: `${EXPLAIN_PAGE_SKILL_PREFIX}schedule` }],
+      undefined,
+      undefined,
+      TURN_SEQ + 1,
+    );
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledTimes(2);
   });
 
   it('still routes start_guided_tour to the onboarding service without page navigation', async () => {

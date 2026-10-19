@@ -704,6 +704,9 @@ export class AssistantChatComponent {
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
           this.ngZone.run(() => {
             this.sawFunctionCall = true;
+            if (!isStopped()) {
+              this.chatFunctionExecution.navigateForStreamedExplainCall(data.functionName, turnSeq);
+            }
             this.orchestrator.onStreamFunctionCall();
             this.chatStageStatus.addToolStep(data.functionName);
             this.shouldScrollToBottom = true;

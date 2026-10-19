@@ -3,7 +3,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 import { ErpDropPointsComponent } from './erp-drop-points.component';
 import { DataManagementErpDropPointService } from 'src/app/domain/services/settings/data-management-erp-drop-point.service';
@@ -14,6 +14,8 @@ import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
 
 describe('ErpDropPointsComponent', () => {
   let component: ErpDropPointsComponent;
@@ -24,6 +26,7 @@ describe('ErpDropPointsComponent', () => {
     erpImportCronTimeZone: ReturnType<typeof signal<string>>;
   };
   let mockCompanyClockService: { source: ReturnType<typeof signal<string | null>> };
+  let targetRequests: Subject<KlacksyTargetRequestedEvent>;
 
   beforeEach(async () => {
     const mockDropPointService = {
@@ -44,6 +47,7 @@ describe('ErpDropPointsComponent', () => {
     };
 
     mockCompanyClockService = { source: signal<string | null>(null) };
+    targetRequests = new Subject<KlacksyTargetRequestedEvent>();
 
     const mockManualLoaderService = { loadManual: vi.fn().mockReturnValue(of('')) };
     const mockAssetDownloadService = { downloadAsset: vi.fn().mockReturnValue(of(undefined)) };
@@ -68,6 +72,7 @@ describe('ErpDropPointsComponent', () => {
         { provide: ModalService, useValue: mockModalService },
         { provide: TranslateService, useValue: mockTranslateService },
         { provide: CompanyClockService, useValue: mockCompanyClockService },
+        { provide: EVENT_BUS_TOKEN, useValue: { on: vi.fn(() => targetRequests.asObservable()), emit: vi.fn() } },
       ],
     }).compileComponents();
 
@@ -132,5 +137,26 @@ describe('ErpDropPointsComponent', () => {
     fixture.detectChanges();
 
     expect(component.companyTimeZoneOptionLabel()).toContain('Asia/Kolkata');
+  });
+  it('switches to the import tab when Klacksy points at the upload zone from the handbook tab', () => {
+    component.setTab('manual');
+
+    targetRequests.next({ target: 'erp-drop-points-upload-zone' });
+
+    expect(component.activeTab()).toBe('list');
+  });
+
+  it('switches to the handbook tab when Klacksy points at the sample download', () => {
+    targetRequests.next({ target: 'erp-drop-points-download-sample-btn' });
+
+    expect(component.activeTab()).toBe('manual');
+  });
+
+  it('keeps the current tab for targets outside the card tabs', () => {
+    component.setTab('manual');
+
+    targetRequests.next({ target: 'erp-drop-points' });
+
+    expect(component.activeTab()).toBe('manual');
   });
 });

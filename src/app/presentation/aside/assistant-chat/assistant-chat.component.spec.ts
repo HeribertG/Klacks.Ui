@@ -163,7 +163,10 @@ describe('AssistantChatComponent', () => {
     let turnStopped: boolean;
 
     beforeEach(async () => {
-        mockChatFunctionExecution = { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) };
+        mockChatFunctionExecution = {
+            executeFunctionCalls: vi.fn().mockResolvedValue(undefined),
+            navigateForStreamedExplainCall: vi.fn(),
+        };
         turnStopped = false;
         mockTurnControl = {
             isTurnRunning: signal(false),
@@ -1052,6 +1055,37 @@ describe('AssistantChatComponent', () => {
             const finalized = component.messages.find((m) => m.id === streamingMessage!.id);
             expect(finalized?.isStreaming).toBe(false);
             expect(component.toolSteps().length).toBe(0);
+        });
+    });
+
+    describe('explain skill navigation while streaming', () => {
+        let callbacks: any;
+
+        beforeEach(async () => {
+            fixture.detectChanges();
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            component.inputText.set('Wie lese ich meine Bestellungen ein?');
+            await component.sendMessage();
+        });
+
+        it('hands a streamed function call to the explain navigation with the turn it belongs to', () => {
+            callbacks.onFunctionCall({ functionName: 'explain_page_settings_erp_drop_points', parameters: {} });
+
+            expect(mockChatFunctionExecution.navigateForStreamedExplainCall).toHaveBeenCalledWith(
+                'explain_page_settings_erp_drop_points',
+                TURN_SEQ,
+            );
+        });
+
+        it('does not navigate for a function call that streams in after the turn was stopped', () => {
+            turnStopped = true;
+
+            callbacks.onFunctionCall({ functionName: 'explain_page_settings_erp_drop_points', parameters: {} });
+
+            expect(mockChatFunctionExecution.navigateForStreamedExplainCall).not.toHaveBeenCalled();
         });
     });
 

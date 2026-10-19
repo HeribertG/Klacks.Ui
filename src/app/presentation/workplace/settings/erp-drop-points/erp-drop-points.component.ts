@@ -20,7 +20,9 @@ import {
   computed,
   effect,
   ChangeDetectorRef,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -45,13 +47,15 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { ERP_DROP_POINTS_TAB_TARGETS, ErpDropPointsPageTab } from './erp-drop-points-target.constants';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
 const SAMPLE_FILE_NAME = 'sample-erp-order-import.xml';
 const SAMPLE_FILE_ASSET_PATH = `assets/docs/${ERP_IMPORT_MANUAL_NAME}/${SAMPLE_FILE_NAME}`;
 const XML_MIME_TYPE = 'application/xml';
 
-type PageTab = 'list' | 'manual';
 type FileTab = 'pending' | 'processed' | 'error';
 
 type ErpDropPointFileView = IErpDropPointFile & { errorReason?: string | null };
@@ -93,6 +97,8 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
   private companyClockService = inject(CompanyClockService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
+  private destroyRef = inject(DestroyRef);
   private destroy$ = new Subject<void>();
 
   public readonly showUtcWarning = computed(() => isCompanyClockUtcFallback(this.companyClockService.source()));
@@ -103,7 +109,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
     return zone ? `${label} (${zone})` : label;
   });
 
-  readonly activeTab = signal<PageTab>('list');
+  readonly activeTab = signal<ErpDropPointsPageTab>('list');
   readonly fileTab = signal<FileTab>('pending');
   readonly manualContent = signal<string>('');
 
@@ -137,6 +143,16 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
+    this.eventBus
+      .on<KlacksyTargetRequestedEvent>(DomainEventType.KLACKSY_TARGET_REQUESTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ target }) => {
+        const tab = ERP_DROP_POINTS_TAB_TARGETS[target];
+        if (tab) {
+          this.setTab(tab);
+        }
+      });
+
     effect(() => {
       const model = this.scheduleFormModel();
       const timeZone = this.selectedScheduleTimeZone();
@@ -168,7 +184,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  setTab(tab: PageTab): void {
+  setTab(tab: ErpDropPointsPageTab): void {
     this.activeTab.set(tab);
     if (tab === 'manual' && !this.manualContent()) {
       this.loadManual();
