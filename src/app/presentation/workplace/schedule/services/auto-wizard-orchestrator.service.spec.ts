@@ -19,6 +19,7 @@ import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
+import { AUTO_WIZARD_LIMITS } from 'src/app/infrastructure/api/auto-wizard/auto-wizard-limits.constants';
 
 const selectedGroupId = signal<string | undefined>(undefined);
 const presenceRunningForView = signal(false);
@@ -894,5 +895,59 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       expect(h.orchestrator.isRunning()).toBe(false);
       expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB)).toBeNull();
     });
+  });
+});
+
+describe('AutoWizardOrchestratorService workload eligibility', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  function eligibilityFor(clients: number, shifts: number, startDate: Date, endDate: Date): boolean {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DataAutoWizardService, useValue: { status: signal('idle') } as unknown as DataAutoWizardService },
+        {
+          provide: DataManagementScheduleService,
+          useValue: {
+            ...buildScheduleStub(startDate, endDate),
+            totalAvailableClients: clients,
+            totalAvailableShifts: shifts,
+            isShiftScheduleRead: signal({ count: 0, resetScroll: false }),
+            workScheduleChunkLoaded: signal(0),
+          } as unknown as DataManagementScheduleService,
+        },
+        { provide: AnalyseScenarioService, useValue: { activeToken: () => null } as unknown as AnalyseScenarioService },
+        { provide: ToastShowService, useValue: { showError: vi.fn(), showInfo: vi.fn() } as unknown as ToastShowService },
+        { provide: TranslateService, useValue: buildTranslateStub((key) => key) },
+        { provide: ScheduleLoadCompletionService, useValue: { awaitFullyLoaded: vi.fn() } },
+      ],
+    });
+    return TestBed.inject(AutoWizardOrchestratorService).isWorkloadEligible();
+  }
+
+  const WEEK_START = new Date(2026, 5, 1);
+  const WEEK_END = new Date(2026, 5, 7);
+
+  it('is eligible for a small schedule with persons and shifts', () => {
+    expect(eligibilityFor(10, 5, WEEK_START, WEEK_END)).toBe(true);
+  });
+
+  it('is not eligible when the shift grid has no shift', () => {
+    expect(eligibilityFor(10, 0, WEEK_START, WEEK_END)).toBe(false);
+  });
+
+  it('is not eligible when the schedule grid has no person', () => {
+    expect(eligibilityFor(0, 5, WEEK_START, WEEK_END)).toBe(false);
+  });
+
+  it('is not eligible when the schedule grid has too many persons', () => {
+    expect(eligibilityFor(AUTO_WIZARD_LIMITS.maxAgents + 1, 1, WEEK_START, WEEK_START)).toBe(false);
+  });
+
+  it('is not eligible when the shift grid has too many shifts', () => {
+    expect(eligibilityFor(1, AUTO_WIZARD_LIMITS.maxShifts + 1, WEEK_START, WEEK_START)).toBe(false);
+  });
+
+  it('is not eligible when persons x shifts x days exceed the slot product', () => {
+    expect(eligibilityFor(100, 10, new Date(2026, 5, 1), new Date(2026, 5, 30))).toBe(false);
   });
 });

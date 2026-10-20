@@ -193,6 +193,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   readonly isAutoWizardRunningForCurrentView = this.autofillRunPresence.isRunningForCurrentView;
   readonly isAutoWizardStartBlocked = this.autoWizardOrchestrator.isStartBlocked;
   readonly autoWizardBusyGroupName = this.autoWizardOrchestrator.busyGroupName;
+  readonly isAutoWizardVisible = computed(
+    () => this.autoWizardOrchestrator.isWorkloadEligible() || this.isAutoWizardStartBlocked(),
+  );
 
   readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
 

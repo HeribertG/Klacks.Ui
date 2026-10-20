@@ -15,6 +15,8 @@
  *   and period; a start is then ignored, so a second planner cannot start a parallel run on the same plan
  * @param busyGroupName - Group name for the busy tooltip: the own run's group when it runs elsewhere, else the shown
  *   group while a run is visible for it, else null
+ * @param isWorkloadEligible - True when the shown schedule has persons and shifts and stays within the mirrored backend
+ *   limits (persons, shifts, slot product); the header hides the wizard button otherwise
  */
 
 import { Injectable, computed, effect, inject } from '@angular/core';
@@ -67,6 +69,20 @@ export class AutoWizardOrchestratorService {
     }
     this.dataManagementSchedule.isRead();
     return this.autofillRunPresence.isRunningForCurrentView() ? this.tracker.currentGroupName() : null;
+  });
+  readonly isWorkloadEligible = computed(() => {
+    this.dataManagementSchedule.isRead();
+    this.dataManagementSchedule.isShiftScheduleRead();
+    this.dataManagementSchedule.workScheduleChunkLoaded();
+    const agents = this.dataManagementSchedule.totalAvailableClients;
+    const shifts = this.dataManagementSchedule.totalAvailableShifts;
+    if (agents === 0 || shifts === 0) {
+      return false;
+    }
+    const startDate = this.dataManagementSchedule.periodStartDate;
+    const endDate = this.dataManagementSchedule.periodEndDate;
+    const periodDays = startDate && endDate ? this.periodDayCount(startDate, endDate) : 1;
+    return this.isWithinLimits(agents, shifts, periodDays);
   });
 
   constructor() {
@@ -200,14 +216,22 @@ export class AutoWizardOrchestratorService {
     this.toastShowService.showError(this.translateService.instant(key), TOAST_CONTEXT);
   }
 
-  private exceedsLimits(agents: number, shifts: number, startDate: Date, endDate: Date): boolean {
-    const periodDays = Math.max(1, getDayIndex(startDate, endDate) + 1);
+  private periodDayCount(startDate: Date, endDate: Date): number {
+    return Math.max(1, getDayIndex(startDate, endDate) + 1);
+  }
+
+  private isWithinLimits(agents: number, shifts: number, periodDays: number): boolean {
     const slotProduct = agents * Math.max(1, shifts) * periodDays;
-    if (
+    return (
       agents <= AUTO_WIZARD_LIMITS.maxAgents &&
       shifts <= AUTO_WIZARD_LIMITS.maxShifts &&
       slotProduct <= AUTO_WIZARD_LIMITS.maxSlotProduct
-    ) {
+    );
+  }
+
+  private exceedsLimits(agents: number, shifts: number, startDate: Date, endDate: Date): boolean {
+    const periodDays = this.periodDayCount(startDate, endDate);
+    if (this.isWithinLimits(agents, shifts, periodDays)) {
       return false;
     }
 

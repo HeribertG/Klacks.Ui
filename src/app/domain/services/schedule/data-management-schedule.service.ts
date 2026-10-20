@@ -341,6 +341,10 @@ export class DataManagementScheduleService implements ILoadable {
     return this.shiftLoader.totalAvailableShifts;
   }
 
+  get totalAvailableClients(): number {
+    return this.workScheduleLoader.totalAvailableClients;
+  }
+
   get rows(): number {
     return this.clients.length;
   }
