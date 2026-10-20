@@ -165,7 +165,15 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   async stopConnection(): Promise<void> {
     this.stopProactiveTokenRefresh();
+    this.cancelFullReconnect();
     await this._connectionHelper.stopConnection();
+  }
+
+  private cancelFullReconnect(): void {
+    if (this.fullReconnectTimer) {
+      clearTimeout(this.fullReconnectTimer);
+      this.fullReconnectTimer = null;
+    }
   }
 
   async refreshConnection(): Promise<void> {
@@ -199,10 +207,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   async ngOnDestroy(): Promise<void> {
     this.stopProactiveTokenRefresh();
-    if (this.fullReconnectTimer) {
-      clearTimeout(this.fullReconnectTimer);
-      this.fullReconnectTimer = null;
-    }
+    this.cancelFullReconnect();
     this._connectionHelper.dispose();
     try {
       await this._connectionHelper.stopConnection();
