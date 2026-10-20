@@ -10,6 +10,7 @@ import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';
 import { ERP_IMPORT_FILE_FAILURE_REASONS } from 'src/app/domain/constants/erp-import-file.constants';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { ErpImportFilesTab } from '../erp-import-files-tab';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const LANGUAGE = 'en';
 
@@ -61,7 +62,7 @@ describe('ErpImportFileRowComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ErpImportFileRowComponent, TranslateModule.forRoot()],
-      providers: [{ provide: LocaleService, useValue: { getLocale: () => 'en-US' } }],
+      providers: [...APP_PORT_BINDINGS, { provide: LocaleService, useValue: { getLocale: () => 'en-US' } }],
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation(LANGUAGE, TEXTS);

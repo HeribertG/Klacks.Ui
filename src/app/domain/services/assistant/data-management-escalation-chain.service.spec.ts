@@ -10,6 +10,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('DataManagementEscalationChainService', () => {
     let service: DataManagementEscalationChainService;
@@ -59,6 +60,7 @@ describe('DataManagementEscalationChainService', () => {
 
         TestBed.configureTestingModule({
             providers: [
+              ...APP_PORT_BINDINGS,
                 { provide: DataEscalationChainService, useValue: mockDataService },
                 { provide: AuthorizationService, useValue: mockAuthorizationService },
                 { provide: AssistantSignalRService, useValue: { proactiveInboxChanged$: inboxChanged$, proactiveMessage$ } },

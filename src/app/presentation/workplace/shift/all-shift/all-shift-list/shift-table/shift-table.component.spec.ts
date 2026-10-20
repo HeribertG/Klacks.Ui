@@ -6,6 +6,7 @@ import { ShiftTableComponent } from './shift-table.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { Shift, ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('ShiftTableComponent', () => {
     let component: ShiftTableComponent;
@@ -20,7 +21,7 @@ describe('ShiftTableComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [ShiftTableComponent, TranslateModule.forRoot()],
-            providers: [{ provide: TableSortingService, useValue: mockSortingService }],
+            providers: [...APP_PORT_BINDINGS, { provide: TableSortingService, useValue: mockSortingService }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ShiftTableComponent);

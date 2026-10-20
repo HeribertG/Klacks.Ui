@@ -33,6 +33,7 @@ import { UNDO_TOAST } from './undo-toast.constants';
 import { ACTION_TOAST } from './action-toast.constants';
 import { IToastAction } from './toast-action.interface';
 import { IErrorToastOptions } from './error-toast-options.interface';
+import { IInteractiveReplyNotifier } from 'src/app/domain/interfaces/interactive-reply-notifier.interface';
 
 const INTERACTIVE_REPLY_DEFAULTS = {
   PROMPT_FALLBACK: 'Bitte wählen...',
@@ -42,7 +43,7 @@ const INTERACTIVE_REPLY_DEFAULTS = {
 @Injectable({
   providedIn: 'root',
 })
-export class ToastShowService {
+export class ToastShowService implements IInteractiveReplyNotifier {
   private readonly toastService = inject(ToastService);
   private readonly backendAvailability = inject(BackendAvailabilityService);
   private readonly interactiveReplyShown = new Subject<void>();

@@ -10,9 +10,10 @@ import { Injectable, inject, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { IPermissionChecker } from 'src/app/domain/interfaces/permission-checker.interface';
 
 @Injectable({ providedIn: 'root' })
-export class AuthorizationService {
+export class AuthorizationService implements IPermissionChecker {
   private localStorage = inject(LocalStorageService);
 
   private readonly _permissions = signal<readonly string[]>([]);

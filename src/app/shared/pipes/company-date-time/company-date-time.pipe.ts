@@ -18,7 +18,7 @@
  */
 
 import { inject, Pipe, PipeTransform } from '@angular/core';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { CompanyDateTimeFormat, formatCompanyInstant } from './company-date-time.formatter';
 
@@ -40,7 +40,7 @@ interface CompanyDateTimeMemo {
   pure: false,
 })
 export class CompanyDateTimePipe implements PipeTransform {
-  private readonly localeService = inject(LocaleService);
+  private readonly localeProvider = inject(LOCALE_PROVIDER);
   private memo: CompanyDateTimeMemo | null = null;
 
   transform(
@@ -52,7 +52,7 @@ export class CompanyDateTimePipe implements PipeTransform {
     }
 
     const zone = companyTimeZone();
-    const locale = this.localeService.getLocale();
+    const locale = this.localeProvider.getLocale();
     const memo = this.memo;
     if (
       memo &&

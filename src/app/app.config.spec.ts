@@ -12,6 +12,17 @@ import { APP_VERSION_SOURCE } from './domain/interfaces/app-version-source.inter
 import { REALTIME_CONNECTION_STATUS } from './domain/interfaces/realtime-connection-status.interface';
 import { DataAppVersionService } from './infrastructure/api/data-app-version.service';
 import { SignalRConnectionStatusService } from './infrastructure/signalr/signalr-connection-status.service';
+import { APP_PORT_BINDINGS } from './app.port-bindings';
+import { LOCALE_PROVIDER } from './domain/interfaces/locale-provider.interface';
+import { LocaleService } from './application/services/locale.service';
+import { PERMISSION_CHECKER } from './domain/interfaces/permission-checker.interface';
+import { AuthorizationService } from './application/services/authorization.service';
+import { INTERACTIVE_REPLY_NOTIFIER } from './domain/interfaces/interactive-reply-notifier.interface';
+import { ToastShowService } from './presentation/toast/toast-show.service';
+import { THEME_SOURCE } from './domain/interfaces/theme-source.interface';
+import { ThemeService } from './presentation/services/theme.service';
+import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
+import { ScriptService } from './infrastructure/scripting/script.service';
 
 const registrationFor = (token: unknown): unknown =>
   appConfig.providers.find((provider) => (provider as { provide?: unknown }).provide === token);
@@ -44,6 +55,38 @@ describe('appConfig', () => {
       provide: REALTIME_CONNECTION_STATUS,
       useExisting: SignalRConnectionStatusService,
     });
+  });
+
+  it('binds the locale port to the live LocaleService', () => {
+    expect(registrationFor(LOCALE_PROVIDER)).toEqual({ provide: LOCALE_PROVIDER, useExisting: LocaleService });
+  });
+
+  it('binds the permission port to the AuthorizationService', () => {
+    expect(registrationFor(PERMISSION_CHECKER)).toEqual({
+      provide: PERMISSION_CHECKER,
+      useExisting: AuthorizationService,
+    });
+  });
+
+  it('binds the interactive reply port to the toast service', () => {
+    expect(registrationFor(INTERACTIVE_REPLY_NOTIFIER)).toEqual({
+      provide: INTERACTIVE_REPLY_NOTIFIER,
+      useExisting: ToastShowService,
+    });
+  });
+
+  it('binds the theme port to the ThemeService', () => {
+    expect(registrationFor(THEME_SOURCE)).toEqual({ provide: THEME_SOURCE, useExisting: ThemeService });
+  });
+
+  it('binds the script compiler port to the script interpreter', () => {
+    expect(registrationFor(SCRIPT_COMPILER)).toEqual({ provide: SCRIPT_COMPILER, useExisting: ScriptService });
+  });
+
+  it('registers every domain port binding', () => {
+    for (const binding of APP_PORT_BINDINGS) {
+      expect(registrationFor((binding as { provide: unknown }).provide)).toBe(binding);
+    }
   });
 
   it('registers AppErrorHandler as the application ErrorHandler', () => {

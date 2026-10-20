@@ -4,7 +4,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { Subject } from 'rxjs';
 import { signal } from '@angular/core';
 

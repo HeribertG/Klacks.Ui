@@ -8,7 +8,7 @@ import { signal } from '@angular/core';
 
 import { SpeechRecognitionService } from './speech-recognition.service';
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 
 class MockSpeechRecognition {
     continuous = false;

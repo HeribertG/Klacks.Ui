@@ -13,7 +13,7 @@ import { DataTranslationService } from 'src/app/infrastructure/api/translation/d
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService } from './work-conflict-message.service';
-import { WorkRefusalExplainService } from 'src/app/application/services/work-refusal-explain.service';
+import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ACCOUNT_REGISTRATION_REASONS,

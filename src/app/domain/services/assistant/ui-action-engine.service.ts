@@ -11,7 +11,7 @@ import {
   IUiActionStep,
 } from '../../interfaces/ui-action-step.interface';
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
-import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { GroupSelectionService } from '../group/group-selection.service';

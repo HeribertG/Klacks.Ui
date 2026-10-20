@@ -8,6 +8,7 @@ import { ReportDataProvider } from './report-data-provider.service';
 import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { DEFAULT_FIELD_STYLE, ReportField, ReportFieldType } from 'src/app/domain/models/report/report-field.model';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 function field(partial: Partial<ReportField>): ReportField {
   return {
@@ -55,7 +56,8 @@ describe('ReportXlsxService', () => {
   let service: ReportXlsxService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({
+      providers: [...APP_PORT_BINDINGS], imports: [TranslateModule.forRoot()] });
     service = TestBed.inject(ReportXlsxService);
   });
 

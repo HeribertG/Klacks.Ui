@@ -17,6 +17,7 @@ import {
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const RULE_ID = 'rule-invalid-1';
 const INVALID_RULE_KEY = 'schedule.error-list.planning-rule-invalid';
@@ -70,6 +71,7 @@ describe('HolisticHarmonizerDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HolisticHarmonizerDialogComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataHolisticHarmonizerService, useValue: serviceMock },
         { provide: DataManagementScheduleService, useValue: { clients: [], readDatas: vi.fn() } },

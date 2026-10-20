@@ -17,7 +17,7 @@ import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { Observable, Subject, filter, merge, tap, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant/data-escalation-chain.service';
-import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker.interface';
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
@@ -33,7 +33,7 @@ const PLANNER_POLL_INTERVAL_MS = 300000;
 @Injectable({ providedIn: 'root' })
 export class DataManagementEscalationChainService implements OnDestroy {
   private dataService = inject(DataEscalationChainService);
-  private authorizationService = inject(AuthorizationService);
+  private permissionChecker = inject(PERMISSION_CHECKER);
   private signalRService = inject(AssistantSignalRService);
 
   private readonly destroy$ = new Subject<void>();
@@ -61,18 +61,18 @@ export class DataManagementEscalationChainService implements OnDestroy {
 
     merge(this.signalRService.proactiveInboxChanged$, stageAlerts$)
       .pipe(
-        filter(() => this.authorizationService.hasPermission(PERMISSIONS.CanViewSchedule)),
+        filter(() => this.permissionChecker.hasPermission(PERMISSIONS.CanViewSchedule)),
         takeUntil(this.destroy$),
       )
       .subscribe(() => this.refresh());
   }
 
   private shouldPoll(tick: number): boolean {
-    if (!this.authorizationService.hasPermission(PERMISSIONS.CanViewSchedule)) {
+    if (!this.permissionChecker.hasPermission(PERMISSIONS.CanViewSchedule)) {
       return false;
     }
 
-    if (!this.polledOnce || this.authorizationService.hasPermission(ROLE_ADMIN)) {
+    if (!this.polledOnce || this.permissionChecker.hasPermission(ROLE_ADMIN)) {
       return true;
     }
 

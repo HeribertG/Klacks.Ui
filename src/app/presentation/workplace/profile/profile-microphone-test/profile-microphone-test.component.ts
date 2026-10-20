@@ -25,7 +25,7 @@ import {
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { MicrophoneTestDefaults } from 'src/app/domain/constants/microphone-test-constants';
 
 interface TestResult {

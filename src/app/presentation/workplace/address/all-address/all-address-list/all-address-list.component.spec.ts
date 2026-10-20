@@ -16,10 +16,11 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
+import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.interface';
 import { signal } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { ModalType } from 'src/app/presentation/modal/modal.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const ALL_ADDRESS_LIST_MODAL_CONTEXT = 'all-address-list';
 
@@ -138,6 +139,7 @@ describe('AllAddressListComponent', () => {
         await TestBed.configureTestingModule({
             imports: [AllAddressListComponent, TranslateModule.forRoot()],
             providers: [
+              ...APP_PORT_BINDINGS,
                 { provide: DataManagementClientService, useValue: mockDataManagementClientService },
                 { provide: AuthorizationService, useValue: mockAuthorizationService },
                 { provide: LocalStorageService, useValue: mockLocalStorageService },

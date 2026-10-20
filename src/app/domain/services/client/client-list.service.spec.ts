@@ -12,6 +12,7 @@ import { Filter } from 'src/app/domain/models/client/client-class';
 import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { ClientListService } from './client-list.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const EXPORT_ITEM: IExportClientItem = {
   idNumber: 7,
@@ -55,6 +56,7 @@ describe('ClientListService CSV export', () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         ClientListService,
         { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
         {

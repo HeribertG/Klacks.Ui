@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject, map, switchMap } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { SearchService } from 'src/app/application/services/search.service';
-import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { EntityName, RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { LayoutService } from 'src/app/presentation/services/layout.service';

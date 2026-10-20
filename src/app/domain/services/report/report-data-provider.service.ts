@@ -2,12 +2,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import { ReportField } from '../../models/report/report-field.model';
-import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
 import { WorkChangeType } from '../../models/workchange/work-change';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
@@ -101,15 +100,15 @@ export interface ReportDataProvider {
   resolveFieldValue(field: ReportField, row: any): string;
   resolveHeaderValue(field: ReportField, context: ReportHeaderContext): string;
   resolveFooterValue(field: ReportField, rows: any[]): string;
-  buildFormulaVariables?(row: any): ExternalVariables;
-  buildFooterFormulaVariables?(rows: any[]): ExternalVariables;
+  buildFormulaVariables?(row: any): Record<string, unknown>;
+  buildFooterFormulaVariables?(rows: any[]): Record<string, unknown>;
   collectResolvedLabelTexts?(): string[];
 }
 
 @Injectable()
 export class ReportDataProviderService {
   private translate = inject(TranslateService);
-  private localeService = inject(LocaleService);
+  private localeProvider = inject(LOCALE_PROVIDER);
   private workScheduleService = inject(DataWorkScheduleService);
   private breakPlaceholderService = inject(DataBreakPlaceholderService);
   private clientService = inject(DataClientService);
@@ -1000,7 +999,7 @@ export class ReportDataProviderService {
 
   private formatDate(dateStr: string | Date | undefined): string {
     if (!dateStr) return '';
-    return formatCalendarDate(dateStr, this.localeService.getLocale()) ?? String(dateStr);
+    return formatCalendarDate(dateStr, this.localeProvider.getLocale()) ?? String(dateStr);
   }
 
   private formatTime(time: string | undefined): string {

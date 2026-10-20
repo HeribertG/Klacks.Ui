@@ -9,6 +9,7 @@ import { DataEmailFolderService } from 'src/app/infrastructure/api/email/data-em
 import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('InboxService.refreshUnreadCount', () => {
   let rights: string[];
@@ -18,6 +19,7 @@ describe('InboxService.refreshUnreadCount', () => {
   const setup = (): InboxService => {
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         InboxService,
         { provide: DataReceivedEmailService, useValue: receivedEmailSpy },
         { provide: DataEmailFolderService, useValue: folderSpy },

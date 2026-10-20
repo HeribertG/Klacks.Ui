@@ -12,6 +12,7 @@ import {
   expectedJanuaryOffsetMinutes,
   useTimeZone,
 } from 'src/app/shared/testing/time-zone.testing';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const DISPLAY_FORMAT = 'dd.MM.yyyy';
 
@@ -20,7 +21,7 @@ describe('CalendarDatePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CalendarDatePipe],
+      providers: [...APP_PORT_BINDINGS, CalendarDatePipe],
     });
     TestBed.inject(LocaleService).setLocale('en-US');
     pipe = TestBed.inject(CalendarDatePipe);

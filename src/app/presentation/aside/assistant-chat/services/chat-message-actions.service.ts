@@ -32,7 +32,7 @@ import { Subject, debounceTime, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';

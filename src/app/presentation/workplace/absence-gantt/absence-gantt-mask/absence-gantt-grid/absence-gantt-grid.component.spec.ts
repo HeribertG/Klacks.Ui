@@ -18,6 +18,7 @@ import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-det
 import { ReportFieldType } from 'src/app/domain/models/report/report-field.model';
 import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { ReportType } from 'src/app/domain/models/report/report-template.model';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const ABSENCE_ID = '11111111-1111-1111-1111-111111111111';
 const ABSENCE_NAME = 'Ferien';
@@ -85,6 +86,7 @@ describe('AbsenceGanttGridComponent PDF export', () => {
     await TestBed.configureTestingModule({
       imports: [AbsenceGanttGridComponent],
       providers: [
+        ...APP_PORT_BINDINGS,
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: TranslateService, useValue: translate },

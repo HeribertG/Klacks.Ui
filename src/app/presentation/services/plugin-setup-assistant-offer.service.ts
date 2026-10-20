@@ -17,7 +17,7 @@
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IPluginAssistantLauncher, IPluginAssistantSetupOffer } from 'klacks-plugin-contracts';
-import { OnboardingService } from './onboarding.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { AssistantTurnLauncherService } from './assistant-turn-launcher.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';

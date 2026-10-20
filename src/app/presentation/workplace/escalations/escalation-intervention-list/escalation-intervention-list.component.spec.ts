@@ -16,6 +16,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
 import { signal } from '@angular/core';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('EscalationInterventionListComponent', () => {
     let component: EscalationInterventionListComponent;
@@ -69,6 +70,7 @@ describe('EscalationInterventionListComponent', () => {
         await TestBed.configureTestingModule({
             imports: [EscalationInterventionListComponent, TranslateModule.forRoot()],
             providers: [
+              ...APP_PORT_BINDINGS,
                 { provide: DataManagementEscalationChainService, useValue: mockEscalationService },
                 { provide: SavebarService, useValue: mockSavebarService },
                 { provide: LayoutService, useValue: mockLayoutService },

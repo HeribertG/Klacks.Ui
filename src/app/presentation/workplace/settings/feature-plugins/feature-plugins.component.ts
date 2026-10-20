@@ -15,7 +15,7 @@ import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/dat
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { PluginSetupAssistantOfferService } from 'src/app/application/services/plugin-setup-assistant-offer.service';
+import { PluginSetupAssistantOfferService } from 'src/app/presentation/services/plugin-setup-assistant-offer.service';
 import { FeaturePluginsHeaderComponent } from './feature-plugins-header/feature-plugins-header.component';
 import { FeaturePluginsRowComponent } from './feature-plugins-row/feature-plugins-row.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';

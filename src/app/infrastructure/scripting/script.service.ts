@@ -7,13 +7,14 @@ import {
   CancellationToken,
 } from './script-execution-context';
 import { ScriptResult, ResultMessage } from './script-result';
+import { IScriptCompiler } from 'src/app/domain/models/automation/rules/script-compiler.interface';
 
 export type ExternalVariables = Record<string, unknown>;
 
 @Injectable({
   providedIn: 'root',
 })
-export class ScriptService {
+export class ScriptService implements IScriptCompiler {
   compile(
     source: string,
     optionExplicit = true,

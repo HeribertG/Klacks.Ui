@@ -16,7 +16,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
+import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.interface';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 

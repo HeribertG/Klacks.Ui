@@ -7,6 +7,7 @@ import { LocaleDataLoaderService } from 'src/app/application/services/locale-dat
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { LocalizedParamsPipe } from './localized-params.pipe';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const PARAMS = {
   holiday: 'Weihnachten',
@@ -20,7 +21,7 @@ describe('LocalizedParamsPipe', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [LocalizedParamsPipe],
+      providers: [...APP_PORT_BINDINGS, LocalizedParamsPipe],
     });
     pipe = TestBed.inject(LocalizedParamsPipe);
     translate = TestBed.inject(TranslateService);

@@ -1,8 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import { ScriptService, ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
-import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
+import { ICompiledScript, SCRIPT_COMPILER } from 'src/app/domain/models/automation/rules/script-compiler.interface';
 
 export interface FormulaValidationResult {
   valid: boolean;
@@ -11,29 +10,29 @@ export interface FormulaValidationResult {
 
 @Injectable({ providedIn: 'root' })
 export class FormulaEvaluationService {
-  private scriptService = inject(ScriptService);
-  private compilationCache = new Map<string, CompiledScript>();
+  private scriptCompiler = inject(SCRIPT_COMPILER);
+  private compilationCache = new Map<string, ICompiledScript>();
 
-  evaluateFormula(formula: string, variables: ExternalVariables): string {
+  evaluateFormula(formula: string, variables: Record<string, unknown>): string {
     const compiled = this.compileFormula(formula);
     return this.executeCompiled(compiled, variables);
   }
 
-  compileFormula(formula: string): CompiledScript {
+  compileFormula(formula: string): ICompiledScript {
     const cached = this.compilationCache.get(formula);
     if (cached) return cached;
 
     const source = this.buildSource(formula);
-    const compiled = this.scriptService.compile(source, false, true);
+    const compiled = this.scriptCompiler.compile(source, false, true);
     this.compilationCache.set(formula, compiled);
     return compiled;
   }
 
-  executeCompiled(compiled: CompiledScript, variables: ExternalVariables): string {
+  executeCompiled(compiled: ICompiledScript, variables: Record<string, unknown>): string {
     if (compiled.hasError) return '#ERR';
 
     try {
-      const result = this.scriptService.execute(compiled, variables);
+      const result = this.scriptCompiler.execute(compiled, variables);
       if (!result.success) return '#ERR';
 
       if (result.messages.length > 0) {
@@ -48,7 +47,7 @@ export class FormulaEvaluationService {
 
   validateFormula(formula: string): FormulaValidationResult {
     const source = this.buildSource(formula);
-    const compiled = this.scriptService.compile(source, false, true);
+    const compiled = this.scriptCompiler.compile(source, false, true);
     if (compiled.hasError) {
       return { valid: false, error: compiled.error?.description ?? 'Syntax error' };
     }

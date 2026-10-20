@@ -31,7 +31,7 @@ import { ChatMessageActionsService } from './services/chat-message-actions.servi
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -72,6 +72,7 @@ import {
 } from 'src/app/domain/constants/welcome-focus.constants';
 import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
 import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -327,6 +328,7 @@ describe('AssistantChatComponent', () => {
                 TranslateModule.forRoot(),
             ],
             providers: [
+              ...APP_PORT_BINDINGS,
                 { provide: DataManagementAssistantService, useValue: llmServiceSpy },
                 { provide: DataManagementAssistantProviderService, useValue: llmProviderServiceSpy },
                 { provide: ChatTurnControlService, useFactory: () => mockTurnControl },

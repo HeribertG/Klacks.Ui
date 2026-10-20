@@ -19,6 +19,7 @@ import { ScheduleErrorListPdfExportService } from './schedule-error-list-pdf-exp
 import { ScheduleErrorListComponent } from './schedule-error-list.component';
 import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
 import { SCHEDULE_VALIDATION_KEY_PLANNING_RULE } from 'src/app/domain/constants/schedule-validation-keys.constants';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const CLIENT_ID = 'c1';
 const EARLIER_DAY = '2026-12-25';
@@ -38,6 +39,7 @@ describe('ScheduleErrorListComponent date column', () => {
     TestBed.configureTestingModule({
       imports: [ScheduleErrorListComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: CollisionDetectionService, useValue: { errorEntries: entries } },
         { provide: ShowInScheduleService, useValue: showInSchedule },
         { provide: ScheduleErrorListPdfExportService, useValue: { exportToPdf: vi.fn() } },
@@ -107,6 +109,7 @@ describe('ScheduleErrorListComponent pre-existing planning-rule findings', () =>
     TestBed.configureTestingModule({
       imports: [ScheduleErrorListComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: CollisionDetectionService, useValue: { errorEntries: entries } },
         { provide: ShowInScheduleService, useValue: { showScheduleByClient: vi.fn() } },
         { provide: ScheduleErrorListPdfExportService, useValue: { exportToPdf: vi.fn() } },

@@ -64,7 +64,7 @@ import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom, skip } from 'rxjs';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
-import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';

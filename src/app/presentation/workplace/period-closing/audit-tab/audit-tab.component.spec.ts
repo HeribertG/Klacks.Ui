@@ -10,6 +10,7 @@ import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-clos
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
 import { PeriodAuditAction, PeriodAuditLog } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 function auditEntry(action: PeriodAuditAction, id: string): PeriodAuditLog {
   return {
@@ -75,6 +76,7 @@ describe('AuditTabComponent', () => {
     TestBed.configureTestingModule({
       imports: [AuditTabComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataPeriodClosingService, useValue: api },
         { provide: ToastShowService, useValue: toast },
       ],

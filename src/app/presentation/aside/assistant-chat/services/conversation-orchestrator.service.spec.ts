@@ -21,6 +21,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -164,6 +165,7 @@ describe('ConversationOrchestratorService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         ConversationOrchestratorService,
         { provide: AudioCaptureService, useValue: mockAudioCapture },
         { provide: SttStreamService, useValue: mockSttStream },
@@ -1354,7 +1356,8 @@ class HostHarnessComponent {
 describe('ConversationOrchestratorService — root provider guarantee', () => {
   it('state survives host-component destroy (root singleton invariant)', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ imports: [HostHarnessComponent] });
+    TestBed.configureTestingModule({
+      providers: [...APP_PORT_BINDINGS], imports: [HostHarnessComponent] });
 
     const firstInstance = TestBed.inject(ConversationOrchestratorService);
     const fixture: ComponentFixture<HostHarnessComponent> = TestBed.createComponent(HostHarnessComponent);

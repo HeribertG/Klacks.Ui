@@ -3,7 +3,7 @@
 import { Injectable, inject } from '@angular/core';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
-import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   IEntitySearchStrategy,

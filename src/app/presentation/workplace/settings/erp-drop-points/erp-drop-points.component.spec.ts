@@ -21,6 +21,7 @@ import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
 import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';
 import { ERP_IMPORT_LIST_LIMITS, ERP_IMPORT_POLLING } from 'src/app/domain/constants/erp-import-file.constants';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const importFile = (id: string, status: ErpImportFileStatus): IErpImportFile => ({
   id,
@@ -128,6 +129,7 @@ describe('ErpDropPointsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ErpDropPointsComponent],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataManagementErpDropPointService, useValue: mockDropPointService },
         { provide: AppSettingsManagementService, useValue: mockAppSettingsService },
         { provide: ManualLoaderService, useValue: mockManualLoaderService },

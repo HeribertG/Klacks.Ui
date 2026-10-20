@@ -28,6 +28,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { companyToday, formatDateOnly } from 'src/app/shared/helpers/calendar-date.helper';
 import { addDays } from 'src/app/shared/helpers/date.helper';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const I18N_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../../../assets/i18n');
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
@@ -127,6 +128,7 @@ describe('RecoveryDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [RecoveryDialogComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: NgbModal, useValue: { open: modalOpen } },
         {
           provide: DataRecoveryService,

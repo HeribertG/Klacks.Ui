@@ -25,7 +25,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
-import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 
 const TRACKING_ID = 'tracking-1';

@@ -47,7 +47,7 @@ import {
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { NavigationVerdictService } from './services/navigation-verdict.service';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';

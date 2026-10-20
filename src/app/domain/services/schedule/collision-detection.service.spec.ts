@@ -23,6 +23,7 @@ import {
   expectedJanuaryOffsetMinutes,
   useTimeZone,
 } from 'src/app/shared/testing/time-zone.testing';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 function createCollision(overrides: Partial<ICollisionNotification> = {}): ICollisionNotification {
   return {
@@ -97,6 +98,7 @@ describe('CollisionDetectionService', () => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         CollisionDetectionService,
         {
           provide: SCHEDULE_SIGNALR,

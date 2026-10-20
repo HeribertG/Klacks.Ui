@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { SetupConsultationOfferService } from './setup-consultation-offer.service';
-import { OnboardingService } from './onboarding.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';

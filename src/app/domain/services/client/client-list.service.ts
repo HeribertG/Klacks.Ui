@@ -21,7 +21,7 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
 import { Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import {
   CLIENT_EXPORT_COLUMN_KEYS,
   CLIENT_EXPORT_CSV_MIME_TYPE,
@@ -36,7 +36,7 @@ export class ClientListService {
   private dataClientService = inject(DataClientService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
-  private localeService = inject(LocaleService);
+  private localeProvider = inject(LOCALE_PROVIDER);
   private destroy$ = new Subject<void>();
 
   public listWrapper = signal<ITruncatedClient | undefined>(undefined);
@@ -137,7 +137,7 @@ export class ClientListService {
     const headers = CLIENT_EXPORT_COLUMN_KEYS.map(
       (key) => this.translateService.instant(key) as string
     );
-    const csvContent = buildClientExportCsv(items, headers, this.localeService.getLocale());
+    const csvContent = buildClientExportCsv(items, headers, this.localeProvider.getLocale());
     const blob = new Blob([csvContent], { type: CLIENT_EXPORT_CSV_MIME_TYPE });
     saveAs(blob, CLIENT_EXPORT_FILE_NAME);
   }

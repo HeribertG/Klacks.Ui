@@ -33,8 +33,7 @@ import { ReportParameterValues } from '../../models/report/report-parameter.mode
 import { buildParameterVariables } from '../../helpers/report-parameter.helper';
 import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { addDays } from 'src/app/shared/helpers/date.helper';
-import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
-import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
+import { ICompiledScript } from 'src/app/domain/models/automation/rules/script-compiler.interface';
 
 const DEFAULT_PDF_FONT = 'helvetica';
 const SIGNATURE_DEFAULT_WIDTH_MM = 60;
@@ -619,8 +618,8 @@ export class ReportPdfService {
     return styles;
   }
 
-  private compileTableFormulas(fields: ReportField[]): Map<string, CompiledScript> {
-    const compiledFormulas = new Map<string, CompiledScript>();
+  private compileTableFormulas(fields: ReportField[]): Map<string, ICompiledScript> {
+    const compiledFormulas = new Map<string, ICompiledScript>();
     const formulaFields = fields.filter(f => f.type === ReportFieldType.Formula && f.formula);
     for (const f of formulaFields) {
       compiledFormulas.set(f.dataBinding, this.formulaService.compileFormula(f.formula!));
@@ -632,7 +631,7 @@ export class ReportPdfService {
     fields: ReportField[],
     rows: any[],
     provider: ReportDataProvider,
-    compiledFormulas: Map<string, CompiledScript>,
+    compiledFormulas: Map<string, ICompiledScript>,
     parameterContext: ReportParameterContext | undefined
   ): { row: Record<string, string>; sourceEntry: any }[] {
     const resolvedRows: { row: Record<string, string>; sourceEntry: any }[] = [];
@@ -1070,7 +1069,7 @@ export class ReportPdfService {
     }
   }
 
-  private isConditionTrue(expression: string, variables: ExternalVariables): boolean {
+  private isConditionTrue(expression: string, variables: Record<string, unknown>): boolean {
     try {
       const result = this.formulaService.evaluateFormula(expression, variables).trim().toLowerCase();
       return TRUTHY_CONDITION_RESULTS.includes(result);

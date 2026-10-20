@@ -8,7 +8,7 @@
  * @param storageName - Display name for log messages (e.g. 'localStorage', 'sessionStorage')
  */
 
-import { IFilterStorage } from '../../application/interfaces/filter-storage.interface';
+import { IFilterStorage } from 'src/app/domain/interfaces/filter-storage.interface';
 import { serializedDateReviver } from 'src/app/shared/helpers/serialized-date.helper';
 
 const STORAGE_KEY_PREFIX = 'klacks_filter_';

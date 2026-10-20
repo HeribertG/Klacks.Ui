@@ -5,6 +5,7 @@ import { CompanyDateTimePipe } from './company-date-time.pipe';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const localeServiceFor = (locale: string) => ({ getLocale: () => locale }) as LocaleService;
 
@@ -13,7 +14,7 @@ describe('CompanyDateTimePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor('en-US') }],
+      providers: [...APP_PORT_BINDINGS, CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor('en-US') }],
     });
     pipe = TestBed.inject(CompanyDateTimePipe);
   });
@@ -69,7 +70,7 @@ describe('CompanyDateTimePipe', () => {
     it('still pads a company-zone midnight as 00 under the de locale', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor('de') }],
+        providers: [...APP_PORT_BINDINGS, CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor('de') }],
       });
       const dePipe = TestBed.inject(CompanyDateTimePipe);
 
@@ -84,7 +85,7 @@ describe('CompanyDateTimePipe', () => {
     const pipeFor = (locale: string): CompanyDateTimePipe => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor(locale) }],
+        providers: [...APP_PORT_BINDINGS, CompanyDateTimePipe, { provide: LocaleService, useValue: localeServiceFor(locale) }],
       });
       return TestBed.inject(CompanyDateTimePipe);
     };

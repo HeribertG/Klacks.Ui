@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PlanningRuleWarningReportComponent } from './planning-rule-warning-report.component';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const RULE_ID = '6f1c2a54-0000-4000-8000-000000000001';
 
@@ -21,6 +22,7 @@ function invalidRuleWarning(ruleId = RULE_ID): ScheduleErrorEntry {
 describe('PlanningRuleWarningReportComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...APP_PORT_BINDINGS],
       imports: [PlanningRuleWarningReportComponent, TranslateModule.forRoot()],
     }).compileComponents();
     const translate = TestBed.inject(TranslateService);

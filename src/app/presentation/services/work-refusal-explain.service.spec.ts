@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { WorkRefusalExplainService } from './work-refusal-explain.service';
-import { OnboardingService } from './onboarding.service';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { AssistantTurnLauncherService } from './assistant-turn-launcher.service';
 import { ExplainOfferStateService } from 'src/app/domain/services/assistant/explain-offer-state.service';
 import { EXPLAIN_OFFER_OUTCOME, EXPLAIN_OFFER_TOPIC } from 'src/app/domain/constants/explain-offer.constants';

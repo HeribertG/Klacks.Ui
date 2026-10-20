@@ -31,7 +31,7 @@ import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-f
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
 import { WorkConflictMessageService, WorkConflictTarget, readWorkConflictProblem } from './work-conflict-message.service';
-import { WorkRefusalExplainService } from 'src/app/application/services/work-refusal-explain.service';
+import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
 import { IToastAction } from '../toast/toast-action.interface';
 import {
   SETUP_COMPLETE_OWN_ADMIN_API_SEGMENT,

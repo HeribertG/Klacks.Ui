@@ -11,7 +11,7 @@ import { takeUntil } from 'rxjs/operators';
 import { IPluginVoiceService, IPluginVoiceCallbacks } from 'klacks-plugin-contracts';
 import { ConversationOrchestratorService, ConversationState, ConversationCallbacks } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { TranslateService } from '@ngx-translate/core';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Injectable()

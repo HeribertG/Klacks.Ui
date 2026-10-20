@@ -7,10 +7,10 @@ import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { retryTransientHttpErrors } from 'src/app/shared/helpers/http-retry.helper';
 import { HttpClient } from '@angular/common/http';
-import { BulkDeleteWorksRequest } from '../dtos/bulk-delete-works-request.dto';
-import { BulkAddWorksRequest } from '../dtos/bulk-add-works-request.dto';
-import { BulkWorksResponse } from '../dtos/bulk-works-response.dto';
-import { ReassignWorkClientResponse } from '../dtos/reassign-work-client-response.dto';
+import { BulkDeleteWorksRequest } from 'src/app/domain/models/dtos/bulk-delete-works-request.dto';
+import { BulkAddWorksRequest } from 'src/app/domain/models/dtos/bulk-add-works-request.dto';
+import { BulkWorksResponse } from 'src/app/domain/models/dtos/bulk-works-response.dto';
+import { ReassignWorkClientResponse } from 'src/app/domain/models/dtos/reassign-work-client-response.dto';
 
 @Injectable({
   providedIn: 'root',

@@ -3,9 +3,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Break, IBreak } from 'src/app/domain/models/break/break-class';
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
-import { BulkAddBreaksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-breaks-request.dto';
-import { BulkDeleteBreaksRequest } from 'src/app/infrastructure/api/dtos/bulk-delete-breaks-request.dto';
-import { BulkBreaksResponse } from 'src/app/infrastructure/api/dtos/bulk-breaks-response.dto';
+import { BulkAddBreaksRequest } from 'src/app/domain/models/dtos/bulk-add-breaks-request.dto';
+import { BulkDeleteBreaksRequest } from 'src/app/domain/models/dtos/bulk-delete-breaks-request.dto';
+import { BulkBreaksResponse } from 'src/app/domain/models/dtos/bulk-breaks-response.dto';
 import { Observable } from 'rxjs';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 

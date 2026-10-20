@@ -14,7 +14,7 @@ import { EVENT_BUS_TOKEN } from './domain/interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from './domain/interfaces/manageable-service-registry.interface';
 import { LOADING_INDICATOR_TOKEN } from './domain/interfaces/loading-indicator.interface';
 import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-provider.interface';
-import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
+import { FILTER_STORAGE_TOKEN } from './domain/interfaces/filter-storage.interface';
 import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
 import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
 import { APP_VERSION_SOURCE } from './domain/interfaces/app-version-source.interface';
@@ -26,6 +26,7 @@ import { AppVersionWatchService } from './application/services/app-version-watch
 import { NavigationSpinnerCoordinator } from './presentation/spinner/navigation-spinner-coordinator.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const fileMap = new Map<string, string>();
 function buildFileMap(dir: string): void {
@@ -60,6 +61,7 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         provideRouter([]),
         provideHttpClient(withXhr()),
         provideHttpClientTesting(),

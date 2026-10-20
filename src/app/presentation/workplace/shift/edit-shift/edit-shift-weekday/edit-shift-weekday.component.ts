@@ -22,7 +22,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
-import { HolidayOptionExplainOfferService } from 'src/app/application/services/holiday-option-explain-offer.service';
+import { HolidayOptionExplainOfferService } from 'src/app/presentation/services/holiday-option-explain-offer.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { ShiftFormService } from '../services/shift-form.service';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';

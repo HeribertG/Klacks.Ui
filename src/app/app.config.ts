@@ -20,7 +20,7 @@ import { LoadingInterceptor } from './presentation/spinner/loading.interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './infrastructure/helpers/NgbDateParserFormatter';
-import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
+import { FILTER_STORAGE_TOKEN } from './domain/interfaces/filter-storage.interface';
 import { SessionStorageService } from './infrastructure/storage/session-storage.service';
 import {
   TranslateLoader,
@@ -60,13 +60,11 @@ import { LOADING_INDICATOR_TOKEN } from './domain/interfaces/loading-indicator.i
 import { SpinnerService } from './presentation/spinner/spinner.service';
 import { LanguageConfigService } from './application/services/language-config.service';
 import { initializeLanguageHelper } from './domain/helpers/multi-language.helper';
-import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
-import { ScriptService } from './infrastructure/scripting/script.service';
 import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
 import { SearchStrategyService } from './presentation/search/search-strategy.service';
 import { SCHEDULE_SIGNALR } from './domain/interfaces/schedule-signalr.interface';
 import { SignalRService } from './infrastructure/signalr/signalr.service';
-import { providePluginHost, provideMessagingVoice } from './infrastructure/plugins/provide-plugin-host';
+import { providePluginHost, provideMessagingVoice } from './app.plugin-host';
 import { BUILD_INFO } from './domain/interfaces/build-info.interface';
 import { BUILD_INFO_VALUE } from '../build-info';
 import { RELOAD_GUARD_STORAGE } from './domain/interfaces/reload-guard-storage.interface';
@@ -75,6 +73,7 @@ import { APP_VERSION_SOURCE } from './domain/interfaces/app-version-source.inter
 import { DataAppVersionService } from './infrastructure/api/data-app-version.service';
 import { REALTIME_CONNECTION_STATUS } from './domain/interfaces/realtime-connection-status.interface';
 import { SignalRConnectionStatusService } from './infrastructure/signalr/signalr-connection-status.service';
+import { APP_PORT_BINDINGS } from './app.port-bindings';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -179,10 +178,6 @@ export const appConfig: ApplicationConfig = {
       useExisting: SpinnerService,
     },
     {
-      provide: SCRIPT_COMPILER,
-      useExisting: ScriptService,
-    },
-    {
       provide: SEARCH_STRATEGY,
       useExisting: SearchStrategyService,
     },
@@ -206,6 +201,7 @@ export const appConfig: ApplicationConfig = {
       provide: REALTIME_CONNECTION_STATUS,
       useExisting: SignalRConnectionStatusService,
     },
+    ...APP_PORT_BINDINGS,
     ...providePluginHost(),
     ...provideMessagingVoice(),
     importProvidersFrom(

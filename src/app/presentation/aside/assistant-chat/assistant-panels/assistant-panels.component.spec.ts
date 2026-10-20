@@ -24,6 +24,7 @@ import { ChatMessage } from '../chat-message.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const PANEL_TRANSLATIONS = {
   'assistant-chat.panels.goal-candidates': 'Zielvorschläge',
@@ -197,6 +198,7 @@ describe('AssistantPanelsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AssistantPanelsComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataManagementGoalCandidatesService, useValue: goalCandidatesServiceMock },
         { provide: DataManagementAgentPlanService, useValue: planServiceMock },
         { provide: DataManagementProactiveInboxService, useValue: proactiveInboxServiceMock },

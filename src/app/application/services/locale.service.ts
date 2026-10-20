@@ -26,6 +26,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { ILocaleProvider } from 'src/app/domain/interfaces/locale-provider.interface';
 import {
   EAGERLY_REGISTERED_LANGUAGES,
   LocaleDataLoaderService,
@@ -46,7 +47,7 @@ const BASE_FALLBACKS: Readonly<Record<string, string>> = {
 };
 
 @Injectable({ providedIn: 'root' })
-export class LocaleService {
+export class LocaleService implements ILocaleProvider {
   private localeDataLoader = inject(LocaleDataLoaderService);
 
   public locale = signal<string>(LocaleService.detectBrowserLanguage());

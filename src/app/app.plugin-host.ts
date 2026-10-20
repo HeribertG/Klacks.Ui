@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Provider factories for plugin host services.
+ * Provider factories for plugin host services (composition root: binds plugin tokens to services of every layer).
  * Used in route configurations to supply concrete implementations for plugin tokens.
  * @param providePluginHost - Provides generic host services all plugins need
  * @param provideMessagingVoice - Provides messaging-specific services (voice, speech)
@@ -30,9 +30,9 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
-import { VoiceModeAdapterService } from './voice-mode-adapter.service';
+import { VoiceModeAdapterService } from 'src/app/presentation/aside/assistant-chat/services/voice-mode-adapter.service';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
-import { PluginSetupAssistantOfferService } from 'src/app/application/services/plugin-setup-assistant-offer.service';
+import { PluginSetupAssistantOfferService } from 'src/app/presentation/services/plugin-setup-assistant-offer.service';
 
 export function providePluginHost(): Provider[] {
   return [

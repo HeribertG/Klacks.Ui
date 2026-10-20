@@ -22,6 +22,7 @@ import { AllShiftStateService } from '../services/all-shift-state.service';
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const activatedRouteStub = (queryParams: Record<string, string> = {}) => ({
   snapshot: { queryParamMap: convertToParamMap(queryParams) },
@@ -44,6 +45,7 @@ describe('AllShiftListComponent - onClickInfo', () => {
     TestBed.configureTestingModule({
       imports: [AllShiftListComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataManagementShiftService, useValue: {} },
         { provide: DataManagementShiftCutService, useValue: {} },
         { provide: AuthorizationService, useValue: {} },
@@ -114,6 +116,7 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
     TestBed.configureTestingModule({
       imports: [AllShiftListComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataManagementShiftService, useValue: mockShiftService },
         { provide: DataManagementShiftCutService, useValue: {} },
         {
@@ -196,6 +199,7 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
     TestBed.configureTestingModule({
       imports: [AllShiftListComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataManagementShiftService, useValue: mockShiftService },
         { provide: DataManagementShiftCutService, useValue: {} },
         { provide: AuthorizationService, useValue: {} },

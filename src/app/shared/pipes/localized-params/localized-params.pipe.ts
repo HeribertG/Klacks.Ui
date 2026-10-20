@@ -13,7 +13,7 @@
 
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { formatDateParams, hasDateParams } from 'src/app/domain/helpers/date-params.helper';
 import {
   hasMultiLanguageParams,
@@ -34,7 +34,7 @@ interface LocalizedParamsMemo {
 })
 export class LocalizedParamsPipe implements PipeTransform {
   private readonly translate = inject(TranslateService);
-  private readonly localeService = inject(LocaleService);
+  private readonly localeProvider = inject(LOCALE_PROVIDER);
   private memo: LocalizedParamsMemo | null = null;
 
   transform(params: Record<string, string> | null | undefined): Record<string, string> {
@@ -47,7 +47,7 @@ export class LocalizedParamsPipe implements PipeTransform {
     }
 
     const language = this.translate.currentLang ?? '';
-    const locale = this.localeService.getLocale();
+    const locale = this.localeProvider.getLocale();
     const memo = this.memo;
     if (memo && memo.params === params && memo.language === language && memo.locale === locale) {
       return memo.result;

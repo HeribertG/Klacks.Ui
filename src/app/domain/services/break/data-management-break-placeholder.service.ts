@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   BreakPlaceholder,
@@ -35,7 +35,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
   private translateService = inject(TranslateService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroyRef = inject(DestroyRef);
-  private localeService = inject(LocaleService);
+  private localeProvider = inject(LOCALE_PROVIDER);
 
   public isRead = signal(false);
   private _showProgressSpinner = signal(false);
@@ -375,7 +375,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .subscribe((message) => {
           const formattedMessage = message.replace(
             '{0}',
-            formatCalendarDate(membershipValidFrom, this.localeService.getLocale()) ?? ''
+            formatCalendarDate(membershipValidFrom, this.localeProvider.getLocale()) ?? ''
           );
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
@@ -394,7 +394,7 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .subscribe((message) => {
           const formattedMessage = message.replace(
             '{0}',
-            formatCalendarDate(membershipValidUntil, this.localeService.getLocale()) ?? ''
+            formatCalendarDate(membershipValidUntil, this.localeProvider.getLocale()) ?? ''
           );
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
@@ -416,8 +416,8 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((message) => {
           const formattedMessage = message
-            .replace('{0}', formatCalendarDate(membershipValidFrom, this.localeService.getLocale()) ?? '')
-            .replace('{1}', formatCalendarDate(membershipValidUntil, this.localeService.getLocale()) ?? '');
+            .replace('{0}', formatCalendarDate(membershipValidFrom, this.localeProvider.getLocale()) ?? '')
+            .replace('{1}', formatCalendarDate(membershipValidUntil, this.localeProvider.getLocale()) ?? '');
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
             code: 'membership-validation-error',

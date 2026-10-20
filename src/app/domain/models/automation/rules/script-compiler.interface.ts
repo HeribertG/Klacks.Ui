@@ -4,7 +4,7 @@ import { InjectionToken } from '@angular/core';
 
 export interface ICompiledScript {
   hasError: boolean;
-  error?: string;
+  error?: { description: string } | null;
 }
 
 export interface IScriptMessage {
@@ -14,7 +14,7 @@ export interface IScriptMessage {
 
 export interface IScriptResult {
   success: boolean;
-  error?: { description: string };
+  error?: { description: string } | null;
   messages: IScriptMessage[];
 }
 

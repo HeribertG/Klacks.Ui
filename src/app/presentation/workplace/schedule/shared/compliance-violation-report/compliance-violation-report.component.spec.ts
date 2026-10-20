@@ -12,10 +12,12 @@ import {
   CELL_DATE_LOCALES,
   CELL_DATE_WIRE_VALUE,
 } from 'src/app/shared/testing/calendar-date-cell.testing';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('ComplianceViolationReportComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...APP_PORT_BINDINGS],
       imports: [ComplianceViolationReportComponent, TranslateModule.forRoot()],
     }).compileComponents();
     const loader = TestBed.inject(LocaleDataLoaderService);

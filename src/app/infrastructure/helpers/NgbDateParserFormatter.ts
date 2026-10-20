@@ -21,7 +21,7 @@ import {
   NgbDateStruct,
   NgbDateParserFormatter,
 } from '@ng-bootstrap/ng-bootstrap';
-import { LocaleService } from '../../application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import {
   formatCalendarDate,
   localeNumericDatePattern,
@@ -48,7 +48,7 @@ const FULL_DATE_PART_COUNT = 3;
 
 @Injectable()
 export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
-  private localeService = inject(LocaleService);
+  private localeProvider = inject(LOCALE_PROVIDER);
 
   parse(value: string): NgbDateStruct | null {
     if (!value) {
@@ -86,11 +86,11 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
     const value = new Date(date.year, date.month - 1, date.day);
     value.setFullYear(date.year);
 
-    return formatCalendarDate(value, this.localeService.getLocale()) ?? NO_DATE_TEXT;
+    return formatCalendarDate(value, this.localeProvider.getLocale()) ?? NO_DATE_TEXT;
   }
 
   private fieldOrder(): DateField[] {
-    const pattern = localeNumericDatePattern(this.localeService.getLocale());
+    const pattern = localeNumericDatePattern(this.localeProvider.getLocale());
     const order: DateField[] = [];
 
     for (const character of pattern) {

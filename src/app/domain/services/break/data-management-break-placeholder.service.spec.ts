@@ -12,6 +12,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-s
 import { DataBreakPlaceholderService } from '../../../infrastructure/api/break/data-break-placeholder.service';
 import { IClientBreak, IMembership } from '../../models/client/client-class';
 import { IBreakPlaceholder } from '../../models/break/break-class';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('DataManagementBreakPlaceholderService', () => {
     let service: DataManagementBreakPlaceholderService;
@@ -44,6 +45,7 @@ describe('DataManagementBreakPlaceholderService', () => {
         TestBed.configureTestingModule({
             imports: [TranslateModule.forRoot()],
             providers: [
+              ...APP_PORT_BINDINGS,
                 provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 DataManagementBreakPlaceholderService,

@@ -33,6 +33,7 @@ import {
   expectedJanuaryOffsetMinutes,
   useTimeZone,
 } from 'src/app/shared/testing/time-zone.testing';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const PHONE_TYPE = 1;
 const EMAIL_TYPE = 4;
@@ -83,6 +84,7 @@ describe('ReportDataProviderService', () => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: LocaleService, useValue: GERMAN_LOCALE_SERVICE },
         ReportDataProviderService,
         { provide: DataWorkScheduleService, useValue: {} },

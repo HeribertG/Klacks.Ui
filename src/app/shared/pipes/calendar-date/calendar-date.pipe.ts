@@ -18,7 +18,7 @@
 
 import { formatDate } from '@angular/common';
 import { inject, Pipe, PipeTransform } from '@angular/core';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import {
   formatCalendarDate,
@@ -40,7 +40,7 @@ interface CalendarDateMemo {
   pure: false,
 })
 export class CalendarDatePipe implements PipeTransform {
-  private readonly localeService = inject(LocaleService);
+  private readonly localeProvider = inject(LOCALE_PROVIDER);
   private memo: CalendarDateMemo | null = null;
 
   transform(
@@ -51,7 +51,7 @@ export class CalendarDatePipe implements PipeTransform {
       return null;
     }
 
-    const locale = this.localeService.getLocale();
+    const locale = this.localeProvider.getLocale();
     const memo = this.memo;
     if (memo && memo.value === value && memo.format === format && memo.locale === locale) {
       return memo.result;

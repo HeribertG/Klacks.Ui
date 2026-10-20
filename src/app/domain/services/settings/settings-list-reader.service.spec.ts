@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from './settings-list-reader.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('SettingsListReaderService', () => {
   const settings = [{ id: '1', type: 'APP_NAME', value: 'Klacks' }];
@@ -15,6 +16,7 @@ describe('SettingsListReaderService', () => {
     dataService = { readSettingList: vi.fn(() => of(settings)) };
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         SettingsListReaderService,
         { provide: DataSettingsVariousService, useValue: dataService },
         { provide: AuthorizationService, useValue: { isAdmin } },

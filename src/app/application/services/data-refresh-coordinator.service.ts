@@ -13,7 +13,7 @@ import { bufferTime, filter, map } from 'rxjs';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { WorkplaceStateService } from './workplace-state.service';
 import { DataRefreshRegistry } from './data-refresh-registry.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { INTERACTIVE_REPLY_NOTIFIER } from 'src/app/domain/interfaces/interactive-reply-notifier.interface';
 import { TranslateService } from '@ngx-translate/core';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { isSaveable } from 'src/app/domain/helpers/manageable.helper';
@@ -28,7 +28,7 @@ export class DataRefreshCoordinator {
   private signalR = inject(AssistantSignalRService);
   private workplaceState = inject(WorkplaceStateService);
   private registry = inject(DataRefreshRegistry);
-  private toast = inject(ToastShowService);
+  private replyNotifier = inject(INTERACTIVE_REPLY_NOTIFIER);
   private translate = inject(TranslateService);
   private ngZone = inject(NgZone);
 
@@ -81,7 +81,7 @@ export class DataRefreshCoordinator {
   }
 
   private promptReload(target: IRefreshable): void {
-    this.toast.showInteractiveReply(
+    this.replyNotifier.showInteractiveReply(
       {
         selectionMode: 'single',
         prompt: this.translate.instant(RELOAD_PROMPT_KEY),

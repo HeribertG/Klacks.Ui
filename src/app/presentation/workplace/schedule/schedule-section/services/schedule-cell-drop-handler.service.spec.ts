@@ -17,6 +17,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const SOURCE_DATE = new Date(2026, 4, 11);
 
@@ -85,6 +86,7 @@ describe('ScheduleCellDropHandlerService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         // AnalyseScenarioService listens for background-optimiser candidates and ended autofill runs on connect.
         { provide: SCHEDULE_SIGNALR, useValue: { wizard4CandidatesChanged$: new Subject<never>(), autofillRunEnded$: new Subject<never>() } },
         ScheduleCellDropHandlerService,

@@ -12,6 +12,7 @@ import { IReceivedEmail } from 'src/app/domain/models/email/received-email.model
 import { InboxEmailPdfExportService } from '../services/inbox-email-pdf-export.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('InboxDetailComponent - permanent delete', () => {
   let held: Set<string>;
@@ -23,6 +24,7 @@ describe('InboxDetailComponent - permanent delete', () => {
     TestBed.configureTestingModule({
       imports: [InboxDetailComponent],
       providers: [
+        ...APP_PORT_BINDINGS,
         {
           provide: InboxService,
           useValue: {
@@ -74,6 +76,7 @@ describe('InboxDetailComponent - permanent delete button (rendered template)', (
     TestBed.configureTestingModule({
       imports: [InboxDetailComponent, TranslateModule.forRoot()],
       providers: [
+        ...APP_PORT_BINDINGS,
         {
           provide: InboxService,
           useValue: {

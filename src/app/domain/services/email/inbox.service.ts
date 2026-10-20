@@ -14,7 +14,7 @@ import {
   SPECIAL_USE_JUNK,
   SPECIAL_USE_TRASH,
 } from 'src/app/domain/constants/email.constants';
-import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker.interface';
 import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 
@@ -32,7 +32,7 @@ export class InboxService {
   private dataReceivedEmailService = inject(DataReceivedEmailService);
   private dataEmailFolderService = inject(DataEmailFolderService);
   private emailSignalRService = inject(EmailSignalRService);
-  private authorizationService = inject(AuthorizationService);
+  private permissionChecker = inject(PERMISSION_CHECKER);
   private destroyRef = inject(DestroyRef);
 
   emails = signal<IReceivedEmailListItem[]>([]);
@@ -282,7 +282,7 @@ export class InboxService {
    * instead of collecting three 403 toasts.
    */
   refreshUnreadCount(): void {
-    if (!this.authorizationService.hasPermission(INBOX_REQUIRED_PERMISSION)) {
+    if (!this.permissionChecker.hasPermission(INBOX_REQUIRED_PERMISSION)) {
       return;
     }
 

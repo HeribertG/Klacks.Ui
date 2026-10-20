@@ -6,6 +6,7 @@ import { LocaleDataLoaderService } from 'src/app/application/services/locale-dat
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { NgbDateCustomParserFormatter } from './NgbDateParserFormatter';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const NEW_YEARS_EVE = { year: 2026, month: 12, day: 31 };
 const LAST_MONTH_OF_YEAR = 12;
@@ -16,7 +17,7 @@ describe('NgbDateCustomParserFormatter', () => {
   let localeService: LocaleService;
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({ providers: [NgbDateCustomParserFormatter] });
+    TestBed.configureTestingModule({ providers: [...APP_PORT_BINDINGS, NgbDateCustomParserFormatter] });
     const loader = TestBed.inject(LocaleDataLoaderService);
     await Promise.all(TEST_LANGUAGES.map((code) => loader.ensureLoaded(code)));
     localeService = TestBed.inject(LocaleService);

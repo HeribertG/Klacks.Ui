@@ -8,6 +8,7 @@
  */
 import { inject, Injectable, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { IThemeSource } from 'src/app/domain/interfaces/theme-source.interface';
 
 export type ThemeMode = 'light' | 'klacks' | 'dark' | 'high-contrast' | 'blue' | 'warm' | 'oled' | 'dimmed';
 
@@ -25,7 +26,7 @@ export const AVAILABLE_THEMES: { value: ThemeMode; label: string }[] = [
 const THEME_STORAGE_KEY = 'theme';
 
 @Injectable({ providedIn: 'root' })
-export class ThemeService {
+export class ThemeService implements IThemeSource {
   private localStorageService = inject(LocalStorageService);
 
   public theme = signal<ThemeMode>(this.resolveInitialTheme());

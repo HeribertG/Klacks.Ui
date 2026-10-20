@@ -8,6 +8,7 @@ import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { GridFontsService } from './grid-fonts.service';
 import { ensureFontFallback } from './ensure-font-fallback';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('GridFontsService font fallback', () => {
   let settings: { type: string; value: string }[];
@@ -17,6 +18,7 @@ describe('GridFontsService font fallback', () => {
     settings = [];
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         {
           provide: DataSettingsVariousService,
           useValue: { readSettingList: () => of(settings) },

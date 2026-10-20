@@ -57,7 +57,7 @@ import {
   planningRuleTooltip,
 } from 'src/app/domain/helpers/planning-rule-entry.helper';
 import { resolveMultiLanguageParams } from 'src/app/domain/helpers/multi-language-params.helper';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -67,7 +67,7 @@ export class CollisionDetectionService implements OnDestroy {
   private dataManagement = inject(DataManagementScheduleService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private translate = inject(TranslateService);
-  private localeService = inject(LocaleService);
+  private localeProvider = inject(LOCALE_PROVIDER);
   private collisions = new Map<string, ICollisionNotification>();
   private validations = new Map<string, IScheduleValidationNotification>();
   private subscriptions: Subscription[] = [];
@@ -257,7 +257,7 @@ export class CollisionDetectionService implements OnDestroy {
 
     return formatDateParams(
       resolveMultiLanguageParams(localized, this.translate.currentLang),
-      this.localeService.getLocale(),
+      this.localeProvider.getLocale(),
     );
   }
 

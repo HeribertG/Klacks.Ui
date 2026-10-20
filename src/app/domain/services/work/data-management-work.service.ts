@@ -10,9 +10,9 @@ import {
   Work,
 } from 'src/app/domain/models/schedule/schedule-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
-import { BulkAddWorksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-works-request.dto';
-import { BulkWorksResponse } from 'src/app/infrastructure/api/dtos/bulk-works-response.dto';
-import { ReassignWorkClientResponse } from 'src/app/infrastructure/api/dtos/reassign-work-client-response.dto';
+import { BulkAddWorksRequest } from 'src/app/domain/models/dtos/bulk-add-works-request.dto';
+import { BulkWorksResponse } from 'src/app/domain/models/dtos/bulk-works-response.dto';
+import { ReassignWorkClientResponse } from 'src/app/domain/models/dtos/reassign-work-client-response.dto';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';

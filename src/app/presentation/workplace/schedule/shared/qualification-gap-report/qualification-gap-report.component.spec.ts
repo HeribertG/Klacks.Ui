@@ -18,6 +18,7 @@ import {
 } from 'src/app/shared/testing/calendar-date-cell.testing';
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { QualificationGapReportComponent } from './qualification-gap-report.component';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const SHIFT_NAME_CELL_INDEX = 1;
 const DATE_CELL_INDEX = 2;
@@ -38,6 +39,7 @@ const GAP: QualificationGapDetail = {
 describe('QualificationGapReportComponent date column', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...APP_PORT_BINDINGS],
       imports: [QualificationGapReportComponent, TranslateModule.forRoot()],
     }).compileComponents();
     const loader = TestBed.inject(LocaleDataLoaderService);

@@ -11,6 +11,7 @@ import { signal } from '@angular/core';
 import { SettingsGeneralComponent } from './settings-general.component';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('SettingsGeneralComponent', () => {
     let component: SettingsGeneralComponent;
@@ -63,6 +64,7 @@ describe('SettingsGeneralComponent', () => {
         await TestBed.configureTestingModule({
             imports: [SettingsGeneralComponent, TranslateModule.forRoot()],
             providers: [
+              ...APP_PORT_BINDINGS,
                 { provide: DataLoadFileService, useValue: dataLoadFileServiceSpy },
                 {
                     provide: DataManagementSettingsService,

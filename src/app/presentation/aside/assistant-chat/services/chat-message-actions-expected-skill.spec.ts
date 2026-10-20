@@ -9,7 +9,7 @@ import { ChatMessageActionsService } from './chat-message-actions.service';
 import { ConversationOrchestratorService, ConversationState } from './conversation-orchestrator.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
-import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TextToSpeechService } from './text-to-speech.service';

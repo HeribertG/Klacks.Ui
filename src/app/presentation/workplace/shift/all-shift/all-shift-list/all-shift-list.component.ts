@@ -50,7 +50,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { SHIFT_FILTER_TYPE_TO_REPORT_SOURCE } from 'src/app/domain/models/report/report-data-source.model';
-import { SetupConsultationOfferService } from 'src/app/application/services/setup-consultation-offer.service';
+import { SetupConsultationOfferService } from 'src/app/presentation/services/setup-consultation-offer.service';
 
 // Read once on init from the "new-plannable-shift" Klacksy navigation target
 // (Application/Skills/Definitions/navigation-targets.json), whose route is

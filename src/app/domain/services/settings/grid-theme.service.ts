@@ -2,14 +2,14 @@
 
 /**
  * Reads grid header/container colors from CSS variables (set by colors.scss themes).
- * @param themeService - Provides the current theme signal to trigger re-reads on theme change
+ * @param themeSource - Provides the current theme signal to trigger re-reads on theme change
  */
 import { Injectable, inject, signal, effect, untracked } from '@angular/core';
-import { ThemeService } from 'src/app/presentation/services/theme.service';
+import { THEME_SOURCE } from 'src/app/domain/interfaces/theme-source.interface';
 
 @Injectable({ providedIn: 'root' })
 export class GridThemeService {
-  private themeService = inject(ThemeService);
+  private themeSource = inject(THEME_SOURCE);
 
   readonly containerBackground = signal<string>('#424949');
   readonly headerBackground = signal<string>('#d5dbdb');
@@ -19,7 +19,7 @@ export class GridThemeService {
 
   constructor() {
     effect(() => {
-      this.themeService.theme();
+      this.themeSource.theme();
       untracked(() => {
         requestAnimationFrame(() => this.readFromCssVariables());
       });

@@ -7,6 +7,7 @@ import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { of, throwError } from 'rxjs';
 import { ISetting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('AppSettingsManagementService', () => {
     let service: AppSettingsManagementService;
@@ -29,6 +30,7 @@ describe('AppSettingsManagementService', () => {
 
         TestBed.configureTestingModule({
             providers: [
+              ...APP_PORT_BINDINGS,
                 AppSettingsManagementService,
                 { provide: DataSettingsVariousService, useValue: dataSettingsServiceSpy },
                 { provide: AuthorizationService, useValue: { isAdmin: true } }
