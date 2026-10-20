@@ -3479,4 +3479,36 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
             expect(component['analyzeShift']).toHaveBeenCalled();
         });
     });
+
+    describe('Service callback slots', () => {
+        it('should release both slots on destroy while they still hold its callback', () => {
+            // Arrange
+            component.ngOnInit();
+            expect(mockDataService.onResetCompleted).toBeTypeOf('function');
+            expect(mockDataService.onReadCompleted).toBeTypeOf('function');
+
+            // Act
+            component.ngOnDestroy();
+
+            // Assert
+            expect(mockDataService.onResetCompleted).toBeUndefined();
+            expect(mockDataService.onReadCompleted).toBeUndefined();
+        });
+
+        it('should leave slots alone that another component has taken over', () => {
+            // Arrange
+            component.ngOnInit();
+            const newerResetCallback = vi.fn();
+            const newerReadCallback = vi.fn();
+            mockDataService.onResetCompleted = newerResetCallback;
+            mockDataService.onReadCompleted = newerReadCallback;
+
+            // Act
+            component.ngOnDestroy();
+
+            // Assert
+            expect(mockDataService.onResetCompleted).toBe(newerResetCallback);
+            expect(mockDataService.onReadCompleted).toBe(newerReadCallback);
+        });
+    });
 });

@@ -79,6 +79,14 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   isReadOnly = false;
   private returnUrl: string | null = null;
 
+  private readonly beforeSaveCallback = (): void => {
+    this.shiftFormService.applyFormToShift();
+  };
+
+  private readonly readCompletedCallback = (): void => {
+    this.draftRecoveryService.offerRestore();
+  };
+
   constructor() {
     effect(() => {
       this.dataManagementShiftService.isReset();
@@ -110,13 +118,8 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
 
-    this.dataManagementShiftService.onBeforeSave = () => {
-      this.shiftFormService.applyFormToShift();
-    };
-
-    this.dataManagementShiftService.onReadCompleted = () => {
-      this.draftRecoveryService.offerRestore();
-    };
+    this.dataManagementShiftService.onBeforeSave = this.beforeSaveCallback;
+    this.dataManagementShiftService.onReadCompleted = this.readCompletedCallback;
 
     combineLatest([
       this.activatedRoute.params,
@@ -155,9 +158,23 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.dataManagementShiftService.returnUrl = null;
-    this.dataManagementShiftService.onReadCompleted = undefined;
+    this.releaseServiceCallbacks();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Hands the callback slots of the root-scoped shift service back, but only those still holding our own
+   * callbacks: a slot that is left behind keeps the destroyed component alive and lets later saves and reads run
+   * against it, while a slot taken over by a newer editor belongs to that editor and must not be cleared.
+   */
+  private releaseServiceCallbacks(): void {
+    if (this.dataManagementShiftService.onBeforeSave === this.beforeSaveCallback) {
+      this.dataManagementShiftService.onBeforeSave = undefined;
+    }
+    if (this.dataManagementShiftService.onReadCompleted === this.readCompletedCallback) {
+      this.dataManagementShiftService.onReadCompleted = undefined;
+    }
   }
 
   onIsChanging(event: any) {

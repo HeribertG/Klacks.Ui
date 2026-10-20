@@ -16,6 +16,7 @@ import {
   inject,
   Input,
   OnInit,
+  OnDestroy,
   HostListener,
   DestroyRef,
   computed,
@@ -66,7 +67,7 @@ import { createDefaultCutParameterState } from './services/cut-parameter-state';
   styleUrl: './cut-shift-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CutShiftListComponent implements OnInit {
+export class CutShiftListComponent implements OnInit, OnDestroy {
   readonly isChangingEvent = output<boolean>();
 
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
@@ -145,16 +146,29 @@ export class CutShiftListComponent implements OnInit {
   public selectedShift: Shift | undefined = undefined;
   private activeModal: NgbModalRef | null = null;
 
+  private readonly cutStateChangedCallback = (): void => {
+    this.analyzeResetCuts();
+    this.cdr.markForCheck();
+  };
+
   ngOnInit(): void {
     this.resetAllParameters();
-    this.dataManagementShiftCutService.onResetCompleted = () => {
-      this.analyzeResetCuts();
-      this.cdr.markForCheck();
-    };
-    this.dataManagementShiftCutService.onReadCompleted = () => {
-      this.analyzeResetCuts();
-      this.cdr.markForCheck();
-    };
+    this.dataManagementShiftCutService.onResetCompleted = this.cutStateChangedCallback;
+    this.dataManagementShiftCutService.onReadCompleted = this.cutStateChangedCallback;
+  }
+
+  /**
+   * Hands the callback slots of the root-scoped cut service back, but only those still holding our own callback:
+   * a slot left behind keeps the destroyed list alive and lets later reads and resets run against it, while a slot
+   * taken over by a newer list belongs to that list and must not be cleared.
+   */
+  ngOnDestroy(): void {
+    if (this.dataManagementShiftCutService.onResetCompleted === this.cutStateChangedCallback) {
+      this.dataManagementShiftCutService.onResetCompleted = undefined;
+    }
+    if (this.dataManagementShiftCutService.onReadCompleted === this.cutStateChangedCallback) {
+      this.dataManagementShiftCutService.onReadCompleted = undefined;
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
