@@ -140,14 +140,15 @@ export class SignalRConnectionHelper {
   async stopConnection(): Promise<void> {
     this.stopHealthCheck();
     this.stopWatchdog();
-    if (this._hubConnection) {
+    const hub = this._hubConnection;
+    if (hub) {
+      this._hubConnection = null;
+      this._connectionId.set('');
       try {
-        await this._hubConnection.stop();
+        await hub.stop();
       } catch {
         // hub.stop() rarely throws but never blocks teardown
       }
-      this._connectionId.set('');
-      this._hubConnection = null;
     }
     this.transitionTo('Idle');
   }
@@ -374,11 +375,13 @@ export class SignalRConnectionHelper {
     callbacks: SignalRConnectionCallbacks,
   ): void {
     hub.onreconnecting(async () => {
+      if (this._hubConnection !== hub) return;
       this.transitionTo('Reconnecting');
       await callbacks.onReconnecting();
     });
 
     hub.onreconnected(async (connectionId) => {
+      if (this._hubConnection !== hub) return;
       if (connectionId) {
         this._connectionId.set(connectionId);
       } else {
@@ -391,6 +394,7 @@ export class SignalRConnectionHelper {
     });
 
     hub.onclose(() => {
+      if (this._hubConnection !== hub) return;
       const previous = this._state();
       if (previous === 'Connected' || previous === 'Reconnecting') {
         this.transitionTo('Idle');
