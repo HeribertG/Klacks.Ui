@@ -13,22 +13,26 @@
   padding-bottom: 25px;
 }
 
-.import-result-main {
+.import-section p {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--standartTextColor);
 }
 
-.import-hint {
-  margin: 0;
-  font-size: 13px;
-  color: var(--colorLabel);
+.import-result-main {
+  font-size: var(--fontSizeBase);
+  font-weight: 600;
+  color: var(--colorHeadline);
 }
 
 .import-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 12px;
   margin-top: 12px;
+
+  .btn {
+    width: auto;
+    min-width: 180px;
+    margin-inline-end: 0;
+  }
 }

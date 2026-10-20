@@ -10,6 +10,7 @@ export const SETTINGS_TARGET_SECTIONS: Record<string, string> = {
   'escalation-roster': 'users',
   'group-scope': 'users',
   'identity-providers': 'organization',
+  'client-import': 'organization',
   'branches': 'organization',
   'contracts': 'organization',
   'states': 'organization',

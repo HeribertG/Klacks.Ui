@@ -357,6 +357,11 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     );
   }
 
+  isLegalEntity(): boolean {
+    const model = this.formModel();
+    return model.legalEntity || Number(model.gender) === GenderEnum.legalEntity;
+  }
+
   canSendTelegramInvitation(): boolean {
     const client = this.dataManagementClientService.editClient();
     return (

@@ -24,7 +24,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { EditAddressCardVisibilityService } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
-import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import { EntityTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 
 const LATITUDE = 46.95;
@@ -110,6 +110,56 @@ describe('AddressPersonaComponent external map links', () => {
 
     expect(openSpy).toHaveBeenCalledTimes(1);
     expect(String(openSpy.mock.calls[0][0])).toContain(`@${LATITUDE},${LONGITUDE},`);
+  });
+
+  describe('legal entity contact person', () => {
+    const setModel = (component: AddressPersonaComponent, legalEntity: boolean, gender: GenderEnum): void => {
+      component.formModel.update((m) => ({ ...m, legalEntity, gender: String(gender) }));
+    };
+
+    it('treats a person as no legal entity', () => {
+      const component = create();
+      setModel(component, false, GenderEnum.female);
+
+      expect(component.isLegalEntity()).toBe(false);
+    });
+
+    it('treats the legal entity flag as legal entity', () => {
+      const component = create();
+      setModel(component, true, GenderEnum.female);
+
+      expect(component.isLegalEntity()).toBe(true);
+    });
+
+    it('treats the legal entity gender as legal entity', () => {
+      const component = create();
+      setModel(component, false, GenderEnum.legalEntity);
+
+      expect(component.isLegalEntity()).toBe(true);
+    });
+
+    it('no longer hides title, first name and last name by gender in the template', () => {
+      const template = readFileSync(TEMPLATE_PATH, 'utf8');
+
+      expect(template).not.toContain('gender !== 3');
+      expect(template).toContain('id="contact-person-heading"');
+      expect(template).toContain('address.edit-address.address-persona.contact-person');
+    });
+
+    it('keeps the birthdate and the second name lines for persons only', () => {
+      const template = readFileSync(TEMPLATE_PATH, 'utf8');
+      const birthdayBlock = template.slice(template.lastIndexOf('@if (!isLegalEntity() &&'));
+
+      expect(birthdayBlock).toContain('id="profile-birthday"');
+      expect(template).toContain('@if (addFirstNameLine2 === true && !isLegalEntity() &&');
+      expect(template).toContain('@if (addNameLine2 && !isLegalEntity() &&');
+    });
+
+    it('marks first and last name as required for persons only', () => {
+      const template = readFileSync(TEMPLATE_PATH, 'utf8');
+
+      expect(template.match(/@if \(!isLegalEntity\(\)\) \{ \* \}/g)).toHaveLength(2);
+    });
   });
 
   it('gates the map buttons in the template on the external map link setting', () => {

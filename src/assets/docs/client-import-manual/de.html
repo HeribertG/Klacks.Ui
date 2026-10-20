@@ -1,0 +1,617 @@
+<h2>Mitarbeiter-Import – Handbuch</h2>
+
+<h3>Was ist der Mitarbeiter-Import?</h3>
+<p>
+Der Mitarbeiter-Import übernimmt eine ganze Personalliste aus <strong>einer Excel-Datei (.xlsx) oder
+einer CSV-Datei (.csv)</strong> mit einer Zeile pro Person, statt jede Person einzeln von Hand zu
+erfassen. Klacks erkennt die Spalten selbst, zeigt in einer Vorschau, wie jeder Datensatz aussehen
+wird, und speichert erst nach der Bestätigung. Neben Mitarbeitenden kann dieselbe Datei auch externe
+Mitarbeitende und Kunden enthalten.
+</p>
+<ul>
+  <li>
+    <strong>Wer importieren darf:</strong> nur Administratoren. Die Karte <em>Mitarbeitende
+    importieren</em> liegt in den Einstellungen im Bereich <em>Organisation</em>; der Button
+    <em>Importieren</em> öffnet die Import-Seite. Andere Benutzer sehen die Karte nicht und brauchen
+    für den Import einen Administrator.
+  </li>
+  <li>
+    <strong>Datenschutz:</strong> Die Datei selbst wird nicht gespeichert. Sie wird nur gelesen;
+    angelegt werden nur die in der Vorschau bestätigten Zeilen.
+  </li>
+  <li>
+    <strong>Vier Schritte:</strong> <em>Datei</em> → <em>Zuordnung &amp; Regeln</em> →
+    <em>Vorschau</em> → <em>Ergebnis</em>. Der Reiter <em>Handbuch</em> zeigt dieses Handbuch; der
+    Wechsel dorthin verwirft einen laufenden Import nicht.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Unterstützte Dateien</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> und <strong>CSV (.csv)</strong>; eine .txt-Datei wird wie eine
+    CSV-Datei gelesen. Das alte Excel-Format <strong>.xls wird nicht unterstützt</strong> – die Datei
+    vorher in Excel als .xlsx speichern.
+  </li>
+  <li>
+    <strong>Excel-Arbeitsmappen:</strong> Gelesen werden nur sichtbare Tabellenblätter, standardmässig
+    das erste. Bei mehreren Blättern bietet Schritt 2 die Auswahl <em>Tabellenblatt</em>. Von Formeln
+    wird das berechnete Ergebnis übernommen. Als Datum formatierte Zellen werden als Datum gelesen.
+    Zahlen in Zellen mit dem Format „Standard“ verlieren führende Nullen (PLZ 01234 wird zu 1234) –
+    solche Spalten als Text formatieren (die Vorlage tut das bereits).
+  </li>
+  <li>
+    <strong>Zeichenkodierung von CSV-Dateien:</strong> UTF-8 (mit oder ohne Byte-Order-Mark) und
+    UTF-16 mit Byte-Order-Mark werden erkannt; jede andere Datei wird als Windows-1252 gelesen (das
+    übliche „ANSI“-Format von Excel unter Windows in Westeuropa), sodass westeuropäische Umlaute und
+    Akzente ohne Einstellung korrekt ankommen. Für alle anderen Schriften und Buchstaben (zum Beispiel
+    ł, ř, ș, Griechisch, Arabisch, Hebräisch, Chinesisch, Japanisch, Koreanisch oder Thai) die Datei
+    als „CSV UTF-8“ speichern oder .xlsx verwenden.
+  </li>
+  <li>
+    <strong>Trennzeichen von CSV-Dateien:</strong> Semikolon, Komma, Tabulator oder senkrechter Strich
+    (|) werden automatisch erkannt. Werte in Anführungszeichen dürfen das Trennzeichen und
+    Zeilenumbrüche enthalten.
+  </li>
+  <li>
+    <strong>Kopfzeile:</strong> Die erste Zeile mit Spaltennamen muss innerhalb der ersten 10
+    nicht leeren Zeilen liegen und mindestens zwei Textzellen enthalten. Zeilen darüber (zum Beispiel
+    ein Titel) und leere Zeilen werden ignoriert.
+  </li>
+  <li>
+    <strong>Datumsformate:</strong> Tag, Monat und Jahr, getrennt durch Punkt, Schrägstrich oder
+    Bindestrich, zum Beispiel 31.12.1990, 12/31/1990 oder 1990-12-31; eine Uhrzeit nach dem Datum
+    wird ignoriert. Ein Wert, der mit einer vierstelligen Jahreszahl beginnt, gilt immer als
+    Jahr-Monat-Tag. Lässt die Datei nicht erkennen, ob der Tag oder der Monat zuerst steht (kein Wert
+    über 12), nimmt Klacks Tag/Monat/Jahr an und verlangt in Schritt 2 eine Prüfung des
+    Datumsformats. Monatsnamen (zum Beispiel
+    „31. Dez. 1990“) werden nicht erkannt.
+  </li>
+  <li>
+    <strong>Zweistellige Jahreszahlen:</strong> Jahre bis zu den letzten beiden Ziffern des laufenden
+    Jahres gelten als 20xx, höhere als 19xx (im Jahr 2026: „26“ = 2026, „27“ = 1927). Die Vorschau
+    markiert jedes solche Datum mit einer Warnung, damit das Jahrhundert geprüft werden kann.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Grenzen und grössere Listen</h3>
+<ul>
+  <li>Höchstens <strong>5 MB</strong> pro Datei.</li>
+  <li>
+    Höchstens <strong>1000 Zeilen</strong> pro Import – gezählt werden die Datenzeilen unterhalb der
+    Kopfzeile, ohne leere Zeilen.
+  </li>
+  <li>
+    Höchstens <strong>60 Spalten</strong>. In Excel zählt die letzte benutzte Spalte: Ein einzelner
+    vergessener Wert weit rechts macht die Datei zu breit.
+  </li>
+  <li>
+    Eine Zelle darf höchstens 1000 Zeichen enthalten; längerer Inhalt wird abgeschnitten. Vorname,
+    Nachname, Titel und Firma dürfen je höchstens 100 Zeichen lang sein, ebenso E-Mail-Adresse,
+    Telefon- und Mobilnummer.
+  </li>
+  <li>
+    Eine Excel-Datei darf entpackt höchstens 20 MB umfassen (Schutz vor manipulierten Dateien).
+  </li>
+</ul>
+<p>
+<strong>Grössere Listen:</strong> Die Liste in mehrere Dateien mit je höchstens 1000 Zeilen aufteilen;
+jede Datei braucht ihre eigene Kopfzeile. Nicht benötigte Spalten lassen sich vorher löschen. Die
+Dateien nacheinander importieren. Personen, die bereits aus einer früheren Datei importiert wurden,
+werden als Dubletten erkannt, wenn sie eine E-Mail-Adresse oder ein Geburtsdatum haben (siehe
+<em>Dubletten</em>).
+</p>
+
+<hr>
+
+<h3>Vorlage</h3>
+<p>
+Der Button <em>Vorlage herunterladen</em> in Schritt 1 liefert eine Excel-Datei in der Sprache der
+Benutzerin oder des Benutzers (Dateiname <code>klacks-employee-import-de.xlsx</code>). Mit der Vorlage
+wird jede Spalte zuverlässig erkannt. Ihre Kopfzeile ist fett und fixiert, alle Spalten sind als Text
+formatiert (führende Nullen und Datumswerte bleiben wie eingetippt), und die Kopfzelle der Spalte
+<em>Typ</em> trägt eine Notiz mit den erlaubten Werten. Die Vorlage enthält keine Beispielzeile, weil
+diese mitimportiert würde.
+</p>
+<p>
+Spalten der Vorlage, in dieser Reihenfolge: Vorname, Nachname, Titel, Firma, Typ, Geschlecht,
+Geburtsdatum, Strasse, Adresszusatz, PLZ, Ort, Kanton, Land, E-Mail, Telefon, Mobil, Eintrittsdatum,
+Austrittsdatum, Vertrag, Gruppe, Bemerkung. Eigene Listen funktionieren ebenso – Klacks erkennt
+Spaltennamen in allen 25 Klacks-Sprachen und viele übliche Varianten (zum Beispiel „Familienname“,
+„Postleitzahl“, „Eintritt“).
+</p>
+
+<hr>
+
+<h3>Schritt 1 – Datei</h3>
+<ul>
+  <li>
+    Die Datei auf die Ablage-Zone ziehen oder die Zone anklicken, um eine Datei auszuwählen. Klacks
+    liest die Datei und wechselt zu Schritt 2.
+  </li>
+  <li>
+    Ein Problem mit der Datei (falsches Format, zu gross, zu viele Zeilen oder Spalten, keine
+    Kopfzeile) erscheint direkt unter der Ablage-Zone; siehe <em>Häufige Fehler und Lösungen</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Schritt 2 – Zuordnung &amp; Regeln</h3>
+<h4>Spalten zuordnen</h4>
+<ul>
+  <li>
+    Jede Spalte der Datei erscheint in einer Zeile mit bis zu drei Beispielwerten, dem von Klacks
+    vorgeschlagenen Feld (<em>Übernehmen als</em>) und der Sicherheit dieses Vorschlags
+    (<em>Sicherheit</em>).
+  </li>
+  <li>
+    Jeder Vorschlag lässt sich in der Auswahlliste ändern. Eine Spalte, die nicht übernommen werden
+    soll, wird auf <em>Nicht übernehmen</em> gesetzt. Jedes Feld kann nur einer Spalte zugeordnet
+    werden.
+  </li>
+  <li>
+    <em>Datumsformat</em> erscheint, wenn die Datei Datumswerte enthält; lässt die Datei die
+    Reihenfolge von Tag und Monat offen, muss die Auswahl geprüft werden.
+  </li>
+  <li>
+    <em>Reihenfolge im Namensfeld</em> erscheint bei einer Spalte mit dem vollständigen Namen:
+    <em>Vorname Nachname</em> oder <em>Nachname Vorname</em>. Ein Komma („Muster, Anna“) bedeutet
+    immer Nachname zuerst. Der vollständige Name füllt nur einen Vor- oder Nachnamen, der keine
+    eigene Spalte hat oder in einer Zeile leer ist.
+  </li>
+</ul>
+<h4>Regeln für fehlende Angaben</h4>
+<p>Diese Regeln gelten für alle Zeilen:</p>
+<ul>
+  <li>
+    <em>Vertrag, wenn keiner angegeben ist</em> und <em>Gruppe, wenn keine angegeben ist</em> –
+    gelten für Zeilen ohne Vertrag oder Gruppe oder mit einem Namen, den es nicht gibt.
+  </li>
+  <li>
+    <em>Eintrittsdatum, wenn keines angegeben ist</em> – leer bedeutet heute. Das Datum ist auch der
+    Beginn von Vertrag, Gruppenzuordnung und Adresse.
+  </li>
+  <li>
+    <em>Land, wenn keines angegeben ist</em> – Standard ist <em>Land der Installation</em>.
+  </li>
+  <li>
+    <em>E-Mail-Adressen speichern als</em>, <em>Telefonnummern speichern als</em>,
+    <em>Mobilnummern speichern als</em> – privat oder geschäftlich; gilt für alle Zeilen.
+  </li>
+  <li>
+    <em>Ehemalige (Austritt in der Vergangenheit)</em> – <em>Überspringen</em> (Standard) oder
+    <em>Mit Austrittsdatum importieren</em>. Ein Austrittsdatum von heute oder später wird immer
+    importiert.
+  </li>
+  <li>
+    <em>Mögliche Dubletten</em> – <em>Überspringen</em> (Standard) oder <em>Trotzdem anlegen</em>.
+  </li>
+</ul>
+<p>
+<em>Weiter zur Vorschau</em> führt weiter; <em>Andere Datei wählen</em> beginnt mit einer anderen
+Datei von vorn.
+</p>
+
+<hr>
+
+<h3>Schritt 3 – Vorschau</h3>
+<ul>
+  <li>
+    Eine Zusammenfassung zählt die Zeilen: gesamt, bereit, übersprungen, mit Fehlern, Dubletten und
+    mit Warnungen. Hinweise, die alle oder viele Zeilen betreffen, stehen einmal über der Tabelle,
+    zusammen mit den Spalten, die nicht übernommen werden.
+  </li>
+  <li>
+    Die Tabelle zeigt jede Zeile so, wie sie gespeichert wird, mit Fehlern zuerst, dann Warnungen und
+    Hinweisen. <em>Nur Zeilen mit Problemen anzeigen</em> grenzt die Liste ein.
+  </li>
+  <li>
+    Pro Zeile: <em>Überspringen</em> lässt die Zeile aus; <em>Bitte wählen</em> setzt das Geschlecht
+    einer Zeile ohne Angabe; <em>Trotzdem anlegen</em> behält eine Zeile, die als Dublette erkannt
+    wurde.
+  </li>
+  <li>
+    Andere Werte lassen sich in der Vorschau nicht bearbeiten. Zum Korrigieren die Datei anpassen und
+    erneut wählen (<em>Andere Datei wählen</em>) oder die Zuordnung mit <em>Zurück</em> ändern.
+  </li>
+  <li>
+    Der Import-Button zeigt, wie viele Personen angelegt werden (zum Beispiel <em>25 Mitarbeitende
+    importieren</em>). Er bleibt gesperrt, solange eine Zeile noch einen Fehler hat: die Zeile
+    korrigieren oder überspringen.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Schritt 4 – Ergebnis</h3>
+<p>
+Zeigt, wie viele Personen angelegt und wie viele Zeilen übersprungen wurden und wie viele Adressen im
+Hintergrund auf der Karte verortet werden. <em>Zur Mitarbeiterliste</em> öffnet die Liste,
+<em>Weitere Datei importieren</em> startet einen neuen Import.
+</p>
+
+<hr>
+
+<h3>Importierbare Spalten</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Feld (Übernehmen als)</th>
+      <th>Pflicht</th>
+      <th>Hinweise</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Vorname, Nachname</td>
+      <td>Ja, bei Personen</td>
+      <td>Je höchstens 100 Zeichen. Bei einem Kunden mit Firma nicht nötig.</td>
+    </tr>
+    <tr>
+      <td>Vollständiger Name</td>
+      <td>Nein</td>
+      <td>Alternative zu getrennten Namensspalten; wird in Vor- und Nachname aufgeteilt (siehe Schritt 2).
+        Namen mit mehr als zwei Teilen erhalten eine Warnung – die Aufteilung prüfen.</td>
+    </tr>
+    <tr>
+      <td>Titel</td>
+      <td>Nein</td>
+      <td>Wird unverändert übernommen, zum Beispiel „Dr.“. Ein Titel im vollständigen Namen wird nicht
+        abgetrennt.</td>
+    </tr>
+    <tr>
+      <td>Geschlecht, Anrede</td>
+      <td>Ja, bei Personen</td>
+      <td>Siehe <em>Geschlecht und Anrede</em>. Ohne Wert wird das Geschlecht pro Zeile in der Vorschau
+        gewählt.</td>
+    </tr>
+    <tr>
+      <td>Geburtsdatum</td>
+      <td>Nein</td>
+      <td>Ein Datum in der Zukunft ist ein Fehler. Wichtig für die Dublettenerkennung.</td>
+    </tr>
+    <tr>
+      <td>Firma</td>
+      <td>Bei Kunden, die Firmen sind</td>
+      <td>Höchstens 100 Zeichen. Siehe <em>Typ und Firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Typ (Mitarbeiter, Extern, Kunde)</td>
+      <td>Nein</td>
+      <td>Leer oder fehlend = Mitarbeiter. Siehe <em>Typ und Firma</em>.</td>
+    </tr>
+    <tr>
+      <td>Strasse, Hausnummer</td>
+      <td>Nein</td>
+      <td>Eine separate Hausnummer wird an die Strasse angehängt.</td>
+    </tr>
+    <tr>
+      <td>Adresszusatz</td>
+      <td>Nein</td>
+      <td>Wird als freier Text übernommen.</td>
+    </tr>
+    <tr>
+      <td>PLZ, Ort</td>
+      <td>Bei Kunden, die Firmen sind</td>
+      <td>Eine Adresse wird angelegt, sobald Strasse, PLZ oder Ort angegeben ist.</td>
+    </tr>
+    <tr>
+      <td>PLZ und Ort</td>
+      <td>Nein</td>
+      <td>Eine Spalte mit beidem, zum Beispiel „8000 Zürich“ oder „CH-8000 Zürich“; wird nur verwendet,
+        wenn die Zeile weder eine separate PLZ noch einen Ort hat. Lässt sich der Wert nicht aufteilen,
+        wird er vollständig zum Ort (Warnung).</td>
+    </tr>
+    <tr>
+      <td>Kanton / Bundesland</td>
+      <td>Nein</td>
+      <td>Freier Text; wenn leer, wird er beim Verorten der Adresse auf der Karte ergänzt.</td>
+    </tr>
+    <tr>
+      <td>Land</td>
+      <td>Bei Kunden, die Firmen sind (das Standardland zählt)</td>
+      <td>Länderkürzel (CH, DE …) oder Ländername in einer beliebigen Klacks-Sprache. Leer = Standardland;
+        ein unbekanntes Land ergibt eine Warnung, verwendet wird dann das Standardland.</td>
+    </tr>
+    <tr>
+      <td>E-Mail</td>
+      <td>Nein</td>
+      <td>Eine ungültige Adresse wird mit einer Warnung weggelassen; die Person wird trotzdem importiert.</td>
+    </tr>
+    <tr>
+      <td>Telefon, Mobiltelefon</td>
+      <td>Nein</td>
+      <td>Leerzeichen und Trennzeichen werden entfernt, eine führende 00 wird zu +; eine Nummer ohne +
+        erhält die Landesvorwahl des Landes der Zeile.</td>
+    </tr>
+    <tr>
+      <td>Eintrittsdatum</td>
+      <td>Nein</td>
+      <td>Leer = Regel <em>Eintrittsdatum, wenn keines angegeben ist</em>. Unplausible Daten (vor dem
+        Geburtsdatum oder mehr als 50 Jahre entfernt) ergeben eine Warnung.</td>
+    </tr>
+    <tr>
+      <td>Austrittsdatum</td>
+      <td>Nein</td>
+      <td>Vor dem Eintrittsdatum = Fehler. In der Vergangenheit: siehe Regel <em>Ehemalige</em>.</td>
+    </tr>
+    <tr>
+      <td>Vertrag, Gruppe</td>
+      <td>Nein</td>
+      <td>Zuordnung über den Namen; siehe <em>Vertrag und Gruppe</em>.</td>
+    </tr>
+    <tr>
+      <td>Notiz</td>
+      <td>Nein</td>
+      <td>Wird als Notiz bei der Person gespeichert.</td>
+    </tr>
+    <tr>
+      <td>Personalnummer (vergibt Klacks selbst)</td>
+      <td>–</td>
+      <td>Wird erkannt, aber nie übernommen; siehe <em>Personalnummer</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Typ und Firma</h3>
+<ul>
+  <li>
+    Die Spalte <em>Typ</em> legt pro Zeile fest, ob es sich um Mitarbeitende, externe Mitarbeitende
+    oder Kunden handelt. Erkannt werden zum Beispiel <code>Mitarbeiter</code>,
+    <code>Mitarbeitende</code>, <code>Angestellte</code> (Mitarbeitende), <code>Extern</code>,
+    <code>Externe</code>, <code>Freelancer</code> (externe Mitarbeitende) und <code>Kunde</code>,
+    <code>Kundin</code>, <code>Auftraggeber</code> (Kunden); die entsprechenden Wörter aller anderen
+    Klacks-Sprachen und die Zahlen 0, 1 und 2 funktionieren ebenfalls. Gross- und Kleinschreibung
+    spielen keine Rolle.
+  </li>
+  <li>
+    Eine <strong>leere Zelle</strong> oder eine Datei ohne Typ-Spalte bedeutet
+    <strong>Mitarbeiter</strong>. Ein unbekannter Wert ist in der Vorschau ein Fehler.
+  </li>
+  <li>
+    <strong>Kunde mit Firma:</strong> wird als Firma (juristische Person) angelegt, nicht als Person.
+    Vor- und Nachname sind optional und bleiben als Kontaktperson erhalten (die Vorschau kennzeichnet
+    sie mit <em>Kontaktperson:</em>); ein Geschlecht in der Zeile wird ignoriert. Eine solche Zeile
+    braucht eine Adresse mit PLZ, Ort und Land (das Standardland zählt).
+  </li>
+  <li>
+    <strong>Kunde ohne Firma:</strong> wird als Person angelegt – Vorname, Nachname und Geschlecht
+    sind Pflicht.
+  </li>
+  <li>
+    <strong>Mitarbeitende oder externe Mitarbeitende mit Firma:</strong> bleiben Personen; der
+    Firmenname wird bei der Person gespeichert.
+  </li>
+  <li>
+    <strong>Kunden erhalten nie einen Vertrag</strong> – weder aus der Datei (Warnung, der Wert wird
+    nicht übernommen) noch aus den Regeln. Eine Gruppe wird auch Kunden zugeordnet.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Geschlecht und Anrede</h3>
+<ul>
+  <li>
+    Personen brauchen ein Geschlecht: <em>Weiblich</em>, <em>Männlich</em> oder <em>Divers</em>. Es
+    stammt aus der Spalte <em>Geschlecht</em>; ist diese leer, aus der Spalte <em>Anrede</em> (die
+    Vorschau weist darauf hin). Fehlt beides, wird das Geschlecht pro Zeile in der Vorschau gewählt
+    (<em>Bitte wählen</em>).
+  </li>
+  <li>
+    Erkannt werden zum Beispiel <code>Frau</code>, <code>Fr.</code>, <code>weiblich</code>,
+    <code>w</code> (weiblich), <code>Herr</code>, <code>Hr.</code>, <code>männlich</code>,
+    <code>m</code> (männlich) und <code>divers</code>, <code>d</code>, <code>x</code> (divers) – dazu
+    die entsprechenden Wörter aller anderen Klacks-Sprachen, etwa <code>Mr</code>/<code>Mrs</code>
+    oder <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Gross- und Kleinschreibung, Akzente und Satzzeichen spielen keine Rolle; bei einer längeren Anrede
+    zählt das erste Wort („Herr Dr.“ = männlich).
+  </li>
+  <li>Eine Firma (Kunde mit Firma) braucht kein Geschlecht.</li>
+</ul>
+
+<hr>
+
+<h3>Vertrag und Gruppe</h3>
+<ul>
+  <li>
+    Ein Wert in der Datei wird mit den Namen der vorhandenen Verträge und Gruppen verglichen; Gross-
+    und Kleinschreibung sowie Leerzeichen am Anfang oder Ende spielen keine Rolle.
+  </li>
+  <li>
+    Gibt es den Namen nicht, mehrfach oder ist er leer, wird der Vertrag bzw. die Gruppe aus den Regeln
+    verwendet, und die Vorschau weist darauf hin. Ohne Regel erhält die Zeile keinen Vertrag bzw.
+    keine Gruppe.
+  </li>
+  <li>
+    <strong>Der Import legt keine Verträge und Gruppen an.</strong> Diese zuerst in den Einstellungen
+    und auf der Gruppen-Seite einrichten, dann importieren.
+  </li>
+  <li>
+    Vertrag und Gruppe beginnen mit dem Eintrittsdatum und enden mit dem Austrittsdatum, falls es
+    eines gibt.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Personalnummer</h3>
+<p>
+Klacks <strong>vergibt die Personalnummer immer selbst</strong>. Eine Personalnummer-Spalte in der
+Datei wird erkannt, aber ignoriert; die Vorschau zeigt einen Hinweis. Um die Nummern eines anderen
+Systems zu behalten, lässt sich die Spalte in Schritt 2 als <em>Notiz</em> übernehmen, sofern keine
+andere Spalte als Notiz übernommen wird.
+</p>
+
+<hr>
+
+<h3>Dubletten</h3>
+<ul>
+  <li>
+    <strong>Personen:</strong> Eine Zeile gilt als Dublette, wenn die <strong>E-Mail-Adresse</strong>
+    gleich ist oder wenn <strong>Vorname, Nachname und Geburtsdatum</strong> gleich sind. Gross- und
+    Kleinschreibung, Akzente und Bindestriche werden ignoriert („Müller“ = „Muller“, „Hans-Peter“ =
+    „Hanspeter“).
+  </li>
+  <li>
+    <strong>Firmen</strong> (Kunden mit Firma): gleiche <strong>Firma, PLZ und Strasse</strong>.
+  </li>
+  <li>
+    Verglichen wird mit den bereits in Klacks erfassten Personen und mit früheren Zeilen derselben
+    Datei. <strong>Kunden werden nur mit Kunden verglichen</strong>, Mitarbeitende und externe
+    Mitarbeitende untereinander.
+  </li>
+  <li>
+    Dubletten werden mit der Regel <em>Mögliche Dubletten</em> = <em>Überspringen</em> übersprungen.
+    Mit <em>Trotzdem anlegen</em> – als Regel für alle Zeilen oder pro Zeile in der Vorschau – werden
+    sie trotzdem angelegt.
+  </li>
+  <li>
+    Nur ein <strong>Hinweis</strong>, ohne Überspringen: der gleiche Name ohne passendes Geburtsdatum
+    oder die gleiche Firma an einer anderen Adresse. Solche Zeilen vor dem Import prüfen.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Speichern und Adressen</h3>
+<ul>
+  <li>
+    <strong>Alles oder nichts:</strong> Der Import speichert alle bereiten Zeilen in einem Durchgang.
+    Schlägt etwas fehl, wird nichts gespeichert. Vor dem Speichern prüft Klacks alle Zeilen nochmals
+    gegen den aktuellen Datenbestand.
+  </li>
+  <li>
+    Angelegt werden pro Zeile: die Person (oder Firma), die Zugehörigkeit vom Eintritts- bis zum
+    Austrittsdatum, die Adresse, E-Mail-Adresse, Telefon- und Mobilnummer, Vertrag, Gruppe und Notiz.
+  </li>
+  <li>
+    Derselbe Import kann nicht zweimal gespeichert werden; ein zweiter Versuch meldet, dass der
+    Import bereits durchgeführt wurde.
+  </li>
+  <li>
+    <strong>Karte:</strong> Adressen mit PLZ und Ort werden nach dem Import im Hintergrund
+    nacheinander auf der Karte verortet. Bei vielen Adressen kann das einige Minuten dauern; die
+    Personen sind in der Zwischenzeit bereits verwendbar.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Häufige Fehler und Lösungen</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Meldung</th>
+      <th>Ursache</th>
+      <th>Lösung</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dieses Dateiformat wird nicht unterstützt. Bitte verwenden Sie eine .xlsx- oder .csv-Datei.</td>
+      <td>.xls, .ods, PDF oder eine beschädigte Datei.</td>
+      <td>Die Datei in Excel als .xlsx speichern oder als CSV exportieren.</td>
+    </tr>
+    <tr>
+      <td>Die Datei ist zu gross (maximal 5 MB).</td>
+      <td>Datei über 5 MB, zum Beispiel wegen Bildern oder unbenutzter Tabellenblätter.</td>
+      <td>Bilder und unbenutzte Tabellenblätter entfernen oder die Liste aufteilen.</td>
+    </tr>
+    <tr>
+      <td>Die Datei enthält zu viele Zeilen (maximal 1000 Personen pro Import).</td>
+      <td>Mehr als 1000 Datenzeilen.</td>
+      <td>Die Liste auf mehrere Dateien aufteilen (siehe <em>Grenzen und grössere Listen</em>).</td>
+    </tr>
+    <tr>
+      <td>Die Datei enthält zu viele Spalten (maximal 60).</td>
+      <td>Mehr als 60 Spalten, oft wegen eines verirrten Werts weit rechts.</td>
+      <td>Unbenutzte Spalten löschen, auch scheinbar leere am rechten Rand.</td>
+    </tr>
+    <tr>
+      <td>In den ersten Zeilen wurde keine Kopfzeile mit Spaltennamen gefunden.</td>
+      <td>Keine Zeile mit mindestens zwei Spaltennamen innerhalb der ersten 10 Zeilen.</td>
+      <td>Eine Kopfzeile mit Spaltennamen über die Daten setzen.</td>
+    </tr>
+    <tr>
+      <td>Die Datei enthält keine Daten.</td>
+      <td>Leere Datei, nur eine Kopfzeile oder kein sichtbares Tabellenblatt.</td>
+      <td>Die Datei prüfen; das Tabellenblatt in Excel einblenden.</td>
+    </tr>
+    <tr>
+      <td>Geschlecht fehlt – bitte wählen.</td>
+      <td>Kein oder ein nicht erkanntes Geschlecht bzw. keine erkannte Anrede.</td>
+      <td>Das Geschlecht in der Vorschau wählen oder die Spalte in der Datei füllen.</td>
+    </tr>
+    <tr>
+      <td>Vorname fehlt. / Nachname fehlt.</td>
+      <td>Namensspalte leer oder nicht zugeordnet; ein vollständiger Name aus nur einem Wort.</td>
+      <td>Die Zuordnung in Schritt 2 prüfen oder die Datei ergänzen.</td>
+    </tr>
+    <tr>
+      <td>Ungültiges Datum: „…“.</td>
+      <td>Unlesbares Datum, Geburtsdatum in der Zukunft oder Austritt vor dem Eintritt.</td>
+      <td>Das Datumsformat in Schritt 2 prüfen oder den Wert in der Datei korrigieren.</td>
+    </tr>
+    <tr>
+      <td>Unbekannter Typ „…“ – erlaubt sind Mitarbeiter, Extern oder Kunde.</td>
+      <td>Wert in der Typ-Spalte nicht erkannt.</td>
+      <td>Einen der Werte aus der Notiz der Vorlage verwenden oder die Zelle leer lassen (= Mitarbeiter).</td>
+    </tr>
+    <tr>
+      <td>Ein Kunde mit Firma braucht eine Adresse mit PLZ, Ort und Land.</td>
+      <td>Firmenzeile ohne vollständige Adresse.</td>
+      <td>PLZ und Ort ergänzen; ein Land in der Datei oder in den Regeln setzen.</td>
+    </tr>
+    <tr>
+      <td>Wert zu lang (höchstens … Zeichen).</td>
+      <td>Name, Titel, Firma, E-Mail oder Telefon länger als 100 Zeichen.</td>
+      <td>Den Wert in der Datei kürzen.</td>
+    </tr>
+    <tr>
+      <td>Vertrag „…“ nicht gefunden. / Gruppe „…“ nicht gefunden.</td>
+      <td>Der Name weicht von den Verträgen und Gruppen in Klacks ab.</td>
+      <td>Den Namen korrigieren oder den Vertrag bzw. die Gruppe zuerst anlegen; sonst gilt die Regel.</td>
+    </tr>
+    <tr>
+      <td>Einige Zeilen enthalten noch Fehler. Beheben Sie diese oder überspringen Sie die Zeilen und
+        versuchen Sie es dann erneut.</td>
+      <td>Mindestens eine Zeile hat einen Fehler.</td>
+      <td><em>Nur Zeilen mit Problemen anzeigen</em> verwenden, dann diese Zeilen korrigieren oder
+        überspringen.</td>
+    </tr>
+    <tr>
+      <td>Eine der Regeln für fehlende Angaben ist nicht mehr gültig …</td>
+      <td>Ein in den Regeln gewählter Vertrag oder eine Gruppe wurde inzwischen gelöscht.</td>
+      <td>Die Regeln in Schritt 2 prüfen.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Nach dem Import</h3>
+<ul>
+  <li>
+    Importierte Personen sind gewöhnliche Datensätze. Fehler werden auf der Seite der Person
+    korrigiert oder gelöscht; ein „Rückgängig“ für den ganzen Import gibt es nicht.
+  </li>
+  <li>
+    Wird dieselbe Datei ein zweites Mal importiert, werden Zeilen mit E-Mail-Adresse oder
+    Geburtsdatum wieder als Dubletten erkannt. Zeilen mit nur einem Namen werden lediglich markiert –
+    vor einem zweiten Import prüfen.
+  </li>
+  <li>
+    Eine einzelne Person wird von Hand auf der Mitarbeiter-Seite angelegt; ein Firmenverzeichnis kann
+    ein Administrator über die Einstellungen der Identity Provider synchronisieren.
+  </li>
+</ul>

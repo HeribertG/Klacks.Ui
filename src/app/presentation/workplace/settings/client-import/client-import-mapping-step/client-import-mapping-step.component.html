@@ -6,15 +6,15 @@
 
   <div class="form-group first import-section">
     <div class="import-file-info">
-      <span id="client-import-file-name">{{ parsed.fileName }}</span>
-      <span class="import-hint">
+      <span id="client-import-file-name" class="import-file-name">{{ parsed.fileName }}</span>
+      <span class="settings-hint">
         {{ countKey(countKeys.rowCount, parsed.rows.length) | translate: { count: parsed.rows.length } }}
       </span>
       @if (hasSeveralSheets()) {
         <label for="client-import-sheet">{{ "clientImport.mapping.sheet" | translate }}</label>
         <select
           id="client-import-sheet"
-          class="form-select form-select-sm import-select"
+          class="form-select import-select"
           [disabled]="state.isParsing()"
           (change)="onSheetChange($event)"
         >
@@ -26,14 +26,20 @@
     </div>
 
     @if (fileErrorKey(); as errorKey) {
-      <div id="client-import-sheet-error" class="import-error" role="alert">
+      <div id="client-import-sheet-error" class="settings-hint status-text-error" role="alert">
         {{ errorKey | translate }}
       </div>
     }
 
-    <p class="import-hint">{{ "clientImport.mapping.intro" | translate }}</p>
+    <p class="settings-hint">{{ "clientImport.mapping.intro" | translate }}</p>
 
-    <table id="client-import-mapping-table" class="table table-borderless import-table">
+    <table
+      id="client-import-mapping-table"
+      class="table table-borderless import-table"
+      data-klacksy-target="client-import-mapping-table"
+      data-klacksy-label-key="clientImport.mapping.header"
+      data-klacksy-category="data.people"
+    >
       <thead>
         <tr>
           <th class="table-header">{{ "clientImport.mapping.column" | translate }}</th>
@@ -53,7 +59,7 @@
             </td>
             <td class="table-cell">
               <select
-                class="form-select form-select-sm import-select import-target-select"
+                class="form-select import-select import-target-select"
                 [id]="'client-import-target-' + row.column.index"
                 [attr.aria-label]="row.column.header"
                 (change)="onTargetChange(row.column.index, $event)"
@@ -81,7 +87,7 @@
           <label for="client-import-date-format">{{ "clientImport.mapping.dateFormat" | translate }}</label>
           <select
             id="client-import-date-format"
-            class="form-select form-select-sm import-select"
+            class="form-select import-select"
             (change)="onDateFormatChange($event)"
           >
             @for (format of dateFormats; track format) {
@@ -91,7 +97,7 @@
             }
           </select>
           @if (state.dateFormatNeedsChoice()) {
-            <small class="import-warning">{{ "clientImport.mapping.dateFormatAmbiguous" | translate }}</small>
+            <small class="settings-hint import-warning">{{ "clientImport.mapping.dateFormatAmbiguous" | translate }}</small>
           }
         </div>
       }
@@ -100,7 +106,7 @@
           <label for="client-import-name-order">{{ "clientImport.mapping.nameOrder" | translate }}</label>
           <select
             id="client-import-name-order"
-            class="form-select form-select-sm import-select"
+            class="form-select import-select"
             (change)="onNameOrderChange($event)"
           >
             @for (order of nameOrders; track order) {
@@ -110,7 +116,7 @@
             }
           </select>
           @if (state.isFirstOrLastNameMapped()) {
-            <small id="client-import-full-name-hint" class="import-hint">
+            <small id="client-import-full-name-hint" class="settings-hint">
               {{ "clientImport.mapping.fullNameHint" | translate }}
             </small>
           }
@@ -125,13 +131,19 @@
   <div class="container-line"></div>
 
   <div class="form-group first import-section">
-    <p class="import-hint">{{ "clientImport.policy.intro" | translate }}</p>
+    <p class="settings-hint">{{ "clientImport.policy.intro" | translate }}</p>
 
-    <div class="import-policy-grid">
+    <div
+      id="client-import-policy"
+      class="import-policy-grid"
+      data-klacksy-target="client-import-policy"
+      data-klacksy-label-key="clientImport.policy.header"
+      data-klacksy-category="data.people"
+    >
       <label for="client-import-contract">{{ "clientImport.policy.contract" | translate }}</label>
       <select
         id="client-import-contract"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onOptionalPolicyChange('contractId', $event)"
       >
         <option [value]="noSelection" [selected]="state.policy().contractId === null">
@@ -148,7 +160,7 @@
       <div>
         <select
           id="client-import-group"
-          class="form-select form-select-sm import-select"
+          class="form-select import-select"
           (change)="onOptionalPolicyChange('groupId', $event)"
         >
           <option [value]="noSelection" [selected]="state.policy().groupId === null">
@@ -167,17 +179,17 @@
         <input
           id="client-import-entry-date"
           type="date"
-          class="form-control form-control-sm import-select"
+          class="form-control import-select"
           [value]="state.policy().entryDate ?? ''"
           (change)="onEntryDateChange($event)"
         />
-        <small class="import-hint">{{ "clientImport.policy.entryDateHint" | translate }}</small>
+        <small class="settings-hint">{{ "clientImport.policy.entryDateHint" | translate }}</small>
       </div>
 
       <label for="client-import-country">{{ "clientImport.policy.defaultCountry" | translate }}</label>
       <select
         id="client-import-country"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onOptionalPolicyChange('defaultCountry', $event)"
       >
         <option [value]="noSelection" [selected]="state.policy().defaultCountry === null">
@@ -196,7 +208,7 @@
       <label for="client-import-email-type">{{ "clientImport.policy.emailType" | translate }}</label>
       <select
         id="client-import-email-type"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onPolicyChange('emailType', $event)"
       >
         @for (type of emailTypes; track type) {
@@ -209,7 +221,7 @@
       <label for="client-import-phone-type">{{ "clientImport.policy.phoneType" | translate }}</label>
       <select
         id="client-import-phone-type"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onPolicyChange('phoneType', $event)"
       >
         @for (type of phoneTypes; track type) {
@@ -222,7 +234,7 @@
       <label for="client-import-mobile-type">{{ "clientImport.policy.mobileType" | translate }}</label>
       <select
         id="client-import-mobile-type"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onPolicyChange('mobileType', $event)"
       >
         @for (type of mobileTypes; track type) {
@@ -235,7 +247,7 @@
       <label for="client-import-former">{{ "clientImport.policy.formerEmployeesLabel" | translate }}</label>
       <select
         id="client-import-former"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onPolicyChange('formerEmployees', $event)"
       >
         @for (option of formerEmployeeOptions; track option) {
@@ -248,7 +260,7 @@
       <label for="client-import-duplicates">{{ "clientImport.policy.duplicatesLabel" | translate }}</label>
       <select
         id="client-import-duplicates"
-        class="form-select form-select-sm import-select"
+        class="form-select import-select"
         (change)="onPolicyChange('duplicates', $event)"
       >
         @for (option of duplicateOptions; track option) {
@@ -260,13 +272,16 @@
     </div>
 
     <div class="import-actions">
-      <button id="client-import-restart" type="button" class="btn btn-outline-primary btn-sm" (click)="onRestart()">
+      <button id="client-import-restart" type="button" class="btn normal-btn" (click)="onRestart()">
         {{ "clientImport.action.otherFile" | translate }}
       </button>
       <button
         id="client-import-to-preview"
+        data-klacksy-target="client-import-to-preview"
+        data-klacksy-label-key="clientImport.action.toPreview"
+        data-klacksy-category="data.people"
         type="button"
-        class="btn new-btn"
+        class="btn save-btn"
         [disabled]="state.isParsing()"
         (click)="onNext()"
       >

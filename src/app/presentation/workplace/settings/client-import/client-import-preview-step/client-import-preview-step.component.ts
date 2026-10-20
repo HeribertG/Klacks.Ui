@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Third step of the employee import: shows every row as it will be written, its status and issues,
- * lets the user skip a row, pick a missing gender or create a duplicate anyway, and starts the commit.
+ * Third step of the employee import: shows every row as it will be written (client type, company and person
+ * name; for a customer with company the person is labelled as its contact person), its status and issues, lets the user skip a row, pick a missing gender or create a duplicate anyway,
+ * and starts the commit.
  * The commit button stays disabled while any row has an error or a preview/commit request is pending.
  * Issue texts receive the issue arguments as parameters (row numbers shown 1-based, dates in the language
  * of the user). The skip checkbox only reflects and sets the decision of the user: rows skipped by a rule
@@ -22,6 +23,7 @@ import {
   ClientImportRowStatus,
 } from 'src/app/domain/enums/client-import.enums';
 import {
+  CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX,
   CLIENT_IMPORT_FIELDS,
   CLIENT_IMPORT_COUNT_KEYS,
   CLIENT_IMPORT_ISSUE_ARG_DATE,
@@ -34,6 +36,7 @@ import {
   CLIENT_IMPORT_ISSUE_REASON_EXIT_BEFORE_ENTRY,
   CLIENT_IMPORT_ISSUE_REASON_KEY_PREFIX,
   CLIENT_IMPORT_ISSUE_REASONS,
+  CLIENT_IMPORT_LEGAL_ENTITY_GENDER,
   CLIENT_IMPORT_SYSTEM_SKIP_ISSUE_CODES,
   CLIENT_IMPORT_TARGET_KEY_PREFIX,
 } from 'src/app/domain/constants/client-import.constants';
@@ -59,9 +62,16 @@ const SEVERITY_RANK: Readonly<Record<ClientImportIssueSeverity, number>> = {
 };
 const CELL_CLASS_PREFIX = 'cell-';
 const NO_CELL_CLASS = '';
+const PREVIEW_COLUMN_COUNT = 13;
 
 const CLIENT_IMPORT_PREVIEW_CELL_FIELDS = {
-  name: [CLIENT_IMPORT_FIELDS.firstName, CLIENT_IMPORT_FIELDS.lastName, CLIENT_IMPORT_FIELDS.title],
+  type: [CLIENT_IMPORT_FIELDS.type],
+  name: [
+    CLIENT_IMPORT_FIELDS.firstName,
+    CLIENT_IMPORT_FIELDS.lastName,
+    CLIENT_IMPORT_FIELDS.title,
+    CLIENT_IMPORT_FIELDS.company,
+  ],
   gender: [CLIENT_IMPORT_FIELDS.gender],
   birthdate: [CLIENT_IMPORT_FIELDS.birthdate],
   address: [
@@ -72,7 +82,8 @@ const CLIENT_IMPORT_PREVIEW_CELL_FIELDS = {
   ],
   contact: [CLIENT_IMPORT_FIELDS.email, CLIENT_IMPORT_FIELDS.phone, CLIENT_IMPORT_FIELDS.mobile],
   dates: [CLIENT_IMPORT_FIELDS.entryDate, CLIENT_IMPORT_FIELDS.exitDate],
-  assignment: [CLIENT_IMPORT_FIELDS.contractName, CLIENT_IMPORT_FIELDS.groupName],
+  contract: [CLIENT_IMPORT_FIELDS.contractName],
+  group: [CLIENT_IMPORT_FIELDS.groupName],
 } as const;
 
 type ClientImportPreviewCell = keyof typeof CLIENT_IMPORT_PREVIEW_CELL_FIELDS;
@@ -96,6 +107,8 @@ export class ClientImportPreviewStepComponent {
   readonly Status = ClientImportRowStatus;
   readonly genders = Object.values(ClientImportGender);
   readonly targetKeyPrefix = CLIENT_IMPORT_TARGET_KEY_PREFIX;
+  readonly clientTypeKeyPrefix = CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX;
+  readonly columnCount = PREVIEW_COLUMN_COUNT;
   readonly rowNumberOffset = ROW_NUMBER_OFFSET;
   readonly countKeys = CLIENT_IMPORT_COUNT_KEYS;
   readonly countKey = clientImportCountKey;
@@ -172,6 +185,10 @@ export class ClientImportPreviewStepComponent {
     return worst === null || worst === ClientImportIssueSeverity.Info
       ? NO_CELL_CLASS
       : CELL_CLASS_PREFIX + SEVERITY_CLASSES[worst];
+  }
+
+  isLegalEntity(row: IClientImportPreviewRow): boolean {
+    return row.record.gender === CLIENT_IMPORT_LEGAL_ENTITY_GENDER;
   }
 
   needsGender(row: IClientImportPreviewRow): boolean {

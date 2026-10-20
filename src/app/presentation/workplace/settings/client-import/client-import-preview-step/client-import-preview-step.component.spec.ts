@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import { signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ClientImportPreviewStepComponent } from './client-import-preview-step.component';
@@ -32,7 +35,8 @@ const row = (
   rowIndex,
   status,
   record: {
-    firstName: null, lastName: null, title: null, gender: null, birthdate: null, street: null, addressLine2: null,
+    firstName: null, lastName: null, title: null, type: null, company: null, gender: null, birthdate: null, street: null,
+    addressLine2: null,
     zip: null, city: null, state: null, country: null, email: null, phone: null, mobile: null,
     entryDate: '2026-01-01', exitDate: null, contractName: null, groupName: null, note: null,
   },
@@ -95,6 +99,14 @@ describe('ClientImportPreviewStepComponent', () => {
       expect(component.issueKey(issue('invalid-email', { reason: 'future' }))).toBe('clientImport.issue.invalid-email');
     });
 
+    it('names the company criterion of a company duplicate', () => {
+      for (const code of ['duplicate-in-file', 'duplicate-in-database', 'possible-duplicate-name']) {
+        expect(component.issueKey(issue(code, { reason: 'same-company' }))).toBe(
+          `clientImport.issueReason.${code}.same-company`,
+        );
+      }
+    });
+
     it('passes the arguments on, shows the 0-based row 1-based and keeps raw cell values untouched', () => {
       const params = component.issueParams(issue('duplicate-in-file', { row: '4', value: '31.02.1990' }));
 
@@ -125,6 +137,8 @@ describe('ClientImportPreviewStepComponent', () => {
       [CLIENT_IMPORT_FIELDS.firstName, 'name'],
       [CLIENT_IMPORT_FIELDS.lastName, 'name'],
       [CLIENT_IMPORT_FIELDS.title, 'name'],
+      [CLIENT_IMPORT_FIELDS.company, 'name'],
+      [CLIENT_IMPORT_FIELDS.type, 'type'],
       [CLIENT_IMPORT_FIELDS.gender, 'gender'],
       [CLIENT_IMPORT_FIELDS.birthdate, 'birthdate'],
       [CLIENT_IMPORT_FIELDS.street, 'address'],
@@ -136,8 +150,8 @@ describe('ClientImportPreviewStepComponent', () => {
       [CLIENT_IMPORT_FIELDS.mobile, 'contact'],
       [CLIENT_IMPORT_FIELDS.entryDate, 'dates'],
       [CLIENT_IMPORT_FIELDS.exitDate, 'dates'],
-      [CLIENT_IMPORT_FIELDS.contractName, 'assignment'],
-      [CLIENT_IMPORT_FIELDS.groupName, 'assignment'],
+      [CLIENT_IMPORT_FIELDS.contractName, 'contract'],
+      [CLIENT_IMPORT_FIELDS.groupName, 'group'],
     ];
 
     it.each(fieldsAndCells)('places an issue of the backend field "%s" in the %s cell', (field, cell) => {
@@ -153,6 +167,44 @@ describe('ClientImportPreviewStepComponent', () => {
       ]);
 
       expect(component.cellClass(target, 'gender')).toBe('');
+    });
+
+    it('keeps contract and group issues in their own columns', () => {
+      const target = row(ClientImportRowStatus.Error, [
+        issue('x', {}, CLIENT_IMPORT_FIELDS.contractName, ClientImportIssueSeverity.Error),
+      ]);
+
+      expect(component.cellClass(target, 'contract')).toBe('cell-issue-error');
+      expect(component.cellClass(target, 'group')).toBe('');
+    });
+  });
+
+  describe('table layout', () => {
+    const template = readFileSync(
+      resolve(dirname(fileURLToPath(import.meta.url)), 'client-import-preview-step.component.html'),
+      'utf8',
+    );
+
+    it('spans the empty row over exactly as many columns as the table has headers', () => {
+      expect(template.match(/<th\b/g)?.length).toBe(component.columnCount);
+    });
+
+    it('shows contract and group under separate headers', () => {
+      expect(template).toContain('"clientImport.target.Contract" | translate');
+      expect(template).toContain('"clientImport.target.Group" | translate');
+      expect(template).not.toContain('clientImport.preview.assignment');
+    });
+  });
+
+  describe('contact person', () => {
+    it('labels the person of a legal entity as its contact person only', () => {
+      const company = row(ClientImportRowStatus.Ready);
+      company.record = { ...company.record, gender: 'LegalEntity', company: 'Tech Systems GmbH', lastName: 'Hesse' };
+      const person = row(ClientImportRowStatus.Ready);
+      person.record = { ...person.record, gender: 'Female', lastName: 'Hesse' };
+
+      expect(component.isLegalEntity(company)).toBe(true);
+      expect(component.isLegalEntity(person)).toBe(false);
     });
   });
 

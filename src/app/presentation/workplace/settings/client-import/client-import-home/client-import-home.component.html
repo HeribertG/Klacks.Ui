@@ -3,44 +3,77 @@
     {{ "clientImport.title" | translate }}
   </div>
 
-  <ol id="client-import-steps" class="import-steps">
-    @for (step of steps; track step; let i = $index) {
-      <li
-        class="import-step"
-        [class.active]="state.step() === step"
-        [class.done]="isStepDone(step)"
-        [attr.aria-current]="state.step() === step ? 'step' : null"
-      >
-        <span class="import-step-number">{{ i + 1 }}</span>
-        {{ stepKeyPrefix + step | translate }}
-      </li>
-    }
-  </ol>
-
-  <div class="container-profilline">
-    @switch (state.step()) {
-      @case (Step.File) {
-        <app-client-import-file-step
-          class="container-profile first border-right-card border-bottom-card"
-        ></app-client-import-file-step>
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs" role="tablist">
+      @for (tab of tabs; track tab) {
+        <li class="nav-item">
+          <a
+            [id]="tabIdPrefix + tab"
+            class="nav-link"
+            [class.active]="activeTab() === tab"
+            role="tab"
+            [attr.aria-selected]="activeTab() === tab"
+            tabindex="0"
+            (click)="setTab(tab)"
+            (keydown.enter)="setTab(tab)"
+          >
+            {{ tabKeyPrefix + tab | translate }}
+          </a>
+        </li>
       }
-      @case (Step.Mapping) {
-        <app-client-import-mapping-step
-          class="container-profile import-wide first border-right-card border-bottom-card"
-        ></app-client-import-mapping-step>
-      }
-      @case (Step.Preview) {
-        <app-client-import-preview-step
-          class="container-profile import-preview first border-right-card border-bottom-card"
-        ></app-client-import-preview-step>
-      }
-      @case (Step.Result) {
-        <app-client-import-result-step
-          class="container-profile first border-right-card border-bottom-card"
-        ></app-client-import-result-step>
-      }
-    }
+    </ul>
   </div>
+
+  <div id="client-import-tab-body-import" [hidden]="activeTab() !== Tab.Import">
+    <ol
+      id="client-import-steps"
+      class="import-steps"
+      data-klacksy-target="client-import-steps"
+      data-klacksy-label-key="clientImport.title"
+      data-klacksy-category="data.people"
+    >
+      @for (step of steps; track step; let i = $index) {
+        <li
+          class="import-step"
+          [class.active]="state.step() === step"
+          [class.done]="isStepDone(step)"
+          [attr.aria-current]="state.step() === step ? 'step' : null"
+        >
+          <span class="import-step-number">{{ i + 1 }}</span>
+          {{ stepKeyPrefix + step | translate }}
+        </li>
+      }
+    </ol>
+
+    <div class="container-profilline">
+      @switch (state.step()) {
+        @case (Step.File) {
+          <app-client-import-file-step
+            class="container-profile first border-right-card border-bottom-card"
+          ></app-client-import-file-step>
+        }
+        @case (Step.Mapping) {
+          <app-client-import-mapping-step
+            class="container-profile import-wide first border-right-card border-bottom-card"
+          ></app-client-import-mapping-step>
+        }
+        @case (Step.Preview) {
+          <app-client-import-preview-step
+            class="container-profile import-preview first border-right-card border-bottom-card"
+          ></app-client-import-preview-step>
+        }
+        @case (Step.Result) {
+          <app-client-import-result-step
+            class="container-profile first border-right-card border-bottom-card"
+          ></app-client-import-result-step>
+        }
+      }
+    </div>
+  </div>
+
+  @if (activeTab() === Tab.Manual) {
+    <app-client-import-manual></app-client-import-manual>
+  }
 
   <div class="bottom-border-space"></div>
 </div>

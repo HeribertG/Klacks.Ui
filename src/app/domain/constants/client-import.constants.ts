@@ -5,7 +5,9 @@
  * file and request error codes of the API contract, the issue fields and issue argument names the preview
  * reads, the translation key prefixes the UI resolves them with, the singular/plural keys of the count texts,
  * the info issue codes collected in one notes block above the preview table, and the default rules applied
- * to rows with missing information.
+ * to rows with missing information. The client type keys translate the type of a preview record; a legal entity
+ * (customer with company, its person name is the contact person) shows the gender LegalEntity, which the per-row
+ * gender choice never offers.
  */
 
 import {
@@ -45,6 +47,9 @@ export const CLIENT_IMPORT_ROUTE = '/workplace/settings/client-import';
 
 export const CLIENT_IMPORT_ISSUE_KEY_PREFIX = 'clientImport.issue.';
 export const CLIENT_IMPORT_TARGET_KEY_PREFIX = 'clientImport.target.';
+export const CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX = 'clientImport.type.';
+export const CLIENT_IMPORT_GENDER_KEY_PREFIX = 'clientImport.gender.';
+export const CLIENT_IMPORT_LEGAL_ENTITY_GENDER = 'LegalEntity';
 export const CLIENT_IMPORT_FILE_ERROR_KEY_PREFIX = 'clientImport.fileError.';
 export const CLIENT_IMPORT_ISSUE_REASON_KEY_PREFIX = 'clientImport.issueReason.';
 export const CLIENT_IMPORT_REQUEST_ERROR_KEY_PREFIX = 'clientImport.error.';
@@ -77,6 +82,9 @@ export const CLIENT_IMPORT_ISSUE_CODES = [
   'multi-word-name',
   'personnel-number-not-imported',
   'value-too-long',
+  'unknown-type',
+  'legal-entity-address-incomplete',
+  'contract-not-for-customer',
 ] as const;
 
 export const CLIENT_IMPORT_SYSTEM_SKIP_ISSUE_CODES: readonly string[] = [
@@ -91,12 +99,16 @@ export const CLIENT_IMPORT_ISSUE_ARG_VALUE = 'value';
 export const CLIENT_IMPORT_ISSUE_ARG_REASON = 'reason';
 
 export const CLIENT_IMPORT_ISSUE_REASON_EXIT_BEFORE_ENTRY = 'exit-before-entry';
+export const CLIENT_IMPORT_ISSUE_REASON_SAME_COMPANY = 'same-company';
 
 export const CLIENT_IMPORT_ISSUE_REASONS: Readonly<Record<string, readonly string[]>> = {
   'invalid-date': ['future', CLIENT_IMPORT_ISSUE_REASON_EXIT_BEFORE_ENTRY],
   'unknown-contract': ['ambiguous'],
   'unknown-group': ['ambiguous'],
   'zip-city-split': ['not-split'],
+  'duplicate-in-file': [CLIENT_IMPORT_ISSUE_REASON_SAME_COMPANY],
+  'duplicate-in-database': [CLIENT_IMPORT_ISSUE_REASON_SAME_COMPANY],
+  'possible-duplicate-name': [CLIENT_IMPORT_ISSUE_REASON_SAME_COMPANY],
 };
 
 export const CLIENT_IMPORT_FIELDS = {
@@ -116,6 +128,8 @@ export const CLIENT_IMPORT_FIELDS = {
   exitDate: 'exitDate',
   contractName: 'contractName',
   groupName: 'groupName',
+  type: 'type',
+  company: 'company',
 } as const;
 
 export const CLIENT_IMPORT_ISSUE_CODE_MISSING_GENDER = 'missing-gender';

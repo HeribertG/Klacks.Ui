@@ -26,6 +26,8 @@ export enum ClientImportTarget {
   Group = 'Group',
   PersonnelNumber = 'PersonnelNumber',
   Note = 'Note',
+  Type = 'Type',
+  Company = 'Company',
 }
 
 export enum ClientImportDateFormat {
@@ -80,6 +82,12 @@ export enum ClientImportGender {
   Female = 'Female',
   Male = 'Male',
   Intersexuality = 'Intersexuality',
+}
+
+export enum ClientImportClientType {
+  Employee = 'Employee',
+  ExternEmp = 'ExternEmp',
+  Customer = 'Customer',
 }
 
 export enum ClientImportStep {

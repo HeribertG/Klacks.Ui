@@ -9,6 +9,4 @@ export class Membership implements IMembership {
   client = undefined;
   validFrom = companyToday();
   validUntil = undefined;
-
-  type = 0;
 }

@@ -13,6 +13,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
+import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 
 @Component({
   selector: 'app-edit-address-nav',
@@ -94,6 +95,15 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
         this.dataManagementClientService.readActualSortedClientPage();
       }
     }
+  }
+
+  clientDisplayName(client: IClient): string {
+    return formatClientDisplayName({
+      firstName: client.firstName,
+      name: client.name,
+      company: client.company,
+      legalEntity: client.legalEntity,
+    });
   }
 
   onClickFindClient(value: IClient) {

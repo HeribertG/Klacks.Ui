@@ -349,8 +349,19 @@
               }}
             </label>
           </div>
-          } @if (dataManagementClientService.editClient()?.gender !== 3 &&
+          } @if (isLegalEntity() &&
           dataManagementClientService.isCurrentAddressMainAddress() === true) {
+          <div class="row-line">
+            <div class="form-group firstColumn">
+              <div id="contact-person-heading" class="contact-person-heading">
+                {{
+                  "address.edit-address.address-persona.contact-person"
+                    | translate
+                }}
+              </div>
+            </div>
+          </div>
+          } @if (dataManagementClientService.isCurrentAddressMainAddress() === true) {
           <div class="row-line">
             <div class="form-group firstColumn">
               <label for="title">{{
@@ -365,15 +376,14 @@
               />
             </div>
           </div>
-          } @if (dataManagementClientService.editClient()?.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress() === true) {
+          } @if (dataManagementClientService.isCurrentAddressMainAddress() === true) {
           <div class="row-line">
             <div class="form-group firstColumn">
               <label for="firstname"
                 >{{
                   "address.edit-address.address-persona.firstname" | translate
                 }}
-                *</label
+                @if (!isLegalEntity()) { * }</label
               >
               <div class="custom-control-inline">
                 <input
@@ -390,7 +400,7 @@
                     'is-valid': isFirstNameValid === true
                   }"
                 />
-                @if (!addFirstNameLine2 === true && !isDisabled()) {
+                @if (!addFirstNameLine2 === true && !isDisabled() && !isLegalEntity()) {
                 <span
                   id="add-firstname2-button"
                   class="add-button"
@@ -402,8 +412,7 @@
               </div>
             </div>
           </div>
-          } @if (addFirstNameLine2 === true &&
-          +dataManagementClientService.editClient()!.gender !== 3 &&
+          } @if (addFirstNameLine2 === true && !isLegalEntity() &&
           dataManagementClientService.isCurrentAddressMainAddress()) {
           <div class="row-line">
             <div class="form-group firstColumn">
@@ -429,15 +438,14 @@
               </div>
             </div>
           </div>
-          } @if (+dataManagementClientService.editClient()!.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress()) {
+          } @if (dataManagementClientService.isCurrentAddressMainAddress()) {
           <div class="row-line">
             <div class="form-group firstColumn">
               <label for="profile-name"
                 >{{
                   "address.edit-address.address-persona.name" | translate
                 }}
-                *</label
+                @if (!isLegalEntity()) { * }</label
               >
               <div class="custom-control-inline">
                 <input
@@ -453,7 +461,7 @@
                     'is-valid': isNameValid === true
                   }"
                 />
-                @if (!addNameLine2 === true && !isDisabled()) {
+                @if (!addNameLine2 === true && !isDisabled() && !isLegalEntity()) {
                 <span
                   id="add-maidenname-button"
                   class="add-button"
@@ -465,8 +473,7 @@
               </div>
             </div>
           </div>
-          } @if (addNameLine2 &&
-          +dataManagementClientService.editClient()!.gender !== 3 &&
+          } @if (addNameLine2 && !isLegalEntity() &&
           dataManagementClientService.isCurrentAddressMainAddress()) {
           <div class="row-line">
             <div class="form-group firstColumn">
@@ -895,7 +902,7 @@
               </div>
             </div>
           </div>
-          } @if (dataManagementClientService.editClient()?.gender !== 3 &&
+          } @if (!isLegalEntity() &&
           dataManagementClientService.isCurrentAddressMainAddress() === true) {
           <div class="row-line">
             <div class="form-group">

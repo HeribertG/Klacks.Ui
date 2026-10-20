@@ -1,0 +1,633 @@
+<h2>Importation des collaborateurs – Manuel</h2>
+
+<h3>Qu'est-ce que l'importation des collaborateurs ?</h3>
+<p>
+L'importation des collaborateurs reprend une liste complète du personnel à partir d'<strong>un fichier
+Excel (.xlsx) ou d'un fichier CSV (.csv)</strong> contenant une ligne par personne, au lieu de saisir
+chaque personne à la main. Klacks reconnaît lui-même les colonnes, montre dans un aperçu à quoi
+ressemblera chaque enregistrement et n'enregistre qu'après confirmation. Outre les collaborateurs,
+le même fichier peut aussi contenir des collaborateurs externes et des clients.
+</p>
+<ul>
+  <li>
+    <strong>Qui peut importer :</strong> uniquement les administrateurs. La carte <em>Importer des
+    collaborateurs</em> se trouve dans les paramètres, section <em>Organisation</em> ; le bouton
+    <em>Importer</em> ouvre la page d'importation. Les autres utilisateurs ne voient pas la carte et
+    doivent faire appel à un administrateur pour l'importation.
+  </li>
+  <li>
+    <strong>Protection des données :</strong> le fichier lui-même n'est pas enregistré. Il est
+    uniquement lu ; seules les lignes confirmées dans l'aperçu sont créées.
+  </li>
+  <li>
+    <strong>Quatre étapes :</strong> <em>Fichier</em> → <em>Correspondance &amp; règles</em> →
+    <em>Aperçu</em> → <em>Résultat</em>. L'onglet <em>Manuel</em> affiche le présent manuel ; y
+    passer n'interrompt pas une importation en cours.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Fichiers pris en charge</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> et <strong>CSV (.csv)</strong> ; un fichier .txt est lu comme un
+    fichier CSV. L'ancien format Excel <strong>.xls n'est pas pris en charge</strong> – enregistrer
+    d'abord le fichier au format .xlsx dans Excel.
+  </li>
+  <li>
+    <strong>Classeurs Excel :</strong> seules les feuilles visibles sont lues, par défaut la première.
+    Pour un classeur comportant plusieurs feuilles, le choix <em>Feuille</em> est proposé à l'étape 2.
+    C'est le résultat calculé d'une formule qui est importé. Les cellules au format date sont lues
+    comme des dates. Les nombres dans des cellules au format « Standard » perdent leurs zéros initiaux
+    (le NPA 01234 devient 1234) – formater ces colonnes en texte (le modèle le fait déjà).
+  </li>
+  <li>
+    <strong>Encodage des fichiers CSV :</strong> l'UTF-8 (avec ou sans indicateur d'ordre des octets)
+    et l'UTF-16 avec indicateur d'ordre des octets sont reconnus ; tout autre fichier est lu en
+    Windows-1252 (le format « ANSI » habituel d'Excel sous Windows en Europe occidentale), de sorte
+    que les trémas et les accents d'Europe occidentale sont restitués correctement sans aucun
+    réglage. Pour toutes les autres écritures et lettres (par exemple ł, ř, ș, le grec, l'arabe,
+    l'hébreu, le chinois, le japonais, le coréen ou le thaï), enregistrer le fichier au format
+    « CSV UTF-8 » ou utiliser .xlsx.
+  </li>
+  <li>
+    <strong>Séparateur des fichiers CSV :</strong> le point-virgule, la virgule, la tabulation ou la
+    barre verticale (|) sont détectés automatiquement. Les valeurs entre guillemets peuvent contenir
+    le séparateur et des sauts de ligne.
+  </li>
+  <li>
+    <strong>Ligne d'en-tête :</strong> la première ligne contenant les noms de colonnes doit figurer
+    parmi les 10 premières lignes non vides et comporter au moins deux cellules de texte. Les lignes
+    situées au-dessus (par exemple un titre) et les lignes vides sont ignorées.
+  </li>
+  <li>
+    <strong>Formats de date :</strong> jour, mois et année séparés par un point, une barre oblique ou
+    un trait d'union, par exemple 31.12.1990, 12/31/1990 ou 1990-12-31 ; une heure placée après la
+    date est ignorée. Une valeur commençant par une année à quatre chiffres est toujours lue comme
+    année-mois-jour. Si le fichier ne permet pas de savoir si le jour ou le mois vient en premier
+    (aucune valeur supérieure à 12), Klacks suppose l'ordre jour/mois/année et demande de vérifier
+    le format de date à l'étape 2. Les noms de mois (par exemple « 31 déc. 1990 ») ne sont pas
+    reconnus.
+  </li>
+  <li>
+    <strong>Années à deux chiffres :</strong> les années jusqu'aux deux derniers chiffres de l'année
+    en cours comptent comme 20xx, les années supérieures comme 19xx (en 2026 : « 26 » = 2026,
+    « 27 » = 1927). L'aperçu signale chacune de ces dates par un avertissement afin que le siècle
+    puisse être vérifié.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limites et listes volumineuses</h3>
+<ul>
+  <li>Au maximum <strong>5 Mo</strong> par fichier.</li>
+  <li>
+    Au maximum <strong>1000 lignes</strong> par importation – sont comptées les lignes de données
+    situées sous la ligne d'en-tête, sans les lignes vides.
+  </li>
+  <li>
+    Au maximum <strong>60 colonnes</strong>. Dans Excel, c'est la dernière colonne utilisée qui
+    compte : une seule valeur oubliée loin à droite rend le fichier trop large.
+  </li>
+  <li>
+    Une cellule peut contenir au maximum 1000 caractères ; un contenu plus long est tronqué. Le
+    prénom, le nom, le titre et l'entreprise peuvent comporter au maximum 100 caractères chacun, de
+    même que l'adresse e-mail, le numéro de téléphone et le numéro de portable.
+  </li>
+  <li>
+    Un fichier Excel peut contenir au maximum 20 Mo une fois décompressé (protection contre les
+    fichiers manipulés).
+  </li>
+</ul>
+<p>
+<strong>Listes volumineuses :</strong> répartir la liste sur plusieurs fichiers de 1000 lignes au
+maximum ; chaque fichier doit avoir sa propre ligne d'en-tête. Les colonnes inutiles peuvent être
+supprimées au préalable. Importer ensuite les fichiers l'un après l'autre. Les personnes déjà
+importées à partir d'un fichier précédent sont reconnues comme doublons lorsqu'elles ont une adresse
+e-mail ou une date de naissance (voir <em>Doublons</em>).
+</p>
+
+<hr>
+
+<h3>Modèle</h3>
+<p>
+Le bouton <em>Télécharger le modèle</em> de l'étape 1 fournit un fichier Excel dans la langue de
+l'utilisateur (nom de fichier <code>klacks-employee-import-fr.xlsx</code>). Avec le modèle, toutes
+les colonnes sont reconnues de façon fiable. Sa ligne d'en-tête est en gras et figée, toutes les
+colonnes sont au format texte (les zéros initiaux et les dates restent tels que saisis), et l'en-tête
+de la colonne <em>Type</em> porte une note indiquant les valeurs autorisées. Le modèle ne contient
+pas de ligne d'exemple, car celle-ci serait importée.
+</p>
+<p>
+Colonnes du modèle, dans cet ordre : Prénom, Nom, Titre, Entreprise, Type, Sexe, Date de naissance,
+Rue, Complément d'adresse, NPA, Localité, Canton, Pays, Courriel, Téléphone, Portable, Date d'entrée,
+Date de sortie, Contrat, Groupe, Remarque. Des listes propres fonctionnent également – Klacks
+reconnaît aussi les noms de colonnes dans les 25 langues de Klacks ainsi que de nombreuses variantes
+usuelles (par exemple « Nom de famille », « Code postal », « Date d'embauche »).
+</p>
+
+<hr>
+
+<h3>Étape 1 – Fichier</h3>
+<ul>
+  <li>
+    Glisser le fichier sur la zone de téléversement ou cliquer sur la zone pour choisir un fichier.
+    Klacks lit le fichier et passe à l'étape 2.
+  </li>
+  <li>
+    Un problème de fichier (format incorrect, fichier trop volumineux, trop de lignes ou de colonnes,
+    absence de ligne d'en-tête) est affiché directement sous la zone de téléversement ; voir
+    <em>Erreurs fréquentes et solutions</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Étape 2 – Correspondance &amp; règles</h3>
+<h4>Associer les colonnes</h4>
+<ul>
+  <li>
+    Chaque colonne du fichier apparaît sur une ligne avec jusqu'à trois valeurs d'exemple, le champ
+    proposé par Klacks (<em>Importer comme</em>) et le degré de certitude de la proposition
+    (<em>Fiabilité</em>).
+  </li>
+  <li>
+    Chaque proposition peut être modifiée dans la liste déroulante. Une colonne qui ne doit pas être
+    importée est réglée sur <em>Ne pas importer</em>. Chaque champ ne peut être attribué qu'à une
+    seule colonne.
+  </li>
+  <li>
+    <em>Format de date</em> apparaît lorsque le fichier contient des dates ; si le fichier ne permet
+    pas de déterminer l'ordre du jour et du mois, la sélection doit être vérifiée.
+  </li>
+  <li>
+    <em>Ordre dans le champ du nom</em> apparaît pour une colonne contenant le nom complet :
+    <em>Prénom Nom</em> ou <em>Nom Prénom</em>. Une virgule (« Dupont, Marie ») signifie toujours
+    que le nom de famille vient en premier. Le nom complet ne remplit qu'un prénom ou un nom qui n'a
+    pas de colonne propre ou qui est vide dans une ligne.
+  </li>
+</ul>
+<h4>Règles pour les informations manquantes</h4>
+<p>Ces règles s'appliquent à toutes les lignes :</p>
+<ul>
+  <li>
+    <em>Contrat si aucun n'est indiqué</em> et <em>Groupe si aucun n'est indiqué</em> – utilisés pour
+    les lignes sans contrat ou sans groupe, ou avec un nom qui n'existe pas.
+  </li>
+  <li>
+    <em>Date d'entrée si aucune n'est indiquée</em> – vide signifie aujourd'hui. Cette date marque
+    aussi le début du contrat, de l'affectation au groupe et de l'adresse.
+  </li>
+  <li>
+    <em>Pays si aucun n'est indiqué</em> – par défaut <em>Pays de l'installation</em>.
+  </li>
+  <li>
+    <em>Enregistrer les adresses e-mail comme</em>, <em>Enregistrer les numéros de téléphone
+    comme</em>, <em>Enregistrer les numéros de portable comme</em> – privé ou professionnel ;
+    s'applique à toutes les lignes.
+  </li>
+  <li>
+    <em>Anciens collaborateurs (sortie dans le passé)</em> – <em>Ignorer</em> (par défaut) ou
+    <em>Importer avec la date de sortie</em>. Une date de sortie égale ou postérieure à aujourd'hui
+    est toujours importée.
+  </li>
+  <li>
+    <em>Doublons possibles</em> – <em>Ignorer</em> (par défaut) ou <em>Créer quand même</em>.
+  </li>
+</ul>
+<p>
+<em>Continuer vers l'aperçu</em> passe à l'étape suivante ; <em>Choisir un autre fichier</em>
+recommence avec un autre fichier.
+</p>
+
+<hr>
+
+<h3>Étape 3 – Aperçu</h3>
+<ul>
+  <li>
+    Un résumé dénombre les lignes : total, prêtes, ignorées, avec erreurs, doublons et avec
+    avertissements. Les remarques qui concernent toutes les lignes ou un grand nombre d'entre elles
+    apparaissent une seule fois au-dessus du tableau, avec les colonnes qui ne sont pas importées.
+  </li>
+  <li>
+    Le tableau montre chaque ligne telle qu'elle sera enregistrée, d'abord les erreurs, puis les
+    avertissements et les remarques. <em>Afficher uniquement les lignes avec problèmes</em> restreint
+    la liste.
+  </li>
+  <li>
+    Par ligne : <em>Ignorer</em> exclut la ligne ; <em>Veuillez choisir</em> définit le sexe d'une
+    ligne qui n'en a pas ; <em>Créer quand même</em> conserve une ligne reconnue comme doublon.
+  </li>
+  <li>
+    Les autres valeurs ne peuvent pas être modifiées dans l'aperçu. Pour les corriger, rectifier le
+    fichier et le choisir à nouveau (<em>Choisir un autre fichier</em>), ou modifier la
+    correspondance avec <em>Retour</em>.
+  </li>
+  <li>
+    Le bouton d'importation indique combien de personnes seront créées (par exemple <em>Importer 25
+    collaborateurs</em>). Il reste désactivé tant qu'une ligne présente encore une erreur : corriger
+    la ligne ou l'ignorer.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Étape 4 – Résultat</h3>
+<p>
+Indique combien de personnes ont été créées, combien de lignes ont été ignorées et combien
+d'adresses sont en cours de localisation sur la carte en arrière-plan. <em>Vers la liste des
+collaborateurs</em> ouvre la liste, <em>Importer un autre fichier</em> lance une nouvelle importation.
+</p>
+
+<hr>
+
+<h3>Colonnes importables</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Champ (Importer comme)</th>
+      <th>Obligatoire</th>
+      <th>Remarques</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Prénom, Nom</td>
+      <td>Oui, pour les personnes</td>
+      <td>100 caractères au maximum chacun. Non obligatoire pour un client avec entreprise.</td>
+    </tr>
+    <tr>
+      <td>Nom complet</td>
+      <td>Non</td>
+      <td>Alternative aux colonnes de nom séparées ; réparti en prénom et nom (voir l'étape 2). Les noms
+        de plus de deux éléments reçoivent un avertissement – vérifier la répartition.</td>
+    </tr>
+    <tr>
+      <td>Titre</td>
+      <td>Non</td>
+      <td>Repris tel quel, par exemple « Dr. ». Un titre contenu dans le nom complet n'est pas séparé.</td>
+    </tr>
+    <tr>
+      <td>Sexe, Civilité</td>
+      <td>Oui, pour les personnes</td>
+      <td>Voir <em>Sexe et civilité</em>. En l'absence de valeur, le sexe est choisi ligne par ligne
+        dans l'aperçu.</td>
+    </tr>
+    <tr>
+      <td>Date de naissance</td>
+      <td>Non</td>
+      <td>Une date dans le futur est une erreur. Importante pour la détection des doublons.</td>
+    </tr>
+    <tr>
+      <td>Entreprise</td>
+      <td>Pour les clients qui sont des entreprises</td>
+      <td>100 caractères au maximum. Voir <em>Type et entreprise</em>.</td>
+    </tr>
+    <tr>
+      <td>Type (employé, externe, client)</td>
+      <td>Non</td>
+      <td>Vide ou absent = collaborateur. Voir <em>Type et entreprise</em>.</td>
+    </tr>
+    <tr>
+      <td>Rue, Numéro</td>
+      <td>Non</td>
+      <td>Un numéro de maison séparé est ajouté à la suite de la rue.</td>
+    </tr>
+    <tr>
+      <td>Complément d'adresse</td>
+      <td>Non</td>
+      <td>Repris en texte libre.</td>
+    </tr>
+    <tr>
+      <td>NPA, Localité</td>
+      <td>Pour les clients qui sont des entreprises</td>
+      <td>Une adresse est créée dès que la rue, le NPA ou la localité est indiqué.</td>
+    </tr>
+    <tr>
+      <td>NPA et localité</td>
+      <td>Non</td>
+      <td>Une seule colonne contenant les deux, par exemple « 8000 Zürich » ou « CH-8000 Zürich » ;
+        utilisée uniquement si la ligne n'a ni NPA ni localité séparés. Si la valeur ne peut pas être
+        séparée, elle devient entièrement la localité (avertissement).</td>
+    </tr>
+    <tr>
+      <td>Canton / région</td>
+      <td>Non</td>
+      <td>Texte libre ; s'il est vide, il est complété lors de la localisation de l'adresse sur la
+        carte.</td>
+    </tr>
+    <tr>
+      <td>Pays</td>
+      <td>Pour les clients qui sont des entreprises (le pays par défaut compte)</td>
+      <td>Code de pays (CH, DE …) ou nom du pays dans n'importe quelle langue de Klacks. Vide = pays par
+        défaut ; un pays inconnu donne un avertissement et le pays par défaut est utilisé.</td>
+    </tr>
+    <tr>
+      <td>E-mail</td>
+      <td>Non</td>
+      <td>Une adresse non valide est écartée avec un avertissement ; la personne est tout de même
+        importée.</td>
+    </tr>
+    <tr>
+      <td>Téléphone, Téléphone portable</td>
+      <td>Non</td>
+      <td>Les espaces et séparateurs sont supprimés et un 00 initial devient + ; un numéro sans +
+        reçoit l'indicatif du pays de la ligne.</td>
+    </tr>
+    <tr>
+      <td>Date d'entrée</td>
+      <td>Non</td>
+      <td>Vide = la règle <em>Date d'entrée si aucune n'est indiquée</em>. Les dates peu plausibles
+        (antérieures à la date de naissance ou éloignées de plus de 50 ans) donnent un
+        avertissement.</td>
+    </tr>
+    <tr>
+      <td>Date de sortie</td>
+      <td>Non</td>
+      <td>Antérieure à la date d'entrée = erreur. Dans le passé : voir la règle <em>Anciens
+        collaborateurs</em>.</td>
+    </tr>
+    <tr>
+      <td>Contrat, Groupe</td>
+      <td>Non</td>
+      <td>Associés par leur nom ; voir <em>Contrat et groupe</em>.</td>
+    </tr>
+    <tr>
+      <td>Note</td>
+      <td>Non</td>
+      <td>Enregistrée comme note sur la personne.</td>
+    </tr>
+    <tr>
+      <td>Numéro de personnel (attribué par Klacks)</td>
+      <td>–</td>
+      <td>Reconnu mais jamais importé ; voir <em>Numéro de personnel</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Type et entreprise</h3>
+<ul>
+  <li>
+    La colonne <em>Type</em> indique pour chaque ligne s'il s'agit d'un collaborateur, d'un
+    collaborateur externe ou d'un client. Les valeurs reconnues sont par exemple
+    <code>Collaborateur</code>, <code>Collaboratrice</code>, <code>Employé</code> (collaborateur),
+    <code>Externe</code>, <code>Collaborateur externe</code>, <code>Collaboratrice externe</code>
+    (collaborateur externe) et <code>Client</code>, <code>Cliente</code> (client) ; les termes
+    correspondants de toutes les autres langues de Klacks ainsi que les chiffres 0, 1 et 2 sont
+    également acceptés. Les majuscules et minuscules n'ont pas d'importance.
+  </li>
+  <li>
+    Une <strong>cellule vide</strong> ou un fichier sans colonne de type signifie
+    <strong>collaborateur</strong>. Une valeur inconnue constitue une erreur dans l'aperçu.
+  </li>
+  <li>
+    <strong>Client avec entreprise :</strong> créé en tant qu'entreprise (personne morale), et non en
+    tant que personne. Le prénom et le nom sont facultatifs et sont conservés comme personne de
+    contact (l'aperçu les signale par <em>Personne de contact :</em>) ; un sexe indiqué dans la ligne
+    est ignoré. Une telle ligne nécessite une adresse avec NPA, localité et pays (le pays par défaut
+    compte).
+  </li>
+  <li>
+    <strong>Client sans entreprise :</strong> créé en tant que personne – le prénom, le nom et le
+    sexe sont obligatoires.
+  </li>
+  <li>
+    <strong>Collaborateur ou collaborateur externe avec entreprise :</strong> reste une personne ; le
+    nom de l'entreprise est enregistré avec la personne.
+  </li>
+  <li>
+    <strong>Les clients ne reçoivent jamais de contrat</strong> – ni depuis le fichier
+    (avertissement, la valeur n'est pas importée) ni depuis les règles. Un groupe est en revanche
+    également attribué aux clients.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Sexe et civilité</h3>
+<ul>
+  <li>
+    Les personnes ont besoin d'un sexe : <em>Féminin</em>, <em>Masculin</em> ou <em>Divers</em>. Il
+    provient de la colonne <em>Sexe</em> ; si celle-ci est vide, de la colonne <em>Civilité</em>
+    (l'aperçu le signale). Sans l'une ni l'autre, le sexe est choisi ligne par ligne dans l'aperçu
+    (<em>Veuillez choisir</em>).
+  </li>
+  <li>
+    Les valeurs reconnues sont par exemple <code>Madame</code>, <code>Mme</code>,
+    <code>Mademoiselle</code>, <code>Femme</code> (féminin), <code>Monsieur</code>,
+    <code>Homme</code>, <code>Masculin</code> (masculin) et <code>Divers</code>,
+    <code>Intersexe</code>, <code>Non binaire</code> (divers) – ainsi que les termes correspondants
+    de toutes les autres langues de Klacks, comme <code>Herr</code>/<code>Frau</code> ou
+    <code>Mr</code>/<code>Mrs</code>.
+  </li>
+  <li>
+    Les majuscules et minuscules, les accents et la ponctuation n'ont pas d'importance ; pour une
+    civilité plus longue, c'est le premier mot qui compte (« Monsieur Dr. » = masculin).
+  </li>
+  <li>Une entreprise (client avec entreprise) n'a pas besoin de sexe.</li>
+</ul>
+
+<hr>
+
+<h3>Contrat et groupe</h3>
+<ul>
+  <li>
+    Une valeur du fichier est comparée aux noms des contrats et groupes existants ; les majuscules et
+    minuscules ainsi que les espaces en début ou en fin n'ont pas d'importance.
+  </li>
+  <li>
+    Si le nom n'existe pas, existe plusieurs fois ou est vide, le contrat ou le groupe défini dans les
+    règles est utilisé et l'aperçu le signale. Sans règle correspondante, la ligne reste sans contrat
+    ou sans groupe.
+  </li>
+  <li>
+    <strong>L'importation ne crée ni contrats ni groupes.</strong> Les créer d'abord dans les
+    paramètres et sur la page des groupes, puis importer.
+  </li>
+  <li>
+    Le contrat et le groupe commencent à la date d'entrée et se terminent à la date de sortie, s'il y
+    en a une.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Numéro de personnel</h3>
+<p>
+Klacks <strong>attribue toujours lui-même le numéro de personnel</strong>. Une colonne de numéro de
+personnel dans le fichier est reconnue mais ignorée ; l'aperçu affiche une remarque. Pour conserver
+les numéros d'un autre système, la colonne peut être associée à <em>Note</em> à l'étape 2, à
+condition qu'aucune autre colonne ne soit importée comme note.
+</p>
+
+<hr>
+
+<h3>Doublons</h3>
+<ul>
+  <li>
+    <strong>Personnes :</strong> une ligne est considérée comme doublon lorsque l'<strong>adresse
+    e-mail</strong> est identique, ou lorsque le <strong>prénom, le nom et la date de
+    naissance</strong> sont identiques. Les majuscules et minuscules, les accents et les traits
+    d'union sont ignorés (« Müller » = « Muller », « Hans-Peter » = « Hanspeter »).
+  </li>
+  <li>
+    <strong>Entreprises</strong> (clients avec entreprise) : même <strong>entreprise, NPA et
+    rue</strong>.
+  </li>
+  <li>
+    Les lignes sont comparées aux personnes déjà présentes dans Klacks et aux lignes précédentes du
+    même fichier. <strong>Les clients ne sont comparés qu'avec des clients</strong>, les
+    collaborateurs et collaborateurs externes entre eux.
+  </li>
+  <li>
+    Les doublons sont ignorés avec la règle <em>Doublons possibles</em> = <em>Ignorer</em>. Avec
+    <em>Créer quand même</em> – comme règle pour toutes les lignes ou ligne par ligne dans l'aperçu –
+    ils sont tout de même créés.
+  </li>
+  <li>
+    Simple <strong>remarque</strong>, sans exclusion : même nom sans date de naissance concordante,
+    ou même entreprise à une autre adresse. Vérifier ces lignes avant l'importation.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Enregistrement et adresses</h3>
+<ul>
+  <li>
+    <strong>Tout ou rien :</strong> l'importation enregistre toutes les lignes prêtes en une seule
+    fois. Si quoi que ce soit échoue, rien n'est enregistré. Avant l'enregistrement, Klacks vérifie
+    à nouveau toutes les lignes par rapport aux données actuelles.
+  </li>
+  <li>
+    Créés par ligne : la personne (ou l'entreprise), la période d'emploi de la date d'entrée à la
+    date de sortie, l'adresse, l'adresse e-mail, les numéros de téléphone et de portable, le contrat,
+    le groupe et la note.
+  </li>
+  <li>
+    La même importation ne peut pas être enregistrée deux fois ; une seconde tentative indique que
+    l'importation a déjà été effectuée.
+  </li>
+  <li>
+    <strong>Carte :</strong> après l'importation, les adresses avec NPA et localité sont localisées
+    sur la carte en arrière-plan, l'une après l'autre. Avec de nombreuses adresses, cela peut prendre
+    quelques minutes ; les personnes peuvent déjà être utilisées entre-temps.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Erreurs fréquentes et solutions</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Message</th>
+      <th>Cause</th>
+      <th>Solution</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ce format de fichier n'est pas pris en charge. Veuillez utiliser un fichier .xlsx ou .csv.</td>
+      <td>.xls, .ods, PDF ou fichier endommagé.</td>
+      <td>Enregistrer le fichier dans Excel au format .xlsx ou l'exporter en CSV.</td>
+    </tr>
+    <tr>
+      <td>Le fichier est trop volumineux (5 Mo maximum).</td>
+      <td>Fichier de plus de 5 Mo, par exemple à cause d'images ou de feuilles inutilisées.</td>
+      <td>Supprimer les images et les feuilles inutilisées, ou répartir la liste.</td>
+    </tr>
+    <tr>
+      <td>Le fichier contient trop de lignes (1000 personnes maximum par import).</td>
+      <td>Plus de 1000 lignes de données.</td>
+      <td>Répartir la liste sur plusieurs fichiers (voir <em>Limites et listes volumineuses</em>).</td>
+    </tr>
+    <tr>
+      <td>Le fichier contient trop de colonnes (60 maximum).</td>
+      <td>Plus de 60 colonnes, souvent à cause d'une valeur isolée loin à droite.</td>
+      <td>Supprimer les colonnes inutilisées, y compris celles qui semblent vides au bord droit.</td>
+    </tr>
+    <tr>
+      <td>Aucune ligne d'en-tête avec des noms de colonnes n'a été trouvée dans les premières lignes.</td>
+      <td>Aucune ligne comportant au moins deux noms de colonnes parmi les 10 premières lignes.</td>
+      <td>Placer une ligne d'en-tête avec les noms de colonnes au-dessus des données.</td>
+    </tr>
+    <tr>
+      <td>Le fichier ne contient aucune donnée.</td>
+      <td>Fichier vide, uniquement une ligne d'en-tête, ou aucune feuille visible.</td>
+      <td>Vérifier le fichier ; afficher la feuille masquée dans Excel.</td>
+    </tr>
+    <tr>
+      <td>Le sexe manque – veuillez le choisir.</td>
+      <td>Sexe ou civilité absent ou non reconnu.</td>
+      <td>Choisir le sexe dans l'aperçu ou compléter la colonne dans le fichier.</td>
+    </tr>
+    <tr>
+      <td>Le prénom manque. / Le nom manque.</td>
+      <td>Colonne de nom vide ou non associée ; nom complet composé d'un seul mot.</td>
+      <td>Vérifier la correspondance à l'étape 2 ou compléter le fichier.</td>
+    </tr>
+    <tr>
+      <td>Date non valide : « … ».</td>
+      <td>Date illisible, date de naissance dans le futur ou date de sortie antérieure à la date
+        d'entrée.</td>
+      <td>Vérifier le format de date à l'étape 2 ou corriger la valeur dans le fichier.</td>
+    </tr>
+    <tr>
+      <td>Type « … » inconnu – utilisez employé, externe ou client.</td>
+      <td>Valeur de la colonne de type non reconnue.</td>
+      <td>Utiliser l'une des valeurs de la note du modèle, ou laisser la cellule vide (= collaborateur).</td>
+    </tr>
+    <tr>
+      <td>Un client avec entreprise nécessite une adresse avec code postal, localité et pays.</td>
+      <td>Ligne d'entreprise sans adresse complète.</td>
+      <td>Compléter le NPA et la localité ; indiquer un pays dans le fichier ou dans les règles.</td>
+    </tr>
+    <tr>
+      <td>Valeur trop longue (… caractères au maximum).</td>
+      <td>Nom, titre, entreprise, e-mail ou téléphone de plus de 100 caractères.</td>
+      <td>Raccourcir la valeur dans le fichier.</td>
+    </tr>
+    <tr>
+      <td>Contrat « … » introuvable. / Groupe « … » introuvable.</td>
+      <td>Le nom diffère de ceux des contrats et groupes dans Klacks.</td>
+      <td>Corriger le nom, ou créer d'abord le contrat ou le groupe ; sinon, la règle s'applique.</td>
+    </tr>
+    <tr>
+      <td>Certaines lignes contiennent encore des erreurs. Corrigez-les ou ignorez ces lignes, puis
+        réessayez.</td>
+      <td>Au moins une ligne présente une erreur.</td>
+      <td>Utiliser <em>Afficher uniquement les lignes avec problèmes</em>, puis corriger ou ignorer
+        ces lignes.</td>
+    </tr>
+    <tr>
+      <td>L'une des règles pour les informations manquantes n'est plus valide …</td>
+      <td>Un contrat ou un groupe choisi dans les règles a été supprimé entre-temps.</td>
+      <td>Vérifier les règles à l'étape 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Après l'importation</h3>
+<ul>
+  <li>
+    Les personnes importées sont des enregistrements ordinaires. Les erreurs se corrigent ou se
+    suppriment sur la page de la personne ; il n'existe pas d'« annulation » pour l'ensemble de
+    l'importation.
+  </li>
+  <li>
+    Si le même fichier est importé une seconde fois, les lignes avec une adresse e-mail ou une date de
+    naissance sont à nouveau reconnues comme doublons. Les lignes ne comportant qu'un nom sont
+    seulement signalées – les vérifier avant d'importer une seconde fois.
+  </li>
+  <li>
+    Une personne isolée se crée à la main sur la page des collaborateurs ; un annuaire d'entreprise
+    peut être synchronisé par un administrateur via les paramètres du fournisseur d'identité.
+  </li>
+</ul>

@@ -9,22 +9,30 @@
       {{ countKey(countKeys.created, result.created) | translate: { count: result.created } }}
     </p>
     @if (result.skipped > 0) {
-      <p id="client-import-result-skipped" class="import-hint">
+      <p id="client-import-result-skipped" class="settings-hint">
         {{ countKey(countKeys.resultSkipped, result.skipped) | translate: { count: result.skipped } }}
       </p>
     }
     @if (result.geocodingQueued > 0) {
-      <p id="client-import-result-geocoding" class="import-hint">
+      <p id="client-import-result-geocoding" class="settings-hint">
         {{ countKey(countKeys.geocodingQueued, result.geocodingQueued) | translate: { count: result.geocodingQueued } }}
       </p>
     }
   }
 
   <div class="import-actions">
-    <button id="client-import-another" type="button" class="btn btn-outline-primary btn-sm" (click)="onImportAnother()">
+    <button id="client-import-another" type="button" class="btn normal-btn" (click)="onImportAnother()">
       {{ "clientImport.action.importAnother" | translate }}
     </button>
-    <button id="client-import-to-list" type="button" class="btn new-btn" (click)="onBackToList()">
+    <button
+      id="client-import-to-list"
+      type="button"
+      class="btn save-btn"
+      data-klacksy-target="client-import-to-list"
+      data-klacksy-label-key="clientImport.action.toList"
+      data-klacksy-category="data.people"
+      (click)="onBackToList()"
+    >
       {{ "clientImport.action.toList" | translate }}
     </button>
   </div>

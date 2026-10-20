@@ -1,5 +1,6 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/modal-buttons.scss";
 
 :host {
   display: block;
@@ -13,10 +14,8 @@
   padding-bottom: 25px;
 }
 
-.import-hint {
+.import-file-body p {
   margin: 0;
-  font-size: 13px;
-  color: var(--colorLabel);
 }
 
 .fileupload-zone {
@@ -26,8 +25,12 @@
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  font-size: 13px;
-  color: var(--standartTextColor);
+  background-color: transparent;
+  transition: border-color 0.3s ease;
+
+  &:hover:not(.disabled) {
+    border-color: var(--paginationBorderColorSelected);
+  }
 
   &.disabled {
     cursor: progress;
@@ -37,11 +40,6 @@
 
 .hidden-file-input {
   display: none;
-}
-
-.import-error {
-  font-size: 13px;
-  color: var(--standartRedColor);
 }
 
 .import-template {

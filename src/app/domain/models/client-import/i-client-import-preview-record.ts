@@ -1,9 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { ClientImportClientType } from 'src/app/domain/enums/client-import.enums';
+
 export interface IClientImportPreviewRecord {
   firstName: string | null;
   lastName: string | null;
   title: string | null;
+  type: ClientImportClientType | null;
+  company: string | null;
   gender: string | null;
   birthdate: string | null;
   street: string | null;

@@ -19,7 +19,8 @@ const row = (rowIndex: number, issues: IClientImportIssue[]): IClientImportPrevi
   rowIndex,
   status: ClientImportRowStatus.Ready,
   record: {
-    firstName: null, lastName: null, title: null, gender: null, birthdate: null, street: null, addressLine2: null,
+    firstName: null, lastName: null, title: null, type: null, company: null, gender: null, birthdate: null, street: null,
+    addressLine2: null,
     zip: null, city: null, state: null, country: null, email: null, phone: null, mobile: null,
     entryDate: '2026-01-01', exitDate: null, contractName: null, groupName: null, note: null,
   },

@@ -8,6 +8,4 @@ export interface IMembership {
   client: IClient | undefined;
   validFrom: Date;
   validUntil: Date | undefined;
-
-  type: number | string;
 }

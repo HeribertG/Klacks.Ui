@@ -1,0 +1,593 @@
+<h2>Employee Import – Manual</h2>
+
+<h3>What is the employee import?</h3>
+<p>
+The employee import takes over a whole staff list from <strong>one Excel file (.xlsx) or one CSV
+file (.csv)</strong> with one row per person, instead of creating every person by hand. Klacks
+recognises the columns itself, shows in a preview how every record will look and only saves after
+confirmation. Besides employees, the same file can also contain external employees and customers.
+</p>
+<ul>
+  <li>
+    <strong>Who may import:</strong> only administrators. The card <em>Import employees</em> is in the
+    settings, section <em>Organization</em>; the button <em>Import</em> opens the import page. Other
+    users do not see the card and need an administrator for the import.
+  </li>
+  <li>
+    <strong>Privacy:</strong> the file itself is not stored. It is only read; only the rows
+    confirmed in the preview are created.
+  </li>
+  <li>
+    <strong>Four steps:</strong> <em>File</em> → <em>Mapping &amp; rules</em> → <em>Preview</em> →
+    <em>Result</em>. The tab <em>Manual</em> shows this manual; switching to it does not lose an
+    import in progress.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Supported files</h3>
+<ul>
+  <li>
+    <strong>Excel (.xlsx)</strong> and <strong>CSV (.csv)</strong>; a .txt file is read like a CSV
+    file. The old Excel format <strong>.xls is not supported</strong> – save the file as .xlsx in
+    Excel first.
+  </li>
+  <li>
+    <strong>Excel workbooks:</strong> only visible sheets are read, the first one by default. A
+    workbook with several sheets offers the choice <em>Sheet</em> in step 2. The calculated result of
+    a formula is imported. Cells formatted as date are read as dates. Numbers in cells with the
+    format "General" lose leading zeros (postcode 01234 becomes 1234) – format such columns as text
+    (the template already does).
+  </li>
+  <li>
+    <strong>Encoding of CSV files:</strong> UTF-8 (with or without byte order mark) and UTF-16 with
+    byte order mark are recognised; any other file is read as Windows-1252 (the usual "ANSI" format of
+    Windows Excel in Western Europe), so Western European umlauts and accents come through without any
+    setting. For all other scripts and letters (for example ł, ř, ș, Greek, Arabic, Hebrew, Chinese,
+    Japanese, Korean or Thai), save the file as "CSV UTF-8" or use .xlsx.
+  </li>
+  <li>
+    <strong>Delimiter of CSV files:</strong> semicolon, comma, tab or vertical bar (|) is detected
+    automatically. Values in quotation marks may contain the delimiter and line breaks.
+  </li>
+  <li>
+    <strong>Header row:</strong> the first row with column names must lie within the first 10
+    non-empty rows and contain at least two text cells. Rows above it (for example a title) and empty
+    rows are ignored.
+  </li>
+  <li>
+    <strong>Date formats:</strong> day, month and year separated by a dot, slash or hyphen, for
+    example 31.12.1990, 12/31/1990 or 1990-12-31; a time part after the date is ignored. A value that
+    starts with a four-digit year is always read as year-month-day. If the file does not show
+    whether the day or the month comes first (no value above 12), Klacks assumes day/month/year and
+    asks for the date format to be checked in step 2. Month names (for example "31 Dec 1990") are not recognised.
+  </li>
+  <li>
+    <strong>Two-digit years:</strong> years up to the last two digits of the current year count as
+    20xx, higher ones as 19xx (in 2026: "26" = 2026, "27" = 1927). The preview marks every such date
+    with a warning so the century can be checked.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Limits and larger lists</h3>
+<ul>
+  <li>At most <strong>5 MB</strong> per file.</li>
+  <li>
+    At most <strong>1000 rows</strong> per import – counted are the data rows below the header row,
+    without empty rows.
+  </li>
+  <li>
+    At most <strong>60 columns</strong>. In Excel the last used column counts: a single forgotten
+    value far to the right makes the file too wide.
+  </li>
+  <li>
+    A cell may contain at most 1000 characters; longer content is cut off. First name, last name,
+    title and company may have at most 100 characters each, e-mail address, phone and mobile number
+    as well.
+  </li>
+  <li>
+    An Excel file may contain at most 20 MB when unpacked (protection against manipulated files).
+  </li>
+</ul>
+<p>
+<strong>Larger lists:</strong> split the list into several files of at most 1000 rows each; every
+file needs its own header row. Columns that are not needed can be deleted beforehand. Import the
+files one after another. People who were already imported from an earlier file are recognised as
+duplicates when they have an e-mail address or a date of birth (see <em>Duplicates</em>).
+</p>
+
+<hr>
+
+<h3>Template</h3>
+<p>
+The button <em>Download template</em> in step 1 provides an Excel file in the user's language
+(file name <code>klacks-employee-import-en.xlsx</code>). With the template every column is recognised
+reliably. Its header row is bold and frozen, every column is formatted as text (leading zeros and
+dates stay as typed), and the header of the column <em>Type</em> carries a note with the allowed
+values. The template has no example row, because it would be imported.
+</p>
+<p>
+Columns of the template, in this order: First name, Last name, Title, Company, Type, Gender, Date
+of birth, Street, Address line 2, Postal code, City, State, Country, Email, Phone, Mobile, Start
+date, End date, Contract, Group, Note. Own lists work as well – Klacks also recognises column names
+in all 25 Klacks languages and many usual variants (for example "Surname", "ZIP", "Hire date").
+</p>
+
+<hr>
+
+<h3>Step 1 – File</h3>
+<ul>
+  <li>
+    Drag the file onto the upload zone or click the zone to choose a file. Klacks reads the file
+    and moves on to step 2.
+  </li>
+  <li>
+    A file problem (wrong format, too large, too many rows or columns, no header row) is shown
+    directly below the upload zone; see <em>Common errors and fixes</em>.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Step 2 – Mapping &amp; rules</h3>
+<h4>Map columns</h4>
+<ul>
+  <li>
+    Every column of the file appears in one line with up to three sample values, the field suggested
+    by Klacks (<em>Import as</em>) and how sure the suggestion is (<em>Confidence</em>).
+  </li>
+  <li>
+    Every suggestion can be changed in the dropdown. A column that should not be imported is set to
+    <em>Do not import</em>. Each field can be assigned to one column only.
+  </li>
+  <li>
+    <em>Date format</em> appears when the file contains dates; when the file does not decide the
+    order of day and month, the selection must be checked.
+  </li>
+  <li>
+    <em>Order in the name field</em> appears for a column with the full name: <em>First name Last
+    name</em> or <em>Last name First name</em>. A comma ("Miller, Anna") always means last name
+    first. The full name only fills a first or last name that has no column of its own or is empty in
+    a row.
+  </li>
+</ul>
+<h4>Rules for missing information</h4>
+<p>These rules apply to all rows:</p>
+<ul>
+  <li>
+    <em>Contract if none is given</em> and <em>Group if none is given</em> – used for rows without a
+    contract or group, or with a name that does not exist.
+  </li>
+  <li>
+    <em>Entry date if none is given</em> – empty means today. The date is also the start of the
+    contract, the group assignment and the address.
+  </li>
+  <li>
+    <em>Country if none is given</em> – default <em>Country of the installation</em>.
+  </li>
+  <li>
+    <em>Save email addresses as</em>, <em>Save phone numbers as</em>, <em>Save mobile numbers as</em>
+    – private or business; applies to all rows.
+  </li>
+  <li>
+    <em>Former employees (exit date in the past)</em> – <em>Skip</em> (default) or <em>Import with
+    exit date</em>. An exit date of today or later is always imported.
+  </li>
+  <li>
+    <em>Possible duplicates</em> – <em>Skip</em> (default) or <em>Create anyway</em>.
+  </li>
+</ul>
+<p>
+<em>Continue to preview</em> moves on; <em>Choose another file</em> starts again with a different
+file.
+</p>
+
+<hr>
+
+<h3>Step 3 – Preview</h3>
+<ul>
+  <li>
+    A summary counts the rows: total, ready, skipped, with errors, duplicates and with warnings.
+    Notes that concern all or many rows appear once above the table, together with the columns that
+    are not imported.
+  </li>
+  <li>
+    The table shows every row as it will be saved, with errors first, then warnings and hints.
+    <em>Show only rows with problems</em> narrows the list.
+  </li>
+  <li>
+    Per row: <em>Skip</em> leaves the row out; <em>Please choose</em> sets the gender of a row
+    without one; <em>Create anyway</em> keeps a row that was recognised as a duplicate.
+  </li>
+  <li>
+    Other values cannot be edited in the preview. To correct them, fix the file and choose it again
+    (<em>Choose another file</em>), or change the mapping with <em>Back</em>.
+  </li>
+  <li>
+    The import button shows how many people will be created (for example <em>Import 25
+    employees</em>). It stays disabled as long as a row still has an error: fix the row or skip it.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Step 4 – Result</h3>
+<p>
+Shows how many people were created and how many rows were skipped, and how many addresses are being
+located on the map in the background. <em>Go to employee list</em> opens the list,
+<em>Import another file</em> starts a new import.
+</p>
+
+<hr>
+
+<h3>Importable columns</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Field (Import as)</th>
+      <th>Required</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>First name, Last name</td>
+      <td>Yes, for persons</td>
+      <td>At most 100 characters each. Not required for a customer with a company.</td>
+    </tr>
+    <tr>
+      <td>Full name</td>
+      <td>No</td>
+      <td>Alternative to separate name columns; split into first and last name (see step 2). Names with
+        more than two parts get a warning – check the split.</td>
+    </tr>
+    <tr>
+      <td>Title</td>
+      <td>No</td>
+      <td>Taken over unchanged, for example "Dr.". A title inside the full name is not separated.</td>
+    </tr>
+    <tr>
+      <td>Gender, Salutation</td>
+      <td>Yes, for persons</td>
+      <td>See <em>Gender and salutation</em>. Without a value the gender is chosen per row in the
+        preview.</td>
+    </tr>
+    <tr>
+      <td>Date of birth</td>
+      <td>No</td>
+      <td>A date in the future is an error. Important for duplicate detection.</td>
+    </tr>
+    <tr>
+      <td>Company</td>
+      <td>For customers that are companies</td>
+      <td>At most 100 characters. See <em>Type and company</em>.</td>
+    </tr>
+    <tr>
+      <td>Type (employee, external, customer)</td>
+      <td>No</td>
+      <td>Empty or missing = employee. See <em>Type and company</em>.</td>
+    </tr>
+    <tr>
+      <td>Street, House number</td>
+      <td>No</td>
+      <td>A separate house number is appended to the street.</td>
+    </tr>
+    <tr>
+      <td>Address line 2</td>
+      <td>No</td>
+      <td>Taken over as free text.</td>
+    </tr>
+    <tr>
+      <td>Postcode, City</td>
+      <td>For customers that are companies</td>
+      <td>An address is created as soon as street, postcode or city is given.</td>
+    </tr>
+    <tr>
+      <td>Postcode and city</td>
+      <td>No</td>
+      <td>One column with both, for example "8000 Zürich" or "CH-8000 Zürich"; only used when the row has
+        no separate postcode or city. If it cannot be split, the whole value becomes the city (warning).</td>
+    </tr>
+    <tr>
+      <td>State / region</td>
+      <td>No</td>
+      <td>Free text; if empty, it is filled in when the address is located on the map.</td>
+    </tr>
+    <tr>
+      <td>Country</td>
+      <td>For customers that are companies (the default country counts)</td>
+      <td>Country code (CH, DE …) or country name in any Klacks language. Empty = default country; an
+        unknown country gives a warning and the default country is used.</td>
+    </tr>
+    <tr>
+      <td>Email</td>
+      <td>No</td>
+      <td>An invalid address is left out with a warning; the person is imported anyway.</td>
+    </tr>
+    <tr>
+      <td>Phone, Mobile phone</td>
+      <td>No</td>
+      <td>Spaces and separators are removed and a leading 00 becomes +; a number without + gets the
+        calling code of the row's country.</td>
+    </tr>
+    <tr>
+      <td>Entry date</td>
+      <td>No</td>
+      <td>Empty = the rule <em>Entry date if none is given</em>. Implausible dates (before the date of
+        birth, or more than 50 years away) give a warning.</td>
+    </tr>
+    <tr>
+      <td>Exit date</td>
+      <td>No</td>
+      <td>Before the entry date = error. In the past: see the rule <em>Former employees</em>.</td>
+    </tr>
+    <tr>
+      <td>Contract, Group</td>
+      <td>No</td>
+      <td>Matched by name; see <em>Contract and group</em>.</td>
+    </tr>
+    <tr>
+      <td>Note</td>
+      <td>No</td>
+      <td>Saved as a note on the person.</td>
+    </tr>
+    <tr>
+      <td>Personnel number (assigned by Klacks)</td>
+      <td>–</td>
+      <td>Recognised but never imported; see <em>Personnel number</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Type and company</h3>
+<ul>
+  <li>
+    The column <em>Type</em> says per row whether it is an employee, an external employee or a
+    customer. Recognised values are, for example, <code>Employee</code>, <code>Staff</code>,
+    <code>Internal</code> (employee), <code>External</code>, <code>Contractor</code>,
+    <code>Freelancer</code> (external employee) and <code>Customer</code>, <code>Client</code>
+    (customer); the corresponding words of all other Klacks languages and the numbers 0, 1 and 2 work
+    as well. Upper and lower case do not matter.
+  </li>
+  <li>
+    An <strong>empty cell</strong> or a file without a type column means <strong>employee</strong>.
+    An unknown value is an error in the preview.
+  </li>
+  <li>
+    <strong>Customer with company:</strong> created as a company (legal entity), not as a person.
+    First and last name are optional and are kept as the contact person (the preview marks them with
+    <em>Contact person:</em>); a gender in the row is ignored. Such a row needs an address with
+    postcode, city and country (the default country counts).
+  </li>
+  <li>
+    <strong>Customer without company:</strong> created as a person – first name, last name and
+    gender are required.
+  </li>
+  <li>
+    <strong>Employee or external employee with company:</strong> stays a person; the company name is
+    stored with the person.
+  </li>
+  <li>
+    <strong>Customers never get a contract</strong> – neither from the file (warning, the value is
+    not imported) nor from the rules. A group is assigned to customers as well.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Gender and salutation</h3>
+<ul>
+  <li>
+    Persons need a gender: <em>Female</em>, <em>Male</em> or <em>Diverse</em>. It comes from the
+    column <em>Gender</em>; if that is empty, from the column <em>Salutation</em> (the preview notes
+    this). Without either, the gender is chosen per row in the preview (<em>Please choose</em>).
+  </li>
+  <li>
+    Recognised values are, for example, <code>Mrs</code>, <code>Ms</code>, <code>Miss</code>,
+    <code>Female</code>, <code>Woman</code> (female), <code>Mr</code>, <code>Male</code>,
+    <code>Man</code> (male) and <code>Diverse</code>, <code>Intersex</code>, <code>Non-binary</code>
+    (diverse) – plus the corresponding words of all other Klacks languages, such as
+    <code>Herr</code>/<code>Frau</code> or <code>Monsieur</code>/<code>Madame</code>.
+  </li>
+  <li>
+    Upper and lower case, accents and punctuation do not matter; for a longer salutation the first
+    word counts ("Mr Dr." = male).
+  </li>
+  <li>A company (customer with company) needs no gender.</li>
+</ul>
+
+<hr>
+
+<h3>Contract and group</h3>
+<ul>
+  <li>
+    A value in the file is compared with the names of the existing contracts and groups; upper and
+    lower case and spaces at the beginning or end do not matter.
+  </li>
+  <li>
+    If the name does not exist, exists several times or is empty, the contract or group from the
+    rules is used and the preview says so. Without a rule the row gets no contract or no group.
+  </li>
+  <li>
+    <strong>The import does not create contracts or groups.</strong> Set them up first in the
+    settings and on the groups page, then import.
+  </li>
+  <li>
+    Contract and group start on the entry date and end on the exit date, if there is one.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Personnel number</h3>
+<p>
+Klacks <strong>always assigns the personnel number itself</strong>. A personnel number column in the
+file is recognised but ignored; the preview shows a hint. To keep the numbers of another system, the
+column can be mapped to <em>Note</em> in step 2, as long as no other column is imported as note.
+</p>
+
+<hr>
+
+<h3>Duplicates</h3>
+<ul>
+  <li>
+    <strong>Persons:</strong> a row counts as a duplicate when the <strong>e-mail address</strong> is
+    the same, or when <strong>first name, last name and date of birth</strong> are the same. Upper
+    and lower case, accents and hyphens are ignored ("Müller" = "Muller", "Hans-Peter" =
+    "Hanspeter").
+  </li>
+  <li>
+    <strong>Companies</strong> (customers with company): same <strong>company, postcode and
+    street</strong>.
+  </li>
+  <li>
+    Rows are compared with the people already in Klacks and with earlier rows of the same file.
+    <strong>Customers are compared only with customers</strong>, employees and external employees
+    with each other.
+  </li>
+  <li>
+    Duplicates are skipped with the rule <em>Possible duplicates</em> = <em>Skip</em>. With
+    <em>Create anyway</em> – as a rule for all rows or per row in the preview – they are created
+    anyway.
+  </li>
+  <li>
+    Only a <strong>hint</strong>, without skipping: the same name without a matching date of birth,
+    or the same company at another address. Check such rows before importing.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Saving and addresses</h3>
+<ul>
+  <li>
+    <strong>All or nothing:</strong> the import saves all ready rows in one go. If anything fails,
+    nothing is saved. Before saving, Klacks checks all rows again against the current data.
+  </li>
+  <li>
+    Created per row: the person (or company), the period of employment from entry to exit date, the
+    address, e-mail address, phone and mobile number, contract, group and note.
+  </li>
+  <li>
+    The same import cannot be saved twice; a second attempt shows that the import has already been
+    carried out.
+  </li>
+  <li>
+    <strong>Map:</strong> addresses with postcode and city are located on the map in the background
+    after the import, one after another. With many addresses this can take a few minutes; the people
+    can already be used in the meantime.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Common errors and fixes</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Message</th>
+      <th>Cause</th>
+      <th>Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>This file format is not supported. Please use an .xlsx or .csv file.</td>
+      <td>.xls, .ods, PDF or a damaged file.</td>
+      <td>Save the file in Excel as .xlsx or export it as CSV.</td>
+    </tr>
+    <tr>
+      <td>The file is too large (maximum 5 MB).</td>
+      <td>File over 5 MB, for example because of images or unused sheets.</td>
+      <td>Remove images and unused sheets, or split the list.</td>
+    </tr>
+    <tr>
+      <td>The file contains too many rows (maximum 1000 people per import).</td>
+      <td>More than 1000 data rows.</td>
+      <td>Split the list into several files (see <em>Limits and larger lists</em>).</td>
+    </tr>
+    <tr>
+      <td>The file contains too many columns (maximum 60).</td>
+      <td>More than 60 columns, often because of a stray value far to the right.</td>
+      <td>Delete unused columns, including empty-looking ones at the right edge.</td>
+    </tr>
+    <tr>
+      <td>No header row with column names was found in the first rows.</td>
+      <td>No row with at least two column names within the first 10 rows.</td>
+      <td>Put a header row with column names above the data.</td>
+    </tr>
+    <tr>
+      <td>The file contains no data.</td>
+      <td>Empty file, only a header row, or no visible sheet.</td>
+      <td>Check the file; unhide the sheet in Excel.</td>
+    </tr>
+    <tr>
+      <td>Gender is missing – please choose.</td>
+      <td>No or an unrecognised gender or salutation.</td>
+      <td>Choose the gender in the preview, or fill the column in the file.</td>
+    </tr>
+    <tr>
+      <td>First name is missing. / Last name is missing.</td>
+      <td>Name column empty or not mapped; a full name with only one word.</td>
+      <td>Check the mapping in step 2 or complete the file.</td>
+    </tr>
+    <tr>
+      <td>Invalid date: "…".</td>
+      <td>Unreadable date, birth date in the future, or exit date before entry date.</td>
+      <td>Check the date format in step 2 or correct the value in the file.</td>
+    </tr>
+    <tr>
+      <td>Unknown type "…" – use employee, external or customer.</td>
+      <td>Value in the type column not recognised.</td>
+      <td>Use one of the values from the template note, or leave the cell empty (= employee).</td>
+    </tr>
+    <tr>
+      <td>A customer with a company needs an address with postcode, city and country.</td>
+      <td>Company row without complete address.</td>
+      <td>Complete postcode and city; set a country in the file or in the rules.</td>
+    </tr>
+    <tr>
+      <td>Value too long (maximum … characters).</td>
+      <td>Name, title, company, e-mail or phone longer than 100 characters.</td>
+      <td>Shorten the value in the file.</td>
+    </tr>
+    <tr>
+      <td>Contract "…" not found. / Group "…" not found.</td>
+      <td>Name differs from the contracts and groups in Klacks.</td>
+      <td>Correct the name, or set up the contract or group first; otherwise the rule applies.</td>
+    </tr>
+    <tr>
+      <td>Some rows still have errors. Fix them or skip those rows, then try again.</td>
+      <td>At least one row has an error.</td>
+      <td>Use <em>Show only rows with problems</em>, then fix or skip those rows.</td>
+    </tr>
+    <tr>
+      <td>One of the rules for missing information is no longer valid …</td>
+      <td>A contract or group chosen in the rules was deleted in the meantime.</td>
+      <td>Check the rules in step 2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>After the import</h3>
+<ul>
+  <li>
+    Imported people are ordinary records. Mistakes are corrected or deleted on the page of the
+    person; there is no "undo" for the whole import.
+  </li>
+  <li>
+    Importing the same file a second time finds rows with an e-mail address or a date of birth again
+    as duplicates. Rows with only a name are merely flagged – check them before importing twice.
+  </li>
+  <li>
+    A single person is created by hand on the employee page; a company directory can be synchronised
+    by an administrator through the identity provider settings.
+  </li>
+</ul>

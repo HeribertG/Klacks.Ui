@@ -10,19 +10,23 @@ import { readdirSync, readFileSync, statSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import {
+  CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX,
   CLIENT_IMPORT_COUNT_KEYS,
   CLIENT_IMPORT_FILE_ERROR_CODES,
   CLIENT_IMPORT_FILE_ERROR_KEY_PREFIX,
+  CLIENT_IMPORT_GENDER_KEY_PREFIX,
   CLIENT_IMPORT_ISSUE_CODES,
   CLIENT_IMPORT_ISSUE_KEY_PREFIX,
   CLIENT_IMPORT_ISSUE_REASON_KEY_PREFIX,
   CLIENT_IMPORT_ISSUE_REASONS,
+  CLIENT_IMPORT_LEGAL_ENTITY_GENDER,
   CLIENT_IMPORT_REQUEST_ERROR_CODES,
   CLIENT_IMPORT_REQUEST_ERROR_KEY_PREFIX,
   CLIENT_IMPORT_TARGET_KEY_PREFIX,
   CLIENT_IMPORT_TARGETS,
 } from 'src/app/domain/constants/client-import.constants';
 import {
+  ClientImportClientType,
   ClientImportDateFormat,
   ClientImportDuplicateHandling,
   ClientImportEmailType,
@@ -87,7 +91,8 @@ const REQUIRED_KEYS: readonly string[] = [
   ...prefixed(CLIENT_IMPORT_TARGET_KEY_PREFIX, CLIENT_IMPORT_TARGETS),
   ...prefixed('clientImport.step.', Object.values(ClientImportStep)),
   ...prefixed('clientImport.status.', Object.values(ClientImportRowStatus)),
-  ...prefixed('clientImport.gender.', Object.values(ClientImportGender)),
+  ...prefixed(CLIENT_IMPORT_GENDER_KEY_PREFIX, [...Object.values(ClientImportGender), CLIENT_IMPORT_LEGAL_ENTITY_GENDER]),
+  ...prefixed(CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX, Object.values(ClientImportClientType)),
   ...prefixed('clientImport.dateFormat.', Object.values(ClientImportDateFormat)),
   ...prefixed('clientImport.nameOrder.', Object.values(ClientImportNameOrder)),
   ...prefixed('clientImport.policy.communication.', [

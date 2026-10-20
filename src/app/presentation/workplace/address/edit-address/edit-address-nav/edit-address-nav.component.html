@@ -120,11 +120,11 @@
             class="onwListButton"
             (click)="onClickFindClient(c)"
           >
-            {{ c.firstName }} {{ c.name }}
+            {{ clientDisplayName(c) }}
           </li>
           } @else {
           <li id="find-client-{{ i }}" class="onwListItem">
-            {{ c.firstName }} {{ c.name }}
+            {{ clientDisplayName(c) }}
           </li>
           }
           }

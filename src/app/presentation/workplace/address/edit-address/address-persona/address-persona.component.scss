@@ -101,6 +101,13 @@
   width: 280px;
 }
 
+.contact-person-heading {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: var(--fontSizeLabel);
+  color: var(--colorLabel);
+}
+
 .legal-entity {
   width: 100px;
   align-self: flex-end;
