@@ -10,6 +10,7 @@ export class StorageKeys {
   public static readonly TOKEN_REFRESHTOKEN = 'JWT_REFRESH';
   public static readonly TOKEN_APPVERSION = 'JWT_APP_VERSION';
   public static readonly CURRENT_LANG = 'CURRENT_LANG';
+  public static readonly THEME = 'theme';
   public static readonly WIZARD_AUCTION_RATIO = 'wizard.auctionRatio';
   public static readonly DASHBOARD_SECTION_VISIBILITY = 'dashboard.sectionVisibility';
   public static readonly DASHBOARD_SECTION_ORDER = 'dashboard.sectionOrder';

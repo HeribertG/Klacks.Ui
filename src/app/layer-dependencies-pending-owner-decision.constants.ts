@@ -155,7 +155,7 @@ export const PENDING_OWNER_DECISION: Readonly<Record<string, readonly Layer[]>> 
   'infrastructure/api/shift/data-shift-cuts.service.ts': ['shared'],
   'infrastructure/api/shift/data-shift.service.ts': ['shared'],
   'infrastructure/api/shift/shift-groups-wire.mapper.ts': ['shared'],
-  'infrastructure/helpers/NgbDateParserFormatter.ts': ['shared'],
+  'infrastructure/helpers/ngb-date-parser-formatter.ts': ['shared'],
   'infrastructure/services/work-change-logic.service.ts': ['shared'],
   'infrastructure/signalr/signalr-token.helper.ts': ['shared'],
   'infrastructure/storage/abstract-storage.service.ts': ['shared'],

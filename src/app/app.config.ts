@@ -19,7 +19,7 @@ import { ResponseInterceptor } from './presentation/error/http-interceptor';
 import { LoadingInterceptor } from './presentation/spinner/loading.interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
-import { NgbDateCustomParserFormatter } from './infrastructure/helpers/NgbDateParserFormatter';
+import { NgbDateCustomParserFormatter } from './infrastructure/helpers/ngb-date-parser-formatter';
 import { FILTER_STORAGE_TOKEN } from './domain/interfaces/filter-storage.interface';
 import { SessionStorageService } from './infrastructure/storage/session-storage.service';
 import {

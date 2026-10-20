@@ -9,6 +9,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { IThemeSource } from 'src/app/domain/interfaces/theme-source.interface';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 export type ThemeMode = 'light' | 'klacks' | 'dark' | 'high-contrast' | 'blue' | 'warm' | 'oled' | 'dimmed';
 
@@ -23,8 +24,6 @@ export const AVAILABLE_THEMES: { value: ThemeMode; label: string }[] = [
   { value: 'dimmed', label: 'Dimmed' },
 ];
 
-const THEME_STORAGE_KEY = 'theme';
-
 @Injectable({ providedIn: 'root' })
 export class ThemeService implements IThemeSource {
   private localStorageService = inject(LocalStorageService);
@@ -33,13 +32,13 @@ export class ThemeService implements IThemeSource {
 
   constructor() {
     document.documentElement.setAttribute('data-theme', this.theme());
-    if (!this.localStorageService.get(THEME_STORAGE_KEY)) {
-      this.localStorageService.set(THEME_STORAGE_KEY, this.theme());
+    if (!this.localStorageService.get(StorageKeys.THEME)) {
+      this.localStorageService.set(StorageKeys.THEME, this.theme());
     }
   }
 
   private resolveInitialTheme(): ThemeMode {
-    const stored = this.localStorageService.get(THEME_STORAGE_KEY) as ThemeMode | null;
+    const stored = this.localStorageService.get(StorageKeys.THEME) as ThemeMode | null;
     if (stored) {
       return stored;
     }
@@ -49,7 +48,7 @@ export class ThemeService implements IThemeSource {
   }
 
   setTheme(mode: ThemeMode) {
-    this.localStorageService.set(THEME_STORAGE_KEY, mode);
+    this.localStorageService.set(StorageKeys.THEME, mode);
     document.documentElement.setAttribute('data-theme', mode);
     this.theme.set(mode);
   }

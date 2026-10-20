@@ -138,4 +138,33 @@ describe('ApplicationInitService', () => {
       expect(localeService.switchLocale).toHaveBeenCalledWith('it');
     });
   });
+
+  describe('initializeBasics - theme', () => {
+    afterEach(() => {
+      document.documentElement.removeAttribute('data-theme');
+    });
+
+    it('should apply the persisted theme read through the local storage service', () => {
+      // Arrange
+      localStorageService.get.mockImplementation((key: string) => (key === StorageKeys.THEME ? 'dark' : null));
+
+      // Act
+      service.initializeBasics();
+
+      // Assert
+      expect(localStorageService.get).toHaveBeenCalledWith(StorageKeys.THEME);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    });
+
+    it('should leave the document theme alone when none is persisted', () => {
+      // Arrange
+      localStorageService.get.mockReturnValue(null);
+
+      // Act
+      service.initializeBasics();
+
+      // Assert
+      expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+    });
+  });
 });

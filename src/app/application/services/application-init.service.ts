@@ -65,9 +65,7 @@ export class ApplicationInitService {
   }
 
   private setTheme(): void {
-    const currentTheme = localStorage.getItem('theme')
-      ? localStorage.getItem('theme')
-      : null;
+    const currentTheme = this.localStorageService.get(StorageKeys.THEME);
     if (currentTheme) {
       document.documentElement.setAttribute('data-theme', currentTheme);
     }

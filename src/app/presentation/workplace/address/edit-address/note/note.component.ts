@@ -25,7 +25,7 @@ import { CommonModule } from '@angular/common';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { TrashIconLightRedComponent } from 'src/app/presentation/icons/trash-icon-light-red.component ';
+import { TrashIconLightRedComponent } from 'src/app/presentation/icons/trash-icon-light-red.component';
 import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
