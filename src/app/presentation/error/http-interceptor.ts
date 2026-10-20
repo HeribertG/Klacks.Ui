@@ -212,18 +212,18 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    // PostcodeCH - erwarteter "Fehler"
+    // PostcodeCH - an expected "error"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
       return throwError(() => error);
     }
 
-    // GeneralSettings ist Admin-only; ein 403 für Nicht-Admins ist erwartet und wird
-    // vom aufrufenden Code (z.B. loadSettingsAsync) bereits sauber behandelt.
+    // GeneralSettings is admin-only; a 403 for non-admins is expected and is already
+    // handled cleanly by the calling code (e.g. loadSettingsAsync).
     if (url.includes('GeneralSettings/') && error.status === 403) {
       return throwError(() => error);
     }
 
-    // Account-spezifische Errors
+    // Account-specific errors
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CHANGE_PASSWORD)) {
       return this.handlePasswordChangeError(error);
     }
@@ -243,7 +243,7 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    // API-spezifische Errors für alle Endpunkte
+    // API-specific errors for all endpoints
     if (this.isApiError(url, method)) {
       return this.handleApiError(error, method, url);
     }
@@ -359,7 +359,7 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     const isApiEndpoint = apiEndpoints.some((pattern) => url.includes(pattern));
 
-    // Exkludiere spezielle GET-Endpunkte, die keine Fehlerbehandlung brauchen
+    // Exclude special GET endpoints that need no error handling
     const isSpecialGet = this.isSpecialGetEndpoint(url);
 
     return isApiEndpoint && isModifyingOperation && !isSpecialGet;
@@ -609,7 +609,7 @@ export class ResponseInterceptor implements HttpInterceptor {
           'Validation error for ' + key + ':',
           messages
         );
-        break; // Nur ersten Fehler anzeigen
+        break; // Show only the first error
       }
     }
 
@@ -618,7 +618,7 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private handleGenericError(error: HttpErrorResponse): Observable<never> {
     switch (error.status) {
-      case 401: // wird vom TokenRefreshInterceptor behandelt
+      case 401: // handled by the TokenRefreshInterceptor
         break;
       case 404:
         this.toastShowService.showError(this.translateService.instant('HTTP_ERROR_404'), '404');
@@ -634,7 +634,7 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
         break;
       default:
-        // Für unbekannte Status-Codes
+        // For unknown status codes
         if (error.status >= 400) {
           this.toastShowService.showError(
             this.translateService.instant('HTTP_ERROR_UNKNOWN', { status: error.status })

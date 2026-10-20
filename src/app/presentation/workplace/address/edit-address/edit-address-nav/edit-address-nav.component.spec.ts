@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
 /**
  * Tests the "find similar clients" entry label of the edit-address navigation: persons show first and last name,
  * legal entities show their company instead of the contact person.

@@ -20,7 +20,7 @@ import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-da
 export class CutTableComponent {
   private textFormatterService = inject(TextFormatterService);
   readonly shifts = input<IShift[]>();
-  readonly selectedShiftId = input<string>(); // Input für externe Selektion
+  readonly selectedShiftId = input<string>();
   readonly rowClicked = output<Shift>();
   readonly cellUpdated = output<{
     shift: Shift;

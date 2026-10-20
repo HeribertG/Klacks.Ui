@@ -103,8 +103,6 @@ export class GridTestAccessibilityService {
 
     // Initial metadata update
     requestAnimationFrame(() => this.updateMetadata());
-
-    console.log('[Grid] Test accessibility enabled');
   }
 
   private setupApiHooks(): void {

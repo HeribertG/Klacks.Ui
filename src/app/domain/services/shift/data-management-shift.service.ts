@@ -65,7 +65,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     );
   }
 
-  // IManageable implementation - nur für Edit-Modus
+  // IManageable implementation - edit mode only
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 

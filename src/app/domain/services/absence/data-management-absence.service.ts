@@ -32,7 +32,7 @@ export class DataManagementAbsenceService implements ILoadable, IRefreshable {
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
 
   constructor() {
-    // Selbst-Registrierung für die absence Route
+    // Self-registration for the absence route
     this.registry.register(
       RouteName.ABSENCE,
       DataManagementAbsenceService

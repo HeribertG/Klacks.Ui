@@ -34,8 +34,6 @@ export class AudioCaptureService implements OnDestroy {
   private recordedPcm: Int16Array[] = [];
   private preRollPcm: Int16Array[] = [];
   private preRollSampleCount = 0;
-  private debugRmsLogCounter = 0;
-  private debugMaxRms = 0;
 
   setSilenceThresholdMs(ms: number): void {
     this.silenceThresholdMs.set(SpeechDefaults.clampSilenceThresholdMs(ms));
@@ -66,7 +64,6 @@ export class AudioCaptureService implements OnDestroy {
   private async doStart(): Promise<void> {
     console.log('[VS] audio-capture start, selectedDeviceId=', this.micSelection.selectedDeviceId());
     this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
-    console.log('[VS] stream acquired, tracks=', this.mediaStream.getTracks().map(t => ({ label: t.label, enabled: t.enabled, muted: t.muted })));
 
     this.audioContext = this.createAudioContextAtTargetRate();
     const actualRate = this.audioContext.sampleRate;
@@ -162,12 +159,6 @@ export class AudioCaptureService implements OnDestroy {
     const effectiveThreshold = this.vadThreshold * this.vadThresholdMultiplier;
     const hasSpeechOnset = rms > effectiveThreshold;
     const sustainsSpeech = rms > effectiveThreshold * SpeechDefaults.VadReleaseFactor;
-
-    if (rms > this.debugMaxRms) this.debugMaxRms = rms;
-    this.debugRmsLogCounter++;
-    if (this.debugRmsLogCounter % 20 === 0) {
-      console.log('[VS] VAD tick: rms=', rms.toFixed(5), 'max=', this.debugMaxRms.toFixed(5), 'threshold=', effectiveThreshold, 'speech=', this.isSpeechDetected());
-    }
 
     if (!this.isSpeechDetected()) {
       this.appendToPreRoll(this.float32ToInt16(float32Data));

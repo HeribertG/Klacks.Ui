@@ -1,3 +1,8 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
+/**
+ * Emoji catalogue for the qualification symbol picker: emojis grouped by category plus their English names.
+ */
 export interface EmojiCategory {
   name: string;
   emojis: string[];

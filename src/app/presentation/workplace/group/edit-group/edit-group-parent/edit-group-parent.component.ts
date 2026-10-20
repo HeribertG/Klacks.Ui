@@ -148,7 +148,6 @@ export class EditGroupParentComponent implements OnInit {
   }
 
   getGroupPathDisplay(node: Group): string {
-    // Ein einfacher Indikator für die Tiefe
     const indent = '—'.repeat(node.depth);
     return `${indent} ${node.name}`;
   }

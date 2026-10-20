@@ -64,7 +64,7 @@ export class PropertyGridComponent implements OnInit {
   getEnumValues(enumType: any): EnumOption[] {
     const result: EnumOption[] = [];
 
-    // Nur die String-Keys des Enums nehmen (nicht die Reverse-Mappings)
+    // Take only the enum's string keys (not the reverse mappings)
     Object.keys(enumType)
       .filter((key) => isNaN(Number(key)))
       .forEach((key) => {
@@ -115,12 +115,10 @@ export class PropertyGridComponent implements OnInit {
     if (value === null || value === undefined) return 'null';
     if (value instanceof Date) return 'date';
 
-    // Explizite Typerkennung für bekannte Enum-Eigenschaften
     if (key === 'shiftType') return 'shiftType';
     if (key === 'Weekday') return 'weekday';
     if (key === 'Holiday' || key === 'HolidayNextDay') return 'holiday';
 
-    // Zeit-Eingaben für FromHour, UntilHour, NightStart und NightEnd
     if (key === 'FromHour' || key === 'UntilHour' || key === 'NightStart' || key === 'NightEnd') return 'time';
 
     const type = typeof value;
@@ -169,7 +167,6 @@ export class PropertyGridComponent implements OnInit {
         return option ? option.name : String(prop.value);
       }
       case 'number': {
-        // Formatierung der Dezimalstellen basierend auf den Metadaten
         if (prop.metadata?.decimals !== undefined) {
           return prop.value.toFixed(prop.metadata.decimals);
         }
@@ -197,30 +194,25 @@ export class PropertyGridComponent implements OnInit {
     }
   }
 
-  // Handler für Checkbox-Change-Events
   handleCheckboxChange(event: Event, key: string) {
     const checkbox = event.target as HTMLInputElement;
     this.updateProperty(key, checkbox.checked);
   }
 
-  // Handler für Date-Change-Events
   handleDateChange(event: Event, key: string) {
     const input = event.target as HTMLInputElement;
     this.updateDateProperty(key, input.value);
   }
 
-  // Handler für Enum-Change-Events
   handleEnumChange(event: Event, key: string) {
     const select = event.target as HTMLSelectElement;
     this.updateProperty(key, Number(select.value));
   }
 
-  // Handler für Number-Change-Events mit Validierung
   handleNumberChange(event: Event, prop: PropertyItem) {
     const input = event.target as HTMLInputElement;
     let value = parseFloat(input.value);
 
-    // Validierung mit Metadaten
     if (prop.metadata) {
       if (prop.metadata.min !== undefined && value < prop.metadata.min) {
         value = prop.metadata.min;
@@ -228,7 +220,6 @@ export class PropertyGridComponent implements OnInit {
       if (prop.metadata.max !== undefined && value > prop.metadata.max) {
         value = prop.metadata.max;
       }
-      // Runden auf die angegebene Anzahl von Dezimalstellen
       if (prop.metadata.decimals !== undefined) {
         const factor = Math.pow(10, prop.metadata.decimals);
         value = Math.round(value * factor) / factor;

@@ -168,17 +168,9 @@ export class TestAccessibilityService {
         this.getAllCells().filter((c) => c.date === date),
 
       // Actions (these would need to be connected to actual grid actions)
-      selectCell: (row: number, column: number) => {
-        console.log('[klacksGrid] Select cell:', row, column);
-        return { row, column };
-      },
-      startEdit: (row: number, column: number) => {
-        console.log('[klacksGrid] Start edit:', row, column);
-        return { row, column };
-      },
-      scrollToRow: (row: number) => {
-        console.log('[klacksGrid] Scroll to row:', row);
-      },
+      selectCell: (row: number, column: number) => ({ row, column }),
+      startEdit: (row: number, column: number) => ({ row, column }),
+      scrollToRow: (_row: number) => undefined,
 
       // Scroll position (to be overridden by component)
       getScrollPosition: () => ({ horizontal: 0, vertical: 0 }),

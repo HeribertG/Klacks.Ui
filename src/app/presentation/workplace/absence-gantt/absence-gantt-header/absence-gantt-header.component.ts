@@ -42,7 +42,6 @@ import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 export class AbsenceGanttHeaderComponent implements OnInit {
   absenceList = viewChild<AbsenceGanttAbsenceListComponent>('absenceList');
 
-  // Event Emitter für PDF Export
   pdfExportRequested = output<void>();
 
   private calendarSetting = inject(CalendarSettingService);
