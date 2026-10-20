@@ -6,7 +6,7 @@ export const SETTINGS_EXPERT_MODE_SECTIONS: ReadonlySet<string> = new Set([
   'llm',
   'klacksy',
   'externalServices',
-  'erp',
+  'import',
   'plugins',
   'system',
 ]);

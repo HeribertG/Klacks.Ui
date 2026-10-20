@@ -201,7 +201,7 @@ export class SettingsHomeComponent implements OnInit {
     llm: true,
     klacksy: true,
     externalServices: true,
-    erp: true,
+    import: true,
     plugins: true,
     system: true,
   };

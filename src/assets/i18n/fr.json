@@ -2281,7 +2281,7 @@
   "setting.section.llm": "IA / LLM",
   "setting.section.klacksy": "Klacksy",
   "setting.section.externalServices": "Services externes",
-  "setting.section.erp": "Importation commandes & clients",
+  "setting.section.import": "Importation",
   "setting.section.plugins": "Plugins",
   "setting.section.system": "Système",
   "settings.updates.title": "Mises à jour logicielles",

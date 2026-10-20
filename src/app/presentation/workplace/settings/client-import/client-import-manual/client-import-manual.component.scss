@@ -1,7 +1,22 @@
 @use "../../../../../../assets/standard-styles/standard-manual.scss";
 
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
 .manual-tab-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
   padding-block: 20px;
   padding-inline-start: 30px;
   padding-inline-end: 40px;
+}
+
+.manual-content {
+  flex: 1;
+  height: auto;
+  min-height: 350px;
 }

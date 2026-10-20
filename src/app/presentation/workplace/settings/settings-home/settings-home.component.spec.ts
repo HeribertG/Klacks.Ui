@@ -166,6 +166,8 @@ describe('SettingsHomeComponent', () => {
     ['klacksy-autonomy', 'klacksy'],
     ['updates', 'system'],
     ['identity-providers', 'organization'],
+    ['client-import', 'import'],
+    ['erp-drop-points', 'import'],
     ['email-config', 'communication'],
     ['imap-setting', 'communication'],
     ['data-retention', 'general'],

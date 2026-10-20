@@ -2281,7 +2281,7 @@
   "setting.section.llm": "KI / LLM",
   "setting.section.klacksy": "Klacksy",
   "setting.section.externalServices": "Externe Dienste",
-  "setting.section.erp": "Bestellungs- & Kunden-Import",
+  "setting.section.import": "Import",
   "setting.section.plugins": "Plugins",
   "setting.section.system": "System",
   "settings.updates.title": "Software-Updates",
