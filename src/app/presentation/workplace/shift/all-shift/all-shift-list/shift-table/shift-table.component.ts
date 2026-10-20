@@ -3,6 +3,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, Input, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
@@ -14,6 +15,7 @@ import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
+import { TruncatedTooltipDirective } from 'src/app/presentation/directives/truncated-tooltip.directive';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
@@ -31,6 +33,8 @@ import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-da
     CommonModule,
     FormsModule,
     TranslateModule,
+    NgbTooltip,
+    TruncatedTooltipDirective,
     PencilIconGreyComponent,
     IconScissorComponent,
     IconBoxComponent,

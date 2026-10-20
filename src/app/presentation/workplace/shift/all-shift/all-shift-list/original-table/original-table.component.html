@@ -75,6 +75,7 @@
   </thead>
   <tbody>
     @for (data of shifts(); track data.id; let i = $index) {
+    @let description = getPlainTextDescription(data);
     <tr
       (click)="onClickRow(data)"
       (mouseenter)="onMouseEnter(data)"
@@ -82,19 +83,27 @@
       [class.hover-row]="data.id === hoveredRowId"
       [class.selected-row]="data.id === selectedRowId"
     >
-      <td colspan="2" class="table-cell-small-border">
-        <p>{{ data.name }}</p>
+      <td colspan="2" class="table-cell-small-border cell-truncate">
+        <p
+          [ngbTooltip]="data.name"
+          container="body"
+          appTruncatedTooltip
+        >{{ data.name }}</p>
       </td>
 
-      <td colspan="5" class="table-cell-small-border">
-        <p>{{ getPlainTextDescription(data) }}</p>
+      <td colspan="5" class="table-cell-small-border cell-truncate">
+        <p
+          [ngbTooltip]="description"
+          container="body"
+          appTruncatedTooltip
+        >{{ description }}</p>
       </td>
 
-      <td colspan="2" class="table-cell-small-border">
+      <td colspan="2" class="table-cell-small-border cell-truncate">
         <p>{{ data.fromDate | calendarDate : 'numericDate' }}</p>
       </td>
 
-      <td colspan="2" class="table-cell-small-border">
+      <td colspan="2" class="table-cell-small-border cell-truncate">
         @if (data.untilDate) {
         <p>
           {{ data.untilDate | calendarDate : 'numericDate' }}

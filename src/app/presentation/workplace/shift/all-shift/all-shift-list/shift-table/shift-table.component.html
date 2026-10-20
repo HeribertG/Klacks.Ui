@@ -66,6 +66,7 @@
   </thead>
   <tbody>
     @for (data of shifts(); track data.id; let i = $index) {
+    @let description = getPlainTextDescription(data);
     <tr
       (click)="onClickRow(data)"
       (mouseenter)="onMouseEnter(data)"
@@ -84,32 +85,50 @@
           <app-icon-box-container></app-icon-box-container>
         }
       </td>
-      <td rowspan="2" class="table-cell-small-border cell-center">
+      <td
+        rowspan="2"
+        class="table-cell-small-border cell-center cell-truncate"
+        [ngbTooltip]="data.abbreviation"
+        container="body"
+        appTruncatedTooltip
+      >
         {{ data.abbreviation }}
       </td>
-      <td colspan="2" class="table-cell-small-border">
-        <p>{{ data.name }}</p>
-        @if (attributionFor(data); as attribution) { @if (attribution.handledAtUtc) {
-        <span class="klacksy-resolved-badge">{{
-          'assistant.proactive.containerAutoResolved'
-            | translate: { date: attribution.handledAtUtc | companyDateTime: 'date' }
-        }}</span>
-        } @else {
-        <span class="klacksy-resolved-badge">{{
-          'assistant.proactive.containerAutoResolvedUndated' | translate
-        }}</span>
-        } }
+      <td colspan="2" class="table-cell-small-border cell-truncate">
+        <p
+          [ngbTooltip]="data.name"
+          container="body"
+          appTruncatedTooltip
+        >{{ data.name }}</p>
+        @if (attributionFor(data); as attribution) {
+        @let badgeText =
+          attribution.handledAtUtc
+            ? ('assistant.proactive.containerAutoResolved'
+              | translate: { date: attribution.handledAtUtc | companyDateTime: 'date' })
+            : ('assistant.proactive.containerAutoResolvedUndated' | translate);
+        <span
+          class="klacksy-resolved-badge"
+          [ngbTooltip]="badgeText"
+          container="body"
+          appTruncatedTooltip
+          >{{ badgeText }}</span
+        >
+        }
       </td>
 
-      <td colspan="5" class="table-cell-small-border">
-        <p>{{ getPlainTextDescription(data) }}</p>
+      <td colspan="5" class="table-cell-small-border cell-truncate">
+        <p
+          [ngbTooltip]="description"
+          container="body"
+          appTruncatedTooltip
+        >{{ description }}</p>
       </td>
 
-      <td colspan="2" class="table-cell-small-border">
+      <td colspan="2" class="table-cell-small-border cell-truncate">
         <p>{{ data.fromDate | calendarDate : 'numericDate' }}</p>
       </td>
 
-      <td colspan="2" class="table-cell-small-border">
+      <td colspan="2" class="table-cell-small-border cell-truncate">
         @if (data.untilDate) {
         <p>
           {{ data.untilDate | calendarDate : 'numericDate' }}

@@ -120,7 +120,6 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private filterChangeWrapper?: () => void;
 
   async ngOnInit(): Promise<void> {
-    this.tableResizeService.setRowHeights(90, 82);
     this.openPlannableCreateFormIfRequested();
     void this.quickPrintAction.ensureDefaultsLoaded().then(() => this.cdr.markForCheck());
     this.dataManagementShiftService.init();
@@ -515,7 +514,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
                 optimalRows;
               this.realRow = optimalRows;
               this.page = 1;
-              this.readPage(true);
+              this.readPage(false);
               this.cdr.markForCheck();
             }
           }

@@ -3,10 +3,12 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
+import { TruncatedTooltipDirective } from 'src/app/presentation/directives/truncated-tooltip.directive';
 import { InfoIconComponent } from 'src/app/presentation/icons/icon-info.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -25,6 +27,8 @@ import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-da
     CommonModule,
     FormsModule,
     TranslateModule,
+    NgbTooltip,
+    TruncatedTooltipDirective,
     PencilIconGreyComponent,
     TrashIconRedComponent,
     InfoIconComponent,

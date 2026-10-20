@@ -10,17 +10,22 @@ import { BaseTableResizeService } from './base-table-resize.service';
 export class ShiftTableResizeService extends BaseTableResizeService {
   private readonly MIN_ITEMS_PER_PAGE = 3;
   private readonly ROWS_PER_DATA_ITEM = 2;
+  private readonly DEFAULT_ROW_HEIGHT = 70;
+  private readonly MIN_ROW_HEIGHT = 50;
+  private readonly SAFETY_MARGIN = 8;
+  private readonly SCROLLABLE_OVERFLOW_VALUES = ['auto', 'scroll'];
+  private readonly OUT_OF_FLOW_POSITIONS = ['fixed', 'absolute'];
 
   protected getMinItemsPerPage(): number {
     return this.MIN_ITEMS_PER_PAGE;
   }
 
   protected getDefaultRowHeight(): number {
-    return 90;
+    return this.DEFAULT_ROW_HEIGHT;
   }
 
   protected getMinRowHeight(): number {
-    return 82;
+    return this.MIN_ROW_HEIGHT;
   }
 
   protected getRowsPerDataItem(): number {
@@ -73,6 +78,29 @@ export class ShiftTableResizeService extends BaseTableResizeService {
     return Math.max(averageHeight, this.minRowHeight);
   }
 
+  override calculateAvailableHeight(tableElement: HTMLElement): number {
+    const tbody = tableElement.querySelector('tbody');
+    const scrollContainer = this.findScrollContainer(tableElement);
+    const contentBottom = scrollContainer
+      ? this.measureContentBottom(tableElement, scrollContainer)
+      : null;
+
+    if (!tbody || !scrollContainer || contentBottom === null) {
+      return super.calculateAvailableHeight(tableElement);
+    }
+
+    const visibleBottom =
+      scrollContainer.getBoundingClientRect().top + scrollContainer.clientHeight;
+    const freeSpace =
+      visibleBottom -
+      contentBottom -
+      scrollContainer.scrollTop -
+      this.parsePixels(getComputedStyle(scrollContainer).paddingBottom);
+    const rowsHeight = tbody.getBoundingClientRect().height;
+
+    return Math.max(0, rowsHeight + freeSpace - this.SAFETY_MARGIN);
+  }
+
   createScrollbarVisibilityObservable(): Observable<boolean> {
     return new Observable<boolean>((subscriber) => {
       const checkScrollbar = () => {
@@ -115,5 +143,51 @@ export class ShiftTableResizeService extends BaseTableResizeService {
 
   hasVerticalScrollbar(): boolean {
     return document.documentElement.scrollHeight > document.documentElement.clientHeight;
+  }
+
+  private findScrollContainer(element: HTMLElement): HTMLElement | null {
+    let current = element.parentElement;
+
+    while (current && current !== document.body) {
+      if (this.SCROLLABLE_OVERFLOW_VALUES.includes(getComputedStyle(current).overflowY)) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+
+    return null;
+  }
+
+  private measureContentBottom(element: HTMLElement, scrollContainer: HTMLElement): number | null {
+    let contentRoot: HTMLElement | null = element;
+
+    while (contentRoot && contentRoot.parentElement !== scrollContainer) {
+      contentRoot = contentRoot.parentElement;
+    }
+
+    if (!contentRoot) {
+      return null;
+    }
+
+    let contentBottom: number | null = null;
+
+    for (const child of Array.from(contentRoot.children)) {
+      const style = getComputedStyle(child);
+
+      if (this.OUT_OF_FLOW_POSITIONS.includes(style.position)) {
+        continue;
+      }
+
+      const bottom = child.getBoundingClientRect().bottom + this.parsePixels(style.marginBottom);
+      contentBottom = contentBottom === null ? bottom : Math.max(contentBottom, bottom);
+    }
+
+    return contentBottom;
+  }
+
+  private parsePixels(value: string): number {
+    const parsed = parseFloat(value);
+
+    return Number.isNaN(parsed) ? 0 : parsed;
   }
 }
