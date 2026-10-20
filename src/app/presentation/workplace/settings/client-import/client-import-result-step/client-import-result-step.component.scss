@@ -1,5 +1,4 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../../assets/standard-styles/modal-buttons.scss";
 
 :host {
   display: block;
@@ -21,18 +20,4 @@
   font-size: var(--fontSizeBase);
   font-weight: 600;
   color: var(--colorHeadline);
-}
-
-.import-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
-  margin-top: 12px;
-
-  .btn {
-    width: auto;
-    min-width: 180px;
-    margin-inline-end: 0;
-  }
 }

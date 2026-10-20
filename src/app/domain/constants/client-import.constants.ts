@@ -43,8 +43,6 @@ export const CLIENT_IMPORT_TEMPLATE_FILE_NAME_PREFIX = 'klacks-employee-import-'
 export const CLIENT_IMPORT_TEMPLATE_FILE_EXTENSION = '.xlsx';
 export const CLIENT_IMPORT_TEMPLATE_FALLBACK_LANGUAGE = 'en';
 
-export const CLIENT_IMPORT_ROUTE = '/workplace/settings/client-import';
-
 export const CLIENT_IMPORT_ISSUE_KEY_PREFIX = 'clientImport.issue.';
 export const CLIENT_IMPORT_TARGET_KEY_PREFIX = 'clientImport.target.';
 export const CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX = 'clientImport.type.';

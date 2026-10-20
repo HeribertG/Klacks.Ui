@@ -128,15 +128,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'settings/client-import',
-        loadComponent: () =>
-          import('./presentation/workplace/settings/client-import/client-import-home/client-import-home.component').then(
-            (m) => m.ClientImportHomeComponent,
-          ),
-        canActivate: [permissionGuard],
-        data: { [ROUTE_DATA_REQUIRED_PERMISSION]: ROLE_ADMIN },
-      },
-      {
         path: 'settings',
         loadComponent: () =>
           import('./presentation/workplace/settings/settings-home/settings-home.component').then(

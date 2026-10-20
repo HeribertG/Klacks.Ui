@@ -3,14 +3,14 @@
 /**
  * Third step of the employee import: shows every row as it will be written (client type, company and person
  * name; for a customer with company the person is labelled as its contact person), its status and issues, lets the user skip a row, pick a missing gender or create a duplicate anyway,
- * and starts the commit.
- * The commit button stays disabled while any row has an error or a preview/commit request is pending.
+ * and shows why the commit is blocked. The back and commit buttons sit in the footer of the import modal; the commit
+ * stays disabled while any row has an error or a preview/commit request is pending.
  * Issue texts receive the issue arguments as parameters (row numbers shown 1-based, dates in the language
  * of the user). The skip checkbox only reflects and sets the decision of the user: rows skipped by a rule
  * (former employee, duplicate) cannot be un-skipped with it and show the reason as issue. Info notes that
  * describe a rule applied to many rows are shown once in a notes block above the table; each row only lists
  * its own issues (errors and warnings first, info muted). Count texts use singular or plural keys.
- * @param state - Page-scoped import state provided by the import page
+ * @param state - Import state provided by the settings card (ClientImportCardComponent)
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
@@ -49,7 +49,6 @@ import { clientImportCountKey } from 'src/app/domain/services/client/client-impo
 import { rowSpecificClientImportIssues } from 'src/app/domain/services/client/client-import-issue-summary.helper';
 import { IClientImportPreviewRow } from 'src/app/domain/models/client-import/i-client-import-preview-row';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 const UNKNOWN_ISSUE_KEY = 'clientImport.issue.unknown';
 const NOTE_ALL_ROWS_KEY = 'clientImport.preview.notesAllRows';
@@ -114,7 +113,6 @@ export class ClientImportPreviewStepComponent {
   readonly countKey = clientImportCountKey;
 
   private translate = inject(TranslateService);
-  private toastShowService = inject(ToastShowService);
   private localeService = inject(LocaleService);
 
   readonly unmappedColumnNames = computed(() => {
@@ -239,21 +237,6 @@ export class ClientImportPreviewStepComponent {
 
   onToggleOnlyProblems(event: Event): void {
     this.state.showOnlyProblems.set((event.target as HTMLInputElement).checked);
-  }
-
-  onBack(): void {
-    this.state.backToMapping();
-  }
-
-  async onCommit(): Promise<void> {
-    if (!this.state.canCommit()) {
-      return;
-    }
-    const committed = await this.state.commit();
-    if (committed) {
-      return;
-    }
-    this.toastShowService.showError(this.translate.instant(this.state.commitErrorKey()));
   }
 
   private totalRows(): number {

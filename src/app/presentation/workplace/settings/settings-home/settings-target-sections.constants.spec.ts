@@ -12,6 +12,10 @@ import { SETTINGS_TARGET_SECTIONS } from './settings-target-sections.constants';
 import { SETTINGS_EXPERT_MODE_SECTIONS } from './settings-expert-mode.constants';
 import { PAGE_EXPLAIN_ROUTES, PAGE_EXPLAIN_TARGETS } from 'src/app/domain/constants/page-explain-icons.constants';
 import { ERP_DROP_POINTS_TAB_TARGETS } from '../erp-drop-points/erp-drop-points-target.constants';
+import {
+  CLIENT_IMPORT_CARD_TAB_TARGETS,
+  CLIENT_IMPORT_MODAL_TARGETS,
+} from '../client-import/client-import-target.constants';
 
 const ERP_UPLOAD_ZONE_TARGET = 'erp-drop-points-upload-zone';
 const CLIENT_IMPORT_TARGET = 'client-import';
@@ -38,6 +42,12 @@ describe('SETTINGS_TARGET_SECTIONS', () => {
   // The scanner hook parses this constant as source text, so the ERP tab targets are listed literally there.
   it('opens the import section for every target inside an ERP card tab', () => {
     for (const target of Object.keys(ERP_DROP_POINTS_TAB_TARGETS)) {
+      expect(SETTINGS_TARGET_SECTIONS[target], target).toBe(IMPORT_SECTION);
+    }
+  });
+
+  it('opens the import section for every target of the employee import card and its modal', () => {
+    for (const target of [...Object.keys(CLIENT_IMPORT_CARD_TAB_TARGETS), ...CLIENT_IMPORT_MODAL_TARGETS]) {
       expect(SETTINGS_TARGET_SECTIONS[target], target).toBe(IMPORT_SECTION);
     }
   });

@@ -1,7 +1,6 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-grid.scss";
-@use "../../../../../../assets/standard-styles/modal-buttons.scss";
 
 :host {
   display: block;
@@ -89,18 +88,4 @@
   grid-template-columns: 220px minmax(0, 320px);
   gap: 10px 16px;
   align-items: center;
-}
-
-.import-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
-  margin-top: 12px;
-
-  .btn {
-    width: auto;
-    min-width: 180px;
-    margin-inline-end: 0;
-  }
 }

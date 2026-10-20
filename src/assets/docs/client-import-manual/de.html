@@ -12,18 +12,19 @@ Mitarbeitende und Kunden enthalten.
   <li>
     <strong>Wer importieren darf:</strong> nur Administratoren. Die Karte <em>Mitarbeitende
     importieren</em> liegt in den Einstellungen im Bereich <em>Import</em>; dieser Bereich erscheint nur,
-    wenn oben auf der Einstellungsseite der Schalter <em>Experten Modus</em> eingeschaltet ist. Der Button
-    <em>Importieren</em> öffnet die Import-Seite. Andere Benutzer sehen die Karte nicht und brauchen
-    für den Import einen Administrator.
+    wenn oben auf der Einstellungsseite der Schalter <em>Experten Modus</em> eingeschaltet ist. Die Karte
+    hat die Reiter <em>Import</em> und <em>Handbuch</em>; der Import beginnt direkt auf der Karte. Andere
+    Benutzer sehen die Karte nicht und brauchen für den Import einen Administrator.
   </li>
   <li>
     <strong>Datenschutz:</strong> Die Datei selbst wird nicht gespeichert. Sie wird nur gelesen;
     angelegt werden nur die in der Vorschau bestätigten Zeilen.
   </li>
   <li>
-    <strong>Vier Schritte:</strong> <em>Datei</em> → <em>Zuordnung &amp; Regeln</em> →
-    <em>Vorschau</em> → <em>Ergebnis</em>. Der Reiter <em>Handbuch</em> zeigt dieses Handbuch; der
-    Wechsel dorthin verwirft einen laufenden Import nicht.
+    <strong>Ablauf:</strong> Die Datei kommt auf die Ablage-Zone der Karte. Danach öffnet sich ein
+    Fenster mit drei Schritten: <em>Zuordnung &amp; Regeln</em> → <em>Vorschau</em> → <em>Ergebnis</em>.
+    Dieses Handbuch steht im Reiter <em>Handbuch</em> der Karte; im Fenster öffnet der Button
+    <em>Handbuch</em> es in einem zweiten Fenster, ohne den laufenden Import zu verwerfen.
   </li>
 </ul>
 
@@ -38,7 +39,7 @@ Mitarbeitende und Kunden enthalten.
   </li>
   <li>
     <strong>Excel-Arbeitsmappen:</strong> Gelesen werden nur sichtbare Tabellenblätter, standardmässig
-    das erste. Bei mehreren Blättern bietet Schritt 2 die Auswahl <em>Tabellenblatt</em>. Von Formeln
+    das erste. Bei mehreren Blättern bietet der Schritt <em>Zuordnung &amp; Regeln</em> die Auswahl <em>Tabellenblatt</em>. Von Formeln
     wird das berechnete Ergebnis übernommen. Als Datum formatierte Zellen werden als Datum gelesen.
     Zahlen in Zellen mit dem Format „Standard“ verlieren führende Nullen (PLZ 01234 wird zu 1234) –
     solche Spalten als Text formatieren (die Vorlage tut das bereits).
@@ -66,8 +67,8 @@ Mitarbeitende und Kunden enthalten.
     Bindestrich, zum Beispiel 31.12.1990, 12/31/1990 oder 1990-12-31; eine Uhrzeit nach dem Datum
     wird ignoriert. Ein Wert, der mit einer vierstelligen Jahreszahl beginnt, gilt immer als
     Jahr-Monat-Tag. Lässt die Datei nicht erkennen, ob der Tag oder der Monat zuerst steht (kein Wert
-    über 12), nimmt Klacks Tag/Monat/Jahr an und verlangt in Schritt 2 eine Prüfung des
-    Datumsformats. Monatsnamen (zum Beispiel
+    über 12), nimmt Klacks Tag/Monat/Jahr an und verlangt im Schritt <em>Zuordnung &amp; Regeln</em> eine
+    Prüfung des Datumsformats. Monatsnamen (zum Beispiel
     „31. Dez. 1990“) werden nicht erkannt.
   </li>
   <li>
@@ -111,7 +112,7 @@ werden als Dubletten erkannt, wenn sie eine E-Mail-Adresse oder ein Geburtsdatum
 
 <h3>Vorlage</h3>
 <p>
-Der Button <em>Vorlage herunterladen</em> in Schritt 1 liefert eine Excel-Datei in der Sprache der
+Der Button <em>Vorlage herunterladen</em> auf der Karte liefert eine Excel-Datei in der Sprache der
 Benutzerin oder des Benutzers (Dateiname <code>klacks-employee-import-de.xlsx</code>). Mit der Vorlage
 wird jede Spalte zuverlässig erkannt. Ihre Kopfzeile ist fett und fixiert, alle Spalten sind als Text
 formatiert (führende Nullen und Datumswerte bleiben wie eingetippt), und die Kopfzelle der Spalte
@@ -128,21 +129,22 @@ Spaltennamen in allen 25 Klacks-Sprachen und viele übliche Varianten (zum Beisp
 
 <hr>
 
-<h3>Schritt 1 – Datei</h3>
+<h3>Datei wählen</h3>
 <ul>
   <li>
-    Die Datei auf die Ablage-Zone ziehen oder die Zone anklicken, um eine Datei auszuwählen. Klacks
-    liest die Datei und wechselt zu Schritt 2.
+    Die Datei auf die Ablage-Zone der Karte ziehen oder die Zone anklicken, um eine Datei auszuwählen.
+    Klacks liest die Datei und öffnet das Fenster mit Schritt 1.
   </li>
   <li>
     Ein Problem mit der Datei (falsches Format, zu gross, zu viele Zeilen oder Spalten, keine
-    Kopfzeile) erscheint direkt unter der Ablage-Zone; siehe <em>Häufige Fehler und Lösungen</em>.
+    Kopfzeile) erscheint direkt unter der Ablage-Zone; das Fenster öffnet sich dann nicht. Siehe
+    <em>Häufige Fehler und Lösungen</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Schritt 2 – Zuordnung &amp; Regeln</h3>
+<h3>Schritt 1 – Zuordnung &amp; Regeln</h3>
 <h4>Spalten zuordnen</h4>
 <ul>
   <li>
@@ -194,13 +196,13 @@ Spaltennamen in allen 25 Klacks-Sprachen und viele übliche Varianten (zum Beisp
   </li>
 </ul>
 <p>
-<em>Weiter zur Vorschau</em> führt weiter; <em>Andere Datei wählen</em> beginnt mit einer anderen
-Datei von vorn.
+Die Buttons stehen unten im Fenster: <em>Weiter zur Vorschau</em> führt weiter; <em>Andere Datei
+wählen</em> schliesst das Fenster und beginnt auf der Karte mit einer anderen Datei von vorn.
 </p>
 
 <hr>
 
-<h3>Schritt 3 – Vorschau</h3>
+<h3>Schritt 2 – Vorschau</h3>
 <ul>
   <li>
     Eine Zusammenfassung zählt die Zeilen: gesamt, bereit, übersprungen, mit Fehlern, Dubletten und
@@ -217,11 +219,12 @@ Datei von vorn.
     wurde.
   </li>
   <li>
-    Andere Werte lassen sich in der Vorschau nicht bearbeiten. Zum Korrigieren die Datei anpassen und
-    erneut wählen (<em>Andere Datei wählen</em>) oder die Zuordnung mit <em>Zurück</em> ändern.
+    Andere Werte lassen sich in der Vorschau nicht bearbeiten. Zum Korrigieren die Zuordnung mit
+    <em>Zurück</em> ändern, oder die Datei anpassen und mit <em>Zurück</em> und <em>Andere Datei
+    wählen</em> erneut wählen.
   </li>
   <li>
-    Der Import-Button zeigt, wie viele Personen angelegt werden (zum Beispiel <em>25 Mitarbeitende
+    Der Import-Button unten im Fenster zeigt, wie viele Personen angelegt werden (zum Beispiel <em>25 Mitarbeitende
     importieren</em>). Er bleibt gesperrt, solange eine Zeile noch einen Fehler hat: die Zeile
     korrigieren oder überspringen.
   </li>
@@ -229,11 +232,21 @@ Datei von vorn.
 
 <hr>
 
-<h3>Schritt 4 – Ergebnis</h3>
+<h3>Schritt 3 – Ergebnis</h3>
 <p>
 Zeigt, wie viele Personen angelegt und wie viele Zeilen übersprungen wurden und wie viele Adressen im
 Hintergrund auf der Karte verortet werden. <em>Zur Mitarbeiterliste</em> öffnet die Liste,
-<em>Weitere Datei importieren</em> startet einen neuen Import.
+<em>Weitere Datei importieren</em> schliesst das Fenster für die nächste Datei.
+</p>
+
+<hr>
+
+<h3>Fenster schliessen</h3>
+<p>
+Das × oben rechts und die Esc-Taste schliessen das Fenster. Während der Zuordnung und der Vorschau ist
+noch nichts gespeichert; das Fenster fragt deshalb unten nach, ob der Import verworfen werden soll.
+<em>Weiter bearbeiten</em> lässt es offen. Solange der Import gespeichert wird, lässt sich das Fenster
+nicht schliessen. Danach zeigt die Karte wieder die Ablage-Zone.
 </p>
 
 <hr>
@@ -256,7 +269,7 @@ Hintergrund auf der Karte verortet werden. <em>Zur Mitarbeiterliste</em> öffnet
     <tr>
       <td>Vollständiger Name</td>
       <td>Nein</td>
-      <td>Alternative zu getrennten Namensspalten; wird in Vor- und Nachname aufgeteilt (siehe Schritt 2).
+      <td>Alternative zu getrennten Namensspalten; wird in Vor- und Nachname aufgeteilt (siehe <em>Zuordnung &amp; Regeln</em>).
         Namen mit mehr als zwei Teilen erhalten eine Warnung – die Aufteilung prüfen.</td>
     </tr>
     <tr>
@@ -449,7 +462,7 @@ Hintergrund auf der Karte verortet werden. <em>Zur Mitarbeiterliste</em> öffnet
 <p>
 Klacks <strong>vergibt die Personalnummer immer selbst</strong>. Eine Personalnummer-Spalte in der
 Datei wird erkannt, aber ignoriert; die Vorschau zeigt einen Hinweis. Um die Nummern eines anderen
-Systems zu behalten, lässt sich die Spalte in Schritt 2 als <em>Notiz</em> übernehmen, sofern keine
+Systems zu behalten, lässt sich die Spalte im Schritt <em>Zuordnung &amp; Regeln</em> als <em>Notiz</em> übernehmen, sofern keine
 andere Spalte als Notiz übernommen wird.
 </p>
 
@@ -556,12 +569,12 @@ andere Spalte als Notiz übernommen wird.
     <tr>
       <td>Vorname fehlt. / Nachname fehlt.</td>
       <td>Namensspalte leer oder nicht zugeordnet; ein vollständiger Name aus nur einem Wort.</td>
-      <td>Die Zuordnung in Schritt 2 prüfen oder die Datei ergänzen.</td>
+      <td>Die Zuordnung im Schritt <em>Zuordnung &amp; Regeln</em> prüfen oder die Datei ergänzen.</td>
     </tr>
     <tr>
       <td>Ungültiges Datum: „…“.</td>
       <td>Unlesbares Datum, Geburtsdatum in der Zukunft oder Austritt vor dem Eintritt.</td>
-      <td>Das Datumsformat in Schritt 2 prüfen oder den Wert in der Datei korrigieren.</td>
+      <td>Das Datumsformat im Schritt <em>Zuordnung &amp; Regeln</em> prüfen oder den Wert in der Datei korrigieren.</td>
     </tr>
     <tr>
       <td>Unbekannter Typ „…“ – erlaubt sind Mitarbeiter, Extern oder Kunde.</td>
@@ -593,7 +606,7 @@ andere Spalte als Notiz übernommen wird.
     <tr>
       <td>Eine der Regeln für fehlende Angaben ist nicht mehr gültig …</td>
       <td>Ein in den Regeln gewählter Vertrag oder eine Gruppe wurde inzwischen gelöscht.</td>
-      <td>Die Regeln in Schritt 2 prüfen.</td>
+      <td>Die Regeln im Schritt <em>Zuordnung &amp; Regeln</em> prüfen.</td>
     </tr>
   </tbody>
 </table>

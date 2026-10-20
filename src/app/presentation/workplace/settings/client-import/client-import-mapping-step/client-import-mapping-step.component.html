@@ -39,6 +39,7 @@
       data-klacksy-target="client-import-mapping-table"
       data-klacksy-label-key="clientImport.mapping.header"
       data-klacksy-category="data.people"
+      data-klacksy-required-permission="Admin"
     >
       <thead>
         <tr>
@@ -139,6 +140,7 @@
       data-klacksy-target="client-import-policy"
       data-klacksy-label-key="clientImport.policy.header"
       data-klacksy-category="data.people"
+      data-klacksy-required-permission="Admin"
     >
       <label for="client-import-contract">{{ "clientImport.policy.contract" | translate }}</label>
       <select
@@ -269,24 +271,6 @@
           </option>
         }
       </select>
-    </div>
-
-    <div class="import-actions">
-      <button id="client-import-restart" type="button" class="btn normal-btn" (click)="onRestart()">
-        {{ "clientImport.action.otherFile" | translate }}
-      </button>
-      <button
-        id="client-import-to-preview"
-        data-klacksy-target="client-import-to-preview"
-        data-klacksy-label-key="clientImport.action.toPreview"
-        data-klacksy-category="data.people"
-        type="button"
-        class="btn save-btn"
-        [disabled]="state.isParsing()"
-        (click)="onNext()"
-      >
-        {{ "clientImport.action.toPreview" | translate }}
-      </button>
     </div>
   </div>
 }

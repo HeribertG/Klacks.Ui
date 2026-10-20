@@ -4,8 +4,8 @@
  * Second step of the employee import: assign a target field to every column (with samples and the
  * detection confidence), choose the date format and name order, and set the rules for rows with
  * missing information (contract, group, entry date, default country, communication types, former
- * employees and duplicates).
- * @param state - Page-scoped import state provided by the import page
+ * employees and duplicates). The buttons that leave the step sit in the footer of the import modal.
+ * @param state - Import state provided by the settings card (ClientImportCardComponent)
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
@@ -117,14 +117,6 @@ export class ClientImportMappingStepComponent {
 
   onPolicyChange<K extends keyof IClientImportPolicy>(field: K, event: Event): void {
     this.state.updatePolicy({ [field]: this.valueOf(event) } as Partial<IClientImportPolicy>);
-  }
-
-  onNext(): void {
-    this.state.goToPreview();
-  }
-
-  onRestart(): void {
-    this.state.restart();
   }
 
   private valueOf(event: Event): string {

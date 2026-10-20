@@ -2,8 +2,8 @@
 
 /**
  * Guards the employee import translations in the four core languages: every issue code, file error
- * code and enum value the UI builds a key from, plus every literal clientImport key used in the import
- * page templates, components and constants, must resolve to a real text instead of a raw key.
+ * code and enum value the UI builds a key from, plus every literal clientImport key used in the import card,
+ * modal and step templates, components and constants, must resolve to a real text instead of a raw key.
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';
@@ -109,7 +109,7 @@ describe('client import translations', () => {
 
   it('finds the literal keys of the import page (scanner sanity check)', () => {
     expect(literals).toContain('clientImport.title');
-    expect(literals).toContain('clientImport.button.open');
+    expect(literals).toContain('clientImport.discard.question');
     expect(literals).toContain('clientImport.error.commit');
     expect(literals).toContain('clientImport.error.alreadyCommitted');
     expect(literals).toContain('clientImport.preview.commitBlocked.one');

@@ -11,17 +11,19 @@ confirmation. Besides employees, the same file can also contain external employe
   <li>
     <strong>Who may import:</strong> only administrators. The card <em>Import employees</em> is in the
     settings, section <em>Import</em>; this section only appears when the switch <em>Expert Mode</em> at
-    the top of the settings page is turned on. The button <em>Import</em> opens the import page. Other
-    users do not see the card and need an administrator for the import.
+    the top of the settings page is turned on. The card has the tabs <em>Import</em> and
+    <em>Manual</em>; the import starts right on the card. Other users do not see the card and need an
+    administrator for the import.
   </li>
   <li>
     <strong>Privacy:</strong> the file itself is not stored. It is only read; only the rows
     confirmed in the preview are created.
   </li>
   <li>
-    <strong>Four steps:</strong> <em>File</em> → <em>Mapping &amp; rules</em> → <em>Preview</em> →
-    <em>Result</em>. The tab <em>Manual</em> shows this manual; switching to it does not lose an
-    import in progress.
+    <strong>How it works:</strong> the file goes onto the upload zone of the card. A window then opens
+    with three steps: <em>Mapping &amp; rules</em> → <em>Preview</em> → <em>Result</em>. This manual is
+    in the tab <em>Manual</em> of the card; inside the window, the button <em>Manual</em> opens it in a
+    second window without losing the import in progress.
   </li>
 </ul>
 
@@ -36,7 +38,7 @@ confirmation. Besides employees, the same file can also contain external employe
   </li>
   <li>
     <strong>Excel workbooks:</strong> only visible sheets are read, the first one by default. A
-    workbook with several sheets offers the choice <em>Sheet</em> in step 2. The calculated result of
+    workbook with several sheets offers the choice <em>Sheet</em> in the step <em>Mapping &amp; rules</em>. The calculated result of
     a formula is imported. Cells formatted as date are read as dates. Numbers in cells with the
     format "General" lose leading zeros (postcode 01234 becomes 1234) – format such columns as text
     (the template already does).
@@ -62,7 +64,7 @@ confirmation. Besides employees, the same file can also contain external employe
     example 31.12.1990, 12/31/1990 or 1990-12-31; a time part after the date is ignored. A value that
     starts with a four-digit year is always read as year-month-day. If the file does not show
     whether the day or the month comes first (no value above 12), Klacks assumes day/month/year and
-    asks for the date format to be checked in step 2. Month names (for example "31 Dec 1990") are not recognised.
+    asks for the date format to be checked in the step <em>Mapping &amp; rules</em>. Month names (for example "31 Dec 1990") are not recognised.
   </li>
   <li>
     <strong>Two-digit years:</strong> years up to the last two digits of the current year count as
@@ -104,7 +106,7 @@ duplicates when they have an e-mail address or a date of birth (see <em>Duplicat
 
 <h3>Template</h3>
 <p>
-The button <em>Download template</em> in step 1 provides an Excel file in the user's language
+The button <em>Download template</em> on the card provides an Excel file in the user's language
 (file name <code>klacks-employee-import-en.xlsx</code>). With the template every column is recognised
 reliably. Its header row is bold and frozen, every column is formatted as text (leading zeros and
 dates stay as typed), and the header of the column <em>Type</em> carries a note with the allowed
@@ -119,21 +121,22 @@ in all 25 Klacks languages and many usual variants (for example "Surname", "ZIP"
 
 <hr>
 
-<h3>Step 1 – File</h3>
+<h3>Choose the file</h3>
 <ul>
   <li>
-    Drag the file onto the upload zone or click the zone to choose a file. Klacks reads the file
-    and moves on to step 2.
+    Drag the file onto the upload zone of the card or click the zone to choose a file. Klacks reads
+    the file and opens the window with step 1.
   </li>
   <li>
     A file problem (wrong format, too large, too many rows or columns, no header row) is shown
-    directly below the upload zone; see <em>Common errors and fixes</em>.
+    directly below the upload zone, and the window does not open; see <em>Common errors and
+    fixes</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Step 2 – Mapping &amp; rules</h3>
+<h3>Step 1 – Mapping &amp; rules</h3>
 <h4>Map columns</h4>
 <ul>
   <li>
@@ -182,13 +185,13 @@ in all 25 Klacks languages and many usual variants (for example "Surname", "ZIP"
   </li>
 </ul>
 <p>
-<em>Continue to preview</em> moves on; <em>Choose another file</em> starts again with a different
-file.
+The buttons are at the bottom of the window: <em>Continue to preview</em> moves on; <em>Choose
+another file</em> closes the window and starts again on the card with a different file.
 </p>
 
 <hr>
 
-<h3>Step 3 – Preview</h3>
+<h3>Step 2 – Preview</h3>
 <ul>
   <li>
     A summary counts the rows: total, ready, skipped, with errors, duplicates and with warnings.
@@ -204,22 +207,33 @@ file.
     without one; <em>Create anyway</em> keeps a row that was recognised as a duplicate.
   </li>
   <li>
-    Other values cannot be edited in the preview. To correct them, fix the file and choose it again
-    (<em>Choose another file</em>), or change the mapping with <em>Back</em>.
+    Other values cannot be edited in the preview. To correct them, change the mapping with
+    <em>Back</em>, or fix the file and choose it again with <em>Back</em> and <em>Choose another
+    file</em>.
   </li>
   <li>
-    The import button shows how many people will be created (for example <em>Import 25
+    The import button at the bottom of the window shows how many people will be created (for example <em>Import 25
     employees</em>). It stays disabled as long as a row still has an error: fix the row or skip it.
   </li>
 </ul>
 
 <hr>
 
-<h3>Step 4 – Result</h3>
+<h3>Step 3 – Result</h3>
 <p>
 Shows how many people were created and how many rows were skipped, and how many addresses are being
 located on the map in the background. <em>Go to employee list</em> opens the list,
-<em>Import another file</em> starts a new import.
+<em>Import another file</em> closes the window for the next file.
+</p>
+
+<hr>
+
+<h3>Closing the window</h3>
+<p>
+The × at the top right and the Esc key close the window. During mapping and preview nothing has been
+saved yet, so the window first asks at its bottom whether the import should be discarded;
+<em>Keep editing</em> keeps it open. While the import is being saved, the window cannot be closed.
+Afterwards the card shows the upload zone again.
 </p>
 
 <hr>
@@ -242,7 +256,7 @@ located on the map in the background. <em>Go to employee list</em> opens the lis
     <tr>
       <td>Full name</td>
       <td>No</td>
-      <td>Alternative to separate name columns; split into first and last name (see step 2). Names with
+      <td>Alternative to separate name columns; split into first and last name (see <em>Mapping &amp; rules</em>). Names with
         more than two parts get a warning – check the split.</td>
     </tr>
     <tr>
@@ -429,7 +443,7 @@ located on the map in the background. <em>Go to employee list</em> opens the lis
 <p>
 Klacks <strong>always assigns the personnel number itself</strong>. A personnel number column in the
 file is recognised but ignored; the preview shows a hint. To keep the numbers of another system, the
-column can be mapped to <em>Note</em> in step 2, as long as no other column is imported as note.
+column can be mapped to <em>Note</em> in the step <em>Mapping &amp; rules</em>, as long as no other column is imported as note.
 </p>
 
 <hr>
@@ -535,12 +549,12 @@ column can be mapped to <em>Note</em> in step 2, as long as no other column is i
     <tr>
       <td>First name is missing. / Last name is missing.</td>
       <td>Name column empty or not mapped; a full name with only one word.</td>
-      <td>Check the mapping in step 2 or complete the file.</td>
+      <td>Check the mapping in the step <em>Mapping &amp; rules</em> or complete the file.</td>
     </tr>
     <tr>
       <td>Invalid date: "…".</td>
       <td>Unreadable date, birth date in the future, or exit date before entry date.</td>
-      <td>Check the date format in step 2 or correct the value in the file.</td>
+      <td>Check the date format in the step <em>Mapping &amp; rules</em> or correct the value in the file.</td>
     </tr>
     <tr>
       <td>Unknown type "…" – use employee, external or customer.</td>
@@ -570,7 +584,7 @@ column can be mapped to <em>Note</em> in step 2, as long as no other column is i
     <tr>
       <td>One of the rules for missing information is no longer valid …</td>
       <td>A contract or group chosen in the rules was deleted in the meantime.</td>
-      <td>Check the rules in step 2.</td>
+      <td>Check the rules in the step <em>Mapping &amp; rules</em>.</td>
     </tr>
   </tbody>
 </table>

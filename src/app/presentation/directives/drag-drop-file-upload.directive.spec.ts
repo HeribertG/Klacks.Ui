@@ -63,7 +63,11 @@ describe('DragDropFileUploadDirective', () => {
         fixture.detectChanges();
 
         // Assert
-        expect(divEl.style.backgroundColor).toBe('rgb(226, 238, 253)');
+        expect(divEl.style.backgroundColor).toBe('var(--backgroundColorHover)');
+    });
+
+    it('should keep a transparent background while idle', () => {
+        expect(divEl.style.backgroundColor).toBe('transparent');
     });
 
     it('should emit fileDropped event on drop', () => {

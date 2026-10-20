@@ -12,18 +12,21 @@ esterni e clienti.
   <li>
     <strong>Chi può importare:</strong> solo gli amministratori. La scheda <em>Importa
     collaboratori</em> si trova nelle impostazioni, sezione <em>Importazione</em>; questa sezione compare
-    solo se l'interruttore <em>Expert Mode</em> in alto nella pagina delle impostazioni è attivo. Il
-    pulsante <em>Importa</em> apre la pagina di importazione. Gli altri utenti non vedono la scheda e per
-    l'importazione devono rivolgersi a un amministratore.
+    solo se l'interruttore <em>Expert Mode</em> in alto nella pagina delle impostazioni è attivo. La
+    scheda ha le linguette <em>Importazione</em> e <em>Manuale</em>; l'importazione inizia direttamente
+    sulla scheda. Gli altri utenti non vedono la scheda e per l'importazione devono rivolgersi a un
+    amministratore.
   </li>
   <li>
     <strong>Protezione dei dati:</strong> il file stesso non viene salvato. Viene soltanto letto;
     vengono create solo le righe confermate nell'anteprima.
   </li>
   <li>
-    <strong>Quattro passi:</strong> <em>File</em> → <em>Associazione &amp; regole</em> →
-    <em>Anteprima</em> → <em>Risultato</em>. La scheda <em>Manuale</em> mostra il presente manuale;
-    passarvi non fa perdere un'importazione in corso.
+    <strong>Come funziona:</strong> il file va trascinato sulla zona di caricamento della scheda. Si apre
+    poi una finestra con tre passi: <em>Associazione &amp; regole</em> → <em>Anteprima</em> →
+    <em>Risultato</em>. Il presente manuale si trova nella linguetta <em>Manuale</em> della scheda;
+    nella finestra il pulsante <em>Manuale</em> lo apre in una seconda finestra, senza perdere
+    l'importazione in corso.
   </li>
 </ul>
 
@@ -38,7 +41,7 @@ esterni e clienti.
   </li>
   <li>
     <strong>Cartelle di lavoro Excel:</strong> vengono letti solo i fogli visibili, per impostazione
-    predefinita il primo. Per una cartella di lavoro con più fogli, al passo 2 viene offerta la scelta
+    predefinita il primo. Per una cartella di lavoro con più fogli, nel passo <em>Associazione &amp; regole</em> viene offerta la scelta
     <em>Foglio</em>. Di una formula viene importato il risultato calcolato. Le celle formattate come
     data vengono lette come date. I numeri nelle celle con formato «Generale» perdono gli zeri iniziali
     (l'NPA 01234 diventa 1234) – formattare tali colonne come testo (il modello lo fa già).
@@ -66,7 +69,7 @@ esterni e clienti.
     esempio 31.12.1990, 12/31/1990 o 1990-12-31; un orario dopo la data viene ignorato. Un valore che
     inizia con un anno a quattro cifre viene sempre letto come anno-mese-giorno. Se dal file non si
     capisce se viene prima il giorno o il mese (nessun valore superiore a 12), Klacks presuppone
-    giorno/mese/anno e chiede di verificare il formato della data al passo 2. I nomi dei mesi (ad
+    giorno/mese/anno e chiede di verificare il formato della data nel passo <em>Associazione &amp; regole</em>. I nomi dei mesi (ad
     esempio «31 dic 1990») non vengono riconosciuti.
   </li>
   <li>
@@ -111,7 +114,7 @@ una data di nascita (vedi <em>Duplicati</em>).
 
 <h3>Modello</h3>
 <p>
-Il pulsante <em>Scarica il modello</em> al passo 1 fornisce un file Excel nella lingua dell'utente
+Il pulsante <em>Scarica il modello</em> sulla scheda fornisce un file Excel nella lingua dell'utente
 (nome del file <code>klacks-employee-import-it.xlsx</code>). Con il modello tutte le colonne vengono
 riconosciute con certezza. La sua riga di intestazione è in grassetto e bloccata, tutte le colonne
 sono formattate come testo (zeri iniziali e date restano come digitati) e l'intestazione della
@@ -128,22 +131,22 @@ consuete (ad esempio «Nominativo», «Codice postale», «Data di assunzione»)
 
 <hr>
 
-<h3>Passo 1 – File</h3>
+<h3>Scegliere il file</h3>
 <ul>
   <li>
-    Trascinare il file nella zona di caricamento oppure fare clic sulla zona per scegliere un file.
-    Klacks legge il file e passa al passo 2.
+    Trascinare il file nella zona di caricamento della scheda oppure fare clic sulla zona per scegliere
+    un file. Klacks legge il file e apre la finestra con il passo 1.
   </li>
   <li>
     Un problema con il file (formato errato, file troppo grande, troppe righe o colonne, nessuna riga
-    di intestazione) viene mostrato direttamente sotto la zona di caricamento; vedi <em>Errori
-    frequenti e soluzioni</em>.
+    di intestazione) viene mostrato direttamente sotto la zona di caricamento e la finestra non si
+    apre; vedi <em>Errori frequenti e soluzioni</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Passo 2 – Associazione &amp; regole</h3>
+<h3>Passo 1 – Associazione &amp; regole</h3>
 <h4>Associa le colonne</h4>
 <ul>
   <li>
@@ -192,13 +195,13 @@ consuete (ad esempio «Nominativo», «Codice postale», «Data di assunzione»)
   </li>
 </ul>
 <p>
-<em>Continua all'anteprima</em> prosegue; <em>Scegli un altro file</em> ricomincia con un file
-diverso.
+I pulsanti si trovano in basso nella finestra: <em>Continua all'anteprima</em> prosegue; <em>Scegli un
+altro file</em> chiude la finestra e ricomincia sulla scheda con un file diverso.
 </p>
 
 <hr>
 
-<h3>Passo 3 – Anteprima</h3>
+<h3>Passo 2 – Anteprima</h3>
 <ul>
   <li>
     Un riepilogo conta le righe: totali, pronte, saltate, con errori, duplicati e con avvisi. Le note
@@ -214,12 +217,12 @@ diverso.
     che ne è priva; <em>Crea comunque</em> mantiene una riga riconosciuta come duplicato.
   </li>
   <li>
-    Gli altri valori non possono essere modificati nell'anteprima. Per correggerli, sistemare il file
-    e sceglierlo di nuovo (<em>Scegli un altro file</em>), oppure modificare l'associazione con
-    <em>Indietro</em>.
+    Gli altri valori non possono essere modificati nell'anteprima. Per correggerli, modificare
+    l'associazione con <em>Indietro</em>, oppure sistemare il file e sceglierlo di nuovo con
+    <em>Indietro</em> e <em>Scegli un altro file</em>.
   </li>
   <li>
-    Il pulsante di importazione indica quante persone verranno create (ad esempio <em>Importa 25
+    Il pulsante di importazione in basso nella finestra indica quante persone verranno create (ad esempio <em>Importa 25
     collaboratori</em>). Resta disattivato finché una riga presenta ancora un errore: correggere la
     riga o saltarla.
   </li>
@@ -227,11 +230,21 @@ diverso.
 
 <hr>
 
-<h3>Passo 4 – Risultato</h3>
+<h3>Passo 3 – Risultato</h3>
 <p>
 Mostra quante persone sono state create, quante righe sono state saltate e quanti indirizzi vengono
 localizzati sulla mappa in background. <em>All'elenco dei collaboratori</em> apre l'elenco,
-<em>Importa un altro file</em> avvia una nuova importazione.
+<em>Importa un altro file</em> chiude la finestra per il file successivo.
+</p>
+
+<hr>
+
+<h3>Chiudere la finestra</h3>
+<p>
+La × in alto a destra e il tasto Esc chiudono la finestra. Durante l'associazione e l'anteprima non è
+ancora stato salvato nulla; la finestra chiede quindi in basso se l'importazione deve essere scartata.
+<em>Continua a modificare</em> la lascia aperta. Mentre l'importazione viene salvata, la finestra non
+può essere chiusa. In seguito la scheda mostra di nuovo la zona di caricamento.
 </p>
 
 <hr>
@@ -254,7 +267,7 @@ localizzati sulla mappa in background. <em>All'elenco dei collaboratori</em> apr
     <tr>
       <td>Nome completo</td>
       <td>No</td>
-      <td>Alternativa a colonne separate per il nome; suddiviso in nome e cognome (vedi passo 2). I nomi
+      <td>Alternativa a colonne separate per il nome; suddiviso in nome e cognome (vedi <em>Associazione &amp; regole</em>). I nomi
         composti da più di due parti ricevono un avviso – verificare la suddivisione.</td>
     </tr>
     <tr>
@@ -446,7 +459,7 @@ localizzati sulla mappa in background. <em>All'elenco dei collaboratori</em> apr
 <p>
 Klacks <strong>assegna sempre autonomamente il numero del personale</strong>. Una colonna con il
 numero del personale nel file viene riconosciuta ma ignorata; l'anteprima mostra un'indicazione. Per
-conservare i numeri di un altro sistema, la colonna può essere associata a <em>Nota</em> al passo 2,
+conservare i numeri di un altro sistema, la colonna può essere associata a <em>Nota</em> nel passo <em>Associazione &amp; regole</em>,
 purché nessun'altra colonna venga importata come nota.
 </p>
 
@@ -556,13 +569,13 @@ purché nessun'altra colonna venga importata come nota.
     <tr>
       <td>Manca il nome. / Manca il cognome.</td>
       <td>Colonna del nome vuota o non associata; un nome completo composto da una sola parola.</td>
-      <td>Verificare l'associazione al passo 2 o completare il file.</td>
+      <td>Verificare l'associazione nel passo <em>Associazione &amp; regole</em> o completare il file.</td>
     </tr>
     <tr>
       <td>Data non valida: «…».</td>
       <td>Data illeggibile, data di nascita nel futuro o data di uscita anteriore alla data di
         entrata.</td>
-      <td>Verificare il formato della data al passo 2 o correggere il valore nel file.</td>
+      <td>Verificare il formato della data nel passo <em>Associazione &amp; regole</em> o correggere il valore nel file.</td>
     </tr>
     <tr>
       <td>Tipo «…» sconosciuto – usare dipendente, esterno o cliente.</td>
@@ -595,7 +608,7 @@ purché nessun'altra colonna venga importata come nota.
     <tr>
       <td>Una delle regole per le informazioni mancanti non è più valida …</td>
       <td>Un contratto o un gruppo scelto nelle regole è stato eliminato nel frattempo.</td>
-      <td>Verificare le regole al passo 2.</td>
+      <td>Verificare le regole nel passo <em>Associazione &amp; regole</em>.</td>
     </tr>
   </tbody>
 </table>

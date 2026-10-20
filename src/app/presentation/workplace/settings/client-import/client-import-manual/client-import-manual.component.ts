@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Manual tab of the employee import page. Loads the localized handbook (core languages from the static assets,
+ * Handbook of the employee import, shown in the manual tab of the settings card and in the manual modal. Loads the localized handbook (core languages from the static assets,
  * language packs from the plugin docs) via ManualLoaderService and reloads it when the UI language changes.
  * @param manualContent - Rendered HTML of the handbook in the current UI language
  */

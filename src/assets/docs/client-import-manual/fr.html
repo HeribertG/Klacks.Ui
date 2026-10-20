@@ -12,18 +12,21 @@ le même fichier peut aussi contenir des collaborateurs externes et des clients.
   <li>
     <strong>Qui peut importer :</strong> uniquement les administrateurs. La carte <em>Importer des
     collaborateurs</em> se trouve dans les paramètres, section <em>Importation</em> ; cette section
-    n'apparaît que si l'interrupteur <em>Mode expert</em> en haut de la page des paramètres est activé. Le
-    bouton <em>Importer</em> ouvre la page d'importation. Les autres utilisateurs ne voient pas la carte et
-    doivent faire appel à un administrateur pour l'importation.
+    n'apparaît que si l'interrupteur <em>Mode expert</em> en haut de la page des paramètres est activé. La
+    carte comporte les onglets <em>Importation</em> et <em>Manuel</em> ; l'importation commence directement
+    sur la carte. Les autres utilisateurs ne voient pas la carte et doivent faire appel à un
+    administrateur pour l'importation.
   </li>
   <li>
     <strong>Protection des données :</strong> le fichier lui-même n'est pas enregistré. Il est
     uniquement lu ; seules les lignes confirmées dans l'aperçu sont créées.
   </li>
   <li>
-    <strong>Quatre étapes :</strong> <em>Fichier</em> → <em>Correspondance &amp; règles</em> →
-    <em>Aperçu</em> → <em>Résultat</em>. L'onglet <em>Manuel</em> affiche le présent manuel ; y
-    passer n'interrompt pas une importation en cours.
+    <strong>Déroulement :</strong> le fichier se dépose sur la zone de téléversement de la carte. Une
+    fenêtre s'ouvre alors avec trois étapes : <em>Correspondance &amp; règles</em> → <em>Aperçu</em> →
+    <em>Résultat</em>. Le présent manuel se trouve dans l'onglet <em>Manuel</em> de la carte ; dans la
+    fenêtre, le bouton <em>Manuel</em> l'ouvre dans une seconde fenêtre sans interrompre l'importation
+    en cours.
   </li>
 </ul>
 
@@ -38,7 +41,7 @@ le même fichier peut aussi contenir des collaborateurs externes et des clients.
   </li>
   <li>
     <strong>Classeurs Excel :</strong> seules les feuilles visibles sont lues, par défaut la première.
-    Pour un classeur comportant plusieurs feuilles, le choix <em>Feuille</em> est proposé à l'étape 2.
+    Pour un classeur comportant plusieurs feuilles, le choix <em>Feuille</em> est proposé à l'étape <em>Correspondance &amp; règles</em>.
     C'est le résultat calculé d'une formule qui est importé. Les cellules au format date sont lues
     comme des dates. Les nombres dans des cellules au format « Standard » perdent leurs zéros initiaux
     (le NPA 01234 devient 1234) – formater ces colonnes en texte (le modèle le fait déjà).
@@ -68,7 +71,7 @@ le même fichier peut aussi contenir des collaborateurs externes et des clients.
     date est ignorée. Une valeur commençant par une année à quatre chiffres est toujours lue comme
     année-mois-jour. Si le fichier ne permet pas de savoir si le jour ou le mois vient en premier
     (aucune valeur supérieure à 12), Klacks suppose l'ordre jour/mois/année et demande de vérifier
-    le format de date à l'étape 2. Les noms de mois (par exemple « 31 déc. 1990 ») ne sont pas
+    le format de date à l'étape <em>Correspondance &amp; règles</em>. Les noms de mois (par exemple « 31 déc. 1990 ») ne sont pas
     reconnus.
   </li>
   <li>
@@ -114,7 +117,7 @@ e-mail ou une date de naissance (voir <em>Doublons</em>).
 
 <h3>Modèle</h3>
 <p>
-Le bouton <em>Télécharger le modèle</em> de l'étape 1 fournit un fichier Excel dans la langue de
+Le bouton <em>Télécharger le modèle</em> de la carte fournit un fichier Excel dans la langue de
 l'utilisateur (nom de fichier <code>klacks-employee-import-fr.xlsx</code>). Avec le modèle, toutes
 les colonnes sont reconnues de façon fiable. Sa ligne d'en-tête est en gras et figée, toutes les
 colonnes sont au format texte (les zéros initiaux et les dates restent tels que saisis), et l'en-tête
@@ -131,22 +134,22 @@ usuelles (par exemple « Nom de famille », « Code postal », « Date d'embauch
 
 <hr>
 
-<h3>Étape 1 – Fichier</h3>
+<h3>Choisir le fichier</h3>
 <ul>
   <li>
-    Glisser le fichier sur la zone de téléversement ou cliquer sur la zone pour choisir un fichier.
-    Klacks lit le fichier et passe à l'étape 2.
+    Glisser le fichier sur la zone de téléversement de la carte ou cliquer sur la zone pour choisir un
+    fichier. Klacks lit le fichier et ouvre la fenêtre à l'étape 1.
   </li>
   <li>
     Un problème de fichier (format incorrect, fichier trop volumineux, trop de lignes ou de colonnes,
-    absence de ligne d'en-tête) est affiché directement sous la zone de téléversement ; voir
-    <em>Erreurs fréquentes et solutions</em>.
+    absence de ligne d'en-tête) est affiché directement sous la zone de téléversement ; la fenêtre ne
+    s'ouvre alors pas. Voir <em>Erreurs fréquentes et solutions</em>.
   </li>
 </ul>
 
 <hr>
 
-<h3>Étape 2 – Correspondance &amp; règles</h3>
+<h3>Étape 1 – Correspondance &amp; règles</h3>
 <h4>Associer les colonnes</h4>
 <ul>
   <li>
@@ -199,13 +202,14 @@ usuelles (par exemple « Nom de famille », « Code postal », « Date d'embauch
   </li>
 </ul>
 <p>
-<em>Continuer vers l'aperçu</em> passe à l'étape suivante ; <em>Choisir un autre fichier</em>
-recommence avec un autre fichier.
+Les boutons se trouvent en bas de la fenêtre : <em>Continuer vers l'aperçu</em> passe à l'étape
+suivante ; <em>Choisir un autre fichier</em> ferme la fenêtre et recommence sur la carte avec un autre
+fichier.
 </p>
 
 <hr>
 
-<h3>Étape 3 – Aperçu</h3>
+<h3>Étape 2 – Aperçu</h3>
 <ul>
   <li>
     Un résumé dénombre les lignes : total, prêtes, ignorées, avec erreurs, doublons et avec
@@ -222,12 +226,12 @@ recommence avec un autre fichier.
     ligne qui n'en a pas ; <em>Créer quand même</em> conserve une ligne reconnue comme doublon.
   </li>
   <li>
-    Les autres valeurs ne peuvent pas être modifiées dans l'aperçu. Pour les corriger, rectifier le
-    fichier et le choisir à nouveau (<em>Choisir un autre fichier</em>), ou modifier la
-    correspondance avec <em>Retour</em>.
+    Les autres valeurs ne peuvent pas être modifiées dans l'aperçu. Pour les corriger, modifier la
+    correspondance avec <em>Retour</em>, ou rectifier le fichier et le choisir à nouveau avec
+    <em>Retour</em> puis <em>Choisir un autre fichier</em>.
   </li>
   <li>
-    Le bouton d'importation indique combien de personnes seront créées (par exemple <em>Importer 25
+    Le bouton d'importation en bas de la fenêtre indique combien de personnes seront créées (par exemple <em>Importer 25
     collaborateurs</em>). Il reste désactivé tant qu'une ligne présente encore une erreur : corriger
     la ligne ou l'ignorer.
   </li>
@@ -235,11 +239,22 @@ recommence avec un autre fichier.
 
 <hr>
 
-<h3>Étape 4 – Résultat</h3>
+<h3>Étape 3 – Résultat</h3>
 <p>
 Indique combien de personnes ont été créées, combien de lignes ont été ignorées et combien
 d'adresses sont en cours de localisation sur la carte en arrière-plan. <em>Vers la liste des
-collaborateurs</em> ouvre la liste, <em>Importer un autre fichier</em> lance une nouvelle importation.
+collaborateurs</em> ouvre la liste, <em>Importer un autre fichier</em> ferme la fenêtre pour le fichier suivant.
+</p>
+
+<hr>
+
+<h3>Fermer la fenêtre</h3>
+<p>
+La croix × en haut à droite et la touche Échap ferment la fenêtre. Pendant la correspondance et
+l'aperçu, rien n'est encore enregistré ; la fenêtre demande donc d'abord, en bas, si l'importation doit
+être abandonnée. <em>Continuer l’édition</em> la laisse ouverte. Tant que l'importation est en cours
+d'enregistrement, la fenêtre ne peut pas être fermée. Ensuite, la carte affiche de nouveau la zone de
+téléversement.
 </p>
 
 <hr>
@@ -262,7 +277,7 @@ collaborateurs</em> ouvre la liste, <em>Importer un autre fichier</em> lance une
     <tr>
       <td>Nom complet</td>
       <td>Non</td>
-      <td>Alternative aux colonnes de nom séparées ; réparti en prénom et nom (voir l'étape 2). Les noms
+      <td>Alternative aux colonnes de nom séparées ; réparti en prénom et nom (voir <em>Correspondance &amp; règles</em>). Les noms
         de plus de deux éléments reçoivent un avertissement – vérifier la répartition.</td>
     </tr>
     <tr>
@@ -461,7 +476,7 @@ collaborateurs</em> ouvre la liste, <em>Importer un autre fichier</em> lance une
 <p>
 Klacks <strong>attribue toujours lui-même le numéro de personnel</strong>. Une colonne de numéro de
 personnel dans le fichier est reconnue mais ignorée ; l'aperçu affiche une remarque. Pour conserver
-les numéros d'un autre système, la colonne peut être associée à <em>Note</em> à l'étape 2, à
+les numéros d'un autre système, la colonne peut être associée à <em>Note</em> dans l'étape <em>Correspondance &amp; règles</em>, à
 condition qu'aucune autre colonne ne soit importée comme note.
 </p>
 
@@ -570,13 +585,13 @@ condition qu'aucune autre colonne ne soit importée comme note.
     <tr>
       <td>Le prénom manque. / Le nom manque.</td>
       <td>Colonne de nom vide ou non associée ; nom complet composé d'un seul mot.</td>
-      <td>Vérifier la correspondance à l'étape 2 ou compléter le fichier.</td>
+      <td>Vérifier la correspondance dans l'étape <em>Correspondance &amp; règles</em> ou compléter le fichier.</td>
     </tr>
     <tr>
       <td>Date non valide : « … ».</td>
       <td>Date illisible, date de naissance dans le futur ou date de sortie antérieure à la date
         d'entrée.</td>
-      <td>Vérifier le format de date à l'étape 2 ou corriger la valeur dans le fichier.</td>
+      <td>Vérifier le format de date dans l'étape <em>Correspondance &amp; règles</em> ou corriger la valeur dans le fichier.</td>
     </tr>
     <tr>
       <td>Type « … » inconnu – utilisez employé, externe ou client.</td>
@@ -608,7 +623,7 @@ condition qu'aucune autre colonne ne soit importée comme note.
     <tr>
       <td>L'une des règles pour les informations manquantes n'est plus valide …</td>
       <td>Un contrat ou un groupe choisi dans les règles a été supprimé entre-temps.</td>
-      <td>Vérifier les règles à l'étape 2.</td>
+      <td>Vérifier les règles dans l'étape <em>Correspondance &amp; règles</em>.</td>
     </tr>
   </tbody>
 </table>

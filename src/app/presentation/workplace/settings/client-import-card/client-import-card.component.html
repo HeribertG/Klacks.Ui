@@ -1,17 +1,266 @@
-<div id="client-import-card-container" class="container-dashboard">
-  <div id="client-import-card-header" class="container-header">{{ 'clientImport.title' | translate }}</div>
-  <div id="client-import-card-line" class="container-line"></div>
+<div id="client-import-card-header" class="container-header">
+  {{ "clientImport.title" | translate }}
+</div>
+<div id="client-import-card-line" class="container-line"></div>
 
-  <div class="info-text settings-hint">{{ 'clientImport.settings.description' | translate }}</div>
+<div class="standard-tabs-header">
+  <ul class="nav nav-tabs" role="tablist">
+    @for (tab of tabs; track tab) {
+      <li class="nav-item">
+        <a
+          [id]="tabIdPrefix + tab"
+          class="nav-link"
+          [class.active]="activeTab() === tab"
+          role="tab"
+          [attr.aria-selected]="activeTab() === tab"
+          tabindex="0"
+          (click)="setTab(tab)"
+          (keydown.enter)="setTab(tab)"
+        >
+          {{ tabKeyPrefix + tab | translate }}
+        </a>
+      </li>
+    }
+  </ul>
+</div>
 
-  <div id="client-import-card-actions" class="action-row">
-    <button
-      type="button"
-      id="settings-client-import-open"
-      class="btn btn-primary"
-      (click)="openImport()"
+<div class="standard-tab-body">
+  @if (activeTab() === Tab.Import) {
+    <div id="client-import-card-body" class="form-group first import-file-body">
+      <p class="settings-hint">{{ "clientImport.file.intro" | translate }}</p>
+
+      <button
+        id="client-import-drop-zone"
+        data-klacksy-target="client-import-drop-zone"
+        data-klacksy-label-key="clientImport.file.header"
+        data-klacksy-category="data.people"
+        data-klacksy-required-permission="Admin"
+        type="button"
+        class="fileupload-zone"
+        [class.disabled]="state.isParsing()"
+        [disabled]="state.isParsing()"
+        appDragDropFileUpload
+        (click)="onChooseFile()"
+        (fileDropped)="onFilesDropped($event)"
+      >
+        <span class="settings-hint">
+          @if (state.isParsing()) {
+            {{ "clientImport.file.reading" | translate }}
+          } @else {
+            {{ "clientImport.file.dropZone" | translate }}
+          }
+        </span>
+      </button>
+
+      @if (fileErrorKey(); as errorKey) {
+        <div id="client-import-file-error" class="settings-hint status-text-error" role="alert">
+          {{ errorKey | translate }}
+        </div>
+      }
+
+      <div class="import-template">
+        <span class="settings-hint">{{ "clientImport.file.templateHint" | translate }}</span>
+        <button
+          id="client-import-template-button"
+          data-klacksy-target="client-import-template-button"
+          data-klacksy-label-key="clientImport.file.downloadTemplate"
+          data-klacksy-category="data.people"
+          data-klacksy-required-permission="Admin"
+          type="button"
+          class="btn normal-btn"
+          (click)="onDownloadTemplate()"
+        >
+          {{ "clientImport.file.downloadTemplate" | translate }}
+        </button>
+      </div>
+
+      <p class="settings-hint">{{ "clientImport.file.privacy" | translate }}</p>
+    </div>
+  } @else {
+    <div
+      id="client-import-card-manual"
+      class="import-manual-tab"
+      data-klacksy-target="client-import-manual"
+      data-klacksy-label-key="clientImport.tab.manual"
+      data-klacksy-category="data.people"
+      data-klacksy-required-permission="Admin"
     >
-      {{ 'clientImport.button.open' | translate }}
+      <app-client-import-manual></app-client-import-manual>
+    </div>
+  }
+</div>
+
+<input
+  #fileInput
+  id="client-import-file-input"
+  type="file"
+  class="hidden-file-input"
+  [accept]="accept"
+  aria-hidden="true"
+  tabindex="-1"
+  (change)="onFileSelected($event)"
+/>
+
+<ng-template #importModal>
+  <div class="modal-header">
+    <div [id]="modalTitleId" class="container-header-modal modal-title">
+      {{ "clientImport.title" | translate }} – {{ state.parseResult()?.fileName }}
+    </div>
+    <span class="filler"></span>
+    <button
+      id="client-import-modal-manual"
+      type="button"
+      class="btn normal-btn import-manual-button"
+      (click)="openManual()"
+    >
+      {{ "clientImport.tab.manual" | translate }}
+    </button>
+    <button
+      id="client-import-modal-close"
+      type="button"
+      class="close"
+      [attr.aria-label]="'close' | translate"
+      [disabled]="state.isCommitting()"
+      (click)="requestClose()"
+    >
+      <span aria-hidden="true">&times;</span>
     </button>
   </div>
-</div>
+
+  <ol
+    id="client-import-steps"
+    class="import-steps"
+    data-klacksy-target="client-import-steps"
+    data-klacksy-label-key="clientImport.title"
+    data-klacksy-category="data.people"
+    data-klacksy-required-permission="Admin"
+  >
+    @for (step of steps; track step; let i = $index) {
+      <li
+        class="import-step"
+        [class.active]="state.step() === step"
+        [class.done]="isStepDone(step)"
+        [attr.aria-current]="state.step() === step ? 'step' : null"
+      >
+        <span class="import-step-number">{{ i + 1 }}</span>
+        {{ stepKeyPrefix + step | translate }}
+      </li>
+    }
+  </ol>
+
+  <div id="client-import-modal-body" class="modal-body import-modal-body">
+    @switch (state.step()) {
+      @case (Step.Mapping) {
+        <app-client-import-mapping-step></app-client-import-mapping-step>
+      }
+      @case (Step.Preview) {
+        <app-client-import-preview-step></app-client-import-preview-step>
+      }
+      @case (Step.Result) {
+        <app-client-import-result-step></app-client-import-result-step>
+      }
+    }
+  </div>
+
+  <div id="client-import-modal-footer" class="modal-footer">
+    @if (showDiscardConfirm()) {
+      <span id="client-import-discard-question" class="discard-question settings-hint">
+        {{ "clientImport.discard.question" | translate }}
+      </span>
+      <button id="client-import-discard-confirm" type="button" class="btn btn-outline-danger" (click)="discardImport()">
+        {{ "clientImport.discard.confirm" | translate }}
+      </button>
+      <button id="client-import-discard-keep" type="button" class="btn save-btn" (click)="keepEditing()">
+        {{ "clientImport.discard.keep" | translate }}
+      </button>
+    } @else {
+      @switch (state.step()) {
+        @case (Step.Mapping) {
+          <button id="client-import-restart" type="button" class="cancel-btn" (click)="onOtherFile()">
+            {{ "clientImport.action.otherFile" | translate }}
+          </button>
+          <button
+            id="client-import-to-preview"
+            data-klacksy-target="client-import-to-preview"
+            data-klacksy-label-key="clientImport.action.toPreview"
+            data-klacksy-category="data.people"
+            data-klacksy-required-permission="Admin"
+            type="button"
+            class="btn save-btn"
+            [disabled]="state.isParsing()"
+            (click)="onToPreview()"
+          >
+            {{ "clientImport.action.toPreview" | translate }}
+          </button>
+        }
+        @case (Step.Preview) {
+          <button
+            id="client-import-back"
+            type="button"
+            class="btn normal-btn"
+            [disabled]="state.isCommitting()"
+            (click)="onBackToMapping()"
+          >
+            {{ "clientImport.action.back" | translate }}
+          </button>
+          <button
+            id="client-import-commit"
+            data-klacksy-target="client-import-commit"
+            data-klacksy-label-key="clientImport.action.commit.other"
+            data-klacksy-category="data.people"
+            data-klacksy-required-permission="Admin"
+            type="button"
+            class="btn save-btn import-commit-button"
+            [disabled]="!state.canCommit()"
+            (click)="onCommit()"
+          >
+            @if (state.isCommitting()) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+              {{ "clientImport.action.committing" | translate }}
+            } @else {
+              {{ countKey(countKeys.commit, state.readyRowCount()) | translate: { count: state.readyRowCount() } }}
+            }
+          </button>
+        }
+        @case (Step.Result) {
+          <button id="client-import-another" type="button" class="btn normal-btn" (click)="onImportAnother()">
+            {{ "clientImport.action.importAnother" | translate }}
+          </button>
+          <button
+            id="client-import-to-list"
+            data-klacksy-target="client-import-to-list"
+            data-klacksy-label-key="clientImport.action.toList"
+            data-klacksy-category="data.people"
+            data-klacksy-required-permission="Admin"
+            type="button"
+            class="btn save-btn"
+            (click)="onToClientList()"
+          >
+            {{ "clientImport.action.toList" | translate }}
+          </button>
+        }
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template #manualModal>
+  <div class="modal-header">
+    <div [id]="manualModalTitleId" class="container-header-modal modal-title">
+      {{ "clientImport.title" | translate }} – {{ "clientImport.tab.manual" | translate }}
+    </div>
+    <span class="filler"></span>
+    <button
+      id="client-import-manual-modal-close"
+      type="button"
+      class="close"
+      [attr.aria-label]="'close' | translate"
+      (click)="closeManual()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <app-client-import-manual></app-client-import-manual>
+  </div>
+</ng-template>

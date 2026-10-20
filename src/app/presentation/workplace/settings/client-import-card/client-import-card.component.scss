@@ -1,13 +1,161 @@
-@use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
 
-.info-text {
-  margin-inline-start: 30px;
-  margin-top: 10px;
-  margin-bottom: 5px;
+:host {
+  display: block;
 }
 
-.action-row {
-  margin-inline-start: 30px;
-  margin-top: 12px;
+::ng-deep .client-import-modal-window .modal-dialog {
+  max-width: 95vw;
+  width: 95vw;
+  height: 90vh;
+
+  .modal-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.standard-tab-body {
+  padding-bottom: 30px;
+}
+
+.import-file-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  margin-inline-end: 30px;
+}
+
+.import-file-body p {
+  margin: 0;
+}
+
+.fileupload-zone {
+  width: 100%;
+  border: 2px dashed var(--colorLine);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+
+  &:hover:not(.disabled) {
+    border-color: var(--paginationBorderColorSelected);
+  }
+
+  &.disabled {
+    cursor: progress;
+    opacity: 0.6;
+  }
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.import-template {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  .normal-btn {
+    margin-inline-end: 0;
+  }
+}
+
+.modal-header .close {
+  background: none;
+  border: none;
+  padding: 0 4px;
+  line-height: 1;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.import-manual-button {
+  margin-inline-end: 16px;
+}
+
+.import-steps {
+  flex-shrink: 0;
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding-block: 12px;
+  padding-inline-start: 40px;
+  border-bottom: 1px solid var(--cardBorderColor);
+  font-size: var(--fontSizeLabel);
+  font-weight: 500;
+  color: var(--colorLabel);
+}
+
+.import-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &.active {
+    color: var(--colorWorkplaceHeadline);
+    font-weight: 600;
+  }
+
+  &.done .import-step-number {
+    background-color: var(--accentColor);
+    color: var(--onAccent);
+    border-color: var(--accentColor);
+  }
+
+  &.active .import-step-number {
+    border-color: var(--accentColor);
+  }
+}
+
+.import-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--colorLine);
+  border-radius: 50%;
+}
+
+.import-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 20px 20px;
+}
+
+.modal-footer {
+  flex-shrink: 0;
+
+  .save-btn,
+  .normal-btn {
+    width: auto;
+    min-width: 180px;
+    margin-inline-end: 0;
+    padding-inline: 16px;
+  }
+}
+
+.discard-question {
+  margin-inline-end: auto;
+}
+
+.import-manual-tab ::ng-deep .manual-content {
+  flex: none;
+  height: 350px;
+  min-height: 0;
+  overflow-y: auto;
 }

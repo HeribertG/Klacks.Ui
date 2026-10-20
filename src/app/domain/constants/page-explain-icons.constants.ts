@@ -17,13 +17,12 @@ export const HEADER_LOGO_ICON_ID = 'header-logo-icon';
 export const HEADER_LOGO_IMAGE_ID = 'header-logo-image';
 
 const SETTINGS_ROUTE = '/workplace/settings';
-const CLIENT_IMPORT_ROUTE = '/workplace/settings/client-import';
-const CLIENT_IMPORT_DROP_ZONE_TARGET = 'client-import-drop-zone';
 
 // Explain skills that document exactly one settings card, keyed to that card's data-klacksy-target.
 // Concept skills spanning several places (or a person/shift record) stay unmapped on purpose.
 const SETTINGS_CARD_EXPLAIN_TARGETS: Record<string, string> = {
   [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_erp_drop_points`]: 'erp-drop-points',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}import_employees`]: 'client-import',
   explain_email_setup: 'email-config',
   explain_report_designer: 'reports',
   explain_spam_rules: 'spam-rules',
@@ -59,7 +58,6 @@ export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
   [`${EXPLAIN_PAGE_SKILL_PREFIX}inbox`]: '/workplace/inbox',
   [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_overview`]: SETTINGS_ROUTE,
   [`${EXPLAIN_PAGE_SKILL_PREFIX}profile`]: '/workplace/profile',
-  [`${EXPLAIN_PAGE_SKILL_PREFIX}import_employees`]: CLIENT_IMPORT_ROUTE,
   explain_planning_divide_et_impera: '/workplace/schedule',
   explain_planning_sheets_modular: '/workplace/schedule',
   explain_planning_assistant: '/workplace/schedule',
@@ -81,7 +79,6 @@ export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
 export const PAGE_EXPLAIN_TARGETS: Record<string, string> = {
   ...SETTINGS_CARD_EXPLAIN_TARGETS,
   explain_payroll_export_handoff: 'period-closing-export-tab-employee',
-  [`${EXPLAIN_PAGE_SKILL_PREFIX}import_employees`]: CLIENT_IMPORT_DROP_ZONE_TARGET,
 };
 
 export const PAGE_EXPLAIN_NAV_ICONS: Record<string, readonly string[]> = {

@@ -72,6 +72,7 @@
       data-klacksy-target="client-import-preview-table"
       data-klacksy-label-key="clientImport.preview.header"
       data-klacksy-category="data.people"
+      data-klacksy-required-permission="Admin"
     >
       <thead>
         <tr>
@@ -222,32 +223,4 @@
       {{ countKey(countKeys.commitBlocked, state.errorRowCount()) | translate: { count: state.errorRowCount() } }}
     </p>
   }
-
-  <div class="import-actions">
-    <button
-      id="client-import-back"
-      type="button"
-      class="btn normal-btn"
-      [disabled]="state.isCommitting()"
-      (click)="onBack()"
-    >
-      {{ "clientImport.action.back" | translate }}
-    </button>
-    <button
-      id="client-import-commit"
-      data-klacksy-target="client-import-commit"
-      data-klacksy-label-key="clientImport.action.commit.other"
-      data-klacksy-category="data.people"
-      type="button"
-      class="btn save-btn"
-      [disabled]="!state.canCommit()"
-      (click)="onCommit()"
-    >
-      @if (state.isCommitting()) {
-        {{ "clientImport.action.committing" | translate }}
-      } @else {
-        {{ countKey(countKeys.commit, state.readyRowCount()) | translate: { count: state.readyRowCount() } }}
-      }
-    </button>
-  </div>
 </div>
