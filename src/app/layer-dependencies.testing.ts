@@ -167,10 +167,18 @@ export function isTableViolation(edge: ILayerEdge): boolean {
   return !ALLOWED_LAYER_DEPENDENCIES[fromZone].includes(toZone);
 }
 
+/**
+ * Edges the table allows but that are disputed all the same: shared -> domain keeps domain and shared in a cycle
+ * (domain imports shared helpers), so whether shared becomes a leaf kernel is part of the owner decision.
+ */
+export function isDisputedAllowedEdge(edge: ILayerEdge): boolean {
+  return edge.fromZone === 'shared' && edge.toZone === 'domain';
+}
+
 export function pendingDecisionMap(edges: readonly ILayerEdge[]): Record<string, Layer[]> {
   const map: Record<string, Set<Layer>> = {};
   for (const edge of edges) {
-    if (isTableViolation(edge) && !isZeroToleranceViolation(edge)) {
+    if ((isTableViolation(edge) || isDisputedAllowedEdge(edge)) && !isZeroToleranceViolation(edge)) {
       (map[edge.file] ??= new Set<Layer>()).add(edge.toZone as Layer);
     }
   }

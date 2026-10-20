@@ -33,7 +33,9 @@ const ADVICE_BY_TARGET_LAYER: Readonly<Record<Layer, string>> = {
   shared:
     'the table lets only presentation import shared: move the helper into domain/helpers or into the importing ' +
     'layer, or wait for the owner decision on making shared a kernel every layer may use.',
-  domain: 'invert the dependency or move the file.',
+  domain:
+    'shared -> domain is allowed by the table but keeps domain and shared in a cycle; until the owner decides ' +
+    'whether shared becomes a leaf kernel, keep domain types out of shared or move the helper into domain/helpers.',
   application: 'invert the dependency or move the file.',
   presentation: 'invert the dependency or move the file.',
 };
