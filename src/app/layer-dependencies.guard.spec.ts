@@ -17,15 +17,29 @@ import { PENDING_OWNER_DECISION } from './layer-dependencies-pending-owner-decis
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const MIN_EXPECTED_FILES = 1000;
-const RULE_FILE = '.claude/rules/frontend-architecture.md';
+const RULE_FILE = '.claude/rules/frontend-architecture.md of the super-repo';
 const REGENERATE_COMMAND = 'npm run layers:allowlist';
 
 const OWNER_QUESTION =
-  `${RULE_FILE} contradicts itself: its table lets presentation depend only on application/domain/shared, ` +
-  'application and infrastructure only on domain, shared only on domain and domain on nothing, while its prose ' +
-  'says "Presentation -> Domain Services -> Infrastructure API-Services". Until the owner decides which reading ' +
-  'holds, the edges below stay frozen in PENDING_OWNER_DECISION - the list may only shrink. New code must not add ' +
-  'to it: reach infrastructure through a domain service (or a domain port bound in app.port-bindings.ts) instead.';
+  `The layer rule (${RULE_FILE}) contradicts itself: its table lets presentation depend only on ` +
+  'application/domain/shared, application and infrastructure only on domain, shared only on domain and domain on ' +
+  'nothing, while its prose says "Presentation -> Domain Services -> Infrastructure API-Services". Until the owner ' +
+  'decides which reading holds, these file/layer pairs stay frozen in PENDING_OWNER_DECISION - the list may only ' +
+  'shrink. It is keyed by file and target layer, so it cannot count imports: do not add further imports on a listed ' +
+  'edge to a listed file either.';
+
+const ADVICE_BY_TARGET_LAYER: Readonly<Record<Layer, string>> = {
+  infrastructure: 'reach infrastructure through a domain service (or a domain port bound in app.port-bindings.ts).',
+  shared:
+    'the table lets only presentation import shared: move the helper into domain/helpers or into the importing ' +
+    'layer, or wait for the owner decision on making shared a kernel every layer may use.',
+  domain: 'invert the dependency or move the file.',
+  application: 'invert the dependency or move the file.',
+  presentation: 'invert the dependency or move the file.',
+};
+
+const adviceFor = (layers: readonly Layer[]): string =>
+  [...new Set(layers)].map((layer) => `  -> ${layer}: ${ADVICE_BY_TARGET_LAYER[layer]}`).join('\n');
 
 const describeEdges = (edges: readonly ILayerEdge[]): string =>
   edges.map((edge) => `  ${edge.file} -> ${edge.target} ('${edge.specifier}')`).join('\n');
@@ -104,16 +118,19 @@ describe('layer dependencies', () => {
   describe('edges pending an owner decision (shrink-only allowlist)', () => {
     const actual = pendingDecisionMap(edges);
 
-    it('adds no new disputed edge', () => {
+    it('adds no new disputed file/layer pair', () => {
       // Act
       const added = Object.entries(actual).flatMap(([file, layers]) =>
-        layers
-          .filter((layer) => !(PENDING_OWNER_DECISION[file] ?? []).includes(layer))
-          .map((layer) => `  ${file} -> ${layer}`),
+        layers.filter((layer) => !(PENDING_OWNER_DECISION[file] ?? []).includes(layer)).map((layer) => ({ file, layer })),
       );
+      const lines = added.map(({ file, layer }) => `  ${file} -> ${layer}`);
 
       // Assert
-      expect(added, `${OWNER_QUESTION}\nNew disputed edges:\n${added.join('\n')}`).toEqual([]);
+      expect(
+        lines,
+        `${OWNER_QUESTION}\nNew disputed pairs:\n${lines.join('\n')}\n` +
+          `What to do instead:\n${adviceFor(added.map(({ layer }) => layer))}`,
+      ).toEqual([]);
     });
 
     it('lists no edge that is already gone, so the allowlist only shrinks', () => {
@@ -127,8 +144,8 @@ describe('layer dependencies', () => {
       // Assert
       expect(
         stale,
-        `${OWNER_QUESTION}\nThese entries no longer violate - delete them (or run ${REGENERATE_COMMAND}):\n` +
-          stale.join('\n'),
+        `These PENDING_OWNER_DECISION entries no longer violate - delete them (or run ${REGENERATE_COMMAND}) so ` +
+          `the allowlist keeps shrinking:\n${stale.join('\n')}`,
       ).toEqual([]);
     });
 

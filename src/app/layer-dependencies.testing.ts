@@ -4,7 +4,7 @@
  * Import scanner behind the layer dependency guard: walks the production sources under src/app, resolves every
  * module specifier (static, type-only, re-export and dynamic import) to a file and classifies importer and target by
  * layer. Used by layer-dependencies.guard.spec.ts and by tools/generate-layer-allowlist.ts, so both judge exactly the
- * same edges.
+ * same edges. Only src/app is scanned; the plugin libraries under projects/ are not covered.
  * @param appRoot - Absolute path of src/app
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
