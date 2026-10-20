@@ -109,7 +109,6 @@ describe('client import translations', () => {
 
   it('finds the literal keys of the import page (scanner sanity check)', () => {
     expect(literals).toContain('clientImport.title');
-    expect(literals).toContain('clientImport.discard.question');
     expect(literals).toContain('clientImport.error.commit');
     expect(literals).toContain('clientImport.error.alreadyCommitted');
     expect(literals).toContain('clientImport.preview.commitBlocked.one');

@@ -3,12 +3,11 @@
 /**
  * Settings card of the employee import (Excel/CSV) and host of its import state. The card has two tabs: Import (drop
  * zone, template download, privacy note) and Manual. A successfully read file opens a wide modal with the remaining
- * three steps (mapping & rules, preview, result) and a stacked modal with the manual. Closing the modal during mapping
- * or preview asks for confirmation in the footer; every close starts the import over at the card. Contracts, groups and
- * countries are loaded once, on the first chosen file, so a plain settings visit costs nothing.
+ * three steps (mapping & rules, preview, result) and a stacked modal with the manual. Closing the modal discards the
+ * import immediately and starts over at the card, except while the commit is running. Contracts, groups and countries
+ * are loaded once, on the first chosen file, so a plain settings visit costs nothing.
  * @param state - Card-scoped state machine of the import (File, Mapping, Preview, Result)
  * @param activeTab - Currently visible card tab (import or manual)
- * @param showDiscardConfirm - True while the footer asks whether an unfinished import should be thrown away
  */
 
 import {
@@ -63,7 +62,6 @@ const MODAL_STEPS: readonly ClientImportStep[] = [
   ClientImportStep.Preview,
   ClientImportStep.Result,
 ];
-const CONFIRM_STEPS: ReadonlySet<ClientImportStep> = new Set([ClientImportStep.Mapping, ClientImportStep.Preview]);
 
 @Component({
   selector: 'app-client-import-card',
@@ -96,7 +94,6 @@ export class ClientImportCardComponent implements OnDestroy {
   readonly modalTitleId = CLIENT_IMPORT_MODAL_TITLE_ID;
   readonly manualModalTitleId = CLIENT_IMPORT_MANUAL_MODAL_TITLE_ID;
   readonly activeTab = signal<ClientImportPageTab>(ClientImportPageTab.Import);
-  readonly showDiscardConfirm = signal(false);
 
   readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
   readonly importModal = viewChild.required<TemplateRef<unknown>>('importModal');
@@ -203,28 +200,13 @@ export class ClientImportCardComponent implements OnDestroy {
   }
 
   requestClose(): void {
-    if (this.confirmDismiss()) {
+    if (this.canDismiss()) {
       this.closeModal();
     }
   }
 
-  confirmDismiss(): boolean {
-    if (this.state.isCommitting()) {
-      return false;
-    }
-    if (CONFIRM_STEPS.has(this.state.step())) {
-      this.showDiscardConfirm.set(true);
-      return false;
-    }
-    return true;
-  }
-
-  discardImport(): void {
-    this.closeModal();
-  }
-
-  keepEditing(): void {
-    this.showDiscardConfirm.set(false);
+  canDismiss(): boolean {
+    return !this.state.isCommitting();
   }
 
   openManual(): void {
@@ -256,14 +238,13 @@ export class ClientImportCardComponent implements OnDestroy {
     if (this.modalRef) {
       return;
     }
-    this.showDiscardConfirm.set(false);
     this.modalRef = this.ngbModal.open(this.importModal(), {
       centered: true,
       backdrop: 'static',
       keyboard: true,
       windowClass: CLIENT_IMPORT_MODAL_WINDOW_CLASS,
       ariaLabelledBy: CLIENT_IMPORT_MODAL_TITLE_ID,
-      beforeDismiss: () => this.confirmDismiss(),
+      beforeDismiss: () => this.canDismiss(),
     });
     this.modalRef.hidden.subscribe(() => this.onModalHidden());
   }
@@ -274,7 +255,6 @@ export class ClientImportCardComponent implements OnDestroy {
 
   private onModalHidden(): void {
     this.modalRef = null;
-    this.showDiscardConfirm.set(false);
     this.state.restart();
   }
 

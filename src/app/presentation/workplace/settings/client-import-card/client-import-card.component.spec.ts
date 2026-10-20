@@ -138,49 +138,60 @@ describe('ClientImportCardComponent', () => {
     expect(state.initialize).toHaveBeenCalledTimes(1);
   });
 
-  it.each([ClientImportStep.Mapping, ClientImportStep.Preview])(
-    'asks before Esc or the backdrop throw away an unfinished import in step %s',
+  it.each([ClientImportStep.Mapping, ClientImportStep.Preview, ClientImportStep.Result])(
+    'lets Esc close the modal at once, without a question, in step %s',
     async (step) => {
       await component.onFilesDropped(fileList(file));
       state.step.set(step);
 
-      const allowed = lastOptions().beforeDismiss?.();
-
-      expect(allowed).toBe(false);
-      expect(component.showDiscardConfirm()).toBe(true);
+      expect(lastOptions().beforeDismiss?.()).toBe(true);
     },
   );
 
-  it('lets the result step close without asking', async () => {
+  it.each([ClientImportStep.Mapping, ClientImportStep.Preview])(
+    'closes at once with the close button in step %s and starts over at the card',
+    async (step) => {
+      await component.onFilesDropped(fileList(file));
+      state.step.set(step);
+
+      component.requestClose();
+
+      expect(modalRefs[0].close).toHaveBeenCalledTimes(1);
+      expect(modalRefs[0].dismiss).not.toHaveBeenCalled();
+      expect(state.restart).toHaveBeenCalledTimes(1);
+      expect(state.step()).toBe(ClientImportStep.File);
+    },
+  );
+
+  it('starts over at the card when Esc dismisses the modal in the preview step', async () => {
     await component.onFilesDropped(fileList(file));
-    state.step.set(ClientImportStep.Result);
+    state.step.set(ClientImportStep.Preview);
 
     expect(lastOptions().beforeDismiss?.()).toBe(true);
-    expect(component.showDiscardConfirm()).toBe(false);
+    modalRefs[0].hidden.next();
+
+    expect(state.restart).toHaveBeenCalledTimes(1);
   });
 
-  it('never closes while the commit is running', async () => {
+  it('keeps the backdrop static so a click outside does nothing', async () => {
+    await component.onFilesDropped(fileList(file));
+
+    expect(lastOptions().backdrop).toBe('static');
+  });
+
+  it('never closes while the commit is running, neither by Esc nor by the close button', async () => {
     await component.onFilesDropped(fileList(file));
     state.step.set(ClientImportStep.Preview);
     state.isCommitting.set(true);
 
     expect(lastOptions().beforeDismiss?.()).toBe(false);
-    expect(component.showDiscardConfirm()).toBe(false);
-  });
-
-  it('closes after the confirmed discard and starts over at the card', async () => {
-    await component.onFilesDropped(fileList(file));
     component.requestClose();
 
-    component.discardImport();
-
-    expect(modalRefs[0].close).toHaveBeenCalledTimes(1);
-    expect(modalRefs[0].dismiss).not.toHaveBeenCalled();
-    expect(state.restart).toHaveBeenCalledTimes(1);
-    expect(component.showDiscardConfirm()).toBe(false);
+    expect(modalRefs[0].close).not.toHaveBeenCalled();
+    expect(state.restart).not.toHaveBeenCalled();
   });
 
-  it('closes without asking when the user chooses another file', async () => {
+  it('closes when the user chooses another file', async () => {
     await component.onFilesDropped(fileList(file));
 
     component.onOtherFile();
@@ -212,7 +223,7 @@ describe('ClientImportCardComponent', () => {
     });
   });
 
-  it('closes its modals when the card is destroyed, bypassing the discard question', async () => {
+  it('closes its modals when the card is destroyed', async () => {
     await component.onFilesDropped(fileList(file));
     state.step.set(ClientImportStep.Mapping);
     component.openManual();

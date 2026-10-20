@@ -163,82 +163,70 @@
   </div>
 
   <div id="client-import-modal-footer" class="modal-footer">
-    @if (showDiscardConfirm()) {
-      <span id="client-import-discard-question" class="discard-question settings-hint">
-        {{ "clientImport.discard.question" | translate }}
-      </span>
-      <button id="client-import-discard-confirm" type="button" class="btn btn-outline-danger" (click)="discardImport()">
-        {{ "clientImport.discard.confirm" | translate }}
-      </button>
-      <button id="client-import-discard-keep" type="button" class="btn save-btn" (click)="keepEditing()">
-        {{ "clientImport.discard.keep" | translate }}
-      </button>
-    } @else {
-      @switch (state.step()) {
-        @case (Step.Mapping) {
-          <button id="client-import-restart" type="button" class="cancel-btn" (click)="onOtherFile()">
-            {{ "clientImport.action.otherFile" | translate }}
-          </button>
-          <button
-            id="client-import-to-preview"
-            data-klacksy-target="client-import-to-preview"
-            data-klacksy-label-key="clientImport.action.toPreview"
-            data-klacksy-category="data.people"
-            data-klacksy-required-permission="Admin"
-            type="button"
-            class="btn save-btn"
-            [disabled]="state.isParsing()"
-            (click)="onToPreview()"
-          >
-            {{ "clientImport.action.toPreview" | translate }}
-          </button>
-        }
-        @case (Step.Preview) {
-          <button
-            id="client-import-back"
-            type="button"
-            class="btn normal-btn"
-            [disabled]="state.isCommitting()"
-            (click)="onBackToMapping()"
-          >
-            {{ "clientImport.action.back" | translate }}
-          </button>
-          <button
-            id="client-import-commit"
-            data-klacksy-target="client-import-commit"
-            data-klacksy-label-key="clientImport.action.commit.other"
-            data-klacksy-category="data.people"
-            data-klacksy-required-permission="Admin"
-            type="button"
-            class="btn save-btn import-commit-button"
-            [disabled]="!state.canCommit()"
-            (click)="onCommit()"
-          >
-            @if (state.isCommitting()) {
-              <span class="spinner-border spinner-border-sm me-1"></span>
-              {{ "clientImport.action.committing" | translate }}
-            } @else {
-              {{ countKey(countKeys.commit, state.readyRowCount()) | translate: { count: state.readyRowCount() } }}
-            }
-          </button>
-        }
-        @case (Step.Result) {
-          <button id="client-import-another" type="button" class="btn normal-btn" (click)="onImportAnother()">
-            {{ "clientImport.action.importAnother" | translate }}
-          </button>
-          <button
-            id="client-import-to-list"
-            data-klacksy-target="client-import-to-list"
-            data-klacksy-label-key="clientImport.action.toList"
-            data-klacksy-category="data.people"
-            data-klacksy-required-permission="Admin"
-            type="button"
-            class="btn save-btn"
-            (click)="onToClientList()"
-          >
-            {{ "clientImport.action.toList" | translate }}
-          </button>
-        }
+    @switch (state.step()) {
+      @case (Step.Mapping) {
+        <button id="client-import-restart" type="button" class="cancel-btn" (click)="onOtherFile()">
+          {{ "clientImport.action.otherFile" | translate }}
+        </button>
+        <button
+          id="client-import-to-preview"
+          data-klacksy-target="client-import-to-preview"
+          data-klacksy-label-key="clientImport.action.toPreview"
+          data-klacksy-category="data.people"
+          data-klacksy-required-permission="Admin"
+          type="button"
+          class="btn save-btn"
+          [disabled]="state.isParsing()"
+          (click)="onToPreview()"
+        >
+          {{ "clientImport.action.toPreview" | translate }}
+        </button>
+      }
+      @case (Step.Preview) {
+        <button
+          id="client-import-back"
+          type="button"
+          class="btn normal-btn"
+          [disabled]="state.isCommitting()"
+          (click)="onBackToMapping()"
+        >
+          {{ "clientImport.action.back" | translate }}
+        </button>
+        <button
+          id="client-import-commit"
+          data-klacksy-target="client-import-commit"
+          data-klacksy-label-key="clientImport.action.commit.other"
+          data-klacksy-category="data.people"
+          data-klacksy-required-permission="Admin"
+          type="button"
+          class="btn save-btn import-commit-button"
+          [disabled]="!state.canCommit()"
+          (click)="onCommit()"
+        >
+          @if (state.isCommitting()) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            {{ "clientImport.action.committing" | translate }}
+          } @else {
+            {{ countKey(countKeys.commit, state.readyRowCount()) | translate: { count: state.readyRowCount() } }}
+          }
+        </button>
+      }
+      @case (Step.Result) {
+        <button id="client-import-another" type="button" class="btn normal-btn" (click)="onImportAnother()">
+          {{ "clientImport.action.importAnother" | translate }}
+        </button>
+        <button
+          id="client-import-to-list"
+          data-klacksy-target="client-import-to-list"
+          data-klacksy-label-key="clientImport.action.toList"
+          data-klacksy-category="data.people"
+          data-klacksy-required-permission="Admin"
+          type="button"
+          class="btn save-btn"
+          (click)="onToClientList()"
+        >
+          {{ "clientImport.action.toList" | translate }}
+        </button>
       }
     }
   </div>
