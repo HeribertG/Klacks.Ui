@@ -5,7 +5,9 @@
  * Coordinates per-entry rendering by delegating Work, WorkChange and Break blocks
  * to their dedicated ITimelineBlockRenderer implementations. Expenses, ScheduleNote
  * and ScheduleCommand entries are skipped. Also suppresses the cell-level background
- * fill of the base renderer so hour stripes remain visible behind the blocks.
+ * fill of the base renderer so hour stripes remain visible behind the blocks, except for days outside the
+ * person's group period, which get the same group-period colour as the grid view. Days outside the
+ * membership or group period are darkened like in the grid view; a locked entry only marks its own block.
  * @param scheduleData - Mapping from (row, col) to the actual work-schedule entries
  * @param timeRangeService - Shared time-axis math (used for both the ruler and the blocks)
  */
@@ -221,8 +223,15 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     // texts from the table view are intentionally suppressed.
   }
 
-  protected override shouldDrawCellBackgroundColor(_gridCell: GridCell): boolean {
-    return false;
+  protected override shouldDrawCellBackgroundColor(_gridCell: GridCell, row: number, col: number): boolean {
+    return this.scheduleData.isCellOutsideGroupPeriod(row, col);
+  }
+
+  protected override isDayDarkened(row: number, col: number, _gridCell: GridCell): boolean {
+    return (
+      this.scheduleData.isCellOutsideMembershipPeriod(row, col) ||
+      this.scheduleData.isCellOutsideGroupPeriod(row, col)
+    );
   }
 
   override drawImage(ctx: CanvasRenderingContext2D, img: HTMLCanvasElement): void {

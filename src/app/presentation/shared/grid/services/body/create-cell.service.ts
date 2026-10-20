@@ -164,6 +164,10 @@ export class BaseCreateCellService {
     ctx.restore();
   }
 
+  protected isDayDarkened(_row: number, _col: number, gridCell: GridCell): boolean {
+    return gridCell.sealed && !this.settings.isTimelineMode;
+  }
+
   createCell(row: number, col: number): HTMLCanvasElement | undefined {
     if (!this.isPositionValid(row, col)) {
       return;
@@ -186,7 +190,7 @@ export class BaseCreateCellService {
     const isOverlay = this.gridData.isOverlayDay(col);
     const isHighlighted = this.gridData.isCellHighlighted(row, col);
     const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-    const sealedAffectsBackground = gridCell.sealed && !this.settings.isTimelineMode;
+    const sealedAffectsBackground = this.isDayDarkened(row, col, gridCell);
     const needsBaseDarkening = isOverlay || isHighlighted || sealedAffectsBackground;
     const canvas = this.getCellCanvas(weekDay, lastRowFlag, needsBaseDarkening);
 
@@ -197,7 +201,7 @@ export class BaseCreateCellService {
       this.drawSealedOverlay(ctx, this.settings.cellWidth);
     }
 
-    if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell)) {
+    if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell, row, col)) {
       let bgColor = gridCell.backgroundColor;
       if (sealedAffectsBackground) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
@@ -235,7 +239,7 @@ export class BaseCreateCellService {
     const ctx = tempCanvas.getContext('2d');
     if (!ctx) return tempCanvas;
 
-    const sealedAffectsBackground = gridCell.sealed && !this.settings.isTimelineMode;
+    const sealedAffectsBackground = this.isDayDarkened(row, col, gridCell);
 
     for (let i = 0; i < span; i++) {
       const spanCol = col + i;
@@ -249,7 +253,7 @@ export class BaseCreateCellService {
       ctx.fillRect(i * this.settings.cellWidth, 0, this.settings.cellWidth, cellHeight);
     }
 
-    if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell)) {
+    if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell, row, col)) {
       let bgColor = gridCell.backgroundColor;
       if (sealedAffectsBackground) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
@@ -388,7 +392,7 @@ export class BaseCreateCellService {
     ctx.drawImage(img, 0, 0);
   }
 
-  protected shouldDrawCellBackgroundColor(_gridCell: GridCell): boolean {
+  protected shouldDrawCellBackgroundColor(_gridCell: GridCell, _row: number, _col: number): boolean {
     return true;
   }
 
