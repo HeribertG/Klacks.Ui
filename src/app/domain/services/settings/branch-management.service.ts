@@ -2,7 +2,7 @@
 
 import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { IBranch } from 'src/app/domain/models/settings/branch.interface';
@@ -69,6 +69,26 @@ export class BranchManagementService {
           console.error('Failed to load branches:', error);
         }
       });
+  }
+
+  /**
+   * Plain API reads and writes for editing a single branch in a dialog; unlike loadBranches and saveBranches they
+   * neither touch branchesList nor take part in its auto-save.
+   */
+  getBranchList(): Observable<IBranch[]> {
+    return this.dataBranchService.getBranchList();
+  }
+
+  saveNewBranch(branch: IBranch): Observable<IBranch> {
+    return this.dataBranchService.addBranch(branch);
+  }
+
+  saveChangedBranch(branch: IBranch): Observable<IBranch> {
+    return this.dataBranchService.updateBranch(branch);
+  }
+
+  removeBranch(id: string): Observable<IBranch> {
+    return this.dataBranchService.deleteBranch(id);
   }
 
   async loadBranchesAsync(): Promise<void> {

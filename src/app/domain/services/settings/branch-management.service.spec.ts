@@ -4,7 +4,7 @@
 import { TestBed } from '@angular/core/testing';
 import { BranchManagementService } from './branch-management.service';
 import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
@@ -318,6 +318,45 @@ describe('BranchManagementService', () => {
             service.saveBranches();
 
             // Assert
+            expect(dataBranchService.deleteBranch).toHaveBeenCalledWith('branch-1');
+        });
+    });
+
+    describe('single branch API calls', () => {
+        const branch = { id: 'branch-1', name: 'Zurich' } as any;
+
+        it('reads the branch list without changing branchesList', async () => {
+            dataBranchService.getBranchList.mockReturnValue(of([branch]));
+
+            const result = await firstValueFrom(service.getBranchList());
+
+            expect(result).toEqual([branch]);
+            expect(service.branchesList()).toEqual([]);
+        });
+
+        it('creates a branch through the API', async () => {
+            dataBranchService.addBranch.mockReturnValue(of(branch));
+
+            const result = await firstValueFrom(service.saveNewBranch(branch));
+
+            expect(dataBranchService.addBranch).toHaveBeenCalledWith(branch);
+            expect(result).toBe(branch);
+        });
+
+        it('updates a branch through the API', async () => {
+            dataBranchService.updateBranch.mockReturnValue(of(branch));
+
+            const result = await firstValueFrom(service.saveChangedBranch(branch));
+
+            expect(dataBranchService.updateBranch).toHaveBeenCalledWith(branch);
+            expect(result).toBe(branch);
+        });
+
+        it('deletes a branch by id through the API', async () => {
+            dataBranchService.deleteBranch.mockReturnValue(of(branch));
+
+            await firstValueFrom(service.removeBranch('branch-1'));
+
             expect(dataBranchService.deleteBranch).toHaveBeenCalledWith('branch-1');
         });
     });

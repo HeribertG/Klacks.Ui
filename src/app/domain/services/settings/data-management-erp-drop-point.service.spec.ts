@@ -4,9 +4,10 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
-import { delay, of, throwError, Subject, Subscription } from 'rxjs';
+import { delay, firstValueFrom, of, throwError, Subject, Subscription } from 'rxjs';
 import { DataManagementErpDropPointService } from './data-management-erp-drop-point.service';
 import { DataErpDropPointService } from 'src/app/infrastructure/api/settings/data-erp-drop-point.service';
+import { DataErpImportTokenService } from 'src/app/infrastructure/api/settings/data-erp-import-token.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
@@ -26,6 +27,7 @@ describe('DataManagementErpDropPointService', () => {
   let service: DataManagementErpDropPointService;
   let mockEventBus: any;
   let mockDataService: any;
+  let tokenSpy: any;
 
   const dropPoint: IErpDropPoint = {
     id: 'dp-1',
@@ -122,11 +124,18 @@ describe('DataManagementErpDropPointService', () => {
       triggerImportRun: vi.fn(),
     };
 
+    tokenSpy = {
+      getTokens: vi.fn(),
+      createToken: vi.fn(),
+      revokeToken: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         DataManagementErpDropPointService,
         { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
         { provide: DataErpDropPointService, useValue: dataSpy },
+        { provide: DataErpImportTokenService, useValue: tokenSpy },
         { provide: TranslateService, useValue: { instant: vi.fn(translated) } },
       ],
     });
@@ -1096,6 +1105,37 @@ describe('DataManagementErpDropPointService', () => {
         DomainEventType.ERROR,
         expect.objectContaining({ message: 'settings.erp-drop-points.error.run-import' })
       );
+    });
+  });
+
+  describe('import tokens', () => {
+    it('lists the tokens of the drop point', async () => {
+      const tokens = [{ id: 't-1' }];
+      tokenSpy.getTokens.mockReturnValue(of(tokens));
+
+      const result = await firstValueFrom(service.getImportTokens('dp-1'));
+
+      expect(tokenSpy.getTokens).toHaveBeenCalledWith('dp-1');
+      expect(result).toBe(tokens);
+    });
+
+    it('creates a token and returns the one-time plaintext answer', async () => {
+      const created = { id: 't-2', token: 'secret' };
+      const request = { dropPointId: 'dp-1', name: 'Nightly' };
+      tokenSpy.createToken.mockReturnValue(of(created));
+
+      const result = await firstValueFrom(service.createImportToken(request));
+
+      expect(tokenSpy.createToken).toHaveBeenCalledWith(request);
+      expect(result).toBe(created);
+    });
+
+    it('revokes a token of the drop point', async () => {
+      tokenSpy.revokeToken.mockReturnValue(of(undefined));
+
+      await firstValueFrom(service.revokeImportToken('t-1', 'dp-1'), { defaultValue: undefined });
+
+      expect(tokenSpy.revokeToken).toHaveBeenCalledWith('t-1', 'dp-1');
     });
   });
 });

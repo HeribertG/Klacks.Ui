@@ -24,7 +24,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { DataErpImportTokenService } from 'src/app/infrastructure/api/settings/data-erp-import-token.service';
+import { DataManagementErpDropPointService } from 'src/app/domain/services/settings/data-management-erp-drop-point.service';
 import { ErpDropPointTokenHeaderComponent } from './erp-drop-point-token-header/erp-drop-point-token-header.component';
 import { ErpDropPointTokenRowComponent } from './erp-drop-point-token-row/erp-drop-point-token-row.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
@@ -56,7 +56,7 @@ const ERP_DROP_POINT_TOKENS_CONTEXT = 'erp-drop-point-tokens';
 export class ErpDropPointTokensComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly dropPointId = input.required<string>();
 
-  private tokenService = inject(DataErpImportTokenService);
+  private dropPointService = inject(DataManagementErpDropPointService);
   private toastService = inject(ToastShowService);
   private modalService = inject(ModalService);
   private clipboard = inject(Clipboard);
@@ -102,8 +102,8 @@ export class ErpDropPointTokensComponent implements OnInit, AfterViewInit, OnDes
 
   private loadTokens(): void {
     this.isLoading.set(true);
-    this.tokenService
-      .getTokens(this.dropPointId())
+    this.dropPointService
+      .getImportTokens(this.dropPointId())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (tokens) => {
@@ -158,7 +158,7 @@ export class ErpDropPointTokensComponent implements OnInit, AfterViewInit, OnDes
     }
 
     try {
-      const created = await firstValueFrom(this.tokenService.createToken(request));
+      const created = await firstValueFrom(this.dropPointService.createImportToken(request));
       this.createdToken.set(created);
       this.toastService.showSuccess(
         this.translate.instant('settings.erp-drop-points.tokens.success.create'),
@@ -206,7 +206,7 @@ export class ErpDropPointTokensComponent implements OnInit, AfterViewInit, OnDes
 
   private async revokeToken(id: string): Promise<void> {
     try {
-      await firstValueFrom(this.tokenService.revokeToken(id, this.dropPointId()));
+      await firstValueFrom(this.dropPointService.revokeImportToken(id, this.dropPointId()));
 
       this.toastService.showSuccess(
         this.translate.instant('settings.erp-drop-points.tokens.success.delete'),

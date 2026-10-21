@@ -27,8 +27,8 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
-import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
+import { DataManagementQualificationService } from 'src/app/domain/services/settings/data-management-qualification.service';
+import { CountryStateManagementService } from 'src/app/domain/services/settings/country-state-management.service';
 import { ICountry } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
@@ -71,8 +71,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   public readonly refreshableEntities = RefreshEntityTokens.QUALIFICATION;
   readonly qualModal = viewChild.required<TemplateRef<unknown>>('qualModal');
 
-  private dataQualService = inject(DataQualificationService);
-  private dataCountryStateService = inject(DataCountryStateService);
+  private dataQualService = inject(DataManagementQualificationService);
+  private countryStateService = inject(CountryStateManagementService);
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
@@ -184,7 +184,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private loadCountries(): void {
-    this.dataCountryStateService
+    this.countryStateService
       .getCountryList()
       .pipe(takeUntil(this.destroy$))
       .subscribe({

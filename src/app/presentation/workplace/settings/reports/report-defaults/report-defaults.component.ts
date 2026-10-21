@@ -6,7 +6,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
-import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { REPORT_DATA_SOURCES } from 'src/app/domain/models/report/report-data-source.model';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 
@@ -22,7 +21,6 @@ const REPORT_DEFAULTS_TOAST_NAME = 'report-defaults';
 })
 export class ReportDefaultsComponent implements OnInit {
   private reportDefaults = inject(ReportDefaultsService);
-  private reportApi = inject(DataReportApiService);
   private translate = inject(TranslateService);
   private toast = inject(ToastShowService);
 
@@ -32,7 +30,7 @@ export class ReportDefaultsComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     await this.reportDefaults.load();
     try {
-      const all = await this.reportApi.getAllTemplates();
+      const all = await this.reportDefaults.loadAvailableTemplates();
       this.templates.set(all);
     } catch {
       this.templates.set([]);

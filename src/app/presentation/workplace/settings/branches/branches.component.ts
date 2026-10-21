@@ -22,7 +22,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { BranchesHeaderComponent } from './branches-header/branches-header.component';
 import { BranchesRowComponent } from './branches-row/branches-row.component';
-import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
+import { BranchManagementService } from 'src/app/domain/services/settings/branch-management.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
@@ -55,7 +55,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
   public readonly refreshableEntities = RefreshEntityTokens.BRANCH;
   readonly branchModal = viewChild.required<TemplateRef<any>>('branchModal');
 
-  private branchService = inject(DataBranchService);
+  private branchService = inject(BranchManagementService);
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
@@ -211,7 +211,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
 
   private async deleteBranch(id: string): Promise<void> {
     try {
-      await firstValueFrom(this.branchService.deleteBranch(id));
+      await firstValueFrom(this.branchService.removeBranch(id));
 
       const index = this.branches.findIndex((b) => b.id === id);
       if (index !== -1) {
@@ -236,11 +236,11 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
     try {
       if (this.originalBranch && this.originalBranch.id) {
         const updatedBranch = { ...this.originalBranch, ...this.editingBranch };
-        await firstValueFrom(this.branchService.updateBranch(updatedBranch));
+        await firstValueFrom(this.branchService.saveChangedBranch(updatedBranch));
         this.loadBranches();
       } else {
         const createdBranch = await firstValueFrom(
-          this.branchService.addBranch(this.editingBranch)
+          this.branchService.saveNewBranch(this.editingBranch)
         );
         if (createdBranch) {
           this.branches.push(createdBranch);

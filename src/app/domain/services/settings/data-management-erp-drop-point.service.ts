@@ -7,7 +7,8 @@
  * finished import once as a toast with its order counts (one aggregate toast when several finish at once).
  * Every listing request (page load, refresh, poll) goes through one fetch path that numbers the requests;
  * a response older than the last applied one is discarded, so it can neither resurrect a deleted row nor
- * re-announce a finished import.
+ * re-announce a finished import. The import tokens of the drop point are forwarded to their API service, so the
+ * settings card for the tokens stays on the same facade.
  * @param defaultDropPoint - Signal holding the automatically managed drop point, or null before loading
  * @param files - Signal holding the import ledger rows grouped into inbox, processed and failed
  * @param isLoading - Signal indicating whether the drop point is currently being (re)loaded
@@ -46,6 +47,10 @@ import {
   timer,
 } from 'rxjs';
 import { DataErpDropPointService } from 'src/app/infrastructure/api/settings/data-erp-drop-point.service';
+import { DataErpImportTokenService } from 'src/app/infrastructure/api/settings/data-erp-import-token.service';
+import { IErpImportToken } from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
+import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
@@ -103,6 +108,7 @@ const TOO_LARGE_UPLOAD_TEXT: IErpImportText = { key: ERP_IMPORT_FILES_I18N.UPLOA
 })
 export class DataManagementErpDropPointService {
   private dataService = inject(DataErpDropPointService);
+  private importTokenService = inject(DataErpImportTokenService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translate = inject(TranslateService);
 
@@ -253,6 +259,18 @@ export class DataManagementErpDropPointService {
     } finally {
       this.isTriggeringImport.set(false);
     }
+  }
+
+  getImportTokens(dropPointId: string): Observable<IErpImportToken[]> {
+    return this.importTokenService.getTokens(dropPointId);
+  }
+
+  createImportToken(request: IErpImportTokenCreate): Observable<IErpImportTokenCreated> {
+    return this.importTokenService.createToken(request);
+  }
+
+  revokeImportToken(id: string, dropPointId: string): Observable<void> {
+    return this.importTokenService.revokeToken(id, dropPointId);
   }
 
   private fetchFiles$(): Observable<IErpDropPointFiles> {

@@ -3,6 +3,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
+import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
@@ -11,6 +13,7 @@ import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 export class ReportDefaultsService {
   private settingsApi = inject(DataSettingsVariousService);
   private settingsListReader = inject(SettingsListReaderService);
+  private reportApi = inject(DataReportApiService);
 
   defaults = signal<Record<string, string>>({});
   private settingId: string | undefined;
@@ -32,6 +35,10 @@ export class ReportDefaultsService {
       this.settingId = undefined;
     }
     this.loaded = true;
+  }
+
+  loadAvailableTemplates(): Promise<ReportTemplate[]> {
+    return this.reportApi.getAllTemplates();
   }
 
   async save(): Promise<void> {

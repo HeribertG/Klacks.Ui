@@ -2,7 +2,7 @@
 
 import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, firstValueFrom } from 'rxjs';
+import { Observable, forkJoin, firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { ICountry, IState } from 'src/app/domain/models/client/client-class';
@@ -58,6 +58,10 @@ export class CountryStateManagementService {
     if (this.isStatesDirty()) {
       this.saveStates();
     }
+  }
+
+  getCountryList(): Observable<ICountry[]> {
+    return this.dataCountryStateService.getCountryList();
   }
 
   loadCountriesAndStates(): void {

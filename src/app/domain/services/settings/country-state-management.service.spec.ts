@@ -4,7 +4,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CountryStateManagementService } from './country-state-management.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
-import { of, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { ICountry, IState } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
@@ -206,4 +206,15 @@ describe('CountryStateManagementService', () => {
         });
     });
 
+    describe('getCountryList', () => {
+        it('returns the country list of the API without touching the managed list', async () => {
+            const countries = [mockCountry];
+            dataCountryStateService.getCountryList.mockReturnValue(of(countries));
+
+            const result = await firstValueFrom(service.getCountryList());
+
+            expect(result).toBe(countries);
+            expect(service.countriesList()).toEqual([]);
+        });
+    });
 });

@@ -20,7 +20,7 @@ import { ReportParameterType } from 'src/app/domain/models/report/report-paramet
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
-import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { ClientSearchService } from 'src/app/domain/services/client/client-search.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
@@ -71,7 +71,7 @@ export class ReportRowComponent {
 
   private translate = inject(TranslateService);
   private manualLoader = inject(ManualLoaderService);
-  private clientService = inject(DataClientService);
+  private clientSearchService = inject(ClientSearchService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
@@ -128,7 +128,7 @@ export class ReportRowComponent {
 
   private loadPreviewClients(): void {
     if (this.previewClients.length > 0) return;
-    this.clientService.getClientsForReplacement()
+    this.clientSearchService.getClientsForReplacement()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(clients => {
         this.previewClients = clients;
