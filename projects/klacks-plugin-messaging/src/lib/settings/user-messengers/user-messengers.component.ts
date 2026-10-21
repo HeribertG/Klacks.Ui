@@ -25,10 +25,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { PLUGIN_TOAST_SERVICE } from 'klacks-plugin-contracts';
 import { DataUserMessengerContactService } from '../../services/data-user-messenger-contact.service';
-import {
-  UserMessengerContact,
-  UserMessengerPairingCode,
-} from '../../models/user-messenger-contact.model';
+import { UserMessengerContact } from '../../models/user-messenger-contact.model';
+import { UserMessengerPairingCode } from '../../models/user-messenger-pairing-code.interface';
 import { MESSENGER_TYPE_LABELS } from '../../enums/messenger-type.enum';
 
 const TRANSLATION_PREFIX = 'settings.user-messengers.';

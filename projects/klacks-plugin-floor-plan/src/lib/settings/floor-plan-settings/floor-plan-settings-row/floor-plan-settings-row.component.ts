@@ -3,7 +3,7 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
+import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 

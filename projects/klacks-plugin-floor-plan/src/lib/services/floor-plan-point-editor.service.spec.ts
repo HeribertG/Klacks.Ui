@@ -5,11 +5,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  nodesToSvgString,
-  deleteNode,
-  PathNode,
-} from './floor-plan-point-editor.service';
+import { nodesToSvgString, deleteNode } from './floor-plan-point-editor.service';
+import { PathNode } from './path-node.interface';
 
 describe('nodesToSvgString', () => {
   it('generates M + L + Z for a closed rect-like path', () => {

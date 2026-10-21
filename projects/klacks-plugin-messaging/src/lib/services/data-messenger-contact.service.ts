@@ -10,10 +10,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
 import { PLUGIN_API_BASE_URL } from 'klacks-plugin-contracts';
-import {
-  MessengerContact,
-  CreateMessengerContact,
-} from '../models/messenger-contact.model';
+import { MessengerContact } from '../models/messenger-contact.model';
+import { CreateMessengerContact } from '../models/create-messenger-contact.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataMessengerContactService {

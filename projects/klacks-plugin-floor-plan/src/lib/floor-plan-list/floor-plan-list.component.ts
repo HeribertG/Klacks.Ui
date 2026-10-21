@@ -25,8 +25,8 @@ import {
   NgbDatepickerModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
-import { ILiveMarkerDisplay } from '../services/floor-plan-canvas.service';
+import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
+import { ILiveMarkerDisplay } from '../services/live-marker-display.interface';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 
 const DEFAULT_ITEMS_PER_PAGE = 5;

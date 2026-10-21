@@ -19,15 +19,8 @@ import {
 } from 'fabric';
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
+import { PathNode } from './path-node.interface';
 import { FabricWithData } from './floor-plan-object-data.interface';
-
-export interface PathNode {
-  command: 'M' | 'L' | 'C' | 'Q';
-  x: number;
-  y: number;
-  cp1?: { x: number; y: number };
-  cp2?: { x: number; y: number };
-}
 
 const ANCHOR_RADIUS = 7;
 const CONTROL_RADIUS = 5;

@@ -12,10 +12,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
 import { PLUGIN_API_BASE_URL } from 'klacks-plugin-contracts';
-import {
-  UserMessengerContact,
-  UserMessengerPairingCode,
-} from '../models/user-messenger-contact.model';
+import { UserMessengerContact } from '../models/user-messenger-contact.model';
+import { UserMessengerPairingCode } from '../models/user-messenger-pairing-code.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataUserMessengerContactService {

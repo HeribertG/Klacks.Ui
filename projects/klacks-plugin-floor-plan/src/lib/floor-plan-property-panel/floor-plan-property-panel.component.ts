@@ -16,47 +16,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FabricObject, Rect, Polygon, Polyline, Textbox } from 'fabric';
+import { ObjectProperties } from './object-properties.interface';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
-
-interface PointLike {
-  x: number;
-  y: number;
-}
-
-interface ObjectProperties {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  angle: number;
-  opacity: number;
-  stroke: string;
-  fill: string;
-  strokeWidth: number;
-  rx: number;
-  ry: number;
-  locked: boolean;
-  isRect: boolean;
-  isPolygon: boolean;
-  isText: boolean;
-  points: PointLike[];
-  fontFamily: string;
-  fontSize: number;
-  fontBold: boolean;
-  fontItalic: boolean;
-  fontUnderline: boolean;
-  fontLinethrough: boolean;
-  textAlign: string;
-  shadowEnabled: boolean;
-  shadowColor: string;
-  shadowBlur: number;
-  shadowOffsetX: number;
-  shadowOffsetY: number;
-  gradientEnabled: boolean;
-  gradientColor1: string;
-  gradientColor2: string;
-  gradientDirection: string;
-}
 
 const FONT_FAMILIES = [
   'Arial',

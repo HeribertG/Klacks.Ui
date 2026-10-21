@@ -25,19 +25,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { PLUGIN_TOAST_SERVICE } from 'klacks-plugin-contracts';
 import { DataMessengerContactService } from '../../services/data-messenger-contact.service';
-import { CreateMessengerContact } from '../../models/messenger-contact.model';
+import { CreateMessengerContact } from '../../models/create-messenger-contact.interface';
+import { EditableContact } from './editable-contact.interface';
 import {
   MessengerType,
   MESSENGER_TYPE_LABELS,
 } from '../../enums/messenger-type.enum';
-
-interface EditableContact {
-  id?: string;
-  type: MessengerType;
-  value: string;
-  description: string;
-  isNew: boolean;
-}
 
 @Component({
   selector: 'lib-client-messenger-contacts',

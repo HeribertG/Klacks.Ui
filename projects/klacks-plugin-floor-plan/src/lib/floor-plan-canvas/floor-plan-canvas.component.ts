@@ -31,7 +31,7 @@ import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
 import { FloorPlanContextMenuComponent } from '../floor-plan-context-menu/floor-plan-context-menu.component';
-import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker-class';
+import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker.interface';
 import { FloorPlanMarkerType } from '@floor-plan-plugin/domain/enums/floor-plan-marker-type.enum';
 
 const CANVAS_DEFAULT_WIDTH = 1200;

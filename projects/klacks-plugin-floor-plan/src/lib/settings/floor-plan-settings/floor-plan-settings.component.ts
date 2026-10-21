@@ -19,8 +19,9 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { FloorPlanSettingsRowComponent } from './floor-plan-settings-row/floor-plan-settings-row.component';
 import { DataManagementFloorPlanService } from '@floor-plan-plugin/application/services/data-management-floor-plan.service';
-import { FloorPlan, IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
-import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker-class';
+import { FloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
+import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
+import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker.interface';
 import {
   ModalService,
   ModalType,

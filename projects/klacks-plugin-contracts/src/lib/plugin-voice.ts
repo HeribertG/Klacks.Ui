@@ -6,15 +6,8 @@
  * @param IPluginSpeechService - Provides speech recognition state
  */
 
+import { IPluginVoiceCallbacks } from './plugin-voice-callbacks.interface';
 import { Subject } from 'rxjs';
-
-export interface IPluginVoiceCallbacks {
-  getInputText: () => string;
-  setInputText: (text: string) => void;
-  sendMessage: () => Promise<void> | void;
-  getIsProcessing: () => boolean;
-  detectChanges: () => void;
-}
 
 export interface IPluginVoiceService {
   voiceModeEnabled: boolean;
@@ -24,10 +17,4 @@ export interface IPluginVoiceService {
   toggleVoiceMode(): Promise<void>;
   disableVoiceMode(): void;
   isUsingWhisper(): boolean;
-}
-
-export interface IPluginSpeechService {
-  readonly isListening: boolean;
-  isTranscribing(): boolean;
-  isSupported$(): boolean;
 }

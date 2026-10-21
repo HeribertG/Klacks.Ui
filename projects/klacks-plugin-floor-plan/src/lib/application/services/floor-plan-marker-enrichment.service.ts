@@ -7,12 +7,8 @@
 
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { IFloorPlanMarkerEnrichment } from './floor-plan-marker-enrichment.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
-
-export interface IFloorPlanMarkerEnrichment {
-  phone: string | null;
-  imageDataUrl: string | null;
-}
 
 @Injectable({ providedIn: 'root' })
 export class FloorPlanMarkerEnrichmentService {

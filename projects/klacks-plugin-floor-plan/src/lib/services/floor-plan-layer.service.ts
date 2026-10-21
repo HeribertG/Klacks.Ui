@@ -1,15 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, signal, Signal } from '@angular/core';
-import { FabricObject } from 'fabric';
-
-export interface FloorPlanLayer {
-  id: string;
-  name: string;
-  visible: boolean;
-  locked: boolean;
-  objects: FabricObject[];
-}
+import { FloorPlanLayer } from './floor-plan-layer.interface';
 
 const DEFAULT_LAYERS: Omit<FloorPlanLayer, 'objects'>[] = [
   { id: 'background', name: 'Background', visible: true, locked: false },

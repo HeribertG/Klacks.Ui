@@ -9,6 +9,8 @@
 
 import { Injectable } from '@angular/core';
 import { Canvas, Circle, FabricObject } from 'fabric';
+import { AnchorPoint } from './anchor-point.interface';
+import { AnchorSnapResult } from './anchor-snap-result.interface';
 import { FabricWithData } from './floor-plan-object-data.interface';
 
 const SNAP_THRESHOLD = 15;
@@ -16,17 +18,6 @@ const HIGHLIGHT_RADIUS = 6;
 const HIGHLIGHT_FILL = '#f59e0b';
 const HIGHLIGHT_STROKE = '#ffffff';
 const HIGHLIGHT_STROKE_WIDTH = 1.5;
-
-interface AnchorPoint {
-  x: number;
-  y: number;
-}
-
-export interface AnchorSnapResult {
-  offsetX: number;
-  offsetY: number;
-  targetPoint: AnchorPoint;
-}
 
 @Injectable()
 export class FloorPlanAnchorSnapService {

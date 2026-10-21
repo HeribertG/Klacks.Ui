@@ -9,21 +9,9 @@
 
 import { Injectable, signal, computed, Signal, inject } from '@angular/core';
 import { Canvas, FabricObject, Path, Polygon } from 'fabric';
+import { JoinNode } from './join-node.interface';
+import { JoinItem } from './join-item.interface';
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
-
-interface JoinNode {
-  command: 'M' | 'L' | 'C' | 'Q';
-  x: number;
-  y: number;
-  cp1?: { x: number; y: number };
-  cp2?: { x: number; y: number };
-}
-
-interface JoinItem {
-  obj: FabricObject;
-  nodes: JoinNode[];
-  isClosed: boolean;
-}
 
 const CONNECTOR_STROKE_COLOR = '#374151';
 const CONNECTOR_STROKE_WIDTH = 2;

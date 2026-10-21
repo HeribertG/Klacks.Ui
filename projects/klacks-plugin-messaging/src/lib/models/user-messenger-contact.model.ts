@@ -20,13 +20,3 @@ export interface UserMessengerContact {
   description: string | null;
   isPreferred: boolean;
 }
-
-/**
- * A freshly issued pairing code together with the instant it stops being redeemable.
- * @param code - The code the user sends to the bot
- * @param expiresAt - ISO timestamp after which the code is refused
- */
-export interface UserMessengerPairingCode {
-  code: string;
-  expiresAt: string;
-}

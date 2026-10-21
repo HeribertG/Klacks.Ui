@@ -14,6 +14,8 @@ import { CreateMessagingProvider } from '../models/create-messaging-provider.mod
 import { SendMessage } from '../models/send-message.model';
 import { MessageDirection } from '../enums/message-direction.enum';
 import { MessageScope } from '../enums/message-scope.enum';
+import { BroadcastPreview } from './broadcast-preview.interface';
+import { BroadcastSendResult } from './broadcast-send-result.interface';
 import { MessagingSetupReport } from '../models/messaging-setup-report.model';
 
 @Injectable({ providedIn: 'root' })
@@ -101,20 +103,4 @@ export class DataMessagingService {
       contentType: 'text',
     });
   }
-}
-
-export interface BroadcastPreview {
-  total: number;
-  withMessengerContact: number;
-  withPhoneFallback: number;
-  skipped: number;
-  providerSupportsPhoneFallback: boolean;
-}
-
-export interface BroadcastSendResult {
-  broadcastId: string;
-  total: number;
-  sent: number;
-  failed: number;
-  skippedNoContact: number;
 }

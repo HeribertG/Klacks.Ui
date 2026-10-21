@@ -1,19 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { FloorPlanImportResult } from './floor-plan-import-result.interface';
+import { DxfEntity } from './dxf-entity.interface';
 import { Injectable } from '@angular/core';
-
-export type FloorPlanImportType = 'svg' | 'dxf' | 'bitmap';
-
-export interface FloorPlanImportResult {
-  type: FloorPlanImportType;
-  data: string;
-}
-
-interface DxfEntity {
-  type: string;
-  props: Record<string, string | number | { x: number; y: number }[]>;
-  _nextIndex: number;
-}
 
 const SUPPORTED_SVG_TYPES = ['image/svg+xml'];
 const SUPPORTED_BITMAP_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/bmp'];

@@ -21,11 +21,10 @@ export { Message } from './lib/models/message.model';
 export { MessagingProvider } from './lib/models/messaging-provider.model';
 export { IncomingMessage } from './lib/models/incoming-message.model';
 export { OwnerMessengerEntry } from './lib/models/owner-messenger-entry.model';
-export { MessengerContact, CreateMessengerContact } from './lib/models/messenger-contact.model';
-export {
-  UserMessengerContact,
-  UserMessengerPairingCode,
-} from './lib/models/user-messenger-contact.model';
+export { MessengerContact } from './lib/models/messenger-contact.model';
+export { CreateMessengerContact } from './lib/models/create-messenger-contact.interface';
+export { UserMessengerContact } from './lib/models/user-messenger-contact.model';
+export { UserMessengerPairingCode } from './lib/models/user-messenger-pairing-code.interface';
 export { MessageDirection } from './lib/enums/message-direction.enum';
 export { MessageStatus } from './lib/enums/message-status.enum';
 export { MessengerType, MESSENGER_TYPE_LABELS } from './lib/enums/messenger-type.enum';

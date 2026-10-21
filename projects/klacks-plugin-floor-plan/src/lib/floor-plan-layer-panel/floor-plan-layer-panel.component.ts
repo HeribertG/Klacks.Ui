@@ -5,7 +5,8 @@ import { Component, inject, signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FloorPlanLayerService, FloorPlanLayer } from '../services/floor-plan-layer.service';
+import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
+import { FloorPlanLayer } from '../services/floor-plan-layer.interface';
 
 @Component({
   selector: 'lib-floor-plan-layer-panel',

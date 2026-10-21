@@ -22,11 +22,9 @@ import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { FloorPlanCanvasComponent } from '../floor-plan-canvas/floor-plan-canvas.component';
 import { FloorPlanListComponent } from '../floor-plan-list/floor-plan-list.component';
 import { FloorPlanPrintPreviewComponent } from '../floor-plan-print-preview/floor-plan-print-preview.component';
-import {
-  FloorPlanCanvasService,
-  ILiveMarkerDisplay,
-  ILiveMarkerEntry,
-} from '../services/floor-plan-canvas.service';
+import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+import { ILiveMarkerDisplay } from '../services/live-marker-display.interface';
+import { ILiveMarkerEntry } from '../services/live-marker-entry.interface';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
@@ -39,7 +37,7 @@ import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
 import { DataManagementFloorPlanService } from '@floor-plan-plugin/application/services/data-management-floor-plan.service';
 import { FloorPlanMarkerEnrichmentService } from '@floor-plan-plugin/application/services/floor-plan-marker-enrichment.service';
-import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
+import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';

@@ -2,7 +2,8 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FloorPlan, IFloorPlan } from '../../domain/models/floor-plan-class';
+import { FloorPlan } from '../../domain/models/floor-plan-class';
+import { IFloorPlan } from '../../domain/models/floor-plan.interface';
 import { FloorPlanWorkMarker } from '../../domain/models/floor-plan-work-marker-class';
 import { DataFloorPlanService } from '../../infrastructure/data-floor-plan.service';
 

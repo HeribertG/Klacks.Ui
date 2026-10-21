@@ -18,12 +18,13 @@ import {
   Shadow,
   Gradient,
 } from 'fabric';
-import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker-class';
+import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker.interface';
 import { FloorPlanMarkerType } from '@floor-plan-plugin/domain/enums/floor-plan-marker-type.enum';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
 import { FloorPlanToolService } from './floor-plan-tool.service';
 import { FloorPlanAnchorSnapService } from './floor-plan-anchor-snap.service';
 import { shapeToNodes, nodesToSvgString } from './floor-plan-point-editor.service';
+import { ILiveMarkerEntry } from './live-marker-entry.interface';
 import { FabricWithData } from './floor-plan-object-data.interface';
 
 FabricObject.customProperties.push('data');
@@ -45,24 +46,6 @@ const LIVE_MARKER_FONT_SIZE = 11;
 const LIVE_MARKER_IMAGE_SIZE = 40;
 const LIVE_MARKER_SPACING = 4;
 const LIVE_MARKER_INNER_PAD = 4;
-
-export interface ILiveMarkerDisplay {
-  name: boolean;
-  time: boolean;
-  phone: boolean;
-  image: boolean;
-}
-
-export interface ILiveMarkerEntry {
-  clientId: string;
-  clientName: string;
-  startTime: string;
-  endTime: string;
-  phone: string | null;
-  imageDataUrl: string | null;
-  color?: string;
-  display: ILiveMarkerDisplay;
-}
 
 @Injectable()
 export class FloorPlanCanvasService {

@@ -18,10 +18,3 @@ export interface MessengerContact {
   value: string;
   description?: string | null;
 }
-
-export interface CreateMessengerContact {
-  clientId: string;
-  type: MessengerType;
-  value: string;
-  description?: string | null;
-}

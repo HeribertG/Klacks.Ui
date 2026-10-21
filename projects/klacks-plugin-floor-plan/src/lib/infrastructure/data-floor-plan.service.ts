@@ -4,8 +4,10 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { FloorPlan, IFloorPlan } from '../domain/models/floor-plan-class';
-import { FloorPlanWorkMarker, IFloorPlanWorkMarker } from '../domain/models/floor-plan-work-marker-class';
+import { FloorPlan } from '../domain/models/floor-plan-class';
+import { IFloorPlan } from '../domain/models/floor-plan.interface';
+import { FloorPlanWorkMarker } from '../domain/models/floor-plan-work-marker-class';
+import { IFloorPlanWorkMarker } from '../domain/models/floor-plan-work-marker.interface';
 
 @Injectable({
   providedIn: 'root',

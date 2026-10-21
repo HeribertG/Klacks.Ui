@@ -24,16 +24,11 @@ import { firstValueFrom } from 'rxjs';
 import { PLUGIN_TOAST_SERVICE } from 'klacks-plugin-contracts';
 import { DataOwnerMessengerService } from '../../services/data-owner-messenger.service';
 import { OwnerMessengerEntry } from '../../models/owner-messenger-entry.model';
+import { EditableEntry } from './editable-entry.interface';
 import {
   MessengerType,
   MESSENGER_TYPE_LABELS,
 } from '../../enums/messenger-type.enum';
-
-interface EditableEntry {
-  type: MessengerType;
-  value: string;
-  description: string;
-}
 
 @Component({
   selector: 'lib-owner-messengers',
