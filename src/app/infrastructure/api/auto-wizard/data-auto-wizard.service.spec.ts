@@ -9,7 +9,7 @@ import { DataAutoWizardService } from './data-auto-wizard.service';
 import { AutoWizardResult } from './auto-wizard-result.interface';
 import { AutoWizardStartRequest } from './auto-wizard-start-request.interface';
 import { LocalStorageService } from '../../storage/local-storage.service';
-import { AUTO_WIZARD_LIMITS } from './auto-wizard-limits.constants';
+import { AUTO_WIZARD_LIMITS } from 'src/app/domain/constants/auto-wizard-limits.constants';
 
 class FakeConnection {
   state = 'Disconnected';

@@ -19,7 +19,7 @@ import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
-import { AUTO_WIZARD_LIMITS } from 'src/app/infrastructure/api/auto-wizard/auto-wizard-limits.constants';
+import { AUTO_WIZARD_LIMITS } from 'src/app/domain/constants/auto-wizard-limits.constants';
 
 const selectedGroupId = signal<string | undefined>(undefined);
 const presenceRunningForView = signal(false);

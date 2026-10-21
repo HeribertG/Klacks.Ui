@@ -25,7 +25,7 @@ import { AutoWizardResult } from './auto-wizard-result.interface';
 import { AutoWizardJobFailure } from './auto-wizard-job-failure.interface';
 import { AutoWizardCancelResponse } from './auto-wizard-cancel-response.interface';
 import { AutoWizardJobStatusResponse } from './auto-wizard-job-status-response.interface';
-import { AUTO_WIZARD_LIMITS } from './auto-wizard-limits.constants';
+import { AUTO_WIZARD_LIMITS } from 'src/app/domain/constants/auto-wizard-limits.constants';
 
 export type AutoWizardStatus = 'idle' | 'running' | 'completed' | 'failed';
 

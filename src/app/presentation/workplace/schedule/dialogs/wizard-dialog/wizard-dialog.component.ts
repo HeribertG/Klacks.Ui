@@ -21,7 +21,7 @@ import { take } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
-import { WIZARD_LIMITS } from 'src/app/infrastructure/api/wizard/wizard-limits.constants';
+import { WIZARD_LIMITS } from 'src/app/domain/constants/wizard-limits.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';
 import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
@@ -32,7 +32,7 @@ import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model
 import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
