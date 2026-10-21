@@ -2,11 +2,12 @@
 
 /**
  * Service for handling image uploads, previews, and file-to-DataURL conversion in the report designer.
+ * Previews loaded asynchronously bump a revision signal so the views reading them re-render at once.
  * @param http - HttpClient for uploading and downloading image files
  * @param imagePreviewCache - Shared cache map for image preview DataURLs
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -19,6 +20,12 @@ import { TextAlignment } from 'src/app/domain/models/report/text-alignment.enum'
 @Injectable()
 export class ReportDesignerImageService {
   private http = inject(HttpClient);
+  private readonly previewRevision = signal(0);
+
+  getImagePreview(fileName: string, imagePreviewCache: Map<string, string>): string | undefined {
+    this.previewRevision();
+    return imagePreviewCache.get(fileName);
+  }
 
   async onImageChipUpload(
     event: Event,
@@ -107,6 +114,7 @@ export class ReportDesignerImageService {
           const reader = new FileReader();
           reader.onload = () => {
             imagePreviewCache.set(fileName, reader.result as string);
+            this.previewRevision.update(revision => revision + 1);
           };
           reader.readAsDataURL(blob);
         }

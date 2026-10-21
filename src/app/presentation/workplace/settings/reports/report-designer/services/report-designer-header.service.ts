@@ -2,7 +2,7 @@
 
 /**
  * Commands of the report header section: dropping fields into a header zone, removing fields and rows,
- * uploading images and deciding when a header zone shows its drop placeholder.
+ * uploading images, reading their previews and deciding when a header zone shows its drop placeholder.
  * @param section - The header section of the edited template
  * @param rowIndex - Header row the command applies to
  * @param alignment - Header zone (left, center, right) the command applies to
@@ -25,6 +25,10 @@ export class ReportDesignerHeaderService {
   private fieldService = inject(ReportDesignerFieldService);
   private imageService = inject(ReportDesignerImageService);
   private palette = inject(ReportDesignerPaletteService);
+
+  getImagePreview(fileName: string): string | undefined {
+    return this.imageService.getImagePreview(fileName, this.state.imagePreviewCache());
+  }
 
   isZonePlaceholderVisible(fields: ReportField[], alignment: TextAlignment): boolean {
     if (fields.length === 0) return true;

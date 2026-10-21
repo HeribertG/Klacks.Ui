@@ -18,10 +18,7 @@
             (click)="state.selectField(field)"
             [class.chip-active]="state.activeField() === field"
           >
-            @if (
-              state.imagePreviewCache().get(field.imageUrl);
-              as preview
-            ) {
+            @if (header.getImagePreview(field.imageUrl); as preview) {
               <img
                 [src]="preview"
                 class="header-image-preview"
