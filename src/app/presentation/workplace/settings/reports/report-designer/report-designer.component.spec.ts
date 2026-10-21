@@ -276,6 +276,27 @@ describe('ReportDesignerComponent (characterization)', () => {
       expect(request.request.method).toBe('GET');
       request.flush(new Blob(['x'], { type: 'text/plain' }));
     });
+
+    it('shows a stored header logo as soon as its preview is loaded, without further interaction', async () => {
+      // Arrange
+      const next = createTemplate();
+      next.sections[0].fields.push(createField('report.image', {
+        type: ReportFieldType.Image, imageUrl: 'logo.png', sortOrder: 1,
+      }));
+      const cache = new Map<string, string>();
+      render(next, { imagePreviewCache: cache });
+      expect(query('.header-zone img.header-image-preview')).toBeNull();
+
+      // Act
+      http.expectOne(r => r.url.endsWith('LoadFile/DownLoad?type=logo.png'))
+        .flush(new Blob(['png'], { type: 'image/png' }));
+      await vi.waitFor(() => expect(cache.has('logo.png')).toBe(true));
+      fixture.detectChanges();
+
+      // Assert
+      const preview = query<HTMLImageElement>('.header-zone img.header-image-preview');
+      expect(preview!.getAttribute('src')).toMatch(/^data:image\/png/);
+    });
   });
 
   describe('palette', () => {
