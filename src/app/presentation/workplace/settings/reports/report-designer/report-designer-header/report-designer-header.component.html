@@ -1,0 +1,68 @@
+@if (state.headerSection; as section) {
+  <div class="section-container">
+    <div class="section-label">
+      {{ sectionLabels[ReportSectionType.Header] | translate }}
+    </div>
+    <div class="header-section">
+      <button class="btn-add-row" (click)="fieldService.addHeaderRow(section); state.emitChange()">
+        <i class="fa fa-plus"></i>
+        {{ "setting.report.designer.addRow" | translate }}
+      </button>
+
+      <div class="header-rows">
+        @for (row of fieldService.getHeaderRows(section); track row.rowIndex) {
+          <div class="header-row">
+            <app-report-designer-header-zone
+              [section]="section"
+              [rowIndex]="row.rowIndex"
+              [alignment]="TextAlignment.Left"
+              [fields]="row.left"
+            />
+            <app-report-designer-header-zone
+              [section]="section"
+              [rowIndex]="row.rowIndex"
+              [alignment]="TextAlignment.Center"
+              [fields]="row.center"
+            />
+            <app-report-designer-header-zone
+              [section]="section"
+              [rowIndex]="row.rowIndex"
+              [alignment]="TextAlignment.Right"
+              [fields]="row.right"
+            />
+
+            <div class="header-row-actions">
+              <label
+                class="image-upload-btn"
+                title="{{
+                  'setting.report.designer.uploadImage' | translate
+                }}"
+              >
+                <i class="fa fa-image"></i>
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  (change)="
+                    header.onImageUpload(
+                      $event,
+                      section,
+                      row.rowIndex,
+                      TextAlignment.Left
+                    )
+                  "
+                />
+              </label>
+              <button
+                class="chip-btn remove row-remove"
+                (click)="header.removeHeaderRow(section, row.rowIndex)"
+              >
+                &#10005;
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,130 @@
+<!-- eslint-disable @angular-eslint/template/alt-text -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div
+  class="header-zone"
+  cdkDropList
+  [id]="dropZones.getHeaderZoneId(rowIndex(), alignment())"
+  [cdkDropListData]="fields()"
+  [cdkDropListConnectedTo]="dropZones.headerPaletteIds"
+  (cdkDropListDropped)="header.onHeaderFieldDrop($event, section(), rowIndex(), alignment())"
+>
+  @for (field of fields(); track $index) {
+    @if (field.dataBinding) {
+      @if (field.type === ReportFieldType.Image && field.dataBinding === staticImageBinding) {
+        @if (field.imageUrl) {
+          <div
+            class="zone-chip image-chip"
+            (click)="state.selectField(field)"
+            [class.chip-active]="state.activeField() === field"
+          >
+            @if (
+              state.imagePreviewCache().get(field.imageUrl);
+              as preview
+            ) {
+              <img
+                [src]="preview"
+                class="header-image-preview"
+              />
+            } @else {
+              <i
+                class="fa fa-image image-placeholder-icon"
+              ></i>
+              <span class="image-filename">{{
+                field.imageUrl
+              }}</span>
+            }
+            <button
+              class="chip-btn remove"
+              (click)="
+                header.removeHeaderField(section(), field);
+                $event.stopPropagation()
+              "
+            >
+              &#10005;
+            </button>
+          </div>
+        } @else {
+          <label
+            class="zone-chip image-chip image-upload-zone"
+            [class.chip-active]="state.activeField() === field"
+            (click)="state.selectField(field)"
+          >
+            <i class="fa fa-image image-placeholder-icon"></i>
+            <span class="image-upload-text">{{
+              "setting.report.designer.uploadImage"
+                | translate
+            }}</span>
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              (change)="header.onImageChipUpload($event, field)"
+            />
+            <button
+              class="chip-btn remove"
+              (click)="
+                header.removeHeaderField(section(), field);
+                $event.stopPropagation()
+              "
+            >
+              &#10005;
+            </button>
+          </label>
+        }
+      } @else if (field.dataBinding === customTextBinding) {
+        <div
+          class="zone-chip custom-chip"
+          (click)="state.selectField(field)"
+          [class.chip-active]="state.activeField() === field"
+        >
+          <textarea
+            class="custom-text-textarea"
+            [value]="field.name"
+            (focus)="state.selectField(field)"
+            (input)="
+              field.name = $any($event.target).value;
+              state.emitChange()
+            "
+            [placeholder]="
+              'setting.report.designer.customTextPlaceholder'
+                | translate
+            "
+            rows="2"
+          ></textarea>
+          <button
+            class="chip-btn remove"
+            (click)="
+              header.removeHeaderField(section(), field);
+              $event.stopPropagation()
+            "
+          >
+            &#10005;
+          </button>
+        </div>
+      } @else {
+        <div
+          class="zone-chip"
+          (click)="state.selectField(field)"
+          [class.chip-active]="state.activeField() === field"
+        >
+          <span class="chip-label">{{ field.name }}</span>
+          <button
+            class="chip-btn remove"
+            (click)="
+              header.removeHeaderField(section(), field);
+              $event.stopPropagation()
+            "
+          >
+            &#10005;
+          </button>
+        </div>
+      }
+    }
+  }
+  @if (header.isZonePlaceholderVisible(fields(), alignment())) {
+    <div class="zone-placeholder">
+      {{ "setting.report.designer.dropHere" | translate }}
+    </div>
+  }
+</div>

@@ -1,0 +1,88 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div class="formula-editor-overlay" (click)="formulaSvc.closeFormulaEditor()">
+  <div class="formula-editor-modal" (click)="$event.stopPropagation()">
+    <div class="formula-editor-header">
+      <h6>{{ 'setting.report.designer.editFormula' | translate }}</h6>
+      <button class="chip-btn remove" (click)="formulaSvc.closeFormulaEditor()">&#10005;</button>
+    </div>
+
+    <div class="formula-editor-body">
+      <div class="formula-editor-name">
+        <label>{{ 'setting.report.designer.formulaName' | translate }}</label>
+        <input
+          type="text"
+          [value]="field().name"
+          (input)="formulaSvc.onFormulaNameChange(field(), $any($event.target).value); state.emitChange()"
+        />
+      </div>
+
+      <div class="formula-editor-tab-nav">
+        <button
+          class="formula-tab-btn"
+          [class.active]="formulaSvc.formulaTabId() === 'formula'"
+          (click)="formulaSvc.setTab('formula')"
+        >{{ 'setting.report.designer.formulaTabFormula' | translate }}</button>
+        <button
+          class="formula-tab-btn"
+          [class.active]="formulaSvc.formulaTabId() === 'variables'"
+          (click)="formulaSvc.setTab('variables')"
+        >{{ 'setting.report.designer.formulaTabVariables' | translate }}</button>
+        <button
+          class="formula-tab-btn"
+          [class.active]="formulaSvc.formulaTabId() === 'explanations'"
+          (click)="formulaSvc.setTab('explanations')"
+        >{{ 'setting.report.designer.formulaTabExplanations' | translate }}</button>
+      </div>
+
+      <div [hidden]="formulaSvc.formulaTabId() !== 'formula'">
+        <small class="formula-output-hint">{{ 'setting.report.designer.formulaOutputHint' | translate }}</small>
+        <textarea
+          class="formula-textarea"
+          [value]="field().formula ?? ''"
+          (input)="formulaSvc.onFormulaChange(field(), $any($event.target).value); state.emitChange()"
+          rows="8"
+          spellcheck="false"
+        ></textarea>
+        <div class="formula-editor-test">
+          <button class="btn-add-row" (click)="formulaSvc.runFormulaTest()">
+            {{ 'setting.report.designer.formulaTest' | translate }}
+          </button>
+          <span
+            class="formula-status"
+            [class.status-valid]="formulaSvc.getFormulaStatus(field()) === 'valid'"
+            [class.status-error]="formulaSvc.getFormulaStatus(field()) === 'error'"
+            [class.status-empty]="formulaSvc.getFormulaStatus(field()) === 'empty'"
+          >
+            @switch (formulaSvc.getFormulaStatus(field())) {
+              @case ('empty') {
+                {{ 'setting.report.designer.noFormula' | translate }}
+              }
+              @case ('valid') {
+                {{ 'setting.report.designer.formulaValid' | translate }}
+              }
+              @case ('error') {
+                {{ 'setting.report.designer.formulaError' | translate }}
+              }
+            }
+          </span>
+          @if (formulaSvc.formulaTestResult) {
+            <span class="formula-test-result">= {{ formulaSvc.formulaTestResult }}</span>
+          }
+        </div>
+      </div>
+
+      <div [hidden]="formulaSvc.formulaTabId() !== 'variables'">
+        <app-property-grid
+          [object]="formulaSvc.formulaTestData"
+          [metadata]="formulaSvc.formulaTestMetadata"
+        ></app-property-grid>
+      </div>
+
+      <div [hidden]="formulaSvc.formulaTabId() !== 'explanations'">
+        <div class="manual-content" [innerHTML]="formulaSvc.manualContent()"></div>
+      </div>
+    </div>
+  </div>
+</div>

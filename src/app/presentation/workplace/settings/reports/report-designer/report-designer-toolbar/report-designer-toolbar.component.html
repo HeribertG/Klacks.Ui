@@ -1,0 +1,281 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+@let activeField = field();
+<div class="global-toolbar">
+  <button
+    class="tb-btn"
+    [class.active]="activeField.style.bold"
+    (click)="activeField.style.bold = !activeField.style.bold; state.emitChange()"
+  >
+    <b>B</b>
+  </button>
+  <button
+    class="tb-btn italic"
+    [class.active]="activeField.style.italic"
+    (click)="activeField.style.italic = !activeField.style.italic; state.emitChange()"
+  >
+    <i>I</i>
+  </button>
+  <button
+    class="tb-btn underline"
+    [class.active]="activeField.style.underline"
+    (click)="activeField.style.underline = !activeField.style.underline; state.emitChange()"
+  >
+    <u>U</u>
+  </button>
+  <span class="tb-separator"></span>
+  <select
+    class="tb-select"
+    [ngModel]="activeField.style.fontFamily"
+    (ngModelChange)="activeField.style.fontFamily = $event; state.emitChange()"
+  >
+    @for (font of availableFonts; track font.value) {
+      <option [value]="font.value">{{ font.label }}</option>
+    }
+  </select>
+  <input
+    type="number"
+    class="tb-size"
+    [ngModel]="activeField.style.fontSize"
+    (ngModelChange)="setFontSize(activeField, $event)"
+    min="6"
+    max="48"
+  />
+  <span class="tb-separator"></span>
+  <input
+    type="color"
+    class="tb-color"
+    [ngModel]="activeField.style.textColor"
+    (ngModelChange)="activeField.style.textColor = $event; state.emitChange()"
+    [title]="'setting.report.designer.textColor' | translate"
+  />
+  <span class="tb-separator"></span>
+
+  @if (!state.isHeaderField(activeField)) {
+    <button
+      class="tb-btn"
+      [class.active]="activeField.style.alignment === TextAlignment.Left"
+      (click)="activeField.style.alignment = TextAlignment.Left; state.emitChange()"
+      title="Links"
+    >
+      <span class="align-icon align-left-icon"></span>
+    </button>
+    <button
+      class="tb-btn"
+      [class.active]="activeField.style.alignment === TextAlignment.Center"
+      (click)="activeField.style.alignment = TextAlignment.Center; state.emitChange()"
+      title="Zentriert"
+    >
+      <span class="align-icon align-center-icon"></span>
+    </button>
+    <button
+      class="tb-btn"
+      [class.active]="activeField.style.alignment === TextAlignment.Right"
+      (click)="activeField.style.alignment = TextAlignment.Right; state.emitChange()"
+      title="Rechts"
+    >
+      <span class="align-icon align-right-icon"></span>
+    </button>
+    <span class="tb-separator"></span>
+  }
+
+  @if (activeField.type === ReportFieldType.Image) {
+    <label class="tb-label">W:</label>
+    <input
+      type="number"
+      class="tb-size"
+      [ngModel]="activeField.width"
+      (ngModelChange)="setImageWidth(activeField, $event)"
+      min="5"
+      max="200"
+    />
+    <label class="tb-label">H:</label>
+    <input
+      type="number"
+      class="tb-size"
+      [ngModel]="activeField.height"
+      (ngModelChange)="setImageHeight(activeField, $event)"
+      min="5"
+      max="200"
+    />
+  }
+
+  @if (
+    !state.isHeaderField(activeField) &&
+    activeField.type !== ReportFieldType.Image
+  ) {
+    <span class="tb-separator"></span>
+    <div class="border-toolbar">
+      <button
+        class="tb-btn border-side-btn"
+        [class.active]="borderService.getBorderSideActive(activeField, 'top')"
+        (click)="borderService.toggleBorderSide(activeField, 'top'); state.emitChange()"
+        [title]="'setting.report.designer.borderTop' | translate"
+      >
+        <span class="border-icon border-top-icon"></span>
+      </button>
+      <button
+        class="tb-btn border-side-btn"
+        [class.active]="borderService.getBorderSideActive(activeField, 'right')"
+        (click)="borderService.toggleBorderSide(activeField, 'right'); state.emitChange()"
+        [title]="'setting.report.designer.borderRight' | translate"
+      >
+        <span class="border-icon border-right-icon"></span>
+      </button>
+      <button
+        class="tb-btn border-side-btn"
+        [class.active]="borderService.getBorderSideActive(activeField, 'bottom')"
+        (click)="borderService.toggleBorderSide(activeField, 'bottom'); state.emitChange()"
+        [title]="'setting.report.designer.borderBottom' | translate"
+      >
+        <span class="border-icon border-bottom-icon"></span>
+      </button>
+      <button
+        class="tb-btn border-side-btn"
+        [class.active]="borderService.getBorderSideActive(activeField, 'left')"
+        (click)="borderService.toggleBorderSide(activeField, 'left'); state.emitChange()"
+        [title]="'setting.report.designer.borderLeft' | translate"
+      >
+        <span class="border-icon border-left-icon"></span>
+      </button>
+      <button
+        class="tb-btn"
+        (click)="borderService.setAllBorders(activeField, BorderLineStyle.Thin); state.emitChange()"
+        [title]="'setting.report.designer.allBorders' | translate"
+      >
+        <i class="fa fa-border-all"></i>
+      </button>
+      <select
+        class="tb-select"
+        [ngModel]="borderService.getActiveBorderLineStyle(activeField)"
+        (ngModelChange)="borderService.setBorderLineStyle(activeField, +$event); state.emitChange()"
+      >
+        @for (ls of borderLineStyles; track ls.value) {
+          <option [value]="ls.value">
+            {{ ls.labelKey | translate }}
+          </option>
+        }
+      </select>
+      <input
+        type="color"
+        class="tb-color"
+        [ngModel]="borderService.getActiveBorderColor(activeField)"
+        (ngModelChange)="borderService.setBorderColor(activeField, $event); state.emitChange()"
+        [title]="'setting.report.designer.borderColor' | translate"
+      />
+    </div>
+  }
+
+  @if (state.isTableFooterField(activeField)) {
+    <span class="tb-separator"></span>
+    <label class="tb-toggle">
+      <input
+        type="checkbox"
+        [checked]="activeField.hideLabel"
+        (change)="activeField.hideLabel = !activeField.hideLabel; state.emitChange()"
+      />
+      {{ "setting.report.designer.hideLabel" | translate }}
+    </label>
+  }
+
+  @if (activeField.type === ReportFieldType.Formula) {
+    <span class="tb-separator"></span>
+    <input
+      type="text"
+      class="tb-select"
+      style="max-width: 140px"
+      [value]="activeField.name"
+      (input)="formulaSvc.onFormulaNameChange(activeField, $any($event.target).value); state.emitChange()"
+      [placeholder]="'setting.report.designer.formulaName' | translate"
+    />
+    @if (state.isTableFooterField(activeField)) {
+      <select
+        class="tb-select"
+        (change)="tableFooter.setFormulaFooterColumn(activeField, +$any($event.target).value)"
+        [title]="'setting.report.designer.formulaColumn' | translate"
+      >
+        @for (opt of tableFooter.getFormulaFooterColumnOptions(activeField); track opt.index) {
+          <option [value]="opt.index" [selected]="opt.index === activeField.sortOrder">{{ opt.label }}</option>
+        }
+      </select>
+    }
+    <button
+      class="tb-btn formula-edit-btn"
+      (click)="openFormulaEditor(activeField)"
+      [title]="'setting.report.designer.editFormula' | translate"
+    >
+      f(x)
+    </button>
+    <span
+      class="formula-status"
+      [class.status-empty]="formulaSvc.getFormulaStatus(activeField) === 'empty'"
+      [class.status-valid]="formulaSvc.getFormulaStatus(activeField) === 'valid'"
+      [class.status-error]="formulaSvc.getFormulaStatus(activeField) === 'error'"
+    >
+      @switch (formulaSvc.getFormulaStatus(activeField)) {
+        @case ('empty') {
+          {{ 'setting.report.designer.noFormula' | translate }}
+        }
+        @case ('valid') {
+          {{ 'setting.report.designer.formulaValid' | translate }}
+        }
+        @case ('error') {
+          {{ 'setting.report.designer.formulaError' | translate }}
+        }
+      }
+    </span>
+  }
+
+  @if (state.isBodyTableField(activeField)) {
+    <span class="tb-separator"></span>
+    <select
+      class="tb-select"
+      (change)="
+        merge.addMergedBinding(activeField, $any($event.target).value);
+        $any($event.target).value = ''
+      "
+    >
+      <option value="">
+        {{ "setting.report.designer.addMergedField" | translate }}
+      </option>
+      @for (
+        opt of merge.getAvailableMergeFields(activeField);
+        track opt.key
+      ) {
+        <option [value]="opt.key">{{ opt.label }}</option>
+      }
+    </select>
+    @if (activeField.additionalBindings?.length) {
+      <select
+        class="tb-select"
+        [ngModel]="activeField.bindingSeparator || '\n'"
+        (ngModelChange)="activeField.bindingSeparator = $event; state.emitChange()"
+      >
+        @for (sep of separatorOptions; track sep.value) {
+          <option [value]="sep.value">
+            {{ sep.labelKey | translate }}
+          </option>
+        }
+      </select>
+    }
+
+    <span class="tb-separator"></span>
+    <button
+      class="tb-btn"
+      [class.active]="state.showStyleConditions()"
+      [title]="'setting.report.designer.conditionToggle' | translate"
+      (click)="state.toggleStyleConditions()"
+    >
+      {{ "setting.report.designer.conditionToggleShort" | translate }}
+      @if (activeField.styleConditions?.length) {
+        ({{ activeField.styleConditions?.length }})
+      }
+    </button>
+  }
+</div>
+
+@if (state.showStyleConditions() && state.isBodyTableField(activeField)) {
+  <app-style-conditions
+    [field]="activeField"
+    (fieldChange)="state.emitChange()"
+  ></app-style-conditions>
+}

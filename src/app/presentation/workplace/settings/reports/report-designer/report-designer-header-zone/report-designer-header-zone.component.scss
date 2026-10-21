@@ -1,0 +1,120 @@
+@use "../../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../report-designer-shared" as shared;
+
+:host {
+  display: contents;
+}
+
+@include shared.chip-btn;
+
+.header-zone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  flex-wrap: wrap;
+  min-width: 60px;
+  padding: 2px 4px;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+
+  &.cdk-drop-list-dragging {
+    border-color: var(--primaryActionColor);
+    background: color-mix(in srgb, var(--primaryActionColor) 5%, transparent);
+  }
+}
+
+.zone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  font-size: var(--fontSizeXSmall);
+  cursor: pointer;
+  color: var(--standartTextColor);
+  transition: border-color 0.15s;
+
+  &.chip-active {
+    border-color: var(--primaryActionColor);
+    outline: 1px solid var(--primaryActionColor);
+  }
+
+  &.image-chip {
+    padding: 4px 8px;
+    min-height: 28px;
+    min-width: 40px;
+  }
+
+  &.custom-chip {
+    flex: 1;
+    min-width: 80px;
+  }
+}
+
+.zone-placeholder {
+  font-size: var(--fontSizeTiny);
+  color: var(--colorSubHeadline);
+  font-style: italic;
+  padding: 2px 4px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-text-textarea {
+  flex: 1;
+  font-size: var(--fontSizeXSmall);
+  padding: 2px 6px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+  min-width: 0;
+  resize: vertical;
+  min-height: 32px;
+}
+
+.header-image-preview {
+  max-height: 32px;
+  max-width: 64px;
+  object-fit: contain;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 2px;
+}
+
+.image-placeholder-icon {
+  font-size: var(--fontSizeCardHeader);
+  color: var(--colorLabel);
+}
+
+.image-upload-zone {
+  border-style: dashed;
+  cursor: pointer;
+  min-width: 100px;
+  justify-content: center;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+    border-color: var(--colorLabel);
+  }
+}
+
+.image-upload-text {
+  font-size: var(--fontSizeXSmall);
+  color: var(--colorSubHeadline);
+}
+
+.image-filename {
+  font-size: var(--fontSizeTiny);
+  color: var(--colorSubHeadline);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}

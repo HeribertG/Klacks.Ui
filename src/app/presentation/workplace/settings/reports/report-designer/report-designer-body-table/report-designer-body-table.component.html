@@ -1,0 +1,342 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div class="body-table-section">
+  <div class="table-section-header">
+    <span class="table-type-badge work-badge">
+      {{ "setting.report.designer.sectionTable" | translate }}
+      {{ index() + 1 }}
+    </span>
+    <input
+      type="text"
+      class="section-title-input"
+      [value]="section().title ?? ''"
+      (input)="bodyTables.setSectionTitle(section(), $any($event.target).value)"
+      [placeholder]="'setting.report.designer.tableTitle' | translate"
+    />
+    <label class="section-width-percent">
+      {{ "setting.report.designer.tableWidth" | translate }}
+      <input
+        type="number"
+        min="10"
+        max="100"
+        step="5"
+        [value]="section().widthPercent ?? 100"
+        (input)="bodyTables.setSectionWidthPercent(section(), $any($event.target).value)"
+      />
+      %
+    </label>
+    @if (state.sourceId() === scheduleSourceId) {
+      <label class="section-show-full-period">
+        <input
+          type="checkbox"
+          [checked]="state.isSectionShowFullPeriod(section())"
+          (change)="bodyTables.toggleSectionShowFullPeriod(section(), $any($event.target).checked)"
+        />
+        {{ "setting.report.field.showFullPeriod" | translate }}
+      </label>
+    }
+
+    <label class="section-row-filter">
+      {{ "setting.report.designer.rowFilter" | translate }}
+      <input
+        type="text"
+        class="tb-select"
+        [value]="section().rowFilter ?? ''"
+        (input)="rules.setRowFilter(section(), $any($event.target).value)"
+        [placeholder]="'setting.report.designer.rowFilterPlaceholder' | translate"
+        [title]="'setting.report.designer.rowFilterHint' | translate"
+      />
+      <span
+        class="filter-status"
+        [class.status-valid]="rules.getRowFilterStatus(section()) === 'valid'"
+        [class.status-error]="rules.getRowFilterStatus(section()) === 'error'"
+        [class.status-warning]="rules.getRowFilterStatus(section()) === 'unknownParameter'"
+      >
+        @switch (rules.getRowFilterStatus(section())) {
+          @case ('valid') {
+            &#10003;
+          }
+          @case ('error') {
+            {{ "setting.report.designer.formulaError" | translate }}
+          }
+          @case ('unknownParameter') {
+            {{ "setting.report.designer.rowFilterUnknownParameter" | translate }}
+            {{ rules.findUnknownParameterReference(section().rowFilter ?? '') }}
+          }
+        }
+      </span>
+    </label>
+
+    @if (rules.getGroupableFields(section()).length > 0) {
+      <label class="section-group-by">
+        {{ "setting.report.designer.groupBy" | translate }}
+        <select
+          class="tb-select"
+          [value]="section().groupBy ?? ''"
+          (change)="rules.setGroupBy(section(), $any($event.target).value)"
+        >
+          <option value="">
+            {{ "setting.report.designer.groupNone" | translate }}
+          </option>
+          @for (field of rules.getGroupableFields(section()); track field.dataBinding) {
+            <option [value]="field.dataBinding">
+              {{ field.name || field.dataBinding }}
+            </option>
+          }
+        </select>
+      </label>
+
+      @if (section().groupBy) {
+        <label class="section-group-subtotals">
+          <input
+            type="checkbox"
+            [checked]="section().groupSubtotals"
+            (change)="rules.toggleGroupSubtotals(section(), $any($event.target).checked)"
+          />
+          {{ "setting.report.designer.groupSubtotals" | translate }}
+        </label>
+      }
+    }
+    <span class="table-section-spacer"></span>
+    @if (section().fields.length > 0) {
+      <span
+        class="width-sum"
+        [class.width-sum-exceeds]="bodyTables.getColumnWidthSummary(section()).exceeds"
+        [title]="'setting.report.designer.widthSumHint' | translate"
+      >
+        {{ bodyTables.getColumnWidthSummary(section()).percent }} %
+        {{ "setting.report.designer.of" | translate }}
+        {{ bodyTables.getColumnWidthSummary(section()).mm }} mm
+      </span>
+      <button
+        class="chip-btn distribute-widths"
+        (click)="bodyTables.distributeColumnWidths(section())"
+        [title]="'setting.report.designer.distributeWidths' | translate"
+      >
+        {{ "setting.report.designer.distributeWidthsShort" | translate }}
+      </button>
+    }
+    <button
+      class="chip-btn remove table-remove"
+      (click)="bodyTables.removeBodyTable(section())"
+      [disabled]="state.bodySections.length <= 1"
+      [title]="'setting.report.designer.removeTable' | translate"
+    >
+      &#10005;
+    </button>
+  </div>
+
+  <div
+    class="section-drop-zone is-table"
+    cdkDropList
+    [cdkDropListData]="section().fields"
+    [id]="dropZones.getBodyTableDropId(section())"
+    [cdkDropListConnectedTo]="dropZones.allTablePaletteIds"
+    (cdkDropListDropped)="sectionFields.onBodyTableFieldDrop($event, section())"
+  >
+    @if (section().fields.length === 0) {
+      <div class="drop-placeholder">
+        <i class="fa fa-arrow-left"></i>
+        {{ "setting.report.designer.dragFieldsHere" | translate }}
+      </div>
+    }
+
+    <div class="table-columns">
+      @for (
+        field of section().fields;
+        track field.dataBinding;
+        let i = $index
+      ) {
+        <div
+          class="table-column"
+          [class.formula-column]="field.type === ReportFieldType.Formula"
+          cdkDrag
+          [style.flex]="'0 0 ' + field.width + '%'"
+          (click)="state.selectField(field)"
+          [class.column-active]="state.activeField() === field"
+        >
+          <div class="column-header">
+            @if (field.type === ReportFieldType.Formula) {
+              <span class="formula-prefix">f(x)</span>
+            }
+            <span class="column-name">{{ field.name }}</span>
+            <button
+              class="chip-btn remove"
+              (click)="
+                sectionFields.removeFieldFromSection(field, section());
+                $event.stopPropagation()
+              "
+              title="Remove"
+            >
+              &#10005;
+            </button>
+          </div>
+          @if (field.additionalBindings?.length) {
+            <div class="merged-fields-list">
+              @for (
+                binding of field.additionalBindings;
+                track binding
+              ) {
+                <span class="merged-field-tag">
+                  {{ merge.getMergedFieldLabel(binding) }}
+                  <button
+                    class="merged-remove"
+                    (click)="
+                      merge.removeMergedBinding(field, binding);
+                      $event.stopPropagation()
+                    "
+                  >
+                    &#10005;
+                  </button>
+                </span>
+              }
+            </div>
+          }
+          <div class="column-settings">
+            <input
+              type="number"
+              class="width-input"
+              [(ngModel)]="field.width"
+              (change)="sectionFields.onWidthChange(field)"
+              min="5"
+              max="100"
+              title="Width %"
+            />
+            <span class="width-label">%</span>
+            <select
+              class="sort-select"
+              [ngModel]="field.sortDirection ?? 'none'"
+              (ngModelChange)="field.sortDirection = $event === 'none' ? undefined : $event; state.emitChange()"
+              (click)="$event.stopPropagation()"
+              title="Sort"
+            >
+              <option value="none">─</option>
+              <option value="asc">↑ asc</option>
+              <option value="desc">↓ desc</option>
+            </select>
+          </div>
+        </div>
+      }
+
+      <button
+        class="table-column add-formula-column"
+        (click)="sectionFields.addFormulaField(section())"
+        [title]="'setting.report.designer.addFormulaField' | translate"
+      >
+        <span class="formula-icon">f(x)</span>
+        <span class="add-formula-label">{{ "setting.report.designer.addFormulaField" | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Footer -->
+  <div class="table-footer-section">
+    <label class="table-footer-toggle">
+      <input
+        type="checkbox"
+        [checked]="section().tableFooterFields !== undefined"
+        (change)="tableFooter.toggleTableFooter(section())"
+      />
+      {{ "setting.report.designer.enableTableFooter" | translate }}
+    </label>
+
+    @if (section().tableFooterFields !== undefined) {
+      <div class="table-footer-fields">
+        @for (
+          field of section().tableFooterFields;
+          track field.dataBinding
+        ) {
+          <div
+            class="field-chip"
+            [class.formula-chip]="field.type === ReportFieldType.Formula"
+            (click)="state.selectField(field)"
+            [class.chip-active]="state.activeField() === field"
+          >
+            @if (field.type === ReportFieldType.Formula) {
+              <span class="formula-prefix">f(x)</span>
+            }
+            <span class="chip-label">{{ field.name }}</span>
+            <button
+              class="chip-btn remove"
+              (click)="
+                tableFooter.removeTableFooterField(section(), field);
+                $event.stopPropagation()
+              "
+            >
+              &#10005;
+            </button>
+          </div>
+        }
+
+        @if (tableFooter.getFooterFieldNotYetAdded(section()).length > 0) {
+          <select
+            class="tb-select footer-field-select"
+            (change)="
+              tableFooter.addTableFooterFieldByKey(
+                section(),
+                $any($event.target).value
+              );
+              $any($event.target).value = ''
+            "
+          >
+            <option value="">
+              {{
+                "setting.report.designer.addFooterField" | translate
+              }}
+            </option>
+            @for (
+              def of tableFooter.getFooterFieldNotYetAdded(section());
+              track def.key
+            ) {
+              <option [value]="def.key">
+                {{ def.i18nKey | translate }}
+              </option>
+            }
+          </select>
+        }
+        <button class="btn-add-row formula-add-btn" (click)="tableFooter.addFormulaFooterField(section())">
+          <span class="formula-icon">f(x)</span>
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Free Text Rows -->
+  <div class="free-text-section">
+    @for (row of section().freeTextRows; track row.id) {
+      <div class="free-text-row">
+        <input
+          type="text"
+          class="free-text-input"
+          [value]="row.text"
+          (input)="row.text = $any($event.target).value; state.emitChange()"
+          [placeholder]="
+            'setting.report.designer.freeTextPlaceholder' | translate
+          "
+        />
+        <select
+          class="tb-select"
+          [ngModel]="row.position"
+          (ngModelChange)="row.position = $event; state.emitChange()"
+        >
+          <option value="before">
+            {{ "setting.report.designer.positionBefore" | translate }}
+          </option>
+          <option value="after">
+            {{ "setting.report.designer.positionAfter" | translate }}
+          </option>
+        </select>
+        <button
+          class="chip-btn remove"
+          (click)="fieldService.removeFreeTextRow(section(), row); state.emitChange()"
+        >
+          &#10005;
+        </button>
+      </div>
+    }
+    <button class="btn-add-row" (click)="fieldService.addFreeTextRow(section()); state.emitChange()">
+      <i class="fa fa-plus"></i>
+      {{ "setting.report.designer.addFreeTextRow" | translate }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+@use "../../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../report-designer-shared" as shared;
+
+:host {
+  display: contents;
+}
+
+.palette-panel {
+  width: 220px;
+  min-width: 220px;
+  border-inline-end: 1px solid var(--cardBorderColor);
+  padding-inline-end: 12px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.palette-title {
+  font-size: var(--fontSizeLabel);
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--colorLabel);
+}
+
+.palette-group {
+  margin-bottom: 8px;
+}
+
+.palette-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 4px;
+  cursor: pointer;
+  font-size: var(--fontSizeSmall);
+  font-weight: 500;
+  color: var(--colorWorkplaceHeadline);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+
+  i {
+    font-size: var(--fontSizeTiny);
+    width: 12px;
+  }
+
+  .badge {
+    margin-inline-start: auto;
+    font-size: var(--fontSizeTiny);
+    background: var(--backgroundColorFocus);
+    color: var(--colorLabel);
+    border-radius: 8px;
+    padding: 1px 6px;
+  }
+}
+
+.palette-fields {
+  padding-inline-start: 18px;
+}
+
+.palette-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  margin-bottom: 2px;
+  font-size: var(--fontSizeXSmall);
+  cursor: grab;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+    border-color: var(--cardBorderColor);
+  }
+
+  .drag-handle {
+    color: var(--colorSubHeadline);
+    font-size: var(--fontSizeTiny);
+  }
+}
+
+.palette-empty {
+  font-size: var(--fontSizeXSmall);
+  color: var(--colorSubHeadline);
+  padding: 4px 8px;
+  font-style: italic;
+}
+
+@include shared.cdk-drag;

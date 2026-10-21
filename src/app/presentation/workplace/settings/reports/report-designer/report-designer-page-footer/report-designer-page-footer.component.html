@@ -1,0 +1,53 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+@if (state.footerSection; as section) {
+  <div class="section-container">
+    <div class="section-label">
+      {{ sectionLabels[ReportSectionType.Footer] | translate }}
+    </div>
+    <div
+      class="section-drop-zone"
+      cdkDropList
+      [cdkDropListData]="section.fields"
+      [id]="dropZones.pageFooterDropId"
+      [cdkDropListConnectedTo]="dropZones.footerPaletteIds"
+      (cdkDropListDropped)="sectionFields.onFooterFieldDrop($event)"
+    >
+      @if (section.fields.length === 0) {
+        <div class="drop-placeholder">
+          <i class="fa fa-arrow-left"></i>
+          {{ "setting.report.designer.dragFieldsHere" | translate }}
+        </div>
+      }
+
+      <div class="field-chips">
+        @for (
+          field of section.fields;
+          track field.dataBinding;
+          let i = $index
+        ) {
+          <div
+            class="field-chip"
+            cdkDrag
+            (click)="state.selectField(field)"
+            [class.chip-active]="state.activeField() === field"
+          >
+            <span class="chip-label">{{ field.name }}</span>
+            <div class="chip-actions">
+              <button
+                class="chip-btn remove"
+                (click)="
+                  sectionFields.removeFieldFromSection(field, section);
+                  $event.stopPropagation()
+                "
+                title="Remove"
+              >
+                &#10005;
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

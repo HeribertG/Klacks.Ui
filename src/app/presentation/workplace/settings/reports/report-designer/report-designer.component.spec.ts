@@ -20,7 +20,16 @@ import { DataBindingDefinition } from 'src/app/domain/models/report/data-binding
 import { FieldCategory } from 'src/app/domain/models/report/field-category.enum';
 import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
 import { ReportDesignerComponent } from './report-designer.component';
-import { ReportDesignerFormulaService } from './report-designer-formula.service';
+import { ReportDesignerFormulaService } from './services/report-designer-formula.service';
+import { ReportDesignerStateService } from './services/report-designer-state.service';
+import { ReportDesignerPaletteService } from './services/report-designer-palette.service';
+import { ReportDesignerDropZoneService } from './services/report-designer-drop-zone.service';
+import { ReportDesignerHeaderService } from './services/report-designer-header.service';
+import { ReportDesignerBodyTableService } from './services/report-designer-body-table.service';
+import { ReportDesignerSectionFieldsService } from './services/report-designer-section-fields.service';
+import { ReportDesignerTableRulesService } from './services/report-designer-table-rules.service';
+import { ReportDesignerTableFooterService } from './services/report-designer-table-footer.service';
+import { ReportDesignerMergeService } from './services/report-designer-merge.service';
 
 const FORMULA = 'output 1, 1 + 2';
 
@@ -117,18 +126,19 @@ describe('ReportDesignerComponent (characterization)', () => {
   let manualLoader: { loadManual: ReturnType<typeof vi.fn> };
 
   const designer = () => component;
-  const state = () => component;
-  const palette = () => component;
-  const dropZones = () => component;
-  const header = () => component;
-  const tables = () => component;
-  const sectionFields = () => component;
-  const rules = () => component;
-  const tableFooter = () => component;
-  const merge = () => component;
-  const formula = () => fixture.debugElement.injector.get(ReportDesignerFormulaService);
-  const activeField = () => component.activeField;
-  const showStyleConditions = () => component.showStyleConditions;
+  const service = <T>(token: new (...args: never[]) => T): T => fixture.debugElement.injector.get(token);
+  const state = () => service(ReportDesignerStateService);
+  const palette = () => service(ReportDesignerPaletteService);
+  const dropZones = () => service(ReportDesignerDropZoneService);
+  const header = () => service(ReportDesignerHeaderService);
+  const tables = () => service(ReportDesignerBodyTableService);
+  const sectionFields = () => service(ReportDesignerSectionFieldsService);
+  const rules = () => service(ReportDesignerTableRulesService);
+  const tableFooter = () => service(ReportDesignerTableFooterService);
+  const merge = () => service(ReportDesignerMergeService);
+  const formula = () => service(ReportDesignerFormulaService);
+  const activeField = () => state().activeField();
+  const showStyleConditions = () => state().showStyleConditions();
 
   const current = () => component.template();
   const headerOf = () => current().sections.find(s => s.type === ReportSectionType.Header)!;

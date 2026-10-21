@@ -1,0 +1,65 @@
+@use "../../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../report-designer-shared" as shared;
+
+:host {
+  display: contents;
+}
+
+@include shared.section-container;
+
+@include shared.section-label;
+
+@include shared.chip-btn;
+
+.header-section {
+  border: 1px dashed var(--cardBorderColor);
+  border-radius: 4px;
+  padding: 8px;
+  background: var(--backgroundColorCard);
+}
+
+@include shared.btn-add-row;
+
+.header-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorFocus);
+}
+
+.header-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.image-upload-btn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  color: var(--colorLabel);
+  font-size: var(--fontSizeXSmall);
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+}
+
+.row-remove {
+  font-size: var(--fontSizeSmall);
+  padding: 2px 6px;
+}

@@ -1,0 +1,26 @@
+@use "../../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../report-designer-shared" as shared;
+
+:host {
+  display: contents;
+}
+
+@include shared.section-container;
+
+@include shared.section-label;
+
+@include shared.section-drop-zone;
+
+@include shared.drop-placeholder;
+
+.field-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@include shared.field-chip;
+
+@include shared.chip-btn;
+
+@include shared.cdk-drag;

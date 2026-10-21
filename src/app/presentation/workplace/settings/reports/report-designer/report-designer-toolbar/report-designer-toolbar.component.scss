@@ -1,0 +1,175 @@
+@use "../../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../report-designer-shared" as shared;
+
+:host {
+  display: contents;
+}
+
+.global-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorFocus);
+  flex-wrap: wrap;
+}
+
+.tb-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--fontSizeSmall);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--standartTextColor);
+  line-height: 1.2;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+
+  &.active {
+    background: var(--backgroundColorHover);
+    border-color: var(--primaryActionColor);
+    color: var(--primaryActionColor);
+  }
+
+  &.italic {
+    font-style: italic;
+  }
+
+  &.underline {
+    text-decoration: underline;
+  }
+}
+
+@include shared.tb-select;
+
+.tb-size {
+  width: 44px;
+  font-size: var(--fontSizeXSmall);
+  padding: 1px 4px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  text-align: center;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+}
+
+.tb-color {
+  width: 28px;
+  height: 24px;
+  padding: 1px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.tb-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--cardBorderColor);
+  margin: 0 4px;
+}
+
+.tb-label {
+  font-size: var(--fontSizeXSmall);
+  color: var(--colorLabel);
+  margin: 0 2px;
+}
+
+.tb-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fontSizeXSmall);
+  color: var(--standartTextColor);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+}
+
+.align-icon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 14px;
+  height: 12px;
+  justify-content: center;
+
+  &::before,
+  &::after {
+    content: "";
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 1px;
+  }
+}
+
+.align-left-icon {
+  align-items: flex-start;
+  &::before { width: 100%; }
+  &::after { width: 65%; }
+}
+
+.align-center-icon {
+  align-items: center;
+  &::before { width: 100%; }
+  &::after { width: 65%; }
+}
+
+.align-right-icon {
+  align-items: flex-end;
+  &::before { width: 100%; }
+  &::after { width: 65%; }
+}
+
+.border-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.border-side-btn {
+  padding: 2px 4px !important;
+}
+
+.border-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--cardBorderColor);
+  position: relative;
+  background: transparent;
+}
+
+.border-top-icon {
+  border-top: 2px solid var(--standartTextColor);
+}
+
+.border-right-icon {
+  border-inline-end: 2px solid var(--standartTextColor);
+}
+
+.border-bottom-icon {
+  border-bottom: 2px solid var(--standartTextColor);
+}
+
+.border-left-icon {
+  border-inline-start: 2px solid var(--standartTextColor);
+}
+
+.formula-edit-btn {
+  font-weight: 600;
+  color: #9b59b6 !important;
+  font-size: var(--fontSizeXSmall) !important;
+}
+
+@include shared.formula-status;
