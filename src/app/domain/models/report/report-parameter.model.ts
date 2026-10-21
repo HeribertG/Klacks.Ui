@@ -8,6 +8,9 @@
  * @param bindsTo - Query argument the value is passed to, if any
  */
 
+import { ReportParameterType } from './report-parameter-type.enum';
+import { ReportParameterBinding } from './report-parameter-binding.enum';
+
 export interface ReportParameter {
   key: string;
   label: string;
@@ -17,21 +20,3 @@ export interface ReportParameter {
   choices?: string[];
   bindsTo?: ReportParameterBinding;
 }
-
-export enum ReportParameterType {
-  Text = 0,
-  Number = 1,
-  Date = 2,
-  Boolean = 3,
-  Choice = 4,
-}
-
-export enum ReportParameterBinding {
-  None = 0,
-  GroupId = 1,
-  ClientId = 2,
-  StartDate = 3,
-  EndDate = 4,
-}
-
-export type ReportParameterValues = Record<string, string>;

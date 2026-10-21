@@ -30,7 +30,7 @@ import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-sc
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { Break } from 'src/app/domain/models/break/break-class';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';

@@ -22,10 +22,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  ConversationOrchestratorService,
-  ConversationState,
-} from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationOrchestratorService } from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationState } from '../aside/assistant-chat/services/conversation-state.enum';
 import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
 import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.service';
 import { ChatTurnControlService } from '../aside/assistant-chat/services/chat-turn-control.service';

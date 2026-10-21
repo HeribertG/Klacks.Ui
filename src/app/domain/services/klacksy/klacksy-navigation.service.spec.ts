@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { KlacksyNavigationService } from './klacksy-navigation.service';
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { NoAccessReasonService } from 'src/app/domain/services/navigation/no-access-reason.service';
 import {
   NO_ACCESS_REASON_FEATURE,

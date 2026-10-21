@@ -6,7 +6,7 @@ import { CalendarSelection } from 'src/app/domain/models/calendar/calendar-selec
 import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';

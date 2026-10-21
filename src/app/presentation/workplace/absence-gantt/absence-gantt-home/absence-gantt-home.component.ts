@@ -34,9 +34,9 @@ import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import {
   HolidayCollectionService,
-  OfficialOverrideMap,
   buildOfficialOverrideKey,
 } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';

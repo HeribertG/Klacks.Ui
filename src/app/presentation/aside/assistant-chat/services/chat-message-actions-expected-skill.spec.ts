@@ -6,7 +6,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError, Subject } from 'rxjs';
 
 import { ChatMessageActionsService } from './chat-message-actions.service';
-import { ConversationOrchestratorService, ConversationState } from './conversation-orchestrator.service';
+import { ConversationOrchestratorService } from './conversation-orchestrator.service';
+import { ConversationState } from './conversation-state.enum';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';

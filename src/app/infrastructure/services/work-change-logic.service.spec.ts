@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { WorkChangeLogicService, CorrectionMode } from './work-change-logic.service';
+import { WorkChangeLogicService } from './work-change-logic.service';
+import { CorrectionMode } from './correction-mode.enum';
 import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 

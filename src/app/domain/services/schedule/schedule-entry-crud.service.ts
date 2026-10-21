@@ -13,7 +13,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, Injector, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
@@ -35,7 +35,8 @@ import { GroupSelectionService } from '../group/group-selection.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, ErrorEvent } from 'src/app/domain/events/domain-events';
+import { ErrorEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.interface';
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 import { ScheduleCellParams } from './schedule-cell-params.interface';

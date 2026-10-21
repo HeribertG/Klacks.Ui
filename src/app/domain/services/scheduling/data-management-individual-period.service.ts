@@ -10,7 +10,7 @@ import { IndividualPeriod } from 'src/app/domain/models/scheduling/individual-pe
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { IndividualPeriodApiService } from 'src/app/infrastructure/api/scheduling/individual-period-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';

@@ -28,10 +28,8 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
-import {
-  PeriodAuditAction,
-  PeriodAuditLog,
-} from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
+import { PeriodAuditLog } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
+import { PeriodAuditAction } from 'src/app/infrastructure/api/period-closing/models/period-audit-action.enum';
 import {
   firstOfMonth,
   lastOfMonth,

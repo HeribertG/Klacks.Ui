@@ -12,15 +12,8 @@ import { firstValueFrom } from 'rxjs';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { RunningExecution } from './running-execution.interface';
 import { TurnHooks } from './turn-hooks.interface';
+import { TurnStopReason } from './turn-stop-reason.type';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
-
-export type TurnStopReason =
-  | 'user-button'
-  | 'voice-bubble'
-  | 'barge-in'
-  | 'session-end'
-  | 'superseded'
-  | 'panel-closed';
 
 /** Milliseconds the UI waits for the backend's turn_stopped event before falling back to a hard local abort. */
 export const TURN_STOP_GRACE_MS = 3000;

@@ -11,7 +11,8 @@ import { BranchesComponent } from './branches.component';
 import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IBranch } from 'src/app/domain/models/settings/branch.interface';
-import { ModalService, ModalType, } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 
 describe('BranchesComponent', () => {
     let component: BranchesComponent;

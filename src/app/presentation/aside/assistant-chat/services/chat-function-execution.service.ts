@@ -26,7 +26,7 @@ import {
   UI_ACTION_RESULT_UNKNOWN_ERROR,
 } from 'src/app/domain/constants/ui-action-result.constants';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { SkillExecutedEvent } from 'src/app/domain/events/skill-executed-event.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { START_GUIDED_TOUR_KIND_PARAM, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';

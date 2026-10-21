@@ -28,7 +28,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import {

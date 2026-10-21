@@ -45,12 +45,10 @@ import {
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { faCalendar, faStreetView } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';

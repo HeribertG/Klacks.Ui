@@ -12,7 +12,7 @@ import polygonClipping, { MultiPolygon } from 'polygon-clipping';
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
-import { FabricWithData } from './floor-plan-object-data.interface';
+import { FabricWithData } from './fabric-with-data.type';
 
 const MERGE_CIRCLE_POINTS = 64;
 

@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { TestBed } from '@angular/core/testing';
 import { EVENT_BUS_TOKEN } from '../../domain/interfaces/event-bus.interface';
-import { DomainEventType } from '../../domain/events/domain-events';
+import { DomainEventType } from '../../domain/events/domain-event-type.enum';
 import { EventBus } from './event-bus.service';
 import { EVENT_BUS_PROVIDER } from './event-bus.provider';
 

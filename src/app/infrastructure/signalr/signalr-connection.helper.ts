@@ -19,11 +19,8 @@ import { environment } from 'src/environments/environment';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRConnectionOptions } from './signalr-connection-options.interface';
 import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.interface';
-import {
-  jitter,
-  SignalRConnectionState,
-  SignalRTelemetry,
-} from './signalr-connection-state';
+import { jitter, SignalRConnectionState } from './signalr-connection-state';
+import { SignalRTelemetry } from './signalr-telemetry.interface';
 
 const RETRY_DELAYS_MS: readonly number[] = [0, 1000, 2000, 5000, 10000];
 const BACKEND_PROBE_TIMEOUT_MS = 2000;

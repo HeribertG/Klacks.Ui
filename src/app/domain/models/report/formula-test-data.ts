@@ -8,7 +8,7 @@ import { ScheduleFooterTestData } from './schedule-footer-test-data.model';
 import { AbsenceFooterTestData } from './absence-footer-test-data.model';
 import { ClientFooterTestData } from './client-footer-test-data.model';
 import { GroupFooterTestData } from './group-footer-test-data.model';
-import { PropertyMetadata } from '../shift/shift-data-class';
+import { PropertyMetadata } from '../shift/property-metadata.type';
 
 export class ScheduleWorkTestData {
   hours = 8;

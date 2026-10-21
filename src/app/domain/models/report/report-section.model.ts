@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ReportField } from './report-field.model';
+import { ReportSectionType } from './report-section-type.enum';
 import { FreeTextRow } from './free-text-row.model';
 
 export interface ReportSection {
@@ -17,17 +18,6 @@ export interface ReportSection {
   groupBy?: string;
   groupSubtotals?: boolean;
   rowFilter?: string;
-}
-
-export enum ReportSectionType {
-  Header = 0,
-  WorkTable = 1,
-  ExpensesTable = 2,
-  Footer = 3,
-  GroupHeader = 4,
-  GroupFooter = 5,
-  PageHeader = 6,
-  PageFooter = 7
 }
 
 export const DEFAULT_SECTIONS: ReportSection[] = [

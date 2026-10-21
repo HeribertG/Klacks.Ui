@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Signal } from '@angular/core';
-import type { TurnStopReason } from './chat-turn-control.service';
+import type { TurnStopReason } from './turn-stop-reason.type';
 
 export interface ConversationCallbacks {
   getInputText: () => string;

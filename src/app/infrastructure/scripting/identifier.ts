@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { IdentifierTypes } from './identifier-types.enum';
 import { ScriptValue } from './script-value';
 
 export class Identifier {
@@ -8,14 +9,4 @@ export class Identifier {
   public idType: IdentifierTypes = IdentifierTypes.idNone;
   public address = -1;
   public formalParameters: Identifier[] = [];
-}
-
-export enum IdentifierTypes {
-  idIsVariableOfFunction = -2,
-  idSubOfFunction = -1,
-  idNone = 0,
-  idConst = 1,
-  idVariable = 2,
-  idFunction = 4,
-  idSub = 8,
 }

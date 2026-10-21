@@ -11,9 +11,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
+import { GeoServiceNoticeService } from './geo-service-notice-service.type';
 import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
-
-export type GeoServiceNoticeService = 'map' | 'geocoding';
 
 const DISABLED_KEY_BY_SERVICE: Record<GeoServiceNoticeService, string> = {
   map: GEO_SERVICE_NOTICE_KEYS.mapDisabled,

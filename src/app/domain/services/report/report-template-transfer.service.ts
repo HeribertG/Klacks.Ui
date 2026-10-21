@@ -8,7 +8,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
+import { DEFAULT_PAGE_SETUP, ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 import { ReportOrientation } from 'src/app/domain/models/report/report-orientation.enum';
 import { ReportPageSize } from 'src/app/domain/models/report/report-page-size.enum';
 import { ReportTemplateFile } from './report-template-file.interface';

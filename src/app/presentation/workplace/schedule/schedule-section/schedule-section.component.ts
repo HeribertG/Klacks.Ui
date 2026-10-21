@@ -62,7 +62,7 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
 import { TooltipState } from '../services/tooltip-state.interface';
 import { ShiftDropResult } from '../services/shift-drop-result.interface';
 import { ScheduleDataService } from './services/schedule-data.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';

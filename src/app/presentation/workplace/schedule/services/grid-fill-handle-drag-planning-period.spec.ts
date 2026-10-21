@@ -12,7 +12,7 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 
 const SHIFT_ID = 'shift-1';
 const ABSENCE_ID = 'absence-1';

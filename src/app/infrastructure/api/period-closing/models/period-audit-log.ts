@@ -1,12 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export enum PeriodAuditAction {
-  Seal = 0,
-  Unseal = 1,
-  ApproveDay = 2,
-  ConfirmWork = 3,
-  ConfirmBreak = 4,
-}
+import { PeriodAuditAction } from './period-audit-action.enum';
 
 export interface PeriodAuditLog {
   id: string;

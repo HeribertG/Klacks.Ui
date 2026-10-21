@@ -10,7 +10,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { HOLISTIC_HARMONIZER_MODE } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
-import { HolisticHarmonizerStatus } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import { HolisticHarmonizerStatus } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-status.type';
 import {
   HolisticHarmonizerProgress,
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-progress.interface';

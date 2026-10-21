@@ -37,7 +37,7 @@ import { CanComponentDeactivate } from 'src/app/application/helpers/can-componen
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { AddressValidationFailedEvent } from 'src/app/domain/events/address-validation-failed-event.interface';
 import { SkillExecutedEvent } from 'src/app/domain/events/skill-executed-event.interface';
 import { AsideService } from 'src/app/presentation/aside/aside.service';

@@ -17,7 +17,7 @@ import {
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
-import { CompanyClockSource } from 'src/app/domain/models/settings/company-clock.model';
+import { CompanyClockSource } from 'src/app/domain/models/settings/company-clock-source.type';
 import { ONBOARDING_SETTINGS_ROUTE } from 'src/app/domain/constants/onboarding-stations';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 

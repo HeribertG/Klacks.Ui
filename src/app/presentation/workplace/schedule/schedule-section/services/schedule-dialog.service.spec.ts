@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { ScheduleDialogService } from './schedule-dialog.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
-import { ScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 
 describe('ScheduleDialogService - openRecoveryDialog', () => {
   let service: ScheduleDialogService;

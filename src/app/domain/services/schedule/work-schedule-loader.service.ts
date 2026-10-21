@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
-import { WorkScheduleByClientAndDate } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleByClientAndDate } from 'src/app/domain/models/schedule/work-schedule-by-client-and-date.type';
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
 import { IWorkScheduleClient } from 'src/app/domain/models/schedule/work-schedule-client.interface';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';

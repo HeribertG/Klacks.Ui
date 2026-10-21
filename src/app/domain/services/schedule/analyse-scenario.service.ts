@@ -13,11 +13,8 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, filter, lastValueFrom, map, tap } from 'rxjs';
-import {
-  AnalyseScenarioStatus,
-  IAnalyseScenario,
-  isWizard4Candidate,
-} from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { IAnalyseScenario, isWizard4Candidate } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import {
   ICreateAnalyseScenarioRequest,
 } from 'src/app/domain/models/schedule/create-analyse-scenario-request.interface';

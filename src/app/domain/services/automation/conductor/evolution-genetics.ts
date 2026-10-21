@@ -14,7 +14,8 @@ import {
   SCHEDULING_CONSTANTS,
   EVOLUTION_CONSTANTS,
 } from '../../../models/automation/automation-constants';
-import { CoreShift, RngFn } from './evolution-types';
+import { CoreShift } from './evolution-types';
+import { RngFn } from './rng-fn.type';
 import { CoreAssignment } from './core-assignment.interface';
 import { CoreScenario } from './core-scenario.interface';
 import { generateId } from './evolution-rng';

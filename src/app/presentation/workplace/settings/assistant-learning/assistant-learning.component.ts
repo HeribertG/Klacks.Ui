@@ -53,7 +53,8 @@ import {
   KLACKSY_LEARNING_WISH_STATUS,
 } from 'src/app/domain/constants/klacksy-learning.constants';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';

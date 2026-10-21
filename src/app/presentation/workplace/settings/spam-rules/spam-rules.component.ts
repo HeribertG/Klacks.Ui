@@ -5,11 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpamRuleService } from 'src/app/domain/services/email/spam-rule.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import {
-  ISpamRule,
-  SpamRuleType,
-  SPAM_RULE_TYPE_TRANSLATION_KEYS,
-} from 'src/app/domain/models/email/spam-rule.model';
+import { ISpamRule, SPAM_RULE_TYPE_TRANSLATION_KEYS } from 'src/app/domain/models/email/spam-rule.model';
+import { SpamRuleType } from 'src/app/domain/models/email/spam-rule-type.enum';
 
 const SPAM_RULE_TYPES = [
   SpamRuleType.SenderContains,

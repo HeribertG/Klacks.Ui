@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ConnectorEndpoint } from './connector-endpoint.interface';
-import { ConnectorRoutingType, ConnectorArrowheadType } from './floor-plan-tool.service';
+import { ConnectorRoutingType } from './connector-routing-type.enum';
+import { ConnectorArrowheadType } from './connector-arrowhead-type.enum';
 
 export interface ConnectorData {
   id: string;

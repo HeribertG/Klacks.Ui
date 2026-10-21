@@ -31,7 +31,7 @@ import { DataManagementCalendarSelectionService } from '../calendar/data-managem
 import { ICalendarSelection } from '../../models/calendar/calendar-selection.interface';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { TranslateService } from '@ngx-translate/core';
 import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
 import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';

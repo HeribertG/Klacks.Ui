@@ -64,10 +64,8 @@ import { ContainerLockService } from 'src/app/domain/services/container/containe
 import { IOpenContainerShiftOverrideOptions } from './open-container-shift-override-options';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ContainerShiftOverrideLifecycleService } from './services/container-shift-override-lifecycle.service';
 import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/shift-context-menu-event.interface';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';

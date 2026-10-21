@@ -26,7 +26,7 @@ import { DataUserAbsencePeriodService } from 'src/app/infrastructure/api/setting
 import { IEscalationRosterMember } from 'src/app/domain/interfaces/escalation-roster.interface';
 import { IUserAbsencePeriod } from 'src/app/domain/interfaces/user-absence-period.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 
 const PERMANENT_ABSENCE_END_DATE = '9999-12-31';
 

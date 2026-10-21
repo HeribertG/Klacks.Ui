@@ -35,11 +35,8 @@ import * as signalR from '@microsoft/signalr';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRGroupHelper } from './signalr-group.helper';
 import { SignalRConnectionHelper } from './signalr-connection.helper';
-import {
-  jitter,
-  SignalRConnectionState,
-  SignalRTelemetry,
-} from './signalr-connection-state';
+import { jitter, SignalRConnectionState } from './signalr-connection-state';
+import { SignalRTelemetry } from './signalr-telemetry.interface';
 
 @Injectable({
   providedIn: 'root',

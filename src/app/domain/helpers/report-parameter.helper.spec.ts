@@ -9,11 +9,9 @@ import {
   interpretFilterResult,
   toParameterVariableName,
 } from './report-parameter.helper';
-import {
-  ReportParameter,
-  ReportParameterBinding,
-  ReportParameterType,
-} from 'src/app/domain/models/report/report-parameter.model';
+import { ReportParameter } from 'src/app/domain/models/report/report-parameter.model';
+import { ReportParameterBinding } from 'src/app/domain/models/report/report-parameter-binding.enum';
+import { ReportParameterType } from 'src/app/domain/models/report/report-parameter-type.enum';
 
 function parameter(partial: Partial<ReportParameter>): ReportParameter {
   return { key: 'p', label: 'P', type: ReportParameterType.Text, ...partial };

@@ -12,7 +12,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { IMonthlyTargetHours } from 'src/app/domain/models/scheduling/monthly-target-hours.interface';
 import { MonthlyTargetHoursApiService } from 'src/app/infrastructure/api/scheduling/monthly-target-hours-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';

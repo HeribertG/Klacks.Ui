@@ -15,7 +15,7 @@ import { AssistantFunctionExecutionService } from 'src/app/domain/services/assis
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { NavigationVerdictService } from './navigation-verdict.service';

@@ -11,10 +11,8 @@ import { CalendarSelectionComponent } from './calendar-selection.component';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';

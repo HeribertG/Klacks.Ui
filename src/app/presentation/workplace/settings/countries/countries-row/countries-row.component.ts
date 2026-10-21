@@ -16,7 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ICountry } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { CountryModel } from './country-model.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

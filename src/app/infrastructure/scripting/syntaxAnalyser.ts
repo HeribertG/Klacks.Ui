@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Tokens } from './symbol';
+import { Tokens } from './tokens.enum';
 import { Code } from './code';
-import { parsErrors } from './interpreterError';
+import { parsErrors } from './pars-errors.enum';
 import { Scopes } from './scopes';
 import { SyntaxAnalyserStatements } from './syntaxAnalyserStatements';
-import { Exits } from './syntaxAnalyserBase';
+import { Exits } from './exits.enum';
 
 export class SyntaxAnalyser extends SyntaxAnalyserStatements {
   parse(code: Code, optionExplicit = true, allowExternal = true): void {

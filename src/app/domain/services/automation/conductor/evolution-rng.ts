@@ -8,7 +8,7 @@
  */
 
 import { EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
-import { RngFn } from './evolution-types';
+import { RngFn } from './rng-fn.type';
 
 export function createSeededRng(seed: number): RngFn {
   let state = seed;

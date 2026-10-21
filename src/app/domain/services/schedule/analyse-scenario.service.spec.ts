@@ -8,7 +8,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { AnalyseScenarioService } from './analyse-scenario.service';
-import { AnalyseScenarioStatus, IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';
 
 function createScenario(overrides: Partial<IAnalyseScenario> = {}): IAnalyseScenario {

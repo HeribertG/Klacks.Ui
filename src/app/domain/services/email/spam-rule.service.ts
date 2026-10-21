@@ -2,7 +2,8 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { DataSpamRuleService } from 'src/app/infrastructure/api/email/data-spam-rule.service';
-import { ISpamRule, SpamRuleType } from 'src/app/domain/models/email/spam-rule.model';
+import { ISpamRule } from 'src/app/domain/models/email/spam-rule.model';
+import { SpamRuleType } from 'src/app/domain/models/email/spam-rule-type.enum';
 
 @Injectable({
   providedIn: 'root',

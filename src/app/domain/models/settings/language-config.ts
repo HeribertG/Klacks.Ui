@@ -2,8 +2,6 @@
 
 import { LanguageMetadata } from './language-metadata.interface';
 
-export type Language = string;
-
 export interface LanguageConfigResponse {
   supportedLanguages: string[];
   fallbackOrder: string[];

@@ -13,7 +13,7 @@ import { KlacksyTrainingMetricsComponent } from '../klacksy-training-metrics/kla
 import { KlacksyTrainingManualComponent } from '../klacksy-training-manual/klacksy-training-manual.component';
 import { KlacksyTrainingEffectivenessComponent } from '../klacksy-training-effectiveness/klacksy-training-effectiveness.component';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import {
   KLACKSY_TRAINING_TAB_EFFECTIVENESS,

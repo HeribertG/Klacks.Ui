@@ -15,7 +15,7 @@ import { ReportSection } from 'src/app/domain/models/report/report-section.model
 import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
 import { getFormulaVariables, getFooterFormulaVariables, FormulaVariableDefinition } from 'src/app/domain/models/report/formula-variables.model';
 import { createFormulaTestData, createFooterFormulaTestData } from 'src/app/domain/models/report/formula-test-data';
-import { PropertyMetadata } from 'src/app/domain/models/shift/shift-data-class';
+import { PropertyMetadata } from 'src/app/domain/models/shift/property-metadata.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';

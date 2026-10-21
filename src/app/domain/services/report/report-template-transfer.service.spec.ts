@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ReportTemplateTransferService } from './report-template-transfer.service';
-import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
+import { DEFAULT_PAGE_SETUP, ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 import { ReportOrientation } from 'src/app/domain/models/report/report-orientation.enum';
 import { ReportPageSize } from 'src/app/domain/models/report/report-page-size.enum';
-import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
+import { ReportSectionType } from 'src/app/domain/models/report/report-section-type.enum';
 import { DEFAULT_FIELD_STYLE } from 'src/app/domain/models/report/report-field.model';
 import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 

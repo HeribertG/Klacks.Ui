@@ -60,7 +60,8 @@ import { ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
-import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
+import { ConversationOrchestratorService } from './services/conversation-orchestrator.service';
+import { ConversationState } from './services/conversation-state.enum';
 import { ChatStageStatusService } from './services/chat-stage-status.service';
 import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
@@ -73,9 +74,9 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import {
   ChatMessageActionsService,
-  CorrectionType,
   SETUP_CONSULTATION_TRIGGER_PHRASE_KEY,
 } from './services/chat-message-actions.service';
+import { CorrectionType } from './services/correction-type.type';
 import {
   ProactiveReaction,
   ProactiveRejectReason,
@@ -112,8 +113,8 @@ import {
   ONBOARDING_STATION_LLM_PROVIDER,
   ONBOARDING_STATION_TITLE,
   ONBOARDING_TOUR_CHOICE,
-  OnboardingKind,
 } from 'src/app/domain/constants/onboarding-stations';
+import { OnboardingKind } from 'src/app/domain/constants/onboarding-kind.type';
 import { IOnboardingAskField } from 'src/app/domain/constants/onboarding-ask-field.interface';
 
 const ONBOARDING_LLM_OFFLINE_KEY = 'assistant-chat.onboarding.llm.offline';

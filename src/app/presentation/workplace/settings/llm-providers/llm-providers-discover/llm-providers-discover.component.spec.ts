@@ -7,7 +7,9 @@ import { of } from 'rxjs';
 import { LLMProvidersDiscoverComponent } from './llm-providers-discover.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
-import { IDiscoveredProvider, ProviderCandidateSource, ProviderConnectivityStatus } from 'src/app/domain/models/assistant/discovered-provider';
+import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
+import { ProviderCandidateSource } from 'src/app/domain/models/assistant/provider-candidate-source.enum';
+import { ProviderConnectivityStatus } from 'src/app/domain/models/assistant/provider-connectivity-status.enum';
 
 describe('LLMProvidersDiscoverComponent', () => {
   let component: LLMProvidersDiscoverComponent;

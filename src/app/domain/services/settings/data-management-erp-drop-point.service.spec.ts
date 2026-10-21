@@ -8,7 +8,7 @@ import { delay, of, throwError, Subject, Subscription } from 'rxjs';
 import { DataManagementErpDropPointService } from './data-management-erp-drop-point.service';
 import { DataErpDropPointService } from 'src/app/infrastructure/api/settings/data-erp-drop-point.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';

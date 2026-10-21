@@ -36,9 +36,9 @@ import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.comp
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import {
   HolidayCollectionService,
-  OfficialOverrideMap,
   buildOfficialOverrideKey,
 } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';

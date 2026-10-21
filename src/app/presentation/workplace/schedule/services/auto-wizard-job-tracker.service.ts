@@ -17,7 +17,8 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AnalyseScenarioStatus, IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';

@@ -20,16 +20,10 @@ import { AbsenceLookupService } from '../schedule/absence-lookup.service';
 import { ReportDefaultsService } from './report-defaults.service';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 import { QuickPrintRequest } from './quick-print-request.interface';
+import { QuickPrintOutcome } from './quick-print-outcome.enum';
 import { openPendingBlobTab, PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 const FALLBACK_FILE_NAME = 'report.pdf';
-
-export enum QuickPrintOutcome {
-  Success = 'success',
-  NoDefaultTemplate = 'noDefaultTemplate',
-  TemplateNotFound = 'templateNotFound',
-  Failed = 'failed',
-}
 
 @Injectable({ providedIn: 'root' })
 export class QuickPrintService {

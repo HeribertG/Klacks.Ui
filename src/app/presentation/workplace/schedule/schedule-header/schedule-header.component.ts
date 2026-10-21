@@ -53,17 +53,13 @@ import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonize
 import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
 import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dialog.component';
 import { IconAbsenceCoverComponent } from 'src/app/presentation/icons/icon-absence-cover.component';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
-import {
-  ScheduleTimelineRangeService,
-  TimelineViewRange,
-} from '../services/schedule-timeline-range.service';
+import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
+import { TimelineViewRange } from '../services/timeline-view-range.type';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';

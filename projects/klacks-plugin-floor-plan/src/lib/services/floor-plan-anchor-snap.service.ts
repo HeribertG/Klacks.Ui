@@ -11,7 +11,7 @@ import { Injectable } from '@angular/core';
 import { Canvas, Circle, FabricObject } from 'fabric';
 import { AnchorPoint } from './anchor-point.interface';
 import { AnchorSnapResult } from './anchor-snap-result.interface';
-import { FabricWithData } from './floor-plan-object-data.interface';
+import { FabricWithData } from './fabric-with-data.type';
 
 const SNAP_THRESHOLD = 15;
 const HIGHLIGHT_RADIUS = 6;

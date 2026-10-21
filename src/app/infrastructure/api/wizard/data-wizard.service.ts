@@ -23,7 +23,8 @@ import { StartWizardResponse } from 'src/app/domain/models/wizard/start-wizard-r
 import {
   WizardApplyAsScenarioResponse,
 } from 'src/app/domain/models/wizard/wizard-apply-as-scenario-response.interface';
-import { WizardProgress, WizardStatus } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { WizardProgress } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { WizardStatus } from 'src/app/domain/models/wizard/wizard-status.type';
 import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
 import { WizardJobStatusResponse } from 'src/app/domain/models/wizard/wizard-status.model';
 

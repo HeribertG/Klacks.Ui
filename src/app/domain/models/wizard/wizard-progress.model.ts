@@ -9,5 +9,3 @@ export interface WizardProgress {
   bestStage2Score: number;
   earlyStopping: boolean;
 }
-
-export type WizardStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

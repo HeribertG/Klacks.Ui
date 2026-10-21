@@ -25,7 +25,8 @@ import {
 } from 'src/app/shared/helpers/container-template-format.helper';
 import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
-export type { RouteInfo, RouteLocation } from './route-pdf-export.service';
+export type { RouteInfo } from './route-info.type';
+export type { RouteLocation } from './route-location.type';
 
 const PDF_MARGIN = 14;
 const PDF_TITLE_Y = 15;

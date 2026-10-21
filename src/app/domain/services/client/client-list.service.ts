@@ -15,7 +15,7 @@ import {
 import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
 import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { Observable, Subject, Subscription } from 'rxjs';

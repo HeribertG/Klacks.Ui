@@ -22,7 +22,7 @@ import { disabled, form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import {

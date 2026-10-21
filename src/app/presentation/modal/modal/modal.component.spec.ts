@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalComponent } from './modal.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { ModalType } from '../modal.service';
+import { ModalType } from '../modal-type.enum';
 
 describe('ModalComponent', () => {
     let component: ModalComponent;

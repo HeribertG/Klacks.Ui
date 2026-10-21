@@ -5,13 +5,14 @@
  */
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
-import { AVAILABLE_THEMES, ThemeMode, ThemeService } from 'src/app/presentation/services/theme.service';
+import { AVAILABLE_THEMES, ThemeService } from 'src/app/presentation/services/theme.service';
+import { ThemeMode } from 'src/app/presentation/services/theme-mode.type';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
 @Component({

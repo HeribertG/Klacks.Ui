@@ -30,7 +30,8 @@ import {
   STANDING_APPROVAL_STATUS,
   StandingApprovalStatus,
 } from 'src/app/domain/constants/standing-approval.constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 

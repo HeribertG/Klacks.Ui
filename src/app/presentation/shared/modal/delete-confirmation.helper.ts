@@ -9,7 +9,8 @@
  */
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 
 /**
  * Emits the pending Filing id whenever the shared delete modal is confirmed

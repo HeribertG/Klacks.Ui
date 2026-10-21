@@ -17,7 +17,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { Break } from 'src/app/domain/models/break/break-class';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';

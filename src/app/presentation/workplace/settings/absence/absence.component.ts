@@ -29,12 +29,10 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';

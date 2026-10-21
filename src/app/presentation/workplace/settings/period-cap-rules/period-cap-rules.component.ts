@@ -37,10 +37,8 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 
 const COMPONENT_CONTEXT = 'periodCapRules';

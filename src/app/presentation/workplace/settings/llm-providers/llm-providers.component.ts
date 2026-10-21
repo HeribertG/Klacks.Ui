@@ -35,7 +35,8 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { ICreateProviderRequest } from 'src/app/domain/models/assistant/create-provider-request.interface';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';

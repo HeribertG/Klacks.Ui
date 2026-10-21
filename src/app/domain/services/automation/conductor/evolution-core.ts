@@ -14,7 +14,8 @@
  */
 
 import { EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
-import { CoreShift, RngFn } from './evolution-types';
+import { CoreShift } from './evolution-types';
+import { RngFn } from './rng-fn.type';
 import { CoreAgent } from './core-agent.interface';
 import { CoreConfig } from './core-config.interface';
 import { CorePenaltyWeights } from './core-penalty-weights.interface';
@@ -22,15 +23,13 @@ import { CoreScenario } from './core-scenario.interface';
 import { EvolutionCallbacks } from './evolution-callbacks.interface';
 import { createSeededRng, generateId } from './evolution-rng';
 import { calculateFitness } from './evolution-fitness';
-import {
-  createGreedyScenario,
-  createRandomScenario,
-  GreedyStrategy,
-} from './evolution-scenario-builder';
+import { createGreedyScenario, createRandomScenario } from './evolution-scenario-builder';
+import { GreedyStrategy } from './greedy-strategy.type';
 import { mutate } from './evolution-mutation';
 import { crossoverBlock, tournamentSelect } from './evolution-genetics';
 
 export * from './evolution-types';
+export * from './rng-fn.type';
 export * from './core-agent.interface';
 export * from './core-assignment.interface';
 export * from './core-scenario.interface';
@@ -42,6 +41,7 @@ export * from './evolution-callbacks.interface';
 export * from './evolution-rng';
 export * from './evolution-fitness';
 export * from './evolution-scenario-builder';
+export * from './greedy-strategy.type';
 export * from './evolution-mutation';
 export * from './evolution-genetics';
 

@@ -13,7 +13,8 @@
 
 import { EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
 import { evaluateHardConstraintViolations } from './constraint-engine';
-import { CoreShift, RngFn } from './evolution-types';
+import { CoreShift } from './evolution-types';
+import { RngFn } from './rng-fn.type';
 import { CoreAgent } from './core-agent.interface';
 import { CoreAssignment } from './core-assignment.interface';
 import { CoreScenario } from './core-scenario.interface';

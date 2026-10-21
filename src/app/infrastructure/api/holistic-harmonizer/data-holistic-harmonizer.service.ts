@@ -19,10 +19,8 @@ import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
 import { HolisticHarmonizerSignalRConstants } from '../../signalr/signalr.constants';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
-import {
-  HolisticHarmonizerRunRequest,
-  HolisticHarmonizerStatus,
-} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import { HolisticHarmonizerStatus } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-status.type';
 import {
   CancelHolisticHarmonizerResponse,
 } from 'src/app/domain/models/holistic-harmonizer/cancel-holistic-harmonizer-response.interface';

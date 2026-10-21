@@ -18,18 +18,18 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 import {
   FloorPlanToolService,
-  FloorPlanTool,
-  ConnectorRoutingType,
-  ConnectorArrowheadType,
   MIN_REGULAR_POLYGON_SIDES,
   MAX_REGULAR_POLYGON_SIDES,
 } from '../services/floor-plan-tool.service';
+import { FloorPlanTool } from '../services/floor-plan-tool.enum';
+import { ConnectorRoutingType } from '../services/connector-routing-type.enum';
+import { ConnectorArrowheadType } from '../services/connector-arrowhead-type.enum';
 import { FloorPlanExportService } from '../services/floor-plan-export.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
-import { FabricWithData } from '../services/floor-plan-object-data.interface';
+import { FabricWithData } from '../services/fabric-with-data.type';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
 import { IconFpLineComponent } from 'src/app/presentation/icons/icon-fp-line.component';
 import { IconFpRectangleComponent } from 'src/app/presentation/icons/icon-fp-rectangle.component';

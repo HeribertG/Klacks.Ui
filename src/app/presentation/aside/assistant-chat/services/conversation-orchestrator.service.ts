@@ -32,16 +32,8 @@ import { SpeechOutputModeService } from 'src/app/application/services/speech-out
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
 import { ConversationCallbacks } from './conversation-callbacks.interface';
-import type { TurnStopReason } from './chat-turn-control.service';
-
-export enum ConversationState {
-  Idle = 'IDLE',
-  Listening = 'LISTENING',
-  Enhancing = 'ENHANCING',
-  Processing = 'PROCESSING',
-  Planning = 'PLANNING',
-  Speaking = 'SPEAKING',
-}
+import { ConversationState } from './conversation-state.enum';
+import type { TurnStopReason } from './turn-stop-reason.type';
 
 @Injectable({ providedIn: 'root' })
 export class ConversationOrchestratorService implements OnDestroy {

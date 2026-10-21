@@ -10,7 +10,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { ScheduleDataService } from './schedule-data.service';
 import { ScheduleMenuHost } from './schedule-menu-host.interface';
 import { ScheduleSectionFacadeService } from './schedule-section-facade.service';

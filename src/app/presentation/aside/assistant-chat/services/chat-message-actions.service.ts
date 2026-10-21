@@ -58,9 +58,8 @@ import {
   ProactiveReaction,
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
+import { CorrectionType } from './correction-type.type';
 import { stripMetadataMarkers, stripForTts, formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
-
-export type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 
 const PROACTIVE_REACTION_ERROR_KEY = 'assistant-chat.error.generic';
 const PROACTIVE_MUTE_CONFIRMED_KEY = 'assistant-chat.proactive.mute-confirmed';

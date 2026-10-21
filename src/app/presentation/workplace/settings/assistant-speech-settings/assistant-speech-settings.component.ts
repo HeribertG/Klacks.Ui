@@ -43,11 +43,8 @@ import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
+import { EditableDictionaryEntry } from './editable-dictionary-entry.type';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
-
-export type EditableDictionaryEntry = Omit<DictionaryEntry, 'language'> & {
-  language: string;
-};
 
 @Component({
   selector: 'app-assistant-speech-settings',

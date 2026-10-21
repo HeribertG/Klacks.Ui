@@ -34,10 +34,8 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { RestrictedTimeWindowRuleFormModel } from './restricted-time-window-rule-form-model.interface';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 

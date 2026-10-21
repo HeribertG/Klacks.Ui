@@ -9,7 +9,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { VoiceShellClass } from 'src/app/domain/constants/voice-shell-constants';
-import { ConversationState } from '../../aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationState } from '../../aside/assistant-chat/services/conversation-state.enum';
 
 @Component({
   selector: 'app-voice-shell-icon',

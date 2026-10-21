@@ -12,7 +12,8 @@ import { DataPersonalAccessTokenService } from 'src/app/infrastructure/api/setti
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IPersonalAccessToken } from 'src/app/domain/models/settings/personal-access-token';
 import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 
 describe('PersonalAccessTokensComponent', () => {
   let component: PersonalAccessTokensComponent;

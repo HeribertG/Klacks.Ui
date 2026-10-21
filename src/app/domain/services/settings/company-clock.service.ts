@@ -21,7 +21,7 @@ import { DataCompanyClockService } from 'src/app/infrastructure/api/settings/dat
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
-import { CompanyClockSource } from 'src/app/domain/models/settings/company-clock.model';
+import { CompanyClockSource } from 'src/app/domain/models/settings/company-clock-source.type';
 
 const COMPANY_CLOCK_LOAD_WARNING = 'CompanyClockService: failed to load company time zone, keeping browser time zone.';
 

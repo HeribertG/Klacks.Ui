@@ -1,22 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { QualificationGapKind } from './qualification-gap-kind.enum';
+import { QualificationGapReason } from './qualification-gap-reason.enum';
+import { QualificationGapSeverity } from './qualification-gap-severity.enum';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
-
-export enum QualificationGapKind {
-  UnfillableSlot = 0,
-  AssignedUnqualified = 1,
-}
-
-export enum QualificationGapReason {
-  Missing = 0,
-  Expired = 1,
-  InsufficientLevel = 2,
-}
-
-export enum QualificationGapSeverity {
-  Error = 0,
-  Warning = 1,
-}
 
 export interface QualificationGapDetail {
   kind: QualificationGapKind;

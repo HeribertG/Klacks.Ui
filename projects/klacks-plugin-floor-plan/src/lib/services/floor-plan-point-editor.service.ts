@@ -20,7 +20,7 @@ import {
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
 import { PathNode } from './path-node.interface';
-import { FabricWithData } from './floor-plan-object-data.interface';
+import { FabricWithData } from './fabric-with-data.type';
 
 const ANCHOR_RADIUS = 7;
 const CONTROL_RADIUS = 5;

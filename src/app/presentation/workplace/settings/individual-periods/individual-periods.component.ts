@@ -33,7 +33,8 @@ import { DataManagementIndividualPeriodService } from 'src/app/domain/services/s
 import { Period } from 'src/app/domain/models/scheduling/individual-period.model';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { IPeriod } from 'src/app/domain/models/scheduling/period.interface';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';

@@ -9,12 +9,10 @@ import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { PropertyItem } from './property-item.interface';
 import { EnumOption } from './enum-option.interface';
-import {
-  HolidayStatus,
-  PropertyMetadata,
-  ShiftData,
-  Weekday,
-} from 'src/app/domain/models/shift/shift-data-class';
+import { ShiftData } from 'src/app/domain/models/shift/shift-data-class';
+import { HolidayStatus } from 'src/app/domain/models/shift/holiday-status.enum';
+import { PropertyMetadata } from 'src/app/domain/models/shift/property-metadata.type';
+import { Weekday } from 'src/app/domain/models/shift/weekday.enum';
 
 @Component({
   selector: 'app-property-grid',

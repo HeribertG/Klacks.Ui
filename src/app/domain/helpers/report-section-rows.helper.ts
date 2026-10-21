@@ -9,8 +9,9 @@
  * @param sourceId - Data source of the template; only the schedule source mixes entry types
  */
 
-import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { ReportSection } from 'src/app/domain/models/report/report-section.model';
+import { ReportSectionType } from 'src/app/domain/models/report/report-section-type.enum';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 
 const SCHEDULE_SOURCE_ID = 'schedule';
 const EXPENSE_BINDING_PREFIX = 'expense.';

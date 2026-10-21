@@ -10,7 +10,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { formatTime, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.interface';

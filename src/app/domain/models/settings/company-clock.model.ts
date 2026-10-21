@@ -6,12 +6,7 @@
  * country, or UTC fallback) produced the time zone.
  */
 
-export type CompanyClockSource =
-  | 'Setting'
-  | 'AddressCountry'
-  | 'CalendarCountry'
-  | 'Utc'
-  | 'UtcMultiZoneCountry';
+import { CompanyClockSource } from './company-clock-source.type';
 
 export const COMPANY_CLOCK_SOURCE_UTC: CompanyClockSource = 'Utc';
 

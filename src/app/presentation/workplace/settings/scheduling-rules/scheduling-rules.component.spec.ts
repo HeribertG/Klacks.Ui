@@ -9,7 +9,8 @@ import { of, Subject } from 'rxjs';
 
 import { SchedulingRulesComponent } from './scheduling-rules.component';
 import { DataManagementSchedulingRuleService } from 'src/app/domain/services/scheduling/data-management-scheduling-rule.service';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';

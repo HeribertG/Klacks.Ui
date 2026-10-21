@@ -1,11 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export enum SpamRuleType {
-  SenderContains = 0,
-  SenderDomain = 1,
-  SubjectContains = 2,
-  BodyContains = 3,
-}
+import { SpamRuleType } from './spam-rule-type.enum';
 
 export const SPAM_RULE_TYPE_TRANSLATION_KEYS: Record<SpamRuleType, string> = {
   [SpamRuleType.SenderContains]: 'settings.spam-rules.type.sender-contains',

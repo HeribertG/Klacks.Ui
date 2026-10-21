@@ -13,7 +13,7 @@ import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-
 import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.interface';
 import { SchedulingRuleApiService } from 'src/app/infrastructure/api/scheduling/scheduling-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 

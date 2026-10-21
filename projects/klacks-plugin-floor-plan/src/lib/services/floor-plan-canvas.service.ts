@@ -25,7 +25,7 @@ import { FloorPlanToolService } from './floor-plan-tool.service';
 import { FloorPlanAnchorSnapService } from './floor-plan-anchor-snap.service';
 import { shapeToNodes, nodesToSvgString } from './floor-plan-point-editor.service';
 import { ILiveMarkerEntry } from './live-marker-entry.interface';
-import { FabricWithData } from './floor-plan-object-data.interface';
+import { FabricWithData } from './fabric-with-data.type';
 
 FabricObject.customProperties.push('data');
 

@@ -2,18 +2,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LexicalAnalyser } from './lexicalAnalyser';
-import { Symbol, Tokens } from './symbol';
+import { Symbol } from './symbol';
+import { Tokens } from './tokens.enum';
 import { Scopes } from './scopes';
 import { Opcodes, Code } from './code';
 import { InterpreterError } from './interpreterError';
-
-export enum Exits {
-  exitNone = 0,
-  exitDo = 1,
-  exitFor = 2,
-  exitFunction = 4,
-  exitSub = 8,
-}
 
 export abstract class SyntaxAnalyserBase {
   protected _code: Code | undefined = undefined;

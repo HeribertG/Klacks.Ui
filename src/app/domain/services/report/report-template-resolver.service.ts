@@ -11,7 +11,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
+import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 
 const SOURCE_TO_REPORT_TYPE: Readonly<Record<string, ReportType>> = {
   schedule: ReportType.Schedule,

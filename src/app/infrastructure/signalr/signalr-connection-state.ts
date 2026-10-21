@@ -30,18 +30,3 @@ export function jitter(delayMs: number, factor = 0.3): number {
   const offset = (Math.random() * 2 - 1) * spread;
   return Math.max(0, Math.round(delayMs + offset));
 }
-
-/**
- * Telemetry snapshot exported by the connection helper. All fields are
- * read-only summaries, intended for diagnostics dashboards or logs.
- */
-export interface SignalRTelemetry {
-  state: SignalRConnectionState;
-  reconnectCount: number;
-  authErrorCount: number;
-  lastDisconnectAt: number | null;
-  lastReconnectAt: number | null;
-  lastSuccessfulPushAt: number | null;
-  avgDisconnectDurationMs: number;
-  lastErrorMessage: string | null;
-}

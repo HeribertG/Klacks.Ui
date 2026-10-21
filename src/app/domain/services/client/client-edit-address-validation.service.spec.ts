@@ -27,7 +27,7 @@ import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { of, throwError } from 'rxjs';
 import { signal } from '@angular/core';
 

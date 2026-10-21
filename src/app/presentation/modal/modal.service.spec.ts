@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { ModalService, ModalType } from './modal.service';
+import { ModalService } from './modal.service';
+import { ModalType } from './modal-type.enum';
 import { firstValueFrom } from 'rxjs';
 
 describe('ModalService', () => {

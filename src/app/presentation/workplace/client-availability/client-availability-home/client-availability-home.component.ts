@@ -38,9 +38,9 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import {
   HolidayCollectionService,
-  OfficialOverrideMap,
   buildOfficialOverrideKey,
 } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';

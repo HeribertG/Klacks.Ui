@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TranslateModule } from '@ngx-translate/core';
 import { VoiceShellIconComponent } from './voice-shell-icon.component';
 import { VoiceShellClass } from 'src/app/domain/constants/voice-shell-constants';
-import { ConversationState } from '../../aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationState } from '../../aside/assistant-chat/services/conversation-state.enum';
 
 describe('VoiceShellIconComponent', () => {
   beforeEach(() => {

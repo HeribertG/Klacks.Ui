@@ -7,12 +7,13 @@
 
 import { Injectable } from '@angular/core';
 import { Canvas, Path, Triangle, Circle, FabricObject } from 'fabric';
-import { ConnectorRoutingType, ConnectorArrowheadType } from './floor-plan-tool.service';
+import { ConnectorRoutingType } from './connector-routing-type.enum';
+import { ConnectorArrowheadType } from './connector-arrowhead-type.enum';
 import { PortHit } from './port-hit.interface';
 import { ConnectorEndpoint } from './connector-endpoint.interface';
 import { ConnectorData } from './connector-data.interface';
 import { PortSide } from './port-side.type';
-import { FabricWithData } from './floor-plan-object-data.interface';
+import { FabricWithData } from './fabric-with-data.type';
 
 const PORT_HIT_RADIUS = 20;
 const ARROWHEAD_SIZE = 14;

@@ -34,7 +34,8 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';

@@ -25,9 +25,9 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import {
   HolidayCollectionService,
-  OfficialOverrideMap,
   buildOfficialOverrideKey,
 } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';

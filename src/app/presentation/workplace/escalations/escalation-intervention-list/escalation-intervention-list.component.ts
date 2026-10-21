@@ -46,13 +46,12 @@ import { IEscalationAcknowledgeResult } from 'src/app/domain/interfaces/escalati
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
 import { IUnresolvedEscalationChain } from 'src/app/domain/interfaces/unresolved-escalation-chain.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { calendarDateKey, companyCalendarDayOf } from 'src/app/shared/helpers/calendar-date.helper';
 import { CancelFormModel } from './cancel-form-model.interface';
 import {
-  EscalationUrgency,
   currentStage,
   nextStage,
   remainingMs,
@@ -60,6 +59,7 @@ import {
   splitDuration,
   urgency,
 } from './escalation-chain-display.helper';
+import { EscalationUrgency } from './escalation-urgency.type';
 
 const HTTP_STATUS_CONFLICT = 409;
 const HTTP_STATUS_FORBIDDEN = 403;

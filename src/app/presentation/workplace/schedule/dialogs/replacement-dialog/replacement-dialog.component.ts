@@ -22,10 +22,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
-import {
-  WorkChangeLogicService,
-  CorrectionMode,
-} from 'src/app/infrastructure/services/work-change-logic.service';
+import { WorkChangeLogicService } from 'src/app/infrastructure/services/work-change-logic.service';
+import { CorrectionMode } from 'src/app/infrastructure/services/correction-mode.enum';
 import { WorkChangeRequest } from 'src/app/domain/models/workchange/work-change';
 import { WorkChangeResource } from 'src/app/domain/models/workchange/work-change-resource.interface';
 import { WorkChangeType } from 'src/app/domain/models/workchange/work-change-type.enum';

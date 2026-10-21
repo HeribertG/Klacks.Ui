@@ -40,10 +40,8 @@ import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';

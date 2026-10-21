@@ -34,7 +34,8 @@ import { HolidayWorkExemptionRowComponent } from './holiday-work-exemption-row/h
 import { DataManagementHolidayWorkExemptionService } from 'src/app/domain/services/scheduling/data-management-holiday-work-exemption.service';
 import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.interface';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { HolidayWorkExemptionFormModel } from './holiday-work-exemption-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';

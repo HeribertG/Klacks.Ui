@@ -28,7 +28,8 @@ import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';

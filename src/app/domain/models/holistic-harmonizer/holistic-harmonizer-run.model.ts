@@ -13,5 +13,3 @@ export interface HolisticHarmonizerRunRequest {
   analyseToken: string | null;
   language: string | null;
 }
-
-export type HolisticHarmonizerStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

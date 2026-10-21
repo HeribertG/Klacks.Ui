@@ -12,9 +12,8 @@ import {
   ESCALATION_STAGE_STATUS_PENDING,
   IEscalationStageSummary,
 } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { EscalationUrgency } from './escalation-urgency.type';
 import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
-
-export type EscalationUrgency = 'calm' | 'warning' | 'critical';
 
 export interface EscalationDuration {
   days: number;

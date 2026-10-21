@@ -3,7 +3,7 @@
 import { ReportTemplate } from '../../models/report/report-template.model';
 import { ReportDataProvider } from './report-data-provider.interface';
 import { ReportData } from './report-data.interface';
-import { ReportParameterValues } from '../../models/report/report-parameter.model';
+import { ReportParameterValues } from '../../models/report/report-parameter-values.type';
 
 export interface ReportGenerationContext {
   template: ReportTemplate;

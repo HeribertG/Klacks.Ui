@@ -9,7 +9,7 @@ import { IUpdateProviderRequest } from 'src/app/domain/models/assistant/update-p
 import { ICreateProviderRequest } from 'src/app/domain/models/assistant/create-provider-request.interface';
 import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 
 @Injectable({
   providedIn: 'root'

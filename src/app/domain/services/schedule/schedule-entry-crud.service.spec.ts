@@ -21,11 +21,11 @@ import { DataManagementBreakService } from '../break/data-management-break.servi
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.interface';
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 import { IClientWork } from '../../models/schedule/client-work.interface';
-import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-entry-type.enum';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import {
   activeJanuaryOffsetMinutes,

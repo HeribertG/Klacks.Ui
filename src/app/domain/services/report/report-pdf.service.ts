@@ -17,7 +17,8 @@ import { environment } from 'src/environments/environment';
 
 import { ReportTemplate, PAGE_SIZE_FORMATS } from '../../models/report/report-template.model';
 import { ReportPageSize } from '../../models/report/report-page-size.enum';
-import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
+import { ReportSection } from '../../models/report/report-section.model';
+import { ReportSectionType } from '../../models/report/report-section-type.enum';
 import { ReportField } from '../../models/report/report-field.model';
 import { ReportFieldType } from '../../models/report/report-field-type.enum';
 import { TextAlignment } from '../../models/report/text-alignment.enum';

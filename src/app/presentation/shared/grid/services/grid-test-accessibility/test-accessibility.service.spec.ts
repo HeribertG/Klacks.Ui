@@ -2,11 +2,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  TestAccessibilityService,
-  CellInfo,
-  GridMetadata,
-} from './test-accessibility.service';
+import { TestAccessibilityService } from './test-accessibility.service';
+import { CellInfo } from './cell-info.type';
+import { GridMetadata } from './grid-metadata.type';
 
 describe('TestAccessibilityService', () => {
   let service: TestAccessibilityService;

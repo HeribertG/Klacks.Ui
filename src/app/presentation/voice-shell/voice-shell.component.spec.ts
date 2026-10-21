@@ -6,10 +6,8 @@ import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { VoiceShellComponent } from './voice-shell.component';
-import {
-  ConversationOrchestratorService,
-  ConversationState,
-} from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationOrchestratorService } from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationState } from '../aside/assistant-chat/services/conversation-state.enum';
 import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
 import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.service';
 import { ChatTurnControlService } from '../aside/assistant-chat/services/chat-turn-control.service';

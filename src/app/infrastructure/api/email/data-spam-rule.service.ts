@@ -5,7 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ISpamRule, SpamRuleType } from 'src/app/domain/models/email/spam-rule.model';
+import { ISpamRule } from 'src/app/domain/models/email/spam-rule.model';
+import { SpamRuleType } from 'src/app/domain/models/email/spam-rule-type.enum';
 
 const API_PATH = 'ReceivedEmail/SpamRules';
 

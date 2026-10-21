@@ -6,9 +6,8 @@ import { ScriptExecutionContext } from './script-execution-context';
 import { CancellationToken } from './cancellation-token.interface';
 import { ScriptResult } from './script-result';
 import { ResultMessage } from './result-message.interface';
+import { ExternalVariables } from './external-variables.type';
 import { IScriptCompiler } from 'src/app/domain/models/automation/rules/script-compiler.interface';
-
-export type ExternalVariables = Record<string, unknown>;
 
 @Injectable({
   providedIn: 'root',

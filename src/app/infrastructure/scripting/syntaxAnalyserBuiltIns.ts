@@ -8,8 +8,8 @@
  */
 import { Opcodes } from './code';
 import { SyntaxAnalyserBase } from './syntaxAnalyserBase';
-import { Tokens } from './symbol';
-import { parsErrors } from './interpreterError';
+import { Tokens } from './tokens.enum';
+import { parsErrors } from './pars-errors.enum';
 
 export abstract class SyntaxAnalyserBuiltIns extends SyntaxAnalyserBase {
   protected callMsg(dropReturnValue: boolean) {

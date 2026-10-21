@@ -6,7 +6,7 @@ import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.se
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { DataMacroService } from 'src/app/infrastructure/api/settings/data-macro.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { ITruncatedShift } from 'src/app/domain/models/shift/truncated-shift.interface';
 import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
 import {

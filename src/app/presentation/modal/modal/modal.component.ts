@@ -13,7 +13,8 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ModalService, ModalType } from '../modal.service';
+import { ModalService } from '../modal.service';
+import { ModalType } from '../modal-type.enum';
 import { NgbModal, NgbModalOptions, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';

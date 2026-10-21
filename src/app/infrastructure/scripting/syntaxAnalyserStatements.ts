@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Tokens } from './symbol';
+import { Tokens } from './tokens.enum';
 import { Opcodes } from './code';
-import { parsErrors } from './interpreterError';
-import { IdentifierTypes } from './identifier';
+import { parsErrors } from './pars-errors.enum';
+import { IdentifierTypes } from './identifier-types.enum';
 import { SyntaxAnalyserControlFlow } from './syntaxAnalyserControlFlow';
-import { Exits } from './syntaxAnalyserBase';
+import { Exits } from './exits.enum';
 
 export abstract class SyntaxAnalyserStatements extends SyntaxAnalyserControlFlow {
   protected statementList(

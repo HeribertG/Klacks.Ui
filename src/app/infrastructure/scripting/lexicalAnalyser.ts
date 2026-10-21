@@ -2,8 +2,10 @@
 
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-case-declarations */
-import { Symbol, Tokens } from './symbol';
-import { InterpreterError, lexErrors } from './interpreterError';
+import { Symbol } from './symbol';
+import { Tokens } from './tokens.enum';
+import { InterpreterError } from './interpreterError';
+import { lexErrors } from './lex-errors.enum';
 import { StringInputStream } from './stringInput';
 
 export class LexicalAnalyser {

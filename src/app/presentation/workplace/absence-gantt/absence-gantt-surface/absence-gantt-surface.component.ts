@@ -47,7 +47,7 @@ import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enum
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 
 @Component({
   selector: 'app-absence-gantt-surface',

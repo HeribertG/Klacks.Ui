@@ -3,7 +3,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 
-import { QuickPrintOutcome, QuickPrintService } from './quick-print.service';
+import { QuickPrintService } from './quick-print.service';
+import { QuickPrintOutcome } from './quick-print-outcome.enum';
 import { ReportDefaultsService } from './report-defaults.service';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 

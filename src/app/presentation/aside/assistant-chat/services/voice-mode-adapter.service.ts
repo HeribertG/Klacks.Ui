@@ -11,8 +11,8 @@ import { takeUntil } from 'rxjs/operators';
 import { IPluginVoiceService, IPluginVoiceCallbacks } from 'klacks-plugin-contracts';
 import {
   ConversationOrchestratorService,
-  ConversationState,
 } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { ConversationState } from 'src/app/presentation/aside/assistant-chat/services/conversation-state.enum';
 import {
   ConversationCallbacks,
 } from 'src/app/presentation/aside/assistant-chat/services/conversation-callbacks.interface';

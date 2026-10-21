@@ -15,12 +15,14 @@ import {
   EVOLUTION_CONSTANTS,
   AGENT_STATE_CONSTANTS,
 } from '../../../models/automation/automation-constants';
-import { CoreShift, RngFn } from './evolution-types';
+import { CoreShift } from './evolution-types';
+import { RngFn } from './rng-fn.type';
 import { CoreAgent } from './core-agent.interface';
 import { CoreAssignment } from './core-assignment.interface';
 import { CoreScenario } from './core-scenario.interface';
 import { generateId } from './evolution-rng';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { GreedyStrategy } from './greedy-strategy.type';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 function getPreviousDayKey(dateStr: string): string {
@@ -89,8 +91,6 @@ function countConsecutiveDaysEnding(
   }
   return count;
 }
-
-export type GreedyStrategy = 'balanced' | 'deficit' | 'consistency';
 
 const STRATEGY_WEIGHTS: Record<GreedyStrategy, { deficit: number; motivation: number; consistency: number; restPenalty: number }> = {
   balanced:    { deficit: EVOLUTION_CONSTANTS.GREEDY_HOUR_DEFICIT_WEIGHT, motivation: EVOLUTION_CONSTANTS.GREEDY_MOTIVATION_WEIGHT, consistency: EVOLUTION_CONSTANTS.GREEDY_BLOCK_CONSISTENCY_WEIGHT, restPenalty: -500 },

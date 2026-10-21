@@ -18,7 +18,7 @@ import { Router } from '@angular/router';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import {
   NAVIGATION_REASON_FEATURE_DISABLED,
   NAVIGATION_REASON_PERMISSION_DENIED,

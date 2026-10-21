@@ -7,5 +7,3 @@ export interface HarmonizerProgress {
   bestFitness: number;
   earlyStopping: boolean;
 }
-
-export type HarmonizerStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

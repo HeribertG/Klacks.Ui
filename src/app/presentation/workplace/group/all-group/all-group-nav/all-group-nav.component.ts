@@ -19,7 +19,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { AllGroupNavFilterModel } from './all-group-nav-filter-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 

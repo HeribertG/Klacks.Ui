@@ -15,11 +15,9 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
-import {
-  WorkChangeLogicService,
-  CorrectionMode,
-  TravelMode,
-} from 'src/app/infrastructure/services/work-change-logic.service';
+import { WorkChangeLogicService } from 'src/app/infrastructure/services/work-change-logic.service';
+import { CorrectionMode } from 'src/app/infrastructure/services/correction-mode.enum';
+import { TravelMode } from 'src/app/infrastructure/services/travel-mode.enum';
 import { WorkChangeRequest } from 'src/app/domain/models/workchange/work-change';
 import { WorkChangeResource } from 'src/app/domain/models/workchange/work-change-resource.interface';
 import { WorkChangeType } from 'src/app/domain/models/workchange/work-change-type.enum';

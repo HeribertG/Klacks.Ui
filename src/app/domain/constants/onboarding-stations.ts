@@ -41,8 +41,6 @@ export const ONBOARDING_KIND = {
   Intro: 'intro',
 } as const;
 
-export type OnboardingKind = (typeof ONBOARDING_KIND)[keyof typeof ONBOARDING_KIND];
-
 export const ONBOARDING_NAV_ICON = {
   Settings: 'open-settings',
   Schedules: 'open-schedules',

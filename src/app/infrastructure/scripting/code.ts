@@ -2,7 +2,8 @@
 
 import { Scope } from './scope';
 import { InterpreterError } from './interpreterError';
-import { Identifier, IdentifierTypes } from './identifier';
+import { Identifier } from './identifier';
+import { IdentifierTypes } from './identifier-types.enum';
 import { StringInputStream } from './stringInput';
 import { Opcodes } from './opcodes';
 import { ScriptValue } from './script-value';

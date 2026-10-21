@@ -31,7 +31,8 @@ import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey
 import { IErpImportToken, ERP_IMPORT_TOKEN_EXPIRY } from 'src/app/domain/models/settings/erp-import-token';
 import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
 import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ErpImportTokenFormModel } from './erp-import-token-form-model.interface';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 

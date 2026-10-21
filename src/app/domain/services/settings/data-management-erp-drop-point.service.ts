@@ -54,7 +54,7 @@ import { IErpImportPollingRequest } from 'src/app/domain/models/settings/erp-imp
 import { IErpImportText } from 'src/app/domain/models/settings/erp-import-text';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import {
   ERP_DROP_POINT_I18N,
   ERP_IMPORT_FILES_I18N,

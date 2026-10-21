@@ -4,10 +4,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
-import {
-  AssistantSpeechSettingsComponent,
-  EditableDictionaryEntry,
-} from './assistant-speech-settings.component';
+import { AssistantSpeechSettingsComponent } from './assistant-speech-settings.component';
+import { EditableDictionaryEntry } from './editable-dictionary-entry.type';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { FabricObject } from 'fabric';
 import { FloorPlanMarkerType } from '@floor-plan-plugin/domain/enums/floor-plan-marker-type.enum';
 
 export interface FloorPlanObjectData {
@@ -38,5 +37,3 @@ export interface FloorPlanObjectData {
   fromDate?: Date;
   untilDate?: Date;
 }
-
-export type FabricWithData = FabricObject & { data?: FloorPlanObjectData };

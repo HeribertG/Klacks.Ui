@@ -182,9 +182,6 @@ export class TestAccessibilityService {
   }
 }
 
-// Re-export types for backward compatibility
-export type GridMetadata = ITestGridMetadata;
-export type CellInfo = ITestCellInfo;
 export type CellPosition = ICellPosition;
 
 // Legacy type alias - kept for backward compatibility

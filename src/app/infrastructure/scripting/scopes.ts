@@ -2,7 +2,8 @@
 
 import { Scope } from './scope';
 import { Entry } from './entry.model';
-import { Identifier, IdentifierTypes } from './identifier';
+import { Identifier } from './identifier';
+import { IdentifierTypes } from './identifier-types.enum';
 import { ScriptValue } from './script-value';
 import { normalizeIdentifierName } from './identifier-name';
 

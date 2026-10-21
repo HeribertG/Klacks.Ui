@@ -41,10 +41,8 @@ import {
 } from 'src/app/domain/models/settings/personal-access-token';
 import { IPersonalAccessTokenCreate } from 'src/app/domain/models/settings/personal-access-token-create.interface';
 import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 

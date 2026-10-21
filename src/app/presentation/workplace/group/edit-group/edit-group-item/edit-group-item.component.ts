@@ -19,7 +19,7 @@ import { FormField, disabled, form } from '@angular/forms/signals';
 import { NgbDateStruct, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';

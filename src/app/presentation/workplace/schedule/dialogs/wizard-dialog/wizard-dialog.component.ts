@@ -26,7 +26,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';
 import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
 import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
@@ -40,7 +40,8 @@ import { ComplianceViolationReportComponent } from 'src/app/presentation/workpla
 import { SkippedPlacementsReportComponent } from 'src/app/presentation/workplace/schedule/shared/skipped-placements-report/skipped-placements-report.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
 

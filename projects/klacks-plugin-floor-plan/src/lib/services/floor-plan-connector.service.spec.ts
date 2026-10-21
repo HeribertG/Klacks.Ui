@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Canvas } from 'fabric';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
-import { ConnectorRoutingType } from './floor-plan-tool.service';
+import { ConnectorRoutingType } from './connector-routing-type.enum';
 
 interface MockShape {
   left: number;

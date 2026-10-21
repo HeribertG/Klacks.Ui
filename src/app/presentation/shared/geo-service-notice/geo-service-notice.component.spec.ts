@@ -3,7 +3,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { GeoServiceNoticeComponent, GeoServiceNoticeService } from './geo-service-notice.component';
+import { GeoServiceNoticeComponent } from './geo-service-notice.component';
+import { GeoServiceNoticeService } from './geo-service-notice-service.type';
 import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';

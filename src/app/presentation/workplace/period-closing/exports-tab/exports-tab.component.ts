@@ -38,7 +38,8 @@ import { PayrollExportPreview } from 'src/app/infrastructure/api/period-closing/
 import { PayrollExportPerson } from 'src/app/infrastructure/api/period-closing/models/payroll-export-person';
 import { PayrollExportConflict } from 'src/app/infrastructure/api/period-closing/models/payroll-export-conflict';
 import { PAYROLL_EXPORT_ERROR_CODES } from 'src/app/infrastructure/api/period-closing/models/payroll-export-error-codes';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';import {
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';import {
   firstOfMonth,
   lastOfMonth,
   ngbDateStructToIsoDate,
@@ -61,7 +62,7 @@ import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from '
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { EXPORTS_TAB_TARGETS, ExportsTabKey } from '../period-closing-target.constants';
 import { errorCountToReconfirm } from '../period-seal-conflict';

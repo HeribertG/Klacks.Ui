@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-const ObjectError = -2147221504;
+import { ObjectError } from './object-error.constants';
 
 export class InterpreterError {
   public get index(): number {
@@ -66,27 +66,6 @@ export class InterpreterError {
   }
 }
 
-export enum inputStreamErrors {
-  errGoBackPastStartOfSource = ObjectError + 1,
-  errInvalidChar = ObjectError + 2,
-  errGoBackNotImplemented = ObjectError + 3,
-}
-export enum lexErrors {
-  errUnknownSymbol = ObjectError + 21,
-  errUnexpectedEOF = ObjectError + 22,
-  errUnexpectedEOL = ObjectError + 23,
-}
-export enum parsErrors {
-  errMissingClosingParent = ObjectError + 31,
-  errUnexpectedSymbol = ObjectError + 32,
-  errMissingLeftParent = ObjectError + 33,
-  errMissingComma = ObjectError + 34,
-  errNoYetImplemented = ObjectError + 35,
-  errSyntaxViolation = ObjectError + 36,
-  errIdentifierAlreadyExists = ObjectError + 37,
-  errWrongNumberOfParams = ObjectError + 38,
-  errCannotCallSubInExpression = ObjectError + 39,
-}
 export enum runErrors {
   errMath = ObjectError + 61,
   errTimedOut = ObjectError + 62,

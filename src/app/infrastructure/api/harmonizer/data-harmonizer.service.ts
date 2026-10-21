@@ -24,7 +24,8 @@ import {
   HarmonizerApplyAsScenarioResponse,
 } from 'src/app/domain/models/harmonizer/harmonizer-apply-as-scenario-response.interface';
 import { StartHarmonizerResponse } from 'src/app/domain/models/harmonizer/start-harmonizer-response.interface';
-import { HarmonizerProgress, HarmonizerStatus } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
+import { HarmonizerProgress } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
+import { HarmonizerStatus } from 'src/app/domain/models/harmonizer/harmonizer-status.type';
 import { HarmonizerResult } from 'src/app/domain/models/harmonizer/harmonizer-result.interface';
 import { HarmonizerJobStatusResponse } from 'src/app/domain/models/harmonizer/harmonizer-status.model';
 

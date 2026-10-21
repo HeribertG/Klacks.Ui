@@ -16,8 +16,8 @@ import { ReportDefaultsService } from 'src/app/domain/services/report/report-def
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
 import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
-import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { ReportType } from 'src/app/domain/models/report/report-template.model';
+import { ReportSectionType } from 'src/app/domain/models/report/report-section-type.enum';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const ABSENCE_ID = '11111111-1111-1111-1111-111111111111';

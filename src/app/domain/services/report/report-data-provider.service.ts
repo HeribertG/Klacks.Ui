@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import { ReportField } from '../../models/report/report-field.model';
-import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from '../../models/schedule/schedule-cell.interface';
 import { WorkChangeType } from '../../models/workchange/work-change-type.enum';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';

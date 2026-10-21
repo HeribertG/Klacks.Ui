@@ -15,7 +15,8 @@ import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 
 import { ReportTemplate, resolvePageGeometry } from 'src/app/domain/models/report/report-template.model';
 import { PageGeometry } from 'src/app/domain/models/report/page-geometry.interface';
-import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
+import { ReportSection } from 'src/app/domain/models/report/report-section.model';
+import { ReportSectionType } from 'src/app/domain/models/report/report-section-type.enum';
 import {
   ReportField,
   AVAILABLE_FONTS,

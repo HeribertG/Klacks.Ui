@@ -22,10 +22,8 @@ import { DataManagementFloorPlanService } from '@floor-plan-plugin/application/s
 import { FloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
 import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
 import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker.interface';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { FloorPlanCanvasComponent } from '@floor-plan-plugin/floor-plan-canvas/floor-plan-canvas.component';

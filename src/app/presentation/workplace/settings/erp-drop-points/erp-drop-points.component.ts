@@ -54,12 +54,13 @@ import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-s
 import { isValidCronExpression } from 'src/app/domain/helpers/cron-expression.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AssetDownloadService } from 'src/app/application/services/asset-download.service';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { ERP_DROP_POINTS_TAB_TARGETS, ErpDropPointsPageTab } from './erp-drop-points-target.constants';
 import { ErpImportFilesTab, erpImportFilesColumnCount } from './erp-import-files-tab';

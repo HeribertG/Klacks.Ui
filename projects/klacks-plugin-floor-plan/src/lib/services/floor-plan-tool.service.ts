@@ -1,32 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { FloorPlanTool } from './floor-plan-tool.enum';
+import { ConnectorRoutingType } from './connector-routing-type.enum';
+import { ConnectorArrowheadType } from './connector-arrowhead-type.enum';
 import { Injectable, signal, Signal } from '@angular/core';
-
-export enum FloorPlanTool {
-  Select = 'select',
-  Line = 'line',
-  Connector = 'connector',
-  Rectangle = 'rectangle',
-  Circle = 'circle',
-  Polygon = 'polygon',
-  RegularPolygon = 'regularPolygon',
-  FreeDrawing = 'freeDrawing',
-  Text = 'text',
-  Pan = 'pan',
-  Eraser = 'eraser',
-}
-
-export enum ConnectorRoutingType {
-  Straight = 'straight',
-  Curved = 'curved',
-  SCurve = 'scurve',
-  Orthogonal = 'orthogonal',
-}
-
-export enum ConnectorArrowheadType {
-  Single = 'single',
-  Double = 'double',
-}
 
 const DEFAULT_STROKE_COLOR = '#000000';
 const DEFAULT_FILL_COLOR = 'transparent';

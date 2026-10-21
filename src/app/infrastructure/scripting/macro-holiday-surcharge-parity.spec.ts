@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ScriptService, ExternalVariables } from './script.service';
+import { ScriptService } from './script.service';
+import { ExternalVariables } from './external-variables.type';
 
 const ALL_SHIFT_MACRO = `
 import hour

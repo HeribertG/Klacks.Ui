@@ -14,7 +14,7 @@ import { ScheduleCellDropResult } from './schedule-cell-drop-result.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const SOURCE_DATE = new Date(2026, 4, 11);

@@ -8,7 +8,7 @@ import { UserAdministrationService } from 'src/app/infrastructure/api/settings/u
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { ChangePassword } from 'src/app/domain/models/change-password-class';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import {

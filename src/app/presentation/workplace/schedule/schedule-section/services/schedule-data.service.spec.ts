@@ -32,7 +32,8 @@ import {
     SECOND_REMINDER_RULE,
     buildHolidaysListHelper,
 } from 'src/app/shared/testing/holiday-list.testing';
-import { ScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import {

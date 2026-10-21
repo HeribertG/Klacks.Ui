@@ -76,10 +76,8 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ContainerEditorLayoutComponent } from 'src/app/presentation/workplace/schedule/shared/container-editor-layout/container-editor-layout.component';
 
 const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';

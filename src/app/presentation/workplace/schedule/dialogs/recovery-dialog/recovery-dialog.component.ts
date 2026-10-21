@@ -50,7 +50,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
-import { IAnalyseScenario, AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { companyToday, formatDateOnly, isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';

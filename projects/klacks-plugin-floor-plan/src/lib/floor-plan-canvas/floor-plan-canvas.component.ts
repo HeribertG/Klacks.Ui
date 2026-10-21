@@ -22,8 +22,9 @@ import {
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 import { FabricObject, Line, Rect, Circle, Polygon, Path } from 'fabric';
-import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
-import { FabricWithData } from '../services/floor-plan-object-data.interface';
+import { FloorPlanToolService } from '../services/floor-plan-tool.service';
+import { FloorPlanTool } from '../services/floor-plan-tool.enum';
+import { FabricWithData } from '../services/fabric-with-data.type';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';

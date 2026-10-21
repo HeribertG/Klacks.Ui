@@ -7,7 +7,7 @@ import { Contract } from 'src/app/domain/models/contract/contract-class';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
 import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { DataManagementSchedulingRuleService } from '../scheduling/data-management-scheduling-rule.service';

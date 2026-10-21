@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { InterpreterError, inputStreamErrors } from './interpreterError';
+import { InterpreterError } from './interpreterError';
+import { inputStreamErrors } from './input-stream-errors.enum';
 
 export class StringInputStream {
   private _sourceText = '';

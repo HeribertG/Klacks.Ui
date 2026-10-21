@@ -33,10 +33,8 @@ import { DataManagementSchedulingRuleService } from 'src/app/domain/services/sch
 import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.interface';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';

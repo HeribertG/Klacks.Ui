@@ -17,7 +17,7 @@ import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import {

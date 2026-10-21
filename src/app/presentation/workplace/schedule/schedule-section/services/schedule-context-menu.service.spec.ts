@@ -11,7 +11,7 @@ import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { ScheduleDataService } from './schedule-data.service';
 
 describe('ScheduleContextMenuService - role seniority gates unconfirm', () => {

@@ -15,7 +15,7 @@ import { inject, Injectable } from '@angular/core';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';

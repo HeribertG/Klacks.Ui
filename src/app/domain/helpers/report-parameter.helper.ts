@@ -7,12 +7,10 @@
  * @param values - Values entered when the report is executed
  */
 
-import {
-  ReportParameter,
-  ReportParameterBinding,
-  ReportParameterType,
-  ReportParameterValues,
-} from 'src/app/domain/models/report/report-parameter.model';
+import { ReportParameter } from 'src/app/domain/models/report/report-parameter.model';
+import { ReportParameterBinding } from 'src/app/domain/models/report/report-parameter-binding.enum';
+import { ReportParameterType } from 'src/app/domain/models/report/report-parameter-type.enum';
+import { ReportParameterValues } from 'src/app/domain/models/report/report-parameter-values.type';
 
 /**
  * Parameters are namespaced in the script scope. Without the prefix a parameter named

@@ -2,14 +2,8 @@
 
 import { Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { ModalType } from './modal-type.enum';
 import { filter } from 'rxjs';
-
-export enum ModalType {
-  Input = 'input',
-  Delete = 'delete',
-  Message = 'message',
-  Confirmation = 'confirmation',
-}
 
 @Injectable({
   providedIn: 'root',

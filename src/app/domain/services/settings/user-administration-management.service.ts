@@ -6,7 +6,7 @@ import { Subject, timer, of } from 'rxjs';
 import { takeUntil, retry, catchError, tap, finalize } from 'rxjs/operators';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { ChangePassword } from 'src/app/domain/models/change-password-class';
 import { ChangeRole } from 'src/app/domain/models/change-role-class';

@@ -19,7 +19,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.interface';
 import { signal } from '@angular/core';
 import { of, Subject } from 'rxjs';
-import { ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const ALL_ADDRESS_LIST_MODAL_CONTEXT = 'all-address-list';

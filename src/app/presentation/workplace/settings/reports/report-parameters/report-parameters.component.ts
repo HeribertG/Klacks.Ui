@@ -12,11 +12,9 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
-import {
-  ReportParameter,
-  ReportParameterBinding,
-  ReportParameterType,
-} from 'src/app/domain/models/report/report-parameter.model';
+import { ReportParameter } from 'src/app/domain/models/report/report-parameter.model';
+import { ReportParameterBinding } from 'src/app/domain/models/report/report-parameter-binding.enum';
+import { ReportParameterType } from 'src/app/domain/models/report/report-parameter-type.enum';
 import {
   findParameterKeyProblem,
   toParameterVariableName,

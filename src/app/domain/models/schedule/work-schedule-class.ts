@@ -26,15 +26,3 @@ export class ScheduleCell implements IScheduleCell {
   lockLevel = 0;
   isGroupRestricted = false;
 }
-
-export enum WorkScheduleEntryType {
-  Work = 0,
-  WorkChange = 1,
-  Expenses = 2,
-  Break = 3,
-  ScheduleNote = 4,
-  ScheduleCommand = 5,
-}
-
-export type WorkScheduleByDate = Map<string, IScheduleCell[]>;
-export type WorkScheduleByClientAndDate = Map<string, WorkScheduleByDate>;

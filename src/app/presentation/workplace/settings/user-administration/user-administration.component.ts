@@ -28,10 +28,8 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { generatePassword } from 'src/app/shared/helpers/password.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { Subject, takeUntil } from 'rxjs';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';

@@ -15,5 +15,3 @@ export interface CoreShift {
   requiredAssignments: number;
   priority: number;
 }
-
-export type RngFn = () => number;

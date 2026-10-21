@@ -13,7 +13,8 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { signal } from '@angular/core';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 
 describe('LLMProvidersComponent', () => {
     let component: LLMProvidersComponent;

@@ -27,7 +27,7 @@ import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absen
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
@@ -37,7 +37,7 @@ import { ReportDataProviderService } from 'src/app/domain/services/report/report
 import { ReportData } from 'src/app/domain/services/report/report-data.interface';
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
-import { ReportType } from 'src/app/domain/models/report/report-template.model';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';

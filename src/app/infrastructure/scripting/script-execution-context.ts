@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { CompiledScript } from './compiled-script';
-import { Identifier, IdentifierTypes } from './identifier';
+import { Identifier } from './identifier';
+import { IdentifierTypes } from './identifier-types.enum';
 import { Opcodes } from './opcodes';
 import { createScriptError } from './script-error';
 import { ScriptResult, scriptResultFail, scriptResultOk } from './script-result';

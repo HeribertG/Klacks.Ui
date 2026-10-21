@@ -26,7 +26,7 @@ import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';

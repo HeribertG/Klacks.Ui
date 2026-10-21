@@ -5,12 +5,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import {
-  QualificationGapDetail,
-  QualificationGapKind,
-  QualificationGapReason,
-  QualificationGapSeverity,
-} from 'src/app/domain/models/schedule/qualification-gap.model';
+import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
+import { QualificationGapKind } from 'src/app/domain/models/schedule/qualification-gap-kind.enum';
+import { QualificationGapReason } from 'src/app/domain/models/schedule/qualification-gap-reason.enum';
+import { QualificationGapSeverity } from 'src/app/domain/models/schedule/qualification-gap-severity.enum';
 import {
   CELL_DATE_EXPECTATIONS,
   CELL_DATE_LOCALES,

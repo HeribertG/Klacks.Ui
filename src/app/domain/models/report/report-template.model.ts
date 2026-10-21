@@ -6,6 +6,7 @@ import { ReportPageSetup } from './report-page-setup.interface';
 import { PageGeometry } from './page-geometry.interface';
 import { ReportOrientation } from './report-orientation.enum';
 import { ReportPageSize } from './report-page-size.enum';
+import { ReportType } from './report-type.enum';
 import { ReportParameter } from './report-parameter.model';
 
 export interface ReportTemplate {
@@ -25,13 +26,6 @@ export interface ReportTemplate {
   isLocal?: boolean;
   versions?: ReportTemplateVersion[];
   parameters?: ReportParameter[];
-}
-
-export enum ReportType {
-  Schedule = 0,
-  Client = 1,
-  Invoice = 2,
-  Absence = 3
 }
 
 export const PAGE_SIZE_FORMATS: Record<ReportPageSize, string | [number, number]> = {

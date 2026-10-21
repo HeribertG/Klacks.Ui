@@ -15,7 +15,7 @@ import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.inte
 import { CounterEventType } from 'src/app/domain/enums/counter-rule.enums';
 import { CounterRuleApiService } from 'src/app/infrastructure/api/scheduling/counter-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 

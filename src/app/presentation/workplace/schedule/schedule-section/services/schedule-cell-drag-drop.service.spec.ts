@@ -7,7 +7,7 @@ import { ScheduleCellDragDropService } from './schedule-cell-drag-drop.service';
 import { ScheduleCellDragSource } from './schedule-cell-drag-source.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 
 let settings: BaseSettingsService;
 

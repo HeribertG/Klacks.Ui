@@ -8,7 +8,8 @@ import { AuditTabComponent } from './audit-tab.component';
 import { AUTONOMOUS_ACTOR_LABEL_KEY, AUTONOMOUS_ACTOR_NAME } from './audit-actor.constants';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
-import { PeriodAuditAction, PeriodAuditLog } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
+import { PeriodAuditLog } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
+import { PeriodAuditAction } from 'src/app/infrastructure/api/period-closing/models/period-audit-action.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 

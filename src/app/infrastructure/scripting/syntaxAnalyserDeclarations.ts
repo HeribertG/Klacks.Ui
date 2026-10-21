@@ -1,12 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Tokens } from './symbol';
+import { Tokens } from './tokens.enum';
 import { Opcodes } from './code';
-import { parsErrors } from './interpreterError';
-import { IdentifierTypes, Identifier } from './identifier';
+import { parsErrors } from './pars-errors.enum';
+import { Identifier } from './identifier';
+import { IdentifierTypes } from './identifier-types.enum';
 import { SyntaxAnalyserExpressions } from './syntaxAnalyserExpressions';
-import { Exits } from './syntaxAnalyserBase';
+import { Exits } from './exits.enum';
 import { ScriptValue } from './script-value';
 
 export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressions {

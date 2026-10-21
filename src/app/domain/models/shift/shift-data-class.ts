@@ -1,31 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { NumberPropertyMetadata } from './number-property-metadata.interface';
+import { PropertyMetadata } from './property-metadata.type';
 
 export enum MacroShiftType {
   DayShift = 0,
   NightShift = 1,
   MixedShift = 2,
 }
-
-export enum Weekday {
-  Monday = 1,
-  Tuesday = 2,
-  Wednesday = 3,
-  Thursday = 4,
-  Friday = 5,
-  Saturday = 6,
-  Sunday = 7,
-}
-
-export enum HolidayStatus {
-  DayAfter = -2,
-  DayBefore = -1,
-  NoHoliday = 0,
-  Holiday = 1,
-}
-
-export type PropertyMetadata = Record<string, NumberPropertyMetadata>;
 
 export class ShiftData {
   Hour = 8;

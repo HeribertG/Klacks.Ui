@@ -25,7 +25,7 @@ import { ScheduleCommandResource } from 'src/app/domain/models/schedule-command/
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDropResult } from '../../services/shift-drop-result.interface';

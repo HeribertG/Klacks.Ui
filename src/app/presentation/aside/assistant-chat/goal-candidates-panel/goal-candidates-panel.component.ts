@@ -26,7 +26,7 @@ import { AsideService } from '../../aside.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 
 const CONFIDENCE_I18N_PREFIX = 'assistant-chat.goal-candidates.confidence.';

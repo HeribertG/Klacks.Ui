@@ -6,7 +6,8 @@ import { ScheduleMenuHost } from './schedule-menu-host.interface';
 import { ScheduleSectionFacadeService } from './schedule-section-facade.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleDataService } from './schedule-data.service';
-import { ScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 
 describe('ScheduleMenuDispatcherService - cover absence', () => {
   let service: ScheduleMenuDispatcherService;

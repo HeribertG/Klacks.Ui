@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject, signal } from '@angular/core';
-import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from '../../models/report/report-template.model';
-import { DEFAULT_SECTIONS, ReportSectionType } from '../../models/report/report-section.model';
+import { ReportTemplate, DEFAULT_PAGE_SETUP } from '../../models/report/report-template.model';
+import { ReportType } from '../../models/report/report-type.enum';
+import { DEFAULT_SECTIONS } from '../../models/report/report-section.model';
+import { ReportSectionType } from '../../models/report/report-section-type.enum';
 import { DEFAULT_FIELD_STYLE } from '../../models/report/report-field.model';
 import { ReportFieldType } from '../../models/report/report-field-type.enum';
 import { TextAlignment } from '../../models/report/text-alignment.enum';

@@ -5,8 +5,9 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { ReportXlsxService } from './report-xlsx.service';
 import { ReportDataProvider } from './report-data-provider.interface';
-import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
-import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
+import { DEFAULT_PAGE_SETUP, ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
+import { ReportSectionType } from 'src/app/domain/models/report/report-section-type.enum';
 import { DEFAULT_FIELD_STYLE, ReportField } from 'src/app/domain/models/report/report-field.model';
 import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';

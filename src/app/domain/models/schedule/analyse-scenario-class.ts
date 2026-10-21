@@ -7,6 +7,8 @@
  * @param AnalyseScenarioStatus - Status enum: Active, Accepted, Rejected
  */
 
+import { AnalyseScenarioStatus } from './analyse-scenario-status.enum';
+
 export interface IAnalyseScenario {
   id: string;
   name: string;
@@ -32,10 +34,4 @@ export const WIZARD4_SYSTEM_ACTOR = 'wizard4';
 /** True when this scenario is a suggestion of the background optimiser rather than a planner's own. */
 export function isWizard4Candidate(scenario: IAnalyseScenario): boolean {
   return scenario.createdByUser === WIZARD4_SYSTEM_ACTOR;
-}
-
-export enum AnalyseScenarioStatus {
-  Active = 0,
-  Accepted = 1,
-  Rejected = 2,
 }

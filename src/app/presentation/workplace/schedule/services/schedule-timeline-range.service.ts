@@ -7,9 +7,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { TimelineViewRange } from './timeline-view-range.type';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-
-export type TimelineViewRange = 'full' | 'day';
 
 const RANGE_STORAGE_KEY = 'klacks.schedule.timelineViewRange';
 const FULL_RANGE: TimelineViewRange = 'full';

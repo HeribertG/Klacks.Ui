@@ -37,15 +37,10 @@ import { GeocodingSearchStatus } from 'src/app/domain/models/geo/geocoding-searc
 import { STREET_VIEW_LINK_TEMPLATE } from 'src/app/domain/constants/external-map-link.constants';
 import { LocationData } from './location-data.interface';
 import { CoordinateAccumulator } from './coordinate-accumulator.interface';
+import { ClientType } from './client-type.enum';
 import { buildExternalMapLink } from 'src/app/shared/helpers/external-map-link.helper';
 
 declare let L: any;
-
-export enum ClientType {
-  Employee = 0,
-  ExternEmp = 1,
-  Customer = 2,
-}
 
 export type LocationViewMode = 'city' | 'group';
 

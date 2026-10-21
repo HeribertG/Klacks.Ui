@@ -30,15 +30,13 @@ import { AbsenceDetail } from 'src/app/domain/models/absence-detail/absence-deta
 import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { AbsenceDetailFormModel } from 'src/app/presentation/view-models/absence-detail-form.model';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';

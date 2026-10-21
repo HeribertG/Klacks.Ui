@@ -42,8 +42,8 @@ import {
   ONBOARDING_SETUP_OPEN_STATUSES,
   ONBOARDING_STATIONS,
   ONBOARDING_STATUS,
-  OnboardingKind,
 } from 'src/app/domain/constants/onboarding-stations';
+import { OnboardingKind } from 'src/app/domain/constants/onboarding-kind.type';
 import { IOnboardingAskField } from 'src/app/domain/constants/onboarding-ask-field.interface';
 import { AuthorizationService } from './authorization.service';
 import { FeaturePluginStateService } from './feature-plugin-state.service';

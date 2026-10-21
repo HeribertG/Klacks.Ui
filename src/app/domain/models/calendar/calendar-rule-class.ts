@@ -6,13 +6,8 @@ import { getGregorianDateForHijriInYear } from './hijri-calendar';
 import { getGregorianDateForLunarInYear } from './lunar-calendar';
 import { ICalendarRule } from './calendar-rule.interface';
 import { HolidayDate } from './holiday-date-class';
+import { HolidayStatus } from './holiday-status.enum';
 import { compareDate } from 'src/app/shared/helpers/date.helper';
-
-export enum HolidayStatus {
-  NotAHoliday = 0,
-  UnofficialHoliday = 1,
-  OfficialHoliday = 2,
-}
 
 export class CalendarRule implements ICalendarRule {
   id = '';

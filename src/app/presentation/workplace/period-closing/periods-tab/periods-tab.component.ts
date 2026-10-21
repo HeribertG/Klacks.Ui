@@ -37,7 +37,8 @@ import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/da
 import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
 import { ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter-class';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
 import { companyTimeZone, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
@@ -45,7 +46,7 @@ import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/com
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
 import { PeriodGroup } from './period-group.interface';

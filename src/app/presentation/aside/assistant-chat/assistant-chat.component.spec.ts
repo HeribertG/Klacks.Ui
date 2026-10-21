@@ -18,7 +18,8 @@ import { DataManagementAgentPlanService } from 'src/app/domain/services/assistan
 import { AsideService } from '../aside.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
-import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
+import { ConversationOrchestratorService } from './services/conversation-orchestrator.service';
+import { ConversationState } from './services/conversation-state.enum';
 import { ChatStageStatusService } from './services/chat-stage-status.service';
 import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';

@@ -21,7 +21,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Rect, Circle, Polygon, Path, Line } from 'fabric';
-import { FabricWithData } from '../services/floor-plan-object-data.interface';
+import { FabricWithData } from '../services/fabric-with-data.type';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';

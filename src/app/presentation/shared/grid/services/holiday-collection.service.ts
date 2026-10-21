@@ -8,11 +8,10 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-
 import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 import { firstValueFrom } from 'rxjs';
+import { OfficialOverrideMap } from './official-override-map.type';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 const OVERRIDE_KEY_SEPARATOR = '|';
-
-export type OfficialOverrideMap = Map<string, boolean | null>;
 
 export function buildOfficialOverrideKey(
   country: string,

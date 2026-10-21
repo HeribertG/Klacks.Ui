@@ -33,10 +33,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 import { ShiftData } from 'src/app/domain/models/shift/shift-data-class';
-import {
-  ScriptService,
-  ExternalVariables,
-} from 'src/app/infrastructure/scripting/script.service';
+import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
+import { ExternalVariables } from 'src/app/infrastructure/scripting/external-variables.type';
 import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';

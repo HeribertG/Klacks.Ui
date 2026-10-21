@@ -27,7 +27,7 @@ import { IWork } from 'src/app/domain/models/schedule/work.interface';
 import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
-import { WorkScheduleByClientAndDate } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleByClientAndDate } from 'src/app/domain/models/schedule/work-schedule-by-client-and-date.type';
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import {

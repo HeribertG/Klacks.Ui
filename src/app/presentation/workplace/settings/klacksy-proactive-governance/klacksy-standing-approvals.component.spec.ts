@@ -9,7 +9,8 @@ import { KlacksyStandingApprovalsComponent } from './klacksy-standing-approvals.
 import { StandingApprovalService } from 'src/app/domain/services/assistant/standing-approval.service';
 import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IStandingApproval } from 'src/app/domain/models/assistant/standing-approval.interface';
 import { STANDING_APPROVAL_LIMITS, STANDING_APPROVAL_STATUS } from 'src/app/domain/constants/standing-approval.constants';

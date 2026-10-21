@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Identifier, IdentifierTypes } from './identifier';
+import { Identifier } from './identifier';
+import { IdentifierTypes } from './identifier-types.enum';
 import { ScriptValue } from './script-value';
 import { Entry } from './entry.model';
 import { normalizeIdentifierName } from './identifier-name';

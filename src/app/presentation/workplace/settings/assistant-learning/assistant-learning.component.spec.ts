@@ -16,7 +16,8 @@ import {
   KLACKSY_LEARNING_RUN_REASON,
   KLACKSY_LEARNING_RUN_RELOAD_DELAY_MS,
 } from 'src/app/domain/constants/klacksy-learning.constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 describe('AssistantLearningComponent', () => {

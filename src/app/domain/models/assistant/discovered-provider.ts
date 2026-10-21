@@ -5,17 +5,8 @@
  * Enum values mirror the backend integer serialization order.
  */
 
-export enum ProviderCandidateSource {
-  Catalog = 0,
-  Web = 1,
-}
-
-export enum ProviderConnectivityStatus {
-  Unknown = 0,
-  Reachable = 1,
-  ReachableNeedsKey = 2,
-  Unreachable = 3,
-}
+import { ProviderCandidateSource } from './provider-candidate-source.enum';
+import { ProviderConnectivityStatus } from './provider-connectivity-status.enum';
 
 export interface IDiscoveredProvider {
   providerId: string;

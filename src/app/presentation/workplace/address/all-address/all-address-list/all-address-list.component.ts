@@ -23,10 +23,8 @@ import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-clas
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';

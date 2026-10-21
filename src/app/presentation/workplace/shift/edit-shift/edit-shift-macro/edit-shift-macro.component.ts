@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { Language } from 'src/app/domain/models/settings/language-config';
+import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';

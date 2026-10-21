@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ReportTemplateResolverService } from './report-template-resolver.service';
-import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
+import { DEFAULT_PAGE_SETUP, ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 
 function template(partial: Partial<ReportTemplate>): ReportTemplate {
   return {
