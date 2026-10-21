@@ -833,6 +833,48 @@ describe('ReportDesignerComponent (characterization)', () => {
       expect(text('.field-chips .chip-label')).toBe('Renamed page');
       expect(emitted.length).toBe(0);
     });
+
+    it('re-renders the palette when a header field is removed in a header zone', () => {
+      // Arrange
+      const badge = () => Number(queryAll('.palette-group .badge')[0].textContent?.trim());
+      const before = badge();
+
+      // Act
+      click(query('.header-zone .zone-chip .chip-btn.remove'));
+
+      // Assert
+      expect(badge()).toBe(before + 1);
+    });
+
+    it('re-renders the toolbar formula status when the formula is edited in the formula editor', () => {
+      // Arrange
+      click(query('.add-formula-column'));
+      click(query('.formula-edit-btn'));
+      expect(query('.global-toolbar .formula-status')!.classList).toContain('status-empty');
+
+      // Act
+      typeInto(query('.formula-textarea'), FORMULA);
+
+      // Assert
+      expect(query('.global-toolbar .formula-status')!.classList).toContain('status-valid');
+    });
+
+    it('re-renders the body table when a merged field is added in the toolbar', () => {
+      // Arrange
+      click(query('.table-column'));
+      const mergeSelect = queryAll<HTMLSelectElement>('.global-toolbar select.tb-select')
+        .find(select => select.querySelector('option[value="entry.weekday"]'))!;
+
+      // Act
+      mergeSelect.value = 'entry.weekday';
+      mergeSelect.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+
+      // Assert
+      expect(bodyOf().fields[0].additionalBindings).toEqual(['entry.weekday']);
+      expect(text('.table-column .merged-field-tag')).toContain('setting.report.field.entryWeekday');
+      expect(mergeSelect.value).toBe('');
+    });
   });
 
   describe('body tables', () => {
