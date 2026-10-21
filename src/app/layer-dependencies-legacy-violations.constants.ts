@@ -165,8 +165,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/workplace/period-closing/exports-tab/order-range-export-section/order-range-export-section.component.ts': ['infrastructure'],
   'presentation/workplace/period-closing/exports-tab/payroll-export-conflict.parser.ts': ['infrastructure'],
   'presentation/workplace/period-closing/exports-tab/payroll-export.constants.ts': ['infrastructure'],
-  'presentation/workplace/period-closing/period-issues-card/period-issues-card.component.ts': ['infrastructure'],
-  'presentation/workplace/period-closing/period-issues-card/period-issues-pdf-export.service.ts': ['infrastructure'],
   'presentation/workplace/period-closing/periods-tab/periods-tab.component.ts': ['infrastructure'],
   'presentation/workplace/profile/profile-custom-setting/profile-custom-setting.component.ts': ['infrastructure'],
   'presentation/workplace/profile/profile-picture/profile-picture.component.ts': ['infrastructure'],

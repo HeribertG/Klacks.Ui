@@ -17,12 +17,12 @@ import { ISealedOrderDetails } from './models/sealed-order-details';
 import { PeriodAuditLog } from './models/period-audit-log';
 import { PayrollExportPreview } from './models/payroll-export-preview';
 import { PayrollExportRequest } from './models/payroll-export-request';
-import { PeriodIssue } from './models/period-issue';
+import { PeriodIssue } from '../../../domain/models/period-closing/period-issue';
 import { SealedOrderListItem } from './models/sealed-order-list-item';
 import { SealedPeriodSummary } from './models/sealed-period-summary';
 import { SealRequest } from './models/seal-request';
 import { UnsealRequest } from './models/unseal-request';
-import { UsedPeriod } from './models/used-period';
+import { UsedPeriod } from '../../../domain/models/period-closing/used-period';
 
 @Injectable({ providedIn: 'root' })
 export class DataPeriodClosingService {

@@ -19,7 +19,7 @@ import { jsPDF } from 'jspdf';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
-import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
+import { PeriodIssue } from 'src/app/domain/models/period-closing/period-issue';
 import { formatDateParams } from 'src/app/domain/helpers/date-params.helper';
 import { resolveMultiLanguageParams } from 'src/app/domain/helpers/multi-language-params.helper';
 import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';

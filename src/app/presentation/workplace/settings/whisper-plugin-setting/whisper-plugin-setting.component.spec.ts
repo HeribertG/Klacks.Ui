@@ -7,10 +7,8 @@ import { of, throwError } from 'rxjs';
 
 import { WhisperPluginSettingComponent } from './whisper-plugin-setting.component';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
-import {
-  DataWhisperPluginService,
-  WhisperModelAliases,
-} from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { DataWhisperPluginService } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 

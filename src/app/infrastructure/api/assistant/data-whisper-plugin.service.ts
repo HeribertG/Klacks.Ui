@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { WhisperPluginStatus } from '../../../domain/models/assistant/whisper-plugin-status.interface';
 import { WhisperOperationResult } from '../../../domain/models/assistant/whisper-operation-result.interface';
+import { WhisperModelAlias } from '../../../domain/models/assistant/whisper-model-alias.type';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const WHISPER_STATUS_ENDPOINT = 'stt/whisper-plugin/status';
@@ -15,13 +16,6 @@ const WHISPER_INSTALL_ENDPOINT = 'stt/whisper-plugin/install';
 const WHISPER_UNINSTALL_ENDPOINT = 'stt/whisper-plugin/uninstall';
 const JSON_CONTENT_TYPE = 'application/json';
 const NETWORK_ERROR_REASON = 'Network error';
-
-export const WhisperModelAliases = {
-  Small: 'small',
-  LargeV3Turbo: 'large-v3-turbo',
-} as const;
-
-export type WhisperModelAlias = (typeof WhisperModelAliases)[keyof typeof WhisperModelAliases];
 
 export const WhisperOperationTypes = {
   Install: 'WhisperInstall',

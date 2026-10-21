@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { jsPDF } from 'jspdf';
 import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
+import { PeriodIssue } from 'src/app/domain/models/period-closing/period-issue';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import {
   ARABIC_INDIC_DIGITS,

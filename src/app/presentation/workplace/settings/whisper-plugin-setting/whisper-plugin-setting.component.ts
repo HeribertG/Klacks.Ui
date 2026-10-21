@@ -25,11 +25,11 @@ import { DataManagementUpdateService } from 'src/app/domain/services/update/data
 import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
 import {
   DataWhisperPluginService,
-  WhisperModelAlias,
-  WhisperModelAliases,
   WhisperOperationStatuses,
   WhisperOperationTypes,
 } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
+import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 

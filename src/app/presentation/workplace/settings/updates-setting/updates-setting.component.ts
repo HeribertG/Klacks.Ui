@@ -35,9 +35,9 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
 import {
   DataWhisperPluginService,
-  WhisperModelAlias,
   WhisperOperationTypes,
 } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
 const CONTINUABLE_HISTORY_STATUSES = ['Pending', 'Failed', 'Cancelled', 'RollbackFailed'];

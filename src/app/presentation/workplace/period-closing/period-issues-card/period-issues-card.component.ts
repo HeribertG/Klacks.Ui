@@ -14,7 +14,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, vi
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
-import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
+import { PeriodIssue } from 'src/app/domain/models/period-closing/period-issue';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { PeriodIssuesPdfExportService } from './period-issues-pdf-export.service';

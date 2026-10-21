@@ -10,7 +10,7 @@ import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-clos
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
 import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
-import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
+import { UsedPeriod } from 'src/app/domain/models/period-closing/used-period';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
