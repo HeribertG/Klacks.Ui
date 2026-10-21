@@ -65,7 +65,9 @@ describe('DataManagementAssistantService', () => {
             createModel: vi.fn(),
             deleteModel: vi.fn(),
             updateModel: vi.fn(),
-            cancelTurn: vi.fn()
+            cancelTurn: vi.fn(),
+            getAutonomyLevel: vi.fn(),
+            setAutonomyLevel: vi.fn()
         };
 
         const eventBusSpy = {
@@ -636,6 +638,27 @@ describe('DataManagementAssistantService', () => {
 
             // Assert
             expect(mockDataAssistantService.cancelTurn).toHaveBeenCalledWith('turn-123');
+        });
+    });
+
+    describe('autonomy level', () => {
+        it('reads the autonomy level from the assistant API', async () => {
+            const dto = { level: 2, name: 'Autonomous' };
+            mockDataAssistantService.getAutonomyLevel.mockReturnValue(of(dto));
+
+            const result = await firstValueFrom(service.getAutonomyLevel());
+
+            expect(result).toBe(dto);
+        });
+
+        it('sends the requested autonomy level to the assistant API and returns the stored one', async () => {
+            const dto = { level: 3, name: 'FullyAutonomous' };
+            mockDataAssistantService.setAutonomyLevel.mockReturnValue(of(dto));
+
+            const result = await firstValueFrom(service.setAutonomyLevel({ level: 3 }));
+
+            expect(mockDataAssistantService.setAutonomyLevel).toHaveBeenCalledWith({ level: 3 });
+            expect(result).toBe(dto);
         });
     });
 

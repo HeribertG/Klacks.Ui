@@ -352,6 +352,32 @@ describe('AppSettingsManagementService', () => {
         });
     });
 
+    describe('connection tests', () => {
+        it('forwards the e-mail configuration to the settings API and returns its result', () => {
+            const result = { success: true, message: 'ok' };
+            dataSettingsService.testEmailConfiguration = vi.fn().mockReturnValue(of(result));
+            const config = { server: 'smtp.test.com', port: '587' };
+            let received: unknown;
+
+            service.testEmailConfiguration(config).subscribe((r) => (received = r));
+
+            expect(dataSettingsService.testEmailConfiguration).toHaveBeenCalledWith(config);
+            expect(received).toBe(result);
+        });
+
+        it('forwards the IMAP configuration to the settings API and returns its result', () => {
+            const result = { success: false, message: 'refused' };
+            dataSettingsService.testImapConfiguration = vi.fn().mockReturnValue(of(result));
+            const config = { server: 'imap.test.com', port: 993 } as any;
+            let received: unknown;
+
+            service.testImapConfiguration(config).subscribe((r) => (received = r));
+
+            expect(dataSettingsService.testImapConfiguration).toHaveBeenCalledWith(config);
+            expect(received).toBe(result);
+        });
+    });
+
     describe('resetData', () => {
         it('should call loadSettings', () => {
             // Arrange

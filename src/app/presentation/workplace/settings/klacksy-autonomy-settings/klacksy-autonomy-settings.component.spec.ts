@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { KlacksyAutonomySettingsComponent } from './klacksy-autonomy-settings.component';
-import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 describe('KlacksyAutonomySettingsComponent', () => {
@@ -27,7 +27,7 @@ describe('KlacksyAutonomySettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [KlacksyAutonomySettingsComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: DataAssistantService, useValue: mockDataService },
+        { provide: DataManagementAssistantService, useValue: mockDataService },
         { provide: ToastShowService, useValue: mockToast },
       ],
     }).compileComponents();

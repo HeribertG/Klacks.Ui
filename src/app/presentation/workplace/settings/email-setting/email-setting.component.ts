@@ -6,7 +6,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EmailModel } from './email-model.interface';
@@ -23,7 +22,6 @@ import { PasswordInputComponent } from 'src/app/presentation/shared/password-inp
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
   private appSettingsService = inject(AppSettingsManagementService);
-  private dataSettingsVariousService = inject(DataSettingsVariousService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -133,7 +131,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
       replyTo: model.replyTo,
     };
 
-    this.dataSettingsVariousService
+    this.appSettingsService
       .testEmailConfiguration(emailConfig)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({

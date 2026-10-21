@@ -11,7 +11,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { AutonomyLevelOption } from './autonomy-level-option.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
@@ -24,7 +24,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KlacksyAutonomySettingsComponent implements OnInit {
-  private dataAssistantService = inject(DataAssistantService);
+  private assistantService = inject(DataManagementAssistantService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
 
@@ -41,7 +41,7 @@ export class KlacksyAutonomySettingsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      const dto = await firstValueFrom(this.dataAssistantService.getAutonomyLevel());
+      const dto = await firstValueFrom(this.assistantService.getAutonomyLevel());
       this.currentLevel.set(dto.level);
     } catch {
       this.toastShowService.showError(
@@ -60,7 +60,7 @@ export class KlacksyAutonomySettingsComponent implements OnInit {
 
     this.isSaving.set(true);
     try {
-      const dto = await firstValueFrom(this.dataAssistantService.setAutonomyLevel({ level }));
+      const dto = await firstValueFrom(this.assistantService.setAutonomyLevel({ level }));
       this.currentLevel.set(dto.level);
     } catch {
       this.toastShowService.showError(

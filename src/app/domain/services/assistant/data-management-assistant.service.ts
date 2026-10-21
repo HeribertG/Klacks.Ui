@@ -31,6 +31,8 @@ import {
 } from 'src/app/domain/models/assistant/report-ui-action-result-response.interface';
 import { IKlacksyModelCheckResponse } from 'src/app/domain/models/assistant/klacksy-model-check-response.interface';
 import { ICancelTurnResponse } from 'src/app/domain/models/assistant/cancel-turn-response.interface';
+import { IAutonomyLevelDto } from 'src/app/domain/models/assistant/autonomy-level-dto.interface';
+import { IUpdateAutonomyLevelRequest } from 'src/app/domain/models/assistant/update-autonomy-level-request.interface';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
 import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
 import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
@@ -325,6 +327,14 @@ export class DataManagementAssistantService {
         throw error;
       })
     );
+  }
+
+  getAutonomyLevel(): Observable<IAutonomyLevelDto> {
+    return this.dataAssistantService.getAutonomyLevel();
+  }
+
+  setAutonomyLevel(request: IUpdateAutonomyLevelRequest): Observable<IAutonomyLevelDto> {
+    return this.dataAssistantService.setAutonomyLevel(request);
   }
 
   setLanguage(language: string): void {

@@ -13,11 +13,13 @@
 
 import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
+import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
+import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
 import { AppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
 import { IAppContactSettings } from 'src/app/domain/models/settings/app-contact-settings.interface';
@@ -685,6 +687,14 @@ export class AppSettingsManagementService {
       return;
     }
     await new Promise<void>((resolve) => this.saveCompletionResolvers.push(resolve));
+  }
+
+  testEmailConfiguration(config: unknown): Observable<EmailTestResult> {
+    return this.dataSettingsService.testEmailConfiguration(config);
+  }
+
+  testImapConfiguration(config: ImapTestRequest): Observable<EmailTestResult> {
+    return this.dataSettingsService.testImapConfiguration(config);
   }
 
   private saveSetting(value: string, originalValue: string, type: string): void {

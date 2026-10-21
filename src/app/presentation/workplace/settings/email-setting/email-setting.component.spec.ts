@@ -9,14 +9,12 @@ import { signal, WritableSignal } from '@angular/core';
 
 import { EmailSettingComponent } from './email-setting.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
 
 describe('EmailSettingComponent', () => {
     let component: EmailSettingComponent;
     let mockAppSettingsService: any;
-    let mockDataSettingsService: any;
     let mockToastService: any;
     let emailSettingsSignal: WritableSignal<any>;
     let contactSettingsSignal: WritableSignal<any>;
@@ -46,9 +44,6 @@ describe('EmailSettingComponent', () => {
             loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
             emailSettings: emailSettingsSignal,
             contactSettings: contactSettingsSignal,
-        };
-
-        const dataSettingsServiceSpy = {
             testEmailConfiguration: vi.fn().mockReturnValue(of({ success: true, message: 'Default success' })),
         };
 
@@ -69,7 +64,6 @@ describe('EmailSettingComponent', () => {
             providers: [
                 EmailSettingComponent,
                 { provide: AppSettingsManagementService, useValue: appSettingsServiceSpy },
-                { provide: DataSettingsVariousService, useValue: dataSettingsServiceSpy },
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
                 { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
@@ -77,7 +71,6 @@ describe('EmailSettingComponent', () => {
         }).compileComponents();
 
         mockAppSettingsService = TestBed.inject(AppSettingsManagementService) as any;
-        mockDataSettingsService = TestBed.inject(DataSettingsVariousService) as any;
         mockToastService = TestBed.inject(ToastShowService) as any;
 
         component = TestBed.inject(EmailSettingComponent);
@@ -112,14 +105,14 @@ describe('EmailSettingComponent', () => {
                 messageKey: 'EMAIL_TEST_SUCCESS_SENT',
                 messageParams: { email: 'test@test.com' },
             };
-            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
+            mockAppSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
 
             // Act
             component.testEmailConfiguration();
             await new Promise(resolve => setTimeout(resolve, 10));
 
             // Assert
-            expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalled();
+            expect(mockAppSettingsService.testEmailConfiguration).toHaveBeenCalled();
             expect(mockToastService.showSuccess).toHaveBeenCalledWith('Translated text', 'Translated text');
             expect(component.isTestingEmail).toBe(false);
         });
@@ -131,7 +124,7 @@ describe('EmailSettingComponent', () => {
                 success: true,
                 message: 'Fallback message',
             };
-            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
+            mockAppSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
 
             // Act
             component.testEmailConfiguration();
@@ -151,7 +144,7 @@ describe('EmailSettingComponent', () => {
                 messageKey: 'EMAIL_TEST_AUTH_FAILED',
                 errorDetails: 'SMTP authentication error',
             };
-            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(errorResult));
+            mockAppSettingsService.testEmailConfiguration.mockReturnValue(of(errorResult));
 
             // Act
             component.testEmailConfiguration();
@@ -178,7 +171,7 @@ describe('EmailSettingComponent', () => {
             component.testEmailConfiguration();
 
             // Assert
-            expect(mockDataSettingsService.testEmailConfiguration).not.toHaveBeenCalled();
+            expect(mockAppSettingsService.testEmailConfiguration).not.toHaveBeenCalled();
             expect(mockToastService.showError).toHaveBeenCalled();
             expect(component.isTestingEmail).toBe(false);
         });
@@ -187,7 +180,7 @@ describe('EmailSettingComponent', () => {
             // Arrange
             await component.ngOnInit();
             const error = new Error('Network error');
-            mockDataSettingsService.testEmailConfiguration.mockReturnValue(throwError(() => error));
+            mockAppSettingsService.testEmailConfiguration.mockReturnValue(throwError(() => error));
 
             // Act
             component.testEmailConfiguration();
@@ -205,7 +198,7 @@ describe('EmailSettingComponent', () => {
                 success: true,
                 message: 'Success',
             };
-            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
+            mockAppSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
 
             // Act
             component.testEmailConfiguration();
@@ -221,7 +214,7 @@ describe('EmailSettingComponent', () => {
                 password: 'password123',
                 replyTo: 'noreply@example.com',
             };
-            expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalledWith(expectedConfig);
+            expect(mockAppSettingsService.testEmailConfiguration).toHaveBeenCalledWith(expectedConfig);
         });
     });
 
