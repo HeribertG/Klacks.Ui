@@ -3,6 +3,7 @@
 import {
   PARAMETER_VARIABLE_PREFIX,
   applyParameterBindings,
+  buildDefaultParameterValues,
   buildParameterVariables,
   findMissingRequiredParameters,
   findParameterKeyProblem,
@@ -170,6 +171,14 @@ describe('report-parameter.helper', () => {
       const result = applyParameterBindings(parameters, { x: 'ignored', g: '  ' }, { groupId: 'keep' });
 
       expect(result.groupId).toBe('keep');
+    });
+  });
+
+  describe('buildDefaultParameterValues', () => {
+    it('starts every parameter with its default or an empty string', () => {
+      const values = buildDefaultParameterValues([parameter({ key: 'a', defaultValue: 'x' }), parameter({ key: 'b' })]);
+
+      expect(values).toEqual({ a: 'x', b: '' });
     });
   });
 

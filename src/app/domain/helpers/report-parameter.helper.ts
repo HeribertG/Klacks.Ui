@@ -119,6 +119,17 @@ export function findParameterKeyProblem(
 }
 
 /**
+ * Start values of the given parameters: each one's default, or an empty string.
+ */
+export function buildDefaultParameterValues(parameters: readonly ReportParameter[]): ReportParameterValues {
+  const values: ReportParameterValues = {};
+  for (const parameter of parameters) {
+    values[parameter.key] = parameter.defaultValue ?? '';
+  }
+  return values;
+}
+
+/**
  * Values that have to be supplied but were left empty.
  */
 export function findMissingRequiredParameters(

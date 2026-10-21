@@ -35,6 +35,13 @@ import { DataClientService } from 'src/app/infrastructure/api/client/data-client
 import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
 import { companyTimeZone, companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { ReportRowComponent } from './report-row.component';
+import { ReportRowEditorStateService } from './services/report-row-editor-state.service';
+import { ReportRowSourceService } from './services/report-row-source.service';
+import { ReportRowParametersService } from './services/report-row-parameters.service';
+import { ReportRowPreviewService } from './services/report-row-preview.service';
+import { ReportRowExportService } from './services/report-row-export.service';
+import { ReportRowVersionsService } from './services/report-row-versions.service';
+import { ReportRowSessionService } from './services/report-row-session.service';
 
 const STUB_TEMPLATE = '<ng-template #content></ng-template>';
 const TOAST_NAME = 'report-template';
@@ -112,13 +119,14 @@ describe('ReportRowComponent (characterization)', () => {
       return result;
     });
 
-  const state = () => component;
-  const source = () => component;
-  const params = () => component;
-  const preview = () => component;
-  const exporter = () => component;
-  const versions = () => component;
-  const session = () => component;
+  const service = <T>(token: new (...args: never[]) => T): T => fixture.debugElement.injector.get(token);
+  const state = () => service(ReportRowEditorStateService);
+  const source = () => service(ReportRowSourceService);
+  const params = () => service(ReportRowParametersService);
+  const preview = () => service(ReportRowPreviewService);
+  const exporter = () => service(ReportRowExportService);
+  const versions = () => service(ReportRowVersionsService);
+  const session = () => service(ReportRowSessionService);
 
   const lastModal = () => modalRefs[modalRefs.length - 1];
   const flush = async () => {
@@ -368,7 +376,7 @@ describe('ReportRowComponent (characterization)', () => {
         backdrop: 'static',
         keyboard: false,
       });
-      expect(session().hasUnsavedChanges).toBe(false);
+      expect(state().hasUnsavedChanges).toBe(false);
       expect(session().showDiscardConfirm()).toBe(false);
       expect(versions().versions()).toEqual([]);
     });
@@ -382,7 +390,7 @@ describe('ReportRowComponent (characterization)', () => {
 
       // Assert
       expect(state().editIsDefault).toBe(true);
-      expect(session().hasUnsavedChanges).toBe(false);
+      expect(state().hasUnsavedChanges).toBe(false);
       expect(reportDefaults['load']).not.toHaveBeenCalled();
     });
 
@@ -400,7 +408,7 @@ describe('ReportRowComponent (characterization)', () => {
       expect(before).toBe(false);
       expect(reportDefaults['load']).toHaveBeenCalledTimes(1);
       expect(state().editIsDefault).toBe(true);
-      expect(session().hasUnsavedChanges).toBe(true);
+      expect(state().hasUnsavedChanges).toBe(true);
     });
 
     it('loads the preview clients only once per row', () => {
@@ -516,7 +524,7 @@ describe('ReportRowComponent (characterization)', () => {
       params().onParametersChange([createParameter()]);
 
       // Assert
-      expect(session().hasUnsavedChanges).toBe(true);
+      expect(state().hasUnsavedChanges).toBe(true);
     });
   });
 
@@ -762,7 +770,7 @@ describe('ReportRowComponent (characterization)', () => {
       expect(templateResolver['resolveReportType']).toHaveBeenCalledWith('schedule', ReportType.Schedule);
       expect(state().editTemplate.id).toBe('created-id');
       expect(state().isNew).toBe(false);
-      expect(session().hasUnsavedChanges).toBe(false);
+      expect(state().hasUnsavedChanges).toBe(false);
       expect(session().isSaving()).toBe(false);
       expect(toast['showSuccess']).toHaveBeenCalledWith('setting.report.saved', TOAST_NAME);
       expect(lastModal().close).not.toHaveBeenCalled();
@@ -833,7 +841,7 @@ describe('ReportRowComponent (characterization)', () => {
       // Assert
       expect(toast['showError']).toHaveBeenCalledWith('setting.report.error.save', TOAST_NAME);
       expect(session().isSaving()).toBe(false);
-      expect(session().hasUnsavedChanges).toBe(true);
+      expect(state().hasUnsavedChanges).toBe(true);
       expect(lastModal().close).not.toHaveBeenCalled();
     });
   });

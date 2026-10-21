@@ -5,7 +5,7 @@
   <div class="modal-header">
     <div class="container-header-modal modal-title">
       {{
-        isNew
+        state.isNew
           ? ('setting.report.modal.new' | translate)
           : ('setting.report.modal.edit' | translate)
       }}
@@ -15,7 +15,7 @@
       type="button"
       class="close"
       aria-label="Close"
-      (click)="requestClose()"
+      (click)="session.requestClose()"
     >
       <span
         aria-hidden="true"
@@ -44,10 +44,10 @@
               <input
                 type="text"
                 class="form-control"
-                [class.is-invalid]="!isNameValid"
-                [(ngModel)]="editName"
+                [class.is-invalid]="!state.isNameValid"
+                [(ngModel)]="state.editName"
               />
-              @if (!isNameValid) {
+              @if (!state.isNameValid) {
                 <div class="invalid-feedback d-block">
                   {{ "setting.report.error.nameRequired" | translate }}
                 </div>
@@ -61,7 +61,7 @@
               <textarea
                 class="form-control"
                 rows="3"
-                [(ngModel)]="editDescription"
+                [(ngModel)]="state.editDescription"
               ></textarea>
             </div>
 
@@ -71,8 +71,8 @@
               }}</label>
               <select
                 class="form-select"
-                [(ngModel)]="editOrientation"
-                (ngModelChange)="onPageSetupChange()"
+                [(ngModel)]="state.editOrientation"
+                (ngModelChange)="state.onPageSetupChange()"
               >
                 <option [ngValue]="ReportOrientation.Portrait">
                   {{ "setting.report.orientation.portrait" | translate }}
@@ -89,8 +89,8 @@
               }}</label>
               <select
                 class="form-select"
-                [(ngModel)]="editPageSize"
-                (ngModelChange)="onPageSetupChange()"
+                [(ngModel)]="state.editPageSize"
+                (ngModelChange)="state.onPageSetupChange()"
               >
                 <option [ngValue]="ReportPageSize.A4">A4</option>
                 <option [ngValue]="ReportPageSize.A3">A3</option>
@@ -105,7 +105,7 @@
                 "setting.report.field.margins" | translate
               }}</label>
               <div class="margin-grid">
-                @for (side of marginSides; track side) {
+                @for (side of state.marginSides; track side) {
                   <div class="margin-field">
                     <span class="margin-label">{{
                       "setting.report.margin." + side | translate
@@ -115,8 +115,8 @@
                       class="form-control"
                       min="0"
                       max="60"
-                      [ngModel]="editMargins[side]"
-                      (ngModelChange)="onMarginChange(side, $event)"
+                      [ngModel]="state.editMargins[side]"
+                      (ngModelChange)="state.onMarginChange(side, $event)"
                     />
                   </div>
                 }
@@ -133,11 +133,11 @@
         <ng-template ngbNavContent>
           <div class="source-tab">
             <div class="source-grid">
-              @for (source of availableSources; track source.id) {
+              @for (source of sources.availableSources; track source.id) {
                 <div
                   class="source-card"
-                  [class.active]="editSourceId === source.id"
-                  (click)="selectSource(source)"
+                  [class.active]="state.editSourceId === source.id"
+                  (click)="sources.selectSource(source)"
                 >
                   <div class="source-name">
                     {{ source.i18nKey | translate }}
@@ -147,22 +147,22 @@
               }
             </div>
 
-            @if (selectedSourceDataSets.length > 1) {
+            @if (sources.selectedSourceDataSets.length > 1) {
               <div class="dataset-selection">
                 <label class="form-label">{{
                   "setting.report.source.selectDataSet" | translate
                 }}</label>
                 <div class="dataset-grid">
-                  @for (ds of selectedSourceDataSets; track ds.id) {
+                  @for (ds of sources.selectedSourceDataSets; track ds.id) {
                     <div
                       class="dataset-card"
-                      [class.active]="editDataSetIds.includes(ds.id)"
-                      (click)="toggleDataSet(ds)"
+                      [class.active]="state.editDataSetIds.includes(ds.id)"
+                      (click)="sources.toggleDataSet(ds)"
                     >
-                      @if (selectedSource?.multiSelect) {
+                      @if (sources.selectedSource?.multiSelect) {
                         <input
                           type="checkbox"
-                          [checked]="editDataSetIds.includes(ds.id)"
+                          [checked]="state.editDataSetIds.includes(ds.id)"
                           class="me-2"
                         />
                       }
@@ -178,7 +178,7 @@
                 type="checkbox"
                 class="form-check-input"
                 id="{{ id() }}-is-default"
-                [(ngModel)]="editIsDefault"
+                [(ngModel)]="state.editIsDefault"
               />
               <label class="form-check-label" for="{{ id() }}-is-default">
                 {{ "setting.report.useAsDefault" | translate }}
@@ -198,11 +198,11 @@
         <ng-template ngbNavContent>
           <div class="designer-tab">
             <app-report-designer
-              [(template)]="editTemplate"
-              [sourceId]="editSourceId"
-              [dataSetIds]="editDataSetIds"
-              [imagePreviewCache]="imageCache"
-              [parameterKeys]="parameterKeys"
+              [(template)]="state.editTemplate"
+              [sourceId]="state.editSourceId"
+              [dataSetIds]="state.editDataSetIds"
+              [imagePreviewCache]="state.imageCache"
+              [parameterKeys]="parameters.parameterKeys"
             >
             </app-report-designer>
           </div>
@@ -215,8 +215,8 @@
         </button>
         <ng-template ngbNavContent>
           <app-report-parameters
-            [parameters]="editParameters"
-            (parametersChange)="onParametersChange($event)"
+            [parameters]="state.editParameters"
+            (parametersChange)="parameters.onParametersChange($event)"
           ></app-report-parameters>
         </ng-template>
       </li>
@@ -231,22 +231,22 @@
               <label class="form-label">{{
                 "setting.report.preview.group" | translate
               }}</label>
-              <select class="form-select" [(ngModel)]="previewGroupId">
+              <select class="form-select" [(ngModel)]="preview.previewGroupId">
                 <option value="">
                   {{ "setting.report.preview.allGroups" | translate }}
                 </option>
-                @for (group of groups; track group.id) {
+                @for (group of preview.groups; track group.id) {
                   <option [value]="group.id">{{ group.name }}</option>
                 }
               </select>
             </div>
 
-            @if (sourcePreviewConfig.needsClient) {
+            @if (preview.sourcePreviewConfig.needsClient) {
               <div class="mb-3">
                 <label class="form-label">{{
                   "setting.report.preview.client" | translate
                 }}</label>
-                <select class="form-select" [(ngModel)]="previewClientId">
+                <select class="form-select" [(ngModel)]="preview.previewClientId">
                   <option value="">
                     {{ "setting.report.preview.allClients" | translate }}
                   </option>
@@ -259,12 +259,12 @@
               </div>
             }
 
-            @if (sourcePreviewConfig.needsDateRange) {
+            @if (preview.sourcePreviewConfig.needsDateRange) {
               <div class="row">
                 <div class="date-input">
                   <app-date-input
                     [label]="'setting.report.preview.fromDate' | translate"
-                    [(value)]="previewFromDate"
+                    [(value)]="preview.previewFromDate"
                     inputId="previewFromDate"
                     inputWidth="full-width"
                   >
@@ -273,7 +273,7 @@
                 <div class="date-input">
                   <app-date-input
                     [label]="'setting.report.preview.toDate' | translate"
-                    [(value)]="previewToDate"
+                    [(value)]="preview.previewToDate"
                     inputId="previewToDate"
                     inputWidth="full-width"
                   >
@@ -282,13 +282,13 @@
               </div>
             }
 
-            @if (editParameters.length > 0) {
+            @if (state.editParameters.length > 0) {
               <div class="preview-parameters">
                 <div class="preview-parameters-title">
                   {{ "setting.report.tab.parameters" | translate }}
                 </div>
 
-                @for (parameter of editParameters; track parameter.key) {
+                @for (parameter of state.editParameters; track parameter.key) {
                   <div class="mb-3">
                     <label class="form-label">
                       {{ parameter.label || parameter.key }}
@@ -301,8 +301,8 @@
                       @case (ReportParameterType.Choice) {
                         <select
                           class="form-select"
-                          [ngModel]="parameterValues[parameter.key] ?? ''"
-                          (ngModelChange)="setParameterValue(parameter.key, $event)"
+                          [ngModel]="state.parameterValues[parameter.key] ?? ''"
+                          (ngModelChange)="parameters.setParameterValue(parameter.key, $event)"
                         >
                           <option value=""></option>
                           @for (choice of parameter.choices ?? []; track choice) {
@@ -313,8 +313,8 @@
                       @case (ReportParameterType.Boolean) {
                         <select
                           class="form-select"
-                          [ngModel]="parameterValues[parameter.key] ?? ''"
-                          (ngModelChange)="setParameterValue(parameter.key, $event)"
+                          [ngModel]="state.parameterValues[parameter.key] ?? ''"
+                          (ngModelChange)="parameters.setParameterValue(parameter.key, $event)"
                         >
                           <option value="true">{{ "general.yes" | translate }}</option>
                           <option value="false">{{ "general.no" | translate }}</option>
@@ -330,8 +330,8 @@
                                 ? 'date'
                                 : 'text'
                           "
-                          [ngModel]="parameterValues[parameter.key] ?? ''"
-                          (ngModelChange)="setParameterValue(parameter.key, $event)"
+                          [ngModel]="state.parameterValues[parameter.key] ?? ''"
+                          (ngModelChange)="parameters.setParameterValue(parameter.key, $event)"
                         />
                       }
                     }
@@ -343,10 +343,10 @@
             <div class="preview-actions">
               <button
                 class="btn btn-primary"
-                (click)="generatePreview()"
-                [disabled]="!canGeneratePreview"
+                (click)="preview.generatePreview()"
+                [disabled]="!preview.canGeneratePreview"
               >
-                @if (isGenerating()) {
+                @if (preview.isGenerating()) {
                   <span class="spinner-border spinner-border-sm me-1"></span>
                 }
                 {{ "setting.report.preview.generate" | translate }}
@@ -354,56 +354,56 @@
 
               <button
                 class="btn btn-secondary"
-                (click)="exportCsv()"
-                [disabled]="!canGeneratePreview"
+                (click)="exporter.exportCsv()"
+                [disabled]="!preview.canGeneratePreview"
               >
                 {{ "setting.report.preview.exportCsv" | translate }}
               </button>
 
               <button
                 class="btn btn-secondary"
-                (click)="exportXlsx()"
-                [disabled]="!canGeneratePreview"
+                (click)="exporter.exportXlsx()"
+                [disabled]="!preview.canGeneratePreview"
               >
                 {{ "setting.report.preview.exportXlsx" | translate }}
               </button>
 
-              @if (previewSource()) {
-                <button class="btn btn-secondary" (click)="openPreviewInNewTab()">
+              @if (preview.previewSource()) {
+                <button class="btn btn-secondary" (click)="preview.openPreviewInNewTab()">
                   {{ "setting.report.preview.openInTab" | translate }}
                 </button>
               }
             </div>
 
-            @if (previewSource()) {
+            @if (preview.previewSource()) {
               <iframe
                 class="preview-frame"
-                [src]="previewSource()"
+                [src]="preview.previewSource()"
                 [title]="'setting.report.tab.preview' | translate"
               ></iframe>
             }
           </div>
         </ng-template>
       </li>
-      @if (!isNew) {
+      @if (!state.isNew) {
         <li ngbNavItem>
-          <button ngbNavLink (click)="loadVersions()">
+          <button ngbNavLink (click)="history.loadVersions()">
             {{ "setting.report.tab.history" | translate }}
           </button>
           <ng-template ngbNavContent>
             <div class="history-section">
-              @if (isLoadingVersions()) {
+              @if (history.isLoadingVersions()) {
                 <span class="spinner-border spinner-border-sm me-1"></span>
               } @else {
-                @for (version of versions(); track $index) {
+                @for (version of history.versions(); track $index) {
                   <div class="history-row">
-                    <span class="history-date">{{ formatVersionDate(version) }}</span>
+                    <span class="history-date">{{ history.formatVersionDate(version) }}</span>
                     <span class="history-name">{{ version.name }}</span>
                     <span class="history-user">{{ version.savedBy }}</span>
                     <button
                       type="button"
                       class="btn btn-sm btn-outline-secondary"
-                      (click)="restoreVersion(version)"
+                      (click)="history.restoreVersion(version)"
                     >
                       {{ "setting.report.restoreVersion" | translate }}
                     </button>
@@ -433,30 +433,30 @@
   </div>
 
   <div class="modal-footer">
-    @if (showDiscardConfirm()) {
+    @if (session.showDiscardConfirm()) {
       <span class="discard-question settings-hint">{{
         "setting.report.discardQuestion" | translate
       }}</span>
-      <button type="button" class="btn btn-outline-danger" (click)="discardChanges()">
+      <button type="button" class="btn btn-outline-danger" (click)="session.discardChanges()">
         {{ "setting.report.discardConfirm" | translate }}
       </button>
-      <button type="button" class="btn save-btn" (click)="keepEditing()">
+      <button type="button" class="btn save-btn" (click)="session.keepEditing()">
         {{ "setting.report.discardCancel" | translate }}
       </button>
     } @else {
     <span
       type="button"
       class="link-button red-font"
-      (click)="requestClose()"
+      (click)="session.requestClose()"
       >{{ 'cancel' | translate }}</span
     >
     <button
       type="button"
       class="btn save-btn"
-      (click)="saveReport()"
-      [disabled]="isSaving() || !isNameValid"
+      (click)="session.saveReport()"
+      [disabled]="session.isSaving() || !state.isNameValid"
     >
-      @if (isSaving()) {
+      @if (session.isSaving()) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
       {{ 'general.save' | translate }}
@@ -464,10 +464,10 @@
     <button
       type="button"
       class="btn save-btn"
-      (click)="saveReport(true)"
-      [disabled]="isSaving() || !isNameValid"
+      (click)="session.saveReport(true)"
+      [disabled]="session.isSaving() || !state.isNameValid"
     >
-      @if (isSaving()) {
+      @if (session.isSaving()) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
       {{ 'setting.macro.save-close-btn' | translate }}
@@ -496,7 +496,7 @@
     ><app-icon-export
   /></span>
 
-  @if (!isNew) {
+  @if (!state.isNew) {
     <span
       class="duplicate-button"
       type="button"
