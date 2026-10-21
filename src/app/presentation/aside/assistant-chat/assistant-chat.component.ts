@@ -11,11 +11,9 @@ import {
   HostListener,
   ElementRef,
   effect,
-  ChangeDetectorRef,
   NgZone,
   signal,
   computed,
-  linkedSignal,
   ChangeDetectionStrategy,
   DestroyRef,
   afterEveryRender,
@@ -72,10 +70,13 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
-import {
-  ChatMessageActionsService,
-  SETUP_CONSULTATION_TRIGGER_PHRASE_KEY,
-} from './services/chat-message-actions.service';
+import { ChatMessageActionsService } from './services/chat-message-actions.service';
+import { ChatTranscriptService } from './services/chat-transcript.service';
+import { ChatComposerService } from './services/chat-composer.service';
+import { ChatAutoSpeakService } from './services/chat-auto-speak.service';
+import { ChatModelSelectionService } from './services/chat-model-selection.service';
+import { ChatReplyToastService } from './services/chat-reply-toast.service';
+import { createChatMessageId, createConversationId } from './chat-ids.helper';
 import { CorrectionType } from './services/correction-type.type';
 import {
   ProactiveReaction,
@@ -85,13 +86,6 @@ import { StreamMetadata } from 'src/app/domain/models/assistant/stream-metadata.
 import { StreamStatus } from 'src/app/domain/models/assistant/stream-status.interface';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
-import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
-import {
-  WELCOME_FOCUS_ACTION,
-  WELCOME_FOCUS_ACTION_KIND,
-  WELCOME_FOCUS_FALLBACK_PROMPT_KEY,
-  WELCOME_FOCUS_LATER,
-} from 'src/app/domain/constants/welcome-focus.constants';
 import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
@@ -161,6 +155,10 @@ const INTRO_CARD_KEYS = {
   providers: [
     AssistantFunctionExecutionService,
     ChatFunctionExecutionService,
+    ChatTranscriptService,
+    ChatComposerService,
+    ChatModelSelectionService,
+    ChatReplyToastService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -168,6 +166,11 @@ export class AssistantChatComponent {
   private readonly messagesContainer = viewChild.required<ElementRef>('messagesContainer');
   private readonly chatInput = viewChild<ElementRef<HTMLTextAreaElement>>('chatInput');
 
+  private readonly transcript = inject(ChatTranscriptService);
+  private readonly composer = inject(ChatComposerService);
+  private readonly autoSpeak = inject(ChatAutoSpeakService);
+  private readonly modelSelection = inject(ChatModelSelectionService);
+  private readonly replyToasts = inject(ChatReplyToastService);
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
   private chatFunctionExecution = inject(ChatFunctionExecutionService);
@@ -185,7 +188,6 @@ export class AssistantChatComponent {
   private klacksyNavigation = inject(KlacksyNavigationService);
   private navigationVerdict = inject(NavigationVerdictService);
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   readonly proactiveInboxService = inject(DataManagementProactiveInboxService);
   private readonly messageActions = inject(ChatMessageActionsService);
@@ -210,11 +212,7 @@ export class AssistantChatComponent {
   private llmOfflineHintShown = false;
   private eventBus = inject(EVENT_BUS_TOKEN);
 
-  private shouldScrollToBottom = true;
   private pendingGreetingMessageId: string | null = null;
-  private pendingGreetingOptions: ISuggestedReply[] = [];
-  private pendingGreetingPrompt: string | null = null;
-  private pendingGreetingFocus: IWelcomeFocus | null = null;
   private greetingSpoken = false;
   private welcomeMessageId: string | null = null;
   private welcomeRequestedWithoutApiKey = false;
@@ -235,25 +233,17 @@ export class AssistantChatComponent {
   readonly pendingDelegateMessageId = this.messageActions.pendingDelegateMessageId;
   readonly pendingAcknowledgeMessageId = this.messageActions.pendingAcknowledgeMessageId;
 
-  inputText = signal('');
+  readonly inputText = this.composer.inputText;
   /** Now backed by ChatTurnControlService: flips false the instant a stop begins, not only when the turn fully completes. */
   readonly isProcessing = this.turnControl.isTurnRunning;
   /** Pass-through of the extracted service's state; kept as a component member for template/spec compatibility. */
   readonly toolSteps = this.chatStageStatus.toolSteps;
   showModelDropdown = signal(false);
 
-  readonly availableModels = computed(() =>
-    this.assistantService.availableModels().filter((m) => m.isEnabled),
-  );
-  currentModel = linkedSignal(() => this.assistantService.selectedModelId());
-
-  readonly isInitializing = computed(
-    () => !this.assistantService.modelsInitialized() || !this.assistantProviderService.providersInitialized(),
-  );
-
-  readonly hasNoApiKey = computed(() =>
-    this.isInitializing() ? false : this.noApiKeyForSelectedModel(),
-  );
+  readonly availableModels = this.modelSelection.availableModels;
+  readonly currentModel = this.modelSelection.currentModel;
+  readonly isInitializing = this.modelSelection.isInitializing;
+  readonly hasNoApiKey = this.modelSelection.hasNoApiKey;
 
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
   readonly onboardingCardKeys = computed(() => (this.onboarding.isIntro() ? INTRO_CARD_KEYS : SETUP_CARD_KEYS));
@@ -285,12 +275,13 @@ export class AssistantChatComponent {
   }
 
   constructor() {
-    this.conversationId = this.generateConversationId();
+    this.conversationId = createConversationId();
+    this.composer.registerSender(() => this.sendMessage());
+    this.transcript.registerInputFocus(() => this.chatInput()?.nativeElement?.focus());
 
     afterEveryRender(() => {
-      if (this.shouldScrollToBottom) {
+      if (this.transcript.consumeScrollRequest()) {
         this.scrollToBottom();
-        this.shouldScrollToBottom = false;
       }
     });
 
@@ -298,18 +289,9 @@ export class AssistantChatComponent {
       if (this.asideService.isVisible() && !this.greetingSpoken && this.pendingGreetingMessageId) {
         const msg = this.orchestrator.messages().find(m => m.id === this.pendingGreetingMessageId);
         if (msg) {
-          this.maybeAutoSpeak(msg);
+          this.autoSpeak.maybeAutoSpeak(msg);
           this.greetingSpoken = true;
-          if (this.pendingGreetingOptions.length > 0) {
-            this.showGreetingOptionsAsToast(
-              this.pendingGreetingOptions,
-              this.pendingGreetingPrompt ?? undefined,
-              this.pendingGreetingFocus,
-            );
-            this.pendingGreetingOptions = [];
-            this.pendingGreetingPrompt = null;
-            this.pendingGreetingFocus = null;
-          }
+          this.replyToasts.showDeferredGreeting();
         }
       }
     });
@@ -349,7 +331,7 @@ export class AssistantChatComponent {
         setInputText: (text: string) => { this.inputText.set(text); },
         sendMessage: () => this.sendMessage(),
         getAbortController: () => this.currentStreamController,
-        detectChanges: () => this.cdr.detectChanges(),
+        detectChanges: () => this.transcript.detectChanges(),
         isTextProcessing: this.isProcessing,
         stop: (reason) => {
           // session-end also fires automatically when the floating shell disappears; that must not cancel a running execution.
@@ -365,13 +347,6 @@ export class AssistantChatComponent {
     this.orchestrator.errors$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((hint) => this.onVoiceErrorHint(hint));
-
-    this.navigationVerdict.correctionAppended$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.shouldScrollToBottom = true;
-        this.cdr.detectChanges();
-      });
 
     this.translateService.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -587,7 +562,7 @@ export class AssistantChatComponent {
       formattedContent: this.formatMessage(nextContent),
       isStreaming: true,
     });
-    this.shouldScrollToBottom = true;
+    this.transcript.requestScrollToBottom();
 
     const ttsDelta =
       nextContent.length > previousClean.length && nextContent.startsWith(previousClean)
@@ -637,7 +612,7 @@ export class AssistantChatComponent {
 
     const userContent = this.inputText().trim();
     const userMessage: ChatMessage = {
-      id: this.generateMessageId(),
+      id: createChatMessageId(),
       sender: 'user',
       content: userContent,
       formattedContent: this.formatMessage(userContent),
@@ -650,9 +625,9 @@ export class AssistantChatComponent {
     }
     const messageText = this.inputText();
     this.inputText.set('');
-    this.shouldScrollToBottom = true;
+    this.transcript.requestScrollToBottom();
 
-    const assistantMessageId = this.generateMessageId();
+    const assistantMessageId = createChatMessageId();
     const assistantMessage: ChatMessage = {
       id: assistantMessageId,
       sender: 'assistant',
@@ -676,7 +651,7 @@ export class AssistantChatComponent {
       cancelAnimationFrame(this.streamRafHandle);
       this.streamRafHandle = null;
     }
-    this.cdr.detectChanges();
+    this.transcript.detectChanges();
 
     const voiceModeActive =
       this.orchestrator.voiceModeEnabled() || this.outputModes.isAutoSpeakMode();
@@ -696,7 +671,7 @@ export class AssistantChatComponent {
         onStatus: (data: StreamStatus) => {
           this.ngZone.run(() => {
             this.chatStageStatus.applyStatus(data.stage);
-            this.cdr.detectChanges();
+            this.transcript.detectChanges();
           });
         },
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
@@ -707,14 +682,14 @@ export class AssistantChatComponent {
             }
             this.orchestrator.onStreamFunctionCall();
             this.chatStageStatus.addToolStep(data.functionName);
-            this.shouldScrollToBottom = true;
-            this.cdr.detectChanges();
+            this.transcript.requestScrollToBottom();
+            this.transcript.detectChanges();
           });
         },
         onFunctionResult: (data: { functionName: string }) => {
           this.ngZone.run(() => {
             this.chatStageStatus.markToolStepDone(data.functionName);
-            this.cdr.detectChanges();
+            this.transcript.detectChanges();
           });
         },
         onContent: (rawText: string) => {
@@ -744,16 +719,16 @@ export class AssistantChatComponent {
               actionPerformed: data.actionPerformed,
             });
             this.chatStageStatus.clear();
-            this.shouldScrollToBottom = true;
+            this.transcript.requestScrollToBottom();
 
             const offerableNavigateTo = this.offerableNavigateTo(data);
             const pendingStation = this.isTourStationPending ? this.onboarding.stationAt(this.tourIndex) : undefined;
             if (pendingStation) {
               this.showStationChips(pendingStation);
             } else if (data.suggestedReplies) {
-              this.showRepliesAsToast(data.suggestedReplies);
+              this.replyToasts.showRepliesAsToast(data.suggestedReplies);
             } else if (offerableNavigateTo || (data.suggestions && data.suggestions.length > 0)) {
-              this.showActionsAsToast(data.suggestions, offerableNavigateTo);
+              this.replyToasts.showActionsAsToast(data.suggestions, offerableNavigateTo);
             } else {
               this.toastShowService.dismissInteractiveReplies();
             }
@@ -784,14 +759,14 @@ export class AssistantChatComponent {
               this.navigationVerdict.applySuspectedMiss(assistantMessageId);
             }
 
-            this.cdr.detectChanges();
+            this.transcript.detectChanges();
           });
         },
         onTurnStopped: (turnId: string | null, executedSkillLabels: string[], executedCount: number | null) => {
           this.ngZone.run(() => {
             if (this.turnControl.notifyTurnStopped(turnId, executedSkillLabels, executedCount)) {
               this.chatStageStatus.clear();
-              this.cdr.detectChanges();
+              this.transcript.detectChanges();
             }
           });
         },
@@ -804,16 +779,16 @@ export class AssistantChatComponent {
               isStreaming: false,
               formattedContent: doneMessage?.formattedContent ?? this.formatMessage(doneContent),
             });
-            this.shouldScrollToBottom = true;
+            this.transcript.requestScrollToBottom();
             this.turnControl.endTurn();
             this.chatStageStatus.clear();
             this.currentStreamController = null;
-            this.cdr.detectChanges();
+            this.transcript.detectChanges();
             this.orchestrator.onStreamDone();
             if (!isStopped()) {
-              this.maybeAutoSpeak(doneMessage);
+              this.autoSpeak.maybeAutoSpeak(doneMessage);
             }
-            setTimeout(() => this.chatInput()?.nativeElement?.focus(), 0);
+            this.transcript.focusInputSoon();
           });
         },
         onError: (message: string) => {
@@ -827,11 +802,11 @@ export class AssistantChatComponent {
               content: merged,
               formattedContent: this.formatMessage(merged),
             });
-            this.shouldScrollToBottom = true;
+            this.transcript.requestScrollToBottom();
             this.turnControl.endTurn();
             this.chatStageStatus.clear();
             this.currentStreamController = null;
-            this.cdr.detectChanges();
+            this.transcript.detectChanges();
             this.orchestrator.onStreamError();
           });
         },
@@ -862,34 +837,6 @@ export class AssistantChatComponent {
     this.messageActions.speakMessage(message);
   }
 
-  private maybeAutoSpeak(message: ChatMessage | undefined): void {
-    if (this.orchestrator.isAutoSpeakStreaming()) {
-      return;
-    }
-    if (message && !this.voiceModeEnabled && this.outputModes.isAutoSpeakMode()) {
-      this.speakMessage(message);
-    }
-  }
-
-  onSuggestionClick(suggestion: string): void {
-    this.inputText.set(suggestion);
-    this.sendMessage();
-  }
-
-  private showRepliesAsToast(config: ISuggestedRepliesConfig): void {
-    this.toastShowService.dismissInteractiveReplies();
-    this.toastShowService.showInteractiveReply(
-      config,
-      (values: string[]) => {
-        this.ngZone.run(() => {
-          if (values.length === 0) return;
-          this.inputText.set(values.join(', '));
-          this.sendMessage();
-        });
-      },
-    );
-  }
-
   private offerableNavigateTo(data: StreamMetadata): string | null {
     const navigateTo = data.navigateTo;
     if (!navigateTo) {
@@ -911,116 +858,6 @@ export class AssistantChatComponent {
   private isCurrentRoute(route: string): boolean {
     const current = this.router.url.split('?')[0].split('#')[0];
     return current === route || current.startsWith(`${route}/`);
-  }
-
-  private showActionsAsToast(suggestions?: string[], navigateTo?: string | null): void {
-    // Same reason as in showGreetingOptionsAsToast: suppress the toast during a tour, but never
-    // dismiss - the station chips are the only interactive toast up while the tour runs, and the
-    // no-api-key welcome branch reaches this method right in the middle of it.
-    if (this.onboarding.isTourActive()) {
-      return;
-    }
-    const options: ISuggestedReply[] = [];
-    if (navigateTo && navigateTo.startsWith('/workplace/')) {
-      options.push({
-        label: '📍 ' + this.translateService.instant('assistant-chat.open'),
-        value: navigateTo,
-      });
-    }
-    if (suggestions) {
-      for (const s of suggestions) {
-        options.push({ label: s, value: s });
-      }
-    }
-    if (options.length === 0) {
-      this.toastShowService.dismissInteractiveReplies();
-      return;
-    }
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      prompt: this.translateService.instant('assistant-chat.action-toast.prompt'),
-      options,
-    };
-    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
-      this.ngZone.run(() => {
-        if (values.length === 0) return;
-        const value = values[0];
-        if (value.startsWith('/workplace/')) {
-          this.onNavigateClick(value);
-        } else {
-          this.onSuggestionClick(value);
-        }
-      });
-    });
-  }
-
-  private showGreetingOptionsAsToast(
-    options: ISuggestedReply[],
-    prompt?: string,
-    focus?: IWelcomeFocus | null,
-  ): void {
-    if (!options.length) return;
-    // The welcome response lands after the tour has already put its station chips up, and
-    // dismissing here would take those chips down: during a tour they are the only interactive
-    // toast on screen. Suppressing the greeting is enough - a greeting toast from before the tour
-    // is cleared by showStationChips/showLanguageChoiceChips anyway.
-    if (this.onboarding.isTourActive()) {
-      return;
-    }
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      prompt: prompt ?? this.translateService.instant(WELCOME_FOCUS_FALLBACK_PROMPT_KEY),
-      options,
-    };
-    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
-      this.ngZone.run(() => {
-        if (values.length === 0) return;
-        const value = values[0];
-        if (focus && value === WELCOME_FOCUS_ACTION) {
-          this.runWelcomeFocusAction(focus);
-          return;
-        }
-        if (focus && value === WELCOME_FOCUS_LATER) {
-          this.snoozeWelcomeFocusKind(focus);
-          return;
-        }
-        if (value.startsWith('/workplace/')) {
-          this.onNavigateClick(value);
-        } else {
-          this.onSuggestionClick(value);
-        }
-      });
-    });
-  }
-
-  private runWelcomeFocusAction(focus: IWelcomeFocus): void {
-    if (focus.actionKind === WELCOME_FOCUS_ACTION_KIND.Consultation) {
-      void this.orchestrator.submitText(
-        this.translateService.instant(SETUP_CONSULTATION_TRIGGER_PHRASE_KEY),
-      );
-      return;
-    }
-    if (focus.actionRoute) {
-      this.klacksyNavigation.navigateAndScroll(focus.actionRoute);
-    }
-  }
-
-  private snoozeWelcomeFocusKind(focus: IWelcomeFocus): void {
-    this.welcomeGreetingService
-      .snoozeFocusKind(focus)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: (error: unknown) => {
-          /* the toast already closed itself; the question returns on the next open */
-          console.error('Snoozing the welcome focus kind failed', error);
-        },
-      });
-  }
-
-  onNavigateClick(navigateTo: string): void {
-    if (navigateTo.startsWith('/workplace/')) {
-      this.klacksyNavigation.navigateAndScroll(navigateTo);
-    }
   }
 
   /**
@@ -1078,18 +915,16 @@ export class AssistantChatComponent {
   }
 
   selectModel(modelId: string): void {
-    this.assistantService.setCurrentModel(modelId);
-    this.currentModel.set(modelId);
+    this.modelSelection.selectModel(modelId);
     this.showModelDropdown.set(false);
-    this.assistantService.warmupCache();
   }
 
   getCurrentModelInfo(): IAssistantModel | undefined {
-    return this.assistantService.getModelInfo(this.currentModel());
+    return this.modelSelection.getCurrentModelInfo();
   }
 
   formatCost(cost: number): string {
-    return `€${cost.toFixed(4)}/1K tokens`;
+    return this.modelSelection.formatCost(cost);
   }
 
   onInputKeyPress(event: KeyboardEvent): void {
@@ -1120,11 +955,11 @@ export class AssistantChatComponent {
     }
     this.pendingWelcomeLang.set(null);
 
-    const canGreet = !this.noApiKeyForSelectedModel();
+    const canGreet = !this.modelSelection.noApiKeyForSelectedModel();
     if (!canGreet && this.welcomeRequestedWithoutApiKey) return;
     this.welcomeRequestedWithoutApiKey = !canGreet;
 
-    const messageId = canGreet ? this.generateMessageId() : null;
+    const messageId = canGreet ? createChatMessageId() : null;
     this.welcomeMessageId = messageId;
 
     if (messageId) {
@@ -1137,8 +972,8 @@ export class AssistantChatComponent {
         timestamp: new Date(),
         suggestions: placeholder.suggestions,
       });
-      this.shouldScrollToBottom = true;
-      this.showActionsAsToast(placeholder.suggestions);
+      this.transcript.requestScrollToBottom();
+      this.replyToasts.showActionsAsToast(placeholder.suggestions);
     }
 
     this.welcomeGreetingService.fetchWelcome()
@@ -1155,22 +990,6 @@ export class AssistantChatComponent {
           /* keep the i18n fallback already shown */
         },
       });
-  }
-
-  /**
-   * Single source for both the warning banner and the greeting gate, so the two can never
-   * disagree: whenever the banner is up, greeting and toast stay away. Unlike hasNoApiKey it
-   * carries no isInitializing() guard — callers decide themselves how to treat an unknown state.
-   */
-  private noApiKeyForSelectedModel(): boolean {
-    const providers = this.assistantProviderService.getCurrentProviders();
-    if (!providers || providers.length === 0) return true;
-    const currentModelInfo = this.availableModels().find((m) => m.modelId === this.currentModel());
-    if (currentModelInfo) {
-      const provider = providers.find((p) => p.providerId === currentModelInfo.providerId);
-      return !provider?.hasApiKey;
-    }
-    return !providers.some((p) => p.hasApiKey);
   }
 
   private buildFallbackWelcome(): { content: string; suggestions: string[] } {
@@ -1205,7 +1024,7 @@ export class AssistantChatComponent {
       formattedContent: this.formatMessage(content),
       suggestions,
     });
-    this.shouldScrollToBottom = true;
+    this.transcript.requestScrollToBottom();
 
     const focus = response.focus ?? null;
     let toastPrompt: string | undefined;
@@ -1217,16 +1036,14 @@ export class AssistantChatComponent {
     }
 
     if (this.asideService.isVisible()) {
-      this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
+      this.autoSpeak.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
       this.greetingSpoken = true;
       if (toastOptions.length > 0) {
-        this.showGreetingOptionsAsToast(toastOptions, toastPrompt, focus);
+        this.replyToasts.showGreetingOptionsAsToast(toastOptions, toastPrompt, focus);
       }
     } else {
       this.pendingGreetingMessageId = messageId;
-      this.pendingGreetingOptions = toastOptions;
-      this.pendingGreetingPrompt = toastPrompt ?? null;
-      this.pendingGreetingFocus = focus;
+      this.replyToasts.deferGreeting(toastOptions, toastPrompt ?? null, focus);
     }
 
     this.applyWelcomeOnboarding(response);
@@ -1265,7 +1082,7 @@ export class AssistantChatComponent {
       options,
     };
     if (isLegacy) {
-      this.dropPendingGreetingToast();
+      this.replyToasts.dropPendingGreetingToast();
     }
     this.toastShowService.dismissInteractiveReplies();
     this.toastShowService.showInteractiveReply(config, (values: string[]) => {
@@ -1275,12 +1092,6 @@ export class AssistantChatComponent {
       });
     });
     this.onboarding.reportOffered();
-  }
-
-  private dropPendingGreetingToast(): void {
-    this.pendingGreetingOptions = [];
-    this.pendingGreetingPrompt = null;
-    this.pendingGreetingFocus = null;
   }
 
   private handleIntroOfferChoice(choice: string): void {
@@ -1306,7 +1117,7 @@ export class AssistantChatComponent {
           .setAdvancedExplainDepth()
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
-            next: () => this.ngZone.run(() => this.postKlacksyMessage(this.translateService.instant(INTRO_KNOWN_CONFIRMED_KEY))),
+            next: () => this.ngZone.run(() => this.transcript.postAssistantMessage(this.translateService.instant(INTRO_KNOWN_CONFIRMED_KEY))),
             error: () => undefined,
           });
       });
@@ -1318,7 +1129,7 @@ export class AssistantChatComponent {
       return;
     }
     this.llmOfflineHintShown = true;
-    this.postKlacksyMessage(this.translateService.instant(ONBOARDING_LLM_OFFLINE_KEY));
+    this.transcript.postAssistantMessage(this.translateService.instant(ONBOARDING_LLM_OFFLINE_KEY));
   }
 
   private showOnboardingOffer(): void {
@@ -1389,7 +1200,7 @@ export class AssistantChatComponent {
     }
     this.klacksyNavigation.navigateAndScroll(station.route ?? ONBOARDING_SETTINGS_ROUTE, station.target || undefined);
     this.klacksyNavigation.highlightNavIcon(station.navIconId);
-    this.postKlacksyMessage(this.translateService.instant(station.explainKey));
+    this.transcript.postAssistantMessage(this.translateService.instant(station.explainKey));
     if (station.type === 'ask' && station.id === ONBOARDING_STATION_DEFAULT_LANGUAGE) {
       this.showLanguageChoiceChips(station);
       return;
@@ -1404,9 +1215,9 @@ export class AssistantChatComponent {
       this.klacksyNavigation.navigateAndScroll(station.route, station.target || undefined);
     }
     this.klacksyNavigation.highlightNavIcon(station.navIconId);
-    this.postKlacksyMessage(this.translateService.instant(station.explainKey));
+    this.transcript.postAssistantMessage(this.translateService.instant(station.explainKey));
     if (station.id === INTRO_STATION.Klacksy && this.onboarding.showsAdminSetupHint()) {
-      this.postKlacksyMessage(this.translateService.instant(INTRO_ADMIN_SETUP_HINT_KEY));
+      this.transcript.postAssistantMessage(this.translateService.instant(INTRO_ADMIN_SETUP_HINT_KEY));
     }
     this.showStationChips(station);
   }
@@ -1415,19 +1226,19 @@ export class AssistantChatComponent {
     if (station.id !== ONBOARDING_STATION_LLM_PROVIDER || this.onboarding.llmLive()) {
       return;
     }
-    this.postKlacksyMessage(this.translateService.instant(ONBOARDING_LLM_FREE_PROVIDERS_KEY));
+    this.transcript.postAssistantMessage(this.translateService.instant(ONBOARDING_LLM_FREE_PROVIDERS_KEY));
   }
 
   private maybePostDoubleClickEditHint(station: IOnboardingStation): void {
     if (station.id !== ONBOARDING_STATION_TITLE) {
       return;
     }
-    this.postKlacksyMessage(this.translateService.instant(ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY));
+    this.transcript.postAssistantMessage(this.translateService.instant(ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY));
   }
 
   private showLanguageChoiceChips(station: IOnboardingStation): void {
     const field = onboardingAskFields(station.id)[0];
-    this.postKlacksyMessage(this.translateService.instant(field.promptKey));
+    this.transcript.postAssistantMessage(this.translateService.instant(field.promptKey));
     const options: ISuggestedReply[] = [];
     if (this.tourIndex > 0) {
       options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.back'), value: ONBOARDING_TOUR_CHOICE.Back });
@@ -1557,7 +1368,7 @@ export class AssistantChatComponent {
           const key = this.onboarding.llmLive()
             ? ONBOARDING_LLM_ONLINE_KEY
             : ONBOARDING_LLM_STILL_OFFLINE_KEY;
-          this.postKlacksyMessage(this.translateService.instant(key));
+          this.transcript.postAssistantMessage(this.translateService.instant(key));
           this.advanceTour();
         }),
       error: () =>
@@ -1585,25 +1396,13 @@ export class AssistantChatComponent {
     this.toastShowService.dismissInteractiveReplies();
     const completedKey = this.onboarding.isIntro() ? INTRO_TOUR_COMPLETED_KEY : 'assistant-chat.onboarding.tour.completed';
     this.onboarding.completeTour();
-    this.postKlacksyMessage(this.translateService.instant(completedKey));
+    this.transcript.postAssistantMessage(this.translateService.instant(completedKey));
   }
 
   private endTour(): void {
     this.isTourStationPending = false;
     this.toastShowService.dismissInteractiveReplies();
     this.onboarding.dismiss();
-  }
-
-  private postKlacksyMessage(content: string): void {
-    this.orchestrator.addMessage({
-      id: this.generateMessageId(),
-      sender: 'assistant',
-      content,
-      formattedContent: this.formatMessage(content),
-      timestamp: new Date(),
-    });
-    this.shouldScrollToBottom = true;
-    this.cdr.detectChanges();
   }
 
   private resolveWelcomeContent(response: IWelcomeResponse, langCode: string): string {
@@ -1653,14 +1452,6 @@ export class AssistantChatComponent {
       }
     }
     this.addWelcomeMessage(langCode);
-  }
-
-  private generateConversationId(): string {
-    return 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  }
-
-  private generateMessageId(): string {
-    return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
   /**
@@ -1720,13 +1511,13 @@ export class AssistantChatComponent {
 
     this.assistantService.clearConversation(this.conversationId);
 
-    this.conversationId = this.generateConversationId();
+    this.conversationId = createConversationId();
 
     const currentLang =
       this.translateService.currentLang || this.translateService.defaultLang;
     this.addWelcomeMessage(currentLang);
 
-    this.shouldScrollToBottom = true;
+    this.transcript.requestScrollToBottom();
   }
 
   isUsingWhisper(): boolean {

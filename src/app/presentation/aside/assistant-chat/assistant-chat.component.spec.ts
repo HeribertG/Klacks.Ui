@@ -29,6 +29,10 @@ import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ChatMessageActionsService } from './services/chat-message-actions.service';
+import { ChatTranscriptService } from './services/chat-transcript.service';
+import { ChatComposerService } from './services/chat-composer.service';
+import { ChatModelSelectionService } from './services/chat-model-selection.service';
+import { ChatReplyToastService } from './services/chat-reply-toast.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
@@ -107,6 +111,7 @@ describe('AssistantChatComponent', () => {
     let mockRouter: any;
     let mockFunctionExecutionService: any;
     let mockLanguageMappingService: any;
+    const replyToasts = (): ChatReplyToastService => fixture.debugElement.injector.get(ChatReplyToastService);
 
     const mockModels: IAssistantModel[] = [
         {
@@ -407,6 +412,10 @@ describe('AssistantChatComponent', () => {
                 ],
                 providers: [
                     { provide: ChatFunctionExecutionService, useValue: mockChatFunctionExecution },
+                    ChatTranscriptService,
+                    ChatComposerService,
+                    ChatModelSelectionService,
+                    ChatReplyToastService,
                 ],
             },
         })
@@ -1438,7 +1447,7 @@ describe('AssistantChatComponent', () => {
             dismissSpy.mockClear();
 
             // Act
-            (component as any).showActionsAsToast(['Erstelle einen neuen Mitarbeiter']);
+            replyToasts().showActionsAsToast(['Erstelle einen neuen Mitarbeiter']);
 
             // Assert
             expect(showSpy).not.toHaveBeenCalled();
@@ -1454,7 +1463,7 @@ describe('AssistantChatComponent', () => {
             dismissSpy.mockClear();
 
             // Act
-            (component as any).showActionsAsToast(['Erstelle einen neuen Mitarbeiter']);
+            replyToasts().showActionsAsToast(['Erstelle einen neuen Mitarbeiter']);
 
             // Assert
             expect(showSpy).toHaveBeenCalledTimes(1);
@@ -1467,7 +1476,7 @@ describe('AssistantChatComponent', () => {
             dismissSpy.mockClear();
 
             // Act
-            (component as any).showGreetingOptionsAsToast([{ label: 'Einstellungen öffnen', value: '/workplace/settings' }]);
+            replyToasts().showGreetingOptionsAsToast([{ label: 'Einstellungen öffnen', value: '/workplace/settings' }]);
 
             // Assert
             expect(showSpy).not.toHaveBeenCalled();
@@ -1483,7 +1492,7 @@ describe('AssistantChatComponent', () => {
             dismissSpy.mockClear();
 
             // Act
-            (component as any).showGreetingOptionsAsToast([{ label: 'Einstellungen öffnen', value: '/workplace/settings' }]);
+            replyToasts().showGreetingOptionsAsToast([{ label: 'Einstellungen öffnen', value: '/workplace/settings' }]);
 
             // Assert
             expect(showSpy).toHaveBeenCalledTimes(1);
@@ -1861,7 +1870,7 @@ describe('AssistantChatComponent', () => {
             const suggestion = 'Create a new employee';
 
             // Act
-            component.onSuggestionClick(suggestion);
+            replyToasts().onSuggestionClick(suggestion);
 
             // Assert
             expect(component.inputText()).toBe(suggestion);
@@ -1870,7 +1879,7 @@ describe('AssistantChatComponent', () => {
 
         it('should handle navigate click', () => {
             // Act
-            component.onNavigateClick('/workplace/clients');
+            replyToasts().onNavigateClick('/workplace/clients');
 
             // Assert
             expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
@@ -4045,7 +4054,7 @@ describe('AssistantChatComponent', () => {
         it('shows the focus prompt as the toast headline and the focus action first', () => {
             const built = TestBed.inject(WelcomeFocusToastService).build(navigateFocus, []);
 
-            (component as any).showGreetingOptionsAsToast(built.options, built.prompt, navigateFocus);
+            replyToasts().showGreetingOptionsAsToast(built.options, built.prompt, navigateFocus);
 
             expect(showSpy).toHaveBeenCalledTimes(1);
             expect(showSpy.mock.calls[0][0].prompt).toBe(built.prompt);
@@ -4054,7 +4063,7 @@ describe('AssistantChatComponent', () => {
         });
 
         it('keeps the neutral prompt when there is no focus', () => {
-            (component as any).showGreetingOptionsAsToast([
+            replyToasts().showGreetingOptionsAsToast([
                 { label: 'Einstellungen öffnen', value: '/workplace/settings' },
             ]);
 
@@ -4064,7 +4073,7 @@ describe('AssistantChatComponent', () => {
         it('navigates when the focus action is a navigate action', () => {
             const navigation = TestBed.inject(KlacksyNavigationService);
             const navigateSpy = vi.spyOn(navigation, 'navigateAndScroll').mockImplementation(() => undefined as any);
-            (component as any).showGreetingOptionsAsToast(
+            replyToasts().showGreetingOptionsAsToast(
                 [{ label: 'Periode abschliessen', value: WELCOME_FOCUS_ACTION }],
                 'Prompt',
                 navigateFocus,
@@ -4078,7 +4087,7 @@ describe('AssistantChatComponent', () => {
         it('sends the setup consultation trigger phrase for a consultation action', () => {
             const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
             orchestrator.submitText.mockClear();
-            (component as any).showGreetingOptionsAsToast(
+            replyToasts().showGreetingOptionsAsToast(
                 [{ label: 'Beratung starten', value: WELCOME_FOCUS_ACTION }],
                 'Prompt',
                 consultationFocus,
@@ -4092,7 +4101,7 @@ describe('AssistantChatComponent', () => {
         it('snoozes the kind until a future instant when later is picked', () => {
             const preferences = TestBed.inject(DataTriggerPreferenceService) as any;
             preferences.snoozeKind.mockClear();
-            (component as any).showGreetingOptionsAsToast(
+            replyToasts().showGreetingOptionsAsToast(
                 [{ label: 'Später', value: WELCOME_FOCUS_LATER }],
                 'Prompt',
                 navigateFocus,
@@ -4108,7 +4117,7 @@ describe('AssistantChatComponent', () => {
         it('does not send a chat message when later is picked', () => {
             const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
             orchestrator.submitText.mockClear();
-            (component as any).showGreetingOptionsAsToast(
+            replyToasts().showGreetingOptionsAsToast(
                 [{ label: 'Später', value: WELCOME_FOCUS_LATER }],
                 'Prompt',
                 navigateFocus,
@@ -4122,7 +4131,7 @@ describe('AssistantChatComponent', () => {
         it('still routes a plain workplace option into navigation', () => {
             const navigation = TestBed.inject(KlacksyNavigationService);
             const navigateSpy = vi.spyOn(navigation, 'navigateAndScroll').mockImplementation(() => undefined as any);
-            (component as any).showGreetingOptionsAsToast(
+            replyToasts().showGreetingOptionsAsToast(
                 [{ label: 'Person finden', value: '/workplace/client' }],
                 'Prompt',
                 navigateFocus,
@@ -4191,9 +4200,9 @@ describe('AssistantChatComponent', () => {
             );
 
             expect(showSpy).not.toHaveBeenCalled();
-            expect((component as any).pendingGreetingFocus).toBe(navigateFocus);
-            expect((component as any).pendingGreetingPrompt).toBe('T:klacksy.focus.period-overdue.prompt');
-            expect((component as any).pendingGreetingOptions[0].value).toBe(WELCOME_FOCUS_ACTION);
+            expect((replyToasts() as any).pendingGreetingFocus).toBe(navigateFocus);
+            expect((replyToasts() as any).pendingGreetingPrompt).toBe('T:klacksy.focus.period-overdue.prompt');
+            expect((replyToasts() as any).pendingGreetingOptions[0].value).toBe(WELCOME_FOCUS_ACTION);
 
             asideService.show();
             fixture.detectChanges();
@@ -4201,9 +4210,9 @@ describe('AssistantChatComponent', () => {
             expect(showSpy).toHaveBeenCalledTimes(1);
             expect(showSpy.mock.calls[0][0].prompt).toBe('T:klacksy.focus.period-overdue.prompt');
             expect(showSpy.mock.calls[0][0].options[0].value).toBe(WELCOME_FOCUS_ACTION);
-            expect((component as any).pendingGreetingPrompt).toBeNull();
-            expect((component as any).pendingGreetingFocus).toBeNull();
-            expect((component as any).pendingGreetingOptions).toEqual([]);
+            expect((replyToasts() as any).pendingGreetingPrompt).toBeNull();
+            expect((replyToasts() as any).pendingGreetingFocus).toBeNull();
+            expect((replyToasts() as any).pendingGreetingOptions).toEqual([]);
         });
     });
 
@@ -4287,14 +4296,14 @@ describe('AssistantChatComponent', () => {
 
         it('drops a deferred greeting toast so it cannot replace the one-time legacy offer on reopen', () => {
             vi.spyOn(onboarding, 'reportOffered').mockImplementation(() => undefined);
-            (component as any).pendingGreetingOptions = [{ label: 'Einstellungen öffnen', value: '/workplace/settings' }];
-            (component as any).pendingGreetingPrompt = 'prompt';
+            (replyToasts() as any).pendingGreetingOptions = [{ label: 'Einstellungen öffnen', value: '/workplace/settings' }];
+            (replyToasts() as any).pendingGreetingPrompt = 'prompt';
             onboarding.applyWelcome(introState({ status: 'legacy_offer', isLegacyOffer: true }));
 
             (component as any).maybeOfferOnboarding();
 
-            expect((component as any).pendingGreetingOptions).toEqual([]);
-            expect((component as any).pendingGreetingPrompt).toBeNull();
+            expect((replyToasts() as any).pendingGreetingOptions).toEqual([]);
+            expect((replyToasts() as any).pendingGreetingPrompt).toBeNull();
         });
 
         it('shows the single "I already know Klacks" chip only after the dismissal was saved', () => {
