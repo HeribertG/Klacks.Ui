@@ -1,0 +1,120 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+@if (isMainAddress() === false) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="addressLine1">{{
+      "address.edit-address.address-persona.address1" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        id="addressLine1"
+        [formField]="state.personaForm.addressLine1"
+      />
+    </div>
+  </div>
+</div>
+} @if (isMainAddress() === false) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="addressLine2">{{
+      "address.edit-address.address-persona.address2" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        id="addressLine2"
+        [formField]="state.personaForm.addressLine2"
+      />
+    </div>
+  </div>
+</div>
+}
+
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="street">{{
+      "address.edit-address.address-persona.street" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        id="street"
+        [formField]="state.personaForm.street"
+      />
+      @if (!state.addStreetLine2() === true && !state.isDisabled()) {
+      <span
+        id="add-street2-button"
+        class="add-button"
+        type="button"
+        (click)="state.addStreetLine2.set(true)"
+        >+</span
+      >
+      }
+    </div>
+  </div>
+</div>
+
+@if (state.addStreetLine2()) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="street2">{{
+      "address.edit-address.address-persona.street2" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        id="street2"
+        [formField]="state.personaForm.street2"
+      />
+      @if (!state.addStreetLine3() && !state.isDisabled()) {
+      <span
+        id="add-street3-button"
+        class="add-button"
+        type="button"
+        (click)="state.addStreetLine3.set(true)"
+        >+</span
+      >
+      } @if (state.addStreetLine2() && !state.isDisabled()) {
+      <span
+        id="del-street2-button"
+        class="del-button"
+        type="button"
+        (click)="state.addStreetLine2.set(false)"
+        >-</span
+      >
+      }
+    </div>
+  </div>
+</div>
+} @if (state.addStreetLine3()) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="street3">{{
+      "address.edit-address.address-persona.street3" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        id="street3"
+        [formField]="state.personaForm.street3"
+      />
+      @if (state.addStreetLine3() && !state.isDisabled()) {
+      <span
+        id="del-street3-button"
+        class="del-button"
+        type="button"
+        (click)="state.addStreetLine3.set(false)"
+        >-</span
+      >
+      }
+    </div>
+  </div>
+</div>
+}

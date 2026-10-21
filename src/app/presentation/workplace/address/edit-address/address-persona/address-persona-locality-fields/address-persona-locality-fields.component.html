@@ -1,0 +1,121 @@
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="zip" class="zip"
+      >{{
+        "address.edit-address.address-persona.zip" | translate
+      }}
+      *</label
+    >
+    <input
+      type="text"
+      class="form-control zip"
+      (focusout)="formSync.onZipFocusout()"
+      id="zip"
+      [formField]="state.personaForm.zip"
+      [ngClass]="{
+        'is-invalid':
+          validation.isZipValid() === false &&
+          (hasClientId() || state.personaForm.zip().touched()),
+        'is-valid': validation.isZipValid() === true
+      }"
+    />
+  </div>
+  <div>
+    <label for="city" class="place"
+      >{{
+        "address.edit-address.address-persona.place" | translate
+      }}
+      *</label
+    >
+    <input
+      type="text"
+      class="form-control place"
+      id="city"
+      [formField]="state.personaForm.city"
+      list="dynamicPlace"
+      [ngClass]="{
+        'is-invalid':
+          validation.isCityValid() === false &&
+          (hasClientId() || state.personaForm.city().touched()),
+        'is-valid': validation.isCityValid() === true
+      }"
+    />
+    <datalist id="dynamicPlace">
+      @for (item of dataManagementClientService.lastCountries(); track
+      item) {
+      <option [ngValue]="item">
+        {{ item.city }}
+      </option>
+      }
+    </datalist>
+  </div>
+</div>
+
+<div class="row-line">
+  <div class="firstColumn">
+    <label
+      for="state"
+      class="zip"
+      [hidden]="
+        !dataManagementClientService.filteredStateList() ||
+        dataManagementClientService.filteredStateList().length === 0
+      "
+      >{{ stateLabelKey() | translate }}</label
+    >
+    <select
+      class="form-select zip"
+      [class.d-none]="
+        !dataManagementClientService.filteredStateList() ||
+        dataManagementClientService.filteredStateList().length === 0
+      "
+      id="state"
+      [formField]="state.personaForm.state"
+      [ngbTooltip]="stateTooltip()"
+      placement="top"
+    >
+      @for (c of dataManagementClientService.filteredStateList();
+      track c.state) {
+      <option
+        [value]="c.state"
+        [selected]="
+          currentState() === c.state
+        "
+      >
+        {{ c.state }}
+      </option>
+      }
+    </select>
+  </div>
+  <div>
+    <label for="country" class="place"
+      >{{
+        "address.edit-address.address-persona.country" | translate
+      }}
+      *</label
+    >
+
+    <select
+      class="form-select place"
+      id="country"
+      [formField]="state.personaForm.country"
+      [ngClass]="{
+        'is-invalid':
+          validation.isCountryValid() === false &&
+          (hasClientId() || state.personaForm.country().touched()),
+        'is-valid': validation.isCountryValid() === true
+      }"
+    >
+      @for (c of countries();
+      track c.abbreviation) {
+      <option
+        [value]="c.abbreviation"
+        [selected]="
+          currentCountry() === c.abbreviation
+        "
+      >
+        {{ c.name | fallback : currentLang() }}
+      </option>
+      }
+    </select>
+  </div>
+</div>

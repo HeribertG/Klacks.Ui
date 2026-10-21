@@ -98,7 +98,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component.ts': ['infrastructure'],
   'presentation/workplace/absence-gantt/absence-gantt-mask/absence-gantt-grid/absence-gantt-grid.component.ts': ['infrastructure'],
   'presentation/workplace/address/all-address/all-address-list/all-address-list.component.ts': ['infrastructure'],
-  'presentation/workplace/address/edit-address/address-persona/address-persona.component.ts': ['infrastructure'],
   'presentation/workplace/address/edit-address/client-image/client-image.component.ts': ['infrastructure'],
   'presentation/workplace/client-availability/client-availability-home/client-availability-home.component.ts': ['infrastructure'],
   'presentation/workplace/client-availability/client-availability-row-header/client-availability-row-header.component.ts': ['infrastructure'],

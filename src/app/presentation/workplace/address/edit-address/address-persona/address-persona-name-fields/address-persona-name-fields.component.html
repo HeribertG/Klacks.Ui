@@ -1,0 +1,139 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+@if (isMainAddress() === true) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="title">{{
+      "address.edit-address.address-persona.title" | translate
+    }}</label>
+    <input
+      type="text"
+      class="form-control default-width"
+      id="title"
+      autocomplete="off"
+      [formField]="state.personaForm.title"
+    />
+  </div>
+</div>
+} @if (isMainAddress() === true) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="firstname"
+      >{{
+        "address.edit-address.address-persona.firstname" | translate
+      }}
+      @if (!isLegalEntity()) { * }</label
+    >
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        autocomplete="off"
+        [formField]="state.personaForm.firstName"
+        id="firstname"
+        data-klacksy-target="client-detail.firstname"
+        [ngClass]="{
+          'is-invalid':
+            validation.isFirstNameValid() === false &&
+            (hasClientId() || state.personaForm.firstName().touched()),
+          'is-valid': validation.isFirstNameValid() === true
+        }"
+      />
+      @if (!addFirstNameLine2 === true && !state.isDisabled() && !isLegalEntity()) {
+      <span
+        id="add-firstname2-button"
+        class="add-button"
+        type="button"
+        (click)="addFirstNameLine2 = true"
+        >+</span
+      >
+      }
+    </div>
+  </div>
+</div>
+} @if (addFirstNameLine2 === true && !isLegalEntity() && isMainAddress()) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="secondName">{{
+      "address.edit-address.address-persona.firstname2" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        [formField]="state.personaForm.secondName"
+        id="secondName"
+      />
+      @if (addFirstNameLine2 === true && !state.isDisabled()) {
+      <span
+        id="del-firstname2-button"
+        class="del-button"
+        type="button"
+        (click)="addFirstNameLine2 = false"
+        >-</span
+      >
+      }
+    </div>
+  </div>
+</div>
+} @if (isMainAddress()) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="profile-name"
+      >{{
+        "address.edit-address.address-persona.name" | translate
+      }}
+      @if (!isLegalEntity()) { * }</label
+    >
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        [formField]="state.personaForm.name"
+        id="profile-name"
+        data-klacksy-target="client-detail.lastname"
+        [ngClass]="{
+          'is-invalid':
+            validation.isNameValid() === false &&
+            (hasClientId() || state.personaForm.name().touched()),
+          'is-valid': validation.isNameValid() === true
+        }"
+      />
+      @if (!addNameLine2 === true && !state.isDisabled() && !isLegalEntity()) {
+      <span
+        id="add-maidenname-button"
+        class="add-button"
+        type="button"
+        (click)="addNameLine2 = true"
+        >+</span
+      >
+      }
+    </div>
+  </div>
+</div>
+} @if (addNameLine2 && !isLegalEntity() && isMainAddress()) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <label for="maidenName">{{
+      "address.edit-address.address-persona.maiden-name" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        [formField]="state.personaForm.maidenName"
+        id="maidenName"
+      />
+      @if (addNameLine2 === true && !state.isDisabled()) {
+      <span
+        id="del-maidenname-button"
+        class="del-button"
+        type="button"
+        (click)="addNameLine2 = false"
+        >-</span
+      >
+      }
+    </div>
+  </div>
+</div>
+}

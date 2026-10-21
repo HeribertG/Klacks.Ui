@@ -14,6 +14,8 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
 import { AddressPersonaComponent } from './address-persona.component';
+import { AddressPersonaMapLinksService } from './services/address-persona-map-links.service';
+import { AddressPersonaStateService } from './services/address-persona-state.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -29,13 +31,24 @@ import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shar
 
 const LATITUDE = 46.95;
 const LONGITUDE = 7.44;
-const TEMPLATE_PATH = resolve(dirname(fileURLToPath(import.meta.url)), 'address-persona.component.html');
+const CARD_FOLDER = dirname(fileURLToPath(import.meta.url));
+const TEMPLATE_PATHS = [
+  'address-persona.component.html',
+  'address-persona-entity-fields/address-persona-entity-fields.component.html',
+  'address-persona-name-fields/address-persona-name-fields.component.html',
+  'address-persona-street-fields/address-persona-street-fields.component.html',
+  'address-persona-locality-fields/address-persona-locality-fields.component.html',
+  'address-persona-communications/address-persona-communications.component.html',
+].map((path) => resolve(CARD_FOLDER, path));
+const readCardTemplate = (): string => TEMPLATE_PATHS.map((path) => readFileSync(path, 'utf8')).join('\n');
 
 describe('AddressPersonaComponent external map links', () => {
   let config: GeoServicesConfigMock;
   let openSpy: ReturnType<typeof vi.spyOn>;
 
-  const create = (clientType: number = EntityTypeEnum.customer): AddressPersonaComponent => {
+  const create = (
+    clientType: number = EntityTypeEnum.customer,
+  ): { mapLinks: AddressPersonaMapLinksService; state: AddressPersonaStateService } => {
     TestBed.configureTestingModule({
       imports: [AddressPersonaComponent, TranslateModule.forRoot()],
       providers: [
@@ -62,7 +75,8 @@ describe('AddressPersonaComponent external map links', () => {
       ],
     }).overrideComponent(AddressPersonaComponent, { set: { imports: [], template: '' } });
 
-    return TestBed.createComponent(AddressPersonaComponent).componentInstance;
+    const injector = TestBed.createComponent(AddressPersonaComponent).debugElement.injector;
+    return { mapLinks: injector.get(AddressPersonaMapLinksService), state: injector.get(AddressPersonaStateService) };
   };
 
   beforeEach(() => {
@@ -76,17 +90,17 @@ describe('AddressPersonaComponent external map links', () => {
   });
 
   it('hides the map buttons when external map links are off', () => {
-    const component = create();
+    const { mapLinks } = create();
 
-    expect(component.isCustomerWithCoordinates()).toBe(true);
-    expect(component.showExternalMapLinks()).toBe(false);
+    expect(mapLinks.isCustomerWithCoordinates()).toBe(true);
+    expect(mapLinks.showExternalMapLinks()).toBe(false);
   });
 
   it('opens neither OpenStreetMap nor Street View when external map links are off', () => {
-    const component = create();
+    const { mapLinks } = create();
 
-    component.openOpenStreetMap();
-    component.openStreetView();
+    mapLinks.openOpenStreetMap();
+    mapLinks.openStreetView();
 
     expect(openSpy).not.toHaveBeenCalled();
   });
@@ -94,52 +108,52 @@ describe('AddressPersonaComponent external map links', () => {
   it('shows the map buttons for a customer with coordinates when external map links are on', () => {
     config.externalMapLinksEnabled.set(true);
 
-    expect(create().showExternalMapLinks()).toBe(true);
+    expect(create().mapLinks.showExternalMapLinks()).toBe(true);
   });
 
   it('keeps the map buttons hidden for an employee even when external map links are on', () => {
     config.externalMapLinksEnabled.set(true);
 
-    expect(create(EntityTypeEnum.employee).showExternalMapLinks()).toBe(false);
+    expect(create(EntityTypeEnum.employee).mapLinks.showExternalMapLinks()).toBe(false);
   });
 
   it('opens Street View at the address coordinates when external map links are on', () => {
     config.externalMapLinksEnabled.set(true);
 
-    create().openStreetView();
+    create().mapLinks.openStreetView();
 
     expect(openSpy).toHaveBeenCalledTimes(1);
     expect(String(openSpy.mock.calls[0][0])).toContain(`@${LATITUDE},${LONGITUDE},`);
   });
 
   describe('legal entity contact person', () => {
-    const setModel = (component: AddressPersonaComponent, legalEntity: boolean, gender: GenderEnum): void => {
+    const setModel = (component: AddressPersonaStateService, legalEntity: boolean, gender: GenderEnum): void => {
       component.formModel.update((m) => ({ ...m, legalEntity, gender: String(gender) }));
     };
 
     it('treats a person as no legal entity', () => {
-      const component = create();
+      const component = create().state;
       setModel(component, false, GenderEnum.female);
 
       expect(component.isLegalEntity()).toBe(false);
     });
 
     it('treats the legal entity flag as legal entity', () => {
-      const component = create();
+      const component = create().state;
       setModel(component, true, GenderEnum.female);
 
       expect(component.isLegalEntity()).toBe(true);
     });
 
     it('treats the legal entity gender as legal entity', () => {
-      const component = create();
+      const component = create().state;
       setModel(component, false, GenderEnum.legalEntity);
 
       expect(component.isLegalEntity()).toBe(true);
     });
 
     it('no longer hides title, first name and last name by gender in the template', () => {
-      const template = readFileSync(TEMPLATE_PATH, 'utf8');
+      const template = readCardTemplate();
 
       expect(template).not.toContain('gender !== 3');
       expect(template).toContain('id="contact-person-heading"');
@@ -147,7 +161,7 @@ describe('AddressPersonaComponent external map links', () => {
     });
 
     it('keeps the birthdate and the second name lines for persons only', () => {
-      const template = readFileSync(TEMPLATE_PATH, 'utf8');
+      const template = readCardTemplate();
       const birthdayBlock = template.slice(template.lastIndexOf('@if (!isLegalEntity() &&'));
 
       expect(birthdayBlock).toContain('id="profile-birthday"');
@@ -156,14 +170,14 @@ describe('AddressPersonaComponent external map links', () => {
     });
 
     it('marks first and last name as required for persons only', () => {
-      const template = readFileSync(TEMPLATE_PATH, 'utf8');
+      const template = readCardTemplate();
 
       expect(template.match(/@if \(!isLegalEntity\(\)\) \{ \* \}/g)).toHaveLength(2);
     });
   });
 
   it('gates the map buttons in the template on the external map link setting', () => {
-    const template = readFileSync(TEMPLATE_PATH, 'utf8');
+    const template = readCardTemplate();
 
     expect(template).toContain('@if (showExternalMapLinks()) {');
     expect(template).not.toContain('@if (isCustomerWithCoordinates()) {');

@@ -14,6 +14,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 
 import { AddressPersonaComponent } from './address-persona.component';
+import { AddressPersonaAddressDialogsService } from './services/address-persona-address-dialogs.service';
+import { AddressPersonaCommunicationService } from './services/address-persona-communication.service';
+import { AddressPersonaDisplayService } from './services/address-persona-display.service';
+import { AddressPersonaLabelsService } from './services/address-persona-labels.service';
+import { AddressPersonaStateService } from './services/address-persona-state.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -245,13 +250,15 @@ async function setup(
   await settle(fixture);
 
   const component = fixture.componentInstance;
+  const injector = fixture.debugElement.injector;
+  const state = injector.get(AddressPersonaStateService);
   const parts = {
-    form: component,
-    actions: component,
-    labels: component,
-    communication: component,
-    display: component,
-    readBirthdate: () => component.birthdateValue,
+    form: state,
+    actions: injector.get(AddressPersonaAddressDialogsService),
+    labels: injector.get(AddressPersonaLabelsService),
+    communication: injector.get(AddressPersonaCommunicationService),
+    display: injector.get(AddressPersonaDisplayService),
+    readBirthdate: () => state.birthdateValue(),
   };
 
   return {

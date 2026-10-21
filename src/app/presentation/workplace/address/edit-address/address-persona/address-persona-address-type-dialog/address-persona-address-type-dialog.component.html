@@ -1,0 +1,89 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<form>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title1">
+      {{
+        "address.edit-address.address-persona.modal-address-typ.header"
+          | translate
+      }}
+    </div>
+  </div>
+
+  <div class="modal-body first-modal">
+    <div class="form-group">
+      <label for="addressValidFrom">{{
+        "address.edit-address.address-persona.modal-address-typ.valid-date"
+          | translate
+      }}</label>
+
+      <div class="input-group">
+        <input
+          id="addressValidFrom"
+          class="form-control"
+          name="addressValidFrom"
+          [ngModel]="dialogs.addressValidFrom"
+          [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.valid-date' | translate"
+          (ngModelChange)="dialogs.addressValidFrom = $event"
+          ngbDatepicker
+          #validFrom="ngbDatepicker"
+        />
+
+        <span
+          class="input-group-text"
+          style="width: 40px"
+          (click)="validFrom.toggle()"
+        >
+          <fa-icon
+            [icon]="faCalendar"
+            [style]="{ 'font-size': '16px', color: '#464e5f' }"
+          ></fa-icon>
+        </span>
+      </div>
+    </div>
+
+    @if (dataManagementClientService.clientAttribute &&
+    dataManagementClientService.clientAttribute.length > 1) {
+    <div class="form-group">
+      <label for="profile-gender">{{
+        "address.edit-address.address-persona.modal-address-typ.type"
+          | translate
+      }}</label>
+      <select
+        id="editClientType"
+        class="form-select"
+        [(ngModel)]="dialogs.editClientType"
+        name="editClient.type"
+        [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.type' | translate"
+      >
+        @for (c of dataManagementClientService.clientAttribute; track
+        c.type) {
+        <option
+          [value]="c.type"
+          [selected]="
+            dataManagementClientService.editClient()?.type === c.type
+          "
+        >
+          {{ c.name }}
+        </option>
+        }
+      </select>
+    </div>
+    }
+  </div>
+</form>
+
+<div class="modal-footer">
+  <span
+    id="modal-cancel-address-type"
+    type="button"
+    class="link-button red-font"
+    (click)="modal().dismiss('Cancel click')"
+    >{{ "cancel" | translate }}</span
+  >
+  <button id="modal-save-address-type" type="button" class="btn save-btn" (click)="modal().close()">
+    {{
+      "address.edit-address.address-persona.modal-address-typ.add" | translate
+    }}
+  </button>
+</div>

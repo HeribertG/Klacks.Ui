@@ -1,0 +1,97 @@
+@if (isLegalEntityClient() && isMainAddress()) {
+<div class="row-line-company">
+  <div class="form-group firstColumn">
+    <label for="company"
+      >{{
+        "address.edit-address.address-persona.firm" | translate
+      }}
+      *</label
+    >
+    <div class="custom-control-inline">
+      <input
+        type="text"
+        class="form-control default-width"
+        autocomplete="off"
+        [formField]="state.personaForm.company"
+        id="company"
+        [ngClass]="{
+          'is-invalid':
+            validation.isCompanyValid() === false &&
+            (hasClientId() || state.personaForm.company().touched()),
+          'is-valid': validation.isCompanyValid() === true
+        }"
+      />
+    </div>
+  </div>
+</div>
+} @if (isMainAddress()) {
+<div class="row-line-simple">
+  <div class="form-group firstColumn">
+    <div class="gender">
+      <label for="gender"
+        >{{
+          "address.edit-address.address-persona.gender" | translate
+        }}
+        *</label
+      >
+      <select
+        class="form-select"
+        [formField]="state.personaForm.gender"
+        id="gender"
+        data-klacksy-target="client-detail.gender"
+        [ngClass]="{
+          'is-invalid':
+            validation.isGenderValid() === false &&
+            (hasClientId() || state.personaForm.gender().touched()),
+          'is-valid': validation.isGenderValid() === true
+        }"
+      >
+        <option value="1">
+          {{
+            "address.edit-address.address-persona.male" | translate
+          }}
+        </option>
+        <option value="0">
+          {{
+            "address.edit-address.address-persona.female" | translate
+          }}
+        </option>
+        <option value="2">
+          {{
+            "address.edit-address.address-persona.intersexuality"
+              | translate
+          }}
+        </option>
+        @if (state.formModel().legalEntity === true) {
+        <option value="3">
+          {{
+            "address.edit-address.address-persona.unknown" | translate
+          }}
+        </option>
+        }
+      </select>
+    </div>
+  </div>
+  <label class="checkbox-label legal-entity">
+    <input
+      id="legalEntity"
+      type="checkbox"
+      [formField]="state.personaForm.legalEntity"
+    />
+    {{
+      "address.edit-address.address-persona.legal-entity" | translate
+    }}
+  </label>
+</div>
+} @if (state.isLegalEntity() && isMainAddress() === true) {
+<div class="row-line">
+  <div class="form-group firstColumn">
+    <div id="contact-person-heading" class="contact-person-heading">
+      {{
+        "address.edit-address.address-persona.contact-person"
+          | translate
+      }}
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,7 @@
+@use "../../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../address-persona-shared";
+
+:host {
+  display: contents;
+}

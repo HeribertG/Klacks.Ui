@@ -1,0 +1,185 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+@for (phoneData of
+dataManagementClientService.communicationPhoneList(); track phoneData;
+let ii = $index) {
+<div class="row-line">
+  <div class="form-group">
+    <label for="profile-tel"
+      >{{
+        "address.edit-address.address-persona.phone-prefix"
+          | translate
+      }}
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
+        "address.edit-address.address-persona.phone" | translate
+      }}</label
+    >
+    <div class="custom-control-inline">
+      <select
+        id="phonePrefix-{{ ii }}"
+        class="form-select gap-prefix"
+        [(ngModel)]="phoneData.prefix"
+        name="phonePrefix-{{ ii }}"
+        [attr.aria-label]="'address.edit-address.address-persona.phone-prefix' | translate"
+        [disabled]="state.isDisabled()"
+      >
+        @for (c of
+        dataManagementClientService.communicationPrefixList(); track
+        c.prefix) {
+        <option
+          [value]="c.prefix"
+          [selected]="phoneData.prefix === c.prefix"
+          data-toggle="tooltip"
+          title="{{ c.name }}"
+        >
+          {{ c.prefix }}
+        </option>
+        }
+      </select>
+
+      <input
+        id="phoneValue-{{ ii }}"
+        type="text"
+        class="form-control medium-width-tel"
+        [(ngModel)]="phoneData.value"
+        name="phoneValue-{{ ii }}"
+        [attr.aria-label]="'address.edit-address.address-persona.phone' | translate"
+        [disabled]="state.isDisabled()"
+        (keyup)="communication.onKeyupPhoneNumber(ii, $event)"
+      />
+
+      <select
+        id="phoneType-{{ ii }}"
+        class="form-select gap"
+        [(ngModel)]="phoneData.type"
+        name="phoneType-{{ ii }}"
+        aria-label="phoneType"
+        [disabled]="state.isDisabled()"
+      >
+        @for (c of
+        dataManagementClientService.communicationTypePhoneList();
+        track c.type) {
+        <option
+          [value]="c.type"
+          [selected]="phoneData.type === c.type"
+        >
+          {{ c.name }}
+        </option>
+        }
+      </select>
+      @if (ii ===
+      dataManagementClientService.communicationPhoneList().length - 1
+      && !state.isDisabled()) {
+      <span
+        id="add-phone-button"
+        class="add-button"
+        type="button"
+        (click)="communication.onClickAddPhone()"
+        >+</span
+      >
+      } @if (ii !== 0) {
+      <span
+        id="del-phone-button-{{ ii }}"
+        class="del-button"
+        type="button"
+        (click)="communication.onClickDelPhone(phoneData)"
+        >-</span
+      >
+      }
+    </div>
+  </div>
+</div>
+} @for (emailData of
+dataManagementClientService.communicationEmailList(); track emailData;
+let i = $index) {
+<div class="row-line">
+  <div class="form-group">
+    <label for="mail">{{
+      "address.edit-address.address-persona.mail" | translate
+    }}</label>
+    <div class="custom-control-inline">
+      <input
+        id="emailValue-{{ i }}"
+        type="email"
+        class="form-control medium-width"
+        [(ngModel)]="emailData.value"
+        [attr.aria-label]="'address.edit-address.address-persona.mail' | translate"
+        [disabled]="state.isDisabled()"
+        name="emailValue-{{ i }}"
+      />
+
+      <select
+        id="emailType-{{ i }}"
+        class="form-select gap"
+        [(ngModel)]="emailData.type"
+        name="emailType-{{ i }}"
+        [attr.aria-label]="'address.edit-address.address-persona.mail-type' | translate"
+        [disabled]="state.isDisabled()"
+      >
+        @for (c of
+        dataManagementClientService.communicationTypeEmailList();
+        track c.type) {
+        <option
+          [value]="c.type"
+          [selected]="emailData.type === c.type"
+        >
+          {{ c.name }}
+        </option>
+        }
+      </select>
+      @if (i ===
+      dataManagementClientService.communicationEmailList().length - 1
+      && !state.isDisabled()) {
+      <span
+        id="add-email-button"
+        class="add-button"
+        type="button"
+        (click)="communication.onClickAddEmail()"
+        >+</span
+      >
+      } @if (i !== 0 && !state.isDisabled()) {
+      <span
+        id="del-email-button-{{ i }}"
+        class="del-button"
+        type="button"
+        (click)="communication.onClickDelEmail(emailData)"
+        >-</span
+      >
+      }
+    </div>
+  </div>
+</div>
+} @if (!isLegalEntity() && isMainAddress() === true) {
+<div class="row-line">
+  <div class="form-group">
+    <label for="profile-birthday">{{
+      "address.edit-address.address-persona.birthday" | translate
+    }}</label>
+
+    <div class="input-group medium-width">
+      <input
+        class="form-control"
+        name="birthday"
+        id="profile-birthday"
+        data-klacksy-target="client-detail.birthday"
+        [disabled]="state.isDisabled()"
+        [ngModel]="state.birthdateValue()"
+        (ngModelChange)="state.onBirthdateChange($event)"
+        ngbDatepicker
+        btn-dark
+        #birthday="ngbDatepicker"
+      />
+      <span
+        class="input-group-text"
+        style="width: 40px"
+        (click)="birthday.toggle()"
+      >
+        <fa-icon
+          [icon]="faCalendar"
+          [style]="{ 'font-size': '16px', color: '#464e5f' }"
+        ></fa-icon>
+      </span>
+    </div>
+  </div>
+</div>
+}
