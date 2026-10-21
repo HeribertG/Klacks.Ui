@@ -46,7 +46,6 @@ import {
 import { NavigationVerdictService } from './services/navigation-verdict.service';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
-import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
@@ -55,7 +54,6 @@ import { AssistantPanelsComponent } from './assistant-panels/assistant-panels.co
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService } from './services/conversation-orchestrator.service';
@@ -66,7 +64,6 @@ import { TextToSpeechService } from './services/text-to-speech.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 import { stripMetadataMarkers, stripForTts, formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
@@ -89,55 +86,7 @@ import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interf
 import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import {
-  INTRO_ADMIN_SETUP_HINT_KEY,
-  INTRO_MORE_PAGE_PARAM,
-  INTRO_MORE_REQUEST_KEY,
-  INTRO_STATION,
-  IOnboardingStation,
-  onboardingAskFields,
-  ONBOARDING_KIND,
-  ONBOARDING_KNOWN_CHOICE,
-  ONBOARDING_OFFER_CHOICE,
-  ONBOARDING_SETTINGS_ROUTE,
-  ONBOARDING_STATION_DEFAULT_LANGUAGE,
-  ONBOARDING_STATION_LLM_PROVIDER,
-  ONBOARDING_STATION_TITLE,
-  ONBOARDING_TOUR_CHOICE,
-} from 'src/app/domain/constants/onboarding-stations';
-import { OnboardingKind } from 'src/app/domain/constants/onboarding-kind.type';
-import { IOnboardingAskField } from 'src/app/domain/constants/onboarding-ask-field.interface';
-
-const ONBOARDING_LLM_OFFLINE_KEY = 'assistant-chat.onboarding.llm.offline';
-const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';
-const ONBOARDING_LLM_STILL_OFFLINE_KEY = 'assistant-chat.onboarding.llm.still-offline';
-const ONBOARDING_LLM_FREE_PROVIDERS_KEY = 'assistant-chat.onboarding.llm.free-providers';
-const ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY = 'assistant-chat.onboarding.hint.double-click-edit';
-const INTRO_KEY = 'assistant-chat.onboarding.intro.';
-const INTRO_OFFER_PROMPT_KEY = INTRO_KEY + 'offer.prompt';
-const INTRO_OFFER_LEGACY_PROMPT_KEY = INTRO_KEY + 'offer.legacy-prompt';
-const INTRO_OFFER_ACCEPT_KEY = INTRO_KEY + 'offer.accept';
-const INTRO_OFFER_SNOOZE_KEY = INTRO_KEY + 'offer.snooze';
-const INTRO_OFFER_DISMISS_KEY = INTRO_KEY + 'offer.dismiss';
-const INTRO_KNOWN_CHIP_KEY = INTRO_KEY + 'known.chip';
-const INTRO_KNOWN_CONFIRMED_KEY = INTRO_KEY + 'known.confirmed';
-const INTRO_TOUR_NEXT_KEY = INTRO_KEY + 'tour.next';
-const INTRO_TOUR_MORE_KEY = INTRO_KEY + 'tour.more';
-const INTRO_TOUR_COMPLETED_KEY = INTRO_KEY + 'tour.completed';
-const SETUP_CARD_KEY = 'assistant-chat.onboarding.card.';
-const INTRO_CARD_KEY = INTRO_KEY + 'card.';
-const SETUP_CARD_KEYS = {
-  title: SETUP_CARD_KEY + 'title',
-  dismiss: SETUP_CARD_KEY + 'dismiss',
-  start: SETUP_CARD_KEY + 'start',
-  resume: SETUP_CARD_KEY + 'resume',
-} as const;
-const INTRO_CARD_KEYS = {
-  title: INTRO_CARD_KEY + 'title',
-  dismiss: INTRO_CARD_KEY + 'dismiss',
-  start: INTRO_CARD_KEY + 'start',
-  resume: INTRO_CARD_KEY + 'resume',
-} as const;
+import { ChatOnboardingTourService } from './services/chat-onboarding-tour.service';
 
 @Component({
   selector: 'app-assistant-chat',
@@ -159,6 +108,7 @@ const INTRO_CARD_KEYS = {
     ChatComposerService,
     ChatModelSelectionService,
     ChatReplyToastService,
+    ChatOnboardingTourService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -171,6 +121,7 @@ export class AssistantChatComponent {
   private readonly autoSpeak = inject(ChatAutoSpeakService);
   private readonly modelSelection = inject(ChatModelSelectionService);
   private readonly replyToasts = inject(ChatReplyToastService);
+  private readonly tour = inject(ChatOnboardingTourService);
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
   private chatFunctionExecution = inject(ChatFunctionExecutionService);
@@ -181,10 +132,8 @@ export class AssistantChatComponent {
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   ttsService = inject(TextToSpeechService);
-  private appSettings = inject(AppSettingsManagementService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
-  private languageConfigService = inject(LanguageConfigService);
   private klacksyNavigation = inject(KlacksyNavigationService);
   private navigationVerdict = inject(NavigationVerdictService);
   private router = inject(Router);
@@ -206,10 +155,6 @@ export class AssistantChatComponent {
   readonly isFloatingOutputMode = this.outputModes.isFloatingMode;
   readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
-  private tourIndex = 0;
-  private isTourStationPending = false;
-  private readonly liveTourStep = signal<number | null>(null);
-  private llmOfflineHintShown = false;
   private eventBus = inject(EVENT_BUS_TOKEN);
 
   private pendingGreetingMessageId: string | null = null;
@@ -246,12 +191,9 @@ export class AssistantChatComponent {
   readonly hasNoApiKey = this.modelSelection.hasNoApiKey;
 
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
-  readonly onboardingCardKeys = computed(() => (this.onboarding.isIntro() ? INTRO_CARD_KEYS : SETUP_CARD_KEYS));
+  readonly onboardingCardKeys = this.tour.onboardingCardKeys;
   readonly isInputHiddenByTour = computed(() => this.onboarding.isTourActive() && !this.onboarding.isIntro());
-  readonly displayedTourProgress = computed(() => {
-    const liveStep = this.liveTourStep();
-    return liveStep === null ? this.onboarding.progress() : Math.min(liveStep, this.onboarding.total());
-  });
+  readonly displayedTourProgress = this.tour.displayedTourProgress;
   conversationId = '';
   private currentStreamController: AbortController | null = null;
   private currentRawStream = '';
@@ -395,22 +337,7 @@ export class AssistantChatComponent {
       }
     });
 
-    effect(() => {
-      if (this.onboarding.tourStartRequested() > 0 && this.onboarding.consumeTourStartRequest()) {
-        this.restartGuidedTour();
-      }
-    });
-  }
-
-  private restartGuidedTour(): void {
-    this.beginTour(this.onboarding.requestedTourKind() ?? this.onboarding.activeKind());
-  }
-
-  private beginTour(kind: OnboardingKind): void {
-    this.onboarding.accept(kind);
-    this.maybePostLlmOfflineHint();
-    this.tourIndex = this.onboarding.firstPendingIndex();
-    this.presentStationAtCursor();
+    this.tour.connect();
   }
 
   get messages(): readonly ChatMessage[] {
@@ -620,7 +547,7 @@ export class AssistantChatComponent {
     };
 
     this.orchestrator.addMessage(userMessage);
-    if (!this.isTourStationPending) {
+    if (!this.tour.isStationPending()) {
       this.toastShowService.dismissInteractiveReplies();
     }
     const messageText = this.inputText();
@@ -722,15 +649,8 @@ export class AssistantChatComponent {
             this.transcript.requestScrollToBottom();
 
             const offerableNavigateTo = this.offerableNavigateTo(data);
-            const pendingStation = this.isTourStationPending ? this.onboarding.stationAt(this.tourIndex) : undefined;
-            if (pendingStation) {
-              this.showStationChips(pendingStation);
-            } else if (data.suggestedReplies) {
-              this.replyToasts.showRepliesAsToast(data.suggestedReplies);
-            } else if (offerableNavigateTo || (data.suggestions && data.suggestions.length > 0)) {
-              this.replyToasts.showActionsAsToast(data.suggestions, offerableNavigateTo);
-            } else {
-              this.toastShowService.dismissInteractiveReplies();
+            if (!this.tour.tryReshowPendingStationChips()) {
+              this.presentTurnReplies(data, offerableNavigateTo);
             }
 
             if (data.functionCalls && data.functionCalls.length > 0) {
@@ -835,6 +755,16 @@ export class AssistantChatComponent {
 
   speakMessage(message: ChatMessage): void {
     this.messageActions.speakMessage(message);
+  }
+
+  private presentTurnReplies(data: StreamMetadata, offerableNavigateTo: string | null): void {
+    if (data.suggestedReplies) {
+      this.replyToasts.showRepliesAsToast(data.suggestedReplies);
+    } else if (offerableNavigateTo || (data.suggestions && data.suggestions.length > 0)) {
+      this.replyToasts.showActionsAsToast(data.suggestions, offerableNavigateTo);
+    } else {
+      this.toastShowService.dismissInteractiveReplies();
+    }
   }
 
   private offerableNavigateTo(data: StreamMetadata): string | null {
@@ -981,7 +911,7 @@ export class AssistantChatComponent {
       .subscribe({
         next: (response) => {
           if (!messageId) {
-            this.applyWelcomeOnboarding(response);
+            this.tour.applyWelcomeOnboarding(response);
             return;
           }
           this.applyWelcomeResponse(messageId, response, langCode);
@@ -1046,363 +976,19 @@ export class AssistantChatComponent {
       this.replyToasts.deferGreeting(toastOptions, toastPrompt ?? null, focus);
     }
 
-    this.applyWelcomeOnboarding(response);
-  }
-
-  private applyWelcomeOnboarding(response: IWelcomeResponse): void {
-    this.onboarding.applyWelcome(response.onboarding);
-    this.maybeOfferOnboarding();
-  }
-
-  private maybeOfferOnboarding(): void {
-    if (!this.onboarding.shouldOffer() || this.onboarding.hasOfferedThisSession()) {
-      return;
-    }
-    this.onboarding.markOfferedThisSession();
-    if (this.onboarding.isIntro()) {
-      this.showIntroOffer();
-      return;
-    }
-    this.maybePostLlmOfflineHint();
-    this.showOnboardingOffer();
-  }
-
-  private showIntroOffer(): void {
-    const isLegacy = this.onboarding.isLegacyOffer();
-    const options: ISuggestedReply[] = [
-      { label: this.translateService.instant(INTRO_OFFER_ACCEPT_KEY), value: ONBOARDING_OFFER_CHOICE.Accept },
-    ];
-    if (!isLegacy) {
-      options.push({ label: this.translateService.instant(INTRO_OFFER_SNOOZE_KEY), value: ONBOARDING_OFFER_CHOICE.Snooze });
-    }
-    options.push({ label: this.translateService.instant(INTRO_OFFER_DISMISS_KEY), value: ONBOARDING_OFFER_CHOICE.Dismiss });
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      prompt: this.translateService.instant(isLegacy ? INTRO_OFFER_LEGACY_PROMPT_KEY : INTRO_OFFER_PROMPT_KEY),
-      options,
-    };
-    if (isLegacy) {
-      this.replyToasts.dropPendingGreetingToast();
-    }
-    this.toastShowService.dismissInteractiveReplies();
-    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
-      this.ngZone.run(() => {
-        if (values.length === 0) return;
-        this.handleIntroOfferChoice(values[0]);
-      });
-    });
-    this.onboarding.reportOffered();
-  }
-
-  private handleIntroOfferChoice(choice: string): void {
-    if (choice === ONBOARDING_OFFER_CHOICE.Accept) {
-      this.beginTour(ONBOARDING_KIND.Intro);
-    } else if (choice === ONBOARDING_OFFER_CHOICE.Snooze) {
-      this.onboarding.snooze();
-    } else if (choice === ONBOARDING_OFFER_CHOICE.Dismiss) {
-      this.onboarding.dismiss(() => this.ngZone.run(() => this.showKnownKlacksChip()));
-    }
-  }
-
-  private showKnownKlacksChip(): void {
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      options: [{ label: this.translateService.instant(INTRO_KNOWN_CHIP_KEY), value: ONBOARDING_KNOWN_CHOICE }],
-    };
-    this.toastShowService.dismissInteractiveReplies();
-    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
-      this.ngZone.run(() => {
-        if (values[0] !== ONBOARDING_KNOWN_CHOICE) return;
-        this.onboarding
-          .setAdvancedExplainDepth()
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => this.ngZone.run(() => this.transcript.postAssistantMessage(this.translateService.instant(INTRO_KNOWN_CONFIRMED_KEY))),
-            error: () => undefined,
-          });
-      });
-    });
-  }
-
-  private maybePostLlmOfflineHint(): void {
-    if (this.llmOfflineHintShown || this.onboarding.llmLive() || this.onboarding.isIntro()) {
-      return;
-    }
-    this.llmOfflineHintShown = true;
-    this.transcript.postAssistantMessage(this.translateService.instant(ONBOARDING_LLM_OFFLINE_KEY));
-  }
-
-  private showOnboardingOffer(): void {
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      prompt: this.translateService.instant('assistant-chat.onboarding.offer.prompt'),
-      options: [
-        { label: this.translateService.instant('assistant-chat.onboarding.offer.accept'), value: ONBOARDING_OFFER_CHOICE.Accept },
-        { label: this.translateService.instant('assistant-chat.onboarding.offer.snooze'), value: ONBOARDING_OFFER_CHOICE.Snooze },
-        { label: this.translateService.instant('assistant-chat.onboarding.offer.dismiss'), value: ONBOARDING_OFFER_CHOICE.Dismiss },
-      ],
-    };
-    let resolved = false;
-    this.toastShowService.dismissInteractiveReplies();
-    this.toastShowService.showInteractiveReply(
-      config,
-      (values: string[]) => {
-        resolved = true;
-        this.ngZone.run(() => {
-          if (values.length === 0) return;
-          this.handleOnboardingChoice(values[0]);
-        });
-      },
-      () => {
-        if (resolved) return;
-        this.ngZone.run(() => this.onboarding.snooze());
-      },
-    );
-  }
-
-  private handleOnboardingChoice(choice: string): void {
-    if (choice === ONBOARDING_OFFER_CHOICE.Accept) {
-      this.startOnboardingTour();
-    } else if (choice === ONBOARDING_OFFER_CHOICE.Snooze) {
-      this.onboarding.snooze();
-    } else if (choice === ONBOARDING_OFFER_CHOICE.Dismiss) {
-      this.onboarding.dismiss();
-    }
+    this.tour.applyWelcomeOnboarding(response);
   }
 
   startOnboardingTour(): void {
-    this.beginTour(this.onboarding.activeKind());
+    this.tour.startOnboardingTour();
   }
 
   resumeTourOneStepBack(): void {
-    this.onboarding.accept();
-    this.maybePostLlmOfflineHint();
-    const currentPosition = this.liveTourStep() ?? this.onboarding.firstPendingIndex();
-    this.tourIndex = Math.max(0, currentPosition - 1);
-    this.presentStationAtCursor();
+    this.tour.resumeTourOneStepBack();
   }
 
   dismissOnboarding(): void {
-    this.onboarding.dismiss();
-  }
-
-  private presentStationAtCursor(): void {
-    this.isTourStationPending = false;
-    this.liveTourStep.set(this.tourIndex);
-    const station = this.onboarding.stationAt(this.tourIndex);
-    if (!station) {
-      this.completeTour();
-      return;
-    }
-    if (this.onboarding.isIntro()) {
-      this.presentIntroStation(station);
-      return;
-    }
-    this.klacksyNavigation.navigateAndScroll(station.route ?? ONBOARDING_SETTINGS_ROUTE, station.target || undefined);
-    this.klacksyNavigation.highlightNavIcon(station.navIconId);
-    this.transcript.postAssistantMessage(this.translateService.instant(station.explainKey));
-    if (station.type === 'ask' && station.id === ONBOARDING_STATION_DEFAULT_LANGUAGE) {
-      this.showLanguageChoiceChips(station);
-      return;
-    }
-    this.maybePostFreeProviderHint(station);
-    this.maybePostDoubleClickEditHint(station);
-    this.showStationChips(station);
-  }
-
-  private presentIntroStation(station: IOnboardingStation): void {
-    if (station.route) {
-      this.klacksyNavigation.navigateAndScroll(station.route, station.target || undefined);
-    }
-    this.klacksyNavigation.highlightNavIcon(station.navIconId);
-    this.transcript.postAssistantMessage(this.translateService.instant(station.explainKey));
-    if (station.id === INTRO_STATION.Klacksy && this.onboarding.showsAdminSetupHint()) {
-      this.transcript.postAssistantMessage(this.translateService.instant(INTRO_ADMIN_SETUP_HINT_KEY));
-    }
-    this.showStationChips(station);
-  }
-
-  private maybePostFreeProviderHint(station: IOnboardingStation): void {
-    if (station.id !== ONBOARDING_STATION_LLM_PROVIDER || this.onboarding.llmLive()) {
-      return;
-    }
-    this.transcript.postAssistantMessage(this.translateService.instant(ONBOARDING_LLM_FREE_PROVIDERS_KEY));
-  }
-
-  private maybePostDoubleClickEditHint(station: IOnboardingStation): void {
-    if (station.id !== ONBOARDING_STATION_TITLE) {
-      return;
-    }
-    this.transcript.postAssistantMessage(this.translateService.instant(ONBOARDING_DOUBLE_CLICK_EDIT_HINT_KEY));
-  }
-
-  private showLanguageChoiceChips(station: IOnboardingStation): void {
-    const field = onboardingAskFields(station.id)[0];
-    this.transcript.postAssistantMessage(this.translateService.instant(field.promptKey));
-    const options: ISuggestedReply[] = [];
-    if (this.tourIndex > 0) {
-      options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.back'), value: ONBOARDING_TOUR_CHOICE.Back });
-    }
-    options.push(
-      ...this.languageConfigService.getSupportedLanguages().map((code) => ({
-        label: this.languageConfigService.getDisplayName(code),
-        value: code,
-      })),
-      { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
-      { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
-    );
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      options,
-    };
-    this.toastShowService.dismissInteractiveReplies();
-    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
-      this.ngZone.run(() => {
-        if (values.length === 0) return;
-        this.handleLanguageChoice(station.id, field, values[0]);
-      });
-    });
-    this.isTourStationPending = true;
-  }
-
-  private handleLanguageChoice(stationId: string, field: IOnboardingAskField, choice: string): void {
-    if (choice === ONBOARDING_TOUR_CHOICE.Back) {
-      this.retreatTour();
-      return;
-    }
-    if (choice === ONBOARDING_TOUR_CHOICE.Skip) {
-      this.advanceTour();
-      return;
-    }
-    if (choice === ONBOARDING_TOUR_CHOICE.End) {
-      this.endTour();
-      return;
-    }
-    this.onboarding.writeField(field, choice).subscribe({
-      next: () => this.ngZone.run(() => this.finishStationChoice(stationId)),
-      error: () => this.ngZone.run(() => this.finishStationChoice(stationId)),
-    });
-  }
-
-  private showStationChips(station: IOnboardingStation): void {
-    const options: ISuggestedReply[] = [];
-    if (this.tourIndex > 0) {
-      options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.back'), value: ONBOARDING_TOUR_CHOICE.Back });
-    }
-    if (this.onboarding.isIntro()) {
-      options.push({ label: this.translateService.instant(INTRO_TOUR_NEXT_KEY), value: ONBOARDING_TOUR_CHOICE.Done });
-      if (station.explainSkill && station.pageNameKey && this.onboarding.llmLive()) {
-        options.push({ label: this.translateService.instant(INTRO_TOUR_MORE_KEY), value: ONBOARDING_TOUR_CHOICE.More });
-      }
-    } else {
-      options.push({ label: this.translateService.instant('assistant-chat.onboarding.tour.done'), value: ONBOARDING_TOUR_CHOICE.Done });
-    }
-    options.push(
-      { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
-      { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
-    );
-    const config: ISuggestedRepliesConfig = {
-      selectionMode: 'single',
-      options,
-    };
-    this.toastShowService.dismissInteractiveReplies();
-    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
-      this.ngZone.run(() => {
-        if (values.length === 0) return;
-        this.handleStationChoice(station, values[0]);
-      });
-    });
-    this.isTourStationPending = true;
-  }
-
-  private handleStationChoice(station: IOnboardingStation, choice: string): void {
-    if (choice === ONBOARDING_TOUR_CHOICE.Back) {
-      this.retreatTour();
-      return;
-    }
-    if (choice === ONBOARDING_TOUR_CHOICE.More) {
-      this.askKlacksyForStationDetails(station);
-      return;
-    }
-    if (choice !== ONBOARDING_TOUR_CHOICE.Done && choice !== ONBOARDING_TOUR_CHOICE.Skip) {
-      this.endTour();
-      return;
-    }
-    const completedStationId = choice === ONBOARDING_TOUR_CHOICE.Done ? station.id : undefined;
-    if (station.id === ONBOARDING_STATION_LLM_PROVIDER && !this.onboarding.llmLive()) {
-      this.recheckLlmThenAdvance(completedStationId);
-      return;
-    }
-    if (completedStationId && station.type === 'ask') {
-      void this.appSettings.saveImmediately().then(() =>
-        this.ngZone.run(() => this.finishStationChoice(completedStationId)),
-      );
-      return;
-    }
-    this.finishStationChoice(completedStationId);
-  }
-
-  private askKlacksyForStationDetails(station: IOnboardingStation): void {
-    if (!station.pageNameKey) {
-      return;
-    }
-    const page = this.translateService.instant(station.pageNameKey);
-    this.inputText.set(this.translateService.instant(INTRO_MORE_REQUEST_KEY, { [INTRO_MORE_PAGE_PARAM]: page }));
-    void this.sendMessage();
-  }
-
-  private finishStationChoice(completedStationId?: string): void {
-    if (completedStationId) {
-      this.onboarding.markStationCompleted(completedStationId);
-    }
-    this.advanceTour();
-  }
-
-  private recheckLlmThenAdvance(completedStationId?: string): void {
-    this.onboarding
-      .refreshState(completedStationId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-      next: () =>
-        this.ngZone.run(() => {
-          const key = this.onboarding.llmLive()
-            ? ONBOARDING_LLM_ONLINE_KEY
-            : ONBOARDING_LLM_STILL_OFFLINE_KEY;
-          this.transcript.postAssistantMessage(this.translateService.instant(key));
-          this.advanceTour();
-        }),
-      error: () =>
-        this.ngZone.run(() => {
-          if (completedStationId) {
-            this.onboarding.markStationCompleted(completedStationId);
-          }
-          this.advanceTour();
-        }),
-    });
-  }
-
-  private advanceTour(): void {
-    this.tourIndex += 1;
-    this.presentStationAtCursor();
-  }
-
-  private retreatTour(): void {
-    this.tourIndex = Math.max(0, this.tourIndex - 1);
-    this.presentStationAtCursor();
-  }
-
-  private completeTour(): void {
-    this.isTourStationPending = false;
-    this.toastShowService.dismissInteractiveReplies();
-    const completedKey = this.onboarding.isIntro() ? INTRO_TOUR_COMPLETED_KEY : 'assistant-chat.onboarding.tour.completed';
-    this.onboarding.completeTour();
-    this.transcript.postAssistantMessage(this.translateService.instant(completedKey));
-  }
-
-  private endTour(): void {
-    this.isTourStationPending = false;
-    this.toastShowService.dismissInteractiveReplies();
-    this.onboarding.dismiss();
+    this.tour.dismissOnboarding();
   }
 
   private resolveWelcomeContent(response: IWelcomeResponse, langCode: string): string {
@@ -1503,7 +1089,7 @@ export class AssistantChatComponent {
   }
 
   clearChat(): void {
-    this.isTourStationPending = false;
+    this.tour.resetPendingStation();
     this.chatStageStatus.clear();
     this.proactiveInboxService.resetInboxBlock();
     this.orchestrator.clearMessages();

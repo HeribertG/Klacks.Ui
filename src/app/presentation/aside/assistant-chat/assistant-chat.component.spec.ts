@@ -33,6 +33,7 @@ import { ChatTranscriptService } from './services/chat-transcript.service';
 import { ChatComposerService } from './services/chat-composer.service';
 import { ChatModelSelectionService } from './services/chat-model-selection.service';
 import { ChatReplyToastService } from './services/chat-reply-toast.service';
+import { ChatOnboardingTourService } from './services/chat-onboarding-tour.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
@@ -112,6 +113,7 @@ describe('AssistantChatComponent', () => {
     let mockFunctionExecutionService: any;
     let mockLanguageMappingService: any;
     const replyToasts = (): ChatReplyToastService => fixture.debugElement.injector.get(ChatReplyToastService);
+    const tour = (): ChatOnboardingTourService => fixture.debugElement.injector.get(ChatOnboardingTourService);
 
     const mockModels: IAssistantModel[] = [
         {
@@ -416,6 +418,7 @@ describe('AssistantChatComponent', () => {
                     ChatComposerService,
                     ChatModelSelectionService,
                     ChatReplyToastService,
+                    ChatOnboardingTourService,
                 ],
             },
         })
@@ -1217,8 +1220,8 @@ describe('AssistantChatComponent', () => {
             onboarding = TestBed.inject(OnboardingService);
             vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
             vi.spyOn(onboarding, 'markStationCompleted').mockImplementation(() => undefined);
-            vi.spyOn(component as any, 'presentStationAtCursor').mockImplementation(() => undefined);
-            vi.spyOn(component as any, 'advanceTour').mockImplementation(() => undefined);
+            vi.spyOn(tour() as any, 'presentStationAtCursor').mockImplementation(() => undefined);
+            vi.spyOn(tour() as any, 'advanceTour').mockImplementation(() => undefined);
         });
 
         it('posts the offline hint once when starting the tour without a live LLM', () => {
@@ -1244,7 +1247,7 @@ describe('AssistantChatComponent', () => {
         it('posts the free-provider hint when presenting the llm-provider station while offline', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: false }));
 
-            (component as any).maybePostFreeProviderHint(llmStation);
+            (tour() as any).maybePostFreeProviderHint(llmStation);
 
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.llm.free-providers');
         });
@@ -1252,7 +1255,7 @@ describe('AssistantChatComponent', () => {
         it('does not post the free-provider hint when the LLM is live', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: true }));
 
-            (component as any).maybePostFreeProviderHint(llmStation);
+            (tour() as any).maybePostFreeProviderHint(llmStation);
 
             expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.llm.free-providers');
         });
@@ -1267,44 +1270,44 @@ describe('AssistantChatComponent', () => {
                 return of(onboardingState({ llmLive: true }));
             });
 
-            (component as any).handleStationChoice(llmStation, 'done');
+            (tour() as any).handleStationChoice(llmStation, 'done');
 
             expect(refreshSpy).toHaveBeenCalledWith(ONBOARDING_STATION_LLM_PROVIDER);
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.llm.online');
-            expect((component as any).advanceTour).toHaveBeenCalled();
+            expect((tour() as any).advanceTour).toHaveBeenCalled();
         });
 
         it('posts the still-offline hint on skip when the LLM stays down', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: false }));
             const refreshSpy = vi.spyOn(onboarding, 'refreshState').mockReturnValue(of(onboardingState({ llmLive: false })));
 
-            (component as any).handleStationChoice(llmStation, 'skip');
+            (tour() as any).handleStationChoice(llmStation, 'skip');
 
             expect(refreshSpy).toHaveBeenCalledWith(undefined);
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.llm.still-offline');
-            expect((component as any).advanceTour).toHaveBeenCalled();
+            expect((tour() as any).advanceTour).toHaveBeenCalled();
         });
 
         it('advances without a recheck when the LLM was already live', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: true }));
             const refreshSpy = vi.spyOn(onboarding, 'refreshState');
 
-            (component as any).handleStationChoice(llmStation, 'done');
+            (tour() as any).handleStationChoice(llmStation, 'done');
 
             expect(refreshSpy).not.toHaveBeenCalled();
             expect(onboarding.markStationCompleted).toHaveBeenCalledWith(ONBOARDING_STATION_LLM_PROVIDER);
-            expect((component as any).advanceTour).toHaveBeenCalled();
+            expect((tour() as any).advanceTour).toHaveBeenCalled();
         });
 
         it('leaves other stations untouched by the recheck flow', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: false }));
             const refreshSpy = vi.spyOn(onboarding, 'refreshState');
 
-            (component as any).handleStationChoice(ONBOARDING_STATIONS[1], 'done');
+            (tour() as any).handleStationChoice(ONBOARDING_STATIONS[1], 'done');
 
             expect(refreshSpy).not.toHaveBeenCalled();
             expect(onboarding.markStationCompleted).toHaveBeenCalledWith(ONBOARDING_STATIONS[1].id);
-            expect((component as any).advanceTour).toHaveBeenCalled();
+            expect((tour() as any).advanceTour).toHaveBeenCalled();
         });
     });
 
@@ -1317,13 +1320,13 @@ describe('AssistantChatComponent', () => {
         });
 
         it('posts the double-click-edit hint when presenting the title station', () => {
-            (component as any).maybePostDoubleClickEditHint(titleStation);
+            (tour() as any).maybePostDoubleClickEditHint(titleStation);
 
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.hint.double-click-edit');
         });
 
         it('does not post the double-click-edit hint for any other station', () => {
-            (component as any).maybePostDoubleClickEditHint(nonTitleStation);
+            (tour() as any).maybePostDoubleClickEditHint(nonTitleStation);
 
             expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.hint.double-click-edit');
         });
@@ -1343,14 +1346,14 @@ describe('AssistantChatComponent', () => {
 
         function presentExplainStation(stationId: string): void {
             const index = ONBOARDING_STATIONS.findIndex((station) => station.id === stationId);
-            (component as any).tourIndex = index;
-            (component as any).showStationChips(ONBOARDING_STATIONS[index]);
+            (tour() as any).tourIndex = index;
+            (tour() as any).showStationChips(ONBOARDING_STATIONS[index]);
         }
 
         it('should keep tour chips alive and restore them after a side question during the tour', async () => {
             // Arrange
             presentExplainStation('weekend');
-            expect((component as any).isTourStationPending).toBe(true);
+            expect((tour() as any).isTourStationPending).toBe(true);
             dismissSpy.mockClear();
             showSpy.mockClear();
             component.inputText.set('Was sehe ich auf dieser Seite?');
@@ -1368,7 +1371,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(showSpy).toHaveBeenCalledTimes(1);
-            expect((component as any).isTourStationPending).toBe(true);
+            expect((tour() as any).isTourStationPending).toBe(true);
         });
 
         it('should prioritize tour chips over suggested replies from the answer', async () => {
@@ -1391,12 +1394,12 @@ describe('AssistantChatComponent', () => {
             // Assert
             const lastConfig = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
             expect(lastConfig.options.length).toBe(4); // back + done + skip + end ('weekend' is not the first station)
-            expect((component as any).isTourStationPending).toBe(true);
+            expect((tour() as any).isTourStationPending).toBe(true);
         });
 
         it('should dismiss interactive replies on send when no tour station is pending', async () => {
             // Arrange
-            expect((component as any).isTourStationPending).toBe(false);
+            expect((tour() as any).isTourStationPending).toBe(false);
             dismissSpy.mockClear();
             showSpy.mockClear();
             component.inputText.set('Hallo');
@@ -1642,8 +1645,8 @@ describe('AssistantChatComponent', () => {
 
         function presentStation(stationId: string): void {
             const index = ONBOARDING_STATIONS.findIndex((station) => station.id === stationId);
-            (component as any).tourIndex = index;
-            (component as any).showStationChips(ONBOARDING_STATIONS[index]);
+            (tour() as any).tourIndex = index;
+            (tour() as any).showStationChips(ONBOARDING_STATIONS[index]);
         }
 
         it('should not offer a back chip on the first station', () => {
@@ -1669,13 +1672,13 @@ describe('AssistantChatComponent', () => {
             const onboarding = TestBed.inject(OnboardingService);
             const markCompletedSpy = vi.spyOn(onboarding, 'markStationCompleted').mockImplementation(() => undefined);
             const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'weekend');
-            (component as any).tourIndex = index;
+            (tour() as any).tourIndex = index;
 
             // Act
-            (component as any).handleStationChoice(ONBOARDING_STATIONS[index], ONBOARDING_TOUR_CHOICE.Back);
+            (tour() as any).handleStationChoice(ONBOARDING_STATIONS[index], ONBOARDING_TOUR_CHOICE.Back);
 
             // Assert
-            expect((component as any).tourIndex).toBe(index - 1);
+            expect((tour() as any).tourIndex).toBe(index - 1);
             expect(markCompletedSpy).not.toHaveBeenCalled();
         });
 
@@ -1688,8 +1691,8 @@ describe('AssistantChatComponent', () => {
 
             // Act
             component.startOnboardingTour();
-            (component as any).retreatTour();
-            (component as any).retreatTour();
+            (tour() as any).retreatTour();
+            (tour() as any).retreatTour();
 
             // Assert
             expect(onboarding.progress()).toBe(5);
@@ -1701,19 +1704,19 @@ describe('AssistantChatComponent', () => {
             presentStation('title');
 
             // Act
-            (component as any).handleStationChoice(ONBOARDING_STATIONS[0], ONBOARDING_TOUR_CHOICE.Back);
+            (tour() as any).handleStationChoice(ONBOARDING_STATIONS[0], ONBOARDING_TOUR_CHOICE.Back);
 
             // Assert
-            expect((component as any).tourIndex).toBe(0);
+            expect((tour() as any).tourIndex).toBe(0);
         });
 
         it('should offer a back chip on the language station when it is not first', () => {
             // Arrange
             const index = ONBOARDING_STATIONS.findIndex((station) => station.id === 'default-language');
-            (component as any).tourIndex = index;
+            (tour() as any).tourIndex = index;
 
             // Act
-            (component as any).showLanguageChoiceChips(ONBOARDING_STATIONS[index]);
+            (tour() as any).showLanguageChoiceChips(ONBOARDING_STATIONS[index]);
 
             // Assert
             const config = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
@@ -1726,18 +1729,18 @@ describe('AssistantChatComponent', () => {
             const field: IOnboardingAskField = { promptKey: 'x', kind: 'text', settingTypes: [] };
 
             // Act
-            (component as any).tourIndex = index;
-            (component as any).handleLanguageChoice(ONBOARDING_STATIONS[index].id, field, ONBOARDING_TOUR_CHOICE.Back);
+            (tour() as any).tourIndex = index;
+            (tour() as any).handleLanguageChoice(ONBOARDING_STATIONS[index].id, field, ONBOARDING_TOUR_CHOICE.Back);
 
             // Assert
-            expect((component as any).tourIndex).toBe(index - 1);
+            expect((tour() as any).tourIndex).toBe(index - 1);
         });
 
         it('should resume one station before the persisted first-pending station (survives a restart)', () => {
             // Arrange
             const onboarding = TestBed.inject(OnboardingService);
             vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
-            const presentSpy = vi.spyOn(component as any, 'presentStationAtCursor').mockImplementation(() => undefined);
+            const presentSpy = vi.spyOn(tour() as any, 'presentStationAtCursor').mockImplementation(() => undefined);
             const completed = ONBOARDING_STATIONS.slice(0, 5).map((station) => station.id);
             onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
 
@@ -1745,7 +1748,7 @@ describe('AssistantChatComponent', () => {
             component.resumeTourOneStepBack();
 
             // Assert
-            expect((component as any).tourIndex).toBe(4);
+            expect((tour() as any).tourIndex).toBe(4);
             expect(presentSpy).toHaveBeenCalled();
         });
 
@@ -1753,14 +1756,14 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const onboarding = TestBed.inject(OnboardingService);
             vi.spyOn(onboarding, 'accept').mockImplementation(() => undefined);
-            vi.spyOn(component as any, 'presentStationAtCursor').mockImplementation(() => undefined);
+            vi.spyOn(tour() as any, 'presentStationAtCursor').mockImplementation(() => undefined);
             onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: [] });
 
             // Act
             component.resumeTourOneStepBack();
 
             // Assert
-            expect((component as any).tourIndex).toBe(0);
+            expect((tour() as any).tourIndex).toBe(0);
         });
 
         it('should keep stepping back on repeated presses instead of resetting to the persisted position', () => {
@@ -1772,11 +1775,11 @@ describe('AssistantChatComponent', () => {
 
             // Act
             component.resumeTourOneStepBack();
-            expect((component as any).tourIndex).toBe(4);
+            expect((tour() as any).tourIndex).toBe(4);
             component.resumeTourOneStepBack();
 
             // Assert
-            expect((component as any).tourIndex).toBe(3);
+            expect((tour() as any).tourIndex).toBe(3);
         });
     });
 
@@ -3975,7 +3978,7 @@ describe('AssistantChatComponent', () => {
                 completedStations: [],
             });
             const dismissSpy = vi.spyOn(TestBed.inject(ToastShowService), 'dismissInteractiveReplies');
-            (component as any).showStationChips(ONBOARDING_STATIONS[0]);
+            (tour() as any).showStationChips(ONBOARDING_STATIONS[0]);
             showSpy.mockClear();
             dismissSpy.mockClear();
 
@@ -3998,7 +4001,7 @@ describe('AssistantChatComponent', () => {
 
             expect(dismissSpy).not.toHaveBeenCalled();
             expect(showSpy).not.toHaveBeenCalled();
-            expect((component as any).isTourStationPending).toBe(true);
+            expect((tour() as any).isTourStationPending).toBe(true);
         });
 
         it('resumes at the first pending station instead of restarting at the beginning', () => {
@@ -4266,7 +4269,7 @@ describe('AssistantChatComponent', () => {
             const snoozeSpy = vi.spyOn(onboarding, 'snooze').mockImplementation(() => undefined);
             onboarding.applyWelcome(introState());
 
-            (component as any).maybeOfferOnboarding();
+            (tour() as any).maybeOfferOnboarding();
 
             expect(showSpy).toHaveBeenCalledTimes(1);
             expect(lastConfig().options.map((o: any) => o.value)).toEqual([
@@ -4283,8 +4286,8 @@ describe('AssistantChatComponent', () => {
             vi.spyOn(onboarding, 'reportOffered').mockImplementation(() => undefined);
             onboarding.applyWelcome(introState({ status: 'legacy_offer', isLegacyOffer: true }));
 
-            (component as any).maybeOfferOnboarding();
-            (component as any).maybeOfferOnboarding();
+            (tour() as any).maybeOfferOnboarding();
+            (tour() as any).maybeOfferOnboarding();
 
             expect(showSpy).toHaveBeenCalledTimes(1);
             expect(lastConfig().options.map((o: any) => o.value)).toEqual([
@@ -4300,7 +4303,7 @@ describe('AssistantChatComponent', () => {
             (replyToasts() as any).pendingGreetingPrompt = 'prompt';
             onboarding.applyWelcome(introState({ status: 'legacy_offer', isLegacyOffer: true }));
 
-            (component as any).maybeOfferOnboarding();
+            (tour() as any).maybeOfferOnboarding();
 
             expect((replyToasts() as any).pendingGreetingOptions).toEqual([]);
             expect((replyToasts() as any).pendingGreetingPrompt).toBeNull();
@@ -4313,7 +4316,7 @@ describe('AssistantChatComponent', () => {
             });
             const depthSpy = vi.spyOn(onboarding, 'setAdvancedExplainDepth').mockReturnValue(of(undefined));
 
-            (component as any).handleIntroOfferChoice(ONBOARDING_OFFER_CHOICE.Dismiss);
+            (tour() as any).handleIntroOfferChoice(ONBOARDING_OFFER_CHOICE.Dismiss);
             expect(showSpy).not.toHaveBeenCalled();
 
             saved!();
@@ -4328,7 +4331,7 @@ describe('AssistantChatComponent', () => {
             vi.spyOn(onboarding, 'dismiss').mockImplementation((onSaved?: () => void) => onSaved?.());
             vi.spyOn(onboarding, 'setAdvancedExplainDepth').mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
 
-            (component as any).handleIntroOfferChoice(ONBOARDING_OFFER_CHOICE.Dismiss);
+            (tour() as any).handleIntroOfferChoice(ONBOARDING_OFFER_CHOICE.Dismiss);
             showSpy.mock.calls[showSpy.mock.calls.length - 1][1]([ONBOARDING_KNOWN_CHOICE]);
 
             expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.intro.known.confirmed');
@@ -4336,9 +4339,9 @@ describe('AssistantChatComponent', () => {
 
         it('shows Weiter and Mehr on an intro station with an explain skill', () => {
             onboarding.applyWelcome(introState({ status: 'in_progress', shouldOffer: false }));
-            (component as any).tourIndex = 1;
+            (tour() as any).tourIndex = 1;
 
-            (component as any).showStationChips(onboarding.stationAt(1));
+            (tour() as any).showStationChips(onboarding.stationAt(1));
 
             expect(lastConfig().options.map((o: any) => o.value)).toEqual([
                 ONBOARDING_TOUR_CHOICE.Back,
@@ -4352,8 +4355,8 @@ describe('AssistantChatComponent', () => {
         it('sends a chat question on Mehr and re-shows the chips of the active catalog after the answer', async () => {
             onboarding.applyWelcome(introState({ status: 'in_progress', shouldOffer: false }));
             const station = onboarding.stationAt(0)!;
-            (component as any).tourIndex = 0;
-            (component as any).showStationChips(station);
+            (tour() as any).tourIndex = 0;
+            (tour() as any).showStationChips(station);
             showSpy.mockClear();
             mockLlmService.sendMessageStream.mockImplementation((_msg: string, _convId: string, callbacks: any) => {
                 callbacks.onContent('Ausführliche Erklärung.');
@@ -4362,7 +4365,7 @@ describe('AssistantChatComponent', () => {
                 return new AbortController();
             });
 
-            (component as any).handleStationChoice(station, ONBOARDING_TOUR_CHOICE.More);
+            (tour() as any).handleStationChoice(station, ONBOARDING_TOUR_CHOICE.More);
             await Promise.resolve();
             await Promise.resolve();
 
@@ -4370,7 +4373,7 @@ describe('AssistantChatComponent', () => {
             expect(mockLlmService.sendMessageStream).toHaveBeenCalledTimes(1);
             expect(showSpy).toHaveBeenCalled();
             expect(lastConfig().options.map((o: any) => o.value)).toContain(ONBOARDING_TOUR_CHOICE.More);
-            expect((component as any).tourIndex).toBe(0);
+            expect((tour() as any).tourIndex).toBe(0);
         });
 
         it('stays on the current page for the Klacksy station', () => {
@@ -4382,8 +4385,8 @@ describe('AssistantChatComponent', () => {
             vi.spyOn(navigation, 'highlightNavIcon').mockReturnValue(true);
             const klacksyIndex = onboarding.catalog().findIndex((s) => s.id === INTRO_STATION.Klacksy);
 
-            (component as any).tourIndex = klacksyIndex;
-            (component as any).presentStationAtCursor();
+            (tour() as any).tourIndex = klacksyIndex;
+            (tour() as any).presentStationAtCursor();
 
             expect(navigateSpy).not.toHaveBeenCalled();
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.onboarding.intro.explain.klacksy');
