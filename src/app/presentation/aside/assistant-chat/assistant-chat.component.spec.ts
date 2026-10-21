@@ -34,6 +34,14 @@ import { ChatComposerService } from './services/chat-composer.service';
 import { ChatModelSelectionService } from './services/chat-model-selection.service';
 import { ChatReplyToastService } from './services/chat-reply-toast.service';
 import { ChatOnboardingTourService } from './services/chat-onboarding-tour.service';
+import { ChatWelcomeService } from './services/chat-welcome.service';
+import { ChatSessionService } from './services/chat-session.service';
+import { ChatStreamBufferService } from './services/chat-stream-buffer.service';
+import { ChatTurnStreamService } from './services/chat-turn-stream.service';
+import { ChatLanguageSyncService } from './services/chat-language-sync.service';
+import { ChatVoiceBridgeService } from './services/chat-voice-bridge.service';
+import { TextToSpeechService } from './services/text-to-speech.service';
+import { formatMessage, stripForTts } from 'src/app/shared/helpers/assistant-text.helper';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
@@ -114,6 +122,9 @@ describe('AssistantChatComponent', () => {
     let mockLanguageMappingService: any;
     const replyToasts = (): ChatReplyToastService => fixture.debugElement.injector.get(ChatReplyToastService);
     const tour = (): ChatOnboardingTourService => fixture.debugElement.injector.get(ChatOnboardingTourService);
+    const welcome = (): ChatWelcomeService => fixture.debugElement.injector.get(ChatWelcomeService);
+    const session = (): ChatSessionService => fixture.debugElement.injector.get(ChatSessionService);
+    const turnStream = (): ChatTurnStreamService => fixture.debugElement.injector.get(ChatTurnStreamService);
 
     const mockModels: IAssistantModel[] = [
         {
@@ -419,6 +430,12 @@ describe('AssistantChatComponent', () => {
                     ChatModelSelectionService,
                     ChatReplyToastService,
                     ChatOnboardingTourService,
+                    ChatWelcomeService,
+                    ChatSessionService,
+                    ChatStreamBufferService,
+                    ChatTurnStreamService,
+                    ChatLanguageSyncService,
+                    ChatVoiceBridgeService,
                 ],
             },
         })
@@ -519,7 +536,7 @@ describe('AssistantChatComponent', () => {
             component.inputText.set('Hello');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
-                    callbacks.onStreamStart(component.conversationId);
+                    callbacks.onStreamStart(session().conversationId);
                     callbacks.onContent('Hi there!');
                     callbacks.onMetadata({ suggestions: ['How can I help?'] });
                     callbacks.onDone();
@@ -1060,7 +1077,7 @@ describe('AssistantChatComponent', () => {
             await component.sendMessage();
 
             callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
-            expect(component.toolSteps().length).toBe(1);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(1);
 
             const hooks = mockTurnControl.registerHooks.mock.calls[0][0];
             expect(hooks.hadToolSteps()).toBe(true);
@@ -1072,7 +1089,7 @@ describe('AssistantChatComponent', () => {
 
             const finalized = component.messages.find((m) => m.id === streamingMessage!.id);
             expect(finalized?.isStreaming).toBe(false);
-            expect(component.toolSteps().length).toBe(0);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(0);
         });
     });
 
@@ -1126,7 +1143,7 @@ describe('AssistantChatComponent', () => {
             callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
             callbacks.onContent('Der Mitarbeiter wird angelegt');
 
-            expect(component.toolSteps().length).toBe(0);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(0);
             expect(hooks.hadToolSteps()).toBe(true);
         });
 
@@ -1806,10 +1823,6 @@ describe('AssistantChatComponent', () => {
             expect(component.orchestrator.interrupt).toHaveBeenCalledWith('voice-bubble');
         });
 
-        it('should reflect orchestrator state for voiceModeEnabled', () => {
-            expect(component.voiceModeEnabled).toBe(false);
-        });
-
         it('should reflect orchestrator state for isListening', () => {
             expect(component.isListening).toBe(false);
         });
@@ -1869,7 +1882,7 @@ describe('AssistantChatComponent', () => {
 
         it('should handle suggestion click', () => {
             // Arrange
-            vi.spyOn(component, 'sendMessage').mockImplementation(() => Promise.resolve());
+            const sendSpy = vi.spyOn(turnStream(), 'sendMessage').mockImplementation(() => Promise.resolve());
             const suggestion = 'Create a new employee';
 
             // Act
@@ -1877,7 +1890,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.inputText()).toBe(suggestion);
-            expect(component.sendMessage).toHaveBeenCalled();
+            expect(sendSpy).toHaveBeenCalled();
         });
 
         it('should handle navigate click', () => {
@@ -1901,7 +1914,7 @@ describe('AssistantChatComponent', () => {
             const content = 'Hello\n**bold** and *italic* and `code`';
 
             // Act
-            const result = component.formatMessage(content);
+            const result = formatMessage(content);
 
             // Assert
             expect(result).toBe('Hello<br><strong>bold</strong> and <em>italic</em> and <code>code</code>');
@@ -1909,40 +1922,40 @@ describe('AssistantChatComponent', () => {
 
         describe('formatMessage - Markdown rendering', () => {
             it('should render H3 markdown heading as <h4> tag', () => {
-                const result = component.formatMessage('### Mitarbeiter & Adressen');
+                const result = formatMessage('### Mitarbeiter & Adressen');
                 expect(result).toBe('<h4>Mitarbeiter &amp; Adressen</h4>');
             });
 
             it('should render H1/H2/H3/H4 with mapped tag levels', () => {
-                expect(component.formatMessage('# Top')).toBe('<h2>Top</h2>');
-                expect(component.formatMessage('## Section')).toBe('<h3>Section</h3>');
-                expect(component.formatMessage('### Sub')).toBe('<h4>Sub</h4>');
-                expect(component.formatMessage('#### Detail')).toBe('<h5>Detail</h5>');
+                expect(formatMessage('# Top')).toBe('<h2>Top</h2>');
+                expect(formatMessage('## Section')).toBe('<h3>Section</h3>');
+                expect(formatMessage('### Sub')).toBe('<h4>Sub</h4>');
+                expect(formatMessage('#### Detail')).toBe('<h5>Detail</h5>');
             });
 
             it('should group consecutive list items into a single <ul>', () => {
                 const content = '- Eins\n- Zwei\n- Drei';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).toBe('<ul><li>Eins</li><li>Zwei</li><li>Drei</li></ul>');
             });
 
             it('should render markdown links as anchor tags opening in a new tab', () => {
-                const result = component.formatMessage('Hol dir einen Key: [Groq](https://console.groq.com/keys)');
+                const result = formatMessage('Hol dir einen Key: [Groq](https://console.groq.com/keys)');
                 expect(result).toContain('<a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Groq</a>');
             });
 
             it('should not render links for non-http schemes', () => {
-                const result = component.formatMessage('[x](javascript:alert(1))');
+                const result = formatMessage('[x](javascript:alert(1))');
                 expect(result).not.toContain('<a ');
             });
 
             it('should support * as list bullet alternative to -', () => {
-                const result = component.formatMessage('* Item');
+                const result = formatMessage('* Item');
                 expect(result).toBe('<ul><li>Item</li></ul>');
             });
 
             it('should render --- as horizontal rule', () => {
-                const result = component.formatMessage('Vor\n\n---\n\nNach');
+                const result = formatMessage('Vor\n\n---\n\nNach');
                 expect(result).toContain('<hr>');
                 expect(result).toContain('Vor');
                 expect(result).toContain('Nach');
@@ -1950,50 +1963,50 @@ describe('AssistantChatComponent', () => {
 
             it('should combine heading + list + paragraph', () => {
                 const content = '### Mitarbeiter\n- Anlegen\n- Suchen\n\nNormaler Text';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).toBe(
                     '<h4>Mitarbeiter</h4><ul><li>Anlegen</li><li>Suchen</li></ul><br>Normaler Text',
                 );
             });
 
             it('should apply inline bold inside heading', () => {
-                const result = component.formatMessage('### **Wichtig**');
+                const result = formatMessage('### **Wichtig**');
                 expect(result).toBe('<h4><strong>Wichtig</strong></h4>');
             });
 
             it('should apply inline code inside list item', () => {
-                const result = component.formatMessage('- Verwende `npm test`');
+                const result = formatMessage('- Verwende `npm test`');
                 expect(result).toBe('<ul><li>Verwende <code>npm test</code></li></ul>');
             });
 
             it('should escape HTML special characters', () => {
-                const result = component.formatMessage('<script>alert("xss")</script>');
+                const result = formatMessage('<script>alert("xss")</script>');
                 expect(result).not.toContain('<script>');
                 expect(result).toContain('&lt;script&gt;');
             });
 
             it('should escape ampersand', () => {
-                const result = component.formatMessage('A & B');
+                const result = formatMessage('A & B');
                 expect(result).toBe('A &amp; B');
             });
 
             it('should return empty string for empty input', () => {
-                expect(component.formatMessage('')).toBe('');
+                expect(formatMessage('')).toBe('');
             });
 
             it('should join multiple plain lines with <br>', () => {
-                const result = component.formatMessage('Zeile eins\nZeile zwei');
+                const result = formatMessage('Zeile eins\nZeile zwei');
                 expect(result).toBe('Zeile eins<br>Zeile zwei');
             });
 
             it('should not append trailing <br> to last line', () => {
-                const result = component.formatMessage('Single line');
+                const result = formatMessage('Single line');
                 expect(result).toBe('Single line');
             });
 
             it('should render a GFM table as <table> instead of raw pipe text', () => {
                 const content = '| Gruppe | Kunden |\n|---|---|\n| Zürich | 300 |\n| Bern | 197 |';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).toBe(
                     '<table><thead><tr><th>Gruppe</th><th>Kunden</th></tr></thead><tbody>' +
                         '<tr><td>Zürich</td><td>300</td></tr><tr><td>Bern</td><td>197</td></tr></tbody></table>',
@@ -2002,7 +2015,7 @@ describe('AssistantChatComponent', () => {
 
             it('should combine a table with surrounding text', () => {
                 const content = 'Vorschau:\n\n| A | B |\n|---|---|\n| 1 | 2 |\n\nFertig';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).toContain('Vorschau:');
                 expect(result).toContain('<table>');
                 expect(result).toContain('<td>1</td><td>2</td>');
@@ -2010,7 +2023,7 @@ describe('AssistantChatComponent', () => {
             });
 
             it('should not render a plain line containing a pipe as a table', () => {
-                const result = component.formatMessage('Kosten: 10 | 20');
+                const result = formatMessage('Kosten: 10 | 20');
                 expect(result).not.toContain('<table>');
                 expect(result).toContain('Kosten: 10 | 20');
             });
@@ -2019,34 +2032,33 @@ describe('AssistantChatComponent', () => {
         describe('formatMessage - Suggestions/Replies marker stripping', () => {
             it('should strip closed [SUGGESTIONS: ...] marker', () => {
                 const content = 'Hallo!\n[SUGGESTIONS: "A" | "B" | "C"]';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).not.toContain('SUGGESTIONS');
                 expect(result).toContain('Hallo!');
             });
 
             it('should strip closed [REPLIES: ...] marker', () => {
                 const content = 'Frage?\n[REPLIES:single "Ja" "Nein"]';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).not.toContain('REPLIES');
                 expect(result).toContain('Frage?');
             });
 
             it('should strip trailing open [SUGGESTIONS: marker without closing bracket', () => {
                 const content = 'Antwort.\n[SUGGESTIONS: "incomplete';
-                const result = component.formatMessage(content);
+                const result = formatMessage(content);
                 expect(result).not.toContain('SUGGESTIONS');
                 expect(result).toContain('Antwort.');
             });
 
             it('should preserve bracketed non-marker text', () => {
-                const result = component.formatMessage('Siehe [Doku] dort');
+                const result = formatMessage('Siehe [Doku] dort');
                 expect(result).toContain('[Doku]');
             });
         });
 
         describe('stripForTts - emoji and markdown sanitation', () => {
-            const callStripForTts = (text: string): string =>
-                (component as unknown as { stripForTts: (t: string) => string }).stripForTts(text);
+            const callStripForTts = (text: string): string => stripForTts(text);
 
             it('should remove emoji characters', () => {
                 expect(callStripForTts('👋 Hallo')).toBe('Hallo');
@@ -2135,18 +2147,18 @@ describe('AssistantChatComponent', () => {
 
         it('should clear chat and reset conversation', () => {
             // Arrange
-            component.messages = [
+            component.orchestrator.replaceMessages([
                 { id: '1', sender: 'user', content: 'Hello', timestamp: new Date() },
                 { id: '2', sender: 'assistant', content: 'Hi', timestamp: new Date() },
-            ];
-            const oldConversationId = component.conversationId;
+            ]);
+            const oldConversationId = session().conversationId;
 
             // Act
             component.clearChat();
 
             // Assert
             expect(mockLlmService.clearConversation).toHaveBeenCalledWith(oldConversationId);
-            expect(component.conversationId).not.toBe(oldConversationId);
+            expect(session().conversationId).not.toBe(oldConversationId);
             expect(component.messages.length).toBe(1); // Only welcome message
             expect(component.messages[0].sender).toBe('assistant');
         });
@@ -2295,7 +2307,7 @@ describe('AssistantChatComponent', () => {
 
     describe('TTS barge-in (interrupt monologue on user input)', () => {
         it('typing a printable key interrupts a running TTS playback', () => {
-            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            const interruptSpy = vi.spyOn(TestBed.inject(TextToSpeechService), 'interrupt');
 
             component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'a' }));
 
@@ -2303,7 +2315,7 @@ describe('AssistantChatComponent', () => {
         });
 
         it('modifier shortcuts do not interrupt TTS playback', () => {
-            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            const interruptSpy = vi.spyOn(TestBed.inject(TextToSpeechService), 'interrupt');
 
             component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'c', ctrlKey: true }));
 
@@ -2311,7 +2323,7 @@ describe('AssistantChatComponent', () => {
         });
 
         it('sending a message interrupts a running TTS playback', async () => {
-            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            const interruptSpy = vi.spyOn(TestBed.inject(TextToSpeechService), 'interrupt');
             mockLlmService.sendMessageStream.mockReturnValue(new AbortController());
             component.inputText.set('Neue Frage');
 
@@ -2321,7 +2333,7 @@ describe('AssistantChatComponent', () => {
         });
 
         it('sending with empty input does not touch TTS playback', async () => {
-            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            const interruptSpy = vi.spyOn(TestBed.inject(TextToSpeechService), 'interrupt');
             component.inputText.set('   ');
 
             await component.sendMessage();
@@ -2357,15 +2369,15 @@ describe('AssistantChatComponent', () => {
 
             callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
             callbacks.onFunctionCall({ functionName: 'search_address', parameters: {} });
-            expect(component.toolSteps().length).toBe(2);
-            expect(component.toolSteps().every((s) => !s.done)).toBe(true);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(2);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().every((s) => !s.done)).toBe(true);
 
             callbacks.onFunctionResult({ functionName: 'search_address', functionResult: '', executionType: '' });
-            expect(component.toolSteps().find((s) => s.functionName === 'search_address')?.done).toBe(true);
-            expect(component.toolSteps().find((s) => s.functionName === 'create_employee')?.done).toBe(false);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().find((s) => s.functionName === 'search_address')?.done).toBe(true);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().find((s) => s.functionName === 'create_employee')?.done).toBe(false);
 
             callbacks.onContent('Erledigt.');
-            expect(component.toolSteps().length).toBe(0);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(0);
         });
     });
 
@@ -2405,7 +2417,7 @@ describe('AssistantChatComponent', () => {
 
             // A later multi-turn tool call must still render, i.e. the message stays tracked.
             callbacks.onFunctionCall({ functionName: 'search_address', parameters: {} });
-            expect(component.toolSteps().length).toBe(1);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(1);
         });
 
         it('a second-iteration calling_model status after content already streamed only updates the dezent tool-status, never wipes it', async () => {
@@ -2431,8 +2443,8 @@ describe('AssistantChatComponent', () => {
 
             expect(stageStatus.activeMessageId()).not.toBeNull();
             expect(stageStatus.stageLabelKey()).toBe('assistant-chat.stage.calling_model');
-            expect(component.toolSteps().length).toBe(1);
-            expect(component.toolSteps()[0].done).toBe(true);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps().length).toBe(1);
+            expect(TestBed.inject(ChatStageStatusService).toolSteps()[0].done).toBe(true);
         });
 
         it('clears the stage on error so a stale stage never sticks to a dead message id', async () => {
@@ -2509,11 +2521,11 @@ describe('AssistantChatComponent', () => {
         it('exposes hasVisiblePlan from the plan service for the template', () => {
             fixture.detectChanges();
 
-            expect(component.planService.hasVisiblePlan()).toBe(false);
+            expect(TestBed.inject(DataManagementAgentPlanService).hasVisiblePlan()).toBe(false);
 
             mockPlanService.hasVisiblePlan.set(true);
 
-            expect(component.planService.hasVisiblePlan()).toBe(true);
+            expect(TestBed.inject(DataManagementAgentPlanService).hasVisiblePlan()).toBe(true);
         });
     });
 
@@ -2567,7 +2579,7 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'proactive-reaction-1')!;
 
             // Act
-            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
+            await messageActions.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
 
             // Assert
             expect(mockLlmService.setProactiveReaction).toHaveBeenCalledWith(
@@ -2576,10 +2588,10 @@ describe('AssistantChatComponent', () => {
             );
             const updated = component.messages.find((m) => m.id === 'proactive-reaction-1')!;
             expect(updated.proactiveReaction).toBe(PROACTIVE_REACTION.Helpful);
-            expect(component.pendingReactionMessageId()).toBeNull();
+            expect(messageActions.pendingReactionMessageId()).toBeNull();
 
             // Act again on the already-reacted message
-            await component.submitProactiveReaction(updated, PROACTIVE_REACTION.Dismissed);
+            await messageActions.submitProactiveReaction(updated, PROACTIVE_REACTION.Dismissed);
 
             // Assert: no second call, reaction unchanged
             expect(mockLlmService.setProactiveReaction).toHaveBeenCalledTimes(1);
@@ -2595,7 +2607,7 @@ describe('AssistantChatComponent', () => {
             const dismissed = component.messages.find((m) => m.id === 'drop-me')!;
 
             // Act
-            await component.dismissProactiveMessage(dismissed, PROACTIVE_REJECT_REASON.AlreadyHandled);
+            await messageActions.dismissProactiveMessage(dismissed, PROACTIVE_REJECT_REASON.AlreadyHandled);
             fixture.detectChanges();
 
             // Assert
@@ -2612,13 +2624,13 @@ describe('AssistantChatComponent', () => {
             deliver(proactiveRow({ id: 'ask-why' }));
 
             // Act
-            component.toggleDismissMenu('ask-why');
+            messageActions.toggleDismissMenu('ask-why');
             fixture.detectChanges();
 
             // Assert - the row is still there; only picking a reason removes it. The dismiss-reason
             // menu's own rendering (all four reasons, DOM-level) is covered in
             // chat-message.component.spec.ts, which owns that rendering now.
-            expect(component.dismissMenuMessageId()).toBe('ask-why');
+            expect(messageActions.dismissMenuMessageId()).toBe('ask-why');
             expect(mockProactiveInboxService.dismissMessage).not.toHaveBeenCalled();
             expect(messageActions.inboxMessages().map((m) => m.id)).toEqual(['ask-why']);
         });
@@ -2626,24 +2638,24 @@ describe('AssistantChatComponent', () => {
         it('closes the reason menu again when the same dismiss button is pressed twice', () => {
             // Arrange
             deliver(proactiveRow({ id: 'ask-why' }));
-            component.toggleDismissMenu('ask-why');
+            messageActions.toggleDismissMenu('ask-why');
 
             // Act
-            component.toggleDismissMenu('ask-why');
+            messageActions.toggleDismissMenu('ask-why');
             fixture.detectChanges();
 
             // Assert
-            expect(component.dismissMenuMessageId()).toBeNull();
+            expect(messageActions.dismissMenuMessageId()).toBeNull();
         });
 
         it('passes the picked reason on and closes the menu', async () => {
             // Arrange
             deliver(proactiveRow({ id: 'unwanted' }));
             const message = component.messages.find((m) => m.id === 'unwanted')!;
-            component.toggleDismissMenu('unwanted');
+            messageActions.toggleDismissMenu('unwanted');
 
             // Act
-            await component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.GenerallyUnwanted);
+            await messageActions.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.GenerallyUnwanted);
             fixture.detectChanges();
 
             // Assert
@@ -2651,7 +2663,7 @@ describe('AssistantChatComponent', () => {
                 'unwanted',
                 PROACTIVE_REJECT_REASON.GenerallyUnwanted,
             );
-            expect(component.dismissMenuMessageId()).toBeNull();
+            expect(messageActions.dismissMenuMessageId()).toBeNull();
             expect(component.isHiddenProactiveMessage(message)).toBe(true);
         });
 
@@ -2661,7 +2673,7 @@ describe('AssistantChatComponent', () => {
             const message = component.messages.find((m) => m.id === 'silent')!;
 
             // Act
-            await component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
+            await messageActions.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
 
             // Assert
             expect(mockProactiveInboxService.dismissMessage).toHaveBeenCalledWith(
@@ -2703,9 +2715,9 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'proactive-reaction-pending')!;
 
             // Act
-            const firstCall = component.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
-            expect(component.pendingReactionMessageId()).toBe('proactive-reaction-pending');
-            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Dismissed);
+            const firstCall = messageActions.submitProactiveReaction(appended, PROACTIVE_REACTION.Helpful);
+            expect(messageActions.pendingReactionMessageId()).toBe('proactive-reaction-pending');
+            await messageActions.submitProactiveReaction(appended, PROACTIVE_REACTION.Dismissed);
 
             // Assert
             expect(mockLlmService.setProactiveReaction).toHaveBeenCalledTimes(1);
@@ -2713,7 +2725,7 @@ describe('AssistantChatComponent', () => {
             request$.next();
             request$.complete();
             await firstCall;
-            expect(component.pendingReactionMessageId()).toBeNull();
+            expect(messageActions.pendingReactionMessageId()).toBeNull();
         });
 
         it('discards the reaction, re-enables the buttons and shows an error toast when the PUT fails', async () => {
@@ -2727,20 +2739,20 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'proactive-reaction-2')!;
 
             // Act
-            await component.submitProactiveReaction(appended, PROACTIVE_REACTION.Dismissed);
+            await messageActions.submitProactiveReaction(appended, PROACTIVE_REACTION.Dismissed);
 
             // Assert
             expect(
                 component.messages.find((m) => m.id === 'proactive-reaction-2')?.proactiveReaction,
             ).toBeUndefined();
-            expect(component.pendingReactionMessageId()).toBeNull();
+            expect(messageActions.pendingReactionMessageId()).toBeNull();
             expect(showErrorSpy).toHaveBeenCalled();
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
 
             // Act: retry succeeds after the transient failure
             mockLlmService.setProactiveReaction.mockReturnValue(of(void 0));
             const current = component.messages.find((m) => m.id === 'proactive-reaction-2')!;
-            await component.submitProactiveReaction(current, PROACTIVE_REACTION.Dismissed);
+            await messageActions.submitProactiveReaction(current, PROACTIVE_REACTION.Dismissed);
 
             // Assert
             expect(
@@ -3166,7 +3178,7 @@ describe('AssistantChatComponent', () => {
             const message = component.messages.find((m) => m.id === 'inbox-react')!;
 
             // Act
-            await component.submitProactiveReaction(message, PROACTIVE_REACTION.Helpful);
+            await messageActions.submitProactiveReaction(message, PROACTIVE_REACTION.Helpful);
 
             // Assert
             expect(mockLlmService.setProactiveReaction).toHaveBeenCalledWith(
@@ -3224,15 +3236,15 @@ describe('AssistantChatComponent', () => {
             const message = component.messages.find((m) => m.id === 'ack-1')!;
 
             // Act
-            await component.submitAcknowledge(message);
+            await messageActions.submitAcknowledge(message);
 
             // Assert
             expect(mockProactiveInboxService.acknowledgeMessage).toHaveBeenCalledWith('ack-1');
             expect(component.messages.find((m) => m.id === 'ack-1')!.proactiveAcknowledged).toBe(true);
-            expect(component.pendingAcknowledgeMessageId()).toBeNull();
+            expect(messageActions.pendingAcknowledgeMessageId()).toBeNull();
 
             // Act again on the already-acknowledged message
-            await component.submitAcknowledge(component.messages.find((m) => m.id === 'ack-1')!);
+            await messageActions.submitAcknowledge(component.messages.find((m) => m.id === 'ack-1')!);
 
             // Assert: no second call
             expect(mockProactiveInboxService.acknowledgeMessage).toHaveBeenCalledTimes(1);
@@ -3251,11 +3263,11 @@ describe('AssistantChatComponent', () => {
             const message = component.messages.find((m) => m.id === 'ack-2')!;
 
             // Act
-            await component.submitAcknowledge(message);
+            await messageActions.submitAcknowledge(message);
 
             // Assert
             expect(component.messages.find((m) => m.id === 'ack-2')!.proactiveAcknowledged).toBeFalsy();
-            expect(component.pendingAcknowledgeMessageId()).toBeNull();
+            expect(messageActions.pendingAcknowledgeMessageId()).toBeNull();
             expect(showErrorSpy).toHaveBeenCalled();
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.error.generic');
         });
@@ -3457,7 +3469,7 @@ describe('AssistantChatComponent', () => {
 
             // Act - the button click itself (DOM-level, via app-chat-message) is covered in
             // chat-message.component.spec.ts, which owns that rendering now.
-            component.onProactiveActionClick(message);
+            messageActions.onProactiveActionClick(message);
 
             // Assert
             expect(navigationService.navigateAndScroll).toHaveBeenCalledWith(
@@ -3472,7 +3484,7 @@ describe('AssistantChatComponent', () => {
             const message = component.messages.find((m) => m.id === 'proactive-action-2')!;
 
             // Act
-            component.onProactiveActionClick(message);
+            messageActions.onProactiveActionClick(message);
 
             // Assert
             expect(navigationService.navigateAndScroll).toHaveBeenCalledWith('/workplace/schedule');
@@ -3513,12 +3525,12 @@ describe('AssistantChatComponent', () => {
             // Arrange
             deliver(muteSuggestion());
             const message = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
-            expect(component.isMuteSuggestion(message)).toBe(true);
+            expect(messageActions.isMuteSuggestion(message)).toBe(true);
 
             // Act - open the reason menu, then pick "no reason"
-            component.toggleDismissMenu(message.id);
-            expect(component.dismissMenuMessageId()).toBe('mute-suggestion-1');
-            await component.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
+            messageActions.toggleDismissMenu(message.id);
+            expect(messageActions.dismissMenuMessageId()).toBe('mute-suggestion-1');
+            await messageActions.dismissProactiveMessage(message, PROACTIVE_REJECT_REASON.NoReason);
             fixture.detectChanges();
 
             // Assert
@@ -3537,18 +3549,18 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
 
             // Act
-            await component.submitMuteSuggestion(appended);
+            await messageActions.submitMuteSuggestion(appended);
 
             // Assert
             expect(mockLlmService.muteTriggerKind).toHaveBeenCalledWith('unstaffed_shift');
             const updated = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
             expect(updated.proactiveMuted).toBe(true);
-            expect(component.pendingMuteMessageId()).toBeNull();
+            expect(messageActions.pendingMuteMessageId()).toBeNull();
             expect(showInfoSpy).toHaveBeenCalled();
             expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.mute-confirmed');
 
             // Act again on the already-muted message
-            await component.submitMuteSuggestion(updated);
+            await messageActions.submitMuteSuggestion(updated);
 
             // Assert: locked, no second call
             expect(mockLlmService.muteTriggerKind).toHaveBeenCalledTimes(1);
@@ -3562,9 +3574,9 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-pending')!;
 
             // Act
-            const firstCall = component.submitMuteSuggestion(appended);
-            expect(component.pendingMuteMessageId()).toBe('mute-suggestion-pending');
-            await component.submitMuteSuggestion(appended);
+            const firstCall = messageActions.submitMuteSuggestion(appended);
+            expect(messageActions.pendingMuteMessageId()).toBe('mute-suggestion-pending');
+            await messageActions.submitMuteSuggestion(appended);
 
             // Assert
             expect(mockLlmService.muteTriggerKind).toHaveBeenCalledTimes(1);
@@ -3572,7 +3584,7 @@ describe('AssistantChatComponent', () => {
             request$.next();
             request$.complete();
             await firstCall;
-            expect(component.pendingMuteMessageId()).toBeNull();
+            expect(messageActions.pendingMuteMessageId()).toBeNull();
         });
 
         it('shows an error toast and keeps the mute button active for a retry when the PUT fails', async () => {
@@ -3584,7 +3596,7 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-error')!;
 
             // Act
-            await component.submitMuteSuggestion(appended);
+            await messageActions.submitMuteSuggestion(appended);
 
             // Assert
             expect(showErrorSpy).toHaveBeenCalled();
@@ -3592,12 +3604,12 @@ describe('AssistantChatComponent', () => {
             expect(
                 component.messages.find((m) => m.id === 'mute-suggestion-error')?.proactiveMuted,
             ).toBeUndefined();
-            expect(component.pendingMuteMessageId()).toBeNull();
+            expect(messageActions.pendingMuteMessageId()).toBeNull();
 
             // Act: retry succeeds after the transient failure
             mockLlmService.muteTriggerKind.mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true }));
             const current = component.messages.find((m) => m.id === 'mute-suggestion-error')!;
-            await component.submitMuteSuggestion(current);
+            await messageActions.submitMuteSuggestion(current);
 
             // Assert
             expect(
@@ -3619,7 +3631,7 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-1')!;
 
             // Act
-            await component.submitMuteSuggestion(appended);
+            await messageActions.submitMuteSuggestion(appended);
             fixture.detectChanges();
 
             // Assert
@@ -3638,7 +3650,7 @@ describe('AssistantChatComponent', () => {
             const appended = component.messages.find((m) => m.id === 'mute-suggestion-no-target')!;
 
             // Act
-            await component.submitMuteSuggestion(appended);
+            await messageActions.submitMuteSuggestion(appended);
 
             // Assert
             expect(mockLlmService.muteTriggerKind).not.toHaveBeenCalled();
@@ -3679,18 +3691,18 @@ describe('AssistantChatComponent', () => {
                 const appended = component.messages.find((m) => m.id === 'delegable-1')!;
 
                 // Act
-                await component.submitDelegate(appended);
+                await messageActions.submitDelegate(appended);
 
                 // Assert
                 expect(mockLlmService.delegateCondition).toHaveBeenCalledWith('delegable-1', 1);
                 const updated = component.messages.find((m) => m.id === 'delegable-1')!;
                 expect(updated.proactiveDelegated).toBe(true);
-                expect(component.pendingDelegateMessageId()).toBeNull();
+                expect(messageActions.pendingDelegateMessageId()).toBeNull();
                 expect(showInfoSpy).toHaveBeenCalled();
                 expect(mockTranslateService.instant).toHaveBeenCalledWith('assistant-chat.proactive.delegate-confirmed');
 
                 // Act again on the already-delegated message
-                await component.submitDelegate(updated);
+                await messageActions.submitDelegate(updated);
 
                 // Assert: locked, no second call
                 expect(mockLlmService.delegateCondition).toHaveBeenCalledTimes(1);
@@ -3704,9 +3716,9 @@ describe('AssistantChatComponent', () => {
                 const appended = component.messages.find((m) => m.id === 'delegable-pending')!;
 
                 // Act
-                const firstCall = component.submitDelegate(appended);
-                expect(component.pendingDelegateMessageId()).toBe('delegable-pending');
-                await component.submitDelegate(appended);
+                const firstCall = messageActions.submitDelegate(appended);
+                expect(messageActions.pendingDelegateMessageId()).toBe('delegable-pending');
+                await messageActions.submitDelegate(appended);
 
                 // Assert
                 expect(mockLlmService.delegateCondition).toHaveBeenCalledTimes(1);
@@ -3714,7 +3726,7 @@ describe('AssistantChatComponent', () => {
                 request$.next();
                 request$.complete();
                 await firstCall;
-                expect(component.pendingDelegateMessageId()).toBeNull();
+                expect(messageActions.pendingDelegateMessageId()).toBeNull();
             });
 
             it('shows a dedicated error toast when the delegating user lacks the rights (403)', async () => {
@@ -3728,7 +3740,7 @@ describe('AssistantChatComponent', () => {
                 const appended = component.messages.find((m) => m.id === 'delegable-forbidden')!;
 
                 // Act
-                await component.submitDelegate(appended);
+                await messageActions.submitDelegate(appended);
 
                 // Assert
                 expect(showErrorSpy).toHaveBeenCalled();
@@ -3747,7 +3759,7 @@ describe('AssistantChatComponent', () => {
                 const appended = component.messages.find((m) => m.id === 'delegable-error')!;
 
                 // Act
-                await component.submitDelegate(appended);
+                await messageActions.submitDelegate(appended);
 
                 // Assert
                 expect(showErrorSpy).toHaveBeenCalled();
@@ -3760,7 +3772,7 @@ describe('AssistantChatComponent', () => {
                 const appended = component.messages.find((m) => m.id === 'delegable-none')!;
 
                 // Act
-                await component.submitDelegate(appended);
+                await messageActions.submitDelegate(appended);
 
                 // Assert
                 expect(mockLlmService.delegateCondition).not.toHaveBeenCalled();
@@ -3846,58 +3858,58 @@ describe('AssistantChatComponent', () => {
         it('sends helpful=false as soon as the thumbs-down opens the menu', () => {
             const message = givenAssistantMessage();
 
-            component.onNotHelpfulClick(message);
+            messageActions.onNotHelpfulClick(message);
 
             expect(mockLlmService.submitHelpfulFeedback).toHaveBeenCalledWith({
                 userMessage: USER_MESSAGE,
                 helpful: false,
                 comment: undefined,
             });
-            expect(component.correctionMenuMessageId()).toBe(message.id);
+            expect(messageActions.correctionMenuMessageId()).toBe(message.id);
         });
 
         it('does not send again when the menu is closed', () => {
             const message = givenAssistantMessage();
 
-            component.onNotHelpfulClick(message);
+            messageActions.onNotHelpfulClick(message);
             const updated = component.messages.find((m) => m.id === message.id)!;
-            component.onNotHelpfulClick(updated);
+            messageActions.onNotHelpfulClick(updated);
 
             expect(mockLlmService.submitHelpfulFeedback).toHaveBeenCalledTimes(1);
-            expect(component.correctionMenuMessageId()).toBeNull();
+            expect(messageActions.correctionMenuMessageId()).toBeNull();
         });
 
         it('sends the free text as comment and closes the menu', () => {
             const message = givenAssistantMessage();
-            component.onNotHelpfulClick(message);
+            messageActions.onNotHelpfulClick(message);
             mockLlmService.submitHelpfulFeedback.mockClear();
 
-            component.submitNotHelpfulComment(message, '  falsche Gruppe  ');
+            messageActions.submitNotHelpfulComment(message, '  falsche Gruppe  ');
 
             expect(mockLlmService.submitHelpfulFeedback).toHaveBeenCalledWith({
                 userMessage: USER_MESSAGE,
                 helpful: false,
                 comment: 'falsche Gruppe',
             });
-            expect(component.correctionMenuMessageId()).toBeNull();
+            expect(messageActions.correctionMenuMessageId()).toBeNull();
             expect(component.messages.find((m) => m.id === message.id)!.notHelpfulCommentSubmitted).toBe(true);
         });
 
         it('does not fire a request for an empty comment box', () => {
             const message = givenAssistantMessage();
-            component.onNotHelpfulClick(message);
+            messageActions.onNotHelpfulClick(message);
             mockLlmService.submitHelpfulFeedback.mockClear();
 
-            component.submitNotHelpfulComment(message, '   ');
+            messageActions.submitNotHelpfulComment(message, '   ');
 
             expect(mockLlmService.submitHelpfulFeedback).not.toHaveBeenCalled();
-            expect(component.correctionMenuMessageId()).toBeNull();
+            expect(messageActions.correctionMenuMessageId()).toBeNull();
         });
 
         it('keeps the correction path with its own endpoint', () => {
             const message = givenAssistantMessage();
 
-            component.submitCorrection(message, 'wrong_skill');
+            messageActions.submitCorrection(message, 'wrong_skill');
 
             expect(mockLlmService.submitCorrection).toHaveBeenCalledWith({
                 userMessage: USER_MESSAGE,
@@ -3982,7 +3994,7 @@ describe('AssistantChatComponent', () => {
             showSpy.mockClear();
             dismissSpy.mockClear();
 
-            (component as any).applyWelcomeResponse('welcome-1', {
+            (welcome() as any).applyWelcomeResponse('welcome-1', {
                 greetingKey: 'assistant-chat.welcome.content',
                 greetingText: 'Hallo',
                 greetingVariantIndex: 0,
@@ -4177,7 +4189,7 @@ describe('AssistantChatComponent', () => {
             asideService.show();
             showSpy.mockClear();
 
-            (component as any).applyWelcomeResponse(
+            (welcome() as any).applyWelcomeResponse(
                 'welcome-focus-open',
                 welcomeResponseWithFocus(navigateFocus),
                 'de',
@@ -4193,10 +4205,10 @@ describe('AssistantChatComponent', () => {
             const asideService = TestBed.inject(AsideService);
             asideService.hide();
             seedWelcomeMessage('welcome-focus-pending');
-            (component as any).greetingSpoken = false;
+            (welcome() as any).greetingSpoken = false;
             showSpy.mockClear();
 
-            (component as any).applyWelcomeResponse(
+            (welcome() as any).applyWelcomeResponse(
                 'welcome-focus-pending',
                 welcomeResponseWithFocus(navigateFocus),
                 'de',
@@ -4556,7 +4568,7 @@ describe('AssistantChatComponent', () => {
         it('ends the voice session and silences speech when the user starts typing in voice mode', () => {
             // Arrange
             component.orchestrator.voiceModeEnabled.set(true);
-            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            const interruptSpy = vi.spyOn(TestBed.inject(TextToSpeechService), 'interrupt');
 
             // Act
             component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'a' }));
