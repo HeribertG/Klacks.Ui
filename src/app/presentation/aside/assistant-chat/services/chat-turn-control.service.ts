@@ -187,7 +187,7 @@ export class ChatTurnControlService {
   }
 
   /**
-   * AssistantChatComponent calls this once from its constructor. A component-lifetime registration,
+   * ChatTurnStreamService calls this once per chat instance, when it is created. A component-lifetime registration,
    * not per-turn: endTurn() must never clear it, because three of the six stop triggers (voice-bubble,
    * barge-in, session-end) fire from other components that have no hooks of their own.
    * @param hooks - The chat component's cleanup routines

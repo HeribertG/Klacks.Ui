@@ -134,6 +134,11 @@ export class AssistantChatComponent {
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
   readonly isInputHiddenByTour = computed(() => this.onboarding.isTourActive() && !this.onboarding.isIntro());
 
+  /**
+   * The connect() order is load-bearing: the orchestrator is initialized before the language is applied,
+   * and the effects are registered greeting -> pending welcome -> panel open -> plan refresh -> tour start,
+   * so a panel opened by the tour badge greets first and presents the station after that.
+   */
   constructor() {
     this.transcript.registerInputFocus(() => this.chatInput()?.nativeElement?.focus());
     afterEveryRender(() => {

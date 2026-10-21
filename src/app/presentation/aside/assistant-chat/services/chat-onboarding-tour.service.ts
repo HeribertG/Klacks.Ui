@@ -68,8 +68,7 @@ import {
   ONBOARDING_TOUR_SKIP_KEY,
   SETUP_CARD_KEYS,
 } from './chat-onboarding-tour.constants';
-
-const SINGLE_SELECTION = 'single';
+import { SINGLE_SELECTION_MODE } from './chat-reply-toast.constants';
 
 @Injectable()
 export class ChatOnboardingTourService {
@@ -152,10 +151,6 @@ export class ChatOnboardingTourService {
     this.presentStationAtCursor();
   }
 
-  dismissOnboarding(): void {
-    this.onboarding.dismiss();
-  }
-
   private restartGuidedTour(): void {
     this.beginTour(this.onboarding.requestedTourKind() ?? this.onboarding.activeKind());
   }
@@ -188,7 +183,7 @@ export class ChatOnboardingTourService {
     }
     options.push(this.option(INTRO_OFFER_DISMISS_KEY, ONBOARDING_OFFER_CHOICE.Dismiss));
     const config: ISuggestedRepliesConfig = {
-      selectionMode: SINGLE_SELECTION,
+      selectionMode: SINGLE_SELECTION_MODE,
       prompt: this.translateService.instant(isLegacy ? INTRO_OFFER_LEGACY_PROMPT_KEY : INTRO_OFFER_PROMPT_KEY),
       options,
     };
@@ -211,7 +206,7 @@ export class ChatOnboardingTourService {
 
   private showKnownKlacksChip(): void {
     const config: ISuggestedRepliesConfig = {
-      selectionMode: SINGLE_SELECTION,
+      selectionMode: SINGLE_SELECTION_MODE,
       options: [this.option(INTRO_KNOWN_CHIP_KEY, ONBOARDING_KNOWN_CHOICE)],
     };
     this.toastShowService.dismissInteractiveReplies();
@@ -239,7 +234,7 @@ export class ChatOnboardingTourService {
 
   private showOnboardingOffer(): void {
     const config: ISuggestedRepliesConfig = {
-      selectionMode: SINGLE_SELECTION,
+      selectionMode: SINGLE_SELECTION_MODE,
       prompt: this.translateService.instant(ONBOARDING_OFFER_PROMPT_KEY),
       options: [
         this.option(ONBOARDING_OFFER_ACCEPT_KEY, ONBOARDING_OFFER_CHOICE.Accept),
@@ -336,7 +331,7 @@ export class ChatOnboardingTourService {
       })),
       ...this.skipAndEndOptions(),
     );
-    this.showChoiceToast({ selectionMode: SINGLE_SELECTION, options }, (choice) =>
+    this.showChoiceToast({ selectionMode: SINGLE_SELECTION_MODE, options }, (choice) =>
       this.handleLanguageChoice(station.id, field, choice),
     );
     this.isTourStationPending = true;
@@ -372,7 +367,7 @@ export class ChatOnboardingTourService {
       options.push(this.option(ONBOARDING_TOUR_DONE_KEY, ONBOARDING_TOUR_CHOICE.Done));
     }
     options.push(...this.skipAndEndOptions());
-    this.showChoiceToast({ selectionMode: SINGLE_SELECTION, options }, (choice) =>
+    this.showChoiceToast({ selectionMode: SINGLE_SELECTION_MODE, options }, (choice) =>
       this.handleStationChoice(station, choice),
     );
     this.isTourStationPending = true;

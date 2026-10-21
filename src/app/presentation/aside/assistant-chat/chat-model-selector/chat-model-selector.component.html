@@ -11,12 +11,12 @@
   >
     <div class="current-model">
       <span class="model-name">{{
-        getCurrentModelInfo()?.displayName ||
+        modelSelection.getCurrentModelInfo()?.displayName ||
           ("assistant-chat.select-model" | translate)
       }}</span>
-      @if (getCurrentModelInfo()) {
+      @if (modelSelection.getCurrentModelInfo()) {
       <span class="model-cost">
-        {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
+        {{ modelSelection.formatCost(modelSelection.getCurrentModelInfo()!.costPerInputToken) }}
       </span>
       }
       <fa-icon
@@ -27,12 +27,12 @@
 
     @if (showModelDropdown()) {
     <div class="dropdown-menu" role="menu" (click)="$event.stopPropagation()">
-      @for (model of availableModels(); track model.modelId) {
+      @for (model of modelSelection.availableModels(); track model.modelId) {
       <button
         type="button"
         role="menuitem"
         class="dropdown-item"
-        [class.selected]="model.modelId === currentModel()"
+        [class.selected]="model.modelId === modelSelection.currentModel()"
         (click)="selectModel(model.modelId); $event.stopPropagation()"
         [attr.aria-label]="model.displayName"
       >
@@ -41,10 +41,10 @@
           <div class="model-description">{{ model.description }}</div>
           <div class="model-pricing">
             <span class="input-cost"
-              >In: {{ formatCost(model.costPerInputToken) }}</span
+              >In: {{ modelSelection.formatCost(model.costPerInputToken) }}</span
             >
             <span class="output-cost"
-              >Out: {{ formatCost(model.costPerOutputToken) }}</span
+              >Out: {{ modelSelection.formatCost(model.costPerOutputToken) }}</span
             >
           </div>
         </div>

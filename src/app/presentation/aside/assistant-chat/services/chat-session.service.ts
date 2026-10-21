@@ -72,9 +72,7 @@ export class ChatSessionService {
    * @param conversationId - Id the backend reported at stream start
    */
   adoptConversationId(conversationId: string): void {
-    if (!this.conversationId || this.conversationId !== conversationId) {
-      this.conversationId = conversationId;
-    }
+    this.conversationId = conversationId;
   }
 
   clearChat(): void {

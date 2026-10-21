@@ -13,7 +13,7 @@ const RANDOM_START = 2;
 const RANDOM_LENGTH = 9;
 
 function randomSuffix(): string {
-  return Math.random().toString(RANDOM_RADIX).substr(RANDOM_START, RANDOM_LENGTH);
+  return Math.random().toString(RANDOM_RADIX).slice(RANDOM_START, RANDOM_START + RANDOM_LENGTH);
 }
 
 export function createChatMessageId(): string {

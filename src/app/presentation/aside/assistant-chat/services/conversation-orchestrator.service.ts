@@ -379,7 +379,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   /**
-   * Bridge invoked by AssistantChatComponent's SSE onError callback.
+   * Bridge invoked by ChatTurnStreamService's SSE onError callback.
    * chatStreamService exposes callbacks instead of observables, so the component
    * forwards the SSE network error here to keep all error-hint emission centralized.
    */
@@ -393,7 +393,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   /**
-   * Bridge invoked by AssistantChatComponent when the SSE stream emits a tool call.
+   * Bridge invoked by ChatTurnStreamService when the SSE stream emits a tool call.
    * Signals that Klacksy has entered the planning phase (executing a chain of tools)
    * so the voice-shell can surface a dedicated Planning state instead of a static
    * Processing state that reads as "frozen" during long tool loops.

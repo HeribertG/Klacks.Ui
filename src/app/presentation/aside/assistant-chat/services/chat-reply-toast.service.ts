@@ -27,8 +27,8 @@ import { WORKPLACE_ROUTE_PREFIX } from 'src/app/domain/constants/navigation-outc
 import { ChatComposerService } from './chat-composer.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { SETUP_CONSULTATION_TRIGGER_PHRASE_KEY } from './chat-message-actions.service';
+import { SINGLE_SELECTION_MODE } from './chat-reply-toast.constants';
 
-const SINGLE_SELECTION = 'single';
 const REPLY_VALUES_SEPARATOR = ', ';
 const OPEN_ROUTE_ICON = '📍 ';
 const OPEN_ROUTE_LABEL_KEY = 'assistant-chat.open';
@@ -91,7 +91,7 @@ export class ChatReplyToastService {
       return;
     }
     const config: ISuggestedRepliesConfig = {
-      selectionMode: SINGLE_SELECTION,
+      selectionMode: SINGLE_SELECTION_MODE,
       prompt: this.translateService.instant(ACTION_TOAST_PROMPT_KEY),
       options,
     };
@@ -117,7 +117,7 @@ export class ChatReplyToastService {
       return;
     }
     const config: ISuggestedRepliesConfig = {
-      selectionMode: SINGLE_SELECTION,
+      selectionMode: SINGLE_SELECTION_MODE,
       prompt: prompt ?? this.translateService.instant(WELCOME_FOCUS_FALLBACK_PROMPT_KEY),
       options,
     };

@@ -111,7 +111,7 @@ describe('ChatModelSelectorComponent', () => {
         modelSelection.currentModel.set('gpt-4');
 
         // Act
-        const result = component.getCurrentModelInfo();
+        const result = component.modelSelection.getCurrentModelInfo();
 
         // Assert
         expect(mockAssistantService.getModelInfo).toHaveBeenCalledWith('gpt-4');
@@ -120,8 +120,8 @@ describe('ChatModelSelectorComponent', () => {
 
     it('should format cost correctly', () => {
         // Act & Assert
-        expect(component.formatCost(0.01)).toBe('€0.0100/1K tokens');
-        expect(component.formatCost(0.1234)).toBe('€0.1234/1K tokens');
+        expect(component.modelSelection.formatCost(0.01)).toBe('€0.0100/1K tokens');
+        expect(component.modelSelection.formatCost(0.1234)).toBe('€0.1234/1K tokens');
     });
 
     it('closes the model dropdown on a click outside of it, but not on a click inside', () => {

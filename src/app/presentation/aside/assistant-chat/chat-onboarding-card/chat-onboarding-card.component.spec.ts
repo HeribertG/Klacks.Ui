@@ -12,6 +12,7 @@ import { SETUP_CARD_KEYS } from '../services/chat-onboarding-tour.constants';
 describe('ChatOnboardingCardComponent', () => {
     let fixture: ComponentFixture<ChatOnboardingCardComponent>;
     let mockTour: any;
+    let mockOnboarding: any;
 
     function button(selector: string): HTMLButtonElement | null {
         return fixture.nativeElement.querySelector(selector);
@@ -23,14 +24,15 @@ describe('ChatOnboardingCardComponent', () => {
             displayedTourProgress: signal(0),
             startOnboardingTour: vi.fn(),
             resumeTourOneStepBack: vi.fn(),
-            dismissOnboarding: vi.fn(),
         };
+
+        mockOnboarding = { total: signal(4), dismiss: vi.fn() };
 
         await TestBed.configureTestingModule({
             imports: [ChatOnboardingCardComponent, TranslateModule.forRoot()],
             providers: [
                 { provide: ChatOnboardingTourService, useValue: mockTour },
-                { provide: OnboardingService, useValue: { total: signal(4) } },
+                { provide: OnboardingService, useValue: mockOnboarding },
             ],
         }).compileComponents();
 
@@ -74,6 +76,6 @@ describe('ChatOnboardingCardComponent', () => {
         button('.onboarding-card-dismiss')!.click();
 
         // Assert
-        expect(mockTour.dismissOnboarding).toHaveBeenCalledTimes(1);
+        expect(mockOnboarding.dismiss).toHaveBeenCalledTimes(1);
     });
 });

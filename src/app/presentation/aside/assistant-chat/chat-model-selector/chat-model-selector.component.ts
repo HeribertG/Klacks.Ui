@@ -10,7 +10,6 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { ChatModelSelectionService } from '../services/chat-model-selection.service';
 
 const MODEL_DROPDOWN_SELECTOR = '.model-dropdown';
@@ -24,12 +23,10 @@ const MODEL_DROPDOWN_SELECTOR = '.model-dropdown';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatModelSelectorComponent {
-  private readonly modelSelection = inject(ChatModelSelectionService);
+  readonly modelSelection = inject(ChatModelSelectionService);
 
   readonly faChevronDown = faChevronDown;
   readonly showModelDropdown = signal(false);
-  readonly availableModels = this.modelSelection.availableModels;
-  readonly currentModel = this.modelSelection.currentModel;
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -46,13 +43,5 @@ export class ChatModelSelectorComponent {
   selectModel(modelId: string): void {
     this.modelSelection.selectModel(modelId);
     this.showModelDropdown.set(false);
-  }
-
-  getCurrentModelInfo(): IAssistantModel | undefined {
-    return this.modelSelection.getCurrentModelInfo();
-  }
-
-  formatCost(cost: number): string {
-    return this.modelSelection.formatCost(cost);
   }
 }
