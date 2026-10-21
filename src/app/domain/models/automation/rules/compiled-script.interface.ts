@@ -2,5 +2,5 @@
 
 export interface ICompiledScript {
   hasError: boolean;
-  error?: { description: string } | null;
+  error?: { description: string; line?: number; column?: number } | null;
 }

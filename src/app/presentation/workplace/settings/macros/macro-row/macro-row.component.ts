@@ -21,7 +21,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
 import { EditorSelection } from '@codemirror/state';
-import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setError, clearError } from 'src/app/infrastructure/scripting/klacks-script-language';
+import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setError, clearError } from './klacks-script-language';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroFunction, MacroFunctionLabels } from 'src/app/domain/enums/macro-function.enum';
@@ -33,9 +33,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 import { ShiftData } from 'src/app/domain/models/shift/shift-data-class';
-import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
-import { ExternalVariables } from 'src/app/infrastructure/scripting/external-variables.type';
-import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
+import { SCRIPT_COMPILER } from 'src/app/domain/models/automation/rules/script-compiler.interface';
+import { IScriptResult } from 'src/app/domain/models/automation/rules/script-result.interface';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -76,7 +75,7 @@ export class MacroRowComponent implements OnDestroy {
 
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
-  private scriptService = inject(ScriptService);
+  private scriptCompiler = inject(SCRIPT_COMPILER);
   private manualLoader = inject(ManualLoaderService);
   private macroManagementService = inject(MacroManagementService);
 
@@ -327,7 +326,7 @@ export class MacroRowComponent implements OnDestroy {
       return;
     }
 
-    const compiled = this.scriptService.compile(code, false, true);
+    const compiled = this.scriptCompiler.compile(code, false, true);
     if (compiled.hasError) {
       const line = compiled.error?.line ?? 1;
       const column = compiled.error?.column ?? 1;
@@ -381,10 +380,8 @@ export class MacroRowComponent implements OnDestroy {
     const codeWithImports = this.addImports(code);
     const importLineCount = this.AUTO_IMPORTS.length + 1;
     const externalVars = this.buildExternalVariables();
-    const result: ScriptResult = this.scriptService.run(
-      codeWithImports,
-      false,
-      true,
+    const result: IScriptResult = this.scriptCompiler.execute(
+      this.scriptCompiler.compile(codeWithImports, false, true),
       externalVars
     );
     if (result.success) {
@@ -401,8 +398,8 @@ export class MacroRowComponent implements OnDestroy {
     }
   }
 
-  private buildExternalVariables(): ExternalVariables {
-    const variables: ExternalVariables = {};
+  private buildExternalVariables(): Record<string, unknown> {
+    const variables: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(this.shiftData)) {
       variables[key.toLowerCase()] = value;
     }

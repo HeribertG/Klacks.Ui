@@ -7,7 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
 
 import { MacroRowComponent } from './macro-row.component';
-import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
+import { SCRIPT_COMPILER } from 'src/app/domain/models/automation/rules/script-compiler.interface';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
@@ -32,7 +32,7 @@ describe('MacroRowComponent', () => {
   let mockModalService: { open: ReturnType<typeof vi.fn> };
   let mockScriptService: {
     compile: ReturnType<typeof vi.fn>;
-    run: ReturnType<typeof vi.fn>;
+    execute: ReturnType<typeof vi.fn>;
   };
   let mockMacroManagementService: {
     save: ReturnType<typeof vi.fn>;
@@ -57,7 +57,7 @@ describe('MacroRowComponent', () => {
 
     mockScriptService = {
       compile: vi.fn().mockReturnValue({ hasError: false }),
-      run: vi.fn().mockReturnValue({
+      execute: vi.fn().mockReturnValue({
         success: true,
         messages: [],
       }),
@@ -85,7 +85,7 @@ describe('MacroRowComponent', () => {
       ],
       providers: [
         { provide: NgbModal, useValue: mockModalService },
-        { provide: ScriptService, useValue: mockScriptService },
+        { provide: SCRIPT_COMPILER, useValue: mockScriptService },
         { provide: MacroManagementService, useValue: mockMacroManagementService },
         { provide: TranslateService, useValue: translateServiceSpy },
       ],
@@ -330,16 +330,19 @@ describe('MacroRowComponent', () => {
       component.onRunMacro();
 
       // Assert
-      expect(mockScriptService.run).toHaveBeenCalled();
-      const callArgs = mockScriptService.run.mock.calls[0];
-      expect(callArgs[0]).toContain('import hour');
-      expect(callArgs[0]).toContain('dim x as integer');
+      expect(mockScriptService.execute).toHaveBeenCalled();
+      const compileArgs = mockScriptService.compile.mock.calls[0];
+      expect(compileArgs[0]).toContain('import hour');
+      expect(compileArgs[0]).toContain('dim x as integer');
+      expect(compileArgs.slice(1)).toEqual([false, true]);
+      const executeArgs = mockScriptService.execute.mock.calls[0];
+      expect(executeArgs[0]).toBe(mockScriptService.compile.mock.results[0].value);
     });
 
     it('should set test to success message when run succeeds', () => {
       // Arrange
       component.onEditorContentChange('dim x as integer');
-      mockScriptService.run.mockReturnValue({
+      mockScriptService.execute.mockReturnValue({
         success: true,
         messages: [{ type: 'info', message: 'Output' }],
       });
@@ -354,7 +357,7 @@ describe('MacroRowComponent', () => {
     it('should set test to error message when run fails', () => {
       // Arrange
       component.onEditorContentChange('invalid code');
-      mockScriptService.run.mockReturnValue({
+      mockScriptService.execute.mockReturnValue({
         success: false,
         error: { description: 'Runtime error', line: 15, column: 1 },
       });

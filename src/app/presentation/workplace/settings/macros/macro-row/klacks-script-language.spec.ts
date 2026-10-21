@@ -8,7 +8,7 @@ import {
 } from 'src/app/domain/constants/macro-external-variables.constants';
 import { externalVariables } from './klacks-script-language';
 import { ShiftData } from 'src/app/domain/models/shift/shift-data-class';
-import { ScriptService } from './script.service';
+import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
 
 /**
  * Mirror of the script-importable variables bound by the backend in

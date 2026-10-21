@@ -4,6 +4,6 @@ import { IScriptMessage } from './script-message.interface';
 
 export interface IScriptResult {
   success: boolean;
-  error?: { description: string } | null;
+  error?: { description: string; line?: number; column?: number } | null;
   messages: IScriptMessage[];
 }

@@ -140,7 +140,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/workplace/settings/language-plugins/language-plugins.component.ts': ['infrastructure'],
   'presentation/workplace/settings/language-plugins/marketplace-browse/marketplace-browse.component.ts': ['infrastructure'],
   'presentation/workplace/settings/llm-sync-log/llm-sync-log.component.ts': ['infrastructure'],
-  'presentation/workplace/settings/macros/macro-row/macro-row.component.ts': ['infrastructure'],
   'presentation/workplace/settings/personal-access-tokens/personal-access-tokens.component.ts': ['infrastructure'],
   'presentation/workplace/settings/settings-general/settings-general.component.ts': ['infrastructure'],
   'presentation/workplace/settings/wizard-settings/wizard-settings.component.ts': ['infrastructure'],
