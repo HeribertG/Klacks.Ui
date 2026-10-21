@@ -7,6 +7,7 @@
  */
 
 import { inject, Injectable, signal } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
@@ -18,6 +19,7 @@ import { AppSettingsManagementService } from '../settings/app-settings-managemen
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +32,7 @@ export class GroupSelectionService {
   private dataManagementClientService = inject(DataManagementClientService);
   private appSettingsService = inject(AppSettingsManagementService);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private dataGroupService = inject(DataGroupService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
   private _withoutGroup = signal(false);
@@ -53,6 +56,23 @@ export class GroupSelectionService {
     this._withoutGroup.set(false);
     this._selectedGroup.set(group);
     this.triggerSelectedGroupChanged();
+  }
+
+  /**
+   * Selects the group with the given id unless it is already selected. An unknown id or a group the user may not
+   * read leaves the current selection untouched.
+   */
+  public async selectGroupById(groupId: string): Promise<void> {
+    if (this.selectedGroup?.id === groupId) return;
+
+    try {
+      const group = await lastValueFrom(this.dataGroupService.getGroup(groupId));
+      if (group) {
+        this.selectGroup(group as Group);
+      }
+    } catch {
+      return;
+    }
   }
 
   public selectWithoutGroup(): void {

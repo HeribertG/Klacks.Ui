@@ -6,8 +6,8 @@ import { IClient } from 'src/app/domain/models/client/client-class';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { lastValueFrom, Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +29,18 @@ export class ClientSearchService {
 
   public getClientsForReplacement(): Observable<IClientForReplacement[]> {
     return this.dataClientService.getClientsForReplacement();
+  }
+
+  /**
+   * Reads the client and returns its id number as the text for the global search box (an exact id-number match), or
+   * an empty string when the client has none. A failed read rejects.
+   */
+  public idNumberSearchStringFor(clientId: string): Promise<string> {
+    return lastValueFrom(
+      this.dataClientService
+        .getClient(clientId)
+        .pipe(map((client) => (client?.idNumber ? String(client.idNumber) : ''))),
+    );
   }
 
   public findClients(editClient: IClient) {

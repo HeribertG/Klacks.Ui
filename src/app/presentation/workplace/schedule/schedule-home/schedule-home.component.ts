@@ -34,11 +34,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
-import {
-  HolidayCollectionService,
-  buildOfficialOverrideKey,
-} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
@@ -56,22 +52,18 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { CalendarChipsResolverService } from 'src/app/domain/services/calendar/calendar-chips-resolver.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ActivatedRoute } from '@angular/router';
-import { lastValueFrom, skip } from 'rxjs';
-import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
-import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { skip } from 'rxjs';
+import { ClientSearchService } from 'src/app/domain/services/client/client-search.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
-import { Group } from 'src/app/domain/models/group/group-class';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
 import { SchedulePdfDrawingService } from '../schedule-section/services/schedule-pdf-drawing.service';
 import { ShiftPdfExportService } from '../shift-section/services/shift-pdf-export.service';
@@ -84,7 +76,6 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
-import { ResolvedCalendarChips } from '../../../shared/grid/services/resolved-calendar-chips.interface';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 const GROUP_QUERY_PARAM = 'groupId';
@@ -137,20 +128,18 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
   private holidayCollection = inject(HolidayCollectionService);
-  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private calendarChipsResolver = inject(CalendarChipsResolverService);
   private groupSelectionService = inject(GroupSelectionService);
-  private appSettingsService = inject(AppSettingsManagementService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private injector = inject(Injector);
   private allScheduleStateService = inject(AllScheduleStateService);
-  private signalRService = inject(SignalRService);
+  private signalRService = inject(SCHEDULE_SIGNALR);
   private schedulePdfExportService = inject(SchedulePdfExportService);
   private timelinePdfExportService = inject(TimelinePdfExportService);
   private scheduleViewModeService = inject(ScheduleViewModeService);
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
-  private dataGroupService = inject(DataGroupService);
-  private dataClientService = inject(DataClientService);
+  private clientSearchService = inject(ClientSearchService);
   private searchStateService = inject(SearchStateService);
   private calendarUtil = inject(CalendarUtilService);
   private destroyRef = inject(DestroyRef);
@@ -219,16 +208,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     const groupId = this.route.snapshot.queryParamMap.get(GROUP_QUERY_PARAM);
     if (!groupId) return;
 
-    if (this.groupSelectionService.selectedGroup?.id === groupId) return;
-
-    try {
-      const group = await lastValueFrom(this.dataGroupService.getGroup(groupId));
-      if (group) {
-        this.groupSelectionService.selectGroup(group as Group);
-      }
-    } catch {
-      // ignore: invalid id or no permission → fall back to current selection
-    }
+    await this.groupSelectionService.selectGroupById(groupId);
   }
 
   /**
@@ -248,8 +228,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     if (!clientId) return;
 
     try {
-      const client = await lastValueFrom(this.dataClientService.getClient(clientId));
-      const searchString = client?.idNumber ? String(client.idNumber) : '';
+      const searchString = await this.clientSearchService.idNumberSearchStringFor(clientId);
       if (!searchString) return;
 
       this.groupSelectionService.clearSelection();
@@ -323,7 +302,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private async finalizeHolidays(holidayListPromise: Promise<void>): Promise<void> {
     await holidayListPromise;
 
-    const { tokens, overrides } = await this.resolveCalendarChips();
+    const { tokens, overrides } = await this.calendarChipsResolver.resolveActiveSelection();
     if (tokens.length > 0) {
       this.holidayCollection.setSelection(tokens, overrides);
     }
@@ -354,42 +333,6 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     );
     if (hasHolidayInRange) {
       this.dataManagementSchedule.readShiftSchedule(false);
-    }
-  }
-
-  private async resolveCalendarChips(): Promise<ResolvedCalendarChips> {
-    const calendarSelectionId =
-      this.groupSelectionService.selectedGroup?.calendarSelectionId ||
-      this.appSettingsService.contactSettings().globalCalendarSelectionId;
-
-    if (!calendarSelectionId) {
-      return { tokens: [], overrides: new Map() };
-    }
-
-    try {
-      const selection = await lastValueFrom(
-        this.dataCalendarSelectionService.getCalendarSelection(calendarSelectionId)
-      );
-
-      if (!selection?.selectedCalendars?.length) {
-        return { tokens: [], overrides: new Map() };
-      }
-
-      const tokens: StateCountryToken[] = [];
-      const overrides: OfficialOverrideMap = new Map();
-      selection.selectedCalendars.forEach((sc) => {
-        const token = new StateCountryToken();
-        token.country = sc.country;
-        token.state = sc.state;
-        tokens.push(token);
-        overrides.set(
-          buildOfficialOverrideKey(sc.country, sc.state),
-          sc.officialOverride
-        );
-      });
-      return { tokens, overrides };
-    } catch {
-      return { tokens: [], overrides: new Map() };
     }
   }
 

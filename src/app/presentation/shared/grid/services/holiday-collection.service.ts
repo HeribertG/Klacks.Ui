@@ -8,17 +8,9 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-
 import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 import { firstValueFrom } from 'rxjs';
-import { OfficialOverrideMap } from './official-override-map.type';
+import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
+import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
-
-const OVERRIDE_KEY_SEPARATOR = '|';
-
-export function buildOfficialOverrideKey(
-  country: string,
-  state: string
-): string {
-  return `${country}${OVERRIDE_KEY_SEPARATOR}${state}`;
-}
 
 @Injectable()
 export class HolidayCollectionService {

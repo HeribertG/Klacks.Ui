@@ -32,11 +32,9 @@ import { CalendarSettingService } from '../services/calendar-setting.service';
 import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import {
-  HolidayCollectionService,
-  buildOfficialOverrideKey,
-} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
+import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -48,7 +46,7 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
 import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop.service';
 import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
 import { GanttCoordinateService } from '../services/gantt-coordinate.service';
-import { ResolvedCalendarChips } from '../../../shared/grid/services/resolved-calendar-chips.interface';
+import { ResolvedCalendarChips } from 'src/app/domain/models/calendar/resolved-calendar-chips.interface';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({

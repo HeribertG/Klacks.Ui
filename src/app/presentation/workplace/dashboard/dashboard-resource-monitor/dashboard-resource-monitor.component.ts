@@ -23,11 +23,9 @@ import { LocaleService } from 'src/app/application/services/locale.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import {
-  HolidayCollectionService,
-  buildOfficialOverrideKey,
-} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
+import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';

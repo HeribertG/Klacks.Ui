@@ -10,8 +10,9 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { HolidayCollectionService, buildOfficialOverrideKey } from './holiday-collection.service';
-import { OfficialOverrideMap } from './official-override-map.type';
+import { HolidayCollectionService } from './holiday-collection.service';
+import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
+import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 import { CalendarRule } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';

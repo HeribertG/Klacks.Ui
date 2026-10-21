@@ -12,20 +12,19 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { CalendarChipsResolverService } from 'src/app/domain/services/calendar/calendar-chips-resolver.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
 import { TimelinePdfExportService } from '../schedule-section/services/timeline-pdf-export.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
-import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { CALENDAR_TEST_ZONES, currentTimeZone, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 
 describe('ScheduleHomeComponent', () => {
   const clientId = '131e24fe-2acf-4bd5-b70c-5af888321338';
@@ -46,7 +45,11 @@ describe('ScheduleHomeComponent', () => {
   function setup(queryParams: Record<string, string>): void {
     workFilter = { searchString: '', selectedGroup: 'a-group-outside-the-drift-client' };
     mockDataClientService = { getClient: vi.fn() };
-    mockGroupSelectionService = { clearSelection: vi.fn(), selectedGroup: undefined };
+    mockGroupSelectionService = {
+      clearSelection: vi.fn(),
+      selectGroupById: vi.fn().mockResolvedValue(undefined),
+      selectedGroup: undefined,
+    };
     mockSearchStateService = { setRestoreSearch: vi.fn() };
 
     queryParamMap$ = new BehaviorSubject<any>(convertToParamMap(queryParams));
@@ -69,14 +72,12 @@ describe('ScheduleHomeComponent', () => {
         { provide: SearchService, useValue: {} },
         { provide: WorkplaceStateService, useValue: {} },
         { provide: HolidayCollectionService, useValue: {} },
-        { provide: DataCalendarSelectionService, useValue: {} },
-        { provide: AppSettingsManagementService, useValue: {} },
+        { provide: CalendarChipsResolverService, useValue: {} },
         { provide: AllScheduleStateService, useValue: {} },
-        { provide: SignalRService, useValue: {} },
+        { provide: SCHEDULE_SIGNALR, useValue: {} },
         { provide: SchedulePdfExportService, useValue: {} },
         { provide: TimelinePdfExportService, useValue: {} },
         { provide: ScheduleViewModeService, useValue: {} },
-        { provide: DataGroupService, useValue: {} },
         { provide: AnalyseScenarioService, useValue: { isScenarioMode: () => false } },
       ],
     });
@@ -305,6 +306,74 @@ describe('ScheduleHomeComponent', () => {
       expect(filter.currentMonth).toBe(11);
       expect(filter.currentYear).toBe(2026);
       expect(dataManagement.readDatas).toHaveBeenCalled();
+    });
+  });
+
+  describe('applyGroupQueryParam', () => {
+    async function applyGroupQueryParam(): Promise<void> {
+      await (component as unknown as { applyGroupQueryParam(): Promise<void> }).applyGroupQueryParam();
+    }
+
+    it('selects the group of the query param through the group selection', async () => {
+      setup({ groupId: 'group-from-link' });
+
+      await applyGroupQueryParam();
+
+      expect(mockGroupSelectionService.selectGroupById).toHaveBeenCalledWith('group-from-link');
+    });
+
+    it('leaves the group selection alone without a groupId query param', async () => {
+      setup({ clientId });
+
+      await applyGroupQueryParam();
+
+      expect(mockGroupSelectionService.selectGroupById).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('finalizeHolidays', () => {
+    function setupHolidays(chips: { tokens: StateCountryToken[]; overrides: Map<string, boolean | null> }) {
+      setup({});
+      const resolver = TestBed.inject(CalendarChipsResolverService) as unknown as { resolveActiveSelection: ReturnType<typeof vi.fn> };
+      resolver.resolveActiveSelection = vi.fn().mockResolvedValue(chips);
+      const holidayCollection = TestBed.inject(HolidayCollectionService) as unknown as {
+        setSelection: ReturnType<typeof vi.fn>;
+        holidays: { holidayList: { currentDate: Date }[] };
+      };
+      holidayCollection.setSelection = vi.fn();
+      holidayCollection.holidays = { holidayList: [] };
+      return { resolver, holidayCollection };
+    }
+
+    async function finalizeHolidays(holidayList: Promise<void>): Promise<void> {
+      await (component as unknown as { finalizeHolidays(p: Promise<void>): Promise<void> }).finalizeHolidays(holidayList);
+    }
+
+    it('applies the resolved calendar chips once the holiday list has loaded', async () => {
+      const token = new StateCountryToken();
+      token.country = 'CH';
+      token.state = 'BE';
+      const overrides = new Map<string, boolean | null>([['CH|BE', true]]);
+      const { resolver, holidayCollection } = setupHolidays({ tokens: [token], overrides });
+      let releaseList: () => void = () => undefined;
+      const holidayList = new Promise<void>((resolve) => (releaseList = resolve));
+
+      const done = finalizeHolidays(holidayList);
+      await Promise.resolve();
+      expect(resolver.resolveActiveSelection).not.toHaveBeenCalled();
+      releaseList();
+      await done;
+
+      expect(resolver.resolveActiveSelection).toHaveBeenCalledTimes(1);
+      expect(holidayCollection.setSelection).toHaveBeenCalledWith([token], overrides);
+    });
+
+    it('keeps the current holiday selection when no calendar chips apply', async () => {
+      const { holidayCollection } = setupHolidays({ tokens: [], overrides: new Map() });
+
+      await finalizeHolidays(Promise.resolve());
+
+      expect(holidayCollection.setSelection).not.toHaveBeenCalled();
     });
   });
 

@@ -36,11 +36,9 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
-import {
-  HolidayCollectionService,
-  buildOfficialOverrideKey,
-} from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { OfficialOverrideMap } from 'src/app/presentation/shared/grid/services/official-override-map.type';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
+import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -56,7 +54,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
-import { ResolvedCalendarChips } from '../../../shared/grid/services/resolved-calendar-chips.interface';
+import { ResolvedCalendarChips } from 'src/app/domain/models/calendar/resolved-calendar-chips.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 @Component({

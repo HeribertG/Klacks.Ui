@@ -33,6 +33,7 @@ export interface IScheduleSignalR {
   autofillRunEnded$: Observable<IAutofillRunPresence>;
   connected$: Observable<void>;
   connectionId: string;
+  startConnection(): Promise<void>;
   joinScheduleGroup(startDate: string, endDate: string, analyseToken?: string | null): Promise<void>;
   leaveScheduleGroup(startDate: string, endDate: string, analyseToken?: string | null): Promise<void>;
   setSelectedGroup(selectedGroupId: string): Promise<void>;
