@@ -93,10 +93,7 @@ import {
   WELCOME_FOCUS_LATER,
 } from 'src/app/domain/constants/welcome-focus.constants';
 import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
-import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import {
   INTRO_ADMIN_SETUP_HINT_KEY,
@@ -196,7 +193,6 @@ export class AssistantChatComponent {
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
   private readonly welcomeFocusToast = inject(WelcomeFocusToastService);
-  private readonly triggerPreferenceService = inject(DataTriggerPreferenceService);
   private readonly outputModes = inject(SpeechOutputModeService);
 
   /** Whether output mode is audio-only — panels should show as floating toasts */
@@ -206,7 +202,6 @@ export class AssistantChatComponent {
    * so in 'both-auto' the plan panel rendered inline and in the rail at the same time.
    */
   readonly isFloatingOutputMode = this.outputModes.isFloatingMode;
-  private localStorageService = inject(LocalStorageService);
   readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
   private tourIndex = 0;
@@ -1011,8 +1006,8 @@ export class AssistantChatComponent {
   }
 
   private snoozeWelcomeFocusKind(focus: IWelcomeFocus): void {
-    this.triggerPreferenceService
-      .snoozeKind(focus.kind, this.welcomeFocusToast.nextLocalMidnightUtc(new Date()))
+    this.welcomeGreetingService
+      .snoozeFocusKind(focus)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: (error: unknown) => {
@@ -1681,16 +1676,8 @@ export class AssistantChatComponent {
     return stripForTts(text);
   }
 
-  /**
-   * Resolves the user's language, preferring the persisted choice: in floating voice
-   * modes this component bootstraps before the translate service has a current language.
-   */
   private resolveCurrentLang(): string {
-    return (
-      this.localStorageService.get(StorageKeys.CURRENT_LANG) ||
-      this.translateService.currentLang ||
-      this.translateService.defaultLang
-    );
+    return this.languageMappingService.resolveUserLanguage();
   }
 
   /**

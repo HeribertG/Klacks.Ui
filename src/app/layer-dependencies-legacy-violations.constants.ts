@@ -67,7 +67,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'infrastructure/services/work-change-logic.service.ts': ['shared'],
   'infrastructure/signalr/signalr-token.helper.ts': ['shared'],
   'infrastructure/storage/abstract-storage.service.ts': ['shared'],
-  'presentation/aside/assistant-chat/assistant-chat.component.ts': ['infrastructure'],
   'presentation/aside/assistant-chat/chat-message/chat-message.component.ts': ['infrastructure'],
   'presentation/aside/assistant-chat/services/chat-message-actions.service.ts': ['infrastructure'],
   'presentation/aside/assistant-chat/services/conversation-orchestrator.service.ts': ['infrastructure'],

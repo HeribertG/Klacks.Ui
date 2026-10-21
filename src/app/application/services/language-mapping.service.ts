@@ -3,6 +3,8 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 import { LanguageConfig } from './language-config.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -13,6 +15,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 export class LanguageMappingService {
   private translateService = inject(TranslateService);
   private languageConfigService = inject(LanguageConfigService);
+  private readonly localStorageService = inject(LocalStorageService);
 
   private readonly defaultConfigs: Record<string, LanguageConfig> = {
     de: {
@@ -111,5 +114,17 @@ export class LanguageMappingService {
 
   isLanguageSupported(langCode: string): boolean {
     return this.languageConfigService.isLanguageSupported(langCode);
+  }
+
+  /**
+   * Resolves the user's language, preferring the persisted choice: in floating voice
+   * modes the assistant chat bootstraps before the translate service has a current language.
+   */
+  resolveUserLanguage(): string {
+    return (
+      this.localStorageService.get(StorageKeys.CURRENT_LANG) ||
+      this.translateService.currentLang ||
+      this.translateService.defaultLang
+    );
   }
 }

@@ -8,6 +8,7 @@
  * @param localStorageService - reads cached username token claim
  * @param translateService - current language code
  * @param router - current route for context-aware suggestions
+ * @param triggerPreferenceService - snoozes the trigger kind behind a postponed welcome focus
  */
 
 import { inject, Injectable } from '@angular/core';
@@ -20,6 +21,10 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { IWelcomeRequest } from 'src/app/domain/models/assistant/welcome-request.interface';
+import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
+import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
+import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
+import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
 
 const GEOLOCATION_TIMEOUT_MS = 2000;
 const GEOLOCATION_MAX_AGE_MS = 15 * 60 * 1000;
@@ -41,6 +46,20 @@ export class WelcomeGreetingService {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly triggerPreferenceService = inject(DataTriggerPreferenceService);
+  private readonly welcomeFocusToast = inject(WelcomeFocusToastService);
+
+  /**
+   * "Later" on the welcome focus toast: silences the focus kind until the next local midnight,
+   * so the same question returns with the first welcome of the next day.
+   * @param focus - The welcome focus the user postponed
+   */
+  snoozeFocusKind(focus: IWelcomeFocus): Observable<ITriggerPreference> {
+    return this.triggerPreferenceService.snoozeKind(
+      focus.kind,
+      this.welcomeFocusToast.nextLocalMidnightUtc(new Date()),
+    );
+  }
 
   fetchWelcome(): Observable<IWelcomeResponse> {
     const isReopen = this.isReopenSession();

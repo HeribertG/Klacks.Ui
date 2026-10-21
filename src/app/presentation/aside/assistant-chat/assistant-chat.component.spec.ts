@@ -306,7 +306,8 @@ describe('AssistantChatComponent', () => {
         const languageMappingServiceSpy = {
             getCurrentLanguageConfig: vi.fn(),
             getSpeechLocale: vi.fn(),
-            getLanguageConfig: vi.fn()
+            getLanguageConfig: vi.fn(),
+            resolveUserLanguage: vi.fn(),
         };
         languageMappingServiceSpy.getCurrentLanguageConfig.mockReturnValue({
             code: 'de',
