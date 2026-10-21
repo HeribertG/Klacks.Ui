@@ -6,7 +6,7 @@ import { AvailabilityCalculationService } from './availability-calculation.servi
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridThemeService } from 'src/app/domain/services/settings/grid-theme.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';

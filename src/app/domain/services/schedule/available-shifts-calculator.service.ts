@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
-import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import {
   getDayIndex,
   getDaysInMonth,

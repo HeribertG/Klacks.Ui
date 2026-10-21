@@ -6,7 +6,7 @@ import { vi } from 'vitest';
 import { DataManagementIndividualPeriodService } from './data-management-individual-period.service';
 import { IndividualPeriodApiService } from 'src/app/infrastructure/api/scheduling/individual-period-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
+import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import {
   activeJanuaryOffsetMinutes,

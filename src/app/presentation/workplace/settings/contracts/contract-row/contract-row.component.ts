@@ -2,7 +2,8 @@
 
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
-import { IContract, Contract } from 'src/app/domain/models/contract/contract-class';
+import { Contract } from 'src/app/domain/models/contract/contract-class';
+import { IContract } from 'src/app/domain/models/contract/contract.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

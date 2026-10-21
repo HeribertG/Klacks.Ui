@@ -9,22 +9,10 @@
  * @param viewBox - SVG viewBox attribute (e.g. "0 0 24 24")
  * @param svgPaths - Array of SVG path definitions with optional opacity
  */
+
+import { PluginSvgPath } from './plugin-svg-path.interface';
 export interface PluginNavItem {
   name: string;
-  route: string;
-  labelKey: string;
-  position: number;
-  viewBox: string;
-  svgPaths: PluginSvgPath[];
-}
-
-export interface PluginSvgPath {
-  d: string;
-  opacity?: string;
-}
-
-export interface PluginNavigationManifest {
-  icon: string;
   route: string;
   labelKey: string;
   position: number;

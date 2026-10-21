@@ -16,11 +16,9 @@ import { Subject, TimeoutError, of } from 'rxjs';
 import { takeUntil, catchError, finalize } from 'rxjs';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { TranslateService } from '@ngx-translate/core';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import {
-  IContainerTemplateItem,
-  IRouteInfo,
-} from 'src/app/domain/models/container/container-template-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
+import { IRouteInfo } from 'src/app/domain/models/container/route-info.interface';
 import {
   ContainerTransportModeEnum,
 } from 'src/app/domain/enums/transport-mode.enum';
@@ -49,7 +47,7 @@ import {
   convertShiftToContainerTemplateItem,
   resolveItemStartTime,
 } from 'src/app/shared/helpers/container-template-format.helper';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
 import { formatSecondsAsHHMM } from 'src/app/shared/helpers/time-span-format.helper';
 

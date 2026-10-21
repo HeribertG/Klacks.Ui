@@ -9,7 +9,7 @@
  */
 
 import { TemplateRef } from '@angular/core';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { IUndoToastConfig } from './undo-toast-config.interface';
 import { IToastAction } from './toast-action.interface';
 

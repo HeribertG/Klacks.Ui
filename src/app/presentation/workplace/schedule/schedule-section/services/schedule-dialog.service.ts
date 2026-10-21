@@ -15,7 +15,8 @@
  * - Uses: ScheduleDataService for entry lookup
  */
 import { inject, Injectable } from '@angular/core';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { CorrectionDialogComponent } from '../../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../../dialogs/replacement-dialog/replacement-dialog.component';
 import { WorkEditDialogComponent } from '../../dialogs/work-edit-dialog/work-edit-dialog.component';

@@ -12,7 +12,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
-import { IAppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { IAppContactSettings } from 'src/app/domain/models/settings/app-contact-settings.interface';
 
 describe('OwnerAddressComponent', () => {
     let component: OwnerAddressComponent;

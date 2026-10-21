@@ -7,7 +7,8 @@
  * @param year - Year the holiday list is centred on (the helper computes the year before and after as well)
  */
 
-import { HolidaysListHelper, ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
 
 export const SAME_DATE_HOLIDAY_YEAR = 2026;
 export const SAME_DATE_RULE = '12/25';

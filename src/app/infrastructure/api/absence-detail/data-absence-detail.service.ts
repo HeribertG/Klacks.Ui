@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import { AbsenceDetail, IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { AbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
 
 @Injectable({
   providedIn: 'root',

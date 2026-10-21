@@ -12,9 +12,10 @@ import { DataManagementContractService } from 'src/app/domain/services/contract/
 import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { IContract, PaymentInterval } from 'src/app/domain/models/contract/contract-class';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { IContract } from 'src/app/domain/models/contract/contract.interface';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 
 describe('ContractsComponent', () => {
   let component: ContractsComponent;

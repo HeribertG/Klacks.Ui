@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { IMembership } from './i-membership';
-import { IBreakPlaceholder } from '../break/break-class';
+import { IBreakPlaceholder } from '../break/break-placeholder.interface';
 
 export interface IClientBreak {
   id: string | undefined;

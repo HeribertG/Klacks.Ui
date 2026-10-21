@@ -6,7 +6,8 @@ import { BreakCellFormatterService } from './break-cell-formatter.service';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { TranslateModule } from '@ngx-translate/core';
 import { vi } from 'vitest';
 

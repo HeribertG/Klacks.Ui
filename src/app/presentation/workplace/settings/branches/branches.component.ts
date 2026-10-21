@@ -24,7 +24,7 @@ import { BranchesHeaderComponent } from './branches-header/branches-header.compo
 import { BranchesRowComponent } from './branches-row/branches-row.component';
 import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { IBranch } from 'src/app/domain/models/settings/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import {
   ModalService,
   ModalType,

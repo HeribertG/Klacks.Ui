@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import { ICompiledScript, SCRIPT_COMPILER } from 'src/app/domain/models/automation/rules/script-compiler.interface';
+import { SCRIPT_COMPILER } from 'src/app/domain/models/automation/rules/script-compiler.interface';
+import { ICompiledScript } from 'src/app/domain/models/automation/rules/compiled-script.interface';
 
 export interface FormulaValidationResult {
   valid: boolean;

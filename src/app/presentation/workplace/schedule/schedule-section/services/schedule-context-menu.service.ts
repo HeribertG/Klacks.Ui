@@ -24,12 +24,13 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
-import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';

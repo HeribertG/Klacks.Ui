@@ -13,7 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
 import { ExportFormatResource } from 'src/app/infrastructure/api/period-closing/models/export-format-resource';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
-import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { FormatFamilyView } from './format-family-view';

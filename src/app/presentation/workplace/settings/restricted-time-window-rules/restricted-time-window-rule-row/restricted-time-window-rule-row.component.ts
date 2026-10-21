@@ -9,10 +9,8 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  IRestrictedTimeWindowRule,
-  RestrictedTimeWindowRule,
-} from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
+import { RestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
+import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 

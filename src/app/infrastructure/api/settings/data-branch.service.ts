@@ -3,7 +3,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { IBranch } from 'src/app/domain/models/settings/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import { retry } from 'rxjs/operators';
 
 @Injectable({

@@ -63,8 +63,8 @@ import { IClientImportCommitResult } from 'src/app/domain/models/client-import/i
 import { IClientImportRequest } from 'src/app/domain/models/client-import/i-client-import-request';
 import { IClientImportOption } from 'src/app/domain/models/client-import/i-client-import-option';
 import { IClientImportTemplateFile } from 'src/app/domain/models/client-import/i-client-import-template-file';
-import { IContract } from 'src/app/domain/models/contract/contract-class';
-import { IGroup } from 'src/app/domain/models/group/group-class';
+import { IContract } from 'src/app/domain/models/contract/contract.interface';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { ICountry } from 'src/app/domain/models/client/i-country';
 import {
   clientImportErrorKey,

@@ -33,15 +33,11 @@ import {
   CdkDragDrop,
   DragDropModule,
 } from '@angular/cdk/drag-drop';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import {
-  IContainerTemplateGrid,
-  IContainerTemplateSlot,
-} from 'src/app/domain/models/container/container-template-slot';
-import {
-  IContainerTemplateItem,
-} from 'src/app/domain/models/container/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateSlot } from 'src/app/domain/models/container/container-template-slot';
+import { IContainerTemplateGrid } from 'src/app/domain/models/container/container-template-grid.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import {
   ContainerTransportModeEnum,
   TransportModeEnum,

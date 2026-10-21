@@ -7,7 +7,8 @@ import { ReportXlsxService } from './report-xlsx.service';
 import { ReportDataProvider } from './report-data-provider.service';
 import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { DEFAULT_FIELD_STYLE, ReportField, ReportFieldType } from 'src/app/domain/models/report/report-field.model';
+import { DEFAULT_FIELD_STYLE, ReportField } from 'src/app/domain/models/report/report-field.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 function field(partial: Partial<ReportField>): ReportField {

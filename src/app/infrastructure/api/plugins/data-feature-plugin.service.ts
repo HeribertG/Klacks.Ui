@@ -9,7 +9,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, retry, map } from 'rxjs';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
-import { MarketplacePlugin, MarketplacePluginSearchResult } from 'src/app/domain/models/plugins/marketplace-plugin';
+import { MarketplacePlugin } from 'src/app/domain/models/plugins/marketplace-plugin';
+import {
+  MarketplacePluginSearchResult,
+} from 'src/app/domain/models/plugins/marketplace-plugin-search-result.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataFeaturePluginService {

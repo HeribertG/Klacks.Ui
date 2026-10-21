@@ -1,17 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export interface IContextMenu {
-  key: string;
-  name: string;
-  icon: string;
-  hasSeparator: boolean;
-  hasSubMenu: boolean;
-}
-
-export interface IContextMenus {
-  key: string;
-  list: IContextMenu[];
-}
+import { IContextMenu } from './context-menu.interface';
 
 export class ContextMenu implements IContextMenu {
   key = '';
@@ -19,8 +8,4 @@ export class ContextMenu implements IContextMenu {
   icon = '';
   hasSeparator = false;
   hasSubMenu = false;
-}
-export class ContextMenus implements IContextMenus {
-  key = '';
-  list: IContextMenu[] = [];
 }

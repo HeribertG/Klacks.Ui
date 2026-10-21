@@ -2,7 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable } from '@angular/core';
-import { IGroup, IGroupVisibility } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
+import { IGroupVisibility } from 'src/app/domain/models/group/group-visibility.interface';
 import { Observable, retry } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';

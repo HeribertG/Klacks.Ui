@@ -10,15 +10,13 @@ import {
   ICountry,
   ITruncatedClient,
 } from 'src/app/domain/models/client/client-class';
-import {
-  Group,
-  GroupFilter,
-  GroupItem,
-  GroupTree,
-  IGroup,
-  IGroupTree,
-  ITruncatedGroup,
-} from 'src/app/domain/models/group/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
+import { GroupFilter } from 'src/app/domain/models/group/group-filter-class';
+import { GroupItem } from 'src/app/domain/models/group/group-item-class';
+import { GroupTree } from 'src/app/domain/models/group/group-tree-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
+import { IGroupTree } from 'src/app/domain/models/group/group-tree.interface';
+import { ITruncatedGroup } from 'src/app/domain/models/group/truncated-group.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { Observable, catchError, map, throwError, Subject } from 'rxjs';
@@ -30,8 +28,8 @@ import {
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
-import { ICalendarSelection } from '../../models/calendar/calendar-selection-class';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { ICalendarSelection } from '../../models/calendar/calendar-selection.interface';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';

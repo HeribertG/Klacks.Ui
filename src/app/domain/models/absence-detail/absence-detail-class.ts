@@ -1,22 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { IAbsenceDetail } from './absence-detail.interface';
+import { AbsenceDetailMode } from './absence-detail-mode.enum';
 import { MultiLanguage } from '../translation/multi-language-class';
-
-export enum AbsenceDetailMode {
-  TimeRange = 0,
-  Duration = 1,
-}
-
-export interface IAbsenceDetail {
-  id: string | undefined;
-  absenceId: string;
-  mode: AbsenceDetailMode;
-  startTime: string;
-  endTime: string;
-  duration: number;
-  detailName?: MultiLanguage | undefined;
-  description?: MultiLanguage | undefined;
-}
 
 export class AbsenceDetail implements IAbsenceDetail {
   id: string | undefined = undefined;

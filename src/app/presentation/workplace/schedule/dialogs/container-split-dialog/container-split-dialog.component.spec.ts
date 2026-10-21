@@ -13,7 +13,7 @@ import { ContainerLockService } from 'src/app/domain/services/container/containe
 import { DataContainerLockService } from 'src/app/infrastructure/api/container/data-container-lock.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import {
   ContainerWorkChildren,
   SubBreakResource,

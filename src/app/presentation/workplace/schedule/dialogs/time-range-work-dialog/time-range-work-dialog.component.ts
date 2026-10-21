@@ -15,7 +15,7 @@ import { ChangeDetectionStrategy, Component, inject, TemplateRef, viewChild } fr
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { formatTime, formatTimeFromMinutes } from 'src/app/shared/helpers/time-format.helper';
 import {

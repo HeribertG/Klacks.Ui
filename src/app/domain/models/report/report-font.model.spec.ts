@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import {
-  ReportScript,
   containsRightToLeftText,
   detectScripts,
   getFontDefinition,
@@ -9,6 +8,7 @@ import {
   resolveLanguageScript,
   resolveScriptForText,
 } from './report-font.model';
+import { ReportScript } from './report-script.enum';
 
 describe('report-font.model', () => {
   describe('resolveScriptForText', () => {

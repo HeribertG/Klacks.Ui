@@ -35,7 +35,8 @@ import { QualificationCategory } from 'src/app/domain/enums/qualification-catego
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
-import { IShiftRequiredQualification, ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
+import { ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
+import { IShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification.interface';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

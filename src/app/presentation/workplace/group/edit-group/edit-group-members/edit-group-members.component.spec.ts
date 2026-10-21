@@ -11,7 +11,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { IClient } from 'src/app/domain/models/client/client-class';
-import { IGroupItem } from 'src/app/domain/models/group/group-class';
+import { IGroupItem } from 'src/app/domain/models/group/group-item.interface';
 
 describe('EditGroupMembersComponent - permission gating', () => {
   let fixture: ComponentFixture<EditGroupMembersComponent>;

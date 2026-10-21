@@ -7,7 +7,7 @@ import * as signalR from '@microsoft/signalr';
 import { DataWizardService } from './data-wizard.service';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
-import { WizardResult } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
 
 class FakeConnection {
   state = 'Disconnected';

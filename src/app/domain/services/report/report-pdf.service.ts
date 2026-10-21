@@ -15,15 +15,19 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { environment } from 'src/environments/environment';
 
-import { ReportTemplate, PAGE_SIZE_FORMATS, ReportPageSize } from '../../models/report/report-template.model';
+import { ReportTemplate, PAGE_SIZE_FORMATS } from '../../models/report/report-template.model';
+import { ReportPageSize } from '../../models/report/report-page-size.enum';
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
-import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
+import { ReportField } from '../../models/report/report-field.model';
+import { ReportFieldType } from '../../models/report/report-field-type.enum';
+import { TextAlignment } from '../../models/report/text-alignment.enum';
 import { resolveReportFieldLabel } from '../../helpers/report-field-label.helper';
 import { selectRowsForSection } from '../../helpers/report-section-rows.helper';
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 import { PdfRenderContext } from './pdf-render-context.interface';
-import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
-import { IScheduleCell } from '../../models/schedule/work-schedule-class';
+import { BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
+import { BorderLineStyle } from '../../models/report/border-line-style.enum';
+import { IScheduleCell } from '../../models/schedule/schedule-cell.interface';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportFontService } from './report-font.service';
@@ -33,7 +37,7 @@ import { ReportParameterValues } from '../../models/report/report-parameter.mode
 import { buildParameterVariables } from '../../helpers/report-parameter.helper';
 import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { addDays } from 'src/app/shared/helpers/date.helper';
-import { ICompiledScript } from 'src/app/domain/models/automation/rules/script-compiler.interface';
+import { ICompiledScript } from 'src/app/domain/models/automation/rules/compiled-script.interface';
 
 const DEFAULT_PDF_FONT = 'helvetica';
 const SIGNATURE_DEFAULT_WIDTH_MM = 60;

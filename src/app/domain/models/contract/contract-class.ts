@@ -1,47 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { ICalendarSelection } from '../calendar/calendar-selection-class';
+import { ICalendarSelection } from '../calendar/calendar-selection.interface';
+import { IContract } from './contract.interface';
+import { PaymentInterval } from './payment-interval.enum';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-
-export enum PaymentInterval {
-  Weekly = 0,
-  Biweekly = 1,
-  Monthly = 2,
-  Individual = 3,
-  MonthlyTargetHours = 4,
-}
-
-export interface IContract {
-  id: string | undefined;
-  name: string;
-  guaranteedHours: number | undefined;
-  maximumHours: number;
-  minimumHours: number;
-  fullTime: number;
-  nightRate: number | null;
-  holidayRate: number | null;
-  we1Rate: number | null;
-  we2Rate: number | null;
-  we3Rate: number | null;
-  nightStart: string | null;
-  nightEnd: string | null;
-  paymentInterval: PaymentInterval;
-  percent: number | undefined;
-  validFrom: Date;
-  validUntil: Date | undefined;
-  calendarSelection: ICalendarSelection | undefined;
-  calendarSelectionId: string | undefined;
-  schedulingRuleId: string | undefined;
-  individualPeriodId: string | undefined;
-  workOnMonday: boolean;
-  workOnTuesday: boolean;
-  workOnWednesday: boolean;
-  workOnThursday: boolean;
-  workOnFriday: boolean;
-  workOnSaturday: boolean;
-  workOnSunday: boolean;
-  performsShiftWork: boolean | null;
-}
 
 export class Contract implements IContract {
   id: string | undefined = '';

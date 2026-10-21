@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 export interface IBreakPlaceholderWithLayer extends IBreakPlaceholder {

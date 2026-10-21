@@ -8,7 +8,8 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { ICounterRule, CounterRule } from 'src/app/domain/models/scheduling/counter-rule.model';
+import { CounterRule } from 'src/app/domain/models/scheduling/counter-rule.model';
+import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.interface';
 import {
   CounterEventType,
   CounterPeriod,

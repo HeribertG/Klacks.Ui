@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ExpensesRequest, ExpensesResource } from 'src/app/domain/models/expenses/expenses';
+import { ExpensesRequest } from 'src/app/domain/models/expenses/expenses';
+import { ExpensesResource } from 'src/app/domain/models/expenses/expenses-resource.interface';
 
 @Injectable({
   providedIn: 'root',

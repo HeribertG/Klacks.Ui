@@ -10,7 +10,7 @@ import { WorkplaceStateService } from './workplace-state.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { INTERACTIVE_REPLY_NOTIFIER } from 'src/app/domain/interfaces/interactive-reply-notifier.interface';
 import { IEntityChanged } from 'src/app/domain/interfaces/entity-changed.interface';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 
 const BUFFER_FLUSH_MS = 400;
 const ENTITY_TYPE = 'shift';

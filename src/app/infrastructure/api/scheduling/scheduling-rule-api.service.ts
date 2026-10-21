@@ -13,8 +13,8 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
-import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.model';
+import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.interface';
+import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.interface';
 import { IIndustryMigrationCandidate } from 'src/app/domain/models/scheduling/industry-migration-candidate.model';
 import { IContractSchedulingRuleAssignment } from 'src/app/domain/models/scheduling/contract-scheduling-rule-assignment.model';
 

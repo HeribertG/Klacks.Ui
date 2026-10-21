@@ -26,7 +26,8 @@ import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setErr
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroFunction, MacroFunctionLabels } from 'src/app/domain/enums/macro-function.enum';
 import { MacroCategoryEnum, MacroCategoryLabels } from 'src/app/domain/enums/macro-category.enum';
-import { IMacro, Macro } from 'src/app/domain/models/settings/macro-class';
+import { Macro } from 'src/app/domain/models/settings/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

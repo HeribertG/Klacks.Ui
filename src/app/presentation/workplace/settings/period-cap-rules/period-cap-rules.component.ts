@@ -28,7 +28,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { PeriodCapRuleHeaderComponent } from './period-cap-rule-header/period-cap-rule-header.component';
 import { PeriodCapRuleRowComponent } from './period-cap-rule-row/period-cap-rule-row.component';
 import { DataManagementPeriodCapRuleService } from 'src/app/domain/services/scheduling/data-management-period-cap-rule.service';
-import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.model';
+import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.interface';
 import {
   PeriodCapPeriod,
   PeriodCapScope,

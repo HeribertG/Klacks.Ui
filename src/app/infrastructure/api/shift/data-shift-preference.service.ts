@@ -7,10 +7,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
-import {
-  IAvailableShift,
-  IClientShiftPreference,
-} from 'src/app/domain/models/shift/shift-preference';
+import { IAvailableShift } from 'src/app/domain/models/shift/shift-preference';
+import { IClientShiftPreference } from 'src/app/domain/models/shift/client-shift-preference.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({

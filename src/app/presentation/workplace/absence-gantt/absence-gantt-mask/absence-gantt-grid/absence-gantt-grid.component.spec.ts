@@ -15,7 +15,7 @@ import { ReportTemplateResolverService } from 'src/app/domain/services/report/re
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
-import { ReportFieldType } from 'src/app/domain/models/report/report-field.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { ReportType } from 'src/app/domain/models/report/report-template.model';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';

@@ -14,7 +14,9 @@ import { firstValueFrom } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
-import { HolisticHarmonizerModelCheckDto } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import {
+  HolisticHarmonizerModelCheckDto,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-model-check-dto.interface';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { filterModelsWithActiveProvider } from 'src/app/domain/services/assistant/assistant-model-provider-filter';
 import {

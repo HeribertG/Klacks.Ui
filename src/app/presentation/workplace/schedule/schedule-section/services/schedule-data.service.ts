@@ -17,11 +17,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
-import {
-  IScheduleCell,
-  WorkScheduleEntryType,
-} from 'src/app/domain/models/schedule/work-schedule-class';
+import { HolidayDate } from 'src/app/domain/models/calendar/holiday-date-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -30,7 +28,7 @@ import { addDays, formatDateOnly, getDayIndex } from 'src/app/shared/helpers/dat
 import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { defaultTimeRangePlacement, resolveTimeRangePlacement } from 'src/app/shared/helpers/time-range-placement.helper';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -47,7 +45,7 @@ import { ScheduleCommandCellFormatterService } from './cell-formatters/schedule-
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { parseAvailabilityRanges } from 'src/app/shared/helpers/availability-range.helper';

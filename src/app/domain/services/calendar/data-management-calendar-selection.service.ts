@@ -1,12 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
-import {
-  CalendarSelection,
-  ICalendarSelection,
-  SelectedCalendar,
-} from 'src/app/domain/models/calendar/calendar-selection-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { CalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
+import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';

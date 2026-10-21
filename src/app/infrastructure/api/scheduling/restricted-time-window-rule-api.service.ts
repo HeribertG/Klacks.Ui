@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
+import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.interface';
 
 @Injectable({
   providedIn: 'root'

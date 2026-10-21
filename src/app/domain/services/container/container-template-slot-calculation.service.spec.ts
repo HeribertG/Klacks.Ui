@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IShift } from '../../models/shift/shift-class';
+import { IShift } from '../../models/shift/shift.interface';
 import { FT_HOLIDAY_TEMPLATE_WEEKDAY } from '../../constants/container-template-holiday.constants';
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
 

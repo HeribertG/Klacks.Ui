@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import { IShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
+import { IShiftFilter } from 'src/app/domain/models/shift/shift-filter.interface';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';

@@ -4,7 +4,7 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { IBranch } from 'src/app/domain/models/settings/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

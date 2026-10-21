@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
 
 import { parseCalendarDate, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { toShiftGroupsWire } from './shift-groups-wire.mapper';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { calculateDurationInMinutes } from 'src/app/shared/helpers/time-format.helper';
 

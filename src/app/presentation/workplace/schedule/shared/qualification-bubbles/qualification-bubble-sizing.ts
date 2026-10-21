@@ -10,7 +10,7 @@
  * @param cellHeight - Full cell height in logical pixels (bounds the diameter)
  * @param zoom - Current grid zoom factor
  */
-import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 import {
   QUALIFICATION_BUBBLE_BASE_DIAMETER,
   QUALIFICATION_BUBBLE_EMOJI_RATIO,

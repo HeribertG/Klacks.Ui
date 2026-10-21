@@ -5,8 +5,8 @@
  * @param sortContainerItemsChronologically - Must order items by their effective start time
  */
 import { describe, it, expect } from 'vitest';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { sortContainerItemsChronologically } from './container-template-sort.helper';
 
 const fixedItem = (

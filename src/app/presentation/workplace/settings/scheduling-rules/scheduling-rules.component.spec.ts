@@ -14,7 +14,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.model';
 
 describe('SchedulingRulesComponent tri-state weekday flags', () => {
   let component: SchedulingRulesComponent;

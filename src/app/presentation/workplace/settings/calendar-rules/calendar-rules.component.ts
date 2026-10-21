@@ -23,12 +23,9 @@ import {
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
-import {
-  CalendarRule,
-  StateCountryToken,
-  HolidaysListHelper,
-  ICalendarRule,
-} from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarRule, HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';

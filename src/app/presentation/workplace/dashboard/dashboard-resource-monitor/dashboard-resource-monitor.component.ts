@@ -15,7 +15,7 @@ import { lastValueFrom } from 'rxjs';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { Group } from 'src/app/domain/models/group/group-class';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/shared/helpers/intl-format-options.helper';

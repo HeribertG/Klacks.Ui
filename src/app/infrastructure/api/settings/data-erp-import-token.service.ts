@@ -12,11 +12,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import {
-  IErpImportToken,
-  IErpImportTokenCreate,
-  IErpImportTokenCreated,
-} from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportToken } from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
+import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
 
 @Injectable({
   providedIn: 'root',

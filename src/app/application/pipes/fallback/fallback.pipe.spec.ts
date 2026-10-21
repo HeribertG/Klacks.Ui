@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { FallbackPipe } from './fallback.pipe';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 describe('FallbackPipe', () => {

@@ -15,7 +15,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { TextToSpeechService } from './text-to-speech.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ChatMessage } from '../chat-message.interface';
-import { ITurnOption } from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 
 @Component({ selector: 'app-test-host', standalone: true, template: '' })
 class TestHostComponent {}

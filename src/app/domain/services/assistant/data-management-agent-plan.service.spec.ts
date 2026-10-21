@@ -7,7 +7,8 @@ import { Subject, of, throwError } from 'rxjs';
 import { DataManagementAgentPlanService } from './data-management-agent-plan.service';
 import { DataAgentPlanService } from 'src/app/infrastructure/api/assistant/data-agent-plan.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { IAgentPlan, IAgentPlanUpdate, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlan, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan-update.interface';
 
 describe('DataManagementAgentPlanService', () => {
   let service: DataManagementAgentPlanService;

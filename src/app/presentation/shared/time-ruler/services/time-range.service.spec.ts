@@ -2,8 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TimeRangeService } from './time-range.service';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 
 describe('TimeRangeService', () => {
     let service: TimeRangeService;

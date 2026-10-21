@@ -38,9 +38,11 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { faCalendar, faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
-import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';

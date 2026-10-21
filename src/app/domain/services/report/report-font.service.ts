@@ -16,13 +16,13 @@ import { jsPDF } from 'jspdf';
 import { DataReportFontService } from 'src/app/infrastructure/api/report/data-report-font.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
-  ReportScript,
   UNICODE_FONTS,
   UnicodeFontDefinition,
   detectScripts,
   getFontDefinition,
   resolveScriptForText,
 } from 'src/app/domain/models/report/report-font.model';
+import { ReportScript } from 'src/app/domain/models/report/report-script.enum';
 
 const FONT_STYLE_NORMAL = 'normal';
 const FONT_STYLE_BOLD = 'bold';

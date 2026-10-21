@@ -12,7 +12,8 @@ import { UserAdministrationComponent } from './user-administration.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { Authentication, IAuthentication } from 'src/app/domain/models/authentification-class';
+import { Authentication } from 'src/app/domain/models/authentication-class';
+import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 

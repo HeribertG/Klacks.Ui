@@ -25,7 +25,7 @@ import { NgbModule, NgbDateStruct, NgbTooltipModule } from '@ng-bootstrap/ng-boo
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
-import { IClientQualification } from 'src/app/domain/models/client/client-qualification-class';
+import { IClientQualification } from 'src/app/domain/models/client/client-qualification.interface';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';

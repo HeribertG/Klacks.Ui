@@ -1,13 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import {
-  DataBindingDefinition,
-  FieldCategory,
-  ReportFieldType,
-  WORK_TABLE_FIELDS,
-  EXPENSES_TABLE_FIELDS,
-  FOOTER_FIELDS,
-} from './report-field.model';
+import { WORK_TABLE_FIELDS, EXPENSES_TABLE_FIELDS, FOOTER_FIELDS } from './report-field.model';
+import { DataBindingDefinition } from './data-binding-definition.interface';
+import { FieldCategory } from './field-category.enum';
+import { ReportFieldType } from './report-field-type.enum';
+import { ReportDataSet } from './report-data-set.interface';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 
 export interface ReportDataSource {
@@ -16,14 +13,6 @@ export interface ReportDataSource {
   i18nKey: string;
   dataSets: ReportDataSet[];
   multiSelect?: boolean;
-}
-
-export interface ReportDataSet {
-  id: string;
-  i18nKey: string;
-  headerFields: DataBindingDefinition[];
-  tableFields: DataBindingDefinition[];
-  footerFields: DataBindingDefinition[];
 }
 
 const COMMON_HEADER_FIELDS: DataBindingDefinition[] = [

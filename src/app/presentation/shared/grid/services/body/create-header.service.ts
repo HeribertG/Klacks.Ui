@@ -17,7 +17,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 
 @Injectable()
 export class BaseCreateHeaderService {

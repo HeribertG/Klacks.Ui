@@ -11,7 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { IIndustryMigrationCandidate } from 'src/app/domain/models/scheduling/industry-migration-candidate.model';
 import { IContractSchedulingRuleAssignment } from 'src/app/domain/models/scheduling/contract-scheduling-rule-assignment.model';
-import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
+import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.interface';
 import { SchedulingRuleApiService } from 'src/app/infrastructure/api/scheduling/scheduling-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

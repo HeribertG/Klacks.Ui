@@ -1,10 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, computed, signal } from '@angular/core';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
+import { HeaderProperties } from 'src/app/domain/models/headerProperties';
+import { HeaderDirection } from 'src/app/domain/models/header-direction.enum';
 
 export interface TableSortingConfig {
   columns: string[];

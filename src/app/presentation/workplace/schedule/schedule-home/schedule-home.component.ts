@@ -59,7 +59,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom, skip } from 'rxjs';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
@@ -83,7 +83,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 const GROUP_QUERY_PARAM = 'groupId';

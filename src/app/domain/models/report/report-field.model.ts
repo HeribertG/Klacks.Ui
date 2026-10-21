@@ -1,6 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { CellBorderStyle } from './cell-border-style.model';
+import { StyleCondition } from './style-condition.interface';
+import { FieldStyle } from './field-style.interface';
+import { DataBindingDefinition } from './data-binding-definition.interface';
+import { ReportFieldType } from './report-field-type.enum';
+import { TextAlignment } from './text-alignment.enum';
+import { FieldCategory } from './field-category.enum';
 
 export interface ReportField {
   id?: string;
@@ -21,57 +26,7 @@ export interface ReportField {
   styleConditions?: StyleCondition[];
 }
 
-/**
- * Conditional formatting rule. The expression is evaluated per row with the
- * Klacks script engine and has to emit a truthy value via `output 1, <expression>`.
- */
-export interface StyleCondition {
-  expression: string;
-  textColor?: string;
-  backgroundColor?: string;
-  bold?: boolean;
-  italic?: boolean;
-}
-
-export interface HeaderRow {
-  rowIndex: number;
-  left: ReportField[];
-  center: ReportField[];
-  right: ReportField[];
-}
-
-export enum ReportFieldType {
-  Text = 0,
-  Date = 1,
-  Number = 2,
-  Currency = 3,
-  Boolean = 4,
-  Time = 5,
-  Image = 6,
-  Formula = 7,
-  Signature = 8,
-  PageNumber = 9
-}
-
 export const STATIC_IMAGE_DATA_BINDING = 'report.image';
-
-export enum TextAlignment {
-  Left = 0,
-  Center = 1,
-  Right = 2
-}
-
-export interface FieldStyle {
-  fontSize: number;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  fontFamily: string;
-  alignment: TextAlignment;
-  textColor: string;
-  backgroundColor: string;
-  cellBorder?: CellBorderStyle;
-}
 
 export const AVAILABLE_FONTS = [
   { value: 'helvetica', label: 'Helvetica' },
@@ -90,22 +45,6 @@ export const DEFAULT_FIELD_STYLE: FieldStyle = {
   textColor: '#000000',
   backgroundColor: '#FFFFFF',
 };
-
-export interface DataBindingDefinition {
-  key: string;
-  label: string;
-  i18nKey: string;
-  type: ReportFieldType;
-  category: FieldCategory;
-  defaultWidth: number;
-}
-
-export enum FieldCategory {
-  Header = 'header',
-  WorkTable = 'workTable',
-  ExpensesTable = 'expensesTable',
-  Footer = 'footer'
-}
 
 export const HEADER_FIELDS: DataBindingDefinition[] = [
   { key: 'client.name', label: 'Name', i18nKey: 'setting.report.field.clientName', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 30 },

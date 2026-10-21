@@ -10,8 +10,9 @@ import { DataManagementIndividualPeriodService } from '../scheduling/data-manage
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
-import { Contract, IContract } from '../../models/contract/contract-class';
+import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.interface';
+import { Contract } from '../../models/contract/contract-class';
+import { IContract } from '../../models/contract/contract.interface';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 

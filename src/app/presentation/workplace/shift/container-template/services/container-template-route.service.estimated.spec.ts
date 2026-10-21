@@ -23,8 +23,8 @@ import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-s
 import { createGeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ContainerTemplateRouteService } from './container-template-route.service';
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
 

@@ -4,12 +4,10 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import {
-  IPeriodHours,
-  IPeriodHoursRequest,
-  IWorkScheduleFilter,
-  IWorkScheduleResponse,
-} from 'src/app/domain/models/schedule/work-schedule-class';
+import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
+import { IPeriodHoursRequest } from 'src/app/domain/models/schedule/period-hours-request.interface';
+import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
+import { IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-response.interface';
 
 @Injectable({
   providedIn: 'root',

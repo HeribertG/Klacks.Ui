@@ -4,11 +4,9 @@ import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import {
-  IClientWork,
-  IWork,
-  Work,
-} from 'src/app/domain/models/schedule/schedule-class';
+import { Work } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { IWork } from 'src/app/domain/models/schedule/work.interface';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
 import { BulkAddWorksRequest } from 'src/app/domain/models/dtos/bulk-add-works-request.dto';
 import { BulkWorksResponse } from 'src/app/domain/models/dtos/bulk-works-response.dto';

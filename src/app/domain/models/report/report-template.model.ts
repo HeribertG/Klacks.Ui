@@ -1,6 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { ReportSection } from './report-section.model';
+import { ReportTemplateVersion } from './report-template-version.interface';
+import { ReportPageSetup } from './report-page-setup.interface';
+import { PageGeometry } from './page-geometry.interface';
+import { ReportOrientation } from './report-orientation.enum';
+import { ReportPageSize } from './report-page-size.enum';
 import { ReportParameter } from './report-parameter.model';
 
 export interface ReportTemplate {
@@ -22,39 +27,11 @@ export interface ReportTemplate {
   parameters?: ReportParameter[];
 }
 
-/** Snapshot of a template taken before it was overwritten. */
-export interface ReportTemplateVersion {
-  savedAt: string;
-  savedBy?: string;
-  name: string;
-  pageSetup: ReportPageSetup;
-  sections: ReportSection[];
-}
-
 export enum ReportType {
   Schedule = 0,
   Client = 1,
   Invoice = 2,
   Absence = 3
-}
-
-export interface ReportPageSetup {
-  orientation: ReportOrientation;
-  size: ReportPageSize;
-  margins: ReportMargins;
-}
-
-export enum ReportOrientation {
-  Portrait = 0,
-  Landscape = 1
-}
-
-export enum ReportPageSize {
-  A4 = 0,
-  A3 = 1,
-  Letter = 2,
-  B4 = 3,
-  B5 = 4
 }
 
 export const PAGE_SIZE_FORMATS: Record<ReportPageSize, string | [number, number]> = {
@@ -82,13 +59,6 @@ export const PAGE_SIZE_LABELS: Record<ReportPageSize, string> = {
   [ReportPageSize.B5]: 'B5 (JIS)',
 };
 
-export interface PageGeometry {
-  label: string;
-  widthMm: number;
-  heightMm: number;
-  usableWidthMm: number;
-}
-
 /**
  * Resolves the printable geometry of a page setup, taking orientation and margins into account.
  */
@@ -107,13 +77,6 @@ export function resolvePageGeometry(pageSetup: ReportPageSetup | undefined): Pag
     heightMm,
     usableWidthMm: Math.max(0, widthMm - margins.left - margins.right),
   };
-}
-
-export interface ReportMargins {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
 }
 
 export const DEFAULT_PAGE_SETUP: ReportPageSetup = {

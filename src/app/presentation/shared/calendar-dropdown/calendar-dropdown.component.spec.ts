@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarDropdownComponent } from './calendar-dropdown.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { of } from 'rxjs';
 
 describe('CalendarDropdownComponent', () => {

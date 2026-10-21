@@ -16,7 +16,8 @@ import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-s
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
-import { IErpDropPoint, IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
 import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';

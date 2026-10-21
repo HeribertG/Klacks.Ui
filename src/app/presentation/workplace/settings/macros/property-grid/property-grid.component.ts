@@ -6,7 +6,7 @@ import { Component, ChangeDetectionStrategy, OnInit, signal, input } from '@angu
 import { FormsModule } from '@angular/forms';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import {
   HolidayStatus,
   PropertyMetadata,

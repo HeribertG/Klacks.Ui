@@ -10,12 +10,10 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import {
-  IContainerTemplateGrid,
-  IContainerTemplateSlot,
-} from 'src/app/domain/models/container/container-template-slot';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { IContainerTemplateSlot } from 'src/app/domain/models/container/container-template-slot';
+import { IContainerTemplateGrid } from 'src/app/domain/models/container/container-template-grid.interface';
 import { ContainerTaskService } from 'src/app/domain/services/container/container-task.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';

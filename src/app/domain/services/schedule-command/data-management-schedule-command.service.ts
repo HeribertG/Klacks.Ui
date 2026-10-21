@@ -7,7 +7,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap, catchError, EMPTY } from 'rxjs';
 import { DataScheduleCommandService } from '../../../infrastructure/api/schedule-command/data-schedule-command.service';
-import { ScheduleCommandResource } from '../../models/schedule-command/schedule-command';
+import { ScheduleCommandResource } from '../../models/schedule-command/schedule-command-resource.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataManagementScheduleCommandService {

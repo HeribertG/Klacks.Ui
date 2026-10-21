@@ -26,7 +26,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { BranchManagementService } from 'src/app/domain/services/settings/branch-management.service';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 
 @Injectable()
 export class ContainerTemplateLifecycleService {

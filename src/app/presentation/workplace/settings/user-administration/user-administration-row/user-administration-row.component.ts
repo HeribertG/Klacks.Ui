@@ -10,7 +10,7 @@ import {
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { IAuthentication } from 'src/app/domain/models/authentification-class';
+import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 export interface RoleChangeEvent {

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.interface';
 import { IAgentState } from '../../../models/automation/agent/agent-state.model';
 import { IRuleViolation, IScheduleContext, IShiftAssignment } from '../../../models/automation/rules/rule.model';
 import { RulesEngineService } from '../rules/rules-engine.service';

@@ -52,7 +52,8 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
-import { IOnboardingState, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { IOnboardingState } from 'src/app/domain/models/assistant/onboarding-state.interface';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';

@@ -50,8 +50,8 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { IAnalyseScenario, AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { companyToday, formatDateOnly, isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';

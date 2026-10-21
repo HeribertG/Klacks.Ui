@@ -11,11 +11,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
-import {
-  IAgentPlanStep,
-  PlanStatus,
-  PlanStatusValue,
-} from 'src/app/domain/models/assistant/agent-plan.interface';
+import { PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlanStep } from 'src/app/domain/models/assistant/agent-plan-step.interface';
+import { PlanStatusValue } from 'src/app/domain/models/assistant/plan-status-value.type';
 
 type StepStatus = 'pending' | 'running' | 'done' | 'failed' | 'paused';
 

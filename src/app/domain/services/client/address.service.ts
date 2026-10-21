@@ -13,7 +13,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 
 @Injectable({
   providedIn: 'root',

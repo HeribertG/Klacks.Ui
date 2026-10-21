@@ -27,9 +27,9 @@ import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/
 import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
-import { WizardResult } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';

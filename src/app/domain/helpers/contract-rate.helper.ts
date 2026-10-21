@@ -9,7 +9,7 @@
  * @param value - Raw value of a rate input; empty, non-numeric or missing input means "standard"
  */
 
-import { IContract } from 'src/app/domain/models/contract/contract-class';
+import { IContract } from 'src/app/domain/models/contract/contract.interface';
 
 const PERCENTAGE_FACTOR = 100;
 

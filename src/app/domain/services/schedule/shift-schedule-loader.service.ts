@@ -13,12 +13,10 @@
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IShiftSchedule,
-  IShiftScheduleFilter,
-  ShiftScheduleFilter,
-} from 'src/app/domain/models/schedule/shift-schedule-class';
-import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
+import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
+import { ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter-class';
+import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';

@@ -11,7 +11,7 @@
 
 import { MULTI_LANGUAGE_PARAM_SUFFIX } from 'src/app/domain/constants/localized-comment-params.constants';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 
 export function resolveMultiLanguageParams(
   params: Record<string, string> | null | undefined,

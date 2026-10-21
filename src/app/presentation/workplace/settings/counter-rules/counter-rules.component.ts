@@ -30,7 +30,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { CounterRuleHeaderComponent } from './counter-rule-header/counter-rule-header.component';
 import { CounterRuleRowComponent } from './counter-rule-row/counter-rule-row.component';
 import { DataManagementCounterRuleService } from 'src/app/domain/services/scheduling/data-management-counter-rule.service';
-import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.model';
+import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.interface';
 import {
   CounterEventType,
   CounterPeriod,

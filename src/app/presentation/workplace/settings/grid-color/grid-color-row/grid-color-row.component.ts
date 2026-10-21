@@ -5,7 +5,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, effect, input, untr
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({

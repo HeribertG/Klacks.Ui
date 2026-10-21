@@ -13,7 +13,7 @@ import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/dat
 import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-enum';
 import { EMPTY, forkJoin, Subject, tap, catchError, retry, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 

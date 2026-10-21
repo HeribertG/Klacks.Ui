@@ -2,11 +2,9 @@
 
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { IShift } from '../../models/shift/shift-class';
-import {
-  IContainerTemplate,
-  IContainerTemplateItem,
-} from '../../models/container/container-template-class';
+import { IShift } from '../../models/shift/shift.interface';
+import { IContainerTemplate } from '../../models/container/container-template-class';
+import { IContainerTemplateItem } from '../../models/container/container-template-item.interface';
 import { DataContainerTemplateService } from '../../../infrastructure/api/container/data-container-template.service';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { FT_HOLIDAY_TEMPLATE_WEEKDAY } from '../../constants/container-template-holiday.constants';

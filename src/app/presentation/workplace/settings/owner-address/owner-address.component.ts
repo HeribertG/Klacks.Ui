@@ -18,7 +18,7 @@ import { DataManagementCalendarSelectionService } from 'src/app/domain/services/
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
-import { IAppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { IAppContactSettings } from 'src/app/domain/models/settings/app-contact-settings.interface';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 interface AddressModel {

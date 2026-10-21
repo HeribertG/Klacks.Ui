@@ -8,7 +8,7 @@
  * @param name - Localized qualification name
  * @param description - Localized qualification description, or null when unset
  */
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 
 export interface IIndustryTemplateQualificationEntry {
   name: IMultiLanguage;

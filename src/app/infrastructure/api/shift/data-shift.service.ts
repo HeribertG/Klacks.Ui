@@ -7,8 +7,9 @@ import { environment } from 'src/environments/environment';
 
 import { companyToday, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { toShiftGroupsWire } from './shift-groups-wire.mapper';
-import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { ITruncatedShift } from 'src/app/domain/models/shift/truncated-shift.interface';
+import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 
 @Injectable({
   providedIn: 'root',

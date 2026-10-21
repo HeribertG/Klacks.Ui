@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
-import { IMacro } from '../../../models/settings/macro-class';
+import { IMacro } from '../../../models/settings/macro.interface';
 
 export interface IMacroRuleTemplate {
   id: string;

@@ -8,7 +8,7 @@ import { SearchStateService } from 'src/app/domain/services/search-state.service
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/shared/helpers/object.helper';
-import { IBaseFilter } from 'src/app/domain/models/general-class';
+import { IBaseFilter } from 'src/app/domain/models/base-filter.interface';
 import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.interface';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 

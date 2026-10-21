@@ -11,7 +11,7 @@
  * @param enabledFlags - Enabled status of individual cut strategies
  */
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 
 export interface CutDateParams {
   cutDate: NgbDateStruct | null;

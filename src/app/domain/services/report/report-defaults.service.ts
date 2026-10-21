@@ -4,7 +4,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
-import { AppSetting, ISetting } from 'src/app/domain/models/settings/settings-various-class';
+import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ReportDefaultsService {

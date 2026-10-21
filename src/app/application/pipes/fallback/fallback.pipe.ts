@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Pipe, PipeTransform } from '@angular/core';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 
 @Pipe({

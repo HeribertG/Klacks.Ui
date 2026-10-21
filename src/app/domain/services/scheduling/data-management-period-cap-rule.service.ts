@@ -7,10 +7,8 @@
  * before persistence.
  */
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  IPeriodCapRule,
-  PeriodCapRule,
-} from 'src/app/domain/models/scheduling/period-cap-rule.model';
+import { PeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.model';
+import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.interface';
 import { PeriodCapPeriod } from 'src/app/domain/enums/period-cap-rule.enums';
 import { PeriodCapRuleApiService } from 'src/app/infrastructure/api/scheduling/period-cap-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';

@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ContainerTemplateSlotCalculationService } from 'src/app/domain/services/container/container-template-slot-calculation.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';

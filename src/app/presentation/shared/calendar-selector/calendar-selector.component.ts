@@ -16,12 +16,10 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
-import {
-  CalendarSelection,
-  ICalendarSelection,
-  SelectedCalendar,
-} from 'src/app/domain/models/calendar/calendar-selection-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { CalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
+import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';

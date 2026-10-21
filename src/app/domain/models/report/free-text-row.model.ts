@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { FieldStyle } from './report-field.model';
+import { FieldStyle } from './field-style.interface';
 
 export interface FreeTextRow {
   id?: string;

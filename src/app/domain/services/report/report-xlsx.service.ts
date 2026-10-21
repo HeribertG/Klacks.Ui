@@ -14,8 +14,10 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { ReportField, ReportFieldType } from 'src/app/domain/models/report/report-field.model';
-import { ReportXlsxRequest, ReportXlsxSheet } from 'src/app/domain/models/report/report-xlsx.model';
+import { ReportField } from 'src/app/domain/models/report/report-field.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
+import { ReportXlsxRequest } from 'src/app/domain/models/report/report-xlsx.model';
+import { ReportXlsxSheet } from 'src/app/domain/models/report/report-xlsx-sheet.interface';
 import { resolveReportFieldLabel } from 'src/app/domain/helpers/report-field-label.helper';
 import { selectRowsForSection } from 'src/app/domain/helpers/report-section-rows.helper';
 import { buildParameterVariables } from 'src/app/domain/helpers/report-parameter.helper';

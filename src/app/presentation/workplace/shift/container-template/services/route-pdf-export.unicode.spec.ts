@@ -16,16 +16,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { jsPDF } from 'jspdf';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
-import {
-  IContainerTemplateItem,
-  IRouteInfo,
-} from 'src/app/domain/models/container/container-template-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import {
-  ReportScript,
-  resolveBidiTextOptions,
-  resolveScriptForText,
-} from 'src/app/domain/models/report/report-font.model';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
+import { IRouteInfo } from 'src/app/domain/models/container/route-info.interface';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { resolveBidiTextOptions, resolveScriptForText } from 'src/app/domain/models/report/report-font.model';
+import { ReportScript } from 'src/app/domain/models/report/report-script.enum';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { DataReportFontService } from 'src/app/infrastructure/api/report/data-report-font.service';
 import {

@@ -6,6 +6,8 @@
  * @param suggestions - Alternative suggestions for invalid results
  */
 
+import { IAddressSuggestion } from './address-suggestion.interface';
+
 export interface IAddressValidationResult {
   isValid: boolean;
   matchType: string;
@@ -14,10 +16,4 @@ export interface IAddressValidationResult {
   returnedAddress?: string;
   expectedState?: string;
   suggestions: IAddressSuggestion[];
-}
-
-export interface IAddressSuggestion {
-  latitude: number;
-  longitude: number;
-  displayName: string;
 }

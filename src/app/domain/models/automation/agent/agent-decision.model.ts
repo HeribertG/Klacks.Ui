@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IScheduleAgent } from './schedule-agent.model';
+import { IScheduleAgent } from './schedule-agent.interface';
 import { IRuleViolation } from '../rules/rule-violation.model';
 
 export interface IAgentDecision {

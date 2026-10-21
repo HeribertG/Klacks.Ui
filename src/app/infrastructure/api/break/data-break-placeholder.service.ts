@@ -4,7 +4,9 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { defer, retry, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { BreakPlaceholder, IBreakPlaceholder, IBreakFilter } from 'src/app/domain/models/break/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
+import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 

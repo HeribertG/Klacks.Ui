@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { defer, firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
+import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 
 @Injectable({

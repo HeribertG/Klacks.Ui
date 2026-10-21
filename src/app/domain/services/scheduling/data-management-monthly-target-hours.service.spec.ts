@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementMonthlyTargetHoursService } from './data-management-monthly-target-hours.service';
 import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { MonthlyTargetHoursApiService } from '../../../infrastructure/api/scheduling/monthly-target-hours-api.service';
-import { IMonthlyTargetHours } from '../../models/scheduling/monthly-target-hours.model';
+import { IMonthlyTargetHours } from '../../models/scheduling/monthly-target-hours.interface';
 
 describe('DataManagementMonthlyTargetHoursService', () => {
   const year = 2026;

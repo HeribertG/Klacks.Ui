@@ -32,7 +32,8 @@ import { EditShiftExpensesComponent } from '../edit-shift-expenses/edit-shift-ex
 import { ShiftQualificationsComponent } from '../edit-shift-qualifications/shift-qualifications.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
-import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { ShiftFormService } from '../services/shift-form.service';

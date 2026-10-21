@@ -20,11 +20,9 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataShiftPreferenceService } from 'src/app/infrastructure/api/shift/data-shift-preference.service';
-import {
-  IAvailableShift,
-  IClientShiftPreference,
-  ShiftPreferenceType,
-} from 'src/app/domain/models/shift/shift-preference';
+import { IAvailableShift } from 'src/app/domain/models/shift/shift-preference';
+import { IClientShiftPreference } from 'src/app/domain/models/shift/client-shift-preference.interface';
+import { ShiftPreferenceType } from 'src/app/domain/models/shift/shift-preference-type.enum';
 import { forkJoin } from 'rxjs';
 
 @Component({

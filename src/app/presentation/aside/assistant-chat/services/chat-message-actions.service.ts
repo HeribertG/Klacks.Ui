@@ -45,7 +45,7 @@ import {
   ISubmitCorrectionRequest,
   ISubmitHelpfulFeedbackRequest,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
-import { ITurnOption } from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import {
   MUTE_SUGGESTION_KIND_PARAM,

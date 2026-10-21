@@ -12,7 +12,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
-import { IShiftSchedule, ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import {

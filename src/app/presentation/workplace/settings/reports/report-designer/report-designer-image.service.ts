@@ -12,12 +12,9 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 import { ReportSection } from 'src/app/domain/models/report/report-section.model';
-import {
-  ReportField,
-  ReportFieldType,
-  DEFAULT_FIELD_STYLE,
-  TextAlignment,
-} from 'src/app/domain/models/report/report-field.model';
+import { ReportField, DEFAULT_FIELD_STYLE } from 'src/app/domain/models/report/report-field.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
+import { TextAlignment } from 'src/app/domain/models/report/text-alignment.enum';
 
 export interface ImageUploadResult {
   field: ReportField;

@@ -3,7 +3,8 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ISchedulingRule, SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
+import { SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
+import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

@@ -6,7 +6,8 @@
  * selectable list used by the contract FK-dropdown.
  */
 import { inject, Injectable, signal } from '@angular/core';
-import { IIndividualPeriod, IndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
+import { IndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
+import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { IndividualPeriodApiService } from 'src/app/infrastructure/api/scheduling/individual-period-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

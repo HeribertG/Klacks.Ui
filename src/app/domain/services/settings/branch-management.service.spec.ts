@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { BranchManagementService } from './branch-management.service';
 import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { of } from 'rxjs';
-import { IBranch } from 'src/app/domain/models/settings/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch.interface';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 describe('BranchManagementService', () => {

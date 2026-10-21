@@ -26,8 +26,9 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';

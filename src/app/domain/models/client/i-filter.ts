@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IBaseFilter } from '../general-class';
+import { IBaseFilter } from '../base-filter.interface';
 import { ICountry } from './i-country';
-import { StateCountryToken } from '../calendar/calendar-rule-class';
+import { StateCountryToken } from '../calendar/state-country-token-class';
 
 export interface IFilter extends IBaseFilter {
   scopeFromFlag: boolean | undefined;

@@ -8,7 +8,7 @@ import * as signalR from '@microsoft/signalr';
 import { DataHarmonizerService } from './data-harmonizer.service';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
-import { HarmonizerResult } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
+import { HarmonizerResult } from 'src/app/domain/models/harmonizer/harmonizer-result.interface';
 
 class FakeConnection {
   state = 'Disconnected';

@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataGroupService } from './data-group.service';
-import { Group, IGroup } from 'src/app/domain/models/group/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { environment } from 'src/environments/environment';
 import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 

@@ -5,7 +5,7 @@
  * row headers (employee row header and shift row header). Single source of truth for the
  * bubble sizing, rendering and tooltip logic so both row headers stay in sync.
  */
-import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 
 export const QUALIFICATION_BUBBLE_BASE_DIAMETER = 16;
 export const QUALIFICATION_BUBBLE_OVERLAP_RATIO = 0.66;

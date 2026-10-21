@@ -6,8 +6,9 @@
  * @param cutTimeParams - Analysis result with min/max times and cut time
  */
 import { Injectable, inject } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';

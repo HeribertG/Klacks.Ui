@@ -18,11 +18,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import {
-  IErpDropPoint,
-  IErpDropPointFiles,
-  IErpDropPointRequest,
-} from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
+import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpOrderFileRetryResult } from 'src/app/domain/models/settings/erp-order-file-retry-result';
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 

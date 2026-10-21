@@ -4,7 +4,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataMacroService } from 'src/app/infrastructure/api/settings/data-macro.service';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';

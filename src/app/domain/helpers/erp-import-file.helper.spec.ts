@@ -2,7 +2,7 @@
 
 import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
-import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import {
   ERP_IMPORT_FILES_I18N,

@@ -18,17 +18,14 @@ import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
 import { HarmonizerSignalRConstants } from '../../signalr/signalr.constants';
+import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
+import { CancelHarmonizerResponse } from 'src/app/domain/models/harmonizer/cancel-harmonizer-response.interface';
 import {
-  CancelHarmonizerResponse,
   HarmonizerApplyAsScenarioResponse,
-  HarmonizerRequest,
-  StartHarmonizerResponse,
-} from 'src/app/domain/models/harmonizer/harmonizer-request.model';
-import {
-  HarmonizerProgress,
-  HarmonizerResult,
-  HarmonizerStatus,
-} from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
+} from 'src/app/domain/models/harmonizer/harmonizer-apply-as-scenario-response.interface';
+import { StartHarmonizerResponse } from 'src/app/domain/models/harmonizer/start-harmonizer-response.interface';
+import { HarmonizerProgress, HarmonizerStatus } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
+import { HarmonizerResult } from 'src/app/domain/models/harmonizer/harmonizer-result.interface';
 import { HarmonizerJobStatusResponse } from 'src/app/domain/models/harmonizer/harmonizer-status.model';
 
 @Injectable({ providedIn: 'root' })

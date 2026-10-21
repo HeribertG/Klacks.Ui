@@ -9,8 +9,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.model';
-import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
+import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.interface';
+import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.interface';
 import { SchedulingRuleApiService } from 'src/app/infrastructure/api/scheduling/scheduling-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

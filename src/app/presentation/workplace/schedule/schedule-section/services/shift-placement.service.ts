@@ -11,7 +11,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { addDays } from 'src/app/shared/helpers/date.helper';
 import { TimeRangeWorkDialogComponent } from '../../dialogs/time-range-work-dialog/time-range-work-dialog.component';
 

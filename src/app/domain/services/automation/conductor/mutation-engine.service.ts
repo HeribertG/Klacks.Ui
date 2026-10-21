@@ -7,7 +7,7 @@ import {
   IEvolutionConfig,
   IShift
 } from '../../../models/automation/conductor/scheduling.models';
-import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.interface';
 import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import {

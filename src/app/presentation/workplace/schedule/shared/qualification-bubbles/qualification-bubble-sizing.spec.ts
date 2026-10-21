@@ -2,7 +2,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { computeQualificationBubbleSizing } from './qualification-bubble-sizing';
-import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 
 function qualification(
   emoji: string | null,

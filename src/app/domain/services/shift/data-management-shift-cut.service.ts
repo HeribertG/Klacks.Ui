@@ -6,7 +6,9 @@ import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/objec
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
-import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import {
   ILoadable,
   IResettable,

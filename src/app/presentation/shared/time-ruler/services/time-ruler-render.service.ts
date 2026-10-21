@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from '../../../helpers/draw-helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
@@ -19,8 +19,8 @@ import {
 } from '../../grid/enums/cell-settings.enum';
 import { TimeRangeService } from './time-range.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { ShiftType } from 'src/app/domain/models/shift/shift-class';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';

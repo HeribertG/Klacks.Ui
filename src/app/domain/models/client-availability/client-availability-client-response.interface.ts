@@ -5,17 +5,9 @@
  * @param clients - List of filtered clients
  * @param totalCount - Total count (before paging)
  */
+
+import { IClientAvailabilityClientResource } from './client-availability-client-resource.interface';
 export interface IClientAvailabilityClientResponse {
   clients: IClientAvailabilityClientResource[];
   totalCount: number;
-}
-
-export interface IClientAvailabilityClientResource {
-  id: string;
-  name: string;
-  firstName: string;
-  company: string;
-  legalEntity: boolean;
-  idNumber: number;
-  groupIds: string[];
 }

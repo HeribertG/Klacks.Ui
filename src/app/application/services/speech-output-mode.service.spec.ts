@@ -5,7 +5,8 @@ import { TestBed } from '@angular/core/testing';
 import { SpeechOutputModeService } from './speech-output-mode.service';
 import { OnboardingService } from './onboarding.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
+import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
+import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
 describe('SpeechOutputModeService', () => {

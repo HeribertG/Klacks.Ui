@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { formatTimeFromMinutes } from 'src/app/shared/helpers/time-format.helper';
 

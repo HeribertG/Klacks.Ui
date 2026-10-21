@@ -5,7 +5,8 @@ import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { LanguagePluginInfo } from 'src/app/domain/models/settings/language-plugin';
-import { MarketplacePackage, MarketplaceSearchResult } from 'src/app/domain/models/settings/marketplace-package';
+import { MarketplacePackage } from 'src/app/domain/models/settings/marketplace-package';
+import { MarketplaceSearchResult } from 'src/app/domain/models/settings/marketplace-search-result.interface';
 import { KnowledgeIndexSyncStatus } from 'src/app/domain/models/settings/knowledge-index-sync-status';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 

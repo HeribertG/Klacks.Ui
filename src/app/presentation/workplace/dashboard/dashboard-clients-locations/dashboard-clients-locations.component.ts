@@ -28,7 +28,7 @@ import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-locati
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IGroup } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
 import { forkJoin } from 'rxjs';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';

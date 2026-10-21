@@ -38,7 +38,9 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
 import { DataManagementErpDropPointService } from 'src/app/domain/services/settings/data-management-erp-drop-point.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { IErpDropPoint, IErpDropPointFiles, IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
+import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { hasPendingErpImportFiles } from 'src/app/domain/helpers/erp-import-file.helper';
 import {

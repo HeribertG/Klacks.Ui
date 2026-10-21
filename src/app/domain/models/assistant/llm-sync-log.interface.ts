@@ -11,6 +11,8 @@
  * @param syncedAt - UTC timestamp of the sync run
  * @param modelTestResults - Individual test result for each newly discovered model
  */
+
+import { ILLMModelTestResult } from './llm-model-test-result.interface';
 export interface ILLMSyncLogEntry {
   id: string;
   providerId: string;
@@ -20,20 +22,4 @@ export interface ILLMSyncLogEntry {
   deactivatedModelsCount: number;
   syncedAt: string;
   modelTestResults: ILLMModelTestResult[];
-}
-
-/**
- * Test result for a single model during a sync run.
- * @param apiModelId - Provider-side model identifier
- * @param modelName - Human-readable model name
- * @param passed - True when the completion test succeeded
- * @param errorMessage - Failure reason; null when passed is true
- * @param durationMs - Test duration in milliseconds
- */
-export interface ILLMModelTestResult {
-  apiModelId: string;
-  modelName: string;
-  passed: boolean;
-  errorMessage?: string;
-  durationMs: number;
 }

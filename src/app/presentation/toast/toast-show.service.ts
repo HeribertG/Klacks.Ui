@@ -26,7 +26,7 @@ import { Subject } from 'rxjs';
 import { ToastService } from './toast.service';
 import { BackendAvailabilityService } from 'src/app/application/services/backend-availability.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { IToast } from './toast.interface';
 import { TOAST_ICONS } from './toast-icons.constants';
 import { UNDO_TOAST } from './undo-toast.constants';

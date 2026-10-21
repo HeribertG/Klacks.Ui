@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatMessage } from '../chat-message.interface';
-import { ITurnOption } from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { ChatStageStatusService } from '../services/chat-stage-status.service';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';

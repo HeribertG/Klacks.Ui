@@ -11,19 +11,10 @@
  * @param uiLanguage - Active UI language; decides the Han font and the script a translated label needs
  */
 
-export const REPORT_FONT_ASSET_PATH = 'assets/fonts/';
+import { ScriptRange } from './script-range.interface';
+import { ReportScript } from './report-script.enum';
 
-export enum ReportScript {
-  WinAnsi = 'winAnsi',
-  Extended = 'extended',
-  Hebrew = 'hebrew',
-  Arabic = 'arabic',
-  Thai = 'thai',
-  Japanese = 'japanese',
-  Korean = 'korean',
-  ChineseSimplified = 'chineseSimplified',
-  ChineseTraditional = 'chineseTraditional',
-}
+export const REPORT_FONT_ASSET_PATH = 'assets/fonts/';
 
 export interface UnicodeFontDefinition {
   script: ReportScript;
@@ -88,12 +79,6 @@ const WIN_ANSI_EXTRA_CODE_POINTS: ReadonlySet<number> = new Set([
   0x0160, 0x2039, 0x0152, 0x017d, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022,
   0x2013, 0x2014, 0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x017e, 0x0178,
 ]);
-
-interface ScriptRange {
-  script: ReportScript;
-  from: number;
-  to: number;
-}
 
 const HAN_SCRIPT_RANGES: readonly ScriptRange[] = [
   { script: ReportScript.ChineseSimplified, from: 0x2e80, to: 0x2fdf },

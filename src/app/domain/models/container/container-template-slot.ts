@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IShift } from '../shift/shift-class';
+import { IShift } from '../shift/shift.interface';
 
 export interface IContainerTemplateSlot {
   weekday: number;
@@ -14,12 +14,4 @@ export interface IContainerTemplateSlot {
   untilTime: string;
   availableTasks?: IShift[];
   assignedTasks?: IShift[];
-}
-
-export interface IContainerTemplateGrid {
-  containerShift: IShift;
-  slots: IContainerTemplateSlot[][];
-  crossesMidnight: boolean;
-  totalRows: number;
-  totalDays: number;
 }

@@ -24,10 +24,8 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import {
-  OvertimeBasis,
-  OvertimeRateMode,
-} from 'src/app/domain/models/settings/app-settings.model';
+import { OvertimeBasis } from 'src/app/domain/models/settings/overtime-basis.type';
+import { OvertimeRateMode } from 'src/app/domain/models/settings/overtime-rate-mode.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 

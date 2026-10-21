@@ -18,10 +18,3 @@ export interface MarketplacePackage {
   minKlacksVersion: string;
   authorName: string;
 }
-
-export interface MarketplaceSearchResult {
-  items: MarketplacePackage[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-}

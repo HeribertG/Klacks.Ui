@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BreakLayerService } from './break-layer.service';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 
 function createBreak(
     id: string,

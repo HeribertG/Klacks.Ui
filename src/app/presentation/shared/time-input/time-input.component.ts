@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 
 @Component({
   selector: 'app-time-input',

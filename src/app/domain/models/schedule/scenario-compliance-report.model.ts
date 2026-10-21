@@ -7,18 +7,8 @@
  * @param blockingIssues - Subset of newIssues enforced in Block mode; these will block Accept without an override
  */
 
-import { ErrorListFilterType } from 'src/app/domain/interfaces/error-list-filter-type.type';
+import { ScenarioComplianceIssue } from './scenario-compliance-issue.interface';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
-
-export interface ScenarioComplianceIssue {
-  date: string;
-  clientId: string;
-  clientName: string;
-  severity: ErrorListFilterType;
-  code: string;
-  messageKey: string;
-  messageParams: Record<string, string>;
-}
 
 export interface ScenarioComplianceReport {
   newIssues: ScenarioComplianceIssue[];

@@ -32,7 +32,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { HolidayWorkExemptionHeaderComponent } from './holiday-work-exemption-header/holiday-work-exemption-header.component';
 import { HolidayWorkExemptionRowComponent } from './holiday-work-exemption-row/holiday-work-exemption-row.component';
 import { DataManagementHolidayWorkExemptionService } from 'src/app/domain/services/scheduling/data-management-holiday-work-exemption.service';
-import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.model';
+import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.interface';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';

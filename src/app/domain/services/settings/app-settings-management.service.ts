@@ -16,41 +16,48 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
-import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
+import { Setting } from 'src/app/domain/models/settings/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
+import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
+import { AppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { IAppContactSettings } from 'src/app/domain/models/settings/app-contact-settings.interface';
+import { IEmailServerSettings } from 'src/app/domain/models/settings/email-server-settings.interface';
+import { IImapServerSettings } from 'src/app/domain/models/settings/imap-server-settings.interface';
+import { IWorkSettings } from 'src/app/domain/models/settings/work-settings.interface';
+import { ISchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.interface';
+import { IDataRetentionSettings } from 'src/app/domain/models/settings/data-retention-settings.interface';
+import { ICompensatoryRestSettings } from 'src/app/domain/models/settings/compensatory-rest-settings.interface';
+import { ISurchargeModeSettings } from 'src/app/domain/models/settings/surcharge-mode-settings.interface';
+import { IOvertimeSettings } from 'src/app/domain/models/settings/overtime-settings.interface';
 import {
-  IAppContactSettings,
-  IEmailServerSettings,
-  IImapServerSettings,
-  IWorkSettings,
-  ISchedulingDefaultSettings,
-  IDataRetentionSettings,
-  ICompensatoryRestSettings,
-  ISurchargeModeSettings,
-  IOvertimeSettings,
   IComplianceEnforcementSettings,
-  IActiveIndustriesSettings,
-  AppContactSettings,
-  EmailServerSettings,
-  ImapServerSettings,
-  WorkSettings,
-  SchedulingDefaultSettings,
-  DataRetentionSettings,
-  CompensatoryRestSettings,
-  SurchargeModeSettings,
-  OvertimeSettings,
-  ComplianceEnforcementSettings,
-  ActiveIndustriesSettings,
-  SurchargeRateMode,
-  SurchargeStackingMode,
-  OvertimeBasis,
-  OvertimeRateMode,
+} from 'src/app/domain/models/settings/compliance-enforcement-settings.interface';
+import { IActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.interface';
+import { EmailServerSettings } from 'src/app/domain/models/settings/email-server-settings.model';
+import { ImapServerSettings } from 'src/app/domain/models/settings/imap-server-settings.model';
+import { WorkSettings } from 'src/app/domain/models/settings/work-settings.model';
+import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.model';
+import { DataRetentionSettings } from 'src/app/domain/models/settings/data-retention-settings.model';
+import { CompensatoryRestSettings } from 'src/app/domain/models/settings/compensatory-rest-settings.model';
+import { SurchargeModeSettings } from 'src/app/domain/models/settings/surcharge-mode-settings.model';
+import { OvertimeSettings } from 'src/app/domain/models/settings/overtime-settings.model';
+import { ComplianceEnforcementSettings } from 'src/app/domain/models/settings/compliance-enforcement-settings.model';
+import { ActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.model';
+import { SurchargeRateMode } from 'src/app/domain/models/settings/surcharge-rate-mode.type';
+import { SurchargeStackingMode } from 'src/app/domain/models/settings/surcharge-stacking-mode.type';
+import { OvertimeBasis } from 'src/app/domain/models/settings/overtime-basis.type';
+import { OvertimeRateMode } from 'src/app/domain/models/settings/overtime-rate-mode.type';
+import {
   ComplianceEnforcementDefaultMode,
-  ComplianceEnforcementRuleMode
-} from 'src/app/domain/models/settings/app-settings.model';
-import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
-import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
+} from 'src/app/domain/models/settings/compliance-enforcement-default-mode.type';
+import { ComplianceEnforcementRuleMode } from 'src/app/domain/models/settings/compliance-enforcement-rule-mode.type';
+import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
+import { IUpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.interface';
+import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
+import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
 import { SttEngine, TtsProvider, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
-import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
+import { HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
+import { IHolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.interface';
 import { parseHolisticHarmonizerMode } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';

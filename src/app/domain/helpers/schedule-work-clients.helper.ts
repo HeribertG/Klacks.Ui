@@ -5,7 +5,8 @@
  * Breaks, work changes and expenses do not count: only a Work can be covered by a stand-in.
  * @param entries - Loaded schedule entries (any entry type) of the shown group and period
  */
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 
 type WorkEntryProbe = Pick<IScheduleCell, 'clientId' | 'entryType'>;
 

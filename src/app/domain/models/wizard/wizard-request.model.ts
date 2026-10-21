@@ -1,11 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
-import { SkippedPlacementEntry } from 'src/app/domain/models/schedule/skipped-placement.model';
-
-export interface WizardTrainingOverrides {
-  initAuctionRatio?: number;
-}
+import { WizardTrainingOverrides } from './wizard-training-overrides.interface';
 
 export interface WizardRequest {
   periodFrom: string;
@@ -15,30 +10,4 @@ export interface WizardRequest {
   analyseToken?: string | null;
   trainingOverrides?: WizardTrainingOverrides | null;
   agentOrderIsUserDefined?: boolean;
-}
-
-export interface StartWizardResponse {
-  jobId: string;
-}
-
-export interface CancelWizardResponse {
-  cancelled: boolean;
-}
-
-export interface ApplyWizardResponse {
-  createdWorkIds: string[];
-  complianceViolations: ScheduleErrorEntry[];
-  skippedPlacements: SkippedPlacementEntry[];
-  overrideApplied: boolean;
-}
-
-export interface WizardApplyAsScenarioResponse {
-  scenarioId: string;
-  scenarioToken: string;
-  scenarioName: string;
-  runGroupId: string | null;
-  createdWorkIds: string[];
-  complianceViolations: ScheduleErrorEntry[];
-  skippedPlacements: SkippedPlacementEntry[];
-  overrideApplied: boolean;
 }

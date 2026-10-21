@@ -5,7 +5,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { DataErpImportTokenService } from './data-erp-import-token.service';
-import { IErpImportToken, IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportToken } from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
 
 describe('DataErpImportTokenService', () => {
   let service: DataErpImportTokenService;

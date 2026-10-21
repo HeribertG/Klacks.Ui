@@ -18,7 +18,8 @@ import { DataAuthService } from '../api/data-auth.service';
 import { EmailSignalRConstants } from './signalr.constants';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRConnectionHelper } from './signalr-connection.helper';
-import { INewEmailsNotification, IEmailReadStateNotification } from 'src/app/domain/models/email/email-notification.model';
+import { INewEmailsNotification } from 'src/app/domain/models/email/email-notification.model';
+import { IEmailReadStateNotification } from 'src/app/domain/models/email/email-read-state-notification.interface';
 
 @Injectable({
   providedIn: 'root',

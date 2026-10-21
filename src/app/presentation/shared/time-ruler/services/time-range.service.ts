@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import {
   resolveItemEndTime,

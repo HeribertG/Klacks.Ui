@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
-import { IShift } from '../../models/shift/shift-class';
-import { IContainerTemplateSlot, IContainerTemplateGrid } from '../../models/container/container-template-slot';
+import { IShift } from '../../models/shift/shift.interface';
+import { IContainerTemplateSlot } from '../../models/container/container-template-slot';
+import { IContainerTemplateGrid } from '../../models/container/container-template-grid.interface';
 import { IContainerTemplateHolidayVariant } from '../../models/container/container-template-holiday-variant';
 import { FT_HOLIDAY_TEMPLATE_WEEKDAY } from '../../constants/container-template-holiday.constants';
 

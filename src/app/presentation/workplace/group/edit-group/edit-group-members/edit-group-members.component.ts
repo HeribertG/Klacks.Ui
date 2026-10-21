@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
-import { IGroupItem } from 'src/app/domain/models/group/group-class';
+import { IGroupItem } from 'src/app/domain/models/group/group-item.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';

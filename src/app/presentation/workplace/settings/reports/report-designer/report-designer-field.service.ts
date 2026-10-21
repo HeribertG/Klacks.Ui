@@ -13,14 +13,11 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { environment } from 'src/environments/environment';
 
 import { ReportSection } from 'src/app/domain/models/report/report-section.model';
-import {
-  ReportField,
-  ReportFieldType,
-  DataBindingDefinition,
-  DEFAULT_FIELD_STYLE,
-  TextAlignment,
-  HeaderRow,
-} from 'src/app/domain/models/report/report-field.model';
+import { ReportField, DEFAULT_FIELD_STYLE } from 'src/app/domain/models/report/report-field.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
+import { DataBindingDefinition } from 'src/app/domain/models/report/data-binding-definition.interface';
+import { TextAlignment } from 'src/app/domain/models/report/text-alignment.enum';
+import { HeaderRow } from 'src/app/domain/models/report/header-row.interface';
 import { FreeTextRow } from 'src/app/domain/models/report/free-text-row.model';
 import { FOOTER_TO_COLUMN_MAP } from 'src/app/domain/models/report/report-footer-mapping.constants';
 

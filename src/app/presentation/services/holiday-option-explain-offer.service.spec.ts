@@ -10,7 +10,7 @@ import { ConversationOrchestratorService } from 'src/app/presentation/aside/assi
 import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ExplainOfferStateService } from 'src/app/domain/services/assistant/explain-offer-state.service';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import {
   EXPLAIN_OFFER_OUTCOME,
   EXPLAIN_OFFER_TOPIC,

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { HarmonizerResult } from './harmonizer-progress.model';
+import { HarmonizerResult } from './harmonizer-result.interface';
 
 /**
  * Response of the backend harmonizer job status endpoint. Used by the reconnect

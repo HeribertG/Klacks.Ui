@@ -1,18 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { RuleType } from './rule-type.enum';
+import { IRuleDefinition } from './rule-definition.interface';
 import { RuleSeverity } from './rule-severity.enum';
-
-export interface IRuleDefinition {
-  id: string;
-  name: string;
-  type: RuleType;
-  description: string;
-  severity: RuleSeverity;
-  isActive: boolean;
-  script: string;
-  parameters?: Record<string, unknown>;
-}
 
 export class RuleDefinition implements IRuleDefinition {
   constructor(

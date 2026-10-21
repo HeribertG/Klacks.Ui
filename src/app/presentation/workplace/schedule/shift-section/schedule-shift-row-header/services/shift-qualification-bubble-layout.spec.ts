@@ -6,7 +6,7 @@ import {
   computeShiftQualificationBubbleLayout,
   ShiftQualificationBubbleLayoutInput,
 } from './shift-qualification-bubble-layout';
-import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 
 function qualification(
   emoji: string | null,

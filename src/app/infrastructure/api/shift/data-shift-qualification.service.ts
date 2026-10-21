@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
+import { IShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification.interface';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
 
 export interface SetShiftRequiredQualificationRequest {

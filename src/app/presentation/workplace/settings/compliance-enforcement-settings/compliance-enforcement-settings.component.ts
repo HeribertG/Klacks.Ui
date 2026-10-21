@@ -26,8 +26,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import {
   ComplianceEnforcementDefaultMode,
-  ComplianceEnforcementRuleMode,
-} from 'src/app/domain/models/settings/app-settings.model';
+} from 'src/app/domain/models/settings/compliance-enforcement-default-mode.type';
+import { ComplianceEnforcementRuleMode } from 'src/app/domain/models/settings/compliance-enforcement-rule-mode.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 

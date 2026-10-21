@@ -6,16 +6,12 @@
  * @param periodHours - Hours per client from contracts; settings defaults are used when contracts are missing
  */
 import { Injectable } from '@angular/core';
-import {
-  ScheduleAgent,
-  IScheduleAgent
-} from '../../../models/automation/agent/schedule-agent.model';
+import { ScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.interface';
 import { IAgentFactoryConfig } from '../../../models/automation/agent/agent-factory-config.model';
-import {
-  IWorkScheduleClient,
-  IPeriodHours
-} from '../../../models/schedule/work-schedule-class';
-import { ISchedulingDefaultSettings } from '../../../models/settings/app-settings.model';
+import { IWorkScheduleClient } from '../../../models/schedule/work-schedule-client.interface';
+import { IPeriodHours } from '../../../models/schedule/period-hours.interface';
+import { ISchedulingDefaultSettings } from '../../../models/settings/scheduling-default-settings.interface';
 
 @Injectable({
   providedIn: 'root'

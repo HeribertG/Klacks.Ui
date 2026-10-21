@@ -11,8 +11,8 @@ import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanMarkerType } from '@floor-plan-plugin/domain/enums/floor-plan-marker-type.enum';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 
 const SHIFT_LOAD_COUNT = 500;

@@ -58,7 +58,8 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
 import { TooltipState } from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
@@ -73,7 +74,7 @@ import { TravelDialogComponent } from '../dialogs/travel-dialog/travel-dialog.co
 import { BriefingDialogComponent } from '../dialogs/briefing-dialog/briefing-dialog.component';
 import { ContainerSplitDialogComponent } from '../dialogs/container-split-dialog/container-split-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
@@ -91,7 +92,7 @@ import {
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { ScheduleSectionFacadeService } from './services/schedule-section-facade.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';

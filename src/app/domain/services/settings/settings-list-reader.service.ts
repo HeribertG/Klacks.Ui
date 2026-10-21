@@ -10,7 +10,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker.interface';
-import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 
 @Injectable({ providedIn: 'root' })

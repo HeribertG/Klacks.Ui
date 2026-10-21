@@ -6,10 +6,8 @@
  * and orchestrates CRUD plus client-side validation of a single rule.
  */
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  IRestrictedTimeWindowRule,
-  RestrictedTimeWindowRule,
-} from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
+import { RestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
+import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.interface';
 import { RestrictedTimeWindowRuleApiService } from 'src/app/infrastructure/api/scheduling/restricted-time-window-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

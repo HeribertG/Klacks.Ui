@@ -37,7 +37,7 @@ import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/servi
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { Subject, takeUntil } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 

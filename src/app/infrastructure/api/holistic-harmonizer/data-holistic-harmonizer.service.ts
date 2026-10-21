@@ -20,16 +20,30 @@ import { StorageKeys } from '../../constants/storage-keys';
 import { HolisticHarmonizerSignalRConstants } from '../../signalr/signalr.constants';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import {
-  CancelHolisticHarmonizerResponse,
-  HolisticHarmonizerApplyRequest,
-  HolisticHarmonizerApplyResponse,
-  HolisticHarmonizerModelCheckResponse,
-  HolisticHarmonizerProgress,
   HolisticHarmonizerRunRequest,
-  HolisticHarmonizerRunResponse,
   HolisticHarmonizerStatus,
-  StartHolisticHarmonizerResponse,
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import {
+  CancelHolisticHarmonizerResponse,
+} from 'src/app/domain/models/holistic-harmonizer/cancel-holistic-harmonizer-response.interface';
+import {
+  HolisticHarmonizerApplyRequest,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-apply-request.interface';
+import {
+  HolisticHarmonizerApplyResponse,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-apply-response.interface';
+import {
+  HolisticHarmonizerModelCheckResponse,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-model-check-response.interface';
+import {
+  HolisticHarmonizerProgress,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-progress.interface';
+import {
+  HolisticHarmonizerRunResponse,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run-response.interface';
+import {
+  StartHolisticHarmonizerResponse,
+} from 'src/app/domain/models/holistic-harmonizer/start-holistic-harmonizer-response.interface';
 import { HolisticHarmonizerJobStatusResponse } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-status.model';
 
 @Injectable({ providedIn: 'root' })

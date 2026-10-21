@@ -5,7 +5,7 @@ import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IContainerTemplate } from 'src/app/domain/models/container/container-template-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 
 @Injectable({
   providedIn: 'root',

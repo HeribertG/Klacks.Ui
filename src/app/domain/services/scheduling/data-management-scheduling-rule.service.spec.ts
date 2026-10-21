@@ -7,7 +7,9 @@ import { DataManagementSchedulingRuleService } from './data-management-schedulin
 import { SchedulingRuleApiService } from 'src/app/infrastructure/api/scheduling/scheduling-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { SchedulingDefaultSettings, WorkSettings, SurchargeModeSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.model';
+import { WorkSettings } from 'src/app/domain/models/settings/work-settings.model';
+import { SurchargeModeSettings } from 'src/app/domain/models/settings/surcharge-mode-settings.model';
 
 describe('DataManagementSchedulingRuleService.createRule', () => {
   let service: DataManagementSchedulingRuleService;

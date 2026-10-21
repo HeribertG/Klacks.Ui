@@ -9,7 +9,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { IAssistantChatRequest } from './data-assistant.service';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { AssistantStatusStage, toAssistantStatusStage } from 'src/app/domain/constants/assistant-status-stage.constants';
 

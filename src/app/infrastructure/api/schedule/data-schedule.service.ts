@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable } from '@angular/core';
-import { IWork, Work } from 'src/app/domain/models/schedule/schedule-class';
+import { Work } from 'src/app/domain/models/schedule/schedule-class';
+import { IWork } from 'src/app/domain/models/schedule/work.interface';
 import { environment } from 'src/environments/environment';
 import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';

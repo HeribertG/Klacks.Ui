@@ -5,7 +5,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShiftTableComponent } from './shift-table.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
-import { Shift, ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('ShiftTableComponent', () => {

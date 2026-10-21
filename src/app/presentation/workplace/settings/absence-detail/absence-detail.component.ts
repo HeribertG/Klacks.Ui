@@ -26,8 +26,10 @@ import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-det
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { IAbsenceDetail, AbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
+import { AbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import {
   ModalService,
   ModalType,
@@ -35,7 +37,7 @@ import {
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { AbsenceDetailFormModel } from 'src/app/presentation/view-models/absence-detail-form.model';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';

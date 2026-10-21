@@ -3,10 +3,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataExpensesService } from 'src/app/infrastructure/api/expenses/data-expenses.service';
-import {
-  ExpensesRequest,
-  ExpensesResource,
-} from 'src/app/domain/models/expenses/expenses';
+import { ExpensesRequest } from 'src/app/domain/models/expenses/expenses';
+import { ExpensesResource } from 'src/app/domain/models/expenses/expenses-resource.interface';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({

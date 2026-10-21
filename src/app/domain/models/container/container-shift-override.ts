@@ -6,10 +6,10 @@
  * @param date - The specific date of this override (ISO format)
  * @param hasWork - Whether work entries exist for this date (locks editing)
  */
-import { IShift } from '../shift/shift-class';
-import { IAbsence } from '../absence/absence-class';
-import { ContainerTransportModeEnum, TransportModeEnum } from '../../enums/transport-mode.enum';
-import { IRouteInfo } from './container-template-class';
+import { IShift } from '../shift/shift.interface';
+import { ContainerTransportModeEnum } from '../../enums/transport-mode.enum';
+import { IContainerShiftOverrideItem } from './container-shift-override-item.interface';
+import { IRouteInfo } from './route-info.interface';
 
 export interface IContainerShiftOverride {
   id?: string;
@@ -24,22 +24,4 @@ export interface IContainerShiftOverride {
   hasWork: boolean;
   shift?: IShift;
   containerShiftOverrideItems: IContainerShiftOverrideItem[];
-}
-
-export interface IContainerShiftOverrideItem {
-  id?: string;
-  containerShiftOverrideId?: string;
-  shiftId?: string;
-  absenceId?: string;
-  startItem?: string;
-  endItem?: string;
-  briefingTime: string;
-  debriefingTime: string;
-  travelTimeAfter: string;
-  travelTimeBefore: string;
-  timeRangeStartItem: string | null;
-  timeRangeEndItem: string | null;
-  transportMode?: TransportModeEnum;
-  shift?: IShift;
-  absence?: IAbsence;
 }

@@ -10,10 +10,8 @@ import { of, throwError } from 'rxjs';
 import { PersonalAccessTokensComponent } from './personal-access-tokens.component';
 import { DataPersonalAccessTokenService } from 'src/app/infrastructure/api/settings/data-personal-access-token.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import {
-  IPersonalAccessToken,
-  IPersonalAccessTokenCreated,
-} from 'src/app/domain/models/settings/personal-access-token';
+import { IPersonalAccessToken } from 'src/app/domain/models/settings/personal-access-token';
+import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 describe('PersonalAccessTokensComponent', () => {

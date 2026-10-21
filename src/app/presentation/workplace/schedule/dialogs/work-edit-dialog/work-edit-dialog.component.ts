@@ -14,7 +14,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';

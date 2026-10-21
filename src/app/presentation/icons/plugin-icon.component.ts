@@ -14,7 +14,7 @@ import {
   input
 } from '@angular/core';
 import { NavIconColorService } from 'src/app/presentation/services/nav-icon-color.service';
-import { PluginSvgPath } from 'src/app/domain/models/plugins/plugin-nav-item';
+import { PluginSvgPath } from 'src/app/domain/models/plugins/plugin-svg-path.interface';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -20,8 +20,9 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';

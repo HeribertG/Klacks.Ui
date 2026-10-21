@@ -19,7 +19,8 @@ import { ChatMessageActionsService } from '../services/chat-message-actions.serv
 import { TextToSpeechService } from '../services/text-to-speech.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
-import { IAgentPlan, IAgentPlanStep, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlan, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlanStep } from 'src/app/domain/models/assistant/agent-plan-step.interface';
 import { ChatMessage } from '../chat-message.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { AsideService } from '../../aside.service';

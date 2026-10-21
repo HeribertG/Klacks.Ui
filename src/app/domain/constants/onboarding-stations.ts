@@ -16,7 +16,7 @@
  * skill the "More" chip asks Klacksy to run, and a station without `route` stays on the current page.
  */
 
-import { AppSetting } from 'src/app/domain/models/settings/settings-various-class';
+import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
 import { MESSAGING_PLUGIN_NAME, MESSAGING_PLUGIN_REQUIRED_PERMISSION } from './feature-plugin.constants';
 import { PERMISSIONS, ROLE_ADMIN } from './permissions.constants';
 

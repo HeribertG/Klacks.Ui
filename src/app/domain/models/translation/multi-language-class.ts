@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { IMultiLanguage } from './multi-language.interface';
+
 export class MultiLanguage implements IMultiLanguage {
   /**
    *
@@ -15,11 +17,4 @@ export class MultiLanguage implements IMultiLanguage {
   en?: string | undefined = undefined;
   fr?: string | undefined = undefined;
   it?: string | undefined = undefined;
-}
-export interface IMultiLanguage {
-  de?: string | undefined;
-  en?: string | undefined;
-  fr?: string | undefined;
-  it?: string | undefined;
-  [key: string]: string | undefined;
 }

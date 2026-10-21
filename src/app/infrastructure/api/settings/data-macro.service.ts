@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { IDefaultShiftMacro } from 'src/app/domain/models/settings/default-shift-macro.model';
 
 @Injectable({

@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeRangeWorkDialogComponent } from './time-range-work-dialog.component';
 
 describe('TimeRangeWorkDialogComponent', () => {

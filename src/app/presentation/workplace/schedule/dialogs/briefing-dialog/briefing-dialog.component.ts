@@ -19,14 +19,12 @@ import {
   WorkChangeLogicService,
   CorrectionMode,
 } from 'src/app/infrastructure/services/work-change-logic.service';
-import {
-  WorkChangeRequest,
-  WorkChangeResource,
-  WorkChangeType,
-  WorkChangeValidation,
-  WorkTimeContext,
-} from 'src/app/domain/models/workchange/work-change';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { WorkChangeRequest } from 'src/app/domain/models/workchange/work-change';
+import { WorkChangeResource } from 'src/app/domain/models/workchange/work-change-resource.interface';
+import { WorkChangeType } from 'src/app/domain/models/workchange/work-change-type.enum';
+import { WorkChangeValidation } from 'src/app/domain/models/workchange/work-change-validation.interface';
+import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';

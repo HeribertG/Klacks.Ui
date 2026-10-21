@@ -13,9 +13,3 @@ export interface ITurnOptionsRequest {
   userMessage: string;
   turnId?: string;
 }
-
-export interface ITurnOption {
-  skillName: string;
-  displayName: string;
-  description: string;
-}

@@ -28,12 +28,9 @@ import { DataErpImportTokenService } from 'src/app/infrastructure/api/settings/d
 import { ErpDropPointTokenHeaderComponent } from './erp-drop-point-token-header/erp-drop-point-token-header.component';
 import { ErpDropPointTokenRowComponent } from './erp-drop-point-token-row/erp-drop-point-token-row.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
-import {
-  IErpImportToken,
-  IErpImportTokenCreate,
-  IErpImportTokenCreated,
-  ERP_IMPORT_TOKEN_EXPIRY,
-} from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportToken, ERP_IMPORT_TOKEN_EXPIRY } from 'src/app/domain/models/settings/erp-import-token';
+import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
+import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 

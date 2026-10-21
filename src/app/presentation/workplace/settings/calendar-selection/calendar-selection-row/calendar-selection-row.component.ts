@@ -10,7 +10,7 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

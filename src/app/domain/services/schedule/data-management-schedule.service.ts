@@ -21,21 +21,15 @@ import {
 import { Subject, timer } from 'rxjs';
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  IClientWork,
-  IWork,
-  IWorkFilter,
-  WorkFilter,
-} from 'src/app/domain/models/schedule/schedule-class';
-import {
-  IShiftSchedule,
-  IShiftScheduleFilter,
-} from 'src/app/domain/models/schedule/shift-schedule-class';
-import {
-  IPeriodHours,
-  IScheduleCell,
-  WorkScheduleByClientAndDate,
-} from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { IWork } from 'src/app/domain/models/schedule/work.interface';
+import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
+import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
+import { WorkScheduleByClientAndDate } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import {
   cloneObject,
   compareComplexObjects,

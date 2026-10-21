@@ -35,10 +35,8 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { decodeJwtPayload } from 'src/app/shared/helpers/jwt.helper';
-import {
-  ITurnOption,
-  ITurnOptionsRequest,
-} from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';

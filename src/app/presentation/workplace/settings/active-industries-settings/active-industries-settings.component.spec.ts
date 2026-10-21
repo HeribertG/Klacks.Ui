@@ -12,7 +12,8 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { DataManagementIndustryMigrationService } from 'src/app/domain/services/scheduling/data-management-industry-migration.service';
-import { ActiveIndustriesSettings, IActiveIndustriesSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { ActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.model';
+import { IActiveIndustriesSettings } from 'src/app/domain/models/settings/active-industries-settings.interface';
 import { IIndustryTemplate } from 'src/app/domain/models/settings/industry-template.interface';
 
 describe('ActiveIndustriesSettingsComponent', () => {

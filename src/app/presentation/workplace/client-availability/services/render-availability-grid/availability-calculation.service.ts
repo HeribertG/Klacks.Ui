@@ -7,7 +7,7 @@ import {
   HourGroupingMode,
   HOUR_GROUPING_SIZES,
 } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { getDayIndex } from 'src/app/shared/helpers/date.helper';

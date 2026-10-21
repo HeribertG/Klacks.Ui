@@ -2,7 +2,8 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { ISetting, Setting } from 'src/app/domain/models/settings/settings-various-class';
+import { Setting } from 'src/app/domain/models/settings/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';

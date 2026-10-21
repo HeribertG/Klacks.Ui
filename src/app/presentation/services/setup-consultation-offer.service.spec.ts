@@ -10,7 +10,7 @@ import { ConversationOrchestratorService } from 'src/app/presentation/aside/assi
 import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { DataScheduleSetupStateService } from 'src/app/infrastructure/api/assistant/data-schedule-setup-state.service';
 import { IScheduleSetupState } from 'src/app/domain/interfaces/schedule-setup-state.interface';
 

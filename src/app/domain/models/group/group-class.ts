@@ -1,39 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import {
-  BaseFilter,
-  BaseTruncated,
-  IBaseFilter,
-  IBaseTruncated,
-} from '../general-class';
-import { Client, IClient } from '../client/client-class';
-import { PaymentInterval } from '../contract/contract-class';
-import { ICalendarSelection } from '../calendar/calendar-selection-class';
+import { PaymentInterval } from '../contract/payment-interval.enum';
+import { ICalendarSelection } from '../calendar/calendar-selection.interface';
+import { IGroup } from './group.interface';
+import { GroupItem } from './group-item-class';
 import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-
-export interface IGroup {
-  id?: string;
-  name: string;
-  description: string;
-  validFrom: Date;
-  validUntil?: Date;
-  groupItems: IGroupItem[];
-  parent?: string;
-  root?: string;
-  lft: number;
-  rgt: number;
-  depth: number;
-  clientsCount: number;
-  shiftsCount: number;
-  customersCount: number;
-  employeesCount: number;
-  externEmpsCount: number;
-  children?: IGroup[];
-  clientIds?: string[];
-  paymentInterval: PaymentInterval;
-  calendarSelectionId?: string;
-  calendarSelection?: ICalendarSelection;
-}
 
 export class Group implements IGroup {
   id?: string;
@@ -106,95 +77,4 @@ export class Group implements IGroup {
       });
     }
   }
-}
-
-export interface IGroupItem {
-  id?: string;
-  groupId?: string;
-  clientId?: string;
-  client?: IClient;
-  group?: IGroup;
-  validFrom?: Date;
-  validUntil?: Date;
-}
-
-export class GroupItem implements IGroupItem {
-  id?: string;
-  groupId?: string;
-  clientId?: string;
-  client?: Client;
-  group?: Group;
-  validFrom?: Date;
-  validUntil?: Date;
-}
-
-export interface ITruncatedGroup extends IBaseTruncated {
-  groups: IGroup[];
-}
-
-export class TruncatedGroup extends BaseTruncated implements ITruncatedGroup {
-  groups: IGroup[] = [];
-}
-
-export interface IGroupFilter extends IBaseFilter {
-  scopeFromFlag?: boolean;
-  scopeUntilFlag?: boolean;
-  scopeFrom?: Date;
-  scopeUntil?: Date;
-  showDeleteEntries?: boolean;
-  activeDateRange: boolean;
-  formerDateRange: boolean;
-  futureDateRange: boolean;
-  selectedGroup: string | undefined;
-}
-
-export class GroupFilter extends BaseFilter implements IGroupFilter {
-  scopeFromFlag?: boolean;
-  scopeUntilFlag?: boolean;
-  scopeFrom?: Date;
-  scopeUntil?: Date;
-  showDeleteEntries = false;
-  activeDateRange = true;
-  formerDateRange = false;
-  futureDateRange = false;
-
-  override orderBy = 'name';
-  override sortOrder = 'asc';
-
-  selectedGroup: string | undefined = undefined;
-
-  isDefault(): boolean {
-    return (
-      this.activeDateRange &&
-      !this.formerDateRange &&
-      !this.futureDateRange &&
-      !this.showDeleteEntries &&
-      this.scopeFromFlag === undefined &&
-      this.scopeUntilFlag === undefined &&
-      this.scopeFrom === undefined &&
-      this.scopeUntil === undefined
-    );
-  }
-}
-
-export interface IGroupTree {
-  rootId?: string;
-  nodes: IGroup[];
-}
-
-export class GroupTree implements IGroupTree {
-  rootId?: string;
-  nodes: Group[] = [];
-}
-
-export interface IGroupVisibility {
-  id?: string;
-  groupId?: string;
-  appUserId?: string;
-}
-
-export class GroupVisibility implements IGroupVisibility {
-  id?: string;
-  groupId?: string;
-  appUserId?: string;
 }

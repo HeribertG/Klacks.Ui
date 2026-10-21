@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { IGroup, IGroupVisibility } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
+import { IGroupVisibility } from 'src/app/domain/models/group/group-visibility.interface';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { Observable, Subject, tap } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

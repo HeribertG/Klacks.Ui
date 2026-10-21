@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import { ChangePassword } from 'src/app/domain/models/authentification-class';
+import { ChangePassword } from 'src/app/domain/models/change-password-class';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';

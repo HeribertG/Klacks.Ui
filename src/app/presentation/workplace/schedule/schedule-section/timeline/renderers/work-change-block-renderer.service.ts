@@ -9,7 +9,7 @@
 import { inject, Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { ITimelineBlockRenderer } from './timeline-block-renderer.interface';
 

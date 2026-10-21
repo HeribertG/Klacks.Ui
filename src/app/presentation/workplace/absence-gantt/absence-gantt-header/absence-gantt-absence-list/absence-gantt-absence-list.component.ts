@@ -11,8 +11,8 @@ import {
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import { AbsenceTokenFilter } from 'src/app/domain/models/break/break-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { AbsenceTokenFilter } from 'src/app/domain/models/break/absence-token-filter-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';

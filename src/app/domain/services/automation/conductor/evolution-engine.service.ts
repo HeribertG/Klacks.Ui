@@ -10,7 +10,7 @@ import {
   IShift,
   DEFAULT_EVOLUTION_CONFIG
 } from '../../../models/automation/conductor/scheduling.models';
-import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.interface';
 import { FitnessEvaluatorService } from './fitness-evaluator.service';
 import { MutationEngineService } from './mutation-engine.service';
 import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';

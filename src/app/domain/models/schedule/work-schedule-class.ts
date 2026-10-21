@@ -1,39 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
-
-export interface IScheduleQualification {
-  qualificationId: string;
-  emoji: string | null;
-  name: IMultiLanguage;
-  level: number;
-  validUntil?: string | null;
-}
-
-export interface IScheduleCell {
-  id: string;
-  entryType: number;
-  sourceId: string;
-  clientId: string;
-  entryDate: Date;
-  startTime: string;
-  endTime: string;
-  changeTime: number | null;
-  surcharges: number | null;
-  workChangeType: number | null;
-  description: { de?: string; en?: string; fr?: string; it?: string } | null;
-  information: string | null;
-  amount: number | null;
-  toInvoice: boolean | null;
-  taxable: boolean | null;
-  entryId: string;
-  entryName: string | null;
-  abbreviation: string | null;
-  replaceClientId: string | null;
-  isReplacementEntry: boolean;
-  lockLevel: number;
-  isGroupRestricted: boolean;
-}
+import { IScheduleCell } from './schedule-cell.interface';
 
 export class ScheduleCell implements IScheduleCell {
   id = '';
@@ -58,74 +25,6 @@ export class ScheduleCell implements IScheduleCell {
   isReplacementEntry = false;
   lockLevel = 0;
   isGroupRestricted = false;
-}
-
-export interface IWorkScheduleFilter {
-  startDate: string;
-  endDate: string;
-  /** Core payment-period start (without DayVisibleBefore padding). Used for period-hours calculation. */
-  periodStartDate?: string;
-  /** Core payment-period end (without DayVisibleAfter padding). Used for period-hours calculation. */
-  periodEndDate?: string;
-  selectedGroup?: string;
-  searchString?: string;
-  orderBy?: string;
-  sortOrder?: string;
-  showEmployees?: boolean;
-  showExtern?: boolean;
-  individualSort?: boolean;
-  startRow?: number;
-  rowCount?: number;
-  paymentInterval?: number;
-  analyseToken?: string;
-  /** Optional single-client scope; backend skips pagination when set so the targeted client always surfaces. */
-  clientId?: string;
-  /** Optional multi-client scope for bulk refresh; backend skips pagination and returns only the listed clients. */
-  clientIds?: string[];
-}
-
-export interface IWorkScheduleClient {
-  id: string;
-  company: string | null;
-  firstName: string | null;
-  name: string | null;
-  secondName: string | null;
-  title: string | null;
-  maidenName: string | null;
-  gender: number;
-  idNumber: number;
-  legalEntity: boolean;
-  type: number;
-  neededRows: number;
-  hasContract: boolean;
-  memberSince?: string | null;
-  memberUntil?: string | null;
-  groupItemValidFrom?: string | null;
-  groupItemValidUntil?: string | null;
-  qualifications: IScheduleQualification[];
-}
-
-export interface IWorkScheduleResponse {
-  entries: IScheduleCell[];
-  clients: IWorkScheduleClient[];
-  periodHours: Record<string, IPeriodHours>;
-  clientAvailabilities: Record<string, Record<string, string>>;
-  totalClientCount: number;
-  startDate: string;
-  endDate: string;
-}
-
-export interface IPeriodHours {
-  hours: number;
-  surcharges: number;
-  guaranteedHours: number;
-}
-
-export interface IPeriodHoursRequest {
-  clientIds: string[];
-  startDate: string;
-  endDate: string;
-  analyseToken?: string;
 }
 
 export enum WorkScheduleEntryType {

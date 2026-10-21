@@ -10,7 +10,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { CalendarDayRenderingService } from './calendar-day-rendering.service';
 import { CalendarMonthRenderingService } from './calendar-month-rendering.service';

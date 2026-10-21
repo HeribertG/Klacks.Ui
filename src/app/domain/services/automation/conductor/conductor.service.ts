@@ -14,7 +14,7 @@ import {
   DEFAULT_EVOLUTION_CONFIG,
   DEFAULT_PENALTY_WEIGHTS,
 } from '../../../models/automation/conductor/scheduling.models';
-import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.interface';
 import { IAgentDecision } from '../../../models/automation/agent/agent-decision.model';
 import { IConductorOptions } from '../../../models/automation/conductor/conductor-options.model';
 import { IAssignmentResult } from '../../../models/automation/conductor/assignment-result.model';

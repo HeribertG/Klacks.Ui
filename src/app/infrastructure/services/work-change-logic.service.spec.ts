@@ -2,8 +2,8 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WorkChangeLogicService, CorrectionMode } from './work-change-logic.service';
-import { WorkTimeContext } from 'src/app/domain/models/workchange/work-change';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 
 describe('WorkChangeLogicService', () => {
   let service: WorkChangeLogicService;

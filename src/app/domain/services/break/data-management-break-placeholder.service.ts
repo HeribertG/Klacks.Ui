@@ -3,12 +3,10 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  BreakPlaceholder,
-  BreakFilter,
-  IBreakPlaceholder,
-  IBreakFilter,
-} from 'src/app/domain/models/break/break-class';
+import { BreakFilter } from 'src/app/domain/models/break/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
+import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';

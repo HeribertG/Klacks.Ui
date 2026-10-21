@@ -4,14 +4,13 @@ import { effect, inject, Injectable, Injector, runInInjectionContext, signal, De
 import { Subject, Subscription, switchMap, EMPTY, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
-import {
-  IPeriodHours,
-  IWorkScheduleClient,
-  IScheduleCell,
-  IWorkScheduleFilter,
-  WorkScheduleByClientAndDate,
-} from 'src/app/domain/models/schedule/work-schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
+import { WorkScheduleByClientAndDate } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
+import { IWorkScheduleClient } from 'src/app/domain/models/schedule/work-schedule-client.interface';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
+import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';

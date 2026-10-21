@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable } from '@angular/core';
-import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AbsenceLookupService } from './absence-lookup.service';
 

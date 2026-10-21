@@ -32,7 +32,8 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Group, IGroup } from 'src/app/domain/models/group/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';

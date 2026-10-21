@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { finalize, shareReplay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { MyToken } from 'src/app/domain/models/authentification-class';
+import { MyToken } from 'src/app/domain/models/my-token-class';
 
 export interface LoginRequest {
   email: string;

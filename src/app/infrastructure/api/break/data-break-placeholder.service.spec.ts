@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataBreakPlaceholderService } from './data-break-placeholder.service';
-import { BreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { environment } from 'src/environments/environment';
 import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 

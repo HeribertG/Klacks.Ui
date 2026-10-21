@@ -10,8 +10,9 @@ import {
   IEvolutionProgress,
   DEFAULT_PENALTY_WEIGHTS
 } from '../../../models/automation/conductor/scheduling.models';
-import { IScheduleAgent, ScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
-import { IWorkScheduleClient } from '../../../models/schedule/work-schedule-class';
+import { ScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.interface';
+import { IWorkScheduleClient } from '../../../models/schedule/work-schedule-client.interface';
 import {
   CoreShift,
   CoreAgent,

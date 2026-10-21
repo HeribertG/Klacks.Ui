@@ -2,7 +2,7 @@
 
 import { Injectable, signal } from '@angular/core';
 import { HourGroupingMode, COLUMNS_PER_DAY } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { IRowHeaderSettings } from 'src/app/presentation/shared/grid/row-header/row-header-settings.interface';
 
 @Injectable()

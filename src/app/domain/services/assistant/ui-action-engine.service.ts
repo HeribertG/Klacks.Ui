@@ -16,7 +16,8 @@ import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strate
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
-import { Group, IGroup } from '../../models/group/group-class';
+import { Group } from '../../models/group/group-class';
+import { IGroup } from '../../models/group/group.interface';
 
 const DEFAULT_WAIT_TIMEOUT = 3000;
 const POLL_INTERVAL = 200;

@@ -12,7 +12,7 @@ import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { TranslationService } from 'src/app/domain/services/translation/translation.service';
-import { ITranslatedEmail } from 'src/app/domain/models/email/received-email.model';
+import { ITranslatedEmail } from 'src/app/domain/models/email/translated-email.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-closed.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';

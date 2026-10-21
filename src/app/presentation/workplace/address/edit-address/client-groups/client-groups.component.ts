@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group/group-class';
-import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
+import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item.interface';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

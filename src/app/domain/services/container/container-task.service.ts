@@ -7,11 +7,9 @@
  * @param WEEKDAY_NUMBER_TO_NAME - Mapping of numeric weekday values (0-6) to names
  */
 import { Injectable } from '@angular/core';
-import { IShift } from '../../models/shift/shift-class';
-import {
-  IContainerTemplateGrid,
-  IContainerTemplateSlot,
-} from '../../models/container/container-template-slot';
+import { IShift } from '../../models/shift/shift.interface';
+import { IContainerTemplateSlot } from '../../models/container/container-template-slot';
+import { IContainerTemplateGrid } from '../../models/container/container-template-grid.interface';
 
 @Injectable({
   providedIn: 'root',

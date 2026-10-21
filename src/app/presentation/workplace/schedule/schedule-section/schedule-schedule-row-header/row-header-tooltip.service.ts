@@ -16,7 +16,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { computeQualificationBubbleLayout } from '../services/qualification-bubble-layout';
 import { QualificationBubbleTooltipService } from '../../shared/qualification-bubbles/qualification-bubble-tooltip.service';
 

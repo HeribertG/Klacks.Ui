@@ -9,10 +9,8 @@
  * @param resolveItemStartTime - Effective start time of an item, ignoring a time range that does not apply
  * @param resolveItemEndTime - Effective end time of an item, ignoring a time range that does not apply
  */
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import {
-  IContainerTemplateItem,
-} from 'src/app/domain/models/container/container-template-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 
 const MINUTES_PER_HOUR = 60;

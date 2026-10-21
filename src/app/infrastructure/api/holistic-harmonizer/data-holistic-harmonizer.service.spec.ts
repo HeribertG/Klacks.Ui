@@ -6,10 +6,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import * as signalR from '@microsoft/signalr';
 import { DataHolisticHarmonizerService } from './data-holistic-harmonizer.service';
 import { LocalStorageService } from '../../storage/local-storage.service';
+import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import {
-  HolisticHarmonizerRunRequest,
   HolisticHarmonizerRunResponse,
-} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run-response.interface';
 
 class FakeConnection {
   state = 'Disconnected';

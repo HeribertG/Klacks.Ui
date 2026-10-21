@@ -3,10 +3,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
-import {
-  WorkChangeRequest,
-  WorkChangeResource,
-} from 'src/app/domain/models/workchange/work-change';
+import { WorkChangeRequest } from 'src/app/domain/models/workchange/work-change';
+import { WorkChangeResource } from 'src/app/domain/models/workchange/work-change-resource.interface';
 
 @Injectable({
   providedIn: 'root',

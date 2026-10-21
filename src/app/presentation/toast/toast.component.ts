@@ -22,7 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from './toast.service';
 import { IToast } from './toast.interface';
 import { IToastAction } from './toast-action.interface';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { LiveRegionService } from 'src/app/application/services/live-region.service';
 
 @Component({

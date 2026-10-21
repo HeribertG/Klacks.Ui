@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 
 @Injectable({ providedIn: 'root' })
 export class WorkLockLevelService {

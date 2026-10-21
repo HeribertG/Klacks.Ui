@@ -16,18 +16,15 @@ import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
 import { WizardSignalRConstants } from '../../signalr/signalr.constants';
+import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
+import { ApplyWizardResponse } from 'src/app/domain/models/wizard/apply-wizard-response.interface';
+import { CancelWizardResponse } from 'src/app/domain/models/wizard/cancel-wizard-response.interface';
+import { StartWizardResponse } from 'src/app/domain/models/wizard/start-wizard-response.interface';
 import {
-  ApplyWizardResponse,
-  CancelWizardResponse,
-  StartWizardResponse,
   WizardApplyAsScenarioResponse,
-  WizardRequest,
-} from 'src/app/domain/models/wizard/wizard-request.model';
-import {
-  WizardProgress,
-  WizardResult,
-  WizardStatus,
-} from 'src/app/domain/models/wizard/wizard-progress.model';
+} from 'src/app/domain/models/wizard/wizard-apply-as-scenario-response.interface';
+import { WizardProgress, WizardStatus } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
 import { WizardJobStatusResponse } from 'src/app/domain/models/wizard/wizard-status.model';
 
 @Injectable({ providedIn: 'root' })

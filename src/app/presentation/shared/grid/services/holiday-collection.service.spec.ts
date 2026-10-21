@@ -16,11 +16,9 @@ import {
   buildOfficialOverrideKey,
 } from './holiday-collection.service';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
-import {
-  CalendarRule,
-  ICalendarRule,
-  StateCountryToken,
-} from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarRule } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 
 function makeRule(

@@ -22,10 +22,8 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { UserAdministrationHeaderComponent } from './user-administration-header/user-administration-header.component';
 import { UserAdministrationRowComponent } from './user-administration-row/user-administration-row.component';
-import {
-  Authentication,
-  IAuthentication,
-} from 'src/app/domain/models/authentification-class';
+import { Authentication } from 'src/app/domain/models/authentication-class';
+import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { generatePassword } from 'src/app/shared/helpers/password.helper';

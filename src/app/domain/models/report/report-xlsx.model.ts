@@ -7,22 +7,9 @@
  * @param groupColumnIndex - Zero based column the rows are grouped by, omitted when ungrouped
  */
 
-import { ReportFieldType } from './report-field.model';
+import { ReportXlsxSheet } from './report-xlsx-sheet.interface';
 
 export interface ReportXlsxRequest {
   fileName: string;
   sheets: ReportXlsxSheet[];
-}
-
-export interface ReportXlsxSheet {
-  name: string;
-  columns: ReportXlsxColumn[];
-  rows: string[][];
-  groupColumnIndex?: number;
-  subtotals: boolean;
-}
-
-export interface ReportXlsxColumn {
-  header: string;
-  type: ReportFieldType;
 }

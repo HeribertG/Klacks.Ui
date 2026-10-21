@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { IMonthlyTargetHours } from 'src/app/domain/models/scheduling/monthly-target-hours.model';
+import { IMonthlyTargetHours } from 'src/app/domain/models/scheduling/monthly-target-hours.interface';
 
 @Injectable({
   providedIn: 'root'

@@ -14,8 +14,10 @@ import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-sc
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
-import { Break, BreakPlaceholder } from 'src/app/domain/models/break/break-class';
-import { IShiftSchedule, ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { Break } from 'src/app/domain/models/break/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
+import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import {

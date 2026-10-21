@@ -18,7 +18,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { IWelcomeRequest, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { IWelcomeRequest } from 'src/app/domain/models/assistant/welcome-request.interface';
 
 const GEOLOCATION_TIMEOUT_MS = 2000;
 const GEOLOCATION_MAX_AGE_MS = 15 * 60 * 1000;

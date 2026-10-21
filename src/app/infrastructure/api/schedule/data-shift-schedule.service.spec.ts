@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataShiftScheduleService } from './data-shift-schedule.service';
-import { ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter-class';
 import { environment } from 'src/environments/environment';
 import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 

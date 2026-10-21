@@ -19,8 +19,8 @@ import {
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { IClientBreak } from 'src/app/domain/models/client/i-client-break';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';

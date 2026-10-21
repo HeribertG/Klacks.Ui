@@ -13,19 +13,25 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 
-import { PageGeometry, ReportTemplate, resolvePageGeometry } from 'src/app/domain/models/report/report-template.model';
+import { ReportTemplate, resolvePageGeometry } from 'src/app/domain/models/report/report-template.model';
+import { PageGeometry } from 'src/app/domain/models/report/page-geometry.interface';
 import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import {
   ReportField,
-  ReportFieldType,
-  DataBindingDefinition,
-  FieldCategory,
   AVAILABLE_FONTS,
-  TextAlignment,
   STATIC_IMAGE_DATA_BINDING,
 } from 'src/app/domain/models/report/report-field.model';
-import { PAGE_LAYOUT_FIELD_KEYS, REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
-import { BorderLineStyle } from 'src/app/domain/models/report/cell-border-style.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
+import { DataBindingDefinition } from 'src/app/domain/models/report/data-binding-definition.interface';
+import { FieldCategory } from 'src/app/domain/models/report/field-category.enum';
+import { TextAlignment } from 'src/app/domain/models/report/text-alignment.enum';
+import {
+  PAGE_LAYOUT_FIELD_KEYS,
+  REPORT_DATA_SOURCES,
+  getFieldPrefixMap,
+} from 'src/app/domain/models/report/report-data-source.model';
+import { ReportDataSet } from 'src/app/domain/models/report/report-data-set.interface';
+import { BorderLineStyle } from 'src/app/domain/models/report/border-line-style.enum';
 import { PropertyGridComponent } from 'src/app/presentation/workplace/settings/macros/property-grid/property-grid.component';
 import { StyleConditionsComponent } from './style-conditions/style-conditions.component';
 

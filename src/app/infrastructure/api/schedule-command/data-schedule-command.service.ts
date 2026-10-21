@@ -9,7 +9,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { ScheduleCommandResource } from '../../../domain/models/schedule-command/schedule-command';
+import { ScheduleCommandResource } from '../../../domain/models/schedule-command/schedule-command-resource.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataScheduleCommandService {

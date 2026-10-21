@@ -21,7 +21,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';

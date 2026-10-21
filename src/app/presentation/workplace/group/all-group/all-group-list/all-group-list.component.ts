@@ -30,7 +30,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckBoxValue } from 'src/app/domain/models/client/client-class';
-import { IGroup } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 import { DomainMessages } from 'src/app/domain/constants/messages';

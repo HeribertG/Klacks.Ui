@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { WizardResult } from './wizard-progress.model';
+import { WizardResult } from './wizard-result.interface';
 
 /**
  * Response of the backend wizard job status endpoint. Used by the reconnect

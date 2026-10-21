@@ -1,15 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export enum HeaderDirection {
-  Up = 'arrow_upward',
-  Down = 'arrow_downward',
-  None = 'unfold_more',
-}
+import { IHeaderProperties } from './header-properties.interface';
+import { HeaderDirection } from './header-direction.enum';
 
-export interface IHeaderProperties {
-  order: HeaderDirection;
-  filter: string;
-}
 export class HeaderProperties implements IHeaderProperties {
   order = HeaderDirection.Down;
   filter = '';

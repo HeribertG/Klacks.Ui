@@ -19,13 +19,10 @@ import { catchError, finalize, map, Observable, Subject, switchMap, tap, throwEr
 import { takeUntil } from 'rxjs/operators';
 import { DataAgentPlanService, ICreatePlanRequest } from 'src/app/infrastructure/api/assistant/data-agent-plan.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import {
-  IAgentPlan,
-  IAgentPlanStep,
-  IAgentPlanUpdate,
-  PlanStatus,
-  PlanStatusValue,
-} from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlan, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlanStep } from 'src/app/domain/models/assistant/agent-plan-step.interface';
+import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan-update.interface';
+import { PlanStatusValue } from 'src/app/domain/models/assistant/plan-status-value.type';
 
 const TERMINAL_PLAN_STATUSES: readonly PlanStatusValue[] = [
   PlanStatus.Completed,

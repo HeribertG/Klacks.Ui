@@ -13,21 +13,8 @@
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
  * @param bargeInEnabled - Whether the microphone stays open during TTS playback so the user can interrupt by speaking
  */
+import { ISpeechSettings } from './speech-settings.interface';
 import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
-
-export interface ISpeechSettings {
-  sttEngine: string;
-  sttApiKeys: Record<string, string>;
-  ttsVoice: string;
-  ttsProvider: string;
-  ttsApiKeys: Record<string, string>;
-  transcriptionModel: string;
-  transcriptionPrompt: string;
-  enhancementEnabled: boolean;
-  outputMode: string;
-  silenceThresholdMs: number;
-  bargeInEnabled: boolean;
-}
 
 export function createEmptySttApiKeys(): Record<string, string> {
   return {

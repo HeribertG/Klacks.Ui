@@ -10,7 +10,7 @@ import { Component, inject, OnInit, signal,
 import { TranslateModule } from '@ngx-translate/core';
 import { PieChartComponent, PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
-import { IShiftCoverageStatistics } from 'src/app/domain/models/dashboard-class';
+import { IShiftCoverageStatistics } from 'src/app/domain/models/shift-coverage-statistics.interface';
 
 @Component({
   selector: 'app-dashboard-shift-coverage',

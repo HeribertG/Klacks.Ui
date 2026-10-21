@@ -27,7 +27,7 @@ import {
   output,
   viewChild
 } from '@angular/core';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';

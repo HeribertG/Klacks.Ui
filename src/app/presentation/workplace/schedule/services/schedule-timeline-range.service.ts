@@ -5,7 +5,7 @@
  * Persisted in localStorage; triggers a grid refresh on change.
  */
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 

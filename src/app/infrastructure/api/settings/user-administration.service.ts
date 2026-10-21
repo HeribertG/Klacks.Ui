@@ -3,12 +3,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {
-  IAuthentication,
-  ChangePassword,
-  ChangeRole,
-  ResponseAuthentication,
-} from 'src/app/domain/models/authentification-class';
+import { IAuthentication } from 'src/app/domain/models/authentication.interface';
+import { ChangePassword } from 'src/app/domain/models/change-password-class';
+import { ChangeRole } from 'src/app/domain/models/change-role-class';
+import { ResponseAuthentication } from 'src/app/domain/models/response-authentication-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { Observable } from 'rxjs';

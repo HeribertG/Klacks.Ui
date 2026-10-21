@@ -1,68 +1,17 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import {
-  BaseFilter,
-  BaseTruncated,
-  IBaseFilter,
-  IBaseTruncated,
-} from '../general-class';
 import { format } from 'date-fns';
 import { MultiLanguage } from '../translation/multi-language-class';
-import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getGregorianDateForHijriInYear } from './hijri-calendar';
 import { getGregorianDateForLunarInYear } from './lunar-calendar';
+import { ICalendarRule } from './calendar-rule.interface';
+import { HolidayDate } from './holiday-date-class';
 import { compareDate } from 'src/app/shared/helpers/date.helper';
-
-export interface ICalendarRulesFilter extends IBaseFilter {
-  list: StateCountryToken[];
-  language: string | undefined;
-}
 
 export enum HolidayStatus {
   NotAHoliday = 0,
   UnofficialHoliday = 1,
   OfficialHoliday = 2,
-}
-
-export class StateCountryToken {
-  id = '';
-  country = '';
-  countryName: MultiLanguage = new MultiLanguage();
-  state = '';
-  stateName: MultiLanguage = new MultiLanguage();
-  select = false;
-}
-
-export class CalendarRulesFilter
-  extends BaseFilter
-  implements ICalendarRulesFilter
-{
-  list: StateCountryToken[] = [];
-  language = DomainMessages.DEFAULT_LANG;
-  countries: string[] = [];
-}
-
-export interface ITruncatedCalendarRule extends IBaseTruncated {
-  calendarRules: CalendarRule[];
-}
-
-export class TruncatedCalendarRule
-  extends BaseTruncated
-  implements ITruncatedCalendarRule
-{
-  calendarRules: CalendarRule[] = [];
-}
-
-export interface ICalendarRule {
-  id: string | undefined;
-  name?: MultiLanguage | undefined;
-  description?: MultiLanguage | undefined;
-  rule: string | undefined;
-  subRule: string | undefined;
-  isMandatory: boolean;
-  isPaid: boolean;
-  state: string;
-  country: string;
 }
 
 export class CalendarRule implements ICalendarRule {
@@ -75,54 +24,6 @@ export class CalendarRule implements ICalendarRule {
   isPaid = true;
   state = '';
   country = '';
-}
-
-export class PossibleHolidayRule {
-  country = '';
-  state = '';
-  selected = false;
-  rule: ICalendarRule | undefined = undefined;
-}
-
-export class PossibleHolidayRuleWrapper {
-  public possibleHolidayList: PossibleHolidayRule[] = [];
-
-  public clear() {
-    this.possibleHolidayList = [];
-  }
-  public exist(value: ICalendarRule): boolean {
-    return (
-      this.possibleHolidayList.findIndex(
-        (x) => x.country === value.country && x.state === value.state
-      ) > -1
-    );
-  }
-  public add(value: PossibleHolidayRule) {
-    this.possibleHolidayList.push(value);
-  }
-
-  public setFilter(tokens: StateCountryToken[]) {
-    this.resetSelection();
-
-    tokens.forEach((token) => {
-      const filteredHolidays = this.possibleHolidayList.filter(
-        (holiday) =>
-          token.country === holiday.country && token.state === holiday.state
-      );
-      filteredHolidays.forEach((x) => {
-        x.selected = true;
-      });
-    });
-  }
-  private resetSelection() {
-    this.possibleHolidayList.forEach((x) => {
-      x.selected = false;
-    });
-  }
-
-  getFilterData(): PossibleHolidayRule[] {
-    return this.possibleHolidayList.filter((x) => x.selected === true);
-  }
 }
 
 export class HolidaysListHelper {
@@ -528,12 +429,4 @@ export class HolidaysListHelper {
   public isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
   }
-}
-
-export class HolidayDate {
-  public currentDate = new Date(0);
-  public currentName?: MultiLanguage | undefined = undefined;
-  public officially = false;
-  public formatDate = '';
-  public description = '';
 }

@@ -13,10 +13,10 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Observable, of, retry, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import {
-  IAnalyseScenario,
   ICreateAnalyseScenarioRequest,
-} from 'src/app/domain/models/schedule/analyse-scenario-class';
+} from 'src/app/domain/models/schedule/create-analyse-scenario-request.interface';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';

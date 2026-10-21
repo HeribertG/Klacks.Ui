@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { WeekConfigurationService } from './week-configuration.service';
 import { AppSettingsManagementService } from './app-settings-management.service';
-import { ISchedulingDefaultSettings, SchedulingDefaultSettings } from 'src/app/domain/models/settings/app-settings.model';
+import { ISchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.interface';
+import { SchedulingDefaultSettings } from 'src/app/domain/models/settings/scheduling-default-settings.model';
 
 describe('WeekConfigurationService', () => {
   let service: WeekConfigurationService;

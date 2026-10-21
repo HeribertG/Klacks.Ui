@@ -1,13 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { IMonthlyTargetHours } from './monthly-target-hours.interface';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-
-export interface IMonthlyTargetHours {
-  id?: string;
-  year: number;
-  month: number;
-  hours: number;
-}
 
 export class MonthlyTargetHours implements IMonthlyTargetHours {
   id?: string = undefined;

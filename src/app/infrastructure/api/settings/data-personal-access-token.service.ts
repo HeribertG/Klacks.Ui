@@ -10,11 +10,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import {
-  IPersonalAccessToken,
-  IPersonalAccessTokenCreate,
-  IPersonalAccessTokenCreated,
-} from 'src/app/domain/models/settings/personal-access-token';
+import { IPersonalAccessToken } from 'src/app/domain/models/settings/personal-access-token';
+import { IPersonalAccessTokenCreate } from 'src/app/domain/models/settings/personal-access-token-create.interface';
+import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
 import { retry } from 'rxjs/operators';
 
 @Injectable({

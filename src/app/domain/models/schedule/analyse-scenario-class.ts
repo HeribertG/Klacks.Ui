@@ -34,14 +34,6 @@ export function isWizard4Candidate(scenario: IAnalyseScenario): boolean {
   return scenario.createdByUser === WIZARD4_SYSTEM_ACTOR;
 }
 
-export interface ICreateAnalyseScenarioRequest {
-  name: string;
-  description?: string;
-  groupId?: string;
-  fromDate: string;
-  untilDate: string;
-}
-
 export enum AnalyseScenarioStatus {
   Active = 0,
   Accepted = 1,

@@ -10,7 +10,8 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ReportField, StyleCondition } from 'src/app/domain/models/report/report-field.model';
+import { ReportField } from 'src/app/domain/models/report/report-field.model';
+import { StyleCondition } from 'src/app/domain/models/report/style-condition.interface';
 
 const DEFAULT_CONDITION_TEXT_COLOR = '#c00000';
 

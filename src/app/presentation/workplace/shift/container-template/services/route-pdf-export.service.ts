@@ -14,11 +14,9 @@ import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
-import {
-  IContainerTemplateItem,
-  IRouteInfo,
-  IRouteLocation,
-} from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
+import { IRouteInfo } from 'src/app/domain/models/container/route-info.interface';
+import { IRouteLocation } from 'src/app/domain/models/container/route-location.interface';
 import { MapRenderingService } from './map-rendering.service';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';

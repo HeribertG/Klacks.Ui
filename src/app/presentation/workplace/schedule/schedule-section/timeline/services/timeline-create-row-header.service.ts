@@ -11,7 +11,7 @@
 import { inject, Injectable } from '@angular/core';
 import { BaseCreateRowHeaderService } from '../../services/create-row-header.service';
 import { GridRowHeader } from '../../../classes/grid-row-header';
-import { ClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { ClientWork } from 'src/app/domain/models/schedule/client-work-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';

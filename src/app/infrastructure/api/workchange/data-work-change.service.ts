@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { WorkChangeRequest, WorkChangeResource } from 'src/app/domain/models/workchange/work-change';
+import { WorkChangeRequest } from 'src/app/domain/models/workchange/work-change';
+import { WorkChangeResource } from 'src/app/domain/models/workchange/work-change-resource.interface';
 
 @Injectable({
   providedIn: 'root',

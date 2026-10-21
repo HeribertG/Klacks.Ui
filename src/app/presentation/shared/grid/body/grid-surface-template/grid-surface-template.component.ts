@@ -44,7 +44,7 @@ import { TestAccessibilityService } from '../../services/grid-test-accessibility
 import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
 import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { GridCellInputController } from './grid-cell-input.controller';
 import { GridResizeController } from './grid-resize.controller';
 import {

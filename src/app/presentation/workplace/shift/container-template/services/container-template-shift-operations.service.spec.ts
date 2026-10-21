@@ -7,8 +7,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';

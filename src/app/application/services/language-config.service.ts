@@ -8,7 +8,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
-import { LanguageMetadata } from 'src/app/domain/models/settings/language-config';
+import { LanguageMetadata } from 'src/app/domain/models/settings/language-metadata.interface';
 import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { LocaleService } from 'src/app/application/services/locale.service';

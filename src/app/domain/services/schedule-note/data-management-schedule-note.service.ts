@@ -3,7 +3,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataScheduleNoteService } from 'src/app/infrastructure/api/schedule-note/data-schedule-note.service';
-import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
+import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note-resource.interface';
 
 @Injectable({
   providedIn: 'root',

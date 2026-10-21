@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
+import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note-resource.interface';
 
 @Injectable({
   providedIn: 'root',

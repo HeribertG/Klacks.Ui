@@ -5,7 +5,8 @@ import { ShiftEditPermissionService } from './shift-edit-permission.service';
 import { AuthorizationService } from './authorization.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
-import { IShift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 
 describe('ShiftEditPermissionService', () => {
   let held: Set<string>;

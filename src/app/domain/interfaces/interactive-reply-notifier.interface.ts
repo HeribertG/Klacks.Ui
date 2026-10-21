@@ -7,7 +7,7 @@
  * @param onSelected - Called with the chosen option values once the user answers
  */
 import { InjectionToken } from '@angular/core';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 
 export interface IInteractiveReplyNotifier {
   showInteractiveReply(config: ISuggestedRepliesConfig, onSelected: (values: string[]) => void): void;

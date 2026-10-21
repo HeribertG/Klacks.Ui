@@ -35,13 +35,13 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import {
   IPersonalAccessToken,
-  IPersonalAccessTokenCreate,
-  IPersonalAccessTokenCreated,
   PERSONAL_ACCESS_TOKEN_ACCESS_MODE,
   PERSONAL_ACCESS_TOKEN_DEFAULT_ACCESS_MODE,
   PERSONAL_ACCESS_TOKEN_EXPIRY,
-  PersonalAccessTokenAccessMode,
 } from 'src/app/domain/models/settings/personal-access-token';
+import { IPersonalAccessTokenCreate } from 'src/app/domain/models/settings/personal-access-token-create.interface';
+import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
+import { PersonalAccessTokenAccessMode } from 'src/app/domain/models/settings/personal-access-token-access-mode.type';
 import {
   ModalService,
   ModalType,

@@ -8,12 +8,10 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import {
-  IContainerTemplateItem,
-} from 'src/app/domain/models/container/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateShiftOperationsService } from './container-template-shift-operations.service';
 import { ContainerTemplateAbsenceService } from './container-template-absence.service';

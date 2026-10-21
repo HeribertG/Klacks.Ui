@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { ScheduleExpensesTestData } from './schedule-expenses-test-data.model';
+import { AbsenceTestData } from './absence-test-data.model';
+import { ClientTestData } from './client-test-data.model';
+import { GroupTestData } from './group-test-data.model';
+import { ScheduleFooterTestData } from './schedule-footer-test-data.model';
+import { AbsenceFooterTestData } from './absence-footer-test-data.model';
+import { ClientFooterTestData } from './client-footer-test-data.model';
+import { GroupFooterTestData } from './group-footer-test-data.model';
 import { PropertyMetadata } from '../shift/shift-data-class';
 
 export class ScheduleWorkTestData {
@@ -16,90 +24,6 @@ export class ScheduleWorkTestData {
     surcharges: { min: 0, max: 24, decimals: 2, step: 0.25 },
     weekday: { min: 0, max: 6, decimals: 0 },
     entryType: { min: 0, max: 4, decimals: 0 },
-  };
-}
-
-export class ScheduleExpensesTestData {
-  amount = 100;
-  taxable = true;
-  description = '';
-
-  static metadata: PropertyMetadata = {
-    amount: { min: 0, max: 100000, decimals: 2, step: 1 },
-  };
-}
-
-export class AbsenceTestData {
-  fromDate = '2025-01-01';
-  untilDate = '2025-01-05';
-  absenceName = 'Ferien';
-  defaultValue = 1;
-  clientName = 'Muster';
-  clientFirstName = 'Max';
-
-  static metadata: PropertyMetadata = {
-    defaultValue: { min: 0, max: 100, decimals: 2 },
-  };
-}
-
-export class ClientTestData {
-  idNumber = 1001;
-  name = 'Muster';
-  firstName = 'Max';
-  company = 'Firma AG';
-  birthdate = '1990-01-15';
-  gender = 0;
-
-  static metadata: PropertyMetadata = {
-    idNumber: { min: 0, max: 999999, decimals: 0 },
-    gender: { min: 0, max: 1, decimals: 0 },
-  };
-}
-
-export class GroupTestData {
-  name = 'Gruppe A';
-  parentName = '';
-}
-
-export class ScheduleFooterTestData {
-  totalRows = 20;
-  totalHours = 160;
-  totalSurcharges = 10;
-  totalWorkDays = 20;
-  totalExpenses = 500;
-
-  static metadata: PropertyMetadata = {
-    totalRows: { min: 0, max: 10000, decimals: 0 },
-    totalHours: { min: 0, max: 10000, decimals: 2 },
-    totalSurcharges: { min: 0, max: 10000, decimals: 2 },
-    totalWorkDays: { min: 0, max: 365, decimals: 0 },
-    totalExpenses: { min: 0, max: 1000000, decimals: 2 },
-  };
-}
-
-export class AbsenceFooterTestData {
-  totalRows = 10;
-  totalValue = 7.5;
-
-  static metadata: PropertyMetadata = {
-    totalRows: { min: 0, max: 10000, decimals: 0 },
-    totalValue: { min: 0, max: 10000, decimals: 2 },
-  };
-}
-
-export class ClientFooterTestData {
-  totalRows = 50;
-
-  static metadata: PropertyMetadata = {
-    totalRows: { min: 0, max: 10000, decimals: 0 },
-  };
-}
-
-export class GroupFooterTestData {
-  totalRows = 5;
-
-  static metadata: PropertyMetadata = {
-    totalRows: { min: 0, max: 10000, decimals: 0 },
   };
 }
 

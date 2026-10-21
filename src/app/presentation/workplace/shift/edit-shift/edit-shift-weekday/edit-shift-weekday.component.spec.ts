@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { HolidayOptionExplainOfferService } from 'src/app/presentation/services/holiday-option-explain-offer.service';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { ShiftFormService } from '../services/shift-form.service';

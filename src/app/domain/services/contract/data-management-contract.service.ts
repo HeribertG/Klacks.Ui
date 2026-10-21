@@ -3,16 +3,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
-import { Contract, IContract } from 'src/app/domain/models/contract/contract-class';
-import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { Contract } from 'src/app/domain/models/contract/contract-class';
+import { IContract } from 'src/app/domain/models/contract/contract.interface';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { DataManagementSchedulingRuleService } from '../scheduling/data-management-scheduling-rule.service';
 import { DataManagementIndividualPeriodService } from '../scheduling/data-management-individual-period.service';
-import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
-import { IIndividualPeriod } from '../../models/scheduling/individual-period.model';
+import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.interface';
+import { IIndividualPeriod } from '../../models/scheduling/individual-period.interface';
 import { lastValueFrom } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
@@ -24,7 +25,7 @@ import {
   transformOwnTimeToNumber,
 } from '../../helpers/own-time.helper';
 import { TranslateService } from '@ngx-translate/core';
-import { OwnTime } from '../../models/schedule/schedule-class';
+import { OwnTime } from '../../models/schedule/own-time-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';

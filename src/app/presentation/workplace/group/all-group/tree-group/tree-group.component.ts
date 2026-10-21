@@ -19,7 +19,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Group, IGroup } from 'src/app/domain/models/group/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { IconAddComponent } from 'src/app/presentation/icons/icon-add.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';

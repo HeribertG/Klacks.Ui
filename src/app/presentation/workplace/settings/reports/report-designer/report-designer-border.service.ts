@@ -9,7 +9,8 @@
 import { Injectable } from '@angular/core';
 
 import { ReportField } from 'src/app/domain/models/report/report-field.model';
-import { BorderLineStyle, CellBorderStyle, DEFAULT_BORDER_SIDE } from 'src/app/domain/models/report/cell-border-style.model';
+import { CellBorderStyle, DEFAULT_BORDER_SIDE } from 'src/app/domain/models/report/cell-border-style.model';
+import { BorderLineStyle } from 'src/app/domain/models/report/border-line-style.enum';
 
 type BorderSide = 'top' | 'right' | 'bottom' | 'left';
 const ALL_SIDES: BorderSide[] = ['top', 'right', 'bottom', 'left'];

@@ -29,13 +29,11 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { CalendarSelectionHeaderComponent } from './calendar-selection-header/calendar-selection-header.component';
 import { CalendarSelectionRowComponent } from './calendar-selection-row/calendar-selection-row.component';
-import {
-  CalendarSelection,
-  ICalendarSelection,
-  ISelectedCalendar,
-  SelectedCalendar,
-} from 'src/app/domain/models/calendar/calendar-selection-class';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
+import { ISelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar.interface';
+import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import {

@@ -12,7 +12,7 @@
  * @param countries - ISO 3166-1 alpha-2 country codes this qualification applies to (e.g. ["CH", "DE"])
  * @param category - Industry category of the qualification (None, Spitex, Security, Logistics)
  */
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 

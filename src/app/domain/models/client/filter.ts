@@ -7,8 +7,8 @@
  * @param filteredStateToken - Subset of state tokens filtered by selected countries
  */
 
-import { BaseFilter } from '../general-class';
-import { StateCountryToken } from '../calendar/calendar-rule-class';
+import { BaseFilter } from '../base-filter-class';
+import { StateCountryToken } from '../calendar/state-country-token-class';
 import { IFilter } from './i-filter';
 import { ICountry } from './i-country';
 

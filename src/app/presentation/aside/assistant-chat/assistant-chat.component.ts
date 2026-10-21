@@ -56,7 +56,8 @@ import { DataManagementAgentPlanService } from 'src/app/domain/services/assistan
 import { AssistantPanelsComponent } from './assistant-panels/assistant-panels.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
-import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';

@@ -4,10 +4,8 @@ import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataReceivedEmailService } from 'src/app/infrastructure/api/email/data-received-email.service';
 import { DataEmailFolderService } from 'src/app/infrastructure/api/email/data-email-folder.service';
-import {
-  IReceivedEmail,
-  IReceivedEmailListItem,
-} from 'src/app/domain/models/email/received-email.model';
+import { IReceivedEmail } from 'src/app/domain/models/email/received-email.model';
+import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email-list-item.interface';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import {
   INBOX_REQUIRED_PERMISSION,

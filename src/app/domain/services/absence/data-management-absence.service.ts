@@ -2,12 +2,10 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import {
-  Absence,
-  AbsenceFilter,
-  IAbsence,
-  TruncatedAbsence,
-} from 'src/app/domain/models/absence/absence-class';
+import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { AbsenceFilter } from 'src/app/domain/models/absence/absence-filter-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { TruncatedAbsence } from 'src/app/domain/models/absence/truncated-absence-class';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';

@@ -18,8 +18,9 @@ import { AnalyseScenarioService } from './analyse-scenario.service';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
 import { Break } from 'src/app/domain/models/break/break-class';
-import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
-import { IScheduleCell, IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
+import { IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-response.interface';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { environment } from 'src/environments/environment';
 import {

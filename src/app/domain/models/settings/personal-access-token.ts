@@ -8,6 +8,8 @@
  * @param IPersonalAccessTokenCreated - Create response carrying the plaintext token exactly once
  */
 
+import { PersonalAccessTokenAccessMode } from './personal-access-token-access-mode.type';
+
 export const PERSONAL_ACCESS_TOKEN_EXPIRY = {
   MIN_DAYS: 1,
   MAX_DAYS: 730,
@@ -19,9 +21,6 @@ export const PERSONAL_ACCESS_TOKEN_ACCESS_MODE = {
   WRITE: 'Write',
 } as const;
 
-export type PersonalAccessTokenAccessMode =
-  (typeof PERSONAL_ACCESS_TOKEN_ACCESS_MODE)[keyof typeof PERSONAL_ACCESS_TOKEN_ACCESS_MODE];
-
 export const PERSONAL_ACCESS_TOKEN_DEFAULT_ACCESS_MODE: PersonalAccessTokenAccessMode =
   PERSONAL_ACCESS_TOKEN_ACCESS_MODE.READ;
 
@@ -32,20 +31,5 @@ export interface IPersonalAccessToken {
   createdAt?: string;
   expiresAt?: string;
   lastUsedAt?: string;
-  accessMode: PersonalAccessTokenAccessMode;
-}
-
-export interface IPersonalAccessTokenCreate {
-  name: string;
-  expiresInDays?: number;
-  accessMode: PersonalAccessTokenAccessMode;
-}
-
-export interface IPersonalAccessTokenCreated {
-  id: string;
-  name: string;
-  tokenPrefix: string;
-  expiresAt: string;
-  token: string;
   accessMode: PersonalAccessTokenAccessMode;
 }

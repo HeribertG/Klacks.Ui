@@ -7,7 +7,7 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
-import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakLayerService } from '../break-layer.service';
 import { CalendarCalculationService } from './calendar-calculation.service';

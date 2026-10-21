@@ -8,7 +8,7 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { ClientSortPreferenceApiService } from 'src/app/infrastructure/api/schedule/client-sort-preference-api.service';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ClientSortPreferenceService {

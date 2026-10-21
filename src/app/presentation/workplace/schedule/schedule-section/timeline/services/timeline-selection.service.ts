@@ -8,7 +8,7 @@
  * @param selectedBlock - Signal with the active selection or null when nothing is selected
  */
 import { Injectable, Injector, effect, inject, runInInjectionContext, signal } from '@angular/core';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScheduleViewModeService } from '../../../services/schedule-view-mode.service';
 
 export interface SelectedTimelineBlock {

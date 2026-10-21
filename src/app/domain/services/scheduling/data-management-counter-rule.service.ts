@@ -10,10 +10,8 @@
  */
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import {
-  ICounterRule,
-  CounterRule,
-} from 'src/app/domain/models/scheduling/counter-rule.model';
+import { CounterRule } from 'src/app/domain/models/scheduling/counter-rule.model';
+import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.interface';
 import { CounterEventType } from 'src/app/domain/enums/counter-rule.enums';
 import { CounterRuleApiService } from 'src/app/infrastructure/api/scheduling/counter-rule-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';

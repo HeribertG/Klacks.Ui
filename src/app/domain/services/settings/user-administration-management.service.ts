@@ -7,11 +7,9 @@ import { takeUntil, retry, catchError, tap, finalize } from 'rxjs/operators';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import {
-  IAuthentication,
-  ChangePassword,
-  ChangeRole,
-} from 'src/app/domain/models/authentification-class';
+import { IAuthentication } from 'src/app/domain/models/authentication.interface';
+import { ChangePassword } from 'src/app/domain/models/change-password-class';
+import { ChangeRole } from 'src/app/domain/models/change-role-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { readAccountRegistrationRejectionReasons } from 'src/app/domain/helpers/account-registration-rejection.helper';

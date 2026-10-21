@@ -7,18 +7,14 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
-import {
-  IOnboardingState,
-  ISaveOnboardingStateRequest,
-  IWelcomeRequest,
-  IWelcomeResponse,
-} from 'src/app/domain/models/assistant/welcome.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
+import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { IOnboardingState } from 'src/app/domain/models/assistant/onboarding-state.interface';
+import { ISaveOnboardingStateRequest } from 'src/app/domain/models/assistant/save-onboarding-state-request.interface';
+import { IWelcomeRequest } from 'src/app/domain/models/assistant/welcome-request.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
-import {
-  ITurnOption,
-  ITurnOptionsRequest,
-} from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';
+import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 
 export interface ISpeechModelCheckDto {
   modelId: string;

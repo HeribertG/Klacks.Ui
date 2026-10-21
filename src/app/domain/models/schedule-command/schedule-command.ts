@@ -11,11 +11,3 @@ export interface ScheduleCommandRequest {
   commandKeyword: string;
   analyseToken?: string;
 }
-
-export interface ScheduleCommandResource {
-  id: string;
-  clientId: string;
-  currentDate: string;
-  commandKeyword: string;
-  analyseToken?: string;
-}

@@ -40,7 +40,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, AddressValidationFailedEvent, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { TranslateService } from '@ngx-translate/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';

@@ -12,9 +12,10 @@ import { AgentFactoryService } from 'src/app/domain/services/automation/agent/ag
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { IConductorContext } from 'src/app/domain/models/automation/conductor/conductor-context.model';
 import { IShift } from 'src/app/domain/models/automation/conductor/shift.model';
-import { IWorkScheduleClient, IPeriodHours } from 'src/app/domain/models/schedule/work-schedule-class';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IWorkScheduleClient } from 'src/app/domain/models/schedule/work-schedule-client.interface';
+import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 

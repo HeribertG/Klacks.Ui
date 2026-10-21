@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { TimeRangeService } from './time-range.service';
 import { TimeRulerDragDropService } from './time-ruler-drag-drop.service';

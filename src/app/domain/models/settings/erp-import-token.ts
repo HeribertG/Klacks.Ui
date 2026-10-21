@@ -21,18 +21,3 @@ export interface IErpImportToken {
   expiresAt?: string;
   lastUsedAt?: string;
 }
-
-export interface IErpImportTokenCreate {
-  dropPointId: string;
-  name: string;
-  expiresInDays?: number;
-}
-
-export interface IErpImportTokenCreated {
-  id: string;
-  dropPointId: string;
-  name: string;
-  tokenPrefix: string;
-  expiresAt: string;
-  token: string;
-}

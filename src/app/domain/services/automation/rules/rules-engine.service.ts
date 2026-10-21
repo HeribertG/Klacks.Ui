@@ -5,7 +5,7 @@ import { MacroManagementService } from '../../../services/settings/macro-managem
 import { MacroRuleTemplatesService } from './macro-rule-templates.service';
 import { MacroRulesEvaluatorService } from './macro-rules-evaluator.service';
 import { IScheduleContext, IRuleViolation } from '../../../models/automation/rules/rule.model';
-import { IMacro } from '../../../models/settings/macro-class';
+import { IMacro } from '../../../models/settings/macro.interface';
 
 export const SCHEDULING_RULE_MACRO_TYPE = 100;
 

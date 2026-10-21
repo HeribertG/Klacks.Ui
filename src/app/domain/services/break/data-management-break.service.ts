@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import { Break, IBreak } from 'src/app/domain/models/break/break-class';
+import { Break } from 'src/app/domain/models/break/break-class';
+import { IBreak } from 'src/app/domain/models/break/break.interface';
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
 import { BulkAddBreaksRequest } from 'src/app/domain/models/dtos/bulk-add-breaks-request.dto';
 import { BulkDeleteBreaksRequest } from 'src/app/domain/models/dtos/bulk-delete-breaks-request.dto';

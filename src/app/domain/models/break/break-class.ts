@@ -1,35 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Absence } from '../absence/absence-class';
 import { Client } from '../client/client-class';
-import { EntrySource } from '../../enums/entry-source.enum';
-import { IBaseFilter } from '../general-class';
 import { MultiLanguage } from '../translation/multi-language-class';
-import { IPeriodHours, IScheduleCell } from '../schedule/work-schedule-class';
+import { IPeriodHours } from '../schedule/period-hours.interface';
+import { IScheduleCell } from '../schedule/schedule-cell.interface';
+import { IBreak } from './break.interface';
+import { AbsenceTokenFilter } from './absence-token-filter-class';
+import { IBreakFilter } from './break-filter.interface';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-
-export interface IBreak {
-  id: string | undefined;
-  clientId: string;
-  client: Client | undefined;
-  absenceId: string;
-  currentDate: Date;
-  information: string | undefined;
-  description?: MultiLanguage;
-  lockLevel: number;
-  sealedAt?: string;
-  sealedBy?: string;
-  workTime: number;
-  surcharges: number;
-  startTime: string;
-  endTime: string;
-  periodHours: IPeriodHours | undefined;
-  periodStart: string | undefined;
-  periodEnd: string | undefined;
-  paymentInterval?: number;
-  scheduleEntries: IScheduleCell[] | undefined;
-  analyseToken?: string;
-}
 
 export class Break implements IBreak {
   id: string | undefined = undefined;
@@ -54,54 +32,10 @@ export class Break implements IBreak {
   analyseToken?: string;
 }
 
-export interface IBreakPlaceholder {
-  id: string | undefined;
-  clientId: string;
-  client: Client | undefined;
-  from: Date | undefined;
-  until: Date | undefined;
-  absenceId: string;
-  absence: Absence | undefined;
-  information: string | undefined;
-  entrySource: EntrySource;
-}
-
-export class BreakPlaceholder implements IBreakPlaceholder {
-  id = undefined;
-  clientId = '';
-  client: Client | undefined = undefined;
-  from: Date | undefined = undefined;
-  until: Date | undefined = undefined;
-  absenceId = '';
-  absence: Absence | undefined = undefined;
-  information: string | undefined = undefined;
-  entrySource: EntrySource = EntrySource.Placeholder;
-}
 
 
-export interface IAbsenceTokenFilter {
-  id: string;
-  name: string;
-  checked: boolean;
-}
 
-export class AbsenceTokenFilter implements IAbsenceTokenFilter {
-  id = '';
-  name = '';
-  checked = true;
-}
-export interface IBreakFilter extends IBaseFilter {
-  currentYear: number;
-  absences: AbsenceTokenFilter[];
-  selectedGroup: string | undefined;
-  startRow?: number;
-  rowCount?: number;
-  showEmployees: boolean;
-  showExtern: boolean;
-  individualSort: boolean;
-  startDate?: string;
-  endDate?: string;
-}
+
 
 export class BreakFilter implements IBreakFilter {
   currentYear = companyToday().getFullYear();

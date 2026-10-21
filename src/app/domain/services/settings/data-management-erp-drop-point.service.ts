@@ -46,11 +46,9 @@ import {
   timer,
 } from 'rxjs';
 import { DataErpDropPointService } from 'src/app/infrastructure/api/settings/data-erp-drop-point.service';
-import {
-  IErpDropPoint,
-  IErpDropPointFiles,
-  IErpDropPointRequest,
-} from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
+import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { IErpImportPollingRequest } from 'src/app/domain/models/settings/erp-import-polling-request';
 import { IErpImportText } from 'src/app/domain/models/settings/erp-import-text';

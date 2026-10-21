@@ -33,7 +33,7 @@ import {
 import { IWorkConflictItem, IWorkConflictProblem } from 'src/app/domain/interfaces/work-conflict-problem.interface';
 import { IWorkRefusalDiagnosisSubject } from 'src/app/domain/interfaces/work-refusal-diagnosis-subject.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 
 const NO_EMPLOYEE_NUMBER = 0;

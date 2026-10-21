@@ -13,7 +13,7 @@ import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
 import { GanttCoordinateService } from '../gantt-coordinate.service';
 import { signal } from '@angular/core';
-import { BreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 
 describe('RowSelectionService', () => {
     let service: RowSelectionService;

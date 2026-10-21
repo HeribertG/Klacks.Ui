@@ -26,9 +26,9 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import {
   ContainerTransportModeEnum,
   TransportModeEnum,

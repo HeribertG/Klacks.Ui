@@ -5,11 +5,9 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import {
-  IReceivedEmail,
-  IReceivedEmailListResponse,
-  ITranslatedEmail,
-} from 'src/app/domain/models/email/received-email.model';
+import { IReceivedEmail } from 'src/app/domain/models/email/received-email.model';
+import { IReceivedEmailListResponse } from 'src/app/domain/models/email/received-email-list-response.interface';
+import { ITranslatedEmail } from 'src/app/domain/models/email/translated-email.interface';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 import { Observable } from 'rxjs';
 

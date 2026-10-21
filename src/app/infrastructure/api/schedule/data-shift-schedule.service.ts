@@ -4,11 +4,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { defer, retry, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import {
-  IShiftSchedulePartialFilter,
-  IShiftScheduleFilter,
-  IShiftScheduleResponse,
-} from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedulePartialFilter } from 'src/app/domain/models/schedule/shift-schedule-partial-filter.interface';
+import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
+import { IShiftScheduleResponse } from 'src/app/domain/models/schedule/shift-schedule-response.interface';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { retryTransientHttpErrors } from 'src/app/shared/helpers/http-retry.helper';
 

@@ -3,7 +3,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from '../../models/report/report-template.model';
 import { DEFAULT_SECTIONS, ReportSectionType } from '../../models/report/report-section.model';
-import { DEFAULT_FIELD_STYLE, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
+import { DEFAULT_FIELD_STYLE } from '../../models/report/report-field.model';
+import { ReportFieldType } from '../../models/report/report-field-type.enum';
+import { TextAlignment } from '../../models/report/text-alignment.enum';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
 @Injectable()

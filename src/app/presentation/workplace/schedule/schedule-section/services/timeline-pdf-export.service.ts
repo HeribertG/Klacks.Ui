@@ -26,7 +26,8 @@ import { WorkBlockRendererService } from '../timeline/renderers/work-block-rende
 import { WorkChangeBlockRendererService } from '../timeline/renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../timeline/renderers/break-block-renderer.service';
 import { ScheduleDataService } from './schedule-data.service';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { ScheduleTimelineRangeService } from '../../services/schedule-timeline-range.service';

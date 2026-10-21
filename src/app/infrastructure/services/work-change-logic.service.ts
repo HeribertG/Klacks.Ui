@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { WorkChangeValidation, WorkTimeContext } from 'src/app/domain/models/workchange/work-change';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { WorkChangeValidation } from 'src/app/domain/models/workchange/work-change-validation.interface';
+import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 export enum CorrectionMode {

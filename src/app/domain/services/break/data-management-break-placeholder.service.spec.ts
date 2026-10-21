@@ -11,7 +11,7 @@ import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { DataBreakPlaceholderService } from '../../../infrastructure/api/break/data-break-placeholder.service';
 import { IClientBreak, IMembership } from '../../models/client/client-class';
-import { IBreakPlaceholder } from '../../models/break/break-class';
+import { IBreakPlaceholder } from '../../models/break/break-placeholder.interface';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('DataManagementBreakPlaceholderService', () => {

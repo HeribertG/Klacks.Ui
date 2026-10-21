@@ -2,13 +2,11 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import {
-  CalendarRule,
-  CalendarRulesFilter,
-  StateCountryToken,
-  ICalendarRule,
-  TruncatedCalendarRule,
-} from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarRule } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarRulesFilter } from 'src/app/domain/models/calendar/calendar-rules-filter-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
+import { TruncatedCalendarRule } from 'src/app/domain/models/calendar/truncated-calendar-rule-class';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';

@@ -15,10 +15,8 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import {
-  IPeriodCapRule,
-  PeriodCapRule,
-} from 'src/app/domain/models/scheduling/period-cap-rule.model';
+import { PeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.model';
+import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.interface';
 import {
   PeriodCapPeriod,
   PeriodCapScope,

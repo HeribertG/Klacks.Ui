@@ -18,7 +18,8 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { Break } from 'src/app/domain/models/break/break-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';

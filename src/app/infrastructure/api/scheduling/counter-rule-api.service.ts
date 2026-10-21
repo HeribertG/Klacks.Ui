@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.model';
+import { ICounterRule } from 'src/app/domain/models/scheduling/counter-rule.interface';
 
 @Injectable({
   providedIn: 'root',

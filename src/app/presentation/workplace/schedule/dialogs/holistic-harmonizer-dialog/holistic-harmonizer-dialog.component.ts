@@ -30,10 +30,10 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import {
   HolisticHarmonizerBatchDto,
-  HolisticHarmonizerRunRequest,
-} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-batch-dto.interface';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';

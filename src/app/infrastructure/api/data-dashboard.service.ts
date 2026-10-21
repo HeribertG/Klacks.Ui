@@ -9,8 +9,11 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { IGroupTree } from 'src/app/domain/models/group/group-class';
-import { IClientLocationResource, IShiftCoverageStatistics, IResourceMonitorData, IDashboardVisibilityStatus } from 'src/app/domain/models/dashboard-class';
+import { IGroupTree } from 'src/app/domain/models/group/group-tree.interface';
+import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
+import { IShiftCoverageStatistics } from 'src/app/domain/models/shift-coverage-statistics.interface';
+import { IResourceMonitorData } from 'src/app/domain/models/resource-monitor-data.interface';
+import { IDashboardVisibilityStatus } from 'src/app/domain/models/dashboard-visibility-status.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 @Injectable({

@@ -8,10 +8,8 @@
  * @param settings - Grid settings (cell height for pixels-per-minute math)
  */
 import { Injectable, inject } from '@angular/core';
-import {
-  IScheduleCell,
-  WorkScheduleEntryType,
-} from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';

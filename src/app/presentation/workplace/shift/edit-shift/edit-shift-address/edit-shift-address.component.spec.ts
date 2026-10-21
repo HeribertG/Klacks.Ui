@@ -3,7 +3,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { IShift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { EditShiftAddressComponent } from './edit-shift-address.component';

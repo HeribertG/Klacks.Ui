@@ -1,11 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export interface IAssignedGroup {
-  id?: string;
-  clientId: string;
-  groupId: string;
-  groupName: string;
-}
+import { IAssignedGroup } from './assigned-group.interface';
 
 export class AssignedGroup implements IAssignedGroup {
   iid?: string = undefined;

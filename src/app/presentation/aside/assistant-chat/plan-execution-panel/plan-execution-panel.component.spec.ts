@@ -5,12 +5,9 @@ import { runInInjectionContext, Injector, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { PlanExecutionPanelComponent } from './plan-execution-panel.component';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
-import {
-  IAgentPlan,
-  IAgentPlanStep,
-  PlanStatus,
-  PlanStatusValue,
-} from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlan, PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IAgentPlanStep } from 'src/app/domain/models/assistant/agent-plan-step.interface';
+import { PlanStatusValue } from 'src/app/domain/models/assistant/plan-status-value.type';
 
 describe('PlanExecutionPanelComponent', () => {
   function makePlan(status: PlanStatusValue = PlanStatus.Executing, currentStepIndex = 1): IAgentPlan {

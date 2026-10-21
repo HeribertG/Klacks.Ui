@@ -2,7 +2,8 @@
 
 import { inject, Injectable } from '@angular/core';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
-import { ISetting, Setting } from 'src/app/domain/models/settings/settings-various-class';
+import { Setting } from 'src/app/domain/models/settings/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { Subject } from 'rxjs';

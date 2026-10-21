@@ -8,7 +8,7 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 
 describe('MacrosComponent delete logic', () => {
   let mockMacroManagementService: any;

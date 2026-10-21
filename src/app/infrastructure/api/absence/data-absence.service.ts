@@ -4,12 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import {
-  Absence,
-  AbsenceFilter,
-  IAbsence,
-  TruncatedAbsence,
-} from 'src/app/domain/models/absence/absence-class';
+import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { AbsenceFilter } from 'src/app/domain/models/absence/absence-filter-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { TruncatedAbsence } from 'src/app/domain/models/absence/truncated-absence-class';
 
 @Injectable({
   providedIn: 'root',

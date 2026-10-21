@@ -17,7 +17,6 @@ import { jsPDF } from 'jspdf';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
-  ReportScript,
   containsRightToLeftText,
   detectScripts,
   getFontDefinition,
@@ -25,6 +24,7 @@ import {
   resolveBidiTextOptions,
   resolveLanguageScript,
 } from 'src/app/domain/models/report/report-font.model';
+import { ReportScript } from 'src/app/domain/models/report/report-script.enum';
 import {
   THAI_MARK_SUBSTITUTE_ORIGINALS,
   containsThai,

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { GroupFilter } from './group-class';
-import { ShiftFilter } from '../shift/shift-data-class';
+import { GroupFilter } from './group-filter-class';
+import { ShiftFilter } from '../shift/shift-filter-class';
 
 describe('GroupFilter.isDefault', () => {
   it('is true for a fresh filter', () => {

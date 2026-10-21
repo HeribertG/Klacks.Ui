@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IShift } from './shift-class';
+import { IShift } from './shift.interface';
 
 export interface CutOperation {
   type: 'CREATE' | 'UPDATE';

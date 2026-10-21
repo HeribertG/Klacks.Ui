@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting, } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from './auth.service';
-import { MyToken } from 'src/app/domain/models/authentification-class';
+import { MyToken } from 'src/app/domain/models/my-token-class';
 import { ToastShowService } from '../toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';

@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.model';
+import { IPeriodCapRule } from 'src/app/domain/models/scheduling/period-cap-rule.interface';
 
 @Injectable({
   providedIn: 'root',

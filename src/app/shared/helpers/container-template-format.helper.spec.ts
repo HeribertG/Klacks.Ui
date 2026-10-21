@@ -7,8 +7,8 @@
  * @param resolveItemEndTime - Must honour the time range only for time-range shifts
  */
 import { describe, it, expect } from 'vitest';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import {
   convertShiftToContainerTemplateItem,
   resolveItemEndTime,

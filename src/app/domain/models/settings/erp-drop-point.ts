@@ -8,8 +8,6 @@
  *   with or without warnings, newest 200; failed: failed or interrupted), each list newest received first
  */
 
-import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
-
 export interface IErpDropPoint {
   id: string;
   name: string;
@@ -18,17 +16,4 @@ export interface IErpDropPoint {
   isEnabled: boolean;
   lastPolledAt?: string;
   lastError?: string;
-}
-
-export interface IErpDropPointRequest {
-  name: string;
-  sourceSystemId: string;
-  bucketPrefix: string;
-  isEnabled: boolean;
-}
-
-export interface IErpDropPointFiles {
-  inbox: IErpImportFile[];
-  processed: IErpImportFile[];
-  failed: IErpImportFile[];
 }

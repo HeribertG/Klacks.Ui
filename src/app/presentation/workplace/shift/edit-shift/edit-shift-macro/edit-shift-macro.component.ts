@@ -5,8 +5,8 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, e
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';

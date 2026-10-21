@@ -5,7 +5,7 @@ import { InboxListComponent } from './inbox-list.component';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
-import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email.model';
+import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email-list-item.interface';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 
 const PERMANENTLY_DELETE_KEY = 'permanentlyDelete';

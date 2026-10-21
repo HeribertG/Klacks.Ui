@@ -23,7 +23,8 @@ import {
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
-import { Absence, IAbsence } from 'src/app/domain/models/absence/absence-class';
+import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';

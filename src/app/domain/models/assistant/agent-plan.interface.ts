@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { PlanStatusValue } from './plan-status-value.type';
+
 export const PlanStatus = {
   Drafting: 'drafting',
   Executing: 'executing',
@@ -8,8 +10,6 @@ export const PlanStatus = {
   Aborted: 'aborted',
   Failed: 'failed',
 } as const;
-
-export type PlanStatusValue = (typeof PlanStatus)[keyof typeof PlanStatus];
 
 export interface IAgentPlan {
   id: string;
@@ -22,21 +22,4 @@ export interface IAgentPlan {
   currentStepIndex: number;
   lastErrorMessage?: string | null;
   createTime?: string;
-}
-
-export interface IAgentPlanStep {
-  order: number;
-  skill: string;
-  params: Record<string, unknown>;
-  verifySkill?: string | null;
-  reversible: boolean;
-}
-
-export interface IAgentPlanUpdate {
-  planId: string;
-  status: PlanStatusValue;
-  currentStepIndex: number;
-  totalSteps: number;
-  lastErrorMessage?: string | null;
-  timestamp: string;
 }

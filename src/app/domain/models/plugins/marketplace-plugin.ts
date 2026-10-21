@@ -17,10 +17,3 @@ export interface MarketplacePlugin {
   requiredPermissions: string[];
   providedSkills: string[];
 }
-
-export interface MarketplacePluginSearchResult {
-  items: MarketplacePlugin[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-}

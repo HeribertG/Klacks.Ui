@@ -6,7 +6,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { ICellFormatter } from './cell-formatter.interface';
 import { CellTypeEnum, TextAlignmentEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';

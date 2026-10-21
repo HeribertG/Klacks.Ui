@@ -3,7 +3,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WorkLockLevelService } from './work-lock-level.service';
 import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 
 function createEntry(overrides: Partial<IScheduleCell> = {}): IScheduleCell {
   return {

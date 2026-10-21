@@ -18,7 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
-import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email.model';
+import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email-list-item.interface';
 import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';

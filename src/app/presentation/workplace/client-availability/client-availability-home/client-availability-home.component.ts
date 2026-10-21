@@ -7,7 +7,7 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
 import { ClientAvailabilityContainerComponent } from '../client-availability-container/client-availability-container.component';
@@ -51,7 +51,7 @@ import { AvailabilitySelectionService } from '../services/availability-selection
 import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';

@@ -13,7 +13,7 @@ import {
   IAddress,
   IClientContract,
 } from 'src/app/domain/models/client/client-class';
-import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
+import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item.interface';
 
 import { unformatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';

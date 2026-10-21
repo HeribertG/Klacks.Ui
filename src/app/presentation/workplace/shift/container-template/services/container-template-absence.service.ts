@@ -10,11 +10,9 @@
 import { Injectable, inject, TemplateRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import {
-  IContainerTemplateItem,
-} from 'src/app/domain/models/container/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateShiftOperationsService } from './container-template-shift-operations.service';
 import {

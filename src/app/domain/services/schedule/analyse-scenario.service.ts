@@ -16,9 +16,11 @@ import { Observable, filter, lastValueFrom, map, tap } from 'rxjs';
 import {
   AnalyseScenarioStatus,
   IAnalyseScenario,
-  ICreateAnalyseScenarioRequest,
   isWizard4Candidate,
 } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import {
+  ICreateAnalyseScenarioRequest,
+} from 'src/app/domain/models/schedule/create-analyse-scenario-request.interface';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';

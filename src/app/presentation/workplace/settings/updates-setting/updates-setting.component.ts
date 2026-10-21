@@ -31,7 +31,7 @@ import {
   IUpdateHistoryItem,
   IUpdateStatus,
 } from 'src/app/infrastructure/api/settings/data-update.service';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';

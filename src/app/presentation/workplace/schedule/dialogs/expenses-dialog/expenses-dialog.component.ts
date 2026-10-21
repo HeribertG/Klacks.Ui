@@ -6,7 +6,8 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementExpensesService } from 'src/app/domain/services/expenses/data-management-expenses.service';
-import { ExpensesRequest, ExpensesResource } from 'src/app/domain/models/expenses/expenses';
+import { ExpensesRequest } from 'src/app/domain/models/expenses/expenses';
+import { ExpensesResource } from 'src/app/domain/models/expenses/expenses-resource.interface';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 
 interface ExpensesFormModel {

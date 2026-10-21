@@ -5,11 +5,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { DataErpDropPointService } from './data-erp-drop-point.service';
-import {
-  IErpDropPoint,
-  IErpDropPointFiles,
-  IErpDropPointRequest,
-} from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
+import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
+import { IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point-request.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
 import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';

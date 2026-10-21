@@ -4,8 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { IShiftSchedule, ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
-import { IWorkFilter, WorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
+import { WorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

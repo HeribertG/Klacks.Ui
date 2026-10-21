@@ -36,7 +36,8 @@ import {
   SplitGap,
 } from './services/container-split-logic.service';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
-import { OwnTime, Work } from 'src/app/domain/models/schedule/schedule-class';
+import { Work } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';

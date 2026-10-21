@@ -5,7 +5,7 @@
 import { inject, Injectable, Injector, ProviderToken } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { MyToken } from 'src/app/domain/models/authentification-class';
+import { MyToken } from 'src/app/domain/models/my-token-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';

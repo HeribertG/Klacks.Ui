@@ -3,12 +3,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import {
-  CalendarSelection,
-  ICalendarSelection,
-  ISelectedCalendar,
-  SelectedCalendar,
-} from 'src/app/domain/models/calendar/calendar-selection-class';
+import { CalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
+import { ISelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar.interface';
+import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
 import { retry } from 'rxjs';
 
 @Injectable({

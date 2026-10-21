@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { LanguageMetadata } from './language-metadata.interface';
+
 export type Language = string;
 
 export interface LanguageConfigResponse {
@@ -7,11 +9,4 @@ export interface LanguageConfigResponse {
   fallbackOrder: string[];
   defaultLanguage?: string;
   metadata: Record<string, LanguageMetadata>;
-}
-
-export interface LanguageMetadata {
-  name: string;
-  displayName: string;
-  speechLocale: string;
-  direction?: 'ltr' | 'rtl';
 }

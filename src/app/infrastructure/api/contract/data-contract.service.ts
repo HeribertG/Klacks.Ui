@@ -3,7 +3,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { Contract, IContract } from 'src/app/domain/models/contract/contract-class';
+import { Contract } from 'src/app/domain/models/contract/contract-class';
+import { IContract } from 'src/app/domain/models/contract/contract.interface';
 import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 

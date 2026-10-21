@@ -9,7 +9,7 @@
  * @param hours - Target hours, undefined meaning the month has no override and its row is removed
  */
 import { inject, Injectable, signal } from '@angular/core';
-import { IMonthlyTargetHours } from 'src/app/domain/models/scheduling/monthly-target-hours.model';
+import { IMonthlyTargetHours } from 'src/app/domain/models/scheduling/monthly-target-hours.interface';
 import { MonthlyTargetHoursApiService } from 'src/app/infrastructure/api/scheduling/monthly-target-hours-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

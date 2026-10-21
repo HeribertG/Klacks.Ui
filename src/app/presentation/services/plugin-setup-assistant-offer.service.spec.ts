@@ -10,7 +10,7 @@ import { ConversationOrchestratorService } from 'src/app/presentation/aside/assi
 import { ChatTurnControlService } from 'src/app/presentation/aside/assistant-chat/services/chat-turn-control.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 
 // Deliberately not sharing a prefix and not following any offer/accept/decline naming scheme -
 // proves the service uses exactly the keys it is given, deriving nothing.

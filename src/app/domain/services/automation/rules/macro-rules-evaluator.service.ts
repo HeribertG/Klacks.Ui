@@ -1,13 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject, signal } from '@angular/core';
-import {
-  SCRIPT_COMPILER,
-  ICompiledScript
-} from '../../../models/automation/rules/script-compiler.interface';
+import { SCRIPT_COMPILER } from '../../../models/automation/rules/script-compiler.interface';
+import { ICompiledScript } from '../../../models/automation/rules/compiled-script.interface';
 import { MacroManagementService } from '../../../services/settings/macro-management.service';
 import { AppSettingsManagementService } from '../../../services/settings/app-settings-management.service';
-import { IMacro } from '../../../models/settings/macro-class';
+import { IMacro } from '../../../models/settings/macro.interface';
 import {
   IRuleViolation,
   IScheduleContext,

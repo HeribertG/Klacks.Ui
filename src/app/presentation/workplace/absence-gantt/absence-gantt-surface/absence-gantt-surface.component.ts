@@ -24,7 +24,7 @@ import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/abse
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidayDate } from 'src/app/domain/models/calendar/holiday-date-class';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { TranslateService } from '@ngx-translate/core';

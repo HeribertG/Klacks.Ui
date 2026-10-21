@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
-import { IContainerTemplateItem } from '../../models/container/container-template-class';
+import { IContainerTemplateItem } from '../../models/container/container-template-item.interface';
 import { HOLIDAY_BUFFER_KEY_SUFFIX } from '../../constants/container-template-holiday.constants';
 
 export interface IWeekdayContainerTemplateItemsMap {

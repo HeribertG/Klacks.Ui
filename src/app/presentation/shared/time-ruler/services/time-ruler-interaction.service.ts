@@ -8,7 +8,7 @@
  */
 
 import { inject, Injectable, OutputEmitterRef } from '@angular/core';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IContract } from '../contract/contract-class';
+import { IContract } from '../contract/contract.interface';
 
 export interface IClientContract {
   id: string | undefined;

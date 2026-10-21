@@ -22,7 +22,7 @@ import {
 import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ClientDataMapper } from './client-data.mapper';
 
 export interface IClientForReplacement {

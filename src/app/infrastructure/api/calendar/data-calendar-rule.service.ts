@@ -4,12 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import {
-  CalendarRulesFilter,
-  StateCountryToken,
-  ICalendarRule,
-  TruncatedCalendarRule,
-} from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarRulesFilter } from 'src/app/domain/models/calendar/calendar-rules-filter-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
+import { TruncatedCalendarRule } from 'src/app/domain/models/calendar/truncated-calendar-rule-class';
 
 @Injectable({
   providedIn: 'root',

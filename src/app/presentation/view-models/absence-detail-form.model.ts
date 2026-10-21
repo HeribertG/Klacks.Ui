@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IAbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
 import {
   transformStringToOwnTimeStruct,
   transformOwnTimeToString,

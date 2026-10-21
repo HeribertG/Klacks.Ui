@@ -5,7 +5,7 @@
  * @param timeRangeService - Calculates effective start/end minutes including pre/post shift times
  */
 import { Injectable, inject } from '@angular/core';
-import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/shared/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';

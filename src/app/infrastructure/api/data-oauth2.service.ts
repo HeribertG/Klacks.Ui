@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { MyToken } from 'src/app/domain/models/authentification-class';
+import { MyToken } from 'src/app/domain/models/my-token-class';
 
 export interface OAuth2Provider {
   id: string;

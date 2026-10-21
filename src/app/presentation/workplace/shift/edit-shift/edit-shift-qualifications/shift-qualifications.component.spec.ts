@@ -12,7 +12,7 @@ import { DataQualificationService } from 'src/app/infrastructure/api/settings/da
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,

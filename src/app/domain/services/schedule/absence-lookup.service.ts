@@ -2,9 +2,9 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
+import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';

@@ -31,7 +31,8 @@ import { DataQualificationService } from 'src/app/infrastructure/api/settings/da
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { ICountry } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
-import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';

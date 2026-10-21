@@ -7,7 +7,7 @@ import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.int
 import { Subject } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';

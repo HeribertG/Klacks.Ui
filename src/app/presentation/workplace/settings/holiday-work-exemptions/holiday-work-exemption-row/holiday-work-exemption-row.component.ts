@@ -8,10 +8,8 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
-import {
-  HolidayWorkExemption,
-  IHolidayWorkExemption,
-} from 'src/app/domain/models/scheduling/holiday-work-exemption.model';
+import { HolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.model';
+import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-work-exemption.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

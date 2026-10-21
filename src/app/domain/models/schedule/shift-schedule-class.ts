@@ -2,29 +2,8 @@
 
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
 import { SporadicStatus } from '../../enums/sporadic-status.enum';
-import { IScheduleQualification } from './work-schedule-class';
-
-export interface IShiftSchedule {
-  shiftId: string;
-  date: Date;
-  dayOfWeek: number;
-  shiftName: string;
-  abbreviation: string;
-  startShift: string;
-  endShift: string;
-  workTime: number;
-  isSporadic: boolean;
-  isTimeRange: boolean;
-  shiftType: number;
-  isInTemplateContainer: boolean;
-  sumEmployees: number;
-  quantity: number;
-  sporadicScope: ShiftSporadic;
-  engaged: number;
-  sporadicStatus: SporadicStatus;
-  periodBookedDays: number;
-  qualifications: IScheduleQualification[];
-}
+import { IShiftSchedule } from './shift-schedule.interface';
+import { IScheduleQualification } from './schedule-qualification.interface';
 
 export class ShiftSchedule implements IShiftSchedule {
   shiftId = '';
@@ -46,55 +25,4 @@ export class ShiftSchedule implements IShiftSchedule {
   sporadicStatus = SporadicStatus.None;
   periodBookedDays = 0;
   qualifications: IScheduleQualification[] = [];
-}
-
-export interface IShiftScheduleFilter {
-  startDate: string;
-  endDate: string;
-  holidayDates?: Date[];
-  selectedGroup?: string;
-  searchString?: string;
-  orderBy?: string;
-  sortOrder?: string;
-  container: boolean;
-  isSporadic: boolean;
-  isTimeRange: boolean;
-  isStandartShift: boolean;
-  showUngroupedShifts: boolean;
-  startRow: number;
-  rowCount: number;
-  analyseToken?: string;
-}
-
-export interface IShiftDatePair {
-  shiftId: string;
-  date: Date;
-}
-
-export interface IShiftSchedulePartialFilter {
-  shiftDatePairs: IShiftDatePair[];
-  analyseToken?: string;
-}
-
-export interface IShiftScheduleResponse {
-  shifts: IShiftSchedule[];
-  totalCount: number;
-}
-
-export class ShiftScheduleFilter implements IShiftScheduleFilter {
-  startDate = '';
-  endDate = '';
-  holidayDates?: Date[];
-  selectedGroup?: string;
-  searchString?: string;
-  orderBy?: string;
-  sortOrder?: string;
-  container = true;
-  isSporadic = true;
-  isTimeRange = true;
-  isStandartShift = true;
-  showUngroupedShifts = false;
-  startRow = 0;
-  rowCount = 100;
-  analyseToken?: string;
 }

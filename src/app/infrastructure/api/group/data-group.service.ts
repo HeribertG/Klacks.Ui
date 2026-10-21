@@ -4,12 +4,10 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import {
-  GroupFilter,
-  IGroup,
-  IGroupTree,
-  ITruncatedGroup,
-} from 'src/app/domain/models/group/group-class';
+import { GroupFilter } from 'src/app/domain/models/group/group-filter-class';
+import { IGroup } from 'src/app/domain/models/group/group.interface';
+import { IGroupTree } from 'src/app/domain/models/group/group-tree.interface';
+import { ITruncatedGroup } from 'src/app/domain/models/group/truncated-group.interface';
 import { companyToday, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
 import { defer, Observable } from 'rxjs';
 

@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementHolidayWorkExemptionService } from './data-management-holiday-work-exemption.service';
 import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { SchedulingRuleApiService } from '../../../infrastructure/api/scheduling/scheduling-rule-api.service';
-import { IHolidayWorkExemption } from '../../models/scheduling/holiday-work-exemption.model';
+import { IHolidayWorkExemption } from '../../models/scheduling/holiday-work-exemption.interface';
 
 describe('DataManagementHolidayWorkExemptionService', () => {
   const activeRuleId = 'rule-active';

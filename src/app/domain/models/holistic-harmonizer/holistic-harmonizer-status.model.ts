@@ -6,7 +6,7 @@
  * job), which the service maps onto 'failed'.
  */
 
-import { HolisticHarmonizerRunResponse } from './holistic-harmonizer-run.model';
+import { HolisticHarmonizerRunResponse } from './holistic-harmonizer-run-response.interface';
 
 export interface HolisticHarmonizerJobStatusResponse {
   status: 'running' | 'completed' | 'cancelled' | 'failed' | 'unknown';

@@ -8,7 +8,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { QualificationBubble } from './qualification-bubble.model';
 

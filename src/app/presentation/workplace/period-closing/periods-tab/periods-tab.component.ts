@@ -34,7 +34,8 @@ import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/pe
 import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
 import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
-import { IShiftScheduleFilter, ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
+import { ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter-class';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';

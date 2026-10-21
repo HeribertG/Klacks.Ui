@@ -13,8 +13,9 @@ import { DataManagementAbsenceService } from 'src/app/domain/services/absence/da
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
-import { AbsenceFilter, TruncatedAbsence } from 'src/app/domain/models/absence/absence-class';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { AbsenceFilter } from 'src/app/domain/models/absence/absence-filter-class';
+import { TruncatedAbsence } from 'src/app/domain/models/absence/truncated-absence-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';
 
 describe('AbsenceComponent', () => {

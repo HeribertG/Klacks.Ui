@@ -5,8 +5,10 @@ import { of, Subject, throwError } from 'rxjs';
 import { OnboardingService } from './onboarding.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
-import { ISetting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
-import { IOnboardingState, ISaveOnboardingStateRequest } from 'src/app/domain/models/assistant/welcome.interface';
+import { ISetting } from 'src/app/domain/models/settings/setting.interface';
+import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
+import { IOnboardingState } from 'src/app/domain/models/assistant/onboarding-state.interface';
+import { ISaveOnboardingStateRequest } from 'src/app/domain/models/assistant/save-onboarding-state-request.interface';
 import {
     INTRO_STATION,
     INTRO_STATIONS,

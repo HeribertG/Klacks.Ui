@@ -3,11 +3,12 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { DataMacroService } from 'src/app/infrastructure/api/settings/data-macro.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
+import { ITruncatedShift } from 'src/app/domain/models/shift/truncated-shift.interface';
+import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
 import {
   CheckBoxValue,
   Filter,
@@ -15,8 +16,10 @@ import {
   IClient,
   ICountry,
 } from 'src/app/domain/models/client/client-class';
-import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
-import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';

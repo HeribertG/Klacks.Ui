@@ -11,11 +11,9 @@ import {
 } from '@angular/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { IAuthentication } from 'src/app/domain/models/authentification-class';
-import {
-  IGroupVisibility,
-  GroupVisibility,
-} from 'src/app/domain/models/group/group-class';
+import { IAuthentication } from 'src/app/domain/models/authentication.interface';
+import { IGroupVisibility } from 'src/app/domain/models/group/group-visibility.interface';
+import { GroupVisibility } from 'src/app/domain/models/group/group-visibility-class';
 import { DataManagementGroupVisibilityService } from 'src/app/domain/services/group/data-management-group-visibility.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

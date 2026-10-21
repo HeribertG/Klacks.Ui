@@ -3,7 +3,7 @@
 /**
  * Feature plugin information model matching backend FeaturePluginInfo DTO.
  */
-import { PluginNavigationManifest } from './plugin-nav-item';
+import { PluginNavigationManifest } from './plugin-navigation-manifest.interface';
 import { FeaturePluginAssistantSetup } from './feature-plugin-assistant-setup';
 
 export interface FeaturePluginInfo {

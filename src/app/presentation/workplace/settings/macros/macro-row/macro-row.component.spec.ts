@@ -9,7 +9,7 @@ import { of } from 'rxjs';
 import { MacroRowComponent } from './macro-row.component';
 import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
-import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroFunction } from 'src/app/domain/enums/macro-function.enum';
 import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';

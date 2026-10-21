@@ -10,11 +10,13 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { HOLISTIC_HARMONIZER_MODE } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
+import { HolisticHarmonizerStatus } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import {
   HolisticHarmonizerProgress,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-progress.interface';
+import {
   HolisticHarmonizerRunResponse,
-  HolisticHarmonizerStatus,
-} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run-response.interface';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';

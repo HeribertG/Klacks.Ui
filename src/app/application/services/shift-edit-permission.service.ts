@@ -13,7 +13,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 
 @Injectable({ providedIn: 'root' })

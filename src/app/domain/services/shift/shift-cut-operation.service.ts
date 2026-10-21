@@ -2,8 +2,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
-import { Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';

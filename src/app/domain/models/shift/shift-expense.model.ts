@@ -6,13 +6,8 @@
  * @param amount - Expense amount in currency
  * @param taxable - True = taxable wage supplement (Vergütung), False = non-taxable reimbursement of advanced money (Spesen)
  */
-export interface IShiftExpense {
-  id: string | undefined;
-  shiftId: string;
-  amount: number;
-  description: string;
-  taxable: boolean;
-}
+
+import { IShiftExpense } from './shift-expense.interface';
 
 export class ShiftExpense implements IShiftExpense {
   id: string | undefined = undefined;

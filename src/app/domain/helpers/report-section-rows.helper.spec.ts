@@ -2,7 +2,8 @@
 
 import { selectRowsForSection } from './report-section-rows.helper';
 import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { DEFAULT_FIELD_STYLE, ReportFieldType } from 'src/app/domain/models/report/report-field.model';
+import { DEFAULT_FIELD_STYLE } from 'src/app/domain/models/report/report-field.model';
+import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 
 function section(partial: Partial<ReportSection>): ReportSection {

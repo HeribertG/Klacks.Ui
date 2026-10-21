@@ -44,7 +44,7 @@ import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
-import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimelineCreateRowHeaderService } from '../services/timeline-create-row-header.service';

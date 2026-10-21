@@ -15,10 +15,8 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
-import {
-  StateCountryToken,
-} from 'src/app/domain/models/calendar/calendar-rule-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 
 function makeToken(

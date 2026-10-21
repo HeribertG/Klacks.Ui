@@ -5,7 +5,8 @@ import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataShiftService } from './data-shift.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
-import { Shift, IShift } from 'src/app/domain/models/shift/shift-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { environment } from 'src/environments/environment';
 import { Group } from 'src/app/domain/models/group/group-class';
 import {

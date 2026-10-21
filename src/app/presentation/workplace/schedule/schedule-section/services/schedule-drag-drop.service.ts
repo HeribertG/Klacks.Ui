@@ -20,12 +20,13 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
-import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
-import { ScheduleCommandResource } from 'src/app/domain/models/schedule-command/schedule-command';
+import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note-resource.interface';
+import { ScheduleCommandResource } from 'src/app/domain/models/schedule-command/schedule-command-resource.interface';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDropResult } from '../../services/shift-to-schedule-drag-drop.service';

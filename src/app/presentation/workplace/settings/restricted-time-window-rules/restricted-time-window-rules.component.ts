@@ -28,7 +28,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { RestrictedTimeWindowRuleHeaderComponent } from './restricted-time-window-rule-header/restricted-time-window-rule-header.component';
 import { RestrictedTimeWindowRuleRowComponent } from './restricted-time-window-rule-row/restricted-time-window-rule-row.component';
 import { DataManagementRestrictedTimeWindowRuleService } from 'src/app/domain/services/scheduling/data-management-restricted-time-window-rule.service';
-import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
+import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.interface';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';

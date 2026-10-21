@@ -1,52 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-import {
-  BaseFilter,
-  BaseTruncated,
-  IBaseFilter,
-  IBaseTruncated,
-} from '../general-class';
 import { MultiLanguage } from '../translation/multi-language-class';
-import { DomainMessages } from 'src/app/domain/constants/messages';
-
-export interface IAbsenceFilter extends IBaseFilter {
-  language: string | undefined;
-}
-
-export class AbsenceFilter extends BaseFilter implements IAbsenceFilter {
-  language = DomainMessages.DEFAULT_LANG;
-}
-
-export interface ITruncatedAbsence extends IBaseTruncated {
-  absences: Absence[];
-}
-
-export class TruncatedAbsence
-  extends BaseTruncated
-  implements ITruncatedAbsence
-{
-  absences: Absence[] = [];
-}
-
-export interface IAbsence {
-  id: string | undefined;
-  abbreviation?: MultiLanguage | undefined;
-  name?: MultiLanguage | undefined;
-  description?: MultiLanguage | undefined;
-  color: string | undefined;
-  defaultLength: number;
-  defaultValue: number;
-  hideInGantt: boolean;
-  macroId: string | undefined;
-  undeletable: boolean;
-  withSaturday: boolean;
-  withSunday: boolean;
-  withHoliday: boolean;
-  appliesToContainer: boolean;
-  isUnpaid: boolean;
-  isOnCall: boolean;
-}
+import { IAbsence } from './absence.interface';
 
 export class Absence implements IAbsence {
   id = undefined;
