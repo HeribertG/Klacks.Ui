@@ -1637,12 +1637,11 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const providersWithoutKey = mockProviders.map((p) => ({ ...p, hasApiKey: false }));
             const localFixture = createComponentWithProviders(providersWithoutKey, true);
-            const instance = localFixture.componentInstance as any;
-            instance.postKlacksyMessage('LLM is offline');
+            localFixture.debugElement.injector.get(ChatTranscriptService).postAssistantMessage('LLM is offline');
             expect(localFixture.componentInstance.messages.length).toBe(1);
 
             // Act
-            instance.updateWelcomeMessage('fr');
+            localFixture.debugElement.injector.get(ChatWelcomeService).updateWelcomeMessage('fr');
             localFixture.detectChanges();
 
             // Assert
@@ -3976,7 +3975,7 @@ describe('AssistantChatComponent', () => {
             clickHeaderBadge();
             const reopened = mountFreshChat();
 
-            expect((reopened.componentInstance as any).tourIndex).toBe(3);
+            expect((reopened.debugElement.injector.get(ChatOnboardingTourService) as any).tourIndex).toBe(3);
         });
     });
 
