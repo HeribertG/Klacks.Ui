@@ -17,6 +17,9 @@ export class StorageKeys {
   public static readonly SETTINGS_EXPERT_MODE = 'settings.expertMode';
   public static readonly RETURN_URL = 'klacks.returnUrl';
   public static readonly CONTAINER_LOCK_INSTANCE_ID = 'klacks.containerLock.instanceId';
+  public static readonly SCHEDULE_VIEW_MODE = 'klacks.schedule.viewMode';
+  public static readonly SCHEDULE_TIMELINE_VIEW_RANGE = 'klacks.schedule.timelineViewRange';
+  public static readonly SCHEDULE_TIMELINE_ROW_HEIGHT_FACTOR = 'klacks.schedule.timelineRowHeightFactor';
   public static readonly SETUP_CONSULTATION_OFFERED = 'klacks.setupConsultation.offeredSession';
   public static readonly PLUGIN_ASSISTANT_OFFERED_PREFIX = 'klacks.pluginAssistantOffer.offeredSession.';
   public static readonly EXPLAIN_OFFER_OFFERED_PREFIX = 'klacks.explainOffer.offeredSession.';

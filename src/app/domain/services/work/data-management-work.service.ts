@@ -103,10 +103,12 @@ export class DataManagementWorkService {
     });
   }
 
+  /** Creates the work exactly as the caller built it; unlike addWork it does not stamp the active scenario token. */
   addWorkEntry(work: Work): Observable<IWork> {
     return this.dataSchedule.addWork(work);
   }
 
+  /** Updates the work exactly as the caller built it; unlike updateWork it does not stamp the active scenario token. */
   updateWorkEntry(work: Work): Observable<IWork> {
     return this.dataSchedule.updateWork(work);
   }

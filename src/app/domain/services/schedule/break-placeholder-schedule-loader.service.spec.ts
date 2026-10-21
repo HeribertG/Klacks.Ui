@@ -50,7 +50,7 @@ describe('BreakPlaceholderScheduleLoaderService', () => {
       expect(service.getBreakPlaceholdersForClient('client-bp-1-bp-2').map((bp) => bp.id)).toEqual(['bp-1', 'bp-2']);
     });
 
-    it('does not call the API before it is subscribed', () => {
+    it('does not drop the placeholder before the result is subscribed', () => {
       api.deleteBreak.mockReturnValue(of({ id: 'bp-1' }));
 
       service.deleteBreakPlaceholder('bp-1');

@@ -7,6 +7,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ScheduleViewMode } from 'src/app/domain/models/schedule/schedule-view-mode.type';
 import { TimelineViewRange } from 'src/app/domain/models/schedule/timeline-view-range.type';
 import {
@@ -19,10 +20,6 @@ import {
   TIMELINE_FULL_RANGE,
 } from 'src/app/domain/constants/schedule-view.constants';
 
-const VIEW_MODE_STORAGE_KEY = 'klacks.schedule.viewMode';
-const ROW_HEIGHT_FACTOR_STORAGE_KEY = 'klacks.schedule.timelineRowHeightFactor';
-const TIMELINE_RANGE_STORAGE_KEY = 'klacks.schedule.timelineViewRange';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -30,28 +27,28 @@ export class ScheduleViewPreferenceService {
   private localStorageService = inject(LocalStorageService);
 
   loadViewMode(): ScheduleViewMode {
-    return this.localStorageService.get(VIEW_MODE_STORAGE_KEY) === SCHEDULE_TIMELINE_MODE
+    return this.localStorageService.get(StorageKeys.SCHEDULE_VIEW_MODE) === SCHEDULE_TIMELINE_MODE
       ? SCHEDULE_TIMELINE_MODE
       : SCHEDULE_TABLE_MODE;
   }
 
   saveViewMode(mode: ScheduleViewMode): void {
-    this.localStorageService.set(VIEW_MODE_STORAGE_KEY, mode);
+    this.localStorageService.set(StorageKeys.SCHEDULE_VIEW_MODE, mode);
   }
 
   loadTimelineViewRange(): TimelineViewRange {
-    return this.localStorageService.get(TIMELINE_RANGE_STORAGE_KEY) === TIMELINE_DAY_RANGE
+    return this.localStorageService.get(StorageKeys.SCHEDULE_TIMELINE_VIEW_RANGE) === TIMELINE_DAY_RANGE
       ? TIMELINE_DAY_RANGE
       : TIMELINE_FULL_RANGE;
   }
 
   saveTimelineViewRange(range: TimelineViewRange): void {
-    this.localStorageService.set(TIMELINE_RANGE_STORAGE_KEY, range);
+    this.localStorageService.set(StorageKeys.SCHEDULE_TIMELINE_VIEW_RANGE, range);
   }
 
   loadTimelineRowHeightFactor(): number {
     try {
-      const raw = sessionStorage.getItem(ROW_HEIGHT_FACTOR_STORAGE_KEY);
+      const raw = sessionStorage.getItem(StorageKeys.SCHEDULE_TIMELINE_ROW_HEIGHT_FACTOR);
       if (raw === null) {
         return DEFAULT_TIMELINE_ROW_HEIGHT_FACTOR;
       }
@@ -66,7 +63,7 @@ export class ScheduleViewPreferenceService {
 
   saveTimelineRowHeightFactor(factor: number): void {
     try {
-      sessionStorage.setItem(ROW_HEIGHT_FACTOR_STORAGE_KEY, factor.toString());
+      sessionStorage.setItem(StorageKeys.SCHEDULE_TIMELINE_ROW_HEIGHT_FACTOR, factor.toString());
     } catch {
       return;
     }
