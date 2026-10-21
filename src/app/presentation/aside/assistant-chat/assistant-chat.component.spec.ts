@@ -369,7 +369,8 @@ describe('AssistantChatComponent', () => {
                             clearMessages: vi.fn(() => messagesSig.set([])),
                             initialize: vi.fn(),
                             setLocale: vi.fn(),
-                            errors$: of(),
+                            errors$: new Subject(),
+                            endSession: vi.fn(),
                             toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
                             interrupt: vi.fn(),
                             onStreamContent: vi.fn(),
@@ -4402,6 +4403,174 @@ describe('AssistantChatComponent', () => {
             expect(onboarding.activeKind()).toBe(ONBOARDING_KIND.Intro);
             expect(navigateSpy).toHaveBeenCalledWith(onboarding.stationAt(0)!.route, undefined);
             expect(navigateSpy).not.toHaveBeenCalledWith(ONBOARDING_SETTINGS_ROUTE, expect.anything());
+        });
+    });
+
+    describe('behaviour pinned before the component split', () => {
+        let callbacks: Required<StreamCallbacks>;
+
+        async function startTurn(text = 'Frage'): Promise<void> {
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            component.inputText.set(text);
+            await component.sendMessage();
+        }
+
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
+        it('syncs speech, LLM language, welcome message and orchestrator locale on a language change', () => {
+            // Arrange
+            const translate = TestBed.inject(TranslateService);
+            const previousWelcomeId = component.messages[0].id;
+            mockSpeechService.setLanguage.mockClear();
+            mockLlmService.setLanguage.mockClear();
+
+            // Act
+            translate.onLangChange.emit({ lang: 'fr', translations: {} });
+
+            // Assert
+            expect(mockSpeechService.setLanguage).toHaveBeenCalledWith('de-CH');
+            expect(mockLlmService.setLanguage).toHaveBeenCalledWith('fr');
+            expect(mockSpeechService.updateLanguage).toHaveBeenCalledWith('de-CH');
+            expect(component.orchestrator.setLocale).toHaveBeenCalledWith('de-CH');
+            expect(mockLlmService.setLanguage.mock.invocationCallOrder[0]).toBeLessThan(
+                (component.orchestrator.setLocale as any).mock.invocationCallOrder[0],
+            );
+            expect(component.messages.some((m) => m.id === previousWelcomeId)).toBe(false);
+            expect(component.messages.filter((m) => m.sender === 'assistant').length).toBe(1);
+        });
+
+        it('shows an stt-empty voice hint as info and other voice hints as error in the classic panel', () => {
+            // Arrange
+            const toast = TestBed.inject(ToastShowService);
+            const infoSpy = vi.spyOn(toast, 'showInfo').mockImplementation(() => undefined as any);
+            const errorSpy = vi.spyOn(toast, 'showError').mockImplementation(() => undefined as any);
+            const errors$ = component.orchestrator.errors$ as unknown as Subject<any>;
+
+            // Act
+            errors$.next({ kind: 'stt-empty', i18nKey: 'voice.empty' });
+            errors$.next({ kind: 'stt-failed', i18nKey: 'voice.failed' });
+
+            // Assert
+            expect(infoSpy).toHaveBeenCalledTimes(1);
+            expect(errorSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('leaves voice hints to the voice shell in a floating output mode', () => {
+            // Arrange
+            const toast = TestBed.inject(ToastShowService);
+            const infoSpy = vi.spyOn(toast, 'showInfo').mockImplementation(() => undefined as any);
+            const errorSpy = vi.spyOn(toast, 'showError').mockImplementation(() => undefined as any);
+            vi.spyOn(TestBed.inject(SpeechOutputModeService), 'isFloatingMode').mockReturnValue(true);
+            const errors$ = component.orchestrator.errors$ as unknown as Subject<any>;
+
+            // Act
+            errors$.next({ kind: 'stt-empty', i18nKey: 'voice.empty' });
+            errors$.next({ kind: 'stt-failed', i18nKey: 'voice.failed' });
+
+            // Assert
+            expect(infoSpy).not.toHaveBeenCalled();
+            expect(errorSpy).not.toHaveBeenCalled();
+        });
+
+        it('queues one explain scroll per complete scroll marker, including a repeated target', async () => {
+            // Arrange
+            const navigation = TestBed.inject(KlacksyNavigationService);
+            const queueSpy = vi.spyOn(navigation, 'queueExplainScroll').mockImplementation(() => undefined);
+            await startTurn();
+
+            // Act
+            callbacks.onContent('Erst hier [SCROLL: section-a ] dann');
+            callbacks.onContent(' dort [SCROLL:section-b] und zurück [SCROLL:section-a]');
+            callbacks.onDone();
+
+            // Assert
+            expect(queueSpy.mock.calls.map((call) => call[0])).toEqual(['section-a', 'section-b', 'section-a']);
+            expect(component.messages.at(-1)?.content).not.toContain('[SCROLL');
+        });
+
+        it('ends the planning phase only when content follows tool steps', async () => {
+            // Arrange
+            await startTurn();
+
+            // Act
+            callbacks.onContent('Ohne Werkzeug');
+
+            // Assert
+            expect(component.orchestrator.onStreamPlanningEnded).not.toHaveBeenCalled();
+
+            // Act
+            callbacks.onFunctionCall({ functionName: 'search_clients', parameters: {} });
+            callbacks.onContent('Nach dem Werkzeug');
+
+            // Assert
+            expect(component.orchestrator.onStreamPlanningEnded).toHaveBeenCalledTimes(1);
+        });
+
+        it('appends a stream error below the text that already arrived', async () => {
+            // Arrange
+            await startTurn();
+            callbacks.onContent('Teilantwort');
+
+            // Act
+            callbacks.onError('Boom');
+
+            // Assert
+            const last = component.messages.at(-1);
+            expect(last?.content).toBe('Teilantwort\n\nBoom');
+            expect(last?.isStreaming).toBe(false);
+            expect(component.orchestrator.onStreamError).toHaveBeenCalled();
+        });
+
+        it('focuses the chat input once the turn is done', async () => {
+            // Arrange
+            await startTurn();
+            const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('#assistant-chat-input');
+            const focusSpy = vi.spyOn(textarea, 'focus');
+
+            // Act
+            callbacks.onDone();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
+            // Assert
+            expect(focusSpy).toHaveBeenCalled();
+        });
+
+        it('ends the voice session and silences speech when the user starts typing in voice mode', () => {
+            // Arrange
+            component.orchestrator.voiceModeEnabled.set(true);
+            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+
+            // Act
+            component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'a' }));
+
+            // Assert
+            expect((component.orchestrator as any).endSession).toHaveBeenCalledTimes(1);
+            expect(interruptSpy).toHaveBeenCalled();
+            expect(component.orchestrator.stopAutoSpeak).toHaveBeenCalled();
+        });
+
+        it('closes the model dropdown on a click outside of it, but not on a click inside', () => {
+            // Arrange
+            component.showModelDropdown.set(true);
+            fixture.detectChanges();
+            const menu: HTMLElement = fixture.nativeElement.querySelector('.dropdown-menu');
+
+            // Act
+            menu.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+            // Assert
+            expect(component.showModelDropdown()).toBe(true);
+
+            // Act
+            document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+            // Assert
+            expect(component.showModelDropdown()).toBe(false);
         });
     });
 });
