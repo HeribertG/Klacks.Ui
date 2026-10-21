@@ -9,9 +9,7 @@
 import {
   Component,
   inject,
-  HostListener,
   ElementRef,
-  signal,
   computed,
   ChangeDetectionStrategy,
   afterEveryRender,
@@ -24,13 +22,10 @@ import {
   faMicrophone,
   faMicrophoneSlash,
   faPaperPlane,
-  faUser,
-  faChevronDown,
   faStop,
   faSpinner,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
@@ -39,6 +34,8 @@ import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 import { AssistantPanelsComponent } from './assistant-panels/assistant-panels.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
+import { ChatModelSelectorComponent } from './chat-model-selector/chat-model-selector.component';
+import { ChatOnboardingCardComponent } from './chat-onboarding-card/chat-onboarding-card.component';
 import { ChatMessage } from './chat-message.interface';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ConversationOrchestratorService } from './services/conversation-orchestrator.service';
@@ -58,7 +55,6 @@ import { ChatTurnStreamService } from './services/chat-turn-stream.service';
 import { ChatLanguageSyncService } from './services/chat-language-sync.service';
 import { ChatVoiceBridgeService } from './services/chat-voice-bridge.service';
 
-const MODEL_DROPDOWN_SELECTOR = '.model-dropdown';
 const ENTER_KEY = 'Enter';
 const SCROLL_BEHAVIOR_INSTANT = 'instant';
 
@@ -72,6 +68,8 @@ const SCROLL_BEHAVIOR_INSTANT = 'instant';
     AssistantPanelsComponent,
     AutonomyStatusBarComponent,
     ChatMessageComponent,
+    ChatModelSelectorComponent,
+    ChatOnboardingCardComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],
@@ -123,33 +121,18 @@ export class AssistantChatComponent {
   readonly faMicrophone = faMicrophone;
   readonly faMicrophoneSlash = faMicrophoneSlash;
   readonly faPaperPlane = faPaperPlane;
-  readonly faUser = faUser;
-  readonly faChevronDown = faChevronDown;
   readonly faStop = faStop;
   readonly faSpinner = faSpinner;
 
   readonly inputText = this.composer.inputText;
   /** Backed by ChatTurnControlService: flips false the instant a stop begins, not only when the turn fully completes. */
   readonly isProcessing = this.turnControl.isTurnRunning;
-  readonly showModelDropdown = signal(false);
 
-  readonly availableModels = this.modelSelection.availableModels;
-  readonly currentModel = this.modelSelection.currentModel;
   readonly isInitializing = this.modelSelection.isInitializing;
   readonly hasNoApiKey = this.modelSelection.hasNoApiKey;
 
   readonly isTourActive = computed(() => this.onboarding.isTourActive());
-  readonly onboardingCardKeys = this.tour.onboardingCardKeys;
   readonly isInputHiddenByTour = computed(() => this.onboarding.isTourActive() && !this.onboarding.isIntro());
-  readonly displayedTourProgress = this.tour.displayedTourProgress;
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest(MODEL_DROPDOWN_SELECTOR)) {
-      this.showModelDropdown.set(false);
-    }
-  }
 
   constructor() {
     this.transcript.registerInputFocus(() => this.chatInput()?.nativeElement?.focus());
@@ -230,35 +213,6 @@ export class AssistantChatComponent {
       event.preventDefault();
       this.sendMessage();
     }
-  }
-
-  toggleModelDropdown(): void {
-    this.showModelDropdown.update((v) => !v);
-  }
-
-  selectModel(modelId: string): void {
-    this.modelSelection.selectModel(modelId);
-    this.showModelDropdown.set(false);
-  }
-
-  getCurrentModelInfo(): IAssistantModel | undefined {
-    return this.modelSelection.getCurrentModelInfo();
-  }
-
-  formatCost(cost: number): string {
-    return this.modelSelection.formatCost(cost);
-  }
-
-  startOnboardingTour(): void {
-    this.tour.startOnboardingTour();
-  }
-
-  resumeTourOneStepBack(): void {
-    this.tour.resumeTourOneStepBack();
-  }
-
-  dismissOnboarding(): void {
-    this.tour.dismissOnboarding();
   }
 
   /** 'instant' overrides the container's CSS smooth scrolling: a smooth scroll lags behind streamed text and carries the stop button out of view. */

@@ -1,0 +1,57 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div class="model-selection-header">
+  <button
+    id="assistant-chat-model-dropdown"
+    type="button"
+    class="model-dropdown"
+    (click)="toggleModelDropdown()"
+    [attr.aria-label]="'assistant-chat.select-model' | translate"
+    [attr.aria-expanded]="showModelDropdown()"
+  >
+    <div class="current-model">
+      <span class="model-name">{{
+        getCurrentModelInfo()?.displayName ||
+          ("assistant-chat.select-model" | translate)
+      }}</span>
+      @if (getCurrentModelInfo()) {
+      <span class="model-cost">
+        {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
+      </span>
+      }
+      <fa-icon
+        [icon]="faChevronDown"
+        [class.rotated]="showModelDropdown()"
+      ></fa-icon>
+    </div>
+
+    @if (showModelDropdown()) {
+    <div class="dropdown-menu" role="menu" (click)="$event.stopPropagation()">
+      @for (model of availableModels(); track model.modelId) {
+      <button
+        type="button"
+        role="menuitem"
+        class="dropdown-item"
+        [class.selected]="model.modelId === currentModel()"
+        (click)="selectModel(model.modelId); $event.stopPropagation()"
+        [attr.aria-label]="model.displayName"
+      >
+        <div class="model-info">
+          <div class="model-name">{{ model.displayName }}</div>
+          <div class="model-description">{{ model.description }}</div>
+          <div class="model-pricing">
+            <span class="input-cost"
+              >In: {{ formatCost(model.costPerInputToken) }}</span
+            >
+            <span class="output-cost"
+              >Out: {{ formatCost(model.costPerOutputToken) }}</span
+            >
+          </div>
+        </div>
+        <div class="provider-badge">{{ model.providerId }}</div>
+      </button>
+      }
+    </div>
+    }
+  </button>
+</div>

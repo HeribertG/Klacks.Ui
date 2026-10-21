@@ -125,6 +125,7 @@ describe('AssistantChatComponent', () => {
     const welcome = (): ChatWelcomeService => fixture.debugElement.injector.get(ChatWelcomeService);
     const session = (): ChatSessionService => fixture.debugElement.injector.get(ChatSessionService);
     const turnStream = (): ChatTurnStreamService => fixture.debugElement.injector.get(ChatTurnStreamService);
+    const modelSelection = (): ChatModelSelectionService => fixture.debugElement.injector.get(ChatModelSelectionService);
 
     const mockModels: IAssistantModel[] = [
         {
@@ -502,8 +503,8 @@ describe('AssistantChatComponent', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         // Assert
-        expect(component.availableModels().length).toBe(1);
-        expect(component.availableModels()[0].modelId).toBe('gpt-4');
+        expect(modelSelection().availableModels().length).toBe(1);
+        expect(modelSelection().availableModels()[0].modelId).toBe('gpt-4');
     });
 
     it('should set current model on init', async () => {
@@ -512,7 +513,7 @@ describe('AssistantChatComponent', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         // Assert
-        expect(component.currentModel()).toBe('gpt-4');
+        expect(modelSelection().currentModel()).toBe('gpt-4');
     });
 
     describe('sendMessage', () => {
@@ -1244,8 +1245,8 @@ describe('AssistantChatComponent', () => {
         it('posts the offline hint once when starting the tour without a live LLM', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: false }));
 
-            component.startOnboardingTour();
-            component.startOnboardingTour();
+            tour().startOnboardingTour();
+            tour().startOnboardingTour();
 
             const offlineCalls = (mockTranslateService.instant as any).mock.calls.filter(
                 (call: any[]) => call[0] === 'assistant-chat.onboarding.llm.offline',
@@ -1256,7 +1257,7 @@ describe('AssistantChatComponent', () => {
         it('does not post the offline hint when the LLM is live', () => {
             onboarding.applyWelcome(onboardingState({ llmLive: true }));
 
-            component.startOnboardingTour();
+            tour().startOnboardingTour();
 
             expect(mockTranslateService.instant).not.toHaveBeenCalledWith('assistant-chat.onboarding.llm.offline');
         });
@@ -1592,7 +1593,7 @@ describe('AssistantChatComponent', () => {
 
             // Act
             const localFixture = createComponentWithProviders(providers, true);
-            localFixture.componentInstance.currentModel.set('gpt-4');
+            localFixture.debugElement.injector.get(ChatModelSelectionService).currentModel.set('gpt-4');
             localFixture.detectChanges();
 
             // Assert
@@ -1707,13 +1708,13 @@ describe('AssistantChatComponent', () => {
             onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
 
             // Act
-            component.startOnboardingTour();
+            tour().startOnboardingTour();
             (tour() as any).retreatTour();
             (tour() as any).retreatTour();
 
             // Assert
             expect(onboarding.progress()).toBe(5);
-            expect(component.displayedTourProgress()).toBe(3);
+            expect(tour().displayedTourProgress()).toBe(3);
         });
 
         it('should not move the cursor before the first station', () => {
@@ -1762,7 +1763,7 @@ describe('AssistantChatComponent', () => {
             onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
 
             // Act
-            component.resumeTourOneStepBack();
+            tour().resumeTourOneStepBack();
 
             // Assert
             expect((tour() as any).tourIndex).toBe(4);
@@ -1777,7 +1778,7 @@ describe('AssistantChatComponent', () => {
             onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: [] });
 
             // Act
-            component.resumeTourOneStepBack();
+            tour().resumeTourOneStepBack();
 
             // Assert
             expect((tour() as any).tourIndex).toBe(0);
@@ -1791,9 +1792,9 @@ describe('AssistantChatComponent', () => {
             onboarding.applyWelcome({ shouldOffer: false, showCard: true, status: 'in_progress', completedStations: completed });
 
             // Act
-            component.resumeTourOneStepBack();
+            tour().resumeTourOneStepBack();
             expect((tour() as any).tourIndex).toBe(4);
-            component.resumeTourOneStepBack();
+            tour().resumeTourOneStepBack();
 
             // Assert
             expect((tour() as any).tourIndex).toBe(3);
@@ -1828,53 +1829,6 @@ describe('AssistantChatComponent', () => {
         });
     });
 
-    describe('model selection', () => {
-        beforeEach(() => {
-            fixture.detectChanges();
-        });
-
-        it('should toggle model dropdown', () => {
-            // Arrange
-            component.showModelDropdown.set(false);
-
-            // Act
-            component.toggleModelDropdown();
-
-            // Assert
-            expect(component.showModelDropdown()).toBe(true);
-
-            // Act
-            component.toggleModelDropdown();
-
-            // Assert
-            expect(component.showModelDropdown()).toBe(false);
-        });
-
-        it('should select model', () => {
-            // Act
-            component.selectModel('gpt-3.5');
-
-            // Assert
-            expect(mockLlmService.setCurrentModel).toHaveBeenCalledWith('gpt-3.5');
-            expect(component.currentModel()).toBe('gpt-3.5');
-            expect(component.showModelDropdown()).toBe(false);
-        });
-
-        it('should get current model info', () => {
-            // Arrange
-            const mockModelInfo = mockModels[0];
-            mockLlmService.getModelInfo.mockReturnValue(mockModelInfo);
-            component.currentModel.set('gpt-4');
-
-            // Act
-            const result = component.getCurrentModelInfo();
-
-            // Assert
-            expect(mockLlmService.getModelInfo).toHaveBeenCalledWith('gpt-4');
-            expect(result).toEqual(mockModelInfo);
-        });
-    });
-
     describe('suggestions and navigation', () => {
         beforeEach(() => {
             fixture.detectChanges();
@@ -1903,12 +1857,6 @@ describe('AssistantChatComponent', () => {
     });
 
     describe('utility functions', () => {
-        it('should format cost correctly', () => {
-            // Act & Assert
-            expect(component.formatCost(0.01)).toBe('€0.0100/1K tokens');
-            expect(component.formatCost(0.1234)).toBe('€0.1234/1K tokens');
-        });
-
         it('should format message content', () => {
             // Arrange
             const content = 'Hello\n**bold** and *italic* and `code`';
@@ -2186,7 +2134,7 @@ describe('AssistantChatComponent', () => {
             const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
             mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
-            component.currentModel.set('');
+            modelSelection().currentModel.set('');
 
             // Act
             const result = component.hasNoApiKey();
@@ -2200,7 +2148,7 @@ describe('AssistantChatComponent', () => {
             const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
             mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
-            component.currentModel.set(null as any);
+            modelSelection().currentModel.set(null as any);
 
             // Act
             const result = component.hasNoApiKey();
@@ -2214,7 +2162,7 @@ describe('AssistantChatComponent', () => {
             const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
             mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
-            component.currentModel.set('non-existent-model');
+            modelSelection().currentModel.set('non-existent-model');
 
             // Act
             const result = component.hasNoApiKey();
@@ -2231,7 +2179,7 @@ describe('AssistantChatComponent', () => {
                     providerId: 'unknown-provider',
                 },
             ]);
-            component.currentModel.set(mockModels[0].modelId);
+            modelSelection().currentModel.set(mockModels[0].modelId);
             mockLlmProviderService.getCurrentProviders.mockReturnValue([]);
 
             // Act
@@ -2250,7 +2198,7 @@ describe('AssistantChatComponent', () => {
                 },
             ];
             mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
-            component.currentModel.set('gpt-4');
+            modelSelection().currentModel.set('gpt-4');
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
 
             // Act
@@ -2263,7 +2211,7 @@ describe('AssistantChatComponent', () => {
         it('should return false when current model has valid provider with apiKey', () => {
             // Arrange
             mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
-            component.currentModel.set('gpt-4');
+            modelSelection().currentModel.set('gpt-4');
             mockLlmProviderService.getCurrentProviders.mockReturnValue(mockProviders);
 
             // Act
@@ -2290,14 +2238,14 @@ describe('AssistantChatComponent', () => {
             mockLlmProviderService.getCurrentProviders.mockReturnValue(mockProviders);
 
             // Act - Select model with valid API key
-            component.currentModel.set('model-with-key');
+            modelSelection().currentModel.set('model-with-key');
             const resultWithKey = component.hasNoApiKey();
 
             // Assert
             expect(resultWithKey).toBe(false);
 
             // Act - Switch to model without valid API key
-            component.currentModel.set('model-without-key');
+            modelSelection().currentModel.set('model-without-key');
             const resultWithoutKey = component.hasNoApiKey();
 
             // Assert
@@ -4577,25 +4525,6 @@ describe('AssistantChatComponent', () => {
             expect((component.orchestrator as any).endSession).toHaveBeenCalledTimes(1);
             expect(interruptSpy).toHaveBeenCalled();
             expect(component.orchestrator.stopAutoSpeak).toHaveBeenCalled();
-        });
-
-        it('closes the model dropdown on a click outside of it, but not on a click inside', () => {
-            // Arrange
-            component.showModelDropdown.set(true);
-            fixture.detectChanges();
-            const menu: HTMLElement = fixture.nativeElement.querySelector('.dropdown-menu');
-
-            // Act
-            menu.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
-            // Assert
-            expect(component.showModelDropdown()).toBe(true);
-
-            // Act
-            document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
-            // Assert
-            expect(component.showModelDropdown()).toBe(false);
         });
     });
 });

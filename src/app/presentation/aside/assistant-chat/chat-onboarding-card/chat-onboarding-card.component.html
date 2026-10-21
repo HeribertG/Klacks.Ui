@@ -1,0 +1,32 @@
+<div class="onboarding-card">
+  <div class="onboarding-card-header">
+    <span class="onboarding-card-title">{{ tour.onboardingCardKeys().title | translate }}</span>
+    <button
+      type="button"
+      class="onboarding-card-dismiss"
+      (click)="tour.dismissOnboarding()"
+      [attr.aria-label]="tour.onboardingCardKeys().dismiss | translate"
+    >
+      ×
+    </button>
+  </div>
+  <div class="onboarding-card-progress-text">
+    {{ 'assistant-chat.onboarding.card.progress' | translate : { done: tour.displayedTourProgress(), total: onboarding.total() } }}
+  </div>
+  <div class="onboarding-card-bar">
+    <div
+      class="onboarding-card-fill"
+      [style.width.%]="onboarding.total() ? (tour.displayedTourProgress() / onboarding.total()) * 100 : 0"
+    ></div>
+  </div>
+  <div class="onboarding-card-actions">
+    @if (tour.displayedTourProgress() > 0) {
+    <button type="button" class="onboarding-card-back" (click)="tour.resumeTourOneStepBack()">
+      {{ 'assistant-chat.onboarding.tour.back' | translate }}
+    </button>
+    }
+    <button type="button" class="onboarding-card-start" (click)="tour.startOnboardingTour()">
+      {{ (tour.displayedTourProgress() > 0 ? tour.onboardingCardKeys().resume : tour.onboardingCardKeys().start) | translate }}
+    </button>
+  </div>
+</div>

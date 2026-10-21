@@ -1,0 +1,151 @@
+@use "../../../../../assets/standard-styles/colors" as colors;
+
+:host {
+  display: block;
+}
+
+.model-selection-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cardBorderColor);
+  background: var(--backgroundColorHeaderNav);
+}
+
+.model-dropdown {
+  position: relative;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 100%;
+  text-align: start;
+
+  .current-model {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--backgroundColorCard);
+    border: 1px solid colors.$CurrentGreyColor;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    color: var(--colorLabel);
+
+    &:hover {
+      border-color: var(--accentColor);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accentColor) 10%, transparent);
+    }
+
+    .model-name {
+      font-weight: 500;
+      flex: 1;
+      color: var(--colorLabel);
+    }
+
+    .model-cost {
+      font-size: var(--fontSizeSmall);
+      color: var(--accentColor);
+      font-weight: 600;
+    }
+
+    fa-icon {
+      transition: transform 0.2s ease;
+      color: colors.$CurrentGreyColor;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline: 0;
+    background: var(--backgroundColorCard);
+    border: 1px solid colors.$CurrentGreyColor;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    animation: fadeInDown 0.2s ease;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    .dropdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid colors.$objectSurfaceBackgroundColor;
+      color: var(--colorLabel);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: colors.$objectSurfaceBackgroundColor;
+      }
+
+      &.selected {
+        background: color-mix(in srgb, var(--accentColor) 10%, transparent);
+        border-inline-start: 3px solid var(--accentColor);
+      }
+
+      .model-info {
+        flex: 1;
+
+        .model-name {
+          font-weight: 500;
+          margin-bottom: 4px;
+          color: var(--colorLabel);
+        }
+
+        .model-description {
+          font-size: var(--fontSizeSmall);
+          color: colors.$CurrentGreyColor;
+          margin-bottom: 6px;
+        }
+
+        .model-pricing {
+          display: flex;
+          gap: 12px;
+          font-size: var(--fontSizeXSmall);
+
+          .input-cost {
+            color: var(--primaryActionColor);
+          }
+
+          .output-cost {
+            color: var(--accentColor);
+          }
+        }
+      }
+
+      .provider-badge {
+        background: var(--accentColor);
+        color: colors.$standartWhiteColor;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: var(--fontSizeTiny);
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
