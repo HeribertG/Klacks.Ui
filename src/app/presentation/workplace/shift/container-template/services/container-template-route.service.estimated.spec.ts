@@ -122,6 +122,7 @@ describe('ContainerTemplateRouteService estimated travel times warning', () => {
         containerShift: { id: 'container-1' } as IShift,
         selectedWeekday: 'wednesday',
         isHoliday: false,
+        isWeekdayAndHoliday: false,
         timeFrom: START_TIME,
         timeTo: { hours: '10', minutes: '30' } as never,
         additionalAvailableWorkIds: [],

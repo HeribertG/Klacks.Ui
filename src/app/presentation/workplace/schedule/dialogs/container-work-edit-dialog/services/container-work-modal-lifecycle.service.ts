@@ -5,11 +5,14 @@
  * @param workId - The ID of the parent container work entry
  * @param currentDate - The date context for shift operations
  * @param weekday - Derived weekday string from currentDate
+ * @param isHoliday - Whether currentDate is a public holiday
+ * @param holidaySlot - Container template slot of the day (resolved from the container's holiday flags), sent to the
+ *   available-task list and the autofill
  */
 import { Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
-import { Observable, catchError, of, tap } from 'rxjs';
+import { Observable, catchError, of, switchMap, tap } from 'rxjs';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
@@ -28,6 +31,8 @@ import { resolveItemEndTime, resolveItemStartTime } from 'src/app/shared/helpers
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerWorkOptions } from '../open-container-work-options';
+import { IContainerTemplateHolidayVariant } from 'src/app/domain/models/container/container-template-holiday-variant';
+import { resolveContainerHolidaySlot } from 'src/app/domain/helpers/container-holiday-slot.helper';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -71,6 +76,7 @@ export class ContainerWorkModalLifecycleService {
   weekday = 'monday';
   weekdayNumber = 1;
   isHoliday = false;
+  holidaySlot: IContainerTemplateHolidayVariant = resolveContainerHolidaySlot(false, null);
 
   private containerStartTime: string | null = null;
   private containerEndTime: string | null = null;
@@ -165,6 +171,7 @@ export class ContainerWorkModalLifecycleService {
     this.weekday = WEEKDAY_NAMES[options.currentDate.getDay()];
     this.weekdayNumber = options.currentDate.getDay();
     this.isHoliday = options.isHoliday ?? false;
+    this.holidaySlot = resolveContainerHolidaySlot(this.isHoliday, null);
     this.isDirty.set(false);
     this.isLoading.set(true);
     this.isAvailableShiftsLoading.set(true);
@@ -201,18 +208,26 @@ export class ContainerWorkModalLifecycleService {
   private loadAvailableTasks(originalChildShiftIds: ReadonlySet<string>): void {
     const fromTime = this.containerStartTime ?? '06:00';
     const untilTime = this.containerEndTime ?? '18:00';
-    this.templateApiService
-      .getAvailableTasks(
-        this.containerShiftId,
-        this.weekdayNumber,
-        fromTime,
-        untilTime,
-        undefined,
-        undefined,
-        this.isHoliday ? true : undefined,
-        undefined,
+    const container$: Observable<IShift | null> = this.isHoliday
+      ? this.dataShiftService.getShift(this.containerShiftId).pipe(catchError(() => of(null)))
+      : of(null);
+    container$
+      .pipe(
+        tap(container => (this.holidaySlot = resolveContainerHolidaySlot(this.isHoliday, container))),
+        switchMap(() =>
+          this.templateApiService.getAvailableTasks(
+            this.containerShiftId,
+            this.weekdayNumber,
+            fromTime,
+            untilTime,
+            undefined,
+            undefined,
+            this.holidaySlot.isHoliday,
+            this.holidaySlot.isWeekdayAndHoliday,
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(tasks => {
         this.availableShiftsAsIShift = tasks;
         const taskIds = tasks.map(t => t.id!).filter(Boolean);

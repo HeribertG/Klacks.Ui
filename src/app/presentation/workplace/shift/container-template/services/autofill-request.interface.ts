@@ -8,6 +8,7 @@ export interface AutofillRequest {
   containerShift: IShift | null;
   selectedWeekday: string | null;
   isHoliday: boolean;
+  isWeekdayAndHoliday: boolean;
   timeFrom: OwnTime;
   timeTo: OwnTime;
   additionalAvailableWorkIds: string[];

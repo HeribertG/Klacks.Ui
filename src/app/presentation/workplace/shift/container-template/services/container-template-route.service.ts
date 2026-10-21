@@ -99,7 +99,7 @@ export class ContainerTemplateRouteService {
 
   autofill(request: AutofillRequest, localShiftPool: IShift[]): void {
     const {
-      containerShift, selectedWeekday, isHoliday,
+      containerShift, selectedWeekday, isHoliday, isWeekdayAndHoliday,
       timeFrom, timeTo, additionalAvailableWorkIds,
       timeRangeToleranceValue, destroy$, onStateChanged,
     } = request;
@@ -144,6 +144,7 @@ export class ContainerTemplateRouteService {
         containerShift.id,
         weekdayNumber,
         isHoliday,
+        isWeekdayAndHoliday,
         this.selectedStartBase,
         this.selectedEndBase,
         containerFromTime,

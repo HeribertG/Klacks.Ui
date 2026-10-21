@@ -10,6 +10,7 @@ import { Injectable, inject } from '@angular/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
+import { resolveContainerHolidaySlot } from 'src/app/domain/helpers/container-holiday-slot.helper';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateEditorStateService } from './container-template-editor-state.service';
 import { ContainerTemplateSessionService } from './container-template-session.service';
@@ -64,10 +65,12 @@ export class ContainerTemplateTaskActionsService {
   }
 
   autofill(): void {
+    const slot = resolveContainerHolidaySlot(this.state.isHoliday, this.state.containerShift);
     this.routeService.autofill({
       containerShift: this.state.containerShift,
       selectedWeekday: this.state.selectedWeekday,
-      isHoliday: this.state.isHoliday,
+      isHoliday: slot.isHoliday,
+      isWeekdayAndHoliday: slot.isWeekdayAndHoliday,
       timeFrom: this.state.timeFrom,
       timeTo: this.state.timeTo,
       additionalAvailableWorkIds: [],

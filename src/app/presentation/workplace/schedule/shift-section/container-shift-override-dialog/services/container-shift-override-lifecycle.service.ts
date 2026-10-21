@@ -5,6 +5,9 @@
  * @param containerId - The container shift this override belongs to
  * @param date - The specific ISO date for the override
  * @param weekday - Derived weekday string from the date
+ * @param isHoliday - Whether the date is a public holiday
+ * @param holidaySlot - Container template slot of the date (from the override's container or the applying template),
+ *   sent to the available-task list and the autofill
  */
 
 import { Injectable, inject, signal } from '@angular/core';
@@ -27,6 +30,8 @@ import { sortContainerItemsChronologically } from 'src/app/shared/helpers/contai
 import { HttpErrorResponse } from '@angular/common/http';
 import { WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
 import { IOpenContainerShiftOverrideOptions } from '../open-container-shift-override-options';
+import { IContainerTemplateHolidayVariant } from 'src/app/domain/models/container/container-template-holiday-variant';
+import { resolveContainerHolidaySlot } from 'src/app/domain/helpers/container-holiday-slot.helper';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -57,6 +62,7 @@ export class ContainerShiftOverrideLifecycleService {
   weekday = 'monday';
   weekdayNumber = 1;
   isHoliday = false;
+  holidaySlot: IContainerTemplateHolidayVariant = resolveContainerHolidaySlot(false, null);
   currentOverride: IContainerShiftOverride | null = null;
   containerShiftAbbreviation = '';
   containerStartTime: string | null = null;
@@ -80,6 +86,7 @@ export class ContainerShiftOverrideLifecycleService {
     this.weekday = options.weekday;
     this.weekdayNumber = (WEEKDAY_NAMES as readonly string[]).indexOf(options.weekday);
     this.isHoliday = options.isHoliday;
+    this.holidaySlot = resolveContainerHolidaySlot(this.isHoliday, null);
     this.containerStartTime = options.containerStartTime ?? null;
     this.containerEndTime = options.containerEndTime ?? null;
     this.currentOverride = null;
@@ -96,6 +103,7 @@ export class ContainerShiftOverrideLifecycleService {
       takeUntilDestroyed(this.destroyRef),
       tap(override => {
         this.currentOverride = override;
+        this.holidaySlot = resolveContainerHolidaySlot(this.isHoliday, override.shift);
         this.containerShiftAbbreviation = override.shift?.abbreviation ?? '';
         this.containerStartTime = override.fromTime ?? options.containerStartTime ?? null;
         this.containerEndTime = override.untilTime ?? options.containerEndTime ?? null;
@@ -130,6 +138,9 @@ export class ContainerShiftOverrideLifecycleService {
             ? t.isHoliday && (!t.isWeekdayAndHoliday || t.weekday === weekdayIndex)
             : t.weekday === weekdayIndex && !t.isHoliday,
         );
+        this.holidaySlot = template
+          ? { isHoliday: template.isHoliday, isWeekdayAndHoliday: template.isHoliday && template.isWeekdayAndHoliday }
+          : resolveContainerHolidaySlot(this.isHoliday, null);
         if (template) {
           this.containerStartTime = this.containerStartTime ?? template.fromTime;
           this.containerEndTime = this.containerEndTime ?? template.untilTime;
@@ -154,8 +165,8 @@ export class ContainerShiftOverrideLifecycleService {
         untilTime,
         undefined,
         undefined,
-        this.isHoliday ? true : undefined,
-        undefined,
+        this.holidaySlot.isHoliday,
+        this.holidaySlot.isWeekdayAndHoliday,
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(tasks => {

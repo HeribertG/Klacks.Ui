@@ -79,6 +79,7 @@ import { ContainerShiftOverrideDialogComponent } from './container-shift-overrid
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 import { WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 
 @Component({
   selector: 'app-shift-section',
@@ -401,11 +402,12 @@ export class ShiftSectionComponent
         if (shiftId && date) {
           const weekday = WEEKDAY_NAMES[date.getDay()];
           const abbreviation = shiftDataService.getShiftAbbreviation(pos.row);
+          const dayType = shiftDataService.getWeekday(pos.column);
           this.overrideDialog().open({
             containerId: shiftId,
             date: dateStr,
             weekday,
-            isHoliday: false,
+            isHoliday: dayType === WeekDaysEnum.Holiday || dayType === WeekDaysEnum.OfficiallyHoliday,
             shiftAbbreviation: abbreviation,
           });
         }

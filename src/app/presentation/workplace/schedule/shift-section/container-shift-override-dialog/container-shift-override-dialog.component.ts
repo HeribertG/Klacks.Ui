@@ -476,7 +476,8 @@ export class ContainerShiftOverrideDialogComponent {
         ? ({ id: this.lifecycleService.containerId } as IShift)
         : null,
       selectedWeekday: this.lifecycleService.weekday,
-      isHoliday: this.lifecycleService.isHoliday,
+      isHoliday: this.lifecycleService.holidaySlot.isHoliday,
+      isWeekdayAndHoliday: this.lifecycleService.holidaySlot.isWeekdayAndHoliday,
       timeFrom: this.timeFrom,
       timeTo: this.timeTo,
       additionalAvailableWorkIds: [],
