@@ -1,4 +1,7 @@
-@use "../contract-dialog-styles";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/settings-list-card-modal.scss";
 
 :host {
   display: contents;
