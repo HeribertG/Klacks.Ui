@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Reads grid header/container colors from CSS variables (set by colors.scss themes).
+ * Reads grid header/container colors from CSS variables (set by the color-themes.scss themes).
  * @param themeSource - Provides the current theme signal to trigger re-reads on theme change
  */
 import { Injectable, inject, signal, effect, untracked } from '@angular/core';

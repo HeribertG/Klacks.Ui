@@ -1,5 +1,5 @@
 @use "sass:color";
-@use "colors" as *;
+@use "colors";
 
 :root {
   --VersionNumberColor: #bdc3c7;
@@ -141,17 +141,17 @@
   --colorScrollbarButton: #a9a9a9;
   --colorScrollbarButtonActive: #424949;
 
-  --accentColor: #{$standartGreenColor};
-  --accentHoverColor: #{$splitButtonGreenColor};
-  --accentDarkColor: #{color.adjust($standartGreenColor, $lightness: -10%)};
+  --accentColor: #{colors.$standartGreenColor};
+  --accentHoverColor: #{colors.$splitButtonGreenColor};
+  --accentDarkColor: #{color.adjust(colors.$standartGreenColor, $lightness: -10%)};
   --primaryActionColor: var(--standartBlueColor);
-  --primaryActionHoverColor: #{$splitButtonBlueColor};
+  --primaryActionHoverColor: #{colors.$splitButtonBlueColor};
   --primaryActionTextColor: var(--gridColorText);
   --toggleCheckedColor: #66bb6a;
   --bootstrapPrimaryColor: #0d6efd;
   --controlFocusBorderColor: #86b7fe;
   --controlFocusRingColor: rgba(13, 110, 253, 0.25);
-  --highlightBadgeBackground: #{$standartGreenColor};
+  --highlightBadgeBackground: #{colors.$standartGreenColor};
   --highlightBadgeColor: #ffffff;
   --accentHeaderTitleColor: var(--standartTextColor);
 }

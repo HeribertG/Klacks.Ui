@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const COLORS_SCSS = resolve(HERE, '../../../../assets/standard-styles/colors.scss');
+const COLOR_THEMES_SCSS = resolve(HERE, '../../../../assets/standard-styles/color-themes.scss');
 const AUTH_CARD_SCSS = resolve(HERE, '../_auth-card.scss');
 const AUTH_CARD_USE = '@use "../auth-card";';
 const AUTH_TITLE_SELECTOR = '.auth-title';
@@ -89,7 +89,7 @@ const contrast = (a: string, b: string): number => {
 };
 
 describe('auth card title theme colours', () => {
-  const colors = read(COLORS_SCSS);
+  const colors = read(COLOR_THEMES_SCSS);
   const authCardScss = read(AUTH_CARD_SCSS);
 
   it('takes the title colour from the shared headline token', () => {
