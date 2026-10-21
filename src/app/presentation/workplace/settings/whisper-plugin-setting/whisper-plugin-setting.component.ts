@@ -23,11 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
-import {
-  DataWhisperPluginService,
-  WhisperOperationStatuses,
-  WhisperOperationTypes,
-} from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
@@ -45,7 +41,6 @@ const POLL_INTERVAL_MS = 5000;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
-  private dataWhisperPluginService = inject(DataWhisperPluginService);
   private dataUpdateService = inject(DataManagementUpdateService);
   private queueHealth = inject(UpdateQueueHealthService);
 
@@ -100,7 +95,7 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
   }
 
   public async reload(): Promise<void> {
-    const status = await this.dataWhisperPluginService.getStatus();
+    const status = await this.dataUpdateService.getWhisperPluginStatus();
     this.status.set(status);
     this.syncSelectedModel(status);
 
@@ -112,11 +107,11 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
   }
 
   public async install(): Promise<void> {
-    await this.runAction(() => this.dataWhisperPluginService.install(this.selectedModel()));
+    await this.runAction(() => this.dataUpdateService.installWhisperPlugin(this.selectedModel()));
   }
 
   public async uninstall(): Promise<void> {
-    await this.runAction(() => this.dataWhisperPluginService.uninstall());
+    await this.runAction(() => this.dataUpdateService.uninstallWhisperPlugin());
   }
 
   public onModelSelected(model: WhisperModelAlias): void {
@@ -180,7 +175,7 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
   }
 
   private async poll(): Promise<void> {
-    const status = await this.dataWhisperPluginService.getStatus();
+    const status = await this.dataUpdateService.getWhisperPluginStatus();
     this.status.set(status);
     if (!status?.activeOperation) {
       this.stopPolling();

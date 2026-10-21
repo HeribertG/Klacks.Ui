@@ -2,16 +2,21 @@
 
 /**
  * Caches feature plugin state and provides reactive signals for plugin availability.
- * Loads plugin info from the API once and exposes navigation items for the sidebar.
+ * Loads plugin info from the API once and exposes navigation items for the sidebar. It also forwards the
+ * plugin administration calls (list, install, uninstall, enable, disable, marketplace) of the same API; the callers
+ * refresh this cache after a change.
  * @param plugins - Signal holding all discovered feature plugins
  * @param pluginNavItems - Computed signal of enabled plugins that have navigation metadata and whose page the
  *   user may open (FEATURE_PLUGIN_REQUIRED_PERMISSIONS)
  */
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { PluginNavItem } from 'src/app/domain/models/plugins/plugin-nav-item';
+import {
+  MarketplacePluginSearchResult,
+} from 'src/app/domain/models/plugins/marketplace-plugin-search-result.interface';
 import { FEATURE_PLUGIN_REQUIRED_PERMISSIONS } from 'src/app/domain/constants/feature-plugin.constants';
 import { AuthorizationService } from './authorization.service';
 
@@ -64,6 +69,30 @@ export class FeaturePluginStateService {
 
     this._loadingPromise = this.loadPlugins();
     await this._loadingPromise;
+  }
+
+  public fetchPlugins(): Observable<FeaturePluginInfo[]> {
+    return this.dataService.getPlugins();
+  }
+
+  public uninstallPlugin(name: string): Observable<void> {
+    return this.dataService.uninstall(name);
+  }
+
+  public enablePlugin(name: string): Observable<void> {
+    return this.dataService.enable(name);
+  }
+
+  public disablePlugin(name: string): Observable<void> {
+    return this.dataService.disable(name);
+  }
+
+  public installFromMarketplace(name: string): Observable<void> {
+    return this.dataService.installFromMarketplace(name);
+  }
+
+  public searchMarketplace(search?: string, category?: string): Observable<MarketplacePluginSearchResult> {
+    return this.dataService.searchMarketplace(search, category);
   }
 
   public async refresh(): Promise<void> {

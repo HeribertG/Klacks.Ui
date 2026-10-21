@@ -33,10 +33,7 @@ import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
-import {
-  DataWhisperPluginService,
-  WhisperOperationTypes,
-} from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
@@ -68,7 +65,6 @@ const DELETE_BLOCKED_MESSAGE_KEY = 'settings.updates.history.delete.blocked';
 export class UpdatesSettingComponent implements OnInit, OnDestroy {
   private dataUpdateService = inject(DataManagementUpdateService);
   private settingsService = inject(DataManagementSettingsService);
-  private dataWhisperPluginService = inject(DataWhisperPluginService);
   private queueHealth = inject(UpdateQueueHealthService);
   private destroy$ = new Subject<void>();
 
@@ -164,9 +160,9 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
       case 'Rollback':
         return firstValueFrom(this.dataUpdateService.rollbackUpdate());
       case WhisperOperationTypes.Install:
-        return this.dataWhisperPluginService.install(item.targetVersion as WhisperModelAlias);
+        return this.dataUpdateService.installWhisperPlugin(item.targetVersion as WhisperModelAlias);
       case WhisperOperationTypes.Uninstall:
-        return this.dataWhisperPluginService.uninstall();
+        return this.dataUpdateService.uninstallWhisperPlugin();
       default:
         return firstValueFrom(this.dataUpdateService.triggerUpdate());
     }

@@ -3,7 +3,6 @@
 /**
  * Settings component for managing installed feature plugins.
  * Shows only installed plugins. Marketplace modal for browsing and installing new ones.
- * @param dataService - API service for feature plugin operations
  * @param toastService - Service for displaying toast notifications
  * @param assistantLauncher - Offers Klacksy's commissioning help after install/enable, when the manifest asks for it
  */
@@ -11,7 +10,6 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestro
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -40,7 +38,6 @@ const ASSISTANT_SETUP_OFFER_KEY_PREFIX = 'plugin-setup:';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeaturePluginsComponent implements OnInit, OnDestroy {
-  private dataService = inject(DataFeaturePluginService);
   private pluginState = inject(FeaturePluginStateService);
   private toastService = inject(ToastShowService);
   private assistantLauncher = inject(PluginSetupAssistantOfferService);
@@ -76,7 +73,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
 
   private loadPlugins(): void {
     this.isLoading = true;
-    this.dataService.getPlugins()
+    this.pluginState.fetchPlugins()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (plugins) => {
@@ -94,7 +91,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
 
   async onUninstall(plugin: FeaturePluginInfo): Promise<void> {
     try {
-      await firstValueFrom(this.dataService.uninstall(plugin.name));
+      await firstValueFrom(this.pluginState.uninstallPlugin(plugin.name));
       plugin.isInstalled = false;
       plugin.isEnabled = false;
       await this.pluginState.refresh();
@@ -115,9 +112,9 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
     let toggledOn = false;
     try {
       if (newState) {
-        await firstValueFrom(this.dataService.enable(plugin.name));
+        await firstValueFrom(this.pluginState.enablePlugin(plugin.name));
       } else {
-        await firstValueFrom(this.dataService.disable(plugin.name));
+        await firstValueFrom(this.pluginState.disablePlugin(plugin.name));
       }
       plugin.isEnabled = newState;
       await this.pluginState.refresh();

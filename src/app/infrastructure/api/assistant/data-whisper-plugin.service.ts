@@ -17,18 +17,6 @@ const WHISPER_UNINSTALL_ENDPOINT = 'stt/whisper-plugin/uninstall';
 const JSON_CONTENT_TYPE = 'application/json';
 const NETWORK_ERROR_REASON = 'Network error';
 
-export const WhisperOperationTypes = {
-  Install: 'WhisperInstall',
-  Uninstall: 'WhisperUninstall',
-} as const;
-
-export const WhisperOperationStatuses = {
-  Pending: 'Pending',
-  Running: 'Running',
-  Succeeded: 'Succeeded',
-  Failed: 'Failed',
-} as const;
-
 @Injectable({ providedIn: 'root' })
 export class DataWhisperPluginService {
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;

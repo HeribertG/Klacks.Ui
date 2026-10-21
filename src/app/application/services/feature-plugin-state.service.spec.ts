@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { FeaturePluginStateService } from './feature-plugin-state.service';
@@ -43,7 +43,14 @@ const FLOOR_PLAN_WITH_NAV: FeaturePluginInfo = {
 
 describe('FeaturePluginStateService', () => {
   let service: FeaturePluginStateService;
-  let dataServiceSpy: { getPlugins: ReturnType<typeof vi.fn> };
+  let dataServiceSpy: {
+    getPlugins: ReturnType<typeof vi.fn>;
+    uninstall: ReturnType<typeof vi.fn>;
+    enable: ReturnType<typeof vi.fn>;
+    disable: ReturnType<typeof vi.fn>;
+    installFromMarketplace: ReturnType<typeof vi.fn>;
+    searchMarketplace: ReturnType<typeof vi.fn>;
+  };
   let rights: string[];
   const authorizationStub = {
     hasPermission: (permission: string): boolean => rights.includes(ROLE_ADMIN) || rights.includes(permission),
@@ -61,7 +68,14 @@ describe('FeaturePluginStateService', () => {
   };
 
   beforeEach(() => {
-    dataServiceSpy = { getPlugins: vi.fn() };
+    dataServiceSpy = {
+      getPlugins: vi.fn(),
+      uninstall: vi.fn(),
+      enable: vi.fn(),
+      disable: vi.fn(),
+      installFromMarketplace: vi.fn(),
+      searchMarketplace: vi.fn(),
+    };
     rights = [ROLE_ADMIN];
   });
 
@@ -179,6 +193,43 @@ describe('FeaturePluginStateService', () => {
 
       expect(service.isPluginEnabled(MESSAGING_PLUGIN_NAME)).toBe(true);
       expect(navNames()).toEqual([]);
+    });
+  });
+
+  describe('administration calls', () => {
+    it('lists the plugins of the API without touching the cached list', async () => {
+      dataServiceSpy.getPlugins.mockReturnValue(of([MESSAGING_PLUGIN]));
+      setup();
+
+      const plugins = await firstValueFrom(service.fetchPlugins());
+
+      expect(plugins).toEqual([MESSAGING_PLUGIN]);
+      expect(service.plugins()).toEqual([]);
+    });
+
+    it.each([
+      ['uninstallPlugin', 'uninstall'],
+      ['enablePlugin', 'enable'],
+      ['disablePlugin', 'disable'],
+      ['installFromMarketplace', 'installFromMarketplace'],
+    ] as const)('forwards %s with the plugin name to the API', async (method, apiMethod) => {
+      dataServiceSpy[apiMethod].mockReturnValue(of(undefined));
+      setup();
+
+      await firstValueFrom(service[method]('messaging'), { defaultValue: undefined });
+
+      expect(dataServiceSpy[apiMethod]).toHaveBeenCalledWith('messaging');
+    });
+
+    it('forwards the marketplace search term and category to the API', async () => {
+      const result = { items: [], totalCount: 0, page: 1, pageSize: 20 };
+      dataServiceSpy.searchMarketplace.mockReturnValue(of(result));
+      setup();
+
+      const found = await firstValueFrom(service.searchMarketplace('mess', 'communication'));
+
+      expect(dataServiceSpy.searchMarketplace).toHaveBeenCalledWith('mess', 'communication');
+      expect(found).toBe(result);
     });
   });
 });

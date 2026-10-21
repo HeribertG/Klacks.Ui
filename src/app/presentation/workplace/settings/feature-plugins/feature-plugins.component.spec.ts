@@ -14,7 +14,6 @@ import { of, throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FeaturePluginsComponent } from './feature-plugins.component';
-import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PluginSetupAssistantOfferService } from 'src/app/presentation/services/plugin-setup-assistant-offer.service';
@@ -57,13 +56,14 @@ const PLAIN_PLUGIN: FeaturePluginInfo = {
 };
 
 describe('FeaturePluginsComponent - assistant setup offer', () => {
-  let dataServiceSpy: {
-    getPlugins: ReturnType<typeof vi.fn>;
-    enable: ReturnType<typeof vi.fn>;
-    disable: ReturnType<typeof vi.fn>;
-  };
   let pluginsSignal: ReturnType<typeof signal<FeaturePluginInfo[]>>;
-  let pluginStateSpy: { refresh: ReturnType<typeof vi.fn>; plugins: ReturnType<typeof signal<FeaturePluginInfo[]>> };
+  let pluginStateSpy: {
+    refresh: ReturnType<typeof vi.fn>;
+    plugins: ReturnType<typeof signal<FeaturePluginInfo[]>>;
+    fetchPlugins: ReturnType<typeof vi.fn>;
+    enablePlugin: ReturnType<typeof vi.fn>;
+    disablePlugin: ReturnType<typeof vi.fn>;
+  };
   let offerSetupHelp: ReturnType<typeof vi.fn>;
   let reloadLang: ReturnType<typeof vi.fn>;
   let modalRef: { close: ReturnType<typeof vi.fn> };
@@ -81,13 +81,14 @@ describe('FeaturePluginsComponent - assistant setup offer', () => {
   }
 
   beforeEach(() => {
-    dataServiceSpy = {
-      getPlugins: vi.fn().mockReturnValue(of([])),
-      enable: vi.fn().mockReturnValue(of(undefined)),
-      disable: vi.fn().mockReturnValue(of(undefined)),
-    };
     pluginsSignal = signal<FeaturePluginInfo[]>([]);
-    pluginStateSpy = { refresh: vi.fn().mockResolvedValue(undefined), plugins: pluginsSignal };
+    pluginStateSpy = {
+      refresh: vi.fn().mockResolvedValue(undefined),
+      plugins: pluginsSignal,
+      fetchPlugins: vi.fn().mockReturnValue(of([])),
+      enablePlugin: vi.fn().mockReturnValue(of(undefined)),
+      disablePlugin: vi.fn().mockReturnValue(of(undefined)),
+    };
     offerSetupHelp = vi.fn();
     reloadLang = vi.fn(() => of({}));
     modalRef = { close: vi.fn() };
@@ -95,7 +96,6 @@ describe('FeaturePluginsComponent - assistant setup offer', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: DataFeaturePluginService, useValue: dataServiceSpy },
         { provide: FeaturePluginStateService, useValue: pluginStateSpy },
         { provide: ToastShowService, useValue: { showError: vi.fn(), showSuccess: vi.fn() } },
         { provide: PluginSetupAssistantOfferService, useValue: { offerSetupHelp } },
@@ -196,7 +196,7 @@ describe('FeaturePluginsComponent - assistant setup offer', () => {
 
   it('does not offer help when the toggle itself fails, and still shows the failure toast', async () => {
     refreshFillsListWith(MESSAGING_PLUGIN);
-    dataServiceSpy.enable.mockReturnValue(throwError(() => new Error('boom')));
+    pluginStateSpy.enablePlugin.mockReturnValue(throwError(() => new Error('boom')));
     const toastSpy = TestBed.inject(ToastShowService) as unknown as { showError: ReturnType<typeof vi.fn> };
     const component = createComponent();
 

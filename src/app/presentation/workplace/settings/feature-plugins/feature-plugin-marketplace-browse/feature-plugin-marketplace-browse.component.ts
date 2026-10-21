@@ -9,7 +9,7 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, input, o
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MarketplacePlugin } from 'src/app/domain/models/plugins/marketplace-plugin';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
@@ -26,7 +26,7 @@ const PAGE_SIZE = 12;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeaturePluginMarketplaceBrowseComponent {
-  private dataService = inject(DataFeaturePluginService);
+  private pluginState = inject(FeaturePluginStateService);
   private toastService = inject(ToastShowService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -47,7 +47,7 @@ export class FeaturePluginMarketplaceBrowseComponent {
     this.isLoading = true;
     try {
       const result = await firstValueFrom(
-        this.dataService.searchMarketplace(this.searchTerm)
+        this.pluginState.searchMarketplace(this.searchTerm)
       );
       this.allPlugins = result.items;
       this.totalCount = this.allPlugins.length;
@@ -74,7 +74,7 @@ export class FeaturePluginMarketplaceBrowseComponent {
   async onInstall(name: string): Promise<void> {
     this.installingName = name;
     try {
-      await firstValueFrom(this.dataService.installFromMarketplace(name));
+      await firstValueFrom(this.pluginState.installFromMarketplace(name));
       this.installed.emit(name);
       this.toastService.showSuccess(
         this.translate.instant('settings.feature-plugins.success.install'),

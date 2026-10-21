@@ -9,13 +9,11 @@ import { UpdatesSettingComponent } from './updates-setting.component';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
-import { DataWhisperPluginService } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
 
 describe('UpdatesSettingComponent', () => {
   let component: UpdatesSettingComponent;
   let fixture: ComponentFixture<UpdatesSettingComponent>;
   let mockUpdate: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
-  let mockWhisperPlugin: Partial<Record<keyof DataWhisperPluginService, ReturnType<typeof vi.fn>>>;
   let updateConfigSignal: ReturnType<typeof signal<UpdateConfigSettings>>;
   let triggerSignal: ReturnType<typeof signal<number>>;
 
@@ -31,11 +29,8 @@ describe('UpdatesSettingComponent', () => {
       triggerUpdate: vi.fn().mockReturnValue(of({ enqueued: true, reason: 'Update enqueued.' })),
       rollbackUpdate: vi.fn().mockReturnValue(of({ enqueued: true, reason: 'Rollback enqueued.' })),
       deleteHistoryEntry: vi.fn().mockReturnValue(of(true)),
-    };
-
-    mockWhisperPlugin = {
-      install: vi.fn().mockResolvedValue({ enqueued: true, operationId: 'op-1', reason: 'Install enqueued.' }),
-      uninstall: vi.fn().mockResolvedValue({ enqueued: true, operationId: 'op-2', reason: 'Uninstall enqueued.' }),
+      installWhisperPlugin: vi.fn().mockResolvedValue({ enqueued: true, operationId: 'op-1', reason: 'Install enqueued.' }),
+      uninstallWhisperPlugin: vi.fn().mockResolvedValue({ enqueued: true, operationId: 'op-2', reason: 'Uninstall enqueued.' }),
     };
 
     updateConfigSignal = signal(new UpdateConfigSettings());
@@ -50,7 +45,6 @@ describe('UpdatesSettingComponent', () => {
       providers: [
         { provide: DataManagementUpdateService, useValue: mockUpdate },
         { provide: DataManagementSettingsService, useValue: mockSettings },
-        { provide: DataWhisperPluginService, useValue: mockWhisperPlugin },
       ],
     }).compileComponents();
 
@@ -118,7 +112,7 @@ describe('UpdatesSettingComponent', () => {
       requestedAt: '2026-08-06T00:00:00Z',
     });
     expect(mockUpdate.deleteHistoryEntry).toHaveBeenCalledWith('1');
-    expect(mockWhisperPlugin.install).toHaveBeenCalledWith('large-v3-turbo');
+    expect(mockUpdate.installWhisperPlugin).toHaveBeenCalledWith('large-v3-turbo');
     expect(component.actionMessage()).toBe('Install enqueued.');
   });
 
@@ -135,7 +129,7 @@ describe('UpdatesSettingComponent', () => {
       requestedAt: '2026-08-06T00:00:00Z',
     });
     expect(mockUpdate.deleteHistoryEntry).not.toHaveBeenCalled();
-    expect(mockWhisperPlugin.uninstall).toHaveBeenCalled();
+    expect(mockUpdate.uninstallWhisperPlugin).toHaveBeenCalled();
     expect(component.actionMessage()).toBe('Uninstall enqueued.');
   });
 
