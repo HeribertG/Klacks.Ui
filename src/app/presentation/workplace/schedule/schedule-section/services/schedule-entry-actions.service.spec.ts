@@ -2,6 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
@@ -12,8 +13,9 @@ import { AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu-i
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
-import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
+import { DataManagementWorkService } from 'src/app/domain/services/work/data-management-work.service';
+import { DataManagementBreakService } from 'src/app/domain/services/break/data-management-break.service';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { Break } from 'src/app/domain/models/break/break-class';
@@ -58,6 +60,15 @@ describe('ScheduleEntryActionsService', () => {
     visibleEndDate: Date | null;
     currentFilter: { paymentInterval: number };
     addWorkScheduleEntry: ReturnType<typeof vi.fn>;
+    readDatas: ReturnType<typeof vi.fn>;
+  };
+  let workService: {
+    confirmWork: ReturnType<typeof vi.fn>;
+    unconfirmWork: ReturnType<typeof vi.fn>;
+  };
+  let breakService: {
+    confirmBreak: ReturnType<typeof vi.fn>;
+    unconfirmBreak: ReturnType<typeof vi.fn>;
   };
   let scheduleEntryCrud: {
     addBreakScheduleEntry: ReturnType<typeof vi.fn>;
@@ -82,6 +93,15 @@ describe('ScheduleEntryActionsService', () => {
       visibleEndDate: null,
       currentFilter: { paymentInterval: 2 },
       addWorkScheduleEntry: vi.fn(),
+      readDatas: vi.fn(),
+    };
+    workService = {
+      confirmWork: vi.fn().mockReturnValue(of({})),
+      unconfirmWork: vi.fn().mockReturnValue(of({})),
+    };
+    breakService = {
+      confirmBreak: vi.fn().mockReturnValue(of({})),
+      unconfirmBreak: vi.fn().mockReturnValue(of({})),
     };
     scheduleEntryCrud = {
       addBreakScheduleEntry: vi.fn(),
@@ -97,13 +117,65 @@ describe('ScheduleEntryActionsService', () => {
         { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [ABSENCE_ITEM] } },
         { provide: ScheduleEntryCrudService, useValue: scheduleEntryCrud },
         { provide: BaseCellManipulationService, useValue: {} },
-        { provide: DataScheduleService, useValue: {} },
-        { provide: DataBreakService, useValue: {} },
+        { provide: DataManagementWorkService, useValue: workService },
+        { provide: DataManagementBreakService, useValue: breakService },
         { provide: DataManagementScheduleNoteService, useValue: {} },
         { provide: DataManagementScheduleCommandService, useValue: {} },
       ],
     });
     service = TestBed.inject(ScheduleEntryActionsService);
+  });
+
+  function gridWithEntry(entryType: WorkScheduleEntryType | null): ScheduleDataService {
+    return {
+      getWorkScheduleEntryForCell: () => (entryType === null ? undefined : { id: 'entry-1', entryType }),
+    } as unknown as ScheduleDataService;
+  }
+
+  describe('confirm and unconfirm', () => {
+    it('confirms a work entry through the work service and re-reads the schedule', () => {
+      service.confirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.Work));
+
+      expect(workService.confirmWork).toHaveBeenCalledWith('entry-1');
+      expect(breakService.confirmBreak).not.toHaveBeenCalled();
+      expect(dataManagement.readDatas).toHaveBeenCalledWith(false);
+    });
+
+    it('confirms a break entry through the break service and re-reads the schedule', () => {
+      service.confirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.Break));
+
+      expect(breakService.confirmBreak).toHaveBeenCalledWith('entry-1');
+      expect(workService.confirmWork).not.toHaveBeenCalled();
+      expect(dataManagement.readDatas).toHaveBeenCalledWith(false);
+    });
+
+    it('unconfirms a work entry through the work service and re-reads the schedule', () => {
+      service.unconfirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.Work));
+
+      expect(workService.unconfirmWork).toHaveBeenCalledWith('entry-1');
+      expect(breakService.unconfirmBreak).not.toHaveBeenCalled();
+      expect(dataManagement.readDatas).toHaveBeenCalledWith(false);
+    });
+
+    it('unconfirms a break entry through the break service and re-reads the schedule', () => {
+      service.unconfirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.Break));
+
+      expect(breakService.unconfirmBreak).toHaveBeenCalledWith('entry-1');
+      expect(workService.unconfirmWork).not.toHaveBeenCalled();
+      expect(dataManagement.readDatas).toHaveBeenCalledWith(false);
+    });
+
+    it('ignores cells without an entry and entry types that cannot be confirmed', () => {
+      service.confirmWork(0, 0, gridWithEntry(null));
+      service.confirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.WorkChange));
+      service.unconfirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.ScheduleNote));
+
+      expect(workService.confirmWork).not.toHaveBeenCalled();
+      expect(workService.unconfirmWork).not.toHaveBeenCalled();
+      expect(breakService.confirmBreak).not.toHaveBeenCalled();
+      expect(breakService.unconfirmBreak).not.toHaveBeenCalled();
+      expect(dataManagement.readDatas).not.toHaveBeenCalled();
+    });
   });
 
   for (const zone of CALENDAR_TEST_ZONES) {

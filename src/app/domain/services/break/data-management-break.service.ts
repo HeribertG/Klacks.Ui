@@ -52,6 +52,14 @@ export class DataManagementBreakService {
     return this.dataBreakService.deleteBreak(id, periodStart, periodEnd);
   }
 
+  confirmBreak(breakId: string): Observable<IBreak> {
+    return this.dataBreakService.confirmBreak(breakId);
+  }
+
+  unconfirmBreak(breakId: string): Observable<IBreak> {
+    return this.dataBreakService.unconfirmBreak(breakId);
+  }
+
   bulkAddBreaks(request: BulkAddBreaksRequest): Observable<BulkBreaksResponse> {
     const analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
     request.breaks = request.breaks.map(b => ({ ...b, analyseToken: b.analyseToken ?? analyseToken }));

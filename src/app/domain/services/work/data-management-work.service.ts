@@ -2,7 +2,7 @@
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
@@ -101,6 +101,14 @@ export class DataManagementWorkService {
           },
         });
     });
+  }
+
+  confirmWork(workId: string): Observable<IWork> {
+    return this.dataSchedule.confirmWork(workId);
+  }
+
+  unconfirmWork(workId: string): Observable<IWork> {
+    return this.dataSchedule.unconfirmWork(workId);
   }
 
   reassignWorkClient(workId: string, targetClientId: string): Promise<ReassignWorkClientResponse> {

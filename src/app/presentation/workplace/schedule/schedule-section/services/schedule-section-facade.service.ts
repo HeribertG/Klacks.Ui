@@ -17,7 +17,6 @@
  * @param showInSchedule - Service for "show in schedule" navigation
  * @param workScheduleLoader - Service for loading and updating work schedules
  * @param breakPlaceholderLoader - Service for break placeholder management in the schedule
- * @param dataBreakPlaceholder - API service for break placeholder CRUD operations
  */
 import { inject, Injectable } from '@angular/core';
 import { ScheduleContextMenuService } from './schedule-context-menu.service';
@@ -36,7 +35,6 @@ import { WorkNotificationService } from 'src/app/domain/services/schedule/work-n
 import { ShowInScheduleService } from '../../services/show-in-schedule.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
-import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 
 @Injectable()
 export class ScheduleSectionFacadeService {
@@ -56,5 +54,4 @@ export class ScheduleSectionFacadeService {
   readonly showInSchedule = inject(ShowInScheduleService);
   readonly workScheduleLoader = inject(WorkScheduleLoaderService);
   readonly breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
-  readonly dataBreakPlaceholder = inject(DataBreakPlaceholderService);
 }

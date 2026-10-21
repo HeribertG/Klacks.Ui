@@ -26,8 +26,8 @@ import {
   DeleteWorkScheduleEntryParams,
 } from 'src/app/domain/services/schedule/delete-work-schedule-entry-params.interface';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
-import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
-import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
+import { DataManagementWorkService } from 'src/app/domain/services/work/data-management-work.service';
+import { DataManagementBreakService } from 'src/app/domain/services/break/data-management-break.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
@@ -53,8 +53,8 @@ export class ScheduleEntryActionsService {
   private absenceMenuService = inject(AbsenceMenuService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private cellManipulation = inject(BaseCellManipulationService);
-  private dataScheduleService = inject(DataScheduleService);
-  private dataBreakService = inject(DataBreakService);
+  private workService = inject(DataManagementWorkService);
+  private breakService = inject(DataManagementBreakService);
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
   private scheduleCommandService = inject(DataManagementScheduleCommandService);
   private shiftPlacement = inject(ShiftPlacementService);
@@ -238,12 +238,12 @@ export class ScheduleEntryActionsService {
     if (!entry) return;
 
     if (entry.entryType === WorkScheduleEntryType.Work) {
-      this.dataScheduleService.confirmWork(entry.id).subscribe({
+      this.workService.confirmWork(entry.id).subscribe({
         next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error confirming work:', err),
       });
     } else if (entry.entryType === WorkScheduleEntryType.Break) {
-      this.dataBreakService.confirmBreak(entry.id).subscribe({
+      this.breakService.confirmBreak(entry.id).subscribe({
         next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error confirming break:', err),
       });
@@ -255,12 +255,12 @@ export class ScheduleEntryActionsService {
     if (!entry) return;
 
     if (entry.entryType === WorkScheduleEntryType.Work) {
-      this.dataScheduleService.unconfirmWork(entry.id).subscribe({
+      this.workService.unconfirmWork(entry.id).subscribe({
         next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error unconfirming work:', err),
       });
     } else if (entry.entryType === WorkScheduleEntryType.Break) {
-      this.dataBreakService.unconfirmBreak(entry.id).subscribe({
+      this.breakService.unconfirmBreak(entry.id).subscribe({
         next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error unconfirming break:', err),
       });

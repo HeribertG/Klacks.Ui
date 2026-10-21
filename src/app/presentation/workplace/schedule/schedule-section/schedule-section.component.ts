@@ -583,9 +583,8 @@ export class ScheduleSectionComponent
     if (!this.contextMenuBreakPlaceholder?.id) return;
 
     const id = this.contextMenuBreakPlaceholder.id;
-    this.facade.dataBreakPlaceholder.deleteBreak(id).subscribe({
+    this.facade.breakPlaceholderLoader.deleteBreakPlaceholder(id).subscribe({
       next: () => {
-        this.facade.breakPlaceholderLoader.removeBreakPlaceholder(id);
         this.facade.workScheduleLoader.applyBreakPlaceholderRows();
         this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
       },
@@ -599,9 +598,8 @@ export class ScheduleSectionComponent
 
     this.facade.entryActions.adoptBreakPlaceholder(bp, absenceItemId).then(() => {
       if (!bp.id) return;
-      this.facade.dataBreakPlaceholder.deleteBreak(bp.id).subscribe({
+      this.facade.breakPlaceholderLoader.deleteBreakPlaceholder(bp.id).subscribe({
         next: () => {
-          this.facade.breakPlaceholderLoader.removeBreakPlaceholder(bp.id!);
           this.facade.workScheduleLoader.applyBreakPlaceholderRows();
           this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
         },

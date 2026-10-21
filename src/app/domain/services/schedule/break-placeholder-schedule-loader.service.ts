@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
-import { Subject, switchMap, EMPTY, catchError } from 'rxjs';
+import { Observable, Subject, switchMap, EMPTY, catchError, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface';
@@ -75,6 +75,10 @@ export class BreakPlaceholderScheduleLoaderService {
     };
 
     this.loadTrigger$.next(filter);
+  }
+
+  deleteBreakPlaceholder(id: string): Observable<IBreakPlaceholder> {
+    return this.dataBreakPlaceholder.deleteBreak(id).pipe(tap(() => this.removeBreakPlaceholder(id)));
   }
 
   removeBreakPlaceholder(id: string): void {
