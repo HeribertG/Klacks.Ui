@@ -8,75 +8,26 @@
  * @param visibleValue - Number of ticks visible without scrolling
  */
 import {
-  Component,
-  Input,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnChanges,
-  SimpleChanges,
-  NgZone,
-  OnInit,
-  OnDestroy,
-  ChangeDetectorRef,
-  inject,
-  ChangeDetectionStrategy,
-  output
+  AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, NgZone, OnChanges,
+  OnDestroy, OnInit, SimpleChanges, ViewChild, inject, output
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Subject } from 'rxjs';
+import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
+import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 import { ScrollbarService } from './scrollbar.service';
-import { Metrics } from './metrics.model';
-import { IMetrics } from './metrics.interface';
-import { CheckContext } from 'src/app/domain/services/check-context.decorator';
 import { SCROLLBAR_CONSTANTS } from './constants';
 import { maxScrollValue } from './scroll-range.helper';
-import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
-import {
-  Subject,
-  debounceTime,
-  fromEvent,
-  takeUntil,
-  throttleTime,
-} from 'rxjs';
-
-import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ScrollAnimationService } from './scroll-animation.service';
 import { AxisConfig } from './axis-config.interface';
-import { ImagesThumps } from './images-thumps.model';
-import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import { HORIZONTAL_AXIS_CONFIG, VERTICAL_AXIS_CONFIG } from './scrollbar-axis.constants';
+import { arrowSvgs } from './scrollbar-arrow.helper';
+import { ScrollbarCanvasRendererService } from './scrollbar-canvas-renderer.service';
+import { ScrollbarPointerService } from './scrollbar-pointer.service';
+import { ScrollbarResizeService } from './scrollbar-resize.service';
+import { ScrollbarHost } from './scrollbar-host.interface';
 
 export type ScrollbarOrientation = 'horizontal' | 'vertical';
-
-const VERTICAL_CONFIG: AxisConfig = {
-  clientPos: 'clientY',
-  canvasOffset: 'offsetTop',
-  canvasSizeProp: 'height',
-  canvasCrossSizeProp: 'width',
-  thumbSizeProp: 'height',
-  svgBackward: (svc) => svc.triangleTopSvg,
-  svgForward: (svc) => svc.triangleBottomSvg,
-  createThumbFn: (service, metrics, images) => service.createThumbVertical(metrics, images),
-  metricsSize: (canvas) => Math.round(canvas.height),
-  resizeExtract: (entry, padding) => ({
-    width: entry.contentRect.width,
-    height: entry.contentRect.height - padding,
-  }),
-};
-
-const HORIZONTAL_CONFIG: AxisConfig = {
-  clientPos: 'clientX',
-  canvasOffset: 'offsetLeft',
-  canvasSizeProp: 'width',
-  canvasCrossSizeProp: 'height',
-  thumbSizeProp: 'width',
-  svgBackward: (svc) => svc.triangleLeftSvg,
-  svgForward: (svc) => svc.triangleRightSvg,
-  createThumbFn: (service, metrics, images) => service.createThumbHorizontal(metrics, images),
-  metricsSize: (canvas) => canvas.width,
-  resizeExtract: (entry, padding) => ({
-    width: entry.contentRect.width - padding,
-  }),
-};
 
 @Component({
   selector: 'app-scrollbar',
@@ -84,7 +35,7 @@ const HORIZONTAL_CONFIG: AxisConfig = {
   styleUrls: ['./scrollbar.component.scss'],
   standalone: true,
   imports: [ResizeDirective],
-  providers: [ScrollAnimationService],
+  providers: [ScrollAnimationService, ScrollbarCanvasRendererService, ScrollbarPointerService, ScrollbarResizeService],
   host: {
     '[class.horizontal]': 'orientation === "horizontal"',
     '[class.vertical]': 'orientation === "vertical"',
@@ -110,13 +61,7 @@ export class ScrollbarComponent
 
   set value(newValue: number) {
     const upper = maxScrollValue(this.maxValue ?? 0, this.visibleValue ?? 0);
-    const clampedValue = Math.max(
-      0,
-      Math.min(
-        newValue ?? 0,
-        isFinite(upper) ? upper : 0
-      )
-    );
+    const clampedValue = Math.max(0, Math.min(newValue ?? 0, isFinite(upper) ? upper : 0));
 
     if (this._value !== clampedValue) {
       this._value = clampedValue;
@@ -133,6 +78,9 @@ export class ScrollbarComponent
   private hostRef = inject(ElementRef);
   protected readonly inputModality = inject(InputModalityService);
   private animationService = inject(ScrollAnimationService);
+  private renderer = inject(ScrollbarCanvasRendererService);
+  private pointer = inject(ScrollbarPointerService);
+  private resizer = inject(ScrollbarResizeService);
 
   public safeTriangleSvgBackward!: SafeHtml;
   public safeTriangleSvgForward!: SafeHtml;
@@ -141,68 +89,40 @@ export class ScrollbarComponent
   public hideArrowButtons = false;
 
   private _value = 0;
-  private readonly CANVAS_PADDING = 50;
-  private readonly CROSS_AXIS_POSITION_OFFSET = 1;
-  private readonly FPS_THROTTLE = 16;
-  private readonly MOUSE_PRIMARY_BUTTON = 1;
-  private readonly PRIMARY_BUTTON_INDEX = 0;
 
   private destroy$ = new Subject<void>();
 
-  private axisConfig: AxisConfig = VERTICAL_CONFIG;
-  private imagesThumps: ImagesThumps = new ImagesThumps();
-  private metrics: IMetrics = new Metrics();
-  private ctx: CanvasRenderingContext2D | null = null;
-  private mouseEnterThumb = false;
-  private mousePointThumb = false;
-  private mousePosToThumbPos = 0;
-  private mouseOverThumb = false;
-  private lastMouseEvent: MouseEvent | null = null;
-  private isScrollbarClick = false;
+  private axisConfig: AxisConfig = VERTICAL_AXIS_CONFIG;
+
+  private readonly scrollbarHost: ScrollbarHost = {
+    canvas: () => this.canvasRef.nativeElement,
+    axis: () => this.axisConfig,
+    isHorizontal: () => this.orientation === 'horizontal',
+    isHorizontalRtl: () => this.isHorizontalRtl,
+    value: () => this._value,
+    maxValue: () => this.maxValue,
+    visibleValue: () => this.visibleValue,
+    updateValue: (newValue: number) => this.updateValue(newValue),
+    emitValueChange: () => this.zone.run(() => this.valueChange.emit(this.value)),
+    reDraw: () => this.reDraw(),
+    refresh: () => this.refresh(),
+    updateArrowButtonsState: () => this.updateArrowButtonsState(),
+  };
+
+  constructor() {
+    this.renderer.bind(this.scrollbarHost);
+    this.pointer.bind(this.scrollbarHost);
+    this.resizer.bind(this.scrollbarHost);
+  }
 
   ngOnInit() {
-    this.axisConfig = this.orientation === 'horizontal' ? HORIZONTAL_CONFIG : VERTICAL_CONFIG;
+    this.axisConfig = this.orientation === 'horizontal' ? HORIZONTAL_AXIS_CONFIG : VERTICAL_AXIS_CONFIG;
 
-    const swapArrows = this.isHorizontalRtl;
-    this.safeTriangleSvgBackward = this.sanitizer.bypassSecurityTrustHtml(
-      swapArrows
-        ? this.axisConfig.svgForward(this.scrollbarService)
-        : this.axisConfig.svgBackward(this.scrollbarService)
-    );
-    this.safeTriangleSvgForward = this.sanitizer.bypassSecurityTrustHtml(
-      swapArrows
-        ? this.axisConfig.svgBackward(this.scrollbarService)
-        : this.axisConfig.svgForward(this.scrollbarService)
-    );
+    const svgs = arrowSvgs(this.axisConfig, this.scrollbarService, this.isHorizontalRtl);
+    this.safeTriangleSvgBackward = this.sanitizer.bypassSecurityTrustHtml(svgs.backward);
+    this.safeTriangleSvgForward = this.sanitizer.bypassSecurityTrustHtml(svgs.forward);
 
-    this.animationService.setContext({
-      getValue: () => this._value,
-      getMaxValue: () => this.maxValue,
-      getVisibleValue: () => this.visibleValue,
-      getTickSize: () => this.metrics.tickSize,
-      getThumbSize: () => this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] || 0,
-      getCanvasOffset: () => this.canvasRef.nativeElement[this.axisConfig.canvasOffset],
-      getMousePosition: () => {
-        if (!this.lastMouseEvent) return null;
-        const canvas = this.canvasRef.nativeElement;
-        let pos = this.lastMouseEvent[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
-        if (this.isHorizontalRtl) {
-          pos = canvas[this.axisConfig.canvasSizeProp] - pos;
-        }
-        return pos;
-      },
-      isScrollbarClick: () => this.isScrollbarClick,
-      updateValue: (newValue: number) => this.updateValue(newValue),
-      emitValueChange: () => {
-        this.zone.run(() => {
-          this.valueChange.emit(this.value);
-        });
-      },
-      onStopAnimation: () => {
-        this.lastMouseEvent = null;
-        this.isScrollbarClick = false;
-      },
-    });
+    this.pointer.connectAnimation();
   }
 
   ngAfterViewInit() {
@@ -211,8 +131,8 @@ export class ScrollbarComponent
     this.refresh();
   }
 
-  @CheckContext
   ngOnChanges(changes: SimpleChanges) {
+    if (!this.renderer.hasContext()) return;
     this.handleMaxValueOrVisibleValueChanges(changes);
     this.handleMaxValueChanges(changes);
     this.handleValueChanges(changes);
@@ -223,8 +143,8 @@ export class ScrollbarComponent
     this.destroy$.next();
     this.destroy$.complete();
     this.animationService.destroy();
-    this.ctx = null;
-    this.lastMouseEvent = null;
+    this.renderer.release();
+    this.pointer.release();
   }
 
   private handleMaxValueOrVisibleValueChanges(changes: SimpleChanges): void {
@@ -235,12 +155,9 @@ export class ScrollbarComponent
   }
 
   private clampCurrentValue(): void {
-    const maxScrollValue =
-      this.maxValue -
-      this.visibleValue +
-      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-    if (this._value > maxScrollValue) {
-      this._value = Math.max(0, maxScrollValue);
+    const upper = maxScrollValue(this.maxValue, this.visibleValue);
+    if (this._value > upper) {
+      this._value = Math.max(0, upper);
       this.valueChange.emit(this._value);
     }
   }
@@ -261,361 +178,38 @@ export class ScrollbarComponent
     const canvas = this.canvasRef.nativeElement;
     if (!canvas) return;
 
-    fromEvent<MouseEvent>(canvas, 'mousedown')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => this.onMouseDown(event));
-
-    fromEvent<MouseEvent>(canvas, 'mouseup')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.onMouseUp());
-
-    fromEvent<MouseEvent>(canvas, 'mousemove')
-      .pipe(throttleTime(this.FPS_THROTTLE), takeUntil(this.destroy$))
-      .subscribe((event) => this.onMouseMove(event));
-
-    fromEvent<MouseEvent>(canvas, 'mouseleave')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.onMouseLeave());
-
-    fromEvent<MouseEvent>(canvas, 'mouseenter')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => this.onMouseEnter(event));
-
-    fromEvent<PointerEvent>(canvas, 'pointerdown')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => this.onPointerDown(event));
-
-    fromEvent<PointerEvent>(canvas, 'pointerup')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => this.onPointerUp(event));
-
-    fromEvent<PointerEvent>(canvas, 'pointermove')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => this.onPointerMove(event));
-
-    fromEvent(window, 'resize')
-      .pipe(debounceTime(150), takeUntil(this.destroy$))
-      .subscribe(() => this.handleWindowResize());
+    this.pointer.listen(canvas, this.destroy$);
+    this.resizer.listenToWindow(this.destroy$);
   }
 
   private initCanvas(): void {
-    const canvas = this.canvasRef.nativeElement;
-    this.ctx = canvas.getContext('2d');
-
-    if (!this.ctx) {
-      console.error('Canvas context could not be initialized');
-      return;
+    if (this.renderer.attach(this.canvasRef.nativeElement)) {
+      this.refresh();
     }
-
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    this.refresh();
   }
 
   refresh(): void {
-    this.updateMetrics();
-    this.createThumb();
+    this.renderer.measure();
     this.reDraw();
     this.updateArrowButtonsState();
   }
 
-  private updateMetrics(): void {
-    const canvas = this.canvasRef.nativeElement;
-    const size = this.axisConfig.metricsSize(canvas);
-
-    this.metrics = this.scrollbarService.calcMetrics(
-      size,
-      this.visibleValue,
-      this.maxValue
-    );
-  }
-
-  private createThumb(): void {
-    this.axisConfig.createThumbFn(this.scrollbarService, this.metrics, this.imagesThumps);
-  }
-
-  @CheckContext
   private reDraw(): void {
-    if (!this.isDrawingPossible()) {
-      return;
-    }
-
-    if (!this.ctx) {
-      return;
-    }
-
-    this.ctx.save();
-    this.clearCanvas(this.canvasRef.nativeElement);
-    this.drawThumb(this.canvasRef.nativeElement);
-    this.ctx.restore();
-  }
-
-  private isDrawingPossible(): boolean {
-    return (
-      (!!this.imagesThumps.imgThumb || !!this.imagesThumps.imgSelectedThumb) &&
-      this.metrics.thumbLength !== Infinity &&
-      this.metrics.tickSize !== Infinity
-    );
-  }
-
-  private assertContext(): CanvasRenderingContext2D {
-    if (!this.ctx) {
-      throw new Error('Canvas context not initialized');
-    }
-    return this.ctx;
-  }
-
-  private clearCanvas(canvas: HTMLCanvasElement): void {
-    const ctx = this.assertContext();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  private drawThumb(canvas: HTMLCanvasElement): void {
-    const ctx = this.assertContext();
-    const thumbImage = this.getThumbImage();
-    if (!thumbImage) {
-      return;
-    }
-
-    const mainAxisPos = this.calculateMainAxisPosition(
-      canvas,
-      this.value,
-      this.metrics.tickSize,
-      thumbImage[this.axisConfig.thumbSizeProp]
-    );
-    const crossAxisPos = this.calculateCrossAxisPosition(
-      canvas,
-      thumbImage
-    );
-
-    const xPosition = this.orientation === 'horizontal' ? mainAxisPos : crossAxisPos;
-    const yPosition = this.orientation === 'horizontal' ? crossAxisPos : mainAxisPos;
-
-    ctx.putImageData(thumbImage, xPosition, yPosition);
-  }
-
-  private getThumbImage(): ImageData | undefined {
-    return this.mouseOverThumb
-      ? this.imagesThumps.imgSelectedThumb
-      : this.imagesThumps.imgThumb;
-  }
-
-  private calculateCrossAxisPosition(
-    canvas: HTMLCanvasElement,
-    thumbImage: ImageData
-  ): number {
-    const crossSizeProp = this.axisConfig.canvasCrossSizeProp;
-    const thumbCrossSize = this.orientation === 'horizontal'
-      ? thumbImage.height
-      : thumbImage.width;
-
-    const canvasCrossSize = canvas[crossSizeProp] ?? 0;
-
-    if (canvasCrossSize === 0 || thumbCrossSize === 0) {
-      return 0;
-    }
-
-    let result = (canvasCrossSize - thumbCrossSize) / 2 + this.CROSS_AXIS_POSITION_OFFSET;
-    if (result < 0) result = 0;
-    return Math.round(result);
+    if (!this.renderer.hasContext()) return;
+    this.renderer.draw(this.pointer.isOverThumb());
   }
 
   private get isHorizontalRtl(): boolean {
     return this.orientation === 'horizontal' && document.documentElement.dir === 'rtl';
   }
 
-  private calculateMainAxisPosition(
-    canvas: HTMLCanvasElement,
-    value: number,
-    tickSize: number,
-    trackSize: number
-  ): number {
-    const canvasMainSize = canvas[this.axisConfig.canvasSizeProp] ?? 0;
-    const safeValue = value ?? 0;
-    const safeTrackSize = trackSize ?? 0;
-
-    const maxScrollValue =
-      (this.maxValue ?? 0) -
-      (this.visibleValue ?? 0) +
-      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-    const availableSpace = canvasMainSize - safeTrackSize;
-
-    if (availableSpace <= 0 || !isFinite(availableSpace)) {
-      return 0;
-    }
-
-    if (maxScrollValue <= 0 || !isFinite(maxScrollValue)) {
-      return this.isHorizontalRtl ? Math.round(availableSpace) : 0;
-    }
-
-    if (safeValue >= maxScrollValue) {
-      return this.isHorizontalRtl ? 0 : Math.round(availableSpace);
-    }
-
-    const proportion = Math.max(0, Math.min(1, safeValue / maxScrollValue));
-    const position = Math.round(proportion * availableSpace);
-    return this.isHorizontalRtl ? Math.round(availableSpace) - position : position;
-  }
-
-  private updateCanvasSize(width: number, height?: number): void {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas) return;
-
-    this.zone.run(() => {
-      canvas.width = width;
-      canvas.height = height ?? canvas.offsetHeight;
-      this.refresh();
-    });
-  }
-
-  private handleWindowResize(): void {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas) return;
-    this.updateCanvasSize(canvas.offsetWidth);
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onResize(event: any): void {
-    const entries = Array.isArray(event)
-      ? (event as ResizeObserverEntry[])
-      : [];
-    if (entries?.[0]) {
-      const extracted = this.axisConfig.resizeExtract(entries[0], this.CANVAS_PADDING);
-      this.updateCanvasSize(extracted.width, extracted.height);
-    }
-  }
-
-  private onMouseDown(event: MouseEvent): void {
-    if (!this.isPrimaryClick(event)) return;
-    this.updateMouseState(event);
-    this.handleNonThumbClick(event);
-  }
-
-  private isPrimaryClick(event: MouseEvent): boolean {
-    return event.button === this.PRIMARY_BUTTON_INDEX && !isMacContextClick(event);
-  }
-
-  private updateMouseState(event: MouseEvent): void {
-    this.mouseEnterThumb = this.isMouseOverThumb(event);
-    this.mouseOverThumb = this.mouseEnterThumb;
-  }
-
-  private handleNonThumbClick(event: MouseEvent): void {
-    const canvas = this.canvasRef.nativeElement;
-    if (canvas && !this.mouseEnterThumb) {
-      this.lastMouseEvent = event;
-      this.isScrollbarClick = true;
-
-      const mousePos = event[this.axisConfig.clientPos];
-      const canvasOffset = canvas[this.axisConfig.canvasOffset];
-      const thumbPos = this.thumbPositionForValue(this.value) + canvasOffset;
-      const clickedBefore = mousePos < thumbPos;
-      const direction = (clickedBefore !== this.isHorizontalRtl) ? -1 : 1;
-      this.animationService.startBarAnimation(direction);
-    }
-  }
-
-  private onMouseUp(): void {
-    this.mouseEnterThumb = false;
-    this.mousePosToThumbPos = 0;
-    const canvas = this.canvasRef.nativeElement;
-    if (canvas) {
-      canvas.onpointermove = null;
-    }
-    this.animationService.stopAnimation();
-  }
-
-  private onMouseMove(event: MouseEvent): void {
-    this.mouseOverThumb = this.isMouseOverThumb(event);
-
-    if (this.mouseOverThumb) {
-      this.animationService.stopAnimation();
-    }
-
-    this.reDraw();
-    this.updateArrowButtonsState();
-  }
-
-  private onMouseLeave(): void {
-    this.mouseOverThumb = false;
-    this.animationService.stopAnimation();
-    this.lastMouseEvent = null;
-    this.refresh();
-  }
-
-  private onMouseEnter(event: MouseEvent): void {
-    if (this.mousePosToThumbPos > 0) {
-      this.mouseOverThumb = this.isMouseOverThumb(event);
-      this.refresh();
-    }
-  }
-
-  private onPointerDown(event: PointerEvent): void {
-    if (!this.isPrimaryClick(event)) return;
-    this.mousePointThumb = this.isMouseOverThumb(event);
-    if (this.mousePointThumb && event.buttons === this.MOUSE_PRIMARY_BUTTON) {
-      const thumbPosition = this.thumbPositionForValue(this.value);
-      this.mousePosToThumbPos = event[this.axisConfig.clientPos] - thumbPosition;
-
-      const canvas = this.canvasRef.nativeElement;
-      if (canvas) {
-        canvas.setPointerCapture(event.pointerId);
-      }
-    }
-  }
-
-  private thumbPositionForValue(value: number): number {
-    if (this.isHorizontalRtl) {
-      const canvas = this.canvasRef.nativeElement;
-      const canvasMainSize = canvas[this.axisConfig.canvasSizeProp] ?? 0;
-      const thumbSize = this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] ?? 0;
-      const availableSpace = canvasMainSize - thumbSize;
-      const maxScrollValue = this.maxValue - this.visibleValue + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-      if (maxScrollValue <= 0) return 0;
-      const proportion = Math.max(0, Math.min(1, value / maxScrollValue));
-      return availableSpace - Math.round(proportion * availableSpace);
-    }
-    return value * this.metrics.tickSize;
-  }
-
-  private onPointerUp(event: PointerEvent): void {
-    this.mousePointThumb = false;
-    const canvas = this.canvasRef.nativeElement;
-    if (canvas?.hasPointerCapture?.(event.pointerId)) {
-      canvas.releasePointerCapture(event.pointerId);
-    }
-  }
-
-  private onPointerMove(event: PointerEvent): void {
-    if (this.mousePointThumb) {
-      this.updateValueFromPointerMove(event);
-    }
-  }
-
-  private updateValueFromPointerMove(event: PointerEvent): void {
-    const pos = event[this.axisConfig.clientPos] - this.mousePosToThumbPos;
-    this.zone.runOutsideAngular(() => {
-      if (this.mousePointThumb) {
-        if (this.isHorizontalRtl) {
-          const canvas = this.canvasRef.nativeElement;
-          const canvasMainSize = canvas[this.axisConfig.canvasSizeProp] ?? 0;
-          const thumbSize = this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] ?? 0;
-          const availableSpace = canvasMainSize - thumbSize;
-          const maxScrollValue = (this.maxValue ?? 0) - (this.visibleValue ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-          if (availableSpace > 0 && maxScrollValue > 0) {
-            const proportion = (availableSpace - pos) / availableSpace;
-            this.updateValue(Math.round(proportion * maxScrollValue));
-          }
-        } else {
-          const correctValue = this.metrics.tickSize > 0 ? Math.round(pos / this.metrics.tickSize) : 0;
-          this.updateValue(correctValue);
-        }
-      }
-    });
+    this.resizer.applyResizeEntries(event);
   }
 
   onArrowThumbPointerDown(event: PointerEvent, direction: number) {
-    if (!this.isPrimaryClick(event)) return;
+    if (!this.pointer.isPrimaryClick(event)) return;
     const newValue = this.value + direction;
     this.animationService.startArrowHoldAnimation(direction, newValue);
     event.preventDefault();
@@ -629,14 +223,8 @@ export class ScrollbarComponent
   }
 
   private clampValue(value: number): number {
-    const upper = (this.imagesThumps.invisibleTicks ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-    return Math.max(
-      0,
-      Math.min(
-        value ?? 0,
-        isFinite(upper) ? upper : 0
-      )
-    );
+    const upper = (this.renderer.imagesThumps.invisibleTicks ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+    return Math.max(0, Math.min(value ?? 0, isFinite(upper) ? upper : 0));
   }
 
   private updateValue(newValue: number) {
@@ -650,31 +238,7 @@ export class ScrollbarComponent
   }
 
   isMouseOverThumb(event: MouseEvent): boolean {
-    const canvas = this.canvasRef.nativeElement;
-    if (canvas) {
-      let pos: number = event[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
-      if (this.isHorizontalRtl) {
-        pos = canvas[this.axisConfig.canvasSizeProp] - pos;
-      }
-      return this.isMouseOverThumbSub(pos);
-    }
-
-    return false;
-  }
-
-  private isMouseOverThumbSub(pos: number): boolean {
-    const correctedPos = Math.round(pos / this.metrics.tickSize);
-
-    if (this.imagesThumps.imgThumb) {
-      const thumbTicks = Math.round(
-        this.imagesThumps.imgThumb![this.axisConfig.thumbSizeProp] / this.metrics.tickSize
-      );
-      if (correctedPos >= this.value && correctedPos <= this.value + thumbTicks) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.pointer.isMouseOverThumb(event);
   }
 
   private isAtStart(): boolean {
@@ -685,8 +249,8 @@ export class ScrollbarComponent
     return this.value >= this.maxValue - this.visibleValue;
   }
 
-  @CheckContext
   private updateArrowButtonsState(): void {
+    if (!this.renderer.hasContext()) return;
     this.disableBackwardArrow = this.isAtStart();
     this.disableForwardArrow = this.isAtEnd();
     const host = this.hostRef?.nativeElement as HTMLElement;

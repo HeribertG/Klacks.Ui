@@ -8,6 +8,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ElementRef } from '@angular/core';
 import { ScrollbarService } from './scrollbar.service';
 import { SCROLLBAR_CONSTANTS } from './constants';
+import { thumbMainAxisPosition } from './scrollbar-geometry.helper';
+import { ScrollbarCanvasRendererService } from './scrollbar-canvas-renderer.service';
+import { ScrollbarPointerService } from './scrollbar-pointer.service';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 
 function createTestBed(orientation: 'vertical' | 'horizontal') {
@@ -155,8 +158,8 @@ describe('ScrollbarComponent (vertical)', () => {
 
     it('should update metrics on refresh', () => {
         (component.refresh as Mock).mockRestore();
-        const updateMetricsSpy = vi.spyOn(component as any, 'updateMetrics').mockImplementation(() => {});
-        vi.spyOn(component as any, 'createThumb').mockImplementation(() => {});
+        const renderer = fixture.debugElement.injector.get(ScrollbarCanvasRendererService);
+        const updateMetricsSpy = vi.spyOn(renderer, 'measure').mockImplementation(() => {});
         vi.spyOn(component as any, 'reDraw').mockImplementation(() => {});
         vi.spyOn(component as any, 'updateArrowButtonsState').mockImplementation(() => {});
 
@@ -171,7 +174,8 @@ describe('ScrollbarComponent (vertical)', () => {
         component.maxValue = 100;
         component.visibleValue = 20;
 
-        const result = (component as any).calculateMainAxisPosition(mockCanvas, 10, 10, 50);
+        const result = thumbMainAxisPosition(
+            { canvasMainSize: mockCanvas.height, thumbSize: 50, maxValue: component.maxValue, visibleValue: component.visibleValue }, 10, false);
         expect(result).toBe(53);
     });
 
@@ -181,7 +185,8 @@ describe('ScrollbarComponent (vertical)', () => {
         component.maxValue = 100;
         component.visibleValue = 20;
 
-        const result = (component as any).calculateMainAxisPosition(mockCanvas, 80, 10, 100);
+        const result = thumbMainAxisPosition(
+            { canvasMainSize: mockCanvas.height, thumbSize: 100, maxValue: component.maxValue, visibleValue: component.visibleValue }, 80, false);
         expect(result).toBe(94);
     });
 
@@ -269,7 +274,8 @@ describe('ScrollbarComponent (horizontal)', () => {
         component.maxValue = 100;
         component.visibleValue = 20;
 
-        const result = (component as any).calculateMainAxisPosition(mockCanvas, 10, 10, 50);
+        const result = thumbMainAxisPosition(
+            { canvasMainSize: mockCanvas.width, thumbSize: 50, maxValue: component.maxValue, visibleValue: component.visibleValue }, 10, false);
         expect(result).toBe(53);
     });
 });
@@ -316,7 +322,7 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
         component.maxValue = 100;
         component.visibleValue = 20;
 
-        const result = (component as any).calculateMainAxisPosition(mockCanvas, 0, 10, 50);
+        const result = thumbMainAxisPosition({ canvasMainSize: mockCanvas.width, thumbSize: 50, maxValue: component.maxValue, visibleValue: component.visibleValue }, 0, true);
         expect(result).toBe(450);
     });
 
@@ -328,7 +334,7 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
         component.visibleValue = 20;
         const maxScroll = 100 - 20 + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
 
-        const result = (component as any).calculateMainAxisPosition(mockCanvas, maxScroll, 10, 50);
+        const result = thumbMainAxisPosition({ canvasMainSize: mockCanvas.width, thumbSize: 50, maxValue: component.maxValue, visibleValue: component.visibleValue }, maxScroll, true);
         expect(result).toBe(0);
     });
 
@@ -339,11 +345,9 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
         component.maxValue = 100;
         component.visibleValue = 20;
 
-        const ltrPos = (component as any).calculateMainAxisPosition(mockCanvas, 10, 10, 50);
+        const ltrPos = thumbMainAxisPosition({ canvasMainSize: mockCanvas.width, thumbSize: 50, maxValue: component.maxValue, visibleValue: component.visibleValue }, 10, true);
 
-        document.documentElement.dir = 'ltr';
-        const ltrDirect = (component as any).calculateMainAxisPosition(mockCanvas, 10, 10, 50);
-        document.documentElement.dir = 'rtl';
+        const ltrDirect = thumbMainAxisPosition({ canvasMainSize: mockCanvas.width, thumbSize: 50, maxValue: component.maxValue, visibleValue: component.visibleValue }, 10, false);
 
         expect(ltrPos + ltrDirect).toBeLessThanOrEqual(450);
     });
@@ -354,8 +358,9 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
         mockCanvas.width = 500;
         Object.defineProperty(mockCanvas, 'offsetLeft', { value: 0, writable: true });
 
-        (component as any).metrics = { tickSize: 10, thumbLength: 100 };
-        (component as any).imagesThumps = {
+        const renderer = fixture.debugElement.injector.get(ScrollbarCanvasRendererService);
+        (renderer as any).metrics = { tickSize: 10, thumbLength: 100 };
+        (renderer as any).imagesThumps = {
             imgThumb: { width: 100, height: 20 },
             imgSelectedThumb: undefined,
             invisibleTicks: 80,
@@ -377,6 +382,7 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
 describe('ScrollbarComponent (context click guard)', () => {
     let component: ScrollbarComponent;
     let fixture: ComponentFixture<ScrollbarComponent>;
+    let pointerService: ScrollbarPointerService;
     let animation: { startBarAnimation: Mock; startArrowHoldAnimation: Mock; stopArrowHold: Mock; destroy: Mock };
 
     const setPlatform = (platform: string): void => {
@@ -402,37 +408,39 @@ describe('ScrollbarComponent (context click guard)', () => {
 
         fixture = TestBed.createComponent(ScrollbarComponent);
         component = setupComponent(fixture, 'horizontal');
-        (component as any).isMouseOverThumb = vi.fn().mockReturnValue(false);
+        pointerService = fixture.debugElement.injector.get(ScrollbarPointerService);
+        (pointerService as any).isMouseOverThumb = vi.fn().mockReturnValue(false);
         animation = { startBarAnimation: vi.fn(), startArrowHoldAnimation: vi.fn(), stopArrowHold: vi.fn(), destroy: vi.fn() };
         (component as any).animationService = animation;
+        (pointerService as any).animationService = animation;
     });
 
     afterEach(() => vi.restoreAllMocks());
 
     it('track mousedown with the primary button starts the bar animation', () => {
         setPlatform('MacIntel');
-        (component as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, clientX: 10 }));
+        (pointerService as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, clientX: 10 }));
 
         expect(animation.startBarAnimation).toHaveBeenCalledTimes(1);
     });
 
     it('track mousedown ignores a Mac Ctrl+Click', () => {
         setPlatform('MacIntel');
-        (component as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true, clientX: 10 }));
+        (pointerService as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true, clientX: 10 }));
 
         expect(animation.startBarAnimation).not.toHaveBeenCalled();
     });
 
     it('track mousedown ignores the secondary button', () => {
         setPlatform('Win32');
-        (component as any).onMouseDown(mouseEvent({ button: 2, buttons: 2, clientX: 10 }));
+        (pointerService as any).onMouseDown(mouseEvent({ button: 2, buttons: 2, clientX: 10 }));
 
         expect(animation.startBarAnimation).not.toHaveBeenCalled();
     });
 
     it('track mousedown on Windows with Ctrl still reacts', () => {
         setPlatform('Win32');
-        (component as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true, clientX: 10 }));
+        (pointerService as any).onMouseDown(mouseEvent({ button: 0, buttons: 1, ctrlKey: true, clientX: 10 }));
 
         expect(animation.startBarAnimation).toHaveBeenCalledTimes(1);
     });
@@ -477,29 +485,29 @@ describe('ScrollbarComponent (context click guard)', () => {
 
     it('thumb pointerdown ignores a Mac Ctrl+Click', () => {
         setPlatform('MacIntel');
-        (component as any).isMouseOverThumb = vi.fn().mockReturnValue(true);
+        (pointerService as any).isMouseOverThumb = vi.fn().mockReturnValue(true);
         const setPointerCapture = vi.fn();
         component.canvasRef.nativeElement.setPointerCapture = setPointerCapture;
 
-        (component as any).onPointerDown(
+        (pointerService as any).onPointerDown(
             pointerEvent('pointerdown', { button: 0, buttons: 1, ctrlKey: true, pointerType: 'mouse' })
         );
 
-        expect((component as any).mousePointThumb).toBe(false);
+        expect((pointerService as any).mousePointThumb).toBe(false);
         expect(setPointerCapture).not.toHaveBeenCalled();
     });
 
     it('thumb pointerdown captures a touch pointer, so the drag survives leaving the scrollbar', () => {
         setPlatform('Win32');
-        (component as any).isMouseOverThumb = vi.fn().mockReturnValue(true);
+        (pointerService as any).isMouseOverThumb = vi.fn().mockReturnValue(true);
         const setPointerCapture = vi.fn();
         component.canvasRef.nativeElement.setPointerCapture = setPointerCapture;
 
-        (component as any).onPointerDown(
+        (pointerService as any).onPointerDown(
             pointerEvent('pointerdown', { button: 0, buttons: 1, pointerType: 'touch' })
         );
 
-        expect((component as any).mousePointThumb).toBe(true);
+        expect((pointerService as any).mousePointThumb).toBe(true);
         expect(setPointerCapture).toHaveBeenCalledWith(4);
     });
 
@@ -508,9 +516,9 @@ describe('ScrollbarComponent (context click guard)', () => {
         component.canvasRef.nativeElement.hasPointerCapture = vi.fn().mockReturnValue(false);
         component.canvasRef.nativeElement.releasePointerCapture = releasePointerCapture;
 
-        (component as any).onPointerUp(pointerEvent('pointerup', { pointerType: 'touch' }));
+        (pointerService as any).onPointerUp(pointerEvent('pointerup', { pointerType: 'touch' }));
 
-        expect((component as any).mousePointThumb).toBe(false);
+        expect((pointerService as any).mousePointThumb).toBe(false);
         expect(releasePointerCapture).not.toHaveBeenCalled();
     });
 });
