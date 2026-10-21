@@ -1,9 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Voice and speech service abstractions for plugins with voice input.
+ * Voice service abstraction for plugins with voice input (speech recognition state: plugin-speech-service.interface.ts).
  * @param IPluginVoiceService - Controls voice mode (toggle, status, initialization)
- * @param IPluginSpeechService - Provides speech recognition state
  */
 
 import { IPluginVoiceCallbacks } from './plugin-voice-callbacks.interface';

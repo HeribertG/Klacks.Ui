@@ -3,9 +3,7 @@
 /**
  * DTOs, expiry and access-mode constants for personal access tokens.
  * @param IPersonalAccessToken - Token metadata as returned by the list endpoint (no secret)
- * @param IPersonalAccessTokenCreate - Create request with name, optional expiry in days and access mode
  * @param PERSONAL_ACCESS_TOKEN_ACCESS_MODE - Read (only read-only tools) or Write (tools may change data)
- * @param IPersonalAccessTokenCreated - Create response carrying the plaintext token exactly once
  */
 
 import { PersonalAccessTokenAccessMode } from './personal-access-token-access-mode.type';

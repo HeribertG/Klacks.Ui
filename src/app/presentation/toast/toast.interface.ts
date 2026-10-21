@@ -5,7 +5,6 @@
  * @param IToast - Base toast with display properties, optional interactive options and optional
  * action buttons that keep the toast open until one is chosen; `assertive` keeps an alert with actions (an
  * error toast) on role="alert" with an assertive announcement, `closable` renders a close button
- * @param IInteractiveToastConfig - Configuration for single/multi-select interactive toasts
  */
 
 import { TemplateRef } from '@angular/core';

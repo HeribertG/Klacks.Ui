@@ -3,7 +3,7 @@
 /**
  * Geometry Helper
  *
- * Classes for geometric calculations (Rectangle, Size).
+ * Rectangle class for geometric calculations (Size lives in size.model.ts).
  */
 
 export class Rectangle {

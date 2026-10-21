@@ -3,8 +3,6 @@
 /**
  * Models for what-if analysis (scenario management).
  * @param IAnalyseScenario - Represents a saved analysis scenario with status and token
- * @param ICreateAnalyseScenarioRequest - Request data for creating a new scenario
- * @param AnalyseScenarioStatus - Status enum: Active, Accepted, Rejected
  */
 
 import { AnalyseScenarioStatus } from './analyse-scenario-status.enum';

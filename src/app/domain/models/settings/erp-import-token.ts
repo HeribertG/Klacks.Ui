@@ -3,8 +3,6 @@
 /**
  * DTOs and expiry constants for ERP import tokens (upload credentials scoped to a single drop point).
  * @param IErpImportToken - Token metadata as returned by the list endpoint (no secret)
- * @param IErpImportTokenCreate - Create request with drop point id, name and optional expiry in days
- * @param IErpImportTokenCreated - Create response carrying the plaintext token exactly once
  */
 
 export const ERP_IMPORT_TOKEN_EXPIRY = {
