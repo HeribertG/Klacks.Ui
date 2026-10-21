@@ -1,43 +1,39 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * @copyright 2025 Heribert Gasparoli
- *
- * @description
- * Header component for the Schedule page displaying navigation controls,
- * calendar selection, and zoom slider. Supports weekly, biweekly, and
- * monthly period navigation based on payment interval settings.
- *
- * @relations
- * - Parent: ScheduleHomeComponent
- * - Contains: CalendarSelectorComponent, ScheduleHeaderCalendar* components
- * - Uses: DataManagementScheduleService for filter state
- * - Uses: HolidayCollectionService for holiday data
+ * Toolbar of the schedule page: period navigation, wizards, recalculation, bulk e-mail, display toggles, view mode,
+ * zoom and PDF export. The behaviour lives in the component-scoped services listed in providers; this class keeps
+ * what needs its own view (dialogs, icons, outputs, document listeners) and wires the services to the template.
+ * @param period - Displays and steps the selected week, biweekly pair or month
+ * @param recalculation - Normal and thorough period-hours recalculation with the busy flag
+ * @param bulkSend - Bulk e-mail send of the visible range to all clients
+ * @param wizardMenu - Auto-wizard state, wizard dropdown shortcut and the autofill / absence cover permissions
+ * @param toolsOverlay - Open state of the collapsed toolbar overlay
+ * @param displayToggles - Break placeholder, schedule command and availability toggles with their icon colours
+ * @param zoomChange - Emits the zoom factor of the table view
+ * @param pdfExportRequested - Emits when the PDF export button is clicked
  */
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
-  HostListener,
+  DestroyRef,
   inject,
   OnInit,
   output,
-  signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
-import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbDropdownModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {
-  PeriodCalendarMonthlyComponent,
-} from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
-import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
+import { FormsModule } from '@angular/forms';
+import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
+import { DirectionService } from 'src/app/application/services/direction.service';
+import { PeriodCalendarMonthlyComponent } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
 import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/period-calendar-weekly/period-calendar-weekly.component';
 import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
-import { FormsModule } from '@angular/forms';
-import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
-import { DirectionService } from 'src/app/application/services/direction.service';
+import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
@@ -46,44 +42,31 @@ import { IconThunderCircleComponent } from 'src/app/presentation/icons/icon-thun
 import { IconAvailabilityCheckComponent } from 'src/app/presentation/icons/icon-availability-check.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
-import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
+import { IconAbsenceCoverComponent } from 'src/app/presentation/icons/icon-absence-cover.component';
+import { IconCalcComponent } from 'src/app/presentation/icons/icon-calc.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
 import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
 import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dialog.component';
-import { IconAbsenceCoverComponent } from 'src/app/presentation/icons/icon-absence-cover.component';
-import { ModalService } from 'src/app/presentation/modal/modal.service';
-import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
-import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
-import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
-import { TimelineViewRange } from '../services/timeline-view-range.type';
-import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
-import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
-import { AllScheduleStateService } from '../services/all-schedule-state.service';
-import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
-import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
-import { TranslateService } from '@ngx-translate/core';
-import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
-import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
-import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { AutoWizardOrchestratorService } from '../services/auto-wizard-orchestrator.service';
-import { AutofillRunPresenceService } from 'src/app/domain/services/schedule/autofill-run-presence.service';
 import { ScheduleSelectionService } from '../services/schedule-selection.service';
-import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DestroyRef } from '@angular/core';
-import { IconCalcComponent } from 'src/app/presentation/icons/icon-calc.component';
-
-const DEFAULT_ZOOM_VALUE = 100;
+import { TimelineViewRange } from '../services/timeline-view-range.type';
+import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
+import { ScheduleHeaderPeriodNavigationService } from './services/schedule-header-period-navigation.service';
+import { ScheduleHeaderRecalculationService } from './services/schedule-header-recalculation.service';
+import { ScheduleHeaderBulkSendService } from './services/schedule-header-bulk-send.service';
+import { ScheduleHeaderWizardMenuService } from './services/schedule-header-wizard-menu.service';
+import { ScheduleHeaderToolsOverlayService } from './services/schedule-header-tools-overlay.service';
+import { ScheduleHeaderDisplayTogglesService } from './services/schedule-header-display-toggles.service';
+import {
+  SCHEDULE_HEADER_DEFAULT_ZOOM_VALUE,
+  SCHEDULE_HEADER_PERCENT_BASE,
+  SCHEDULE_HEADER_TIMELINE_SLIDER_OPTIONS,
+  SCHEDULE_HEADER_ZOOM_FACTOR_DECIMALS,
+  SCHEDULE_HEADER_ZOOM_SLIDER_OPTIONS,
+} from './schedule-header.constants';
 
 @Component({
   selector: 'app-schedule-header',
@@ -117,7 +100,19 @@ const DEFAULT_ZOOM_VALUE = 100;
     IconAbsenceCoverComponent,
     ScenarioSelectorComponent,
   ],
-  providers: [],
+  providers: [
+    ScheduleHeaderPeriodNavigationService,
+    ScheduleHeaderRecalculationService,
+    ScheduleHeaderBulkSendService,
+    ScheduleHeaderWizardMenuService,
+    ScheduleHeaderToolsOverlayService,
+    ScheduleHeaderDisplayTogglesService,
+  ],
+  host: {
+    '(document:click)': 'toolsOverlay.onDocumentClickCloseTools($event)',
+    '(document:keydown.escape)': 'toolsOverlay.onEscapeCloseTools()',
+    '(document:keydown)': 'wizardMenu.onShortcutKeydown($event)',
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
@@ -133,183 +128,43 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private directionService = inject(DirectionService);
   readonly isRtl = computed(() => this.directionService.direction() === 'rtl');
 
-  value = 100;
-  options: Options = {
-    floor: 50,
-    ceil: 300,
-    step: 10,
-    showSelectionBarEnd: false,
-    showSelectionBar: false,
-  };
+  readonly paymentIntervals = PaymentInterval;
 
-  timelineValue = 100;
-  timelineOptions: Options = {
-    floor: 50,
-    ceil: 200,
-    step: 10,
-    showSelectionBarEnd: false,
-    showSelectionBar: false,
-  };
+  value = SCHEDULE_HEADER_DEFAULT_ZOOM_VALUE;
+  readonly options = SCHEDULE_HEADER_ZOOM_SLIDER_OPTIONS;
+
+  timelineValue = SCHEDULE_HEADER_DEFAULT_ZOOM_VALUE;
+  readonly timelineOptions = SCHEDULE_HEADER_TIMELINE_SLIDER_OPTIONS;
 
   zoomChange = output<number>();
   pdfExportRequested = output<void>();
 
-  private gridSettingsService = inject(GridSettingsService);
-  private dataManagementSchedule = inject(DataManagementScheduleService);
-  private dataService = inject(BaseDataService);
-  private allScheduleStateService = inject(AllScheduleStateService);
-  private calendarUtil = inject(CalendarUtilService);
-  private appSettings = inject(AppSettingsManagementService);
-  private scheduleReportCtx = inject(ScheduleReportContextService);
-  private toastShowService = inject(ToastShowService);
-  private translateService = inject(TranslateService);
-  private scheduleChangeService = inject(ScheduleChangeService);
-  private dataWorkScheduleService = inject(DataWorkScheduleService);
+  readonly period = inject(ScheduleHeaderPeriodNavigationService);
+  readonly recalculation = inject(ScheduleHeaderRecalculationService);
+  readonly bulkSend = inject(ScheduleHeaderBulkSendService);
+  readonly wizardMenu = inject(ScheduleHeaderWizardMenuService);
+  readonly toolsOverlay = inject(ScheduleHeaderToolsOverlayService);
+  readonly displayToggles = inject(ScheduleHeaderDisplayTogglesService);
+
   private viewModeService = inject(ScheduleViewModeService);
   private timelineRangeService = inject(ScheduleTimelineRangeService);
-  private analyseScenarioService = inject(AnalyseScenarioService);
-  private authorizationService = inject(AuthorizationService);
-  private autoWizardOrchestrator = inject(AutoWizardOrchestratorService);
-  private autofillRunPresence = inject(AutofillRunPresenceService);
   private scheduleSelection = inject(ScheduleSelectionService);
-  private scheduleSignalR = inject(SCHEDULE_SIGNALR);
   private destroyRef = inject(DestroyRef);
-  private modalService = inject(ModalService);
 
   public readonly isTimelineMode = this.viewModeService.isTimelineMode;
   public readonly timelineViewRange = this.timelineRangeService.viewRange;
 
-  isSending = signal(false);
-  toolsOpen = signal(false);
-  isRecalculating = signal(false);
-
-  private readonly wizardDropdownMode = signal(false);
-  readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
-  readonly isAutoWizardRunningForCurrentGroup = this.autoWizardOrchestrator.isRunningForCurrentGroup;
-  readonly isAutoWizardRunningForCurrentView = this.autofillRunPresence.isRunningForCurrentView;
-  readonly isAutoWizardStartBlocked = this.autoWizardOrchestrator.isStartBlocked;
-  readonly autoWizardBusyGroupName = this.autoWizardOrchestrator.busyGroupName;
-  readonly isAutoWizardVisible = computed(
-    () => this.autoWizardOrchestrator.isWorkloadEligible() || this.isAutoWizardStartBlocked(),
-  );
-
-  readonly canUseAutofill = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
-
-  /** Whoever may edit the schedule may ask for a cover proposal, independent of the admin-only wizard mode. */
-  readonly canCoverAbsence = computed(
-    () => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule) && this.scheduleSelection.selectedWork() !== null,
-  );
-
   constructor() {
-    this.scheduleSignalR.thoroughRecalculationCompleted$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((notification) => {
-        const activeToken = this.analyseScenarioService.activeToken() ?? null;
-        if ((notification.analyseToken ?? null) !== activeToken) return;
-
-        this.isRecalculating.set(false);
-        this.toastShowService.showInfo(
-          this.translateService.instant(
-            'schedule.recalculate.thorough.completed',
-          ),
-          'recalculate-thorough',
-          '',
-          TOAST_ICONS.INFO,
-        );
-        this.dataManagementSchedule.readDatas();
-      });
+    this.recalculation.connect(this.destroyRef);
   }
 
-  isEmailConfigured = computed(() => {
-    const e = this.appSettings.emailSettings();
-    return (
-      !!e.outgoingServer &&
-      !!e.outgoingServerPort &&
-      !!e.username &&
-      !!e.password
-    );
-  });
-
-  isSendDisabled = computed(() => {
-    return this.isSending() || !this.scheduleChangeService.hasDirtyClients();
-  });
-
-  get paymentInterval(): number {
-    return this.dataManagementSchedule.workFilter.paymentInterval;
+  ngOnInit(): void {
+    this.emitZoomChange();
+    this.timelineValue = Math.round(this.viewModeService.timelineRowHeightFactor() * SCHEDULE_HEADER_PERCENT_BASE);
   }
 
-  get displayYear(): string {
-    return this.dataManagementSchedule.workFilter.currentYear.toString();
-  }
-
-  get displayPeriod(): string {
-    switch (this.paymentInterval) {
-      case 0:
-        return `KW ${this.selectedWeek}`;
-      case 1:
-        return `KW ${this.selectedWeek}-${Math.min(this.selectedWeek + 1, this.getWeeksInYear(this.currentYear))}`;
-      case 2:
-      default:
-        return this.gridSettingsService.monthsName[
-          this.dataManagementSchedule.workFilter.currentMonth - 1
-        ];
-    }
-  }
-
-  get displayMonth(): string {
-    return this.gridSettingsService.monthsName[
-      this.dataManagementSchedule.workFilter.currentMonth - 1
-    ];
-  }
-
-  get selectedMonth(): number {
-    return this.dataManagementSchedule.workFilter.currentMonth;
-  }
-  set selectedMonth(value: number) {
-    this.dataManagementSchedule.workFilter.currentMonth = value;
-  }
-
-  get selectedWeek(): number {
-    return this.dataManagementSchedule.workFilter.currentWeek ?? 1;
-  }
-  set selectedWeek(value: number) {
-    this.dataManagementSchedule.workFilter.currentWeek = value;
-  }
-
-  get currentYear(): number {
-    return this.dataManagementSchedule.workFilter.currentYear;
-  }
-  set currentYear(value: number) {
-    this.dataManagementSchedule.workFilter.currentYear = value;
-  }
-
-  get showAvailability(): boolean {
-    return this.dataManagementSchedule.showAvailability();
-  }
-
-  hasAvailabilityData = computed(() => {
-    this.dataManagementSchedule.isRead();
-    return this.dataManagementSchedule.hasAvailabilityData;
-  });
-
-  get showBreakPlaceholders(): boolean {
-    return this.dataManagementSchedule.showBreakPlaceholders();
-  }
-
-  toggleBreakPlaceholders(): void {
-    this.dataManagementSchedule.toggleBreakPlaceholders();
-    this.updateBreakPlaceholderIcon();
-  }
-
-  get showScheduleCommands(): boolean {
-    return (this.dataService as ScheduleDataService).showScheduleCommands();
-  }
-
-  toggleScheduleCommands(): void {
-    (this.dataService as ScheduleDataService).showScheduleCommands.update(
-      (v) => !v,
-    );
-    this.updateScheduleCommandsIcon();
+  ngAfterViewInit(): void {
+    this.displayToggles.colourIcons(this.breakPlaceholderIcon(), this.scheduleCommandsIcon(), this.availabilityCheckIcon());
   }
 
   onTimelineRangeChange(range: TimelineViewRange): void {
@@ -317,73 +172,23 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   onViewModeToggleChanged(checked: boolean): void {
-    if (checked && this.value !== DEFAULT_ZOOM_VALUE) {
-      this.value = DEFAULT_ZOOM_VALUE;
+    if (checked && this.value !== SCHEDULE_HEADER_DEFAULT_ZOOM_VALUE) {
+      this.value = SCHEDULE_HEADER_DEFAULT_ZOOM_VALUE;
       this.emitZoomChange();
     }
     this.viewModeService.setViewMode(checked ? 'timeline' : 'table');
   }
 
   onTimelineRowHeightChange(): void {
-    this.viewModeService.setTimelineRowHeightFactor(this.timelineValue / 100);
+    this.viewModeService.setTimelineRowHeightFactor(this.timelineValue / SCHEDULE_HEADER_PERCENT_BASE);
   }
 
-  ngOnInit(): void {
-    this.emitZoomChange();
-    this.timelineValue = Math.round(
-      this.viewModeService.timelineRowHeightFactor() * 100,
-    );
-  }
-
-  ngAfterViewInit(): void {
-    this.updateBreakPlaceholderIcon();
-    this.updateScheduleCommandsIcon();
-    this.updateAvailabilityCheckIcon();
-  }
-
-  private updateBreakPlaceholderIcon(): void {
-    const breakPlaceholderIcon = this.breakPlaceholderIcon();
-    if (breakPlaceholderIcon) {
-      breakPlaceholderIcon.ChangeColor(this.showBreakPlaceholders);
-    }
-  }
-
-  private updateScheduleCommandsIcon(): void {
-    const scheduleCommandsIcon = this.scheduleCommandsIcon();
-    if (scheduleCommandsIcon) {
-      scheduleCommandsIcon.ChangeColor(this.showScheduleCommands);
-    }
-  }
-
-  onChange() {
+  onChange(): void {
     this.emitZoomChange();
   }
 
-  onCalendarReset(data: PeriodResetData): void {
-    if (data.month !== undefined) {
-      this.selectedMonth = data.month;
-    }
-    if (data.week !== undefined) {
-      this.selectedWeek = data.week;
-    }
-    this.currentYear = data.year;
-    this.applyPeriodChange();
-  }
-
-  onPdfExport() {
+  onPdfExport(): void {
     this.pdfExportRequested.emit();
-  }
-
-  onAvailabilityCheck(): void {
-    this.dataManagementSchedule.toggleAvailability();
-    this.updateAvailabilityCheckIcon();
-  }
-
-  private updateAvailabilityCheckIcon(): void {
-    const availabilityCheckIcon = this.availabilityCheckIcon();
-    if (availabilityCheckIcon) {
-      availabilityCheckIcon.ChangeColor(this.showAvailability);
-    }
   }
 
   onWizardClick(): void {
@@ -410,297 +215,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     void this.recoveryDialog().open({ clientId: selectedWork.clientId, date: selectedWork.date });
   }
 
-  toggleTools(): void {
-    this.toolsOpen.update((value) => !value);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClickCloseTools(event: MouseEvent): void {
-    if (!this.toolsOpen()) {
-      return;
-    }
-    const insideToolsOrToggle = event.composedPath().some(
-      (node) =>
-        node instanceof HTMLElement &&
-        (node.matches('.header-tools') || node.matches('.header-tools-toggle')),
-    );
-    if (!insideToolsOrToggle) {
-      this.toolsOpen.set(false);
-    }
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscapeCloseTools(): void {
-    this.toolsOpen.set(false);
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  onDocumentKeydown(event: KeyboardEvent): void {
-    if (!event.ctrlKey || !event.shiftKey || event.key.toLowerCase() !== 'h') {
-      return;
-    }
-    if (!this.authorizationService.hasPermission(ROLE_ADMIN)) {
-      return;
-    }
-    const target = event.target as HTMLElement | null;
-    if (
-      target &&
-      (target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable)
-    ) {
-      return;
-    }
-    event.preventDefault();
-    this.wizardDropdownMode.update((v) => !v);
-  }
-
-  async onAutoWizardClick(): Promise<void> {
-    await this.autoWizardOrchestrator.start();
-  }
-
-  async onSendAllSchedules(): Promise<void> {
-    if (this.isSendDisabled()) return;
-
-    const clients = this.dataManagementSchedule.clients;
-    if (!clients?.length) return;
-
-    const startDate = this.dataManagementSchedule.visibleStartDate;
-    const endDate = this.dataManagementSchedule.visibleEndDate;
-    if (!startDate || !endDate) return;
-
-    this.isSending.set(true);
-
-    try {
-      const clientList = clients
-        .filter((c) => !!c.id)
-        .map((c) => ({
-          id: c.id,
-          name: `${c.firstName ?? ''} ${c.name ?? ''}`.trim(),
-        }));
-
-      const result = await this.scheduleReportCtx.sendForAllClients(
-        clientList,
-        formatDateOnly(startDate),
-        formatDateOnly(endDate),
-      );
-
-      const msg = this.translateService.instant('schedule.send.bulk.summary', {
-        success: result.success,
-        failed: result.failed,
-        noEmail: result.noEmail,
-      });
-      this.toastShowService.showInfo(msg, 'bulk-send', '', TOAST_ICONS.INFO);
-    } catch {
-      this.toastShowService.showError(
-        this.translateService.instant('schedule.send.error.failed', {
-          clientName: 'Bulk',
-        }),
-        'bulk-send',
-      );
-    } finally {
-      this.isSending.set(false);
-    }
-  }
-
-  onThoroughRecalculateClick(): void {
-    if (this.isRecalculating()) return;
-
-    this.modalService.openModal({
-      type: ModalType.Confirmation,
-      title: this.translateService.instant(
-        'schedule.recalculate.thorough.title',
-      ),
-      message: this.translateService.instant(
-        'schedule.recalculate.thorough.warning',
-      ),
-      confirmText: this.translateService.instant(
-        'schedule.recalculate.thorough.start',
-      ),
-      cancelText: this.translateService.instant('cancel'),
-      onConfirm: () => this.onThoroughRecalculateConfirmed(),
-    });
-  }
-
-  async onThoroughRecalculateConfirmed(): Promise<void> {
-    if (this.isRecalculating()) return;
-
-    const startDate = this.dataManagementSchedule.periodStartDate;
-    const endDate = this.dataManagementSchedule.periodEndDate;
-    if (!startDate || !endDate) return;
-
-    this.isRecalculating.set(true);
-
-    try {
-      await new Promise<{ queued: boolean }>((resolve, reject) => {
-        this.dataWorkScheduleService
-          .recalculatePeriodHoursThorough(
-            formatDateOnly(startDate),
-            formatDateOnly(endDate),
-            this.dataManagementSchedule.workFilter.selectedGroup,
-            this.analyseScenarioService.activeToken(),
-          )
-          .subscribe({ next: resolve, error: reject });
-      });
-
-      this.toastShowService.showInfo(
-        this.translateService.instant('schedule.recalculate.thorough.started'),
-        'recalculate-thorough',
-        '',
-        TOAST_ICONS.INFO,
-      );
-    } catch {
-      this.isRecalculating.set(false);
-      this.toastShowService.showError(
-        this.translateService.instant('schedule.recalculate.thorough.error'),
-        'recalculate-thorough',
-      );
-    }
-  }
-
-  async onRecalculatePeriodHours(): Promise<void> {
-    if (this.isRecalculating()) return;
-
-    const startDate = this.dataManagementSchedule.periodStartDate;
-    const endDate = this.dataManagementSchedule.periodEndDate;
-    if (!startDate || !endDate) return;
-
-    this.isRecalculating.set(true);
-
-    try {
-      await new Promise<boolean>((resolve, reject) => {
-        this.dataWorkScheduleService
-          .recalculatePeriodHours(
-            formatDateOnly(startDate),
-            formatDateOnly(endDate),
-            this.dataManagementSchedule.workFilter.selectedGroup,
-          )
-          .subscribe({ next: resolve, error: reject });
-      });
-
-      this.toastShowService.showInfo(
-        this.translateService.instant('schedule.recalculate.success'),
-        'recalculate',
-        '',
-        TOAST_ICONS.INFO,
-      );
-    } catch {
-      this.toastShowService.showError(
-        this.translateService.instant('schedule.recalculate.error'),
-        'recalculate',
-      );
-    } finally {
-      this.isRecalculating.set(false);
-    }
-  }
-
-  goToPrevious() {
-    switch (this.paymentInterval) {
-      case 0:
-        this.goToPreviousWeek();
-        break;
-      case 1:
-        this.goToPreviousBiweekly();
-        break;
-      case 2:
-      default:
-        this.goToPreviousMonth();
-        break;
-    }
-  }
-
-  goToNext() {
-    switch (this.paymentInterval) {
-      case 0:
-        this.goToNextWeek();
-        break;
-      case 1:
-        this.goToNextBiweekly();
-        break;
-      case 2:
-      default:
-        this.goToNextMonth();
-        break;
-    }
-  }
-
-  private goToPreviousMonth() {
-    if (this.selectedMonth === 1) {
-      this.selectedMonth = 12;
-      this.currentYear--;
-    } else {
-      this.selectedMonth--;
-    }
-    this.applyPeriodChange();
-  }
-
-  private goToNextMonth() {
-    if (this.selectedMonth === 12) {
-      this.selectedMonth = 1;
-      this.currentYear++;
-    } else {
-      this.selectedMonth++;
-    }
-    this.applyPeriodChange();
-  }
-
-  private goToPreviousWeek() {
-    if (this.selectedWeek === 1) {
-      this.currentYear--;
-      this.selectedWeek = this.getWeeksInYear(this.currentYear);
-    } else {
-      this.selectedWeek--;
-    }
-    this.applyPeriodChange();
-  }
-
-  private goToNextWeek() {
-    const weeksInYear = this.getWeeksInYear(this.currentYear);
-    if (this.selectedWeek >= weeksInYear) {
-      this.currentYear++;
-      this.selectedWeek = 1;
-    } else {
-      this.selectedWeek++;
-    }
-    this.applyPeriodChange();
-  }
-
-  private goToPreviousBiweekly() {
-    if (this.selectedWeek <= 2) {
-      this.currentYear--;
-      const weeksInYear = this.getWeeksInYear(this.currentYear);
-      this.selectedWeek = weeksInYear % 2 === 1 ? weeksInYear : weeksInYear - 1;
-    } else {
-      this.selectedWeek -= 2;
-    }
-    this.applyPeriodChange();
-  }
-
-  private goToNextBiweekly() {
-    const weeksInYear = this.getWeeksInYear(this.currentYear);
-    if (this.selectedWeek + 2 > weeksInYear) {
-      this.currentYear++;
-      this.selectedWeek = 1;
-    } else {
-      this.selectedWeek += 2;
-    }
-    this.applyPeriodChange();
-  }
-
-  private getWeeksInYear(year: number): number {
-    const dec31 = new Date(year, 11, 31);
-    const week = this.calendarUtil.getISO8601WeekNumber(dec31);
-    return week === 1 ? 52 : week;
-  }
-
-  private applyPeriodChange() {
-    this.dataService.holidayCollection.currentYear = this.currentYear;
-    this.dataManagementSchedule.readDatas();
-    this.allScheduleStateService.saveCurrentFilter();
-  }
-
-  private emitZoomChange() {
-    const zoomValue = parseFloat((this.value / 100).toFixed(1));
+  private emitZoomChange(): void {
+    const zoomValue = parseFloat((this.value / SCHEDULE_HEADER_PERCENT_BASE).toFixed(SCHEDULE_HEADER_ZOOM_FACTOR_DECIMALS));
     this.zoomChange.emit(zoomValue);
   }
 }

@@ -31,6 +31,12 @@ import { ScheduleSelectionService } from '../services/schedule-selection.service
 import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleHeaderComponent } from './schedule-header.component';
+import { ScheduleHeaderPeriodNavigationService } from './services/schedule-header-period-navigation.service';
+import { ScheduleHeaderRecalculationService } from './services/schedule-header-recalculation.service';
+import { ScheduleHeaderBulkSendService } from './services/schedule-header-bulk-send.service';
+import { ScheduleHeaderWizardMenuService } from './services/schedule-header-wizard-menu.service';
+import { ScheduleHeaderToolsOverlayService } from './services/schedule-header-tools-overlay.service';
+import { ScheduleHeaderDisplayTogglesService } from './services/schedule-header-display-toggles.service';
 
 @Component({ selector: 'app-dialog-stub', template: '', standalone: true })
 class DialogStubComponent {
@@ -166,11 +172,12 @@ describe('ScheduleHeaderComponent (characterization)', () => {
   let orchestrator: Record<string, unknown> & { start: ReturnType<typeof vi.fn> };
   let allScheduleState: { saveCurrentFilter: ReturnType<typeof vi.fn> };
 
-  const period = () => component as unknown as PeriodApi;
-  const recalculation = () => component as unknown as RecalculationApi;
-  const bulkSend = () => component as unknown as BulkSendApi;
-  const wizardMenu = () => component as unknown as WizardMenuApi;
-  const tools = () => component as unknown as ToolsApi;
+  const period = (): PeriodApi => fixture.debugElement.injector.get(ScheduleHeaderPeriodNavigationService);
+  const recalculation = (): RecalculationApi => fixture.debugElement.injector.get(ScheduleHeaderRecalculationService);
+  const bulkSend = (): BulkSendApi => fixture.debugElement.injector.get(ScheduleHeaderBulkSendService);
+  const wizardMenu = (): WizardMenuApi => fixture.debugElement.injector.get(ScheduleHeaderWizardMenuService);
+  const tools = (): ToolsApi => fixture.debugElement.injector.get(ScheduleHeaderToolsOverlayService);
+  const displayToggles = () => fixture.debugElement.injector.get(ScheduleHeaderDisplayTogglesService);
 
   const translateInstant = (key: string, params?: Record<string, unknown>) =>
     params ? `${key}|${JSON.stringify(params)}` : key;
@@ -933,9 +940,9 @@ describe('ScheduleHeaderComponent (characterization)', () => {
     it('toggles break placeholders, commands and availability and recolours their icons', () => {
       createComponent();
 
-      component.toggleBreakPlaceholders();
-      component.toggleScheduleCommands();
-      component.onAvailabilityCheck();
+      displayToggles().toggleBreakPlaceholders(icon('breakPlaceholderIcon') as never);
+      displayToggles().toggleScheduleCommands(icon('scheduleCommandsIcon') as never);
+      displayToggles().onAvailabilityCheck(icon('availabilityCheckIcon') as never);
 
       expect(icon('breakPlaceholderIcon').ChangeColor).toHaveBeenLastCalledWith(true);
       expect(icon('scheduleCommandsIcon').ChangeColor).toHaveBeenLastCalledWith(true);
@@ -946,12 +953,12 @@ describe('ScheduleHeaderComponent (characterization)', () => {
 
     it('re-reads the availability flag after every schedule load', () => {
       createComponent();
-      expect(component.hasAvailabilityData()).toBe(false);
+      expect(displayToggles().hasAvailabilityData()).toBe(false);
 
       schedule.hasAvailabilityData = true;
-      expect(component.hasAvailabilityData()).toBe(false);
+      expect(displayToggles().hasAvailabilityData()).toBe(false);
       schedule.isRead.set(true);
-      expect(component.hasAvailabilityData()).toBe(true);
+      expect(displayToggles().hasAvailabilityData()).toBe(true);
     });
   });
 });

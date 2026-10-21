@@ -2,7 +2,7 @@
   <button
     id="schedule-prev-btn"
     class="btn btn-sm btn-nav calendar-previous-next"
-    (click)="goToPrevious()"
+    (click)="period.goToPrevious()"
     aria-label="previous period"
   >
     @if (isRtl()) {
@@ -18,29 +18,29 @@
       ngbDropdownToggle
       aria-label="calendar settings"
     >
-      <span>{{ displayPeriod }} {{ displayYear }}</span>
+      <span>{{ period.displayPeriod }} {{ period.displayYear }}</span>
     </button>
     <div ngbDropdownMenu>
-      @switch (paymentInterval) {
-        @case (0) {
+      @switch (period.paymentInterval) {
+        @case (paymentIntervals.Weekly) {
           <app-period-calendar-weekly
-            [year]="currentYear"
-            [week]="selectedWeek"
-            (periodChanged)="onCalendarReset($event)"
+            [year]="period.currentYear"
+            [week]="period.selectedWeek"
+            (periodChanged)="period.onCalendarReset($event)"
           ></app-period-calendar-weekly>
         }
-        @case (1) {
+        @case (paymentIntervals.Biweekly) {
           <app-period-calendar-biweekly
-            [year]="currentYear"
-            [week]="selectedWeek"
-            (periodChanged)="onCalendarReset($event)"
+            [year]="period.currentYear"
+            [week]="period.selectedWeek"
+            (periodChanged)="period.onCalendarReset($event)"
           ></app-period-calendar-biweekly>
         }
         @default {
           <app-period-calendar-monthly
-            [year]="currentYear"
-            [month]="selectedMonth"
-            (periodChanged)="onCalendarReset($event)"
+            [year]="period.currentYear"
+            [month]="period.selectedMonth"
+            (periodChanged)="period.onCalendarReset($event)"
           ></app-period-calendar-monthly>
         }
       }
@@ -49,7 +49,7 @@
   <button
     id="schedule-next-btn"
     class="btn btn-sm btn-nav calendar-previous-next"
-    (click)="goToNext()"
+    (click)="period.goToNext()"
     aria-label="next period"
   >
     @if (isRtl()) {
@@ -68,17 +68,17 @@
   <app-recovery-dialog #recoveryDialog />
 
 
-  <div id="schedule-header-tools" class="header-tools" [class.header-tools-open]="toolsOpen()">
-    @if (isEmailConfigured()) {
+  <div id="schedule-header-tools" class="header-tools" [class.header-tools-open]="toolsOverlay.toolsOpen()">
+    @if (bulkSend.isEmailConfigured()) {
       <button
         id="schedule-send-email-btn"
         type="button"
         class="send-email-button"
-        [class.disabled]="isSendDisabled()"
-        (click)="onSendAllSchedules()"
+        [class.disabled]="bulkSend.isSendDisabled()"
+        (click)="bulkSend.onSendAllSchedules()"
         ngbTooltip="{{ 'schedule.sendEmail.tooltip' | translate }}"
       >
-        @if (isSending()) {
+        @if (bulkSend.isSending()) {
           <span class="spinner-border spinner-border-sm"></span>
         } @else {
           <app-icon-fly />
@@ -87,8 +87,8 @@
       </button>
     }
 
-    @if (canUseAutofill()) {
-      @if (isWizardDropdownMode()) {
+    @if (wizardMenu.canUseAutofill()) {
+      @if (wizardMenu.isWizardDropdownMode()) {
         <div ngbDropdown class="wizard-dropdown">
           <button
             id="schedule-wizard-btn"
@@ -117,18 +117,18 @@
             </button>
           </div>
         </div>
-      } @else if (isAutoWizardVisible()) {
+      } @else if (wizardMenu.isAutoWizardVisible()) {
         <button
           id="schedule-wizard-btn"
           type="button"
           class="icon-button wizard-button"
-          [class.disabled]="isAutoWizardStartBlocked()"
-          (click)="onAutoWizardClick()"
-          [ngbTooltip]="autoWizardBusyGroupName() !== null
-            ? ('autoWizard.runningForGroupTooltip' | translate: { group: autoWizardBusyGroupName() })
+          [class.disabled]="wizardMenu.isAutoWizardStartBlocked()"
+          (click)="wizardMenu.onAutoWizardClick()"
+          [ngbTooltip]="wizardMenu.autoWizardBusyGroupName() !== null
+            ? ('autoWizard.runningForGroupTooltip' | translate: { group: wizardMenu.autoWizardBusyGroupName() })
             : ('autoWizard.tooltip' | translate)"
         >
-          @if (isAutoWizardRunningForCurrentGroup()) {
+          @if (wizardMenu.isAutoWizardRunningForCurrentGroup()) {
             <span class="spinner-border spinner-border-sm"></span>
           } @else {
             <app-icon-wizard />
@@ -139,7 +139,7 @@
     }
 
 
-    @if (canCoverAbsence()) {
+    @if (wizardMenu.canCoverAbsence()) {
       <button
         id="schedule-cover-absence-btn"
         type="button"
@@ -157,8 +157,8 @@
         id="schedule-break-placeholder-toggle"
         type="button"
         class="icon-button break-placeholder-toggle"
-        [class.active]="showBreakPlaceholders"
-        (click)="toggleBreakPlaceholders()"
+        [class.active]="displayToggles.showBreakPlaceholders"
+        (click)="displayToggles.toggleBreakPlaceholders(breakPlaceholderIcon)"
         ngbTooltip="{{ 'schedule.breakPlaceholder.toggle' | translate }}"
       >
         <app-icon-break-placeholder #breakPlaceholderIcon />
@@ -171,8 +171,8 @@
         id="schedule-commands-toggle"
         type="button"
         class="icon-button break-placeholder-toggle"
-        [class.active]="showScheduleCommands"
-        (click)="toggleScheduleCommands()"
+        [class.active]="displayToggles.showScheduleCommands"
+        (click)="displayToggles.toggleScheduleCommands(scheduleCommandsIcon)"
         ngbTooltip="{{ 'schedule.toolbar.toggle-commands' | translate }}"
       >
         <app-icon-thunder-circle #scheduleCommandsIcon />
@@ -180,13 +180,13 @@
       </button>
     }
 
-    @if (hasAvailabilityData()) {
+    @if (displayToggles.hasAvailabilityData()) {
       <button
         id="schedule-availability-check-btn"
         type="button"
         class="icon-button availability-check-button"
-        [class.active]="showAvailability"
-        (click)="onAvailabilityCheck()"
+        [class.active]="displayToggles.showAvailability"
+        (click)="displayToggles.onAvailabilityCheck(availabilityCheckIcon)"
         ngbTooltip="{{ 'schedule.availability.toggle' | translate }}"
       >
         <app-icon-availability-check #availabilityCheckIcon />
@@ -199,10 +199,10 @@
         id="schedule-recalculate-btn"
         type="button"
         class="recalculate-button"
-        [class.disabled]="isRecalculating()"
+        [class.disabled]="recalculation.isRecalculating()"
         ngbDropdownToggle
       >
-        @if (isRecalculating()) {
+        @if (recalculation.isRecalculating()) {
           <span class="spinner-border spinner-border-sm"></span>
         } @else {
           <app-icon-calc />
@@ -210,10 +210,10 @@
         <span class="tool-label">{{ "schedule.recalculate.tooltip" | translate }}</span>
       </button>
       <div ngbDropdownMenu aria-labelledby="schedule-recalculate-btn">
-        <button ngbDropdownItem (click)="onRecalculatePeriodHours()">
+        <button ngbDropdownItem (click)="recalculation.onRecalculatePeriodHours()">
           {{ "schedule.recalculate.menu.normal" | translate }}
         </button>
-        <button ngbDropdownItem (click)="onThoroughRecalculateClick()">
+        <button ngbDropdownItem (click)="recalculation.onThoroughRecalculateClick()">
           {{ "schedule.recalculate.menu.thorough" | translate }}
         </button>
       </div>
@@ -302,10 +302,10 @@
     id="schedule-tools-toggle"
     type="button"
     class="btn btn-sm btn-nav header-tools-toggle"
-    [class.header-tools-toggle-open]="toolsOpen()"
-    [attr.aria-expanded]="toolsOpen()"
+    [class.header-tools-toggle-open]="toolsOverlay.toolsOpen()"
+    [attr.aria-expanded]="toolsOverlay.toolsOpen()"
     [attr.aria-label]="'accessibility.menu' | translate"
-    (click)="toggleTools()"
+    (click)="toolsOverlay.toggleTools()"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -323,6 +323,6 @@
 </div>
 <app-progress-line
   class="autofill-progress-line"
-  [active]="isAutoWizardRunningForCurrentView()"
+  [active]="wizardMenu.isAutoWizardRunningForCurrentView()"
   [label]="'autoWizard.tooltip' | translate"
 />
