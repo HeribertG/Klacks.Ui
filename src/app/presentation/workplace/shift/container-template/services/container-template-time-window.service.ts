@@ -4,6 +4,7 @@
  * Edits the time window (from/until) of the container template: writes it to the selected weekday template,
  * recalculates the duration and rebuilds the template grid once the input has settled.
  * @param state - Editor state holding the time window, the selection and the loaded container
+ * @param destroy$ - Passed to connect(); ends the debounced grid refresh together with the editor session
  */
 import { Injectable, inject } from '@angular/core';
 import { EMPTY, Observable, Subject, debounceTime, switchMap, takeUntil } from 'rxjs';
@@ -28,9 +29,6 @@ export class ContainerTemplateTimeWindowService {
   private viewRefresh = inject(ContainerTemplateViewRefreshService);
   private timeChange$ = new Subject<void>();
 
-  /**
-   * @param destroy$ - Ends the debounced grid refresh together with the editor session
-   */
   connect(destroy$: Subject<void>): void {
     this.timeChange$
       .pipe(debounceTime(CONTAINER_TEMPLATE_TIME_CHANGE_DEBOUNCE_MS), takeUntil(destroy$))

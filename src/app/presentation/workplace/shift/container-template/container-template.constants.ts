@@ -1,11 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Defaults and fixed keys of the container template editor.
- * @param CONTAINER_TEMPLATE_DEFAULT_WEEKDAYS - Monday-first weekday list shown before a container is loaded
- * @param CONTAINER_TEMPLATE_TIME_CHANGE_DEBOUNCE_MS - Delay before a changed time window rebuilds the template grid
- * @param CONTAINER_TEMPLATE_TOLERANCE_SLIDER_OPTIONS - Options of the autofill time range tolerance slider
- * @param CONTAINER_TEMPLATE_PROPERTIES_MENU_KEY - Key of the single context menu entry that opens the properties dialog
+ * Defaults and fixed keys of the container template editor: the Monday-first weekday list shown before a
+ * container is loaded, the default time window, the grid-rebuild debounce, the tolerance slider, the sorting
+ * of the available tasks, the context menu entry and the container lock messages.
  */
 import { Options } from '@angular-slider/ngx-slider';
 import { TableSortingConfig } from 'src/app/presentation/services/table-sorting-config.interface';
