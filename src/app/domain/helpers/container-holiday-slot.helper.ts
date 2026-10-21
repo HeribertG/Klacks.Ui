@@ -7,7 +7,7 @@
  * @param isHolidayDay - Whether the day is a public holiday (or the holiday template is edited)
  * @param container - Holiday flags of the container shift: isHoliday = one generic template for every holiday (FT),
  *   isWeekdayAndHoliday = a holiday template per ticked weekday (+FT); unknown or neither on a holiday day falls back to the
- *   holiday slot of the day's weekday, i.e. the tasks the engine runs on exactly that day
+ *   generic holiday slot, like the backend does for a missing isWeekdayAndHoliday
  */
 
 import { IContainerTemplateHolidayVariant } from '../models/container/container-template-holiday-variant';
@@ -24,8 +24,8 @@ export function resolveContainerHolidaySlot(
   if (!isHolidayDay) {
     return { ...NORMAL_SLOT };
   }
-  if (container?.isHoliday && !container.isWeekdayAndHoliday) {
-    return { ...GENERIC_HOLIDAY_SLOT };
+  if (container?.isWeekdayAndHoliday) {
+    return { ...WEEKDAY_HOLIDAY_SLOT };
   }
-  return { ...WEEKDAY_HOLIDAY_SLOT };
+  return { ...GENERIC_HOLIDAY_SLOT };
 }

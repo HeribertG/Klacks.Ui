@@ -8,8 +8,10 @@
  * @param isHoliday - Whether currentDate is a public holiday
  * @param holidaySlot - Container template slot of the day (resolved from the container's holiday flags), sent to the
  *   available-task list and the autofill
+ * @param canAutofill - False while the available tasks load or while the container slot of a holiday is not resolved
+ *   (container still loading or not loadable)
  */
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
 import { Observable, catchError, of, switchMap, tap } from 'rxjs';
@@ -62,6 +64,8 @@ export class ContainerWorkModalLifecycleService {
   readonly isDirty = signal(false);
   readonly isLoading = signal(false);
   readonly isAvailableShiftsLoading = signal(false);
+  readonly isHolidaySlotResolved = signal(true);
+  readonly canAutofill = computed(() => this.isHolidaySlotResolved() && !this.isAvailableShiftsLoading());
   readonly availableShiftsVersion = signal(0);
   readonly selectedTabIndex = signal(0);
   readonly isEmploymentTabActive = signal(false);
@@ -172,6 +176,7 @@ export class ContainerWorkModalLifecycleService {
     this.weekdayNumber = options.currentDate.getDay();
     this.isHoliday = options.isHoliday ?? false;
     this.holidaySlot = resolveContainerHolidaySlot(this.isHoliday, null);
+    this.isHolidaySlotResolved.set(!this.isHoliday);
     this.isDirty.set(false);
     this.isLoading.set(true);
     this.isAvailableShiftsLoading.set(true);
@@ -209,7 +214,10 @@ export class ContainerWorkModalLifecycleService {
     const fromTime = this.containerStartTime ?? '06:00';
     const untilTime = this.containerEndTime ?? '18:00';
     const container$: Observable<IShift | null> = this.isHoliday
-      ? this.dataShiftService.getShift(this.containerShiftId).pipe(catchError(() => of(null)))
+      ? this.dataShiftService.getShift(this.containerShiftId).pipe(
+          tap(() => this.isHolidaySlotResolved.set(true)),
+          catchError(() => of(null)),
+        )
       : of(null);
     container$
       .pipe(

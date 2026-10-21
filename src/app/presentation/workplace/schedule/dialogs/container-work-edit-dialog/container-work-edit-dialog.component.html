@@ -35,7 +35,7 @@
       [selectedItems]="selectedContainerTemplateItems"
       [selectedShift]="selectedShift"
       [shiftFilter]="shiftFilter()"
-      [isAutofillRunning]="routeService.isAutofillRunning"
+      [isAutofillRunning]="routeService.isAutofillRunning || !lifecycleService.canAutofill()"
       [isOptimizing]="routeService.isOptimizing"
       [showAutofill]="!!routeService.selectedStartBase && !!routeService.selectedEndBase"
       [hasRouteInfo]="routeService.hasRouteInfo"

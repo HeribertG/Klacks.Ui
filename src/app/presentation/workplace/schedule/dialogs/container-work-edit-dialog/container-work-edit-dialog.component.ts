@@ -415,6 +415,9 @@ export class ContainerWorkEditDialogComponent {
   }
 
   autofill(): void {
+    if (!this.lifecycleService.canAutofill()) {
+      return;
+    }
     this.routeService.autofill({
       containerShift: this.lifecycleService.containerShiftId
         ? ({ id: this.lifecycleService.containerShiftId } as IShift)
