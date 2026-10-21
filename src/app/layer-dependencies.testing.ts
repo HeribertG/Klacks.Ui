@@ -4,7 +4,9 @@
  * Import scanner behind the layer dependency guard: walks the production sources under src/app, resolves every
  * module specifier (static, type-only, re-export and dynamic import) to a file and classifies importer and target by
  * layer. Used by layer-dependencies.guard.spec.ts and by tools/generate-layer-allowlist.ts, so both judge exactly the
- * same edges. Only src/app is scanned; the plugin libraries under projects/ are not covered.
+ * same edges. Only src/app is scanned; the plugin libraries under projects/ are not covered. Owner decision
+ * 2026-10-20: domain/services and application may import infrastructure/api, infrastructure/storage and
+ * infrastructure/signalr; presentation -> infrastructure stays forbidden and is frozen in the legacy list.
  * @param appRoot - Absolute path of src/app
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
@@ -42,6 +44,8 @@ const SKIPPED_FOLDERS: readonly string[] = ['node_modules', TESTING_FOLDER];
 const APP_ALIAS = 'src/app/';
 const SRC_ALIAS = 'src/';
 const DOMAIN_SERVICES_PREFIX = 'domain/services/';
+const UNRESTRICTED_INFRASTRUCTURE_FOLDERS: readonly string[] = ['api', 'storage', 'signalr'];
+const INFRASTRUCTURE_FOLDER_SEGMENT_INDEX = 1;
 const INDEX_FILE = '/index.ts';
 const PARENT_SEGMENT = '..';
 
@@ -159,26 +163,46 @@ export function isZeroToleranceViolation(edge: ILayerEdge): boolean {
   return edge.fromDomainCore && toZone === 'infrastructure';
 }
 
+/**
+ * Owner decision 2026-10-20: domain/services may inject the data-* API services, storage and SignalR from
+ * infrastructure/api, infrastructure/storage and infrastructure/signalr directly. application sits outward of
+ * domain/services, so it cannot be stricter and gets the same allowance. The domain core (everything in domain/ outside
+ * domain/services) never gets it, and the other infrastructure folders (scripting, helpers, ...) are not covered.
+ */
+export function isAllowedInfrastructureAccess(edge: ILayerEdge): boolean {
+  if (edge.toZone !== 'infrastructure' || edge.fromDomainCore) {
+    return false;
+  }
+  if (edge.fromZone !== 'application' && edge.fromZone !== 'domain') {
+    return false;
+  }
+  const folder = toPosix(edge.target).toLowerCase().split('/')[INFRASTRUCTURE_FOLDER_SEGMENT_INDEX];
+  return UNRESTRICTED_INFRASTRUCTURE_FOLDERS.includes(folder);
+}
+
 export function isTableViolation(edge: ILayerEdge): boolean {
   const { fromZone, toZone } = edge;
   if (!isLayer(fromZone) || !isLayer(toZone) || fromZone === toZone) {
+    return false;
+  }
+  if (isAllowedInfrastructureAccess(edge)) {
     return false;
   }
   return !ALLOWED_LAYER_DEPENDENCIES[fromZone].includes(toZone);
 }
 
 /**
- * Edges the table allows but that are disputed all the same: shared -> domain keeps domain and shared in a cycle
- * (domain imports shared helpers), so whether shared becomes a leaf kernel is part of the owner decision.
+ * Edges the table allows but that stay frozen all the same: shared -> domain keeps domain and shared in a cycle
+ * (domain imports shared helpers), so it is listed with the legacy violations until the two are untangled.
  */
-export function isDisputedAllowedEdge(edge: ILayerEdge): boolean {
+export function isFrozenAllowedEdge(edge: ILayerEdge): boolean {
   return edge.fromZone === 'shared' && edge.toZone === 'domain';
 }
 
-export function pendingDecisionMap(edges: readonly ILayerEdge[]): Record<string, Layer[]> {
+export function legacyViolationMap(edges: readonly ILayerEdge[]): Record<string, Layer[]> {
   const map: Record<string, Set<Layer>> = {};
   for (const edge of edges) {
-    if ((isTableViolation(edge) || isDisputedAllowedEdge(edge)) && !isZeroToleranceViolation(edge)) {
+    if ((isTableViolation(edge) || isFrozenAllowedEdge(edge)) && !isZeroToleranceViolation(edge)) {
       (map[edge.file] ??= new Set<Layer>()).add(edge.toZone as Layer);
     }
   }

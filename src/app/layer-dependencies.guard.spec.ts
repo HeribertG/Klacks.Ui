@@ -9,33 +9,32 @@ import {
   isProductionSource,
   isZeroToleranceViolation,
   Layer,
-  pendingDecisionMap,
+  legacyViolationMap,
   scanProductionSources,
   zoneOf,
 } from './layer-dependencies.testing';
-import { PENDING_OWNER_DECISION } from './layer-dependencies-pending-owner-decision.constants';
+import { LEGACY_LAYER_VIOLATIONS } from './layer-dependencies-legacy-violations.constants';
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const MIN_EXPECTED_FILES = 1000;
 const RULE_FILE = '.claude/rules/frontend-architecture.md of the super-repo';
 const REGENERATE_COMMAND = 'npm run layers:allowlist';
 
-const OWNER_QUESTION =
-  `The layer rule (${RULE_FILE}) contradicts itself: its table lets presentation depend only on ` +
-  'application/domain/shared, application and infrastructure only on domain, shared only on domain and domain on ' +
-  'nothing, while its prose says "Presentation -> Domain Services -> Infrastructure API-Services". Until the owner ' +
-  'decides which reading holds, these file/layer pairs stay frozen in PENDING_OWNER_DECISION - the list may only ' +
+const LEGACY_RULE =
+  `The layer rule (${RULE_FILE}) lets domain/services and application import infrastructure/api, ` +
+  'infrastructure/storage and infrastructure/signalr (owner decision 2026-10-20) and forbids every other layer edge ' +
+  'that its table does not list. Existing violations stay frozen in LEGACY_LAYER_VIOLATIONS - the list may only ' +
   'shrink. It is keyed by file and target layer, so it cannot count imports: do not add further imports on a listed ' +
   'edge to a listed file either.';
 
 const ADVICE_BY_TARGET_LAYER: Readonly<Record<Layer, string>> = {
-  infrastructure: 'reach infrastructure through a domain service (or a domain port bound in app.port-bindings.ts).',
-  shared:
-    'the table lets only presentation import shared: move the helper into domain/helpers or into the importing ' +
-    'layer, or wait for the owner decision on making shared a kernel every layer may use.',
-  domain:
-    'shared -> domain is allowed by the table but keeps domain and shared in a cycle; until the owner decides ' +
-    'whether shared becomes a leaf kernel, keep domain types out of shared or move the helper into domain/helpers.',
+  infrastructure:
+    'presentation -> infrastructure: move the logic into a domain service (domain/services) and inject that; do ' +
+    'not add pass-through wrappers without own logic. domain/services and application may only use ' +
+    'infrastructure/api, storage and signalr; reach other infrastructure folders through a port in ' +
+    'domain/interfaces bound in app.port-bindings.ts.',
+  shared: 'frozen, still to be untangled (domain and shared import each other): do not add new imports of shared.',
+  domain: 'frozen, still to be untangled (domain and shared import each other): do not add new imports of domain.',
   application: 'invert the dependency or move the file.',
   presentation: 'invert the dependency or move the file.',
 };
@@ -117,27 +116,27 @@ describe('layer dependencies', () => {
     ).toEqual([]);
   });
 
-  describe('edges pending an owner decision (shrink-only allowlist)', () => {
-    const actual = pendingDecisionMap(edges);
+  describe('legacy layer violations (shrink-only allowlist)', () => {
+    const actual = legacyViolationMap(edges);
 
-    it('adds no new disputed file/layer pair', () => {
+    it('adds no new legacy file/layer pair', () => {
       // Act
       const added = Object.entries(actual).flatMap(([file, layers]) =>
-        layers.filter((layer) => !(PENDING_OWNER_DECISION[file] ?? []).includes(layer)).map((layer) => ({ file, layer })),
+        layers.filter((layer) => !(LEGACY_LAYER_VIOLATIONS[file] ?? []).includes(layer)).map((layer) => ({ file, layer })),
       );
       const lines = added.map(({ file, layer }) => `  ${file} -> ${layer}`);
 
       // Assert
       expect(
         lines,
-        `${OWNER_QUESTION}\nNew disputed pairs:\n${lines.join('\n')}\n` +
+        `${LEGACY_RULE}\nNew layer violations:\n${lines.join('\n')}\n` +
           `What to do instead:\n${adviceFor(added.map(({ layer }) => layer))}`,
       ).toEqual([]);
     });
 
     it('lists no edge that is already gone, so the allowlist only shrinks', () => {
       // Act
-      const stale = Object.entries(PENDING_OWNER_DECISION).flatMap(([file, layers]) =>
+      const stale = Object.entries(LEGACY_LAYER_VIOLATIONS).flatMap(([file, layers]) =>
         layers
           .filter((layer: Layer) => !(actual[file] ?? []).includes(layer))
           .map((layer) => `  ${file} -> ${layer}`),
@@ -146,18 +145,18 @@ describe('layer dependencies', () => {
       // Assert
       expect(
         stale,
-        `These PENDING_OWNER_DECISION entries no longer violate - delete them (or run ${REGENERATE_COMMAND}) so ` +
+        `These LEGACY_LAYER_VIOLATIONS entries no longer violate - delete them (or run ${REGENERATE_COMMAND}) so ` +
           `the allowlist keeps shrinking:\n${stale.join('\n')}`,
       ).toEqual([]);
     });
 
     it('keeps the allowlist sorted so a regeneration diff stays readable', () => {
       // Arrange
-      const keys = Object.keys(PENDING_OWNER_DECISION);
+      const keys = Object.keys(LEGACY_LAYER_VIOLATIONS);
 
       // Assert
       expect(keys).toEqual([...keys].sort());
-      for (const layers of Object.values(PENDING_OWNER_DECISION)) {
+      for (const layers of Object.values(LEGACY_LAYER_VIOLATIONS)) {
         expect(layers).toEqual([...layers].sort());
       }
     });
