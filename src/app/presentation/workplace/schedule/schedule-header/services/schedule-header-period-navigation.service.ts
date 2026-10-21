@@ -20,6 +20,8 @@ import {
   SCHEDULE_HEADER_FIRST_WEEK,
   SCHEDULE_HEADER_LAST_DAY_OF_DECEMBER,
   SCHEDULE_HEADER_LAST_MONTH,
+  SCHEDULE_HEADER_ODD_REMAINDER,
+  SCHEDULE_HEADER_WEEK_PARITY_MODULUS,
   SCHEDULE_HEADER_WEEK_LABEL,
   SCHEDULE_HEADER_WEEKS_IN_SHORT_ISO_YEAR,
 } from '../schedule-header.constants';
@@ -161,7 +163,7 @@ export class ScheduleHeaderPeriodNavigationService {
     if (this.selectedWeek <= SCHEDULE_HEADER_BIWEEKLY_STEP) {
       this.currentYear--;
       const weeksInYear = this.getWeeksInYear(this.currentYear);
-      this.selectedWeek = weeksInYear % SCHEDULE_HEADER_BIWEEKLY_STEP === 1 ? weeksInYear : weeksInYear - 1;
+      this.selectedWeek = weeksInYear % SCHEDULE_HEADER_WEEK_PARITY_MODULUS === SCHEDULE_HEADER_ODD_REMAINDER ? weeksInYear : weeksInYear - 1;
     } else {
       this.selectedWeek -= SCHEDULE_HEADER_BIWEEKLY_STEP;
     }

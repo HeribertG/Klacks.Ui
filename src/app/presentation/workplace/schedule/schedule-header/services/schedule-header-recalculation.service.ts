@@ -34,9 +34,6 @@ export class ScheduleHeaderRecalculationService {
 
   readonly isRecalculating = signal(false);
 
-  /**
-   * Subscribes to the thorough recalculation completions. Must be called from the component constructor.
-   */
   connect(destroyRef: DestroyRef): void {
     this.scheduleSignalR.thoroughRecalculationCompleted$
       .pipe(takeUntilDestroyed(destroyRef))
