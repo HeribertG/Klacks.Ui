@@ -137,8 +137,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/workplace/settings/assistant-speech-settings/assistant-speech-settings.component.ts': ['infrastructure'],
   'presentation/workplace/settings/escalation-roster-administration/escalation-roster-administration.component.ts': ['infrastructure'],
   'presentation/workplace/settings/export-format-overrides-setting/export-format-overrides-setting.component.ts': ['infrastructure'],
-  'presentation/workplace/settings/export-formats-setting/export-formats-setting.component.ts': ['infrastructure'],
-  'presentation/workplace/settings/export-formats-setting/format-family-view.ts': ['infrastructure'],
   'presentation/workplace/settings/language-plugins/language-plugins.component.ts': ['infrastructure'],
   'presentation/workplace/settings/language-plugins/marketplace-browse/marketplace-browse.component.ts': ['infrastructure'],
   'presentation/workplace/settings/llm-sync-log/llm-sync-log.component.ts': ['infrastructure'],

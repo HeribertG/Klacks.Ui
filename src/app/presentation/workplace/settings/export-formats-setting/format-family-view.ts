@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { ExportFormatResource } from 'src/app/infrastructure/api/period-closing/models/export-format-resource';
+import { ExportFormatResource } from 'src/app/domain/models/settings/export-format-resource.interface';
 
 export interface FormatFamilyView {
   brand: string;

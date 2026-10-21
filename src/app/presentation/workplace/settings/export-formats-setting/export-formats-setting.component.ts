@@ -10,17 +10,13 @@
  */
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
-import { ExportFormatResource } from 'src/app/infrastructure/api/period-closing/models/export-format-resource';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
-import { ISetting } from 'src/app/domain/models/settings/setting.interface';
+import { ExportFormatResource } from 'src/app/domain/models/settings/export-format-resource.interface';
+import { ExportFormatSettingsService } from 'src/app/domain/services/settings/export-format-settings.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { FormatFamilyView } from './format-family-view';
 
-const ENABLED_EXPORT_FORMATS_KEY = 'ENABLED_EXPORT_FORMATS';
 const FORMAT_LABEL_PREFIX = 'periodClosing.format.';
-const FORMAT_SEPARATOR = ',';
 const ORDER_FAMILY = 'order';
 const PAYROLL_FAMILY = 'payroll';
 
@@ -33,8 +29,7 @@ const PAYROLL_FAMILY = 'payroll';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportFormatsSettingComponent implements OnInit {
-  private formatsApi = inject(DataExportFormatsService);
-  private settingsApi = inject(DataSettingsVariousService);
+  private exportFormatSettings = inject(ExportFormatSettingsService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
@@ -61,12 +56,9 @@ export class ExportFormatsSettingComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.settingsApi.readSetting(ENABLED_EXPORT_FORMATS_KEY).subscribe({
-      next: (setting) => this.settingId.set(setting?.id),
-      error: () => this.settingId.set(undefined),
-    });
+    this.exportFormatSettings.readEnabledFormatsSettingId().subscribe((id) => this.settingId.set(id));
 
-    this.formatsApi.getFormats().subscribe({
+    this.exportFormatSettings.getFormats().subscribe({
       next: (list) => {
         this.formats.set(list);
         this.isDataLoaded.set(true);
@@ -106,17 +98,7 @@ export class ExportFormatsSettingComponent implements OnInit {
   }
 
   private save(): void {
-    const value = this.formats()
-      .filter((f) => !f.fixed && f.enabled)
-      .map((f) => f.key)
-      .join(FORMAT_SEPARATOR);
-
-    const setting: ISetting = { id: this.settingId(), type: ENABLED_EXPORT_FORMATS_KEY, value };
-    const request$ = this.settingId()
-      ? this.settingsApi.updateSetting(setting)
-      : this.settingsApi.addSetting(setting);
-
-    request$.subscribe({
+    this.exportFormatSettings.saveEnabledFormats(this.formats(), this.settingId()).subscribe({
       next: (saved) => {
         this.settingId.set(saved.id);
         this.toastShowService.showSuccess(

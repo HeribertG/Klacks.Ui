@@ -11,7 +11,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ExportFormatResource } from './models/export-format-resource';
+import { ExportFormatResource } from 'src/app/domain/models/settings/export-format-resource.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataExportFormatsService {
