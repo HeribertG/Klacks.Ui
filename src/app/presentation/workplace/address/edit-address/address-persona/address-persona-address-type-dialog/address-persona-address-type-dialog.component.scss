@@ -6,3 +6,8 @@
 :host {
   display: contents;
 }
+
+:host ::ng-deep ngb-datepicker {
+  font-weight: inherit;
+  font-size: inherit;
+}

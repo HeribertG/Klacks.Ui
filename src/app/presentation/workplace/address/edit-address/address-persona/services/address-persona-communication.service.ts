@@ -25,14 +25,14 @@ export class AddressPersonaCommunicationService {
   onChangePhoneType(index: number, event: Event): void {
     this.updateCommunication(
       this.dataManagementClientService.communicationPhoneList(), index,
-      { isPhone: true, type: 0 }, 'type', +this.valueOf(event)
+      { isPhone: true, type: 0 }, 'type', +this.readValue(event)
     );
   }
 
   onChangePhonePrefix(index: number, event: Event): void {
     this.updateCommunication(
       this.dataManagementClientService.communicationPhoneList(), index,
-      { isPhone: true, type: 0 }, 'prefix', this.valueOf(event)
+      { isPhone: true, type: 0 }, 'prefix', this.readValue(event)
     );
   }
 
@@ -40,7 +40,7 @@ export class AddressPersonaCommunicationService {
     if (this.isPhoneValueSeals) { return; }
     this.updateCommunication(
       this.dataManagementClientService.communicationPhoneList(), index,
-      { isPhone: true }, 'value', this.valueOf(event)
+      { isPhone: true }, 'value', this.readValue(event)
     );
   }
 
@@ -57,14 +57,14 @@ export class AddressPersonaCommunicationService {
   onChangeEmailValue(index: number, event: Event): void {
     this.updateCommunication(
       this.dataManagementClientService.communicationEmailList(), index,
-      { isEmail: true }, 'value', this.valueOf(event)
+      { isEmail: true }, 'value', this.readValue(event)
     );
   }
 
   onChangeEmailType(index: number, event: Event): void {
     this.updateCommunication(
       this.dataManagementClientService.communicationEmailList(), index,
-      { isEmail: true }, 'type', +this.valueOf(event)
+      { isEmail: true }, 'type', +this.readValue(event)
     );
   }
 
@@ -86,7 +86,7 @@ export class AddressPersonaCommunicationService {
     this.state.notifyChanging(true);
   }
 
-  private valueOf(event: Event): string {
+  private readValue(event: Event): string {
     return (event.currentTarget as HTMLInputElement).value;
   }
 
