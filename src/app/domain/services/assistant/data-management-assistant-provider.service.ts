@@ -3,7 +3,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { DataAssistantProviderService, IAssistantProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { DataAssistantProviderService } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
+import { IUpdateProviderRequest } from 'src/app/domain/models/assistant/update-provider-request.interface';
+import { ICreateProviderRequest } from 'src/app/domain/models/assistant/create-provider-request.interface';
 import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

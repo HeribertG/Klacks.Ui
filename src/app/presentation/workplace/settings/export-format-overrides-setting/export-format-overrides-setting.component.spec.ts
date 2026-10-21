@@ -8,9 +8,11 @@ import { of, throwError } from 'rxjs';
 import { ExportFormatOverridesSettingComponent } from './export-format-overrides-setting.component';
 import {
   DataExportFormatOverridesService,
-  ExportFormatFamilies,
-  IExportFormatOverridesResponse,
 } from 'src/app/infrastructure/api/settings/data-export-format-overrides.service';
+import { ExportFormatFamilies } from 'src/app/domain/constants/export-format-families.constants';
+import {
+  IExportFormatOverridesResponse,
+} from 'src/app/domain/models/settings/export-format-overrides-response.interface';
 
 describe('ExportFormatOverridesSettingComponent', () => {
   let component: ExportFormatOverridesSettingComponent;

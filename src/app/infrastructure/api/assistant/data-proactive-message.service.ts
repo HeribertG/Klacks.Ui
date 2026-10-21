@@ -20,12 +20,8 @@ import {
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { ISetProactiveReactionRequest } from './set-proactive-reaction-request.interface';
 import { IProactiveUnreadCount } from 'src/app/domain/interfaces/proactive-unread-count.interface';
-
-export interface ISetProactiveReactionRequest {
-  reaction: ProactiveReaction;
-  rejectReason?: ProactiveRejectReason;
-}
 
 @Injectable({
   providedIn: 'root',

@@ -3,7 +3,12 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { DataAssistantService, IAssistantChatRequest, IAssistantChatResponse, IAssistantModel, IAssistantUsage, IAssistantFunction, IAssistantHelp } from './data-assistant.service';
+import { DataAssistantService, IAssistantModel } from './data-assistant.service';
+import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
+import { IAssistantChatResponse } from '../../../domain/models/assistant/assistant-chat-response.interface';
+import { IAssistantUsage } from '../../../domain/models/assistant/assistant-usage.interface';
+import { IAssistantFunction } from '../../../domain/models/assistant/assistant-function.interface';
+import { IAssistantHelp } from '../../../domain/models/assistant/assistant-help.interface';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 

@@ -7,18 +7,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { DictionaryEntry } from '../../../domain/models/assistant/dictionary-entry.interface';
 import { environment } from 'src/environments/environment';
 
 const DICTIONARY_ENDPOINT = 'transcription/dictionary';
-
-export interface DictionaryEntry {
-  id: string;
-  correctTerm: string;
-  category: string | null;
-  phoneticVariants: string[];
-  description: string | null;
-  language: string | null;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataTranscriptionDictionaryService {

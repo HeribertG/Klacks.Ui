@@ -18,64 +18,16 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
-import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
-import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
-import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
-import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { AutoWizardSignalRConstants } from '../../signalr/signalr.constants';
+import { AutoWizardStartRequest } from './auto-wizard-start-request.interface';
+import { AutoWizardStartResponse } from './auto-wizard-start-response.interface';
+import { AutoWizardResult } from './auto-wizard-result.interface';
+import { AutoWizardJobFailure } from './auto-wizard-job-failure.interface';
+import { AutoWizardCancelResponse } from './auto-wizard-cancel-response.interface';
+import { AutoWizardJobStatusResponse } from './auto-wizard-job-status-response.interface';
 import { AUTO_WIZARD_LIMITS } from './auto-wizard-limits.constants';
 
 export type AutoWizardStatus = 'idle' | 'running' | 'completed' | 'failed';
-
-export interface AutoWizardStartRequest {
-  periodFrom: string;
-  periodUntil: string;
-  agentIds: string[];
-  shiftIds: string[];
-  groupId: string | null;
-  analyseToken: string | null;
-  language: string | null;
-  agentOrderIsUserDefined: boolean;
-}
-
-export interface AutoWizardStartResponse {
-  jobId: string;
-}
-
-export interface AutoWizardResult {
-  jobId: string;
-  finalScenarioId: string | null;
-  finalScenarioToken: string | null;
-  finalScenarioName: string | null;
-  elapsedMs: number;
-  qualificationGaps?: QualificationGapDetail[];
-  planningRuleWarnings?: ScheduleErrorEntry[] | null;
-  planningRuleRemaining?: PlanningRuleRemaining | null;
-  summary?: ScenarioSummary | null;
-}
-
-/**
- * Reported when the chain stopped. A later stage failing does not mean the earlier ones produced
- * nothing - the partial scenario is kept and named here so the operator can still use it.
- */
-export interface AutoWizardJobFailure {
-  jobId: string;
-  failedStage: string;
-  reason: string;
-  partialScenarioId: string | null;
-  partialScenarioToken: string | null;
-  partialScenarioName: string | null;
-}
-
-export interface AutoWizardCancelResponse {
-  cancelled: boolean;
-}
-
-export interface AutoWizardJobStatusResponse {
-  status: 'running' | 'completed' | 'cancelled' | 'failed' | 'unknown';
-  result: AutoWizardResult | null;
-  reason: string | null;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataAutoWizardService implements OnDestroy {

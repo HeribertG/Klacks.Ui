@@ -7,20 +7,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { CustomSttProvider } from '../../../domain/models/assistant/custom-stt-provider.interface';
 import { environment } from 'src/environments/environment';
 
 const CUSTOM_STT_ENDPOINT = 'stt/providers/custom';
-
-export interface CustomSttProvider {
-  id: string;
-  name: string;
-  connectionType: string;
-  apiUrl: string;
-  apiKey: string | null;
-  languageModel: string | null;
-  isEnabled: boolean;
-  isSystem: boolean;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataCustomSttProviderService {

@@ -14,12 +14,10 @@ import { DataContainerLockService } from 'src/app/infrastructure/api/container/d
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
-import {
-  ContainerWorkChildren,
-  SubBreakResource,
-  SubWorkResource,
-  WorkChangeResource,
-} from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+import { SubBreakResource } from 'src/app/domain/models/container/sub-break-resource.interface';
+import { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
+import { WorkChangeResource } from 'src/app/domain/models/container/work-change-resource.interface';
 
 const PARENT_CLIENT_ID = 'client-parent';
 const REPLACEMENT_CLIENT_ID = 'client-replacement';

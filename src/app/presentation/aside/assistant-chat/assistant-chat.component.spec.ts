@@ -22,14 +22,14 @@ import { ConversationOrchestratorService, ConversationState } from './services/c
 import { ChatStageStatusService } from './services/chat-stage-status.service';
 import { ChatTurnControlService } from './services/chat-turn-control.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
-import { StreamCallbacks } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { StreamCallbacks } from 'src/app/domain/models/assistant/stream-callbacks.interface';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ChatMessageActionsService } from './services/chat-message-actions.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
-import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';

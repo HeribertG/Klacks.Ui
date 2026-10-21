@@ -80,7 +80,8 @@ import {
   ProactiveReaction,
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
-import { StreamMetadata, StreamStatus } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { StreamMetadata } from 'src/app/domain/models/assistant/stream-metadata.interface';
+import { StreamStatus } from 'src/app/domain/models/assistant/stream-status.interface';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';

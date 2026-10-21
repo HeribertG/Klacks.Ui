@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Scope, Entry } from './scope';
+import { Scope } from './scope';
+import { Entry } from './entry.model';
 import { Identifier, IdentifierTypes } from './identifier';
 import { ScriptValue } from './script-value';
 import { normalizeIdentifierName } from './identifier-name';

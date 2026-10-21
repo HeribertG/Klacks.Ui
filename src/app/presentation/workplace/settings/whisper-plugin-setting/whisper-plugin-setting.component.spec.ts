@@ -10,9 +10,9 @@ import { DataManagementUpdateService } from 'src/app/domain/services/update/data
 import {
   DataWhisperPluginService,
   WhisperModelAliases,
-  WhisperOperationInfo,
-  WhisperPluginStatus,
 } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
+import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 
 const MINUTE_MS = 60000;
 

@@ -18,16 +18,9 @@ import {
 } from 'src/app/domain/constants/geo-services-api.constants';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { IRouteGeometryResult } from 'src/app/domain/models/geo/route-geometry-result.interface';
+import { RouteCoordinate } from './route-coordinate.interface';
+import { RouteCoordinateWithName } from './route-coordinate-with-name.interface';
 import { RouteGeometryStatus } from 'src/app/domain/models/geo/route-geometry-status.model';
-
-export interface RouteCoordinate {
-  lat: number;
-  lon: number;
-}
-
-export interface RouteCoordinateWithName extends RouteCoordinate {
-  name: string;
-}
 
 const MIN_ROUTE_WAYPOINTS = 2;
 

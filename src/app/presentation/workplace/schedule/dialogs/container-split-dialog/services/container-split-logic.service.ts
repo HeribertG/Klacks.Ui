@@ -7,12 +7,10 @@
  * @param splitTime - Chosen split time (HH:MM)
  */
 import { Injectable } from '@angular/core';
-import {
-  ContainerWorkChildren,
-  SubBreakResource,
-  SubWorkResource,
-  WorkChangeResource,
-} from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+import { SubBreakResource } from 'src/app/domain/models/container/sub-break-resource.interface';
+import { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
+import { WorkChangeResource } from 'src/app/domain/models/container/work-change-resource.interface';
 
 export interface SplitGap {
   start: string;

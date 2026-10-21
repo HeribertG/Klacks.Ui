@@ -10,11 +10,9 @@ import { of, Subject, throwError } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { RecoveryDialogComponent } from './recovery-dialog.component';
-import {
-  DataRecoveryService,
-  ICoverAbsenceOutcome,
-  ICoveredSlot,
-} from 'src/app/infrastructure/api/schedule/data-recovery.service';
+import { DataRecoveryService } from 'src/app/infrastructure/api/schedule/data-recovery.service';
+import { ICoverAbsenceOutcome } from 'src/app/domain/models/schedule/cover-absence-outcome.interface';
+import { ICoveredSlot } from 'src/app/domain/models/schedule/covered-slot.interface';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
 import { IReplacementCandidate } from 'src/app/domain/interfaces/replacement-candidate.interface';
 import { IReplacementRequest } from 'src/app/domain/interfaces/replacement-request.interface';

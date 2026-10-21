@@ -2,12 +2,10 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ContainerSplitLogicService } from './container-split-logic.service';
-import {
-  ContainerWorkChildren,
-  SubBreakResource,
-  SubWorkResource,
-  WorkChangeResource,
-} from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+import { SubBreakResource } from 'src/app/domain/models/container/sub-break-resource.interface';
+import { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
+import { WorkChangeResource } from 'src/app/domain/models/container/work-change-resource.interface';
 
 const makeSubWork = (
   id: string,

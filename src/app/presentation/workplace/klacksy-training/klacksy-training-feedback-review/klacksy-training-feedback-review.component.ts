@@ -7,7 +7,12 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { form, FormField } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataKlacksyTrainingService, NavigationFeedbackDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import {
+  DataKlacksyTrainingService,
+} from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import {
+  NavigationFeedbackDto,
+} from '../../../../infrastructure/api/klacksy-training/navigation-feedback-dto.interface';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({

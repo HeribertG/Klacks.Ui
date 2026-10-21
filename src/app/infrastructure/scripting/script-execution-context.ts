@@ -4,15 +4,14 @@ import { CompiledScript } from './compiled-script';
 import { Identifier, IdentifierTypes } from './identifier';
 import { Opcodes } from './opcodes';
 import { createScriptError } from './script-error';
-import {
-  ResultMessage,
-  ScriptResult,
-  scriptResultFail,
-  scriptResultOk,
-} from './script-result';
+import { ScriptResult, scriptResultFail, scriptResultOk } from './script-result';
+import { ResultMessage } from './result-message.interface';
 import { ScriptValue } from './script-value';
-import { Scope, Entry } from './scope';
+import { Scope } from './scope';
+import { Entry } from './entry.model';
 import { Scopes } from './scopes';
+import { ScriptTooComplexException } from './script-too-complex-exception.model';
+import { CancellationToken } from './cancellation-token.interface';
 import { extractDouble, extractInt, extractString, areEqual } from './helper';
 
 export type MessageEventHandler = (type: number, message: string) => void;
@@ -20,17 +19,6 @@ export type DebugPrintEventHandler = (msg: string) => void;
 export type DebugClearEventHandler = () => void;
 export type DebugShowEventHandler = () => void;
 export type DebugHideEventHandler = () => void;
-
-export class ScriptTooComplexException extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ScriptTooComplexException';
-  }
-}
-
-export interface CancellationToken {
-  isCancelled: boolean;
-}
 
 export class ScriptExecutionContext {
   private static readonly MAX_RECURSION_DEPTH = 1000;

@@ -22,11 +22,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import {
   DataExportFormatOverridesService,
-  ExportFormatFamilies,
-  ExportFormatFamily,
-  IExportFormatOverrideEntry,
-  IExportFormatOverridesResponse,
 } from 'src/app/infrastructure/api/settings/data-export-format-overrides.service';
+import { ExportFormatFamilies } from 'src/app/domain/constants/export-format-families.constants';
+import { ExportFormatFamily } from 'src/app/domain/models/settings/export-format-family.type';
+import { IExportFormatOverrideEntry } from 'src/app/domain/models/settings/export-format-override-entry.interface';
+import {
+  IExportFormatOverridesResponse,
+} from 'src/app/domain/models/settings/export-format-overrides-response.interface';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,

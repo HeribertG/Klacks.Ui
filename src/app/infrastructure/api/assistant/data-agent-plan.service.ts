@@ -10,12 +10,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ICreatePlanRequest } from '../../../domain/models/assistant/create-plan-request.interface';
 import { IAgentPlan } from 'src/app/domain/models/assistant/agent-plan.interface';
-
-export interface ICreatePlanRequest {
-  goal: string;
-  sessionId?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataAgentPlanService {

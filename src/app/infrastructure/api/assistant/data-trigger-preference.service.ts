@@ -11,13 +11,8 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
+import { IUpdateTriggerPreferenceRequest } from './update-trigger-preference-request.interface';
 import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
-
-export interface IUpdateTriggerPreferenceRequest {
-  muted?: boolean;
-  snoozedUntilUtc?: string | null;
-  minimumSeverity?: string | null;
-}
 
 @Injectable({
   providedIn: 'root',

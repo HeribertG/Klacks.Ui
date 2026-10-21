@@ -9,13 +9,8 @@
  * @param isConnected - Function that returns true when the hub is in Connected state
  */
 import * as signalR from '@microsoft/signalr';
+import { ScheduleGroup } from './schedule-group.interface';
 import { SignalRConstants } from './signalr.constants';
-
-interface ScheduleGroup {
-  startDate: string;
-  endDate: string;
-  analyseToken: string | null;
-}
 
 type QueuedOp =
   | { kind: 'join'; group: ScheduleGroup }

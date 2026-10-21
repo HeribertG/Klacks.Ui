@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ScriptService } from './script.service';
-import { CancellationToken } from './script-execution-context';
+import { CancellationToken } from './cancellation-token.interface';
 
 describe('ScriptService', () => {
     let service: ScriptService;

@@ -5,22 +5,32 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, tap, switchMap, takeUntil } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantChatRequest } from 'src/app/domain/models/assistant/assistant-chat-request.interface';
+import { IAssistantChatResponse } from 'src/app/domain/models/assistant/assistant-chat-response.interface';
+import { IAssistantUsage } from 'src/app/domain/models/assistant/assistant-usage.interface';
+import { ISubmitCorrectionRequest } from 'src/app/domain/models/assistant/submit-correction-request.interface';
+import { ISubmitCorrectionResponse } from 'src/app/domain/models/assistant/submit-correction-response.interface';
 import {
-  DataAssistantService,
-  IAssistantChatRequest,
-  IAssistantChatResponse,
-  IAssistantUsage,
-  ISubmitCorrectionRequest,
-  ISubmitCorrectionResponse,
   ISubmitHelpfulFeedbackRequest,
+} from 'src/app/domain/models/assistant/submit-helpful-feedback-request.interface';
+import {
   ISubmitHelpfulFeedbackResponse,
+} from 'src/app/domain/models/assistant/submit-helpful-feedback-response.interface';
+import {
   IReportNavigationOutcomeRequest,
+} from 'src/app/domain/models/assistant/report-navigation-outcome-request.interface';
+import {
   IReportNavigationOutcomeResponse,
+} from 'src/app/domain/models/assistant/report-navigation-outcome-response.interface';
+import {
   IReportUiActionResultRequest,
+} from 'src/app/domain/models/assistant/report-ui-action-result-request.interface';
+import {
   IReportUiActionResultResponse,
-  IKlacksyModelCheckResponse,
-  ICancelTurnResponse,
-} from 'src/app/infrastructure/api/assistant/data-assistant.service';
+} from 'src/app/domain/models/assistant/report-ui-action-result-response.interface';
+import { IKlacksyModelCheckResponse } from 'src/app/domain/models/assistant/klacksy-model-check-response.interface';
+import { ICancelTurnResponse } from 'src/app/domain/models/assistant/cancel-turn-response.interface';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
 import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assistant/data-trigger-preference.service';
 import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
@@ -32,7 +42,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { DataAssistantStreamService } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { StreamCallbacks } from 'src/app/domain/models/assistant/stream-callbacks.interface';
+import { StreamMetadata } from 'src/app/domain/models/assistant/stream-metadata.interface';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { decodeJwtPayload } from 'src/app/shared/helpers/jwt.helper';
 import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';

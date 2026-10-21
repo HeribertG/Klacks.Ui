@@ -6,13 +6,11 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import {
-  DataUpdateService,
-  IUpdateConfig,
-  IUpdateHistoryItem,
-  IUpdateStatus,
-  IUpdateTriggerResult,
-} from 'src/app/infrastructure/api/settings/data-update.service';
+import { DataUpdateService } from 'src/app/infrastructure/api/settings/data-update.service';
+import { IUpdateConfig } from 'src/app/domain/models/settings/update-config.interface';
+import { IUpdateHistoryItem } from 'src/app/domain/models/settings/update-history-item.interface';
+import { IUpdateStatus } from 'src/app/domain/models/settings/update-status.interface';
+import { IUpdateTriggerResult } from 'src/app/domain/models/settings/update-trigger-result.interface';
 
 @Injectable({
   providedIn: 'root',

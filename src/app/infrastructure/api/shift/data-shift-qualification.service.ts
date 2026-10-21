@@ -9,15 +9,7 @@ import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification.interface';
-import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
-
-export interface SetShiftRequiredQualificationRequest {
-  shiftId: string;
-  qualificationId: string;
-  isMandatory: boolean;
-  minLevel: QualificationLevel;
-  levelBindingOverride: boolean | null;
-}
+import { SetShiftRequiredQualificationRequest } from './set-shift-required-qualification-request.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataShiftQualificationService {

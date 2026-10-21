@@ -23,13 +23,11 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { forkJoin } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  ContainerWorkChildren,
   DataContainerWorkChildrenService,
 } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
-import {
-  DataClientService,
-  IClientForReplacement,
-} from 'src/app/infrastructure/api/client/data-client.service';
+import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import {
   CategorizationResult,
   ContainerSplitLogicService,

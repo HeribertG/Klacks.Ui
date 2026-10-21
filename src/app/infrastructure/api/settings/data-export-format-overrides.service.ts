@@ -9,46 +9,17 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { IExportFormatOverride } from '../../../domain/models/settings/export-format-override.interface';
+import {
+  IExportFormatOverridesResponse,
+} from '../../../domain/models/settings/export-format-overrides-response.interface';
+import {
+  IExportFormatOverrideSaveRequest,
+} from '../../../domain/models/settings/export-format-override-save-request.interface';
+import {
+  IExportFormatOverridePreviewRequest,
+} from '../../../domain/models/settings/export-format-override-preview-request.interface';
 import { environment } from 'src/environments/environment';
-
-export const ExportFormatFamilies = {
-  Order: 'order',
-  Payroll: 'payroll',
-  ClientPeriod: 'clientperiod',
-} as const;
-
-export type ExportFormatFamily = (typeof ExportFormatFamilies)[keyof typeof ExportFormatFamilies];
-
-export interface IExportFormatOverride {
-  formatKey: string;
-  patchJson: string;
-  isEnabled: boolean;
-  note: string | null;
-  createdUnderVersion: string;
-  updateTime: string | null;
-}
-
-export interface IExportFormatOverrideEntry {
-  formatKey: string;
-  family: ExportFormatFamily;
-  allowedKeys: string[];
-  override: IExportFormatOverride | null;
-}
-
-export interface IExportFormatOverridesResponse {
-  currentVersion: string;
-  formats: IExportFormatOverrideEntry[];
-}
-
-export interface IExportFormatOverrideSaveRequest {
-  patchJson: string;
-  isEnabled: boolean;
-  note: string | null;
-}
-
-export interface IExportFormatOverridePreviewRequest {
-  patchJson: string | null;
-}
 
 const PREVIEW_SEGMENT = 'preview';
 

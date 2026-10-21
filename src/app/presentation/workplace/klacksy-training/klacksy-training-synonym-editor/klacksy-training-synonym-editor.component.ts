@@ -8,7 +8,10 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataKlacksyTrainingService, NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import {
+  DataKlacksyTrainingService,
+} from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import { NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/navigation-target-dto.interface';
 import { TrashIconRedComponent } from '../../../icons/trash-icon-red.component';
 
 @Component({

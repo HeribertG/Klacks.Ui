@@ -12,7 +12,7 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
-import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Subject } from 'rxjs';
 

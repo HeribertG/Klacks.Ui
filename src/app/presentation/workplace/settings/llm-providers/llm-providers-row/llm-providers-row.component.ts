@@ -4,7 +4,7 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

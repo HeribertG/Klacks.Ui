@@ -3,19 +3,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, retry } from 'rxjs';
+import { TranslationRequest } from './translation-request.interface';
+import { TranslationResponse } from './translation-response.interface';
 import { environment } from 'src/environments/environment';
-
-export interface TranslationRequest {
-  text: string;
-  sourceLanguage: string;
-}
-
-export interface TranslationResponse {
-  de: string;
-  en: string;
-  fr: string;
-  it: string;
-}
 
 @Injectable({
   providedIn: 'root',

@@ -7,7 +7,7 @@
  * @param providers - Currently configured assistant providers
  */
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
-import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 
 export function filterModelsWithActiveProvider(
   models: IAssistantModel[],

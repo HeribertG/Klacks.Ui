@@ -31,14 +31,12 @@ import { filterModelsWithActiveProvider } from 'src/app/domain/services/assistan
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
-import {
-  DataAssistantService,
-  ISpeechModelCheckDto,
-} from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { ISpeechModelCheckDto } from 'src/app/domain/models/assistant/speech-model-check-dto.interface';
 import {
   DataTranscriptionDictionaryService,
-  DictionaryEntry,
 } from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
+import { DictionaryEntry } from 'src/app/domain/models/assistant/dictionary-entry.interface';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';

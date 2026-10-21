@@ -10,11 +10,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { SendAdminInviteResponse } from './send-admin-invite-response.interface';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
-
-export interface SendAdminInviteResponse {
-  result: string;
-}
 
 export const AdminInviteResult = {
   Success: 'Success',

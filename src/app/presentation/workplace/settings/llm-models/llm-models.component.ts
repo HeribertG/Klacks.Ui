@@ -22,7 +22,7 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
-import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';

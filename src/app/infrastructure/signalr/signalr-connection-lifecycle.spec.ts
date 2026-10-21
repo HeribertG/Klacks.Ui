@@ -2,7 +2,8 @@
 
 import type { Mock } from 'vitest';
 import * as signalR from '@microsoft/signalr';
-import { SignalRConnectionHelper, SignalRConnectionCallbacks } from './signalr-connection.helper';
+import { SignalRConnectionHelper } from './signalr-connection.helper';
+import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.interface';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';

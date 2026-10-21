@@ -27,11 +27,11 @@ import {
   DataWhisperPluginService,
   WhisperModelAlias,
   WhisperModelAliases,
-  WhisperOperationResult,
   WhisperOperationStatuses,
   WhisperOperationTypes,
-  WhisperPluginStatus,
 } from 'src/app/infrastructure/api/assistant/data-whisper-plugin.service';
+import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
+import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 
 const POLL_INTERVAL_MS = 5000;
 

@@ -7,52 +7,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
+import { IUpdateHistoryItem } from '../../../domain/models/settings/update-history-item.interface';
+import { IUpdateStatus } from '../../../domain/models/settings/update-status.interface';
+import { IUpdateTriggerResult } from '../../../domain/models/settings/update-trigger-result.interface';
+import { IUpdateConfig } from '../../../domain/models/settings/update-config.interface';
 import { environment } from 'src/environments/environment';
-
-export interface IUpdateHistoryItem {
-  id: string;
-  operationType: string;
-  status: string;
-  channel: string;
-  fromVersion: string;
-  targetVersion: string;
-  containsMigrations: boolean;
-  requestedAt: string;
-  startedAt?: string;
-  completedAt?: string;
-  message?: string;
-}
-
-export interface IUpdateAvailability {
-  currentVersion: string;
-  latestVersion: string;
-  containsMigrations: boolean;
-  isUpdateAvailable: boolean;
-}
-
-export interface IUpdateStatus {
-  currentVersion: string;
-  availability: IUpdateAvailability | null;
-  activeOperation: IUpdateHistoryItem | null;
-  lastOperation: IUpdateHistoryItem | null;
-}
-
-export interface IUpdateTriggerResult {
-  enqueued: boolean;
-  operationId?: string;
-  reason: string;
-}
-
-export interface IUpdateConfig {
-  autoEnabled: boolean;
-  channel: string;
-  checkIntervalHours: number;
-  maintenanceWindowStart: string;
-  maintenanceWindowEnd: string;
-  notifyOnly: boolean;
-  backupRetentionCount: number;
-  pinnedVersion: string;
-}
 
 @Injectable({
   providedIn: 'root',

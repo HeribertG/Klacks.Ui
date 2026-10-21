@@ -41,10 +41,10 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { TextToSpeechService } from 'src/app/presentation/aside/assistant-chat/services/text-to-speech.service';
 import { ChatMessage } from 'src/app/presentation/aside/assistant-chat/chat-message.interface';
+import { ISubmitCorrectionRequest } from 'src/app/domain/models/assistant/submit-correction-request.interface';
 import {
-  ISubmitCorrectionRequest,
   ISubmitHelpfulFeedbackRequest,
-} from 'src/app/infrastructure/api/assistant/data-assistant.service';
+} from 'src/app/domain/models/assistant/submit-helpful-feedback-request.interface';
 import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
 import {

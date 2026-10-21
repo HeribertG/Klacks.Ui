@@ -3,12 +3,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
+import { IGroupItemRequest } from './group-item-request.interface';
 import { environment } from 'src/environments/environment';
-
-export interface IGroupItemRequest {
-  clientId: string;
-  groupId: string;
-}
 
 @Injectable({
   providedIn: 'root',

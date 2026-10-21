@@ -8,9 +8,15 @@
 
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DataContainerWorkChildrenService, ContainerWorkChildren } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+import {
+  DataContainerWorkChildrenService,
+} from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
 
-export { ContainerWorkChildren, SubWorkResource, SubBreakResource, WorkChangeResource } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+export { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
+export { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
+export { SubBreakResource } from 'src/app/domain/models/container/sub-break-resource.interface';
+export { WorkChangeResource } from 'src/app/domain/models/container/work-change-resource.interface';
 
 @Injectable({
   providedIn: 'root',

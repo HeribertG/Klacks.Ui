@@ -15,11 +15,8 @@ import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { GoalCandidateDecision, GoalCandidateStatus } from 'src/app/domain/constants/goal-candidate.constants';
+import { ISetGoalCandidateDecisionRequest } from './set-goal-candidate-decision-request.interface';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
-
-export interface ISetGoalCandidateDecisionRequest {
-  decision: GoalCandidateDecision;
-}
 
 @Injectable({
   providedIn: 'root',

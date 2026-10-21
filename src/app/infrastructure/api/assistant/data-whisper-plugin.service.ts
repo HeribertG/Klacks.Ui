@@ -6,6 +6,8 @@
  */
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { WhisperPluginStatus } from '../../../domain/models/assistant/whisper-plugin-status.interface';
+import { WhisperOperationResult } from '../../../domain/models/assistant/whisper-operation-result.interface';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const WHISPER_STATUS_ENDPOINT = 'stt/whisper-plugin/status';
@@ -32,32 +34,6 @@ export const WhisperOperationStatuses = {
   Succeeded: 'Succeeded',
   Failed: 'Failed',
 } as const;
-
-export interface WhisperOperationInfo {
-  id: string;
-  operationType: string;
-  status: string;
-  modelAlias: string | null;
-  message: string | null;
-  requestedAt: string;
-  startedAt: string | null;
-  completedAt: string | null;
-}
-
-export interface WhisperPluginStatus {
-  installed: boolean;
-  modelAlias: string | null;
-  modelId: string | null;
-  activeOperation: WhisperOperationInfo | null;
-  lastOperation: WhisperOperationInfo | null;
-  otherOperationActive: boolean;
-}
-
-export interface WhisperOperationResult {
-  enqueued: boolean;
-  operationId: string | null;
-  reason: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataWhisperPluginService {

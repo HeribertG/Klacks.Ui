@@ -7,25 +7,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { NavigationTargetDto } from './navigation-target-dto.interface';
+import { NavigationFeedbackDto } from './navigation-feedback-dto.interface';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
-
-export interface NavigationTargetDto {
-  targetId: string;
-  route: string;
-  labelKey: string;
-  category?: string;
-  synonyms: Record<string, string[]>;
-  synonymStatus: string;
-  obsolete: boolean;
-}
-
-export interface NavigationFeedbackDto {
-  id: string;
-  utterance: string;
-  locale: string;
-  matchedTargetId?: string;
-  timestamp: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataKlacksyTrainingService {

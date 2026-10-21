@@ -10,16 +10,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { SendInvitationResponse } from './send-invitation-response.interface';
+import { MessagingProviderSummary } from './messaging-provider-summary.interface';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
-
-export interface SendInvitationResponse {
-  result: string;
-}
-
-interface MessagingProviderSummary {
-  providerType: string;
-  isEnabled: boolean;
-}
 
 const TELEGRAM_PROVIDER_TYPE = 'Telegram';
 

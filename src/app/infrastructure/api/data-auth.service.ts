@@ -5,16 +5,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { finalize, shareReplay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { LoginRequest } from './login-request.interface';
+import { RefreshTokenRequest } from './refresh-token-request.interface';
 import { MyToken } from 'src/app/domain/models/my-token-class';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
 
 @Injectable({
   providedIn: 'root',

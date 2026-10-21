@@ -5,11 +5,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
 import * as signalR from '@microsoft/signalr';
-import {
-  AutoWizardResult,
-  AutoWizardStartRequest,
-  DataAutoWizardService,
-} from './data-auto-wizard.service';
+import { DataAutoWizardService } from './data-auto-wizard.service';
+import { AutoWizardResult } from './auto-wizard-result.interface';
+import { AutoWizardStartRequest } from './auto-wizard-start-request.interface';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { AUTO_WIZARD_LIMITS } from './auto-wizard-limits.constants';
 

@@ -9,12 +9,8 @@ import { parseCalendarDate, toCalendarDateWire } from 'src/app/shared/helpers/ca
 import { toShiftGroupsWire } from './shift-groups-wire.mapper';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
+import { ResetDateRangeResponse } from './reset-date-range-response.interface';
 import { calculateDurationInMinutes } from 'src/app/shared/helpers/time-format.helper';
-
-export interface ResetDateRangeResponse {
-  earliestResetDate: string;
-  untilDate: string | null;
-}
 
 @Injectable({
   providedIn: 'root',

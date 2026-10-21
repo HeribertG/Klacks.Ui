@@ -8,48 +8,12 @@
 
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { IAssistantChatRequest } from './data-assistant.service';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
+import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { AssistantStatusStage, toAssistantStatusStage } from 'src/app/domain/constants/assistant-status-stage.constants';
-
-export interface StreamStatus {
-  stage: AssistantStatusStage;
-  /** Milliseconds since the request started; the backend omits the field rather than sending null, and 0 is a legitimate value on the very first event, so callers must never test it for truthiness. */
-  elapsedMs: number | null;
-  /** 1-based multi-turn iteration number; only present on `calling_model` and `executing_tool`. */
-  iteration?: number;
-}
-
-export interface StreamCallbacks {
-  onStreamStart?: (conversationId: string, turnId: string | null) => void;
-  onStatus?: (data: StreamStatus) => void;
-  onContent?: (text: string) => void;
-  onFunctionCall?: (data: { functionName: string; parameters: Record<string, unknown> }) => void;
-  onFunctionResult?: (data: { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string; uiActionTrackingId?: string }) => void;
-  onMetadata?: (data: StreamMetadata) => void;
-  /** turnId is null and executedCount is null when the event omits them; executedCount may exceed the label count when a label is unavailable. */
-  onTurnStopped?: (turnId: string | null, executedSkillLabels: string[], executedCount: number | null) => void;
-  onDone?: () => void;
-  onError?: (message: string) => void;
-}
-
-export interface StreamMetadata {
-  usage?: { inputTokens: number; outputTokens: number; totalTokens: number; cost: number };
-  suggestions?: string[];
-  suggestedReplies?: ISuggestedRepliesConfig;
-  navigateTo?: string;
-  target?: string;
-  /** In-page target the server's matcher expected although the model navigated without one (W0). */
-  missedTargetId?: string;
-  actionPerformed?: boolean;
-  functionCalls?: Record<string, unknown>[];
-}
-
-interface SseEvent {
-  type: string;
-  data: Record<string, unknown>;
-}
+import { StreamCallbacks } from '../../../domain/models/assistant/stream-callbacks.interface';
+import { StreamMetadata } from '../../../domain/models/assistant/stream-metadata.interface';
+import { SseEvent } from '../../../domain/models/assistant/sse-event.interface';
+import { toAssistantStatusStage } from 'src/app/domain/constants/assistant-status-stage.constants';
 
 @Injectable({ providedIn: 'root' })
 export class DataAssistantStreamService {

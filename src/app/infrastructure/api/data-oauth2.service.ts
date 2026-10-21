@@ -4,29 +4,11 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { OAuth2Provider } from '../../domain/models/auth/oauth2-provider.interface';
+import { OAuth2AuthorizeResponse } from '../../domain/models/auth/oauth2-authorize-response.interface';
+import { OAuth2CallbackRequest } from '../../domain/models/auth/oauth2-callback-request.interface';
+import { OAuth2LogoutResponse } from '../../domain/models/auth/oauth2-logout-response.interface';
 import { MyToken } from 'src/app/domain/models/my-token-class';
-
-export interface OAuth2Provider {
-  id: string;
-  name: string;
-  type: number;
-}
-
-export interface OAuth2AuthorizeResponse {
-  authorizationUrl: string;
-  state: string;
-}
-
-export interface OAuth2CallbackRequest {
-  code: string;
-  state: string;
-  redirectUri: string;
-}
-
-export interface OAuth2LogoutResponse {
-  logoutUrl: string | null;
-  supportsLogout: boolean;
-}
 
 @Injectable({
   providedIn: 'root',

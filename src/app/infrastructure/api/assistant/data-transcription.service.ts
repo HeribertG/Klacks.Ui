@@ -8,14 +8,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, timeout } from 'rxjs';
+import { IEnhanceResponse } from './enhance-response.interface';
 import { environment } from 'src/environments/environment';
 
 const TRANSCRIPTION_ENDPOINT = 'transcription/enhance';
 const ENHANCE_TIMEOUT_MS = 15000;
-
-interface IEnhanceResponse {
-  enhancedText?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataTranscriptionService {

@@ -11,80 +11,14 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IScheduleValidationNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
 import { IReplacementCandidatesQuery } from 'src/app/domain/interfaces/replacement-candidates-query.interface';
 import { IReplacementCandidatesResult } from 'src/app/domain/interfaces/replacement-candidates-result.interface';
 import { IReplacementRequest } from 'src/app/domain/interfaces/replacement-request.interface';
 import { IRecordReplacementRequest } from 'src/app/domain/interfaces/record-replacement-request.interface';
+import { ICoverAbsenceRequest } from '../../../domain/models/schedule/cover-absence-request.interface';
+import { ICoverAbsenceOutcome } from '../../../domain/models/schedule/cover-absence-outcome.interface';
 import { IReplacementRequestsQuery } from 'src/app/domain/interfaces/replacement-requests-query.interface';
-
-export interface ICoverAbsenceRequest {
-  clientId: string;
-  date: string;
-  groupId: string;
-  absenceId: string;
-  /** Last day of a multi-day absence; omit for a single day. */
-  untilDate?: string;
-  /** Let a supervisor push the proposal through a rule that only blocks in escalation mode. */
-  overrideBlock?: boolean;
-  /**
-   * Wake the group's escalation roster (planner call list) for the affected shifts. Off when the planner
-   * handles the absence interactively; the backend defaults to on for unattended callers (skill/MCP).
-   */
-  notifyEscalationRoster?: boolean;
-  /** The planner's language; the server writes the scenario name in it, falling back to the installation language. */
-  language?: string;
-  /** When the absence was reported (ISO UTC); the server uses "now" when omitted. */
-  reportedAtUtc?: string;
-  /**
-   * Token of the scenario the planner works in; the server builds the cover on that scenario (a copy of it plus the
-   * absence) instead of the real plan. Omit in the original plan.
-   */
-  analyseToken?: string;
-}
-
-export interface ICoveredSlot {
-  shiftId: string;
-  date: string;
-  replacementClientId: string;
-  replacementName: string;
-  /**
-   * How far the search had to go: 0 direct in-group replacement, 1 in-group swap, 2 borrowed from
-   * another group, 3 swap with another group, 5 on-call person of the own group, 6 on-call person of
-   * another group (engine EscalationTier). The value is a label identifier only, never an ordering.
-   */
-  tier: number;
-  /** The cloned work in the scenario the proposal is attached to; absent on older backends. */
-  workId?: string | null;
-  startTime?: string | null;
-  endTime?: string | null;
-  /** The stored replacement-request row of this proposal; null when nothing was stored. */
-  requestId?: string | null;
-  /** Mobile number before fixed line of the proposed stand-in. */
-  phone?: string | null;
-  outcome?: ReplacementRequestOutcome | null;
-}
-
-export interface IUncoveredSlot {
-  shiftId: string;
-  date: string;
-  reason: string;
-  /** The cloned work in the scenario that stayed open; absent on older backends. */
-  workId?: string | null;
-  startTime?: string | null;
-  endTime?: string | null;
-}
-
-export interface ICoverAbsenceOutcome {
-  scenarioId: string;
-  token: string;
-  scenarioName: string;
-  covered: ICoveredSlot[];
-  uncovered: IUncoveredSlot[];
-  complianceWarnings: IScheduleValidationNotification[];
-  highestTier: number;
-}
 
 type QueryValue = string | boolean | null | undefined;
 

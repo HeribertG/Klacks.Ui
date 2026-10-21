@@ -10,12 +10,8 @@ import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
+import { SttTranscriptResult } from './stt-transcript-result.interface';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
-export interface SttTranscriptResult {
-  text: string;
-  isFinal: boolean;
-  confidence: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class SttStreamService implements OnDestroy {

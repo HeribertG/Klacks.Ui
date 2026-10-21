@@ -11,7 +11,7 @@ import { LLMProvidersComponent } from './llm-providers.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/domain/models/assistant/assistant-provider.interface';
 import { signal } from '@angular/core';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 

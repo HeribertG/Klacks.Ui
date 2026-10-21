@@ -10,15 +10,11 @@
  * so an aborted or failed callback cannot leave a stale state behind.
  */
 
+import { OAuth2Handshake } from './oauth2-handshake.interface';
 import { Injectable } from '@angular/core';
 
 const STATE_KEY = 'oauth2_state';
 const REDIRECT_URI_KEY = 'oauth2_redirect_uri';
-
-export interface OAuth2Handshake {
-  state: string | null;
-  redirectUri: string | null;
-}
 
 @Injectable({
   providedIn: 'root',

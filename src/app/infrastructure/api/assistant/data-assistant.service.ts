@@ -7,120 +7,45 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { IOnboardingState } from 'src/app/domain/models/assistant/onboarding-state.interface';
 import { ISaveOnboardingStateRequest } from 'src/app/domain/models/assistant/save-onboarding-state-request.interface';
 import { IWelcomeRequest } from 'src/app/domain/models/assistant/welcome-request.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';
+import { ISpeechModelCheckResponse } from '../../../domain/models/assistant/speech-model-check-response.interface';
+import { IKlacksyModelCheckResponse } from '../../../domain/models/assistant/klacksy-model-check-response.interface';
+import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
+import { IAssistantChatResponse } from '../../../domain/models/assistant/assistant-chat-response.interface';
+import { IAssistantUsage } from '../../../domain/models/assistant/assistant-usage.interface';
+import { IAssistantFunction } from '../../../domain/models/assistant/assistant-function.interface';
+import { IAssistantHelp } from '../../../domain/models/assistant/assistant-help.interface';
+import { IAutonomyLevelDto } from '../../../domain/models/assistant/autonomy-level-dto.interface';
+import { IUpdateAutonomyLevelRequest } from '../../../domain/models/assistant/update-autonomy-level-request.interface';
+import {
+  IReportNavigationOutcomeRequest,
+} from '../../../domain/models/assistant/report-navigation-outcome-request.interface';
+import {
+  IReportNavigationOutcomeResponse,
+} from '../../../domain/models/assistant/report-navigation-outcome-response.interface';
+import { ISubmitCorrectionRequest } from '../../../domain/models/assistant/submit-correction-request.interface';
+import { ISubmitCorrectionResponse } from '../../../domain/models/assistant/submit-correction-response.interface';
+import {
+  ISubmitHelpfulFeedbackRequest,
+} from '../../../domain/models/assistant/submit-helpful-feedback-request.interface';
+import {
+  IReportUiActionResultRequest,
+} from '../../../domain/models/assistant/report-ui-action-result-request.interface';
+import {
+  IReportUiActionResultResponse,
+} from '../../../domain/models/assistant/report-ui-action-result-response.interface';
+import {
+  ISubmitHelpfulFeedbackResponse,
+} from '../../../domain/models/assistant/submit-helpful-feedback-response.interface';
+import { ICancelTurnResponse } from '../../../domain/models/assistant/cancel-turn-response.interface';
 import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
 
-export interface ISpeechModelCheckDto {
-  modelId: string;
-  displayName: string;
-  providerId: string;
-  isHealthy: boolean;
-  latencyMs: number;
-  contextWindow: number;
-  costPerInputToken: number;
-  costPerOutputToken: number;
-  error: string | null;
-}
-
-export interface ISpeechModelCheckResponse {
-  models: ISpeechModelCheckDto[];
-}
-
-export interface IKlacksyModelCheckDto {
-  modelId: string;
-  displayName: string;
-  providerId: string;
-  isHealthy: boolean;
-  supportsToolCalling: boolean;
-  latencyMs: number;
-  contextWindow: number;
-  costPerInputToken: number;
-  costPerOutputToken: number;
-  qualifies: boolean;
-  isEnabled: boolean;
-  isDefault: boolean;
-  error: string | null;
-}
-
-export interface IKlacksyModelCheckResponse {
-  models: IKlacksyModelCheckDto[];
-  defaultModelId: string | null;
-}
-
-export interface IAssistantChatRequest {
-  message: string;
-  conversationId?: string;
-  modelId?: string;
-  language?: string;
-  context?: any;
-  agentId?: string;
-  pageContext?: import('src/app/domain/models/assistant/assistant-page-context.interface').IAssistantPageContext;
-  isVoiceMode?: boolean;
-}
-
-export interface IAssistantChatResponse {
-  message: string;
-  conversationId: string;
-  suggestions?: string[];
-  suggestedReplies?: ISuggestedRepliesConfig;
-  navigateTo?: string;
-  actionPerformed?: boolean;
-  functionCalls?: any[];
-  functionResults?: any[];
-  usage?: {
-    inputTokens: number;
-    outputTokens: number;
-    totalTokens: number;
-    cost: number;
-  };
-}
-
 export { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
-
-export interface IAssistantUsage {
-  totalCost: number;
-  totalInputTokens: number;
-  totalOutputTokens: number;
-  conversationCount: number;
-  modelBreakdown: {
-    modelId: string;
-    displayName: string;
-    totalCost: number;
-    usageCount: number;
-  }[];
-}
-
-export interface IAssistantFunction {
-  name: string;
-  description: string;
-  parameters: any;
-  isAvailable: boolean;
-}
-
-export interface IAssistantHelp {
-  description: string;
-  examples: {
-    title: string;
-    prompts: string[];
-  }[];
-  availableFunctions: string[];
-  tips: string[];
-}
-
-export interface IAutonomyLevelDto {
-  level: number;
-  name: string;
-}
-
-export interface IUpdateAutonomyLevelRequest {
-  level: number;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -358,64 +283,4 @@ export class DataAssistantService {
       { context: new HttpContext().set(SKIP_LOADING, true) },
     );
   }
-}
-
-export interface IReportNavigationOutcomeRequest {
-  route: string;
-  target?: string;
-  outcome: string;
-  locale: string;
-  utterance?: string;
-}
-
-export interface IReportNavigationOutcomeResponse {
-  recorded: boolean;
-}
-
-export interface ISubmitCorrectionRequest {
-  userMessage: string;
-  correctionType: 'wrong_skill' | 'wrong_param' | 'repeated_request' | 'none_needed';
-  expectedSkill?: string;
-
-  /** Id of the corrected turn; omitted when unknown, which makes the server fall back to the message-hash lookup. */
-  turnId?: string;
-}
-
-export interface ISubmitCorrectionResponse {
-  found: boolean;
-  trajectoryId: string | null;
-}
-
-export interface ISubmitHelpfulFeedbackRequest {
-  userMessage: string;
-
-  /** Id of the judged turn; omitted when unknown, which makes the server fall back to the message-hash lookup. */
-  turnId?: string;
-
-  /** Absent means thumbs-up; false marks the turn as not helpful (W1.8). */
-  helpful?: boolean;
-
-  /** Optional free text the user typed with a thumbs-down. */
-  comment?: string;
-}
-
-export interface IReportUiActionResultRequest {
-  trackingId: string;
-  status: string;
-  errorMessage?: string;
-}
-
-export interface IReportUiActionResultResponse {
-  found: boolean;
-  updated: boolean;
-  error: string | null;
-}
-
-export interface ISubmitHelpfulFeedbackResponse {
-  found: boolean;
-  trajectoryId: string | null;
-}
-
-export interface ICancelTurnResponse {
-  accepted: boolean;
 }

@@ -40,7 +40,8 @@ import { ReportDataProviderService } from 'src/app/domain/services/report/report
 import { ReportData } from 'src/app/domain/services/report/report-data.interface';
 import { ReportDataProvider } from 'src/app/domain/services/report/report-data-provider.interface';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
-import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { ReportDesignerComponent } from '../report-designer/report-designer.component';
 import { DEFAULT_SECTIONS, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { Group } from 'src/app/domain/models/group/group-class';

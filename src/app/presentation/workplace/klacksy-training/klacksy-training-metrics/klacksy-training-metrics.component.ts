@@ -5,7 +5,10 @@
  */
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataKlacksyTrainingService, NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import {
+  DataKlacksyTrainingService,
+} from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
+import { NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/navigation-target-dto.interface';
 
 @Component({
   selector: 'app-klacksy-training-metrics',

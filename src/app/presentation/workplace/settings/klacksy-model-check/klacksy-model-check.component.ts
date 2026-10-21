@@ -15,7 +15,7 @@ import { DecimalPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
-import { IKlacksyModelCheckDto } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IKlacksyModelCheckDto } from 'src/app/domain/models/assistant/klacksy-model-check-dto.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 @Component({

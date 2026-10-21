@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { DataAssistantStreamService, StreamCallbacks, StreamStatus } from './data-assistant-stream.service';
-import { IAssistantChatRequest } from './data-assistant.service';
+import { DataAssistantStreamService } from './data-assistant-stream.service';
+import { StreamCallbacks } from '../../../domain/models/assistant/stream-callbacks.interface';
+import { StreamStatus } from '../../../domain/models/assistant/stream-status.interface';
+import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
 
 function sseStreamFromEvents(events: readonly { event: string; data: unknown }[]): ReadableStream<Uint8Array> {

@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { CustomSttProvider } from 'src/app/infrastructure/api/assistant/data-custom-stt-provider.service';
+import { CustomSttProvider } from 'src/app/domain/models/assistant/custom-stt-provider.interface';
 
 interface CustomSttProviderFormModel {
   name: string;

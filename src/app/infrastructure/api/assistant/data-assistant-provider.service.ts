@@ -9,41 +9,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { IAssistantProvider } from '../../../domain/models/assistant/assistant-provider.interface';
+import { ICreateProviderRequest } from '../../../domain/models/assistant/create-provider-request.interface';
+import { IUpdateProviderRequest } from '../../../domain/models/assistant/update-provider-request.interface';
 import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
-
-export interface IAssistantProvider {
-  id: string;
-  providerId: string;
-  providerName: string;
-  isEnabled: boolean;
-  hasApiKey?: boolean;
-  requiresApiKey?: boolean;
-  apiKey?: string;
-  baseUrl?: string;
-  apiVersion?: string;
-  priority: number;
-}
-
-export interface ICreateProviderRequest {
-  providerId: string;
-  providerName: string;
-  apiKey?: string;
-  baseUrl?: string;
-  apiVersion?: string;
-  isEnabled: boolean;
-  priority: number;
-  requiresApiKey?: boolean;
-}
-
-export interface IUpdateProviderRequest {
-  providerName?: string;
-  apiKey?: string;
-  baseUrl?: string;
-  apiVersion?: string;
-  isEnabled: boolean;
-  priority: number;
-  requiresApiKey?: boolean;
-}
 
 @Injectable({
   providedIn: 'root'

@@ -23,17 +23,8 @@ import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
+import { IClientForReplacement } from '../../../domain/models/client/client-for-replacement.interface';
 import { ClientDataMapper } from './client-data.mapper';
-
-export interface IClientForReplacement {
-  id: string;
-  name?: string;
-  firstName?: string;
-  company?: string;
-  legalEntity: boolean;
-  idNumber: number;
-  groupIds?: string[];
-}
 
 @Injectable({
   providedIn: 'root',

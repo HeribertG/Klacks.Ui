@@ -2,7 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { SignalRService } from './signalr.service';
-import { SignalRConnectionHelper, SignalRConnectionCallbacks } from './signalr-connection.helper';
+import { SignalRConnectionHelper } from './signalr-connection.helper';
+import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.interface';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { DataAuthService } from '../api/data-auth.service';

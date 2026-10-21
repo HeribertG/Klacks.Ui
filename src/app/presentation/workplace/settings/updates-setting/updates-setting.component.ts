@@ -26,11 +26,9 @@ import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import {
-  IUpdateConfig,
-  IUpdateHistoryItem,
-  IUpdateStatus,
-} from 'src/app/infrastructure/api/settings/data-update.service';
+import { IUpdateConfig } from 'src/app/domain/models/settings/update-config.interface';
+import { IUpdateHistoryItem } from 'src/app/domain/models/settings/update-history-item.interface';
+import { IUpdateStatus } from 'src/app/domain/models/settings/update-status.interface';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

@@ -3,7 +3,10 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController, } from '@angular/common/http/testing';
 
-import { DataAssistantProviderService, IAssistantProvider, ICreateProviderRequest, IUpdateProviderRequest, } from './data-assistant-provider.service';
+import { DataAssistantProviderService } from './data-assistant-provider.service';
+import { IAssistantProvider } from '../../../domain/models/assistant/assistant-provider.interface';
+import { ICreateProviderRequest } from '../../../domain/models/assistant/create-provider-request.interface';
+import { IUpdateProviderRequest } from '../../../domain/models/assistant/update-provider-request.interface';
 import { environment } from 'src/environments/environment';
 
 describe('DataAssistantProviderService', () => {

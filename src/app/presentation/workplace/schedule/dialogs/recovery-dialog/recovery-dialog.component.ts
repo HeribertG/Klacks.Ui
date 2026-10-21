@@ -32,11 +32,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import { firstValueFrom } from 'rxjs';
-import {
-  DataRecoveryService,
-  ICoverAbsenceOutcome,
-  ICoveredSlot,
-} from 'src/app/infrastructure/api/schedule/data-recovery.service';
+import { DataRecoveryService } from 'src/app/infrastructure/api/schedule/data-recovery.service';
+import { ICoverAbsenceOutcome } from 'src/app/domain/models/schedule/cover-absence-outcome.interface';
+import { ICoveredSlot } from 'src/app/domain/models/schedule/covered-slot.interface';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
 import { IReplacementCandidate } from 'src/app/domain/interfaces/replacement-candidate.interface';
 import { IReplacementRequest } from 'src/app/domain/interfaces/replacement-request.interface';

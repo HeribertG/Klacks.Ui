@@ -2,14 +2,8 @@
 
 import { Identifier, IdentifierTypes } from './identifier';
 import { ScriptValue } from './script-value';
+import { Entry } from './entry.model';
 import { normalizeIdentifierName } from './identifier-name';
-
-export class Entry {
-  constructor(
-    public key: string,
-    public value: ScriptValue | Identifier
-  ) {}
-}
 
 export class Scope {
   private _variables: Entry[] = [];

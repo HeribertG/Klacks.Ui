@@ -8,29 +8,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { TtsSynthesizeRequest } from './tts-synthesize-request.interface';
+import { TtsVoiceDto } from './tts-voice-dto.interface';
+import { TtsTestResult } from './tts-test-result.interface';
 import { environment } from 'src/environments/environment';
 
 const TTS_SYNTHESIZE_ENDPOINT = 'tts/synthesize';
 const TTS_VOICES_ENDPOINT = 'tts/voices';
 const TTS_TEST_ENDPOINT = 'tts/test';
-
-export interface TtsSynthesizeRequest {
-  text: string;
-  locale: string;
-  providerId?: string;
-  voiceId?: string;
-}
-
-export interface TtsVoiceDto {
-  voiceId: string;
-  locale: string;
-  displayName: string;
-}
-
-export interface TtsTestResult {
-  success: boolean;
-  error?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataTtsService {

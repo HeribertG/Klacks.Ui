@@ -1,11 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { ResultMessage } from './result-message.interface';
 import { ScriptError } from './script-error';
-
-export interface ResultMessage {
-  type: number;
-  message: string;
-}
 
 export interface ScriptResult {
   readonly success: boolean;

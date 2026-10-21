@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
-import { DataRecoveryService, ICoverAbsenceRequest } from './data-recovery.service';
+import { DataRecoveryService } from './data-recovery.service';
+import { ICoverAbsenceRequest } from '../../../domain/models/schedule/cover-absence-request.interface';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
 
 const REQUEST: ICoverAbsenceRequest = {

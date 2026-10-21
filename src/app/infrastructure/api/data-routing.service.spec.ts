@@ -12,11 +12,9 @@ import {
   HttpClientTestingModule,
   HttpTestingController,
 } from '@angular/common/http/testing';
-import {
-  DataRoutingService,
-  RouteCoordinate,
-  RouteCoordinateWithName,
-} from './data-routing.service';
+import { DataRoutingService } from './data-routing.service';
+import { RouteCoordinate } from './route-coordinate.interface';
+import { RouteCoordinateWithName } from './route-coordinate-with-name.interface';
 import { environment } from 'src/environments/environment';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';

@@ -7,6 +7,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { SttTestResult } from './stt-test-result.interface';
+import { SttProviderInfo } from './stt-provider-info.interface';
+import { CustomSttProviderInfo } from './custom-stt-provider-info.interface';
 import { environment } from 'src/environments/environment';
 
 const STT_TEST_ENDPOINT = 'stt/test';
@@ -14,25 +17,6 @@ const STT_PROVIDERS_ENDPOINT = 'stt/providers';
 const STT_CUSTOM_PROVIDERS_ENDPOINT = 'stt/providers/custom';
 const STT_TRANSCRIBE_ENDPOINT = 'stt/transcribe';
 const WAV_CONTENT_TYPE = 'audio/wav';
-
-export interface SttTestResult {
-  success: boolean;
-  error?: string;
-}
-
-export interface SttProviderInfo {
-  providerId: string;
-}
-
-export interface CustomSttProviderInfo {
-  id: string;
-  name: string;
-  connectionType: string;
-  apiUrl: string;
-  languageModel: string | null;
-  isEnabled: boolean;
-  isSystem: boolean;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DataSttService {

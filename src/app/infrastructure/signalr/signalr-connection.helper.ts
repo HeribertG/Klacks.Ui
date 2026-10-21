@@ -17,23 +17,13 @@ import { StorageKeys } from '../constants/storage-keys';
 import { SignalRConstants } from './signalr.constants';
 import { environment } from 'src/environments/environment';
 import { SignalRTokenHelper } from './signalr-token.helper';
+import { SignalRConnectionOptions } from './signalr-connection-options.interface';
+import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.interface';
 import {
   jitter,
   SignalRConnectionState,
   SignalRTelemetry,
 } from './signalr-connection-state';
-
-export interface SignalRConnectionOptions {
-  onVisibilityDrift: () => Promise<void>;
-  onWatchdogNeedsReconnect: () => Promise<void>;
-}
-
-export interface SignalRConnectionCallbacks {
-  onConnected: () => Promise<void>;
-  onReconnecting: () => Promise<void>;
-  onReconnected: (hub: signalR.HubConnection) => Promise<void>;
-  onClosed: () => void;
-}
 
 const RETRY_DELAYS_MS: readonly number[] = [0, 1000, 2000, 5000, 10000];
 const BACKEND_PROBE_TIMEOUT_MS = 2000;

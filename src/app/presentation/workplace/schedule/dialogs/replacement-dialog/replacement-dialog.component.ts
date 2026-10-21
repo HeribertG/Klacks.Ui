@@ -20,7 +20,8 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
-import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import {
   WorkChangeLogicService,
   CorrectionMode,
