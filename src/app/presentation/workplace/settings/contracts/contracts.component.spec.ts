@@ -134,6 +134,15 @@ describe('ContractsComponent', () => {
     TestBed.resetTestingModule();
   });
 
+  const state = () => component;
+  const hours = () => component;
+  const validity = () => component;
+  const payment = () => component;
+  const assignment = () => component;
+  const shiftWork = () => component;
+  const list = () => component;
+  const session = () => component;
+
   it('should create', () => {
     // Arrange & Act & Assert
     expect(component).toBeTruthy();
@@ -155,24 +164,24 @@ describe('ContractsComponent', () => {
 
       await component.ngOnInit();
 
-      expect(component.filteredContracts()).toEqual([mockContract]);
+      expect(list().filteredContracts()).toEqual([mockContract]);
     });
 
     it('filteredContracts updates reactively when the service signals a read', () => {
       fixture.detectChanges();
-      expect(component.filteredContracts().length).toBe(0);
+      expect(list().filteredContracts().length).toBe(0);
 
       mockDataManagementContractService.contracts = [mockContract];
       (mockDataManagementContractService.isRead as WritableSignal<boolean>).set(true);
       fixture.detectChanges();
 
-      expect(component.filteredContracts()).toEqual([mockContract]);
+      expect(list().filteredContracts()).toEqual([mockContract]);
     });
   });
 
   describe('Signal Form Methods', () => {
     beforeEach(() => {
-      component.editingContract = { ...mockContract };
+      state().editingContract = { ...mockContract };
     });
 
     it('onGuaranteedHoursChange should update signal and editingContract', () => {
@@ -180,11 +189,11 @@ describe('ContractsComponent', () => {
       const newHours = OwnTime.forDuration('180', '30');
 
       // Act
-      component.onGuaranteedHoursChange(newHours);
+      hours().onGuaranteedHoursChange(newHours);
 
       // Assert
-      expect(component.guaranteedHours()).toEqual(newHours);
-      expect(component.editingContract!.guaranteedHours).toBe(180.5);
+      expect(state().guaranteedHours()).toEqual(newHours);
+      expect(state().editingContract!.guaranteedHours).toBe(180.5);
     });
 
     it('onMinimumHoursChange should update signal and editingContract', () => {
@@ -192,11 +201,11 @@ describe('ContractsComponent', () => {
       const newHours = OwnTime.forDuration('150', '00');
 
       // Act
-      component.onMinimumHoursChange(newHours);
+      hours().onMinimumHoursChange(newHours);
 
       // Assert
-      expect(component.minimumHours()).toEqual(newHours);
-      expect(component.editingContract!.minimumHours).toBe(150);
+      expect(state().minimumHours()).toEqual(newHours);
+      expect(state().editingContract!.minimumHours).toBe(150);
     });
 
     it('onMaximumHoursChange should update signal and editingContract', () => {
@@ -204,11 +213,11 @@ describe('ContractsComponent', () => {
       const newHours = OwnTime.forDuration('220', '00');
 
       // Act
-      component.onMaximumHoursChange(newHours);
+      hours().onMaximumHoursChange(newHours);
 
       // Assert
-      expect(component.maximumHours()).toEqual(newHours);
-      expect(component.editingContract!.maximumHours).toBe(220);
+      expect(state().maximumHours()).toEqual(newHours);
+      expect(state().editingContract!.maximumHours).toBe(220);
     });
 
     it('onFullTimeChange should update signal and editingContract', () => {
@@ -216,10 +225,10 @@ describe('ContractsComponent', () => {
       const newHours = OwnTime.forDuration('173', '20');
 
       // Act
-      component.onFullTimeChange(newHours);
+      hours().onFullTimeChange(newHours);
 
       // Assert
-      expect(component.fullTime()).toEqual(newHours);
+      expect(state().fullTime()).toEqual(newHours);
     });
 
     it('onValidFromChange should update signal and editingContract', () => {
@@ -227,11 +236,11 @@ describe('ContractsComponent', () => {
       const newDate = { year: 2025, month: 6, day: 15 };
 
       // Act
-      component.onValidFromChange(newDate);
+      validity().onValidFromChange(newDate);
 
       // Assert
-      expect(component.validFrom()).toEqual(newDate);
-      expect(component.editingContract!.validFrom).toBeTruthy();
+      expect(state().validFrom()).toEqual(newDate);
+      expect(state().editingContract!.validFrom).toBeTruthy();
     });
 
     it('onValidUntilChange should update signal and editingContract', () => {
@@ -239,23 +248,23 @@ describe('ContractsComponent', () => {
       const newDate = { year: 2025, month: 12, day: 31 };
 
       // Act
-      component.onValidUntilChange(newDate);
+      validity().onValidUntilChange(newDate);
 
       // Assert
-      expect(component.validUntil()).toEqual(newDate);
-      expect(component.editingContract!.validUntil).toBeTruthy();
+      expect(state().validUntil()).toEqual(newDate);
+      expect(state().editingContract!.validUntil).toBeTruthy();
     });
 
     it('onValidUntilChange with null should clear validUntil', () => {
       // Arrange
-      component.editingContract!.validUntil = new Date();
+      state().editingContract!.validUntil = new Date();
 
       // Act
-      component.onValidUntilChange(null);
+      validity().onValidUntilChange(null);
 
       // Assert
-      expect(component.validUntil()).toBeNull();
-      expect(component.editingContract!.validUntil).toBeUndefined();
+      expect(state().validUntil()).toBeNull();
+      expect(state().editingContract!.validUntil).toBeUndefined();
     });
   });
 
@@ -263,88 +272,88 @@ describe('ContractsComponent', () => {
     it('onClickEdit with undefined guaranteedHours enters the inherited state', () => {
       const contract = { ...mockContract, guaranteedHours: undefined };
 
-      component.onClickEdit(contract);
+      session().onClickEdit(contract);
 
-      expect(component.guaranteedHoursInherited()).toBe(true);
+      expect(state().guaranteedHoursInherited()).toBe(true);
     });
 
     it('onClickEdit with explicit zero stays explicit', () => {
       const contract = { ...mockContract, guaranteedHours: 0 };
 
-      component.onClickEdit(contract);
+      session().onClickEdit(contract);
 
-      expect(component.guaranteedHoursInherited()).toBe(false);
+      expect(state().guaranteedHoursInherited()).toBe(false);
     });
 
     it('typing a value leaves the inherited state', () => {
-      component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+      session().onClickEdit({ ...mockContract, guaranteedHours: undefined });
 
-      component.onGuaranteedHoursChange(OwnTime.forDuration('160', '00'));
+      hours().onGuaranteedHoursChange(OwnTime.forDuration('160', '00'));
 
-      expect(component.guaranteedHoursInherited()).toBe(false);
-      expect(component.editingContract!.guaranteedHours).toBe(160);
+      expect(state().guaranteedHoursInherited()).toBe(false);
+      expect(state().editingContract!.guaranteedHours).toBe(160);
     });
 
     it('resetGuaranteedHoursToCompanyValue writes undefined to the contract', () => {
-      component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+      session().onClickEdit({ ...mockContract, guaranteedHours: 170 });
 
-      component.resetGuaranteedHoursToCompanyValue();
+      hours().resetGuaranteedHoursToCompanyValue();
 
-      expect(component.guaranteedHoursInherited()).toBe(true);
-      expect(component.editingContract!.guaranteedHours).toBeUndefined();
+      expect(state().guaranteedHoursInherited()).toBe(true);
+      expect(state().editingContract!.guaranteedHours).toBeUndefined();
     });
 
     it('isFormValid keeps undefined guaranteedHours while inherited', () => {
-      component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+      session().onClickEdit({ ...mockContract, guaranteedHours: undefined });
 
-      component.isFormValid();
+      state().isFormValid();
 
-      expect(component.editingContract!.guaranteedHours).toBeUndefined();
+      expect(state().editingContract!.guaranteedHours).toBeUndefined();
     });
 
     it('inherited display uses the monthly value of the current month scaled by percent', () => {
       (mockMonthlyTargetHoursService.hoursOf as ReturnType<typeof vi.fn>).mockReturnValue(168);
 
       return component.ngOnInit().then(() => {
-        component.percent.set(50);
+        state().percent.set(50);
 
-        expect(component.inheritedGuaranteedHours()).toBe(84);
-        expect(component.inheritedGuaranteedHoursDisplay()).toBe('84:00');
+        expect(hours().inheritedGuaranteedHours()).toBe(84);
+        expect(hours().inheritedGuaranteedHoursDisplay()).toBe('84:00');
       });
     });
 
     it('inherited display falls back to the settings value without a monthly row', async () => {
       await component.ngOnInit();
-      component.percent.set(undefined);
+      state().percent.set(undefined);
 
-      expect(component.inheritedGuaranteedHours()).toBe(170);
-      expect(component.inheritedGuaranteedHoursDisplay()).toBe('170:00');
+      expect(hours().inheritedGuaranteedHours()).toBe(170);
+      expect(hours().inheritedGuaranteedHoursDisplay()).toBe('170:00');
     });
 
     it('showPercentField is true while inherited even on the monthly interval', () => {
-      component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+      session().onClickEdit({ ...mockContract, guaranteedHours: undefined });
 
-      expect(component.showPercentField()).toBe(true);
+      expect(payment().showPercentField()).toBe(true);
     });
 
     it('showPercentField is false for an explicit contract on the monthly interval', () => {
-      component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+      session().onClickEdit({ ...mockContract, guaranteedHours: 170 });
 
-      expect(component.showPercentField()).toBe(false);
+      expect(payment().showPercentField()).toBe(false);
     });
 
     it('leaving the target-hours interval keeps percent while inherited', () => {
-      component.onClickEdit({
+      session().onClickEdit({
         ...mockContract,
         guaranteedHours: undefined,
         paymentInterval: PaymentInterval.MonthlyTargetHours,
         percent: 60,
       });
 
-      component.onPaymentIntervalChange(PaymentInterval.Monthly);
+      payment().onPaymentIntervalChange(PaymentInterval.Monthly);
 
-      expect(component.percent()).toBe(60);
-      expect(component.editingContract!.percent).toBe(60);
+      expect(state().percent()).toBe(60);
+      expect(state().editingContract!.percent).toBe(60);
     });
 
     describe('rendered in the modal template', () => {
@@ -372,7 +381,7 @@ describe('ContractsComponent', () => {
       afterEach(() => modalView.destroy());
 
       it('hides min/max/full-time when guaranteed hours are inherited', () => {
-        component.onClickEdit({ ...mockContract, guaranteedHours: undefined });
+        session().onClickEdit({ ...mockContract, guaranteedHours: undefined });
         renderModal();
 
         expect(queryModal('#contract-modal-guaranteed-hours-item')).not.toBeNull();
@@ -382,7 +391,7 @@ describe('ContractsComponent', () => {
       });
 
       it('shows min/max/full-time when guaranteed hours are explicit', () => {
-        component.onClickEdit({ ...mockContract, guaranteedHours: 170 });
+        session().onClickEdit({ ...mockContract, guaranteedHours: 170 });
         renderModal();
 
         expect(queryModal('#contract-modal-min-hours-item')).not.toBeNull();
@@ -391,7 +400,7 @@ describe('ContractsComponent', () => {
       });
 
       it('shows the company default as a grey placeholder when full-time is empty', () => {
-        component.onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 0 });
+        session().onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 0 });
         renderModal();
 
         const hoursInput = queryModal<HTMLInputElement>('#fullTime');
@@ -402,7 +411,7 @@ describe('ContractsComponent', () => {
       });
 
       it('shows the contract value, not the company placeholder, when full-time is set', () => {
-        component.onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 180 });
+        session().onClickEdit({ ...mockContract, guaranteedHours: 170, fullTime: 180 });
         renderModal();
 
         const hoursInput = queryModal<HTMLInputElement>('#fullTime');
@@ -415,52 +424,52 @@ describe('ContractsComponent', () => {
 
   describe('Full-time placeholder', () => {
     it('fullTimeIsEmpty is true when the contract full-time is zero', () => {
-      component.onClickEdit({ ...mockContract, fullTime: 0 });
+      session().onClickEdit({ ...mockContract, fullTime: 0 });
 
-      expect(component.fullTimeIsEmpty()).toBe(true);
+      expect(hours().fullTimeIsEmpty()).toBe(true);
     });
 
     it('fullTimeIsEmpty is false when the contract full-time is set', () => {
-      component.onClickEdit({ ...mockContract, fullTime: 180 });
+      session().onClickEdit({ ...mockContract, fullTime: 180 });
 
-      expect(component.fullTimeIsEmpty()).toBe(false);
+      expect(hours().fullTimeIsEmpty()).toBe(false);
     });
 
     it('companyFullTimeTime reflects the company-wide default setting', () => {
-      expect(component.companyFullTimeTime()).toEqual(OwnTime.forDuration('190', '00'));
+      expect(hours().companyFullTimeTime()).toEqual(OwnTime.forDuration('190', '00'));
     });
   });
 
   describe('onSaveModal', () => {
     it('does not close the modal when validation fails', async () => {
-      component.editingContract = { ...mockContract };
+      state().editingContract = { ...mockContract };
       (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue(['Error']);
       const modal = { close: vi.fn(), dismiss: vi.fn() };
 
-      await component.onSaveModal(modal);
+      await session().onSaveModal(modal);
 
       expect(modal.close).not.toHaveBeenCalled();
       expect(mockDataManagementContractService.saveExistingContract).not.toHaveBeenCalled();
     });
 
     it('closes the modal when the save succeeds', async () => {
-      component.onClickEdit({ ...mockContract });
+      session().onClickEdit({ ...mockContract });
       (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue([]);
       const modal = { close: vi.fn(), dismiss: vi.fn() };
 
-      await component.onSaveModal(modal);
+      await session().onSaveModal(modal);
 
       expect(mockDataManagementContractService.saveExistingContract).toHaveBeenCalled();
       expect(modal.close).toHaveBeenCalled();
     });
 
     it('keeps the modal open when the service save fails', async () => {
-      component.onClickEdit({ ...mockContract });
+      session().onClickEdit({ ...mockContract });
       (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue([]);
       (mockDataManagementContractService.saveExistingContract as ReturnType<typeof vi.fn>).mockResolvedValue(false);
       const modal = { close: vi.fn(), dismiss: vi.fn() };
 
-      await component.onSaveModal(modal);
+      await session().onSaveModal(modal);
 
       expect(modal.close).not.toHaveBeenCalled();
     });
@@ -468,7 +477,7 @@ describe('ContractsComponent', () => {
 
   describe('Calendar Selection', () => {
     beforeEach(() => {
-      component.editingContract = { ...mockContract };
+      state().editingContract = { ...mockContract };
       mockDataManagementContractService.availableCalendars = [
         { id: 'cal-1', name: 'Calendar 1' },
         { id: 'cal-2', name: 'Calendar 2' },
@@ -480,29 +489,29 @@ describe('ContractsComponent', () => {
       const calendarId = 'cal-2';
 
       // Act
-      component.onCalendarSelectionChange(calendarId);
+      assignment().onCalendarSelectionChange(calendarId);
 
       // Assert
-      expect(component.calendarSelectionId()).toBe(calendarId);
-      expect(component.editingContract!.calendarSelectionId).toBe(calendarId);
+      expect(state().calendarSelectionId()).toBe(calendarId);
+      expect(state().editingContract!.calendarSelectionId).toBe(calendarId);
     });
 
     it('onCalendarSelectionChange with empty string should clear calendar selection', () => {
       // Arrange & Act
-      component.onCalendarSelectionChange('');
+      assignment().onCalendarSelectionChange('');
 
       // Assert
-      expect(component.calendarSelectionId()).toBeUndefined();
-      expect(component.editingContract!.calendarSelectionId).toBeUndefined();
-      expect(component.editingContract!.calendarSelection).toBeUndefined();
+      expect(state().calendarSelectionId()).toBeUndefined();
+      expect(state().editingContract!.calendarSelectionId).toBeUndefined();
+      expect(state().editingContract!.calendarSelection).toBeUndefined();
     });
 
     it('getSelectedCalendarName should return calendar name when selected', () => {
       // Arrange
-      component.calendarSelectionId.set('cal-1');
+      state().calendarSelectionId.set('cal-1');
 
       // Act
-      const result = component.getSelectedCalendarName();
+      const result = assignment().getSelectedCalendarName();
 
       // Assert
       expect(result).toBe('Calendar 1');
@@ -510,10 +519,10 @@ describe('ContractsComponent', () => {
 
     it('getSelectedCalendarName should return translation key when no calendar selected', () => {
       // Arrange
-      component.calendarSelectionId.set(undefined);
+      state().calendarSelectionId.set(undefined);
 
       // Act
-      component.getSelectedCalendarName();
+      assignment().getSelectedCalendarName();
 
       // Assert
       expect(mockTranslateService.instant).toHaveBeenCalledWith('setting.contract.noCalendar');
@@ -523,11 +532,11 @@ describe('ContractsComponent', () => {
   describe('Validation', () => {
     it('isFormValid should return true when no validation errors', () => {
       // Arrange
-      component.editingContract = { ...mockContract };
+      state().editingContract = { ...mockContract };
       (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue([]);
 
       // Act
-      const result = component.isFormValid();
+      const result = state().isFormValid();
 
       // Assert
       expect(result).toBe(true);
@@ -535,11 +544,11 @@ describe('ContractsComponent', () => {
 
     it('isFormValid should return false when validation errors exist', () => {
       // Arrange
-      component.editingContract = { ...mockContract };
+      state().editingContract = { ...mockContract };
       (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue(['Error 1']);
 
       // Act
-      const result = component.isFormValid();
+      const result = state().isFormValid();
 
       // Assert
       expect(result).toBe(false);
@@ -547,10 +556,10 @@ describe('ContractsComponent', () => {
 
     it('isFormValid should return false when no editingContract', () => {
       // Arrange
-      component.editingContract = null;
+      state().editingContract = null;
 
       // Act
-      const result = component.isFormValid();
+      const result = state().isFormValid();
 
       // Assert
       expect(result).toBe(false);
@@ -558,12 +567,12 @@ describe('ContractsComponent', () => {
 
     it('getValidationErrors should return errors from service', () => {
       // Arrange
-      component.editingContract = { ...mockContract };
+      state().editingContract = { ...mockContract };
       const errors = ['Error 1', 'Error 2'];
       (mockDataManagementContractService.validateContract as ReturnType<typeof vi.fn>).mockReturnValue(errors);
 
       // Act
-      const result = component.getValidationErrors();
+      const result = state().getValidationErrors();
 
       // Assert
       expect(result).toEqual(errors);
@@ -571,10 +580,10 @@ describe('ContractsComponent', () => {
 
     it('getValidationErrors should return empty array when no editingContract', () => {
       // Arrange
-      component.editingContract = null;
+      state().editingContract = null;
 
       // Act
-      const result = component.getValidationErrors();
+      const result = state().getValidationErrors();
 
       // Assert
       expect(result).toEqual([]);
@@ -590,13 +599,13 @@ describe('ContractsComponent', () => {
       fixture.detectChanges();
 
       // Act
-      component.onClickAdd();
+      session().onClickAdd();
       vi.advanceTimersByTime(0);
 
       // Assert
       expect(mockDataManagementContractService.createContract).toHaveBeenCalled();
-      expect(component.editingContract).toBe(newContract);
-      expect(component.isNewContract).toBe(true);
+      expect(state().editingContract).toBe(newContract);
+      expect(state().isNewContract).toBe(true);
 
       vi.useRealTimers();
     });
@@ -608,14 +617,14 @@ describe('ContractsComponent', () => {
       const contract = { ...mockContract };
 
       // Act
-      component.onClickEdit(contract);
+      session().onClickEdit(contract);
 
       // Assert
       expect(mockDataManagementContractService.prepareContractForEdit).toHaveBeenCalled();
-      expect(component.editingContract).not.toBe(contract);
-      expect(component.editingContract!.name).toBe(contract.name);
-      expect(component.isNewContract).toBe(false);
-      expect(component.originalContract).toBe(contract);
+      expect(state().editingContract).not.toBe(contract);
+      expect(state().editingContract!.name).toBe(contract.name);
+      expect(state().isNewContract).toBe(false);
+      expect(state().originalContract).toBe(contract);
     });
   });
 
@@ -625,7 +634,7 @@ describe('ContractsComponent', () => {
       mockDataManagementContractService.contracts = [mockContract];
 
       // Act
-      component.openDeleteContract(0);
+      list().openDeleteContract(0);
 
       // Assert
       expect(mockModalService.componentContext).toBe('contracts');
@@ -638,7 +647,7 @@ describe('ContractsComponent', () => {
       mockDataManagementContractService.contracts = [mockContract];
 
       // Act
-      component.openDeleteContract(5);
+      list().openDeleteContract(5);
 
       // Assert
       expect(mockModalService.openModel).not.toHaveBeenCalled();
@@ -673,7 +682,7 @@ describe('ContractsComponent', () => {
     });
 
     it('keeps standard (null) rates null and explicit zero at zero when saving', () => {
-      component.onClickEdit({
+      session().onClickEdit({
         ...mockContract,
         nightRate: null,
         holidayRate: 0,
@@ -682,17 +691,17 @@ describe('ContractsComponent', () => {
         we3Rate: 25,
       });
 
-      component.isFormValid();
+      state().isFormValid();
 
-      expect(component.editingContract!.nightRate).toBeNull();
-      expect(component.editingContract!.holidayRate).toBe(0);
-      expect(component.editingContract!.we1Rate).toBeNull();
-      expect(component.editingContract!.we2Rate).toBe(0);
-      expect(component.editingContract!.we3Rate).toBe(25);
+      expect(state().editingContract!.nightRate).toBeNull();
+      expect(state().editingContract!.holidayRate).toBe(0);
+      expect(state().editingContract!.we1Rate).toBeNull();
+      expect(state().editingContract!.we2Rate).toBe(0);
+      expect(state().editingContract!.we3Rate).toBe(25);
     });
 
     it('a cleared rate input saves as standard (null), a typed 0 saves as 0', () => {
-      component.onClickEdit({ ...mockContract, nightRate: 10, holidayRate: 15 });
+      session().onClickEdit({ ...mockContract, nightRate: 10, holidayRate: 15 });
       renderModal();
 
       const night = queryModal<HTMLInputElement>('#nightRate')!;
@@ -703,14 +712,14 @@ describe('ContractsComponent', () => {
       holiday.dispatchEvent(new Event('input'));
       fixture.detectChanges();
 
-      component.isFormValid();
+      state().isFormValid();
 
-      expect(component.editingContract!.nightRate).toBeNull();
-      expect(component.editingContract!.holidayRate).toBe(0);
+      expect(state().editingContract!.nightRate).toBeNull();
+      expect(state().editingContract!.holidayRate).toBe(0);
     });
 
     it('shows the standard placeholder in an empty rate input', () => {
-      component.onClickEdit({ ...mockContract, nightRate: null });
+      session().onClickEdit({ ...mockContract, nightRate: null });
       renderModal();
 
       const night = queryModal<HTMLInputElement>('#nightRate')!;
@@ -719,37 +728,37 @@ describe('ContractsComponent', () => {
     });
 
     it('clamps an explicit rate above 100 percent but leaves standard untouched', () => {
-      component.onClickEdit({ ...mockContract, nightRate: 150, holidayRate: null });
+      session().onClickEdit({ ...mockContract, nightRate: 150, holidayRate: null });
       fixture.detectChanges();
 
-      component.isFormValid();
+      state().isFormValid();
 
-      expect(component.editingContract!.nightRate).toBe(100);
-      expect(component.editingContract!.holidayRate).toBeNull();
+      expect(state().editingContract!.nightRate).toBe(100);
+      expect(state().editingContract!.holidayRate).toBeNull();
     });
 
     it('cycles shift work through standard, yes and no and writes it to the contract', () => {
-      component.onClickEdit({ ...mockContract, performsShiftWork: null });
-      expect(component.isShiftWorkUnset()).toBe(true);
-      expect(component.shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-unset');
+      session().onClickEdit({ ...mockContract, performsShiftWork: null });
+      expect(shiftWork().isShiftWorkUnset()).toBe(true);
+      expect(shiftWork().shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-unset');
 
-      component.cycleShiftWork();
-      expect(component.editingContract!.performsShiftWork).toBe(true);
-      expect(component.shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-enabled');
+      shiftWork().cycleShiftWork();
+      expect(state().editingContract!.performsShiftWork).toBe(true);
+      expect(shiftWork().shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-enabled');
 
-      component.cycleShiftWork();
-      expect(component.editingContract!.performsShiftWork).toBe(false);
-      expect(component.shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-disabled');
+      shiftWork().cycleShiftWork();
+      expect(state().editingContract!.performsShiftWork).toBe(false);
+      expect(shiftWork().shiftWorkTooltipKey()).toBe('setting.contract.performsShiftWork-disabled');
 
-      component.cycleShiftWork();
-      expect(component.editingContract!.performsShiftWork).toBeNull();
+      shiftWork().cycleShiftWork();
+      expect(state().editingContract!.performsShiftWork).toBeNull();
 
-      component.isFormValid();
-      expect(component.editingContract!.performsShiftWork).toBeNull();
+      state().isFormValid();
+      expect(state().editingContract!.performsShiftWork).toBeNull();
     });
 
     it('renders standard shift work as an indeterminate checkbox and cycles on click', () => {
-      component.onClickEdit({ ...mockContract, performsShiftWork: null });
+      session().onClickEdit({ ...mockContract, performsShiftWork: null });
       renderModal();
 
       const checkbox = queryModal<HTMLInputElement>('#contract-modal-performs-shift-work')!;
@@ -758,7 +767,7 @@ describe('ContractsComponent', () => {
       checkbox.click();
       fixture.detectChanges();
 
-      expect(component.editingContract!.performsShiftWork).toBe(true);
+      expect(state().editingContract!.performsShiftWork).toBe(true);
       expect(checkbox.checked).toBe(true);
       expect(checkbox.indeterminate).toBe(false);
     });
