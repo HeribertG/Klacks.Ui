@@ -19,9 +19,7 @@ import {
 } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject } from 'rxjs';
 
@@ -54,9 +52,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
     FormField,
-    NgbModule,
     SpinnerModule,
     ContractHeaderComponent,
     ContractRowComponent,
