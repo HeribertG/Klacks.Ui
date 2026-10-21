@@ -103,6 +103,14 @@ export class DataManagementWorkService {
     });
   }
 
+  addWorkEntry(work: Work): Observable<IWork> {
+    return this.dataSchedule.addWork(work);
+  }
+
+  updateWorkEntry(work: Work): Observable<IWork> {
+    return this.dataSchedule.updateWork(work);
+  }
+
   confirmWork(workId: string): Observable<IWork> {
     return this.dataSchedule.confirmWork(workId);
   }

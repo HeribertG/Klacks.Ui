@@ -22,16 +22,14 @@ import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { forkJoin } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  DataContainerWorkChildrenService,
-} from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+import { ContainerWorkChildrenService } from 'src/app/domain/services/schedule/container-work-children.service';
 import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
-import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { ClientSearchService } from 'src/app/domain/services/client/client-search.service';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { ContainerSplitLogicService } from './services/container-split-logic.service';
 import { CategorizationResult } from './services/categorization-result.interface';
 import { SplitGap } from './services/split-gap.interface';
-import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
+import { DataManagementWorkService } from 'src/app/domain/services/work/data-management-work.service';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
@@ -56,10 +54,10 @@ export class ContainerSplitDialogComponent {
   private readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('modalTemplate');
 
   private ngbModal = inject(NgbModal);
-  private childrenService = inject(DataContainerWorkChildrenService);
-  private clientService = inject(DataClientService);
+  private childrenService = inject(ContainerWorkChildrenService);
+  private clientSearchService = inject(ClientSearchService);
   private logicService = inject(ContainerSplitLogicService);
-  private dataSchedule = inject(DataScheduleService);
+  private workService = inject(DataManagementWorkService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private lockService = inject(ContainerLockService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
@@ -152,7 +150,7 @@ export class ContainerSplitDialogComponent {
           }
           forkJoin({
             children: this.childrenService.loadChildren(this.workId),
-            clients: this.clientService.getClientsForReplacement(),
+            clients: this.clientSearchService.getClientsForReplacement(),
           }).subscribe({
             next: ({ children, clients }) => {
               this.children.set(children);
@@ -280,7 +278,7 @@ export class ContainerSplitDialogComponent {
     work.workTime = this.logicService.durationHours(splitTime, originalEndTime);
     work.analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
 
-    this.dataSchedule.addWork(work).subscribe({
+    this.workService.addWorkEntry(work).subscribe({
       next: (newWork) => {
         if (!newWork.id) {
           this.restoreOriginal(originalEndTime);

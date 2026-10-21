@@ -3,9 +3,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { IClient } from 'src/app/domain/models/client/client-class';
+import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
@@ -25,6 +26,10 @@ export class ClientSearchService {
   private backupFindClient: IClient | undefined;
   private backupFindClientDummy: IClient | undefined;
   private backupFindClientList: IClient[] = [];
+
+  public getClientsForReplacement(): Observable<IClientForReplacement[]> {
+    return this.dataClientService.getClientsForReplacement();
+  }
 
   public findClients(editClient: IClient) {
     if (!editClient.id) {

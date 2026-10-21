@@ -9,6 +9,7 @@ import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-sc
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 describe('WorkEditDialogComponent', () => {
   let component: WorkEditDialogComponent;
@@ -21,6 +22,7 @@ describe('WorkEditDialogComponent', () => {
       imports: [WorkEditDialogComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataScheduleService, useValue: { updateWork: updateWorkMock } },
+        { provide: AnalyseScenarioService, useValue: { activeToken: () => 'scenario-token' } },
         {
           provide: WorkScheduleLoaderService,
           useValue: {
@@ -85,5 +87,29 @@ describe('WorkEditDialogComponent', () => {
     const savedWork = updateWorkMock.mock.calls[0][0] as Work;
     expect(savedWork.lockLevel).toBe(0);
     expect(savedWork.surcharges).toBe(0);
+  });
+
+  it('sends the edited work as built by the dialog and refreshes the schedule after the response', () => {
+    const crud = TestBed.inject(ScheduleEntryCrudService) as unknown as { triggerScheduleRefresh: ReturnType<typeof vi.fn> };
+    const loader = TestBed.inject(WorkScheduleLoaderService) as unknown as { updateClientNeededRows: ReturnType<typeof vi.fn> };
+    component.open({
+      workId: 'work-3',
+      clientId: 'client-1',
+      shiftId: 'shift-1',
+      currentDate: new Date('2026-08-15'),
+      workStartTime: '08:00:00',
+      workEndTime: '12:00:00',
+      information: null,
+      lockLevel: 0,
+      surcharges: 0,
+    });
+
+    component.onSave();
+
+    const savedWork = updateWorkMock.mock.calls[0][0] as Work;
+    expect(savedWork.id).toBe('work-3');
+    expect(savedWork.analyseToken).toBeUndefined();
+    expect(loader.updateClientNeededRows).toHaveBeenCalledTimes(1);
+    expect(crud.triggerScheduleRefresh).toHaveBeenCalledTimes(1);
   });
 });

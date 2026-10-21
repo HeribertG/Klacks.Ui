@@ -20,7 +20,7 @@ import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
-import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { ClientSearchService } from 'src/app/domain/services/client/client-search.service';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { WorkChangeLogicService } from 'src/app/presentation/workplace/schedule/shared/work-change-logic/work-change-logic.service';
 import { CorrectionMode } from 'src/app/domain/enums/correction-mode.enum';
@@ -49,7 +49,7 @@ export class ReplacementDialogComponent {
 
   private ngbModal = inject(NgbModal);
   private workChangeService = inject(DataManagementWorkchangeService);
-  private clientService = inject(DataClientService);
+  private clientSearchService = inject(ClientSearchService);
   private logicService = inject(WorkChangeLogicService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
@@ -186,7 +186,7 @@ export class ReplacementDialogComponent {
   }
 
   private loadClients(callback: () => void): void {
-    this.clientService.getClientsForReplacement().subscribe({
+    this.clientSearchService.getClientsForReplacement().subscribe({
       next: (clients) => {
         this.clients = clients;
         this.cdr.markForCheck();
