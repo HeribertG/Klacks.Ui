@@ -2,7 +2,8 @@
 
 /**
  * Assembles the spreadsheet request of a report: one sheet per table section, with the same
- * columns, values, row filter and grouping the PDF and the CSV use.
+ * columns, values, row filter and grouping the PDF and the CSV use, and has the workbook rendered
+ * by the server, because the frontend has no spreadsheet library.
  * @param template - Template that defines the sections and columns
  * @param provider - Data provider that resolves the field values
  * @param data - Rows fetched for the report
@@ -27,10 +28,13 @@ import { ReportDataProvider } from './report-data-provider.interface';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportRowFilterService } from './report-row-filter.service';
 import { ReportParameterContext } from './report-parameter-context.interface';
+import { ReportWorkbook } from './report-workbook.interface';
+import { DataReportExportService } from 'src/app/infrastructure/api/report/data-report-export.service';
 
 const FALLBACK_NAME = 'report';
 const FALLBACK_SHEET_NAME = 'Report';
 const FORMULA_ERROR = '#ERR';
+const XLSX_EXTENSION = '.xlsx';
 
 type ReportRow = Record<string, unknown>;
 
@@ -39,6 +43,7 @@ export class ReportXlsxService {
   private translate = inject(TranslateService);
   private formulaService = inject(FormulaEvaluationService);
   private rowFilterService = inject(ReportRowFilterService);
+  private exportApi = inject(DataReportExportService);
 
   buildRequest(
     template: ReportTemplate,
@@ -56,6 +61,21 @@ export class ReportXlsxService {
         this.buildSheet(template, section, provider, data.rows ?? [], parameterContext, index)
       ),
     };
+  }
+
+  /**
+   * Builds the request and lets the server turn it into a workbook, so the values keep their type
+   * and stay computable in the spreadsheet.
+   */
+  async renderWorkbook(
+    template: ReportTemplate,
+    provider: ReportDataProvider,
+    data: ReportData,
+    parameterContext?: ReportParameterContext
+  ): Promise<ReportWorkbook> {
+    const request = this.buildRequest(template, provider, data, parameterContext);
+    const blob = await this.exportApi.downloadXlsx(request);
+    return { blob, fileName: `${request.fileName}${XLSX_EXTENSION}` };
   }
 
   buildFileName(template: ReportTemplate): string {

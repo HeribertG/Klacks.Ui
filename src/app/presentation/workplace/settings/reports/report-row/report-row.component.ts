@@ -29,7 +29,6 @@ import { ReportTemplateResolverService } from 'src/app/domain/services/report/re
 import { ReportTemplateTransferService } from 'src/app/domain/services/report/report-template-transfer.service';
 import { ReportCsvService } from 'src/app/domain/services/report/report-csv.service';
 import { ReportXlsxService } from 'src/app/domain/services/report/report-xlsx.service';
-import { DataReportExportService } from 'src/app/infrastructure/api/report/data-report-export.service';
 import { ReportRowFilterService } from 'src/app/domain/services/report/report-row-filter.service';
 import { ReportParameterContext } from 'src/app/domain/services/report/report-parameter-context.interface';
 import { ReportParameter } from 'src/app/domain/models/report/report-parameter.model';
@@ -59,7 +58,6 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { IconExportComponent } from 'src/app/presentation/icons/icon-export.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
 import { SourcePreviewConfig } from './source-preview-config.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -110,7 +108,6 @@ export class ReportRowComponent {
   private templateResolver = inject(ReportTemplateResolverService);
   private csvService = inject(ReportCsvService);
   private xlsxService = inject(ReportXlsxService);
-  private exportApi = inject(DataReportExportService);
   private rowFilterService = inject(ReportRowFilterService);
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
@@ -118,7 +115,6 @@ export class ReportRowComponent {
   private clientService = inject(DataClientService);
   private sanitizer = inject(DomSanitizer);
   private toast = inject(ToastShowService);
-  private reportApi = inject(DataReportApiService);
   private cdr = inject(ChangeDetectorRef);
   private localeService = inject(LocaleService);
   private destroyRef = inject(DestroyRef);
@@ -228,8 +224,7 @@ export class ReportRowComponent {
 
     this.isLoadingVersions.set(true);
     try {
-      const full = await this.reportApi.getTemplateById(id);
-      this.versions.set([...(full.versions ?? [])].reverse());
+      this.versions.set(await this.dataManagementReportService.loadTemplateVersions(id));
     } catch {
       this.versions.set([]);
       this.toast.showError(this.translate.instant('setting.report.error.versions'), REPORT_TOAST_NAME);
@@ -645,8 +640,7 @@ export class ReportRowComponent {
   }
 
   /**
-   * Exports the same data as XLSX. The workbook is built on the server, because the frontend
-   * has no spreadsheet library and the values need their type back to stay computable.
+   * Exports the same data as XLSX, rendered by the server.
    */
   async exportXlsx(): Promise<void> {
     if (!this.canGeneratePreview || !this.hasAllRequiredParameters()) return;
@@ -655,10 +649,9 @@ export class ReportRowComponent {
     try {
       const { provider, data } = await this.fetchPreviewData();
       const template = this.buildPreviewTemplate();
-      const request = this.xlsxService.buildRequest(template, provider, data, this.parameterContext);
-      const blob = await this.exportApi.downloadXlsx(request);
+      const workbook = await this.xlsxService.renderWorkbook(template, provider, data, this.parameterContext);
       this.warnOnFilterError();
-      this.reportService.downloadXlsx(blob, `${request.fileName}.xlsx`);
+      this.reportService.downloadXlsx(workbook.blob, workbook.fileName);
     } catch {
       this.toast.showError(this.translate.instant('setting.report.error.export'), REPORT_TOAST_NAME);
     } finally {

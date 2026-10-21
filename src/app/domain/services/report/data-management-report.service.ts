@@ -8,6 +8,7 @@ import { ReportSectionType } from '../../models/report/report-section-type.enum'
 import { DEFAULT_FIELD_STYLE } from '../../models/report/report-field.model';
 import { ReportFieldType } from '../../models/report/report-field-type.enum';
 import { TextAlignment } from '../../models/report/text-alignment.enum';
+import { ReportTemplateVersion } from '../../models/report/report-template-version.interface';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
 @Injectable()
@@ -83,6 +84,15 @@ export class DataManagementReportService {
       name: copyName,
     };
     return this.addTemplate(copy);
+  }
+
+  /**
+   * Loads the stored snapshots of a template, newest first; the template list does not carry them.
+   * @param id - Id of the template whose versions are loaded
+   */
+  async loadTemplateVersions(id: string): Promise<ReportTemplateVersion[]> {
+    const full = await this.apiService.getTemplateById(id);
+    return [...(full.versions ?? [])].reverse();
   }
 
   async deleteTemplate(id: string): Promise<void> {

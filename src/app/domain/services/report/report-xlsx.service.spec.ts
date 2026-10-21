@@ -11,6 +11,7 @@ import { ReportSectionType } from 'src/app/domain/models/report/report-section-t
 import { DEFAULT_FIELD_STYLE, ReportField } from 'src/app/domain/models/report/report-field.model';
 import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
+import { DataReportExportService } from 'src/app/infrastructure/api/report/data-report-export.service';
 
 function field(partial: Partial<ReportField>): ReportField {
   return {
@@ -56,11 +57,25 @@ const provider: ReportDataProvider = {
 
 describe('ReportXlsxService', () => {
   let service: ReportXlsxService;
+  let exportApi: { downloadXlsx: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    exportApi = { downloadXlsx: vi.fn(async () => new Blob(['xlsx'])) };
     TestBed.configureTestingModule({
-      providers: [...APP_PORT_BINDINGS], imports: [TranslateModule.forRoot()] });
+      providers: [...APP_PORT_BINDINGS, { provide: DataReportExportService, useValue: exportApi }],
+      imports: [TranslateModule.forRoot()] });
     service = TestBed.inject(ReportXlsxService);
+  });
+
+  it('lets the server render the built request and names the workbook after it', async () => {
+    const template = buildTemplate([field({ dataBinding: 'entry.date', sortOrder: 0 })]);
+    const expected = service.buildRequest(template, provider, { rows: [] });
+
+    const workbook = await service.renderWorkbook(template, provider, { rows: [] });
+
+    expect(exportApi.downloadXlsx).toHaveBeenCalledWith(expected);
+    expect(workbook.fileName).toBe('stundenrapport-mai.xlsx');
+    expect(workbook.blob).toBeInstanceOf(Blob);
   });
 
   it('derives a usable file name from the template name', () => {
