@@ -14,11 +14,9 @@ import {
   output,
   viewChild
 } from '@angular/core';
-import {
-  ScrollbarComponent,
-  IImagesThumps,
-  ImagesThumps,
-} from '../scrollbar/scrollbar.component';
+import { ScrollbarComponent } from '../scrollbar/scrollbar.component';
+import { IImagesThumps } from '../scrollbar/images-thumps.interface';
+import { ImagesThumps } from '../scrollbar/images-thumps.model';
 
 @Component({
   selector: 'app-v-scrollbar',

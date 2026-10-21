@@ -43,16 +43,11 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { MacroFormModel } from './macro-form-model.interface';
 import {
   MACRO_AUTO_IMPORTS,
   MACRO_IMPORT_PREFIX,
 } from 'src/app/domain/constants/macro-external-variables.constants';
-interface MacroFormModel {
-  name: string;
-  type: string;
-  content: string;
-  category: string;
-}
 
 @Component({
   selector: 'app-macro-row',

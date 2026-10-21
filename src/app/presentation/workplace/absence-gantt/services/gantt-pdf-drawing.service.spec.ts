@@ -4,7 +4,8 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { GanttPdfDrawingService, GanttDrawingConfig, } from './gantt-pdf-drawing.service';
+import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
+import { GanttDrawingConfig } from './gantt-drawing-config.interface';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { signal } from '@angular/core';

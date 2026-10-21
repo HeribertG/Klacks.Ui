@@ -45,18 +45,10 @@ import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-dropdown/calendar-dropdown.component';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
+import { RuleFormModel } from './rule-form-model.interface';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 const NEW_RULE_IS_PAID = true;
-
-interface RuleFormModel {
-  name: string;
-  rule: string;
-  subRule: string;
-  description: string;
-  isMandatory: boolean;
-  isPaid: boolean;
-}
 
 @Component({
   selector: 'app-calendar-rules',

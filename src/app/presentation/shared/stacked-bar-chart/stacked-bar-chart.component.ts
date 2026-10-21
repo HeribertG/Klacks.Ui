@@ -13,6 +13,12 @@
  *   wider while text stays pixel-stable (no stretching).
  */
 import { Component, Input, ChangeDetectionStrategy, inject, input } from '@angular/core';
+import { IBarRect } from './bar-rect.interface';
+import { IYTick } from './y-tick.interface';
+import { ISpecialDay } from './special-day.interface';
+import { IMonthMarker } from './month-marker.interface';
+import { IReferenceLine } from './reference-line.interface';
+import { IRenderedReferenceLine } from './rendered-reference-line.interface';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 
 const BASE_VBW = 900;
@@ -28,47 +34,6 @@ const NICE_CANDIDATES = [1, 1.2, 1.4, 1.5, 1.6, 1.8, 2, 2.2, 2.5, 2.8, 3, 3.5, 4
 const TICK_CANDIDATES = [4, 5, 3, 6, 2];
 const DEFAULT_TICK_COUNT = 4;
 const MIN_ZOOM = 100;
-
-interface IBarRect {
-  x: number;
-  greenY: number;
-  greenH: number;
-  grayY: number;
-  grayH: number;
-}
-
-interface IYTick {
-  y: number;
-  label: string;
-}
-
-export type SpecialDayType = 'saturday' | 'sunday' | 'holiday';
-
-export interface ISpecialDay {
-  index: number;
-  type: SpecialDayType;
-  color: string;
-  tooltip?: string;
-}
-
-export interface IMonthMarker {
-  index: number;
-  label: string;
-}
-
-export interface IReferenceLine {
-  values: number[];
-  color: string;
-  dashArray: string;
-  strokeWidth: number;
-}
-
-interface IRenderedReferenceLine {
-  points: string;
-  color: string;
-  dashArray: string;
-  strokeWidth: number;
-}
 
 @Component({
   selector: 'app-stacked-bar-chart',

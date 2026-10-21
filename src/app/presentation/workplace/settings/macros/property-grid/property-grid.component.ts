@@ -7,25 +7,14 @@ import { FormsModule } from '@angular/forms';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
+import { PropertyItem } from './property-item.interface';
+import { EnumOption } from './enum-option.interface';
 import {
   HolidayStatus,
   PropertyMetadata,
   ShiftData,
   Weekday,
 } from 'src/app/domain/models/shift/shift-data-class';
-
-interface PropertyItem {
-  key: string;
-  value: any;
-  type: string;
-  editable: boolean;
-  metadata?: any;
-}
-
-interface EnumOption {
-  name: string;
-  value: number;
-}
 
 @Component({
   selector: 'app-property-grid',

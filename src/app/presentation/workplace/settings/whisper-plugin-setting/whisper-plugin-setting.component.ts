@@ -31,15 +31,10 @@ import {
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
+import { WhisperModelOption } from './whisper-model-option.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 
 const POLL_INTERVAL_MS = 5000;
-
-interface WhisperModelOption {
-  value: WhisperModelAlias;
-  labelKey: string;
-  hintKey: string;
-}
 
 @Component({
   selector: 'app-whisper-plugin-setting',

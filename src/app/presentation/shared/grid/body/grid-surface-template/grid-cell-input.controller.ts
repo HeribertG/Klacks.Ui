@@ -22,13 +22,8 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
+import { CellInputSaveEvent } from './cell-input-save-event.interface';
 import { CellInputEventsDirective } from '../directives/cell-input-events.directive';
-
-export interface CellInputSaveEvent {
-  row: number;
-  column: number;
-  value: string;
-}
 
 @Injectable()
 export class GridCellInputController {

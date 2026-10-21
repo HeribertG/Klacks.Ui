@@ -41,7 +41,6 @@ import {
 } from 'src/app/domain/models/settings/personal-access-token';
 import { IPersonalAccessTokenCreate } from 'src/app/domain/models/settings/personal-access-token-create.interface';
 import { IPersonalAccessTokenCreated } from 'src/app/domain/models/settings/personal-access-token-created.interface';
-import { PersonalAccessTokenAccessMode } from 'src/app/domain/models/settings/personal-access-token-access-mode.type';
 import {
   ModalService,
   ModalType,
@@ -49,12 +48,8 @@ import {
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
+import { PersonalAccessTokenFormModel } from './personal-access-token-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-interface PersonalAccessTokenFormModel {
-  name: string;
-  expiresInDays: string;
-  accessMode: PersonalAccessTokenAccessMode;
-}
 
 const PERSONAL_ACCESS_TOKENS_CONTEXT = 'personal-access-tokens';
 

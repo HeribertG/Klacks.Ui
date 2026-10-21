@@ -17,8 +17,11 @@ import { ScheduleDataService } from './schedule-data.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
-import { SchedulePdfDrawingService, ScheduleDrawingConfig } from './schedule-pdf-drawing.service';
+import { SchedulePdfDrawingService } from './schedule-pdf-drawing.service';
+import { ScheduleDrawingConfig } from './schedule-drawing-config.interface';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { CellData } from './cell-data.interface';
+import { ClientBlock } from './client-block.interface';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 
 @Injectable()
@@ -400,23 +403,4 @@ export class SchedulePdfExportService {
 
     return pages.length > 0 ? pages : [[]];
   }
-}
-
-interface CellData {
-  mainText: string;
-  firstSubText: string;
-  secondSubText: string;
-  backgroundColor?: string;
-  fontColor?: string;
-  isEmpty: boolean;
-  sealed: boolean;
-}
-
-interface ClientBlock {
-  name: string;
-  slot1: string;
-  slot2: string;
-  slot3: string;
-  subRows: CellData[][];
-  neededRows: number;
 }

@@ -30,15 +30,8 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FormsModule } from '@angular/forms';
 import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
 import { ChipsComponent } from '../chips/chips.component';
+import { TranslationResults } from './translation-results.interface';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
-interface TranslationResults {
-  headerCalendarDropdown: string;
-  deleteMessage: string;
-  message: string;
-  emptyPlaceholder: string;
-  inputTitle: string;
-}
 
 @Component({
   selector: 'app-calendar-selector',

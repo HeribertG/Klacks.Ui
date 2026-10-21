@@ -6,7 +6,7 @@
  */
 import { Injectable } from '@angular/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
-import { CutWeekdayParams } from './cut-parameter-state';
+import { CutWeekdayParams } from './cut-weekday-params.interface';
 
 @Injectable({
   providedIn: 'root',

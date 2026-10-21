@@ -79,31 +79,12 @@ import {
   OPEN_STREET_MAP_LINK_TEMPLATE,
   STREET_VIEW_LINK_TEMPLATE,
 } from 'src/app/domain/constants/external-map-link.constants';
+import { AddressPersonaFormModel } from './address-persona-form-model.interface';
 import { buildExternalMapLink } from 'src/app/shared/helpers/external-map-link.helper';
 
 const ADDRESS_TYPE_LIST_SEPARATOR = ', ';
 const ADDRESS_TYPE_NOT_ALLOWED_KEY =
   'address.edit-address.address-persona.validation.address-type-not-allowed-for-client-type';
-
-interface AddressPersonaFormModel {
-  company: string;
-  gender: string;
-  legalEntity: boolean;
-  title: string;
-  firstName: string;
-  secondName: string;
-  name: string;
-  maidenName: string;
-  addressLine1: string;
-  addressLine2: string;
-  street: string;
-  street2: string;
-  street3: string;
-  zip: string;
-  city: string;
-  state: string;
-  country: string;
-}
 
 @Component({
   selector: 'app-address-persona',

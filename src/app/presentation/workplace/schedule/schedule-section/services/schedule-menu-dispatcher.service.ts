@@ -11,24 +11,9 @@
 import { inject, Injectable } from '@angular/core';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScheduleDataService } from './schedule-data.service';
+import { ScheduleMenuHost } from './schedule-menu-host.interface';
 import { ScheduleSectionFacadeService } from './schedule-section-facade.service';
-
-export interface ScheduleMenuHost {
-  readonly contextMenuRow: number;
-  readonly contextMenuColumn: number;
-  readonly contextMenuEntry: IScheduleCell | null | undefined;
-
-  showSelectedShiftInShiftSection(): void;
-  openContainerAt(
-    row: number,
-    column: number,
-    entry: IScheduleCell | null | undefined,
-  ): void;
-  deleteBreakPlaceholder(): void;
-  adoptBreakPlaceholder(absenceItemId?: string): void;
-}
 
 type MenuAction = (
   dataService: ScheduleDataService,

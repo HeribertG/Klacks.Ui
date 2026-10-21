@@ -24,37 +24,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import {
-  ComplianceEnforcementDefaultMode,
-} from 'src/app/domain/models/settings/compliance-enforcement-default-mode.type';
-import { ComplianceEnforcementRuleMode } from 'src/app/domain/models/settings/compliance-enforcement-rule-mode.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { ComplianceEnforcementFormModel } from './compliance-enforcement-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const MIN_LEAD_DAYS = 0;
 const COMPLIANCE_ENFORCEMENT_MANUAL_NAME = 'compliance-enforcement-manual';
 
 type SettingsTab = 'settings' | 'manual';
-
-interface ComplianceEnforcementFormModel {
-  enforcementDefaultMode: ComplianceEnforcementDefaultMode;
-  enforcementAllowSupervisorOverride: boolean;
-  enforcementMaxDailyHours: ComplianceEnforcementRuleMode;
-  enforcementMaxWeeklyHours: ComplianceEnforcementRuleMode;
-  enforcementMinRestHours: ComplianceEnforcementRuleMode;
-  enforcementMinRestDays: ComplianceEnforcementRuleMode;
-  enforcementMaxConsecutiveDays: ComplianceEnforcementRuleMode;
-  enforcementPeriodCap: ComplianceEnforcementRuleMode;
-  enforcementRollingAverage: ComplianceEnforcementRuleMode;
-  enforcementRestDayRotation: ComplianceEnforcementRuleMode;
-  enforcementCounterRule: ComplianceEnforcementRuleMode;
-  enforcementCompensatoryRest: ComplianceEnforcementRuleMode;
-  enforcementRestrictedTimeWindow: ComplianceEnforcementRuleMode;
-  enforcementHolidayWork: ComplianceEnforcementRuleMode;
-  rosterPublicationMinLeadDays: number;
-  rosterPublicationCountWorkdaysOnly: boolean;
-  planningDeadlineLeadDays: number;
-}
 
 @Component({
   selector: 'app-compliance-enforcement-settings',

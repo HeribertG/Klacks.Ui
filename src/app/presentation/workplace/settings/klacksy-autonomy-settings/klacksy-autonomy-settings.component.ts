@@ -12,13 +12,8 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { AutonomyLevelOption } from './autonomy-level-option.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-
-interface AutonomyLevelOption {
-  value: number;
-  labelKey: string;
-  descriptionKey: string;
-}
 
 @Component({
   selector: 'app-klacksy-autonomy-settings',

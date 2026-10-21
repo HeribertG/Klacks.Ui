@@ -1,11 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { describe, it, expect } from 'vitest';
-import {
-  computeShiftBubbleReserves,
-  computeShiftQualificationBubbleLayout,
-  ShiftQualificationBubbleLayoutInput,
-} from './shift-qualification-bubble-layout';
+import { computeShiftBubbleReserves, computeShiftQualificationBubbleLayout } from './shift-qualification-bubble-layout';
+import { ShiftQualificationBubbleLayoutInput } from './shift-qualification-bubble-layout-input.interface';
 import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 
 function qualification(

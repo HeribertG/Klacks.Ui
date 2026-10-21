@@ -29,6 +29,8 @@ import { IExportFormatOverrideEntry } from 'src/app/domain/models/settings/expor
 import {
   IExportFormatOverridesResponse,
 } from 'src/app/domain/models/settings/export-format-overrides-response.interface';
+import { ExportFormatGroup } from './export-format-group.interface';
+import { VersionWarning } from './version-warning.interface';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
@@ -55,22 +57,6 @@ const ALLOWED_KEYS_SEPARATOR = ', ';
 const DEFAULT_PATCH_JSON = '{}';
 const PREVIEW_FILE_PREFIX = 'preview_';
 const PREVIEW_FILE_FALLBACK_EXTENSION = '.txt';
-
-interface ExportFormatOption {
-  formatKey: string;
-  label: string;
-}
-
-interface ExportFormatGroup {
-  family: ExportFormatFamily;
-  labelKey: string;
-  options: ExportFormatOption[];
-}
-
-interface VersionWarning {
-  created: string;
-  current: string;
-}
 
 @Component({
   selector: 'app-export-format-overrides-setting',

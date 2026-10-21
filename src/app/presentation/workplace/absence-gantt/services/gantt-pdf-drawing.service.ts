@@ -8,29 +8,9 @@ import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { GanttDrawingConfig } from './gantt-drawing-config.interface';
+import { RowDrawingParams } from './row-drawing-params.interface';
 import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-
-export interface GanttDrawingConfig {
-  pageWidth: number;
-  pageHeight: number;
-  rowHeaderWidth: number;
-  rowHeight: number;
-  year: number;
-  startDate: Date;
-  evenMonthColor: string;
-  oddMonthColor: string;
-  weekendColor: string;
-  dayLineColor: string;
-  monthBorderColor: string;
-  lineWidth: number;
-}
-
-export interface RowDrawingParams {
-  x: number;
-  y: number;
-  pdf: jsPDF;
-  config: GanttDrawingConfig;
-}
 
 @Injectable()
 export class GanttPdfDrawingService {

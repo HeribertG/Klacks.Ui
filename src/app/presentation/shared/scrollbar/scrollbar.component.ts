@@ -24,11 +24,9 @@ import {
   output
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import {
-  Metrics,
-  IMetrics,
-  ScrollbarService,
-} from './scrollbar.service';
+import { ScrollbarService } from './scrollbar.service';
+import { Metrics } from './metrics.model';
+import { IMetrics } from './metrics.interface';
 import { CheckContext } from 'src/app/domain/services/check-context.decorator';
 import { SCROLLBAR_CONSTANTS } from './constants';
 import { maxScrollValue } from './scroll-range.helper';
@@ -43,22 +41,11 @@ import {
 
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ScrollAnimationService } from './scroll-animation.service';
+import { AxisConfig } from './axis-config.interface';
+import { ImagesThumps } from './images-thumps.model';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 
 export type ScrollbarOrientation = 'horizontal' | 'vertical';
-
-interface AxisConfig {
-  clientPos: 'clientX' | 'clientY';
-  canvasOffset: 'offsetLeft' | 'offsetTop';
-  canvasSizeProp: 'width' | 'height';
-  canvasCrossSizeProp: 'width' | 'height';
-  thumbSizeProp: 'width' | 'height';
-  svgBackward: (service: ScrollbarService) => string;
-  svgForward: (service: ScrollbarService) => string;
-  createThumbFn: (service: ScrollbarService, metrics: IMetrics, images: IImagesThumps) => void;
-  metricsSize: (canvas: HTMLCanvasElement) => number;
-  resizeExtract: (entry: ResizeObserverEntry, padding: number) => { width: number; height?: number };
-}
 
 const VERTICAL_CONFIG: AxisConfig = {
   clientPos: 'clientY',
@@ -706,15 +693,4 @@ export class ScrollbarComponent
     this.hideArrowButtons = !host || host.offsetWidth === 0 || host.offsetHeight === 0;
     this.cdr.detectChanges();
   }
-}
-
-export interface IImagesThumps {
-  invisibleTicks: number;
-  imgThumb: ImageData | undefined;
-  imgSelectedThumb: ImageData | undefined;
-}
-export class ImagesThumps implements IImagesThumps {
-  invisibleTicks = 0;
-  imgThumb: ImageData | undefined = undefined;
-  imgSelectedThumb: ImageData | undefined = undefined;
 }

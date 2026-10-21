@@ -22,25 +22,13 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { GridCoordinateService } from 'src/app/presentation/shared/grid/services/grid-coordinate.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { TimelineBlockHitTestService } from './timeline-block-hit-test.service';
+import { DrawPartContext } from './draw-part-context.interface';
 import { TimelineSelectionService } from './timeline-selection.service';
 
 const BORDER_WIDTH = 2;
 const BORDER_DASH = [0, 4];
 const BORDER_OUTSET = 1;
 const FILL_ALPHA = 0.25;
-
-interface DrawPartContext {
-  row: number;
-  col: number;
-  yStartInCell: number;
-  yEndInCell: number;
-  firstVisibleRow: number;
-  firstVisibleCol: number;
-  cellWidth: number;
-  cellHeight: number;
-  cellHeaderHeight: number;
-  sealed: boolean;
-}
 
 @Injectable()
 export class TimelineSelectionOverlayService {

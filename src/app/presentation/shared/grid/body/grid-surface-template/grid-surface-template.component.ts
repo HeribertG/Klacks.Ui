@@ -26,16 +26,12 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
-import {
-  GridTemplateEventsDirective,
-  GridRightClickEvent,
-  GridDoubleClickEvent,
-} from '../directives/grid-template-events.directive';
+import { GridTemplateEventsDirective } from '../directives/grid-template-events.directive';
+import { GridRightClickEvent } from '../directives/grid-right-click-event.interface';
+import { GridDoubleClickEvent } from '../directives/grid-double-click-event.interface';
 import { GridScheduleEventsService } from 'src/app/presentation/workplace/schedule/services/grid-schedule-events.service';
-import {
-  CellInputEventsDirective,
-  CellInputRightClickEvent,
-} from '../directives/cell-input-events.directive';
+import { CellInputEventsDirective } from '../directives/cell-input-events.directive';
+import { CellInputRightClickEvent } from '../directives/cell-input-right-click-event.interface';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
 import { MyPosition } from '../../classes/position';
@@ -44,37 +40,19 @@ import { TestAccessibilityService } from '../../services/grid-test-accessibility
 import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
 import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
-import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { GridCellInputController } from './grid-cell-input.controller';
 import { GridResizeController } from './grid-resize.controller';
-import {
-  TouchGestureDirective,
-  TouchPanEvent,
-} from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchGestureDirective } from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchPanEvent } from 'src/app/presentation/directives/touch-pan-event.interface';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchPanAccumulator } from 'src/app/shared/helpers/touch-pan-accumulator';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
-import {
-  GridCellActionsBounds,
-  GridCellActionsButtonComponent,
-  GridCellActionsOpenEvent,
-  GridCellRect,
-} from '../grid-cell-actions-button/grid-cell-actions-button.component';
-
-export interface GridSurfaceRightClickEvent {
-  row: number;
-  column: number;
-  clientX: number;
-  clientY: number;
-  source: 'canvas' | 'input';
-  entry?: IScheduleCell | null;
-}
-
-export interface CellValueChangeEvent {
-  row: number;
-  column: number;
-  value: string;
-}
+import { GridSurfaceRightClickEvent } from './grid-surface-right-click-event.interface';
+import { CellValueChangeEvent } from './cell-value-change-event.interface';
+import { GridCellActionsButtonComponent } from '../grid-cell-actions-button/grid-cell-actions-button.component';
+import { GridCellActionsBounds } from '../grid-cell-actions-button/grid-cell-actions-bounds.interface';
+import { GridCellActionsOpenEvent } from '../grid-cell-actions-button/grid-cell-actions-open-event.interface';
+import { GridCellRect } from '../grid-cell-actions-button/grid-cell-rect.interface';
 
 @Component({
   selector: 'app-grid-surface-template',

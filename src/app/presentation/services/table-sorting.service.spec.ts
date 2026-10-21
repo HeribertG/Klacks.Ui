@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { TableSortingService, TableSortingConfig } from './table-sorting.service';
+import { TableSortingService } from './table-sorting.service';
+import { TableSortingConfig } from './table-sorting-config.interface';
 
 describe('TableSortingService', () => {
     let service: TableSortingService;

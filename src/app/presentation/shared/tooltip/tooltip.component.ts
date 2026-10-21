@@ -10,7 +10,8 @@ import {
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { TooltipService, TooltipConfig } from './tooltip.service';
+import { TooltipService } from './tooltip.service';
+import { TooltipConfig } from './tooltip-config.interface';
 
 @Component({
   selector: 'app-tooltip',

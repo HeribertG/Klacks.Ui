@@ -22,32 +22,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { SurchargeRateMode } from 'src/app/domain/models/settings/surcharge-rate-mode.type';
-import { SurchargeStackingMode } from 'src/app/domain/models/settings/surcharge-stacking-mode.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { SurchargeModeFormModel } from './surcharge-mode-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const PERCENTAGE_FACTOR = 100;
 const SURCHARGE_MODE_MANUAL_NAME = 'surcharge-mode-manual';
 
 type SettingsTab = 'settings' | 'manual';
-
-interface SurchargeModeFormModel {
-  we3Rate: number;
-  nightRateMode: SurchargeRateMode;
-  holidayRateMode: SurchargeRateMode;
-  we1RateMode: SurchargeRateMode;
-  we2RateMode: SurchargeRateMode;
-  we3RateMode: SurchargeRateMode;
-  nightMinimumPerHour: number | null;
-  holidayMinimumPerHour: number | null;
-  we1MinimumPerHour: number | null;
-  we2MinimumPerHour: number | null;
-  we3MinimumPerHour: number | null;
-  nightStart: string;
-  nightEnd: string;
-  stackingMode: SurchargeStackingMode;
-}
 
 @Component({
   selector: 'app-surcharge-mode-settings',

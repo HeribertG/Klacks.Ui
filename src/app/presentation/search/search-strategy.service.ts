@@ -5,10 +5,8 @@ import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import {
-  IEntitySearchStrategy,
-  EntitySearchOptions,
-} from './strategies/interfaces/entity-search-strategy.interface';
+import { IEntitySearchStrategy } from './strategies/interfaces/entity-search-strategy.interface';
+import { EntitySearchOptions } from './strategies/interfaces/entity-search-options.interface';
 import { ClientSearchStrategy } from './strategies/client-search.strategy';
 import { GroupSearchStrategy } from './strategies/group-search.strategy';
 import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';

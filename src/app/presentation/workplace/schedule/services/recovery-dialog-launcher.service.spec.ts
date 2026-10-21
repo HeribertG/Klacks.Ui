@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { IRecoveryDialogPreset, RecoveryDialogLauncherService } from './recovery-dialog-launcher.service';
+import { RecoveryDialogLauncherService } from './recovery-dialog-launcher.service';
+import { IRecoveryDialogPreset } from './recovery-dialog-preset.interface';
 
 describe('RecoveryDialogLauncherService', () => {
   let service: RecoveryDialogLauncherService;

@@ -28,11 +28,9 @@ import {
 import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
-import {
-  CategorizationResult,
-  ContainerSplitLogicService,
-  SplitGap,
-} from './services/container-split-logic.service';
+import { ContainerSplitLogicService } from './services/container-split-logic.service';
+import { CategorizationResult } from './services/categorization-result.interface';
+import { SplitGap } from './services/split-gap.interface';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
@@ -42,16 +40,8 @@ import { ContainerLockService } from 'src/app/domain/services/container/containe
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
+import { IOpenContainerSplitOptions } from './open-container-split-options.interface';
 import { addDays } from 'src/app/shared/helpers/date.helper';
-
-export interface IOpenContainerSplitOptions {
-  workId: string;
-  shiftId: string;
-  clientId: string;
-  containerStart: string;
-  containerEnd: string;
-  currentDate: Date;
-}
 
 @Component({
   selector: 'app-container-split-dialog',

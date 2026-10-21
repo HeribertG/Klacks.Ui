@@ -10,17 +10,8 @@ import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
 import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ImapModel } from './imap-model.interface';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
-
-interface ImapModel {
-  server: string;
-  port: string;
-  username: string;
-  password: string;
-  enableSSL: string;
-  folder: string;
-  pollInterval: string;
-}
 
 @Component({
   selector: 'app-imap-setting',

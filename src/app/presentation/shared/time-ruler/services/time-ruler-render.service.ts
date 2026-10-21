@@ -25,25 +25,9 @@ import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.ser
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { ShiftBoxDrawParams } from './shift-box-draw-params.interface';
+import { IShiftSceneContext } from './shift-scene-context.interface';
 import { TranslateService } from '@ngx-translate/core';
-export interface ShiftBoxDrawParams {
-  ctx: CanvasRenderingContext2D;
-  range: any;
-  boxWidth: number;
-  marginLeftRight: number;
-  height: number;
-}
-
-/**
- * Scene-level inputs reused across every public render method.
- * Bundles the mutable scene state (shifts + rectangle map) and the time window.
- */
-export interface IShiftSceneContext {
-  shifts: IContainerTemplateItem[];
-  shiftRectangles: Map<IContainerTemplateItem, Rectangle>;
-  fromTime: OwnTime;
-  untilTime: OwnTime;
-}
 
 @Injectable({
   providedIn: 'root',

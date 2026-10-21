@@ -84,6 +84,7 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
+import { ResolvedCalendarChips } from './resolved-calendar-chips.interface';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 const GROUP_QUERY_PARAM = 'groupId';
@@ -93,11 +94,6 @@ const SCENARIO_QUERY_PARAM = 'scenarioId';
 const ISO_WEEK_THURSDAY_OFFSET = 4;
 const SUNDAY_AS_ISO_WEEKDAY = 7;
 const MONTH_INDEX_OFFSET = 1;
-
-interface ResolvedCalendarChips {
-  tokens: StateCountryToken[];
-  overrides: OfficialOverrideMap;
-}
 
 @Component({
   selector: 'app-schedule-home',

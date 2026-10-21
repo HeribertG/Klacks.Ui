@@ -42,15 +42,8 @@ import { FeaturePluginStateService } from 'src/app/application/services/feature-
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 import { AdminInviteResult, DataUserMessengerContactService } from 'src/app/infrastructure/api/messaging/data-user-messenger-contact.service';
+import { UserFormModel } from './user-form-model.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-
-interface UserFormModel {
-  firstName: string;
-  lastName: string;
-  userName: string;
-  email: string;
-  phoneNumber: string;
-}
 
 @Component({
   selector: 'app-user-administration',

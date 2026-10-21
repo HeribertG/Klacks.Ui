@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { ScheduleContextMenuService, ContextMenuContext } from './schedule-context-menu.service';
+import { ScheduleContextMenuService } from './schedule-context-menu.service';
+import { ContextMenuContext } from './context-menu-context.interface';
 import { TranslateService } from '@ngx-translate/core';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';

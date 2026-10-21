@@ -10,20 +10,11 @@ import { CheckboxDrawingService } from './checkbox-drawing.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { HOUR_GROUPING_SIZES } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { DayInfo } from './day-info.interface';
 import { AvailabilityCoordinateService } from '../availability-coordinate.service';
 
 const OVERLAP = 1;
 const DAY_BORDER_WIDTH = 2;
-
-interface DayInfo {
-  dateString: string;
-  startHours: number[];
-  endHours: number[];
-  isWeekend: boolean;
-  isSunday: boolean;
-  isHoliday: boolean;
-  isOfficialHoliday: boolean;
-}
 
 @Injectable()
 export class RenderAvailabilityGridService {

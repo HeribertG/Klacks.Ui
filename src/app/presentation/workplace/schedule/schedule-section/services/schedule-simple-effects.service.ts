@@ -16,19 +16,8 @@
 import { effect, EffectRef, inject, Injectable } from '@angular/core';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
+import { ScheduleEffectsHost } from './schedule-effects-host.interface';
 import { ScheduleSectionFacadeService } from './schedule-section-facade.service';
-
-export interface ScheduleEffectsHost {
-  refreshSurface(resetScroll?: boolean): void;
-  setVScrollbarSize(size: number): void;
-  setHScrollbarSize(size: number): void;
-  scrollToClient(clientId: string, date: string): void;
-  scrollToScheduleEntry(shiftId: string, column: number): void;
-  readonly defaultVScrollbarSize: number;
-  readonly defaultHScrollbarSize: number;
-  readZoom(): number;
-  readRefreshTrigger(): boolean;
-}
 
 @Injectable()
 export class ScheduleSimpleEffectsService {

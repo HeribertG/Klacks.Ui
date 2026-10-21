@@ -3,7 +3,9 @@
 import { Injectable, inject } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { IImagesThumps } from './scrollbar.component';
+import { IImagesThumps } from './images-thumps.interface';
+import { IMetrics } from './metrics.interface';
+import { Metrics } from './metrics.model';
 import { SCROLLBAR_CONSTANTS } from './constants';
 
 @Injectable()
@@ -151,17 +153,4 @@ export class ScrollbarService {
       canvas.height
     );
   }
-}
-
-export interface IMetrics {
-  visibleTicks: number;
-  invisibleTicks: number;
-  tickSize: number;
-  thumbLength: number;
-}
-export class Metrics implements IMetrics {
-  visibleTicks = 0;
-  invisibleTicks = 0;
-  tickSize = 0;
-  thumbLength = 0;
 }

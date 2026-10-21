@@ -16,11 +16,6 @@ import { ReportField, DEFAULT_FIELD_STYLE } from 'src/app/domain/models/report/r
 import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { TextAlignment } from 'src/app/domain/models/report/text-alignment.enum';
 
-export interface ImageUploadResult {
-  field: ReportField;
-  success: boolean;
-}
-
 @Injectable()
 export class ReportDesignerImageService {
   private http = inject(HttpClient);

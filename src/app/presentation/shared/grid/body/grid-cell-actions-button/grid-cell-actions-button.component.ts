@@ -15,24 +15,10 @@
  */
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { GridCellRect } from './grid-cell-rect.interface';
+import { GridCellActionsBounds } from './grid-cell-actions-bounds.interface';
+import { GridCellActionsOpenEvent } from './grid-cell-actions-open-event.interface';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
-
-export interface GridCellRect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
-
-export interface GridCellActionsBounds {
-  width: number;
-  height: number;
-}
-
-export interface GridCellActionsOpenEvent {
-  clientX: number;
-  clientY: number;
-}
 
 export const GRID_CELL_ACTIONS_LABEL_KEY = 'grid.cellActions';
 

@@ -43,13 +43,8 @@ import { AbsenceDetailFormModel } from 'src/app/presentation/view-models/absence
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 
+import { AbsenceDetailFormFields } from './absence-detail-form-fields.interface';
 import { transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
-
-interface AbsenceDetailFormFields {
-  absenceId: string;
-  detailName: string;
-  description: string;
-}
 
 @Component({
   selector: 'app-absence-detail',

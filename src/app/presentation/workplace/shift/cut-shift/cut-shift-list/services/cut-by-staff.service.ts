@@ -6,7 +6,8 @@
  */
 import { Injectable } from '@angular/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
-import { CutStaffParams, CutTaskParams } from './cut-parameter-state';
+import { CutStaffParams } from './cut-staff-params.interface';
+import { CutTaskParams } from './cut-task-params.interface';
 
 @Injectable({
   providedIn: 'root',

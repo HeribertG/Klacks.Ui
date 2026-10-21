@@ -65,7 +65,6 @@ import { IndustrySlugs } from 'src/app/domain/constants/industry-slugs.constants
 import { CUSTOM_PLANNING_RULE_SLUG } from 'src/app/domain/constants/custom-planning-rule.constants';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { IIndustryTemplate } from 'src/app/domain/models/settings/industry-template.interface';
 import { IIndustryTemplateSchedulingRuleEntry } from 'src/app/domain/models/settings/industry-template-scheduling-rule-entry.interface';
 import { IIndustryTemplateRuleDetailGroup } from 'src/app/domain/models/settings/industry-template-rule-detail-group.interface';
 import { buildSchedulingRuleDetailGroups } from 'src/app/domain/helpers/industry-template-rule-detail.helper';
@@ -75,6 +74,9 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
 import { DataManagementIndustryMigrationService } from 'src/app/domain/services/scheduling/data-management-industry-migration.service';
+import { ActiveIndustriesFormModel } from './active-industries-form-model.interface';
+import { IndustryOption } from './industry-option.interface';
+import { IndustryPreviewState } from './industry-preview-state.interface';
 import { IndustryMigrationPanelComponent } from './industry-migration-panel/industry-migration-panel.component';
 
 const ACTIVE_INDUSTRIES_MANUAL_NAME = 'active-industries-manual';
@@ -89,22 +91,6 @@ const OVERTIME_RATE_MODE_LABEL_KEYS: Record<string, string> = {
   FixedPerHour: 'setting.surchargeMode.rateMode.fixedperhour',
   FixedPerShift: 'setting.surchargeMode.rateMode.fixedpershift',
 };
-
-interface ActiveIndustriesFormModel {
-  selectedOption: string;
-}
-
-interface IndustryOption {
-  slug: string;
-  labelKey: string;
-}
-
-type IndustryPreviewStatus = 'idle' | 'loading' | 'loaded' | 'error';
-
-interface IndustryPreviewState {
-  status: IndustryPreviewStatus;
-  data?: IIndustryTemplate;
-}
 
 type CustomGateStatus = 'idle' | 'blocked';
 

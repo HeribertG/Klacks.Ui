@@ -13,13 +13,12 @@
  * @param dataManagementSchedule - CRUD operations for schedule entries
  * @param cellManipulation - Current cell position and selection
  */
-import { ElementRef, inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -29,12 +28,8 @@ import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-par
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
+import { FillHandleDragContext } from './fill-handle-drag-context.interface';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
-
-export interface FillHandleDragContext {
-  gridSurface: GridSurfaceTemplateComponent;
-  el: ElementRef<HTMLCanvasElement>;
-}
 
 @Injectable()
 export class GridFillHandleDragService {

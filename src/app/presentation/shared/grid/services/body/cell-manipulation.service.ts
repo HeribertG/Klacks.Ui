@@ -1,24 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  MyPosition,
-  MyPositionCollection,
-} from 'src/app/presentation/shared/grid/classes/position';
+import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
+import { MyPositionCollection } from 'src/app/presentation/shared/grid/classes/my-position-collection.model';
 
 import { ClipboardModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { HoveredCellInfo } from './hovered-cell-info.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
-
-export interface HoveredCellInfo {
-  row: number;
-  column: number;
-  isEmpty: boolean;
-  isHeader: boolean;
-  clientX: number;
-  clientY: number;
-  blockTooltip?: string;
-}
 
 @Injectable()
 export class BaseCellManipulationService {

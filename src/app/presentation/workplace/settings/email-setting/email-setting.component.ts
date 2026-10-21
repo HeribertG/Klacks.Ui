@@ -9,24 +9,9 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EmailModel } from './email-model.interface';
+import { ContactModel } from './contact-model.interface';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
-
-interface EmailModel {
-  outgoingServer: string;
-  outgoingServerPort: string;
-  outgoingServerTimeout: string;
-  enabledSSL: string;
-  authenticationType: string;
-  dispositionNotification: string;
-  readReceipt: string;
-  replyTo: string;
-  username: string;
-  password: string;
-}
-
-interface ContactModel {
-  mark: string;
-}
 
 @Component({
   selector: 'app-email-setting',

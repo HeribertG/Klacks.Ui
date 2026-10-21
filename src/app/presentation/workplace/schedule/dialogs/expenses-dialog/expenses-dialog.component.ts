@@ -8,13 +8,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementExpensesService } from 'src/app/domain/services/expenses/data-management-expenses.service';
 import { ExpensesRequest } from 'src/app/domain/models/expenses/expenses';
 import { ExpensesResource } from 'src/app/domain/models/expenses/expenses-resource.interface';
+import { ExpensesFormModel } from './expenses-form-model.interface';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-
-interface ExpensesFormModel {
-  amount: number;
-  description: string;
-  taxable: boolean;
-}
 
 @Component({
   selector: 'app-expenses-dialog',

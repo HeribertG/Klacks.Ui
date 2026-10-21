@@ -18,12 +18,8 @@
 import { DestroyRef, Directive, ElementRef, inject, input, output } from '@angular/core';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { isSecondaryPointer, isTouchLikePointer } from 'src/app/shared/helpers/context-click.helper';
+import { TouchPanEvent } from './touch-pan-event.interface';
 import { createSyntheticMouseEvent } from 'src/app/shared/helpers/synthetic-mouse-event.helper';
-
-export interface TouchPanEvent {
-  dx: number;
-  dy: number;
-}
 
 type GesturePhase = 'idle' | 'pending' | 'panning' | 'dragging';
 

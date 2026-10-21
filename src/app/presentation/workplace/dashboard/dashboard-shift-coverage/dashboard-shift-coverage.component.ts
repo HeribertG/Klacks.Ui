@@ -8,7 +8,8 @@ import { Component, inject, OnInit, signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PieChartComponent, PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
+import { PieChartComponent } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
+import { PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart-data.interface';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { IShiftCoverageStatistics } from 'src/app/domain/models/shift-coverage-statistics.interface';
 

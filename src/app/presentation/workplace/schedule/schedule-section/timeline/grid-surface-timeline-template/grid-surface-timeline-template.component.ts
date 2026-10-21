@@ -27,7 +27,6 @@ import {
   output,
   viewChild
 } from '@angular/core';
-import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -49,29 +48,15 @@ import { WorkChangeBlockRendererService } from '../renderers/work-change-block-r
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 import { IGridTooltipHost } from 'src/app/presentation/shared/grid/body/grid-tooltip-host.interface';
-import {
-  TimelineGridBlockEvent,
-  TimelineGridEventsDirective,
-  TimelineGridRightClickEvent,
-} from '../directives/timeline-grid-events.directive';
-import {
-  TouchGestureDirective,
-  TouchPanEvent,
-} from 'src/app/presentation/directives/touch-gesture.directive';
+import { TimelineGridEventsDirective } from '../directives/timeline-grid-events.directive';
+import { TimelineGridBlockEvent } from '../directives/timeline-grid-block-event.interface';
+import { TimelineGridRightClickEvent } from '../directives/timeline-grid-right-click-event.interface';
+import { TouchGestureDirective } from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchPanEvent } from 'src/app/presentation/directives/touch-pan-event.interface';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
+import { TimelineCellValueChangeEvent } from './timeline-cell-value-change-event.interface';
+import { TimelineDoubleClickEvent } from './timeline-double-click-event.interface';
 import { TouchPanAccumulator } from 'src/app/shared/helpers/touch-pan-accumulator';
-
-export interface TimelineCellValueChangeEvent {
-  row: number;
-  column: number;
-  value: string;
-}
-
-export interface TimelineDoubleClickEvent {
-  row: number;
-  column: number;
-  entry?: IScheduleCell | null;
-}
 
 @Component({
   selector: 'app-grid-surface-timeline-template',

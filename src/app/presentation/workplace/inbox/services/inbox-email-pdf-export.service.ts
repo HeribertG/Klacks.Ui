@@ -13,18 +13,8 @@ import { jsPDF } from 'jspdf';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
 import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+import { InboxEmailPrintData } from './inbox-email-print-data.interface';
 import { htmlToPlainText } from 'src/app/shared/helpers/html-sanitizer.helper';
-
-export interface InboxEmailPrintData {
-  subject: string;
-  bodyHtml: string | null;
-  bodyText: string | null;
-  fromName: string;
-  fromAddress: string;
-  toAddress: string;
-  receivedDate: string;
-  folder: string;
-}
 
 const PDF_MARGIN = 20;
 const PDF_TITLE_FONT_SIZE = 14;

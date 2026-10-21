@@ -3,12 +3,8 @@
 import { Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
+import { ContextMenuClickEvent } from './context-menu-click-event.interface';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
-
-export interface ContextMenuClickEvent {
-  event: string;
-  value: string;
-}
 
 @Injectable({
   providedIn: 'root',

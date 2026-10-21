@@ -9,10 +9,8 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
-import {
-  Menu,
-  MenuItem,
-} from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuItem } from 'src/app/presentation/shared/context-menu/menu-item-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';

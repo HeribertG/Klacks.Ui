@@ -22,7 +22,7 @@ import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
 import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
-import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
+import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-drag-data.interface';
 import { HolidayDate } from 'src/app/domain/models/calendar/holiday-date-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -44,36 +44,11 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
+import { DayInfo } from './day-info.interface';
+import { ShiftRow } from './shift-row.interface';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 
 const IN_CONTAINER_ICON = 'pp-icon-in-container';
-
-interface DayInfo {
-  isInTemplateContainer: boolean;
-  hasOverride: boolean;
-  hasWorkForOverride: boolean;
-  overrideId?: string;
-  sumEmployees: number;
-  quantity: number;
-  sporadicScope: ShiftSporadic;
-  engaged: number;
-  sporadicStatus: SporadicStatus;
-  periodBookedDays: number;
-}
-
-interface ShiftRow {
-  shiftId: string;
-  shiftName: string;
-  abbreviation: string;
-  startShift: string;
-  endShift: string;
-  workTime: number;
-  activeDays: Map<string, DayInfo>;
-  isSporadic: boolean;
-  isTimeRange: boolean;
-  shiftType: number;
-  qualifications: IScheduleQualification[];
-}
 
 @Injectable()
 export class ShiftDataService extends BaseDataService {

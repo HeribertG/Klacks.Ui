@@ -47,6 +47,7 @@ import {
 } from 'src/app/shared/helpers/container-template-format.helper';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
+import { AutofillRequest } from './autofill-request.interface';
 import { formatSecondsAsHHMM } from 'src/app/shared/helpers/time-span-format.helper';
 
 const MIDNIGHT_TIME = '00:00';
@@ -54,18 +55,6 @@ const SECONDS_PER_MINUTE = 60;
 const ROUTE_OPTIMIZING_TOAST_NAME = 'route-optimizing';
 const TRAVEL_TIMES_ESTIMATED_TOAST_NAME = 'travel-times-estimated';
 const TRAVEL_TIMES_ESTIMATED_KEY = 'shift.container-template.toast.travel-times-estimated';
-
-export interface AutofillRequest {
-  containerShift: IShift | null;
-  selectedWeekday: string | null;
-  isHoliday: boolean;
-  timeFrom: OwnTime;
-  timeTo: OwnTime;
-  additionalAvailableWorkIds: string[];
-  timeRangeToleranceValue: number;
-  destroy$: Subject<void>;
-  onStateChanged?: () => void;
-}
 
 @Injectable()
 export class ContainerTemplateRouteService {

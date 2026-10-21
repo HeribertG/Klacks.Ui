@@ -30,7 +30,8 @@ import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.cons
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
-import { WorkConflictMessageService, WorkConflictTarget, readWorkConflictProblem } from './work-conflict-message.service';
+import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
+import { WorkConflictTarget } from './work-conflict-target.interface';
 import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
 import { IToastAction } from '../toast/toast-action.interface';
 import {

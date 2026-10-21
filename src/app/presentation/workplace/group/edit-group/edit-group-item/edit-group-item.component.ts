@@ -30,11 +30,8 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { EditGroupItemFormModel } from './edit-group-item-form-model.interface';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
-
-interface EditGroupItemFormModel {
-  name: string;
-}
 
 @Component({
   selector: 'app-edit-group-item',

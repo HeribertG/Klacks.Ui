@@ -54,10 +54,10 @@ import { IAnalyseScenario, AnalyseScenarioStatus } from 'src/app/domain/models/s
 import { companyToday, formatDateOnly, isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
-import {
-  IRecoveryDialogPreset,
-  RecoveryDialogLauncherService,
-} from '../../services/recovery-dialog-launcher.service';
+import { IRecoverySubmission } from './recovery-submission.interface';
+import { IRecoveryFormModel } from './recovery-form-model.interface';
+import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
+import { IRecoveryDialogPreset } from '../../services/recovery-dialog-preset.interface';
 
 const RECOVERY_CREATOR = 'recovery';
 const KEY_SEPARATOR = '|';
@@ -68,23 +68,6 @@ const ALTERNATIVES_LOADING: IRecoveryAlternativesState = {
   status: RecoveryAlternativesStatus.Loading,
   candidates: [],
 };
-
-/** What the review step was computed for, so later calls do not read a form the planner may have edited. */
-interface IRecoverySubmission {
-  absentClientId: string;
-  absenceId: string;
-  groupId: string;
-  overrideBlock: boolean;
-}
-
-interface IRecoveryFormModel {
-  selectedClientId: string;
-  selectedAbsenceId: string;
-  selectedDate: string;
-  selectedUntilDate: string;
-  overrideBlock: boolean;
-  notifyEscalationRoster: boolean;
-}
 
 @Component({
   selector: 'app-recovery-dialog',

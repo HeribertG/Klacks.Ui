@@ -5,7 +5,8 @@ import { Component, inject, OnInit, signal,
 } from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { PieChartComponent, PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
+import { PieChartComponent } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
+import { PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart-data.interface';
 import { IGroup } from 'src/app/domain/models/group/group.interface';
 
 @Component({

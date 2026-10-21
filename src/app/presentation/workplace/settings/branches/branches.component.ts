@@ -33,14 +33,8 @@ import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-co
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { BranchFormModel } from './branch-form-model.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
-
-interface BranchFormModel {
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-}
 
 @Component({
   selector: 'app-branches',

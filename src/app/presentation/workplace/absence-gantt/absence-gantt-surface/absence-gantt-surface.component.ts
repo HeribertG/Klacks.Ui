@@ -37,10 +37,8 @@ import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
-import {
-  TouchGestureDirective,
-  TouchPanEvent,
-} from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchGestureDirective } from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchPanEvent } from 'src/app/presentation/directives/touch-pan-event.interface';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchPanAccumulator } from 'src/app/shared/helpers/touch-pan-accumulator';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';

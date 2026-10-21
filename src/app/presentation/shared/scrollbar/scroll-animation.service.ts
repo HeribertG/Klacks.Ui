@@ -7,26 +7,13 @@
  * @param shouldStopAnimation - Flag to stop the running animation
  */
 import { Injectable, NgZone, inject } from '@angular/core';
+import { ScrollAnimationContext } from './scroll-animation-context.interface';
 import { SCROLLBAR_CONSTANTS } from './constants';
 
 enum ArrowDirection {
   NONE = 0,
   BACKWARD = -1,
   FORWARD = 1,
-}
-
-export interface ScrollAnimationContext {
-  getValue: () => number;
-  getMaxValue: () => number;
-  getVisibleValue: () => number;
-  getTickSize: () => number;
-  getThumbSize: () => number;
-  getCanvasOffset: () => number;
-  getMousePosition: () => number | null;
-  isScrollbarClick: () => boolean;
-  updateValue: (newValue: number) => void;
-  emitValueChange: () => void;
-  onStopAnimation: () => void;
 }
 
 @Injectable()

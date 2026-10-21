@@ -57,6 +57,7 @@ import { IconExportComponent } from 'src/app/presentation/icons/icon-export.comp
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
+import { SourcePreviewConfig } from './source-preview-config.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const REPORT_TOAST_NAME = 'report-template';
@@ -64,12 +65,6 @@ const DEFAULT_SOURCE_ID = 'schedule';
 const DEFAULT_DATA_SET_ID = 'work';
 const MARGIN_MIN = 0;
 const MARGIN_MAX = 60;
-
-interface SourcePreviewConfig {
-  needsGroup: boolean;
-  needsDateRange: boolean;
-  needsClient: boolean;
-}
 
 const SOURCE_PREVIEW_CONFIGS: Readonly<Record<string, SourcePreviewConfig>> = {
   schedule: { needsGroup: false, needsDateRange: true, needsClient: false },

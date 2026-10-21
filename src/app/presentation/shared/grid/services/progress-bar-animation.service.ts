@@ -1,19 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Injectable, Injector, effect, runInInjectionContext, Signal } from '@angular/core';
-
-export interface IProgressLoader {
-  readonly isRead: Signal<number> | Signal<boolean> | (() => boolean) | (() => number);
-  readonly loadingProgress: number;
-  readonly hasMore: boolean;
-}
-
-export interface ProgressBarConfig {
-  color?: string;
-  height?: number;
-  position?: 'top' | 'bottom';
-  animationSpeed?: number;
-}
+import { IProgressLoader } from './progress-loader.interface';
+import { ProgressBarConfig } from './progress-bar-config.interface';
+import { Injectable, Injector, effect, runInInjectionContext } from '@angular/core';
 
 const DEFAULT_CONFIG: Required<ProgressBarConfig> = {
   color: '#4CAF50',

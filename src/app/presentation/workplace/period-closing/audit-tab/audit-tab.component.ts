@@ -44,12 +44,8 @@ import {
   triggerBlobDownload,
 } from 'src/app/shared/helpers/file-download.helper';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
+import { AuditActionDisplay } from './audit-action-display.interface';
 import { AUTONOMOUS_ACTOR_LABEL_KEY, AUTONOMOUS_ACTOR_NAME } from './audit-actor.constants';
-
-interface AuditActionDisplay {
-  labelKey: string;
-  badgeClass: string;
-}
 
 const UNKNOWN_AUDIT_ACTION_DISPLAY: AuditActionDisplay = {
   labelKey: 'periodClosing.audit.action.unknown',

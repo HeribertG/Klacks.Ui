@@ -2,19 +2,9 @@
 
 import { Injectable, computed, signal } from '@angular/core';
 import { HeaderProperties } from 'src/app/domain/models/headerProperties';
+import { TableSortingConfig } from './table-sorting-config.interface';
+import { SortState } from './sort-state.interface';
 import { HeaderDirection } from 'src/app/domain/models/header-direction.enum';
-
-export interface TableSortingConfig {
-  columns: string[];
-  defaultOrderBy: string;
-  defaultSortOrder: 'asc' | 'desc';
-  useThreeWaySort?: boolean;
-}
-
-export interface SortState {
-  orderBy: string;
-  sortOrder: 'asc' | 'desc' | '';
-}
 
 @Injectable()
 export class TableSortingService {

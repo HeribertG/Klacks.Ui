@@ -4,7 +4,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
-import { Menu, MenuItem } from '../context-menu-class';
+import { Menu } from '../context-menu-class';
+import { MenuItem } from '../menu-item-class';
 import { MenuComponent } from './menu.component';
 
 const VIEWPORT_HEIGHT_PX = 800;

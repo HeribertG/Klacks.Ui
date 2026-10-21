@@ -20,7 +20,9 @@ import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
-import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
+import {
+  GridDoubleClickEvent,
+} from 'src/app/presentation/shared/grid/body/directives/grid-double-click-event.interface';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
 @Injectable()

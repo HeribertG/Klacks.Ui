@@ -49,14 +49,18 @@ import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/se
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { Subject, takeUntil } from 'rxjs';
 import {
-  CellValueChangeEvent,
-  GridSurfaceRightClickEvent,
   GridSurfaceTemplateComponent,
 } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
+import {
+  CellValueChangeEvent,
+} from 'src/app/presentation/shared/grid/body/grid-surface-template/cell-value-change-event.interface';
+import {
+  GridSurfaceRightClickEvent,
+} from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-right-click-event.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
-import { TooltipState } from '../services/schedule-tooltip.service';
-import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
+import { TooltipState } from '../services/tooltip-state.interface';
+import { ShiftDropResult } from '../services/shift-drop-result.interface';
 import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
@@ -78,19 +82,18 @@ import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.in
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
-import { DropTargetInfo, ScheduleDragDropService } from './services/schedule-drag-drop.service';
+import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
+import { DropTargetInfo } from './services/drop-target-info.interface';
 import { ScheduleCellDropHandlerService } from './services/schedule-cell-drop-handler.service';
-import { ScheduleCellDropResult } from './services/schedule-cell-drag-drop.service';
-import {
-  ScheduleMenuDispatcherService,
-  ScheduleMenuHost,
-} from './services/schedule-menu-dispatcher.service';
-import {
-  ScheduleEffectsHost,
-  ScheduleSimpleEffectsService,
-} from './services/schedule-simple-effects.service';
+import { ScheduleCellDropResult } from './services/schedule-cell-drop-result.interface';
+import { ScheduleMenuDispatcherService } from './services/schedule-menu-dispatcher.service';
+import { ScheduleMenuHost } from './services/schedule-menu-host.interface';
+import { ScheduleSimpleEffectsService } from './services/schedule-simple-effects.service';
+import { ScheduleEffectsHost } from './services/schedule-effects-host.interface';
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
-import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
+import {
+  GridDoubleClickEvent,
+} from 'src/app/presentation/shared/grid/body/directives/grid-double-click-event.interface';
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { ScheduleSectionFacadeService } from './services/schedule-section-facade.service';

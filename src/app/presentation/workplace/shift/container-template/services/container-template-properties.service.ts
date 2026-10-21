@@ -15,16 +15,8 @@ import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/service
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
+import { EditedProperties } from './edited-properties.interface';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-
-export interface EditedProperties {
-  timeRangeStartItem: string;
-  briefingTime: string;
-  debriefingTime: string;
-  travelTimeBefore: string;
-  travelTimeAfter: string;
-  transportMode: TransportModeEnum;
-}
 
 @Injectable()
 export class ContainerTemplatePropertiesService {

@@ -20,16 +20,8 @@ import { CompanyClockService } from 'src/app/domain/services/settings/company-cl
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { IAppContactSettings } from 'src/app/domain/models/settings/app-contact-settings.interface';
 
+import { AddressModel } from './address-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-interface AddressModel {
-  addressName: string;
-  phone: string;
-  supplementAddress: string;
-  email: string;
-  address: string;
-  zip: string;
-  place: string;
-}
 
 @Component({
   selector: 'app-owner-address',

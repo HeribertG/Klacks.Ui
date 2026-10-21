@@ -38,22 +38,13 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
+import { RestrictedTimeWindowRuleFormModel } from './restricted-time-window-rule-form-model.interface';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 
 const COMPONENT_CONTEXT = 'restrictedTimeWindowRules';
 const RESTRICTED_TIME_WINDOW_MANUAL_NAME = 'restricted-time-window-manual';
 
 type PageTab = 'list' | 'manual';
-
-interface RestrictedTimeWindowRuleFormModel {
-  seasonFromMonth: number;
-  seasonFromDay: number;
-  seasonToMonth: number;
-  seasonToDay: number;
-  dailyStart: string;
-  dailyEnd: string;
-  appliesToGroupTag: string;
-}
 
 @Component({
   selector: 'app-restricted-time-window-rules',

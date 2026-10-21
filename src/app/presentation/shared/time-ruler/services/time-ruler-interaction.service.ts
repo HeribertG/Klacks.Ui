@@ -13,18 +13,15 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { isMacContextClick } from 'src/app/shared/helpers/context-click.helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
 import { TimeRangeService } from './time-range.service';
-import { TimeRulerDragDropService, DragUpdateResult } from './time-ruler-drag-drop.service';
+import { TimeRulerDragDropService } from './time-ruler-drag-drop.service';
+import { DragUpdateResult } from './drag-update-result.interface';
 import { TimeRulerRenderService } from './time-ruler-render.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
-import { IShiftContextMenuEvent } from '../time-ruler.component';
+import { IShiftContextMenuEvent } from '../shift-context-menu-event.interface';
+import { CanvasLogicalCoordinates } from './canvas-logical-coordinates.interface';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 
 const PRIMARY_BUTTON = 0;
-
-interface CanvasLogicalCoordinates {
-  x: number;
-  y: number;
-}
 
 @Injectable()
 export class TimeRulerInteractionService {

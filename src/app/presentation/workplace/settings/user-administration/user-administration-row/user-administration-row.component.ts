@@ -11,18 +11,9 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
+import { RoleChangeEvent } from './role-change-event.interface';
+import { UserRoleModel } from './user-role-model.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-
-export interface RoleChangeEvent {
-  account: IAuthentication;
-  roleName: 'Admin' | 'Authorised';
-  isSelected: boolean;
-}
-
-interface UserRoleModel {
-  isAuthorised: string;
-  isAdmin: string;
-}
 
 @Component({
   selector: 'app-user-administration-row',

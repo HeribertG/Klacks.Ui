@@ -7,7 +7,7 @@ import {
   viewChild
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { MenuItem } from '../context-menu-class';
+import { MenuItem } from '../menu-item-class';
 import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
 import { Timer } from 'src/app/presentation/helpers/timer';

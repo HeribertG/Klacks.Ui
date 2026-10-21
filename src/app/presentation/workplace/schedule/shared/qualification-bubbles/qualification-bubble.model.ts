@@ -5,7 +5,7 @@
  * row headers (employee row header and shift row header). Single source of truth for the
  * bubble sizing, rendering and tooltip logic so both row headers stay in sync.
  */
-import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
+import { QualificationBubbleSlot } from './qualification-bubble-slot.interface';
 
 export const QUALIFICATION_BUBBLE_BASE_DIAMETER = 16;
 export const QUALIFICATION_BUBBLE_OVERLAP_RATIO = 0.66;
@@ -22,13 +22,6 @@ const LARGE_ZOOM_MAX_SLOTS = 6;
  */
 export function maxQualificationBubbleSlots(zoom: number): number {
   return zoom < SMALL_ZOOM_THRESHOLD ? SMALL_ZOOM_MAX_SLOTS : LARGE_ZOOM_MAX_SLOTS;
-}
-
-/** A single bubble slot before it is positioned on the canvas. */
-export interface QualificationBubbleSlot {
-  emoji: string;
-  overflowCount: number;
-  qualification: IScheduleQualification | null;
 }
 
 /** A bubble slot with its resolved cell-local centre and diameter. */

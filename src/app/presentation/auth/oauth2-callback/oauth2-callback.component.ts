@@ -16,14 +16,9 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
-import { MyToken } from 'src/app/domain/models/my-token-class';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { OAuth2Token } from './oauth2-token.interface';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
-
-interface OAuth2Token extends MyToken {
-  userName?: string;
-  expires?: Date;
-}
 
 @Component({
   selector: 'app-oauth2-callback',

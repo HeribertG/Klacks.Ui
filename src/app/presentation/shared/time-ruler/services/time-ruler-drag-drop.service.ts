@@ -9,14 +9,11 @@ import { IContainerTemplateItem } from 'src/app/domain/models/container/containe
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/shared/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';
+import { SnapDirection } from './snap-direction.interface';
+import { ItemPosition } from './item-position.interface';
+import { DragUpdateResult } from './drag-update-result.interface';
+import { DragState } from './drag-state.interface';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
-
-interface SnapDirection {
-  getEffectiveEdge: (startMinutes: number, endMinutes: number, timeRangeService: TimeRangeService, item: IContainerTemplateItem) => number;
-  aggregate: typeof Math.min | typeof Math.max;
-  boundaryCheck: (edge: number, boundary: number) => boolean;
-  computeCandidate: (edge: number, pre: number, post: number, duration: number) => { start: number; end: number; effectiveStart: number; effectiveEnd: number };
-}
 
 const SNAP_ABOVE: SnapDirection = {
   getEffectiveEdge: (startMinutes, _endMinutes, timeRangeService, item) =>
@@ -45,35 +42,6 @@ const SNAP_BELOW: SnapDirection = {
     return { start, end, effectiveStart, effectiveEnd };
   },
 };
-
-export interface ItemPosition {
-  startMinutes: number;
-  endMinutes: number;
-}
-
-export interface DragUpdateResult {
-  draggedPosition: { newStartMinutes: number; newEndMinutes: number };
-  displacements: Map<IContainerTemplateItem, ItemPosition>;
-}
-
-export interface DragState {
-  isDragging: boolean;
-  draggedShift: IContainerTemplateItem | null;
-  draggedShiftRect: Rectangle | null;
-  dragStartMouseY: number | undefined;
-  originalStartMinutes: number | undefined;
-  originalEndMinutes: number | undefined;
-  originalPositions: Map<IContainerTemplateItem, ItemPosition>;
-  pixelsPerMinute: number;
-  snapToMinutes: number;
-  displayFromMinutes: number;
-  totalMinutes: number;
-  isBlockDrag: boolean;
-  blockItems: Set<IContainerTemplateItem>;
-  blockOriginalPositions: Map<IContainerTemplateItem, ItemPosition>;
-  blockEffectiveStart: number;
-  blockEffectiveEnd: number;
-}
 
 @Injectable()
 export class TimeRulerDragDropService {

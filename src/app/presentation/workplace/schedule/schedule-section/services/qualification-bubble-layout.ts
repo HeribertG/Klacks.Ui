@@ -13,21 +13,11 @@
  * @param infoSpotWidth - Width of the right-hand info-spot column (period hours)
  * @param iconWidth - Row header icon width, used to reserve the drag-grip area
  */
-import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 import { QualificationBubble } from '../../shared/qualification-bubbles/qualification-bubble.model';
+import { QualificationBubbleLayoutInput } from './qualification-bubble-layout-input.interface';
 import { computeQualificationBubbleSizing } from '../../shared/qualification-bubbles/qualification-bubble-sizing';
 
 export { QualificationBubble } from '../../shared/qualification-bubbles/qualification-bubble.model';
-
-export interface QualificationBubbleLayoutInput {
-  qualifications: IScheduleQualification[];
-  cellWidth: number;
-  cellHeight: number;
-  zoom: number;
-  isRtl: boolean;
-  infoSpotWidth: number;
-  iconWidth: number;
-}
 
 export interface QualificationBubbleLayout {
   bubbles: QualificationBubble[];

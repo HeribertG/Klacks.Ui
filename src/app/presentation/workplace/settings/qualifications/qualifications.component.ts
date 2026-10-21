@@ -46,11 +46,8 @@ import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
+import { QualFormModel } from './qual-form-model.interface';
 import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
-interface QualFormModel {
-  name: string;
-  description: string;
-}
 
 @Component({
   selector: 'app-qualifications',

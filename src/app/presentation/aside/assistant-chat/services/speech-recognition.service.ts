@@ -8,30 +8,13 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 
+import { SpeechDiagnostics } from './speech-diagnostics.interface';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 declare global {
   interface Window {
     webkitSpeechRecognition: any;
     SpeechRecognition: any;
   }
-}
-
-export interface SpeechRecognitionResult {
-  transcript: string;
-  confidence: number;
-  isFinal: boolean;
-}
-
-export interface SpeechDiagnostics {
-  isSupported: boolean;
-  isSecureContext: boolean;
-  browserName: string;
-  isArmProcessor: boolean;
-  speechRecognitionAvailable: boolean;
-  webkitSpeechRecognitionAvailable: boolean;
-  mediaDevicesAvailable: boolean;
-  errorMessage?: string;
-  useWhisperFallback: boolean;
 }
 
 @Injectable({

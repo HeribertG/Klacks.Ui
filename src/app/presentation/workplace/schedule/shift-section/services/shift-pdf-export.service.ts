@@ -18,45 +18,18 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { SchedulePdfDrawingService, ScheduleDrawingConfig } from '../../schedule-section/services/schedule-pdf-drawing.service';
+import { SchedulePdfDrawingService } from '../../schedule-section/services/schedule-pdf-drawing.service';
+import { ScheduleDrawingConfig } from '../../schedule-section/services/schedule-drawing-config.interface';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, getDayIndex } from 'src/app/shared/helpers/date.helper';
 import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
+import { ShiftCellData } from './shift-cell-data.interface';
+import { DayCapacity } from './day-capacity.interface';
+import { ShiftBlock } from './shift-block.interface';
+import { ShiftRowData } from './shift-row-data.interface';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
-
-interface ShiftCellData {
-  mainText: string;
-  backgroundColor?: string;
-  fontColor?: string;
-  isEmpty: boolean;
-  highlighted: boolean;
-}
-
-interface DayCapacity {
-  engaged: number;
-  sumEmployees: number;
-  quantity: number;
-}
-
-interface ShiftBlock {
-  name: string;
-  slot1: string;
-  slot2: string;
-  slot3: string;
-  cells: ShiftCellData[];
-}
-
-interface ShiftRowData {
-  shiftId: string;
-  shiftName: string;
-  abbreviation: string;
-  startShift: string;
-  endShift: string;
-  workTime: number;
-  activeDays: Map<string, DayCapacity>;
-}
 
 @Injectable()
 export class ShiftPdfExportService {

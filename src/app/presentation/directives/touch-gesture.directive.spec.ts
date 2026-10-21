@@ -3,7 +3,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
-import { TouchGestureDirective, TouchPanEvent } from './touch-gesture.directive';
+import { TouchGestureDirective } from './touch-gesture.directive';
+import { TouchPanEvent } from './touch-pan-event.interface';
 
 @Component({
   standalone: true,

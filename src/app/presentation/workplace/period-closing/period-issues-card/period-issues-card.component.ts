@@ -17,12 +17,8 @@ import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/local
 import { PeriodIssue } from 'src/app/domain/models/period-closing/period-issue';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { IssueGroup } from './issue-group.interface';
 import { PeriodIssuesPdfExportService } from './period-issues-pdf-export.service';
-
-interface IssueGroup {
-  date: string;
-  items: PeriodIssue[];
-}
 
 @Component({
   selector: 'app-period-issues-card',

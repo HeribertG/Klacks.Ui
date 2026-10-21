@@ -19,12 +19,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { ISearchFilterModel } from './search-filter-model.interface';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
-
-interface ISearchFilterModel {
-  includeAddress: boolean;
-  includeClient: boolean;
-}
 
 @Component({
   selector: 'app-search',

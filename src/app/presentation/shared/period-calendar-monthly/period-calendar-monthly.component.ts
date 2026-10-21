@@ -9,13 +9,8 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
+import { PeriodResetData } from './period-reset-data.interface';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-
-export interface PeriodResetData {
-  year: number;
-  month?: number;
-  week?: number;
-}
 
 @Component({
   selector: 'app-period-calendar-monthly',

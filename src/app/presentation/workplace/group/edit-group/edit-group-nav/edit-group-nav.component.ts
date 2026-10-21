@@ -35,18 +35,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { EditGroupNavFilterModel } from './edit-group-nav-filter-model.interface';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-
-interface EditGroupNavFilterModel {
-  female: boolean;
-  male: boolean;
-  legalEntity: boolean;
-  activeMembership: boolean;
-  formerMembership: boolean;
-  futureMembership: boolean;
-  scopeFromFlag: boolean;
-  scopeUntilFlag: boolean;
-}
 
 @Component({
   selector: 'app-edit-group-nav',

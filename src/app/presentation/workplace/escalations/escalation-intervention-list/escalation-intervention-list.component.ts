@@ -50,6 +50,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { calendarDateKey, companyCalendarDayOf } from 'src/app/shared/helpers/calendar-date.helper';
+import { CancelFormModel } from './cancel-form-model.interface';
 import {
   EscalationUrgency,
   currentStage,
@@ -59,10 +60,6 @@ import {
   splitDuration,
   urgency,
 } from './escalation-chain-display.helper';
-
-interface CancelFormModel {
-  reason: string;
-}
 
 const HTTP_STATUS_CONFLICT = 409;
 const HTTP_STATUS_FORBIDDEN = 403;

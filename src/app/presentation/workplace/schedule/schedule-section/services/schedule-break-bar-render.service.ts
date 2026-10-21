@@ -13,14 +13,8 @@ import { ScheduleDataService } from './schedule-data.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { BreakBarLayout } from './break-bar-layout.interface';
 import { getDayIndex } from 'src/app/shared/helpers/date.helper';
-
-interface BreakBarLayout {
-  bp: IBreakPlaceholder;
-  startCol: number;
-  endCol: number;
-  subRow: number;
-}
 
 @Injectable()
 export class ScheduleBreakBarRenderService {

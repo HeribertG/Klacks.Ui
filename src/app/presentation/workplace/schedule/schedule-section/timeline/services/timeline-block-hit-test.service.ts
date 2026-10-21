@@ -13,22 +13,12 @@ import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.inte
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
+import { TimelineHitResult } from './timeline-hit-result.interface';
+import { EntryRect } from './entry-rect.interface';
 import { ScheduleTimelineRangeService } from '../../../services/schedule-timeline-range.service';
 
 const DAY_TOTAL_MINUTES = 24 * 60;
 const HIT_TEST_EPSILON = 0.5;
-
-export interface TimelineHitResult {
-  entry: IScheduleCell;
-  mainCol: number;
-}
-
-interface EntryRect {
-  entry: IScheduleCell;
-  mainCol: number;
-  yStart: number;
-  yEnd: number;
-}
 
 @Injectable()
 export class TimelineBlockHitTestService {

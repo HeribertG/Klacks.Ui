@@ -20,25 +20,9 @@ import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { workingTimeDurationMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { WorkEditValidation } from './work-edit-validation.interface';
+import { IOpenWorkEditOptions } from './open-work-edit-options.interface';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
-
-interface WorkEditValidation {
-  isValid: boolean;
-  durationMinutes: number;
-  errorKey?: string;
-}
-
-export interface IOpenWorkEditOptions {
-  workId: string;
-  clientId: string;
-  shiftId: string;
-  currentDate: Date;
-  workStartTime: string;
-  workEndTime: string;
-  information: string | null;
-  lockLevel: number;
-  surcharges: number;
-}
 
 @Component({
   selector: 'app-work-edit-dialog',

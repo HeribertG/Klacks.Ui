@@ -9,30 +9,12 @@ import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
+import { ItemTimeChange } from './item-time-change.interface';
+import { RouteOptimizationData } from './route-optimization-data.interface';
 import {
   formatTimeFromMinutes,
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
-
-export interface ItemTimeChange {
-  timeRangeStartItem?: string;
-  briefingTime?: string;
-  debriefingTime?: string;
-  travelTimeBefore?: string;
-  travelTimeAfter?: string;
-  transportMode?: TransportModeEnum;
-}
-
-export interface RouteOptimizationData {
-  optimizedRoute: {
-    shiftId: string;
-    travelTimeToNext: string;
-    transportMode?: TransportModeEnum;
-  }[];
-  travelTimeFromStartBase: string;
-  travelTimeToEndBase: string;
-  distanceToEndBaseKm: number;
-}
 
 @Injectable()
 export class ContainerTemplateItemManipulationService {

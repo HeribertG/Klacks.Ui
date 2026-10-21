@@ -13,23 +13,13 @@
  * @param iconReserve - Reserved width on the leading icon side bubbles must not cover
  * @param anchorReserve - Reserved width on the text-end side (e.g. the sporadic scope bubble)
  */
-import { IScheduleQualification } from 'src/app/domain/models/schedule/schedule-qualification.interface';
 import { QualificationBubble } from '../../../shared/qualification-bubbles/qualification-bubble.model';
+import { ShiftQualificationBubbleLayoutInput } from './shift-qualification-bubble-layout-input.interface';
 import { computeQualificationBubbleSizing } from '../../../shared/qualification-bubbles/qualification-bubble-sizing';
 
 const BASE_MARGIN = 4;
 const BASE_ICON_WIDTH = 24;
 const BASE_SPORADIC_BUBBLE_RADIUS = 10;
-
-export interface ShiftQualificationBubbleLayoutInput {
-  qualifications: IScheduleQualification[];
-  cellWidth: number;
-  cellHeight: number;
-  zoom: number;
-  isRtl: boolean;
-  iconReserve: number;
-  anchorReserve: number;
-}
 
 export interface ShiftQualificationBubbleLayout {
   bubbles: QualificationBubble[];

@@ -63,16 +63,13 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { ERP_DROP_POINTS_TAB_TARGETS, ErpDropPointsPageTab } from './erp-drop-points-target.constants';
 import { ErpImportFilesTab, erpImportFilesColumnCount } from './erp-import-files-tab';
+import { ErpImportScheduleFormModel } from './erp-import-schedule-form-model.interface';
 import { ErpImportFileRowComponent } from './erp-import-file-row/erp-import-file-row.component';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
 const SAMPLE_FILE_NAME = 'sample-erp-order-import.xml';
 const SAMPLE_FILE_ASSET_PATH = `assets/docs/${ERP_IMPORT_MANUAL_NAME}/${SAMPLE_FILE_NAME}`;
 const XML_MIME_TYPE = 'application/xml';
-
-interface ErpImportScheduleFormModel {
-  cronExpression: string;
-}
 
 type IntlWithSupportedValues = typeof Intl & {
   supportedValuesOf?: (key: string) => string[];

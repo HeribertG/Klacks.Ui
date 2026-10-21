@@ -43,15 +43,8 @@ import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.c
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
+import { VirtualGroup } from './virtual-group.interface';
 import { SessionStorageService } from 'src/app/infrastructure/storage/session-storage.service';
-
-interface VirtualGroup {
-  id: string | null;
-  name: string;
-  children?: never;
-  depth?: number;
-  description?: string;
-}
 
 type TreeNode = Group | VirtualGroup;
 

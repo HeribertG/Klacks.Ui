@@ -31,6 +31,7 @@ import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constan
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
+import { ConversationCallbacks } from './conversation-callbacks.interface';
 import type { TurnStopReason } from './chat-turn-control.service';
 
 export enum ConversationState {
@@ -40,16 +41,6 @@ export enum ConversationState {
   Processing = 'PROCESSING',
   Planning = 'PLANNING',
   Speaking = 'SPEAKING',
-}
-
-export interface ConversationCallbacks {
-  getInputText: () => string;
-  setInputText: (text: string) => void;
-  sendMessage: () => Promise<void>;
-  getAbortController: () => AbortController | null;
-  detectChanges: () => void;
-  isTextProcessing: Signal<boolean>;
-  stop: (reason: TurnStopReason) => void;
 }
 
 @Injectable({ providedIn: 'root' })

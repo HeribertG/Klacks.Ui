@@ -15,16 +15,8 @@ import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper'
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
+import { GanttExportOptions } from './gantt-export-options.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-
-export interface GanttExportOptions {
-  title?: string;
-  includeAllRows?: boolean;
-  startRow?: number;
-  endRow?: number;
-  pageOrientation?: 'landscape' | 'portrait';
-  pageFormat?: 'a3' | 'a4';
-}
 
 @Injectable()
 export class GanttPdfExportService {

@@ -8,7 +8,8 @@ import { of } from 'rxjs';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
-import { GanttPdfExportService, GanttExportOptions } from './gantt-pdf-export.service';
+import { GanttPdfExportService } from './gantt-pdf-export.service';
+import { GanttExportOptions } from './gantt-export-options.interface';
 import { BreakFilter } from 'src/app/domain/models/break/break-class';
 
 describe('GanttPdfExportService', () => {

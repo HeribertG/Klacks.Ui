@@ -1,51 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export interface IMenu {
-  list: IMenuItem[];
-}
-export interface IMenuItem {
-  key: string;
-  name: string;
-  subText: string | undefined;
-  isSeparator: boolean;
-  shortCut: string;
-  iconFont: string;
-  svgIcon: string | undefined;
-  hasMenu: boolean;
-  menu: Menu | undefined;
-  disabled: boolean;
-  valueKey: string;
-  color: string | undefined;
-}
+import { IMenu } from './menu.interface';
+import { MenuItem } from './menu-item-class';
 
 export class Menu implements IMenu {
   list: MenuItem[] = [];
-}
-
-export class MenuItem implements IMenuItem {
-  constructor(
-    key: string,
-    name: string,
-    isSeparator: boolean,
-    shortCut = '',
-    iconFont = ''
-  ) {
-    this.key = key;
-    this.name = name;
-    this.isSeparator = isSeparator;
-    this.shortCut = shortCut;
-    this.iconFont = iconFont;
-  }
-  key = '';
-  name = '';
-  subText: string | undefined = undefined;
-  isSeparator = false;
-  shortCut = '';
-  iconFont = '';
-  svgIcon: string | undefined = undefined;
-  hasMenu = false;
-  menu: Menu | undefined = undefined;
-  disabled = false;
-  valueKey = '';
-  color: string | undefined = undefined;
 }

@@ -9,7 +9,13 @@ import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IPluginVoiceService, IPluginVoiceCallbacks } from 'klacks-plugin-contracts';
-import { ConversationOrchestratorService, ConversationState, ConversationCallbacks } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import {
+  ConversationOrchestratorService,
+  ConversationState,
+} from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import {
+  ConversationCallbacks,
+} from 'src/app/presentation/aside/assistant-chat/services/conversation-callbacks.interface';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 

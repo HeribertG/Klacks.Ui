@@ -13,10 +13,8 @@ import {
 } from '@angular/core';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { AvailabilitySurfaceEventsDirective } from '../directives/availability-surface-events.directive';
-import {
-  TouchGestureDirective,
-  TouchPanEvent,
-} from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchGestureDirective } from 'src/app/presentation/directives/touch-gesture.directive';
+import { TouchPanEvent } from 'src/app/presentation/directives/touch-pan-event.interface';
 import { AvailabilityCanvasManagerService } from '../services/availability-canvas-manager.service';
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';

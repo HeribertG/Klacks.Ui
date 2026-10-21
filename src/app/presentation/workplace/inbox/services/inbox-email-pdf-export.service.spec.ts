@@ -5,7 +5,8 @@ import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicod
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { InboxEmailPdfExportService, InboxEmailPrintData } from './inbox-email-pdf-export.service';
+import { InboxEmailPdfExportService } from './inbox-email-pdf-export.service';
+import { InboxEmailPrintData } from './inbox-email-print-data.interface';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { LocaleService } from 'src/app/application/services/locale.service';

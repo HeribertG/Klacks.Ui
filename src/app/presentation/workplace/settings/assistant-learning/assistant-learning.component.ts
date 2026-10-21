@@ -62,6 +62,8 @@ import { LearnedCapabilitiesRowComponent } from './learned-capabilities-row/lear
 import { LearnedPhrasesHeaderComponent } from './learned-phrases-header/learned-phrases-header.component';
 import { LearnedPhrasesRowComponent } from './learned-phrases-row/learned-phrases-row.component';
 import { UnfulfillableWishesHeaderComponent } from './unfulfillable-wishes-header/unfulfillable-wishes-header.component';
+import { PhraseFormModel } from './phrase-form-model.interface';
+import { CapabilityFormModel } from './capability-form-model.interface';
 import { UnfulfillableWishesRowComponent } from './unfulfillable-wishes-row/unfulfillable-wishes-row.component';
 
 const I18N = {
@@ -93,14 +95,6 @@ const RUN_NOT_STARTED_KEYS: Record<string, string> = {
  */
 function isConflict(error: unknown): boolean {
   return (error as { status?: number } | null)?.status === KLACKSY_LEARNING_CONFLICT_STATUS;
-}
-
-interface PhraseFormModel {
-  text: string;
-}
-
-interface CapabilityFormModel {
-  goal: string;
 }
 
 @Component({

@@ -48,16 +48,12 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
+import { PeriodGroup } from './period-group.interface';
 import { errorCountToReconfirm } from '../period-seal-conflict';
 
 const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
 const ISO_DATE_LENGTH = 10;
-
-interface PeriodGroup {
-  intervalKey: string;
-  periods: UsedPeriod[];
-}
 
 @Component({
   selector: 'app-periods-tab',

@@ -1,10 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export interface IGridRowHeader {
-  lastRow: number;
-  firstRow: number;
-  img: HTMLCanvasElement | undefined;
-}
+import { IGridRowHeader } from './grid-row-header.interface';
 
 export class GridRowHeader implements IGridRowHeader {
   lastRow = 0;

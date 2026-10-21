@@ -26,35 +26,20 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
-import { ShiftDropResult } from '../../services/shift-to-schedule-drag-drop.service';
-import { CellValueChangeEvent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
+import { ShiftDropResult } from '../../services/shift-drop-result.interface';
+import {
+  CellValueChangeEvent,
+} from 'src/app/presentation/shared/grid/body/grid-surface-template/cell-value-change-event.interface';
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { ShiftPlacementService } from './shift-placement.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { DropTargetInfo } from './drop-target-info.interface';
+import { CellValueContext } from './cell-value-context.interface';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-
-export interface DropTargetInfo {
-  row: number;
-  clientId: string;
-  date: Date;
-  isEmpty: boolean;
-  isBeforeClientStart: boolean;
-}
-
-interface CellValueContext {
-  event: CellValueChangeEvent;
-  dataService: ScheduleDataService;
-  clientId: string;
-  date: Date;
-  trimmedValue: string;
-  abbreviation: string;
-  existingEntry: IScheduleCell | undefined;
-}
 
 type CellValueHandler = (ctx: CellValueContext) => boolean;
 

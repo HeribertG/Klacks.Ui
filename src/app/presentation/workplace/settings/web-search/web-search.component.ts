@@ -10,17 +10,12 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
+import { IWebSearchModel } from './web-search-model.interface';
 import { WebSearchProvider } from 'src/app/domain/constants/web-search-provider.constants';
 
 const DEFAULT_MAX_RESULTS = 5;
 const MIN_MAX_RESULTS = 1;
 const MAX_MAX_RESULTS = 20;
-
-interface IWebSearchModel {
-  provider: string;
-  apiKey: string;
-  maxResults: number;
-}
 
 @Component({
   selector: 'app-web-search',

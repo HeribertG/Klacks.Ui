@@ -34,13 +34,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { computeQualificationBubbleLayout } from './qualification-bubble-layout';
+import { FilterIconResult } from './filter-icon-result.interface';
 import { drawQualificationBubbles } from '../../shared/qualification-bubbles/qualification-bubble-renderer';
 
 const INFO_SPOT_FONT_COLOR = '#000000';
-
-export interface FilterIconResult {
-  recFilterIcon: Rectangle;
-}
 
 @Injectable()
 export class BaseCreateRowHeaderService {

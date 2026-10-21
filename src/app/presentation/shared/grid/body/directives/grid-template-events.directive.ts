@@ -27,14 +27,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
-export interface GridRightClickEvent {
-  row: number;
-  column: number;
-  clientX: number;
-  clientY: number;
-}
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
-import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -44,13 +37,9 @@ import { GridSelectionModeEnum } from '../../enums/divers';
 import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
 import { GridScheduleEventsService } from 'src/app/presentation/workplace/schedule/services/grid-schedule-events.service';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import { GridRightClickEvent } from './grid-right-click-event.interface';
+import { GridDoubleClickEvent } from './grid-double-click-event.interface';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
-
-export interface GridDoubleClickEvent {
-  row: number;
-  column: number;
-  entry?: IScheduleCell | null;
-}
 
 const CONTEXT_MENU_KEY = 'ContextMenu';
 const SHIFT_CONTEXT_MENU_KEY = 'F10';

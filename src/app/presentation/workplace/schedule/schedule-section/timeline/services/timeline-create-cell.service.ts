@@ -26,29 +26,10 @@ import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.int
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
+import { DrawBlockContext } from './draw-block-context.interface';
+import { TimelineCellEntries } from './timeline-cell-entries.interface';
+import { TimelineCellGeometry } from './timeline-cell-geometry.interface';
 import { ScheduleTimelineRangeService } from '../../../services/schedule-timeline-range.service';
-
-interface DrawBlockContext {
-  entry: IScheduleCell;
-  startMinutes: number;
-  endMinutes: number;
-  width: number;
-  pixelsPerMinute: number;
-  displayFromMinutes: number;
-}
-
-interface TimelineCellEntries {
-  todayEntries: IScheduleCell[];
-  overflowEntries: IScheduleCell[];
-  availabilityRanges: { startMinutes: number; endMinutes: number }[];
-}
-
-interface TimelineCellGeometry {
-  width: number;
-  height: number;
-  pixelsPerMinute: number;
-  displayFromMinutes: number;
-}
 
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {

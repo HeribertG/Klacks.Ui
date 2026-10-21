@@ -14,7 +14,8 @@ import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enum
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
-import { IProgressLoader, ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { IProgressLoader } from 'src/app/presentation/shared/grid/services/progress-loader.interface';
 import { ROW_HEADER_SETTINGS, ROW_HEADER_DATA } from './row-header-tokens';
 import { TranslateService } from '@ngx-translate/core';
 

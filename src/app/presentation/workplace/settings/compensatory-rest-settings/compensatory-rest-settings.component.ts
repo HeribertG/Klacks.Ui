@@ -26,14 +26,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { CompensatoryRestFormModel } from './compensatory-rest-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const COMPENSATORY_REST_MANUAL_NAME = 'compensatory-rest-manual';
-
-interface CompensatoryRestFormModel {
-  compensatoryRestEnabled: boolean;
-  compensatoryRestDeadlineDays: number;
-}
 
 @Component({
   selector: 'app-compensatory-rest-settings',

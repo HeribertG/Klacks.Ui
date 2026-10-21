@@ -2,15 +2,8 @@
 
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
+import { SavebarConfig } from './savebar-config.interface';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
-
-export interface SavebarConfig {
-  showSavebar: boolean;
-  showGoBackButton: boolean;
-  showSaveButtons: boolean;
-  showSaveAndCloseButton: boolean;
-  showResetButton: boolean;
-}
 
 @Injectable({
   providedIn: 'root',

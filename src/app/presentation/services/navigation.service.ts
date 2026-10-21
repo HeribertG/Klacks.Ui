@@ -10,12 +10,8 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { ReturnUrlPayload } from './return-url-payload.interface';
 import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
-
-interface ReturnUrlPayload {
-  url: string;
-  ts: number;
-}
 
 @Injectable({
   providedIn: 'root',

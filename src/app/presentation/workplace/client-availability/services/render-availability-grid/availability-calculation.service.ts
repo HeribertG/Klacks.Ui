@@ -10,16 +10,10 @@ import {
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
+import { DateHourRange } from './date-hour-range.interface';
 import { getDayIndex } from 'src/app/shared/helpers/date.helper';
 
 const WEEKDAY_KEYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-
-export interface DateHourRange {
-  date: Date;
-  dateString: string;
-  startHour: number;
-  endHour: number;
-}
 
 @Injectable()
 export class AvailabilityCalculationService {

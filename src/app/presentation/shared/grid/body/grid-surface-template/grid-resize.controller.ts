@@ -11,16 +11,10 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { GridResizeOptions } from './grid-resize-options.interface';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
 
 const RESIZE_THRESHOLD_PX = 2;
-
-export interface GridResizeOptions {
-  /** Emits after a resize has been applied so scrollbars/viewport can refresh. */
-  onResized: () => void;
-  /** Diagnostic tag when ResizeObserver is unavailable. */
-  nameId: string;
-}
 
 @Injectable()
 export class GridResizeController {

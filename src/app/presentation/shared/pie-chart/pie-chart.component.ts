@@ -6,31 +6,10 @@ import {
   input,
   computed
 } from '@angular/core';
+import { PieChartData } from './pie-chart-data.interface';
+import { PieChartSlice } from './pie-chart-slice.interface';
+import { PieChartGeometry } from './pie-chart-geometry.interface';
 import { TranslateModule } from '@ngx-translate/core';
-
-export interface PieChartData {
-  label: string;
-  value: number;
-  color: string;
-}
-
-interface PieChartSlice {
-  path: string;
-  color: string;
-  label: string;
-  value: number;
-  percentage: string;
-  hoverTransform: string;
-}
-
-interface PieChartGeometry {
-  total: number;
-  centerX: number;
-  centerY: number;
-  outerRadius: number;
-  innerRadius: number;
-  slices: PieChartSlice[];
-}
 
 @Component({
   selector: 'app-pie-chart',

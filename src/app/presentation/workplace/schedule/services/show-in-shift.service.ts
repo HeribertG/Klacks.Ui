@@ -13,12 +13,8 @@
  * - Used by: ShiftSectionComponent (responds to navigation request)
  * - Counterpart: ShowInScheduleService (opposite direction)
  */
+import { ShowInShiftRequest } from './show-in-shift-request.interface';
 import { Injectable, signal } from '@angular/core';
-
-export interface ShowInShiftRequest {
-  shiftId: string;
-  column: number;
-}
 
 @Injectable({
   providedIn: 'root',

@@ -12,16 +12,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output } f
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import { PlanStatus } from 'src/app/domain/models/assistant/agent-plan.interface';
-import { IAgentPlanStep } from 'src/app/domain/models/assistant/agent-plan-step.interface';
+import { IPlanStepRow } from './plan-step-row.interface';
+import { StepStatus } from './step-status.type';
 import { PlanStatusValue } from 'src/app/domain/models/assistant/plan-status-value.type';
-
-type StepStatus = 'pending' | 'running' | 'done' | 'failed' | 'paused';
-
-interface IPlanStepRow {
-  index: number;
-  step: IAgentPlanStep;
-  status: StepStatus;
-}
 
 const PLAN_STATUS_I18N_PREFIX = 'assistant-chat.plan-execution.status.';
 const PLAN_IRREVERSIBLE_STEP_I18N_KEY = 'assistant-chat.plan-execution.irreversible-hint';

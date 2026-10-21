@@ -13,30 +13,9 @@
  * - Used by: ShiftSectionComponent (initiates drag)
  * - Used by: ScheduleSectionComponent (receives drop)
  */
+import { ShiftDragData } from './shift-drag-data.interface';
+import { ShiftDropResult } from './shift-drop-result.interface';
 import { Injectable, signal, computed } from '@angular/core';
-
-export interface ShiftDragData {
-  shiftId: string;
-  shiftName: string;
-  abbreviation: string;
-  startShift: string;
-  endShift: string;
-  workTime: number;
-  sourceColumn: number;
-}
-
-export interface ShiftDropResult {
-  shiftId: string;
-  shiftName: string;
-  abbreviation: string;
-  startShift: string;
-  endShift: string;
-  workTime: number;
-  targetRow: number;
-  targetColumn: number;
-  targetClientId: string;
-  targetDate: Date;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ShiftToScheduleDragDropService {

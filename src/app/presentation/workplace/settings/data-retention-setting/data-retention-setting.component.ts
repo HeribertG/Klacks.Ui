@@ -16,16 +16,13 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DataRetentionFormModel } from './data-retention-form-model.interface';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
 const MIN_RETENTION_DAYS = 30;
 const MAX_RETENTION_DAYS = 36500;
 const DAYS_PER_MONTH = 30.44;
 const MONTHS_PER_YEAR = 12;
-
-interface DataRetentionFormModel {
-  dataRetentionDays: number;
-}
 
 @Component({
   selector: 'app-data-retention-setting',

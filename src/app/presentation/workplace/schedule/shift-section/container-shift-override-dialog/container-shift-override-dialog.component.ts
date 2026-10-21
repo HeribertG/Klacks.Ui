@@ -69,13 +69,11 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { ContainerShiftOverrideLifecycleService } from './services/container-shift-override-lifecycle.service';
-import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/shift-context-menu-event.interface';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import {
-  Menu,
-  MenuItem,
-} from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuItem } from 'src/app/presentation/shared/context-menu/menu-item-class';
 
 const MODAL_WINDOW_CLASS = 'container-shift-override-fullscreen';
 

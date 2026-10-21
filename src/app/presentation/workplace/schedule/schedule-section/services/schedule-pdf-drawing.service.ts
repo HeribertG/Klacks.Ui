@@ -2,21 +2,8 @@
 
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
+import { ScheduleDrawingConfig } from './schedule-drawing-config.interface';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-
-export interface ScheduleDrawingConfig {
-  pageWidth: number;
-  pageHeight: number;
-  rowHeaderWidth: number;
-  subRowHeight: number;
-  columnHeaderHeight: number;
-  marginLeft: number;
-  marginRight: number;
-  borderColor: string;
-  separatorColor: string;
-  lineWidth: number;
-  fontFamily: string;
-}
 
 @Injectable()
 export class SchedulePdfDrawingService {

@@ -2,10 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
-import {
-  IEntitySearchStrategy,
-  EntitySearchOptions,
-} from './interfaces/entity-search-strategy.interface';
+import { IEntitySearchStrategy } from './interfaces/entity-search-strategy.interface';
+import { EntitySearchOptions } from './interfaces/entity-search-options.interface';
 
 export abstract class BaseEntitySearchStrategy
   implements IEntitySearchStrategy

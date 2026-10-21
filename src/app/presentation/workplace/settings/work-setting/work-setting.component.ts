@@ -13,20 +13,8 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { WorkSettingsFormModel } from './work-settings-form-model.interface';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
-
-interface WorkSettingsFormModel {
-  vacationDaysPerYear: number;
-  probationPeriod: number;
-  noticePeriod: number;
-  paymentInterval: string;
-  nightRate: number;
-  holidayRate: number;
-  saRate: number;
-  soRate: number;
-  dayVisibleBefore: number;
-  dayVisibleAfter: number;
-}
 
 @Component({
   selector: 'app-work-setting',

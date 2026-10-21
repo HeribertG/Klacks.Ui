@@ -19,14 +19,11 @@ import { Language } from 'src/app/domain/models/settings/language-config';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { HoveredCellInfo } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { HoveredCellInfo } from 'src/app/presentation/shared/grid/services/body/hovered-cell-info.interface';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { IGridTooltipHost } from 'src/app/presentation/shared/grid/body/grid-tooltip-host.interface';
+import { TooltipState } from './tooltip-state.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-
-export interface TooltipState {
-  lastHeaderColumn: number;
-}
 
 @Injectable({
   providedIn: 'root',

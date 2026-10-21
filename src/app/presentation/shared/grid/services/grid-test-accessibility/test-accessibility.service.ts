@@ -1,12 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, signal, computed } from '@angular/core';
-import type {
-  ITestGridMetadata,
-  ITestCellInfo,
-  ICellPosition,
-  IScheduleGridWindowApi,
-} from './grid-test-accessibility.types';
+import type { ITestGridMetadata } from './test-grid-metadata.interface';
+import type { ITestCellInfo } from './test-cell-info.interface';
+import type { ICellPosition } from './cell-position.interface';
+import type { IScheduleGridWindowApi } from './schedule-grid-window-api.interface';
 
 export type { ITestGridMetadata, ITestCellInfo, ICellPosition, IScheduleGridWindowApi };
 

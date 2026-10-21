@@ -20,13 +20,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
+import { AllGroupNavFilterModel } from './all-group-nav-filter-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-
-interface AllGroupNavFilterModel {
-  activeDateRange: boolean;
-  formerDateRange: boolean;
-  futureDateRange: boolean;
-}
 
 @Component({
   selector: 'app-all-group-nav',

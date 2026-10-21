@@ -50,15 +50,8 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { SetupFormModel } from './setup-form-model.interface';
 import { SetupServerRejection } from './setup-server-rejection.interface';
-
-interface SetupFormModel {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  passwordConfirm: string;
-}
 
 const SETUP_FIELD = {
   FIRST_NAME: 'firstName',

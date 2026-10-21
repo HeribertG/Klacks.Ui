@@ -4,7 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { ClientType, DashboardClientsLocationsComponent, LocationData } from './dashboard-clients-locations.component';
+import { ClientType, DashboardClientsLocationsComponent } from './dashboard-clients-locations.component';
+import { LocationData } from './location-data.interface';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

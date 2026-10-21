@@ -46,16 +46,16 @@ import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/servi
 import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import {
-  ScheduleTooltipService,
-  TooltipState,
-} from '../services/schedule-tooltip.service';
+import { ScheduleTooltipService } from '../services/schedule-tooltip.service';
+import { TooltipState } from '../services/tooltip-state.interface';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import {
-  GridSurfaceRightClickEvent,
   GridSurfaceTemplateComponent,
 } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
+import {
+  GridSurfaceRightClickEvent,
+} from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-right-click-event.interface';
 import { IconFilterComponent } from 'src/app/presentation/icons/icon-filter.component';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';

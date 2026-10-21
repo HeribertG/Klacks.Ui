@@ -32,12 +32,8 @@ import { IErpImportToken, ERP_IMPORT_TOKEN_EXPIRY } from 'src/app/domain/models/
 import { IErpImportTokenCreate } from 'src/app/domain/models/settings/erp-import-token-create.interface';
 import { IErpImportTokenCreated } from 'src/app/domain/models/settings/erp-import-token-created.interface';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ErpImportTokenFormModel } from './erp-import-token-form-model.interface';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
-
-interface ErpImportTokenFormModel {
-  name: string;
-  expiresInDays: string;
-}
 
 const ERP_DROP_POINT_TOKENS_CONTEXT = 'erp-drop-point-tokens';
 

@@ -1,13 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
+import { UrlParseResult } from './url-parse-result.interface';
 import { Router } from '@angular/router';
-
-export interface UrlParseResult {
-  hasId: boolean;
-  id: string | undefined;
-  isValidRoute: boolean;
-}
 
 @Injectable({
   providedIn: 'root',

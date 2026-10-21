@@ -16,9 +16,9 @@ import {
   QUALIFICATION_BUBBLE_EMOJI_RATIO,
   QUALIFICATION_BUBBLE_MIN_DIAMETER,
   QUALIFICATION_BUBBLE_OVERLAP_RATIO,
-  QualificationBubbleSlot,
   maxQualificationBubbleSlots,
 } from './qualification-bubble.model';
+import { QualificationBubbleSlot } from './qualification-bubble-slot.interface';
 
 export interface QualificationBubbleSizing {
   diameter: number;

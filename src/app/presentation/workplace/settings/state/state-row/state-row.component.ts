@@ -18,13 +18,8 @@ import { IState } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StateModel } from './state-model.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-
-interface StateModel {
-  abbreviation: string;
-  nameCurrent: string;
-  countryPrefix: string;
-}
 
 @Component({
   selector: 'app-state-row',

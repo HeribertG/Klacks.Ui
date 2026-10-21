@@ -19,15 +19,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataAgentService } from 'src/app/infrastructure/api/assistant/data-agent.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { SectionField } from './section-field.interface';
 import { SoulSectionTypes } from 'src/app/domain/constants/soul-section-types';
-
-interface SectionField {
-  readonly key: string;
-  readonly labelKey: string;
-  readonly hintKey: string;
-  content: string;
-  initialContent: string;
-}
 
 @Component({
   selector: 'app-assistant-personality-settings',

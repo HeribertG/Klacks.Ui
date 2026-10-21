@@ -42,11 +42,8 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { CalendarSelectionFormModel } from './calendar-selection-form-model.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-
-interface CalendarSelectionFormModel {
-  name: string;
-}
 
 const COMPONENT_CONTEXT = 'calendar-selection';
 const NAME_DEBOUNCE_MS = 300;

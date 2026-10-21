@@ -1,13 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
+import { TooltipConfig } from './tooltip-config.interface';
 import { Subject } from 'rxjs';
-
-export interface TooltipConfig {
-  text: string;
-  x: number;
-  y: number;
-}
 
 @Injectable({
   providedIn: 'root',

@@ -31,8 +31,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NgbDropdownModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   PeriodCalendarMonthlyComponent,
-  PeriodResetData,
 } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/period-calendar-weekly/period-calendar-weekly.component';
 import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';

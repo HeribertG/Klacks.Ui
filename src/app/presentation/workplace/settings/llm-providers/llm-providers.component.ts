@@ -40,23 +40,13 @@ import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-co
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { LLMProviderFormModel } from './llm-provider-form-model.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 const DEFAULT_PROVIDER_PRIORITY = 10;
 const API_KEY_MASK_PLACEHOLDER = '••••••••';
 const API_KEY_EXAMPLE_PLACEHOLDER = 'sk-...';
 const API_KEY_NOT_REQUIRED_KEY = 'settings.llm-providers.api-key-not-required';
-
-interface LLMProviderFormModel {
-  providerId: string;
-  providerName: string;
-  baseUrl: string;
-  apiVersion: string;
-  priority: string;
-  providerApiKey: string;
-  isEnabled: boolean;
-  requiresApiKey: boolean;
-}
 
 @Component({
   selector: 'app-llm-providers',

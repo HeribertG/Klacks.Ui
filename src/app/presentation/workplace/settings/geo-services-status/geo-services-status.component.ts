@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@a
 import { TranslateModule } from '@ngx-translate/core';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { IGeoServiceStatus } from 'src/app/domain/models/settings/geo-service-status.interface';
+import { GeoServiceStatusRow } from './geo-service-status-row.interface';
 import { GEO_SERVICE_NOTICE_KEYS } from 'src/app/domain/constants/geo-service-notice.constants';
 
 export const GEO_SERVICES_STATUS_KEYS = {
@@ -29,13 +30,6 @@ export const GEO_SERVICES_STATUS_KEYS = {
 
 const REASON_KEY_PREFIX = 'geoServices.reason.';
 const NO_REASON = 'None';
-
-interface GeoServiceStatusRow {
-  id: string;
-  labelKey: string;
-  enabled: boolean;
-  reasonKey: string | null;
-}
 
 @Component({
   selector: 'app-geo-services-status',

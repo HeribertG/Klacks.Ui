@@ -10,6 +10,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
+import { RunningExecution } from './running-execution.interface';
+import { TurnHooks } from './turn-hooks.interface';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 
 export type TurnStopReason =
@@ -25,20 +27,6 @@ export const TURN_STOP_GRACE_MS = 3000;
 
 /** Milliseconds the thumbs of a just-stopped message stay disabled after its turn ended, so a second click aimed at the stop button cannot land on them. */
 export const FEEDBACK_LOCK_AFTER_STOP_MS = 700;
-
-interface RunningExecution {
-  messageId: string | null;
-  cancelRequested: boolean;
-}
-
-export interface TurnHooks {
-  /** Cheap, idempotent: mute TTS/auto-speak immediately, regardless of the eventual cooperative outcome. */
-  silence: () => void;
-  /** Full local cleanup: abort the fetch stream, drain buffers, clear stage status and the explain scroll queue. */
-  hardAbort: () => void;
-  /** Whether the current turn's tool-call steps had already started, for the cautious-sentence rule (§3.5). */
-  hadToolSteps: () => boolean;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ChatTurnControlService {

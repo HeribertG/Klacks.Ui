@@ -27,11 +27,8 @@ import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { EditGroupParentFormModel } from './edit-group-parent-form-model.interface';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
-
-interface EditGroupParentFormModel {
-  parent: string;
-}
 
 @Component({
   selector: 'app-edit-group-parent',

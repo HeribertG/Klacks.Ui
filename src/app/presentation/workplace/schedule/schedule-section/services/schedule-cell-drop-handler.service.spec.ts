@@ -9,10 +9,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 import { ScheduleCellDropHandlerService } from './schedule-cell-drop-handler.service';
-import {
-  ScheduleCellDragSource,
-  ScheduleCellDropResult,
-} from './schedule-cell-drag-drop.service';
+import { ScheduleCellDragSource } from './schedule-cell-drag-source.interface';
+import { ScheduleCellDropResult } from './schedule-cell-drop-result.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';

@@ -37,23 +37,8 @@ import {
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { NavFilterFormModel } from './nav-filter-form-model.interface';
 import { AllAddressStateService } from '../services/all-address-state.service';
-
-interface NavFilterFormModel {
-  female: boolean;
-  male: boolean;
-  intersexuality: boolean;
-  legalEntity: boolean;
-  employee: boolean;
-  externEmp: boolean;
-  customer: boolean;
-  activeMembership: boolean;
-  formerMembership: boolean;
-  futureMembership: boolean;
-  scopeFromFlag: boolean;
-  scopeUntilFlag: boolean;
-  showDeleteEntries: boolean;
-}
 
 @Component({
   selector: 'app-all-address-nav',

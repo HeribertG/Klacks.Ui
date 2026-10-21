@@ -22,13 +22,11 @@ import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-ema
 import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
-import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuItem } from 'src/app/presentation/shared/context-menu/menu-item-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { InboxListFilterFormModel } from './inbox-list-filter-form-model.interface';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
-
-interface InboxListFilterFormModel {
-  readFilter: string;
-}
 
 @Component({
   selector: 'app-inbox-list',

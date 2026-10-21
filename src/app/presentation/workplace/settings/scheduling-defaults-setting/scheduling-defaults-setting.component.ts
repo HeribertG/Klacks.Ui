@@ -12,52 +12,8 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { SchedulingDefaultsFormModel } from './scheduling-defaults-form-model.interface';
 import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
-
-interface SchedulingDefaultsFormModel {
-  defaultWorkingHours: number;
-  overtimeThreshold: number;
-  guaranteedHours: number;
-  maximumHours: number;
-  minimumHours: number;
-  fullTime: number;
-  schedulingMaxWorkDays: number;
-  schedulingMinRestDays: number;
-  schedulingMinPauseHours: number;
-  schedulingMaxDailySpanHours: number;
-  schedulingMaxOptimalGap: number;
-  schedulingMaxDailyHours: number;
-  schedulingMaxWeeklyHours: number;
-  schedulingMaxConsecutiveDays: number;
-  nightRate: number;
-  holidayRate: number;
-  saRate: number;
-  soRate: number;
-  workOnMonday: boolean;
-  workOnTuesday: boolean;
-  workOnWednesday: boolean;
-  workOnThursday: boolean;
-  workOnFriday: boolean;
-  workOnSaturday: boolean;
-  workOnSunday: boolean;
-  performsShiftWork: boolean;
-  weekendMonday: boolean;
-  weekendTuesday: boolean;
-  weekendWednesday: boolean;
-  weekendThursday: boolean;
-  weekendFriday: boolean;
-  weekendSaturday: boolean;
-  weekendSunday: boolean;
-  weekStartDay: string;
-  commandKeywordFree: string;
-  commandKeywordEarly: string;
-  commandKeywordLate: string;
-  commandKeywordNight: string;
-  commandKeywordNegFree: string;
-  commandKeywordNegEarly: string;
-  commandKeywordNegLate: string;
-  commandKeywordNegNight: string;
-}
 
 @Component({
   selector: 'app-scheduling-defaults-setting',

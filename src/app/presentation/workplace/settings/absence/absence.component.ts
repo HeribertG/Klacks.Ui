@@ -48,23 +48,8 @@ import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
+import { AbsenceFormModel } from './absence-form-model.interface';
 import { getLocalizedValue, toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
-interface AbsenceFormModel {
-  name: string;
-  abbreviation: string;
-  description: string;
-  defaultLength: number;
-  defaultValue: number;
-  withSaturday: boolean;
-  withSunday: boolean;
-  withHoliday: boolean;
-  appliesToContainer: boolean;
-  color: string;
-  hideInGantt: boolean;
-  macroId: string;
-  isUnpaid: boolean;
-  isOnCall: boolean;
-}
 
 @Component({
   selector: 'app-absence',

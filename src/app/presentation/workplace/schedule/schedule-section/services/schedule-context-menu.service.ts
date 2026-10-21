@@ -16,10 +16,8 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import {
-  Menu,
-  MenuItem,
-} from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuItem } from 'src/app/presentation/shared/context-menu/menu-item-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -41,14 +39,8 @@ import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknow
 import { addDays } from 'src/app/shared/helpers/date.helper';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { sanitizeCssColor } from 'src/app/shared/helpers/color.helper';
+import { ContextMenuContext } from './context-menu-context.interface';
 import { ScheduleDataService } from './schedule-data.service';
-
-export interface ContextMenuContext {
-  row: number;
-  column: number;
-  dataService: ScheduleDataService;
-  entry?: IScheduleCell | null;
-}
 
 @Injectable()
 export class ScheduleContextMenuService {

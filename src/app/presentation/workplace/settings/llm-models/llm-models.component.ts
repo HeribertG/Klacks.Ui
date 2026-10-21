@@ -33,22 +33,8 @@ import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-co
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { LLMModelFormModel } from './llm-model-form-model.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
-
-interface LLMModelFormModel {
-  modelId: string;
-  modelName: string;
-  providerId: string;
-  description: string;
-  apiModelId: string;
-  contextWindow: string;
-  maxTokens: string;
-  costPerInputToken: string;
-  costPerOutputToken: string;
-  providerApiKey: string;
-  isEnabled: boolean;
-  isDefault: boolean;
-}
 
 @Component({
   selector: 'app-llm-models',

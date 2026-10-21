@@ -10,14 +10,8 @@ import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
+import { SegmentCache } from './segment-cache.interface';
 import { AvailabilityCoordinateService } from '../availability-coordinate.service';
-
-interface SegmentCache {
-  canvas: HTMLCanvasElement;
-  width: number;
-  height: number;
-  bgColor: string;
-}
 
 @Injectable()
 export class AvailabilityHeaderRenderingService {

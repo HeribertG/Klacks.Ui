@@ -11,14 +11,8 @@
  */
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { IOutcomeAction } from './outcome-action.interface';
 import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-request-outcome.enum';
-
-interface IOutcomeAction {
-  outcome: ReplacementRequestOutcome;
-  labelKey: string;
-  activeClass: string;
-  idleClass: string;
-}
 
 const OUTCOME_ACTIONS: readonly IOutcomeAction[] = [
   {

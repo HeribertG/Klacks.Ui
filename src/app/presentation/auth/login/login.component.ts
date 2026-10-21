@@ -38,12 +38,8 @@ import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oa
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { LoginFormModel } from './login-form-model.interface';
 import { AuthService } from '../auth.service';
-
-interface LoginFormModel {
-  username: string;
-  password: string;
-}
 
 @Component({
   selector: 'app-login',

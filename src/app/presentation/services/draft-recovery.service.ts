@@ -13,13 +13,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SessionStorageService } from 'src/app/infrastructure/storage/session-storage.service';
 import { IDraftable } from 'src/app/domain/interfaces/draftable.interface';
+import { DraftPayload } from './draft-payload.interface';
 import { DraftRecoveryDialogComponent } from '../modal/draft-recovery-dialog/draft-recovery-dialog.component';
-
-interface DraftPayload {
-  routeUrl: string;
-  draft: unknown;
-  ts: number;
-}
 
 function isDraftable(manager: unknown): manager is IDraftable {
   return (

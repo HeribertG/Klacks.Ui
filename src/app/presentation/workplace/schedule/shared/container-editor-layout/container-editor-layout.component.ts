@@ -32,7 +32,8 @@ import { ContainerTemplateDragDropService } from '../../../shift/container-templ
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { TimeRulerComponent, IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/shift-context-menu-event.interface';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';

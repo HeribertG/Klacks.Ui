@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { CellInputRightClickEvent } from './cell-input-right-click-event.interface';
 import {
   Directive,
   ElementRef,
@@ -7,11 +8,6 @@ import {
   inject,
   output
 } from '@angular/core';
-
-export interface CellInputRightClickEvent {
-  clientX: number;
-  clientY: number;
-}
 
 @Directive({
   selector: '[appCellInputEvents]',

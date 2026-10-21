@@ -15,7 +15,10 @@ import { FormsModule } from '@angular/forms';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
-import { PeriodCalendarMonthlyComponent, PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+import {
+  PeriodCalendarMonthlyComponent,
+} from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/period-calendar-weekly/period-calendar-weekly.component';
 import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';

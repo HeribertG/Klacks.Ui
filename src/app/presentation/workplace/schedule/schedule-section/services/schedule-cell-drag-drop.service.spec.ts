@@ -3,10 +3,8 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import {
-  ScheduleCellDragDropService,
-  ScheduleCellDragSource,
-} from './schedule-cell-drag-drop.service';
+import { ScheduleCellDragDropService } from './schedule-cell-drag-drop.service';
+import { ScheduleCellDragSource } from './schedule-cell-drag-source.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';

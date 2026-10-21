@@ -24,24 +24,12 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { OvertimeBasis } from 'src/app/domain/models/settings/overtime-basis.type';
-import { OvertimeRateMode } from 'src/app/domain/models/settings/overtime-rate-mode.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { OvertimeSettingsFormModel } from './overtime-settings-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const PERCENTAGE_FACTOR = 100;
 const OVERTIME_MANUAL_NAME = 'overtime-manual';
-
-interface OvertimeSettingsFormModel {
-  overtimeBasis: OvertimeBasis;
-  overtimeRateMode: OvertimeRateMode;
-  overtimeTier1AfterHours: number | null;
-  overtimeTier1Rate: number | null;
-  overtimeTier2AfterHours: number | null;
-  overtimeTier2Rate: number | null;
-  overtimeTier3AfterHours: number | null;
-  overtimeTier3Rate: number | null;
-}
 
 @Component({
   selector: 'app-overtime-settings',

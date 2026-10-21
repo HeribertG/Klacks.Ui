@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { MenuItem } from '../shared/context-menu/context-menu-class';
+import { MenuItem } from '../shared/context-menu/menu-item-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { PdfIconComponent } from '../icons/pdf-icon.component';
 import { IconFlyComponent } from '../icons/icon-fly.component';

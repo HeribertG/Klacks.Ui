@@ -51,18 +51,8 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
+import { ContractFormModel } from './contract-form-model.interface';
 import { CONTRACT_RATE_KEYS, normalizeRateInput } from 'src/app/domain/helpers/contract-rate.helper';
-
-interface ContractFormModel {
-  name: string;
-  nightRate: number | null;
-  holidayRate: number | null;
-  we1Rate: number | null;
-  we2Rate: number | null;
-  we3Rate: number | null;
-  nightStart: string;
-  nightEnd: string;
-}
 
 const MIN_RATE_PERCENT = 0;
 const MAX_RATE_PERCENT = 100;

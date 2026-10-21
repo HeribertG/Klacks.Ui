@@ -1,10 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject } from '@angular/core';
-import {
-  IEntitySearchStrategy,
-  EntitySearchOptions,
-} from './interfaces/entity-search-strategy.interface';
+import { IEntitySearchStrategy } from './interfaces/entity-search-strategy.interface';
+import { EntitySearchOptions } from './interfaces/entity-search-options.interface';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 

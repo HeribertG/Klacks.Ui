@@ -16,16 +16,8 @@ import {
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
+import { CustomSttProviderFormModel } from './custom-stt-provider-form-model.interface';
 import { CustomSttProvider } from 'src/app/domain/models/assistant/custom-stt-provider.interface';
-
-interface CustomSttProviderFormModel {
-  name: string;
-  connectionType: string;
-  apiUrl: string;
-  apiKey: string;
-  languageModel: string;
-  isEnabled: boolean;
-}
 
 @Component({
   selector: 'app-custom-stt-provider-modal',

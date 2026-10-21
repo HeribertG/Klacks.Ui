@@ -12,7 +12,7 @@ import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorat
 import { SharedRenderRowHeaderCellService } from 'src/app/presentation/shared/grid/row-header/render-row-header-cell.service';
 import { SharedRenderRowHeaderService } from 'src/app/presentation/shared/grid/row-header/render-row-header.service';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
-import { IProgressLoader } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { IProgressLoader } from 'src/app/presentation/shared/grid/services/progress-loader.interface';
 
 @Injectable()
 export class DrawRowHeaderService {

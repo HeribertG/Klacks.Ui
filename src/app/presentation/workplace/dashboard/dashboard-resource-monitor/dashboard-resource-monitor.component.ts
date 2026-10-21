@@ -30,7 +30,11 @@ import {
 } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
-import { IMonthMarker, IReferenceLine, ISpecialDay, SpecialDayType, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
+import { StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
+import { IMonthMarker } from 'src/app/presentation/shared/stacked-bar-chart/month-marker.interface';
+import { IReferenceLine } from 'src/app/presentation/shared/stacked-bar-chart/reference-line.interface';
+import { ISpecialDay } from 'src/app/presentation/shared/stacked-bar-chart/special-day.interface';
+import { SpecialDayType } from 'src/app/presentation/shared/stacked-bar-chart/special-day-type.type';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { NgClass } from '@angular/common';
 

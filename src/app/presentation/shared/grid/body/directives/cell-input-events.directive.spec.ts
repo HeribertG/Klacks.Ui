@@ -2,7 +2,8 @@
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CellInputEventsDirective, CellInputRightClickEvent } from './cell-input-events.directive';
+import { CellInputEventsDirective } from './cell-input-events.directive';
+import { CellInputRightClickEvent } from './cell-input-right-click-event.interface';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 

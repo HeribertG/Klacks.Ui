@@ -35,15 +35,10 @@ import { IWorkConflictItem } from 'src/app/domain/interfaces/work-conflict-item.
 import { IWorkRefusalDiagnosisSubject } from 'src/app/domain/interfaces/work-refusal-diagnosis-subject.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
+import { WorkConflictTarget } from './work-conflict-target.interface';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 
 const NO_EMPLOYEE_NUMBER = 0;
-
-export interface WorkConflictTarget {
-  clientId?: string;
-  shiftId?: string;
-  date?: string;
-}
 
 export function readWorkConflictProblem(error: unknown): IWorkConflictProblem | null {
   if (!(error instanceof HttpErrorResponse)) {

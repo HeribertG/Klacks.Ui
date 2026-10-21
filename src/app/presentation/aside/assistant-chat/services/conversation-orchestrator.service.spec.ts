@@ -7,7 +7,8 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Subject, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
-import { ConversationOrchestratorService, ConversationState, ConversationCallbacks } from './conversation-orchestrator.service';
+import { ConversationOrchestratorService, ConversationState } from './conversation-orchestrator.service';
+import { ConversationCallbacks } from './conversation-callbacks.interface';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { EarconService } from 'src/app/infrastructure/services/speech/earcon.service';

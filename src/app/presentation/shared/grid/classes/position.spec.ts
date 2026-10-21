@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { MyPosition, MyPositionCollection } from './position';
+import { MyPosition } from './position';
+import { MyPositionCollection } from './my-position-collection.model';
 
 describe('MyPosition', function () {
     it('should initialize with default values', function () {

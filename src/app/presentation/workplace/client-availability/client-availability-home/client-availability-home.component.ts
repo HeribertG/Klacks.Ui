@@ -4,7 +4,7 @@ import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
@@ -56,12 +56,8 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { ResolvedCalendarChips } from './resolved-calendar-chips.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
-
-interface ResolvedCalendarChips {
-  tokens: StateCountryToken[];
-  overrides: OfficialOverrideMap;
-}
 
 @Component({
   selector: 'app-client-availability-home',

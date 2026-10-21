@@ -1,12 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, signal } from '@angular/core';
+import { ScrollPosition } from './scroll-position.interface';
 import { toObservable } from '@angular/core/rxjs-interop';
-
-export interface ScrollPosition {
-  horizontal: number;
-  vertical: number;
-}
 
 @Injectable({
   providedIn: 'root'

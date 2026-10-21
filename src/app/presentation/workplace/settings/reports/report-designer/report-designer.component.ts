@@ -40,20 +40,11 @@ import { ReportDesignerBorderService } from './report-designer-border.service';
 import { ReportDesignerFormulaService } from './report-designer-formula.service';
 import { ReportDesignerImageService } from './report-designer-image.service';
 import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
+import { FieldPaletteGroup } from './field-palette-group.interface';
 import { toParameterVariableName } from 'src/app/domain/helpers/report-parameter.helper';
 
 const COLUMN_WIDTH_TOTAL_PERCENT = 100;
 const MIN_SECTION_WIDTH_PERCENT = 10;
-
-interface FieldPaletteGroup {
-  id: string;
-  titleKey: string;
-  title?: string;
-  category: FieldCategory;
-  sectionType: ReportSectionType;
-  fields: DataBindingDefinition[];
-  collapsed: boolean;
-}
 
 @Component({
   selector: 'app-report-designer',

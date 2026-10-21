@@ -8,32 +8,10 @@
  */
 import { Injectable } from '@angular/core';
 import { ContainerWorkChildren } from 'src/app/domain/models/container/container-work-children.interface';
-import { SubBreakResource } from 'src/app/domain/models/container/sub-break-resource.interface';
-import { SubWorkResource } from 'src/app/domain/models/container/sub-work-resource.interface';
-import { WorkChangeResource } from 'src/app/domain/models/container/work-change-resource.interface';
 
-export interface SplitGap {
-  start: string;
-  end: string;
-  beforeLabel: string | null;
-  afterLabel: string | null;
-}
-
-export interface CategorizationResult {
-  beforeWorks: SubWorkResource[];
-  afterWorks: SubWorkResource[];
-  beforeBreaks: SubBreakResource[];
-  afterBreaks: SubBreakResource[];
-  beforeWorkChanges: WorkChangeResource[];
-  afterWorkChanges: WorkChangeResource[];
-}
-
-interface TimelineItem {
-  start: number;
-  end: number;
-  isTask: boolean;
-  label: string | null;
-}
+import { SplitGap } from './split-gap.interface';
+import { CategorizationResult } from './categorization-result.interface';
+import { TimelineItem } from './timeline-item.interface';
 
 const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;

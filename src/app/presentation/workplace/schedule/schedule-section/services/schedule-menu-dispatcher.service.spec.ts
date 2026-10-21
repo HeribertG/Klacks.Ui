@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { ScheduleMenuDispatcherService, ScheduleMenuHost } from './schedule-menu-dispatcher.service';
+import { ScheduleMenuDispatcherService } from './schedule-menu-dispatcher.service';
+import { ScheduleMenuHost } from './schedule-menu-host.interface';
 import { ScheduleSectionFacadeService } from './schedule-section-facade.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleDataService } from './schedule-data.service';

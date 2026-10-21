@@ -27,17 +27,14 @@ import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';
 import { TimeRangeService } from './services/time-range.service';
 import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.service';
-import { IShiftSceneContext, TimeRulerRenderService } from './services/time-ruler-render.service';
+import { TimeRulerRenderService } from './services/time-ruler-render.service';
+import { IShiftSceneContext } from './services/shift-scene-context.interface';
 import { TimeRulerInteractionService } from './services/time-ruler-interaction.service';
 import { TimeRulerBlockSelectionService } from './services/time-ruler-block-selection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { IShiftContextMenuEvent } from './shift-context-menu-event.interface';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
-
-export interface IShiftContextMenuEvent {
-  item: IContainerTemplateItem;
-  mouseEvent: MouseEvent;
-}
 
 @Component({
   selector: 'app-time-ruler',

@@ -42,11 +42,9 @@ import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.com
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import {
-  Menu,
-  MenuItem,
-} from 'src/app/presentation/shared/context-menu/context-menu-class';
-import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuItem } from 'src/app/presentation/shared/context-menu/menu-item-class';
+import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/shift-context-menu-event.interface';
 import {
   NgbModal,
   NgbModalRef,

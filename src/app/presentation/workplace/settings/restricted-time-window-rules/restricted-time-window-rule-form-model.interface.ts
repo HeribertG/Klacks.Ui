@@ -1,0 +1,11 @@
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
+
+export interface RestrictedTimeWindowRuleFormModel {
+  seasonFromMonth: number;
+  seasonFromDay: number;
+  seasonToMonth: number;
+  seasonToDay: number;
+  dailyStart: string;
+  dailyEnd: string;
+  appliesToGroupTag: string;
+}

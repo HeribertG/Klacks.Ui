@@ -11,7 +11,7 @@ import { SharedRenderRowHeaderCellService } from './render-row-header-cell.servi
 import { SharedRenderRowHeaderService } from './render-row-header.service';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 import { ROW_HEADER_SETTINGS, ROW_HEADER_DATA } from './row-header-tokens';
-import { IProgressLoader } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { IProgressLoader } from 'src/app/presentation/shared/grid/services/progress-loader.interface';
 
 @Injectable()
 export class SharedDrawRowHeaderService {

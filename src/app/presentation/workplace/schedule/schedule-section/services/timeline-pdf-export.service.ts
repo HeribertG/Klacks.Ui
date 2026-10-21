@@ -19,7 +19,8 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
-import { SchedulePdfDrawingService, ScheduleDrawingConfig } from './schedule-pdf-drawing.service';
+import { SchedulePdfDrawingService } from './schedule-pdf-drawing.service';
+import { ScheduleDrawingConfig } from './schedule-drawing-config.interface';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { WorkBlockRendererService } from '../timeline/renderers/work-block-renderer.service';
@@ -30,16 +31,8 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
+import { TimelineClientBlock } from './timeline-client-block.interface';
 import { ScheduleTimelineRangeService } from '../../services/schedule-timeline-range.service';
-
-interface TimelineClientBlock {
-  name: string;
-  slot1: string;
-  slot2: string;
-  slot3: string;
-  todayEntries: IScheduleCell[][];
-  overflowEntries: IScheduleCell[][];
-}
 
 @Injectable()
 export class TimelinePdfExportService {

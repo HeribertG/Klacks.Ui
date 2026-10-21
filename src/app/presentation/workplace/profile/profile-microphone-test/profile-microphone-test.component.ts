@@ -26,13 +26,8 @@ import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-butt
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
+import { TestResult } from './test-result.interface';
 import { MicrophoneTestDefaults } from 'src/app/domain/constants/microphone-test-constants';
-
-interface TestResult {
-  name: string;
-  status: 'pending' | 'running' | 'success' | 'error';
-  message?: string;
-}
 
 @Component({
   selector: 'app-profile-microphone-test',

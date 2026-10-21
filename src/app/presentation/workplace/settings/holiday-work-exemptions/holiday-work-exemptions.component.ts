@@ -36,12 +36,8 @@ import { IHolidayWorkExemption } from 'src/app/domain/models/scheduling/holiday-
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
+import { HolidayWorkExemptionFormModel } from './holiday-work-exemption-form-model.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-
-interface HolidayWorkExemptionFormModel {
-  description: string;
-  schedulingRuleId: string;
-}
 
 const GLOBAL_SCOPE_VALUE = '';
 

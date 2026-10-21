@@ -17,22 +17,9 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
+import { ILineChartSeries } from './line-chart-series.interface';
+import { ITooltip } from './tooltip.interface';
 import { NgStyle } from '@angular/common';
-
-export interface ILineChartSeries {
-  label: string;
-  color: string;
-  dashed: boolean;
-  data: number[];
-}
-
-interface ITooltip {
-  visible: boolean;
-  svgX: number;
-  svgY: number;
-  dayIndex: number;
-  values: { label: string; color: string; value: number }[];
-}
 
 @Component({
   selector: 'app-line-chart',

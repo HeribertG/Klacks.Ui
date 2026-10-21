@@ -10,12 +10,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
-import { PeriodResetData } from '../period-calendar-monthly/period-calendar-monthly.component';
-
-export interface BiweeklyOption {
-  startWeek: number;
-  label: string;
-}
+import { BiweeklyOption } from './biweekly-option.interface';
+import { PeriodResetData } from '../period-calendar-monthly/period-reset-data.interface';
 
 @Component({
   selector: 'app-period-calendar-biweekly',

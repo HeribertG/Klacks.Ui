@@ -9,28 +9,17 @@ import {
   Injector,
 } from '@angular/core';
 import { TestAccessibilityService } from './test-accessibility.service';
-import type {
-  ITestableGridDataSource,
-  IScrollController,
-  ICellManipulationController,
-  IDrawScheduleController,
-  IGridSettings,
-  ITestCellInfo,
-  ITestGridMetadata,
-} from './grid-test-accessibility.types';
+import type { ITestableGridDataSource } from './grid-test-accessibility.types';
+import type { IScrollController } from './scroll-controller.interface';
+import type { ICellManipulationController } from './cell-manipulation-controller.interface';
+import type { IDrawScheduleController } from './draw-schedule-controller.interface';
+import type { IGridSettings } from './grid-settings.interface';
+import type { ITestCellInfo } from './test-cell-info.interface';
+import type { ITestGridMetadata } from './test-grid-metadata.interface';
 import type { MyPosition } from '../../classes/position';
+import { WindowWithTestFrameworks } from './window-with-test-frameworks.interface';
+import { IScrollControllerWithVertical } from './scroll-controller-with-vertical.interface';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
-
-// Extended interfaces for test framework detection
-interface WindowWithTestFrameworks extends Window {
-  Cypress?: unknown;
-  __PLAYWRIGHT__?: unknown;
-}
-
-// Extended interface for scroll service with setter
-interface IScrollControllerWithVertical extends IScrollController {
-  verticalScrollPosition: number;
-}
 
 /**
  * Service that manages test accessibility for the Schedule Grid.

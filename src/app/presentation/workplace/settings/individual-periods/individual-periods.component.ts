@@ -37,11 +37,8 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { IndividualPeriodFormModel } from './individual-period-form-model.interface';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-
-interface IndividualPeriodFormModel {
-  name: string;
-}
 
 @Component({
   selector: 'app-individual-periods',
