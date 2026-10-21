@@ -18,6 +18,17 @@ Hauptkomponente für die Zuweisung von Shifts zu Container-Vorlagen.
 
 **Pfad:** `src/app/presentation/workplace/shift/container-template/`
 
+**Aufbau (seit 2026-10-21):** Die Komponente verdrahtet nur das Template und die eigenen Kontextmenü-/Dialog-Templates.
+Das Verhalten liegt in component-scoped Services unter `services/`:
+- `ContainerTemplateEditorStateService` - Editor-Zustand (Container, Zeitfenster, Wochentag/Feiertag, Grid, Laden, Read-only, Suche)
+- `ContainerTemplateSessionService` - Start/Ende der Sitzung (Lock, Laden per Route, Teardown-Reihenfolge, `destroy$`)
+- `ContainerTemplateViewRefreshService` - Signal-Brücken (Suche, Dirty/Savebar, Grid, Reset) und Refresh von Tasks/Slot/Start-End-Basis
+- `ContainerTemplateSelectionService` - Wochentag-, Feiertagsvarianten- und Tab-Wechsel
+- `ContainerTemplateTimeWindowService` - Von/Bis-Änderungen und entprellter Grid-Neuaufbau
+- `ContainerTemplateTaskActionsService` - Drop, Entfernen, Autofill, Route, Kompaktieren, PDF-Export
+- `ContainerTemplateContextMenuService` - Kontextmenü und Eigenschafts-/Absenz-Dialog
+- Konstanten: `container-template.constants.ts`
+
 **Features:**
 - Wochentagsauswahl (Monday bis Sunday) basierend auf Container-Konfiguration
 - Drag & Drop Zuweisung von verfügbaren Shifts

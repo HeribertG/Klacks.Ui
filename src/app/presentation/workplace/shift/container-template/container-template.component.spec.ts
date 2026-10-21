@@ -28,6 +28,11 @@ import { ContainerTemplateLifecycleService } from './services/container-template
 import { ContainerTemplateShiftOperationsService } from './services/container-template-shift-operations.service';
 import { ContainerTemplateAbsenceService } from './services/container-template-absence.service';
 import { ContainerTemplateDragDropService } from './services/container-template-drag-drop.service';
+import { ContainerTemplateEditorStateService } from './services/container-template-editor-state.service';
+import { ContainerTemplateSelectionService } from './services/container-template-selection.service';
+import { ContainerTemplateTimeWindowService } from './services/container-template-time-window.service';
+import { ContainerTemplateTaskActionsService } from './services/container-template-task-actions.service';
+import { ContainerTemplateViewRefreshService } from './services/container-template-view-refresh.service';
 
 @Component({
   selector: 'app-context-menu',
@@ -108,26 +113,27 @@ describe('ContainerTemplateComponent (characterization)', () => {
       return result;
     });
 
-  const view = () => component as unknown as Record<string, unknown>;
+  const service = <T>(token: new (...args: never[]) => T): T => fixture.debugElement.injector.get(token);
+  const view = () => service(ContainerTemplateEditorStateService) as unknown as Record<string, unknown>;
   const act = {
-    holidayVariantChange: () => component.onHolidayVariantChange(),
-    timeFromChange: (time: OwnTime) => component.onTimeFromChange(time),
-    timeToChange: (time: OwnTime) => component.onTimeToChange(time),
-    weekdayChange: () => component.onWeekdayChange(),
-    selectTab: (index: number) => component.selectTab(index),
-    removeAllTasks: () => component.onRemoveAllTasks(),
-    removeTask: (item: IContainerTemplateItem) => component.onRemoveTask(item),
-    autofill: () => component.autofill(),
-    optimizeRoute: () => component.optimizeRoute(),
-    compact: (keep?: boolean) => component.compactSelectedShifts(keep),
-    headerClick: (key: string) => component.onHeaderClick(key),
+    holidayVariantChange: () => service(ContainerTemplateSelectionService).onHolidayVariantChange(),
+    timeFromChange: (time: OwnTime) => service(ContainerTemplateTimeWindowService).onTimeFromChange(time),
+    timeToChange: (time: OwnTime) => service(ContainerTemplateTimeWindowService).onTimeToChange(time),
+    weekdayChange: () => service(ContainerTemplateSelectionService).onWeekdayChange(),
+    selectTab: (index: number) => service(ContainerTemplateSelectionService).selectTab(index),
+    removeAllTasks: () => service(ContainerTemplateTaskActionsService).removeAllTasks(),
+    removeTask: (item: IContainerTemplateItem) => service(ContainerTemplateTaskActionsService).removeTask(item),
+    autofill: () => service(ContainerTemplateTaskActionsService).autofill(),
+    optimizeRoute: () => service(ContainerTemplateTaskActionsService).optimizeRoute(),
+    compact: (keep?: boolean) => service(ContainerTemplateTaskActionsService).compactSelectedShifts(keep),
+    headerClick: (key: string) => service(ContainerTemplateViewRefreshService).sortBy(key),
     tableRowRightClick: (event: MouseEvent, item: IContainerTemplateItem) =>
       component.onTableRowRightClick(event, item),
     shiftRightClick: (event: IShiftContextMenuEvent) => component.onShiftRightClick(event),
     contextMenuClick: (keys: string[]) => component.onContextMenuClick(keys),
     absenceRowDblClick: (item: IContainerTemplateItem) => component.onAbsenceRowDblClick(item),
-    exportShifts: () => component.exportSelectedShiftsToPdf(),
-    exportRoute: () => component.exportRouteToPdf(),
+    exportShifts: () => service(ContainerTemplateTaskActionsService).exportSelectedShiftsToPdf(),
+    exportRoute: () => service(ContainerTemplateTaskActionsService).exportRouteToPdf(),
   };
   const contextMenuStub = () =>
     fixture.debugElement.children[0].componentInstance as ContextMenuStubComponent;

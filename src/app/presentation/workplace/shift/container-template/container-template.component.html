@@ -4,12 +4,12 @@
 <div
   id="container-template-wrapper"
   class="container-template-container"
-  [class.readonly-mode]="isReadOnly"
-  (contextmenu)="onContainerContextMenu($event)"
+  [class.readonly-mode]="state.isReadOnly"
+  (contextmenu)="$event.preventDefault()"
 >
-  @if (isReadOnly) {
+  @if (state.isReadOnly) {
     <div class="readonly-banner">
-      {{ readOnlyReason }}
+      {{ state.readOnlyReason }}
     </div>
   }
   <!-- Header -->
@@ -22,7 +22,7 @@
     <div class="header-content">
       <h2>
         {{
-          containerShift?.name ||
+          state.containerShift?.name ||
             ("shift.container-template.header" | translate)
         }}
       </h2>
@@ -30,8 +30,8 @@
       <div class="time-controls">
         <app-time-input
           [label]="'shift.container-template.from' | translate"
-          [value]="timeFrom"
-          (valueChange)="onTimeFromChange($event)"
+          [value]="state.timeFrom"
+          (valueChange)="timeWindow.onTimeFromChange($event)"
           [showLabel]="true"
           [forDuration]="false"
           [ngbTooltip]="
@@ -41,8 +41,8 @@
 
         <app-time-input
           [label]="'shift.container-template.until' | translate"
-          [value]="timeTo"
-          (valueChange)="onTimeToChange($event)"
+          [value]="state.timeTo"
+          (valueChange)="timeWindow.onTimeToChange($event)"
           [showLabel]="true"
           [forDuration]="false"
           [ngbTooltip]="
@@ -52,7 +52,7 @@
 
         <app-time-input
           [label]="'shift.container-template.duration' | translate"
-          [value]="duration"
+          [value]="state.duration"
           [showLabel]="true"
           [forDuration]="true"
           [disabled]="true"
@@ -61,10 +61,10 @@
       </div>
 
       <div class="weekday-buttons">
-        @for (day of weekdays; track day.value) {
+        @for (day of state.weekdays; track day.value) {
           <label
             class="weekday-button"
-            [class.active]="selectedWeekday === day.value"
+            [class.active]="state.selectedWeekday === day.value"
             [ngbTooltip]="
               'shift.container-template.tooltip.select-weekday' | translate
             "
@@ -73,9 +73,9 @@
               type="radio"
               name="weekday"
               [value]="day.value"
-              [(ngModel)]="selectedWeekday"
-              [disabled]="isWeekdaySelectionLocked"
-              (change)="onWeekdayChange()"
+              [(ngModel)]="state.selectedWeekday"
+              [disabled]="state.isWeekdaySelectionLocked"
+              (change)="selection.onWeekdayChange()"
             />
             <span>{{ day.labelKey | translate }}</span>
           </label>
@@ -83,11 +83,11 @@
       </div>
 
       <div class="holiday-checkboxes">
-        @if (hasHolidayVariant) {
+        @if (state.hasHolidayVariant) {
           <label
             class="holiday-checkbox"
             [ngbTooltip]="
-              (isEveryHolidayContainer
+              (state.isEveryHolidayContainer
                 ? 'shift.container-template.tooltip.holiday-filter'
                 : 'shift.container-template.tooltip.holiday-plus-filter'
               ) | translate
@@ -95,12 +95,12 @@
           >
             <input
               type="checkbox"
-              [(ngModel)]="isHoliday"
-              [disabled]="isHolidayVariantLocked"
-              (change)="onHolidayVariantChange()"
+              [(ngModel)]="state.isHoliday"
+              [disabled]="state.isHolidayVariantLocked"
+              (change)="selection.onHolidayVariantChange()"
             />
             <span>{{
-              (isEveryHolidayContainer
+              (state.isEveryHolidayContainer
                 ? "shift.container-template.weekday.holiday"
                 : "shift.container-template.weekday.holiday-plus"
               ) | translate
@@ -120,7 +120,7 @@
               class="form-select"
               [(ngModel)]="routeService.selectedStartBase"
               (change)="
-                routeService.onStartBaseChange(selectedWeekday, isHoliday)
+                routeService.onStartBaseChange(state.selectedWeekday, state.isHoliday)
               "
               [ngbTooltip]="
                 'shift.container-template.tooltip.start-base' | translate
@@ -147,7 +147,7 @@
               class="form-select"
               [(ngModel)]="routeService.selectedEndBase"
               (change)="
-                routeService.onEndBaseChange(selectedWeekday, isHoliday)
+                routeService.onEndBaseChange(state.selectedWeekday, state.isHoliday)
               "
               [ngbTooltip]="
                 'shift.container-template.tooltip.end-base' | translate
@@ -174,12 +174,12 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="routeService.selectedTransportMode === 0"
+                [class.active]="routeService.selectedTransportMode === ContainerTransportModeEnum.byCar"
                 (click)="
                   routeService.selectTransportMode(
-                    0,
-                    selectedWeekday,
-                    isHoliday
+                    ContainerTransportModeEnum.byCar,
+                    state.selectedWeekday,
+                    state.isHoliday
                   )
                 "
                 [ngbTooltip]="
@@ -191,15 +191,15 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="routeService.selectedTransportMode === 1"
+                [class.active]="routeService.selectedTransportMode === ContainerTransportModeEnum.byBicycle"
                 [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
                 [disabled]="!routeService.hasOpenRouteServiceApiKey"
                 (click)="
                   routeService.hasOpenRouteServiceApiKey &&
                     routeService.selectTransportMode(
-                      1,
-                      selectedWeekday,
-                      isHoliday
+                      ContainerTransportModeEnum.byBicycle,
+                      state.selectedWeekday,
+                      state.isHoliday
                     )
                 "
                 [ngbTooltip]="
@@ -215,15 +215,15 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="routeService.selectedTransportMode === 2"
+                [class.active]="routeService.selectedTransportMode === ContainerTransportModeEnum.byFoot"
                 [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
                 [disabled]="!routeService.hasOpenRouteServiceApiKey"
                 (click)="
                   routeService.hasOpenRouteServiceApiKey &&
                     routeService.selectTransportMode(
-                      2,
-                      selectedWeekday,
-                      isHoliday
+                      ContainerTransportModeEnum.byFoot,
+                      state.selectedWeekday,
+                      state.isHoliday
                     )
                 "
                 [ngbTooltip]="
@@ -239,15 +239,15 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="routeService.selectedTransportMode === 3"
+                [class.active]="routeService.selectedTransportMode === ContainerTransportModeEnum.mix"
                 [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
                 [disabled]="!routeService.hasOpenRouteServiceApiKey"
                 (click)="
                   routeService.hasOpenRouteServiceApiKey &&
                     routeService.selectTransportMode(
-                      3,
-                      selectedWeekday,
-                      isHoliday
+                      ContainerTransportModeEnum.mix,
+                      state.selectedWeekday,
+                      state.isHoliday
                     )
                 "
                 [ngbTooltip]="
@@ -274,10 +274,10 @@
       <as-split-area [size]="30" [minSize]="15" [maxSize]="50">
         <div class="zone zone-left">
           <app-time-ruler
-            [fromTime]="timeFrom"
-            [untilTime]="timeTo"
+            [fromTime]="state.timeFrom"
+            [untilTime]="state.timeTo"
             (shiftRightClick)="onShiftRightClick($event)"
-            (itemsDisplaced)="onItemsDisplaced()"
+            (itemsDisplaced)="viewRefresh.markForCheck()"
           ></app-time-ruler>
         </div>
       </as-split-area>
@@ -305,7 +305,7 @@
                   <app-icon-wizard
                     class="icon-table"
                     [class.disabled]="routeService.isAutofillRunning"
-                    (click)="autofill()"
+                    (click)="taskActions.autofill()"
                     [ngbTooltip]="
                       'shift.container-template.tooltip.autofill' | translate
                     "
@@ -321,8 +321,8 @@
                       "shift.container-template.tolerance.flexible" | translate
                     }}</span>
                     <ngx-slider
-                      [(value)]="timeRangeToleranceValue"
-                      [options]="timeRangeToleranceOptions"
+                      [(value)]="state.timeRangeToleranceValue"
+                      [options]="state.timeRangeToleranceOptions"
                     ></ngx-slider>
                     <span class="tolerance-endpoint">{{
                       "shift.container-template.tolerance.exact" | translate
@@ -331,7 +331,7 @@
                   <app-icon-route
                     class="icon-table"
                     [class.disabled]="routeService.isOptimizing"
-                    (click)="optimizeRoute()"
+                    (click)="taskActions.optimizeRoute()"
                     [ngbTooltip]="
                       'shift.container-template.tooltip.optimize-route'
                         | translate
@@ -340,7 +340,7 @@
                   @if (routeService.hasRouteInfo) {
                     <app-icon-route-file
                       class="icon-table"
-                      (click)="exportRouteToPdf()"
+                      (click)="taskActions.exportRouteToPdf()"
                       [ngbTooltip]="
                         'shift.container-template.tooltip.export-route-pdf'
                           | translate
@@ -350,7 +350,7 @@
                 }
                 <app-icon-pdf-icon
                   class="icon-table"
-                  (click)="exportSelectedShiftsToPdf()"
+                  (click)="taskActions.exportSelectedShiftsToPdf()"
                   [ngbTooltip]="
                     'shift.container-template.tooltip.export-shifts-pdf'
                       | translate
@@ -373,7 +373,7 @@
                     <button
                       type="button"
                       ngbDropdownItem
-                      (click)="compactSelectedShifts()"
+                      (click)="taskActions.compactSelectedShifts()"
                     >
                       {{
                         'shift.container-template.compact.without-travel'
@@ -383,7 +383,7 @@
                     <button
                       type="button"
                       ngbDropdownItem
-                      (click)="compactSelectedShifts(true)"
+                      (click)="taskActions.compactSelectedShifts(true)"
                     >
                       {{
                         'shift.container-template.compact.with-travel'
@@ -404,9 +404,9 @@
                   class="shifts-grid"
                   cdkDropList
                   id="selected-tasks-list"
-                  [cdkDropListData]="selectedContainerTemplateItems"
-                  [cdkDropListConnectedTo]="getConnectedDropLists()"
-                  (cdkDropListDropped)="onTaskDrop($event)"
+                  [cdkDropListData]="shiftService.selectedContainerTemplateItemsSignal()"
+                  [cdkDropListConnectedTo]="dragDropService.getConnectedDropLists()"
+                  (cdkDropListDropped)="taskActions.onTaskDrop($event)"
                 >
                   <table id="selected-tasks-table" class="shifts-table">
                     <thead>
@@ -435,13 +435,13 @@
                             "shift.container-template.grid.client" | translate
                           }}
                         </th>
-                        <th class="action-column1" (click)="onRemoveAllTasks()">
+                        <th class="action-column1" (click)="taskActions.removeAllTasks()">
                           <app-icon-trash-red></app-icon-trash-red>
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      @if (selectedContainerTemplateItems.length === 0) {
+                      @if (shiftService.selectedContainerTemplateItemsSignal().length === 0) {
                         <tr class="empty-drop-zone">
                           <td colspan="7">
                             <div class="no-shifts">
@@ -456,7 +456,7 @@
                         </tr>
                       }
                       @for (
-                        shift of selectedContainerTemplateItems;
+                        shift of shiftService.selectedContainerTemplateItemsSignal();
                         track shift.id || shift.tmpId
                       ) {
                         <tr
@@ -465,12 +465,12 @@
                           class="touch-no-callout"
                           appLongPressContext
                           [cdkDragStartDelay]="rowDragStartDelay"
-                          (click)="onShiftRowClick(shift)"
+                          (click)="shiftService.setSelectedShift(shift)"
                           (dblclick)="onAbsenceRowDblClick(shift)"
                           (contextmenu)="onTableRowRightClick($event, shift)"
-                          [class.selected]="shift === selectedShift"
+                          [class.selected]="shift === shiftService.selectedShiftSignal()"
                           [class.timerange-violation]="
-                            hasTimeRangeViolation(shift)
+                            shiftOpsService.hasTimeRangeViolation(shift)
                           "
                           [class.absence-item]="!!shift.absenceId"
                           [style.background-color]="
@@ -515,9 +515,9 @@
                                 (click)="$event.stopPropagation()"
                               >
                                 <app-time-input
-                                  [value]="getTimeRangeStartTime(shift)"
+                                  [value]="shiftOpsService.getTimeRangeStartTime(shift)"
                                   (valueChange)="
-                                    onTimeRangeStartChange(shift, $event)
+                                    shiftOpsService.onTimeRangeStartChange(shift, $event)
                                   "
                                   [showLabel]="false"
                                   [forDuration]="false"
@@ -553,7 +553,7 @@
                           <td
                             class="action-column"
                             (click)="
-                              onRemoveTask(shift); $event.stopPropagation()
+                              taskActions.removeTask(shift); $event.stopPropagation()
                             "
                           >
                             <app-icon-trash-red></app-icon-trash-red>
@@ -570,31 +570,31 @@
           <!-- Zone 3: Bottom -->
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-right">
-              @if (isLoading) {
+              @if (state.isLoading) {
                 <div class="loading-indicator">
                   <p>{{ "common.loading" | translate }}</p>
                 </div>
-              } @else if (templateGrid) {
+              } @else if (state.templateGrid) {
                 <!-- Tabs -->
                 <div class="tabs-container">
                   <div class="tabs">
                     @for (
-                      row of getFilteredRowsForSelectedWeekday();
+                      row of viewRefresh.getFilteredRowsForSelectedWeekday();
                       track $index
                     ) {
                       <button
                         class="tab"
                         [class.active]="tabService.selectedTabIndex === $index"
-                        (click)="selectTab($index)"
+                        (click)="selection.selectTab($index)"
                       >
-                        {{ getTabLabel($index) }}
+                        {{ viewRefresh.getTabLabel($index) }}
                       </button>
                     }
                     <span class="filler"></span>
                     <button
                       class="tab permanent-tab"
                       [class.active]="tabService.isEmploymentTabActive"
-                      (click)="selectEmploymentTab()"
+                      (click)="selection.selectEmploymentTab()"
                     >
                       {{
                         "shift.container-template.tab.employment" | translate
@@ -687,7 +687,7 @@
                             <tr>
                               <th class="icon-column"></th>
                               <th
-                                (click)="onHeaderClick('name')"
+                                (click)="viewRefresh.sortBy('name')"
                                 style="cursor: pointer"
                               >
                                 {{
@@ -697,7 +697,7 @@
                                 {{ sortingService.getArrow("name") }}
                               </th>
                               <th
-                                (click)="onHeaderClick('abbreviation')"
+                                (click)="viewRefresh.sortBy('abbreviation')"
                                 style="cursor: pointer"
                               >
                                 {{
@@ -707,7 +707,7 @@
                                 {{ sortingService.getArrow("abbreviation") }}
                               </th>
                               <th
-                                (click)="onHeaderClick('startShift')"
+                                (click)="viewRefresh.sortBy('startShift')"
                                 style="cursor: pointer"
                               >
                                 {{
@@ -717,7 +717,7 @@
                                 {{ sortingService.getArrow("startShift") }}
                               </th>
                               <th
-                                (click)="onHeaderClick('workTime')"
+                                (click)="viewRefresh.sortBy('workTime')"
                                 style="cursor: pointer"
                               >
                                 {{
@@ -727,7 +727,7 @@
                                 {{ sortingService.getArrow("workTime") }}
                               </th>
                               <th
-                                (click)="onHeaderClick('client')"
+                                (click)="viewRefresh.sortBy('client')"
                                 style="cursor: pointer"
                               >
                                 {{
@@ -745,7 +745,6 @@
                             [cdkDropListData]="tabService.availableTasks"
                             [cdkDropListConnectedTo]="['selected-tasks-list']"
                             [cdkDropListSortingDisabled]="true"
-                            (cdkDropListDropped)="onAvailableTasksDrop()"
                           >
                             @for (
                               shift of tabService.availableTasks;
@@ -755,7 +754,7 @@
                                 cdkDrag
                                 cdkDragLockAxis="y"
                                 [class.partial-timerange]="
-                                  isTimeRangePartial(shift)
+                                  taskActions.isTimeRangePartial(shift)
                                 "
                               >
                                 <td class="icon-column">
@@ -1072,7 +1071,7 @@
         </label>
         <app-time-input
           [value]="absenceService.absenceStartTime"
-          (valueChange)="onAbsenceStartTimeChange($event)"
+          (valueChange)="absenceService.onAbsenceStartTimeChange($event)"
           [showLabel]="false"
           [forDuration]="false"
         ></app-time-input>
@@ -1083,7 +1082,7 @@
         </label>
         <app-time-input
           [value]="absenceService.absenceEndTime"
-          (valueChange)="onAbsenceEndTimeChange($event)"
+          (valueChange)="absenceService.onAbsenceEndTimeChange($event)"
           [showLabel]="false"
           [forDuration]="false"
         ></app-time-input>

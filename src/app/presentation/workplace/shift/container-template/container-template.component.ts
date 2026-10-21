@@ -1,53 +1,48 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Container template component for weekly shift planning in containers.
- * @param containerShift - The current container shift with time frame and weekdays
- * @param templateGrid - The grid with all available slots per weekday
- * @param routeService - Manages route optimization, autofill, and transport mode
- * @param propertiesService - Manages the properties dialog of individual template items
- * @param tabService - Manages tab selection, weekday switching, and available tasks
- * @param lifecycleService - Manages initialization, lifecycle, and search state
- * @param shiftOpsService - Manages shift operations (arrangement, compaction, export)
- * @param isHoliday - Whether the holiday template is edited; for an FT container it is the single template of every holiday, for +FT the one of the selected weekday
+ * Container template component for weekly shift planning in containers. The behaviour lives in the
+ * component-scoped services listed in providers; this class wires them to the template and bridges
+ * the context menu and dialog templates of its own view.
+ * @param state - Editor state: container, time window, weekday/holiday selection, grid, loading and read-only flags
+ * @param session - Starts and ends the editing session (lock, routed load, teardown)
+ * @param viewRefresh - Signal bridges and refreshes of tasks, slot and start/end base
+ * @param selection - Weekday, holiday variant and tab switching
+ * @param timeWindow - Time window edits and the debounced grid rebuild
+ * @param taskActions - Drop, remove, autofill, route, compaction and PDF export of the selected tasks
+ * @param contextMenuActions - Context menu and the properties/absence dialogs
  */
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   inject,
   OnDestroy,
   OnInit,
-  effect,
-  computed,
   TemplateRef,
-  viewChild
+  viewChild,
 } from '@angular/core';
-
 import { FormsModule } from '@angular/forms';
-import { Observable, Subject, EMPTY } from 'rxjs';
-import { takeUntil, debounceTime, switchMap, tap } from 'rxjs';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {
-  CdkDragDrop,
-  DragDropModule,
-} from '@angular/cdk/drag-drop';
-import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
-import { IShift } from 'src/app/domain/models/shift/shift.interface';
-import { IContainerTemplateSlot } from 'src/app/domain/models/container/container-template-slot';
-import { IContainerTemplateGrid } from 'src/app/domain/models/container/container-template-grid.interface';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import {
-  ContainerTransportModeEnum,
-  TransportModeEnum,
-} from 'src/app/domain/enums/transport-mode.enum';
-import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
+import { ContainerTransportModeEnum, TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
+import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
+import { DirectionService } from 'src/app/application/services/direction.service';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/shift-context-menu-event.interface';
+import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
+import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
@@ -56,27 +51,14 @@ import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.co
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
 import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
-import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
-import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
-import { MenuItem } from 'src/app/presentation/shared/context-menu/menu-item-class';
-import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/shift-context-menu-event.interface';
 import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
-import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
-import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
-import {
-  formatTime,
-  timeToString,
-} from 'src/app/shared/helpers/time-format.helper';
-import {
-  formatClientWithAddress,
-  formatWorkTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatClientWithAddress, formatWorkTime } from 'src/app/shared/helpers/container-template-format.helper';
+import { CONTAINER_TEMPLATE_ROW_DRAG_MOUSE_START_DELAY_MS } from './container-template.constants';
 import { ContainerTemplateRouteService } from './services/container-template-route.service';
 import { ContainerTemplatePropertiesService } from './services/container-template-properties.service';
 import { ContainerTemplateTabService } from './services/container-template-tab.service';
@@ -89,15 +71,13 @@ import { MapRenderingService } from './services/map-rendering.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';
 import { ContainerTemplateAbsenceService } from './services/container-template-absence.service';
 import { ContainerTemplateDragDropService } from './services/container-template-drag-drop.service';
-import { DirectionService } from 'src/app/application/services/direction.service';
-import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
-import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
-import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
-import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
-import { ProgressLineComponent } from 'src/app/presentation/shared/progress-line/progress-line.component';
-import { FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME } from 'src/app/domain/constants/container-template-holiday.constants';
+import { ContainerTemplateEditorStateService } from './services/container-template-editor-state.service';
+import { ContainerTemplateViewRefreshService } from './services/container-template-view-refresh.service';
+import { ContainerTemplateTimeWindowService } from './services/container-template-time-window.service';
+import { ContainerTemplateSelectionService } from './services/container-template-selection.service';
+import { ContainerTemplateSessionService } from './services/container-template-session.service';
+import { ContainerTemplateTaskActionsService } from './services/container-template-task-actions.service';
+import { ContainerTemplateContextMenuService } from './services/container-template-context-menu.service';
 
 @Component({
   selector: 'app-container-template',
@@ -149,743 +129,74 @@ import { FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME } from 'src/app/domain/constants/conta
     ContainerTemplateShiftOperationsService,
     ContainerTemplateAbsenceService,
     ContainerTemplateDragDropService,
+    ContainerTemplateEditorStateService,
+    ContainerTemplateViewRefreshService,
+    ContainerTemplateTimeWindowService,
+    ContainerTemplateSelectionService,
+    ContainerTemplateSessionService,
+    ContainerTemplateTaskActionsService,
+    ContainerTemplateContextMenuService,
   ],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {
   protected readonly rowDragStartDelay = {
     touch: TouchInteraction.RowDragTouchStartDelayMs,
-    mouse: 0,
+    mouse: CONTAINER_TEMPLATE_ROW_DRAG_MOUSE_START_DELAY_MS,
   };
-  private _timeFrom = OwnTime.forTime('06', '00');
-  private _timeTo = OwnTime.forTime('18', '00');
+  protected readonly TransportModeEnum = TransportModeEnum;
+  protected readonly ContainerTransportModeEnum = ContainerTransportModeEnum;
+  protected readonly formatTime = formatTime;
+  protected readonly formatWorkTime = formatWorkTime;
+  protected readonly formatClientWithAddress = formatClientWithAddress;
 
-  get timeFrom() {
-    return this._timeFrom;
-  }
-  set timeFrom(value: OwnTime) {
-    this._timeFrom = value;
-  }
+  protected readonly direction = inject(DirectionService).direction;
+  protected readonly translateService = inject(TranslateService);
+  protected readonly addressProvider = inject(AddressProviderService);
+  protected readonly sortingService = inject(TableSortingService);
+  protected readonly shiftService = inject(ContainerTemplateShiftService);
+  protected readonly routeService = inject(ContainerTemplateRouteService);
+  protected readonly propertiesService = inject(ContainerTemplatePropertiesService);
+  protected readonly tabService = inject(ContainerTemplateTabService);
+  protected readonly absenceService = inject(ContainerTemplateAbsenceService);
+  protected readonly shiftOpsService = inject(ContainerTemplateShiftOperationsService);
+  protected readonly dragDropService = inject(ContainerTemplateDragDropService);
+  protected readonly state = inject(ContainerTemplateEditorStateService);
+  protected readonly viewRefresh = inject(ContainerTemplateViewRefreshService);
+  protected readonly selection = inject(ContainerTemplateSelectionService);
+  protected readonly timeWindow = inject(ContainerTemplateTimeWindowService);
+  protected readonly taskActions = inject(ContainerTemplateTaskActionsService);
+  private readonly session = inject(ContainerTemplateSessionService);
+  private readonly contextMenuActions = inject(ContainerTemplateContextMenuService);
 
-  get timeTo() {
-    return this._timeTo;
-  }
-  set timeTo(value: OwnTime) {
-    this._timeTo = value;
-  }
-
-  public selectedWeekday: string | null = null;
-  public isHoliday = false;
-  private weekdayBeforeHoliday: string | null = null;
-  public duration: OwnTime = OwnTime.forDuration('00', '00');
-
-  public weekdays = [
-    { value: 'monday', labelKey: 'shift.container-template.weekday.monday' },
-    { value: 'tuesday', labelKey: 'shift.container-template.weekday.tuesday' },
-    {
-      value: 'wednesday',
-      labelKey: 'shift.container-template.weekday.wednesday',
-    },
-    {
-      value: 'thursday',
-      labelKey: 'shift.container-template.weekday.thursday',
-    },
-    { value: 'friday', labelKey: 'shift.container-template.weekday.friday' },
-    {
-      value: 'saturday',
-      labelKey: 'shift.container-template.weekday.saturday',
-    },
-    { value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' },
-  ];
-
-  direction = inject(DirectionService).direction;
-
-  private containerService = inject(DataManagementContainerService);
-  private shiftService = inject(ContainerTemplateShiftService);
-  public translateService = inject(TranslateService);
-
-  public sortingService = inject(TableSortingService);
-  public addressProvider = inject(AddressProviderService);
-  private cdr = inject(ChangeDetectorRef);
-  readonly routeService = inject(ContainerTemplateRouteService);
-  readonly propertiesService = inject(ContainerTemplatePropertiesService);
-  readonly tabService = inject(ContainerTemplateTabService);
-  private lifecycleService = inject(ContainerTemplateLifecycleService);
-  private shiftOpsService = inject(ContainerTemplateShiftOperationsService);
-  readonly absenceService = inject(ContainerTemplateAbsenceService);
-  private dragDropService = inject(ContainerTemplateDragDropService);
-  private lockService = inject(ContainerLockService);
-  private toastService = inject(ToastShowService);
-  public isReadOnly = false;
-  public readOnlyReason = '';
-  private destroy$ = new Subject<void>();
-  private timeChange$ = new Subject<void>();
-
-  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
-  readonly propertiesModal = viewChild.required<TemplateRef<unknown>>('propertiesModal');
-  readonly absenceTimeModal = viewChild.required<TemplateRef<unknown>>('absenceTimeModal');
-
-  public containerShift: IShift | null = null;
-  public templateGrid: IContainerTemplateGrid | null = null;
-  public isLoading = false;
-
-  timeRangeToleranceValue = 50;
-  timeRangeToleranceOptions: Options = {
-    floor: 0,
-    ceil: 100,
-    step: 10,
-    showSelectionBar: true,
-    hideLimitLabels: true,
-    hidePointerLabels: true,
-  };
-
-  private currentSearchString = '';
-  private currentIncludeAddress = false;
-
-  formatTime = formatTime;
-
-  get selectedContainerTemplateItems(): IContainerTemplateItem[] {
-    return this.shiftService.selectedContainerTemplateItemsSignal();
-  }
-
-  get selectedShift(): IContainerTemplateItem | null {
-    return this.shiftService.selectedShiftSignal();
-  }
-
-  get TransportModeEnum(): typeof TransportModeEnum {
-    return TransportModeEnum;
-  }
-
-  get ContainerTransportModeEnum(): typeof ContainerTransportModeEnum {
-    return ContainerTransportModeEnum;
-  }
-
-  private isDirty = computed(() => {
-    const hasSelectedTasks =
-      this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
-    const hasTemplateChanges = this.containerService.areObjectsDirty();
-    return hasSelectedTasks || hasTemplateChanges;
-  });
-
-  private canSaveComputed = computed(() => {
-    const hasSelectedTasks =
-      this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
-    const canSaveTemplates = this.containerService.canSave();
-    return hasSelectedTasks || canSaveTemplates;
-  });
+  private readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  private readonly propertiesModal = viewChild.required<TemplateRef<unknown>>('propertiesModal');
+  private readonly absenceTimeModal = viewChild.required<TemplateRef<unknown>>('absenceTimeModal');
 
   constructor() {
-    this.wireSearchEffect();
-    this.wireDirtyBridgeEffect();
-    this.wireTemplateGridEffect();
-    this.wireResetEffect();
-  }
-
-  private wireSearchEffect(): void {
-    effect(() => {
-      const searchString = this.lifecycleService.searchStateService.containerTemplateSearch();
-      const includeAddress = this.lifecycleService.searchStateService.containerTemplateIncludeAddress();
-      const changed =
-        this.currentSearchString !== searchString
-        || this.currentIncludeAddress !== includeAddress;
-      if (!changed) return;
-
-      this.currentSearchString = searchString;
-      this.currentIncludeAddress = includeAddress;
-      this.onSearchChanged();
-    });
-  }
-
-  // Bridges component-local dirty/canSave signals to the global SaveBar via WorkplaceStateService
-  private wireDirtyBridgeEffect(): void {
-    effect(() => {
-      this.isDirty();
-      this.canSaveComputed();
-      this.lifecycleService.workplaceStateService.areObjectsDirty();
-    });
-  }
-
-  private wireTemplateGridEffect(): void {
-    effect(() => {
-      this.templateGrid = this.containerService.templateGrid();
-      this.isLoading = this.containerService.loading();
-      this.cdr.markForCheck();
-    });
-  }
-
-  private wireResetEffect(): void {
-    effect(() => {
-      if (!this.containerService.isReset()) return;
-      this.updateAvailableTasks();
-      this.cdr.markForCheck();
-    });
+    this.viewRefresh.connect();
   }
 
   ngOnInit(): void {
-    this.lifecycleService.initialize();
-
-    this.lifecycleService.registerSaveCompletedCallback(
-      () => this.containerShift,
-      () => this.selectedWeekday,
-      () => this.isHoliday,
-      () => {
-        this.updateAvailableTasks();
-        this.updateCurrentWeekdayAndSlot();
-        this.routeService.loadStartEndBaseForCurrentTemplate(
-          this.selectedWeekday,
-          this.isHoliday,
-        );
-        this.cdr.markForCheck();
-      },
-    );
-
-    this.calculateDuration();
-
-    this.sortingService.initialize({
-      columns: ['name', 'abbreviation', 'startShift', 'client'],
-      defaultOrderBy: 'name',
-      defaultSortOrder: 'asc',
-      useThreeWaySort: false,
-    });
-
-    this.lifecycleService
-      .observeRouteParams(this.destroy$)
-      .subscribe((id) => {
-        if (id) {
-          this.loadContainerShift(id);
-        }
-      });
-
-    this.timeChange$
-      .pipe(debounceTime(500), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.executeGridRefresh();
-      });
+    this.session.start();
   }
 
   ngOnDestroy(): void {
-    this.lockService.release();
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.containerService.destroy();
-  }
-
-  private acquireLock(shiftId: string): void {
-    this.lockService
-      .acquire(ContainerLockResourceType.containerTemplate, shiftId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: lock => {
-          if (!lock.acquired) {
-            const key = lock.isSelfConflict
-              ? 'container.lock.lockedBySelf'
-              : 'container.lock.lockedByOther';
-            const message = this.translateService.instant(key, { user: lock.userName });
-            this.toastService.showInfo(message);
-            this.isReadOnly = true;
-            this.readOnlyReason = message;
-            this.cdr.markForCheck();
-          }
-        },
-        error: () => {},
-      });
-  }
-
-  private loadContainerShift(id: string): void {
-    this.isLoading = true;
-    this.acquireLock(id);
-    this.lifecycleService
-      .loadShift(id)
-      .pipe(
-        takeUntil(this.destroy$),
-        tap((shift) => this.applyLoadedShift(shift)),
-        switchMap((shift) => this.containerService.initializeTemplateGrid(shift)),
-        switchMap(() => this.loadTasksAndTemplatesForWeekday()),
-      )
-      .subscribe({
-        next: () => this.onShiftLoaded(),
-        error: () => this.onShiftLoadFailed(),
-      });
-  }
-
-  private applyLoadedShift(shift: IShift): void {
-    this.containerShift = shift;
-    this.setTimeFromShift(shift);
-    this.setActiveWeekdays(shift);
-  }
-
-  private loadTasksAndTemplatesForWeekday(): Observable<unknown> {
-    if (!this.selectedWeekday) return EMPTY;
-
-    const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-    return this.containerService.loadTasksForWeekday(weekdayNumber).pipe(
-      switchMap(() => this.containerService.loadTemplates(this.containerShift!.id!)),
-    );
-  }
-
-  private onShiftLoaded(): void {
-    this.isLoading = false;
-    this.updateAvailableTasks();
-    this.routeService.loadStartEndBaseForCurrentTemplate(this.selectedWeekday, this.isHoliday);
-    this.cdr.markForCheck();
-  }
-
-  private onShiftLoadFailed(): void {
-    this.isLoading = false;
-    this.cdr.markForCheck();
-  }
-
-  private setTimeFromShift(shift: IShift): void {
-    if (shift.startShift && shift.endShift) {
-      const [startHours, startMinutes] = shift.startShift.split(':');
-      const [endHours, endMinutes] = shift.endShift.split(':');
-
-      this.timeFrom = OwnTime.forTime(startHours, startMinutes);
-      this.timeTo = OwnTime.forTime(endHours, endMinutes);
-      this.calculateDuration();
-    }
-  }
-
-  private setActiveWeekdays(shift: IShift): void {
-    const activeWeekdays = this.containerService.getActiveWeekdays(shift);
-    this.weekdays = activeWeekdays;
-    this.isHoliday = false;
-    this.weekdayBeforeHoliday = null;
-
-    if (activeWeekdays.length > 0) {
-      this.selectedWeekday = activeWeekdays[0].value;
-    } else if (this.isEveryHolidayContainer) {
-      this.isHoliday = true;
-      this.selectedWeekday = FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME;
-    }
-    this.syncItemBufferKey();
-  }
-
-  get hasHolidayVariant(): boolean {
-    return !!this.containerShift?.isHoliday || !!this.containerShift?.isWeekdayAndHoliday;
-  }
-
-  get isEveryHolidayContainer(): boolean {
-    return !!this.containerShift?.isHoliday && !this.containerShift?.isWeekdayAndHoliday;
-  }
-
-  get isWeekdaySelectionLocked(): boolean {
-    return this.isHoliday && this.isEveryHolidayContainer;
-  }
-
-  get isHolidayVariantLocked(): boolean {
-    return this.isEveryHolidayContainer && this.weekdays.length === 0;
-  }
-
-  onHolidayVariantChange(): void {
-    if (this.isEveryHolidayContainer) {
-      if (this.isHoliday) {
-        this.weekdayBeforeHoliday = this.selectedWeekday;
-        this.selectedWeekday = FT_HOLIDAY_TEMPLATE_WEEKDAY_NAME;
-      } else {
-        this.selectedWeekday = this.weekdayBeforeHoliday ?? this.weekdays[0]?.value ?? null;
-      }
-    }
-    this.onWeekdayChange();
-  }
-
-  private syncItemBufferKey(): void {
-    if (this.selectedWeekday) {
-      this.shiftService.setCurrentWeekday(
-        ContainerTemplateShiftService.bufferKey(this.selectedWeekday, this.isHoliday),
-      );
-    }
-  }
-
-  onTimeFromChange(time: OwnTime): void {
-    this.timeFrom = OwnTime.forTime(time.hours, time.minutes);
-    this.calculateDuration();
-
-    if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(
-        this.selectedWeekday,
-      );
-      const timeString = timeToString(
-        parseInt(this.timeFrom.hours),
-        parseInt(this.timeFrom.minutes),
-      );
-      this.containerService.updateFromTime(
-        weekdayNumber,
-        this.isHoliday,
-        timeString,
-      );
-      this.lifecycleService.markDirty();
-    }
-
-    this.timeChange$.next();
-  }
-
-  onTimeToChange(time: OwnTime): void {
-    this.timeTo = OwnTime.forTime(time.hours, time.minutes);
-    this.calculateDuration();
-
-    if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(
-        this.selectedWeekday,
-      );
-      const timeString = timeToString(
-        parseInt(this.timeTo.hours),
-        parseInt(this.timeTo.minutes),
-      );
-      this.containerService.updateUntilTime(
-        weekdayNumber,
-        this.isHoliday,
-        timeString,
-      );
-      this.lifecycleService.markDirty();
-    }
-
-    this.timeChange$.next();
-  }
-
-  private executeGridRefresh(): void {
-    if (!this.containerShift) {
-      return;
-    }
-
-    const updatedShift: IShift = {
-      ...this.containerShift,
-      startShift: timeToString(
-        parseInt(this.timeFrom.hours),
-        parseInt(this.timeFrom.minutes),
-      ),
-      endShift: timeToString(
-        parseInt(this.timeTo.hours),
-        parseInt(this.timeTo.minutes),
-      ),
-    };
-
-    this.containerService
-      .initializeTemplateGrid(updatedShift)
-      .pipe(
-        switchMap(() => {
-          if (this.selectedWeekday) {
-            const weekdayNumber = this.containerService.getWeekdayNumber(
-              this.selectedWeekday,
-            );
-            return this.containerService.loadTasksForWeekday(weekdayNumber);
-          }
-          return [];
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.updateAvailableTasks();
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.cdr.markForCheck();
-        },
-      });
-  }
-
-  private calculateDuration(): void {
-    this.duration = this.shiftOpsService.calculateDuration(
-      this.timeFrom,
-      this.timeTo,
-    );
-  }
-
-  onWeekdayChange(): void {
-    this.tabService.onWeekdayChange(this.selectedWeekday);
-    this.syncItemBufferKey();
-    if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(
-        this.selectedWeekday,
-      );
-      this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
-        this.updateAvailableTasks();
-        this.updateCurrentWeekdayAndSlot();
-        this.routeService.loadStartEndBaseForCurrentTemplate(
-          this.selectedWeekday,
-          this.isHoliday,
-        );
-        this.cdr.markForCheck();
-      });
-    }
-  }
-
-  selectTab(index: number): void {
-    this.tabService.selectTab(index);
-    this.updateAvailableTasks();
-    this.updateCurrentWeekdayAndSlot();
-    this.routeService.loadStartEndBaseForCurrentTemplate(
-      this.selectedWeekday,
-      this.isHoliday,
-    );
-    this.cdr.markForCheck();
-  }
-
-  async selectEmploymentTab(): Promise<void> {
-    await this.tabService.selectEmploymentTab();
-    this.cdr.markForCheck();
-  }
-
-  updateAvailableTasks(): void {
-    this.tabService.updateAvailableTasks(
-      this.selectedWeekday,
-      this.isHoliday,
-      this.templateGrid,
-      this.currentSearchString,
-      this.currentIncludeAddress,
-    );
-  }
-
-  getFilteredRowsForSelectedWeekday(): IContainerTemplateSlot[][] {
-    return this.tabService.getFilteredRowsForSelectedWeekday(
-      this.selectedWeekday,
-      this.isHoliday,
-      this.templateGrid,
-    );
-  }
-
-  getTabLabel(rowIndex: number): string {
-    return this.tabService.getTabLabel(
-      rowIndex,
-      this.selectedWeekday,
-      this.isHoliday,
-      this.templateGrid,
-    );
-  }
-
-  getSlotsForSelectedTab(): IContainerTemplateSlot[] {
-    const filteredRows = this.getFilteredRowsForSelectedWeekday();
-    return filteredRows[this.tabService.selectedTabIndex] ?? [];
-  }
-
-  getConnectedDropLists(): string[] {
-    return this.dragDropService.getConnectedDropLists();
-  }
-
-  onTaskDrop(event: CdkDragDrop<IContainerTemplateItem[]>): void {
-    this.dragDropService.onTaskDrop(
-      event,
-      this.timeFrom,
-      this.timeTo,
-      this.selectedWeekday,
-      this.isHoliday,
-    );
-    this.cdr.markForCheck();
-  }
-
-  formatWorkTime = formatWorkTime;
-
-  formatClientWithAddress = formatClientWithAddress;
-
-  hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
-    return this.shiftOpsService.hasTimeRangeViolation(item);
-  }
-
-  isTimeRangePartial(shift: IShift): boolean {
-    return this.shiftOpsService.isTimeRangePartial(shift, this.timeFrom, this.timeTo);
-  }
-
-  onRemoveAllTasks(): void {
-    const items = [...this.selectedContainerTemplateItems];
-    for (const item of items) {
-      this.shiftOpsService.removeTask(
-        item,
-        this.selectedWeekday,
-        this.isHoliday,
-        () => {},
-      );
-    }
-    this.updateAvailableTasks();
-    this.cdr.markForCheck();
-  }
-
-  onRemoveTask(item: IContainerTemplateItem): void {
-    this.shiftOpsService.removeTask(
-      item,
-      this.selectedWeekday,
-      this.isHoliday,
-      () => this.updateAvailableTasks(),
-    );
-    this.cdr.markForCheck();
-  }
-
-  onAvailableTasksDrop(): void {}
-
-  getTimeRangeStartTime(item: IContainerTemplateItem): OwnTime {
-    return this.shiftOpsService.getTimeRangeStartTime(item);
-  }
-
-  onTimeRangeStartChange(item: IContainerTemplateItem, newTime: OwnTime): void {
-    this.shiftOpsService.onTimeRangeStartChange(item, newTime);
-  }
-
-  autofill(): void {
-    this.routeService.autofill({
-      containerShift: this.containerShift,
-      selectedWeekday: this.selectedWeekday,
-      isHoliday: this.isHoliday,
-      timeFrom: this.timeFrom,
-      timeTo: this.timeTo,
-      additionalAvailableWorkIds: [],
-      timeRangeToleranceValue: this.timeRangeToleranceValue,
-      destroy$: this.destroy$,
-      onStateChanged: () => {
-        this.updateAvailableTasks();
-        this.cdr.markForCheck();
-      },
-    }, this.tabService.availableTasks);
-  }
-
-  optimizeRoute(): void {
-    this.routeService.optimizeRoute(
-      this.selectedWeekday,
-      this.isHoliday,
-      this.timeFrom,
-      this.destroy$,
-      () => {
-        this.updateAvailableTasks();
-        this.cdr.markForCheck();
-      },
-    );
-  }
-
-  exportSelectedShiftsToPdf(): void {
-    this.shiftOpsService.exportSelectedShiftsToPdf(
-      this.containerShift,
-      this.selectedWeekday,
-      this.timeFrom,
-      this.timeTo,
-    );
-  }
-
-  exportRouteToPdf(): void {
-    this.shiftOpsService.exportRouteToPdf(
-      this.containerShift,
-      this.selectedWeekday,
-      this.timeFrom,
-    );
-  }
-
-  onItemsDisplaced(): void {
-    this.cdr.markForCheck();
-  }
-
-  onShiftRowClick(item: IContainerTemplateItem): void {
-    this.shiftService.setSelectedShift(item);
-  }
-
-  onHeaderClick(columnKey: string): void {
-    this.sortingService.onHeaderClick(columnKey, () => {
-      this.updateAvailableTasks();
-      this.cdr.markForCheck();
-    });
+    this.session.stop();
   }
 
   onShiftRightClick(event: IShiftContextMenuEvent): void {
-    this.propertiesService.contextMenuTargetItem = event.item;
-    this.shiftService.setSelectedShift(event.item);
-    this.openContextMenu(event.mouseEvent);
+    this.contextMenuActions.openForTimelineShift(event, this.contextMenu());
   }
 
   onTableRowRightClick(event: MouseEvent, item: IContainerTemplateItem): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.propertiesService.contextMenuTargetItem = item;
-    this.shiftService.setSelectedShift(item);
-    this.openContextMenu(event);
+    this.contextMenuActions.openForTableRow(event, item, this.contextMenu());
   }
 
   onContextMenuClick(keys: string[]): void {
-    if (keys.includes('properties')) {
-      this.openPropertiesDialog();
-    }
-    this.contextMenu().closeMenu(true);
-  }
-
-  onContainerContextMenu(event: MouseEvent): void {
-    event.preventDefault();
-  }
-
-  compactSelectedShifts(keepTravelAndBriefing = false): void {
-    this.shiftOpsService.compactSelectedShifts(
-      this.timeFrom,
-      this.timeTo,
-      this.selectedWeekday,
-      this.isHoliday,
-      keepTravelAndBriefing,
-    );
-    this.cdr.markForCheck();
-  }
-
-  private onSearchChanged(): void {
-    this.updateAvailableTasks();
-    this.cdr.markForCheck();
-  }
-
-  private updateCurrentWeekdayAndSlot(): void {
-    if (!this.selectedWeekday) return;
-
-    const weekdayNumber = this.containerService.getWeekdayNumber(
-      this.selectedWeekday,
-    );
-    const slots = this.getSlotsForSelectedTab();
-
-    if (slots.length > 0) {
-      this.containerService.setCurrentWeekdayAndSlot(weekdayNumber, slots[0]);
-    }
-  }
-
-  private openContextMenu(event: MouseEvent): void {
-    const menuData = new Menu();
-    const propertiesItem = new MenuItem(
-      'properties',
-      this.translateService.instant(
-        'shift.container-template.context-menu.properties',
-      ),
-      false,
-    );
-    menuData.list.push(propertiesItem);
-
-    const contextMenu = this.contextMenu();
-    contextMenu.menuData = menuData;
-    contextMenu.openMenu(event);
-  }
-
-  private openPropertiesDialog(): void {
-    const target = this.propertiesService.contextMenuTargetItem;
-    if (target?.absenceId) {
-      this.absenceService.openAbsenceTimeModal(
-        target,
-        this.absenceTimeModal(),
-        this.timeFrom,
-        this.timeTo,
-        this.selectedWeekday,
-        this.isHoliday,
-      );
-      return;
-    }
-    this.propertiesService.openPropertiesDialog(
-      this.propertiesModal(),
-      this.selectedWeekday,
-      this.isHoliday,
-    );
+    this.contextMenuActions.onMenuClick(keys, this.contextMenu(), this.propertiesModal(), this.absenceTimeModal());
   }
 
   onAbsenceRowDblClick(item: IContainerTemplateItem): void {
-    this.absenceService.openAbsenceTimeModal(
-      item,
-      this.absenceTimeModal(),
-      this.timeFrom,
-      this.timeTo,
-      this.selectedWeekday,
-      this.isHoliday,
-    );
-  }
-
-  onAbsenceStartTimeChange(time: OwnTime): void {
-    this.absenceService.onAbsenceStartTimeChange(time);
-  }
-
-  onAbsenceEndTimeChange(time: OwnTime): void {
-    this.absenceService.onAbsenceEndTimeChange(time);
+    this.contextMenuActions.openAbsenceTimeDialog(item, this.absenceTimeModal());
   }
 }
