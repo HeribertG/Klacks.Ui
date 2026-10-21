@@ -19,11 +19,10 @@ import { CommonModule } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataShiftPreferenceService } from 'src/app/infrastructure/api/shift/data-shift-preference.service';
+import { ClientShiftPreferenceService } from 'src/app/domain/services/shift/client-shift-preference.service';
 import { IAvailableShift } from 'src/app/domain/models/shift/shift-preference';
 import { IClientShiftPreference } from 'src/app/domain/models/shift/client-shift-preference.interface';
 import { ShiftPreferenceType } from 'src/app/domain/models/shift/shift-preference-type.enum';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-shift-preferences-dialog',
@@ -37,7 +36,7 @@ export class ShiftPreferencesDialogComponent {
   readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('shiftPreferencesModal');
 
   private ngbModal = inject(NgbModal);
-  private dataService = inject(DataShiftPreferenceService);
+  private preferenceService = inject(ClientShiftPreferenceService);
   private cdr = inject(ChangeDetectorRef);
 
   clientId = '';
@@ -60,17 +59,10 @@ export class ShiftPreferencesDialogComponent {
     this.clientName = clientName;
     this.formModel.set({ selectedShiftId: '' });
 
-    forkJoin({
-      preferences: this.dataService.getByClient(clientId),
-      shifts: this.dataService.getAvailableShifts(clientId),
-    }).subscribe(({ preferences, shifts }) => {
-      this.allShifts = shifts;
-      this.preferredShifts = preferences.filter(
-        (p) => p.preferenceType === ShiftPreferenceType.Preferred,
-      );
-      this.blacklistShifts = preferences.filter(
-        (p) => p.preferenceType === ShiftPreferenceType.Blacklist,
-      );
+    this.preferenceService.load(clientId).subscribe(({ availableShifts, preferred, blacklist }) => {
+      this.allShifts = availableShifts;
+      this.preferredShifts = preferred;
+      this.blacklistShifts = blacklist;
       this.updateAvailableShifts();
       this.cdr.markForCheck();
     });
@@ -122,9 +114,7 @@ export class ShiftPreferencesDialogComponent {
   }
 
   onSave(): void {
-    const all = [...this.preferredShifts, ...this.blacklistShifts];
-
-    this.dataService.saveAll(this.clientId, all).subscribe(() => {
+    this.preferenceService.save(this.clientId, this.preferredShifts, this.blacklistShifts).subscribe(() => {
       this.modalRef?.close();
     });
   }
