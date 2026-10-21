@@ -21,9 +21,9 @@ describe('resolveContainerHolidaySlot', () => {
     expect(resolveContainerHolidaySlot(true, plusFtContainer)).toEqual({ isHoliday: true, isWeekdayAndHoliday: true });
   });
 
-  it('falls back to the holiday slot of the weekday when the container has no holiday template or is unknown', () => {
-    expect(resolveContainerHolidaySlot(true, plainContainer)).toEqual({ isHoliday: true, isWeekdayAndHoliday: true });
-    expect(resolveContainerHolidaySlot(true, undefined)).toEqual({ isHoliday: true, isWeekdayAndHoliday: true });
+  it('falls back to the generic holiday slot when the container has no holiday template or is unknown', () => {
+    expect(resolveContainerHolidaySlot(true, plainContainer)).toEqual({ isHoliday: true, isWeekdayAndHoliday: false });
+    expect(resolveContainerHolidaySlot(true, undefined)).toEqual({ isHoliday: true, isWeekdayAndHoliday: false });
   });
 
   it('returns a fresh object per call', () => {

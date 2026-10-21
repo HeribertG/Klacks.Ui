@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ContainerWorkChildrenService } from 'src/app/domain/services/schedule/container-work-children.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
@@ -30,7 +30,7 @@ describe('ContainerWorkModalLifecycleService available-task slot', () => {
       availableShifts: [],
       isHoliday,
     });
-    const args = getAvailableTasks.mock.calls.at(-1)!;
+    const args = getAvailableTasks.mock.calls.at(-1) ?? [];
     return [args[IS_HOLIDAY_ARG], args[IS_WEEKDAY_AND_HOLIDAY_ARG]];
   };
 
@@ -66,6 +66,35 @@ describe('ContainerWorkModalLifecycleService available-task slot', () => {
 
     expect(slotSent(true)).toEqual([true, false]);
     expect(service.holidaySlot).toEqual({ isHoliday: true, isWeekdayAndHoliday: false });
+  });
+
+  it('allows the autofill on a normal day once the available tasks are loaded', () => {
+    slotSent(false);
+
+    expect(service.canAutofill()).toBe(true);
+  });
+
+  it('blocks the autofill while the container of a holiday is still loading', () => {
+    getShift.mockReturnValue(NEVER);
+
+    slotSent(true);
+
+    expect(service.canAutofill()).toBe(false);
+  });
+
+  it('blocks the autofill and lists the generic holiday slot when the container cannot be loaded', () => {
+    getShift.mockReturnValue(throwError(() => new Error('offline')));
+
+    expect(slotSent(true)).toEqual([true, false]);
+    expect(service.canAutofill()).toBe(false);
+  });
+
+  it('allows the autofill on a holiday once the container slot is resolved', () => {
+    container = { isHoliday: false, isWeekdayAndHoliday: true };
+
+    slotSent(true);
+
+    expect(service.canAutofill()).toBe(true);
   });
 
   it('sends the holiday slot of the weekday of a +FT container on a holiday', () => {

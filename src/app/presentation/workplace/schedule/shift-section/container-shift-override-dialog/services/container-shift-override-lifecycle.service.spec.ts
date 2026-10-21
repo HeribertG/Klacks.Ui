@@ -163,10 +163,10 @@ describe('ContainerShiftOverrideLifecycleService available-task slot', () => {
     expect(slotSent('wednesday', true)).toEqual([true, true]);
   });
 
-  it('sends the holiday slot of the weekday when no template applies on the holiday', () => {
+  it('sends the generic holiday slot when no template applies on the holiday', () => {
     templates = [createTemplate(SUNDAY, false, false, '07:00:00')];
 
-    expect(slotSent('sunday', true)).toEqual([true, true]);
+    expect(slotSent('sunday', true)).toEqual([true, false]);
   });
 
   it('takes the slot from the container of an existing override', () => {
