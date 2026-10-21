@@ -71,7 +71,7 @@ import { ScheduleReportContextService } from 'src/app/domain/services/report/sch
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { TranslateService } from '@ngx-translate/core';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';

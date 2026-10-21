@@ -29,7 +29,7 @@ import {
   untracked
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
-import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { ScheduleTimelineRowHeaderComponent } from './timeline/schedule-timeline-row-header/schedule-timeline-row-header.component';
 import { GridSurfaceTimelineTemplateComponent } from './timeline/grid-surface-timeline-template/grid-surface-timeline-template.component';

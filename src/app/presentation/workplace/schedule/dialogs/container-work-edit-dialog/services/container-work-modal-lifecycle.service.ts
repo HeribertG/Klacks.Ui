@@ -22,7 +22,7 @@ import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
-import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { resolveItemEndTime, resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';

@@ -32,7 +32,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
 
 @Component({
   selector: 'app-edit-shift-nav',

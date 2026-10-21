@@ -17,8 +17,8 @@ import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calenda
 import { Group } from 'src/app/domain/models/group/group-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/shared/helpers/intl-format-options.helper';
+import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/domain/helpers/intl-format-options.helper';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

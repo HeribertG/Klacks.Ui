@@ -13,11 +13,11 @@
 
 import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
 import { SCHEDULING_CONSTANTS, EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { ConstraintAgent } from './constraint-agent.interface';
 import { ConstraintAssignment } from './constraint-assignment.interface';
 import { TimeSlot } from './time-slot.interface';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 
 export interface ConstraintShift {
   id: string;

@@ -13,7 +13,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { ITimelineBlockRenderer } from './timeline-block-renderer.interface';
 
 @Injectable()

@@ -2,7 +2,7 @@
 
 import { BaseEntity } from '../general-class';
 import { IAddress } from './i-address';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 export class Address extends BaseEntity implements IAddress {
   id = '';

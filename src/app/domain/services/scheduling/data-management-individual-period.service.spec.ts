@@ -7,7 +7,7 @@ import { DataManagementIndividualPeriodService } from './data-management-individ
 import { IndividualPeriodApiService } from 'src/app/infrastructure/api/scheduling/individual-period-api.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-class';
+import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/calendar-header-day-rank-class';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

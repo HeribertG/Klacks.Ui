@@ -24,7 +24,7 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
 import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable()
 export class AllScheduleStateService extends BaseStateService<

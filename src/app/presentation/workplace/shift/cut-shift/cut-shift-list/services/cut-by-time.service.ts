@@ -13,8 +13,8 @@ import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { CutTimeParams } from './cut-time-params.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 
 const NEXT_DAY_OFFSET = 1;
 

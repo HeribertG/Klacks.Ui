@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { IBreakPlaceholderWithLayer } from './break-placeholder-with-layer.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 /**
  * Service for calculating overlap layers for breaks

@@ -13,7 +13,7 @@ import { ScheduleEntryCrudService } from './schedule-entry-crud.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { ClientSortPreferenceService } from './client-sort-preference.service';
 import { AssistantPageContextService } from '../assistant/assistant-page-context.service';
-import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('DataManagementScheduleService default period', () => {

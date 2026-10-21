@@ -25,7 +25,7 @@ import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-
 import {
   formatCalendarDate,
   LocaleDateStyle,
-} from 'src/app/shared/helpers/locale-date-format.helper';
+} from 'src/app/domain/helpers/locale-date-format.helper';
 
 const BIRTHDATE_STYLE: LocaleDateStyle = 'numericDate';
 const EMPTY_CELL = '';

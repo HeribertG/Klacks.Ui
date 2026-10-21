@@ -27,7 +27,7 @@ import { NgbDatepickerModule, NgbDateStruct, NgbModal, NgbModalRef } from '@ng-b
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LocalizedParamsPipe } from 'src/app/shared/pipes/localized-params/localized-params.pipe';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
@@ -52,7 +52,7 @@ import { IClientWork } from 'src/app/domain/models/schedule/client-work.interfac
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
-import { companyToday, formatDateOnly, isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, formatDateOnly, isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { IRecoverySubmission } from './recovery-submission.interface';

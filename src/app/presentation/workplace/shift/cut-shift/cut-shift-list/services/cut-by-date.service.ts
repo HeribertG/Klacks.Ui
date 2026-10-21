@@ -7,7 +7,7 @@
 import { Injectable, inject } from '@angular/core';
 import { NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformDateToNgbDateStruct } from 'src/app/presentation/helpers/ngb-date.helper';
 import { CutDateParams } from './cut-date-params.interface';
 
 @Injectable({

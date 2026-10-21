@@ -24,8 +24,8 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, formatDateOnly, getDayIndex } from 'src/app/shared/helpers/date.helper';
-import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays, formatDateOnly, getDayIndex } from 'src/app/domain/helpers/date.helper';
+import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { defaultTimeRangePlacement, resolveTimeRangePlacement } from 'src/app/shared/helpers/time-range-placement.helper';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';

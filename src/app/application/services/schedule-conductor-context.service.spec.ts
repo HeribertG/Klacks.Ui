@@ -5,7 +5,7 @@ import { ScheduleConductorContextService } from './schedule-conductor-context.se
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AgentFactoryService } from 'src/app/domain/services/automation/agent/agent-factory.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 function buildScheduleStub(): DataManagementScheduleService {

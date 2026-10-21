@@ -14,7 +14,7 @@ import { WeekConfigurationService } from 'src/app/domain/services/settings/week-
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import {
   OFFICIAL_AND_REMINDER_ORDERINGS,
   OFFICIAL_HOLIDAY_NAME,

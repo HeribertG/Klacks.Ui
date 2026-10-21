@@ -44,7 +44,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

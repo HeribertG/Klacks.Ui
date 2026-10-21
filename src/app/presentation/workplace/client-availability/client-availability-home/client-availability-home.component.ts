@@ -6,7 +6,7 @@ import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild,
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
@@ -56,7 +56,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
-import { ResolvedCalendarChips } from './resolved-calendar-chips.interface';
+import { ResolvedCalendarChips } from '../../../shared/grid/services/resolved-calendar-chips.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 @Component({

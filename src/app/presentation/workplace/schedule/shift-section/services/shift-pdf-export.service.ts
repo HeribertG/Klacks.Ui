@@ -7,8 +7,8 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,8 +22,8 @@ import { SchedulePdfDrawingService } from '../../schedule-section/services/sched
 import { ScheduleDrawingConfig } from '../../schedule-section/services/schedule-drawing-config.interface';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, getDayIndex } from 'src/app/shared/helpers/date.helper';
-import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays, getDayIndex } from 'src/app/domain/helpers/date.helper';
+import { calendarDateKey } from 'src/app/domain/helpers/calendar-date.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { ShiftCellData } from './shift-cell-data.interface';
 import { DayCapacity } from './day-capacity.interface';

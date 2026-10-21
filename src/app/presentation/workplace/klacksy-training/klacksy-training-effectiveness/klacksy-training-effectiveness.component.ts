@@ -9,8 +9,8 @@
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 

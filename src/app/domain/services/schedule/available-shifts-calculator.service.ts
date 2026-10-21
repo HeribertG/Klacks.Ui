@@ -7,10 +7,10 @@ import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interfac
 import {
   getDayIndex,
   getDaysInMonth,
-} from 'src/app/shared/helpers/date.helper';
+} from 'src/app/domain/helpers/date.helper';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 const OUT_OF_RANGE_DAY_INDEX = -1;
 

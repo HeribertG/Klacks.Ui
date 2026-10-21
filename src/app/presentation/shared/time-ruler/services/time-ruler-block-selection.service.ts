@@ -9,7 +9,7 @@
 
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { IBlockBoundsRange } from './block-bounds-range.interface';
 import { TimeRangeService } from './time-range.service';
 

@@ -11,7 +11,7 @@ import { NgbModal, NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformDateToNgbDateStruct } from 'src/app/presentation/helpers/ngb-date.helper';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 

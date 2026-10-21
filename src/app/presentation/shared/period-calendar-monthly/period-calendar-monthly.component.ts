@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { PeriodResetData } from './period-reset-data.interface';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-period-calendar-monthly',

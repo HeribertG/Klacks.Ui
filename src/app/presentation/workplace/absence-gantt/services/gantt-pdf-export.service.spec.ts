@@ -10,7 +10,7 @@ import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absen
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
 import { GanttPdfExportService } from './gantt-pdf-export.service';
 import { GanttExportOptions } from './gantt-export-options.interface';
-import { BreakFilter } from 'src/app/domain/models/break/break-class';
+import { BreakFilter } from 'src/app/domain/models/break/break-filter-class';
 
 describe('GanttPdfExportService', () => {
     let service: GanttPdfExportService;

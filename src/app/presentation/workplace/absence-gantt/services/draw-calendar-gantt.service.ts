@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, NgZone, inject, signal } from '@angular/core';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
+import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/date.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';

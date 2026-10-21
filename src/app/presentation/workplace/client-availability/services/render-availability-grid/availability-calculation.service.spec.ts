@@ -7,7 +7,7 @@ import { AvailabilitySettingService } from '../availability-setting.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import {
   OFFICIAL_AND_REMINDER_ORDERINGS,
   OFFICIAL_RULE,

@@ -5,7 +5,7 @@ import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { firstValueFrom } from 'rxjs';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

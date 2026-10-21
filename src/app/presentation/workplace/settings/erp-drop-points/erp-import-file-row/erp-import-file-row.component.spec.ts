@@ -8,7 +8,7 @@ import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';
 import { ErpImportFileStatus } from 'src/app/domain/enums/erp-import-file-status.enum';
 import { ErpImportChannel } from 'src/app/domain/enums/erp-import-channel.enum';
 import { ERP_IMPORT_FILE_FAILURE_REASONS } from 'src/app/domain/constants/erp-import-file.constants';
-import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { ErpImportFilesTab } from '../erp-import-files-tab';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 

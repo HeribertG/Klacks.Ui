@@ -14,7 +14,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

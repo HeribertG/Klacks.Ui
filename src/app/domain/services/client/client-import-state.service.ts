@@ -77,7 +77,7 @@ import { detectClientImportDateFormat } from './client-import-date-format.helper
 import { summarizeClientImportIssues } from './client-import-issue-summary.helper';
 import { IClientImportIssueSummaryEntry } from 'src/app/domain/models/client-import/i-client-import-issue-summary-entry';
 import { PreviewOutcome } from './preview-outcome.interface';
-import { formatDateOnly, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 const CONTRACT_PAGE = 0;
 const CONTRACT_PAGE_SIZE = 1000;

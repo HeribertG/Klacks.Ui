@@ -21,9 +21,9 @@ import { CoreAgent } from './core-agent.interface';
 import { CoreAssignment } from './core-assignment.interface';
 import { CoreScenario } from './core-scenario.interface';
 import { generateId } from './evolution-rng';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { GreedyStrategy } from './greedy-strategy.type';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 
 function getPreviousDayKey(dateStr: string): string {
   const d = parseCalendarDate(dateStr);

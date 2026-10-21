@@ -25,7 +25,7 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { scenarioOpenSlotReasonKey } from 'src/app/domain/helpers/scenario-summary-reason.helper';
-import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
+import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
 
 export const SCENARIO_SUMMARY_LOAD_STATE = {
   Loading: 'loading',

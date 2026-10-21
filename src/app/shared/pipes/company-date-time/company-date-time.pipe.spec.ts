@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CompanyDateTimePipe } from './company-date-time.pipe';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 

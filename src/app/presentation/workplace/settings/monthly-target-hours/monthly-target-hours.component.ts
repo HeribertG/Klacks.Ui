@@ -25,7 +25,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
 import { MONTHLY_TARGET_HOURS, MONTH_TRANSLATION_KEYS } from 'src/app/domain/constants/monthly-target-hours.constants';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-monthly-target-hours',

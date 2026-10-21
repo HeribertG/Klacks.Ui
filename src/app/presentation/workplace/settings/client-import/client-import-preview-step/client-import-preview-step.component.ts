@@ -42,7 +42,7 @@ import {
 } from 'src/app/domain/constants/client-import.constants';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 import { IClientImportIssue } from 'src/app/domain/models/client-import/i-client-import-issue';
 import { IClientImportIssueSummaryEntry } from 'src/app/domain/models/client-import/i-client-import-issue-summary-entry';
 import { clientImportCountKey } from 'src/app/domain/services/client/client-import-count-key.helper';

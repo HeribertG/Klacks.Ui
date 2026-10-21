@@ -16,7 +16,7 @@ import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenari
 import { SCENARIO_NOT_ACTIVE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-not-active.model';
 import { SCENARIO_STALE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-stale.model';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 

@@ -21,7 +21,7 @@ import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenari
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { AutoWizardJobContext } from './auto-wizard-job-context.interface';
 import { AutoWizardPendingScenario } from './auto-wizard-pending-scenario.interface';
 

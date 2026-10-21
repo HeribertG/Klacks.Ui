@@ -11,7 +11,7 @@ import { GridSettingsService } from 'src/app/presentation/shared/grid/services/g
 import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.service';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 describe('CalendarMonthRenderingService', () => {

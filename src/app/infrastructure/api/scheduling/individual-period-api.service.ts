@@ -10,7 +10,7 @@ import { defer, firstValueFrom } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
-import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root'

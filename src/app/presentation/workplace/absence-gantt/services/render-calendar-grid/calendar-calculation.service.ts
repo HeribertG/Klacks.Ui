@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
-import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { GanttCoordinateService } from '../gantt-coordinate.service';
 

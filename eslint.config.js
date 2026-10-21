@@ -88,7 +88,7 @@ module.exports = tseslint.config(
   },
   {
     files: [
-      "**/shared/helpers/calendar-date.helper.ts",
+      "**/domain/helpers/calendar-date.helper.ts",
       "**/*.spec.ts",
       "**/shared/testing/**",
     ],

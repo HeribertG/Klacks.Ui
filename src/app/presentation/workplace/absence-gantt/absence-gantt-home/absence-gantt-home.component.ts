@@ -48,7 +48,7 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
 import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop.service';
 import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
 import { GanttCoordinateService } from '../services/gantt-coordinate.service';
-import { ResolvedCalendarChips } from './resolved-calendar-chips.interface';
+import { ResolvedCalendarChips } from '../../../shared/grid/services/resolved-calendar-chips.interface';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({

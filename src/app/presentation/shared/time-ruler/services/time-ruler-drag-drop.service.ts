@@ -6,7 +6,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/shared/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';
 import { SnapDirection } from './snap-direction.interface';

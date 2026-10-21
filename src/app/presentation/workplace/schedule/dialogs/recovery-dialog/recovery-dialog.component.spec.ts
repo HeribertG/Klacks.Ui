@@ -24,8 +24,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
-import { companyToday, formatDateOnly } from 'src/app/shared/helpers/calendar-date.helper';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { companyToday, formatDateOnly } from 'src/app/domain/helpers/calendar-date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const I18N_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../../../assets/i18n');

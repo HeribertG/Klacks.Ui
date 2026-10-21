@@ -25,8 +25,8 @@ import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.inter
 import {
   formatCalendarDate,
   localeNumericDatePattern,
-} from 'src/app/shared/helpers/locale-date-format.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+} from 'src/app/domain/helpers/locale-date-format.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
 
 type DateField = 'day' | 'month' | 'year';

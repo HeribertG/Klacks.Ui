@@ -33,7 +33,7 @@ import {
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 
 const TRANSLATION_PREFIX = 'setting.standingApprovals.';
 const TOAST_NAME_LOAD = 'standing-approvals-load';

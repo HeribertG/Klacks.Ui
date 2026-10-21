@@ -33,7 +33,7 @@ import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 
 @Component({
   selector: 'app-replacement-dialog',

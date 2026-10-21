@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { WorkFilter } from './schedule-class';
-import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { WorkFilter } from './work-filter-class';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
 describe('WorkFilter default period', () => {

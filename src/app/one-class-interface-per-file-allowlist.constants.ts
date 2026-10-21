@@ -7,9 +7,4 @@
  * dropped. Never add an entry; the target state is an empty list.
  */
 export const MULTI_DECLARATION_FILES: Readonly<Record<string, number>> = {
-  'src/app/domain/models/absence/absence-class.ts': 2,
-  'src/app/domain/models/break/break-class.ts': 2,
-  'src/app/domain/models/calendar/calendar-rule-class.ts': 2,
-  'src/app/domain/models/schedule/schedule-class.ts': 2,
-  'src/app/domain/models/scheduling/individual-period.model.ts': 2,
 };

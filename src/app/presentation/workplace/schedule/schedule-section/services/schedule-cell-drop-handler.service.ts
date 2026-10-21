@@ -21,8 +21,8 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ScheduleCellDragSource } from './schedule-cell-drag-source.interface';
 import { ScheduleCellDropResult } from './schedule-cell-drop-result.interface';

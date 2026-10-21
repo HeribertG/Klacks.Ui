@@ -25,7 +25,7 @@ import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/co
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { HttpErrorResponse } from '@angular/common/http';
-import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
+import { WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
 import { IOpenContainerShiftOverrideOptions } from '../open-container-shift-override-options';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';

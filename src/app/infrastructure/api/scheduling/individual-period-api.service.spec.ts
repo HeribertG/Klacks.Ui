@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { IndividualPeriodApiService } from './individual-period-api.service';
-import { IndividualPeriod, Period } from 'src/app/domain/models/scheduling/individual-period.model';
+import { Period } from 'src/app/domain/models/scheduling/period.model';
+import { IndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.model';
 import { environment } from 'src/environments/environment';
 import { currentTimeZone } from 'src/app/shared/testing/time-zone.testing';
 

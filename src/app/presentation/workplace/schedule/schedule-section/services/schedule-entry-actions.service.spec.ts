@@ -20,8 +20,8 @@ import { Break } from 'src/app/domain/models/break/break-class';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

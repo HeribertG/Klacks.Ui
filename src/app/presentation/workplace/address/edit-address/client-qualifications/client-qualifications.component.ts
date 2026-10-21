@@ -41,7 +41,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
+} from 'src/app/presentation/helpers/ngb-date.helper';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';

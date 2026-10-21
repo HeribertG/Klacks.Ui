@@ -3,7 +3,7 @@
 import { vi } from 'vitest';
 
 import { AbsenceGanttSurfaceComponent } from './absence-gantt-surface.component';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import {
   OFFICIAL_AND_REMINDER_ORDERINGS,
   OFFICIAL_HOLIDAY_NAME,

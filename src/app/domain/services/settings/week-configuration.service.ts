@@ -8,7 +8,7 @@
  */
 import { Injectable, inject, computed } from '@angular/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 import { DAY_NAME_TO_JS_DAY } from 'src/app/domain/constants/day-of-week.constants';
 
 const DEFAULT_WEEK_START_JS_DAY = 1; // Monday

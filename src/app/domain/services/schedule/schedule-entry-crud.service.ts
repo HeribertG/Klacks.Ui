@@ -19,7 +19,7 @@ import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.inte
 import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
-import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { addDays, formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { DataManagementWorkService } from '../work/data-management-work.service';
@@ -42,7 +42,7 @@ import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants'
 import { ScheduleCellParams } from './schedule-cell-params.interface';
 import { BreakCellParams } from './break-cell-params.interface';
 import { DeleteWorkScheduleEntryParams } from './delete-work-schedule-entry-params.interface';
-import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 const REFRESH_MARGIN_DAYS = 1;
 

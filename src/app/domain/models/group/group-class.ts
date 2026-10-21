@@ -4,7 +4,7 @@ import { PaymentInterval } from '../contract/payment-interval.enum';
 import { ICalendarSelection } from '../calendar/calendar-selection.interface';
 import { IGroup } from './group.interface';
 import { GroupItem } from './group-item-class';
-import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 export class Group implements IGroup {
   id?: string;

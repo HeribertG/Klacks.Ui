@@ -6,7 +6,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { SharedRowHeaderCanvasManagerService } from 'src/app/presentation/shared/grid/row-header/row-header-canvas-manager.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { SharedRenderRowHeaderCellService } from 'src/app/presentation/shared/grid/row-header/render-row-header-cell.service';

@@ -14,7 +14,7 @@ import {
 import { IRuleEvaluationSummary } from '../../../models/automation/rules/rule-evaluation-summary.model';
 import { IMacroRuleResult } from '../../../models/automation/rules/macro-rule-result.model';
 import { AGENT_STATE_CONSTANTS } from '../../../models/automation/automation-constants';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root'

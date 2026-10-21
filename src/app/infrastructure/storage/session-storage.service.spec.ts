@@ -2,8 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { SessionStorageService } from './session-storage.service';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
-import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
+import { transformDateToNgbDateStruct } from 'src/app/presentation/helpers/ngb-date.helper';
+import { calendarDateKey } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

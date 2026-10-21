@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-export { Size } from 'src/app/shared/helpers/size.model';
-export { ISize } from 'src/app/shared/helpers/size.interface';
+export { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
+export { Size } from 'src/app/domain/models/geometry/size.model';
+export { ISize } from 'src/app/domain/models/geometry/size.interface';
 export interface ClientRect {
   bottom: number;
   readonly height: number;

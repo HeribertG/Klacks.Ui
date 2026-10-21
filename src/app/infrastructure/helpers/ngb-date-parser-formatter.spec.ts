@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { LocaleDataLoaderService } from 'src/app/application/services/locale-data-loader.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { NgbDateCustomParserFormatter } from './ngb-date-parser-formatter';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const NEW_YEARS_EVE = { year: 2026, month: 12, day: 31 };

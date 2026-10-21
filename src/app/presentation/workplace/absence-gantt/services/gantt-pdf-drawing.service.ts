@@ -4,13 +4,13 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
 import { GanttDrawingConfig } from './gantt-drawing-config.interface';
 import { RowDrawingParams } from './row-drawing-params.interface';
-import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable()
 export class GanttPdfDrawingService {

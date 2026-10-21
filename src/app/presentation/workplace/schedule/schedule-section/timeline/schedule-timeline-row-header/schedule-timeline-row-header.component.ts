@@ -45,7 +45,7 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
-import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
+import { calendarDateKey } from 'src/app/domain/helpers/calendar-date.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimelineCreateRowHeaderService } from '../services/timeline-create-row-header.service';
 import { TimelineSelectionService } from '../services/timeline-selection.service';

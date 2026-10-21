@@ -4,7 +4,7 @@ import { Injectable, inject } from '@angular/core';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { SharedRowHeaderCanvasManagerService } from './row-header-canvas-manager.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { SharedRenderRowHeaderCellService } from './render-row-header-cell.service';

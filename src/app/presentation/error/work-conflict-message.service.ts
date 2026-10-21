@@ -36,7 +36,7 @@ import { IWorkRefusalDiagnosisSubject } from 'src/app/domain/interfaces/work-ref
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { WorkConflictTarget } from './work-conflict-target.interface';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 
 const NO_EMPLOYEE_NUMBER = 0;
 

@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 import { ClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
 import { IClient } from 'src/app/domain/models/client/client-class';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

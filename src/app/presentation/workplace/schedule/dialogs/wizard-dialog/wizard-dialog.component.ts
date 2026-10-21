@@ -33,7 +33,7 @@ import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interfa
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';

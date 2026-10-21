@@ -3,7 +3,7 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BreakFilter } from 'src/app/domain/models/break/break-class';
+import { BreakFilter } from 'src/app/domain/models/break/break-filter-class';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface';
@@ -20,8 +20,8 @@ import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { TranslateService } from '@ngx-translate/core';
 import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 
 @Injectable({
   providedIn: 'root',

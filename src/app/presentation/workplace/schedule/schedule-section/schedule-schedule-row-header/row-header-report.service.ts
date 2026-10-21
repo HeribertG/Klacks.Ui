@@ -25,7 +25,7 @@ import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';

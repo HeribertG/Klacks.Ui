@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { HolidaysListHelper } from './calendar/calendar-rule-class';
+import { HolidaysListHelper } from './calendar/holidays-list-helper-class';
 import { HolidayStatus } from './calendar/holiday-status.enum';
 import { ICalendarRule } from './calendar/calendar-rule.interface';
 import {

@@ -4,8 +4,8 @@
 
 import { Component, ChangeDetectionStrategy, OnInit, signal, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { PropertyItem } from './property-item.interface';
 import { EnumOption } from './enum-option.interface';

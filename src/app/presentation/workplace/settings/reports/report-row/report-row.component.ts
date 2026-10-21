@@ -9,8 +9,8 @@
 
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, TemplateRef, inject, input, output, signal, viewChild, DestroyRef } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -52,8 +52,8 @@ import { Group } from 'src/app/domain/models/group/group-class';
 import { REPORT_DATA_SOURCES, ReportDataSource } from 'src/app/domain/models/report/report-data-source.model';
 import { ReportDataSet } from 'src/app/domain/models/report/report-data-set.interface';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';

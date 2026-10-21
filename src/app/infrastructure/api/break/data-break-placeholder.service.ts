@@ -8,7 +8,7 @@ import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
-import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

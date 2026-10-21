@@ -11,7 +11,7 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { ITimelineBlockRenderer } from './timeline-block-renderer.interface';
 
 @Injectable()

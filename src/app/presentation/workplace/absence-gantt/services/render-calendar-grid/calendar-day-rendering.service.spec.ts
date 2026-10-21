@@ -8,8 +8,8 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
-import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-class';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/calendar-header-day-rank-class';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import {

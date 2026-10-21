@@ -34,8 +34,8 @@ import {
   firstOfMonth,
   lastOfMonth,
   ngbDateStructToIsoDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
-import { CalendarDateToStringShort } from 'src/app/shared/helpers/date.helper';
+} from 'src/app/presentation/helpers/ngb-date.helper';
+import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,

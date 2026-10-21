@@ -30,7 +30,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { AvailabilityCalculationService } from '../services/render-availability-grid';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 const GROUPING_LABEL_KEYS = [
   'client-availability.grouping.1h',

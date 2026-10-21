@@ -28,8 +28,8 @@ import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
-import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/presentation/helpers/ngb-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { EditGroupItemFormModel } from './edit-group-item-form-model.interface';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 

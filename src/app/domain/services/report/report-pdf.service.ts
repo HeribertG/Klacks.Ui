@@ -38,8 +38,8 @@ import { PdfUnicodeTextService } from './pdf-unicode-text.service';
 import { ReportRowFilterService } from './report-row-filter.service';
 import { ReportParameterContext } from './report-parameter-context.interface';
 import { buildParameterVariables } from '../../helpers/report-parameter.helper';
-import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { calendarDateKey, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 import { ReportGenerationContext } from './report-generation-context.interface';
 import { ICompiledScript } from 'src/app/domain/models/automation/rules/compiled-script.interface';
 

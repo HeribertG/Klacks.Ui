@@ -30,7 +30,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { DataManagementIndividualPeriodService } from 'src/app/domain/services/scheduling/data-management-individual-period.service';
-import { Period } from 'src/app/domain/models/scheduling/individual-period.model';
+import { Period } from 'src/app/domain/models/scheduling/period.model';
 import { IIndividualPeriod } from 'src/app/domain/models/scheduling/individual-period.interface';
 import { IPeriod } from 'src/app/domain/models/scheduling/period.interface';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
@@ -39,7 +39,7 @@ import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-co
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { IndividualPeriodFormModel } from './individual-period-form-model.interface';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
 
 @Component({
   selector: 'app-individual-periods',

@@ -7,8 +7,8 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
-import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
 import { jsPDF } from 'jspdf';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
 import { TranslateService } from '@ngx-translate/core';

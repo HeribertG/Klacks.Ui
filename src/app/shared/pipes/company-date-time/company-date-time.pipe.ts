@@ -19,9 +19,9 @@
 
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
-import { CompanyDateTimeMemo } from './company-date-time-memo.interface';
-import { CompanyDateTimeFormat, formatCompanyInstant } from './company-date-time.formatter';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
+import { CompanyDateTimeMemo } from '../../../domain/models/date-time/company-date-time-memo.interface';
+import { CompanyDateTimeFormat, formatCompanyInstant } from '../../../domain/helpers/company-date-time.formatter';
 
 export type { CompanyDateTimeFormat };
 

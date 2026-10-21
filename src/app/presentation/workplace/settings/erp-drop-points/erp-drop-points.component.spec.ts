@@ -13,7 +13,7 @@ import { AssetDownloadService } from 'src/app/application/services/asset-downloa
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
-import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';

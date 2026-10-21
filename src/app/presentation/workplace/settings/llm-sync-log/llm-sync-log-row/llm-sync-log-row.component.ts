@@ -6,8 +6,8 @@
  */
 import { Component, ChangeDetectionStrategy, inject, input, signal } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { TranslateModule } from '@ngx-translate/core';
 import { ILLMSyncLogEntry } from 'src/app/domain/models/assistant/llm-sync-log.interface';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';

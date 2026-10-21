@@ -7,7 +7,7 @@ import { CompanyClockService } from './company-clock.service';
 import { DataCompanyClockService } from 'src/app/infrastructure/api/settings/data-company-clock.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { companyTimeZone, setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyTimeZone, setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { ICompanyClockResource } from 'src/app/domain/models/settings/company-clock.model';
 
 describe('CompanyClockService', () => {

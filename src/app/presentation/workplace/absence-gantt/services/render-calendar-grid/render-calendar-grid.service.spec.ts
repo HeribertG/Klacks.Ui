@@ -15,7 +15,7 @@ import { CalendarHeaderRenderingService } from './calendar-header-rendering.serv
 import { ValidityPeriodRenderingService } from './validity-period-rendering.service';
 import { BreakRenderingService } from './break-rendering.service';
 import { RowSelectionService } from './row-selection.service';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 describe('RenderCalendarGridService', () => {

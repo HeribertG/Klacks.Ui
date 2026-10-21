@@ -10,7 +10,7 @@ import { CheckboxDrawingService } from './checkbox-drawing.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { HOUR_GROUPING_SIZES } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { DayInfo } from './day-info.interface';
+import { AvailabilityDayInfo } from './availability-day-info.interface';
 import { AvailabilityCoordinateService } from '../availability-coordinate.service';
 
 const OVERLAP = 1;
@@ -123,7 +123,7 @@ export class RenderAvailabilityGridService {
     this.renderDayBorders(ctx, 0, visibleCols, rowStart, rowEnd, startCol, startRow);
   }
 
-  private buildDayInfos(startCol: number, colCount: number): DayInfo[] {
+  private buildDayInfos(startCol: number, colCount: number): AvailabilityDayInfo[] {
     const columnsPerDay = this.settings.columnsPerDay;
     const groupSize = HOUR_GROUPING_SIZES[this.settings.hourGroupingMode()];
     const totalCols = this.calculation.totalColumns;
@@ -131,7 +131,7 @@ export class RenderAvailabilityGridService {
     const firstDay = Math.floor(startCol / columnsPerDay);
     const lastDay = Math.floor(Math.min(startCol + colCount - 1, totalCols - 1) / columnsPerDay);
 
-    const infos: DayInfo[] = [];
+    const infos: AvailabilityDayInfo[] = [];
     for (let dayIdx = firstDay; dayIdx <= lastDay; dayIdx++) {
       const date = new Date(this.calculation.startDate.getTime());
       date.setDate(date.getDate() + dayIdx);

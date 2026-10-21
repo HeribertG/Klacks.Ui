@@ -8,7 +8,7 @@ import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/b
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakLayerService } from '../break-layer.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { signal } from '@angular/core';
 import * as DrawHelperModule from 'src/app/presentation/helpers/draw-helper';
 

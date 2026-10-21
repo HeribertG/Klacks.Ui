@@ -19,8 +19,8 @@ import {
   addDays,
   formatDateOnly,
   getDateKeysBetween,
-} from 'src/app/shared/helpers/date.helper';
-import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+} from 'src/app/domain/helpers/date.helper';
+import { calendarDateKey, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ScheduleChangeService } from './schedule-change.service';

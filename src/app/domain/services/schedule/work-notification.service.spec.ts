@@ -11,7 +11,7 @@ import { AvailableShiftsCalculatorService } from './available-shifts-calculator.
 import { IWorkNotification } from '../../interfaces/work-notification.interface';
 import { IWorksBulkCreatedNotification } from '../../interfaces/works-bulk-created-notification.interface';
 import { IShiftStatsNotification } from '../../interfaces/shift-stats-notification.interface';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

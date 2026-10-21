@@ -3,7 +3,7 @@
 import { ICalendarSelection } from '../calendar/calendar-selection.interface';
 import { IContract } from './contract.interface';
 import { PaymentInterval } from './payment-interval.enum';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 export class Contract implements IContract {
   id: string | undefined = '';

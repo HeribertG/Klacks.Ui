@@ -30,7 +30,7 @@ import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/
 import { SCHEDULE_LOAD_OUTCOME } from 'src/app/domain/constants/schedule-load-completion.constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
-import { getDayIndex } from 'src/app/shared/helpers/date.helper';
+import { getDayIndex } from 'src/app/domain/helpers/date.helper';
 import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
 import { AutoWizardJobContext } from './auto-wizard-job-context.interface';
 import { AutoWizardPendingScenario } from './auto-wizard-pending-scenario.interface';

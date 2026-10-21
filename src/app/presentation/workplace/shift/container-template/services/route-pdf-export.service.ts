@@ -9,8 +9,8 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { LocaleService } from 'src/app/application/services/locale.service';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';

@@ -11,8 +11,8 @@ import { DataManagementScheduleService } from './data-management-schedule.servic
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',

@@ -22,7 +22,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-absence-gantt-header',

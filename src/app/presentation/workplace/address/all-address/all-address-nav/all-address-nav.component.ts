@@ -34,7 +34,7 @@ import {
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
+} from 'src/app/presentation/helpers/ngb-date.helper';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { NavFilterFormModel } from './nav-filter-form-model.interface';

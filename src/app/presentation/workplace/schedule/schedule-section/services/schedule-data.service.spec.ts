@@ -22,7 +22,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import {
     OFFICIAL_AND_REMINDER_ORDERINGS,
@@ -34,8 +34,8 @@ import {
 } from 'src/app/shared/testing/holiday-list.testing';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import {
     activeJanuaryOffsetMinutes,
     CALENDAR_TEST_ZONES,

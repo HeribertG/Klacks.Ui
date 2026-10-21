@@ -19,12 +19,12 @@
 import { formatDate } from '@angular/common';
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { CalendarDateMemo } from './calendar-date-memo.interface';
 import {
   formatCalendarDate,
   isLocaleDateStyle,
-} from 'src/app/shared/helpers/locale-date-format.helper';
+} from 'src/app/domain/helpers/locale-date-format.helper';
 
 const DEFAULT_CALENDAR_DATE_FORMAT = 'mediumDate';
 

@@ -20,7 +20,7 @@ import { IAutofillRunPresence } from 'src/app/domain/interfaces/autofill-run-pre
 import { DataAutofillRunService } from 'src/app/infrastructure/api/auto-wizard/data-autofill-run.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { DataManagementScheduleService } from './data-management-schedule.service';
-import { calendarDateKey } from 'src/app/shared/helpers/calendar-date.helper';
+import { calendarDateKey } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({ providedIn: 'root' })
 export class AutofillRunPresenceService {

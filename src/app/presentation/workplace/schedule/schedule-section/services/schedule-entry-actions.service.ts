@@ -32,8 +32,8 @@ import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/se
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-mode.enum';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { Break } from 'src/app/domain/models/break/break-class';
-import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays, formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { ScheduleDataService } from './schedule-data.service';

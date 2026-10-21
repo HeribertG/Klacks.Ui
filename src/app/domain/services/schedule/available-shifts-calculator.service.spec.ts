@@ -6,7 +6,7 @@ import { CalendarUtilService } from 'src/app/domain/services/calendar-util.servi
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
-import { WorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { WorkFilter } from 'src/app/domain/models/schedule/work-filter-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import {
   activeJanuaryOffsetMinutes,

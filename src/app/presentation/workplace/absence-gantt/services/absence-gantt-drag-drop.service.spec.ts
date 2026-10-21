@@ -11,7 +11,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { GanttCoordinateService } from './gantt-coordinate.service';
 import { AbsenceGanttDragDropService } from './absence-gantt-drag-drop.service';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';

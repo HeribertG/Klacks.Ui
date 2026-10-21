@@ -14,7 +14,7 @@ import {
   CALENDAR_DATE_PARAM_KEYS,
   MONTH_DAY_PARAM_KEYS,
 } from 'src/app/domain/constants/localized-date-params.constants';
-import { formatCalendarDate, formatMonthDay } from 'src/app/shared/helpers/locale-date-format.helper';
+import { formatCalendarDate, formatMonthDay } from 'src/app/domain/helpers/locale-date-format.helper';
 
 export function formatDateParams(
   params: Record<string, string> | null | undefined,

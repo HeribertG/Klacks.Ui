@@ -3,7 +3,7 @@
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
 
-export interface DayInfo {
+export interface ShiftDayInfo {
   isInTemplateContainer: boolean;
   hasOverride: boolean;
   hasWorkForOverride: boolean;

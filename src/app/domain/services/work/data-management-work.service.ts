@@ -11,8 +11,8 @@ import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-sc
 import { BulkAddWorksRequest } from 'src/app/domain/models/dtos/bulk-add-works-request.dto';
 import { BulkWorksResponse } from 'src/app/domain/models/dtos/bulk-works-response.dto';
 import { ReassignWorkClientResponse } from 'src/app/domain/models/dtos/reassign-work-client-response.dto';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({

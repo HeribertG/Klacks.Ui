@@ -16,8 +16,8 @@ import { IWorkScheduleClient } from 'src/app/domain/models/schedule/work-schedul
 import { IPeriodHours } from 'src/app/domain/models/schedule/period-hours.interface';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',

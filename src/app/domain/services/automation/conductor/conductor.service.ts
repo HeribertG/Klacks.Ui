@@ -25,7 +25,7 @@ import { RulesEngineService } from '../rules/rules-engine.service';
 import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';
 import { IWorkerProgressData } from './worker-progress-data.interface';
 import { IWorkerResultData } from './worker-result-data.interface';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root'

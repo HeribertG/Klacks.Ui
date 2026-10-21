@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { WorkConflictMessageService } from './work-conflict-message.service';
 

@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { BaseCanvasManagerService } from './canvas-manager.service';
@@ -18,7 +18,7 @@ import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCellManipulationService } from './cell-manipulation.service';
 import { GridFontsService } from '../grid-fonts.service';
 import { GridCoordinateService } from 'src/app/presentation/shared/grid/services/grid-coordinate.service';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable()
 export class BaseDrawScheduleService {

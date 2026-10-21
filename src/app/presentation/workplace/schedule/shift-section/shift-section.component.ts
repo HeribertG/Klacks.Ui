@@ -77,8 +77,8 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { ContainerShiftOverrideDialogComponent } from './container-shift-override-dialog/container-shift-override-dialog.component';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
-import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-shift-section',

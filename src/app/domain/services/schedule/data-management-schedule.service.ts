@@ -21,7 +21,7 @@ import {
 import { Subject, timer } from 'rxjs';
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { WorkFilter } from 'src/app/domain/models/schedule/schedule-class';
+import { WorkFilter } from 'src/app/domain/models/schedule/work-filter-class';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { IWork } from 'src/app/domain/models/schedule/work.interface';
 import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
@@ -49,8 +49,8 @@ import { BreakCellParams } from './break-cell-params.interface';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { ClientSortPreferenceService } from './client-sort-preference.service';
 import { AssistantPageContextService } from '../assistant/assistant-page-context.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

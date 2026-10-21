@@ -5,7 +5,7 @@ import { inject, Injectable } from '@angular/core';
 import { defer, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-import { parseCalendarDate, toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate, toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 import { toShiftGroupsWire } from './shift-groups-wire.mapper';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';

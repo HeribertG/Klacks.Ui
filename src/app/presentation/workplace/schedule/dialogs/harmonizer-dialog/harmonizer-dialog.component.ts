@@ -28,7 +28,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { PlanningRuleWarningReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-warning-report/planning-rule-warning-report.component';

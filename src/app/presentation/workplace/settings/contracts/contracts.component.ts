@@ -40,8 +40,8 @@ import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-co
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   transformNullableNumberToOwnTime,
   transformNumberToOwnTime,

@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { Contract } from 'src/app/domain/models/contract/contract-class';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
 import { defer, retry } from 'rxjs';
-import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

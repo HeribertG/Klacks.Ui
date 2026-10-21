@@ -7,8 +7,8 @@ import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.service';
-import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-class';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/calendar-header-day-rank-class';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import * as DrawHelperModule from 'src/app/presentation/helpers/draw-helper';
 
 describe('CalendarHeaderRenderingService', () => {

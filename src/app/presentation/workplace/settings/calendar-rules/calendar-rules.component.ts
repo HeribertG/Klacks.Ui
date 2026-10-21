@@ -23,7 +23,8 @@ import {
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
-import { CalendarRule, HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { CalendarRule } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
@@ -44,7 +45,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-dropdown/calendar-dropdown.component';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { RuleFormModel } from './rule-form-model.interface';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 const NEW_RULE_IS_PAID = true;
 

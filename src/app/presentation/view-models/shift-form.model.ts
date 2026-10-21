@@ -6,7 +6,7 @@ import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
+} from 'src/app/presentation/helpers/ngb-date.helper';
 import {
   transformStringToOwnTimeStruct,
   transformOwnTimeToString,

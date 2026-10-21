@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';
 import { TimeRangeService } from './services/time-range.service';

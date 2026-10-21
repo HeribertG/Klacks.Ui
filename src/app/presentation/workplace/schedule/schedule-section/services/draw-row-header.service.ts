@@ -15,7 +15,7 @@
  * - Uses: ProgressBarAnimationService for loading indicators
  */
 import { inject, Injectable, Injector } from '@angular/core';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -29,7 +29,7 @@ import { BaseCellManipulationService } from '../../../../shared/grid/services/bo
 import { ProgressBarAnimationService } from '../../../../shared/grid/services/progress-bar-animation.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { isDefined } from 'src/app/shared/helpers/type-guard.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable()
 export class BaseDrawRowHeaderService {

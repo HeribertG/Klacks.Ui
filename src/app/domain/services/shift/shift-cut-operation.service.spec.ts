@@ -12,7 +12,7 @@ import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { WorkTimeCalculationService } from '../work-time-calculation.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import {
     activeJanuaryOffsetMinutes,
     CALENDAR_TEST_ZONES,

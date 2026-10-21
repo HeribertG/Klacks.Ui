@@ -32,7 +32,7 @@ import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

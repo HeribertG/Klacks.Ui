@@ -36,8 +36,8 @@ import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-wi
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
-import { addDays } from 'src/app/shared/helpers/date.helper';
-import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
+import { isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { sanitizeCssColor } from 'src/app/shared/helpers/color.helper';
 import { ContextMenuContext } from './context-menu-context.interface';
 import { ScheduleDataService } from './schedule-data.service';

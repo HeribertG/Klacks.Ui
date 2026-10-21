@@ -8,7 +8,7 @@
 
 /* eslint-disable no-prototype-builtins */
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { companyToday, parseCalendarDate } from './calendar-date.helper';
+import { companyToday, parseCalendarDate } from '../../domain/helpers/calendar-date.helper';
 
 /**
  * Transforms NgbDateStruct to native Date object.

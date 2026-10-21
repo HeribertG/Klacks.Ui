@@ -19,7 +19,7 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { addDays, daysBetweenDates } from 'src/app/shared/helpers/date.helper';
+import { addDays, daysBetweenDates } from 'src/app/domain/helpers/date.helper';
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';

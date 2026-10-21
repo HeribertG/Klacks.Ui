@@ -41,7 +41,7 @@ import { ContainerLockResourceType } from 'src/app/domain/models/container/conta
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerSplitOptions } from './open-container-split-options.interface';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 
 @Component({
   selector: 'app-container-split-dialog',

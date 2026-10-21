@@ -9,7 +9,7 @@ import { MyToken } from 'src/app/domain/models/my-token-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
-import { EqualDate } from 'src/app/shared/helpers/date.helper';
+import { EqualDate } from 'src/app/domain/helpers/date.helper';
 import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';

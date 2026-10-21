@@ -31,7 +31,7 @@ import {
   addDays,
   formatDateOnly,
   isoWeekMondayOf,
-} from 'src/app/shared/helpers/date.helper';
+} from 'src/app/domain/helpers/date.helper';
 import {
   DAY_DIRECTIVE_KIND_KEY_PREFIX,
   DAY_DIRECTIVE_PARAM,
@@ -43,7 +43,7 @@ import {
 import {
   calendarDateKey,
   parseCalendarDate,
-} from 'src/app/shared/helpers/calendar-date.helper';
+} from 'src/app/domain/helpers/calendar-date.helper';
 import { formatDateParams } from 'src/app/domain/helpers/date-params.helper';
 import { QUALIFICATION_LEVEL_VALIDATION } from 'src/app/domain/constants/qualification-level-validation.constants';
 import {

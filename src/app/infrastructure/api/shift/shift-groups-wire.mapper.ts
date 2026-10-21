@@ -10,7 +10,7 @@
  */
 
 import { Group } from 'src/app/domain/models/group/group-class';
-import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 
 export function toShiftGroupsWire(groups: Group[] | undefined) {
   return groups?.map((group) => ({

@@ -8,8 +8,8 @@ import { IBreakFilter } from 'src/app/domain/models/break/break-filter.interface
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interface';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
-import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays, formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 
 @Injectable({

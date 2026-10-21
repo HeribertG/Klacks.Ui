@@ -22,7 +22,7 @@ import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { ChunkLoader } from './chunk-loader';
 import { ShiftScheduleResponse } from './shift-schedule-response.interface';
-import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

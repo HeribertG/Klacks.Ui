@@ -14,7 +14,7 @@ import {
   viewChildren
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { CommonModule } from '@angular/common';
 import { MenuItemComponent } from '../menu-item/menu-item.component';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';

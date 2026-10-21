@@ -43,8 +43,8 @@ import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+} from 'src/app/presentation/helpers/ngb-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService } from 'src/app/presentation/modal/modal.service';

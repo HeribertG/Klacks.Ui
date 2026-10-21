@@ -7,14 +7,14 @@ import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { CutByDateParams } from './cut-by-date-params.interface';
 import { CutByTimeParams } from './cut-by-time-params.interface';
 import { CutByWeekdaysParams } from './cut-by-weekdays-params.interface';
 import { CutByStaffParams } from './cut-by-staff-params.interface';
 import { CutByTaskParams } from './cut-by-task-params.interface';
 import { CutResult } from './cut-result.interface';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { addDays } from 'src/app/domain/helpers/date.helper';
 
 const NEXT_DAY_OFFSET = 1;
 

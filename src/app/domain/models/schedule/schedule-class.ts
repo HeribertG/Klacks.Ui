@@ -5,8 +5,6 @@ import { IShift } from '../shift/shift.interface';
 import { IPeriodHours } from './period-hours.interface';
 import { IScheduleCell } from './schedule-cell.interface';
 import { IWork } from './work.interface';
-import { IWorkFilter } from './work-filter.interface';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
 
 export class Work implements IWork {
   client?: IClient;
@@ -28,35 +26,4 @@ export class Work implements IWork {
   periodEnd?: string;
   scheduleEntries?: IScheduleCell[];
   analyseToken?: string;
-}
-
-export class WorkFilter implements IWorkFilter {
-  currentMonth: number = companyToday().getMonth() + 1;
-  currentYear: number = companyToday().getFullYear();
-  currentWeek?: number = WorkFilter.getCurrentISOWeek();
-
-  private static getCurrentISOWeek(): number {
-    const date = companyToday();
-    date.setDate(date.getDate() + 4 - (date.getDay() || 7));
-    const thursday = date.getTime();
-    date.setMonth(0);
-    date.setDate(1);
-    const jan1st = date.getTime();
-    return Math.floor(Math.round((thursday - jan1st) / 86400000) / 7) + 1;
-  }
-  paymentInterval = 2;
-  searchString = '';
-  orderBy = '';
-  sortOrder = '';
-  numberOfItemsPerPage = 5;
-  requiredPage = 0;
-  numberOfItemOnPreviousPage: number | undefined = undefined;
-  firstItemOnLastPage: number | undefined = undefined;
-  isPreviousPage: boolean | undefined = undefined;
-  isNextPage: boolean | undefined = undefined;
-  works: Work[] = [];
-  selectedGroup: string | undefined = undefined;
-  showEmployees = true;
-  showExtern = true;
-  individualSort = false;
 }

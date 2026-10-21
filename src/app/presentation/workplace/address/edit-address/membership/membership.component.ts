@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
-import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/presentation/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { toNumber } from 'src/app/shared/helpers/number.helper';
 import { EditAddressCardVisibilityService, EDIT_ADDRESS_CARD_KEYS } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';

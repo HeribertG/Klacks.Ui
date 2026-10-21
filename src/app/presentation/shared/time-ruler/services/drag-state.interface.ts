@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { ItemPosition } from './item-position.interface';
 
 export interface DragState {

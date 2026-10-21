@@ -14,7 +14,7 @@
  * @param zone - IANA company time zone id, or null to fall back to the browser zone
  */
 
-import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/shared/helpers/intl-format-options.helper';
+import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/domain/helpers/intl-format-options.helper';
 
 export type CompanyDateTimeFormat = 'dateTime' | 'date' | 'dayMonthTime';
 

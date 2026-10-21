@@ -58,7 +58,7 @@ import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';

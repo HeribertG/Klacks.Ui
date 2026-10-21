@@ -84,8 +84,8 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
-import { ResolvedCalendarChips } from './resolved-calendar-chips.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { ResolvedCalendarChips } from '../../../shared/grid/services/resolved-calendar-chips.interface';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 const GROUP_QUERY_PARAM = 'groupId';
 const CLIENT_QUERY_PARAM = 'clientId';

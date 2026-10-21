@@ -8,7 +8,7 @@ import { ROW_HEADER_SETTINGS } from 'src/app/presentation/shared/grid/row-header
 import { IRowHeaderSettings } from 'src/app/presentation/shared/grid/row-header/row-header-settings.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ROW_HEADER_DATA } from 'src/app/presentation/shared/grid/row-header/row-header-tokens';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 
 @Injectable()
 export class DrawAvailabilityRowHeaderService {

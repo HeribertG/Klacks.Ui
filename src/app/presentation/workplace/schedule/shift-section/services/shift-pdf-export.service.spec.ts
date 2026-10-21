@@ -11,7 +11,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list-helper-class';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';

@@ -26,7 +26,7 @@ import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/sch
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
-import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { FillHandleDragContext } from './fill-handle-drag-context.interface';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';

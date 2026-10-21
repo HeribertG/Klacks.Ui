@@ -49,7 +49,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
-import { calendarDateKey, companyCalendarDayOf } from 'src/app/shared/helpers/calendar-date.helper';
+import { calendarDateKey, companyCalendarDayOf } from 'src/app/domain/helpers/calendar-date.helper';
 import { CancelFormModel } from './cancel-form-model.interface';
 import {
   currentStage,

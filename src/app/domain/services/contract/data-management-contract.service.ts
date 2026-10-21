@@ -28,7 +28,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule/own-time-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   convertContractRates,
   factorToPercent,

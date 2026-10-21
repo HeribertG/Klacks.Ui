@@ -35,8 +35,8 @@ import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-acc
 import { IScenarioStaleness } from 'src/app/domain/interfaces/scenario-staleness.interface';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
-import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/company-date-time.formatter';
-import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { formatCompanyInstant } from 'src/app/domain/helpers/company-date-time.formatter';
+import { companyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 
 const SCENARIO_NAME_SEPARATOR = ', ';
 const LOCKED_SKIPPED_TOAST_NAME = 'scenario-accept-locked-skipped';

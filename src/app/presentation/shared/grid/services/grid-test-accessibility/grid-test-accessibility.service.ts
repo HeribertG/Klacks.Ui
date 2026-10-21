@@ -19,7 +19,7 @@ import type { ITestGridMetadata } from './test-grid-metadata.interface';
 import type { MyPosition } from '../../classes/position';
 import { WindowWithTestFrameworks } from './window-with-test-frameworks.interface';
 import { IScrollControllerWithVertical } from './scroll-controller-with-vertical.interface';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
 
 /**
  * Service that manages test accessibility for the Schedule Grid.

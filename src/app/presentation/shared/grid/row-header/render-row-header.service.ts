@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject, Injector } from '@angular/core';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { SharedRowHeaderCanvasManagerService } from './row-header-canvas-manager.service';
 import { SharedRenderRowHeaderCellService } from './render-row-header-cell.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

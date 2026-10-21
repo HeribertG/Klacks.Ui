@@ -17,7 +17,7 @@ import { DataManagementClientService } from '../client/data-management-client.se
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
-import { companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({
   providedIn: 'root',

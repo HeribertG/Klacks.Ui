@@ -5,7 +5,7 @@ import {
   addDays,
   daysBetweenDates,
   equalDate,
-} from 'src/app/shared/helpers/date.helper';
+} from 'src/app/domain/helpers/date.helper';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
@@ -16,8 +16,8 @@ import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { GanttCoordinateService } from './gantt-coordinate.service';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 

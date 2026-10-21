@@ -16,7 +16,7 @@ import {
 import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item.interface';
 
 import { unformatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
-import { toCalendarDateWire } from 'src/app/shared/helpers/calendar-date.helper';
+import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 
 export class ClientDataMapper {
   static mapForUpdate(value: IClient) {

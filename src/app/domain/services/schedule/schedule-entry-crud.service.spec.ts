@@ -26,7 +26,7 @@ import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.inter
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 import { IClientWork } from '../../models/schedule/client-work.interface';
 import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-entry-type.enum';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

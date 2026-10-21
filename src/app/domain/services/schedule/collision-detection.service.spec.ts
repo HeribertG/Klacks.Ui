@@ -14,7 +14,7 @@ import { ICollisionNotification } from 'src/app/domain/interfaces/collision-noti
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-list-notification.interface';
 import { IScheduleValidationNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
-import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

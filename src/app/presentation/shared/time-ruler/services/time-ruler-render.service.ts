@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { DrawHelper } from '../../../helpers/draw-helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
 import { Gradient3DBorderStyleEnum } from '../../grid/enums/gradient-3d-border-style';

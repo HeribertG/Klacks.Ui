@@ -20,9 +20,9 @@ import { DataQualificationService } from 'src/app/infrastructure/api/settings/da
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
-import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
-import { calendarDateKey, companyToday, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
+import { daysBetweenDates } from 'src/app/domain/helpers/date.helper';
+import { calendarDateKey, companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';

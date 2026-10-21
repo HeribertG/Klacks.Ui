@@ -27,8 +27,8 @@ import { HolidayDate } from 'src/app/domain/models/calendar/holiday-date-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { addDays, getDayIndex } from 'src/app/shared/helpers/date.helper';
-import { calendarDateKey, companyToday } from 'src/app/shared/helpers/calendar-date.helper';
+import { addDays, getDayIndex } from 'src/app/domain/helpers/date.helper';
+import { calendarDateKey, companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { CellBadge } from 'src/app/presentation/shared/grid/classes/cell-badge';
@@ -44,7 +44,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
-import { DayInfo } from './day-info.interface';
+import { ShiftDayInfo } from './shift-day-info.interface';
 import { ShiftRow } from './shift-row.interface';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 
@@ -254,7 +254,7 @@ export class ShiftDataService extends BaseDataService {
           startShift: schedule.startShift,
           endShift: schedule.endShift,
           workTime: schedule.workTime,
-          activeDays: new Map<string, DayInfo>(),
+          activeDays: new Map<string, ShiftDayInfo>(),
           isSporadic: schedule.isSporadic,
           isTimeRange: schedule.isTimeRange,
           shiftType: schedule.shiftType,
