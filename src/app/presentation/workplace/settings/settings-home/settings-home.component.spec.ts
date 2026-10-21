@@ -47,7 +47,7 @@ describe('SettingsHomeComponent', () => {
         {
           provide: DataManagementSettingsService,
           useValue: {
-            userAdmin: { currentAccountId: { set: vi.fn() } },
+            userAdmin: { refreshCurrentAccountId: vi.fn() },
             readData: vi.fn(),
           },
         },

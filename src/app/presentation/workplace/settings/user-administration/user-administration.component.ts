@@ -38,8 +38,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { HttpErrorResponse } from '@angular/common/http';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
-import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
-import { AdminInviteResult, DataUserMessengerContactService } from 'src/app/infrastructure/api/messaging/data-user-messenger-contact.service';
+import { TelegramInvitationService } from 'src/app/domain/services/messaging/telegram-invitation.service';
 import { UserFormModel } from './user-form-model.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
@@ -72,8 +71,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   private refreshRegistry = inject(DataRefreshRegistry);
   private manualLoaderService = inject(ManualLoaderService);
   private featurePluginState = inject(FeaturePluginStateService);
-  private messagingInvitationService = inject(DataMessagingInvitationService);
-  private userMessengerContactService = inject(DataUserMessengerContactService);
+  private telegramInvitationService = inject(TelegramInvitationService);
   private toastShowService = inject(ToastShowService);
   private unregisterRefresh?: () => void;
   private ngUnsubscribe = new Subject<void>();
@@ -146,7 +144,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
         this.telegramProviderActive.set(false);
         return;
       }
-      this.messagingInvitationService.isTelegramProviderActive().subscribe({
+      this.telegramInvitationService.isTelegramProviderActive().subscribe({
         next: (active) => {
           this.telegramProviderActive.set(active);
           this.cdr.markForCheck();
@@ -168,32 +166,20 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   sendUserTelegramInvite(): void {
     const userId = this.newUser?.id;
     if (!userId) return;
-    this.userMessengerContactService.sendAdminInvite(userId).subscribe({
+    this.telegramInvitationService.sendAdminInvite(userId).subscribe({
       next: (resp) => {
-        const key = this.userInviteResultKey(resp.result);
-        if (resp.result === AdminInviteResult.Success) {
-          this.toastShowService.showSuccess(this.translate.instant(key), '');
+        const outcome = this.telegramInvitationService.adminInviteOutcomeOf(resp.result);
+        if (outcome.isSent) {
+          this.toastShowService.showSuccess(this.translate.instant(outcome.messageKey), '');
         } else {
-          this.toastShowService.showError(this.translate.instant(key));
+          this.toastShowService.showError(this.translate.instant(outcome.messageKey));
         }
       },
       error: (err: HttpErrorResponse) => {
-        const key = this.userInviteResultKey(err.error?.result);
-        this.toastShowService.showError(this.translate.instant(key));
+        const outcome = this.telegramInvitationService.adminInviteFailureOf(err);
+        this.toastShowService.showError(this.translate.instant(outcome.messageKey));
       },
     });
-  }
-
-  private userInviteResultKey(result: string | undefined): string {
-    switch (result) {
-      case AdminInviteResult.Success: return 'messaging.sendUserTelegramInvite.success';
-      case AdminInviteResult.AlreadyLinked: return 'messaging.sendUserTelegramInvite.alreadyLinked';
-      case AdminInviteResult.UserNotFound: return 'messaging.sendUserTelegramInvite.userNotFound';
-      case AdminInviteResult.NoEmail: return 'messaging.sendUserTelegramInvite.noEmail';
-      case AdminInviteResult.SendFailed: return 'messaging.sendUserTelegramInvite.sendFailed';
-      case AdminInviteResult.NoTelegramProvider: return 'messaging.sendUserTelegramInvite.noProvider';
-      default: return 'messaging.sendUserTelegramInvite.error';
-    }
   }
 
   setTab(tab: 'users' | 'manual'): void {

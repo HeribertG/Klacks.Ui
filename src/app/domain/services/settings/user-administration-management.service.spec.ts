@@ -11,6 +11,7 @@ import { ChangePassword } from 'src/app/domain/models/change-password-class';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import {
     ACCOUNT_REGISTRATION_REASONS,
     ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
@@ -293,6 +294,27 @@ describe('UserAdministrationManagementService', () => {
 
             await new Promise(resolve => setTimeout(resolve, 60));
             expect(wasLoadingSet).toBe(true);
+        });
+    });
+
+    describe('refreshCurrentAccountId', () => {
+        it('takes over the id of the signed-in user from local storage', () => {
+            mockLocalStorageService.get.mockReturnValue('user-42');
+
+            service.refreshCurrentAccountId();
+
+            expect(service.currentAccountId()).toBe('user-42');
+            expect(mockLocalStorageService.get).toHaveBeenCalledWith(StorageKeys.TOKEN_USERID);
+        });
+
+        it('keeps the current id when local storage holds none', () => {
+            mockLocalStorageService.get.mockReturnValue('user-42');
+            service.refreshCurrentAccountId();
+            mockLocalStorageService.get.mockReturnValue(null);
+
+            service.refreshCurrentAccountId();
+
+            expect(service.currentAccountId()).toBe('user-42');
         });
     });
 });

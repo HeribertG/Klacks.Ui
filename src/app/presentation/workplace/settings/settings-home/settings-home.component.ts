@@ -13,8 +13,7 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { SettingsExpertModeService } from 'src/app/domain/services/settings/settings-expert-mode.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
@@ -177,7 +176,7 @@ export class SettingsHomeComponent implements OnInit {
   private workplaceStateService = inject(WorkplaceStateService);
   private dataManagementSettingsService = inject(DataManagementSettingsService);
 
-  private localStorageService = inject(LocalStorageService);
+  private expertModeService = inject(SettingsExpertModeService);
   private onboardingService = inject(OnboardingService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
@@ -209,7 +208,7 @@ export class SettingsHomeComponent implements OnInit {
 
   isChecked =
     this.onboardingService.isTourActive() ||
-    this.localStorageService.get(StorageKeys.SETTINGS_EXPERT_MODE) === 'true';
+    this.expertModeService.isEnabled();
 
   get settingsService(): DataManagementSettingsService {
     return this.dataManagementSettingsService;
@@ -246,8 +245,7 @@ export class SettingsHomeComponent implements OnInit {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
 
-    const id = this.localStorageService.get(StorageKeys.TOKEN_USERID) + '';
-    this.dataManagementSettingsService.userAdmin.currentAccountId.set(id);
+    this.dataManagementSettingsService.userAdmin.refreshCurrentAccountId();
     this.workplaceStateService.setActiveManagerByRoute('settings');
     this.savebarService.setSavebarVisibility(false);
     this.dataManagementSettingsService.readData();
@@ -271,7 +269,7 @@ export class SettingsHomeComponent implements OnInit {
 
   private setExpertMode(enabled: boolean): void {
     this.isChecked = enabled;
-    this.localStorageService.set(StorageKeys.SETTINGS_EXPERT_MODE, String(enabled));
+    this.expertModeService.setEnabled(enabled);
   }
 
   onIsChanging(event: any): void {

@@ -31,7 +31,7 @@ export class UserAdministrationManagementService {
   private readonly RETRY_DELAY_MS = 1000;
 
   constructor() {
-    this.initializeCurrentAccountId();
+    this.refreshCurrentAccountId();
   }
 
   public loadAccounts(): void {
@@ -40,7 +40,7 @@ export class UserAdministrationManagementService {
     }
   }
 
-  private initializeCurrentAccountId(): void {
+  public refreshCurrentAccountId(): void {
     const userId = this.localStorageService.get(StorageKeys.TOKEN_USERID);
     if (userId) {
       this.currentAccountId.set(userId);

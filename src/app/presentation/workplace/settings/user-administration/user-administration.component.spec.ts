@@ -5,7 +5,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { signal } from '@angular/core';
 
 import { UserAdministrationComponent } from './user-administration.component';
@@ -17,6 +17,9 @@ import { Authentication } from 'src/app/domain/models/authentication-class';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
+import { DataUserMessengerContactService } from 'src/app/infrastructure/api/messaging/data-user-messenger-contact.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('UserAdministrationComponent', () => {
     let component: UserAdministrationComponent;
@@ -28,6 +31,8 @@ describe('UserAdministrationComponent', () => {
     let mockTranslateService: any;
     let mockFeaturePluginState: any;
     let mockMessagingInvitationService: any;
+    let mockMessengerContactService: any;
+    let mockToastService: any;
 
     const mockUsers: IAuthentication[] = [
         {
@@ -138,6 +143,9 @@ describe('UserAdministrationComponent', () => {
             isTelegramProviderActive: vi.fn().mockReturnValue(of(false)),
         };
 
+        mockMessengerContactService = { sendAdminInvite: vi.fn() };
+        mockToastService = { showSuccess: vi.fn(), showError: vi.fn() };
+
         await TestBed.configureTestingModule({
             imports: [UserAdministrationComponent, TranslateModule.forRoot()],
             providers: [
@@ -154,6 +162,8 @@ describe('UserAdministrationComponent', () => {
                 { provide: TranslateService, useValue: translateServiceSpy },
                 { provide: FeaturePluginStateService, useValue: featurePluginStateSpy },
                 { provide: DataMessagingInvitationService, useValue: messagingInvitationServiceSpy },
+                { provide: DataUserMessengerContactService, useValue: mockMessengerContactService },
+                { provide: ToastShowService, useValue: mockToastService },
             ],
         }).compileComponents();
 
@@ -662,6 +672,51 @@ describe('UserAdministrationComponent', () => {
 
             // Assert
             expect(component.canSendUserTelegramInvite()).toBe(true);
+        });
+    });
+
+    describe('sendUserTelegramInvite', () => {
+        beforeEach(() => {
+            (component as any).newUser = { id: 'user-1' };
+        });
+
+        it('does nothing without a stored user', () => {
+            (component as any).newUser = { id: '' };
+
+            component.sendUserTelegramInvite();
+
+            expect(mockMessengerContactService.sendAdminInvite).not.toHaveBeenCalled();
+        });
+
+        it('shows a success toast when the invitation was sent', () => {
+            mockMessengerContactService.sendAdminInvite.mockReturnValue(of({ result: 'Success' }));
+
+            component.sendUserTelegramInvite();
+
+            expect(mockMessengerContactService.sendAdminInvite).toHaveBeenCalledWith('user-1');
+            expect(mockToastService.showSuccess).toHaveBeenCalled();
+            expect(mockToastService.showError).not.toHaveBeenCalled();
+        });
+
+        it('shows the message of the answered result as an error when the plugin refuses', () => {
+            mockMessengerContactService.sendAdminInvite.mockReturnValue(of({ result: 'NoEmail' }));
+            mockTranslateService.instant.mockImplementation((key: string) => key);
+
+            component.sendUserTelegramInvite();
+
+            expect(mockToastService.showError).toHaveBeenCalledWith('messaging.sendUserTelegramInvite.noEmail');
+            expect(mockToastService.showSuccess).not.toHaveBeenCalled();
+        });
+
+        it('shows the message of the result code carried by a failed request', () => {
+            mockMessengerContactService.sendAdminInvite.mockReturnValue(
+                throwError(() => new HttpErrorResponse({ status: 409, error: { result: 'AlreadyLinked' } }))
+            );
+            mockTranslateService.instant.mockImplementation((key: string) => key);
+
+            component.sendUserTelegramInvite();
+
+            expect(mockToastService.showError).toHaveBeenCalledWith('messaging.sendUserTelegramInvite.alreadyLinked');
         });
     });
 });
