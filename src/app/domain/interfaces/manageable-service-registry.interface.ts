@@ -2,7 +2,7 @@
 
 import { Type, InjectionToken } from '@angular/core';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
-import { ILoadable } from './manageable.interface';
+import { ILoadable } from './loadable.interface';
 
 export interface IManageableServiceRegistry {
   register(routeId: RouteName | string, serviceToken: Type<ILoadable>): void;

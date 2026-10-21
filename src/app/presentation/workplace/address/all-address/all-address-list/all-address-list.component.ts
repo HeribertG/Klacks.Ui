@@ -45,7 +45,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
-import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print.service';
+import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-request.interface';
 
 @Component({
   selector: 'app-all-address-list',

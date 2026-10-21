@@ -6,14 +6,13 @@
  * and ensures all decorated methods' queued calls are drained by executeQueuedMethods.
  */
 
+import { QueueEntry } from './queue-entry.interface';
+
 export interface CanvasAvailable {
   isCanvasAvailable: () => boolean;
 }
 
 const CANVAS_QUEUE = Symbol('canvasMethodQueue');
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface QueueEntry { method: (...args: any[]) => any; args: any[] }
 
 export function CanvasAvailable(
   errorHandling: 'warn' | 'throw' | 'queue' = 'warn'

@@ -5,10 +5,3 @@ export interface ICreateAgentRequest {
   displayName?: string;
   description?: string;
 }
-
-export interface IUpdateAgentRequest {
-  name?: string;
-  displayName?: string;
-  description?: string;
-  isActive?: boolean;
-}

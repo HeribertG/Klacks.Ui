@@ -10,13 +10,3 @@ export interface IAgentSession {
   lastMessageAt?: string;
   isArchived: boolean;
 }
-
-export interface IAgentSessionMessage {
-  id: string;
-  role: string;
-  content?: string;
-  tokenCount?: number;
-  modelId?: string;
-  functionCalls?: string;
-  createTime: string;
-}

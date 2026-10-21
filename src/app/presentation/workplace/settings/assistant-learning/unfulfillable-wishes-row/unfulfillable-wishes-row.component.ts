@@ -13,7 +13,7 @@ import { Component, ChangeDetectionStrategy, computed, input, output } from '@an
 
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { IUnfulfillableWish } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { IUnfulfillableWish } from 'src/app/domain/interfaces/unfulfillable-wish.interface';
 import { KLACKSY_LEARNING_WISH_STATUS } from 'src/app/domain/constants/klacksy-learning.constants';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 

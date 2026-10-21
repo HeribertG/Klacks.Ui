@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { IAgentSoulSectionSummary } from './agent-soul-section-summary.interface';
+
 export interface IAgent {
   id: string;
   name: string;
@@ -10,11 +12,4 @@ export interface IAgent {
   createTime: string;
   soulSections?: IAgentSoulSectionSummary[];
   skillCount?: number;
-}
-
-export interface IAgentSoulSectionSummary {
-  id: string;
-  sectionType: string;
-  sortOrder: number;
-  version: number;
 }

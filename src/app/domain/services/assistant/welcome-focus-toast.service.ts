@@ -18,15 +18,11 @@ import {
   WELCOME_FOCUS_LATER,
   WELCOME_FOCUS_LATER_LABEL_KEY,
 } from 'src/app/domain/constants/welcome-focus.constants';
+import { IWelcomeFocusToast } from './welcome-focus-toast.interface';
 import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_DATE_RADIX = 10;
-
-export interface IWelcomeFocusToast {
-  prompt: string;
-  options: ISuggestedReply[];
-}
 
 @Injectable({
   providedIn: 'root',

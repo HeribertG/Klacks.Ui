@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
-import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 export interface SttTranscriptResult {
   text: string;
   isFinal: boolean;

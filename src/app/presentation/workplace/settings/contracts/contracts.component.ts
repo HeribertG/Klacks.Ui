@@ -48,7 +48,7 @@ import {
 } from 'src/app/domain/helpers/own-time.helper';
 import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { CONTRACT_RATE_KEYS, normalizeRateInput } from 'src/app/domain/helpers/contract-rate.helper';

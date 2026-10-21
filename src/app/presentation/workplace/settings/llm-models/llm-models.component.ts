@@ -31,7 +31,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 

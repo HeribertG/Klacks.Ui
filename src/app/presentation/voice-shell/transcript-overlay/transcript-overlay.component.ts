@@ -21,7 +21,7 @@ import { faChevronUp, faComments } from '@fortawesome/free-solid-svg-icons';
 import { ChatMessage } from '../../aside/assistant-chat/chat-message.interface';
 import { ConversationOrchestratorService } from '../../aside/assistant-chat/services/conversation-orchestrator.service';
 import { TranscriptOverlayService } from './transcript-overlay.service';
-import { VoiceShellLayout } from 'src/app/domain/constants/voice-shell-constants';
+import { VoiceShellLayout } from 'src/app/domain/constants/voice-shell-layout.constants';
 
 @Component({
   selector: 'app-transcript-overlay',

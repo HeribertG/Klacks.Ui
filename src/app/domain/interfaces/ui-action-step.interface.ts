@@ -1,19 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-export type UiActionType =
-  | 'navigate'
-  | 'waitForElement'
-  | 'setValue'
-  | 'setSelect'
-  | 'click'
-  | 'scrollTo'
-  | 'delay'
-  | 'poll'
-  | 'readValue'
-  | 'conditional'
-  | 'apiCall'
-  | 'search'
-  | 'selectGroup';
+import { UiActionType } from './ui-action-type.type';
 
 export interface IUiActionStep {
   action: UiActionType;
@@ -46,30 +33,4 @@ export interface IUiActionStep {
   apiUrl?: string;
   apiMethod?: string;
   apiBody?: Record<string, unknown>;
-}
-
-export interface IUiActionConfig {
-  steps: IUiActionStep[];
-  onError?: 'stop' | 'continue';
-}
-
-/**
- * Outcome of one UiAction config run. Needed because a config with onError 'continue' swallows its
- * step errors: without a returned verdict the caller cannot tell a fully executed action from one
- * that logged three failures and carried on, and would report success for both (W1.4).
- */
-export interface IUiActionExecutionOutcome {
-  succeeded: boolean;
-  failedStep?: UiActionType;
-  error?: string;
-  /** Set when the run stopped early because the turn it belongs to was stopped (§4.5); never sent to the backend. */
-  cancelled?: boolean;
-}
-
-export interface IUiActionContext {
-  params: Record<string, unknown>;
-  results: Record<string, unknown>;
-  callId: string;
-  /** Polled between steps; absent means "never cancellable" (all existing non-Klacksy-stop call sites). */
-  isCancelled?: () => boolean;
 }

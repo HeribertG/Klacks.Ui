@@ -21,12 +21,8 @@ import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/da
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { ChunkLoader } from './chunk-loader';
+import { ShiftScheduleResponse } from './shift-schedule-response.interface';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
-
-interface ShiftScheduleResponse {
-  shifts: IShiftSchedule[];
-  totalCount: number;
-}
 
 @Injectable({
   providedIn: 'root',

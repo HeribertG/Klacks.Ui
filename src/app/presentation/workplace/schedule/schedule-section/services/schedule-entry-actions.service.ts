@@ -18,8 +18,13 @@ import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
-import { BreakCellParams, DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
+import { AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu-item.interface';
+import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
+import {
+  DeleteWorkScheduleEntryParams,
+} from 'src/app/domain/services/schedule/delete-work-schedule-entry-params.interface';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';

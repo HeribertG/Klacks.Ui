@@ -13,14 +13,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import {
-  ILearnedCapability,
-  ILearnedPhrase,
-  ISkillLearningRunResponse,
-  IUnfulfillableWish,
-  IUpdateLearnedCapabilityRequest,
-  IUpdateLearnedPhraseRequest,
-} from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedPhrase } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedCapability } from 'src/app/domain/interfaces/learned-capability.interface';
+import { ISkillLearningRunResponse } from 'src/app/domain/interfaces/skill-learning-run-response.interface';
+import { IUnfulfillableWish } from 'src/app/domain/interfaces/unfulfillable-wish.interface';
+import { IUpdateLearnedCapabilityRequest } from 'src/app/domain/interfaces/update-learned-capability-request.interface';
+import { IUpdateLearnedPhraseRequest } from 'src/app/domain/interfaces/update-learned-phrase-request.interface';
 import {
   KLACKSY_LEARNING_APPROVE_ACTION,
   KLACKSY_LEARNING_DEFAULT_PHRASE_LIMIT,

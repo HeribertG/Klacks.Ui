@@ -2,7 +2,12 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { ShiftCutOperationService, CutByDateParams, CutByTimeParams, CutByWeekdaysParams, CutByStaffParams, CutByTaskParams, } from './shift-cut-operation.service';
+import { ShiftCutOperationService } from './shift-cut-operation.service';
+import { CutByDateParams } from './cut-by-date-params.interface';
+import { CutByTimeParams } from './cut-by-time-params.interface';
+import { CutByWeekdaysParams } from './cut-by-weekdays-params.interface';
+import { CutByStaffParams } from './cut-by-staff-params.interface';
+import { CutByTaskParams } from './cut-by-task-params.interface';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';

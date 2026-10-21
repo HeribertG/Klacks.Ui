@@ -9,7 +9,8 @@ import { EscalationRosterAdministrationComponent } from './escalation-roster-adm
 import { DataEscalationRosterService } from 'src/app/infrastructure/api/assistant/data-escalation-roster.service';
 import { DataUserAbsencePeriodService } from 'src/app/infrastructure/api/settings/data-user-absence-period.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { IEscalationRosterMember, IUserAbsencePeriod } from 'src/app/domain/interfaces/escalation-roster.interface';
+import { IEscalationRosterMember } from 'src/app/domain/interfaces/escalation-roster.interface';
+import { IUserAbsencePeriod } from 'src/app/domain/interfaces/user-absence-period.interface';
 
 describe('EscalationRosterAdministrationComponent', () => {
     let component: EscalationRosterAdministrationComponent;

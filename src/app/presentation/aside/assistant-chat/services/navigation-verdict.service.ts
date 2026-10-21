@@ -14,7 +14,7 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
-import { NavigationResult } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { NavigationResult } from 'src/app/domain/services/klacksy/navigation-result.interface';
 import {
   NAVIGATION_OUTCOME_FEATURE_DISABLED,
   NAVIGATION_OUTCOME_MAX_UTTERANCE_LENGTH,

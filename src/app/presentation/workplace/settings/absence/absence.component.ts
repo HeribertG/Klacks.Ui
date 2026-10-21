@@ -44,7 +44,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { MacroCategoryEnum } from 'src/app/domain/enums/macro-category.enum';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 

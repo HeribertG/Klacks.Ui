@@ -4,12 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { DataKlacksyLearningService } from './data-klacksy-learning.service';
-import {
-  ILearnedCapability,
-  ILearnedPhrase,
-  ISkillLearningRunResponse,
-  IUnfulfillableWish,
-} from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedPhrase } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedCapability } from 'src/app/domain/interfaces/learned-capability.interface';
+import { ISkillLearningRunResponse } from 'src/app/domain/interfaces/skill-learning-run-response.interface';
+import { IUnfulfillableWish } from 'src/app/domain/interfaces/unfulfillable-wish.interface';
 import { environment } from 'src/environments/environment';
 
 describe('DataKlacksyLearningService', () => {

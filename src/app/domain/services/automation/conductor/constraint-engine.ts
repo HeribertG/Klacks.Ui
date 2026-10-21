@@ -14,6 +14,9 @@
 import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
 import { SCHEDULING_CONSTANTS, EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { ConstraintAgent } from './constraint-agent.interface';
+import { ConstraintAssignment } from './constraint-assignment.interface';
+import { TimeSlot } from './time-slot.interface';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 export interface ConstraintShift {
@@ -23,30 +26,6 @@ export interface ConstraintShift {
   startTime: string;
   endTime: string;
   hours: number;
-}
-
-export interface ConstraintAgent {
-  id: string;
-  currentHours: number;
-  guaranteedHours: number;
-  maxConsecutiveDays: number;
-  minRestHours: number;
-  motivation: number;
-  maxDailyHours: number;
-  maxWeeklyHours: number;
-  maxOptimalGap: number;
-}
-
-export interface ConstraintAssignment {
-  shiftId: string;
-  agentId: string;
-  motivationScore: number;
-}
-
-interface TimeSlot {
-  date: string;
-  start: string;
-  end: string;
 }
 
 function timeSlotsOverlap(start1: string, end1: string, start2: string, end2: string): boolean {

@@ -5,79 +5,10 @@ import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
+import { IRouteOptimizationResult } from './route-optimization-result.interface';
+import { IAutofillResult } from './autofill-result.interface';
+import { ITimeBlock } from './time-block.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
-
-export interface ILocation {
-  name: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  shiftId: string;
-  briefingTime: string;
-  debriefingTime: string;
-}
-
-export interface IRouteStep extends ILocation {
-  order: number;
-  distanceToNextKm: number;
-  travelTimeToNext: string;
-}
-
-export interface IDirectionStep {
-  instruction: string;
-  streetName: string;
-  distanceMeters: number;
-  durationSeconds: number;
-  maneuverType: string;
-}
-
-export interface IRouteSegmentDirections {
-  fromName: string;
-  toName: string;
-  transportMode: string;
-  distanceKm: number;
-  duration: string;
-  steps: IDirectionStep[];
-}
-
-export interface IRouteOptimizationResult {
-  optimizedRoute: IRouteStep[];
-  totalDistanceKm: number;
-  estimatedTravelTime: string;
-  travelTimeFromStartBase: string;
-  distanceFromStartBaseKm: number;
-  distanceToEndBaseKm: number;
-  travelTimeToEndBase: string;
-  segmentDirections?: IRouteSegmentDirections[];
-  totalBriefingDebriefingTime: string;
-  placedTimeBlocks?: ITimeBlockResult[];
-  isEstimated?: boolean;
-}
-
-export interface IAutofillResult extends IRouteOptimizationResult {
-  selectedShiftIds: string[];
-  totalWorkTime: string;
-  remainingTime: string;
-  totalAvailableShifts: number;
-  selectedShiftCount: number;
-  placedTimeBlocks?: ITimeBlockResult[];
-}
-
-export interface ITimeBlock {
-  id: string;
-  fixedStartTime?: string;
-  fixedEndTime?: string;
-  durationMinutes: number;
-  isMovable: boolean;
-}
-
-export interface ITimeBlockResult {
-  id: string;
-  startTime: string;
-  endTime: string;
-  insertionPosition: number;
-  isMovable: boolean;
-}
 
 @Injectable({
   providedIn: 'root',

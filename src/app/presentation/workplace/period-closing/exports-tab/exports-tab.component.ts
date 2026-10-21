@@ -61,7 +61,8 @@ import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from '
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { EXPORTS_TAB_TARGETS, ExportsTabKey } from '../period-closing-target.constants';
 import { errorCountToReconfirm } from '../period-seal-conflict';
 import { parsePayrollExportConflict } from './payroll-export-conflict.parser';

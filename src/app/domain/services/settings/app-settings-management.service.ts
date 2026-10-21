@@ -55,13 +55,16 @@ import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-conf
 import { IUpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.interface';
 import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
-import { SttEngine, TtsProvider, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SttEngine } from 'src/app/domain/constants/speech-constants';
+import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 import { HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { IHolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.interface';
 import { parseHolisticHarmonizerMode } from 'src/app/domain/constants/holistic-harmonizer-mode.constants';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
+import { SettingsModels } from './settings-models.interface';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 const SAVE_SETTING_FAILED_MESSAGE = 'Failed to save app setting:';
@@ -85,30 +88,6 @@ function serializeNullableNumber(value: number | null): string {
  */
 function normalizeActiveIndustry(value: string): string {
   return (value ?? '').trim();
-}
-
-interface SettingsModels {
-  contact: IAppContactSettings;
-  email: IEmailServerSettings;
-  imap: IImapServerSettings;
-  work: IWorkSettings;
-  schedulingDefaults: ISchedulingDefaultSettings;
-  dataRetention: IDataRetentionSettings;
-  update: IUpdateConfigSettings;
-  openRouteServiceApiKey: string;
-  deeplApiKey: string;
-  webSearchProvider: string;
-  webSearchApiKey: string;
-  webSearchMaxResults: string;
-  erpImportCronExpression: string;
-  erpImportCronTimeZone: string;
-  speech: ISpeechSettings;
-  holisticHarmonizer: IHolisticHarmonizerSettings;
-  compensatoryRest: ICompensatoryRestSettings;
-  surchargeMode: ISurchargeModeSettings;
-  overtime: IOvertimeSettings;
-  complianceEnforcement: IComplianceEnforcementSettings;
-  activeIndustries: IActiveIndustriesSettings;
 }
 
 @Injectable({

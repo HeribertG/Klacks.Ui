@@ -23,28 +23,9 @@ import { EvolutionEngineService } from './evolution-engine.service';
 import { AgentStateService } from '../agent/agent-state.service';
 import { RulesEngineService } from '../rules/rules-engine.service';
 import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';
+import { IWorkerProgressData } from './worker-progress-data.interface';
+import { IWorkerResultData } from './worker-result-data.interface';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
-
-interface IWorkerProgressData {
-  currentGeneration: number;
-  maxGenerations: number;
-  bestFitness: number;
-  avgFitness: number;
-  coverage: number;
-  timeElapsedMs: number;
-  stagnationCount: number;
-}
-
-interface IWorkerResultData {
-  assignments: { shiftId: string; agentId: string; motivationScore: number }[];
-  coverage: number;
-  finalGeneration: number;
-  message: string;
-  stopReason: string;
-  timeElapsedMs: number;
-  penaltyScore: number;
-  hardViolations: number;
-}
 
 @Injectable({
   providedIn: 'root'

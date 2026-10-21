@@ -8,7 +8,7 @@
  */
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AudioQueueService implements OnDestroy {

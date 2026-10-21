@@ -20,7 +20,7 @@ import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));

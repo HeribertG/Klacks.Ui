@@ -9,7 +9,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IUserAbsencePeriod } from 'src/app/domain/interfaces/escalation-roster.interface';
+import { IUserAbsencePeriod } from 'src/app/domain/interfaces/user-absence-period.interface';
 
 @Injectable({
   providedIn: 'root',

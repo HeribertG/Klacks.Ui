@@ -1,7 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable, inject, signal } from '@angular/core';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
+import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
+import { INavigable } from 'src/app/domain/interfaces/navigable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { DataManagementSettingsService } from './data-management-settings.service';

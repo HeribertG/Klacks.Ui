@@ -10,11 +10,9 @@ import {
   computed,
   EffectRef,
 } from '@angular/core';
-import {
-  ILoadable,
-  IResettable,
-  INavigable,
-} from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
+import { INavigable } from 'src/app/domain/interfaces/navigable.interface';
 import { isSaveable } from 'src/app/domain/helpers/manageable.helper';
 import { IEntityStateProvider } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';

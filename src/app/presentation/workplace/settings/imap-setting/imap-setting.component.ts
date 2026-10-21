@@ -7,7 +7,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
-import { EmailTestResult, ImapTestRequest } from 'src/app/domain/interfaces/email-test.interface';
+import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
+import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 

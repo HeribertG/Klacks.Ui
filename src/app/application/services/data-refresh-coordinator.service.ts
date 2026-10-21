@@ -15,7 +15,7 @@ import { WorkplaceStateService } from './workplace-state.service';
 import { DataRefreshRegistry } from './data-refresh-registry.service';
 import { INTERACTIVE_REPLY_NOTIFIER } from 'src/app/domain/interfaces/interactive-reply-notifier.interface';
 import { TranslateService } from '@ngx-translate/core';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { isSaveable } from 'src/app/domain/helpers/manageable.helper';
 
 const BUFFER_WINDOW_MS = 300;

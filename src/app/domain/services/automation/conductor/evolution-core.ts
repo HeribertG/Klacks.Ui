@@ -14,15 +14,12 @@
  */
 
 import { EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
-import {
-  CoreShift,
-  CoreAgent,
-  CoreConfig,
-  CorePenaltyWeights,
-  CoreScenario,
-  RngFn,
-  EvolutionCallbacks,
-} from './evolution-types';
+import { CoreShift, RngFn } from './evolution-types';
+import { CoreAgent } from './core-agent.interface';
+import { CoreConfig } from './core-config.interface';
+import { CorePenaltyWeights } from './core-penalty-weights.interface';
+import { CoreScenario } from './core-scenario.interface';
+import { EvolutionCallbacks } from './evolution-callbacks.interface';
 import { createSeededRng, generateId } from './evolution-rng';
 import { calculateFitness } from './evolution-fitness';
 import {
@@ -34,6 +31,14 @@ import { mutate } from './evolution-mutation';
 import { crossoverBlock, tournamentSelect } from './evolution-genetics';
 
 export * from './evolution-types';
+export * from './core-agent.interface';
+export * from './core-assignment.interface';
+export * from './core-scenario.interface';
+export * from './core-config.interface';
+export * from './core-penalty-weights.interface';
+export * from './core-progress-data.interface';
+export * from './core-result-data.interface';
+export * from './evolution-callbacks.interface';
 export * from './evolution-rng';
 export * from './evolution-fitness';
 export * from './evolution-scenario-builder';

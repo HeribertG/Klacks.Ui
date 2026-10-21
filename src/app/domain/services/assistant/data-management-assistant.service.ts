@@ -36,22 +36,8 @@ import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { decodeJwtPayload } from 'src/app/shared/helpers/jwt.helper';
 import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';
+import { IConversation } from './conversation.interface';
 import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';
-
-export interface IConversationMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: Date;
-  functionCalls?: any[];
-}
-
-export interface IConversation {
-  id: string;
-  messages: IConversationMessage[];
-  startTime: Date;
-  lastActivity: Date;
-  totalCost?: number;
-}
 
 @Injectable({
   providedIn: 'root',

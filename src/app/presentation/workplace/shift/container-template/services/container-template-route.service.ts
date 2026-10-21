@@ -25,12 +25,10 @@ import {
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
-import {
-  RouteOptimizationService,
-  ITimeBlock,
-  IAutofillResult,
-  IRouteOptimizationResult,
-} from 'src/app/domain/services/route-optimization.service';
+import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
+import { ITimeBlock } from 'src/app/domain/services/time-block.interface';
+import { IAutofillResult } from 'src/app/domain/services/autofill-result.interface';
+import { IRouteOptimizationResult } from 'src/app/domain/services/route-optimization-result.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';

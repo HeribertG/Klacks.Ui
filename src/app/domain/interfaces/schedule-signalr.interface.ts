@@ -7,13 +7,11 @@ import { IWorksBulkCreatedNotification } from './works-bulk-created-notification
 import { IWizard4CandidateNotification } from './wizard4-candidate-notification.interface';
 import { IScheduleNotification } from './schedule-notification.interface';
 import { IShiftStatsNotification } from './shift-stats-notification.interface';
-import {
-  IPeriodHoursNotification,
-  IPeriodHoursRecalculatedNotification,
-  IThoroughRecalculationCompletedNotification,
-} from './period-hours-notification.interface';
+import { IPeriodHoursNotification } from './period-hours-notification.interface';
+import { IPeriodHoursRecalculatedNotification } from './period-hours-recalculated-notification.interface';
+import { IThoroughRecalculationCompletedNotification } from './thorough-recalculation-completed-notification.interface';
 import { IScheduleChangeNotification } from './schedule-change-notification.interface';
-import { ICollisionListNotification } from './collision-notification.interface';
+import { ICollisionListNotification } from './collision-list-notification.interface';
 import { IScheduleValidationListNotification } from './schedule-validation-list-notification.interface';
 import { IAutofillRunPresence } from './autofill-run-presence.interface';
 

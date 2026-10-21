@@ -39,12 +39,12 @@ import {
   ESCALATION_ACKNOWLEDGE_OUTCOME_CHAIN_ALREADY_RESOLVED,
   ESCALATION_CHAIN_STATUS_EXHAUSTED,
   ESCALATION_PURPOSE_PROACTIVE_APPROVAL,
-  IEscalationAcknowledgeResult,
-  IEscalationChainSummary,
   IEscalationStageSummary,
-  IUnresolvedEscalationChain,
   ESCALATION_CHAIN_STATUS_CANCELLED,
 } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationAcknowledgeResult } from 'src/app/domain/interfaces/escalation-acknowledge-result.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
+import { IUnresolvedEscalationChain } from 'src/app/domain/interfaces/unresolved-escalation-chain.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';

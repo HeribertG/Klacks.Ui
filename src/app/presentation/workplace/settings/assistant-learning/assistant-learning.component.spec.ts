@@ -8,11 +8,9 @@ import { Subject, of, throwError } from 'rxjs';
 
 import { AssistantLearningComponent } from './assistant-learning.component';
 import { DataManagementKlacksyLearningService } from 'src/app/domain/services/assistant/data-management-klacksy-learning.service';
-import {
-  ILearnedCapability,
-  ILearnedPhrase,
-  IUnfulfillableWish,
-} from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedPhrase } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedCapability } from 'src/app/domain/interfaces/learned-capability.interface';
+import { IUnfulfillableWish } from 'src/app/domain/interfaces/unfulfillable-wish.interface';
 import {
   KLACKSY_LEARNING_DELETE_CONTEXT,
   KLACKSY_LEARNING_RUN_REASON,

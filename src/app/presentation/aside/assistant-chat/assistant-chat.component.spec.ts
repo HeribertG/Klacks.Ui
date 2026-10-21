@@ -36,18 +36,18 @@ import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.inter
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
-    INTRO_MORE_REQUEST_KEY,
-    INTRO_STATION,
-    IOnboardingAskField,
-    ONBOARDING_KIND,
-    ONBOARDING_KNOWN_CHOICE,
-    ONBOARDING_OFFER_CHOICE,
-    ONBOARDING_SETTINGS_ROUTE,
-    ONBOARDING_STATION_LLM_PROVIDER,
-    ONBOARDING_STATION_TITLE,
-    ONBOARDING_STATIONS,
-    ONBOARDING_TOUR_CHOICE,
+  INTRO_MORE_REQUEST_KEY,
+  INTRO_STATION,
+  ONBOARDING_KIND,
+  ONBOARDING_KNOWN_CHOICE,
+  ONBOARDING_OFFER_CHOICE,
+  ONBOARDING_SETTINGS_ROUTE,
+  ONBOARDING_STATION_LLM_PROVIDER,
+  ONBOARDING_STATION_TITLE,
+  ONBOARDING_STATIONS,
+  ONBOARDING_TOUR_CHOICE,
 } from 'src/app/domain/constants/onboarding-stations';
+import { IOnboardingAskField } from 'src/app/domain/constants/onboarding-ask-field.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';

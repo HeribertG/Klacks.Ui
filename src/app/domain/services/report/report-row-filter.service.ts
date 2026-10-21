@@ -12,15 +12,10 @@
 import { Injectable, inject } from '@angular/core';
 
 import { ReportSection } from 'src/app/domain/models/report/report-section.model';
-import { ReportParameter, ReportParameterValues } from 'src/app/domain/models/report/report-parameter.model';
 import { buildParameterVariables, interpretFilterResult } from 'src/app/domain/helpers/report-parameter.helper';
-import { ReportDataProvider } from './report-data-provider.service';
+import { ReportDataProvider } from './report-data-provider.interface';
+import { ReportParameterContext } from './report-parameter-context.interface';
 import { FormulaEvaluationService } from './formula-evaluation.service';
-
-export interface ReportParameterContext {
-  parameters?: ReportParameter[];
-  values?: ReportParameterValues;
-}
 
 type ReportRow = Record<string, unknown>;
 

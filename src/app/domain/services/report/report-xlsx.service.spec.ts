@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ReportXlsxService } from './report-xlsx.service';
-import { ReportDataProvider } from './report-data-provider.service';
+import { ReportDataProvider } from './report-data-provider.interface';
 import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { DEFAULT_FIELD_STYLE, ReportField } from 'src/app/domain/models/report/report-field.model';

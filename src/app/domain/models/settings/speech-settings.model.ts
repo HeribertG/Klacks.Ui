@@ -14,7 +14,11 @@
  * @param bargeInEnabled - Whether the microphone stays open during TTS playback so the user can interrupt by speaking
  */
 import { ISpeechSettings } from './speech-settings.interface';
-import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SttEngine } from 'src/app/domain/constants/speech-constants';
+import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
+import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
 export function createEmptySttApiKeys(): Record<string, string> {
   return {

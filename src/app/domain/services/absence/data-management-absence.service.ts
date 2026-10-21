@@ -9,7 +9,8 @@ import { TruncatedAbsence } from 'src/app/domain/models/absence/truncated-absenc
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { ILoadable, IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';

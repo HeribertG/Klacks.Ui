@@ -18,11 +18,9 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { IdentityProvider } from 'src/app/domain/models/settings/identity-provider-class';
-import {
-  IIdentityProviderListItem,
-  ITestConnectionResult,
-  ISyncResult
-} from 'src/app/domain/interfaces/identity-provider.interface';
+import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider-list-item.interface';
+import { ITestConnectionResult } from 'src/app/domain/interfaces/test-connection-result.interface';
+import { ISyncResult } from 'src/app/domain/interfaces/sync-result.interface';
 import {
   IdentityProviderType,
   IdentityProviderTypeLabels

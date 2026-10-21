@@ -14,7 +14,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
 import { signal } from '@angular/core';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 

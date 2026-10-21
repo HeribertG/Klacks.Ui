@@ -10,7 +10,8 @@ import { UiActionValueResolverService } from './ui-action-value-resolver.service
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
-import { IUiActionConfig, IUiActionContext } from '../../interfaces/ui-action-step.interface';
+import { IUiActionConfig } from '../../interfaces/ui-action-config.interface';
+import { IUiActionContext } from '../../interfaces/ui-action-context.interface';
 
 describe('UiActionEngineService — cancellation', () => {
   let service: UiActionEngineService;

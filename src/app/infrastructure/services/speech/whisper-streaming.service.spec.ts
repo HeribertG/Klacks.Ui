@@ -7,7 +7,7 @@
  */
 import { TestBed } from '@angular/core/testing';
 import { WhisperStreamingService } from './whisper-streaming.service';
-import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
 interface SilenceDurationAccess {
   silenceDurationMs: number;

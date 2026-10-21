@@ -7,17 +7,12 @@
  * updater is running and the request will sit there forever.
  * @param operation - Queued operation carrying its status and the enqueue/claim timestamps
  */
+import { IQueuedOperation } from './queued-operation.interface';
 import { Injectable } from '@angular/core';
 
 const PENDING_STATUS = 'Pending';
 const UPDATER_CLAIM_GRACE_MS = 120000;
 const MS_PER_MINUTE = 60000;
-
-export interface IQueuedOperation {
-  status: string;
-  requestedAt: string;
-  startedAt?: string | null;
-}
 
 @Injectable({ providedIn: 'root' })
 export class UpdateQueueHealthService {

@@ -5,11 +5,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, from, Observable, of } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
-import {
-  IAssistantFunctionCall,
-  IAssistantFunctionResult,
-  ILLMFunctionExecuteRequest,
-} from '../../interfaces/assistant-function-definitions.interface';
+import { IAssistantFunctionCall } from '../../interfaces/assistant-function-call.interface';
+import { IAssistantFunctionResult } from '../../interfaces/assistant-function-result.interface';
+import { ILLMFunctionExecuteRequest } from '../../interfaces/llm-function-execute-request.interface';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { KLACKSY_PAGE_KEYS_BY_KEY } from 'src/app/domain/constants/klacksy-page-keys';

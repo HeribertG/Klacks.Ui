@@ -19,10 +19,8 @@ import {
   ProactiveReaction,
   ProactiveRejectReason,
 } from 'src/app/domain/constants/proactive-reaction.constants';
-import {
-  IProactiveInboxItem,
-  IProactiveUnreadCount,
-} from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveUnreadCount } from 'src/app/domain/interfaces/proactive-unread-count.interface';
 
 export interface ISetProactiveReactionRequest {
   reaction: ProactiveReaction;

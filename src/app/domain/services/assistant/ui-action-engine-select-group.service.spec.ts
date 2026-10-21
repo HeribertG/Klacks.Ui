@@ -11,7 +11,7 @@ import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.inter
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
-import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-config.interface';
 
 describe('UiActionEngineService selectGroup', () => {
   let service: UiActionEngineService;

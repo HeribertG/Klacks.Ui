@@ -14,7 +14,8 @@ import { UiActionValueResolverService } from './ui-action-value-resolver.service
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
-import { IUiActionConfig, IUiActionContext } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-config.interface';
+import { IUiActionContext } from 'src/app/domain/interfaces/ui-action-context.interface';
 
 const CONTEXT: IUiActionContext = { params: {}, results: {}, callId: 'call-1' };
 

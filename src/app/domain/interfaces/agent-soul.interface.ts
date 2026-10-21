@@ -10,19 +10,3 @@ export interface IAgentSoulSection {
   source?: string;
   createTime: string;
 }
-
-export interface IAgentSoulHistory {
-  id: string;
-  sectionType: string;
-  contentBefore?: string;
-  contentAfter: string;
-  version: number;
-  changeType: string;
-  changedBy?: string;
-  createTime: string;
-}
-
-export interface IUpsertSoulRequest {
-  content: string;
-  sortOrder?: number;
-}

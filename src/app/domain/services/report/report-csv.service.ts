@@ -17,9 +17,11 @@ import { ReportField } from 'src/app/domain/models/report/report-field.model';
 import { ReportFieldType } from 'src/app/domain/models/report/report-field-type.enum';
 import { resolveReportFieldLabel } from 'src/app/domain/helpers/report-field-label.helper';
 import { selectRowsForSection } from 'src/app/domain/helpers/report-section-rows.helper';
-import { ReportData, ReportDataProvider } from './report-data-provider.service';
+import { ReportData } from './report-data.interface';
+import { ReportDataProvider } from './report-data-provider.interface';
 import { FormulaEvaluationService } from './formula-evaluation.service';
-import { ReportParameterContext, ReportRowFilterService } from './report-row-filter.service';
+import { ReportRowFilterService } from './report-row-filter.service';
+import { ReportParameterContext } from './report-parameter-context.interface';
 import { buildParameterVariables } from 'src/app/domain/helpers/report-parameter.helper';
 import { CSV_LINE_BREAK, CSV_UTF8_BOM, buildCsvRow, escapeCsvValue } from 'src/app/domain/helpers/csv.helper';
 

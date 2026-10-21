@@ -101,7 +101,6 @@ import {
   INTRO_MORE_PAGE_PARAM,
   INTRO_MORE_REQUEST_KEY,
   INTRO_STATION,
-  IOnboardingAskField,
   IOnboardingStation,
   onboardingAskFields,
   ONBOARDING_KIND,
@@ -114,6 +113,7 @@ import {
   ONBOARDING_TOUR_CHOICE,
   OnboardingKind,
 } from 'src/app/domain/constants/onboarding-stations';
+import { IOnboardingAskField } from 'src/app/domain/constants/onboarding-ask-field.interface';
 
 const ONBOARDING_LLM_OFFLINE_KEY = 'assistant-chat.onboarding.llm.offline';
 const ONBOARDING_LLM_ONLINE_KEY = 'assistant-chat.onboarding.llm.online';

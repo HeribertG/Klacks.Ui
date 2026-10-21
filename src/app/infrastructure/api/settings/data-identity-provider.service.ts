@@ -5,14 +5,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import {
-  IIdentityProvider,
-  IIdentityProviderListItem,
-  ITestConnectionResult,
-  ISyncResult,
-  ICreateIdentityProviderRequest,
-  IUpdateIdentityProviderRequest
-} from 'src/app/domain/interfaces/identity-provider.interface';
+import { IIdentityProvider } from 'src/app/domain/interfaces/identity-provider.interface';
+import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider-list-item.interface';
+import { ITestConnectionResult } from 'src/app/domain/interfaces/test-connection-result.interface';
+import { ISyncResult } from 'src/app/domain/interfaces/sync-result.interface';
+import { ICreateIdentityProviderRequest } from 'src/app/domain/interfaces/create-identity-provider-request.interface';
+import { IUpdateIdentityProviderRequest } from 'src/app/domain/interfaces/update-identity-provider-request.interface';
 
 @Injectable({
   providedIn: 'root'

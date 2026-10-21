@@ -7,7 +7,7 @@
 import { vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { EarconService } from './earcon.service';
-import { EarconDefaults } from 'src/app/domain/constants/speech-constants';
+import { EarconDefaults } from 'src/app/domain/constants/earcon-defaults.constants';
 
 interface MockOscillator {
   type: OscillatorType | null;

@@ -35,41 +35,15 @@ import { GroupSelectionService } from '../group/group-selection.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, ErrorEvent, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType, ErrorEvent } from 'src/app/domain/events/domain-events';
+import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.interface';
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
+import { ScheduleCellParams } from './schedule-cell-params.interface';
+import { BreakCellParams } from './break-cell-params.interface';
+import { DeleteWorkScheduleEntryParams } from './delete-work-schedule-entry-params.interface';
 import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 const REFRESH_MARGIN_DAYS = 1;
-
-export interface ScheduleCellParams {
-  clientId: string;
-  date: Date;
-  shiftId: string;
-  workTime: number;
-  startTime: string;
-  endTime: string;
-  information?: string;
-}
-
-export interface BreakCellParams {
-  clientId: string;
-  absenceId: string;
-  date: Date;
-  workTime: number;
-  startTime: string;
-  endTime: string;
-  information?: string;
-  description?: { de?: string; en?: string; fr?: string; it?: string };
-}
-
-export interface DeleteWorkScheduleEntryParams {
-  id: string;
-  sourceId: string;
-  clientId: string;
-  date: Date;
-  entryId: string;
-  entryType: number;
-}
 
 @Injectable({
   providedIn: 'root',

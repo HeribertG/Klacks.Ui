@@ -15,7 +15,8 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
-import { IUiActionConfig, IUiActionContext } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-config.interface';
+import { IUiActionContext } from 'src/app/domain/interfaces/ui-action-context.interface';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import {
   UI_ACTION_RESULT_EMPTY_CONFIG_ERROR,
@@ -25,12 +26,14 @@ import {
   UI_ACTION_RESULT_UNKNOWN_ERROR,
 } from 'src/app/domain/constants/ui-action-result.constants';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { SkillExecutedEvent } from 'src/app/domain/events/skill-executed-event.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { START_GUIDED_TOUR_KIND_PARAM, START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { EXPLAIN_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES, PAGE_EXPLAIN_TARGETS } from 'src/app/domain/constants/page-explain-icons.constants';
 import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
-import { KlacksyNavigationService, NavigationResult } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
+import { NavigationResult } from 'src/app/domain/services/klacksy/navigation-result.interface';
 import {
   NAVIGATION_REASON_PERMISSION_DENIED,
   NAVIGATION_REASON_TARGET_NOT_FOUND,

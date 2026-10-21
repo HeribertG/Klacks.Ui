@@ -8,13 +8,13 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { IdentityProviderHeaderComponent } from './identity-provider-header/identity-provider-header.component';
 import { IdentityProviderRowComponent } from './identity-provider-row/identity-provider-row.component';
 import { IdentityProvider } from 'src/app/domain/models/settings/identity-provider-class';
-import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider.interface';
+import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider-list-item.interface';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 

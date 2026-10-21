@@ -2,12 +2,8 @@
 
 import { Injectable, inject } from '@angular/core';
 import { SCRIPT_COMPILER } from 'src/app/domain/models/automation/rules/script-compiler.interface';
+import { FormulaValidationResult } from './formula-validation-result.interface';
 import { ICompiledScript } from 'src/app/domain/models/automation/rules/compiled-script.interface';
-
-export interface FormulaValidationResult {
-  valid: boolean;
-  error?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class FormulaEvaluationService {

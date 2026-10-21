@@ -76,6 +76,7 @@ import {
 import { detectClientImportDateFormat } from './client-import-date-format.helper';
 import { summarizeClientImportIssues } from './client-import-issue-summary.helper';
 import { IClientImportIssueSummaryEntry } from 'src/app/domain/models/client-import/i-client-import-issue-summary-entry';
+import { PreviewOutcome } from './preview-outcome.interface';
 import { formatDateOnly, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 
 const CONTRACT_PAGE = 0;
@@ -85,11 +86,6 @@ const USER_CONFIDENCE = 1;
 const NO_CONFIDENCE = 0;
 
 type PreviewTrigger = number | null;
-
-interface PreviewOutcome {
-  result: IClientImportPreviewResult | null;
-  errorCode?: string | null;
-}
 
 @Injectable()
 export class ClientImportStateService {

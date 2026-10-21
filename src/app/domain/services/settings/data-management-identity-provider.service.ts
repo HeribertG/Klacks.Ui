@@ -5,13 +5,11 @@ import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataIdentityProviderService } from 'src/app/infrastructure/api/settings/data-identity-provider.service';
 import { IdentityProvider } from 'src/app/domain/models/settings/identity-provider-class';
-import {
-  IIdentityProviderListItem,
-  ITestConnectionResult,
-  ISyncResult,
-  ICreateIdentityProviderRequest,
-  IUpdateIdentityProviderRequest
-} from 'src/app/domain/interfaces/identity-provider.interface';
+import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider-list-item.interface';
+import { ITestConnectionResult } from 'src/app/domain/interfaces/test-connection-result.interface';
+import { ISyncResult } from 'src/app/domain/interfaces/sync-result.interface';
+import { ICreateIdentityProviderRequest } from 'src/app/domain/interfaces/create-identity-provider-request.interface';
+import { IUpdateIdentityProviderRequest } from 'src/app/domain/interfaces/update-identity-provider-request.interface';
 import { IdentityProviderType } from 'src/app/domain/enums/identity-provider-enum';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';

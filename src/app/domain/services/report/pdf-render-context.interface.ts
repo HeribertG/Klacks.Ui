@@ -2,8 +2,9 @@
 
 import { jsPDF } from 'jspdf';
 import { ReportTemplate } from '../../models/report/report-template.model';
-import { ReportDataProvider, ReportHeaderContext } from './report-data-provider.service';
-import { ReportParameterContext } from './report-row-filter.service';
+import { ReportDataProvider } from './report-data-provider.interface';
+import { ReportHeaderContext } from './report-header-context.interface';
+import { ReportParameterContext } from './report-parameter-context.interface';
 
 export interface PdfRenderContext {
   doc: jsPDF;

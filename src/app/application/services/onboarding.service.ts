@@ -35,7 +35,6 @@ import { IOnboardingState } from 'src/app/domain/models/assistant/onboarding-sta
 import { ISaveOnboardingStateRequest } from 'src/app/domain/models/assistant/save-onboarding-state-request.interface';
 import {
   filterIntroStations,
-  IOnboardingAskField,
   IOnboardingStation,
   ONBOARDING_KIND,
   ONBOARDING_OFFERED_EVENT,
@@ -45,6 +44,7 @@ import {
   ONBOARDING_STATUS,
   OnboardingKind,
 } from 'src/app/domain/constants/onboarding-stations';
+import { IOnboardingAskField } from 'src/app/domain/constants/onboarding-ask-field.interface';
 import { AuthorizationService } from './authorization.service';
 import { FeaturePluginStateService } from './feature-plugin-state.service';
 

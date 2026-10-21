@@ -39,11 +39,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { DataManagementKlacksyLearningService } from 'src/app/domain/services/assistant/data-management-klacksy-learning.service';
-import {
-  ILearnedCapability,
-  ILearnedPhrase,
-  IUnfulfillableWish,
-} from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedPhrase } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedCapability } from 'src/app/domain/interfaces/learned-capability.interface';
+import { IUnfulfillableWish } from 'src/app/domain/interfaces/unfulfillable-wish.interface';
 import {
   KLACKSY_LEARNING_CONFLICT_STATUS,
   KLACKSY_LEARNING_DELETE_CONTEXT,

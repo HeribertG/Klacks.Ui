@@ -15,13 +15,10 @@ import {
   EVOLUTION_CONSTANTS,
   AGENT_STATE_CONSTANTS,
 } from '../../../models/automation/automation-constants';
-import {
-  CoreShift,
-  CoreAgent,
-  CoreAssignment,
-  CoreScenario,
-  RngFn,
-} from './evolution-types';
+import { CoreShift, RngFn } from './evolution-types';
+import { CoreAgent } from './core-agent.interface';
+import { CoreAssignment } from './core-assignment.interface';
+import { CoreScenario } from './core-scenario.interface';
 import { generateId } from './evolution-rng';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';

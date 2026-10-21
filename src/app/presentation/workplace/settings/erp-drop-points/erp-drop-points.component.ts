@@ -59,7 +59,8 @@ import { CompanyClockService } from 'src/app/domain/services/settings/company-cl
 import { isCompanyClockUtcFallback } from 'src/app/domain/models/settings/company-clock.model';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { ERP_DROP_POINTS_TAB_TARGETS, ErpDropPointsPageTab } from './erp-drop-points-target.constants';
 import { ErpImportFilesTab, erpImportFilesColumnCount } from './erp-import-files-tab';
 import { ErpImportFileRowComponent } from './erp-import-file-row/erp-import-file-row.component';

@@ -42,7 +42,7 @@ import { QualificationType } from 'src/app/domain/enums/qualification-type.enum'
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 import { QualificationsHeaderComponent } from './qualifications-header/qualifications-header.component';
 import { QualificationsRowComponent } from './qualifications-row/qualifications-row.component';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 

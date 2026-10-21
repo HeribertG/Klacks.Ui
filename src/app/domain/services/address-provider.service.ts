@@ -2,13 +2,8 @@
 
 import { Injectable, inject, computed } from '@angular/core';
 import { AppSettingsManagementService } from './settings/app-settings-management.service';
+import { IAddressEntry } from './address-entry.interface';
 import { BranchManagementService } from './settings/branch-management.service';
-
-export interface IAddressEntry {
-  name: string;
-  address: string;
-  isAppAddress: boolean;
-}
 
 @Injectable({
   providedIn: 'root',

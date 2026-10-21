@@ -37,7 +37,9 @@ import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactiva
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, AddressValidationFailedEvent, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { AddressValidationFailedEvent } from 'src/app/domain/events/address-validation-failed-event.interface';
+import { SkillExecutedEvent } from 'src/app/domain/events/skill-executed-event.interface';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-replies-config.interface';
@@ -45,7 +47,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
-import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print.service';
+import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-request.interface';
 import { EditAddressCardVisibilityService } from '../edit-address-card-visibility.service';
 
 @Component({

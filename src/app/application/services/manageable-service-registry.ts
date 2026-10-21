@@ -2,7 +2,7 @@
 
 import { Injectable, Type } from '@angular/core';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
-import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { IManageableServiceRegistry } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 
 @Injectable({

@@ -14,7 +14,7 @@
 
 import { computed, inject, Injectable } from '@angular/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 import { OnboardingService } from './onboarding.service';
 
 const TOUR_OUTPUT_MODE = OutputMode.Both;

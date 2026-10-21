@@ -6,11 +6,17 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAgent } from 'src/app/domain/interfaces/agent.interface';
-import { IAgentMemory, ICreateMemoryRequest, IUpdateMemoryRequest } from 'src/app/domain/interfaces/agent-memory.interface';
-import { ICreateAgentRequest, IUpdateAgentRequest } from 'src/app/domain/interfaces/agent-request.interface';
-import { IAgentSession, IAgentSessionMessage } from 'src/app/domain/interfaces/agent-session.interface';
+import { IAgentMemory } from 'src/app/domain/interfaces/agent-memory.interface';
+import { ICreateMemoryRequest } from 'src/app/domain/interfaces/create-memory-request.interface';
+import { IUpdateMemoryRequest } from 'src/app/domain/interfaces/update-memory-request.interface';
+import { ICreateAgentRequest } from 'src/app/domain/interfaces/agent-request.interface';
+import { IUpdateAgentRequest } from 'src/app/domain/interfaces/update-agent-request.interface';
+import { IAgentSession } from 'src/app/domain/interfaces/agent-session.interface';
+import { IAgentSessionMessage } from 'src/app/domain/interfaces/agent-session-message.interface';
 import { IAgentSkillSummary } from 'src/app/domain/interfaces/agent-skill.interface';
-import { IAgentSoulSection, IAgentSoulHistory, IUpsertSoulRequest } from 'src/app/domain/interfaces/agent-soul.interface';
+import { IAgentSoulSection } from 'src/app/domain/interfaces/agent-soul.interface';
+import { IAgentSoulHistory } from 'src/app/domain/interfaces/agent-soul-history.interface';
+import { IUpsertSoulRequest } from 'src/app/domain/interfaces/upsert-soul-request.interface';
 
 @Injectable({
   providedIn: 'root',

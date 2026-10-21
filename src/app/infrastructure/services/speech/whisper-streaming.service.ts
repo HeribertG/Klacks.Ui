@@ -8,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, signal } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
 @Injectable({
   providedIn: 'root',

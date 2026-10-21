@@ -8,7 +8,10 @@ import { DomainEventHandler } from './domain-event.handler';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { of, Subject } from 'rxjs';
-import { DomainEventType, ErrorEvent, SuccessEvent, UndoOfferedEvent, WarningEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType, ErrorEvent } from 'src/app/domain/events/domain-events';
+import { SuccessEvent } from 'src/app/domain/events/success-event.interface';
+import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.interface';
+import { WarningEvent } from 'src/app/domain/events/warning-event.interface';
 
 describe('DomainEventHandler', () => {
     let handler: DomainEventHandler;

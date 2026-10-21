@@ -12,17 +12,12 @@
 
 import { Injectable, Signal, computed, signal } from '@angular/core';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { RunSnapshot } from './run-snapshot.interface';
 import {
   hardPlanningRuleFindingKeys,
   isHardPlanningRuleFinding,
   planningRuleFindingKey,
 } from 'src/app/domain/helpers/planning-rule-remaining.helper';
-
-interface RunSnapshot {
-  keys: ReadonlySet<string>;
-  runResult: Signal<unknown>;
-  resultAtCapture: unknown;
-}
 
 const NO_KEYS: ReadonlySet<string> = new Set<string>();
 

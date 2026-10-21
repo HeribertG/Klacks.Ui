@@ -21,11 +21,9 @@ import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import {
-  IEscalationAcknowledgeResult,
-  IEscalationChainSummary,
-  IUnresolvedEscalationChain,
-} from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationAcknowledgeResult } from 'src/app/domain/interfaces/escalation-acknowledge-result.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
+import { IUnresolvedEscalationChain } from 'src/app/domain/interfaces/unresolved-escalation-chain.interface';
 
 const ADMIN_POLL_INTERVAL_MS = 60000;
 const PLANNER_POLL_INTERVAL_MS = 300000;

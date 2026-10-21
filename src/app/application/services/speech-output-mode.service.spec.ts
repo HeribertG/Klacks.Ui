@@ -7,7 +7,7 @@ import { OnboardingService } from './onboarding.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 
 describe('SpeechOutputModeService', () => {
     let service: SpeechOutputModeService;

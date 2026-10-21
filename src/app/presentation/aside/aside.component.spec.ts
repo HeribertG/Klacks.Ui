@@ -10,7 +10,7 @@ import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 
 @Component({
   selector: 'app-assistant-chat',

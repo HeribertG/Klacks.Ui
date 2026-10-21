@@ -54,7 +54,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 

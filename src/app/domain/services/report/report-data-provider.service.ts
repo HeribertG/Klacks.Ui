@@ -27,16 +27,13 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { EntityTypeEnum } from 'src/app/domain/enums/client-enum';
-import { Filter } from 'src/app/domain/models/client/filter';
 import { IClientExportSelection } from 'src/app/domain/models/client/i-client-export-selection';
-import { GroupFilter } from 'src/app/domain/models/group/group-filter-class';
 import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { IGroupItem } from 'src/app/domain/models/group/group-item.interface';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { htmlToPlainText } from 'src/app/shared/helpers/html-sanitizer.helper';
-import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
 import { IClient, ICommunication, IClientContract } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
@@ -46,6 +43,8 @@ import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper'
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 
+import { ReportHeaderContext } from './report-header-context.interface';
+import { ReportDataProvider } from './report-data-provider.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 const REPORT_MAX_ROWS = 10000;
@@ -68,45 +67,6 @@ const FULL_LIST_PAGINATION = {
   isPreviousPage: undefined,
   isNextPage: undefined,
 } as const;
-
-export interface ReportFetchParams {
-  groupId?: string;
-  startDate?: string;
-  endDate?: string;
-  clientId?: string;
-  year?: number;
-  containerId?: string;
-  clientFilter?: Filter;
-  clientSelection?: IClientExportSelection;
-  groupFilter?: GroupFilter;
-  shiftFilter?: ShiftFilter;
-  cardVisibility?: Record<string, boolean>;
-  clientAvailabilityFilter?: IClientAvailabilityClientFilter;
-}
-
-export interface ReportData {
-  rows: any[];
-  clients?: any[];
-  metadata?: Record<string, any>;
-}
-
-export interface ReportHeaderContext {
-  client?: any;
-  groupName?: string;
-  startDate?: string;
-  endDate?: string;
-  metadata?: Record<string, any>;
-}
-
-export interface ReportDataProvider {
-  fetchData(params: ReportFetchParams): Promise<ReportData>;
-  resolveFieldValue(field: ReportField, row: any): string;
-  resolveHeaderValue(field: ReportField, context: ReportHeaderContext): string;
-  resolveFooterValue(field: ReportField, rows: any[]): string;
-  buildFormulaVariables?(row: any): Record<string, unknown>;
-  buildFooterFormulaVariables?(rows: any[]): Record<string, unknown>;
-  collectResolvedLabelTexts?(): string[];
-}
 
 @Injectable()
 export class ReportDataProviderService {

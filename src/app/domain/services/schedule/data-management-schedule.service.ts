@@ -34,7 +34,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/shared/helpers/object.helper';
-import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
@@ -42,12 +42,10 @@ import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { DataManagementWorkService } from '../work/data-management-work.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
-import {
-  ScheduleEntryCrudService,
-  DeleteWorkScheduleEntryParams,
-  ScheduleCellParams,
-  BreakCellParams,
-} from './schedule-entry-crud.service';
+import { ScheduleEntryCrudService } from './schedule-entry-crud.service';
+import { DeleteWorkScheduleEntryParams } from './delete-work-schedule-entry-params.interface';
+import { ScheduleCellParams } from './schedule-cell-params.interface';
+import { BreakCellParams } from './break-cell-params.interface';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { ClientSortPreferenceService } from './client-sort-preference.service';
 import { AssistantPageContextService } from '../assistant/assistant-page-context.service';

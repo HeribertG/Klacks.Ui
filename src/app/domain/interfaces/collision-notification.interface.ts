@@ -11,11 +11,3 @@ export interface ICollisionNotification {
   blockType1: string;
   blockType2: string;
 }
-
-export interface ICollisionListNotification {
-  collisions: ICollisionNotification[];
-  isFullRefresh: boolean;
-  checkedClientId?: string;
-  checkedDate?: string;
-  analyseToken?: string | null;
-}

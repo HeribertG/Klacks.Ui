@@ -5,11 +5,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs/operators';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
-import {
-  EmailTestRequest,
-  EmailTestResult,
-  ImapTestRequest,
-} from 'src/app/domain/interfaces/email-test.interface';
+import { EmailTestRequest } from 'src/app/domain/interfaces/email-test.interface';
+import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
+import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 

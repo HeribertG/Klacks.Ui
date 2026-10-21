@@ -23,7 +23,9 @@ import { ReportFieldType } from '../../models/report/report-field-type.enum';
 import { TextAlignment } from '../../models/report/text-alignment.enum';
 import { resolveReportFieldLabel } from '../../helpers/report-field-label.helper';
 import { selectRowsForSection } from '../../helpers/report-section-rows.helper';
-import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
+import { ReportDataProvider } from './report-data-provider.interface';
+import { ReportHeaderContext } from './report-header-context.interface';
+import { ReportData } from './report-data.interface';
 import { PdfRenderContext } from './pdf-render-context.interface';
 import { BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
 import { BorderLineStyle } from '../../models/report/border-line-style.enum';
@@ -32,11 +34,12 @@ import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportFontService } from './report-font.service';
 import { PdfUnicodeTextService } from './pdf-unicode-text.service';
-import { ReportRowFilterService, ReportParameterContext } from './report-row-filter.service';
-import { ReportParameterValues } from '../../models/report/report-parameter.model';
+import { ReportRowFilterService } from './report-row-filter.service';
+import { ReportParameterContext } from './report-parameter-context.interface';
 import { buildParameterVariables } from '../../helpers/report-parameter.helper';
 import { calendarDateKey, parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { addDays } from 'src/app/shared/helpers/date.helper';
+import { ReportGenerationContext } from './report-generation-context.interface';
 import { ICompiledScript } from 'src/app/domain/models/automation/rules/compiled-script.interface';
 
 const DEFAULT_PDF_FONT = 'helvetica';
@@ -51,17 +54,6 @@ const TRUTHY_CONDITION_RESULTS = ['1', 'true', 'wahr', 'yes'];
 const GROUP_HEADER_FILL: [number, number, number] = [222, 230, 238];
 const GROUP_FOOTER_FILL: [number, number, number] = [240, 240, 240];
 const SUBTOTAL_DECIMALS = 2;
-
-export interface ReportGenerationContext {
-  template: ReportTemplate;
-  provider: ReportDataProvider;
-  data: ReportData;
-  groupName: string;
-  startDate: string;
-  endDate: string;
-  imageCache?: Map<string, string>;
-  parameterValues?: ReportParameterValues;
-}
 
 @Injectable()
 export class ReportPdfService {

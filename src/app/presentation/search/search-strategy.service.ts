@@ -15,7 +15,7 @@ import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';
 import { ScheduleSearchStrategy } from './strategies/schedule-search.strategy';
 import { ShiftSearchStrategy } from './strategies/shift-search.strategy';
 import { ContainerTemplateSearchStrategy } from './strategies/container-template-search.strategy';
-import { ISearchStrategyOptions } from 'src/app/domain/interfaces/search-strategy.interface';
+import { ISearchStrategyOptions } from 'src/app/domain/interfaces/search-strategy-options.interface';
 
 @Injectable({
   providedIn: 'root',

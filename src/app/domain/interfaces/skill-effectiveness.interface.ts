@@ -3,6 +3,12 @@
 /**
  * W6.1: shape of the aggregated "Skill-Wirksamkeit" scorecard from the admin endpoint.
  */
+
+import { ISkillEffectivenessEvalRun } from './skill-effectiveness-eval-run.interface';
+import { ISkillEffectivenessRecipeFunnelRow } from './skill-effectiveness-recipe-funnel-row.interface';
+import { ISkillEffectivenessFailureSummary } from './skill-effectiveness-failure-summary.interface';
+import { ISkillEffectivenessSkillStat } from './skill-effectiveness-skill-stat.interface';
+import { ISkillEffectivenessSourceRow } from './skill-effectiveness-source-row.interface';
 export interface ISkillEffectivenessResource {
   days: number;
   evalTrend: ISkillEffectivenessEvalRun[];
@@ -11,46 +17,4 @@ export interface ISkillEffectivenessResource {
   topSkills: ISkillEffectivenessSkillStat[];
   flopSkills: ISkillEffectivenessSkillStat[];
   chosenSourceDistribution: ISkillEffectivenessSourceRow[];
-}
-
-export interface ISkillEffectivenessEvalRun {
-  goldset: string;
-  model: string | null;
-  compositeScore: number;
-  itemsTotal: number;
-  itemsPassed: number;
-  createTime: string | null;
-}
-
-export interface ISkillEffectivenessRecipeFunnelRow {
-  recipeName: string;
-  started: number;
-  running: number;
-  completed: number;
-  aborted: number;
-  expired: number;
-}
-
-export interface ISkillEffectivenessFailureSummary {
-  totalRows: number;
-  notFound: number;
-  permissionDenied: number;
-  parameterInvalid: number;
-  gateHold: number;
-  uiActionContext: number;
-  exception: number;
-  hallucinationRate: number;
-}
-
-export interface ISkillEffectivenessSkillStat {
-  skillName: string;
-  calls: number;
-  successes: number;
-  failures: number;
-  successRate: number;
-}
-
-export interface ISkillEffectivenessSourceRow {
-  source: string;
-  count: number;
 }

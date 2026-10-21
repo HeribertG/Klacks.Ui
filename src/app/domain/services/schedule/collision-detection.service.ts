@@ -20,10 +20,8 @@ import {
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
-import {
-  ICollisionListNotification,
-  ICollisionNotification,
-} from 'src/app/domain/interfaces/collision-notification.interface';
+import { ICollisionNotification } from 'src/app/domain/interfaces/collision-notification.interface';
+import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-list-notification.interface';
 import { IScheduleValidationNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';

@@ -13,12 +13,10 @@ import {
   evaluateHardConstraintViolations,
   evaluateSoftConstraintViolations,
 } from './constraint-engine';
-import {
-  CoreShift,
-  CoreAgent,
-  CoreScenario,
-  CorePenaltyWeights,
-} from './evolution-types';
+import { CoreShift } from './evolution-types';
+import { CoreAgent } from './core-agent.interface';
+import { CoreScenario } from './core-scenario.interface';
+import { CorePenaltyWeights } from './core-penalty-weights.interface';
 
 export function evaluateHardConstraints(
   scenario: CoreScenario,

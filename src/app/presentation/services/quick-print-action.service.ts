@@ -8,11 +8,8 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import {
-  QuickPrintOutcome,
-  QuickPrintRequest,
-  QuickPrintService,
-} from 'src/app/domain/services/report/quick-print.service';
+import { QuickPrintOutcome, QuickPrintService } from 'src/app/domain/services/report/quick-print.service';
+import { QuickPrintRequest } from 'src/app/domain/services/report/quick-print-request.interface';
 
 const NO_TEMPLATE_KEY = 'report.quickPrint.noTemplate';
 const FAILED_KEY = 'report.quickPrint.failed';

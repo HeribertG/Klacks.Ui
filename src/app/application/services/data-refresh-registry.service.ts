@@ -8,7 +8,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DataRefreshRegistry {

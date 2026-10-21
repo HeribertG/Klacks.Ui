@@ -23,41 +23,11 @@
  * @param isInitialPending - True from load() until the initial response or an unhandled initial error
  * @param isInitialFailed - True when the initial request of the current load failed without recovery
  */
-import {
-  DestroyRef,
-  WritableSignal,
-  signal,
-} from '@angular/core';
+import { WritableSignal, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  EMPTY,
-  Observable,
-  Subject,
-  Subscription,
-  catchError,
-  switchMap,
-} from 'rxjs';
-
-export interface ChunkLoaderFilter {
-  startRow: number;
-  rowCount: number;
-}
-
-export interface ChunkLoaderConfig<TFilter extends ChunkLoaderFilter, TResponse> {
-  destroyRef: DestroyRef;
-  fetch: (filter: TFilter) => Observable<TResponse>;
-  onInitialResponse: (response: TResponse) => void;
-  onChunkResponse: (response: TResponse, chunkSize: number) => void;
-  hasMore: () => boolean;
-  nextChunkFilter: (chunkSize: number) => TFilter;
-  onInitialError?: (err: unknown) => boolean;
-  onAutoChunkError?: (err: unknown) => void;
-  initialDelayMs?: number;
-  subsequentDelayMs?: number;
-  initialChunkSize?: number;
-  chunkSizeGrowth?: number;
-  maxChunkSize?: number;
-}
+import { ChunkLoaderFilter } from './chunk-loader-filter.interface';
+import { ChunkLoaderConfig } from './chunk-loader-config.interface';
+import { EMPTY, Subject, Subscription, catchError, switchMap } from 'rxjs';
 
 const DEFAULT_INITIAL_CHUNK_SIZE = 200;
 const DEFAULT_CHUNK_SIZE_GROWTH = 2;

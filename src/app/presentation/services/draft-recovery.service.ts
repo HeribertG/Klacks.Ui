@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SessionStorageService } from 'src/app/infrastructure/storage/session-storage.service';
-import { IDraftable } from 'src/app/domain/interfaces/manageable.interface';
+import { IDraftable } from 'src/app/domain/interfaces/draftable.interface';
 import { DraftRecoveryDialogComponent } from '../modal/draft-recovery-dialog/draft-recovery-dialog.component';
 
 interface DraftPayload {

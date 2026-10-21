@@ -12,12 +12,14 @@
 
 import { Injectable, inject, EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
-import { ReportDataProviderService, ReportFetchParams } from './report-data-provider.service';
-import { ReportPdfService, ReportGenerationContext } from './report-pdf.service';
+import { ReportDataProviderService } from './report-data-provider.service';
+import { ReportPdfService } from './report-pdf.service';
+import { ReportGenerationContext } from './report-generation-context.interface';
 import { ReportService } from './report.service';
 import { AbsenceLookupService } from '../schedule/absence-lookup.service';
 import { ReportDefaultsService } from './report-defaults.service';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { QuickPrintRequest } from './quick-print-request.interface';
 import { openPendingBlobTab, PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 const FALLBACK_FILE_NAME = 'report.pdf';
@@ -27,13 +29,6 @@ export enum QuickPrintOutcome {
   NoDefaultTemplate = 'noDefaultTemplate',
   TemplateNotFound = 'templateNotFound',
   Failed = 'failed',
-}
-
-export interface QuickPrintRequest {
-  sourceId: string;
-  fallbackDataSetIds: string[];
-  params: ReportFetchParams;
-  groupName?: string;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -7,7 +7,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { EventBus } from './event-bus.service';
 import { DomainEventHandler } from 'src/app/presentation/handlers/domain-event.handler';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { DomainEventType, ErrorEvent, SuccessEvent, WarningEvent, InfoEvent, NavigationEvent, } from 'src/app/domain/events/domain-events';
+import { DomainEventType, ErrorEvent } from 'src/app/domain/events/domain-events';
+import { SuccessEvent } from 'src/app/domain/events/success-event.interface';
+import { WarningEvent } from 'src/app/domain/events/warning-event.interface';
+import { InfoEvent } from 'src/app/domain/events/info-event.interface';
+import { NavigationEvent } from 'src/app/domain/events/navigation-event.interface';
 
 describe('EventBus Integration Tests', () => {
     let eventBus: EventBus;

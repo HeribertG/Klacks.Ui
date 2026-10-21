@@ -31,6 +31,8 @@ import {
   positionThaiMarks,
 } from 'src/app/domain/models/report/thai-mark-positioning.model';
 import { collectStrings } from 'src/app/domain/helpers/collect-strings.helper';
+import { TtfFontMetadata } from './ttf-font-metadata.interface';
+import { DocumentFontState } from './document-font-state.interface';
 import { ReportFontService } from './report-font.service';
 
 const DEFAULT_BASE_FONT_FAMILY = 'helvetica';
@@ -39,17 +41,6 @@ const TEXT_LINE_SEPARATOR = '\n';
 type PdfText = string | string[];
 type TextMethod = (text: PdfText, x: number, y: number, options?: object, ...rest: unknown[]) => jsPDF;
 type MeasureMethod<TResult> = (text: PdfText, ...rest: unknown[]) => TResult;
-
-interface TtfFontMetadata {
-  cmap: { unicode: { codeMap: Record<number, number> } };
-  toUnicode: Record<number, number>;
-}
-
-interface DocumentFontState {
-  baseFamily: string;
-  depth: number;
-  switchFonts: boolean;
-}
 
 const ALREADY_SHAPING_ONLY_ERROR =
   'The PDF document was prepared for script shaping only; font switching cannot be added afterwards.';
@@ -200,4 +191,3 @@ function joinText(text: PdfText): string {
   }
   return typeof text === 'string' ? text : String(text ?? '');
 }
-

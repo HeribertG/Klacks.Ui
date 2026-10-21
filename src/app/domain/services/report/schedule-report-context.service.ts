@@ -6,7 +6,8 @@ import { DataScheduleReportApiService } from 'src/app/infrastructure/api/report/
 import { SendScheduleReportResponse } from 'src/app/domain/models/report/send-schedule-report-response.model';
 import { BulkSendResult } from 'src/app/domain/models/report/bulk-send-result.model';
 import { ReportDataProviderService } from './report-data-provider.service';
-import { ReportPdfService, ReportGenerationContext } from './report-pdf.service';
+import { ReportPdfService } from './report-pdf.service';
+import { ReportGenerationContext } from './report-generation-context.interface';
 import { ReportService } from './report.service';
 import { AbsenceLookupService } from '../schedule/absence-lookup.service';
 import { ReportDefaultsService } from './report-defaults.service';

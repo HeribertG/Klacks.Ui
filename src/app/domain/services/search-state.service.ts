@@ -2,11 +2,6 @@
 
 import { Injectable, signal } from '@angular/core';
 
-export interface ContainerTemplateSearchState {
-  searchString: string;
-  includeAddress: boolean;
-}
-
 @Injectable({
   providedIn: 'root'
 })

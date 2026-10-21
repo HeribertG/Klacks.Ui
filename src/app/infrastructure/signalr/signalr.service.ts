@@ -19,13 +19,15 @@ import { IWorksBulkCreatedNotification } from 'src/app/domain/interfaces/works-b
 import { IWizard4CandidateNotification } from 'src/app/domain/interfaces/wizard4-candidate-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
+import { IPeriodHoursNotification } from 'src/app/domain/interfaces/period-hours-notification.interface';
 import {
-  IPeriodHoursNotification,
   IPeriodHoursRecalculatedNotification,
+} from 'src/app/domain/interfaces/period-hours-recalculated-notification.interface';
+import {
   IThoroughRecalculationCompletedNotification,
-} from 'src/app/domain/interfaces/period-hours-notification.interface';
+} from 'src/app/domain/interfaces/thorough-recalculation-completed-notification.interface';
 import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-change-notification.interface';
-import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
+import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-list-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IAutofillRunPresence } from 'src/app/domain/interfaces/autofill-run-presence.interface';

@@ -9,7 +9,7 @@
  */
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
 import { ExtendedAudioConstraints } from './extended-audio-constraints.interface';
 

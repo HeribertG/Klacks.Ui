@@ -23,7 +23,8 @@ import { finalize } from 'rxjs/operators';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataEscalationRosterService } from 'src/app/infrastructure/api/assistant/data-escalation-roster.service';
 import { DataUserAbsencePeriodService } from 'src/app/infrastructure/api/settings/data-user-absence-period.service';
-import { IEscalationRosterMember, IUserAbsencePeriod } from 'src/app/domain/interfaces/escalation-roster.interface';
+import { IEscalationRosterMember } from 'src/app/domain/interfaces/escalation-roster.interface';
+import { IUserAbsencePeriod } from 'src/app/domain/interfaces/user-absence-period.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 

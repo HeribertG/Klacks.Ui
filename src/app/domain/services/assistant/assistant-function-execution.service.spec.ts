@@ -8,7 +8,7 @@ import { firstValueFrom, of } from 'rxjs';
 import { AssistantFunctionExecutionService } from './assistant-function-execution.service';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
-import { IAssistantFunctionCall } from 'src/app/domain/interfaces/assistant-function-definitions.interface';
+import { IAssistantFunctionCall } from 'src/app/domain/interfaces/assistant-function-call.interface';
 
 describe('AssistantFunctionExecutionService', () => {
   let service: AssistantFunctionExecutionService;

@@ -45,7 +45,8 @@ import { formatCompanyInstant } from 'src/app/shared/pipes/company-date-time/com
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
 import { errorCountToReconfirm } from '../period-seal-conflict';
 

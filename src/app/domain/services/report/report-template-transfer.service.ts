@@ -11,18 +11,13 @@ import { Injectable } from '@angular/core';
 import { DEFAULT_PAGE_SETUP, ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { ReportOrientation } from 'src/app/domain/models/report/report-orientation.enum';
 import { ReportPageSize } from 'src/app/domain/models/report/report-page-size.enum';
+import { ReportTemplateFile } from './report-template-file.interface';
 import { ReportSection } from 'src/app/domain/models/report/report-section.model';
 
 const EXPORT_FORMAT = 'klacks-report-template';
 const EXPORT_VERSION = 1;
 const FILE_NAME_FALLBACK = 'report-template';
 const JSON_INDENT = 2;
-
-interface ReportTemplateFile {
-  format: string;
-  version: number;
-  template: ReportTemplate;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ReportTemplateTransferService {

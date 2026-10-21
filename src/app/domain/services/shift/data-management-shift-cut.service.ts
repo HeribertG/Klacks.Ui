@@ -9,12 +9,10 @@ import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shif
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
-import {
-  ILoadable,
-  IResettable,
-  ISaveable,
-  INavigable,
-} from 'src/app/domain/interfaces/manageable.interface';
+import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
+import { INavigable } from 'src/app/domain/interfaces/navigable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';

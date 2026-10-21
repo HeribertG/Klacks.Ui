@@ -20,11 +20,3 @@ export interface IProactiveInboxItem {
   /** Set once the user acknowledged the message; a reminder is the same row with this still null. */
   acknowledgedAtUtc?: string | null;
 }
-
-export interface IProactiveUnreadCount {
-  count: number;
-}
-
-export interface IProactiveInboxChanged {
-  unreadCount: number;
-}

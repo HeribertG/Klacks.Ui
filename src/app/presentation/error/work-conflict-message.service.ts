@@ -30,7 +30,8 @@ import {
   hasHeldQualificationLevel,
   qualificationLevelLabel,
 } from 'src/app/domain/helpers/qualification-level-label.helper';
-import { IWorkConflictItem, IWorkConflictProblem } from 'src/app/domain/interfaces/work-conflict-problem.interface';
+import { IWorkConflictProblem } from 'src/app/domain/interfaces/work-conflict-problem.interface';
+import { IWorkConflictItem } from 'src/app/domain/interfaces/work-conflict-item.interface';
 import { IWorkRefusalDiagnosisSubject } from 'src/app/domain/interfaces/work-refusal-diagnosis-subject.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';

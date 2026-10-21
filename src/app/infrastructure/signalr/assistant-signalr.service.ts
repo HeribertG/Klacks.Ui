@@ -20,7 +20,7 @@ import { AssistantSignalRConstants } from './signalr.constants';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRConnectionHelper } from './signalr-connection.helper';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
-import { IProactiveInboxChanged } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveInboxChanged } from 'src/app/domain/interfaces/proactive-inbox-changed.interface';
 import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan-update.interface';
 import { IEntityChanged } from 'src/app/domain/interfaces/entity-changed.interface';
 import { IncomingMessage } from 'klacks-plugin-messaging';

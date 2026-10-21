@@ -6,7 +6,8 @@ import { Subject, of, throwError } from 'rxjs';
 import { DataManagementProactiveInboxService } from './data-management-proactive-inbox.service';
 import { DataProactiveMessageService } from 'src/app/infrastructure/api/assistant/data-proactive-message.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { IProactiveInboxChanged, IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveInboxChanged } from 'src/app/domain/interfaces/proactive-inbox-changed.interface';
 
 describe('DataManagementProactiveInboxService', () => {
   let service: DataManagementProactiveInboxService;

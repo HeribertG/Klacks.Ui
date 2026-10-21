@@ -11,11 +11,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import {
-  IEscalationAcknowledgeResult,
-  IEscalationChainSummary,
-  IUnresolvedEscalationChain,
-} from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationAcknowledgeResult } from 'src/app/domain/interfaces/escalation-acknowledge-result.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
+import { IUnresolvedEscalationChain } from 'src/app/domain/interfaces/unresolved-escalation-chain.interface';
 
 @Injectable({
   providedIn: 'root',

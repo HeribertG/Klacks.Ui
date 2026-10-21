@@ -41,13 +41,11 @@ import {
 } from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import {
-  SttEngine,
-  TtsProvider,
-  OutputMode,
-  VoiceId,
-  SpeechDefaults,
-} from 'src/app/domain/constants/speech-constants';
+import { SttEngine } from 'src/app/domain/constants/speech-constants';
+import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
+import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
 export type EditableDictionaryEntry = Omit<DictionaryEntry, 'language'> & {
   language: string;

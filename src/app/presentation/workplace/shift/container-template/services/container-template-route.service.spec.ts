@@ -25,10 +25,8 @@ import { ContainerTemplateRouteService } from './container-template-route.servic
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import {
-  ITimeBlock,
-  ITimeBlockResult,
-} from 'src/app/domain/services/route-optimization.service';
+import { ITimeBlock } from 'src/app/domain/services/time-block.interface';
+import { ITimeBlockResult } from 'src/app/domain/services/time-block-result.interface';
 
 function convertAbsencesToTimeBlocks(
   absenceItems: IContainerTemplateItem[],

@@ -15,7 +15,7 @@ import { CompanyClockService } from 'src/app/domain/services/settings/company-cl
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { setCompanyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { IErpDropPoint } from 'src/app/domain/models/settings/erp-drop-point';
 import { IErpDropPointFiles } from 'src/app/domain/models/settings/erp-drop-point-files.interface';
 import { IErpImportFile } from 'src/app/domain/models/settings/erp-import-file';

@@ -9,7 +9,7 @@ import { DataEscalationChainService } from 'src/app/infrastructure/api/assistant
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('DataManagementEscalationChainService', () => {

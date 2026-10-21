@@ -42,7 +42,7 @@ import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { ScheduleCommandCellFormatterService } from './cell-formatters/schedule-command-cell-formatter.service';
-import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';

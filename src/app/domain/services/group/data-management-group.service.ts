@@ -33,7 +33,11 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
-import { ILoadable, IRefreshable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
+import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
+import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
+import { INavigable } from 'src/app/domain/interfaces/navigable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';

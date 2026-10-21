@@ -2,18 +2,8 @@
 
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
 import { IContainerTemplateItem } from '../../models/container/container-template-item.interface';
+import { IWeekdayContainerTemplateItemsMap } from './weekday-container-template-items-map.interface';
 import { HOLIDAY_BUFFER_KEY_SUFFIX } from '../../constants/container-template-holiday.constants';
-
-export interface IWeekdayContainerTemplateItemsMap {
-  monday: IContainerTemplateItem[];
-  tuesday: IContainerTemplateItem[];
-  wednesday: IContainerTemplateItem[];
-  thursday: IContainerTemplateItem[];
-  friday: IContainerTemplateItem[];
-  saturday: IContainerTemplateItem[];
-  sunday: IContainerTemplateItem[];
-  [bufferKey: string]: IContainerTemplateItem[];
-}
 
 @Injectable({
   providedIn: 'root',

@@ -5,11 +5,8 @@
  * @param typeFilter - Optional address-type limiter for client lists: 'customer' | 'employee' | 'extern'
  */
 
+import { ISearchStrategyOptions } from './search-strategy-options.interface';
 import { InjectionToken } from '@angular/core';
-
-export interface ISearchStrategyOptions {
-  typeFilter?: string;
-}
 
 export interface ISearchStrategy {
   globalSearch(value: string, isIncludeAddress: boolean, isIncludeClient: boolean, options?: ISearchStrategyOptions): void;

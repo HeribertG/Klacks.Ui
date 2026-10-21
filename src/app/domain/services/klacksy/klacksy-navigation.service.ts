@@ -26,15 +26,8 @@ import {
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { KLACKSY_GLOBAL_TARGET_ROUTE } from 'src/app/domain/constants/klacksy-global-target.constants';
 import { NO_ACCESS_REASON_FEATURE } from 'src/app/domain/constants/no-access-reason.constants';
+import { NavigationResult } from './navigation-result.interface';
 import { NoAccessReasonService } from 'src/app/domain/services/navigation/no-access-reason.service';
-
-export interface NavigationResult {
-  success: boolean;
-  reason?:
-    | typeof NAVIGATION_REASON_TARGET_NOT_FOUND
-    | typeof NAVIGATION_REASON_PERMISSION_DENIED
-    | typeof NAVIGATION_REASON_FEATURE_DISABLED;
-}
 
 @Injectable({ providedIn: 'root' })
 export class KlacksyNavigationService {

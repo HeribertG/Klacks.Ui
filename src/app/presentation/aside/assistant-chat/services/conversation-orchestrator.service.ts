@@ -26,7 +26,8 @@ import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.se
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TranscriptSanitizerService } from 'src/app/domain/services/speech/transcript-sanitizer.service';
-import { SttEngine, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { SttEngine } from 'src/app/domain/constants/speech-constants';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';

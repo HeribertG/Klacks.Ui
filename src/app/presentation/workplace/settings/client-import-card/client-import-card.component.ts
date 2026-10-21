@@ -33,7 +33,8 @@ import {
 import { clientImportFileErrorKey } from 'src/app/domain/services/client/client-import-error.helper';
 import { clientImportCountKey } from 'src/app/domain/services/client/client-import-count-key.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';

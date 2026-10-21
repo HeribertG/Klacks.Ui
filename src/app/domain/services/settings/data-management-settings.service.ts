@@ -6,7 +6,9 @@
  * rate conversion helpers (decimal <-> percentage) and IManageable coordination.
  */
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { ILoadable, IResettable, ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
 import { UserAdministrationManagementService } from './user-administration-management.service';
 import { AppSettingsManagementService } from './app-settings-management.service';
 import { MacroManagementService } from './macro-management.service';

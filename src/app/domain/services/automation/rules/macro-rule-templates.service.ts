@@ -1,15 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
+import { IMacroRuleTemplate } from './macro-rule-template.interface';
 import { IMacro } from '../../../models/settings/macro.interface';
-
-export interface IMacroRuleTemplate {
-  id: string;
-  name: string;
-  description: string;
-  content: string;
-  category: 'workquant' | 'pause' | 'hours' | 'sequence';
-}
 
 @Injectable({
   providedIn: 'root'

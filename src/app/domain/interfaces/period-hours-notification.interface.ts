@@ -10,19 +10,3 @@ export interface IPeriodHoursNotification {
   sourceConnectionId: string;
   analyseToken?: string | null;
 }
-
-export interface IPeriodHoursRecalculatedNotification {
-  startDate: string;
-  endDate: string;
-  analyseToken?: string | null;
-}
-
-export interface IThoroughRecalculationCompletedNotification {
-  startDate: string;
-  endDate: string;
-  selectedGroup?: string | null;
-  analyseToken?: string | null;
-  processedWorks: number;
-  processedWorkChanges: number;
-  processedBreaks: number;
-}

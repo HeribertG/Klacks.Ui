@@ -8,7 +8,7 @@
  * @param audioContext - Lazily created, shared AudioContext for all earcons
  */
 import { Injectable, OnDestroy } from '@angular/core';
-import { EarconDefaults } from 'src/app/domain/constants/speech-constants';
+import { EarconDefaults } from 'src/app/domain/constants/earcon-defaults.constants';
 
 @Injectable({ providedIn: 'root' })
 export class EarconService implements OnDestroy {

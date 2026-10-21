@@ -7,7 +7,7 @@
  * @param phrases - Lookup set of known non-speech hallucination phrases (normalized)
  */
 import { Injectable } from '@angular/core';
-import { NonSpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { NonSpeechDefaults } from 'src/app/domain/constants/non-speech-defaults.constants';
 
 @Injectable({ providedIn: 'root' })
 export class TranscriptSanitizerService {

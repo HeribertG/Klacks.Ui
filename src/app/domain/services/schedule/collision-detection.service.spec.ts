@@ -10,10 +10,8 @@ import { LocaleDataLoaderService } from 'src/app/application/services/locale-dat
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
-import {
-  ICollisionListNotification,
-  ICollisionNotification,
-} from 'src/app/domain/interfaces/collision-notification.interface';
+import { ICollisionNotification } from 'src/app/domain/interfaces/collision-notification.interface';
+import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-list-notification.interface';
 import { IScheduleValidationNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';

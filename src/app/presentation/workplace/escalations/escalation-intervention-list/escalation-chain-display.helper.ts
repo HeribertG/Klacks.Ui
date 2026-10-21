@@ -10,9 +10,9 @@
 import {
   ESCALATION_STAGE_STATUS_NOTIFIED,
   ESCALATION_STAGE_STATUS_PENDING,
-  IEscalationChainSummary,
   IEscalationStageSummary,
 } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
 
 export type EscalationUrgency = 'calm' | 'warning' | 'critical';
 

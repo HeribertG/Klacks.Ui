@@ -8,12 +8,10 @@ import {
   IClient,
   IClientAttribute,
 } from 'src/app/domain/models/client/client-class';
-import {
-  ILoadable,
-  IRefreshable,
-  IResettable,
-  ISaveable,
-} from 'src/app/domain/interfaces/manageable.interface';
+import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
+import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
+import { IResettable } from 'src/app/domain/interfaces/resettable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';

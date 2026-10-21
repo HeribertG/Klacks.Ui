@@ -5,11 +5,3 @@ export interface IEscalationRosterMember {
   displayName: string;
   isCurrentlyAbsent: boolean;
 }
-
-export interface IUserAbsencePeriod {
-  id: string;
-  appUserId: string;
-  startDate: string;
-  endDate: string;
-  reason: string | null;
-}

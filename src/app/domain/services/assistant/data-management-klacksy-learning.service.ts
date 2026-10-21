@@ -7,14 +7,12 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataKlacksyLearningService } from 'src/app/infrastructure/api/assistant/data-klacksy-learning.service';
-import {
-  ILearnedCapability,
-  ILearnedPhrase,
-  ISkillLearningRunResponse,
-  IUnfulfillableWish,
-  IUpdateLearnedCapabilityRequest,
-  IUpdateLearnedPhraseRequest,
-} from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedPhrase } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedCapability } from 'src/app/domain/interfaces/learned-capability.interface';
+import { ISkillLearningRunResponse } from 'src/app/domain/interfaces/skill-learning-run-response.interface';
+import { IUnfulfillableWish } from 'src/app/domain/interfaces/unfulfillable-wish.interface';
+import { IUpdateLearnedCapabilityRequest } from 'src/app/domain/interfaces/update-learned-capability-request.interface';
+import { IUpdateLearnedPhraseRequest } from 'src/app/domain/interfaces/update-learned-phrase-request.interface';
 
 @Injectable({
   providedIn: 'root',

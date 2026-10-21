@@ -20,18 +20,14 @@ import { IContainerTemplateSlot } from '../../models/container/container-templat
 import { IContainerTemplateGrid } from '../../models/container/container-template-grid.interface';
 import { DataContainerTemplateService } from '../../../infrastructure/api/container/data-container-template.service';
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
-import {
-  ContainerTemplateShiftService,
-  IWeekdayContainerTemplateItemsMap,
-} from './container-template-shift.service';
+import { ContainerTemplateShiftService } from './container-template-shift.service';
+import { IWeekdayContainerTemplateItemsMap } from './weekday-container-template-items-map.interface';
 import { ContainerTaskService } from './container-task.service';
 import { sortContainerItemsChronologically } from '../../../shared/helpers/container-template-sort.helper';
-import {
-  ISaveable,
-  IResettable,
-  ILoadable,
-  INavigable,
-} from '../../interfaces/manageable.interface';
+import { ISaveable } from '../../interfaces/manageable.interface';
+import { IResettable } from '../../interfaces/resettable.interface';
+import { ILoadable } from '../../interfaces/loadable.interface';
+import { INavigable } from '../../interfaces/navigable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../enums/entity-names.enum';
 import {

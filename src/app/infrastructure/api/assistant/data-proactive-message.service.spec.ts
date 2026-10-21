@@ -5,7 +5,8 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 
 import { DataProactiveMessageService } from './data-proactive-message.service';
 import { PROACTIVE_REACTION } from 'src/app/domain/constants/proactive-reaction.constants';
-import { IProactiveInboxItem, IProactiveUnreadCount } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveInboxItem } from 'src/app/domain/interfaces/proactive-inbox.interface';
+import { IProactiveUnreadCount } from 'src/app/domain/interfaces/proactive-unread-count.interface';
 import { environment } from 'src/environments/environment';
 
 describe('DataProactiveMessageService', () => {

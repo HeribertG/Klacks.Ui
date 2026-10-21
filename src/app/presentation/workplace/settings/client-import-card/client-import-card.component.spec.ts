@@ -10,7 +10,7 @@ import { ClientImportCardComponent } from './client-import-card.component';
 import { ClientImportStateService } from 'src/app/domain/services/client/client-import-state.service';
 import { ClientImportStep } from 'src/app/domain/enums/client-import.enums';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/domain-events';
+import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ClientImportPageTab } from '../client-import/client-import-page-tab.enum';

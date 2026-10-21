@@ -9,7 +9,7 @@
 import { Component, ChangeDetectionStrategy, computed, input, output } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { ILearnedCapability } from 'src/app/domain/interfaces/klacksy-learning.interface';
+import { ILearnedCapability } from 'src/app/domain/interfaces/learned-capability.interface';
 import { KLACKSY_LEARNING_EMPTY_VALUE } from 'src/app/domain/constants/klacksy-learning.constants';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 

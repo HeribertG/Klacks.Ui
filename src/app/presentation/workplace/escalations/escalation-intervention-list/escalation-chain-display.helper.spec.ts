@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain.interface';
+import { IEscalationChainSummary } from 'src/app/domain/interfaces/escalation-chain-summary.interface';
 import {
   currentStage,
   nextStage,

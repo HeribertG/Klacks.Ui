@@ -18,7 +18,7 @@ import { RouteName } from '../../enums/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
-import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { formatCalendarDate } from 'src/app/shared/helpers/locale-date-format.helper';

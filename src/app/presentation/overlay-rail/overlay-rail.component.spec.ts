@@ -6,7 +6,7 @@ import { OverlayRailComponent } from './overlay-rail.component';
 import { AsideService } from '../aside/aside.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { TranscriptOverlayService } from '../voice-shell/transcript-overlay/transcript-overlay.service';
-import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 
 // The real children (ToastsContainerComponent, AssistantPanelsComponent, VoiceShellComponent,
 // VoiceShellInputComponent) each pull in their own dependency graph - toast service, goal-candidate

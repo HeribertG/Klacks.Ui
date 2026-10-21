@@ -35,10 +35,8 @@ import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.com
 import { TranscriptOverlayService } from './transcript-overlay/transcript-overlay.service';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import { LongPressContextDirective } from '../directives/long-press-context.directive';
-import {
-  VoiceShellTiming,
-  VoiceShellClass,
-} from 'src/app/domain/constants/voice-shell-constants';
+import { VoiceShellClass } from 'src/app/domain/constants/voice-shell-constants';
+import { VoiceShellTiming } from 'src/app/domain/constants/voice-shell-timing.constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 
 @Component({

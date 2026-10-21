@@ -5,11 +5,9 @@ import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.int
 import { TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  ScheduleEntryCrudService,
-  ScheduleCellParams,
-  DeleteWorkScheduleEntryParams,
-} from './schedule-entry-crud.service';
+import { ScheduleEntryCrudService } from './schedule-entry-crud.service';
+import { ScheduleCellParams } from './schedule-cell-params.interface';
+import { DeleteWorkScheduleEntryParams } from './delete-work-schedule-entry-params.interface';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
@@ -23,7 +21,8 @@ import { DataManagementBreakService } from '../break/data-management-break.servi
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, UndoOfferedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.interface';
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 import { IClientWork } from '../../models/schedule/client-work.interface';
 import { WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';

@@ -4,12 +4,10 @@ import { inject, Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import {
-  IUiActionConfig,
-  IUiActionContext,
-  IUiActionExecutionOutcome,
-  IUiActionStep,
-} from '../../interfaces/ui-action-step.interface';
+import { IUiActionStep } from '../../interfaces/ui-action-step.interface';
+import { IUiActionConfig } from '../../interfaces/ui-action-config.interface';
+import { IUiActionContext } from '../../interfaces/ui-action-context.interface';
+import { IUiActionExecutionOutcome } from '../../interfaces/ui-action-execution-outcome.interface';
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';

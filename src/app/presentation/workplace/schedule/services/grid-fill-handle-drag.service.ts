@@ -25,7 +25,7 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { isSameCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';

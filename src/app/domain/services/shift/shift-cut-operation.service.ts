@@ -4,52 +4,19 @@
 import { Injectable, inject } from '@angular/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
-import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { parseCalendarDate } from 'src/app/shared/helpers/calendar-date.helper';
+import { CutByDateParams } from './cut-by-date-params.interface';
+import { CutByTimeParams } from './cut-by-time-params.interface';
+import { CutByWeekdaysParams } from './cut-by-weekdays-params.interface';
+import { CutByStaffParams } from './cut-by-staff-params.interface';
+import { CutByTaskParams } from './cut-by-task-params.interface';
+import { CutResult } from './cut-result.interface';
 import { addDays } from 'src/app/shared/helpers/date.helper';
 
 const NEXT_DAY_OFFSET = 1;
-
-export interface CutByDateParams {
-  selectedShift: Shift;
-  cutDate: Date;
-}
-
-export interface CutByTimeParams {
-  selectedShift: Shift;
-  cutTime: OwnTime;
-}
-
-export interface CutByWeekdaysParams {
-  selectedShift: Shift;
-  weekdays: {
-    isMonday: boolean;
-    isTuesday: boolean;
-    isWednesday: boolean;
-    isThursday: boolean;
-    isFriday: boolean;
-    isSaturday: boolean;
-    isSunday: boolean;
-  };
-}
-
-export interface CutByStaffParams {
-  selectedShift: Shift;
-  staffCount: number;
-}
-
-export interface CutByTaskParams {
-  selectedShift: Shift;
-  taskCount: number;
-}
-
-export interface CutResult {
-  originalShift: Shift;
-  newShift: Shift;
-}
 
 @Injectable({
   providedIn: 'root',
