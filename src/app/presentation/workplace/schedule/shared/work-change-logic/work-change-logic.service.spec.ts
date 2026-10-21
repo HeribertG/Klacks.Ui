@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WorkChangeLogicService } from './work-change-logic.service';
-import { CorrectionMode } from './correction-mode.enum';
+import { CorrectionMode } from 'src/app/domain/enums/correction-mode.enum';
 import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 

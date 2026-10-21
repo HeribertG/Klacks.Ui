@@ -4,8 +4,8 @@ import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { WorkChangeValidation } from 'src/app/domain/models/workchange/work-change-validation.interface';
 import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
-import { CorrectionMode } from './correction-mode.enum';
-import { TravelMode } from './travel-mode.enum';
+import { CorrectionMode } from 'src/app/domain/enums/correction-mode.enum';
+import { TravelMode } from 'src/app/domain/enums/travel-mode.enum';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 @Injectable()
