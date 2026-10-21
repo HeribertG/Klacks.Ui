@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Card for editing the address and persona details of a client. Hosts the component-scoped persona services and
- * composes the header actions with the entity, name, street, locality and communication sub-components and the
- * address type and new address dialogs.
+ * Card for editing the address and persona details of a client. Hosts the component-scoped persona services, the
+ * header actions and the address type and new address dialog templates, and composes the entity, name, street,
+ * locality and communication sub-components.
  * @param isReadOnly - When true, all form fields are disabled
  * @param isChangingEvent - Emits true when the user modifies any field, false on reset
  */
@@ -20,8 +20,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faStreetView } from '@fortawesome/free-solid-svg-icons';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { faCalendar, faStreetView } from '@fortawesome/free-solid-svg-icons';
+import { NgbDatepickerModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 
@@ -36,12 +36,10 @@ import {
   EDIT_ADDRESS_CARD_KEYS,
   EditAddressCardVisibilityService,
 } from 'src/app/presentation/workplace/address/edit-address/edit-address-card-visibility.service';
-import { AddressPersonaAddressTypeDialogComponent } from './address-persona-address-type-dialog/address-persona-address-type-dialog.component';
 import { AddressPersonaCommunicationsComponent } from './address-persona-communications/address-persona-communications.component';
 import { AddressPersonaEntityFieldsComponent } from './address-persona-entity-fields/address-persona-entity-fields.component';
 import { AddressPersonaLocalityFieldsComponent } from './address-persona-locality-fields/address-persona-locality-fields.component';
 import { AddressPersonaNameFieldsComponent } from './address-persona-name-fields/address-persona-name-fields.component';
-import { AddressPersonaNewAddressDialogComponent } from './address-persona-new-address-dialog/address-persona-new-address-dialog.component';
 import { AddressPersonaStreetFieldsComponent } from './address-persona-street-fields/address-persona-street-fields.component';
 import { ADDRESS_PERSONA_COMPANY_FIELD_ID, ADDRESS_PERSONA_FIRST_NAME_FIELD_ID } from './address-persona.constants';
 import { AddressPersonaAddressDialogsService } from './services/address-persona-address-dialogs.service';
@@ -64,12 +62,11 @@ import { AddressPersonaValidationService } from './services/address-persona-vali
     FormsModule,
     TranslateModule,
     NgbTooltipModule,
+    NgbDatepickerModule,
     FontAwesomeModule,
     OtherGreyComponent,
     ExpandableCardComponent,
     IconLocationPinComponent,
-    AddressPersonaAddressTypeDialogComponent,
-    AddressPersonaNewAddressDialogComponent,
     AddressPersonaEntityFieldsComponent,
     AddressPersonaNameFieldsComponent,
     AddressPersonaStreetFieldsComponent,
@@ -107,6 +104,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   private readonly geoServicesConfig = inject(GeoServicesConfigService);
   private readonly cardVisibility = inject(EditAddressCardVisibilityService);
 
+  protected readonly faCalendar = faCalendar;
   protected readonly faStreetView = faStreetView;
 
   private readonly ngUnsubscribe = new Subject<void>();

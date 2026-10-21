@@ -1,11 +1,176 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <ng-template #addressTypeModal let-modal role="dialog" class="modal-window">
-  <app-address-persona-address-type-dialog [modal]="modal"></app-address-persona-address-type-dialog>
+  <form>
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title1">
+        {{
+          "address.edit-address.address-persona.modal-address-typ.header"
+            | translate
+        }}
+      </div>
+    </div>
+
+    <div class="modal-body first-modal">
+      <div class="form-group">
+        <label for="addressValidFrom">{{
+          "address.edit-address.address-persona.modal-address-typ.valid-date"
+            | translate
+        }}</label>
+
+        <div class="input-group">
+          <input
+            id="addressValidFrom"
+            class="form-control"
+            name="addressValidFrom"
+            [ngModel]="dialogs.addressValidFrom"
+            [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.valid-date' | translate"
+            (ngModelChange)="dialogs.addressValidFrom = $event"
+            ngbDatepicker
+            #validFrom="ngbDatepicker"
+          />
+
+          <span
+            class="input-group-text"
+            style="width: 40px"
+            (click)="validFrom.toggle()"
+          >
+            <fa-icon
+              [icon]="faCalendar"
+              [style]="{ 'font-size': '16px', color: '#464e5f' }"
+            ></fa-icon>
+          </span>
+        </div>
+      </div>
+
+      @if (dataManagementClientService.clientAttribute &&
+      dataManagementClientService.clientAttribute.length > 1) {
+      <div class="form-group">
+        <label for="profile-gender">{{
+          "address.edit-address.address-persona.modal-address-typ.type"
+            | translate
+        }}</label>
+        <select
+          id="editClientType"
+          class="form-select"
+          [(ngModel)]="dialogs.editClientType"
+          name="editClient.type"
+          [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.type' | translate"
+        >
+          @for (c of dataManagementClientService.clientAttribute; track
+          c.type) {
+          <option
+            [value]="c.type"
+            [selected]="
+              dataManagementClientService.editClient()?.type === c.type
+            "
+          >
+            {{ c.name }}
+          </option>
+          }
+        </select>
+      </div>
+      }
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      id="modal-cancel-address-type"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button id="modal-save-address-type" type="button" class="btn save-btn" (click)="modal.close()">
+      {{
+        "address.edit-address.address-persona.modal-address-typ.add" | translate
+      }}
+    </button>
+  </div>
 </ng-template>
 
 <ng-template #newAddress let-modal role="dialog" class="modal-window">
-  <app-address-persona-new-address-dialog [modal]="modal"></app-address-persona-new-address-dialog>
+  <form>
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title2">
+        {{
+          "address.edit-address.address-persona.modal-new-address-typ.header"
+            | translate
+        }}
+      </div>
+    </div>
+    <div class="modal-body first-modal">
+      <div class="form-group">
+        <label for="newAddressValidFrom">{{
+          "address.edit-address.address-persona.modal-new-address-typ.valid"
+            | translate
+        }}</label>
+
+        <div class="input-group">
+          <input
+            id="newAddressValidFrom"
+            class="form-control"
+            name="newAddressValidFrom"
+            [ngModel]="dialogs.newAddressValidFrom"
+            [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.valid' | translate"
+            (ngModelChange)="dialogs.newAddressValidFrom = $event"
+            ngbDatepicker
+            #newAddressValidFrom1="ngbDatepicker"
+          />
+
+          <span
+            class="input-group-text"
+            style="width: 40px"
+            (click)="newAddressValidFrom1.toggle()"
+          >
+            <fa-icon
+              [icon]="faCalendar"
+              [style]="{ 'font-size': '16px', color: '#464e5f' }"
+            ></fa-icon>
+          </span>
+        </div>
+      </div>
+
+      @if (dialogs.allowedAddressTypes.length > 1) {
+      <div class="form-group">
+        <label for="newAddressType">{{
+          "address.edit-address.address-persona.modal-new-address-typ.type"
+            | translate
+        }}</label>
+        <select
+          id="newAddressType"
+          class="form-select"
+          [(ngModel)]="dialogs.newAddressType"
+          name="newAddressType"
+          [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.type' | translate"
+        >
+          @for (type of dialogs.allowedAddressTypes; track type) {
+          <option [ngValue]="type">
+            {{ dialogs.onAddressTypeName(type) }}
+          </option>
+          }
+        </select>
+      </div>
+      }
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      id="modal-cancel-new-address"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button id="modal-save-new-address" type="button" class="btn ownStyle-add" (click)="modal.close()">
+      {{
+        "address.edit-address.address-persona.modal-new-address-typ.add"
+          | translate
+      }}
+    </button>
+  </div>
 </ng-template>
 
 <form>
