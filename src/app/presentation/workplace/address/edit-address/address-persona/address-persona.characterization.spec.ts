@@ -1106,6 +1106,23 @@ describe('AddressPersonaComponent characterization', () => {
       expect(modalElement('addressValidFrom')).toBeNull();
     });
 
+    it('swaps the name fields for the address lines when the address type dialog makes the address secondary', async () => {
+      const client = makeClient({ type: EntityTypeEnum.customer });
+      const { fixture, parts, data } = await setup({ client, realModal: true });
+      data.refreshClientState.mockImplementation(() => data.editClient.set({ ...data.editClient()! }));
+      expect(byId(fixture, 'firstname')).not.toBeNull();
+
+      parts.actions.openAddressType(templateRef(fixture, 'addressTypeModal'));
+      await settleModal(fixture);
+      parts.actions.addressType = AddressTypeEnum.workplace;
+      modalElement<HTMLButtonElement>('modal-save-address-type')!.click();
+      await settleModal(fixture);
+
+      expect(data.editClient()!.addresses[0].type).toBe(AddressTypeEnum.workplace);
+      expect(byId(fixture, 'firstname')).toBeNull();
+      expect(byId(fixture, 'addressLine1')).not.toBeNull();
+    });
+
     it('applies nothing when the address type dialog is cancelled', async () => {
       const { fixture, parts, data, changes } = await setup({ client: makeClient(), realModal: true });
 
