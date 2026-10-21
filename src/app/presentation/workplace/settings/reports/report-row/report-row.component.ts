@@ -115,7 +115,7 @@ export class ReportRowComponent {
     this.isDeleteEvent.emit();
   }
 
-  loadManual(): void {
+  private loadManual(): void {
     const lang = this.translate.currentLang || DomainMessages.DEFAULT_LANG;
     if (this.loadedManualLang === lang) {
       return;

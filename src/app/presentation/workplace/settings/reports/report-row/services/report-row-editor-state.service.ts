@@ -4,6 +4,7 @@
  * Edit state of one report row's modal: the form fields, the template under edit, the page setup
  * and the snapshot that tells whether there is unsaved work.
  * @param source - Report template input of the row, bound once by the component
+ * @param version - Stored snapshot copied back into the editor
  */
 
 import { Injectable, Signal } from '@angular/core';
@@ -15,6 +16,7 @@ import { ReportMargins } from 'src/app/domain/models/report/report-margins.inter
 import { ReportPageSetup } from 'src/app/domain/models/report/report-page-setup.interface';
 import { ReportParameter } from 'src/app/domain/models/report/report-parameter.model';
 import { ReportParameterValues } from 'src/app/domain/models/report/report-parameter-values.type';
+import { ReportTemplateVersion } from 'src/app/domain/models/report/report-template-version.interface';
 import { DEFAULT_SECTIONS } from 'src/app/domain/models/report/report-section.model';
 import { buildDefaultParameterValues } from 'src/app/domain/helpers/report-parameter.helper';
 import { DEFAULT_DATA_SET_ID, DEFAULT_SOURCE_ID, MARGIN_MAX, MARGIN_MIN, MARGIN_SIDES } from '../report-row.constants';
@@ -82,6 +84,19 @@ export class ReportRowEditorStateService {
       dataSetIds: this.editDataSetIds,
       pageSetup: template.pageSetup || { ...DEFAULT_PAGE_SETUP },
       sections: template.sections?.length ? template.sections : [...DEFAULT_SECTIONS]
+    };
+  }
+
+  applyVersion(version: ReportTemplateVersion): void {
+    this.editName = version.name;
+    this.editOrientation = version.pageSetup?.orientation ?? this.editOrientation;
+    this.editPageSize = version.pageSetup?.size ?? this.editPageSize;
+    this.editMargins = { ...(version.pageSetup?.margins ?? this.editMargins) };
+    this.editTemplate = {
+      ...this.editTemplate,
+      name: version.name,
+      pageSetup: this.buildPageSetup(),
+      sections: structuredClone(version.sections ?? []),
     };
   }
 

@@ -58,17 +58,7 @@ export class ReportRowVersionsService {
    * Copies a snapshot into the editor. Nothing is stored until the user saves.
    */
   restoreVersion(version: ReportTemplateVersion): void {
-    const state = this.state;
-    state.editName = version.name;
-    state.editOrientation = version.pageSetup?.orientation ?? state.editOrientation;
-    state.editPageSize = version.pageSetup?.size ?? state.editPageSize;
-    state.editMargins = { ...(version.pageSetup?.margins ?? state.editMargins) };
-    state.editTemplate = {
-      ...state.editTemplate,
-      name: version.name,
-      pageSetup: state.buildPageSetup(),
-      sections: structuredClone(version.sections ?? []),
-    };
+    this.state.applyVersion(version);
     this.toast.showInfo(this.translate.instant('setting.report.versionRestored'), REPORT_TOAST_NAME);
     this.cdr.markForCheck();
   }
