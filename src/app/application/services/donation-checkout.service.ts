@@ -9,12 +9,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DonationCurrency } from './donation-config.service';
-
-export interface DonationCheckoutResponse {
-  url?: string;
-  errorMessage?: string;
-}
+import { DonationCheckoutResponse } from './donation-checkout-response.interface';
+import { DonationCurrency } from './donation-currency.type';
 
 @Injectable({ providedIn: 'root' })
 export class DonationCheckoutService {

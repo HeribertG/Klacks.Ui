@@ -151,33 +151,3 @@ export class Rectangle {
     return false;
   }
 }
-
-export interface ISize {
-  height: number;
-  width: number;
-}
-
-export class Size implements ISize {
-  constructor(width: number, height: number) {
-    this.width = width;
-    this.height = height;
-  }
-  height = 0;
-  width = 0;
-
-  clone(): Size {
-    return new Size(this.width, this.height);
-  }
-
-  isEmpty(): boolean {
-    return this.width === 0 && this.height === 0;
-  }
-
-  equals(size: Size): boolean {
-    return (
-      size != null &&
-      ((this.isEmpty() && size.isEmpty()) ||
-        (this.width === size.width && this.height === size.height))
-    );
-  }
-}

@@ -4,13 +4,8 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
+import { LanguageConfig } from './language-config.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-export interface LanguageConfig {
-  code: string;
-  name: string;
-  speechLocale: string;
-  displayName: string;
-}
 
 @Injectable({
   providedIn: 'root',

@@ -15,17 +15,11 @@ import { inject, Pipe, PipeTransform } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { formatDateParams, hasDateParams } from 'src/app/domain/helpers/date-params.helper';
+import { LocalizedParamsMemo } from './localized-params-memo.interface';
 import {
   hasMultiLanguageParams,
   resolveMultiLanguageParams,
 } from 'src/app/domain/helpers/multi-language-params.helper';
-
-interface LocalizedParamsMemo {
-  params: Record<string, string>;
-  language: string;
-  locale: string;
-  result: Record<string, string>;
-}
 
 @Pipe({
   name: 'localizedParams',

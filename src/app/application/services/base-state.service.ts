@@ -10,13 +10,8 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/shared/helpers/object.helper';
 import { IBaseFilter } from 'src/app/domain/models/base-filter.interface';
 import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.interface';
+import { IDataManagementService } from './data-management-service.interface';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-
-export interface IDataManagementService<T extends IBaseFilter> {
-  currentFilter: T;
-  onExternalFilterChange?: () => void;
-  restoreSearch: { set(value: string): void };
-}
 
 export abstract class BaseStateService<
   T extends IBaseFilter,

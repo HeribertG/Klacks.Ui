@@ -4,15 +4,8 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkplaceStateService } from './workplace-state.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
+import { SearchConfig } from './search-config.interface';
 import { IClient } from 'src/app/domain/models/client/client-class';
-
-export interface SearchConfig {
-  showSearch: boolean;
-  currentEntity: string;
-  isGroupViewMode: boolean;
-  showIncludeAddress: boolean;
-  showIncludeClient: boolean;
-}
 
 @Injectable({
   providedIn: 'root'

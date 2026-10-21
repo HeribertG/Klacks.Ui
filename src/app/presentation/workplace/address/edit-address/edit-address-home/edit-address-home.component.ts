@@ -33,7 +33,7 @@ import { UrlParameterService } from 'src/app/presentation/services/url-parameter
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
-import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactivate.guard';
+import { CanComponentDeactivate } from 'src/app/application/helpers/can-component-deactivate.interface';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';

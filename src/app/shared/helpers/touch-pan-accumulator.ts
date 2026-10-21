@@ -6,10 +6,8 @@
  * a slow drag still advances instead of being rounded away, and the sign is inverted because the
  * finger moves the content while the scroll position describes the viewport.
  */
-export interface TouchPanCells {
-  columns: number;
-  rows: number;
-}
+
+import { TouchPanCells } from './touch-pan-cells.interface';
 
 const NO_STEPS: TouchPanCells = { columns: 0, rows: 0 };
 

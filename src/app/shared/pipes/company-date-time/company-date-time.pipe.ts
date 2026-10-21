@@ -20,19 +20,12 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { companyTimeZone } from 'src/app/shared/helpers/calendar-date.helper';
+import { CompanyDateTimeMemo } from './company-date-time-memo.interface';
 import { CompanyDateTimeFormat, formatCompanyInstant } from './company-date-time.formatter';
 
 export type { CompanyDateTimeFormat };
 
 const DEFAULT_COMPANY_DATE_TIME_FORMAT: CompanyDateTimeFormat = 'dateTime';
-
-interface CompanyDateTimeMemo {
-  value: string | Date;
-  format: CompanyDateTimeFormat;
-  zone: string | null;
-  locale: string;
-  result: string | null;
-}
 
 @Pipe({
   name: 'companyDateTime',

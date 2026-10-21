@@ -8,15 +8,8 @@
  * or disabled are automatically hidden in the donation dialog.
  */
 import { Injectable } from '@angular/core';
+import { DonationCurrency } from './donation-currency.type';
 import { environment } from 'src/environments/environment';
-
-export type DonationCurrency = 'CHF' | 'EUR' | 'USD';
-
-export interface DonationStripePaymentLink {
-  currency: DonationCurrency;
-  amount: number;
-  url: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class DonationConfigService {

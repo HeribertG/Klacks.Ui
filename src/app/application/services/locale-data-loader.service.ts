@@ -10,18 +10,8 @@
  *                      (for example 'de', 'es' or 'zh-TW'), not the Angular locale id.
  */
 import { Injectable } from '@angular/core';
+import { LocaleDataImports } from './locale-data-imports.interface';
 import { registerLocaleData } from '@angular/common';
-
-interface LocaleDataModule {
-  default: unknown[];
-}
-
-type LocaleDataImport = () => Promise<LocaleDataModule>;
-
-interface LocaleDataImports {
-  data: LocaleDataImport;
-  extra: LocaleDataImport;
-}
 
 const UNKNOWN_LANGUAGE_WARNING = 'LocaleDataLoaderService: no Angular locale data mapping for';
 
