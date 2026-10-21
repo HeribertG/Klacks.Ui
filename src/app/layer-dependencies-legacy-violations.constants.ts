@@ -129,8 +129,6 @@ export const LEGACY_LAYER_VIOLATIONS: Readonly<Record<string, readonly Layer[]>>
   'presentation/workplace/schedule/dialogs/recovery-dialog/recovery-dialog.component.ts': ['infrastructure'],
   'presentation/workplace/schedule/dialogs/wizard-dialog/wizard-dialog.component.ts': ['infrastructure'],
   'presentation/workplace/schedule/services/auto-wizard-orchestrator.service.ts': ['infrastructure'],
-  'presentation/workplace/schedule/services/schedule-timeline-range.service.ts': ['infrastructure'],
-  'presentation/workplace/schedule/services/schedule-view-mode.service.ts': ['infrastructure'],
   'presentation/workplace/schedule/shift-section/container-shift-override-dialog/services/container-shift-override-lifecycle.service.ts': ['infrastructure'],
   'presentation/workplace/schedule/shift-section/services/shift-data.service.ts': ['infrastructure'],
   'presentation/workplace/schedule/shift-section/shift-section.component.ts': ['infrastructure'],

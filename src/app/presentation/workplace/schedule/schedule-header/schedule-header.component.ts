@@ -52,7 +52,7 @@ import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dia
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
 import { ScheduleSelectionService } from '../services/schedule-selection.service';
-import { TimelineViewRange } from '../services/timeline-view-range.type';
+import { TimelineViewRange } from 'src/app/domain/models/schedule/timeline-view-range.type';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleHeaderPeriodNavigationService } from './services/schedule-header-period-navigation.service';
 import { ScheduleHeaderRecalculationService } from './services/schedule-header-recalculation.service';
