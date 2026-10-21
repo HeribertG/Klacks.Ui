@@ -1,0 +1,86 @@
+<div id="contract-modal-selections-row" class="contract-selections">
+  <div id="contract-modal-calendar-section" class="selection-section">
+    <span class="selection-label">{{
+      "setting.contract.calendarSelection-modal" | translate
+    }}</span>
+    <div class="selector-container">
+      <div ngbDropdown #calendarDropdown="ngbDropdown">
+        <button
+          class="btn btn-sm btn-selector"
+          id="contract-calendar-dropdown"
+          ngbDropdownToggle
+          aria-label="calendar selection"
+          type="button"
+        >
+          <app-choose-calendar></app-choose-calendar>
+          <span class="selector-name">{{
+            assignment.getSelectedCalendarName()
+          }}</span>
+        </button>
+        <div ngbDropdownMenu class="selector-dropdown-menu">
+          <button
+            ngbDropdownItem
+            (click)="assignment.onCalendarSelectionChange('')"
+            [class.active]="!state.calendarSelectionId()"
+          >
+            {{ "setting.contract.noCalendar" | translate }}
+          </button>
+          @for (
+            calendar of calendars();
+            track calendar.id
+          ) {
+            <button
+              ngbDropdownItem
+              (click)="assignment.onCalendarSelectionChange(calendar.id!)"
+              [class.active]="state.calendarSelectionId() === calendar.id"
+            >
+              {{ calendar.name }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="contract-modal-scheduling-rule-section"
+    class="selection-section"
+  >
+    <span class="selection-label">{{
+      "setting.contract.schedulingRuleSelection-modal" | translate
+    }}</span>
+    <div class="selector-container">
+      <div ngbDropdown #schedulingRuleDropdown="ngbDropdown">
+        <button
+          class="btn btn-sm btn-selector"
+          id="contract-scheduling-rule-dropdown"
+          ngbDropdownToggle
+          aria-label="scheduling rule selection"
+          type="button"
+        >
+          <span class="selector-name">{{
+            assignment.getSelectedSchedulingRuleName()
+          }}</span>
+        </button>
+        <div ngbDropdownMenu class="selector-dropdown-menu">
+          <button
+            ngbDropdownItem
+            (click)="assignment.onSchedulingRuleSelectionChange('')"
+            [class.active]="!state.schedulingRuleId()"
+          >
+            {{ "setting.contract.noSchedulingRule" | translate }}
+          </button>
+          @for (rule of state.schedulingRuleOptions(); track rule.id) {
+            <button
+              ngbDropdownItem
+              (click)="assignment.onSchedulingRuleSelectionChange(rule.id)"
+              [class.active]="state.schedulingRuleId() === rule.id"
+            >
+              {{ assignment.schedulingRuleOptionLabel(rule) }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

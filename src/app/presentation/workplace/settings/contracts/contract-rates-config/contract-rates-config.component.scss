@@ -1,0 +1,65 @@
+@use "../contract-dialog-styles";
+
+:host {
+  display: contents;
+}
+
+.rates-config-row {
+  display: flex;
+  justify-content: space-between;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+}
+
+.rate-config-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  &:not(:last-child) {
+    margin-inline-end: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  &.align-left {
+    align-items: flex-start;
+  }
+
+  &.align-center {
+    align-items: center;
+  }
+
+  &.align-right {
+    align-items: flex-end;
+  }
+}
+
+.rate-input-group {
+  display: flex;
+  align-items: center;
+}
+
+.rate-input {
+  width: 80px;
+  height: var(--controlHeight);
+  padding: 5px 10px;
+  border: 1px solid var(--standartBorderColor);
+  border-radius: 4px;
+  text-align: end;
+}
+
+.rate-unit {
+  margin-inline-start: 5px;
+  font-weight: 500;
+  color: var(--colorWorkplaceHeadline);
+}
+
+.contract-rates-hint {
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding-bottom: 6px;
+}

@@ -9,6 +9,14 @@ import { of, Subject } from 'rxjs';
 import { afterEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { ContractsComponent } from './contracts.component';
+import { ContractEditorStateService } from './services/contract-editor-state.service';
+import { ContractHoursService } from './services/contract-hours.service';
+import { ContractValidityService } from './services/contract-validity.service';
+import { ContractPaymentService } from './services/contract-payment.service';
+import { ContractAssignmentService } from './services/contract-assignment.service';
+import { ContractShiftWorkService } from './services/contract-shift-work.service';
+import { ContractsListService } from './services/contracts-list.service';
+import { ContractEditorSessionService } from './services/contract-editor-session.service';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -167,16 +175,16 @@ function createModalService(): ModalServiceMock {
 }
 
 function partsOf(fixture: ComponentFixture<ContractsComponent>) {
-  const component = fixture.componentInstance;
+  const injector = fixture.debugElement.injector;
   return {
-    state: component,
-    hours: component,
-    payment: component,
-    assignment: component,
-    shiftWork: component,
-    validity: component,
-    list: component,
-    session: component,
+    state: injector.get(ContractEditorStateService),
+    hours: injector.get(ContractHoursService),
+    payment: injector.get(ContractPaymentService),
+    assignment: injector.get(ContractAssignmentService),
+    shiftWork: injector.get(ContractShiftWorkService),
+    validity: injector.get(ContractValidityService),
+    list: injector.get(ContractsListService),
+    session: injector.get(ContractEditorSessionService),
   };
 }
 

@@ -1,0 +1,66 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div id="contract-modal-workdays-row" class="contract-workdays">
+  <label class="workdays-label">{{
+    "setting.contract.workDays-modal" | translate
+  }}</label>
+  <div class="workdays-checkboxes">
+    <label class="checkbox-label">
+      <input type="checkbox" [(ngModel)]="contract().workOnMonday" />
+      {{ "settings.work.monday" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="contract().workOnTuesday"
+      />
+      {{ "settings.work.tuesday" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="contract().workOnWednesday"
+      />
+      {{ "settings.work.wednesday" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="contract().workOnThursday"
+      />
+      {{ "settings.work.thursday" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" [(ngModel)]="contract().workOnFriday" />
+      {{ "settings.work.friday" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="contract().workOnSaturday"
+      />
+      {{ "settings.work.saturday" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" [(ngModel)]="contract().workOnSunday" />
+      {{ "settings.work.sunday" | translate }}
+    </label>
+  </div>
+</div>
+
+<div id="contract-modal-shift-work-row" class="contract-shift-work">
+  <label class="checkbox-label" [title]="shiftWork.shiftWorkTooltipKey() | translate">
+    <input
+      id="contract-modal-performs-shift-work"
+      type="checkbox"
+      class="tri-state-checkbox"
+      [checked]="shiftWork.isShiftWorkChecked()"
+      [indeterminate]="shiftWork.isShiftWorkUnset()"
+      (change)="shiftWork.cycleShiftWork($event.currentTarget)"
+      [attr.aria-label]="'setting.contract.performsShiftWork-modal' | translate"
+    />
+    {{ "setting.contract.performsShiftWork-modal" | translate }}
+  </label>
+  <div id="contract-modal-shift-work-legend" class="tri-state-legend settings-hint">
+    {{ shiftWork.shiftWorkTooltipKey() | translate }}
+  </div>
+</div>

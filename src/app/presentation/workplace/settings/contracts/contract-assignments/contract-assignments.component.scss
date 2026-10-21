@@ -1,0 +1,18 @@
+@use "../contract-dialog-styles";
+
+:host {
+  display: contents;
+}
+
+.contract-selections {
+  display: flex;
+  justify-content: space-between;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+}
+
+.selection-section {
+  &:last-child {
+    text-align: end;
+  }
+}

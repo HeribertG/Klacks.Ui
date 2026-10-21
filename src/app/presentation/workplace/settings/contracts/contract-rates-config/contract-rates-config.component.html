@@ -1,0 +1,145 @@
+<div
+  id="contract-modal-rates-row"
+  class="row-line-modal-inline rates-config-row"
+>
+  <div
+    id="contract-modal-night-rate-item"
+    class="rate-config-item align-left"
+  >
+    <label for="nightRate">{{
+      "setting.contract.nightRate-modal" | translate
+    }}</label>
+    <div class="rate-input-group">
+      <input
+        type="number"
+        [formField]="state.contractForm.nightRate"
+        class="form-control rate-input"
+        id="nightRate"
+        aria-label="nightRate"
+        [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
+      />
+      <span class="rate-unit">%</span>
+    </div>
+  </div>
+
+  <div
+    id="contract-modal-holiday-rate-item"
+    class="rate-config-item align-center"
+  >
+    <label for="holidayRate">{{
+      "setting.contract.holidayRate-modal" | translate
+    }}</label>
+    <div class="rate-input-group">
+      <input
+        type="number"
+        [formField]="state.contractForm.holidayRate"
+        class="form-control rate-input"
+        id="holidayRate"
+        aria-label="holidayRate"
+        [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
+      />
+      <span class="rate-unit">%</span>
+    </div>
+  </div>
+
+  <div
+    id="contract-modal-we1-rate-item"
+    class="rate-config-item align-center"
+  >
+    <label for="we1Rate">{{
+      "setting.contract.we1Rate-modal" | translate
+    }}</label>
+    <div class="rate-input-group">
+      <input
+        type="number"
+        [formField]="state.contractForm.we1Rate"
+        class="form-control rate-input"
+        id="we1Rate"
+        aria-label="we1Rate"
+        [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
+      />
+      <span class="rate-unit">%</span>
+    </div>
+  </div>
+
+  <div
+    id="contract-modal-we2-rate-item"
+    class="rate-config-item align-right"
+  >
+    <label for="we2Rate">{{
+      "setting.contract.we2Rate-modal" | translate
+    }}</label>
+    <div class="rate-input-group">
+      <input
+        type="number"
+        [formField]="state.contractForm.we2Rate"
+        class="form-control rate-input"
+        id="we2Rate"
+        aria-label="we2Rate"
+        [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
+      />
+      <span class="rate-unit">%</span>
+    </div>
+  </div>
+</div>
+
+<div
+  id="contract-modal-rates-row-2"
+  class="row-line-modal-inline rates-config-row"
+>
+  <div
+    id="contract-modal-we3-rate-item"
+    class="rate-config-item align-left"
+  >
+    <label for="we3Rate">{{
+      "setting.contract.we3Rate-modal" | translate
+    }}</label>
+    <div class="rate-input-group">
+      <input
+        type="number"
+        [formField]="state.contractForm.we3Rate"
+        class="form-control rate-input"
+        id="we3Rate"
+        aria-label="we3Rate"
+        [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
+      />
+      <span class="rate-unit">%</span>
+    </div>
+  </div>
+
+  <div
+    id="contract-modal-night-start-item"
+    class="rate-config-item align-center"
+  >
+    <label for="contractNightStart">{{
+      "setting.contract.nightStart-modal" | translate
+    }}</label>
+    <input
+      type="time"
+      [formField]="state.contractForm.nightStart"
+      class="form-control rate-input"
+      id="contractNightStart"
+      aria-label="contractNightStart"
+    />
+  </div>
+
+  <div
+    id="contract-modal-night-end-item"
+    class="rate-config-item align-right"
+  >
+    <label for="contractNightEnd">{{
+      "setting.contract.nightEnd-modal" | translate
+    }}</label>
+    <input
+      type="time"
+      [formField]="state.contractForm.nightEnd"
+      class="form-control rate-input"
+      id="contractNightEnd"
+      aria-label="contractNightEnd"
+    />
+  </div>
+</div>
+
+<div id="contract-modal-rates-hint" class="settings-hint contract-rates-hint">
+  {{ "setting.contract.rates-standard-hint" | translate }}
+</div>

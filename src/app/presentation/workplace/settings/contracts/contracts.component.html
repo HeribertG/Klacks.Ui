@@ -1,4 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
@@ -29,7 +28,7 @@
     </div>
   </div>
   <div id="contract-modal-body" class="modal-body">
-    @if (editingContract) {
+    @if (state.editingContract) {
       <div id="contract-modal-name-row" class="contract-name">
         <div id="contract-modal-name-section" class="contract-name-section">
           <label for="contractName">{{
@@ -37,7 +36,7 @@
           }}</label>
           <input
             type="text"
-            [formField]="contractForm.name"
+            [formField]="state.contractForm.name"
             class="form-control"
             id="contractName"
             data-klacksy-target="contract-form.name"
@@ -47,330 +46,13 @@
       </div>
 
       <!-- Hours Configuration -->
-      <div
-        id="contract-modal-hours-config-row"
-        class="row-line-modal-inline hours-config-row"
-      >
-        <div
-          id="contract-modal-guaranteed-hours-item"
-          class="hours-config-item"
-        >
-          <div class="guaranteed-hours-row">
-            <app-time-input
-              id="contract-modal-guaranteed-hours-input"
-              [label]="'setting.contract.guaranteedHours-modal' | translate"
-              [value]="guaranteedHours()"
-              (valueChange)="onGuaranteedHoursChange($event)"
-              hoursName="guaranteedHoursHours"
-              minutesName="guaranteedHoursMinutes"
-              hoursId="guaranteedHours"
-              [forDuration]="true"
-              labelAlign="left"
-              [showEmpty]="guaranteedHoursInherited()"
-              [hoursPlaceholder]="
-                guaranteedHoursInherited()
-                  ? inheritedGuaranteedHoursTime().hours
-                  : 'hh'
-              "
-              [minutesPlaceholder]="
-                guaranteedHoursInherited()
-                  ? inheritedGuaranteedHoursTime().minutes
-                  : 'mm'
-              "
-            ></app-time-input>
-            @if (!guaranteedHoursInherited()) {
-              <button
-                type="button"
-                id="contract-modal-guaranteed-hours-reset-btn"
-                class="reset-inherit-btn"
-                (click)="resetGuaranteedHoursToCompanyValue()"
-                [title]="'setting.contract.resetToCompanyValue' | translate"
-                [attr.aria-label]="
-                  'setting.contract.resetToCompanyValue' | translate
-                "
-              >
-                &times;
-              </button>
-            }
-          </div>
-          @if (guaranteedHoursInherited()) {
-            <div
-              id="contract-modal-guaranteed-hours-inherited-hint"
-              class="inherited-hint settings-hint"
-            >
-              &rarr; {{ inheritedGuaranteedHoursDisplay() }} ({{
-                "setting.contract.companyValue" | translate
-              }})
-            </div>
-          }
-        </div>
-
-        @if (!guaranteedHoursInherited()) {
-          <div id="contract-modal-min-hours-item" class="hours-config-item">
-            <app-time-input
-              id="contract-modal-min-hours-input"
-              [label]="'setting.contract.minHours-modal' | translate"
-              [value]="minimumHours()"
-              (valueChange)="onMinimumHoursChange($event)"
-              hoursName="minHoursHours"
-              minutesName="minHoursMinutes"
-              hoursId="minHours"
-              [forDuration]="true"
-              labelAlign="center"
-            ></app-time-input>
-          </div>
-
-          <div id="contract-modal-max-hours-item" class="hours-config-item">
-            <app-time-input
-              id="contract-modal-max-hours-input"
-              [label]="'setting.contract.maxHours-modal' | translate"
-              [value]="maximumHours()"
-              (valueChange)="onMaximumHoursChange($event)"
-              hoursName="maxHoursHours"
-              minutesName="maxHoursMinutes"
-              hoursId="maxHours"
-              [forDuration]="true"
-              labelAlign="center"
-            ></app-time-input>
-          </div>
-
-          <div id="contract-modal-fulltime-item" class="hours-config-item">
-            <app-time-input
-              id="contract-modal-fulltime-input"
-              [label]="'setting.contract.fullTime-modal' | translate"
-              [value]="fullTime()"
-              (valueChange)="onFullTimeChange($event)"
-              hoursName="fullTimeHours"
-              minutesName="fullTimeMinutes"
-              hoursId="fullTime"
-              [forDuration]="true"
-              labelAlign="right"
-              [showEmpty]="fullTimeIsEmpty()"
-              [hoursPlaceholder]="
-                fullTimeIsEmpty() ? companyFullTimeTime().hours : 'hh'
-              "
-              [minutesPlaceholder]="
-                fullTimeIsEmpty() ? companyFullTimeTime().minutes : 'mm'
-              "
-            ></app-time-input>
-          </div>
-        }
-      </div>
+      <app-contract-hours-config />
 
       <!-- Rate Configuration -->
-      <div
-        id="contract-modal-rates-row"
-        class="row-line-modal-inline rates-config-row"
-      >
-        <div
-          id="contract-modal-night-rate-item"
-          class="rate-config-item align-left"
-        >
-          <label for="nightRate">{{
-            "setting.contract.nightRate-modal" | translate
-          }}</label>
-          <div class="rate-input-group">
-            <input
-              type="number"
-              [formField]="contractForm.nightRate"
-              class="form-control rate-input"
-              id="nightRate"
-              aria-label="nightRate"
-              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
-            />
-            <span class="rate-unit">%</span>
-          </div>
-        </div>
-
-        <div
-          id="contract-modal-holiday-rate-item"
-          class="rate-config-item align-center"
-        >
-          <label for="holidayRate">{{
-            "setting.contract.holidayRate-modal" | translate
-          }}</label>
-          <div class="rate-input-group">
-            <input
-              type="number"
-              [formField]="contractForm.holidayRate"
-              class="form-control rate-input"
-              id="holidayRate"
-              aria-label="holidayRate"
-              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
-            />
-            <span class="rate-unit">%</span>
-          </div>
-        </div>
-
-        <div
-          id="contract-modal-we1-rate-item"
-          class="rate-config-item align-center"
-        >
-          <label for="we1Rate">{{
-            "setting.contract.we1Rate-modal" | translate
-          }}</label>
-          <div class="rate-input-group">
-            <input
-              type="number"
-              [formField]="contractForm.we1Rate"
-              class="form-control rate-input"
-              id="we1Rate"
-              aria-label="we1Rate"
-              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
-            />
-            <span class="rate-unit">%</span>
-          </div>
-        </div>
-
-        <div
-          id="contract-modal-we2-rate-item"
-          class="rate-config-item align-right"
-        >
-          <label for="we2Rate">{{
-            "setting.contract.we2Rate-modal" | translate
-          }}</label>
-          <div class="rate-input-group">
-            <input
-              type="number"
-              [formField]="contractForm.we2Rate"
-              class="form-control rate-input"
-              id="we2Rate"
-              aria-label="we2Rate"
-              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
-            />
-            <span class="rate-unit">%</span>
-          </div>
-        </div>
-      </div>
-
-      <div
-        id="contract-modal-rates-row-2"
-        class="row-line-modal-inline rates-config-row"
-      >
-        <div
-          id="contract-modal-we3-rate-item"
-          class="rate-config-item align-left"
-        >
-          <label for="we3Rate">{{
-            "setting.contract.we3Rate-modal" | translate
-          }}</label>
-          <div class="rate-input-group">
-            <input
-              type="number"
-              [formField]="contractForm.we3Rate"
-              class="form-control rate-input"
-              id="we3Rate"
-              aria-label="we3Rate"
-              [placeholder]="'setting.contract.rate-standard-placeholder' | translate"
-            />
-            <span class="rate-unit">%</span>
-          </div>
-        </div>
-
-        <div
-          id="contract-modal-night-start-item"
-          class="rate-config-item align-center"
-        >
-          <label for="contractNightStart">{{
-            "setting.contract.nightStart-modal" | translate
-          }}</label>
-          <input
-            type="time"
-            [formField]="contractForm.nightStart"
-            class="form-control rate-input"
-            id="contractNightStart"
-            aria-label="contractNightStart"
-          />
-        </div>
-
-        <div
-          id="contract-modal-night-end-item"
-          class="rate-config-item align-right"
-        >
-          <label for="contractNightEnd">{{
-            "setting.contract.nightEnd-modal" | translate
-          }}</label>
-          <input
-            type="time"
-            [formField]="contractForm.nightEnd"
-            class="form-control rate-input"
-            id="contractNightEnd"
-            aria-label="contractNightEnd"
-          />
-        </div>
-      </div>
-
-      <div id="contract-modal-rates-hint" class="settings-hint contract-rates-hint">
-        {{ "setting.contract.rates-standard-hint" | translate }}
-      </div>
+      <app-contract-rates-config />
 
       <!-- Work Days -->
-      <div id="contract-modal-workdays-row" class="contract-workdays">
-        <label class="workdays-label">{{
-          "setting.contract.workDays-modal" | translate
-        }}</label>
-        <div class="workdays-checkboxes">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingContract.workOnMonday" />
-            {{ "settings.work.monday" | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="editingContract.workOnTuesday"
-            />
-            {{ "settings.work.tuesday" | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="editingContract.workOnWednesday"
-            />
-            {{ "settings.work.wednesday" | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="editingContract.workOnThursday"
-            />
-            {{ "settings.work.thursday" | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingContract.workOnFriday" />
-            {{ "settings.work.friday" | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="editingContract.workOnSaturday"
-            />
-            {{ "settings.work.saturday" | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="editingContract.workOnSunday" />
-            {{ "settings.work.sunday" | translate }}
-          </label>
-        </div>
-      </div>
-
-      <!-- Shift Work -->
-      <div id="contract-modal-shift-work-row" class="contract-shift-work">
-        <label class="checkbox-label" [title]="shiftWorkTooltipKey() | translate">
-          <input
-            id="contract-modal-performs-shift-work"
-            type="checkbox"
-            class="tri-state-checkbox"
-            [checked]="isShiftWorkChecked()"
-            [indeterminate]="isShiftWorkUnset()"
-            (change)="cycleShiftWork($event.currentTarget)"
-            [attr.aria-label]="'setting.contract.performsShiftWork-modal' | translate"
-          />
-          {{ "setting.contract.performsShiftWork-modal" | translate }}
-        </label>
-        <div id="contract-modal-shift-work-legend" class="tri-state-legend settings-hint">
-          {{ shiftWorkTooltipKey() | translate }}
-        </div>
-      </div>
+      <app-contract-work-pattern [contract]="state.editingContract" />
 
       <!-- Validity Period -->
       <div id="contract-modal-validity-row" class="contract-date">
@@ -378,8 +60,8 @@
           <app-date-input
             id="contract-modal-valid-from-input"
             [label]="'setting.contract.validFrom-modal' | translate"
-            [value]="validFrom()"
-            (valueChange)="onValidFromChange($event)"
+            [value]="state.validFrom()"
+            (valueChange)="validity.onValidFromChange($event)"
             inputName="validFrom"
             inputId="validFrom"
             inputWidth="small-width"
@@ -390,8 +72,8 @@
           <app-date-input
             id="contract-modal-valid-until-input"
             [label]="'setting.contract.validUntil-modal' | translate"
-            [value]="validUntil()"
-            (valueChange)="onValidUntilChange($event)"
+            [value]="state.validUntil()"
+            (valueChange)="validity.onValidUntilChange($event)"
             inputName="validUntil"
             inputId="validUntil"
             inputWidth="small-width"
@@ -401,200 +83,15 @@
       </div>
 
       <!-- Payment Interval -->
-      <div
-        id="contract-modal-payment-interval-row"
-        class="payment-interval-section"
-      >
-        <div id="contract-modal-payment-interval" class="selection-section">
-          <span class="selection-label">{{
-            "setting.contract.paymentInterval-modal" | translate
-          }}</span>
-          <div class="selector-container">
-            <div ngbDropdown #paymentIntervalDropdown="ngbDropdown">
-              <button
-                class="btn btn-sm btn-selector"
-                id="contract-payment-interval-dropdown"
-                ngbDropdownToggle
-                aria-label="payment interval selection"
-                type="button"
-              >
-                <span class="selector-name">{{
-                  getPaymentIntervalLabel()
-                }}</span>
-              </button>
-              <div ngbDropdownMenu class="selector-dropdown-menu">
-                @for (option of paymentIntervalOptions; track option) {
-                  <button
-                    ngbDropdownItem
-                    (click)="onPaymentIntervalChange(option)"
-                    [class.active]="paymentInterval() === option"
-                  >
-                    {{ getPaymentIntervalLabel(option) }}
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-
-        @if (paymentInterval() === PaymentInterval.Individual) {
-          <div id="contract-modal-individual-period" class="selection-section">
-            <span class="selection-label">{{
-              "setting.contract.individualPeriodSelection-modal" | translate
-            }}</span>
-            <div class="selector-container">
-              <div ngbDropdown #individualPeriodDropdown="ngbDropdown">
-                <button
-                  class="btn btn-sm btn-selector"
-                  id="contract-individual-period-dropdown"
-                  ngbDropdownToggle
-                  aria-label="individual period selection"
-                  type="button"
-                >
-                  <span class="selector-name">{{
-                    getSelectedIndividualPeriodName()
-                  }}</span>
-                </button>
-                <div ngbDropdownMenu class="selector-dropdown-menu">
-                  <button
-                    ngbDropdownItem
-                    (click)="onIndividualPeriodSelectionChange('')"
-                    [class.active]="!individualPeriodId()"
-                  >
-                    {{ "setting.contract.noIndividualPeriod" | translate }}
-                  </button>
-                  @for (
-                    individualPeriod of dataManagementContractService.availableIndividualPeriods;
-                    track individualPeriod.id
-                  ) {
-                    <button
-                      ngbDropdownItem
-                      (click)="onIndividualPeriodSelectionChange(individualPeriod.id!)"
-                      [class.active]="individualPeriodId() === individualPeriod.id"
-                    >
-                      {{ individualPeriod.name }}
-                    </button>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        @if (showPercentField()) {
-          <div id="contract-modal-percent" class="selection-section">
-            <span class="selection-label">{{
-              "setting.contract.percent-modal" | translate
-            }}</span>
-            <div class="selector-container">
-              <input
-                type="number"
-                step="1"
-                min="0"
-                class="form-control"
-                id="contract-percent"
-                name="contractPercent"
-                data-klacksy-target="contract-form.percent"
-                aria-label="contract percent"
-                [placeholder]="'setting.contract.percent-placeholder' | translate"
-                [ngModel]="percent()"
-                (ngModelChange)="onPercentChange($event)"
-              />
-            </div>
-          </div>
-        }
-      </div>
+      <app-contract-payment-interval
+        [individualPeriods]="dataManagementContractService.availableIndividualPeriods"
+      />
 
       <!-- Calendar & Scheduling Rule Selection -->
-      <div id="contract-modal-selections-row" class="contract-selections">
-        <div id="contract-modal-calendar-section" class="selection-section">
-          <span class="selection-label">{{
-            "setting.contract.calendarSelection-modal" | translate
-          }}</span>
-          <div class="selector-container">
-            <div ngbDropdown #calendarDropdown="ngbDropdown">
-              <button
-                class="btn btn-sm btn-selector"
-                id="contract-calendar-dropdown"
-                ngbDropdownToggle
-                aria-label="calendar selection"
-                type="button"
-              >
-                <app-choose-calendar></app-choose-calendar>
-                <span class="selector-name">{{
-                  getSelectedCalendarName()
-                }}</span>
-              </button>
-              <div ngbDropdownMenu class="selector-dropdown-menu">
-                <button
-                  ngbDropdownItem
-                  (click)="onCalendarSelectionChange('')"
-                  [class.active]="!calendarSelectionId()"
-                >
-                  {{ "setting.contract.noCalendar" | translate }}
-                </button>
-                @for (
-                  calendar of dataManagementContractService.availableCalendars;
-                  track calendar.id
-                ) {
-                  <button
-                    ngbDropdownItem
-                    (click)="onCalendarSelectionChange(calendar.id!)"
-                    [class.active]="calendarSelectionId() === calendar.id"
-                  >
-                    {{ calendar.name }}
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          id="contract-modal-scheduling-rule-section"
-          class="selection-section"
-        >
-          <span class="selection-label">{{
-            "setting.contract.schedulingRuleSelection-modal" | translate
-          }}</span>
-          <div class="selector-container">
-            <div ngbDropdown #schedulingRuleDropdown="ngbDropdown">
-              <button
-                class="btn btn-sm btn-selector"
-                id="contract-scheduling-rule-dropdown"
-                ngbDropdownToggle
-                aria-label="scheduling rule selection"
-                type="button"
-              >
-                <span class="selector-name">{{
-                  getSelectedSchedulingRuleName()
-                }}</span>
-              </button>
-              <div ngbDropdownMenu class="selector-dropdown-menu">
-                <button
-                  ngbDropdownItem
-                  (click)="onSchedulingRuleSelectionChange('')"
-                  [class.active]="!schedulingRuleId()"
-                >
-                  {{ "setting.contract.noSchedulingRule" | translate }}
-                </button>
-                @for (rule of schedulingRuleOptions(); track rule.id) {
-                  <button
-                    ngbDropdownItem
-                    (click)="onSchedulingRuleSelectionChange(rule.id)"
-                    [class.active]="schedulingRuleId() === rule.id"
-                  >
-                    {{ schedulingRuleOptionLabel(rule) }}
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-contract-assignments [calendars]="dataManagementContractService.availableCalendars" />
 
       <!-- Validation Errors -->
-      @if (getValidationErrors().length > 0) {
+      @if (state.getValidationErrors().length > 0) {
         <div id="contract-modal-validation-row" class="row-line-modal-inline">
           <div
             id="contract-modal-validation-section"
@@ -606,7 +103,7 @@
             >
               <strong>{{ "validation.errors" | translate }}:</strong>
               <ul id="contract-modal-validation-list">
-                @for (error of getValidationErrors(); track error) {
+                @for (error of state.getValidationErrors(); track error) {
                   <li>{{ error }}</li>
                 }
               </ul>
@@ -629,7 +126,7 @@
       id="contract-modal-save-btn"
       type="button"
       class="btn save-btn"
-      (click)="onSaveModal(modal)"
+      (click)="session.onSaveModal(modal)"
     >
       {{ "save" | translate }}
     </button>
@@ -642,21 +139,21 @@
   [showSearchInHeader]="true"
   [searchPlaceholderKey]="'placeholder.search-contract-name'"
   idPrefix="contracts"
-  (addClick)="onClickAdd()"
-  (headerSearchChange)="searchTerm.set($event)"
+  (addClick)="session.onClickAdd()"
+  (headerSearchChange)="list.searchTerm.set($event)"
 >
   <app-contract-header header id="contracts-table-header"></app-contract-header>
   <div rows #containerBox>
     @for (
-      contract of filteredContracts();
+      contract of list.filteredContracts();
       track contract.id || $index;
       let i = $index
     ) {
       <app-contract-row
         [id]="'contract-row-' + i"
         [data]="contract"
-        (editEvent)="onClickEdit($event)"
-        (isDeleteEvent)="openDeleteContract(i)"
+        (editEvent)="session.onClickEdit($event)"
+        (isDeleteEvent)="list.openDeleteContract(i)"
       />
     }
   </div>

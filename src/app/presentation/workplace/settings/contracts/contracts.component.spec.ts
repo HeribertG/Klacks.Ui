@@ -8,6 +8,14 @@ import { of, Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { ContractsComponent } from './contracts.component';
+import { ContractEditorStateService } from './services/contract-editor-state.service';
+import { ContractHoursService } from './services/contract-hours.service';
+import { ContractValidityService } from './services/contract-validity.service';
+import { ContractPaymentService } from './services/contract-payment.service';
+import { ContractAssignmentService } from './services/contract-assignment.service';
+import { ContractShiftWorkService } from './services/contract-shift-work.service';
+import { ContractsListService } from './services/contracts-list.service';
+import { ContractEditorSessionService } from './services/contract-editor-session.service';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { DataManagementMonthlyTargetHoursService } from 'src/app/domain/services/scheduling/data-management-monthly-target-hours.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -134,14 +142,14 @@ describe('ContractsComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  const state = () => component;
-  const hours = () => component;
-  const validity = () => component;
-  const payment = () => component;
-  const assignment = () => component;
-  const shiftWork = () => component;
-  const list = () => component;
-  const session = () => component;
+  const state = () => fixture.debugElement.injector.get(ContractEditorStateService);
+  const hours = () => fixture.debugElement.injector.get(ContractHoursService);
+  const validity = () => fixture.debugElement.injector.get(ContractValidityService);
+  const payment = () => fixture.debugElement.injector.get(ContractPaymentService);
+  const assignment = () => fixture.debugElement.injector.get(ContractAssignmentService);
+  const shiftWork = () => fixture.debugElement.injector.get(ContractShiftWorkService);
+  const list = () => fixture.debugElement.injector.get(ContractsListService);
+  const session = () => fixture.debugElement.injector.get(ContractEditorSessionService);
 
   it('should create', () => {
     // Arrange & Act & Assert

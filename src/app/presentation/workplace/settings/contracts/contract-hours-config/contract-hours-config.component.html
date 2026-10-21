@@ -1,0 +1,109 @@
+<div
+  id="contract-modal-hours-config-row"
+  class="row-line-modal-inline hours-config-row"
+>
+  <div
+    id="contract-modal-guaranteed-hours-item"
+    class="hours-config-item"
+  >
+    <div class="guaranteed-hours-row">
+      <app-time-input
+        id="contract-modal-guaranteed-hours-input"
+        [label]="'setting.contract.guaranteedHours-modal' | translate"
+        [value]="state.guaranteedHours()"
+        (valueChange)="hours.onGuaranteedHoursChange($event)"
+        hoursName="guaranteedHoursHours"
+        minutesName="guaranteedHoursMinutes"
+        hoursId="guaranteedHours"
+        [forDuration]="true"
+        labelAlign="left"
+        [showEmpty]="state.guaranteedHoursInherited()"
+        [hoursPlaceholder]="
+          state.guaranteedHoursInherited()
+            ? hours.inheritedGuaranteedHoursTime().hours
+            : 'hh'
+        "
+        [minutesPlaceholder]="
+          state.guaranteedHoursInherited()
+            ? hours.inheritedGuaranteedHoursTime().minutes
+            : 'mm'
+        "
+      ></app-time-input>
+      @if (!state.guaranteedHoursInherited()) {
+        <button
+          type="button"
+          id="contract-modal-guaranteed-hours-reset-btn"
+          class="reset-inherit-btn"
+          (click)="hours.resetGuaranteedHoursToCompanyValue()"
+          [title]="'setting.contract.resetToCompanyValue' | translate"
+          [attr.aria-label]="
+            'setting.contract.resetToCompanyValue' | translate
+          "
+        >
+          &times;
+        </button>
+      }
+    </div>
+    @if (state.guaranteedHoursInherited()) {
+      <div
+        id="contract-modal-guaranteed-hours-inherited-hint"
+        class="inherited-hint settings-hint"
+      >
+        &rarr; {{ hours.inheritedGuaranteedHoursDisplay() }} ({{
+          "setting.contract.companyValue" | translate
+        }})
+      </div>
+    }
+  </div>
+
+  @if (!state.guaranteedHoursInherited()) {
+    <div id="contract-modal-min-hours-item" class="hours-config-item">
+      <app-time-input
+        id="contract-modal-min-hours-input"
+        [label]="'setting.contract.minHours-modal' | translate"
+        [value]="state.minimumHours()"
+        (valueChange)="hours.onMinimumHoursChange($event)"
+        hoursName="minHoursHours"
+        minutesName="minHoursMinutes"
+        hoursId="minHours"
+        [forDuration]="true"
+        labelAlign="center"
+      ></app-time-input>
+    </div>
+
+    <div id="contract-modal-max-hours-item" class="hours-config-item">
+      <app-time-input
+        id="contract-modal-max-hours-input"
+        [label]="'setting.contract.maxHours-modal' | translate"
+        [value]="state.maximumHours()"
+        (valueChange)="hours.onMaximumHoursChange($event)"
+        hoursName="maxHoursHours"
+        minutesName="maxHoursMinutes"
+        hoursId="maxHours"
+        [forDuration]="true"
+        labelAlign="center"
+      ></app-time-input>
+    </div>
+
+    <div id="contract-modal-fulltime-item" class="hours-config-item">
+      <app-time-input
+        id="contract-modal-fulltime-input"
+        [label]="'setting.contract.fullTime-modal' | translate"
+        [value]="state.fullTime()"
+        (valueChange)="hours.onFullTimeChange($event)"
+        hoursName="fullTimeHours"
+        minutesName="fullTimeMinutes"
+        hoursId="fullTime"
+        [forDuration]="true"
+        labelAlign="right"
+        [showEmpty]="hours.fullTimeIsEmpty()"
+        [hoursPlaceholder]="
+          hours.fullTimeIsEmpty() ? hours.companyFullTimeTime().hours : 'hh'
+        "
+        [minutesPlaceholder]="
+          hours.fullTimeIsEmpty() ? hours.companyFullTimeTime().minutes : 'mm'
+        "
+      ></app-time-input>
+    </div>
+  }
+</div>

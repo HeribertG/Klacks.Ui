@@ -1,0 +1,103 @@
+<div
+  id="contract-modal-payment-interval-row"
+  class="payment-interval-section"
+>
+  <div id="contract-modal-payment-interval" class="selection-section">
+    <span class="selection-label">{{
+      "setting.contract.paymentInterval-modal" | translate
+    }}</span>
+    <div class="selector-container">
+      <div ngbDropdown #paymentIntervalDropdown="ngbDropdown">
+        <button
+          class="btn btn-sm btn-selector"
+          id="contract-payment-interval-dropdown"
+          ngbDropdownToggle
+          aria-label="payment interval selection"
+          type="button"
+        >
+          <span class="selector-name">{{
+            payment.getPaymentIntervalLabel()
+          }}</span>
+        </button>
+        <div ngbDropdownMenu class="selector-dropdown-menu">
+          @for (option of payment.paymentIntervalOptions; track option) {
+            <button
+              ngbDropdownItem
+              (click)="payment.onPaymentIntervalChange(option)"
+              [class.active]="state.paymentInterval() === option"
+            >
+              {{ payment.getPaymentIntervalLabel(option) }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (state.paymentInterval() === PaymentInterval.Individual) {
+    <div id="contract-modal-individual-period" class="selection-section">
+      <span class="selection-label">{{
+        "setting.contract.individualPeriodSelection-modal" | translate
+      }}</span>
+      <div class="selector-container">
+        <div ngbDropdown #individualPeriodDropdown="ngbDropdown">
+          <button
+            class="btn btn-sm btn-selector"
+            id="contract-individual-period-dropdown"
+            ngbDropdownToggle
+            aria-label="individual period selection"
+            type="button"
+          >
+            <span class="selector-name">{{
+              payment.getSelectedIndividualPeriodName()
+            }}</span>
+          </button>
+          <div ngbDropdownMenu class="selector-dropdown-menu">
+            <button
+              ngbDropdownItem
+              (click)="payment.onIndividualPeriodSelectionChange('')"
+              [class.active]="!state.individualPeriodId()"
+            >
+              {{ "setting.contract.noIndividualPeriod" | translate }}
+            </button>
+            @for (
+              individualPeriod of individualPeriods();
+              track individualPeriod.id
+            ) {
+              <button
+                ngbDropdownItem
+                (click)="payment.onIndividualPeriodSelectionChange(individualPeriod.id!)"
+                [class.active]="state.individualPeriodId() === individualPeriod.id"
+              >
+                {{ individualPeriod.name }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (payment.showPercentField()) {
+    <div id="contract-modal-percent" class="selection-section">
+      <span class="selection-label">{{
+        "setting.contract.percent-modal" | translate
+      }}</span>
+      <div class="selector-container">
+        <input
+          type="number"
+          step="1"
+          min="0"
+          class="form-control"
+          id="contract-percent"
+          name="contractPercent"
+          data-klacksy-target="contract-form.percent"
+          aria-label="contract percent"
+          [placeholder]="'setting.contract.percent-placeholder' | translate"
+          [ngModel]="state.percent()"
+          (ngModelChange)="payment.onPercentChange($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

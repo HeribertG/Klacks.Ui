@@ -1,0 +1,27 @@
+@use "../contract-dialog-styles";
+
+:host {
+  display: contents;
+}
+
+.payment-interval-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding-bottom: 10px;
+
+  .selection-section {
+    text-align: end;
+  }
+
+  .btn-selector {
+    width: 200px;
+  }
+}
+
+.selection-section {
+  &:last-child {
+    text-align: end;
+  }
+}

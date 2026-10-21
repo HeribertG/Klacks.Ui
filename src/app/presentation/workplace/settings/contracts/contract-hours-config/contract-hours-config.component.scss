@@ -1,0 +1,47 @@
+@use "../contract-dialog-styles";
+
+:host {
+  display: contents;
+}
+
+.hours-config-row {
+  display: flex;
+  justify-content: space-between;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+}
+
+.hours-config-item {
+  flex: 1;
+
+  &:not(:last-child) {
+    margin-inline-end: 20px;
+  }
+}
+
+.guaranteed-hours-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.reset-inherit-btn {
+  border: none;
+  background: transparent;
+  color: var(--colorPlaceholder);
+  font-size: var(--fontSizeCardHeader);
+  line-height: 1;
+  padding: 2px 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--standartTextColor);
+  }
+}
+
+.inherited-hint {
+  font-style: italic;
+  margin-top: 2px;
+  white-space: nowrap;
+}
