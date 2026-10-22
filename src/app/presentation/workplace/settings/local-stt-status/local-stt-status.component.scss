@@ -1,0 +1,32 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+:host {
+  display: block;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.status-unavailable {
+  margin-top: 12px;
+}
+
+.status-retry-btn {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+.firstColumn {
+  margin-inline-start: 30px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

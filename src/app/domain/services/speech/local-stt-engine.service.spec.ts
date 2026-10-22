@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 
 import { LocalSttEngineService } from './local-stt-engine.service';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
@@ -18,6 +19,7 @@ const DOCKER_ALIASES = [WhisperModelAliases.Parakeet, WhisperModelAliases.Small,
 describe('LocalSttEngineService', () => {
   let service: LocalSttEngineService;
   let mockUpdateService: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
+  let mockAppSettings: { saveImmediately: ReturnType<typeof vi.fn> };
 
   const operation = (overrides: Partial<WhisperOperationInfo> = {}): WhisperOperationInfo => ({
     id: 'op-1',
@@ -56,8 +58,13 @@ describe('LocalSttEngineService', () => {
       deleteHistoryEntry: vi.fn().mockReturnValue(of(void 0)),
     };
 
+    mockAppSettings = { saveImmediately: vi.fn().mockResolvedValue(undefined) };
+
     TestBed.configureTestingModule({
-      providers: [{ provide: DataManagementUpdateService, useValue: mockUpdateService }],
+      providers: [
+        { provide: DataManagementUpdateService, useValue: mockUpdateService },
+        { provide: AppSettingsManagementService, useValue: mockAppSettings },
+      ],
     });
     service = TestBed.inject(LocalSttEngineService);
   });
@@ -91,7 +98,26 @@ describe('LocalSttEngineService', () => {
       modelAlias: WhisperModelAliases.LargeV3Turbo,
     });
     await service.refresh();
-    expect(service.installedEngineName()).toBe('Whisper turbo');
+    expect(service.installedEngineName()).toBe('Whisper large-v3-turbo');
+  });
+
+  it('assumes every engine is supported when an older Api does not report the supported aliases', async () => {
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue({ ...notInstalled, supportedAliases: undefined });
+    await service.refresh();
+    expect(service.supportedAliases()).toEqual(DOCKER_ALIASES);
+    expect(service.supportsWhisper()).toBe(true);
+  });
+
+  it('exposes a status view for the shared status block', async () => {
+    expect(service.statusView().known).toBe(false);
+    expect(service.statusView().unavailable).toBe(true);
+
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(installedParakeet);
+    await service.refresh();
+
+    expect(service.statusView()).toEqual(
+      expect.objectContaining({ known: true, unavailable: false, installed: true, engineName: 'Parakeet' }),
+    );
   });
 
   it('reports no Whisper support on a native installation', async () => {
@@ -223,6 +249,101 @@ describe('LocalSttEngineService', () => {
     });
   });
 
+  describe('failing status requests', () => {
+    const runningStatus: WhisperPluginStatus = { ...notInstalled, activeOperation: operation() };
+
+    it('stays unknown and unavailable while the first status never arrives', async () => {
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(null);
+      await service.refresh();
+      expect(service.status()).toBeNull();
+      expect(service.statusUnavailable()).toBe(true);
+    });
+
+    it('stops polling after three failures in a row and flags the status as stale', async () => {
+      vi.useFakeTimers();
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(runningStatus);
+      await service.attach();
+
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(null);
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * 3);
+      expect(mockUpdateService.getWhisperPluginStatus).toHaveBeenCalledTimes(4);
+      expect(service.pollingSuspended()).toBe(true);
+      expect(service.statusUnavailable()).toBe(true);
+      expect(service.status()).toEqual(runningStatus);
+
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * 3);
+      expect(mockUpdateService.getWhisperPluginStatus).toHaveBeenCalledTimes(4);
+      service.detach();
+    });
+
+    it('does not suspend polling while failures are interleaved with successes', async () => {
+      vi.useFakeTimers();
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(runningStatus);
+      await service.attach();
+
+      for (let round = 0; round < 3; round++) {
+        mockUpdateService.getWhisperPluginStatus!.mockResolvedValueOnce(null);
+        mockUpdateService.getWhisperPluginStatus!.mockResolvedValueOnce(null);
+        await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * 3);
+      }
+
+      expect(service.pollingSuspended()).toBe(false);
+      service.detach();
+    });
+
+    it('resumes polling when a manual refresh succeeds', async () => {
+      vi.useFakeTimers();
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(runningStatus);
+      await service.attach();
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(null);
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * 3);
+      expect(service.pollingSuspended()).toBe(true);
+
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(runningStatus);
+      await service.refresh();
+      expect(service.pollingSuspended()).toBe(false);
+      expect(service.statusUnavailable()).toBe(false);
+
+      mockUpdateService.getWhisperPluginStatus!.mockClear();
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS);
+      expect(mockUpdateService.getWhisperPluginStatus).toHaveBeenCalledTimes(1);
+      service.detach();
+    });
+
+    it('keeps polling suspended when the manual refresh fails too', async () => {
+      vi.useFakeTimers();
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(runningStatus);
+      await service.attach();
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(null);
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * 3);
+
+      await service.refresh();
+      mockUpdateService.getWhisperPluginStatus!.mockClear();
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * 3);
+
+      expect(service.pollingSuspended()).toBe(true);
+      expect(mockUpdateService.getWhisperPluginStatus).not.toHaveBeenCalled();
+      service.detach();
+    });
+
+    it('ignores a slow older response that arrives after a newer one', async () => {
+      let resolveOlder: (status: WhisperPluginStatus) => void = () => undefined;
+      mockUpdateService.getWhisperPluginStatus!.mockReturnValueOnce(
+        new Promise<WhisperPluginStatus>((resolve) => {
+          resolveOlder = resolve;
+        }),
+      );
+      const older = service.refresh();
+
+      mockUpdateService.getWhisperPluginStatus!.mockResolvedValueOnce(installedParakeet);
+      await service.refresh();
+      resolveOlder(notInstalled);
+      await older;
+
+      expect(service.isInstalled()).toBe(true);
+    });
+  });
+
   describe('actions', () => {
     beforeEach(async () => {
       await service.refresh();
@@ -253,6 +374,14 @@ describe('LocalSttEngineService', () => {
       await service.uninstall();
       expect(mockUpdateService.uninstallWhisperPlugin).toHaveBeenCalled();
       expect(service.actionMessage()).toBe('Uninstall enqueued.');
+    });
+
+    it('flushes pending settings before the uninstall is enqueued', async () => {
+      await service.uninstall();
+      expect(mockAppSettings.saveImmediately).toHaveBeenCalled();
+      expect(mockAppSettings.saveImmediately.mock.invocationCallOrder[0]).toBeLessThan(
+        mockUpdateService.uninstallWhisperPlugin!.mock.invocationCallOrder[0],
+      );
     });
 
     it('discards the active request and refreshes', async () => {

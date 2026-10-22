@@ -3,7 +3,8 @@
 /**
  * Guards the local speech recognition texts (STT dropdown entry, inline block, plugin card, unsupported-language
  * hint): every key the code uses exists, non-empty, in all four core languages, the translated languages differ
- * from English, the engine placeholder survives, and the core languages carry the same key set.
+ * from English, the name/engine placeholders survive, no directional arrow breaks right-to-left layouts, and the core
+ * languages carry the same key set.
  */
 
 import { readFileSync } from 'fs';
@@ -15,7 +16,24 @@ const TRANSLATED_LANGUAGES = ['de', 'fr', 'it'] as const;
 const REFERENCE_LANGUAGE = 'en';
 const KEY_PREFIXES = ['setting.speech.whisper-plugin.', 'setting.speech.local-stt.', 'setting.speech.stt-local-'];
 const ENGINE_PLACEHOLDER = '{{engine}}';
-const INSTALLED_ENTRY_KEY = 'setting.speech.stt-local-installed';
+const ENGINE_NAME_PLACEHOLDER = '{{name}}';
+const ENGINE_PLACEHOLDER_KEYS: readonly string[] = [
+  'setting.speech.stt-local-installed',
+  'setting.speech.stt-local-not-installed',
+];
+const ENGINE_NAME_PLACEHOLDER_KEYS: readonly string[] = [
+  'setting.speech.whisper-plugin.model-parakeet',
+  'setting.speech.whisper-plugin.model-small',
+  'setting.speech.whisper-plugin.model-large',
+];
+const ARROWS_FIRST_CODE_POINT = 0x2190;
+const ARROWS_LAST_CODE_POINT = 0x21ff;
+
+const hasDirectionalArrow = (text: string): boolean =>
+  Array.from(text).some((char) => {
+    const codePoint = char.codePointAt(0)!;
+    return codePoint >= ARROWS_FIRST_CODE_POINT && codePoint <= ARROWS_LAST_CODE_POINT;
+  });
 const SAME_IN_EVERY_LANGUAGE_KEYS: readonly string[] = ['setting.speech.whisper-plugin.model-small'];
 const I18N_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../../assets/i18n');
 
@@ -28,6 +46,8 @@ const NEW_OR_CHANGED_KEYS: readonly string[] = [
   'setting.speech.whisper-plugin.model-small',
   'setting.speech.whisper-plugin.model-large',
   'setting.speech.whisper-plugin.attribution',
+  'setting.speech.whisper-plugin.status-unavailable',
+  'setting.speech.whisper-plugin.status-retry',
   'setting.speech.stt-local-not-installed',
   'setting.speech.stt-local-installed',
   'setting.speech.local-stt.languages',
@@ -73,8 +93,23 @@ describe('local speech recognition translations', () => {
     });
   });
 
-  it.each(CORE_LANGUAGES)('keeps the engine placeholder of the installed dropdown entry in %s', (language) => {
-    expect(byLanguage.get(language)![INSTALLED_ENTRY_KEY]).toContain(ENGINE_PLACEHOLDER);
+  it.each(CORE_LANGUAGES)('keeps the engine placeholder of the dropdown entries in %s', (language) => {
+    ENGINE_PLACEHOLDER_KEYS.forEach((key) => {
+      expect(byLanguage.get(language)![key], `${language}: ${key}`).toContain(ENGINE_PLACEHOLDER);
+    });
+  });
+
+  it.each(CORE_LANGUAGES)('keeps the engine name placeholder of the card model labels in %s', (language) => {
+    ENGINE_NAME_PLACEHOLDER_KEYS.forEach((key) => {
+      expect(byLanguage.get(language)![key], `${language}: ${key}`).toContain(ENGINE_NAME_PLACEHOLDER);
+    });
+  });
+
+  it.each(CORE_LANGUAGES)('uses no directional arrows in the local speech recognition texts in %s', (language) => {
+    const translations = byLanguage.get(language)!;
+    NEW_OR_CHANGED_KEYS.forEach((key) => {
+      expect(hasDirectionalArrow(translations[key]), `${language}: ${key}`).toBe(false);
+    });
   });
 
   it('names the label for Klacksy navigation like the card headline', () => {

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { WritableSignal, signal } from '@angular/core';
+import { WritableSignal, computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -20,6 +20,7 @@ import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
+import { LocalSttStatusView } from 'src/app/domain/models/assistant/local-stt-status-view.interface';
 import { ISpeechSettings } from 'src/app/domain/models/settings/speech-settings.interface';
 
 function makeEntry(over: Partial<EditableDictionaryEntry> = {}): EditableDictionaryEntry {
@@ -162,25 +163,50 @@ function operationFixture(overrides: Partial<WhisperOperationInfo>): WhisperOper
 }
 
 function makeLocalSttFake() {
+  const status = signal<object | null>({});
+  const pollingSuspended = signal(false);
+  const isInstalled = signal(false);
+  const installedEngineName = signal('');
+  const activeOperation = signal<WhisperOperationInfo | null>(null);
+  const installActive = signal(false);
+  const awaitingUpdater = signal(false);
+  const waitingMinutes = signal(0);
+  const otherOperationActive = signal(false);
+  const failedInstall = signal<WhisperOperationInfo | null>(null);
+
   return {
-    status: signal<object | null>({}),
-    isInstalled: signal(false),
+    status,
+    pollingSuspended,
+    isInstalled,
     installedAlias: signal<string | null>(null),
-    installedEngineName: signal(''),
-    activeOperation: signal<WhisperOperationInfo | null>(null),
-    installActive: signal(false),
+    installedEngineName,
+    activeOperation,
+    installActive,
     uninstallActive: signal(false),
-    awaitingUpdater: signal(false),
-    waitingMinutes: signal(0),
-    otherOperationActive: signal(false),
+    awaitingUpdater,
+    waitingMinutes,
+    otherOperationActive,
     rejectionReason: signal(''),
-    failedInstall: signal<WhisperOperationInfo | null>(null),
+    failedInstall,
     supportsWhisper: signal(true),
     supportedAliases: signal<string[]>(DOCKER_ALIASES),
     actionsDisabled: signal(false),
     busy: signal(false),
+    statusView: computed<LocalSttStatusView>(() => ({
+      known: !!status(),
+      unavailable: !status() || pollingSuspended(),
+      installed: isInstalled(),
+      engineName: installedEngineName(),
+      activeOperation: activeOperation(),
+      installActive: installActive(),
+      awaitingUpdater: awaitingUpdater(),
+      waitingMinutes: waitingMinutes(),
+      otherOperationActive: otherOperationActive(),
+      failedInstall: failedInstall(),
+    })),
     attach: vi.fn().mockResolvedValue(undefined),
     detach: vi.fn(),
+    refresh: vi.fn().mockResolvedValue(undefined),
     install: vi.fn().mockResolvedValue(undefined),
     discardRequest: vi.fn().mockResolvedValue(undefined),
   };
@@ -188,23 +214,28 @@ function makeLocalSttFake() {
 
 type LocalSttFake = ReturnType<typeof makeLocalSttFake>;
 
+interface AppSettingsFake {
+  speechSettings: WritableSignal<Partial<ISpeechSettings>>;
+  loadSettingsAsync: ReturnType<typeof vi.fn>;
+  saveImmediately: ReturnType<typeof vi.fn>;
+}
+
 function configureSpeechTestBed(
   localStt: LocalSttFake,
   speechSettings: WritableSignal<Partial<ISpeechSettings>>,
   customProviders: CustomProviderFixture[],
-): void {
+): AppSettingsFake {
+  const appSettings: AppSettingsFake = {
+    speechSettings,
+    loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
+    saveImmediately: vi.fn().mockResolvedValue(undefined),
+  };
+
   TestBed.configureTestingModule({
     teardown: { destroyAfterEach: false },
     imports: [TranslateModule.forRoot()],
     providers: [
-      {
-        provide: AppSettingsManagementService,
-        useValue: {
-          speechSettings,
-          loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
-          saveImmediately: vi.fn().mockResolvedValue(undefined),
-        },
-      },
+      { provide: AppSettingsManagementService, useValue: appSettings },
       { provide: ToastShowService, useValue: { showSuccess: vi.fn(), showError: vi.fn() } },
       {
         provide: DataSttService,
@@ -220,18 +251,28 @@ function configureSpeechTestBed(
       { provide: LocalSttEngineService, useValue: localStt },
     ],
   });
+
+  return appSettings;
 }
 
 describe('AssistantSpeechSettingsComponent (local speech recognition entry)', () => {
   let component: AssistantSpeechSettingsComponent;
   let localStt: LocalSttFake;
   let speechSettings: WritableSignal<Partial<ISpeechSettings>>;
+  let appSettings: AppSettingsFake;
 
   const initialize = async (storedEngine: string, customProviders: CustomProviderFixture[] = []): Promise<void> => {
     speechSettings.set({ sttEngine: storedEngine, sttApiKeys: {}, ttsApiKeys: {} });
-    configureSpeechTestBed(localStt, speechSettings, customProviders);
+    appSettings = configureSpeechTestBed(localStt, speechSettings, customProviders);
     component = TestBed.runInInjectionContext(() => new AssistantSpeechSettingsComponent());
     await component.ngOnInit();
+    TestBed.tick();
+  };
+
+  const serverPersists = (engine: string): void => {
+    appSettings.loadSettingsAsync.mockImplementation(async () => {
+      speechSettings.set({ sttEngine: engine, sttApiKeys: {}, ttsApiKeys: {} });
+    });
   };
 
   beforeEach(() => {
@@ -336,24 +377,80 @@ describe('AssistantSpeechSettingsComponent (local speech recognition entry)', ()
     expect(speechSettings().sttEngine).toBe(SttEngine.GroqWhisper);
   });
 
-  it('falls back to the browser engine when the plugin is being uninstalled', async () => {
+  it('shows the engine the backend persisted when the uninstall starts (the backend resets it at enqueue time)', async () => {
     localStt.isInstalled.set(true);
     await initialize(PLUGIN_ENGINE);
+    serverPersists(SttEngine.Browser);
 
     localStt.uninstallActive.set(true);
     TestBed.tick();
+    await vi.waitFor(() => expect(component.sttSelection()).toBe(SttEngine.Browser));
+
+    expect(component.sttEngine).toBe(SttEngine.Browser);
+    expect(appSettings.saveImmediately.mock.invocationCallOrder[0]).toBeLessThan(
+      appSettings.loadSettingsAsync.mock.invocationCallOrder[1],
+    );
+  });
+
+  it('does not write the browser engine itself when the uninstall starts', async () => {
+    localStt.isInstalled.set(true);
+    await initialize(PLUGIN_ENGINE);
+    const before = speechSettings();
+
+    localStt.uninstallActive.set(true);
+    TestBed.tick();
+    await vi.waitFor(() => expect(appSettings.loadSettingsAsync).toHaveBeenCalledTimes(2));
+
+    expect(speechSettings()).toEqual(before);
+    expect(component.sttSelection()).toBe(SttEngine.Local);
+  });
+
+  it('reloads again when the uninstall ends, so a failed or discarded uninstall keeps the persisted engine', async () => {
+    localStt.isInstalled.set(true);
+    await initialize(PLUGIN_ENGINE);
+    serverPersists(SttEngine.Browser);
+
+    localStt.uninstallActive.set(true);
+    TestBed.tick();
+    await vi.waitFor(() => expect(appSettings.loadSettingsAsync).toHaveBeenCalledTimes(2));
+
+    localStt.uninstallActive.set(false);
+    TestBed.tick();
+    await vi.waitFor(() => expect(appSettings.loadSettingsAsync).toHaveBeenCalledTimes(3));
 
     expect(component.sttSelection()).toBe(SttEngine.Browser);
-    expect(speechSettings().sttEngine).toBe(SttEngine.Browser);
+    expect(localStt.isInstalled()).toBe(true);
   });
 
   it('leaves another engine alone when the plugin is being uninstalled', async () => {
     await initialize(SttEngine.Deepgram);
+    serverPersists(SttEngine.Deepgram);
 
     localStt.uninstallActive.set(true);
     TestBed.tick();
+    await vi.waitFor(() => expect(appSettings.loadSettingsAsync).toHaveBeenCalledTimes(2));
 
     expect(component.sttSelection()).toBe(SttEngine.Deepgram);
+  });
+
+  it('does not reload when an uninstall is already running as the page opens', async () => {
+    localStt.uninstallActive.set(true);
+    await initialize(PLUGIN_ENGINE);
+
+    expect(appSettings.loadSettingsAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it('can switch to Parakeet only from an installed Whisper engine on an installation that supports it', async () => {
+    await initialize(SttEngine.Browser);
+    localStt.installedAlias.set(WhisperModelAliases.Small);
+    expect(component.canSwitchToParakeet()).toBe(true);
+
+    localStt.installedAlias.set(WhisperModelAliases.Parakeet);
+    expect(component.canSwitchToParakeet()).toBe(false);
+
+    localStt.installedAlias.set(WhisperModelAliases.Small);
+    localStt.supportedAliases.set([WhisperModelAliases.Small]);
+    expect(component.canSwitchToParakeet()).toBe(false);
   });
 
   it('installs Parakeet from the inline block', async () => {
@@ -367,11 +464,13 @@ describe('AssistantSpeechSettingsComponent (local speech recognition entry)', ()
     const card = document.createElement('div');
     card.id = LocalSttPlugin.CardElementId;
     card.scrollIntoView = vi.fn();
+    card.focus = vi.fn();
     document.body.appendChild(card);
 
     component.scrollToPluginCard();
 
     expect(card.scrollIntoView).toHaveBeenCalled();
+    expect(card.focus).toHaveBeenCalledWith({ preventScroll: true });
     card.remove();
   });
 });
@@ -409,10 +508,42 @@ describe('AssistantSpeechSettingsComponent (local speech recognition block)', ()
     vi.unstubAllGlobals();
   });
 
-  it('renders no block while the plugin status is unknown', async () => {
+  it('explains an unknown plugin status and offers to try again', async () => {
     localStt.status.set(null);
     await render(PLUGIN_ENGINE);
-    expect(has('#assistant-speech-local-stt')).toBe(false);
+
+    expect(has('#assistant-speech-local-stt')).toBe(true);
+    expect(text()).toContain('setting.speech.whisper-plugin.status-unavailable');
+    expect(has('#assistant-speech-local-install-btn')).toBe(false);
+
+    element().querySelector<HTMLButtonElement>('.status-retry-btn')!.click();
+    expect(localStt.refresh).toHaveBeenCalled();
+  });
+
+  it('keeps the shown status but flags it when polling was suspended', async () => {
+    localStt.pollingSuspended.set(true);
+    await render(PLUGIN_ENGINE);
+
+    expect(text()).toContain('setting.speech.whisper-plugin.status-not-installed');
+    expect(text()).toContain('setting.speech.whisper-plugin.status-unavailable');
+  });
+
+  it('announces status changes in a polite live region', async () => {
+    await render(PLUGIN_ENGINE);
+    const region = element().querySelector('#assistant-speech-local-stt [role="status"]');
+    expect(region?.getAttribute('aria-live')).toBe('polite');
+    expect(region?.textContent).toContain('setting.speech.whisper-plugin.status-not-installed');
+  });
+
+  it('stacks the status row and the button row of the installed Whisper state instead of placing them side by side', async () => {
+    localStt.isInstalled.set(true);
+    localStt.installedAlias.set(WhisperModelAliases.Small);
+    localStt.installedEngineName.set('Whisper small');
+    await render(PLUGIN_ENGINE);
+
+    const rows = Array.from(element().querySelectorAll<HTMLElement>('#assistant-speech-local-stt .row-line'));
+    expect(rows.length).toBe(2);
+    rows.forEach((row) => expect(getComputedStyle(row).display).toBe('flex'));
   });
 
   it('renders no block while another engine is selected', async () => {

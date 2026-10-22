@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 
 import { WhisperPluginSettingComponent } from './whisper-plugin-setting.component';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
@@ -81,7 +82,10 @@ describe('WhisperPluginSettingComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [WhisperPluginSettingComponent, TranslateModule.forRoot()],
-      providers: [{ provide: DataManagementUpdateService, useValue: mockUpdateService }],
+      providers: [
+        { provide: DataManagementUpdateService, useValue: mockUpdateService },
+        { provide: AppSettingsManagementService, useValue: { saveImmediately: vi.fn().mockResolvedValue(undefined) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WhisperPluginSettingComponent);
@@ -118,6 +122,39 @@ describe('WhisperPluginSettingComponent', () => {
   it('hides the Whisper engines the installation cannot run', async () => {
     await load(nativeStatus);
     expect(radioLabels()).toEqual(['setting.speech.whisper-plugin.model-parakeet']);
+  });
+
+  it('is programmatically focusable so the speech settings can move focus to it', () => {
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('announces the polled status in a polite live region', async () => {
+    await load(notInstalledStatus);
+    const region = (fixture.nativeElement as HTMLElement).querySelector('#whisper-plugin-setting-status [role="status"]');
+    expect(region?.getAttribute('aria-live')).toBe('polite');
+    expect(region?.textContent).toContain('setting.speech.whisper-plugin.status-not-installed');
+  });
+
+  it('puts the status row, the model row and the action row on separate lines', async () => {
+    await load(installedStatus);
+    const rows = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.row-line'));
+    expect(rows.length).toBeGreaterThanOrEqual(3);
+    rows.forEach((row) => expect(getComputedStyle(row).display).toBe('flex'));
+  });
+
+  it('offers to try again when the status cannot be loaded', async () => {
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(null);
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('setting.speech.whisper-plugin.status-unavailable');
+
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(notInstalledStatus);
+    element.querySelector<HTMLButtonElement>('.status-retry-btn')!.click();
+    await vi.waitFor(() => expect(component.localStt.status()).not.toBeNull());
   });
 
   it('shows the Parakeet attribution while Parakeet is selected', async () => {

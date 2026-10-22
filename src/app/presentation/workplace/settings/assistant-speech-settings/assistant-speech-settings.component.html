@@ -26,7 +26,7 @@
               (localStt.isInstalled()
                 ? "setting.speech.stt-local-installed"
                 : "setting.speech.stt-local-not-installed")
-                | translate: { engine: localStt.installedEngineName() }
+                | translate: { engine: localStt.installedEngineName() || parakeetName }
             }}
           </option>
           @for (provider of customSttProviders(); track provider.value) {
@@ -58,146 +58,97 @@
       }
     </div>
 
-    @if (isLocalSelected() && localStt.status()) {
-      <div id="assistant-speech-local-stt">
-        <div class="row-line">
-          <div class="form-group firstColumn">
-            <span class="selection-label">{{
-              "setting.speech.whisper-plugin.status-label" | translate
-            }}</span>
-            @if (localStt.activeOperation(); as op) {
-              @if (localStt.awaitingUpdater()) {
-                <span id="assistant-speech-local-status" class="settings-hint status-text-error">{{
-                  "setting.speech.whisper-plugin.status-awaiting-updater" | translate
-                }}</span>
-              } @else if (localStt.installActive()) {
-                <span id="assistant-speech-local-status" class="settings-hint">{{
-                  "setting.speech.whisper-plugin.status-installing"
-                    | translate: { status: op.status }
-                }}</span>
-              } @else {
-                <span id="assistant-speech-local-status" class="settings-hint">{{
-                  "setting.speech.whisper-plugin.status-uninstalling"
-                    | translate: { status: op.status }
-                }}</span>
-              }
-            } @else if (localStt.isInstalled()) {
-              <span id="assistant-speech-local-status" class="settings-hint status-text-success">{{
-                "setting.speech.whisper-plugin.status-installed"
-                  | translate: { model: localStt.installedEngineName() }
-              }}</span>
-            } @else if (localStt.failedInstall(); as failed) {
-              <span id="assistant-speech-local-status" class="settings-hint status-text-error">
-                {{ "setting.speech.whisper-plugin.status-failed" | translate }}
-                @if (failed.message) {
-                  ({{ failed.message }})
+    @if (isLocalSelected()) {
+      <div id="assistant-speech-local-stt" class="local-stt-block">
+        <app-local-stt-status
+          statusElementId="assistant-speech-local-status"
+          [view]="localStt.statusView()"
+          (retry)="localStt.refresh()"
+        />
+
+        @if (localStt.status()) {
+          @if (
+            !localStt.activeOperation() &&
+            (!localStt.isInstalled() || localStt.installedAlias() === ParakeetAlias)
+          ) {
+            <p class="hint-text settings-hint">
+              {{ "setting.speech.local-stt.languages" | translate }}
+            </p>
+            @if (!localStt.isInstalled()) {
+              <p class="hint-text settings-hint">
+                {{ "setting.speech.local-stt.requirements" | translate }}
+              </p>
+            }
+            <p class="hint-text settings-hint">
+              {{ "setting.speech.local-stt.license" | translate }}
+            </p>
+          }
+
+          @if (localStt.rejectionReason()) {
+            <p class="hint-text settings-hint status-text-error">
+              {{ localStt.rejectionReason() }}
+            </p>
+          }
+
+          <div class="row-line">
+            @if (localStt.awaitingUpdater()) {
+              <button
+                type="button"
+                id="assistant-speech-local-discard-btn"
+                class="btn btn-outline-secondary firstColumn"
+                [disabled]="localStt.busy()"
+                (click)="localStt.discardRequest()"
+              >
+                {{ "setting.speech.whisper-plugin.discard-request" | translate }}
+              </button>
+            } @else if (!localStt.activeOperation()) {
+              @if (!localStt.isInstalled()) {
+                <button
+                  type="button"
+                  id="assistant-speech-local-install-btn"
+                  class="btn btn-primary firstColumn"
+                  [disabled]="localStt.actionsDisabled()"
+                  (click)="installOrRetry()"
+                >
+                  {{
+                    (localStt.failedInstall()
+                      ? "setting.speech.local-stt.retry"
+                      : "setting.speech.local-stt.install-parakeet") | translate
+                  }}
+                </button>
+                @if (localStt.supportsWhisper()) {
+                  <button
+                    type="button"
+                    id="assistant-speech-local-more-btn"
+                    class="btn btn-outline-secondary secondColumn"
+                    (click)="scrollToPluginCard()"
+                  >
+                    {{ "setting.speech.local-stt.more-options" | translate }}
+                  </button>
                 }
-              </span>
-            } @else {
-              <span id="assistant-speech-local-status" class="settings-hint">{{
-                "setting.speech.whisper-plugin.status-not-installed" | translate
-              }}</span>
+              } @else {
+                <button
+                  type="button"
+                  id="assistant-speech-local-test-btn"
+                  class="btn btn-outline-secondary firstColumn"
+                  (click)="testSttConnection()"
+                >
+                  {{ "setting.speech.stt-test" | translate }}
+                </button>
+                @if (canSwitchToParakeet()) {
+                  <button
+                    type="button"
+                    id="assistant-speech-local-switch-btn"
+                    class="btn btn-outline-secondary secondColumn"
+                    (click)="scrollToPluginCard()"
+                  >
+                    {{ "setting.speech.local-stt.switch-to-parakeet" | translate }}
+                  </button>
+                }
+              }
             }
           </div>
-        </div>
-
-        @if (localStt.activeOperation()) {
-          @if (localStt.awaitingUpdater()) {
-            <p class="hint-text settings-hint status-text-error">
-              {{
-                "setting.speech.whisper-plugin.awaiting-updater-hint"
-                  | translate: { minutes: localStt.waitingMinutes() }
-              }}
-            </p>
-          } @else {
-            <p class="hint-text settings-hint">
-              {{ "setting.speech.whisper-plugin.install-hint" | translate }}
-            </p>
-          }
-        } @else if (!localStt.isInstalled() || localStt.installedAlias() === ParakeetAlias) {
-          <p class="hint-text settings-hint">
-            {{ "setting.speech.local-stt.languages" | translate }}
-          </p>
-          @if (!localStt.isInstalled()) {
-            <p class="hint-text settings-hint">
-              {{ "setting.speech.local-stt.requirements" | translate }}
-            </p>
-          }
-          <p class="hint-text settings-hint">
-            {{ "setting.speech.local-stt.license" | translate }}
-          </p>
         }
-
-        @if (localStt.otherOperationActive()) {
-          <p class="hint-text settings-hint status-text-error">
-            {{ "setting.speech.whisper-plugin.other-operation-active" | translate }}
-          </p>
-        }
-
-        @if (localStt.rejectionReason()) {
-          <p class="hint-text settings-hint status-text-error">
-            {{ localStt.rejectionReason() }}
-          </p>
-        }
-
-        <div class="row-line">
-          @if (localStt.awaitingUpdater()) {
-            <button
-              type="button"
-              id="assistant-speech-local-discard-btn"
-              class="btn btn-outline-secondary firstColumn"
-              [disabled]="localStt.busy()"
-              (click)="localStt.discardRequest()"
-            >
-              {{ "setting.speech.whisper-plugin.discard-request" | translate }}
-            </button>
-          } @else if (!localStt.activeOperation()) {
-            @if (!localStt.isInstalled()) {
-              <button
-                type="button"
-                id="assistant-speech-local-install-btn"
-                class="btn btn-primary firstColumn"
-                [disabled]="localStt.actionsDisabled()"
-                (click)="installOrRetry()"
-              >
-                {{
-                  (localStt.failedInstall()
-                    ? "setting.speech.local-stt.retry"
-                    : "setting.speech.local-stt.install-parakeet") | translate
-                }}
-              </button>
-              @if (localStt.supportsWhisper()) {
-                <button
-                  type="button"
-                  id="assistant-speech-local-more-btn"
-                  class="btn btn-outline-secondary secondColumn"
-                  (click)="scrollToPluginCard()"
-                >
-                  {{ "setting.speech.local-stt.more-options" | translate }}
-                </button>
-              }
-            } @else {
-              <button
-                type="button"
-                id="assistant-speech-local-test-btn"
-                class="btn btn-outline-secondary firstColumn"
-                (click)="testSttConnection()"
-              >
-                {{ "setting.speech.stt-test" | translate }}
-              </button>
-              @if (localStt.installedAlias() !== ParakeetAlias && localStt.supportedAliases().includes(ParakeetAlias)) {
-                <button
-                  type="button"
-                  id="assistant-speech-local-switch-btn"
-                  class="btn btn-outline-secondary secondColumn"
-                  (click)="scrollToPluginCard()"
-                >
-                  {{ "setting.speech.local-stt.switch-to-parakeet" | translate }}
-                </button>
-              }
-            }
-          }
-        </div>
       </div>
     }
 

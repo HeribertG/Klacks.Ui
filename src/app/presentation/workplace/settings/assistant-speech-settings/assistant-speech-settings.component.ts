@@ -45,7 +45,7 @@ import { DictionaryEntry } from 'src/app/domain/models/assistant/dictionary-entr
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
-import { LocalSttPlugin } from 'src/app/domain/constants/local-stt-plugin.constants';
+import { LocalSttEngineNames, LocalSttPlugin } from 'src/app/domain/constants/local-stt-plugin.constants';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { LocalSttEngineService } from 'src/app/domain/services/speech/local-stt-engine.service';
@@ -53,6 +53,7 @@ import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
 import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
 import { EditableDictionaryEntry } from './editable-dictionary-entry.type';
+import { LocalSttStatusComponent } from '../local-stt-status/local-stt-status.component';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
 @Component({
@@ -60,7 +61,7 @@ import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constan
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [DecimalPipe, TranslateModule, FormsModule, FormField, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent],
+  imports: [DecimalPipe, TranslateModule, FormsModule, FormField, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent, LocalSttStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
@@ -76,6 +77,7 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   readonly localStt = inject(LocalSttEngineService);
 
   private isInitialized = false;
+  private lastUninstallActive: boolean | null = null;
 
   dictionaryEntries = signal<EditableDictionaryEntry[]>([]);
   protected dictForm = form(this.dictionaryEntries);
@@ -113,6 +115,12 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   readonly sttSelection = signal<string>(SttEngine.Browser);
   readonly isLocalSelected = computed(() => this.sttSelection() === SttEngine.Local);
   readonly ParakeetAlias = WhisperModelAliases.Parakeet;
+  readonly parakeetName = LocalSttEngineNames[WhisperModelAliases.Parakeet];
+  readonly canSwitchToParakeet = computed(
+    () =>
+      this.localStt.installedAlias() !== WhisperModelAliases.Parakeet &&
+      this.localStt.supportedAliases().includes(WhisperModelAliases.Parakeet),
+  );
   sttApiKey = '';
   sttApiKeyConfigured = false;
   private sttApiKeysByEngine: Record<string, string> = {};
@@ -175,32 +183,22 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
     });
 
     effect(() => {
-      if (this.localStt.uninstallActive()) {
-        untracked(() => this.revertLocalEngineAfterUninstall());
-      }
+      const uninstallActive = this.localStt.uninstallActive();
+      untracked(() => {
+        const changed = this.lastUninstallActive !== null && this.lastUninstallActive !== uninstallActive;
+        this.lastUninstallActive = uninstallActive;
+        if (changed && this.isInitialized) {
+          void this.syncSpeechSettingsFromServer();
+        }
+      });
     });
   }
 
   async ngOnInit(): Promise<void> {
     void this.localStt.attach();
     await this.appSettingsService.loadSettingsAsync();
-    const speech = this.appSettingsService.speechSettings();
-
-    this.sttEngine = speech.sttEngine;
-    this.sttSelection.set(SttEngine.isLocalPlugin(speech.sttEngine) ? SttEngine.Local : speech.sttEngine);
-    this.sttApiKeysByEngine = { ...speech.sttApiKeys };
-    this.applyEngineKeyToField();
-    this.ttsVoice = speech.ttsVoice;
-    this.ttsProvider = this.showTtsProvider ? speech.ttsProvider : TtsProvider.Edge;
-    this.ttsApiKeysByProvider = { ...speech.ttsApiKeys };
-    this.applyTtsKeyToField();
-    this.transcriptionModel = speech.transcriptionModel;
-    this.enhancementEnabled = speech.enhancementEnabled;
-    this.outputMode = speech.outputMode;
-    this.silenceThresholdMs = speech.silenceThresholdMs;
-    this.bargeInEnabled = speech.bargeInEnabled;
+    this.applySpeechSettings();
     this.isInitialized = true;
-    this.transcriptionPrompt = speech.transcriptionPrompt;
 
     await this.loadVoices(this.ttsProvider);
     await this.loadCustomSttProviders();
@@ -246,6 +244,32 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   scrollToPluginCard(): void {
     const card = this.document.getElementById(LocalSttPlugin.CardElementId);
     card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    card?.focus({ preventScroll: true });
+  }
+
+  private applySpeechSettings(): void {
+    const speech = this.appSettingsService.speechSettings();
+
+    this.sttEngine = speech.sttEngine;
+    this.sttSelection.set(SttEngine.isLocalPlugin(speech.sttEngine) ? SttEngine.Local : speech.sttEngine);
+    this.sttApiKeysByEngine = { ...speech.sttApiKeys };
+    this.applyEngineKeyToField();
+    this.ttsVoice = speech.ttsVoice;
+    this.ttsProvider = this.showTtsProvider ? speech.ttsProvider : TtsProvider.Edge;
+    this.ttsApiKeysByProvider = { ...speech.ttsApiKeys };
+    this.applyTtsKeyToField();
+    this.transcriptionModel = speech.transcriptionModel;
+    this.enhancementEnabled = speech.enhancementEnabled;
+    this.outputMode = speech.outputMode;
+    this.silenceThresholdMs = speech.silenceThresholdMs;
+    this.bargeInEnabled = speech.bargeInEnabled;
+    this.transcriptionPrompt = speech.transcriptionPrompt;
+  }
+
+  private async syncSpeechSettingsFromServer(): Promise<void> {
+    await this.appSettingsService.saveImmediately();
+    await this.appSettingsService.loadSettingsAsync();
+    this.applySpeechSettings();
   }
 
   private persistLocalEngine(): void {
@@ -253,15 +277,6 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
       return;
     }
     this.sttEngine = SttEngine.LocalPluginEngine;
-    this.onEngineChanged();
-  }
-
-  private revertLocalEngineAfterUninstall(): void {
-    if (!SttEngine.isLocalPlugin(this.sttEngine)) {
-      return;
-    }
-    this.sttSelection.set(SttEngine.Browser);
-    this.sttEngine = SttEngine.Browser;
     this.onEngineChanged();
   }
 

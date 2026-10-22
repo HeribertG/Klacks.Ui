@@ -269,6 +269,16 @@ describe('ResponseInterceptor', () => {
       expect(captured.status).toBe(BAD_REQUEST.status);
     });
 
+    it('keeps the generic toast for the same error code on any other endpoint', () => {
+      const otherUrl = '/api/backend/assistant/other-endpoint';
+      const captured = expectRequestToFail(otherUrl);
+
+      httpMock.expectOne(otherUrl).flush(UNSUPPORTED_LANGUAGE_BODY, BAD_REQUEST);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
     it('keeps the generic toast for any other 400 on the transcribe endpoint', () => {
       const captured = expectRequestToFail(STT_TRANSCRIBE_URL);
 

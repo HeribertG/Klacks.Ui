@@ -4,40 +4,50 @@
  * Shared state and actions of the local (self-hosted) speech recognition engine: status of the plugin from the
  * updater hand-off queue, install, uninstall and discarding a stuck request. One polling loop runs while an
  * operation is active and at least one consumer (settings card) is attached. A failed status request keeps the
- * last known status and the running poll.
+ * last known status; after MAX_CONSECUTIVE_FAILURES failures in a row the poll stops until a manual refresh succeeds.
+ * Responses are applied latest-request-wins so a slow older response never overwrites a newer one. An uninstall first
+ * flushes pending settings so the backend sees the persisted engine it resets to the browser engine.
  * @param status - Latest plugin status including active/last operation and the aliases this installation supports
  * @param busy - True while an install, uninstall or discard request is being sent
  * @param actionMessage - Reason returned by the last enqueue request
  * @param rejectionReason - Reason of the last enqueue request when the queue refused it, otherwise empty
  * @param consumers - Number of attached consumers; polling stops when the last one detaches
+ * @param pollingSuspended - True once the status could not be loaded repeatedly; the shown status may be stale
  */
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
-import { LocalSttEngineNames } from 'src/app/domain/constants/local-stt-plugin.constants';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { LocalSttAllAliases, LocalSttEngineNames } from 'src/app/domain/constants/local-stt-plugin.constants';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
+import { LocalSttStatusView } from 'src/app/domain/models/assistant/local-stt-status-view.interface';
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
 import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 
 const POLL_INTERVAL_MS = 5000;
+const MAX_CONSECUTIVE_FAILURES = 3;
 
 @Injectable({ providedIn: 'root' })
 export class LocalSttEngineService {
   private readonly dataUpdateService = inject(DataManagementUpdateService);
   private readonly queueHealth = inject(UpdateQueueHealthService);
+  private readonly appSettings = inject(AppSettingsManagementService);
 
   private pollHandle: ReturnType<typeof setInterval> | null = null;
   private consumers = 0;
+  private requestSequence = 0;
+  private consecutiveFailures = 0;
 
   public readonly status = signal<WhisperPluginStatus | null>(null);
   public readonly busy = signal(false);
   public readonly actionMessage = signal('');
   public readonly rejectionReason = signal('');
+  public readonly pollingSuspended = signal(false);
 
   public readonly isInstalled = computed(() => !!this.status()?.installed);
 
@@ -63,7 +73,13 @@ export class LocalSttEngineService {
 
   public readonly otherOperationActive = computed(() => !!this.status()?.otherOperationActive);
 
-  public readonly supportedAliases = computed(() => this.status()?.supportedAliases ?? []);
+  public readonly supportedAliases = computed<readonly string[]>(() => {
+    const s = this.status();
+    if (!s) {
+      return [];
+    }
+    return s.supportedAliases ?? LocalSttAllAliases;
+  });
 
   public readonly supportsWhisper = computed(() =>
     this.supportedAliases().some((alias) => alias !== WhisperModelAliases.Parakeet),
@@ -98,6 +114,21 @@ export class LocalSttEngineService {
     return last;
   });
 
+  public readonly statusUnavailable = computed(() => !this.status() || this.pollingSuspended());
+
+  public readonly statusView = computed<LocalSttStatusView>(() => ({
+    known: !!this.status(),
+    unavailable: this.statusUnavailable(),
+    installed: this.isInstalled(),
+    engineName: this.installedEngineName(),
+    activeOperation: this.activeOperation(),
+    installActive: this.installActive(),
+    awaitingUpdater: this.awaitingUpdater(),
+    waitingMinutes: this.waitingMinutes(),
+    otherOperationActive: this.otherOperationActive(),
+    failedInstall: this.failedInstall(),
+  }));
+
   public async attach(): Promise<void> {
     this.consumers++;
     await this.refresh();
@@ -111,12 +142,8 @@ export class LocalSttEngineService {
   }
 
   public async refresh(): Promise<void> {
-    const status = await this.dataUpdateService.getWhisperPluginStatus();
-    if (!status) {
-      return;
-    }
-    this.status.set(status);
-    this.syncPolling(status);
+    this.consecutiveFailures = 0;
+    await this.loadStatus();
   }
 
   public async install(alias: WhisperModelAlias): Promise<void> {
@@ -124,7 +151,10 @@ export class LocalSttEngineService {
   }
 
   public async uninstall(): Promise<void> {
-    await this.runAction(() => this.dataUpdateService.uninstallWhisperPlugin());
+    await this.runAction(async () => {
+      await this.appSettings.saveImmediately();
+      return this.dataUpdateService.uninstallWhisperPlugin();
+    });
   }
 
   public async discardRequest(): Promise<void> {
@@ -145,6 +175,30 @@ export class LocalSttEngineService {
     } finally {
       await this.refresh();
       this.busy.set(false);
+    }
+  }
+
+  private async loadStatus(): Promise<void> {
+    const sequence = ++this.requestSequence;
+    const status = await this.dataUpdateService.getWhisperPluginStatus();
+    if (sequence !== this.requestSequence) {
+      return;
+    }
+    if (!status) {
+      this.registerFailure();
+      return;
+    }
+    this.consecutiveFailures = 0;
+    this.pollingSuspended.set(false);
+    this.status.set(status);
+    this.syncPolling(status);
+  }
+
+  private registerFailure(): void {
+    this.consecutiveFailures++;
+    if (this.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      this.pollingSuspended.set(true);
+      this.stopPolling();
     }
   }
 
@@ -172,7 +226,7 @@ export class LocalSttEngineService {
     if (this.pollHandle !== null) {
       return;
     }
-    this.pollHandle = setInterval(() => void this.refresh(), POLL_INTERVAL_MS);
+    this.pollHandle = setInterval(() => void this.loadStatus(), POLL_INTERVAL_MS);
   }
 
   private stopPolling(): void {

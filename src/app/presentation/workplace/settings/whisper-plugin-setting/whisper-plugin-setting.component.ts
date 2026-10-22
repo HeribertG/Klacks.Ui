@@ -17,10 +17,12 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { LocalSttStatusComponent } from '../local-stt-status/local-stt-status.component';
 import { LocalSttEngineService } from 'src/app/domain/services/speech/local-stt-engine.service';
-import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
+import { WhisperOperationStatuses } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
+import { LocalSttEngineNames } from 'src/app/domain/constants/local-stt-plugin.constants';
 import { WhisperModelOption } from './whisper-model-option.interface';
 
 @Component({
@@ -28,15 +30,16 @@ import { WhisperModelOption } from './whisper-model-option.interface';
   templateUrl: './whisper-plugin-setting.component.html',
   styleUrls: ['./whisper-plugin-setting.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, LocalSttStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { tabindex: '-1' },
 })
 export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
   public readonly localStt = inject(LocalSttEngineService);
 
   private modelSyncedFromStatus = false;
 
-  public readonly OperationTypes = WhisperOperationTypes;
+  public readonly engineNames = LocalSttEngineNames;
   public readonly OperationStatuses = WhisperOperationStatuses;
 
   private readonly allModelOptions: WhisperModelOption[] = [

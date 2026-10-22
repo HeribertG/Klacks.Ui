@@ -11,11 +11,11 @@ import { SttTestResult } from './stt-test-result.interface';
 import { SttProviderInfo } from './stt-provider-info.interface';
 import { CustomSttProviderInfo } from './custom-stt-provider-info.interface';
 import { environment } from 'src/environments/environment';
+import { STT_TRANSCRIBE_ENDPOINT } from 'src/app/domain/constants/stt-endpoints.constants';
 
 const STT_TEST_ENDPOINT = 'stt/test';
 const STT_PROVIDERS_ENDPOINT = 'stt/providers';
 const STT_CUSTOM_PROVIDERS_ENDPOINT = 'stt/providers/custom';
-const STT_TRANSCRIBE_ENDPOINT = 'stt/transcribe';
 const WAV_CONTENT_TYPE = 'audio/wav';
 
 @Injectable({ providedIn: 'root' })

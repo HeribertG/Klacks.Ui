@@ -8,40 +8,13 @@
     {{ "setting.speech.whisper-plugin.description" | translate }}
   </p>
 
-  @if (localStt.status(); as s) {
-    <div id="whisper-plugin-setting-status" class="row-line">
-      <div class="form-group firstColumn">
-        <span class="selection-label">{{
-          "setting.speech.whisper-plugin.status-label" | translate
-        }}</span>
-        @if (s.activeOperation; as op) {
-          @if (localStt.awaitingUpdater()) {
-            <span class="settings-hint status-text-error">{{
-              "setting.speech.whisper-plugin.status-awaiting-updater" | translate
-            }}</span>
-          } @else if (op.operationType === OperationTypes.Install) {
-            <span class="settings-hint">{{
-              "setting.speech.whisper-plugin.status-installing"
-                | translate: { status: op.status }
-            }}</span>
-          } @else {
-            <span class="settings-hint">{{
-              "setting.speech.whisper-plugin.status-uninstalling"
-                | translate: { status: op.status }
-            }}</span>
-          }
-        } @else if (s.installed) {
-          <span class="settings-hint status-text-success">{{
-            "setting.speech.whisper-plugin.status-installed"
-              | translate: { model: localStt.installedEngineName() }
-          }}</span>
-        } @else {
-          <span class="settings-hint">{{
-            "setting.speech.whisper-plugin.status-not-installed" | translate
-          }}</span>
-        }
-      </div>
-
+  <app-local-stt-status
+    id="whisper-plugin-setting-status"
+    statusElementId="whisper-plugin-setting-status-text"
+    [view]="localStt.statusView()"
+    (retry)="localStt.refresh()"
+  >
+    @if (localStt.status(); as s) {
       @if (!s.activeOperation && s.lastOperation) {
         <div class="form-group secondColumn">
           <span class="selection-label">{{
@@ -60,29 +33,10 @@
           </span>
         </div>
       }
-    </div>
-
-    @if (s.activeOperation) {
-      @if (localStt.awaitingUpdater()) {
-        <p class="hint-text settings-hint status-text-error">
-          {{
-            "setting.speech.whisper-plugin.awaiting-updater-hint"
-              | translate: { minutes: localStt.waitingMinutes() }
-          }}
-        </p>
-      } @else {
-        <p class="hint-text settings-hint">
-          {{ "setting.speech.whisper-plugin.install-hint" | translate }}
-        </p>
-      }
     }
+  </app-local-stt-status>
 
-    @if (s.otherOperationActive) {
-      <p class="hint-text settings-hint status-text-error">
-        {{ "setting.speech.whisper-plugin.other-operation-active" | translate }}
-      </p>
-    }
-
+  @if (localStt.status(); as s) {
     <div id="whisper-plugin-setting-models" class="row-line">
       <div class="form-group firstColumn">
         <span class="selection-label">{{
@@ -98,7 +52,7 @@
               (ngModelChange)="onModelSelected(option.value)"
               [disabled]="localStt.actionsDisabled()"
             />
-            {{ option.labelKey | translate }}
+            {{ option.labelKey | translate: { name: engineNames[option.value] } }}
           </label>
           <small class="hint-text settings-hint">{{ option.hintKey | translate }}</small>
         }

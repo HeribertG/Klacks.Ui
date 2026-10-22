@@ -28,6 +28,7 @@ import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
+import { STT_TRANSCRIBE_ENDPOINT } from 'src/app/domain/constants/stt-endpoints.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
@@ -122,7 +123,7 @@ export class ResponseInterceptor implements HttpInterceptor {
         if (
           !this.isQuietCallerHandledRequest(error) &&
           !this.isGeoServicesPassThrough(error.url || '') &&
-          !this.isUnsupportedSttLanguage(error)
+          !this.isUnsupportedSttLanguage(error, req)
         ) {
           this.resetUIState(error);
         }
@@ -179,7 +180,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
 
     // The voice flow explains an unsupported language of the local engine with its own persistent hint.
-    if (this.isUnsupportedSttLanguage(error)) {
+    if (this.isUnsupportedSttLanguage(error, req)) {
       return throwError(() => error);
     }
 
@@ -327,8 +328,12 @@ export class ResponseInterceptor implements HttpInterceptor {
     return (req.body ?? {}) as Record<string, unknown>;
   }
 
-  private isUnsupportedSttLanguage(error: HttpErrorResponse): boolean {
-    return error.status === HttpStatusCode.BadRequest && error.error?.code === SttErrorCodes.UnsupportedLanguage;
+  private isUnsupportedSttLanguage(error: HttpErrorResponse, req: HttpRequest<unknown>): boolean {
+    return (
+      error.status === HttpStatusCode.BadRequest &&
+      error.error?.code === SttErrorCodes.UnsupportedLanguage &&
+      req.url.split('?')[0].endsWith(STT_TRANSCRIBE_ENDPOINT)
+    );
   }
 
   private isGeoServicesPassThrough(url: string): boolean {

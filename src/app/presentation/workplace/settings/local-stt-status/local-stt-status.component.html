@@ -1,0 +1,96 @@
+<div class="local-stt-status" role="status" aria-live="polite">
+  @if (view().known) {
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <span class="selection-label">{{
+          "setting.speech.whisper-plugin.status-label" | translate
+        }}</span>
+        @if (view().activeOperation; as op) {
+          @if (view().awaitingUpdater) {
+            <span
+              [attr.id]="statusElementId()"
+              class="settings-hint status-text-error"
+              >{{
+                "setting.speech.whisper-plugin.status-awaiting-updater" | translate
+              }}</span
+            >
+          } @else if (view().installActive) {
+            <span [attr.id]="statusElementId()" class="settings-hint">{{
+              "setting.speech.whisper-plugin.status-installing"
+                | translate: { status: op.status }
+            }}</span>
+          } @else {
+            <span [attr.id]="statusElementId()" class="settings-hint">{{
+              "setting.speech.whisper-plugin.status-uninstalling"
+                | translate: { status: op.status }
+            }}</span>
+          }
+        } @else if (view().installed) {
+          <span
+            [attr.id]="statusElementId()"
+            class="settings-hint status-text-success"
+            >{{
+              "setting.speech.whisper-plugin.status-installed"
+                | translate: { model: view().engineName }
+            }}</span
+          >
+        } @else if (view().failedInstall; as failed) {
+          <span
+            [attr.id]="statusElementId()"
+            class="settings-hint status-text-error"
+          >
+            {{ "setting.speech.whisper-plugin.status-failed" | translate }}
+            @if (failed.message) {
+              ({{ failed.message }})
+            }
+          </span>
+        } @else {
+          <span [attr.id]="statusElementId()" class="settings-hint">{{
+            "setting.speech.whisper-plugin.status-not-installed" | translate
+          }}</span>
+        }
+      </div>
+      <ng-content />
+    </div>
+
+    @if (view().activeOperation) {
+      @if (view().awaitingUpdater) {
+        <p class="hint-text settings-hint status-text-error">
+          {{
+            "setting.speech.whisper-plugin.awaiting-updater-hint"
+              | translate: { minutes: view().waitingMinutes }
+          }}
+        </p>
+      } @else {
+        <p class="hint-text settings-hint">
+          {{ "setting.speech.whisper-plugin.install-hint" | translate }}
+        </p>
+      }
+    }
+
+    @if (view().otherOperationActive) {
+      <p class="hint-text settings-hint status-text-error">
+        {{ "setting.speech.whisper-plugin.other-operation-active" | translate }}
+      </p>
+    }
+  }
+
+  @if (view().unavailable) {
+    <div class="row-line status-unavailable">
+      <div class="form-group firstColumn">
+        <span class="settings-hint status-text-error status-unavailable-text"
+          >{{
+            "setting.speech.whisper-plugin.status-unavailable" | translate
+          }}</span
+        >
+        <button
+          type="button"
+          class="btn btn-outline-secondary status-retry-btn"
+          (click)="retry.emit()"
+        >
+          {{ "setting.speech.whisper-plugin.status-retry" | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
