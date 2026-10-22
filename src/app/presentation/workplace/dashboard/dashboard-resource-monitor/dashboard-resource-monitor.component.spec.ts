@@ -183,4 +183,43 @@ describe('DashboardResourceMonitorComponent', () => {
       expect(component.specialDays().filter((day) => day.type === 'holiday')).toHaveLength(0);
     });
   });
+
+  describe('holiday calendars', () => {
+    const loadHolidays = (): Promise<void> =>
+      (component as unknown as { loadHolidays(): Promise<void> }).loadHolidays();
+
+    beforeEach(() => {
+      const appSettings = TestBed.inject(AppSettingsManagementService) as unknown as {
+        contactSettings: ReturnType<typeof signal<{ globalCalendarSelectionId: string | null }>>;
+      };
+      appSettings.contactSettings.set({ globalCalendarSelectionId: 'global-selection' });
+      const calendarSelection = TestBed.inject(DataCalendarSelectionService) as unknown as {
+        getCalendarSelection: ReturnType<typeof vi.fn>;
+      };
+      calendarSelection.getCalendarSelection.mockReturnValue(
+        of({ selectedCalendars: [{ country: 'CH', state: 'BE', officialOverride: true }] })
+      );
+    });
+
+    it('applies the calendars of the global selection only', async () => {
+      await loadHolidays();
+
+      const calendarSelection = TestBed.inject(DataCalendarSelectionService) as unknown as {
+        getCalendarSelection: ReturnType<typeof vi.fn>;
+      };
+      expect(calendarSelection.getCalendarSelection).toHaveBeenCalledWith('global-selection');
+      expect(mockHolidayCollectionService.setSelection).toHaveBeenCalledTimes(1);
+      const [tokens, overrides] = mockHolidayCollectionService.setSelection.mock.calls[0];
+      expect(tokens.map((t: { country: string; state: string }) => `${t.country}/${t.state}`)).toEqual(['CH/BE']);
+      expect(overrides.size).toBe(1);
+    });
+
+    it('keeps holiday loading non-critical when applying the selection fails', async () => {
+      mockHolidayCollectionService.setSelection.mockImplementation(() => {
+        throw new Error('broken rules');
+      });
+
+      await expect(loadHolidays()).resolves.toBeUndefined();
+    });
+  });
 });

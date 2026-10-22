@@ -194,7 +194,11 @@ export class DashboardResourceMonitorComponent implements OnInit {
     );
     if (tokens.length === 0) return;
 
-    this.holidayCollection.setSelection(tokens, overrides);
+    try {
+      this.holidayCollection.setSelection(tokens, overrides);
+    } catch {
+      // holiday loading is non-critical
+    }
   }
 
   onYearChanged(year: number): void {
