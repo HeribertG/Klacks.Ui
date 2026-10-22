@@ -83,6 +83,26 @@ export class DataManagementCalendarSelectionService {
       });
   }
 
+  rememberCurrentSelection(): void {
+    if (this.currentCalendarSelection && this.currentCalendarSelection.internal === true) {
+      this.localStorageService.remove(this.rememberedSelectionStorageKey);
+      return;
+    }
+
+    const id = this.currentCalendarSelection?.id;
+    if (id) {
+      this.localStorageService.set(this.rememberedSelectionStorageKey, id);
+    }
+  }
+
+  rememberedSelection(): ICalendarSelection | undefined {
+    const rememberedId = this.localStorageService.get(this.rememberedSelectionStorageKey);
+    if (rememberedId === null) {
+      return undefined;
+    }
+    return this.calendarsSelections.find((x) => x.id === rememberedId);
+  }
+
   getPersistedSelections(): ICalendarSelection[] {
     return this.calendarsSelections.filter((x) => !x.internal);
   }
@@ -136,9 +156,7 @@ export class DataManagementCalendarSelectionService {
       this.usedByContracts.set(usedIds || []);
 
       const savedId = this.localStorageService.get(
-        DomainMessages.CALENDAR_SELECTION_TYPE +
-          '-' +
-          DomainMessages.CALENDAR_SELECTION_ID
+        this.rememberedSelectionStorageKey
       ) as string | null;
       if (savedId) {
         const found = this.calendarsSelections.find((c) => c.id === savedId);
@@ -265,6 +283,10 @@ export class DataManagementCalendarSelectionService {
     const result = !compareComplexObjects(a, b, list);
 
     return result;
+  }
+
+  private get rememberedSelectionStorageKey(): string {
+    return `${DomainMessages.CALENDAR_SELECTION_TYPE}-${DomainMessages.CALENDAR_SELECTION_ID}`;
   }
 
   private sort(values: CalendarSelection[]): void {

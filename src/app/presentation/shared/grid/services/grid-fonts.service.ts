@@ -2,9 +2,8 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { SettingUpsertService } from 'src/app/domain/services/settings/setting-upsert.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
@@ -17,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
   providedIn: 'root',
 })
 export class GridFontsService {
-  private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private settingUpsert = inject(SettingUpsertService);
   private settingsListReader = inject(SettingsListReaderService);
   private pixelToPt = inject(PixelToPtService);
 
@@ -333,22 +332,10 @@ export class GridFontsService {
     c: ISetting
   ) {
     if (value !== dummy) {
-      if (c.id) {
-        this.countSettings(true);
-        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {
-          this.countSettings(false);
-        });
-      } else {
-        const nc = new Setting();
-        delete c.id;
-        nc.value = value;
-        nc.type = c.type;
-        this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe((savedSetting) => {
-          c.id = savedSetting.id;
-          this.countSettings(false);
-        });
-      }
+      this.countSettings(true);
+      this.settingUpsert.upsert(c).subscribe(() => {
+        this.countSettings(false);
+      });
     }
   }
 

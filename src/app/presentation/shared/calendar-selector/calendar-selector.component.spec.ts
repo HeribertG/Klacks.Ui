@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -10,7 +9,6 @@ import { of, Subject } from 'rxjs';
 import { CalendarSelectorComponent } from './calendar-selector.component';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
@@ -25,7 +23,6 @@ describe('CalendarSelectorComponent', () => {
     let fixture: ComponentFixture<CalendarSelectorComponent>;
     let dataManagementCalendarSelectionService: any;
     let dataManagementCalendarRulesService: any;
-    let localStorageService: any;
     let modalService: any;
     let translateService: any;
 
@@ -40,6 +37,8 @@ describe('CalendarSelectorComponent', () => {
             isCurrentCalendarSelectionEmptyPlaceholder: vi.fn(),
             isFilterDirty: vi.fn(),
             setCurrentOnEmpty: vi.fn(),
+            rememberCurrentSelection: vi.fn(),
+            rememberedSelection: vi.fn(),
             saveCurrentSelectedCalendarList: vi.fn(),
             calendarsSelections: [],
             currentCalendarSelection: new CalendarSelection(),
@@ -62,11 +61,6 @@ describe('CalendarSelectorComponent', () => {
             isRead: vi.fn().mockReturnValue(false)
         };
 
-        const localStorageSpy = {
-            get: vi.fn(),
-            set: vi.fn(),
-            remove: vi.fn()
-        };
         const modalSpy = {
             setDefault: vi.fn(),
             openModel: vi.fn(),
@@ -94,7 +88,6 @@ describe('CalendarSelectorComponent', () => {
                     provide: DataManagementCalendarRulesService,
                     useValue: calendarRulesSpy,
                 },
-                { provide: LocalStorageService, useValue: localStorageSpy },
                 { provide: ModalService, useValue: modalSpy },
             ],
         }).compileComponents();
@@ -104,7 +97,6 @@ describe('CalendarSelectorComponent', () => {
 
         dataManagementCalendarSelectionService = TestBed.inject(DataManagementCalendarSelectionService) as any;
         dataManagementCalendarRulesService = TestBed.inject(DataManagementCalendarRulesService) as any;
-        localStorageService = TestBed.inject(LocalStorageService) as any;
         modalService = TestBed.inject(ModalService) as any;
         translateService = TestBed.inject(TranslateService) as any;
 

@@ -30,7 +30,7 @@ import { IconUserComponent } from 'src/app/presentation/icons/icon-user.componen
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS, ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { LocaleService } from 'src/app/application/services/locale.service';
+import { DisplayLanguageService } from 'src/app/application/services/display-language.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -106,7 +106,7 @@ export class NavComponent implements OnInit {
   private translateService = inject(TranslateService);
   private translateStringConstantsService = inject(TranslateStringConstantsService);
   private localStorageService = inject(LocalStorageService);
-  private localeService = inject(LocaleService);
+  private displayLanguageService = inject(DisplayLanguageService);
   private languageConfigService = inject(LanguageConfigService);
   private directionService = inject(DirectionService);
   private themeService = inject(ThemeService);
@@ -185,11 +185,7 @@ export class NavComponent implements OnInit {
 
   private setupEffects(): void {
     effect(() => {
-      const lang = this.currentLanguage();
-      this.translateService.use(lang);
-      this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
-      this.translateStringConstantsService.translate();
-      void this.localeService.switchLocale(lang);
+      this.displayLanguageService.switchTo(this.currentLanguage());
     });
 
     effect(() => {

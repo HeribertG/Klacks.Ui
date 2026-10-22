@@ -3,12 +3,11 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, fromEvent, merge } from 'rxjs';
 import { debounceTime, startWith, map } from 'rxjs/operators';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { RowSizePreferenceService } from 'src/app/domain/services/shared/row-size-preference.service';
 
 @Injectable()
 export abstract class BaseTableResizeService {
-  protected localStorageService = inject(LocalStorageService);
+  private rowSizePreference = inject(RowSizePreferenceService);
   protected readonly UI_OFFSET = 234;
 
   protected abstract getMinItemsPerPage(): number;
@@ -123,15 +122,11 @@ export abstract class BaseTableResizeService {
   }
 
   getSavedRowSize(): number | null {
-    const saved = this.localStorageService.get(this.getStorageKey());
-    if (saved && isNumeric(saved)) {
-      return +saved;
-    }
-    return null;
+    return this.rowSizePreference.read(this.getStorageKey());
   }
 
   saveRowSize(value: number): void {
-    this.localStorageService.set(this.getStorageKey(), value.toString());
+    this.rowSizePreference.save(this.getStorageKey(), value);
   }
 
   getEffectiveRowSize(tableElement: HTMLElement, maxItems?: number): number {

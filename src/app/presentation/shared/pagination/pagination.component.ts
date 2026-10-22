@@ -17,9 +17,9 @@ import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { RowSizePreferenceService } from 'src/app/domain/services/shared/row-size-preference.service';
+import { AUTOMATIC_ROW_SIZE } from 'src/app/domain/constants/row-size.constants';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 
 @Component({
@@ -52,7 +52,7 @@ export class PaginationComponent implements OnInit {
   realRow = -1;
   visibleRow: { text: string; value: number }[] = [];
 
-  private localStorageService = inject(LocalStorageService);
+  private rowSizePreference = inject(RowSizePreferenceService);
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
@@ -70,14 +70,14 @@ export class PaginationComponent implements OnInit {
 
     const fallbackDefault = this.paginationType() === 'shift' ? 3 : 10;
 
-    const tmpRow = this.localStorageService.get(storageKey);
+    const savedRowSize = this.rowSizePreference.read(storageKey);
 
-    if (tmpRow && isNumeric(tmpRow)) {
-      this.realRow = +tmpRow;
-      if (+tmpRow !== -1) {
-        this.numberOfItemsPerPage = +tmpRow;
+    if (savedRowSize !== null) {
+      this.realRow = savedRowSize;
+      if (savedRowSize !== AUTOMATIC_ROW_SIZE) {
+        this.numberOfItemsPerPage = savedRowSize;
         setTimeout(() => {
-          this.numberOfItemsPerPageChange.emit(+tmpRow);
+          this.numberOfItemsPerPageChange.emit(savedRowSize);
           this.cdr.markForCheck();
         }, 0);
       } else {
@@ -91,7 +91,7 @@ export class PaginationComponent implements OnInit {
       if (this.numberOfItemsPerPage === 0) {
         this.numberOfItemsPerPage = fallbackDefault;
       }
-      this.localStorageService.set(storageKey, '-1');
+      this.rowSizePreference.save(storageKey, AUTOMATIC_ROW_SIZE);
     }
   }
 
@@ -124,7 +124,7 @@ export class PaginationComponent implements OnInit {
     this.realRow = value;
     this.page = 1;
     this.pageChange.emit(1);
-    this.localStorageService.set(storageKey, value.toString());
+    this.rowSizePreference.save(storageKey, value);
 
     if (value !== -1) {
       this.numberOfItemsPerPage = value;

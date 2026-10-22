@@ -22,10 +22,8 @@ import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-sele
 import { SelectedCalendar } from 'src/app/domain/models/calendar/selected-calendar-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
-import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { FormsModule } from '@angular/forms';
@@ -62,7 +60,6 @@ export class CalendarSelectorComponent
   private dataManagementCalendarRulesService = inject(
     DataManagementCalendarRulesService
   );
-  private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
@@ -127,7 +124,7 @@ export class CalendarSelectorComponent
   }
 
   onChangeSelection(): void {
-    this.setIdToLocalStorage();
+    this.rememberSelection();
     if (
       !this.dataManagementCalendarSelectionService.isCurrentCalendarSelectionEmptyPlaceholder() &&
       this.dataManagementCalendarSelectionService.currentCalendarSelection?.id
@@ -235,10 +232,6 @@ export class CalendarSelectorComponent
     return this.dataManagementCalendarSelectionService.chips;
   }
 
-  private get calendarSelectionStorageKey(): string {
-    return `${DomainMessages.CALENDAR_SELECTION_TYPE}-${DomainMessages.CALENDAR_SELECTION_ID}`;
-  }
-
   getChipDisplayName(chip: StateCountryToken): string {
     return `${chip.country}${CalendarSelectorComponent.CHIP_DISPLAY_SEPARATOR}${chip.state}`;
   }
@@ -253,7 +246,7 @@ export class CalendarSelectorComponent
 
   private setCurrentSelector(): void {
     this.isFirstReadLocal = true;
-    const currentEntry = this.currentSelection();
+    const currentEntry = this.dataManagementCalendarSelectionService.rememberedSelection();
     if (currentEntry) {
       this.dataManagementCalendarSelectionService.currentCalendarSelection =
         currentEntry;
@@ -267,26 +260,12 @@ export class CalendarSelectorComponent
     }, CalendarSelectorComponent.WAIT_TIME);
   }
 
-  private setIdToLocalStorage(): void {
+  private rememberSelection(): void {
     if (!this.isFirstReadLocal) {
       return;
     }
 
-    if (
-      this.dataManagementCalendarSelectionService.currentCalendarSelection &&
-      this.dataManagementCalendarSelectionService.currentCalendarSelection
-        .internal === true
-    ) {
-      this.localStorageService.remove(this.calendarSelectionStorageKey);
-    } else {
-      const id =
-        this.dataManagementCalendarSelectionService.currentCalendarSelection
-          ?.id;
-
-      if (id) {
-        this.localStorageService.set(this.calendarSelectionStorageKey, id);
-      }
-    }
+    this.dataManagementCalendarSelectionService.rememberCurrentSelection();
   }
 
   private setCalendarRule(): void {
@@ -318,24 +297,6 @@ export class CalendarSelectorComponent
 
   private reReadChips(): void {
     this.dataManagementCalendarSelectionService?.readSChips(true);
-  }
-
-  private hasLastSelection(): boolean {
-    return (
-      this.localStorageService.get(this.calendarSelectionStorageKey) !== null
-    );
-  }
-
-  private currentSelection(): ICalendarSelection | undefined {
-    if (this.hasLastSelection()) {
-      const currentId = this.localStorageService.get(
-        this.calendarSelectionStorageKey
-      ) as string;
-      return this.dataManagementCalendarSelectionService.calendarsSelections.find(
-        (x) => x.id === currentId
-      );
-    }
-    return undefined;
   }
 
   private parseChipKey(key: string): { country: string; state: string } {

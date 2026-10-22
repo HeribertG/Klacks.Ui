@@ -6,7 +6,7 @@ import { PossibleHolidayRuleWrapper } from 'src/app/domain/models/calendar/possi
 import { PossibleHolidayRule } from 'src/app/domain/models/calendar/possible-holiday-rule-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ICalendarRule } from 'src/app/domain/models/calendar/calendar-rule.interface';
-import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
+import { PossibleHolidayRuleReaderService } from 'src/app/domain/services/calendar/possible-holiday-rule-reader.service';
 import { firstValueFrom } from 'rxjs';
 import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
@@ -14,7 +14,7 @@ import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable()
 export class HolidayCollectionService {
-  private dataCalendarRule = inject(DataCalendarRuleService);
+  private possibleHolidayRuleReader = inject(PossibleHolidayRuleReaderService);
 
   public isReset = signal(false);
   public holidays = new HolidaysListHelper();
@@ -36,34 +36,18 @@ export class HolidayCollectionService {
   }
 
   readData() {
-    this.dataCalendarRule.readCalendarRuleList().subscribe((rules) => {
+    this.possibleHolidayRuleReader.readPossibleHolidayRules().subscribe((items) => {
       this.possibleHolidayRule.clear;
-      if (rules) {
-        rules.forEach((rule) => {
-          const item = new PossibleHolidayRule();
-          item.country = rule.country;
-          item.state = rule.state;
-          item.rule = rule;
-          this.possibleHolidayRule.add(item);
-        });
-      }
+      items.forEach((item) => this.possibleHolidayRule.add(item));
     });
   }
 
   async readDataAsync(): Promise<void> {
-    const rules = await firstValueFrom(
-      this.dataCalendarRule.readCalendarRuleList()
+    const items = await firstValueFrom(
+      this.possibleHolidayRuleReader.readPossibleHolidayRules()
     );
     this.possibleHolidayRule.clear;
-    if (rules) {
-      rules.forEach((rule) => {
-        const item = new PossibleHolidayRule();
-        item.country = rule.country;
-        item.state = rule.state;
-        item.rule = rule;
-        this.possibleHolidayRule.add(item);
-      });
-    }
+    items.forEach((item) => this.possibleHolidayRule.add(item));
   }
 
   setSelection(

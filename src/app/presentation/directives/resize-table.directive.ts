@@ -11,9 +11,8 @@ import {
   input,
   output
 } from '@angular/core';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { RowSizePreferenceService } from 'src/app/domain/services/shared/row-size-preference.service';
 import { measureTableHeight } from 'src/app/presentation/helpers/tableResize';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Directive({
@@ -23,7 +22,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 })
 export class ResizeTableDirective implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);
-  private localStorageService = inject(LocalStorageService);
+  private rowSizePreference = inject(RowSizePreferenceService);
 
   readonly defaultItemsPerPage = input(5);
   readonly minItemsPerPage = input(5);
@@ -39,11 +38,11 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
   private isMeasureTable = false;
 
   ngOnInit(): void {
-    const savedRow = this.localStorageService.get(
+    const savedRow = this.rowSizePreference.read(
       DomainMessages.SELECTED_ROW_ORDER
     );
-    if (savedRow && isNumeric(savedRow)) {
-      this.realRow = +savedRow;
+    if (savedRow !== null) {
+      this.realRow = savedRow;
       if (this.realRow !== -1) {
         this.itemsPerPageChange.emit(this.realRow);
       }

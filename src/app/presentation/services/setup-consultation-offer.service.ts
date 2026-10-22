@@ -12,7 +12,7 @@
  * @param assistantTurnLauncher - Opens the Klacksy panel and sends the trigger phrase as a real user turn, but only
  *   once the offer is accepted
  * @param onboarding - Single source of truth for whether the guided tour is running
- * @param scheduleSetupState - Tells an empty installation apart from a filtered-to-nothing list view
+ * @param installationSetupState - Tells an empty installation apart from a filtered-to-nothing list view
  */
 
 import { inject, Injectable } from '@angular/core';
@@ -21,8 +21,7 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { AssistantTurnLauncherService } from './assistant-turn-launcher.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { DataScheduleSetupStateService } from 'src/app/infrastructure/api/assistant/data-schedule-setup-state.service';
-import { IScheduleSetupState } from 'src/app/domain/interfaces/schedule-setup-state.interface';
+import { InstallationSetupStateService } from 'src/app/domain/services/assistant/installation-setup-state.service';
 
 const OFFER_TEXT_KEY = 'setupConsultation.offer';
 const OFFER_ACCEPT_KEY = 'setupConsultation.offerAccept';
@@ -36,21 +35,21 @@ export class SetupConsultationOfferService {
   private readonly toastShowService = inject(ToastShowService);
   private readonly assistantTurnLauncher = inject(AssistantTurnLauncherService);
   private readonly onboarding = inject(OnboardingService);
-  private readonly scheduleSetupState = inject(DataScheduleSetupStateService);
+  private readonly installationSetupState = inject(InstallationSetupStateService);
 
   offerIfNeeded(): void {
     if (this.onboarding.isTourActive() || this.wasOfferedThisSession()) {
       return;
     }
 
-    this.scheduleSetupState.getState().subscribe({
-      next: (state) => this.showOfferIfInstallationIsEmpty(state),
+    this.installationSetupState.isInstallationEmpty().subscribe({
+      next: (isEmpty) => this.showOfferIfInstallationIsEmpty(isEmpty),
       error: () => undefined,
     });
   }
 
-  private showOfferIfInstallationIsEmpty(state: IScheduleSetupState): void {
-    if (state.hasOrders || state.hasShifts || state.hasWork) {
+  private showOfferIfInstallationIsEmpty(isEmpty: boolean): void {
+    if (!isEmpty) {
       return;
     }
 

@@ -8,21 +8,15 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { ReturnUrlPayload } from './return-url-payload.interface';
+import { ReturnUrlMemoryService } from 'src/app/domain/services/navigation/return-url-memory.service';
 import { SETUP_ROUTE_PATH } from 'src/app/domain/constants/setup.constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavigationService {
-  private static readonly RETURN_URL_MAX_AGE_MS = 30 * 60 * 1000;
-  private static readonly RESTORABLE_PREFIX = '/workplace/';
-  private static readonly NON_RESTORABLE_PATHS = ['/workplace/dashboard'];
-
   private router = inject(Router);
-  private localStorageService = inject(LocalStorageService);
+  private returnUrlMemory = inject(ReturnUrlMemoryService);
 
   navigateToDashboard(): void {
     this.router.navigate(['/workplace/dashboard']);
@@ -153,19 +147,13 @@ export class NavigationService {
 
   redirectToLogin(targetUrl?: string): Promise<boolean> {
     const url = targetUrl ?? this.router.url;
-    if (this.isRestorableUrl(url)) {
-      const payload: ReturnUrlPayload = { url, ts: Date.now() };
-      this.localStorageService.setJson(StorageKeys.RETURN_URL, payload);
-    } else {
-      this.localStorageService.remove(StorageKeys.RETURN_URL);
-    }
+    this.returnUrlMemory.remember(url);
     return this.navigateToRoot();
   }
 
   navigateAfterLogin(): void {
-    const returnUrl = this.readReturnUrl();
+    const returnUrl = this.returnUrlMemory.consume();
     if (returnUrl) {
-      this.localStorageService.remove(StorageKeys.RETURN_URL);
       this.router.navigateByUrl(returnUrl).then((succeeded) => {
         if (!succeeded) {
           this.navigateToDashboard();
@@ -174,37 +162,5 @@ export class NavigationService {
       return;
     }
     this.navigateToDashboard();
-  }
-
-  private readReturnUrl(): string | null {
-    const payload = this.localStorageService.getJson(
-      StorageKeys.RETURN_URL
-    ) as ReturnUrlPayload | null;
-
-    if (
-      !payload ||
-      typeof payload.url !== 'string' ||
-      typeof payload.ts !== 'number'
-    ) {
-      this.localStorageService.remove(StorageKeys.RETURN_URL);
-      return null;
-    }
-
-    const isFresh =
-      Date.now() - payload.ts <= NavigationService.RETURN_URL_MAX_AGE_MS;
-    if (!isFresh || !this.isRestorableUrl(payload.url)) {
-      this.localStorageService.remove(StorageKeys.RETURN_URL);
-      return null;
-    }
-
-    return payload.url;
-  }
-
-  private isRestorableUrl(url: string): boolean {
-    if (!url || !url.startsWith(NavigationService.RESTORABLE_PREFIX)) {
-      return false;
-    }
-    const path = url.split('?')[0];
-    return !NavigationService.NON_RESTORABLE_PATHS.includes(path);
   }
 }

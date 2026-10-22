@@ -8,16 +8,15 @@ import { firstValueFrom } from 'rxjs';
 import { DataOAuth2Service } from 'src/app/infrastructure/api/data-oauth2.service';
 import { AuthService } from '../auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { OAuth2HandshakeStorageService } from 'src/app/infrastructure/storage/oauth2-handshake-storage.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SyncNotificationToastService } from 'src/app/presentation/auth/sync-notification-toast.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { OAuth2Token } from './oauth2-token.interface';
+import { OAuth2Token } from 'src/app/domain/models/auth/oauth2-token.interface';
+import { OAuth2CallbackTokenStorageService } from 'src/app/domain/services/auth/oauth2-callback-token-storage.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
 
 @Component({
@@ -67,7 +66,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private dataOAuth2Service = inject(DataOAuth2Service);
   private authService = inject(AuthService);
   private navigationService = inject(NavigationService);
-  private localStorageService = inject(LocalStorageService);
+  private oauth2CallbackTokenStorage = inject(OAuth2CallbackTokenStorageService);
   private oauth2HandshakeStorage = inject(OAuth2HandshakeStorageService);
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
@@ -139,19 +138,7 @@ export class OAuth2CallbackComponent implements OnInit {
   }
 
   private storeToken(token: OAuth2Token, state: string): void {
-    this.localStorageService.set(StorageKeys.TOKEN, token.token);
-    this.localStorageService.set(StorageKeys.TOKEN_USERNAME, token.userName || token.username);
-    this.localStorageService.set(StorageKeys.TOKEN_USERID, token.id);
-    this.localStorageService.set(StorageKeys.TOKEN_EXP, token.expires?.toString() || '');
-    if (token.refreshToken) {
-      this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, token.refreshToken);
-    }
-
-    const providerId = state.split('_')[0];
-    if (providerId) {
-      this.localStorageService.set('oauth2_provider_id', providerId);
-    }
-
+    this.oauth2CallbackTokenStorage.store(token, state);
     this.authorizationService.store(token.permissions);
     void this.companyClockService.loadIfAuthenticated();
   }
