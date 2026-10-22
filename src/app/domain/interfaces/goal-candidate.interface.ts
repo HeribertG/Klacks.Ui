@@ -13,4 +13,5 @@ export interface IGoalCandidate {
   status: string;
   createdUtc: string | null;
   decidedUtc: string | null;
+  chatPromptKey?: string | null;
 }

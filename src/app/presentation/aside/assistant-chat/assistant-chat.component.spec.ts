@@ -4060,6 +4060,34 @@ describe('AssistantChatComponent', () => {
             expect(orchestrator.submitText).toHaveBeenCalledWith('T:setupConsultation.triggerPhrase');
         });
 
+        it('sends the seal request for the "yes, seal" answer of the orders-without-shifts question', () => {
+            const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+            orchestrator.submitText.mockClear();
+            const sealFocus: IWelcomeFocus = {
+                kind: 'no_schedule_yet',
+                promptKey: 'klacksy.focus.no-shifts.prompt',
+                promptParams: {},
+                actionKind: WELCOME_FOCUS_ACTION_KIND.Prompt,
+                actionLabelKey: 'klacksy.focus.no-shifts.action',
+                actionRoute: null,
+                actionPromptKey: 'klacksy.setup.seal-open-orders.request',
+                conditionId: null,
+            };
+            replyToasts().showGreetingOptionsAsToast(
+                [{ label: 'Ja, versiegeln', value: WELCOME_FOCUS_ACTION }],
+                'Prompt',
+                sealFocus,
+            );
+
+            showSpy.mock.calls[0][1]([WELCOME_FOCUS_ACTION]);
+
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.setup.seal-open-orders.request');
+            expect(orchestrator.submitText).toHaveBeenCalledTimes(1);
+            expect(orchestrator.submitText).toHaveBeenCalledWith(
+                mockTranslateService.instant('klacksy.setup.seal-open-orders.request'),
+            );
+        });
+
         it('snoozes the kind until a future instant when later is picked', () => {
             const preferences = TestBed.inject(DataTriggerPreferenceService) as any;
             preferences.snoozeKind.mockClear();

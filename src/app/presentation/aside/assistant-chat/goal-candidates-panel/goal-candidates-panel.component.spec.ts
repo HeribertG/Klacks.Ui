@@ -12,6 +12,7 @@ import { OnboardingService } from 'src/app/application/services/onboarding.servi
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IGoalCandidate } from 'src/app/domain/interfaces/goal-candidate.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { AssistantTurnLauncherService } from 'src/app/presentation/services/assistant-turn-launcher.service';
 
 describe('GoalCandidatesPanelComponent', () => {
   let fixture: ComponentFixture<GoalCandidatesPanelComponent>;
@@ -25,9 +26,10 @@ describe('GoalCandidatesPanelComponent', () => {
   };
   let asideServiceMock: { isVisible: WritableSignal<boolean> };
   let onboardingServiceMock: { isTourActive: WritableSignal<boolean> };
-  let toastShowServiceMock: { showError: ReturnType<typeof vi.fn> };
+  let toastShowServiceMock: { showError: ReturnType<typeof vi.fn>; showInfo: ReturnType<typeof vi.fn> };
   let eventBusMock: { emit: ReturnType<typeof vi.fn>; on: ReturnType<typeof vi.fn>; onAny: ReturnType<typeof vi.fn> };
   let targetRequested$: Subject<{ target: string }>;
+  let turnLauncherMock: { openAndAsk: ReturnType<typeof vi.fn> };
 
   const legacyCandidate: IGoalCandidate = {
     id: 'candidate-1',
@@ -64,8 +66,9 @@ describe('GoalCandidatesPanelComponent', () => {
     };
     asideServiceMock = { isVisible: signal(true) };
     onboardingServiceMock = { isTourActive: signal(false) };
-    toastShowServiceMock = { showError: vi.fn() };
+    toastShowServiceMock = { showError: vi.fn(), showInfo: vi.fn() };
     targetRequested$ = new Subject<{ target: string }>();
+    turnLauncherMock = { openAndAsk: vi.fn().mockReturnValue(true) };
     eventBusMock = {
       emit: vi.fn(),
       on: vi.fn().mockReturnValue(targetRequested$.asObservable()),
@@ -80,6 +83,7 @@ describe('GoalCandidatesPanelComponent', () => {
         { provide: OnboardingService, useValue: onboardingServiceMock },
         { provide: ToastShowService, useValue: toastShowServiceMock },
         { provide: EVENT_BUS_TOKEN, useValue: eventBusMock },
+        { provide: AssistantTurnLauncherService, useValue: turnLauncherMock },
       ],
     }).compileComponents();
 
@@ -145,6 +149,69 @@ describe('GoalCandidatesPanelComponent', () => {
 
     expect(toastShowServiceMock.showError).toHaveBeenCalledWith('assistant-chat.goal-candidates.approve-error');
     expect(component.isPending('candidate-1')).toBe(false);
+  });
+
+  describe('goal handed to the chat', () => {
+    const sealGoal: IGoalCandidate = {
+      ...catalogueCandidate,
+      id: 'candidate-seal',
+      goalType: 'no_schedule_yet',
+      titleKey: 'assistant-chat.goal-candidates.type.noScheduleYet.ordersButNoShifts.title',
+      rationaleKey: 'assistant-chat.goal-candidates.type.noScheduleYet.ordersButNoShifts.rationale',
+      chatPromptKey: 'klacksy.setup.seal-open-orders.request',
+    };
+
+    it('sends the seal request into the chat once the approval is recorded', () => {
+      goalCandidatesServiceMock.candidates.set([sealGoal]);
+
+      component.onApprove('candidate-seal');
+
+      expect(turnLauncherMock.openAndAsk).toHaveBeenCalledWith('klacksy.setup.seal-open-orders.request');
+    });
+
+    it('hands the request to the user when the chat is busy and could not take it', () => {
+      goalCandidatesServiceMock.candidates.set([sealGoal]);
+      turnLauncherMock.openAndAsk.mockReturnValue(false);
+
+      component.onApprove('candidate-seal');
+
+      expect(toastShowServiceMock.showInfo).toHaveBeenCalledWith('assistant-chat.goal-candidates.chat-busy');
+    });
+
+    it('does not open the chat for a goal that drafts a plan', () => {
+      goalCandidatesServiceMock.candidates.set([catalogueCandidate]);
+
+      component.onApprove('candidate-2');
+
+      expect(turnLauncherMock.openAndAsk).not.toHaveBeenCalled();
+    });
+
+    it('does not open the chat when the approval failed', () => {
+      goalCandidatesServiceMock.candidates.set([sealGoal]);
+      goalCandidatesServiceMock.approve.mockReturnValue(throwError(() => new Error('offline')));
+
+      component.onApprove('candidate-seal');
+
+      expect(turnLauncherMock.openAndAsk).not.toHaveBeenCalled();
+    });
+
+    it('does not open the chat on reject', () => {
+      goalCandidatesServiceMock.candidates.set([sealGoal]);
+
+      component.onReject('candidate-seal');
+
+      expect(turnLauncherMock.openAndAsk).not.toHaveBeenCalled();
+    });
+
+    it('tells the user that approving continues in the chat instead of drafting a plan', async () => {
+      goalCandidatesServiceMock.candidates.set([sealGoal]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const hint = fixture.nativeElement.querySelector('.goal-candidate-chat-hint');
+      expect(hint?.textContent).toContain('assistant-chat.goal-candidates.chat-hint');
+    });
   });
 
   it('ignores a second decision while one is already in flight', () => {

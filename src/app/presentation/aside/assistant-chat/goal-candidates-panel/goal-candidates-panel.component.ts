@@ -8,7 +8,8 @@
  * no keys and fall back to their stored English text. Approving records the decision and lets
  * the server draft a plan from it; that plan then runs unattended when the candidate's own
  * confidence is high and the configured autonomy allows it, so the panel must say so rather
- * than promise a further confirmation step.
+ * than promise a further confirmation step. A candidate carrying a chatPromptKey drafts no plan: its first step
+ * runs only in the chat (sealing orders shows a preview first), so approving it sends that request into the chat.
  * Loads the proposed candidates once the aside becomes visible (skipped while the setup
  * tour is running, mirroring the neighboring proactive-inbox load gate).
  */
@@ -28,11 +29,13 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
+import { AssistantTurnLauncherService } from 'src/app/presentation/services/assistant-turn-launcher.service';
 
 const CONFIDENCE_I18N_PREFIX = 'assistant-chat.goal-candidates.confidence.';
 const LOAD_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.load-error';
 const APPROVE_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.approve-error';
 const REJECT_ERROR_I18N_KEY = 'assistant-chat.goal-candidates.reject-error';
+const CHAT_BUSY_I18N_KEY = 'assistant-chat.goal-candidates.chat-busy';
 const KLACKSY_TARGET_PREFIX = 'goal-candidates-panel';
 
 // Only a self-assessment the model actually committed to is worth showing; 'unknown' is the
@@ -58,6 +61,7 @@ export class GoalCandidatesPanelComponent {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private turnLauncher = inject(AssistantTurnLauncherService);
   private readonly destroyRef = inject(DestroyRef);
 
   private loadRequested = false;
@@ -117,7 +121,12 @@ export class GoalCandidatesPanelComponent {
   }
 
   public onApprove(id: string): void {
-    this.decide(id, () => this.goalCandidatesService.approve(id), APPROVE_ERROR_I18N_KEY);
+    const chatPromptKey = this.goalCandidatesService.candidates().find((candidate) => candidate.id === id)?.chatPromptKey;
+    this.decide(id, () => this.goalCandidatesService.approve(id), APPROVE_ERROR_I18N_KEY, () => {
+      if (chatPromptKey) {
+        this.handToChat(this.translateService.instant(chatPromptKey));
+      }
+    });
   }
 
   public onReject(id: string): void {
@@ -138,14 +147,22 @@ export class GoalCandidatesPanelComponent {
   // Deliberately not bound to the component lifetime: this panel lives in the aside, and
   // closing the aside mid-request would cancel the decision after the row already looks
   // decided. The reset runs in finalize so a cancelled request cannot strand the buttons.
-  private decide(id: string, action: () => Observable<void>, errorKey: string): void {
+  private decide(id: string, action: () => Observable<void>, errorKey: string, onDecided?: () => void): void {
     if (this.pendingDecisionId() !== null) {
       return;
     }
     this.pendingDecisionId.set(id);
     action()
       .pipe(finalize(() => this.pendingDecisionId.set(null)))
-      .subscribe({ error: () => this.showError(errorKey) });
+      .subscribe({ next: () => onDecided?.(), error: () => this.showError(errorKey) });
+  }
+
+  // The launcher does not send while a turn runs or the chat holds a draft; the card is already gone by then,
+  // so the user needs the request in hand to send it once the chat is free.
+  private handToChat(request: string): void {
+    if (!this.turnLauncher.openAndAsk(request)) {
+      this.toastShowService.showInfo(this.translateService.instant(CHAT_BUSY_I18N_KEY, { request }));
+    }
   }
 
   private showError(errorKey: string): void {

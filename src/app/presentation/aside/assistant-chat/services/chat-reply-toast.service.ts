@@ -3,7 +3,8 @@
 /**
  * Interactive reply toasts of one assistant chat instance: suggested replies, action suggestions and
  * the greeting options (including the welcome focus action and its "later"), plus the greeting toast
- * that waits until the panel becomes visible. A picked option is sent as chat text or navigated to.
+ * that waits until the panel becomes visible. A picked option is sent as chat text or navigated to; a focus
+ * action of kind "prompt" sends its translated request (e.g. the seal request) as chat text.
  * @param config - Suggested-replies configuration from the stream metadata
  * @param focus - Welcome focus whose action or snooze a greeting option may trigger
  */
@@ -203,6 +204,10 @@ export class ChatReplyToastService {
       void this.orchestrator.submitText(
         this.translateService.instant(SETUP_CONSULTATION_TRIGGER_PHRASE_KEY),
       );
+      return;
+    }
+    if (focus.actionKind === WELCOME_FOCUS_ACTION_KIND.Prompt && focus.actionPromptKey) {
+      void this.orchestrator.submitText(this.translateService.instant(focus.actionPromptKey));
       return;
     }
     if (focus.actionRoute) {

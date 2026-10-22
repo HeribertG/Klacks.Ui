@@ -11,6 +11,7 @@
  * (ChatTurnControlService, which pulls in the assistant data services) is looked up only on a click, so pages that
  * merely hold an offer service do not build that chain.
  * @param text - The question Klacksy receives as if the user had typed it; blank text sends nothing
+ * @returns Whether the text is sent; false for blank text and while the user is busy (panel only shown)
  */
 
 import { inject, Injectable, Injector } from '@angular/core';
@@ -26,20 +27,21 @@ export class AssistantTurnLauncherService {
   private readonly conversationOrchestrator = inject(ConversationOrchestratorService);
   private readonly injector = inject(Injector);
 
-  openAndAsk(text: string): void {
+  openAndAsk(text: string): boolean {
     if (!text.trim()) {
-      return;
+      return false;
     }
 
     const userIsBusy = this.isUserBusy();
     this.asideService.show();
     if (userIsBusy) {
-      return;
+      return false;
     }
 
     setTimeout(() => {
       void this.conversationOrchestrator.submitText(text);
     }, ASSISTANT_CHAT_MOUNT_DELAY_MS);
+    return true;
   }
 
   private isUserBusy(): boolean {

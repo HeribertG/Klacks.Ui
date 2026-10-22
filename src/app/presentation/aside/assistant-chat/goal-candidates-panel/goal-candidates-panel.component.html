@@ -39,6 +39,9 @@
               {{ candidate.rationale }}
             }
           </p>
+          @if (candidate.chatPromptKey) {
+            <p class="goal-candidate-chat-hint">{{ 'assistant-chat.goal-candidates.chat-hint' | translate }}</p>
+          }
           @if (hasConfidenceLabel(candidate.confidence)) {
             <div class="goal-candidate-confidence">
               {{ confidenceLabelKey(candidate.confidence) | translate }}

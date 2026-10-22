@@ -97,6 +97,13 @@
   margin-bottom: 8px;
 }
 
+.goal-candidate-chat-hint {
+  margin: 0 0 6px;
+  font-size: var(--fontSizeXSmall);
+  color: var(--colorLabel);
+  line-height: 1.4;
+}
+
 .goal-candidate-actions {
   display: flex;
   gap: 8px;

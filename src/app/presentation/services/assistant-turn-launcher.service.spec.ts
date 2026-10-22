@@ -36,7 +36,7 @@ describe('AssistantTurnLauncherService', () => {
   });
 
   it('opens the panel at once and sends the text after the chat has mounted', async () => {
-    service.openAndAsk('Why can Anna not work?');
+    expect(service.openAndAsk('Why can Anna not work?')).toBe(true);
 
     expect(show).toHaveBeenCalledTimes(1);
     expect(submitText).not.toHaveBeenCalled();
@@ -58,9 +58,10 @@ describe('AssistantTurnLauncherService', () => {
   ])('only shows the panel while a turn is $state, so the turn is not superseded', async ({ setBusy }) => {
     setBusy();
 
-    service.openAndAsk('Why can Anna not work?');
+    const sent = service.openAndAsk('Why can Anna not work?');
 
     await flushMountDelay();
+    expect(sent).toBe(false);
     expect(show).toHaveBeenCalledTimes(1);
     expect(submitText).not.toHaveBeenCalled();
   });
@@ -69,9 +70,10 @@ describe('AssistantTurnLauncherService', () => {
     asideVisible.set(true);
     hasDraft.mockReturnValue(true);
 
-    service.openAndAsk('Why can Anna not work?');
+    const sent = service.openAndAsk('Why can Anna not work?');
 
     await flushMountDelay();
+    expect(sent).toBe(false);
     expect(show).toHaveBeenCalledTimes(1);
     expect(submitText).not.toHaveBeenCalled();
   });

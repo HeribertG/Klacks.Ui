@@ -8,7 +8,8 @@
  * @param promptParams - Slot values for the headline template; date slots arrive as yyyy-MM-dd
  * @param actionKind - "navigate" or "consultation", see WELCOME_FOCUS_ACTION_KIND
  * @param actionLabelKey - i18n key of the first button
- * @param actionRoute - Angular route for actionKind "navigate", null for "consultation"
+ * @param actionRoute - Angular route for actionKind "navigate", null otherwise
+ * @param actionPromptKey - i18n key of the chat request sent for actionKind "prompt", null otherwise
  * @param conditionId - Journal row id, informational, null for the fresh setup candidate
  */
 export interface IWelcomeFocus {
@@ -18,5 +19,6 @@ export interface IWelcomeFocus {
   actionKind: string;
   actionLabelKey: string;
   actionRoute?: string | null;
+  actionPromptKey?: string | null;
   conditionId?: string | null;
 }

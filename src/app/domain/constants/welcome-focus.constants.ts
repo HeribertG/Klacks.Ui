@@ -8,6 +8,7 @@
 export const WELCOME_FOCUS_ACTION_KIND = {
   Navigate: 'navigate',
   Consultation: 'consultation',
+  Prompt: 'prompt',
 } as const;
 
 export const WELCOME_FOCUS_ACTION = 'welcome-focus:action';
