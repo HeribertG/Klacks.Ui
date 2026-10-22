@@ -20,7 +20,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { GroupViewPreferenceService } from 'src/app/domain/services/group/group-view-preference.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -45,7 +45,7 @@ export class AllGroupHomeComponent implements OnInit {
   private workplaceStateService = inject(
     WorkplaceStateService
   );
-  private localStorageService = inject(LocalStorageService);
+  private groupViewPreference = inject(GroupViewPreferenceService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
@@ -54,7 +54,6 @@ export class AllGroupHomeComponent implements OnInit {
 
   readonly navOpen = signal(false);
 
-  private readonly STORAGE_KEY = 'group-view-mode';
   private _showGrid = true;
 
   constructor() {
@@ -84,7 +83,7 @@ export class AllGroupHomeComponent implements OnInit {
   set showGrid(value: boolean) {
     this._showGrid = value;
     this.searchService.setGroupViewMode(value);
-    this.localStorageService.set(this.STORAGE_KEY, value.toString());
+    this.groupViewPreference.setGridView(value);
   }
 
   ngOnInit(): void {
@@ -99,12 +98,7 @@ export class AllGroupHomeComponent implements OnInit {
   }
 
   private restoreViewMode(): void {
-    const savedViewMode = this.localStorageService.get(this.STORAGE_KEY);
-    if (savedViewMode !== null) {
-      this._showGrid = savedViewMode === 'true';
-    } else {
-      this._showGrid = true;
-    }
+    this._showGrid = this.groupViewPreference.isGridView();
 
     this.searchService.setGroupViewMode(this._showGrid);
   }

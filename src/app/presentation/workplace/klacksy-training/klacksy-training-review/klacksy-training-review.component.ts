@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import {
   DataKlacksyTrainingService,
 } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
-import { NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/navigation-target-dto.interface';
+import { NavigationTargetDto } from 'src/app/domain/models/klacksy-training/navigation-target-dto.interface';
 import { KlacksyTrainingSynonymEditorComponent } from '../klacksy-training-synonym-editor/klacksy-training-synonym-editor.component';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';

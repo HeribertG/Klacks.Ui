@@ -12,7 +12,7 @@ import {
 } from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
 import {
   NavigationFeedbackDto,
-} from '../../../../infrastructure/api/klacksy-training/navigation-feedback-dto.interface';
+} from 'src/app/domain/models/klacksy-training/navigation-feedback-dto.interface';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 @Component({

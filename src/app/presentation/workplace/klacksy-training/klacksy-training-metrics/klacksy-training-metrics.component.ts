@@ -3,12 +3,11 @@
 /**
  * Dashboard metrics for Klacksy training. Initial version: target counts by status.
  */
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  DataKlacksyTrainingService,
-} from '../../../../infrastructure/api/klacksy-training/data-klacksy-training.service';
-import { NavigationTargetDto } from '../../../../infrastructure/api/klacksy-training/navigation-target-dto.interface';
+import { countTargetsByStatus } from 'src/app/domain/helpers/klacksy-training-target-status-counts.helper';
+import { IKlacksyTrainingTargetStatusCounts } from 'src/app/domain/models/klacksy-training/klacksy-training-target-status-counts.interface';
+import { KlacksyTrainingMetricsService } from 'src/app/domain/services/klacksy/klacksy-training-metrics.service';
 
 @Component({
   selector: 'app-klacksy-training-metrics',
@@ -19,20 +18,8 @@ import { NavigationTargetDto } from '../../../../infrastructure/api/klacksy-trai
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KlacksyTrainingMetricsComponent implements OnInit {
-  private readonly service = inject(DataKlacksyTrainingService);
-  protected readonly all = signal<NavigationTargetDto[]>([]);
-  protected readonly counts = computed(() => {
-    const m = { total: 0, pending: 0, generated: 0, reviewed: 0, needsReview: 0, obsolete: 0 };
-    for (const t of this.all()) {
-      m.total++;
-      if (t.obsolete) m.obsolete++;
-      else if (t.synonymStatus === 'pending') m.pending++;
-      else if (t.synonymStatus === 'generated') m.generated++;
-      else if (t.synonymStatus === 'reviewed') m.reviewed++;
-      else if (t.synonymStatus === 'needs-review') m.needsReview++;
-    }
-    return m;
-  });
+  private readonly metricsService = inject(KlacksyTrainingMetricsService);
+  protected readonly counts = signal<IKlacksyTrainingTargetStatusCounts>(countTargetsByStatus([]));
 
-  ngOnInit(): void { this.service.listTargets().subscribe(x => this.all.set(x)); }
+  ngOnInit(): void { this.metricsService.loadTargetStatusCounts().subscribe(x => this.counts.set(x)); }
 }

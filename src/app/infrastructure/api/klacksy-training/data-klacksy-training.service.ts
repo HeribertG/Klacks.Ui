@@ -7,8 +7,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { NavigationTargetDto } from './navigation-target-dto.interface';
-import { NavigationFeedbackDto } from './navigation-feedback-dto.interface';
+import { NavigationTargetDto } from 'src/app/domain/models/klacksy-training/navigation-target-dto.interface';
+import { NavigationFeedbackDto } from 'src/app/domain/models/klacksy-training/navigation-feedback-dto.interface';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 
 @Injectable({ providedIn: 'root' })

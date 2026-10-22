@@ -3,12 +3,10 @@
 import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-reset-data.interface';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
-import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
-import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { CalendarChipsResolverService } from 'src/app/domain/services/calendar/calendar-chips-resolver.service';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
 import { ClientAvailabilityContainerComponent } from '../client-availability-container/client-availability-container.component';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
@@ -33,12 +31,10 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
-import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
+import { ClientAvailabilityClientListService } from 'src/app/domain/services/client-availability/client-availability-client-list.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
-import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -51,10 +47,8 @@ import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.help
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
-import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
-import { ResolvedCalendarChips } from 'src/app/domain/models/calendar/resolved-calendar-chips.interface';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 @Component({
@@ -100,7 +94,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
-  private dataClientAvailability = inject(DataClientAvailabilityService);
+  private clientList = inject(ClientAvailabilityClientListService);
   private renderGrid = inject(RenderAvailabilityGridService);
   private calculation = inject(AvailabilityCalculationService);
   private settings = inject(AvailabilitySettingService);
@@ -112,9 +106,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private holidayCollection = inject(HolidayCollectionService);
   private calendarUtil = inject(CalendarUtilService);
   private appSettingsService = inject(AppSettingsManagementService);
-  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private calendarChipsResolver = inject(CalendarChipsResolverService);
   private selectionService = inject(AvailabilitySelectionService);
-  private readonly clientSortPreference = inject(ClientSortPreferenceService);
   private refreshRegistry = inject(DataRefreshRegistry);
   private unregisterRefresh?: () => void;
 
@@ -206,13 +199,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     this.filterService.startDate = this.calculation.formatDateOnly(this.calculation.startDate);
     this.filterService.endDate = this.calculation.getEndDate();
     const filter = this.filterService.buildFilter();
-    const response = await firstValueFrom(
-      this.dataClientAvailability.getClients(filter)
-    );
-
-    const sortedRaw = filter.individualSort
-      ? this.clientSortPreference.applyTo(response.clients)
-      : response.clients;
+    const sortedRaw = await this.clientList.loadClients(filter);
 
     const clients = sortedRaw.map((c) => ({
       id: c.id,
@@ -248,45 +235,9 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   }
 
   private async applyCalendarSelection(): Promise<void> {
-    const { tokens, overrides } = await this.resolveCalendarChips();
+    const { tokens, overrides } = await this.calendarChipsResolver.resolveActiveSelection();
     if (tokens.length > 0) {
       this.holidayCollection.setSelection(tokens, overrides);
-    }
-  }
-
-  private async resolveCalendarChips(): Promise<ResolvedCalendarChips> {
-    const calendarSelectionId =
-      this.groupSelection.selectedGroup?.calendarSelectionId ||
-      this.appSettingsService.contactSettings().globalCalendarSelectionId;
-
-    if (!calendarSelectionId) {
-      return { tokens: [], overrides: new Map() };
-    }
-
-    try {
-      const selection = await lastValueFrom(
-        this.dataCalendarSelectionService.getCalendarSelection(calendarSelectionId)
-      );
-
-      if (!selection?.selectedCalendars?.length) {
-        return { tokens: [], overrides: new Map() };
-      }
-
-      const tokens: StateCountryToken[] = [];
-      const overrides: OfficialOverrideMap = new Map();
-      selection.selectedCalendars.forEach((sc) => {
-        const token = new StateCountryToken();
-        token.country = sc.country;
-        token.state = sc.state;
-        tokens.push(token);
-        overrides.set(
-          buildOfficialOverrideKey(sc.country, sc.state),
-          sc.officialOverride
-        );
-      });
-      return { tokens, overrides };
-    } catch {
-      return { tokens: [], overrides: new Map() };
     }
   }
 }

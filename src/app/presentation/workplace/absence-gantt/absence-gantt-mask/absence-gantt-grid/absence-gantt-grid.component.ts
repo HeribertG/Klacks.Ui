@@ -38,7 +38,6 @@ import { ReportData } from 'src/app/domain/services/report/report-data.interface
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 import { ReportType } from 'src/app/domain/models/report/report-type.enum';
-import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
@@ -63,7 +62,6 @@ const YEAR_END_SUFFIX = '-12-31T00:00:00';
     ReportDataProviderService,
     ReportService,
     DataManagementReportService,
-    DataReportApiService,
     AbsenceLookupService,
   ],
 })

@@ -33,20 +33,13 @@ import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
-import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
-import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
-import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
-import { lastValueFrom } from 'rxjs';
+import { CalendarChipsResolverService } from 'src/app/domain/services/calendar/calendar-chips-resolver.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop.service';
 import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
 import { GanttCoordinateService } from '../services/gantt-coordinate.service';
-import { ResolvedCalendarChips } from 'src/app/domain/models/calendar/resolved-calendar-chips.interface';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({
@@ -99,9 +92,7 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
   private holidayCollection = inject(HolidayCollectionService);
-  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
-  private groupSelectionService = inject(GroupSelectionService);
-  private appSettingsService = inject(AppSettingsManagementService);
+  private calendarChipsResolver = inject(CalendarChipsResolverService);
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
 
   ganttHeader = viewChild.required<AbsenceGanttHeaderComponent>('ganttHeader');
@@ -121,48 +112,12 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
       this.dataManagementAbsence.readDataAsync(),
     ]);
 
-    const { tokens, overrides } = await this.resolveCalendarChips();
+    const { tokens, overrides } = await this.calendarChipsResolver.resolveActiveSelection();
     if (tokens.length > 0) {
       this.holidayCollection.setSelection(tokens, overrides);
     }
 
     await this.ganttHeader().initAsync();
-  }
-
-  private async resolveCalendarChips(): Promise<ResolvedCalendarChips> {
-    const calendarSelectionId =
-      this.groupSelectionService.selectedGroup?.calendarSelectionId ||
-      this.appSettingsService.contactSettings().globalCalendarSelectionId;
-
-    if (!calendarSelectionId) {
-      return { tokens: [], overrides: new Map() };
-    }
-
-    try {
-      const selection = await lastValueFrom(
-        this.dataCalendarSelectionService.getCalendarSelection(calendarSelectionId)
-      );
-
-      if (!selection?.selectedCalendars?.length) {
-        return { tokens: [], overrides: new Map() };
-      }
-
-      const tokens: StateCountryToken[] = [];
-      const overrides: OfficialOverrideMap = new Map();
-      selection.selectedCalendars.forEach((sc) => {
-        const token = new StateCountryToken();
-        token.country = sc.country;
-        token.state = sc.state;
-        tokens.push(token);
-        overrides.set(
-          buildOfficialOverrideKey(sc.country, sc.state),
-          sc.officialOverride
-        );
-      });
-      return { tokens, overrides };
-    } catch {
-      return { tokens: [], overrides: new Map() };
-    }
   }
 
   async onPdfExportRequested(): Promise<void> {

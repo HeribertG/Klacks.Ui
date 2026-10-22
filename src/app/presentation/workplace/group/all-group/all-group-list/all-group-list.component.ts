@@ -48,7 +48,6 @@ import { QuickPrintActionService } from 'src/app/presentation/services/quick-pri
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllGroupStateService } from '../services/all-group-state.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
@@ -89,7 +88,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private injector = inject(Injector);
   private tableResizeService = inject(TableResizeService);
   private allGroupStateService = inject(AllGroupStateService);
-  private localStorageService = inject(LocalStorageService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 

@@ -20,7 +20,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
-import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
@@ -52,7 +51,6 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   isLoading = signal(false);
   errorMessage = signal<string | undefined>(undefined);
 
-  public dataLoadFileService = inject(DataLoadFileService);
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private injector = inject(Injector);

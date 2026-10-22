@@ -4,13 +4,10 @@
  * Settings card for selecting the application theme and display language.
  */
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { LocaleService } from 'src/app/application/services/locale.service';
-import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
+import { DisplayLanguageService } from 'src/app/application/services/display-language.service';
 import { AVAILABLE_THEMES, ThemeService } from 'src/app/presentation/services/theme.service';
 import { ThemeMode } from 'src/app/presentation/services/theme-mode.type';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
@@ -28,16 +25,13 @@ export class ProfileCustomSettingComponent {
   public selectedLanguage = signal<Language>(DomainMessages.DEFAULT_LANG);
   public readonly themes = AVAILABLE_THEMES;
 
-  private translateService = inject(TranslateService);
-  private translateStringConstantsService = inject(TranslateStringConstantsService);
-  private localStorageService = inject(LocalStorageService);
-  private localeService = inject(LocaleService);
+  private displayLanguageService = inject(DisplayLanguageService);
   private themeService = inject(ThemeService);
   private languageConfigService = inject(LanguageConfigService);
 
   constructor() {
-    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    if (savedLang && this.languageConfigService.isLanguageSupported(savedLang)) {
+    const savedLang = this.displayLanguageService.savedSupportedLanguage();
+    if (savedLang) {
       this.onChangeLanguage(savedLang);
     }
     this.selectedTheme.set(this.themeService.getCurrentTheme());
@@ -53,10 +47,7 @@ export class ProfileCustomSettingComponent {
 
   onChangeLanguage(lang: string): void {
     this.selectedLanguage.set(lang as Language);
-    this.translateService.use(lang);
-    this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
-    this.translateStringConstantsService.translate();
-    void this.localeService.switchLocale(lang);
+    this.displayLanguageService.switchTo(lang);
   }
 
   onThemeChanged(event: Event): void {
