@@ -96,7 +96,7 @@ describe('WelcomeFocusToastService', () => {
 
   it('puts the focus action first, the ranked options next and later last', () => {
     const ranked = [
-      { label: 'Mitarbeiter anlegen', value: '/workplace/new-employee' },
+      { label: 'Mitarbeiter anlegen', value: '/workplace/edit-address' },
       { label: 'Person finden', value: '/workplace/client' },
     ];
 
@@ -104,7 +104,7 @@ describe('WelcomeFocusToastService', () => {
 
     expect(result.options.map((option) => option.value)).toEqual([
       WELCOME_FOCUS_ACTION,
-      '/workplace/new-employee',
+      '/workplace/edit-address',
       '/workplace/client',
       WELCOME_FOCUS_LATER,
     ]);

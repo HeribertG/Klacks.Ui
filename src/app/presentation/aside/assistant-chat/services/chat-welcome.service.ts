@@ -204,7 +204,8 @@ export class ChatWelcomeService {
         const route = routes[key];
         return { label, value: route ? toNavigationOptionValue(route, targets[key]) : label };
       })
-      .filter((o): o is ISuggestedReply => o !== null);
+      .filter((o): o is ISuggestedReply => o !== null)
+      .filter((option, index, options) => options.findIndex((other) => other.value === option.value) === index);
   }
 
   private resolveWelcomeContent(response: IWelcomeResponse, langCode: string): string {

@@ -584,7 +584,7 @@ describe('AssistantChatComponent', () => {
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent('Navigating to clients');
-                    callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                    callbacks.onMetadata({ navigateTo: '/workplace/client', actionPerformed: true });
                     callbacks.onDone();
                     return new AbortController();
                 },
@@ -595,7 +595,7 @@ describe('AssistantChatComponent', () => {
             await vi.advanceTimersByTimeAsync(2100);
 
             // Assert
-            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
+            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/client');
             vi.useRealTimers();
         });
 
@@ -610,7 +610,7 @@ describe('AssistantChatComponent', () => {
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent(FAST_PATH_ACK_KEY);
-                    callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                    callbacks.onMetadata({ navigateTo: '/workplace/client', actionPerformed: true });
                     callbacks.onDone();
                     return new AbortController();
                 },
@@ -939,15 +939,15 @@ describe('AssistantChatComponent', () => {
             });
 
             it('navigates once the timer fires while the turn is not stopped', async () => {
-                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                callbacks.onMetadata({ navigateTo: '/workplace/client', actionPerformed: true });
 
                 await vi.advanceTimersByTimeAsync(10);
 
-                expect(navigation.navigateAndScroll).toHaveBeenCalledWith('/workplace/clients', undefined);
+                expect(navigation.navigateAndScroll).toHaveBeenCalledWith('/workplace/client', undefined);
             });
 
             it('does not navigate when the turn was stopped before the timer fired', async () => {
-                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                callbacks.onMetadata({ navigateTo: '/workplace/client', actionPerformed: true });
                 turnStopped = true;
 
                 await vi.advanceTimersByTimeAsync(10);
@@ -957,7 +957,7 @@ describe('AssistantChatComponent', () => {
 
             it('does not navigate when the panel was closed before the timer fired', async () => {
                 asideService.hide();
-                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                callbacks.onMetadata({ navigateTo: '/workplace/client', actionPerformed: true });
 
                 fixture.destroy();
                 await vi.advanceTimersByTimeAsync(10);
@@ -967,12 +967,12 @@ describe('AssistantChatComponent', () => {
 
             it('still navigates when only the component instance is swapped and the aside stays visible', async () => {
                 asideService.show();
-                callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                callbacks.onMetadata({ navigateTo: '/workplace/client', actionPerformed: true });
 
                 fixture.destroy();
                 await vi.advanceTimersByTimeAsync(10);
 
-                expect(navigation.navigateAndScroll).toHaveBeenCalledWith('/workplace/clients', undefined);
+                expect(navigation.navigateAndScroll).toHaveBeenCalledWith('/workplace/client', undefined);
             });
         });
 
@@ -1848,10 +1848,10 @@ describe('AssistantChatComponent', () => {
 
         it('should handle navigate click', () => {
             // Act
-            replyToasts().onNavigateClick('/workplace/clients');
+            replyToasts().onNavigateClick('/workplace/client');
 
             // Assert
-            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
+            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/client');
         });
     });
 
@@ -4225,6 +4225,21 @@ describe('AssistantChatComponent', () => {
 
             const values = showSpy.mock.calls[0][0].options.map((option: { value: string }) => option.value);
             expect(new Set(values).size).toBe(values.length);
+        });
+
+        it('offers two suggestions that open the same place only once', () => {
+            const response = welcomeWithSettingsSuggestions();
+            response.suggestionKeys = ['klacksy.welcome.suggestion.view_schedule', 'klacksy.welcome.suggestion.review_week'];
+            response.suggestionRoutes = {
+                'klacksy.welcome.suggestion.view_schedule': '/workplace/schedule',
+                'klacksy.welcome.suggestion.review_week': '/workplace/schedule',
+            };
+            response.suggestionTargets = {};
+
+            (welcome() as any).applyWelcomeResponse('welcome-targets', response, 'de');
+
+            const values = showSpy.mock.calls[0][0].options.map((option: { value: string }) => option.value);
+            expect(values).toEqual(['/workplace/schedule']);
         });
 
         it('navigates the provider suggestion to the settings page and scrolls to the LLM provider section', () => {
