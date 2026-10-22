@@ -26,16 +26,13 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute } from '@angular/router';
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
-import { forkJoin, of, skip } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { skip } from 'rxjs';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
-import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
+import { ExportLog } from 'src/app/domain/models/period-closing/export-log';
 import { PeriodIssue } from 'src/app/domain/models/period-closing/period-issue';
-import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
+import { SealedPeriodSummary } from 'src/app/domain/models/period-closing/sealed-period-summary';
 import { UsedPeriod } from 'src/app/domain/models/period-closing/used-period';
-import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
-import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
-import { ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter-class';
+import { PeriodClosingOverviewService } from 'src/app/domain/services/period-closing/period-closing-overview.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
@@ -52,7 +49,6 @@ import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants
 import { PeriodGroup } from './period-group.interface';
 import { errorCountToReconfirm } from '../period-seal-conflict';
 
-const SHIFT_LOAD_LIMIT = 10000;
 const BULK_UNSEAL_KEY = '__bulk__';
 const ISO_DATE_LENGTH = 10;
 
@@ -68,7 +64,7 @@ export class PeriodsTabComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private api = inject(DataPeriodClosingService);
-  private shiftScheduleApi = inject(DataShiftScheduleService);
+  private periodClosingOverview = inject(PeriodClosingOverviewService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
   private modalService = inject(ModalService);
@@ -244,30 +240,13 @@ export class PeriodsTabComponent implements OnInit {
       return;
     }
     this.loading.set(true);
-    const bounds = this.getPeriodBounds(period);
-    const shiftFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
-    shiftFilter.startDate = bounds.start;
-    shiftFilter.endDate = bounds.end;
-    shiftFilter.selectedGroup = period.groupId ?? undefined;
-    shiftFilter.rowCount = SHIFT_LOAD_LIMIT;
-    forkJoin({
-      summary: this.api.getSealedPeriods(period.startDate, period.endDate, period.groupId),
-      issues: this.api.getPeriodIssues(period.startDate, period.endDate, period.groupId),
-      shifts: this.shiftScheduleApi.getShiftSchedule(shiftFilter),
-      exportLogs: this.api.getExportLog(bounds.start, bounds.end).pipe(catchError(() => of([] as ExportLog[]))),
-    }).subscribe({
-      next: ({ summary, issues, shifts, exportLogs }) => {
-        this.summary.set(summary);
-        this.issues.set(issues);
-        this.exportLogs.set(exportLogs);
-        let total = 0;
-        for (const shift of shifts.shifts) {
-          const need = shift.sumEmployees * shift.quantity;
-          const gap = need - shift.engaged;
-          if (gap > 0) total += gap;
-        }
-        this.unstaffedShiftCount.set(total);
-        this.unstaffedShiftTruncated.set(shifts.totalCount > shifts.shifts.length);
+    this.periodClosingOverview.loadOverview(period, this.getPeriodBounds(period)).subscribe({
+      next: (overview) => {
+        this.summary.set(overview.summary);
+        this.issues.set(overview.issues);
+        this.exportLogs.set(overview.exportLogs);
+        this.unstaffedShiftCount.set(overview.unstaffedShiftCount);
+        this.unstaffedShiftTruncated.set(overview.unstaffedShiftTruncated);
         this.loading.set(false);
       },
       error: () => {

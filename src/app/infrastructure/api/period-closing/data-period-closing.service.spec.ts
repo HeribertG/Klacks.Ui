@@ -4,8 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { environment } from 'src/environments/environment';
 import { DataPeriodClosingService } from './data-period-closing.service';
-import { SealRequest } from './models/seal-request';
-import { UnsealRequest } from './models/unseal-request';
+import { SealRequest } from 'src/app/domain/models/period-closing/seal-request';
+import { UnsealRequest } from 'src/app/domain/models/period-closing/unseal-request';
 
 describe('DataPeriodClosingService', () => {
     let service: DataPeriodClosingService;

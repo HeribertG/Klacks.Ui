@@ -30,14 +30,13 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
-import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
-import { ExportFormat } from 'src/app/infrastructure/api/period-closing/models/export-format';
-import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
-import { PayrollExportBlocker } from 'src/app/infrastructure/api/period-closing/models/payroll-export-blocker';
-import { PayrollExportPreview } from 'src/app/infrastructure/api/period-closing/models/payroll-export-preview';
-import { PayrollExportPerson } from 'src/app/infrastructure/api/period-closing/models/payroll-export-person';
-import { PayrollExportConflict } from 'src/app/infrastructure/api/period-closing/models/payroll-export-conflict';
-import { PAYROLL_EXPORT_ERROR_CODES } from 'src/app/infrastructure/api/period-closing/models/payroll-export-error-codes';
+import { ExportFormat } from 'src/app/domain/models/period-closing/export-format';
+import { SealedOrderListItem } from 'src/app/domain/models/period-closing/sealed-order-list-item';
+import { PayrollExportBlocker } from 'src/app/domain/models/period-closing/payroll-export-blocker';
+import { PayrollExportPreview } from 'src/app/domain/models/period-closing/payroll-export-preview';
+import { PayrollExportPerson } from 'src/app/domain/models/period-closing/payroll-export-person';
+import { PayrollExportConflict } from 'src/app/domain/models/period-closing/payroll-export-conflict';
+import { PAYROLL_EXPORT_ERROR_CODES } from 'src/app/domain/models/period-closing/payroll-export-error-codes';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';import {
   firstOfMonth,
@@ -58,7 +57,10 @@ import {
   triggerBlobDownload,
 } from 'src/app/shared/helpers/file-download.helper';
 import { OrderRangeExportSectionComponent } from './order-range-export-section/order-range-export-section.component';
-import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from './export-format-options.constants';
+import { DEFAULT_EXPORT_FORMAT } from './export-format-options.constants';
+import { FORMAT_LABEL_PREFIX } from 'src/app/domain/constants/export-format-label.constants';
+import { ExportFormatOption } from 'src/app/domain/models/period-closing/export-format-option';
+import { ExportFormatCatalogService } from 'src/app/domain/services/period-closing/export-format-catalog.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -69,8 +71,6 @@ import { errorCountToReconfirm } from '../period-seal-conflict';
 import { parsePayrollExportConflict } from './payroll-export-conflict.parser';
 import { PAYROLL_BLOCK_REASON_KEYS, PAYROLL_EMPTY_PLACEHOLDER } from './payroll-export.constants';
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
-const ORDER_FAMILY = 'order';
-const PAYROLL_FAMILY = 'payroll';
 
 const DEFAULT_EXPORTS_TAB: ExportsTabKey = 'single';
 
@@ -92,7 +92,7 @@ const DEFAULT_EXPORTS_TAB: ExportsTabKey = 'single';
 })
 export class ExportsTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
-  private exportFormatsApi = inject(DataExportFormatsService);
+  private exportFormatCatalog = inject(ExportFormatCatalogService);
   private modalService = inject(ModalService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
@@ -164,35 +164,21 @@ export class ExportsTabComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.exportFormatsApi.getFormats().subscribe({
-      next: (list) => {
-        const enabled = list.filter((f) => f.enabled && f.family === ORDER_FAMILY);
-        this.formats.set(
-          enabled.map((f) => ({
-            key: f.key as ExportFormat,
-            labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
-          })),
-        );
-        if (!enabled.some((f) => f.key === this.format())) {
-          const fallback = enabled[0]?.key as ExportFormat | undefined;
+    this.exportFormatCatalog.loadCatalog().subscribe({
+      next: ({ orderFormats, employeeFormats, payrollFormatKeys }) => {
+        this.formats.set(orderFormats);
+        if (!orderFormats.some((f) => f.key === this.format())) {
+          const fallback = orderFormats[0]?.key;
           if (fallback) {
             this.format.set(fallback);
           }
         }
 
-        const generic = list.filter((f) => f.fixed);
-        const payroll = list.filter((f) => f.enabled && f.family === PAYROLL_FAMILY);
-        const employeeFormats = [...generic, ...payroll];
         if (employeeFormats.length > 0) {
-          this.clientExportFormats.set(
-            employeeFormats.map((f) => ({
-              key: f.key as ExportFormat,
-              labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
-            })),
-          );
-          this.payrollFormatKeys.set(new Set(payroll.map((f) => f.key)));
+          this.clientExportFormats.set(employeeFormats);
+          this.payrollFormatKeys.set(payrollFormatKeys);
           if (!employeeFormats.some((f) => f.key === this.clientExportFormat())) {
-            this.clientExportFormat.set(employeeFormats[0].key as ExportFormat);
+            this.clientExportFormat.set(employeeFormats[0].key);
           }
         }
       },

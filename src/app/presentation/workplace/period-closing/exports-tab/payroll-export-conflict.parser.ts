@@ -7,11 +7,11 @@
  * @returns The conflict, or null when the response is not a payroll export conflict
  */
 
-import { PayrollExportConflict } from 'src/app/infrastructure/api/period-closing/models/payroll-export-conflict';
+import { PayrollExportConflict } from 'src/app/domain/models/period-closing/payroll-export-conflict';
 import {
   PAYROLL_EXPORT_ERROR_CODES,
   PayrollExportErrorCode,
-} from 'src/app/infrastructure/api/period-closing/models/payroll-export-error-codes';
+} from 'src/app/domain/models/period-closing/payroll-export-error-codes';
 
 const HTTP_STATUS_CONFLICT = 409;
 const KNOWN_CODES: readonly string[] = Object.values(PAYROLL_EXPORT_ERROR_CODES);

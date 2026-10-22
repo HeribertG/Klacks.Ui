@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { PayrollExportBlockReason } from 'src/app/infrastructure/api/period-closing/models/payroll-export-block-reason';
+import { PayrollExportBlockReason } from 'src/app/domain/models/period-closing/payroll-export-block-reason';
 
 export const PAYROLL_BLOCK_REASON_KEYS: Readonly<Record<PayrollExportBlockReason, string>> = {
   [PayrollExportBlockReason.EntryNotClosed]: 'periodClosing.payroll.reason.entryNotClosed',

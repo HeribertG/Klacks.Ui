@@ -27,9 +27,9 @@ import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
-import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
-import { PeriodAuditLog } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
-import { PeriodAuditAction } from 'src/app/infrastructure/api/period-closing/models/period-audit-action.enum';
+import { ExportLog } from 'src/app/domain/models/period-closing/export-log';
+import { PeriodAuditLog } from 'src/app/domain/models/period-closing/period-audit-log';
+import { PeriodAuditAction } from 'src/app/domain/models/period-closing/period-audit-action.enum';
 import {
   firstOfMonth,
   lastOfMonth,

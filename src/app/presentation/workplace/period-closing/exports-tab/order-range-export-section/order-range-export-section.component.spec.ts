@@ -7,9 +7,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { OrderRangeExportSectionComponent } from './order-range-export-section.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
-import { ISealedOrderDetails } from 'src/app/infrastructure/api/period-closing/models/sealed-order-details';
-import { ISealedOrderWorkEntry } from 'src/app/infrastructure/api/period-closing/models/sealed-order-work-entry';
-import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
+import { ISealedOrderDetails } from 'src/app/domain/models/period-closing/sealed-order-details';
+import { ISealedOrderWorkEntry } from 'src/app/domain/models/period-closing/sealed-order-work-entry';
+import { SealedOrderListItem } from 'src/app/domain/models/period-closing/sealed-order-list-item';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';

@@ -19,11 +19,10 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
-import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
-import { ExportFormat } from 'src/app/infrastructure/api/period-closing/models/export-format';
-import { ISealedOrderDetails } from 'src/app/infrastructure/api/period-closing/models/sealed-order-details';
-import { ISealedOrderWorkEntry } from 'src/app/infrastructure/api/period-closing/models/sealed-order-work-entry';
-import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
+import { ExportFormat } from 'src/app/domain/models/period-closing/export-format';
+import { ISealedOrderDetails } from 'src/app/domain/models/period-closing/sealed-order-details';
+import { ISealedOrderWorkEntry } from 'src/app/domain/models/period-closing/sealed-order-work-entry';
+import { SealedOrderListItem } from 'src/app/domain/models/period-closing/sealed-order-list-item';
 import {
   firstOfMonth,
   lastOfMonth,
@@ -35,7 +34,10 @@ import {
   extractFileNameFromContentDisposition,
   triggerBlobDownload,
 } from 'src/app/shared/helpers/file-download.helper';
-import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from '../export-format-options.constants';
+import { DEFAULT_EXPORT_FORMAT } from '../export-format-options.constants';
+import { FORMAT_LABEL_PREFIX } from 'src/app/domain/constants/export-format-label.constants';
+import { ExportFormatOption } from 'src/app/domain/models/period-closing/export-format-option';
+import { ExportFormatCatalogService } from 'src/app/domain/services/period-closing/export-format-catalog.service';
 
 import { DomainMessages } from 'src/app/domain/constants/messages';
 type WorkEntryStatus = 'exportable' | 'periodOpen' | 'notClosed';
@@ -48,7 +50,6 @@ const EMPTY_RESPONSE_BODY_MESSAGE = 'Empty response body';
 const GENERIC_ERROR_MESSAGE = 'Error';
 const ORDERS_PAGE_SIZE = 10;
 const FIRST_PAGE = 1;
-const ORDER_FAMILY = 'order';
 
 @Component({
   selector: 'app-order-range-export-section',
@@ -67,7 +68,7 @@ const ORDER_FAMILY = 'order';
 })
 export class OrderRangeExportSectionComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
-  private exportFormatsApi = inject(DataExportFormatsService);
+  private exportFormatCatalog = inject(ExportFormatCatalogService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
@@ -109,17 +110,11 @@ export class OrderRangeExportSectionComponent implements OnInit {
   }
 
   private loadFormats(): void {
-    this.exportFormatsApi.getFormats().subscribe({
-      next: (list) => {
-        const enabled = list.filter((f) => f.enabled && f.family === ORDER_FAMILY);
-        this.formats.set(
-          enabled.map((f) => ({
-            key: f.key as ExportFormat,
-            labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
-          })),
-        );
-        if (!enabled.some((f) => f.key === this.format())) {
-          const fallback = enabled[0]?.key as ExportFormat | undefined;
+    this.exportFormatCatalog.loadCatalog().subscribe({
+      next: ({ orderFormats }) => {
+        this.formats.set(orderFormats);
+        if (!orderFormats.some((f) => f.key === this.format())) {
+          const fallback = orderFormats[0]?.key;
           if (fallback) {
             this.format.set(fallback);
           }

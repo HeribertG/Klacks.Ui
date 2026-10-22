@@ -13,10 +13,10 @@ import { DataExportFormatsService } from 'src/app/infrastructure/api/period-clos
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { PayrollExportBlocker } from 'src/app/infrastructure/api/period-closing/models/payroll-export-blocker';
-import { PayrollExportBlockReason } from 'src/app/infrastructure/api/period-closing/models/payroll-export-block-reason';
-import { PayrollExportPerson } from 'src/app/infrastructure/api/period-closing/models/payroll-export-person';
-import { PayrollExportPreview } from 'src/app/infrastructure/api/period-closing/models/payroll-export-preview';
+import { PayrollExportBlocker } from 'src/app/domain/models/period-closing/payroll-export-blocker';
+import { PayrollExportBlockReason } from 'src/app/domain/models/period-closing/payroll-export-block-reason';
+import { PayrollExportPerson } from 'src/app/domain/models/period-closing/payroll-export-person';
+import { PayrollExportPreview } from 'src/app/domain/models/period-closing/payroll-export-preview';
 
 describe('ExportsTabComponent klacksy targets', () => {
   let targetRequested$: Subject<{ target: string }>;
