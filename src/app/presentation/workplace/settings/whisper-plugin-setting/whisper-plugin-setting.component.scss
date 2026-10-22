@@ -25,33 +25,3 @@
   flex-direction: column;
   gap: 2px;
 }
-
-.info-text {
-  margin-inline-start: 30px;
-  margin-top: 10px;
-  margin-bottom: 5px;
-}
-
-.action-message {
-  margin-inline-start: 30px;
-  margin-top: 6px;
-  font-style: italic;
-}
-
-.model-block {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.radio-label {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 0;
-}
-
-.model-hint {
-  display: block;
-}

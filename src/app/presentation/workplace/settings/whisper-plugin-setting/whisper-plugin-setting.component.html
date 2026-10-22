@@ -4,39 +4,39 @@
   </div>
   <div id="whisper-plugin-setting-line" class="container-line"></div>
 
-  <div class="info-text settings-hint">
+  <p class="hint-text settings-hint">
     {{ "setting.speech.whisper-plugin.description" | translate }}
-  </div>
+  </p>
 
-  @if (status(); as s) {
+  @if (localStt.status(); as s) {
     <div id="whisper-plugin-setting-status" class="row-line">
       <div class="form-group firstColumn">
         <span class="selection-label">{{
           "setting.speech.whisper-plugin.status-label" | translate
         }}</span>
         @if (s.activeOperation; as op) {
-          @if (awaitingUpdater()) {
-            <span class="hint-text settings-hint status-text-error">{{
+          @if (localStt.awaitingUpdater()) {
+            <span class="settings-hint status-text-error">{{
               "setting.speech.whisper-plugin.status-awaiting-updater" | translate
             }}</span>
           } @else if (op.operationType === OperationTypes.Install) {
-            <span class="hint-text settings-hint">{{
+            <span class="settings-hint">{{
               "setting.speech.whisper-plugin.status-installing"
                 | translate: { status: op.status }
             }}</span>
           } @else {
-            <span class="hint-text settings-hint">{{
+            <span class="settings-hint">{{
               "setting.speech.whisper-plugin.status-uninstalling"
                 | translate: { status: op.status }
             }}</span>
           }
         } @else if (s.installed) {
-          <span class="hint-text settings-hint status-text-success">{{
+          <span class="settings-hint status-text-success">{{
             "setting.speech.whisper-plugin.status-installed"
-              | translate: { model: s.modelAlias }
+              | translate: { model: localStt.installedEngineName() }
           }}</span>
         } @else {
-          <span class="hint-text settings-hint">{{
+          <span class="settings-hint">{{
             "setting.speech.whisper-plugin.status-not-installed" | translate
           }}</span>
         }
@@ -48,7 +48,7 @@
             "setting.speech.whisper-plugin.last-operation" | translate
           }}</span>
           <span
-            class="hint-text settings-hint"
+            class="settings-hint"
             [class.status-text-error]="
               s.lastOperation.status === OperationStatuses.Failed
             "
@@ -63,56 +63,62 @@
     </div>
 
     @if (s.activeOperation) {
-      @if (awaitingUpdater()) {
-        <div class="info-text settings-hint status-text-error">
+      @if (localStt.awaitingUpdater()) {
+        <p class="hint-text settings-hint status-text-error">
           {{
             "setting.speech.whisper-plugin.awaiting-updater-hint"
-              | translate: { minutes: waitingMinutes() }
+              | translate: { minutes: localStt.waitingMinutes() }
           }}
-        </div>
+        </p>
       } @else {
-        <div class="info-text settings-hint">
+        <p class="hint-text settings-hint">
           {{ "setting.speech.whisper-plugin.install-hint" | translate }}
-        </div>
+        </p>
       }
     }
 
     @if (s.otherOperationActive) {
-      <div class="info-text settings-hint status-text-error">
+      <p class="hint-text settings-hint status-text-error">
         {{ "setting.speech.whisper-plugin.other-operation-active" | translate }}
-      </div>
+      </p>
     }
 
-    <div id="whisper-plugin-setting-models" class="model-block firstColumn">
-      <span class="selection-label">{{
-        "setting.speech.whisper-plugin.model-label" | translate
-      }}</span>
-      @for (option of modelOptions; track option.value) {
-        <label class="radio-label">
-          <input
-            type="radio"
-            name="whisperModel"
-            [value]="option.value"
-            [ngModel]="selectedModel()"
-            (ngModelChange)="onModelSelected(option.value)"
-            [disabled]="actionsDisabled()"
-          />
-          <span>
+    <div id="whisper-plugin-setting-models" class="row-line">
+      <div class="form-group firstColumn">
+        <span class="selection-label">{{
+          "setting.speech.whisper-plugin.model-label" | translate
+        }}</span>
+        @for (option of modelOptions(); track option.value) {
+          <label class="checkbox-label">
+            <input
+              type="radio"
+              name="whisperModel"
+              [value]="option.value"
+              [ngModel]="selectedModel()"
+              (ngModelChange)="onModelSelected(option.value)"
+              [disabled]="localStt.actionsDisabled()"
+            />
             {{ option.labelKey | translate }}
-            <span class="model-hint settings-hint">{{ option.hintKey | translate }}</span>
-          </span>
-        </label>
-      }
+          </label>
+          <small class="hint-text settings-hint">{{ option.hintKey | translate }}</small>
+        }
+      </div>
     </div>
 
+    @if (showAttribution()) {
+      <p id="whisper-plugin-setting-attribution" class="hint-text settings-hint">
+        {{ "setting.speech.whisper-plugin.attribution" | translate }}
+      </p>
+    }
+
     <div id="whisper-plugin-setting-actions" class="row-line actions-row">
-      @if (awaitingUpdater()) {
+      @if (localStt.awaitingUpdater()) {
         <button
           type="button"
           id="whisper-plugin-discard-btn"
           class="btn btn-outline-secondary firstColumn"
-          [disabled]="busy()"
-          (click)="discardRequest()"
+          [disabled]="localStt.busy()"
+          (click)="localStt.discardRequest()"
         >
           {{ "setting.speech.whisper-plugin.discard-request" | translate }}
         </button>
@@ -121,7 +127,7 @@
           type="button"
           id="whisper-plugin-install-btn"
           class="btn btn-primary firstColumn"
-          [disabled]="actionsDisabled()"
+          [disabled]="localStt.actionsDisabled()"
           (click)="install()"
         >
           {{ "setting.speech.whisper-plugin.install" | translate }}
@@ -132,7 +138,7 @@
             type="button"
             id="whisper-plugin-switch-btn"
             class="btn btn-primary firstColumn"
-            [disabled]="actionsDisabled()"
+            [disabled]="localStt.actionsDisabled()"
             (click)="install()"
           >
             {{ "setting.speech.whisper-plugin.switch-model" | translate }}
@@ -144,16 +150,18 @@
           class="btn btn-outline-secondary"
           [class.firstColumn]="!canSwitchModel()"
           [class.secondColumn]="canSwitchModel()"
-          [disabled]="actionsDisabled()"
-          (click)="uninstall()"
+          [disabled]="localStt.actionsDisabled()"
+          (click)="localStt.uninstall()"
         >
           {{ "setting.speech.whisper-plugin.uninstall" | translate }}
         </button>
       }
     </div>
 
-    @if (actionMessage()) {
-      <div class="action-message settings-hint">{{ actionMessage() }}</div>
+    @if (localStt.rejectionReason()) {
+      <p class="hint-text settings-hint status-text-error">{{ localStt.rejectionReason() }}</p>
+    } @else if (localStt.actionMessage()) {
+      <p class="hint-text settings-hint">{{ localStt.actionMessage() }}</p>
     }
   }
 

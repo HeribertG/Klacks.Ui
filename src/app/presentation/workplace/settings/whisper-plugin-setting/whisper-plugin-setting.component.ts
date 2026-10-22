@@ -1,12 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Admin card for the self-hosted Whisper speech recognition plugin: shows install state,
- * lets the admin pick a model, install, switch the model or uninstall, and polls while
- * an operation runs on the updater queue. When a queued operation stays unclaimed the card
- * says so instead of claiming progress, and offers to discard the stuck request.
- * @param status - Current plugin state including active/last operation
- * @param selectedModel - Model alias chosen via the radio buttons
+ * Admin card for the local speech recognition plugin (Parakeet / Whisper): shows install state, lets the admin pick
+ * an engine, install, switch or uninstall. State, polling and the queue actions live in LocalSttEngineService,
+ * which this card shares with the speech settings. Engines the installation cannot run are not offered.
+ * @param selectedModel - Engine alias chosen via the radio buttons
  */
 import {
   Component,
@@ -17,20 +15,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
-import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
-import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
+import { LocalSttEngineService } from 'src/app/domain/services/speech/local-stt-engine.service';
 import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
-import { WhisperOperationResult } from 'src/app/domain/models/assistant/whisper-operation-result.interface';
 import { WhisperModelOption } from './whisper-model-option.interface';
-import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
-
-const POLL_INTERVAL_MS = 5000;
 
 @Component({
   selector: 'app-whisper-plugin-setting',
@@ -41,16 +32,19 @@ const POLL_INTERVAL_MS = 5000;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
-  private dataUpdateService = inject(DataManagementUpdateService);
-  private queueHealth = inject(UpdateQueueHealthService);
+  public readonly localStt = inject(LocalSttEngineService);
 
-  private pollHandle: ReturnType<typeof setInterval> | null = null;
   private modelSyncedFromStatus = false;
 
   public readonly OperationTypes = WhisperOperationTypes;
   public readonly OperationStatuses = WhisperOperationStatuses;
 
-  public readonly modelOptions: WhisperModelOption[] = [
+  private readonly allModelOptions: WhisperModelOption[] = [
+    {
+      value: WhisperModelAliases.Parakeet,
+      labelKey: 'setting.speech.whisper-plugin.model-parakeet',
+      hintKey: 'setting.speech.whisper-plugin.model-parakeet-hint',
+    },
     {
       value: WhisperModelAliases.Small,
       labelKey: 'setting.speech.whisper-plugin.model-small',
@@ -63,122 +57,52 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
     },
   ];
 
-  public status = signal<WhisperPluginStatus | null>(null);
-  public busy = signal(false);
-  public actionMessage = signal<string>('');
-  public selectedModel = signal<WhisperModelAlias>(WhisperModelAliases.LargeV3Turbo);
+  public readonly selectedModel = signal<WhisperModelAlias>(WhisperModelAliases.Parakeet);
 
-  public readonly actionsDisabled = computed(() => {
-    const s = this.status();
-    return this.busy() || !s || !!s.activeOperation || s.otherOperationActive;
+  public readonly modelOptions = computed(() => {
+    const supported = this.localStt.supportedAliases();
+    return this.allModelOptions.filter((option) => supported.includes(option.value));
   });
 
-  public readonly canSwitchModel = computed(() => {
-    const s = this.status();
-    return !!s?.installed && s.modelAlias !== this.selectedModel();
-  });
-
-  public readonly awaitingUpdater = computed(() =>
-    this.queueHealth.isAwaitingUpdater(this.status()?.activeOperation),
+  public readonly canSwitchModel = computed(
+    () => this.localStt.isInstalled() && this.localStt.installedAlias() !== this.selectedModel(),
   );
 
-  public readonly waitingMinutes = computed(() =>
-    this.queueHealth.waitingMinutes(this.status()?.activeOperation),
+  public readonly showAttribution = computed(
+    () =>
+      this.selectedModel() === WhisperModelAliases.Parakeet ||
+      this.localStt.installedAlias() === WhisperModelAliases.Parakeet,
   );
 
-  ngOnInit(): void {
-    this.reload();
+  async ngOnInit(): Promise<void> {
+    await this.localStt.attach();
+    this.syncSelectedModel();
   }
 
   ngOnDestroy(): void {
-    this.stopPolling();
-  }
-
-  public async reload(): Promise<void> {
-    const status = await this.dataUpdateService.getWhisperPluginStatus();
-    this.status.set(status);
-    this.syncSelectedModel(status);
-
-    if (status?.activeOperation) {
-      this.startPolling();
-    } else {
-      this.stopPolling();
-    }
+    this.localStt.detach();
   }
 
   public async install(): Promise<void> {
-    await this.runAction(() => this.dataUpdateService.installWhisperPlugin(this.selectedModel()));
-  }
-
-  public async uninstall(): Promise<void> {
-    await this.runAction(() => this.dataUpdateService.uninstallWhisperPlugin());
+    await this.localStt.install(this.selectedModel());
   }
 
   public onModelSelected(model: WhisperModelAlias): void {
     this.selectedModel.set(model);
   }
 
-  public async discardRequest(): Promise<void> {
-    const operation = this.status()?.activeOperation;
-    if (!operation) {
+  private syncSelectedModel(): void {
+    if (this.modelSyncedFromStatus || !this.localStt.status()) {
       return;
     }
-
-    this.busy.set(true);
-    try {
-      await firstValueFrom(this.dataUpdateService.deleteHistoryEntry(operation.id));
-      this.actionMessage.set('');
-    } catch (error) {
-      if (!(error instanceof HttpErrorResponse) || error.status !== HttpStatusCode.Conflict) {
-        throw error;
-      }
-    } finally {
-      await this.reload();
-      this.busy.set(false);
-    }
-  }
-
-  private async runAction(action: () => Promise<WhisperOperationResult>): Promise<void> {
-    this.busy.set(true);
-    try {
-      const result = await action();
-      this.actionMessage.set(result.reason);
-      await this.reload();
-    } finally {
-      this.busy.set(false);
-    }
-  }
-
-  private syncSelectedModel(status: WhisperPluginStatus | null): void {
-    if (this.modelSyncedFromStatus || !status?.installed || !status.modelAlias) {
-      return;
-    }
-    const known = this.modelOptions.find((o) => o.value === status.modelAlias);
+    const installed = this.localStt.installedAlias();
+    const options = this.modelOptions();
+    const known = options.find((option) => option.value === installed);
     if (known) {
       this.selectedModel.set(known.value);
+    } else if (options.length > 0 && !options.some((option) => option.value === this.selectedModel())) {
+      this.selectedModel.set(options[0].value);
     }
     this.modelSyncedFromStatus = true;
-  }
-
-  private startPolling(): void {
-    if (this.pollHandle !== null) {
-      return;
-    }
-    this.pollHandle = setInterval(() => this.poll(), POLL_INTERVAL_MS);
-  }
-
-  private stopPolling(): void {
-    if (this.pollHandle !== null) {
-      clearInterval(this.pollHandle);
-      this.pollHandle = null;
-    }
-  }
-
-  private async poll(): Promise<void> {
-    const status = await this.dataUpdateService.getWhisperPluginStatus();
-    this.status.set(status);
-    if (!status?.activeOperation) {
-      this.stopPolling();
-    }
   }
 }

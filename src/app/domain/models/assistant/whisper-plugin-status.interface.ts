@@ -9,4 +9,5 @@ export interface WhisperPluginStatus {
   activeOperation: WhisperOperationInfo | null;
   lastOperation: WhisperOperationInfo | null;
   otherOperationActive: boolean;
+  supportedAliases: string[];
 }
