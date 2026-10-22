@@ -38,4 +38,16 @@ describe('ClientConfigService', () => {
     expect(service.isInit()).toBe(false);
     httpMock.match(() => true).forEach((req) => req.flush([]));
   });
+
+  it('should provide the state list ascending by state code', () => {
+    localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
+
+    const service = TestBed.inject(ClientConfigService);
+    const unsorted = ['BL', 'BS', 'FR', 'ZH', 'BE', 'AG'].map((state) => ({ state, country: 'CH' }));
+    httpMock.match(() => true).forEach((req) => {
+      req.flush(req.request.url.includes('GetStateTokenList') ? unsorted : []);
+    });
+
+    expect(service.stateList().map((s) => s.state)).toEqual(['AG', 'BE', 'BL', 'BS', 'FR', 'ZH']);
+  });
 });
