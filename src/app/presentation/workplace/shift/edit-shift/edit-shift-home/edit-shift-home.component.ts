@@ -19,7 +19,7 @@ import { NavToggleComponent } from 'src/app/presentation/shared/nav-toggle/nav-t
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { ShiftEditModeService } from 'src/app/domain/services/shift/shift-edit-mode.service';
 import { EditShiftItemComponent } from '../edit-shift-item/edit-shift-item.component';
 import { EditShiftWeekdayComponent } from '../edit-shift-weekday/edit-shift-weekday.component';
 import { EditShiftMacroComponent } from '../edit-shift-macro/edit-shift-macro.component';
@@ -67,7 +67,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   private activatedRoute = inject(ActivatedRoute);
-  private localStorageService = inject(LocalStorageService);
+  private shiftEditModeService = inject(ShiftEditModeService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
@@ -189,10 +189,6 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   }
 
   onIsChangingMode(): void {
-    const currentMode = this.localStorageService.get('mode')
-      ? this.localStorageService.get('mode')
-      : null;
-
-    this.isComplex = currentMode === 'complex' ? true : false;
+    this.isComplex = this.shiftEditModeService.isComplex();
   }
 }

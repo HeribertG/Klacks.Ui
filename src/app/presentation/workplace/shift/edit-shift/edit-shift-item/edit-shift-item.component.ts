@@ -20,7 +20,7 @@ import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { ShiftEditModeService } from 'src/app/domain/services/shift/shift-edit-mode.service';
 import { ShiftFormService } from '../services/shift-form.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
@@ -72,7 +72,7 @@ export class EditShiftItemComponent
   public dataManagementShiftService = inject(DataManagementShiftService);
   private shiftEditPermission = inject(ShiftEditPermissionService);
   public shiftFormService = inject(ShiftFormService);
-  private localStorageService = inject(LocalStorageService);
+  private shiftEditModeService = inject(ShiftEditModeService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 
@@ -155,11 +155,7 @@ export class EditShiftItemComponent
   }
 
   onComplexModeChecked(): void {
-    if (this.isChecked) {
-      this.localStorageService.set('mode', 'complex');
-    } else {
-      this.localStorageService.set('mode', 'simple');
-    }
+    this.shiftEditModeService.setComplex(this.isChecked);
 
     if (!this.isChecked) {
       if (this.dataManagementShiftService.editShift) {
@@ -171,11 +167,7 @@ export class EditShiftItemComponent
   }
 
   setMode(): void {
-    const currentMode = this.localStorageService.get('mode')
-      ? this.localStorageService.get('mode')
-      : null;
-
-    this.isChecked = currentMode === 'complex' ? true : false;
+    this.isChecked = this.shiftEditModeService.isComplex();
   }
 
   private readSignals(): void {

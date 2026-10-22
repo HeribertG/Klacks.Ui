@@ -12,9 +12,9 @@
  *   modes that need it are only offered when it is enabled and an API key is stored
  */
 import { Injectable, inject } from '@angular/core';
-import { Subject, TimeoutError, of } from 'rxjs';
-import { takeUntil, catchError, finalize } from 'rxjs';
-import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { Subject, TimeoutError } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs';
+import { ShiftPoolCompletionService } from 'src/app/domain/services/shift/shift-pool-completion.service';
 import { TranslateService } from '@ngx-translate/core';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
@@ -69,7 +69,7 @@ export class ContainerTemplateRouteService {
   private addressProvider = inject(AddressProviderService);
   private appSettingsService = inject(AppSettingsManagementService);
   private sortingService = inject(TableSortingService);
-  private dataShiftService = inject(DataShiftService);
+  private shiftPoolCompletionService = inject(ShiftPoolCompletionService);
   private geoServicesConfig = inject(GeoServicesConfigService);
 
   public selectedStartBase = '';
@@ -169,10 +169,6 @@ export class ContainerTemplateRouteService {
             return;
           }
 
-          const missingIds = result.selectedShiftIds.filter(
-            id => !localShiftPool.some(s => s.id === id),
-          );
-
           const guardedWeekday = selectedWeekday!;
           const proceed = (enrichedPool: IShift[]): void => {
             const newItems = this.convertAutofillResultToItems(
@@ -189,20 +185,10 @@ export class ContainerTemplateRouteService {
             );
           };
 
-          if (missingIds.length === 0) {
-            proceed(localShiftPool);
-            return;
-          }
-
-          this.dataShiftService
-            .getShiftsByIds(missingIds)
-            .pipe(
-              takeUntil(destroy$),
-              catchError(() => of([] as IShift[])),
-            )
-            .subscribe(fetchedShifts => {
-              proceed([...localShiftPool, ...fetchedShifts]);
-            });
+          this.shiftPoolCompletionService
+            .completePool(localShiftPool, result.selectedShiftIds)
+            .pipe(takeUntil(destroy$))
+            .subscribe(enrichedPool => proceed(enrichedPool));
         },
         error: (error) => {
           this.isAutofillRunning = false;

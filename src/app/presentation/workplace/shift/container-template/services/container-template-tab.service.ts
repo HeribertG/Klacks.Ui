@@ -16,14 +16,14 @@ import { IContainerTemplateSlot } from 'src/app/domain/models/container/containe
 import { IContainerTemplateGrid } from 'src/app/domain/models/container/container-template-grid.interface';
 import { ContainerTaskService } from 'src/app/domain/services/container/container-task.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
-import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
+import { ContainerAbsenceService } from 'src/app/domain/services/absence/container-absence.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Injectable()
 export class ContainerTemplateTabService {
   private taskService = inject(ContainerTaskService);
   private shiftService = inject(ContainerTemplateShiftService);
-  private dataAbsenceService = inject(DataAbsenceService);
+  private containerAbsenceService = inject(ContainerAbsenceService);
   private translateService = inject(TranslateService);
   private sortingService = inject(TableSortingService);
 
@@ -47,8 +47,7 @@ export class ContainerTemplateTabService {
   }
 
   private async loadContainerAbsences(): Promise<void> {
-    const allAbsences = await firstValueFrom(this.dataAbsenceService.readAbsenceList());
-    this.containerAbsences = allAbsences.filter(a => a.appliesToContainer);
+    this.containerAbsences = await firstValueFrom(this.containerAbsenceService.readContainerAbsences());
   }
 
   onWeekdayChange(selectedWeekday: string | null): void {

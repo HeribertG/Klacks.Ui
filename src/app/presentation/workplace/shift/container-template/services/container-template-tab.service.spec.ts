@@ -2,6 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ContainerTemplateSlotCalculationService } from 'src/app/domain/services/container/container-template-slot-calculation.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
@@ -67,5 +69,33 @@ describe('ContainerTemplateTabService holiday filter', () => {
 
   it('shows no holiday tab for a container without holiday option', () => {
     expect(rowsFor(createContainer({}), 'monday', true)).toEqual([]);
+  });
+});
+
+describe('ContainerTemplateTabService employment tab', () => {
+  it('loads only the container absences when the employment tab is selected', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        ContainerTemplateTabService,
+        {
+          provide: DataAbsenceService,
+          useValue: {
+            readAbsenceList: () =>
+              of([
+                { id: 'in', appliesToContainer: true },
+                { id: 'out', appliesToContainer: false },
+              ] as IAbsence[]),
+          },
+        },
+        { provide: TranslateService, useValue: { instant: (key: string) => key } },
+        { provide: TableSortingService, useValue: {} },
+      ],
+    });
+    const service = TestBed.inject(ContainerTemplateTabService);
+
+    await service.selectEmploymentTab();
+
+    expect(service.isEmploymentTabActive).toBe(true);
+    expect(service.containerAbsences.map((absence) => absence.id)).toEqual(['in']);
   });
 });

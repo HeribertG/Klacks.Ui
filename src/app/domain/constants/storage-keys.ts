@@ -15,6 +15,8 @@ export class StorageKeys {
   public static readonly DASHBOARD_SECTION_VISIBILITY = 'dashboard.sectionVisibility';
   public static readonly DASHBOARD_SECTION_ORDER = 'dashboard.sectionOrder';
   public static readonly SETTINGS_EXPERT_MODE = 'settings.expertMode';
+  public static readonly GROUP_VIEW_MODE = 'group-view-mode';
+  public static readonly SHIFT_EDIT_MODE = 'mode';
   public static readonly RETURN_URL = 'klacks.returnUrl';
   public static readonly CONTAINER_LOCK_INSTANCE_ID = 'klacks.containerLock.instanceId';
   public static readonly SCHEDULE_VIEW_MODE = 'klacks.schedule.viewMode';

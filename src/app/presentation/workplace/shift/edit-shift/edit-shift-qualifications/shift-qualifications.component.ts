@@ -34,7 +34,7 @@ import { QualificationType } from 'src/app/domain/enums/qualification-type.enum'
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
+import { DataManagementQualificationService } from 'src/app/domain/services/settings/data-management-qualification.service';
 import { ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
 import { IShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification.interface';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
@@ -65,7 +65,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   readonly isChangingEvent = output<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
-  private dataQualificationService = inject(DataQualificationService);
+  private qualificationService = inject(DataManagementQualificationService);
   private shiftEditPermission = inject(ShiftEditPermissionService);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -243,7 +243,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   }
 
   private loadMasterQualifications(): void {
-    this.dataQualificationService
+    this.qualificationService
       .getQualificationList(true)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((list) => {

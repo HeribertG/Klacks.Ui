@@ -27,7 +27,7 @@ import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
-import { DataProactiveAttributionService } from 'src/app/infrastructure/api/assistant/data-proactive-attribution.service';
+import { ProactiveShiftAttributionService } from 'src/app/domain/services/assistant/proactive-shift-attribution.service';
 import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
@@ -41,7 +41,6 @@ import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
@@ -86,12 +85,11 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   public quickPrintAction = inject(QuickPrintActionService);
   private tableResizeService = inject(ShiftTableResizeService);
   private allShiftStateService = inject(AllShiftStateService);
-  private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
   private modalService = inject(ModalService);
   private toastService = inject(ToastShowService);
   private dataShiftService = inject(DataShiftService);
-  private dataProactiveAttributionService = inject(DataProactiveAttributionService);
+  private proactiveShiftAttributionService = inject(ProactiveShiftAttributionService);
   private setupConsultationOffer = inject(SetupConsultationOfferService);
   private activatedRoute = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
@@ -558,21 +556,15 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const entityIds = this.dataManagementShiftService.shifts
-      .map((shift) => shift.id)
-      .filter((id): id is string => !!id);
-
-    this.dataProactiveAttributionService
-      .getByEntityIds(entityIds)
+    this.proactiveShiftAttributionService
+      .loadByShift(this.dataManagementShiftService.shifts)
       .pipe(takeUntil(this.destroy$))
       .subscribe((attributions) => {
         if (request !== this.proactiveAttributionRequest) {
           return;
         }
 
-        this.proactiveAttributions.set(
-          new Map(attributions.map((attribution) => [attribution.entityId, attribution]))
-        );
+        this.proactiveAttributions.set(attributions);
         this.cdr.markForCheck();
       });
   }
