@@ -15,16 +15,13 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
+import { PluginSettingsListCardComponent } from '../../shared/settings-list-card/settings-list-card.component';
 import { FloorPlanSettingsRowComponent } from './floor-plan-settings-row/floor-plan-settings-row.component';
 import { DataManagementFloorPlanService } from '@floor-plan-plugin/application/services/data-management-floor-plan.service';
 import { FloorPlan } from '@floor-plan-plugin/domain/models/floor-plan-class';
 import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
 import { IFloorPlanWorkMarker } from '@floor-plan-plugin/domain/models/floor-plan-work-marker.interface';
-import { ModalService } from 'src/app/presentation/modal/modal.service';
-import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
-import { DomainMessages } from 'src/app/domain/constants/messages';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { PLUGIN_DELETE_CONFIRMATION, PLUGIN_TOAST_SERVICE } from 'klacks-plugin-contracts';
 import { FloorPlanCanvasComponent } from '@floor-plan-plugin/floor-plan-canvas/floor-plan-canvas.component';
 import { FloorPlanToolbarComponent } from '@floor-plan-plugin/floor-plan-toolbar/floor-plan-toolbar.component';
 import { FloorPlanLayerPanelComponent } from '@floor-plan-plugin/floor-plan-layer-panel/floor-plan-layer-panel.component';
@@ -42,6 +39,8 @@ import { FloorPlanAnchorSnapService } from '@floor-plan-plugin/services/floor-pl
 import { FloorPlanJoinService } from '@floor-plan-plugin/services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '@floor-plan-plugin/services/floor-plan-point-editor.service';
 
+const DELETE_CONFIRMATION_CONTEXT = 'floor-plan-settings';
+
 @Component({
   selector: 'lib-floor-plan-settings',
   standalone: true,
@@ -49,7 +48,7 @@ import { FloorPlanPointEditorService } from '@floor-plan-plugin/services/floor-p
     FormsModule,
     TranslateModule,
     NgbModule,
-    SettingsListCardComponent,
+    PluginSettingsListCardComponent,
     FloorPlanSettingsRowComponent,
     FloorPlanCanvasComponent,
     FloorPlanToolbarComponent,
@@ -82,31 +81,24 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
   canvasService = inject(FloorPlanCanvasService);
   connectorService = inject(FloorPlanConnectorService);
   private ngbModal = inject(NgbModal);
-  private modalService = inject(ModalService);
-  private toastService = inject(ToastShowService);
+  private deleteConfirmation = inject(PLUGIN_DELETE_CONFIRMATION);
+  private toastService = inject(PLUGIN_TOAST_SERVICE);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   editingPlan: IFloorPlan | null = null;
-  private message = DomainMessages.DELETE_ENTRY;
 
   ngOnInit(): void {
     this.dataManagement.loadAll();
   }
 
   ngAfterViewInit(): void {
-    this.modalService.resultEvent
+    this.deleteConfirmation
+      .confirmedDeletes(DELETE_CONFIRMATION_CONTEXT)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'floor-plan-settings'
-        ) {
-          this.deleteFloorPlan(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-          this.cdr.markForCheck();
-        }
+      .subscribe((floorPlanId) => {
+        this.deleteFloorPlan(floorPlanId);
+        this.cdr.markForCheck();
       });
   }
 
@@ -152,13 +144,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
 
   openDeleteFloorPlan(plan: IFloorPlan): void {
     if (plan.id) {
-      this.modalService.Filing = '';
-      this.modalService.componentContext = 'floor-plan-settings';
-
-      this.modalService.Filing = plan.id;
-      this.modalService.deleteMessage = this.message;
-      this.modalService.setDefault(ModalType.Delete);
-      this.modalService.openModel(ModalType.Delete);
+      this.deleteConfirmation.requestDelete(DELETE_CONFIRMATION_CONTEXT, plan.id);
     }
   }
 

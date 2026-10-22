@@ -2,17 +2,17 @@
 
 /**
  * Lazy-loads phone and image data for floor-plan work markers.
- * @param clientService - Backend service used to fetch the full client record once per client id
+ * @param clientDetailsReader - Host port used to fetch the contact details once per client id
  */
 
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { IFloorPlanMarkerEnrichment } from './floor-plan-marker-enrichment.interface';
-import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { PLUGIN_CLIENT_DETAILS_READER } from 'klacks-plugin-contracts';
 
 @Injectable({ providedIn: 'root' })
 export class FloorPlanMarkerEnrichmentService {
-  private clientService = inject(DataClientService);
+  private clientDetailsReader = inject(PLUGIN_CLIENT_DETAILS_READER);
   private cache = new Map<string, IFloorPlanMarkerEnrichment>();
   private inflight = new Map<string, Promise<IFloorPlanMarkerEnrichment>>();
 
@@ -48,7 +48,7 @@ export class FloorPlanMarkerEnrichmentService {
 
   private async fetchAndCache(clientId: string): Promise<IFloorPlanMarkerEnrichment> {
     try {
-      const client = await firstValueFrom(this.clientService.getClient(clientId));
+      const client = await firstValueFrom(this.clientDetailsReader.readClientDetails(clientId));
       const enrichment: IFloorPlanMarkerEnrichment = {
         phone: this.extractPhone(client?.communications),
         imageDataUrl: this.buildImageDataUrl(client?.clientImage),

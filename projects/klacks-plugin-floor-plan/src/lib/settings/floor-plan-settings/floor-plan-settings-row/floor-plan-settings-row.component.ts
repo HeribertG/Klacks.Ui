@@ -4,13 +4,13 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from 
 
 import { TranslateModule } from '@ngx-translate/core';
 import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
-import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
+import { PluginTrashIconRedComponent } from '../../../shared/icons/trash-icon-red.component';
+import { PluginIconCopyGreyComponent } from '../../../shared/icons/icon-copy-grey.component';
 
 @Component({
   selector: 'lib-floor-plan-settings-row',
   standalone: true,
-  imports: [TranslateModule, TrashIconRedComponent, IconCopyGreyComponent],
+  imports: [TranslateModule, PluginTrashIconRedComponent, PluginIconCopyGreyComponent],
   templateUrl: './floor-plan-settings-row.component.html',
   styleUrls: ['./floor-plan-settings-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

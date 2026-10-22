@@ -27,7 +27,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
 import { ILiveMarkerDisplay } from '../services/live-marker-display.interface';
-import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
+import { PluginSimplePaginationComponent } from '../shared/simple-pagination/simple-pagination.component';
 
 const DEFAULT_ITEMS_PER_PAGE = 5;
 
@@ -39,7 +39,7 @@ const DEFAULT_ITEMS_PER_PAGE = 5;
     FormsModule,
     TranslateModule,
     NgbDatepickerModule,
-    SimplePaginationComponent,
+    PluginSimplePaginationComponent,
   ],
   templateUrl: './floor-plan-list.component.html',
   styleUrls: ['./floor-plan-list.component.scss'],

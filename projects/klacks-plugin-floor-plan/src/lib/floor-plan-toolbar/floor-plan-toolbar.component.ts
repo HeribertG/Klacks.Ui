@@ -30,20 +30,20 @@ import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
 import { FabricWithData } from '../services/fabric-with-data.type';
-import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
-import { IconFpLineComponent } from 'src/app/presentation/icons/icon-fp-line.component';
-import { IconFpRectangleComponent } from 'src/app/presentation/icons/icon-fp-rectangle.component';
-import { IconFpCircleComponent } from 'src/app/presentation/icons/icon-fp-circle.component';
-import { IconFpPolygonComponent } from 'src/app/presentation/icons/icon-fp-polygon.component';
-import { IconFpPencilComponent } from 'src/app/presentation/icons/icon-fp-pencil.component';
-import { IconFpTextComponent } from 'src/app/presentation/icons/icon-fp-text.component';
-import { IconFpEraserComponent } from 'src/app/presentation/icons/icon-fp-eraser.component';
-import { IconFpUndoComponent } from 'src/app/presentation/icons/icon-fp-undo.component';
-import { IconFpRedoComponent } from 'src/app/presentation/icons/icon-fp-redo.component';
-import { IconFpZoomPlusComponent } from 'src/app/presentation/icons/icon-fp-zoom-plus.component';
-import { IconFpZoomMinusComponent } from 'src/app/presentation/icons/icon-fp-zoom-minus.component';
-import { IconFpImportComponent } from 'src/app/presentation/icons/icon-fp-import.component';
-import { IconFpExportComponent } from 'src/app/presentation/icons/icon-fp-export.component';
+import { IconFpSelectComponent } from '../shared/icons/icon-fp-select.component';
+import { IconFpLineComponent } from '../shared/icons/icon-fp-line.component';
+import { IconFpRectangleComponent } from '../shared/icons/icon-fp-rectangle.component';
+import { IconFpCircleComponent } from '../shared/icons/icon-fp-circle.component';
+import { IconFpPolygonComponent } from '../shared/icons/icon-fp-polygon.component';
+import { IconFpPencilComponent } from '../shared/icons/icon-fp-pencil.component';
+import { IconFpTextComponent } from '../shared/icons/icon-fp-text.component';
+import { IconFpEraserComponent } from '../shared/icons/icon-fp-eraser.component';
+import { IconFpUndoComponent } from '../shared/icons/icon-fp-undo.component';
+import { IconFpRedoComponent } from '../shared/icons/icon-fp-redo.component';
+import { IconFpZoomPlusComponent } from '../shared/icons/icon-fp-zoom-plus.component';
+import { IconFpZoomMinusComponent } from '../shared/icons/icon-fp-zoom-minus.component';
+import { PluginIconFpImportComponent } from '../shared/icons/icon-fp-import.component';
+import { IconFpExportComponent } from '../shared/icons/icon-fp-export.component';
 
 const STROKE_WIDTHS = [1, 2, 3, 4, 6, 8, 12, 16];
 
@@ -65,7 +65,7 @@ const STROKE_WIDTHS = [1, 2, 3, 4, 6, 8, 12, 16];
     IconFpRedoComponent,
     IconFpZoomPlusComponent,
     IconFpZoomMinusComponent,
-    IconFpImportComponent,
+    PluginIconFpImportComponent,
     IconFpExportComponent,
   ],
   templateUrl: './floor-plan-toolbar.component.html',

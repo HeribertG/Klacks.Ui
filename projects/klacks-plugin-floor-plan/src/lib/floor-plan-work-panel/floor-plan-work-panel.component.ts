@@ -10,10 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanMarkerType } from '@floor-plan-plugin/domain/enums/floor-plan-marker-type.enum';
-import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
-import { IShift } from 'src/app/domain/models/shift/shift.interface';
-import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
-import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
+import { IPluginShift, IPluginShiftQuery, PLUGIN_SHIFT_CATALOG, PluginShiftKind } from 'klacks-plugin-contracts';
 
 const SHIFT_LOAD_COUNT = 500;
 
@@ -27,11 +24,11 @@ const SHIFT_LOAD_COUNT = 500;
 })
 export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   private workDropService = inject(FloorPlanWorkDropService);
-  private dataShiftService = inject(DataShiftService);
+  private shiftCatalog = inject(PLUGIN_SHIFT_CATALOG);
   private destroy$ = new Subject<void>();
 
   readonly searchText = signal<string>('');
-  readonly availableShifts = signal<IShift[]>([]);
+  readonly availableShifts = signal<IPluginShift[]>([]);
   readonly isLoadingShifts = signal(false);
 
   readonly filteredShifts = computed(() => {
@@ -55,24 +52,22 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   }
 
   private loadShifts(): void {
-    const makeFilter = (type: ShiftFilterType): ShiftFilter => {
-      const f = new ShiftFilter();
-      f.numberOfItemsPerPage = SHIFT_LOAD_COUNT;
-      f.filterType = type;
-      f.activeDateRange = true;
-      f.futureDateRange = true;
-      return f;
-    };
+    const makeQuery = (kind: PluginShiftKind): IPluginShiftQuery => ({
+      kind,
+      maxCount: SHIFT_LOAD_COUNT,
+      activeDateRange: true,
+      futureDateRange: true,
+    });
 
     this.isLoadingShifts.set(true);
     forkJoin([
-      this.dataShiftService.readShiftList(makeFilter(ShiftFilterType.Shift)),
-      this.dataShiftService.readShiftList(makeFilter(ShiftFilterType.Container)),
+      this.shiftCatalog.readShifts(makeQuery('shift')),
+      this.shiftCatalog.readShifts(makeQuery('container')),
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ([shifts, containers]) => {
-          const all = [...(shifts.shifts ?? []), ...(containers.shifts ?? [])];
+          const all = [...shifts, ...containers];
           all.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
           this.availableShifts.set(all);
           this.isLoadingShifts.set(false);
@@ -87,7 +82,7 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
     this.searchText.set(value);
   }
 
-  onDragStartShift(shift: IShift, event: DragEvent): void {
+  onDragStartShift(shift: IPluginShift, event: DragEvent): void {
     this.workDropService.startDrag({
       shiftId: shift.id,
       abbreviation: shift.abbreviation,

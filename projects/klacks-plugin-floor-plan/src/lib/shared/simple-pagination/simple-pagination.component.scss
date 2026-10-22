@@ -1,0 +1,19 @@
+@use "pagination.scss";
+@use "standard-controls.scss";
+@use "colors.scss";
+
+.pagination {
+  display: flex;
+  gap: 15px;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+
+  .entry-info {
+    border-radius: 4px;
+    padding-inline-end: 20px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--colorLabel);
+  }
+}

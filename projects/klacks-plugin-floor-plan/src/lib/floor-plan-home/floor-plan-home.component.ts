@@ -38,11 +38,11 @@ import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor
 import { DataManagementFloorPlanService } from '@floor-plan-plugin/application/services/data-management-floor-plan.service';
 import { FloorPlanMarkerEnrichmentService } from '@floor-plan-plugin/application/services/floor-plan-marker-enrichment.service';
 import { IFloorPlan } from '@floor-plan-plugin/domain/models/floor-plan.interface';
-import { LayoutService } from 'src/app/presentation/services/layout.service';
-import { SearchService } from 'src/app/application/services/search.service';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
-import { IWorkScheduleFilter } from 'src/app/domain/models/schedule/work-schedule-filter.interface';
+import {
+  IPluginWorkScheduleQuery,
+  PLUGIN_WORK_SCHEDULE_READER,
+  PLUGIN_WORKPLACE_HOST,
+} from 'klacks-plugin-contracts';
 
 type ViewMode = 'view' | 'print';
 type PrintOrientation = 'landscape' | 'portrait';
@@ -86,9 +86,8 @@ const ZOOM_PERCENT_DIVISOR = 100;
 export class FloorPlanHomeComponent implements OnInit {
   dataManagement = inject(DataManagementFloorPlanService);
   canvasService = inject(FloorPlanCanvasService);
-  private layoutService = inject(LayoutService);
-  private searchService = inject(SearchService);
-  private dataWorkSchedule = inject(DataWorkScheduleService);
+  private workplaceHost = inject(PLUGIN_WORKPLACE_HOST);
+  private workScheduleReader = inject(PLUGIN_WORK_SCHEDULE_READER);
   private enrichmentService = inject(FloorPlanMarkerEnrichmentService);
   private exportService = inject(FloorPlanExportService);
 
@@ -135,8 +134,8 @@ export class FloorPlanHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.layoutService.setContainerToNormalSize();
-    this.searchService.setSearchVisibility(false);
+    this.workplaceHost.setContainerToNormalSize();
+    this.workplaceHost.setSearchVisibility(false);
     this.dataManagement.loadAll();
   }
 
@@ -183,7 +182,7 @@ export class FloorPlanHomeComponent implements OnInit {
 
     this.isLoadingWorks.set(true);
     try {
-      const filter: IWorkScheduleFilter = {
+      const query: IPluginWorkScheduleQuery = {
         startDate: this.selectedDate(),
         endDate: this.selectedDate(),
         showEmployees: true,
@@ -191,10 +190,8 @@ export class FloorPlanHomeComponent implements OnInit {
         rowCount: WORK_SCHEDULE_ROW_COUNT,
       };
 
-      const response = await firstValueFrom(this.dataWorkSchedule.getWorkSchedule(filter));
-      const workEntries = response.entries.filter(
-        (e) => e.entryType === WorkScheduleEntryType.Work,
-      );
+      const response = await firstValueFrom(this.workScheduleReader.readScheduledWorks(query));
+      const workEntries = response.works;
 
       const clients = new Map(response.clients.map((c) => [c.id, c]));
       const display = this.display();

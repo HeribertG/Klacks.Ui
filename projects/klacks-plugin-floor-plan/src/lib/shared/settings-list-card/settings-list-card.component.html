@@ -1,0 +1,24 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div [id]="idPrefix() + '-card'" class="settings-list-card">
+  <div class="container-header-row">
+    <div [id]="idPrefix() + '-header'" class="container-header">{{ headline() }}</div>
+    <ng-content select="[headerAction]"></ng-content>
+  </div>
+  <div class="container-line"></div>
+
+  @if (showHeader()) {
+    <ng-content select="[header]"></ng-content>
+  }
+
+  <div [id]="idPrefix() + '-rows'" class="container-box">
+    <ng-content select="[rows]"></ng-content>
+    <div class="rows-bottom-spacer" aria-hidden="true"></div>
+  </div>
+
+  @if (showAddButton()) {
+    <div class="add-row">
+      <span [id]="idPrefix() + '-add-btn'" class="add-button" (click)="onAddClick()">{{ addLabel() }}</span>
+    </div>
+  }
+</div>

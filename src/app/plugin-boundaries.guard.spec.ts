@@ -3,7 +3,6 @@
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import {
-  boundaryViolationMap,
   CONTRACTS_PLUGIN,
   HOST_OWNER,
   IPluginImportEdge,
@@ -18,7 +17,6 @@ import {
   resolvePluginImport,
   scanPluginSources,
 } from './plugin-boundaries.testing';
-import { LEGACY_PLUGIN_BOUNDARY_VIOLATIONS } from './plugin-boundaries-legacy-violations.constants';
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(APP_ROOT, '..', '..');
@@ -117,27 +115,12 @@ describe('plugin boundaries', () => {
     });
   });
 
-  it('has no plugin import into the host or another plugin beyond the frozen legacy list', () => {
+  it('has no plugin import into the host or another plugin (zero tolerance, no allowlist)', () => {
     // Act
-    const added = edges.filter(
-      (edge) => isBoundaryViolation(edge) && !(LEGACY_PLUGIN_BOUNDARY_VIOLATIONS[edge.file] ?? []).includes(edge.target),
-    );
+    const violations = edges.filter(isBoundaryViolation);
 
     // Assert
-    expect(added, `${BOUNDARY_RULE}\nForbidden imports:\n${describeEdges(added)}`).toEqual([]);
-  });
-
-  it('lists no legacy import that is already gone, so the allowlist only shrinks', () => {
-    // Arrange
-    const actual = boundaryViolationMap(edges);
-
-    // Act
-    const stale = Object.entries(LEGACY_PLUGIN_BOUNDARY_VIOLATIONS).flatMap(([file, targets]) =>
-      targets.filter((target) => !(actual[file] ?? []).includes(target)).map((target) => `  ${file} -> ${target}`),
-    );
-
-    // Assert
-    expect(stale, `Delete these LEGACY_PLUGIN_BOUNDARY_VIOLATIONS entries:\n${stale.join('\n')}`).toEqual([]);
+    expect(violations, `${BOUNDARY_RULE}\nForbidden imports:\n${describeEdges(violations)}`).toEqual([]);
   });
 
   it('keeps the inward layer direction inside layered plugins (zero tolerance)', () => {

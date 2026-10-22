@@ -180,17 +180,3 @@ export function scanPluginSources(uiRoot: string): { filesByPlugin: Record<strin
   }
   return { filesByPlugin, edges };
 }
-
-export function boundaryViolationMap(edges: readonly IPluginImportEdge[]): Record<string, string[]> {
-  const map: Record<string, Set<string>> = {};
-  for (const edge of edges) {
-    if (isBoundaryViolation(edge)) {
-      (map[edge.file] ??= new Set<string>()).add(edge.target);
-    }
-  }
-  const sorted: Record<string, string[]> = {};
-  for (const file of Object.keys(map).sort()) {
-    sorted[file] = [...map[file]].sort();
-  }
-  return sorted;
-}
