@@ -23,11 +23,11 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
-import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
-import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
+import { DataHarmonizerService } from 'src/app/application/services/harmonizer/data-harmonizer.service';
+import { DataHolisticHarmonizerService } from 'src/app/application/services/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
 import { CompanyClockService } from 'src/app/domain/services/settings/company-clock.service';
-import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
+import { DataAutoWizardService } from 'src/app/application/services/auto-wizard/data-auto-wizard.service';
 import { AutoWizardJobTrackerService } from 'src/app/presentation/workplace/schedule/services/auto-wizard-job-tracker.service';
 
 /**

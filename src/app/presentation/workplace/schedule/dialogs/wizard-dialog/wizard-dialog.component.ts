@@ -20,7 +20,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { take } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
+import { DataWizardService } from 'src/app/application/services/wizard/data-wizard.service';
 import { WIZARD_LIMITS } from 'src/app/domain/constants/wizard-limits.constants';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleLoadCompletionService } from 'src/app/domain/services/schedule/schedule-load-completion.service';

@@ -6,7 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WizardDialogComponent } from './wizard-dialog.component';
-import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
+import { DataWizardService } from 'src/app/application/services/wizard/data-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { WizardProgress } from 'src/app/domain/models/wizard/wizard-progress.model';
 import { WizardStatus } from 'src/app/domain/models/wizard/wizard-status.type';

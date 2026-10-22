@@ -4,10 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import * as signalR from '@microsoft/signalr';
-import { DataWizardService } from './data-wizard.service';
-import { LocalStorageService } from '../../storage/local-storage.service';
-import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
-import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
+import { DataHolisticHarmonizerService } from './data-holistic-harmonizer.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import {
+  HolisticHarmonizerRunResponse,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run-response.interface';
 
 class FakeConnection {
   state = 'Disconnected';
@@ -83,29 +85,34 @@ class FakeBuilder {
   }
 }
 
-const REQUEST: WizardRequest = {
+const REQUEST: HolisticHarmonizerRunRequest = {
   periodFrom: '2026-04-01',
   periodUntil: '2026-04-30',
   agentIds: ['agent-1'],
-  shiftIds: ['shift-1'],
   analyseToken: null,
+  language: 'en',
 };
 
-function makeResult(jobId: string): WizardResult {
+function makeResult(jobId: string): HolisticHarmonizerRunResponse {
   return {
     jobId,
-    finalHardViolations: 0,
-    finalStage1Completion: 1,
-    tokenCount: 1,
-    availableShiftSlots: 2,
-    tokens: [],
+    llmModelId: 'stub-model',
+    fitnessBefore: 0.4,
+    fitnessAfter: 0.7,
+    acceptedSwaps: [],
+    rejectedSwaps: [],
+    batches: [],
+    agentDisplayNames: [],
+    qualificationGaps: [],
+    llmParsingError: null,
+    llmRawResponsePreview: null,
   };
 }
 
 const tick = () => new Promise<void>((resolve) => setTimeout(resolve));
 
-describe('DataWizardService', () => {
-  let service: DataWizardService;
+describe('DataHolisticHarmonizerService', () => {
+  let service: DataHolisticHarmonizerService;
   let httpMock: HttpTestingController;
   let originalBuilder: typeof signalR.HubConnectionBuilder;
 
@@ -125,7 +132,7 @@ describe('DataWizardService', () => {
         { provide: LocalStorageService, useValue: { get: () => 'test-token', set: vi.fn() } },
       ],
     });
-    service = TestBed.inject(DataWizardService);
+    service = TestBed.inject(DataHolisticHarmonizerService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
@@ -142,7 +149,7 @@ describe('DataWizardService', () => {
   async function startJob(jobId = 'job-1') {
     const promise = service.start(REQUEST);
     await tick();
-    httpMock.expectOne((req) => req.url.endsWith('Wizard/Start')).flush({ jobId });
+    httpMock.expectOne((req) => req.url.endsWith('HolisticHarmonizer/Start')).flush({ jobId });
     await promise;
     return connections[connections.length - 1];
   }
@@ -158,29 +165,66 @@ describe('DataWizardService', () => {
   it('ignores progress and completed events carrying a foreign jobId', async () => {
     const connection = await startJob();
 
-    connection.emit('OnProgress', { jobId: 'other-job', generation: 5, maxGenerations: 10 });
+    connection.emit('OnProgress', { jobId: 'other-job', iteration: 2, maxIterations: 8 });
     connection.emit('OnCompleted', makeResult('other-job'));
 
     expect(service.progress()).toBeNull();
     expect(service.result()).toBeNull();
     expect(service.status()).toBe('running');
+    expect(service.currentJobId()).toBe('job-1');
+  });
+
+  it('completed event with matching jobId sets result and status', async () => {
+    const connection = await startJob();
 
     connection.emit('OnCompleted', makeResult('job-1'));
 
-    expect(service.result()?.jobId).toBe('job-1');
     expect(service.status()).toBe('completed');
+    expect(service.result()?.jobId).toBe('job-1');
   });
 
-  it('start failure sets status failed and failureReason', async () => {
-    const promise = service.start(REQUEST);
+  it('recovers a completed result via the status endpoint when the connection closes', async () => {
+    const connection = await startJob();
+
+    connection.fireClose();
     await tick();
     httpMock
-      .expectOne((req) => req.url.endsWith('Wizard/Start'))
-      .flush({ message: 'boom' }, { status: 500, statusText: 'Server Error' });
+      .expectOne((req) => req.url.endsWith('HolisticHarmonizer/Status/job-1'))
+      .flush({ status: 'completed', result: makeResult('job-1'), reason: null });
+    await tick();
 
-    await expect(promise).rejects.toBeTruthy();
+    expect(service.status()).toBe('completed');
+    expect(service.result()?.jobId).toBe('job-1');
+  });
+
+  it('marks the run failed when close-reconcile returns unknown', async () => {
+    const connection = await startJob();
+
+    connection.fireClose();
+    await tick();
+    httpMock
+      .expectOne((req) => req.url.endsWith('HolisticHarmonizer/Status/job-1'))
+      .flush({ status: 'unknown', result: null, reason: null });
+    await tick();
+
     expect(service.status()).toBe('failed');
-    expect(service.failureReason()).toBeTruthy();
+    expect(service.failureReason()).not.toBeNull();
+  });
+
+  it('rejoins the job group and reconciles after reconnect', async () => {
+    const connection = await startJob();
+    connection.sendCalls.length = 0;
+
+    // The reconnect callback awaits the reconcile request, so it must not be awaited before flushing.
+    const reconnected = connection.fireReconnected();
+    await tick();
+    httpMock
+      .expectOne((req) => req.url.endsWith('HolisticHarmonizer/Status/job-1'))
+      .flush({ status: 'running', result: null, reason: null });
+    await reconnected;
+
+    expect(connection.sendCalls).toContainEqual({ method: 'JoinJob', args: ['job-1'] });
+    expect(service.status()).toBe('running');
   });
 
   it('concurrent stopConnection calls do not throw', async () => {
@@ -191,69 +235,12 @@ describe('DataWizardService', () => {
     expect(connection.stopCalls).toBeGreaterThanOrEqual(1);
   });
 
-  it('recovers a completed result via the status endpoint when the connection closes', async () => {
-    const connection = await startJob();
-
-    connection.fireClose();
-    await tick();
-    httpMock
-      .expectOne((req) => req.url.endsWith('Wizard/Status/job-1'))
-      .flush({ status: 'completed', result: makeResult('job-1'), reason: null });
-    await tick();
-
-    expect(service.status()).toBe('completed');
-    expect(service.result()?.jobId).toBe('job-1');
-  });
-
-  it('falls back to failed when the status endpoint is unreachable after close', async () => {
-    const connection = await startJob();
-
-    connection.fireClose();
-    await tick();
-    httpMock
-      .expectOne((req) => req.url.endsWith('Wizard/Status/job-1'))
-      .error(new ProgressEvent('error'));
-    await tick();
-
-    expect(service.status()).toBe('failed');
-    expect(service.failureReason()).toContain('lost');
-  });
-
-  it('marks the job failed when the server no longer tracks it after close', async () => {
-    const connection = await startJob();
-
-    connection.fireClose();
-    await tick();
-    httpMock
-      .expectOne((req) => req.url.endsWith('Wizard/Status/job-1'))
-      .flush({ status: 'unknown', result: null, reason: null });
-    await tick();
-
-    expect(service.status()).toBe('failed');
-    expect(service.failureReason()).toContain('no longer tracked');
-  });
-
-  it('rejoins the job group and reconciles after a reconnect', async () => {
-    const connection = await startJob();
-    connection.sendCalls.length = 0;
-
-    const reconnected = connection.fireReconnected();
-    await tick();
-    httpMock
-      .expectOne((req) => req.url.endsWith('Wizard/Status/job-1'))
-      .flush({ status: 'running', result: null, reason: null });
-    await reconnected;
-
-    expect(connection.sendCalls).toContainEqual({ method: 'JoinJob', args: ['job-1'] });
-    expect(service.status()).toBe('running');
-  });
-
   it('sends the planner language with applyAsScenario', async () => {
     await startJob();
 
-    const promise = service.applyAsScenario('job-1', null, false, 'de');
+    const promise = service.applyAsScenario('job-1', null, 'de');
     await tick();
-    const request = httpMock.expectOne((req) => req.url.endsWith('Wizard/ApplyAsScenario'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('HolisticHarmonizer/ApplyAsScenario'));
     expect(request.request.body.language).toBe('de');
     request.flush({ scenarioId: 'scenario-1' });
     await promise;
@@ -262,9 +249,9 @@ describe('DataWizardService', () => {
   it('sends a null language with applyAsScenario when none is given', async () => {
     await startJob();
 
-    const promise = service.applyAsScenario('job-1', null, false);
+    const promise = service.applyAsScenario('job-1', null);
     await tick();
-    const request = httpMock.expectOne((req) => req.url.endsWith('Wizard/ApplyAsScenario'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('HolisticHarmonizer/ApplyAsScenario'));
     expect(request.request.body.language).toBeNull();
     request.flush({ scenarioId: 'scenario-1' });
     await promise;

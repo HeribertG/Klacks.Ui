@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { HarmonizerDialogComponent } from './harmonizer-dialog.component';
-import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
+import { DataHarmonizerService } from 'src/app/application/services/harmonizer/data-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { HarmonizerProgress } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';

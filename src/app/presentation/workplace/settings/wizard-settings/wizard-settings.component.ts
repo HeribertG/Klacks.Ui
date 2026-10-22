@@ -13,7 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
-import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
+import { DataHolisticHarmonizerService } from 'src/app/application/services/holistic-harmonizer/data-holistic-harmonizer.service';
 import {
   HolisticHarmonizerModelCheckDto,
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-model-check-dto.interface';

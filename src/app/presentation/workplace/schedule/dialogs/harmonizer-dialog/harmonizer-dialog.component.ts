@@ -23,7 +23,7 @@ import { CommonModule } from '@angular/common';
 import { take } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataHarmonizerService } from 'src/app/infrastructure/api/harmonizer/data-harmonizer.service';
+import { DataHarmonizerService } from 'src/app/application/services/harmonizer/data-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';

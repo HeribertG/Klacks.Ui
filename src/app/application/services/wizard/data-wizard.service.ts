@@ -1,44 +1,44 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Infrastructure service for the schedule harmonizer (Wizard 2).
- * Combines REST (start/cancel/applyAsScenario) with SignalR (progress stream).
- * @param progress - Signal with the latest HarmonizerProgress event
- * @param result - Signal with the final HarmonizerResult, populated on completion
+ * Infrastructure service for the schedule autofill wizard.
+ * Combines REST (start/cancel/apply) with SignalR (progress stream).
+ * @param progress - Signal with the latest WizardProgress event
  * @param status - Signal with the job lifecycle state (idle/running/completed/cancelled/failed)
- * @param failureReason - Signal with the server-provided failure message, if any
  * @param currentJobId - Signal with the currently tracked job id (or null)
  */
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { LocalStorageService } from '../../storage/local-storage.service';
-import { StorageKeys } from '../../constants/storage-keys';
-import { HarmonizerSignalRConstants } from '../../signalr/signalr.constants';
-import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
-import { CancelHarmonizerResponse } from 'src/app/domain/models/harmonizer/cancel-harmonizer-response.interface';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { WizardSignalRConstants } from 'src/app/infrastructure/signalr/signalr.constants';
+import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
+import { ApplyWizardResponse } from 'src/app/domain/models/wizard/apply-wizard-response.interface';
+import { CancelWizardResponse } from 'src/app/domain/models/wizard/cancel-wizard-response.interface';
+import { StartWizardResponse } from 'src/app/domain/models/wizard/start-wizard-response.interface';
 import {
-  HarmonizerApplyAsScenarioResponse,
-} from 'src/app/domain/models/harmonizer/harmonizer-apply-as-scenario-response.interface';
-import { StartHarmonizerResponse } from 'src/app/domain/models/harmonizer/start-harmonizer-response.interface';
-import { HarmonizerProgress } from 'src/app/domain/models/harmonizer/harmonizer-progress.model';
-import { HarmonizerStatus } from 'src/app/domain/models/harmonizer/harmonizer-status.type';
-import { HarmonizerResult } from 'src/app/domain/models/harmonizer/harmonizer-result.interface';
-import { HarmonizerJobStatusResponse } from 'src/app/domain/models/harmonizer/harmonizer-status.model';
+  WizardApplyAsScenarioResponse,
+} from 'src/app/domain/models/wizard/wizard-apply-as-scenario-response.interface';
+import { WizardProgress } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { WizardStatus } from 'src/app/domain/models/wizard/wizard-status.type';
+import { WizardResult } from 'src/app/domain/models/wizard/wizard-result.interface';
+import { WizardJobStatusResponse } from 'src/app/domain/models/wizard/wizard-status.model';
 
 @Injectable({ providedIn: 'root' })
-export class DataHarmonizerService implements OnDestroy {
+export class DataWizardService implements OnDestroy {
   private static readonly HUB_START_TIMEOUT_MS = 20000;
+  private static readonly APPLY_TIMEOUT_MS = 120000;
 
   private readonly http = inject(HttpClient);
   private readonly localStorage = inject(LocalStorageService);
 
-  readonly progress = signal<HarmonizerProgress | null>(null);
-  readonly result = signal<HarmonizerResult | null>(null);
-  readonly status = signal<HarmonizerStatus>('idle');
+  readonly progress = signal<WizardProgress | null>(null);
+  readonly result = signal<WizardResult | null>(null);
+  readonly status = signal<WizardStatus>('idle');
   readonly failureReason = signal<string | null>(null);
   readonly currentJobId = signal<string | null>(null);
 
@@ -47,11 +47,11 @@ export class DataHarmonizerService implements OnDestroy {
   private readonly apiBase: string;
 
   constructor() {
-    this.apiBase = `${environment.baseUrl}Harmonizer`;
-    this.hubUrl = environment.baseUrl.replace('/api/backend/', HarmonizerSignalRConstants.HubPath);
+    this.apiBase = `${environment.baseUrl}Wizard`;
+    this.hubUrl = environment.baseUrl.replace('/api/backend/', WizardSignalRConstants.HubPath);
   }
 
-  async start(request: HarmonizerRequest): Promise<string> {
+  async start(request: WizardRequest): Promise<string> {
     this.resetState();
     this.status.set('running');
 
@@ -59,7 +59,7 @@ export class DataHarmonizerService implements OnDestroy {
       await this.ensureConnected();
 
       const response = await firstValueFrom(
-        this.http.post<StartHarmonizerResponse>(`${this.apiBase}/Start`, request),
+        this.http.post<StartWizardResponse>(`${this.apiBase}/Start`, request),
       );
 
       this.currentJobId.set(response.jobId);
@@ -77,20 +77,30 @@ export class DataHarmonizerService implements OnDestroy {
 
   async cancel(jobId: string): Promise<boolean> {
     const response = await firstValueFrom(
-      this.http.post<CancelHarmonizerResponse>(`${this.apiBase}/Cancel`, { jobId }),
+      this.http.post<CancelWizardResponse>(`${this.apiBase}/Cancel`, { jobId }),
     );
     return response.cancelled;
+  }
+
+  async apply(jobId: string, overrideBlock = false): Promise<ApplyWizardResponse> {
+    return firstValueFrom(
+      this.http
+        .post<ApplyWizardResponse>(`${this.apiBase}/Apply`, { jobId, overrideBlock })
+        .pipe(timeout(DataWizardService.APPLY_TIMEOUT_MS)),
+    );
   }
 
   async applyAsScenario(
     jobId: string,
     groupId: string | null,
+    overrideBlock = false,
     language: string | null = null,
-  ): Promise<HarmonizerApplyAsScenarioResponse> {
-    const response = await firstValueFrom(
-      this.http.post<HarmonizerApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId, language }),
+  ): Promise<WizardApplyAsScenarioResponse> {
+    return firstValueFrom(
+      this.http
+        .post<WizardApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId, overrideBlock, language })
+        .pipe(timeout(DataWizardService.APPLY_TIMEOUT_MS)),
     );
-    return response;
   }
 
   async stopConnection(): Promise<void> {
@@ -103,7 +113,7 @@ export class DataHarmonizerService implements OnDestroy {
     const jobId = this.currentJobId();
     if (jobId) {
       try {
-        await connection.send(HarmonizerSignalRConstants.HubMethods.LeaveJob, jobId);
+        await connection.send(WizardSignalRConstants.HubMethods.LeaveJob, jobId);
       } catch {
         // Ignore — connection may already be down.
       }
@@ -130,7 +140,7 @@ export class DataHarmonizerService implements OnDestroy {
   private async reconcileJobState(jobId: string): Promise<boolean> {
     try {
       const state = await firstValueFrom(
-        this.http.get<HarmonizerJobStatusResponse>(`${this.apiBase}/Status/${jobId}`),
+        this.http.get<WizardJobStatusResponse>(`${this.apiBase}/Status/${jobId}`),
       );
       if (jobId !== this.currentJobId() || this.status() !== 'running') {
         return false;
@@ -147,11 +157,11 @@ export class DataHarmonizerService implements OnDestroy {
           this.status.set('cancelled');
           return true;
         case 'failed':
-          this.failureReason.set(state.reason ?? 'Harmonizer job failed.');
+          this.failureReason.set(state.reason ?? 'Wizard job failed.');
           this.status.set('failed');
           return true;
         case 'unknown':
-          this.failureReason.set('Harmonizer job is no longer tracked by the server.');
+          this.failureReason.set('Wizard job is no longer tracked by the server.');
           this.status.set('failed');
           return true;
         default:
@@ -170,7 +180,7 @@ export class DataHarmonizerService implements OnDestroy {
     if (!connection) {
       throw new Error('Hub connection was closed before joining the job group.');
     }
-    await connection.send(HarmonizerSignalRConstants.HubMethods.JoinJob, jobId);
+    await connection.send(WizardSignalRConstants.HubMethods.JoinJob, jobId);
   }
 
   private async ensureConnected(): Promise<void> {
@@ -186,7 +196,7 @@ export class DataHarmonizerService implements OnDestroy {
 
     const token = this.localStorage.get(StorageKeys.TOKEN);
     if (!token) {
-      throw new Error('Missing auth token; cannot connect to harmonizer hub.');
+      throw new Error('Missing auth token; cannot connect to wizard hub.');
     }
 
     const connection = new signalR.HubConnectionBuilder()
@@ -194,6 +204,7 @@ export class DataHarmonizerService implements OnDestroy {
         accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
       })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
     this.registerHandlers(connection);
@@ -202,7 +213,7 @@ export class DataHarmonizerService implements OnDestroy {
       const jobId = this.currentJobId();
       if (jobId && this.hubConnection === connection) {
         try {
-          await connection.send(HarmonizerSignalRConstants.HubMethods.JoinJob, jobId);
+          await connection.send(WizardSignalRConstants.HubMethods.JoinJob, jobId);
         } catch {
           // Best effort — connection may have dropped again.
         }
@@ -224,7 +235,7 @@ export class DataHarmonizerService implements OnDestroy {
       void (async () => {
         const reconciled = jobId ? await this.reconcileJobState(jobId) : false;
         if (!reconciled && this.status() === 'running') {
-          this.failureReason.set('Connection to the harmonizer hub was lost.');
+          this.failureReason.set('Connection to the wizard hub was lost.');
           this.status.set('failed');
         }
       })();
@@ -236,22 +247,22 @@ export class DataHarmonizerService implements OnDestroy {
       connection.start(),
       new Promise<void>((_, reject) =>
         setTimeout(
-          () => reject(new Error(`hub.start() did not resolve within ${DataHarmonizerService.HUB_START_TIMEOUT_MS}ms`)),
-          DataHarmonizerService.HUB_START_TIMEOUT_MS,
+          () => reject(new Error(`hub.start() did not resolve within ${DataWizardService.HUB_START_TIMEOUT_MS}ms (state=${connection.state})`)),
+          DataWizardService.HUB_START_TIMEOUT_MS,
         ),
       ),
     ]);
   }
 
   private registerHandlers(connection: signalR.HubConnection): void {
-    connection.on(HarmonizerSignalRConstants.Events.OnProgress, (progress: HarmonizerProgress) => {
+    connection.on(WizardSignalRConstants.Events.OnProgress, (progress: WizardProgress) => {
       if (progress.jobId !== this.currentJobId()) {
         return;
       }
       this.progress.set(progress);
     });
 
-    connection.on(HarmonizerSignalRConstants.Events.OnCompleted, (result: HarmonizerResult) => {
+    connection.on(WizardSignalRConstants.Events.OnCompleted, (result: WizardResult) => {
       if (result.jobId !== this.currentJobId()) {
         return;
       }
@@ -259,11 +270,11 @@ export class DataHarmonizerService implements OnDestroy {
       this.status.set('completed');
     });
 
-    connection.on(HarmonizerSignalRConstants.Events.OnCancelled, () => {
+    connection.on(WizardSignalRConstants.Events.OnCancelled, () => {
       this.status.set('cancelled');
     });
 
-    connection.on(HarmonizerSignalRConstants.Events.OnFailed, (reason: string) => {
+    connection.on(WizardSignalRConstants.Events.OnFailed, (reason: string) => {
       this.failureReason.set(reason);
       this.status.set('failed');
     });

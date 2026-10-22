@@ -5,7 +5,7 @@ import type { Mock } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { AutoWizardOrchestratorService } from './auto-wizard-orchestrator.service';
-import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
+import { DataAutoWizardService } from 'src/app/application/services/auto-wizard/data-auto-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
