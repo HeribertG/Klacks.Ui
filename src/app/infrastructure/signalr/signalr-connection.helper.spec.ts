@@ -79,4 +79,19 @@ describe('SignalRConnectionHelper - token validation before AuthFailed', () => {
     expect(tokenHelper.attemptTokenRefresh).not.toHaveBeenCalled();
     expect(tokenHelper.validateTokenWithBackend).toHaveBeenCalledTimes(1);
   });
+
+  it('warns on Failed and AuthFailed transitions but not on Reconnecting', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    (helper as any).transitionTo('Reconnecting');
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    (helper as any).transitionTo('Failed');
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+
+    (helper as any).transitionTo('AuthFailed');
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+
+    warnSpy.mockRestore();
+  });
 });

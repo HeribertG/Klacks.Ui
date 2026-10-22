@@ -405,7 +405,7 @@ export class SignalRConnectionHelper {
   }
 
   private logTransition(previous: SignalRConnectionState, next: SignalRConnectionState): void {
-    if (next === 'Failed' || next === 'Reconnecting' || next === 'AuthFailed') {
+    if (next === 'Failed' || next === 'AuthFailed') {
       console.warn('[SignalR] transition', previous, '->', next);
     }
   }
