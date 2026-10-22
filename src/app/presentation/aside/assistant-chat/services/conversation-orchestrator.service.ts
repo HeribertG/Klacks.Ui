@@ -697,6 +697,7 @@ export class ConversationOrchestratorService implements OnDestroy {
       this.callbacks?.setInputText(text);
       this.callbacks?.detectChanges();
     } catch {
+      return;
     } finally {
       this.interimRequestInFlight = false;
     }
