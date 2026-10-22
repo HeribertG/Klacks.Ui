@@ -3,6 +3,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
+import { Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { SettingUpsertService } from 'src/app/domain/services/settings/setting-upsert.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
