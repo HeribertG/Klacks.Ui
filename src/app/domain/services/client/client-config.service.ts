@@ -16,6 +16,8 @@ import { takeUntil } from 'rxjs/operators';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
+import { sortStateTokens } from 'src/app/domain/helpers/state-token-sort.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +27,7 @@ export class ClientConfigService {
   private dataCountryStateService = inject(DataCountryStateService);
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
   private localStorageService = inject(LocalStorageService);
+  private localeProvider = inject(LOCALE_PROVIDER, { optional: true });
   private destroy$ = new Subject<void>();
 
   // On a cold start against an empty database the backend can still be seeding when this service
@@ -93,7 +96,7 @@ export class ClientConfigService {
 
   private processStateTokens(stateTokens: StateCountryToken[]) {
     const filteredStates = stateTokens.filter((c) => c.state !== c.country);
-    this.stateList.set(filteredStates);
+    this.stateList.set(sortStateTokens(filteredStates, this.localeProvider?.getLocale()));
   }
 
   private processCountries(countries: ICountry[]) {
