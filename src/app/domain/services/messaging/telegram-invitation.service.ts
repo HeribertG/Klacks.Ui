@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Sends the Telegram onboarding invitation of an employee through the messaging plugin and interprets the answer
- * as an outcome with the message key to show.
+ * Sends the Telegram onboarding invitation of an employee or of an application user through the messaging plugin and
+ * interprets the answer as an outcome with the message key to show.
  * @param clientId - Id of the stored employee the invitation is sent to
  * @param userId - Id of the application user the admin invitation is sent to
  * @param result - Result code the messaging plugin answered with
