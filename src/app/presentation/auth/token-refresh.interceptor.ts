@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import {
   HttpInterceptor,
@@ -45,9 +44,9 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (
@@ -63,9 +62,9 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     const requestToken = this.extractBearerToken(req);
     const currentToken = this.localStorageService.get(StorageKeys.TOKEN);
 
@@ -120,7 +119,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
     this.navigationService.redirectToLogin();
   }
 
-  private shouldRefreshToken(req: HttpRequest<any>): boolean {
+  private shouldRefreshToken(req: HttpRequest<unknown>): boolean {
     return (
       !req.url.includes('LoginUser') &&
       !req.url.includes('RefreshToken') &&
@@ -129,7 +128,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
     );
   }
 
-  private extractBearerToken(req: HttpRequest<any>): string | null {
+  private extractBearerToken(req: HttpRequest<unknown>): string | null {
     const header = req.headers.get('Authorization');
     if (header && header.startsWith('Bearer ')) {
       return header.substring('Bearer '.length);
@@ -137,7 +136,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
     return null;
   }
 
-  private addAuthHeader(req: HttpRequest<any>): HttpRequest<any> {
+  private addAuthHeader(req: HttpRequest<unknown>): HttpRequest<unknown> {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     const context = req.context.set(TOKEN_REFRESH_RETRIED, true);
     if (token) {

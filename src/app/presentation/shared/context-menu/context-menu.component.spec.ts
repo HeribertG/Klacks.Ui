@@ -120,7 +120,7 @@ describe('ContextMenuComponent', () => {
 
         // Wait for timer (less than 1000ms)
         await new Promise(resolve => setTimeout(resolve, 1100));
-        expect(component.rightPanelStyle.display).toBe('none');
+        expect(component.rightPanelStyle['display']).toBe('none');
     });
 
     it('should prevent default and stop propagation in stopEvent', () => {
@@ -130,7 +130,7 @@ describe('ContextMenuComponent', () => {
             cancelBubble: false
         };
 
-        component.stopEvent(mockEvent);
+        component.stopEvent(mockEvent as unknown as Event);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(mockEvent.stopPropagation).toHaveBeenCalled();
@@ -141,7 +141,7 @@ describe('ContextMenuComponent', () => {
         const mockEvent = {};
 
         // Should not throw error
-        expect(() => component.stopEvent(mockEvent)).not.toThrow();
+        expect(() => component.stopEvent(mockEvent as unknown as Event)).not.toThrow();
     });
 
     it('should render context menu div with correct attributes', () => {

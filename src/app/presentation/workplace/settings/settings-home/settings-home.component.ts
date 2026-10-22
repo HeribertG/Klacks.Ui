@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, effect, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -272,7 +271,7 @@ export class SettingsHomeComponent implements OnInit {
     this.expertModeService.setEnabled(enabled);
   }
 
-  onIsChanging(event: any): void {
+  onIsChanging(event: boolean): void {
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();
     } else {

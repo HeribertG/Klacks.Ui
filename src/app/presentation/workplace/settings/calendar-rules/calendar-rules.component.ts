@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component, ChangeDetectionStrategy,
@@ -10,6 +9,7 @@ import {
   inject,
   signal,
   ChangeDetectorRef,
+  TemplateRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -398,7 +398,7 @@ export class CalendarRulesComponent
     return value;
   }
 
-  onCopyRule(content: any, data: CalendarRule): void {
+  onCopyRule(content: TemplateRef<unknown>, data: CalendarRule): void {
     this.holidaysListHelper.clear();
     this.currentRule = { ...data, id: '' };
     this.loadRuleToForm();
@@ -406,7 +406,7 @@ export class CalendarRulesComponent
     this.openNewRule(content);
   }
 
-  onEditRule(content: any, data: CalendarRule): void {
+  onEditRule(content: TemplateRef<unknown>, data: CalendarRule): void {
     this.holidaysListHelper.clear();
     this.currentRule = data;
 
@@ -426,7 +426,7 @@ export class CalendarRulesComponent
     this.openNewRule(content);
   }
 
-  createNewRule(content: any): void {
+  createNewRule(content: TemplateRef<unknown>): void {
     this.holidaysListHelper.clear();
     this.currentRule = new CalendarRule();
     this.currentRule.name = new MultiLanguage();
@@ -450,7 +450,7 @@ export class CalendarRulesComponent
     this.openNewRule(content);
   }
 
-  openNewRule(content: any): void {
+  openNewRule(content: TemplateRef<unknown>): void {
     this.tabId.set('form');
     this.loadManual();
     this.ngbModal

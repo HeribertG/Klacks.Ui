@@ -99,9 +99,8 @@ export class EditShiftSpecialFeatureComponent
     return SPORADIC_TYPE_TRANSLATION_KEYS[index] ?? '';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onKeyUpInput(event: any, data: string) {
-    event.currentTarget.value = data;
+  onKeyUpInput(event: Event, data: string) {
+    (event.currentTarget as HTMLInputElement).value = data;
     this.isChangingEvent.emit(true);
   }
 

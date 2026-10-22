@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { Injectable } from '@angular/core';
+import { DisplayRange } from './display-range.interface';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
@@ -59,13 +60,7 @@ export class TimeRangeService {
     from: OwnTime,
     until: OwnTime,
     paddingMinutes: number
-  ): {
-    originalFromMinutes: number;
-    originalUntilMinutes: number;
-    displayFromMinutes: number;
-    displayUntilMinutes: number;
-    totalMinutes: number;
-  } {
+  ): DisplayRange {
     const originalFromMinutes = this.toMinutes(from);
     let originalUntilMinutes = this.toMinutes(until);
 

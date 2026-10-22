@@ -11,7 +11,6 @@
  * @param disabled - Disables the component
  */
 /* eslint-disable no-case-declarations */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -122,8 +121,8 @@ export class GroupSelectComponent
 
   // Private properties
   private effects: EffectRef[] = [];
-  private onChange: any = () => {};
-  private onTouched: any = () => {};
+  private onChange: (value: string | null) => void = () => {};
+  private onTouched: () => void = () => {};
 
   // Constants
   readonly ALL_GROUPS_ID = 'all-groups-virtual';
@@ -324,7 +323,7 @@ export class GroupSelectComponent
 
     if (this.useGlobalSelection()) {
       this.groupSelectionService.clearSelection();
-      this.dataManagementGroupService.selectNode(null as any);
+      this.dataManagementGroupService.selectedNode.set(undefined);
       this.sessionStorageService.removeFilter(this.SELECTED_GROUP_STORAGE_KEY);
     }
 
@@ -340,7 +339,7 @@ export class GroupSelectComponent
 
     if (this.useGlobalSelection()) {
       this.groupSelectionService.selectWithoutGroup();
-      this.dataManagementGroupService.selectNode(null as any);
+      this.dataManagementGroupService.selectedNode.set(undefined);
       this.sessionStorageService.saveFilter(this.SELECTED_GROUP_STORAGE_KEY, this.WITHOUT_GROUP_ID);
     }
 
@@ -464,11 +463,11 @@ export class GroupSelectComponent
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: string | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 

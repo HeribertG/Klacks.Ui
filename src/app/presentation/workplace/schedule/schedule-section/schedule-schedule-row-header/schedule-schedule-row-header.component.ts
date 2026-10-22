@@ -612,8 +612,11 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   private refreshCdkPositions(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ref = (this.cdkDropListRef() as any)?._dropListRef;
+    const dropListRef = this.cdkDropListRef()?._dropListRef;
+    const ref = dropListRef as typeof dropListRef & {
+      _cacheOwnPosition?: () => void;
+      _cacheItemPositions?: () => void;
+    };
     if (ref) {
       ref._cacheOwnPosition?.();
       ref._cacheItemPositions?.();

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Directive,
   ElementRef,
@@ -11,7 +10,7 @@ import {
 } from '@angular/core';
 import ResizeObserver from 'resize-observer-polyfill';
 
-const entriesMap = new WeakMap();
+const entriesMap = new WeakMap<Element, ResizeObserverDirective>();
 
 const ro = new ResizeObserver((entries) => {
   for (const entry of entries) {
@@ -37,7 +36,7 @@ export class ResizeObserverDirective implements OnDestroy {
     ro.observe(target);
   }
 
-  resizeCallback(entry: any): void {
+  resizeCallback(entry: ResizeObserverEntry): void {
     this.resizeElement.emit(entry.contentRect);
   }
 

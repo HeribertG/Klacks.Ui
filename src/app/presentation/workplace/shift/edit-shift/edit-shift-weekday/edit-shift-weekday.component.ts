@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -122,8 +121,8 @@ export class EditShiftWeekdayComponent
     }
   }
 
-  onKeyUpInput(event: any, data: string) {
-    event.currentTarget.value = data;
+  onKeyUpInput(event: Event, data: string) {
+    (event.currentTarget as HTMLInputElement).value = data;
     this.isChangingEvent.emit(true);
   }
 

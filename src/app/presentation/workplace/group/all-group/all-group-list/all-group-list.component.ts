@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component,
@@ -247,9 +246,9 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     return false;
   }
 
-  onChangeCheckBox(i: number, value: any) {
+  onChangeCheckBox(i: number, value: Event) {
     try {
-      const isChecked = value.currentTarget.checked;
+      const isChecked = (value.currentTarget as HTMLInputElement).checked;
       const tmpClient = this.dataManagementGroupService.listWrapper!.groups[i];
       const tmpCheckBoxValue =
         this.dataManagementGroupService.findCheckBoxValue(tmpClient.id!);
@@ -345,8 +344,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navigationService.navigateToEditGroup();
   }
 
-  onChangeRowSize(event: any): void {
-    const value = +event.srcElement.value;
+  onChangeRowSize(event: Event): void {
+    const value = +(event.srcElement as HTMLSelectElement).value;
     this.page = 1;
 
     const myGridTable = this.myGridTable();

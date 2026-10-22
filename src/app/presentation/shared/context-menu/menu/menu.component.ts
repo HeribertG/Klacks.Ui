@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChangeDetectorRef,
   Component,
@@ -43,7 +42,7 @@ export class MenuComponent {
   private elementRef = inject(ElementRef);
 
   isVisible = false;
-  rightPanelStyle: any = {};
+  rightPanelStyle: Record<string, string | number> = {};
   parentRect = new Rectangle();
   private animationFrameId: number | null = null;
 
@@ -108,7 +107,7 @@ export class MenuComponent {
     this.mouseEntered.emit();
   }
 
-  stopEvent(event: any): void {
+  stopEvent(event: Event): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();
     if (event.cancelBubble) event.cancelBubble = true;

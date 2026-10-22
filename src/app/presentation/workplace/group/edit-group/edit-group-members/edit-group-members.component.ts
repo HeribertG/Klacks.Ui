@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -53,7 +51,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  readonly isChangingEvent = output();
+  readonly isChangingEvent = output<boolean>();
   readonly isEnterEvent = output();
 
   result = new Array<IClient>();
@@ -64,7 +62,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   checkBoxIndeterminate = false;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @HostListener('search', ['$event']) onsearch(event: any) {
+  @HostListener('search', ['$event']) onsearch(event: Event) {
     if (!this.selectedClientName) {
       this.clearSelection();
       return;
@@ -93,7 +91,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
     this.result = [];
   }
 
-  onIsChanging(event: any) {
+  onIsChanging(event: boolean) {
     this.isChangingEvent.emit(event);
   }
   onKeyupSearchField(event: KeyboardEvent) {
@@ -281,10 +279,10 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
     return false;
   }
 
-  onChangeCheckBox(i: number, value: any) {
+  onChangeCheckBox(i: number, value: Event) {
     this.isConditionReaded();
     try {
-      const isChecked = value.currentTarget.checked;
+      const isChecked = (value.currentTarget as HTMLInputElement).checked;
       const clientId =
         this.dataManagementGroupService.editGroup?.groupItems[i].clientId;
       if (clientId) {

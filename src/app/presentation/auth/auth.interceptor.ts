@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   HttpInterceptor,
   HttpRequest,
@@ -24,9 +23,9 @@ export class AuthInterceptor implements HttpInterceptor {
   private injector = inject(Injector);
 
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     if (!this.isInternalRequest(req.url)) {
       return next.handle(req);
     }

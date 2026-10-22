@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -9,11 +8,15 @@ import { LanguageMappingService } from 'src/app/application/services/language-ma
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 
 import { SpeechDiagnostics } from './speech-diagnostics.interface';
+import { SpeechErrorEvent } from './speech-error-event.interface';
+import { SpeechRecognitionConstructor } from './speech-recognition-constructor.type';
+import { SpeechRecognitionInstance } from './speech-recognition-instance.interface';
+import { SpeechResultEvent } from './speech-result-event.interface';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 declare global {
   interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    SpeechRecognition?: SpeechRecognitionConstructor;
   }
 }
 
@@ -21,7 +24,7 @@ declare global {
   providedIn: 'root',
 })
 export class SpeechRecognitionService {
-  private recognition: any;
+  private recognition: SpeechRecognitionInstance | undefined;
   public isListening = signal<boolean>(false);
   public isSupported$ = signal<boolean>(false);
   private results$ = new Subject<string>();
@@ -60,9 +63,12 @@ export class SpeechRecognitionService {
 
   private collectDiagnostics(): SpeechDiagnostics {
     const userAgent = navigator.userAgent.toLowerCase();
+    const userAgentData = (navigator as Navigator & {
+      userAgentData?: { platform?: string; architecture?: string };
+    }).userAgentData;
     const isArm = /arm|aarch64|snapdragon/i.test(navigator.userAgent) ||
-                  (navigator as any).userAgentData?.platform === 'Windows' &&
-                  /arm/i.test((navigator as any).userAgentData?.architecture || '');
+                  userAgentData?.platform === 'Windows' &&
+                  /arm/i.test(userAgentData?.architecture || '');
 
     let browserName = 'Unknown';
     if (/edg/i.test(userAgent)) browserName = 'Edge';
@@ -90,8 +96,8 @@ export class SpeechRecognitionService {
 
   private async detectAvailableLanguages(): Promise<void> {
     const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       this.availableLanguages = [];
       return;
@@ -111,7 +117,7 @@ export class SpeechRecognitionService {
     this.availableLanguages = workingLanguages;
   }
 
-  private async testLanguageSupport(SpeechRecognition: any, lang: string): Promise<boolean> {
+  private async testLanguageSupport(SpeechRecognition: SpeechRecognitionConstructor, lang: string): Promise<boolean> {
     try {
       const testRecognition = new SpeechRecognition();
       testRecognition.lang = lang;
@@ -124,7 +130,7 @@ export class SpeechRecognitionService {
           resolve(true);
         };
 
-        testRecognition.onerror = (event: any) => {
+        testRecognition.onerror = (event: SpeechErrorEvent) => {
           resolve(event.error !== 'language-not-supported');
         };
 
@@ -190,20 +196,21 @@ export class SpeechRecognitionService {
     this.errors$.next(message);
   }
 
-  private setupRecognitionInstance(SpeechRecognition: any): boolean {
+  private setupRecognitionInstance(SpeechRecognition: SpeechRecognitionConstructor): boolean {
     try {
-      this.recognition = new SpeechRecognition();
-      this.recognition.continuous = true;
-      this.recognition.interimResults = true;
-      this.recognition.maxAlternatives = 1;
+      const recognition = new SpeechRecognition();
+      this.recognition = recognition;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
 
       if (this.diagnostics.isArmProcessor) {
-        this.recognition.lang = navigator.language || 'de-DE';
+        recognition.lang = navigator.language || 'de-DE';
       }
 
       this.isSupported$.set(true);
       return true;
-    } catch (error: any) {
+    } catch {
       this.useWhisperFallback = true;
       this.diagnostics.useWhisperFallback = true;
       this.isSupported$.set(true);
@@ -212,14 +219,19 @@ export class SpeechRecognitionService {
   }
 
   private setupEventHandlers(): void {
-    this.recognition.onstart = () => {
+    const recognition = this.recognition;
+    if (!recognition) {
+      return;
+    }
+
+    recognition.onstart = () => {
       this.isListening.set(true);
     };
 
-    this.recognition.onend = () => {
+    recognition.onend = () => {
       if (this.shouldContinue && this.isListening()) {
         try {
-          this.recognition.start();
+          recognition.start();
         } catch (e) {
           this.isListening.set(false);
           this.shouldContinue = false;
@@ -229,7 +241,7 @@ export class SpeechRecognitionService {
       }
     };
 
-    this.recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechResultEvent) => {
       let interimTranscript = '';
       let finalTranscript = '';
 
@@ -258,13 +270,17 @@ export class SpeechRecognitionService {
       }
     };
 
-    this.recognition.onnomatch = () => {
+    recognition.onnomatch = () => {
       this.errors$.next('Speech not recognized. Please speak more clearly.');
     };
   }
 
   private setupErrorHandler(): void {
-    this.recognition.onerror = (event: any) => {
+    if (!this.recognition) {
+      return;
+    }
+
+    this.recognition.onerror = (event: SpeechErrorEvent) => {
       if (event.error === 'no-speech' && this.shouldContinue) {
         return;
       }
@@ -288,7 +304,7 @@ export class SpeechRecognitionService {
     };
   }
 
-  private mapRecognitionError(event: any): string {
+  private mapRecognitionError(event: SpeechErrorEvent): string {
     switch (event.error) {
       case 'no-speech':
         return 'No speech detected. Please try again.';
@@ -403,7 +419,7 @@ export class SpeechRecognitionService {
       this.recognition.lang = currentLang;
       const originalErrorHandler = this.recognition.onerror;
 
-      this.recognition.onerror = (event: any) => {
+      this.recognition.onerror = (event: SpeechErrorEvent) => {
         if (event.error === 'language-not-supported') {
           setTimeout(() => {
             this.tryLanguages(languages, index + 1);

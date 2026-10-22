@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalComponent } from './modal.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -43,7 +44,7 @@ describe('ModalComponent', () => {
             const ngbModal = (component as unknown as { ngbModal: NgbModal }).ngbModal;
             const openSpy = vi.spyOn(ngbModal, 'open').mockReturnValue({ result: Promise.resolve() } as ReturnType<NgbModal['open']>);
 
-            component.open({}, modalType);
+            component.open({} as TemplateRef<unknown>, modalType);
 
             expect(openSpy).toHaveBeenCalledTimes(1);
             const options = openSpy.mock.calls[0][1] as NgbModalOptions;

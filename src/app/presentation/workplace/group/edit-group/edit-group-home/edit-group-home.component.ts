@@ -123,8 +123,7 @@ export class EditGroupHomeComponent implements OnInit {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onIsChanging(event: any) {
+  onIsChanging(event: boolean) {
     // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();

@@ -4,7 +4,6 @@
  * Settings component for configuring LLM providers and models; API key entry is optional for keyless local providers.
  * @param requiresApiKey - Form flag controlling whether the API key field is mandatory
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
   OnInit,
@@ -22,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { LLMProvidersHeaderComponent } from './llm-providers-header/llm-providers-header.component';
@@ -70,8 +69,8 @@ const API_KEY_NOT_REQUIRED_KEY = 'settings.llm-providers.api-key-not-required';
 })
 export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.LLM_PROVIDER;
-  readonly providerModal = viewChild.required<TemplateRef<any>>('providerModal');
-  readonly discoverModal = viewChild.required<TemplateRef<any>>('discoverModal');
+  readonly providerModal = viewChild.required<TemplateRef<unknown>>('providerModal');
+  readonly discoverModal = viewChild.required<TemplateRef<unknown>>('discoverModal');
   readonly discoverComponent = viewChild(LLMProvidersDiscoverComponent);
 
   private toastService = inject(ToastShowService);
@@ -273,7 +272,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     this.editingProvider.requiresApiKey = formData.requiresApiKey;
   }
 
-  async onSaveModal(modal: any): Promise<void> {
+  async onSaveModal(modal: Pick<NgbActiveModal, 'close'>): Promise<void> {
     const success = await this.saveProvider();
     if (success) {
       modal.close();

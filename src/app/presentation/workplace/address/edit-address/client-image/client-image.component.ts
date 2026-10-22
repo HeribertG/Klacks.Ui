@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   effect,
@@ -19,6 +18,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IClientImage } from 'src/app/domain/models/client/i-client-image';
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -126,18 +126,18 @@ export class ClientImageComponent implements OnInit, OnDestroy {
     return new Blob([byteArray], { type: contentType });
   }
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0] as File;
+  onFileSelected(event: Event) {
+    this.selectedFile = (event.target as HTMLInputElement).files![0];
     this.uploadImage();
   }
 
-  onUploadImage(event: any) {
+  onUploadImage(event: FileList) {
     this.selectedFile = event[0] as File;
     this.uploadImage();
   }
 
-  onUploadImage1(event: any) {
-    this.selectedFile = event.target.files[0] as File;
+  onUploadImage1(event: Event) {
+    this.selectedFile = (event.target as HTMLInputElement).files![0];
     this.uploadImage();
   }
 
@@ -148,7 +148,7 @@ export class ClientImageComponent implements OnInit, OnDestroy {
 
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e: any) => {
+      reader.onload = () => {
         const img = new Image();
         img.onload = () => {
           let width = img.width;
@@ -210,7 +210,7 @@ export class ClientImageComponent implements OnInit, OnDestroy {
         };
 
         img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target.result;
+        img.src = reader.result as string;
       };
 
       reader.onerror = () => reject(new Error('Failed to read file'));
@@ -235,7 +235,8 @@ export class ClientImageComponent implements OnInit, OnDestroy {
         const base64String = reader.result as string;
         const base64Data = base64String.split(',')[1];
 
-        const clientImage: any = {
+        const clientImage: IClientImage = {
+          id: undefined,
           clientId: client.id || '00000000-0000-0000-0000-000000000000',
           imageData: base64Data,
           contentType: resizedFile.type,

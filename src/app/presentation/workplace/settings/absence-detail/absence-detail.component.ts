@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
   OnInit,
@@ -17,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { AbsenceDetailHeaderComponent } from './absence-detail-header/absence-detail-header.component';
@@ -64,7 +63,7 @@ import { transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy {
-  readonly absenceDetailModal = viewChild.required<TemplateRef<any>>('absenceDetailModal');
+  readonly absenceDetailModal = viewChild.required<TemplateRef<unknown>>('absenceDetailModal');
 
   private absenceDetailService = inject(DataAbsenceDetailService);
   private absenceService = inject(DataAbsenceService);
@@ -221,7 +220,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
     this.absenceDetailFormModel.applyToAbsenceDetail();
   }
 
-  async onSaveModal(modal: any): Promise<void> {
+  async onSaveModal(modal: Pick<NgbActiveModal, 'close'>): Promise<void> {
     const success = await this.saveAbsenceDetail();
     if (success) {
       modal.close();

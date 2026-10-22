@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable no-prototype-builtins */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   HttpInterceptor,
   HttpRequest,
@@ -109,9 +108,9 @@ export class ResponseInterceptor implements HttpInterceptor {
   };
 
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     return next.handle(req).pipe(
       tap((event) => {
         if (event instanceof HttpResponse) {
@@ -151,7 +150,7 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private handleSpecificErrors(
     error: HttpErrorResponse,
-    req: HttpRequest<any>
+    req: HttpRequest<unknown>
   ): Observable<never> {
     const url = error.url || '';
     const method = req.method.toUpperCase();
@@ -277,14 +276,14 @@ export class ResponseInterceptor implements HttpInterceptor {
   // A refused work booking carries codes and ids only; the message with employee, qualification and
   // shift names is built from the loaded schedule data, looked up lazily because that service graph
   // itself depends on HttpClient and therefore on this interceptor.
-  private buildWorkConflictMessage(error: HttpErrorResponse, req: HttpRequest<any>): string | null {
+  private buildWorkConflictMessage(error: HttpErrorResponse, req: HttpRequest<unknown>): string | null {
     if (!readWorkConflictProblem(error)) {
       return null;
     }
     return this.injector.get(WorkConflictMessageService).buildMessage(error, this.workConflictTarget(req));
   }
 
-  private buildAskKlacksyActions(error: HttpErrorResponse, req: HttpRequest<any>): IToastAction[] | undefined {
+  private buildAskKlacksyActions(error: HttpErrorResponse, req: HttpRequest<unknown>): IToastAction[] | undefined {
     if (!this.isSingleBooking(req) || this.isScenarioBooking(req)) {
       return undefined;
     }
@@ -295,22 +294,27 @@ export class ResponseInterceptor implements HttpInterceptor {
     return action ? [action] : undefined;
   }
 
-  private isSingleBooking(req: HttpRequest<any>): boolean {
+  private isSingleBooking(req: HttpRequest<unknown>): boolean {
     const path = req.url.split('?')[0];
     return req.method === WORK_REFUSAL_EXPLAIN.SINGLE_BOOKING_METHOD && path.endsWith(WORK_REFUSAL_EXPLAIN.SINGLE_BOOKING_PATH);
   }
 
-  private isScenarioBooking(req: HttpRequest<any>): boolean {
-    const analyseToken = req.body?.analyseToken;
+  private isScenarioBooking(req: HttpRequest<unknown>): boolean {
+    const analyseToken = this.requestBody(req)['analyseToken'];
     return typeof analyseToken === 'string' && analyseToken.trim() !== '';
   }
 
-  private workConflictTarget(req: HttpRequest<any>): WorkConflictTarget {
+  private workConflictTarget(req: HttpRequest<unknown>): WorkConflictTarget {
+    const body = this.requestBody(req);
     return {
-      clientId: req.body?.clientId,
-      shiftId: req.body?.shiftId,
-      date: typeof req.body?.currentDate === 'string' ? req.body.currentDate : undefined,
+      clientId: body['clientId'] as string | undefined,
+      shiftId: body['shiftId'] as string | undefined,
+      date: typeof body['currentDate'] === 'string' ? body['currentDate'] : undefined,
     };
+  }
+
+  private requestBody(req: HttpRequest<unknown>): Record<string, unknown> {
+    return (req.body ?? {}) as Record<string, unknown>;
   }
 
   private isGeoServicesPassThrough(url: string): boolean {

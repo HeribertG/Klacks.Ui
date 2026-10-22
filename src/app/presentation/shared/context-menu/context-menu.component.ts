@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation, inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
@@ -43,7 +42,7 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
   private myTimer = new Timer();
   private ngUnsubscribe = new Subject<void>();
 
-  rightPanelStyle: any = {};
+  rightPanelStyle: Record<string, string | number> = {};
 
   ngOnInit(): void {
     this.contextMenuService.hasClicked
@@ -112,7 +111,7 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
     return this.inputModality.isTouchMode();
   }
 
-  stopEvent(event: any): void {
+  stopEvent(event: Event): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();
     if (event.cancelBubble) event.cancelBubble = true;

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Settings list for calendar selections with a modal for add/edit.
  * Seeded (system) selections cannot be deleted; selections used by
@@ -24,7 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { CalendarSelectionHeaderComponent } from './calendar-selection-header/calendar-selection-header.component';
@@ -66,7 +65,7 @@ export class CalendarSelectionComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly calendarSelectionModal =
-    viewChild.required<TemplateRef<any>>('calendarSelectionModal');
+    viewChild.required<TemplateRef<unknown>>('calendarSelectionModal');
 
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
@@ -307,7 +306,7 @@ export class CalendarSelectionComponent
     }
   }
 
-  async onSaveModal(modal: any): Promise<void> {
+  async onSaveModal(modal: Pick<NgbActiveModal, 'close'>): Promise<void> {
     const success = await this.saveCalendarSelection();
     if (success) {
       modal.close();

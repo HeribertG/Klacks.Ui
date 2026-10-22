@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
   viewChild,
@@ -60,7 +59,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 })
 export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.SYSTEM_USER;
-  readonly msgTemplate = viewChild.required<TemplateRef<any>>('msg');
+  readonly msgTemplate = viewChild.required<TemplateRef<unknown>>('msg');
 
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);

@@ -12,8 +12,7 @@ export interface ClientRect {
   readonly width: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getScreenCoordinates(obj: any): unknown {
+export function getScreenCoordinates(obj: Element): unknown {
   const rect = obj.getBoundingClientRect();
   const p = { x: rect.left + window.scrollX, y: rect.top + window.scrollY };
   return p;

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component, ChangeDetectionStrategy,
@@ -11,11 +10,13 @@ import {
   inject,
   signal,
   ChangeDetectorRef,
+  TemplateRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
+  NgbActiveModal,
   NgbModal,
   NgbModule,
   NgbPaginationModule,
@@ -199,7 +200,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     this.readPage();
   }
 
-  createNewAbsence(content: any): void {
+  createNewAbsence(content: TemplateRef<unknown>): void {
     this.currentAbsence = new Absence();
     this.currentAbsence.name = new MultiLanguage();
     this.currentAbsence.name.de = '';
@@ -221,14 +222,14 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     this.highlightRowId = value.id;
   }
 
-  onCopyAbsence(content: any, data: Absence): void {
+  onCopyAbsence(content: TemplateRef<unknown>, data: Absence): void {
     this.currentAbsence = cloneObject<Absence>(data);
     this.currentAbsence.id = undefined;
     this.initFormFromAbsence();
     this.openNewAbsence(content);
   }
 
-  onEditAbsence(content: any, data: Absence): void {
+  onEditAbsence(content: TemplateRef<unknown>, data: Absence): void {
     this.currentAbsence = data;
     this.initFormFromAbsence();
     this.openNewAbsence(content);
@@ -284,7 +285,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     }
   }
 
-  openNewAbsence(content: any): void {
+  openNewAbsence(content: TemplateRef<unknown>): void {
     this.ngbModal.open(content, {
       size: 'md',
       centered: true,
@@ -293,7 +294,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefr
     });
   }
 
-  async onSaveModal(modal: any): Promise<void> {
+  async onSaveModal(modal: Pick<NgbActiveModal, 'close'>): Promise<void> {
     await this.saveAbsence();
     modal.close();
   }

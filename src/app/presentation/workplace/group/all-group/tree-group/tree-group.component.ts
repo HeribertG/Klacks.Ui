@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -86,8 +85,8 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   public draggedNodeId: string | null = null;
 
   private effectRef: EffectRef | null = null;
-  private expandTimeout: any = null;
-  private scrollInterval: any = null;
+  private expandTimeout: ReturnType<typeof setTimeout> | null = null;
+  private scrollInterval: ReturnType<typeof setInterval> | null = null;
   private readonly SCROLL_ZONE_SIZE = 100;
   private readonly SCROLL_SPEED = 10;
 
@@ -132,10 +131,10 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
     }
   }
 
-  hasChildren(node: any): boolean {
+  hasChildren(node: Group | null | undefined): boolean {
     return (
-      node &&
-      node.children &&
+      !!node &&
+      !!node.children &&
       Array.isArray(node.children) &&
       node.children.length > 0
     );

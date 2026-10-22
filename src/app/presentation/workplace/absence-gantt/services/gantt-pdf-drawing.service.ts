@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,7 +7,9 @@ import { HolidaysListHelper } from 'src/app/domain/models/calendar/holidays-list
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { GanttBreakBar } from './gantt-break-bar.interface';
 import { GanttDrawingConfig } from './gantt-drawing-config.interface';
+import { GanttLegendItem } from './gantt-legend-item.interface';
 import { RowDrawingParams } from './row-drawing-params.interface';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
@@ -332,7 +333,7 @@ export class GanttPdfDrawingService {
     x: number,
     y: number,
     config: GanttDrawingConfig,
-    breakData: any, // IBreak
+    breakData: GanttBreakBar,
     rowHeight: number
   ): void {
     const breakStart = parseCalendarDate(breakData.from);
@@ -404,7 +405,7 @@ export class GanttPdfDrawingService {
     x: number,
     y: number,
     config: GanttDrawingConfig,
-    breaks: any[], // IBreak[]
+    breaks: GanttBreakBar[],
     rowHeight: number
   ): void {
     if (!breaks || breaks.length === 0) {
@@ -426,7 +427,7 @@ export class GanttPdfDrawingService {
     y: number,
     width: number,
     height: number,
-    selectedAbsenceTypes: any[] // { id: string, name: string, color: string }[]
+    selectedAbsenceTypes: GanttLegendItem[]
   ): void {
     if (!selectedAbsenceTypes || selectedAbsenceTypes.length === 0) {
       return;
@@ -498,7 +499,7 @@ export class GanttPdfDrawingService {
     monthHeaderHeight = 20,
     drawBottomSeparator = true,
     isFirstRowAfterHeaders = false,
-    breaks: any[] = []
+    breaks: GanttBreakBar[] = []
   ): void {
     const rowHeight = config.rowHeight;
     let currentY = y;

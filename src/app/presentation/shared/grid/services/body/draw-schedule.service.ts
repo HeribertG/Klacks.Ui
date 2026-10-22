@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -73,7 +72,7 @@ export class BaseDrawScheduleService {
 
   public createCanvas() {
     this.canvasManager.createCanvas();
-    (this as any).executeQueuedMethods();
+    (Reflect.get(this, 'executeQueuedMethods') as () => void).call(this);
   }
 
   public deleteCanvas() {

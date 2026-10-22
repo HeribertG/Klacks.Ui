@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
   OnInit,
@@ -18,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
@@ -56,7 +55,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 })
 export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.LLM_MODEL;
-  readonly llmModal = viewChild.required<TemplateRef<any>>('llmModal');
+  readonly llmModal = viewChild.required<TemplateRef<unknown>>('llmModal');
 
   private llmService = inject(DataManagementAssistantService);
   private providerService = inject(DataManagementAssistantProviderService);
@@ -268,7 +267,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     }
   }
 
-  async onSaveModal(modal: any): Promise<void> {
+  async onSaveModal(modal: Pick<NgbActiveModal, 'close'>): Promise<void> {
     const success = await this.saveModel();
     if (success) {
       modal.close();

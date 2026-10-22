@@ -7,7 +7,6 @@
  * @param accessModes - Selectable access modes; Read is preselected (secure by default)
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
   OnInit,
@@ -69,7 +68,7 @@ const PERSONAL_ACCESS_TOKENS_CONTEXT = 'personal-access-tokens';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnDestroy {
-  readonly tokenModal = viewChild.required<TemplateRef<any>>('tokenModal');
+  readonly tokenModal = viewChild.required<TemplateRef<unknown>>('tokenModal');
 
   private tokenService = inject(DataPersonalAccessTokenService);
   private toastService = inject(ToastShowService);

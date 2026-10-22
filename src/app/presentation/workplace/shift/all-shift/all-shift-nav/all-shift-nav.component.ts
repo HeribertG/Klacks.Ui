@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -15,7 +13,7 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -44,7 +42,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
-  objectForUnsubscribe: any;
+  objectForUnsubscribe: Subscription | undefined;
 
   isComboBoxOpen = false;
 

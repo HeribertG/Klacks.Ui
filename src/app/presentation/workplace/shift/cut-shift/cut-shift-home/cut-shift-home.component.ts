@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -57,7 +56,7 @@ export class CutShiftHomeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onIsChanging(event: any) {
+  onIsChanging(event: boolean) {
     
     // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {

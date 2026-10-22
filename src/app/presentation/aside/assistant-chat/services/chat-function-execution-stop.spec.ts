@@ -86,7 +86,7 @@ describe('stop-turn cancellation across turn control, function execution and UI 
     vi.restoreAllMocks();
   });
 
-  const run = (calls: unknown[], turnSeq?: number): Promise<void> =>
+  const run = (calls: Record<string, unknown>[], turnSeq?: number): Promise<void> =>
     service.executeFunctionCalls(calls, undefined, undefined, turnSeq);
 
   it('runs every step and the navigation and reports completed when Done ends the turn before step 2', async () => {
@@ -267,7 +267,7 @@ describe('stop-turn cancellation across turn control, function execution and UI 
       updateMessage = orchestrator.updateMessage;
     });
 
-    const runWithMessage = (calls: unknown[], seq: number): Promise<void> =>
+    const runWithMessage = (calls: Record<string, unknown>[], seq: number): Promise<void> =>
       service.executeFunctionCalls(calls, MESSAGE_ID, 'utterance', seq);
 
     it('runs the action after Done ended the turn and cancelExecution between step 1 and step 2 skips step 2, the report and the navigation', async () => {

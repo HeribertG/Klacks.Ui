@@ -6,7 +6,6 @@
  * @param gridColorService - Colors for background, borders, text, and warnings
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
@@ -17,6 +16,7 @@ import {
   TextAlignmentEnum,
   BaselineAlignmentEnum,
 } from '../../grid/enums/cell-settings.enum';
+import { DisplayRange } from './display-range.interface';
 import { TimeRangeService } from './time-range.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
@@ -346,7 +346,7 @@ export class TimeRulerRenderService {
   drawBlueBoundaryLines(
     ctx: CanvasRenderingContext2D,
     item: IContainerTemplateItem,
-    range: any,
+    range: DisplayRange,
     boxWidth: number,
     marginLeftRight: number,
     height: number
@@ -388,7 +388,7 @@ export class TimeRulerRenderService {
     height: number,
     fromTime: OwnTime,
     untilTime: OwnTime
-  ): { range: any; boxWidth: number; marginLeftRight: number } {
+  ): { range: DisplayRange; boxWidth: number; marginLeftRight: number } {
     const paddingMinutes = this.calculatePaddingMinutes(fromTime, untilTime);
     const range = this.timeRangeService.calculateDisplayRange(
       fromTime,
@@ -405,7 +405,7 @@ export class TimeRulerRenderService {
   drawSingleShiftBox(
     ctx: CanvasRenderingContext2D,
     item: IContainerTemplateItem,
-    range: any,
+    range: DisplayRange,
     boxWidth: number,
     marginLeftRight: number,
     height: number,

@@ -203,8 +203,7 @@ export class ScrollbarComponent
     return this.orientation === 'horizontal' && document.documentElement.dir === 'rtl';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onResize(event: any): void {
+  onResize(event: unknown): void {
     this.resizer.applyResizeEntries(event);
   }
 

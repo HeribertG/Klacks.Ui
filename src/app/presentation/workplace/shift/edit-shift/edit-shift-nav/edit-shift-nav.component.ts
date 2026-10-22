@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -17,7 +15,7 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { Filter } from 'src/app/domain/models/client/client-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/domain/models/settings/language.type';
@@ -63,7 +61,7 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public faCalendar = faCalendar;
   public isComboBoxOpen = false;
 
-  public objectForUnsubscribe: any;
+  public objectForUnsubscribe: Subscription | undefined;
   public clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
 
   public isInitFinished = false;

@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -47,7 +46,7 @@ export class EditShiftAddressComponent implements OnInit {
 
   readonly addressShiftForm = viewChild<NgForm>('addressShiftForm');
 
-  @HostListener('search', ['$event']) onsearch(event: any) {
+  @HostListener('search', ['$event']) onsearch(event: Event) {
     if (!this.selectedClientName) {
       this.clearSelection();
       return;
@@ -89,7 +88,7 @@ export class EditShiftAddressComponent implements OnInit {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
-  onIsChanging(event: any) {
+  onIsChanging(event: boolean) {
     this.isChangingEvent.emit(event);
   }
   onKeyupSearchField(event: KeyboardEvent) {

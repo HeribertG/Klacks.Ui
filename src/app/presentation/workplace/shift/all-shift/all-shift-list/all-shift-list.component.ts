@@ -1,8 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -234,7 +232,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onMouseEnter(data: any): void {
+  onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;
   }
 
@@ -314,8 +312,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 100);
   }
 
-  onChangeRowSize(event: any): void {
-    const value = +event.srcElement.value;
+  onChangeRowSize(event: Event): void {
+    const value = +(event.srcElement as HTMLSelectElement).value;
     this.realRow = value;
 
     const shiftTableContainer = this.shiftTableContainer();

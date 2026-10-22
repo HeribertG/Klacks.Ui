@@ -459,7 +459,7 @@ describe('AllGroupListComponent', () => {
             const mockEvent = { currentTarget: { checked: true } };
             mockDataManagementGroupService.findCheckBoxValue.mockReturnValue({ id: '1', checked: false });
 
-            component.onChangeCheckBox(0, mockEvent);
+            component.onChangeCheckBox(0, mockEvent as unknown as Event);
 
             expect(mockDataManagementGroupService.findCheckBoxValue).toHaveBeenCalled();
         });

@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { signal, TemplateRef } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, Subject } from 'rxjs';
@@ -143,7 +143,7 @@ describe('AbsenceComponent', () => {
       vi.spyOn(component, 'openNewAbsence').mockImplementation(() => {});
 
       // Act
-      component.createNewAbsence({});
+      component.createNewAbsence({} as TemplateRef<unknown>);
 
       // Assert
       expect(component.currentAbsence).toBeTruthy();
@@ -158,7 +158,7 @@ describe('AbsenceComponent', () => {
       vi.spyOn(component, 'openNewAbsence').mockImplementation(() => {});
 
       // Act
-      component.createNewAbsence({});
+      component.createNewAbsence({} as TemplateRef<unknown>);
 
       // Assert
       const formData = (component as any).formModel();
@@ -176,7 +176,7 @@ describe('AbsenceComponent', () => {
       const absenceToEdit = mockAbsences[0];
 
       // Act
-      component.onEditAbsence({}, absenceToEdit);
+      component.onEditAbsence({} as TemplateRef<unknown>, absenceToEdit);
 
       // Assert
       expect(component.currentAbsence).toBe(absenceToEdit);
@@ -189,7 +189,7 @@ describe('AbsenceComponent', () => {
       const absenceToEdit = mockAbsences[0];
 
       // Act
-      component.onEditAbsence({}, absenceToEdit);
+      component.onEditAbsence({} as TemplateRef<unknown>, absenceToEdit);
 
       // Assert
       const formData = (component as any).formModel();
@@ -208,7 +208,7 @@ describe('AbsenceComponent', () => {
       const absenceToCopy = mockAbsences[0];
 
       // Act
-      component.onCopyAbsence({}, absenceToCopy);
+      component.onCopyAbsence({} as TemplateRef<unknown>, absenceToCopy);
 
       // Assert
       expect(component.currentAbsence.id).toBeUndefined();
@@ -222,7 +222,7 @@ describe('AbsenceComponent', () => {
       const absenceToCopy = mockAbsences[0];
 
       // Act
-      component.onCopyAbsence({}, absenceToCopy);
+      component.onCopyAbsence({} as TemplateRef<unknown>, absenceToCopy);
 
       // Assert
       const formData = (component as any).formModel();

@@ -382,7 +382,7 @@ export class ContainerTemplateRouteService {
   }
 
   applyOptimizedRoute(
-    result: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    result: IRouteOptimizationResult,
     currentItems: IContainerTemplateItem[],
     timeFrom: OwnTime,
     selectedWeekday: string,

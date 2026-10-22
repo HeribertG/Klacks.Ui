@@ -21,6 +21,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
 import { EditorSelection } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setError, clearError } from './klacks-script-language';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
@@ -339,8 +340,7 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   private setCursorPosition(line: number, column: number): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const view = (this.codeEditor() as any)?.view;
+    const view = this.editorView();
     if (!view) return;
 
     const code = this.editorContent();
@@ -364,10 +364,13 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   private clearErrorMark(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const view = (this.codeEditor() as any)?.view;
+    const view = this.editorView();
     if (!view) return;
     clearError(view);
+  }
+
+  private editorView(): EditorView | undefined {
+    return (this.codeEditor() as unknown as { view?: EditorView } | undefined)?.view;
   }
 
   onRunMacro(): void {

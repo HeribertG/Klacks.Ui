@@ -375,7 +375,7 @@ describe('AllAddressListComponent', () => {
             });
             const mockEvent = { currentTarget: { checked: true } };
 
-            component.onChangeCheckBox(0, mockEvent);
+            component.onChangeCheckBox(0, mockEvent as unknown as Event);
 
             expect(mockDataManagementClientService.removeCheckBoxValueToArray).toHaveBeenCalledWith('1');
             expect(mockDataManagementClientService.addCheckBoxValueToArray).toHaveBeenCalledWith(

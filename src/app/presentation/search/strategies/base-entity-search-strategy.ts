@@ -1,20 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { IEntitySearchStrategy } from './interfaces/entity-search-strategy.interface';
 import { EntitySearchOptions } from './interfaces/entity-search-options.interface';
+import { SearchFilterHost } from './interfaces/search-filter-host.interface';
 
 export abstract class BaseEntitySearchStrategy
   implements IEntitySearchStrategy
 {
-  protected abstract dataManagementService: any;
+  protected abstract dataManagementService: object;
   protected abstract entityName: EntityName;
 
   abstract search(value: string, options?: EntitySearchOptions): void;
 
   resetFilter(): void {
-    this.dataManagementService.currentFilter.searchString = '';
+    this.filterHost.currentFilter.searchString = '';
     this.triggerExternalFilterChange();
     this.refreshData();
   }
@@ -24,9 +24,11 @@ export abstract class BaseEntitySearchStrategy
   }
 
   protected triggerExternalFilterChange(): void {
-    if (this.dataManagementService.onExternalFilterChange) {
-      this.dataManagementService.onExternalFilterChange();
-    }
+    this.filterHost.onExternalFilterChange?.();
+  }
+
+  private get filterHost(): SearchFilterHost {
+    return this.dataManagementService as SearchFilterHost;
   }
 
   protected abstract refreshData(): void;

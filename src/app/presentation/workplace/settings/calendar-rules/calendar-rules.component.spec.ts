@@ -1,9 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { signal, TemplateRef } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
@@ -174,7 +172,7 @@ describe('CalendarRulesComponent mixed-case locale', () => {
   it('loads the current-language values into the edit form for zh-CN', async () => {
     await setup('zh-CN');
 
-    component.onEditRule(null, buildLocalizedRule());
+    component.onEditRule(null as unknown as TemplateRef<unknown>, buildLocalizedRule());
 
     expect(component.ruleFormModel().name).toBe('元旦');
     expect(component.ruleFormModel().description).toBe('一月一日');
@@ -182,7 +180,7 @@ describe('CalendarRulesComponent mixed-case locale', () => {
 
   it('writes edits into the lower-case key and preserves the other languages', async () => {
     await setup('zh-CN');
-    component.onEditRule(null, buildLocalizedRule());
+    component.onEditRule(null as unknown as TemplateRef<unknown>, buildLocalizedRule());
     fixture.detectChanges();
 
     component.ruleFormModel.update((m) => ({ ...m, name: '新年', description: '新的一天' }));
@@ -236,7 +234,7 @@ describe('CalendarRulesComponent new-rule paid default', () => {
   });
 
   it('opens a new rule as paid', () => {
-    component.createNewRule(null);
+    component.createNewRule(null as unknown as TemplateRef<unknown>);
 
     expect(component.currentRule.isPaid).toBe(true);
     expect(component.ruleFormModel().isPaid).toBe(true);
@@ -249,7 +247,7 @@ describe('CalendarRulesComponent new-rule paid default', () => {
     rule.description = { de: '' } as MultiLanguage;
     (rule as { isPaid?: boolean }).isPaid = undefined;
 
-    component.onEditRule(null, rule);
+    component.onEditRule(null as unknown as TemplateRef<unknown>, rule);
 
     expect(component.ruleFormModel().isPaid).toBe(true);
   });
@@ -261,7 +259,7 @@ describe('CalendarRulesComponent new-rule paid default', () => {
     rule.description = { de: '' } as MultiLanguage;
     rule.isPaid = false;
 
-    component.onEditRule(null, rule);
+    component.onEditRule(null as unknown as TemplateRef<unknown>, rule);
 
     expect(component.ruleFormModel().isPaid).toBe(false);
   });

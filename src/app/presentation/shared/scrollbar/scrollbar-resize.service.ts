@@ -29,8 +29,7 @@ export class ScrollbarResizeService {
       .subscribe(() => this.handleWindowResize());
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applyResizeEntries(event: any): void {
+  applyResizeEntries(event: unknown): void {
     const entries = Array.isArray(event)
       ? (event as ResizeObserverEntry[])
       : [];

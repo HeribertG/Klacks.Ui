@@ -43,6 +43,8 @@ import { NavigationVerdictService } from './navigation-verdict.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { KLACKSY_PAGE_KEYS } from 'src/app/domain/constants/klacksy-page-keys';
 import { ChatTurnControlService } from './chat-turn-control.service';
+import { RawFunctionCall } from './raw-function-call.interface';
+import { IAssistantFunctionResult } from 'src/app/domain/interfaces/assistant-function-result.interface';
 
 @Injectable()
 export class ChatFunctionExecutionService {
@@ -76,8 +78,7 @@ export class ChatFunctionExecutionService {
    * @param turnSeq - Sequence number of the turn the calls belong to (from ChatTurnControlService.beginTurn);
    *   without it the calls can never be cancelled and are not shown as executing
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async executeFunctionCalls(functionCalls: any[], assistantMessageId?: string, utterance?: string, turnSeq?: number): Promise<void> {
+  async executeFunctionCalls(functionCalls: Record<string, unknown>[], assistantMessageId?: string, utterance?: string, turnSeq?: number): Promise<void> {
     if (turnSeq === undefined) {
       await this.runFunctionCalls(functionCalls, () => false, assistantMessageId, utterance);
       return;
@@ -115,20 +116,18 @@ export class ChatFunctionExecutionService {
    * @returns True when a cancel made the run skip UI action steps, UI actions or navigations
    */
   private async runFunctionCalls(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    functionCalls: any[],
+    functionCalls: Record<string, unknown>[],
     isCancelled: () => boolean,
     assistantMessageId?: string,
     utterance?: string,
     turnSeq?: number,
   ): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const uiActionCalls: any[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const navigationCalls: any[] = [];
+    const uiActionCalls: { call: RawFunctionCall; steps: string }[] = [];
+    const navigationCalls: { call: RawFunctionCall; functionName: string }[] = [];
     const backendCalls: { id: string; name: string; arguments: Record<string, unknown> }[] = [];
 
-    for (const call of functionCalls) {
+    for (const rawCall of functionCalls) {
+      const call = rawCall as RawFunctionCall;
       const functionName = call.FunctionName || call.functionName;
       if (!functionName) continue;
 
@@ -137,7 +136,7 @@ export class ChatFunctionExecutionService {
 
       if (functionName === START_GUIDED_TOUR_SKILL) {
         const tourParams = call.Parameters || call.parameters || {};
-        this.onboarding.requestTourStart(this.onboarding.resolveTourKind(tourParams[START_GUIDED_TOUR_KIND_PARAM]));
+        this.onboarding.requestTourStart(this.onboarding.resolveTourKind(tourParams[START_GUIDED_TOUR_KIND_PARAM] as string | undefined));
         continue;
       }
 
@@ -148,9 +147,9 @@ export class ChatFunctionExecutionService {
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
       const resultRoute = this.extractRouteFromResult(call.Result || call.result);
       if (uiActionSteps && uiActionSteps !== '{}') {
-        uiActionCalls.push(call);
+        uiActionCalls.push({ call, steps: uiActionSteps });
       } else if (this.NAVIGATION_FUNCTIONS.includes(functionName) || resultRoute) {
-        navigationCalls.push(call);
+        navigationCalls.push({ call, functionName });
       }
 
       const clientId = this.extractClientIdFromResult(call.Result || call.result);
@@ -159,18 +158,16 @@ export class ChatFunctionExecutionService {
       }
     }
 
-    for (const call of uiActionCalls) {
+    for (const { call, steps } of uiActionCalls) {
       if (isCancelled()) return true;
 
-      const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
-      const cancelled = await this.executeUiActionSteps(uiActionSteps, call, isCancelled);
+      const cancelled = await this.executeUiActionSteps(steps, call, isCancelled);
       if (cancelled) return true;
     }
 
-    for (const [index, call] of navigationCalls.entries()) {
+    for (const [index, { call, functionName }] of navigationCalls.entries()) {
       if (isCancelled()) return true;
 
-      const functionName = call.FunctionName || call.functionName;
       const args = call.Parameters || call.parameters || {};
       const backendRoute = this.extractRouteFromResult(call.Result || call.result);
       if (backendRoute) {
@@ -188,8 +185,7 @@ export class ChatFunctionExecutionService {
           this.functionExecutionService.executeFunction(functionCall)
         );
         this.recordNavigationVerdict(result, args, target, isLastNavigation, assistantMessageId, utterance);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
+      } catch (error) {
         this.applyFunctionError(error);
       }
     }
@@ -202,8 +198,7 @@ export class ChatFunctionExecutionService {
           this.functionExecutionService.executeFunction(backendCalls[0])
         );
         this.applyFunctionResult(result);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
+      } catch (error) {
         this.applyFunctionError(error);
       }
       return false;
@@ -214,8 +209,7 @@ export class ChatFunctionExecutionService {
       for (const result of results) {
         this.applyFunctionResult(result);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       this.applyFunctionError(error);
     }
     return false;
@@ -290,8 +284,7 @@ export class ChatFunctionExecutionService {
    * @param isLastNavigation - Whether this is the navigation the user ended up on
    */
   private recordNavigationVerdict(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result: any,
+    result: IAssistantFunctionResult,
     args: Record<string, unknown>,
     target: string | undefined,
     isLastNavigation: boolean,
@@ -299,7 +292,7 @@ export class ChatFunctionExecutionService {
     utterance?: string,
   ): void {
     const outcome = this.toNavigationResult(result);
-    const route = (result?.result?.route as string) || (args['route'] as string) || '';
+    const route = this.readResultRoute(result?.result) || (args['route'] as string) || '';
 
     if (isLastNavigation && assistantMessageId) {
       this.navigationVerdict.apply(assistantMessageId, outcome, route, target, utterance);
@@ -309,8 +302,7 @@ export class ChatFunctionExecutionService {
     this.navigationVerdict.report(outcome, route, target, utterance);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private toNavigationResult(result: any): NavigationResult {
+  private toNavigationResult(result: IAssistantFunctionResult): NavigationResult {
     if (result?.success) return { success: true };
 
     const error = result?.error;
@@ -321,8 +313,7 @@ export class ChatFunctionExecutionService {
     return { success: false };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyFunctionResult(result: any): void {
+  private applyFunctionResult(result: IAssistantFunctionResult): void {
     const messages = this.orchestrator.messages();
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage) return;
@@ -334,12 +325,11 @@ export class ChatFunctionExecutionService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyFunctionError(error: any): void {
+  private applyFunctionError(error: unknown): void {
     const messages = this.orchestrator.messages();
     const lastMsg = messages[messages.length - 1];
     if (lastMsg && !lastMsg.content) {
-      this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || 'Function execution failed' });
+      this.orchestrator.updateMessage(lastMsg.id, { content: this.errorMessage(error) || 'Function execution failed' });
     }
   }
 
@@ -352,8 +342,7 @@ export class ChatFunctionExecutionService {
    * @param isCancelled - Polled between steps; true once the user stopped the turn this call belongs to
    * @returns True when a cancel ended the action before all its steps ran
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async executeUiActionSteps(stepsJson: string, call: any, isCancelled: () => boolean): Promise<boolean> {
+  private async executeUiActionSteps(stepsJson: string, call: RawFunctionCall, isCancelled: () => boolean): Promise<boolean> {
     const trackingId: string | undefined = call.UiActionTrackingId || call.uiActionTrackingId;
 
     try {
@@ -388,17 +377,16 @@ export class ChatFunctionExecutionService {
       }
 
       this.reportUiActionOutcome(trackingId, UI_ACTION_RESULT_STATUS_COMPLETED);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       this.reportUiActionOutcome(
         trackingId,
         UI_ACTION_RESULT_STATUS_FAILED,
-        error?.message || UI_ACTION_RESULT_UNKNOWN_ERROR,
+        this.errorMessage(error) || UI_ACTION_RESULT_UNKNOWN_ERROR,
       );
       const messages = this.orchestrator.messages();
       const lastMsg = messages[messages.length - 1];
       if (lastMsg && !lastMsg.content) {
-        this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || UI_ACTION_RESULT_UNKNOWN_ERROR });
+        this.orchestrator.updateMessage(lastMsg.id, { content: this.errorMessage(error) || UI_ACTION_RESULT_UNKNOWN_ERROR });
       }
     }
     return false;
@@ -428,8 +416,14 @@ export class ChatFunctionExecutionService {
     ).catch(() => undefined);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractRouteFromResult(result: any): string | null {
+  private readResultRoute(value: unknown): string {
+    if (value && typeof value === 'object' && 'route' in value && typeof value.route === 'string') {
+      return value.route;
+    }
+    return '';
+  }
+
+  private extractRouteFromResult(result: unknown): string | null {
     if (!result) return null;
     const resultStr = typeof result === 'string' ? result : JSON.stringify(result);
     const dataMatch = resultStr.match(/Data:\s*(\{.*\})/s);
@@ -442,8 +436,7 @@ export class ChatFunctionExecutionService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractClientIdFromResult(result: any): string | null {
+  private extractClientIdFromResult(result: unknown): string | null {
     if (!result) return null;
     const resultStr = typeof result === 'string' ? result : JSON.stringify(result);
     const dataMatch = resultStr.match(/Data:\s*(\{.*\})/s);
@@ -454,6 +447,10 @@ export class ChatFunctionExecutionService {
     } catch {
       return null;
     }
+  }
+
+  private errorMessage(error: unknown): string | undefined {
+    return (error as { message?: string } | null | undefined)?.message;
   }
 
   private generateMessageId(): string {

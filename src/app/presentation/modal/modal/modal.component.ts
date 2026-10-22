@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Host component that opens ng-bootstrap modals (input, delete/confirmation, message) in response to ModalService events.
  * @param contentInput - Template ref for the text-input modal
@@ -8,7 +7,7 @@
  * @param contentMessage - Template ref for the message modal
  */
 import {
-  AfterViewInit, Component, DestroyRef, ElementRef, OnInit, inject,
+  AfterViewInit, Component, DestroyRef, OnInit, TemplateRef, inject,
   ChangeDetectionStrategy,
   viewChild
 } from '@angular/core';
@@ -38,9 +37,9 @@ const MODAL_OPEN_OPTIONS: NgbModalOptions = { centered: true };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ModalComponent implements OnInit, AfterViewInit {
-  public readonly contentInput = viewChild.required<ElementRef<HTMLElement>>('contentInput');
-  private readonly contentDelete = viewChild.required<ElementRef<HTMLElement>>('contentDelete');
-  private readonly contentMessage = viewChild.required<ElementRef<HTMLElement>>('contentMessage');
+  public readonly contentInput = viewChild.required<TemplateRef<unknown>>('contentInput');
+  private readonly contentDelete = viewChild.required<TemplateRef<unknown>>('contentDelete');
+  private readonly contentMessage = viewChild.required<TemplateRef<unknown>>('contentMessage');
 
   public modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
@@ -73,7 +72,7 @@ export class ModalComponent implements OnInit, AfterViewInit {
       });
   }
 
-  open(content: any, modalType: ModalType): void {
+  open(content: TemplateRef<unknown>, modalType: ModalType): void {
     this.modalService.contentInputString = '';
     this.ngbModal.open(content, MODAL_OPEN_OPTIONS).result.then(
       () => {

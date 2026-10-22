@@ -97,8 +97,7 @@ export class MenuItemComponent {
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  stopEvent(event: any): void {
+  stopEvent(event: Event): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();
     if (event.cancelBubble) event.cancelBubble = true;

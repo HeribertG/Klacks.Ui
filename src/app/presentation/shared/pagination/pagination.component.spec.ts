@@ -217,7 +217,7 @@ describe('PaginationComponent', () => {
             vi.spyOn(component.rowSizeChange, 'emit');
             vi.spyOn(component.pageChange, 'emit');
 
-            component.onChangeRowSize(mockEvent);
+            component.onChangeRowSize(mockEvent as unknown as Event);
 
             expect(component.realRow).toBe(15);
             expect(component.page).toBe(1);
@@ -233,7 +233,7 @@ describe('PaginationComponent', () => {
             vi.spyOn(component.rowSizeChange, 'emit');
             vi.spyOn(component.pageChange, 'emit');
 
-            component.onChangeRowSize(mockEvent);
+            component.onChangeRowSize(mockEvent as unknown as Event);
 
             expect(component.realRow).toBe(-1);
             expect(component.page).toBe(1);
@@ -246,7 +246,7 @@ describe('PaginationComponent', () => {
             mockEvent.srcElement.value = '-1';
             vi.spyOn(component.numberOfItemsPerPageChange, 'emit');
 
-            component.onChangeRowSize(mockEvent);
+            component.onChangeRowSize(mockEvent as unknown as Event);
 
             expect(component.numberOfItemsPerPageChange.emit).not.toHaveBeenCalled();
         });
@@ -360,14 +360,14 @@ describe('PaginationComponent', () => {
         it('should handle undefined event in onChangeRowSize', () => {
             const mockEvent = { srcElement: null };
 
-            expect(() => component.onChangeRowSize(mockEvent)).toThrow();
+            expect(() => component.onChangeRowSize(mockEvent as unknown as Event)).toThrow();
         });
 
         it('should handle string numbers in onChangeRowSize', () => {
             const mockEvent = { srcElement: { value: '5' } };
             vi.spyOn(component.numberOfItemsPerPageChange, 'emit');
 
-            component.onChangeRowSize(mockEvent);
+            component.onChangeRowSize(mockEvent as unknown as Event);
 
             expect(component.numberOfItemsPerPage).toBe(5);
             expect(component.numberOfItemsPerPageChange.emit).toHaveBeenCalledWith(5);

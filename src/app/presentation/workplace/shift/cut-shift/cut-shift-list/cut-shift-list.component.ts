@@ -7,7 +7,6 @@
  * @param isChangingEvent - Event emitted on changes
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -93,12 +92,12 @@ export class CutShiftListComponent implements OnInit, OnDestroy {
   private cutByWeekdayService = inject(CutByWeekdayService);
   private cutByStaffService = inject(CutByStaffService);
 
-  readonly cutDateModal = viewChild.required<TemplateRef<any>>('cutDateModal');
-  readonly cutTimeModal = viewChild.required<TemplateRef<any>>('cutTimeModal');
-  readonly cutWeekdaysModal = viewChild.required<TemplateRef<any>>('cutWeekdaysModal');
-  readonly cutStaffModal = viewChild.required<TemplateRef<any>>('cutStaffModal');
-  readonly cutTaskModal = viewChild.required<TemplateRef<any>>('cutTaskModal');
-  readonly resetCutsModal = viewChild.required<TemplateRef<any>>('resetCutsModal');
+  readonly cutDateModal = viewChild.required<TemplateRef<unknown>>('cutDateModal');
+  readonly cutTimeModal = viewChild.required<TemplateRef<unknown>>('cutTimeModal');
+  readonly cutWeekdaysModal = viewChild.required<TemplateRef<unknown>>('cutWeekdaysModal');
+  readonly cutStaffModal = viewChild.required<TemplateRef<unknown>>('cutStaffModal');
+  readonly cutTaskModal = viewChild.required<TemplateRef<unknown>>('cutTaskModal');
+  readonly resetCutsModal = viewChild.required<TemplateRef<unknown>>('resetCutsModal');
 
   cutDate: NgbDateStruct | null = null;
   resetDate: NgbDateStruct | null = null;
@@ -194,7 +193,7 @@ export class CutShiftListComponent implements OnInit, OnDestroy {
     }
   }
 
-  onKeyUpInput(event: any, value: string): void {
+  onKeyUpInput(event: Event, value: string): void {
     this.validateAndCorrectTime();
   }
 

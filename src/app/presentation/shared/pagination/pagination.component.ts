@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChangeDetectorRef,
   Component,
@@ -43,7 +42,7 @@ export class PaginationComponent implements OnInit {
 
   readonly pageChange = output<number>();
   readonly numberOfItemsPerPageChange = output<number>();
-  readonly rowSizeChange = output<any>();
+  readonly rowSizeChange = output<Event>();
 
   firstItemOnLastPage: number | undefined = undefined;
   isPreviousPage: boolean | undefined = undefined;
@@ -115,8 +114,8 @@ export class PaginationComponent implements OnInit {
     this.pageChange.emit(event);
   }
 
-  onChangeRowSize(event: any): void {
-    const value = +event.srcElement.value;
+  onChangeRowSize(event: Event): void {
+    const value = +(event.srcElement as HTMLSelectElement).value;
     const storageKey = this.paginationType() === 'shift'
       ? DomainMessages.SELECTED_ROW_ORDER_SHIFT
       : DomainMessages.SELECTED_ROW_ORDER;
