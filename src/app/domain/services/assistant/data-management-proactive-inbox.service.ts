@@ -26,6 +26,7 @@ import {
 } from 'src/app/domain/constants/proactive-reaction.constants';
 
 const UNREAD_MESSAGES_TAKE = 50;
+const INBOX_EXPANDED_BY_DEFAULT = false;
 
 @Injectable({ providedIn: 'root' })
 export class DataManagementProactiveInboxService implements OnDestroy {
@@ -40,7 +41,7 @@ export class DataManagementProactiveInboxService implements OnDestroy {
   private readonly inboxHeadingMessageIdSignal = signal<string | null>(null);
   public readonly inboxHeadingMessageId = this.inboxHeadingMessageIdSignal.asReadonly();
 
-  private readonly inboxExpandedSignal = signal<boolean>(true);
+  private readonly inboxExpandedSignal = signal<boolean>(INBOX_EXPANDED_BY_DEFAULT);
   public readonly inboxExpanded = this.inboxExpandedSignal.asReadonly();
 
   private readonly inboxMessageIdsSignal = signal<ReadonlySet<string>>(new Set());
@@ -168,8 +169,8 @@ export class DataManagementProactiveInboxService implements OnDestroy {
   }
 
   /**
-   * Record where the block started and open it, but only the first time — a later load
-   * must extend the existing block, not re-expand it. Where the heading is actually
+   * Record where the block started, but only the first time — a later load must extend
+   * the existing block. The block stays collapsed until the user expands it. Where the heading is actually
    * rendered is decided by the component from the first row still visible, so hiding
    * that row moves the heading down instead of taking the block with it.
    * @param messageId - Id of the message the block started at
@@ -179,7 +180,6 @@ export class DataManagementProactiveInboxService implements OnDestroy {
       return;
     }
     this.inboxHeadingMessageIdSignal.set(messageId);
-    this.inboxExpandedSignal.set(true);
   }
 
   toggleInboxExpanded(): void {
@@ -194,7 +194,7 @@ export class DataManagementProactiveInboxService implements OnDestroy {
     this.inboxHeadingMessageIdSignal.set(null);
     this.inboxMessageIdsSignal.set(new Set());
     this.hiddenMessageIdsSignal.set(new Set());
-    this.inboxExpandedSignal.set(true);
+    this.inboxExpandedSignal.set(INBOX_EXPANDED_BY_DEFAULT);
   }
 
   ngOnDestroy(): void {

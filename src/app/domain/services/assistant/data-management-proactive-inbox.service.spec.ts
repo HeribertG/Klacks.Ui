@@ -112,10 +112,10 @@ describe('DataManagementProactiveInboxService', () => {
   });
 
   describe('inbox block state', () => {
-    it('starts with no heading, an empty block and expanded true', () => {
+    it('starts with no heading, an empty block and collapsed', () => {
       expect(service.inboxHeadingMessageId()).toBeNull();
       expect(service.inboxMessageIds().size).toBe(0);
-      expect(service.inboxExpanded()).toBe(true);
+      expect(service.inboxExpanded()).toBe(false);
     });
 
     it('addToInboxBlock unions ids across repeated calls instead of replacing them', () => {
@@ -125,11 +125,11 @@ describe('DataManagementProactiveInboxService', () => {
       expect([...service.inboxMessageIds()].sort()).toEqual(['a', 'b', 'c']);
     });
 
-    it('setInboxHeadingIfUnset anchors the heading and expands the block on first call', () => {
+    it('setInboxHeadingIfUnset anchors the heading and keeps the block collapsed on first call', () => {
       service.setInboxHeadingIfUnset('first-msg');
 
       expect(service.inboxHeadingMessageId()).toBe('first-msg');
-      expect(service.inboxExpanded()).toBe(true);
+      expect(service.inboxExpanded()).toBe(false);
     });
 
     it('setInboxHeadingIfUnset never moves an already-anchored heading', () => {
@@ -141,26 +141,26 @@ describe('DataManagementProactiveInboxService', () => {
     });
 
     it('toggleInboxExpanded flips the expanded flag', () => {
-      expect(service.inboxExpanded()).toBe(true);
-
-      service.toggleInboxExpanded();
       expect(service.inboxExpanded()).toBe(false);
 
       service.toggleInboxExpanded();
       expect(service.inboxExpanded()).toBe(true);
+
+      service.toggleInboxExpanded();
+      expect(service.inboxExpanded()).toBe(false);
     });
 
-    it('resetInboxBlock clears the heading and the block, and re-expands it', () => {
+    it('resetInboxBlock clears the heading and the block, and collapses it again', () => {
       service.setInboxHeadingIfUnset('first-msg');
       service.addToInboxBlock(['first-msg', 'second-msg']);
       service.toggleInboxExpanded();
-      expect(service.inboxExpanded()).toBe(false);
+      expect(service.inboxExpanded()).toBe(true);
 
       service.resetInboxBlock();
 
       expect(service.inboxHeadingMessageId()).toBeNull();
       expect(service.inboxMessageIds().size).toBe(0);
-      expect(service.inboxExpanded()).toBe(true);
+      expect(service.inboxExpanded()).toBe(false);
     });
   });
 
