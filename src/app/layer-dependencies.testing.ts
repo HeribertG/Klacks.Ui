@@ -4,8 +4,8 @@
  * Import scanner behind the layer dependency guard: walks the production sources under src/app, resolves every
  * module specifier (static, type-only, re-export and dynamic import) to a file and classifies importer and target by
  * layer. Used by layer-dependencies.guard.spec.ts and by tools/generate-layer-allowlist.ts, so both judge exactly the
- * same edges. Only src/app is scanned; the plugin libraries under projects/ are not covered. Owner decision
- * 2026-10-20: domain/services and application may import infrastructure/api, infrastructure/storage and
+ * same edges. Only src/app is scanned; the plugin libraries under projects/ are covered by
+ * plugin-boundaries.guard.spec.ts. Owner decision 2026-10-20: domain/services and application may import infrastructure/api, infrastructure/storage and
  * infrastructure/signalr; presentation -> infrastructure stays forbidden and is frozen in the legacy list.
  * @param appRoot - Absolute path of src/app
  */
