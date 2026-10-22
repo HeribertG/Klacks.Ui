@@ -3627,7 +3627,7 @@ describe('AssistantChatComponent', () => {
                 ['5', '3', OPEN_ORDERS_SUMMARY_I18N.General],
             ])('renders count %s with soonCount %s from %s', (count, soonCount, expectedKey) => {
                 // Arrange
-                mockTranslateService.instant.mockClear();
+                vi.mocked(mockTranslateService.instant).mockClear();
 
                 // Act
                 deliver(summary(count, soonCount));
