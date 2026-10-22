@@ -6,7 +6,7 @@ import { SignalRConnectionHelper } from './signalr-connection.helper';
 import { SignalRConnectionCallbacks } from './signalr-connection-callbacks.interface';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { LocalStorageService } from '../storage/local-storage.service';
-import { StorageKeys } from '../constants/storage-keys';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const createdHubs: FakeHub[] = [];
 
