@@ -299,6 +299,7 @@ describe('UserAdministrationManagementService', () => {
 
     describe('refreshCurrentAccountId', () => {
         it('takes over the id of the signed-in user from local storage', () => {
+            service = TestBed.inject(UserAdministrationManagementService);
             mockLocalStorageService.get.mockReturnValue('user-42');
 
             service.refreshCurrentAccountId();
@@ -308,6 +309,7 @@ describe('UserAdministrationManagementService', () => {
         });
 
         it('keeps the current id when local storage holds none', () => {
+            service = TestBed.inject(UserAdministrationManagementService);
             mockLocalStorageService.get.mockReturnValue('user-42');
             service.refreshCurrentAccountId();
             mockLocalStorageService.get.mockReturnValue(null);
