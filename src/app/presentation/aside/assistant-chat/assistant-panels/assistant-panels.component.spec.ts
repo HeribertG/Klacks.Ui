@@ -696,5 +696,48 @@ describe('AssistantPanelsComponent', () => {
       header.click();
       expect(messageActionsMock.toggleInboxExpanded).toHaveBeenCalledTimes(1);
     });
+
+    it('renders collapsed while the inbox state is at its collapsed default', () => {
+      inboxExpandedSignal.set(false);
+      inboxMessagesSignal.set([sampleInboxMessage()]);
+      fixture.detectChanges();
+
+      const card = fixture.nativeElement.querySelector('.audio-panel-card');
+      expect(card.classList.contains('collapsed')).toBe(true);
+      expect(card.querySelector('.audio-panel-toggle').getAttribute('aria-expanded')).toBe('false');
+      expect(card.querySelector('.audio-panel-content')).toBeNull();
+    });
+
+    it('expands and collapses independently of the goal-candidates card', () => {
+      vi.mocked(messageActionsMock.toggleInboxExpanded).mockImplementation(() =>
+        inboxExpandedSignal.update((expanded) => !expanded),
+      );
+      inboxExpandedSignal.set(false);
+      goalCandidatesServiceMock.candidates.set([sampleCandidate]);
+      inboxMessagesSignal.set([sampleInboxMessage()]);
+      fixture.detectChanges();
+
+      const toggles = (): HTMLButtonElement[] =>
+        Array.from(fixture.nativeElement.querySelectorAll('.audio-panel-card .audio-panel-toggle'));
+
+      expect(component.isCandidatesExpanded()).toBe(false);
+      expect(inboxExpandedSignal()).toBe(false);
+
+      toggles()[0].click();
+      fixture.detectChanges();
+      expect(component.isCandidatesExpanded()).toBe(true);
+      expect(inboxExpandedSignal()).toBe(false);
+      expect(messageActionsMock.toggleInboxExpanded).not.toHaveBeenCalled();
+
+      toggles()[1].click();
+      fixture.detectChanges();
+      expect(inboxExpandedSignal()).toBe(true);
+      expect(component.isCandidatesExpanded()).toBe(true);
+
+      toggles()[0].click();
+      fixture.detectChanges();
+      expect(component.isCandidatesExpanded()).toBe(false);
+      expect(inboxExpandedSignal()).toBe(true);
+    });
   });
 });
