@@ -6,22 +6,27 @@
  * operation is active and at least one consumer (settings card) is attached. A failed status request keeps the
  * last known status; after MAX_CONSECUTIVE_FAILURES failures in a row the poll stops until a manual refresh succeeds.
  * Responses are applied latest-request-wins so a slow older response never overwrites a newer one. An uninstall first
- * flushes pending settings so the backend sees the persisted engine it resets to the browser engine.
+ * flushes pending settings so the backend sees the persisted engine it resets to the browser engine. The default
+ * engine follows the backend rule (native: Parakeet; Docker: Parakeet when the installation language is covered,
+ * otherwise Whisper large-v3-turbo) using the installation default language loaded on attach.
  * @param status - Latest plugin status including active/last operation and the aliases this installation supports
  * @param busy - True while an install, uninstall or discard request is being sent
  * @param actionMessage - Reason returned by the last enqueue request
  * @param rejectionReason - Reason of the last enqueue request when the queue refused it, otherwise empty
  * @param consumers - Number of attached consumers; polling stops when the last one detaches
  * @param pollingSuspended - True once the status could not be loaded repeatedly; the shown status may be stale
+ * @param installationLanguage - Installation default language, null until loaded or when it could not be loaded
  */
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { UpdateQueueHealthService } from 'src/app/domain/services/update/update-queue-health.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { LocalSttAllAliases, LocalSttEngineNames } from 'src/app/domain/constants/local-stt-plugin.constants';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
+import { resolveDefaultLocalSttAlias } from 'src/app/domain/helpers/local-stt-default-alias.helper';
 import { WhisperOperationStatuses, WhisperOperationTypes } from 'src/app/domain/constants/whisper-operation.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { LocalSttStatusView } from 'src/app/domain/models/assistant/local-stt-status-view.interface';
@@ -37,6 +42,7 @@ export class LocalSttEngineService {
   private readonly dataUpdateService = inject(DataManagementUpdateService);
   private readonly queueHealth = inject(UpdateQueueHealthService);
   private readonly appSettings = inject(AppSettingsManagementService);
+  private readonly languageConfig = inject(DataLanguageConfigService);
 
   private pollHandle: ReturnType<typeof setInterval> | null = null;
   private consumers = 0;
@@ -48,6 +54,7 @@ export class LocalSttEngineService {
   public readonly actionMessage = signal('');
   public readonly rejectionReason = signal('');
   public readonly pollingSuspended = signal(false);
+  public readonly installationLanguage = signal<string | null>(null);
 
   public readonly isInstalled = computed(() => !!this.status()?.installed);
 
@@ -80,6 +87,18 @@ export class LocalSttEngineService {
     }
     return s.supportedAliases ?? LocalSttAllAliases;
   });
+
+  public readonly defaultAlias = computed<WhisperModelAlias>(() =>
+    resolveDefaultLocalSttAlias(
+      this.supportedAliases(),
+      this.status()?.parakeetLanguages,
+      this.installationLanguage(),
+    ),
+  );
+
+  public readonly defaultEngineName = computed(
+    () => LocalSttEngineNames[this.defaultAlias()] ?? this.defaultAlias(),
+  );
 
   public readonly supportsWhisper = computed(() =>
     this.supportedAliases().some((alias) => alias !== WhisperModelAliases.Parakeet),
@@ -131,7 +150,7 @@ export class LocalSttEngineService {
 
   public async attach(): Promise<void> {
     this.consumers++;
-    await this.refresh();
+    await Promise.all([this.refresh(), this.loadInstallationLanguage()]);
   }
 
   public detach(): void {
@@ -175,6 +194,15 @@ export class LocalSttEngineService {
     } finally {
       await this.refresh();
       this.busy.set(false);
+    }
+  }
+
+  public async loadInstallationLanguage(): Promise<void> {
+    try {
+      const config = await firstValueFrom(this.languageConfig.getLanguageConfig());
+      this.installationLanguage.set(config.defaultLanguage ?? null);
+    } catch {
+      this.installationLanguage.set(null);
     }
   }
 

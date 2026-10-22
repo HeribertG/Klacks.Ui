@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
 import { LocalSttEngineService } from './local-stt-engine.service';
+import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
@@ -14,12 +15,17 @@ import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plu
 
 const MINUTE_MS = 60000;
 const POLL_INTERVAL_MS = 5000;
+const PARAKEET_LANGUAGES = ['de', 'en', 'fr', 'it'];
 const DOCKER_ALIASES = [WhisperModelAliases.Parakeet, WhisperModelAliases.Small, WhisperModelAliases.LargeV3Turbo];
 
 describe('LocalSttEngineService', () => {
   let service: LocalSttEngineService;
   let mockUpdateService: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
   let mockAppSettings: { saveImmediately: ReturnType<typeof vi.fn> };
+  let mockLanguageConfig: { getLanguageConfig: ReturnType<typeof vi.fn> };
+
+  const configWithLanguage = (defaultLanguage: string) =>
+    of({ supportedLanguages: [], fallbackOrder: [], defaultLanguage, metadata: {} });
 
   const operation = (overrides: Partial<WhisperOperationInfo> = {}): WhisperOperationInfo => ({
     id: 'op-1',
@@ -41,6 +47,7 @@ describe('LocalSttEngineService', () => {
     lastOperation: null,
     otherOperationActive: false,
     supportedAliases: DOCKER_ALIASES,
+    parakeetLanguages: PARAKEET_LANGUAGES,
   };
 
   const installedParakeet: WhisperPluginStatus = {
@@ -59,11 +66,13 @@ describe('LocalSttEngineService', () => {
     };
 
     mockAppSettings = { saveImmediately: vi.fn().mockResolvedValue(undefined) };
+    mockLanguageConfig = { getLanguageConfig: vi.fn().mockReturnValue(configWithLanguage('de')) };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: DataManagementUpdateService, useValue: mockUpdateService },
         { provide: AppSettingsManagementService, useValue: mockAppSettings },
+        { provide: DataLanguageConfigService, useValue: mockLanguageConfig },
       ],
     });
     service = TestBed.inject(LocalSttEngineService);
@@ -90,6 +99,44 @@ describe('LocalSttEngineService', () => {
     expect(service.supportedAliases()).toEqual(DOCKER_ALIASES);
     expect(service.supportsWhisper()).toBe(true);
     expect(service.actionsDisabled()).toBe(false);
+  });
+
+  it('defaults to Parakeet for a covered installation language', async () => {
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(notInstalled);
+    await service.attach();
+    expect(service.installationLanguage()).toBe('de');
+    expect(service.defaultAlias()).toBe(WhisperModelAliases.Parakeet);
+    expect(service.defaultEngineName()).toBe('Parakeet');
+    service.detach();
+  });
+
+  it('defaults to Whisper large-v3-turbo for an uncovered installation language on Docker', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage('ja'));
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(notInstalled);
+    await service.attach();
+    expect(service.defaultAlias()).toBe(WhisperModelAliases.LargeV3Turbo);
+    expect(service.defaultEngineName()).toBe('Whisper large-v3-turbo');
+    service.detach();
+  });
+
+  it('defaults to Parakeet on a native installation whatever the language', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage('ja'));
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue({
+      ...notInstalled,
+      supportedAliases: [WhisperModelAliases.Parakeet],
+    });
+    await service.attach();
+    expect(service.defaultAlias()).toBe(WhisperModelAliases.Parakeet);
+    service.detach();
+  });
+
+  it('defaults to Parakeet when the installation language cannot be loaded', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(throwError(() => new Error('offline')));
+    mockUpdateService.getWhisperPluginStatus!.mockResolvedValue(notInstalled);
+    await service.attach();
+    expect(service.installationLanguage()).toBeNull();
+    expect(service.defaultAlias()).toBe(WhisperModelAliases.Parakeet);
+    service.detach();
   });
 
   it('names the Whisper engines', async () => {

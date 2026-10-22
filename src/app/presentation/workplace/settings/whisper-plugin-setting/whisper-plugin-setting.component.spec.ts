@@ -2,21 +2,28 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { WhisperPluginSettingComponent } from './whisper-plugin-setting.component';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperOperationInfo } from 'src/app/domain/models/assistant/whisper-operation-info.interface';
 import { WhisperPluginStatus } from 'src/app/domain/models/assistant/whisper-plugin-status.interface';
 
 const MINUTE_MS = 60000;
+const PARAKEET_LANGUAGES = ['de', 'en', 'fr', 'it'];
+const UNCOVERED_LANGUAGE = 'ja';
 
 describe('WhisperPluginSettingComponent', () => {
   let component: WhisperPluginSettingComponent;
   let fixture: ComponentFixture<WhisperPluginSettingComponent>;
   let mockUpdateService: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
+  let mockLanguageConfig: { getLanguageConfig: ReturnType<typeof vi.fn> };
+
+  const configWithLanguage = (defaultLanguage: string) =>
+    of({ supportedLanguages: [], fallbackOrder: [], defaultLanguage, metadata: {} });
 
   const queuedOperation = (ageMinutes: number, startedAt: string | null): WhisperOperationInfo => ({
     id: 'op-stuck',
@@ -37,6 +44,7 @@ describe('WhisperPluginSettingComponent', () => {
     lastOperation: null,
     otherOperationActive: false,
     supportedAliases: [WhisperModelAliases.Parakeet, WhisperModelAliases.Small, WhisperModelAliases.LargeV3Turbo],
+    parakeetLanguages: PARAKEET_LANGUAGES,
   };
 
   const installedStatus: WhisperPluginStatus = {
@@ -80,10 +88,13 @@ describe('WhisperPluginSettingComponent', () => {
       }),
     };
 
+    mockLanguageConfig = { getLanguageConfig: vi.fn().mockReturnValue(configWithLanguage('de')) };
+
     await TestBed.configureTestingModule({
       imports: [WhisperPluginSettingComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataManagementUpdateService, useValue: mockUpdateService },
+        { provide: DataLanguageConfigService, useValue: mockLanguageConfig },
         { provide: AppSettingsManagementService, useValue: { saveImmediately: vi.fn().mockResolvedValue(undefined) } },
       ],
     }).compileComponents();
@@ -164,6 +175,51 @@ describe('WhisperPluginSettingComponent', () => {
     component.onModelSelected(WhisperModelAliases.Small);
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('#whisper-plugin-setting-attribution')).toBeFalsy();
+  });
+
+  it('preselects Parakeet on a Docker installation whose language Parakeet covers', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage('de'));
+    await load(notInstalledStatus);
+    expect(component.selectedModel()).toBe(WhisperModelAliases.Parakeet);
+  });
+
+  it('preselects Parakeet when the installation language carries a region suffix', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage('DE-CH'));
+    await load(notInstalledStatus);
+    expect(component.selectedModel()).toBe(WhisperModelAliases.Parakeet);
+  });
+
+  it('preselects Whisper large-v3-turbo on a Docker installation whose language Parakeet does not cover', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage(UNCOVERED_LANGUAGE));
+    await load(notInstalledStatus);
+    expect(component.selectedModel()).toBe(WhisperModelAliases.LargeV3Turbo);
+    await component.install();
+    expect(mockUpdateService.installWhisperPlugin).toHaveBeenCalledWith(WhisperModelAliases.LargeV3Turbo);
+  });
+
+  it('preselects Parakeet on a native installation regardless of the language', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage(UNCOVERED_LANGUAGE));
+    await load({ ...nativeStatus, parakeetLanguages: PARAKEET_LANGUAGES });
+    expect(component.selectedModel()).toBe(WhisperModelAliases.Parakeet);
+  });
+
+  it('preselects Parakeet when the installation language cannot be loaded', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(throwError(() => new Error('offline')));
+    await load(notInstalledStatus);
+    expect(component.selectedModel()).toBe(WhisperModelAliases.Parakeet);
+  });
+
+  it('keeps an engine the admin picked before the status arrived', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage(UNCOVERED_LANGUAGE));
+    component.onModelSelected(WhisperModelAliases.Small);
+    await load(notInstalledStatus);
+    expect(component.selectedModel()).toBe(WhisperModelAliases.Small);
+  });
+
+  it('prefers the installed engine over the language default', async () => {
+    mockLanguageConfig.getLanguageConfig.mockReturnValue(configWithLanguage(UNCOVERED_LANGUAGE));
+    await load({ ...installedStatus, modelAlias: WhisperModelAliases.Parakeet });
+    expect(component.selectedModel()).toBe(WhisperModelAliases.Parakeet);
   });
 
   it('syncs the model selection to the installed model', async () => {

@@ -10,4 +10,5 @@ export interface WhisperPluginStatus {
   lastOperation: WhisperOperationInfo | null;
   otherOperationActive: boolean;
   supportedAliases?: string[];
+  parakeetLanguages?: string[];
 }

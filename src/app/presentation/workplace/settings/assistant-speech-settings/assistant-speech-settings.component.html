@@ -26,7 +26,7 @@
               (localStt.isInstalled()
                 ? "setting.speech.stt-local-installed"
                 : "setting.speech.stt-local-not-installed")
-                | translate: { engine: localStt.installedEngineName() || parakeetName }
+                | translate: { engine: localStt.installedEngineName() || localStt.defaultEngineName() }
             }}
           </option>
           @for (provider of customSttProviders(); track provider.value) {
@@ -110,11 +110,16 @@
                   [disabled]="localStt.actionsDisabled()"
                   (click)="installOrRetry()"
                 >
-                  {{
-                    (localStt.failedInstall()
-                      ? "setting.speech.local-stt.retry"
-                      : "setting.speech.local-stt.install-parakeet") | translate
-                  }}
+                  @if (localStt.failedInstall()) {
+                    {{ "setting.speech.local-stt.retry" | translate }}
+                  } @else if (localStt.defaultAlias() === ParakeetAlias) {
+                    {{ "setting.speech.local-stt.install-parakeet" | translate }}
+                  } @else {
+                    {{
+                      "setting.speech.local-stt.install-engine"
+                        | translate: { engine: localStt.defaultEngineName() }
+                    }}
+                  }
                 </button>
                 @if (localStt.supportsWhisper()) {
                   <button

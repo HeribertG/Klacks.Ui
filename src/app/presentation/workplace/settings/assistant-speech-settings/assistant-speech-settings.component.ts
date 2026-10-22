@@ -45,7 +45,7 @@ import { DictionaryEntry } from 'src/app/domain/models/assistant/dictionary-entr
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { SttEngine } from 'src/app/domain/constants/speech-constants';
-import { LocalSttEngineNames, LocalSttPlugin } from 'src/app/domain/constants/local-stt-plugin.constants';
+import { LocalSttPlugin } from 'src/app/domain/constants/local-stt-plugin.constants';
 import { WhisperModelAliases } from 'src/app/domain/constants/whisper-model-aliases.constants';
 import { WhisperModelAlias } from 'src/app/domain/models/assistant/whisper-model-alias.type';
 import { LocalSttEngineService } from 'src/app/domain/services/speech/local-stt-engine.service';
@@ -115,7 +115,6 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
   readonly sttSelection = signal<string>(SttEngine.Browser);
   readonly isLocalSelected = computed(() => this.sttSelection() === SttEngine.Local);
   readonly ParakeetAlias = WhisperModelAliases.Parakeet;
-  readonly parakeetName = LocalSttEngineNames[WhisperModelAliases.Parakeet];
   readonly canSwitchToParakeet = computed(
     () =>
       this.localStt.installedAlias() !== WhisperModelAliases.Parakeet &&
@@ -238,7 +237,7 @@ export class AssistantSpeechSettingsComponent implements OnInit, OnDestroy {
     const retryable = this.localStt
       .supportedAliases()
       .find((alias): alias is WhisperModelAlias => alias === failedAlias);
-    return this.localStt.install(retryable ?? WhisperModelAliases.Parakeet);
+    return this.localStt.install(retryable ?? this.localStt.defaultAlias());
   }
 
   scrollToPluginCard(): void {

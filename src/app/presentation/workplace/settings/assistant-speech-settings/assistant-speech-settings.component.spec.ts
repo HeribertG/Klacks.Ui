@@ -190,6 +190,8 @@ function makeLocalSttFake() {
     failedInstall,
     supportsWhisper: signal(true),
     supportedAliases: signal<string[]>(DOCKER_ALIASES),
+    defaultAlias: signal<string>(WhisperModelAliases.Parakeet),
+    defaultEngineName: signal('Parakeet'),
     actionsDisabled: signal(false),
     busy: signal(false),
     statusView: computed<LocalSttStatusView>(() => ({
@@ -459,6 +461,13 @@ describe('AssistantSpeechSettingsComponent (local speech recognition entry)', ()
     expect(localStt.install).toHaveBeenCalledWith(WhisperModelAliases.Parakeet);
   });
 
+  it('installs the installation default engine from the inline block when that is Whisper', async () => {
+    await initialize(SttEngine.Browser);
+    localStt.defaultAlias.set(WhisperModelAliases.LargeV3Turbo);
+    await component.installOrRetry();
+    expect(localStt.install).toHaveBeenCalledWith(WhisperModelAliases.LargeV3Turbo);
+  });
+
   it('scrolls the plugin card into view', async () => {
     await initialize(SttEngine.Browser);
     const card = document.createElement('div');
@@ -589,6 +598,17 @@ describe('AssistantSpeechSettingsComponent (local speech recognition block)', ()
     await render(PLUGIN_ENGINE);
     element().querySelector<HTMLButtonElement>('#assistant-speech-local-install-btn')!.click();
     expect(localStt.install).toHaveBeenCalledWith(WhisperModelAliases.Parakeet);
+  });
+
+  it('labels the block button with the default engine when that is Whisper', async () => {
+    localStt.defaultAlias.set(WhisperModelAliases.LargeV3Turbo);
+    localStt.defaultEngineName.set('Whisper large-v3-turbo');
+    await render(PLUGIN_ENGINE);
+    const button = element().querySelector<HTMLButtonElement>('#assistant-speech-local-install-btn')!;
+    expect(button.textContent).toContain('setting.speech.local-stt.install-engine');
+    expect(button.textContent).not.toContain('setting.speech.local-stt.install-parakeet');
+    button.click();
+    expect(localStt.install).toHaveBeenCalledWith(WhisperModelAliases.LargeV3Turbo);
   });
 
   it('retries a failed Whisper install with the Whisper engine the installation supports', async () => {

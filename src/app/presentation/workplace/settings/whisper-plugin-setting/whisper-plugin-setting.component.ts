@@ -4,7 +4,8 @@
  * Admin card for the local speech recognition plugin (Parakeet / Whisper): shows install state, lets the admin pick
  * an engine, install, switch or uninstall. State, polling and the queue actions live in LocalSttEngineService,
  * which this card shares with the speech settings. Engines the installation cannot run are not offered.
- * @param selectedModel - Engine alias chosen via the radio buttons
+ * @param selectedModel - Engine alias chosen via the radio buttons; preselected from the installed engine, otherwise
+ *   from the installation default (LocalSttEngineService.defaultAlias) unless the admin already picked one
  */
 import {
   Component,
@@ -38,6 +39,7 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
   public readonly localStt = inject(LocalSttEngineService);
 
   private modelSyncedFromStatus = false;
+  private modelChosenByUser = false;
 
   public readonly engineNames = LocalSttEngineNames;
   public readonly OperationStatuses = WhisperOperationStatuses;
@@ -91,11 +93,12 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
   }
 
   public onModelSelected(model: WhisperModelAlias): void {
+    this.modelChosenByUser = true;
     this.selectedModel.set(model);
   }
 
   private syncSelectedModel(): void {
-    if (this.modelSyncedFromStatus || !this.localStt.status()) {
+    if (this.modelSyncedFromStatus || this.modelChosenByUser || !this.localStt.status()) {
       return;
     }
     const installed = this.localStt.installedAlias();
@@ -103,9 +106,17 @@ export class WhisperPluginSettingComponent implements OnInit, OnDestroy {
     const known = options.find((option) => option.value === installed);
     if (known) {
       this.selectedModel.set(known.value);
-    } else if (options.length > 0 && !options.some((option) => option.value === this.selectedModel())) {
-      this.selectedModel.set(options[0].value);
+    } else {
+      this.selectedModel.set(this.preferredModel(options));
     }
     this.modelSyncedFromStatus = true;
+  }
+
+  private preferredModel(options: WhisperModelOption[]): WhisperModelAlias {
+    const preferred = this.localStt.defaultAlias();
+    if (options.length === 0 || options.some((option) => option.value === preferred)) {
+      return preferred;
+    }
+    return options[0].value;
   }
 }

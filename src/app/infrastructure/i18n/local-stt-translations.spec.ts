@@ -20,6 +20,7 @@ const ENGINE_NAME_PLACEHOLDER = '{{name}}';
 const ENGINE_PLACEHOLDER_KEYS: readonly string[] = [
   'setting.speech.stt-local-installed',
   'setting.speech.stt-local-not-installed',
+  'setting.speech.local-stt.install-engine',
 ];
 const ENGINE_NAME_PLACEHOLDER_KEYS: readonly string[] = [
   'setting.speech.whisper-plugin.model-parakeet',
@@ -54,6 +55,7 @@ const NEW_OR_CHANGED_KEYS: readonly string[] = [
   'setting.speech.local-stt.requirements',
   'setting.speech.local-stt.license',
   'setting.speech.local-stt.install-parakeet',
+  'setting.speech.local-stt.install-engine',
   'setting.speech.local-stt.retry',
   'setting.speech.local-stt.more-options',
   'setting.speech.local-stt.switch-to-parakeet',

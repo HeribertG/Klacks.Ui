@@ -1582,6 +1582,7 @@
   "setting.speech.local-stt.requirements": "Download approx. 470 MB, needs approx. 2 GB of RAM.",
   "setting.speech.local-stt.license": "Model: NVIDIA Parakeet TDT 0.6B v3, CC-BY-4.0 · Runtime sherpa-onnx",
   "setting.speech.local-stt.install-parakeet": "Install Parakeet",
+  "setting.speech.local-stt.install-engine": "Install {{engine}}",
   "setting.speech.local-stt.retry": "Install again",
   "setting.speech.local-stt.more-options": "More options (Whisper) in the card Local Speech Recognition",
   "setting.speech.local-stt.switch-to-parakeet": "Switch to Parakeet in the card Local Speech Recognition",
