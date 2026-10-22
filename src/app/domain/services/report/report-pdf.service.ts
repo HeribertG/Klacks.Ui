@@ -221,7 +221,7 @@ export class ReportPdfService {
     const sectionFlag = section.showFullPeriod;
     const effectiveFlag = sectionFlag ?? template.showFullPeriod;
     if (!effectiveFlag) return filtered;
-    return this.fillFullPeriod(filtered, headerContext.startDate!, headerContext.endDate!);
+    return this.fillFullPeriod(filtered, headerContext.startDate, headerContext.endDate);
   }
 
   private clampWidthPercent(value: number | undefined): number {
@@ -1131,7 +1131,7 @@ export class ReportPdfService {
     return new Date(+parts[2], +parts[1] - 1, +parts[0]).getTime();
   }
 
-  private fillFullPeriod(rows: ReportRow[], startDate: string, endDate: string): ReportRow[] {
+  private fillFullPeriod(rows: ReportRow[], startDate: string | undefined, endDate: string | undefined): ReportRow[] {
     const start = parseCalendarDate(startDate);
     const end = parseCalendarDate(endDate);
     if (!start || !end) return rows;
