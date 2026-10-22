@@ -3,7 +3,7 @@
 /**
  * Renders goal-candidates, plan-execution and proactive-inbox panels as floating toasts in the
  * overlay rail, present in every mode whenever the assistant is open. Panels are collapsed by
- * default (the inbox keeps its own service-level default of expanded) and can be
+ * default (the inbox holds its collapsed default in its root-scoped service) and can be
  * expanded/collapsed independently. Toasts stack upward with no limit. The inbox message list
  * auto-scrolls to its latest row whenever the list grows, matching the behavior the chat's own
  * inline inbox block used to have before it moved here. Owns approving/aborting the active
@@ -162,8 +162,8 @@ export class AssistantPanelsComponent {
 
   // Shared with AssistantChatComponent via ChatMessageActionsService: both surfaces read the
   // same inbox-message list and trigger the same expand/hide actions on the same state. The
-  // inbox keeps its own root-scoped default (expanded) rather than the collapsed-by-default of
-  // the other two cards - no behavior change from what the chat used to show.
+  // inbox keeps its collapsed-by-default state in the root-scoped service, so the user's choice
+  // survives the aside closing and reopening.
   readonly inboxMessages = this.messageActions.inboxMessages;
   readonly hasInboxMessages = computed(() => this.inboxMessages().length > 0);
   readonly isInboxExpanded = this.proactiveInboxService.inboxExpanded;
