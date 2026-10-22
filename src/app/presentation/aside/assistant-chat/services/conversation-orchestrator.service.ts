@@ -131,7 +131,6 @@ export class ConversationOrchestratorService implements OnDestroy {
   private interimEpoch = 0;
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
-    console.log('[VS] orchestrator.initialize called, locale=', locale);
     this.callbacks = callbacks;
     this.textProcessingSignal = callbacks.isTextProcessing;
     this.locale = locale;
@@ -433,7 +432,6 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async enable(): Promise<void> {
-    console.log('[VS] enable(), callbacks=', this.callbacks ? 'SET' : 'NULL');
     this.voiceModeEnabled.set(true);
     await this.transitionToListening();
   }
@@ -469,7 +467,6 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async transitionToListening(): Promise<void> {
-    console.log('[VS] transitionToListening, voiceModeEnabled=', this.voiceModeEnabled());
     if (!this.voiceModeEnabled()) return;
 
     this.applyConfiguredSilenceThreshold();
@@ -484,11 +481,9 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.interimText.set('');
 
     const speechSettings = this.settings.speechSettings();
-    console.log('[VS] sttEngine=', speechSettings.sttEngine, 'outputMode=', speechSettings.outputMode);
 
     if (!this.usesBlobStt(speechSettings.sttEngine)) {
       try {
-        console.log('[VS] connecting sttStream with locale=', this.locale);
         this.sttStream.connect(this.locale);
       } catch (err) {
         console.error('[VS] sttStream.connect threw', err);
@@ -502,9 +497,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
 
     try {
-      console.log('[VS] audioCapture.start()');
       await this.audioCapture.start();
-      console.log('[VS] audioCapture.start() returned OK, isCapturing=', this.audioCapture.isCapturing());
     } catch (err) {
       console.error('[VS] audioCapture.start() threw', err);
       this.reportError({
@@ -528,7 +521,6 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async onSilenceDetected(): Promise<void> {
-    console.log('[VS] onSilenceDetected, state=', this.state(), 'callbacks=', this.callbacks ? 'SET' : 'NULL');
     if (this.state() !== ConversationState.Listening) return;
 
     this.stopInterimTranscription();
@@ -538,9 +530,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     if (this.usesBlobStt(speechSettings.sttEngine)) {
       const blob = this.audioCapture.takeRecordedBlob();
       this.audioCapture.stop();
-      console.log('[VS] blob STT engine=', speechSettings.sttEngine, 'bytes=', blob.size);
       if (blob.size < SpeechDefaults.MinBlobBytes) {
-        console.log('[VS] blob too small, loop back');
         await this.transitionToListening();
         return;
       }
@@ -622,7 +612,6 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.audioCapture.setVadThresholdMultiplier(SpeechDefaults.BargeInVadThresholdMultiplier);
     try {
       await this.audioCapture.start();
-      console.log('[VS] barge-in monitor active');
     } catch (err) {
       console.warn('[VS] barge-in monitor could not start microphone', err);
       this.audioCapture.setVadThresholdMultiplier(1);
@@ -707,8 +696,7 @@ export class ConversationOrchestratorService implements OnDestroy {
       this.lastAppliedInterimSequence = sequence;
       this.callbacks?.setInputText(text);
       this.callbacks?.detectChanges();
-    } catch (err) {
-      console.debug('[VS] interim transcription failed (ignored):', err instanceof Error ? err.message : err);
+    } catch {
     } finally {
       this.interimRequestInFlight = false;
     }
@@ -718,7 +706,6 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.bargeInCandidateTimer = null;
     if (!this.isBargeInWatching() || !this.audioCapture.isSpeechDetected()) return;
 
-    console.log('[VS] BARGE-IN: sustained speech during playback, interrupting');
     this.bargeInTriggered = true;
     this.interrupt();
   }
@@ -766,7 +753,6 @@ export class ConversationOrchestratorService implements OnDestroy {
         providerId: speechSettings.ttsProvider,
         voiceId: speechSettings.ttsVoice,
       });
-      console.log('[VS] TTS synthesize result: blob=', blob ? `size=${blob.size} type=${blob.type}` : 'NULL');
       if (blob) {
         this.audioQueue.enqueue(blob);
       }

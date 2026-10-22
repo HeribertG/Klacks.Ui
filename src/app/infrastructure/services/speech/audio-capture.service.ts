@@ -50,7 +50,6 @@ export class AudioCaptureService implements OnDestroy {
 
   async start(): Promise<void> {
     if (this.isCapturing()) {
-      console.log('[VS] audio-capture already capturing, noop');
       return;
     }
     if (this.startPromise) {
@@ -62,15 +61,12 @@ export class AudioCaptureService implements OnDestroy {
   }
 
   private async doStart(): Promise<void> {
-    console.log('[VS] audio-capture start, selectedDeviceId=', this.micSelection.selectedDeviceId());
     this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
 
     this.audioContext = this.createAudioContextAtTargetRate();
     const actualRate = this.audioContext.sampleRate;
     if (actualRate !== SpeechDefaults.SampleRate) {
       console.warn('[VS] AudioContext rate mismatch: requested', SpeechDefaults.SampleRate, 'Hz but got', actualRate, 'Hz — streaming STT (Deepgram) declares', SpeechDefaults.SampleRate, 'Hz to the provider and will mis-decode; blob STT (Groq) self-corrects via its WAV header.');
-    } else {
-      console.log('[VS] AudioContext rate =', actualRate, 'Hz (matches the rate declared to streaming STT)');
     }
     const source = this.audioContext.createMediaStreamSource(this.mediaStream);
 
@@ -87,7 +83,6 @@ export class AudioCaptureService implements OnDestroy {
     silentGain.connect(this.audioContext.destination);
 
     this.isCapturing.set(true);
-    console.log('[VS] audio-capture started, vadThreshold=', this.vadThreshold, 'silenceMs=', this.silenceThresholdMs());
   }
 
   private createAudioContextAtTargetRate(): AudioContext {
@@ -165,7 +160,6 @@ export class AudioCaptureService implements OnDestroy {
     }
 
     if (hasSpeechOnset && !this.isSpeechDetected()) {
-      console.log('[VS] SPEECH STARTED rms=', rms.toFixed(5), 'preRollMs=', Math.round(this.preRollSampleCount / this.currentSampleRate() * SpeechDefaults.MillisecondsPerSecond));
       this.isSpeechDetected.set(true);
       this.adoptPreRollIntoRecording();
       this.speechStarted$.next();
@@ -278,7 +272,6 @@ export class AudioCaptureService implements OnDestroy {
 
   private resetSilenceTimer(): void {
     this.silenceTimer = setTimeout(() => {
-      console.log('[VS] SILENCE DETECTED (timer fired after', this.silenceThresholdMs(), 'ms)');
       this.isSpeechDetected.set(false);
       this.silenceDetected$.next();
     }, this.silenceThresholdMs());

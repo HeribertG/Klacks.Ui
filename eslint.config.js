@@ -20,6 +20,7 @@ module.exports = tseslint.config(
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      "no-console": ["error", { allow: ["warn", "error"] }],
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/no-unused-vars": [
@@ -94,6 +95,12 @@ module.exports = tseslint.config(
     ],
     rules: {
       "no-restricted-syntax": "off",
+    },
+  },
+  {
+    files: ["**/*.spec.ts", "**/shared/testing/**"],
+    rules: {
+      "no-console": "off",
     },
   },
   {

@@ -405,19 +405,8 @@ export class SignalRConnectionHelper {
   }
 
   private logTransition(previous: SignalRConnectionState, next: SignalRConnectionState): void {
-    if (typeof window === 'undefined') return;
-    const verbose = window.location?.search?.includes('debug=signalr');
-    if (verbose) {
-      console.info(
-        '[SignalR] transition',
-        previous,
-        '->',
-        next,
-        'telemetry=',
-        this.telemetry,
-      );
-    } else if (next === 'Failed' || next === 'Reconnecting' || next === 'AuthFailed') {
-      console.info('[SignalR] transition', previous, '->', next);
+    if (next === 'Failed' || next === 'Reconnecting' || next === 'AuthFailed') {
+      console.warn('[SignalR] transition', previous, '->', next);
     }
   }
 

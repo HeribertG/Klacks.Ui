@@ -22,7 +22,6 @@ export class AudioQueueService implements OnDestroy {
   private sentenceGapTimer: ReturnType<typeof setTimeout> | null = null;
 
   enqueue(audioBlob: Blob): void {
-    console.log('[VS] audio-queue enqueue, size=', audioBlob.size, 'type=', audioBlob.type);
     this.queue.push(audioBlob);
     this.queueLength.set(this.queue.length);
 
@@ -78,7 +77,6 @@ export class AudioQueueService implements OnDestroy {
     };
 
     this.currentAudio.onended = () => {
-      console.log('[VS] audio-queue playback ended');
       detachCurrent();
       this.revokeObjectUrl();
       this.playNextAfterSentenceGap();
@@ -91,27 +89,8 @@ export class AudioQueueService implements OnDestroy {
       this.playNext();
     };
 
-    console.log('[VS] audio-queue starting play, url=', this.currentObjectUrl);
-    const checkInterval = setInterval(() => {
-      if (!this.currentAudio) {
-        clearInterval(checkInterval);
-        return;
-      }
-      console.log('[VS] audio-queue tick: currentTime=', this.currentAudio.currentTime.toFixed(2),
-        'duration=', this.currentAudio.duration, 'paused=', this.currentAudio.paused,
-        'muted=', this.currentAudio.muted, 'volume=', this.currentAudio.volume,
-        'readyState=', this.currentAudio.readyState);
-    }, 500);
-    const origOnEnded = this.currentAudio.onended;
-    this.currentAudio.onended = (e) => {
-      clearInterval(checkInterval);
-      if (origOnEnded) (origOnEnded as (this: GlobalEventHandlers, ev: Event) => unknown).call(this.currentAudio!, e);
-    };
-
     this.currentAudio.play()
-      .then(() => console.log('[VS] audio-queue play() promise resolved, paused=', this.currentAudio?.paused, 'volume=', this.currentAudio?.volume, 'muted=', this.currentAudio?.muted))
       .catch((err) => {
-        clearInterval(checkInterval);
         console.error('[VS] audio-queue play() rejected:', err);
         this.playNext();
       });
