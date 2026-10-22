@@ -21,33 +21,22 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faStreetView } from '@fortawesome/free-solid-svg-icons';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
-import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { DashboardLocationsService } from 'src/app/domain/services/dashboard/dashboard-locations.service';
+import { DashboardPreferenceService } from 'src/app/domain/services/dashboard/dashboard-preference.service';
+import { DashboardLocations } from 'src/app/domain/models/dashboard/dashboard-locations.interface';
+import { LocationViewMode } from 'src/app/domain/models/dashboard/location-view-mode.type';
 import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-location-pin.component';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IGroup } from 'src/app/domain/models/group/group.interface';
-import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
-import { forkJoin } from 'rxjs';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { GeoServiceNoticeComponent } from 'src/app/presentation/shared/geo-service-notice/geo-service-notice.component';
-import { GeocodingSearchStatus } from 'src/app/domain/models/geo/geocoding-search-status.model';
 import { STREET_VIEW_LINK_TEMPLATE } from 'src/app/domain/constants/external-map-link.constants';
-import { LocationData } from './location-data.interface';
-import { CoordinateAccumulator } from './coordinate-accumulator.interface';
-import { ClientType } from './client-type.enum';
+import { LocationData } from 'src/app/domain/models/dashboard/location-data.interface';
 import { buildExternalMapLink } from 'src/app/shared/helpers/external-map-link.helper';
 
 declare let L: any;
 
-export type LocationViewMode = 'city' | 'group';
-
-const LEGACY_MAP_TILE_PROVIDER_STORAGE_KEY = 'dashboard-map-tile-provider';
-const LOCATION_VIEW_MODE_STORAGE_KEY = 'dashboard-location-view-mode';
-const SEARCH_NOT_FOUND_KEY = 'dashboard.locations.searchNotFound';
-const SEARCH_UNAVAILABLE_KEY = 'geoServices.search.unavailable';
 const STREET_VIEW_LABEL_KEY = 'dashboard.locations.streetView';
 const STREET_VIEW_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="14" height="14" fill="white"><path d="M320 64A64 64 0 1 0 192 64a64 64 0 1 0 128 0zm-96 96c-35.3 0-64 28.7-64 64l0 48c0 17.7 14.3 32 32 32l1.8 0 11.1 99.5c1.8 16.2 15.5 28.5 31.8 28.5l38.7 0c16.3 0 30-12.3 31.8-28.5L318.2 304l1.8 0c17.7 0 32-14.3 32-32l0-48c0-35.3-28.7-64-64-64l-64 0zM132.3 394.2c13-2.4 21.7-14.9 19.3-27.9s-14.9-21.7-27.9-19.3c-32.4 5.9-60.9 14.2-82 24.8c-10.5 5.3-20.3 11.7-27.8 19.6C6.4 399.5 0 410.5 0 424c0 21.4 15.5 36.1 29.1 45c14.7 9.6 34.3 17.3 56.4 23.4C130.2 504.7 190.4 512 256 512s125.8-7.3 170.4-19.6c22.1-6.1 41.8-13.8 56.4-23.4c13.7-8.9 29.1-23.6 29.1-45c0-13.5-6.4-24.5-13.9-32.6c-7.5-8-17.3-14.4-27.8-19.6c-21-10.6-49.5-18.9-82-24.8c-13-2.4-25.5 6.3-27.9 19.3s6.3 25.5 19.3 27.9c30.2 5.5 53.7 12.8 69 20.5c3.2 1.6 5.8 3.1 7.9 4.5c3.6 2.4 3.6 7.2 0 9.6c-8.8 5.7-23.1 11.8-43 17.3C374.3 457 318.5 464 256 464s-118.3-7-157.7-17.9c-19.9-5.5-34.2-11.6-43-17.3c-3.6-2.4-3.6-7.2 0-9.6c2.1-1.4 4.8-2.9 7.9-4.5c15.3-7.7 38.8-14.9 69-20.5z"/></svg>`;
 
@@ -66,9 +55,8 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   readonly mapContainerRef = viewChild<ElementRef<HTMLDivElement>>('mapContainer');
   private mapInitialized = false;
   private shouldInitializeMap = false;
-  private dataDashboardService = inject(DataDashboardService);
-  private dataGeocodingService = inject(DataGeocodingService);
-  private localStorageService = inject(LocalStorageService);
+  private dashboardLocations = inject(DashboardLocationsService);
+  private dashboardPreference = inject(DashboardPreferenceService);
   private elementRef = inject(ElementRef);
   private spinnerService = inject(SpinnerService);
   private toastService = inject(ToastShowService);
@@ -111,7 +99,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   }
 
   ngOnInit(): void {
-    this.localStorageService.remove(LEGACY_MAP_TILE_PROVIDER_STORAGE_KEY);
+    this.dashboardPreference.removeLegacyMapTileProvider();
     this.loadSavedViewMode();
     void this.geoServicesConfig.ensureLoaded();
     this.loadVisibilityStatus();
@@ -119,13 +107,8 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   }
 
   private loadVisibilityStatus(): void {
-    this.dataDashboardService.getVisibilityStatus().subscribe({
-      next: (status) => {
-        this.noGroupsAssigned.set(status.isRestricted && !status.hasVisibleGroups);
-      },
-      error: () => {
-        this.noGroupsAssigned.set(false);
-      },
+    this.dashboardLocations.loadNoGroupsAssigned().subscribe((noGroupsAssigned) => {
+      this.noGroupsAssigned.set(noGroupsAssigned);
     });
   }
 
@@ -144,8 +127,8 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   }
 
   private loadSavedViewMode(): void {
-    const savedMode = this.localStorageService.get(LOCATION_VIEW_MODE_STORAGE_KEY);
-    if (savedMode === 'city' || savedMode === 'group') {
+    const savedMode = this.dashboardPreference.readLocationViewMode();
+    if (savedMode) {
       this.viewMode.set(savedMode);
     }
   }
@@ -164,7 +147,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       return;
     }
     this.viewMode.set(mode);
-    this.localStorageService.set(LOCATION_VIEW_MODE_STORAGE_KEY, mode);
+    this.dashboardPreference.saveLocationViewMode(mode);
     this.resetMap();
     this.loadDataForCurrentMode();
   }
@@ -196,17 +179,15 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.dataDashboardService.getClientsLocationsData().subscribe({
-      next: (clients) => {
-        const locationsArray = this.buildCityLocations(clients);
-
-        this.locations.set(locationsArray);
-        this.mapMarkers.set(locationsArray);
-        this.totalLocations.set(locationsArray.length);
-        this.totalClients.set(clients.length);
+    this.dashboardLocations.loadCityLocations().subscribe({
+      next: ({ locations, totalClients }: DashboardLocations) => {
+        this.locations.set(locations);
+        this.mapMarkers.set(locations);
+        this.totalLocations.set(locations.length);
+        this.totalClients.set(totalClients);
         this.isLoading.set(false);
 
-        this.shouldInitializeMap = locationsArray.length > 0;
+        this.shouldInitializeMap = locations.length > 0;
       },
       error: (err) => {
         this.shouldInitializeMap = false;
@@ -221,32 +202,12 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     this.isLoading.set(true);
     this.error.set(null);
 
-    forkJoin({
-      tree: this.dataDashboardService.getClientsOverviewData(),
-      clients: this.dataDashboardService.getClientsLocationsData(),
-    }).subscribe({
-      next: ({ tree, clients }) => {
-        const groups = this.flattenGroups(tree.nodes || []);
-        const groupsWithClients = groups.filter(g => g.clientsCount > 0);
-
-        const groupLocations: LocationData[] = groupsWithClients
-          .map(group => ({
-            city: group.name,
-            country: '',
-            count: group.clientsCount,
-            employeeCount: group.employeesCount,
-            externEmpCount: group.externEmpsCount,
-            customerCount: group.customersCount,
-          }))
-          .sort((a, b) => b.count - a.count);
-
-        const totalClients = groupLocations.reduce((sum, g) => sum + g.count, 0);
-
-        this.locations.set(groupLocations);
-        this.totalLocations.set(groupLocations.length);
+    this.dashboardLocations.loadGroupLocations().subscribe({
+      next: ({ locations, mapLocations, totalClients }: DashboardLocations) => {
+        this.locations.set(locations);
+        this.totalLocations.set(locations.length);
         this.totalClients.set(totalClients);
 
-        const mapLocations = this.buildCityLocations(clients);
         this.mapMarkers.set(mapLocations);
         this.shouldInitializeMap = mapLocations.length > 0;
 
@@ -259,66 +220,6 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
         this.isLoading.set(false);
       },
     });
-  }
-
-  private buildCityLocations(clients: IClientLocationResource[]): LocationData[] {
-    const locationMap = new Map<string, LocationData>();
-    const coordinateMap = new Map<string, CoordinateAccumulator>();
-
-    clients.forEach((client) => {
-      const address = client.currentAddress;
-      if (!address?.city || !address.country) {
-        return;
-      }
-
-      const key = `${address.city}_${address.country}`;
-      const clientType = client.type;
-      const location = locationMap.get(key) ?? {
-        city: address.city,
-        country: address.country,
-        count: 0,
-        employeeCount: 0,
-        externEmpCount: 0,
-        customerCount: 0,
-      };
-
-      location.count++;
-      if (clientType === ClientType.Employee) {
-        location.employeeCount++;
-      } else if (clientType === ClientType.ExternEmp) {
-        location.externEmpCount++;
-      } else if (clientType === ClientType.Customer) {
-        location.customerCount++;
-      }
-      locationMap.set(key, location);
-
-      if (typeof address.latitude === 'number' && typeof address.longitude === 'number') {
-        const accumulator = coordinateMap.get(key) ?? { latitudeSum: 0, longitudeSum: 0, count: 0 };
-        accumulator.latitudeSum += address.latitude;
-        accumulator.longitudeSum += address.longitude;
-        accumulator.count++;
-        coordinateMap.set(key, accumulator);
-      }
-    });
-
-    coordinateMap.forEach((accumulator, key) => {
-      const location = locationMap.get(key)!;
-      location.latitude = accumulator.latitudeSum / accumulator.count;
-      location.longitude = accumulator.longitudeSum / accumulator.count;
-    });
-
-    return Array.from(locationMap.values()).sort((a, b) => b.count - a.count);
-  }
-
-  private flattenGroups(groups: IGroup[]): IGroup[] {
-    const result: IGroup[] = [];
-    for (const group of groups) {
-      result.push(group);
-      if (group.children && group.children.length > 0) {
-        result.push(...this.flattenGroups(group.children));
-      }
-    }
-    return result;
   }
 
   private initializeMap(): void {
@@ -447,21 +348,17 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
     this.spinnerService.showProgressSpinner = true;
 
-    this.dataGeocodingService.searchAddress(query).subscribe((result) => {
+    this.dashboardLocations.searchAddress(query).subscribe(({ hit, failureMessageKey }) => {
       this.spinnerService.showProgressSpinner = false;
 
-      if (
-        result.status === GeocodingSearchStatus.Found &&
-        typeof result.latitude === 'number' &&
-        typeof result.longitude === 'number'
-      ) {
-        this.showSearchResult(result.latitude, result.longitude, result.displayName ?? query);
+      if (hit) {
+        this.showSearchResult(hit.latitude, hit.longitude, hit.displayName);
         return;
       }
 
-      const messageKey =
-        result.status === GeocodingSearchStatus.NotFound ? SEARCH_NOT_FOUND_KEY : SEARCH_UNAVAILABLE_KEY;
-      this.toastService.showError(this.translateService.instant(messageKey));
+      if (failureMessageKey) {
+        this.toastService.showError(this.translateService.instant(failureMessageKey));
+      }
     });
   }
 

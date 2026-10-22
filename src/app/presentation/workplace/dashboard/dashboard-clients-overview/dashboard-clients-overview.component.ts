@@ -4,11 +4,10 @@
 import { Component, inject, OnInit, signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
+import { DashboardStatisticsService } from 'src/app/domain/services/dashboard/dashboard-statistics.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { PieChartComponent } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
 import { PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart-data.interface';
-import { IGroup } from 'src/app/domain/models/group/group.interface';
 
 @Component({
   selector: 'app-dashboard-clients-overview',
@@ -19,7 +18,7 @@ import { IGroup } from 'src/app/domain/models/group/group.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsOverviewComponent implements OnInit {
-  private dataDashboardService = inject(DataDashboardService);
+  private dashboardStatistics = inject(DashboardStatisticsService);
 
   public chartData = signal<PieChartData[]>([]);
   public totalClients = signal(0);
@@ -47,10 +46,12 @@ export class DashboardClientsOverviewComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.dataDashboardService.getClientsOverviewData().subscribe({
-      next: (tree) => {
-        const groups = this.flattenGroups(tree.nodes || []);
-        const data = this.prepareChartData(groups);
+    this.dashboardStatistics.loadCustomerCountsByGroup().subscribe({
+      next: (counts) => {
+        const data: PieChartData[] = counts.map((count, index) => ({
+          ...count,
+          color: this.colors[index % this.colors.length],
+        }));
         this.chartData.set(data);
 
         const total = data.reduce((sum, item) => sum + item.value, 0);
@@ -64,28 +65,5 @@ export class DashboardClientsOverviewComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
-  }
-
-  private flattenGroups(groups: IGroup[]): IGroup[] {
-    const result: IGroup[] = [];
-
-    for (const group of groups) {
-      result.push(group);
-      if (group.children && group.children.length > 0) {
-        result.push(...this.flattenGroups(group.children));
-      }
-    }
-
-    return result;
-  }
-
-  private prepareChartData(groups: IGroup[]): PieChartData[] {
-    const groupsWithCustomers = groups.filter(g => g.customersCount > 0);
-
-    return groupsWithCustomers.map((group, index) => ({
-      label: group.name,
-      value: group.customersCount,
-      color: this.colors[index % this.colors.length],
-    }));
   }
 }

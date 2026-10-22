@@ -5,8 +5,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { DashboardClientsLocationsComponent } from './dashboard-clients-locations.component';
-import { ClientType } from './client-type.enum';
-import { LocationData } from './location-data.interface';
+import { ClientType } from 'src/app/domain/models/dashboard/client-type.enum';
+import { LocationData } from 'src/app/domain/models/dashboard/location-data.interface';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

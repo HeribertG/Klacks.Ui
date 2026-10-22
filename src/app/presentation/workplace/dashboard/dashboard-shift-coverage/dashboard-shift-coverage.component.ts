@@ -2,7 +2,7 @@
 
 /**
  * Displays shift coverage and seal status as two donut charts in dashboard card style.
- * @param dataDashboardService - API service for loading statistics data
+ * @param dashboardStatistics - Loads the coverage statistics of the groups that have slots
  */
 import { Component, inject, OnInit, signal,
   ChangeDetectionStrategy,
@@ -10,7 +10,7 @@ import { Component, inject, OnInit, signal,
 import { TranslateModule } from '@ngx-translate/core';
 import { PieChartComponent } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
 import { PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart-data.interface';
-import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
+import { DashboardStatisticsService } from 'src/app/domain/services/dashboard/dashboard-statistics.service';
 import { IShiftCoverageStatistics } from 'src/app/domain/models/shift-coverage-statistics.interface';
 
 @Component({
@@ -22,7 +22,7 @@ import { IShiftCoverageStatistics } from 'src/app/domain/models/shift-coverage-s
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardShiftCoverageComponent implements OnInit {
-  private dataDashboardService = inject(DataDashboardService);
+  private dashboardStatistics = inject(DashboardStatisticsService);
 
   public coverageChartData = signal<PieChartData[]>([]);
   public sealedChartData = signal<PieChartData[]>([]);
@@ -52,10 +52,8 @@ export class DashboardShiftCoverageComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.dataDashboardService.getShiftCoverageStatistics().subscribe({
-      next: (statistics: IShiftCoverageStatistics[]) => {
-        const filtered = statistics.filter((s) => s.totalSlots > 0);
-
+    this.dashboardStatistics.loadCoverageOfGroupsWithSlots().subscribe({
+      next: (filtered: IShiftCoverageStatistics[]) => {
         const coverageData = filtered.map((s, index) => ({
           label: s.groupName,
           value: s.coveredSlots,

@@ -9,11 +9,14 @@ export class StorageKeys {
   public static readonly TOKEN_PERMISSIONS = 'JWT_PERMISSIONS';
   public static readonly TOKEN_REFRESHTOKEN = 'JWT_REFRESH';
   public static readonly TOKEN_APPVERSION = 'JWT_APP_VERSION';
+  public static readonly OAUTH2_PROVIDER_ID = 'oauth2_provider_id';
   public static readonly CURRENT_LANG = 'CURRENT_LANG';
   public static readonly THEME = 'theme';
   public static readonly WIZARD_AUCTION_RATIO = 'wizard.auctionRatio';
   public static readonly DASHBOARD_SECTION_VISIBILITY = 'dashboard.sectionVisibility';
   public static readonly DASHBOARD_SECTION_ORDER = 'dashboard.sectionOrder';
+  public static readonly DASHBOARD_LOCATION_VIEW_MODE = 'dashboard-location-view-mode';
+  public static readonly DASHBOARD_LEGACY_MAP_TILE_PROVIDER = 'dashboard-map-tile-provider';
   public static readonly SETTINGS_EXPERT_MODE = 'settings.expertMode';
   public static readonly GROUP_VIEW_MODE = 'group-view-mode';
   public static readonly SHIFT_EDIT_MODE = 'mode';

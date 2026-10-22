@@ -5,17 +5,16 @@
  * 365 daily stacked bars (green = services count, gray = absent employees) with
  * two reference lines: pink dotted (Wunsch-Einsatzbereitschaft) + red dashed (Max-Einsatzbereitschaft).
  * @param dataDashboardService - Provides resource monitor data
+ * @param calendarSelectionChips - Resolves the holiday calendars of the global calendar selection
  */
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { lastValueFrom } from 'rxjs';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
-import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { CalendarSelectionChipsService } from 'src/app/domain/services/calendar/calendar-selection-chips.service';
 import { Group } from 'src/app/domain/models/group/group-class';
-import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { GREGORIAN_LATIN_INTL_OPTIONS } from 'src/app/domain/helpers/intl-format-options.helper';
@@ -24,8 +23,6 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { buildOfficialOverrideKey } from 'src/app/domain/helpers/official-override-key.helper';
-import { OfficialOverrideMap } from 'src/app/domain/models/calendar/official-override-map.type';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
@@ -58,7 +55,7 @@ const LINE_STROKE_WIDTH = 1.5;
 })
 export class DashboardResourceMonitorComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);
-  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private calendarSelectionChips = inject(CalendarSelectionChipsService);
   private appSettings = inject(AppSettingsManagementService);
   private gridColorService = inject(GridColorService);
   private weekConfiguration = inject(WeekConfigurationService);
@@ -192,31 +189,12 @@ export class DashboardResourceMonitorComponent implements OnInit {
     await this.holidayCollection.readDataAsync();
     this.holidayCollection.currentYear = this.selectedYear();
 
-    const selectionId = this.appSettings.contactSettings().globalCalendarSelectionId;
-    if (!selectionId) return;
+    const { tokens, overrides } = await this.calendarSelectionChips.resolve(
+      this.appSettings.contactSettings().globalCalendarSelectionId
+    );
+    if (tokens.length === 0) return;
 
-    try {
-      const selection = await lastValueFrom(
-        this.dataCalendarSelectionService.getCalendarSelection(selectionId)
-      );
-      if (!selection?.selectedCalendars?.length) return;
-
-      const tokens: StateCountryToken[] = [];
-      const overrides: OfficialOverrideMap = new Map();
-      selection.selectedCalendars.forEach(sc => {
-        const token = new StateCountryToken();
-        token.country = sc.country;
-        token.state = sc.state;
-        tokens.push(token);
-        overrides.set(
-          buildOfficialOverrideKey(sc.country, sc.state),
-          sc.officialOverride
-        );
-      });
-      this.holidayCollection.setSelection(tokens, overrides);
-    } catch {
-      // holiday loading is non-critical
-    }
+    this.holidayCollection.setSelection(tokens, overrides);
   }
 
   onYearChanged(year: number): void {

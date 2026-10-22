@@ -16,8 +16,7 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { DashboardPreferenceService } from 'src/app/domain/services/dashboard/dashboard-preference.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
@@ -82,7 +81,7 @@ export class DashboardHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
-  private localStorageService = inject(LocalStorageService);
+  private dashboardPreference = inject(DashboardPreferenceService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -108,7 +107,7 @@ export class DashboardHomeComponent implements OnInit {
     effect(() => {
       const vis = this.sectionVisibilityModel();
       if (!this.visibilityFormInitialized) return;
-      this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY, vis);
+      this.dashboardPreference.saveSectionVisibility(vis);
     });
 
     this.eventBus
@@ -184,48 +183,18 @@ export class DashboardHomeComponent implements OnInit {
   }
 
   private loadSectionVisibility(): void {
-    try {
-      const stored = this.localStorageService.getJson(
-        StorageKeys.DASHBOARD_SECTION_VISIBILITY
-      ) as Partial<SectionVisibilityFormModel> | null;
-      if (!stored) return;
-      this.sectionVisibilityModel.update(m => {
-        const updated = { ...m };
-        (this.sectionKeys as readonly string[]).forEach(key => {
-          const k = key as keyof SectionVisibilityFormModel;
-          if (k in stored && typeof stored[k] === 'boolean') {
-            updated[k] = stored[k]!;
-          }
-        });
-        return updated;
-      });
-    } catch {
-      // Silently fall back to defaults on corrupt storage
-    }
+    const stored = this.dashboardPreference.readSectionVisibility(this.sectionKeys);
+    if (!stored) return;
+    this.sectionVisibilityModel.update(m => ({ ...m, ...stored }));
   }
 
   private loadSectionOrder(): void {
-    try {
-      const stored = this.localStorageService.getJson(
-        StorageKeys.DASHBOARD_SECTION_ORDER
-      ) as string[] | null;
-      if (!Array.isArray(stored)) return;
-      const valid = stored.filter(k =>
-        (DEFAULT_SECTION_ORDER as readonly string[]).includes(k)
-      );
-      const missing = (DEFAULT_SECTION_ORDER as readonly string[]).filter(
-        k => !valid.includes(k)
-      );
-      this.sectionOrder.set([...valid, ...missing]);
-    } catch {
-      // Silently fall back to default order on corrupt storage
-    }
+    const stored = this.dashboardPreference.readSectionOrder(DEFAULT_SECTION_ORDER);
+    if (!stored) return;
+    this.sectionOrder.set(stored);
   }
 
   private saveSectionOrder(): void {
-    this.localStorageService.setJson(
-      StorageKeys.DASHBOARD_SECTION_ORDER,
-      this.sectionOrder()
-    );
+    this.dashboardPreference.saveSectionOrder(this.sectionOrder());
   }
 }
