@@ -2,11 +2,10 @@
 
 import { Tokens } from './tokens.enum';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export class Symbol {
   private _token: Tokens = Tokens.tokNone;
   private _text = '';
-  private _value: any | undefined;
+  private _value: string | null | undefined;
   private _line = -1;
   private _col = -1;
   private _index = -1;
@@ -17,7 +16,7 @@ export class Symbol {
     this._index = index;
   }
 
-  init(Token: Tokens, Text = '', Value: any = null) {
+  init(Token: Tokens, Text = '', Value: string | null = null) {
     this._token = Token;
     this._text = Text;
     this._value = Value;
@@ -31,7 +30,7 @@ export class Symbol {
     return this._text;
   }
 
-  public get value(): any {
+  public get value(): string | null | undefined {
     return this._value;
   }
 

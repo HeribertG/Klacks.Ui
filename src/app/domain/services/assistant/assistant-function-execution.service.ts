@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, from, Observable, of } from 'rxjs';
@@ -82,8 +81,8 @@ export class AssistantFunctionExecutionService {
           error: navResult.success ? undefined : navResult.reason,
         }))
       );
-    } catch (error: any) {
-      return of({ id: call.id, success: false, error: error.message });
+    } catch (error: unknown) {
+      return of({ id: call.id, success: false, error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -98,7 +97,7 @@ export class AssistantFunctionExecutionService {
 
     return firstValueFrom(
       this.httpClient
-        .post<{ success: boolean; result?: any; error?: string; message?: string }[]>(
+        .post<{ success: boolean; result?: unknown; error?: string; message?: string }[]>(
           `${this.apiBaseUrl}assistant/chat/execute-functions-batch`,
           requests
         )
@@ -131,7 +130,7 @@ export class AssistantFunctionExecutionService {
     return this.httpClient
       .post<{
         success: boolean;
-        result?: any;
+        result?: unknown;
         error?: string;
         message?: string;
       }>(`${this.apiBaseUrl}assistant/chat/execute-function`, {

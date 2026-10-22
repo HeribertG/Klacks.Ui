@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
@@ -60,7 +59,7 @@ export class ShiftCutOperationService {
 
     selectedShift.endShift = cutTimeString;
 
-    const cutTimeProps: any = {
+    const cutTimeProps: Partial<Shift> = {
       startShift: originalEndShift,
     };
 
@@ -179,7 +178,7 @@ export class ShiftCutOperationService {
     return cloneObject<Shift>(shift);
   }
 
-  private prepareCutShift(copiedShift: Shift, specificProperties?: any): void {
+  private prepareCutShift(copiedShift: Shift, specificProperties?: Partial<Shift>): void {
     copiedShift.parentId = copiedShift.id;
     copiedShift.id = crypto.randomUUID();
     copiedShift.isNew = true;

@@ -1,40 +1,46 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+type PropertyBag = Record<string, unknown>;
+
+function asPropertyBag(value: unknown): PropertyBag {
+  return value as PropertyBag;
+}
+
 export function cloneObject<T>(o: T): T {
   return structuredClone(o);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function compareProperty(o1: any, o2: any, property: string): boolean {
-  if (Object.hasOwn(o1, property)) {
-    if (!o1[property] && o2[property]) return false;
-    if (o1[property] && !o2[property]) return false;
-    if (o1[property] !== o2[property]) return false;
-  } else if (Object.hasOwn(o2, property)) {
+export function compareProperty(o1: unknown, o2: unknown, property: string): boolean {
+  const bag1 = asPropertyBag(o1);
+  const bag2 = asPropertyBag(o2);
+  if (Object.hasOwn(bag1, property)) {
+    if (!bag1[property] && bag2[property]) return false;
+    if (bag1[property] && !bag2[property]) return false;
+    if (bag1[property] !== bag2[property]) return false;
+  } else if (Object.hasOwn(bag2, property)) {
     return false;
   }
 
-  if (Object.hasOwn(o2, property) && o1[property] !== o2[property]) {
+  if (Object.hasOwn(bag2, property) && bag1[property] !== bag2[property]) {
     return false;
   }
 
   return true;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function compareComplexObjects(o1: any, o2: any, listOfExcludedObject?: string[]): boolean {
+export function compareComplexObjects(o1: unknown, o2: unknown, listOfExcludedObject?: string[]): boolean {
   try {
     if (o1 instanceof Date || o2 instanceof Date) {
       if (!(o1 instanceof Date) || !(o2 instanceof Date)) return false;
       return o1.getTime() === o2.getTime();
     }
 
-    for (const p in o1) {
+    for (const p in asPropertyBag(o1)) {
       if (p !== null) {
         if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
       }
     }
-    for (const p in o2) {
+    for (const p in asPropertyBag(o2)) {
       if (p !== null) {
         if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
       }
@@ -45,16 +51,15 @@ export function compareComplexObjects(o1: any, o2: any, listOfExcludedObject?: s
 
   return true;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function checkProperty(obj1: any, obj2: any, p: string, listExcludedObject?: string[]): boolean {
+  function checkProperty(obj1: unknown, obj2: unknown, p: string, listExcludedObject?: string[]): boolean {
     obj1 = obj1 === null ? undefined : obj1;
     obj2 = obj2 === null ? undefined : obj2;
 
     if (!obj1 || !obj2) return obj1 === obj2;
     if (isPropertyExcluded(p, listExcludedObject)) return true;
 
-    const value1 = obj1[p];
-    const value2 = obj2[p];
+    const value1 = asPropertyBag(obj1)[p];
+    const value2 = asPropertyBag(obj2)[p];
 
     if (value1 === undefined || value2 === undefined) return value1 === value2;
     if (value1 === null || value2 === null) return value1 === value2;
@@ -111,11 +116,12 @@ export function compareComplexObjects(o1: any, o2: any, listOfExcludedObject?: s
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function copyObjectValues(o1: any, o2: any): void {
-  for (const p in o1) {
-    if (Object.hasOwn(o1, p) && Object.hasOwn(o2, p)) {
-      o1[p] = o2[p];
+export function copyObjectValues(o1: object, o2: object): void {
+  const target = asPropertyBag(o1);
+  const source = asPropertyBag(o2);
+  for (const p in target) {
+    if (Object.hasOwn(target, p) && Object.hasOwn(source, p)) {
+      target[p] = source[p];
     }
   }
 }

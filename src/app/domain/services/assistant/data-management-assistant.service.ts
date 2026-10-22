@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, tap, switchMap, takeUntil } from 'rxjs/operators';
@@ -38,6 +37,9 @@ import { DataTriggerPreferenceService } from 'src/app/infrastructure/api/assista
 import { ITriggerPreference } from 'src/app/domain/interfaces/trigger-preference.interface';
 import { ProactiveReaction } from 'src/app/domain/constants/proactive-reaction.constants';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
+import { IAssistantHelp } from 'src/app/domain/models/assistant/assistant-help.interface';
+import { IAssistantFunction } from 'src/app/domain/models/assistant/assistant-function.interface';
+import { IAssistantUserContext } from 'src/app/domain/models/assistant/assistant-user-context.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { TranslateService } from '@ngx-translate/core';
@@ -273,7 +275,7 @@ export class DataManagementAssistantService {
     return this.availableModels().find((m) => m.modelId === modelId);
   }
 
-  enableModel(modelId: string): Observable<any> {
+  enableModel(modelId: string): Observable<unknown> {
     return this.dataAssistantService.enableModel(modelId).pipe(
       tap(() => {
         this.initializeModels();
@@ -285,7 +287,7 @@ export class DataManagementAssistantService {
     );
   }
 
-  disableModel(modelId: string): Observable<any> {
+  disableModel(modelId: string): Observable<unknown> {
     return this.dataAssistantService.disableModel(modelId).pipe(
       tap(() => {
         this.initializeModels();
@@ -297,7 +299,7 @@ export class DataManagementAssistantService {
     );
   }
 
-  setDefaultModel(modelId: string): Observable<any> {
+  setDefaultModel(modelId: string): Observable<unknown> {
     return this.dataAssistantService.setDefaultModel(modelId).pipe(
       tap(() => {
         this.initializeModels();
@@ -456,7 +458,7 @@ export class DataManagementAssistantService {
     return `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private getUserContext(): any {
+  private getUserContext(): IAssistantUserContext | null {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     if (!token) return null;
 
@@ -471,7 +473,7 @@ export class DataManagementAssistantService {
     };
   }
 
-  getHelp(): Observable<any> {
+  getHelp(): Observable<IAssistantHelp> {
     return this.dataAssistantService.getHelp().pipe(
       catchError(() => {
         return of({
@@ -484,7 +486,7 @@ export class DataManagementAssistantService {
     );
   }
 
-  getFunctions(): Observable<any[]> {
+  getFunctions(): Observable<IAssistantFunction[]> {
     return this.dataAssistantService.getFunctions().pipe(
       catchError(() => {
         return of([]);
@@ -504,7 +506,7 @@ export class DataManagementAssistantService {
     );
   }
 
-  deleteModel(id: string): Observable<any> {
+  deleteModel(id: string): Observable<unknown> {
     return this.dataAssistantService.deleteModel(id).pipe(
       tap(() => {
         this.initializeModels();

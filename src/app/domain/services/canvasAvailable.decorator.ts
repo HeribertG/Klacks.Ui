@@ -17,16 +17,13 @@ const CANVAS_QUEUE = Symbol('canvasMethodQueue');
 export function CanvasAvailable(
   errorHandling: 'warn' | 'throw' | 'queue' = 'warn'
 ) {
-  return function <T extends CanvasAvailable>(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    target: any,
+  return function <T extends CanvasAvailable, M extends (...args: never[]) => unknown>(
+    target: object,
     propertyKey: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    descriptor: TypedPropertyDescriptor<(...args: any[]) => any>
-  ) {
+    descriptor: TypedPropertyDescriptor<M>
+  ): TypedPropertyDescriptor<M> {
     const originalMethod = descriptor.value;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    descriptor.value = function (this: T & { [CANVAS_QUEUE]?: QueueEntry[] }, ...args: any[]) {
+    descriptor.value = function (this: T & { [CANVAS_QUEUE]?: QueueEntry[] }, ...args: Parameters<M>) {
       if (this.isCanvasAvailable()) {
         return originalMethod!.apply(this, args);
       } else {
@@ -41,8 +38,9 @@ export function CanvasAvailable(
           }
           this[CANVAS_QUEUE].push({ method: originalMethod!, args });
         }
+        return undefined;
       }
-    };
+    } as M;
 
     if (!Object.prototype.hasOwnProperty.call(target, 'executeQueuedMethods')) {
       Object.defineProperty(target, 'executeQueuedMethods', {

@@ -7,7 +7,6 @@
  * @param ngbModal - NgbModal service for opening edit modals
  * @param assistantLauncher - Offers Klacksy's commissioning help when a saved provider is not yet ready
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   ChangeDetectionStrategy,
@@ -22,7 +21,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataMessagingService } from '../../services/data-messaging.service';
 import { MessagingProvider } from '../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../models/create-messaging-provider.model';
@@ -66,7 +65,7 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
   private manualLoader = inject(PLUGIN_MANUAL_LOADER);
   private destroy$ = new Subject<void>();
 
-  @ViewChild('editModal') editModal!: TemplateRef<any>;
+  @ViewChild('editModal') editModal!: TemplateRef<unknown>;
 
   providers: MessagingProvider[] = [];
   isLoading = false;
@@ -211,7 +210,7 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
       .subscribe(content => this.manualContent.set(content));
   }
 
-  async onSaved(dto: CreateMessagingProvider, modal: any): Promise<void> {
+  async onSaved(dto: CreateMessagingProvider, modal: Pick<NgbActiveModal, 'close'>): Promise<void> {
     let saved: MessagingProvider | null = null;
     try {
       if (this.isNewProvider) {

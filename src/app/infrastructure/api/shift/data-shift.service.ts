@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 import { companyToday, toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 import { toShiftGroupsWire } from './shift-groups-wire.mapper';
 import { ITruncatedShift } from 'src/app/domain/models/shift/truncated-shift.interface';
-import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
+import { IShiftListFilter } from 'src/app/domain/models/shift/shift-list-filter.interface';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 
 @Injectable({
@@ -17,7 +17,7 @@ import { IShift } from 'src/app/domain/models/shift/shift.interface';
 export class DataShiftService {
   private httpClient = inject(HttpClient);
 
-  readShiftList(filter: ShiftFilter) {
+  readShiftList(filter: IShiftListFilter) {
     return this.httpClient
       .post<ITruncatedShift>(
         `${environment.baseUrl}Shifts/GetSimpleList/`,

@@ -6,6 +6,8 @@
  * Pure functions for inspecting JWT access tokens.
  */
 
+import { IJwtPayload } from './jwt-payload.interface';
+
 export const DEFAULT_TOKEN_EXPIRY_BUFFER_MS = 30000;
 
 /**
@@ -14,11 +16,10 @@ export const DEFAULT_TOKEN_EXPIRY_BUFFER_MS = 30000;
  * @param token - Encoded JWT access token
  * @returns The decoded claims object, or null if the token is unreadable
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function decodeJwtPayload(token: string): any {
+export function decodeJwtPayload(token: string): IJwtPayload | null {
   try {
     const payload = token.split('.')[1];
-    return payload ? JSON.parse(atob(payload)) : null;
+    return payload ? (JSON.parse(atob(payload)) as IJwtPayload) : null;
   } catch {
     return null;
   }

@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ReportClient } from './report-client.interface';
+import { ReportMetadata } from './report-metadata.interface';
 
 export interface ReportHeaderContext {
-  client?: any;
+  client?: ReportClient;
   groupName?: string;
   startDate?: string;
   endDate?: string;
-  metadata?: Record<string, any>;
+  metadata?: ReportMetadata;
 }

@@ -180,12 +180,12 @@ describe('ReportDataProviderService', () => {
     const included = await provider.fetchData({
       clientSelection: { selectAll: false, invertedSelection: false, selection: ['a', 'c'] },
     });
-    expect(included.rows.map((r: { id: string }) => r.id)).toEqual(['a', 'c']);
+    expect((included.rows as { id: string }[]).map(r => r.id)).toEqual(['a', 'c']);
 
     const inverted = await provider.fetchData({
       clientSelection: { selectAll: false, invertedSelection: true, selection: ['b'] },
     });
-    expect(inverted.rows.map((r: { id: string }) => r.id)).toEqual(['a', 'c']);
+    expect((inverted.rows as { id: string }[]).map(r => r.id)).toEqual(['a', 'c']);
 
     const all = await provider.fetchData({
       clientSelection: { selectAll: true, invertedSelection: false, selection: [] },
@@ -607,7 +607,7 @@ describe('ReportDataProviderService', () => {
 
       expect(clientAvailabilityService.getAvailabilityRanges).toHaveBeenCalledWith('2026-01-01', '2026-01-31', ['c1']);
       expect(clientService.getClient).toHaveBeenCalledWith('c1');
-      expect(data.rows.map((r: { date: string }) => r.date)).toEqual(['2026-01-01', '2026-01-03']);
+      expect((data.rows as { date: string }[]).map(r => r.date)).toEqual(['2026-01-01', '2026-01-03']);
       expect(data.metadata?.['client']).toEqual(client);
     });
 
@@ -660,7 +660,7 @@ describe('ReportDataProviderService', () => {
       const { rows } = await provider.fetchData({ groupId: 'g1' });
 
       expect(groupService.getGroup).toHaveBeenCalledWith('g1');
-      expect(rows.map((r: { client: { name: string } }) => r.client.name)).toEqual(['Aebi', 'Zwahlen']);
+      expect((rows as { client: { name: string } }[]).map(r => r.client.name)).toEqual(['Aebi', 'Zwahlen']);
       expect(provider.resolveFieldValue({ dataBinding: 'groupMember.idNumber' } as never, rows[0])).toBe('11');
       expect(provider.resolveFieldValue({ dataBinding: 'groupMember.company' } as never, rows[0])).toBe('A AG');
       expect(provider.resolveFieldValue({ dataBinding: 'groupMember.firstName' } as never, rows[0])).toBe('Anna');

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -85,19 +84,19 @@ export class DataAssistantService {
       .pipe(retry(3));
   }
 
-  enableModel(modelId: string): Observable<any> {
+  enableModel(modelId: string): Observable<unknown> {
     return this.httpClient
       .post(`${this.baseUrl}models/${modelId}/enable`, {})
       .pipe(retry(3));
   }
 
-  disableModel(modelId: string): Observable<any> {
+  disableModel(modelId: string): Observable<unknown> {
     return this.httpClient
       .post(`${this.baseUrl}models/${modelId}/disable`, {})
       .pipe(retry(3));
   }
 
-  setDefaultModel(modelId: string): Observable<any> {
+  setDefaultModel(modelId: string): Observable<unknown> {
     return this.httpClient
       .post(`${this.baseUrl}models/${modelId}/set-default`, {})
       .pipe(retry(3));
@@ -145,7 +144,7 @@ export class DataAssistantService {
       .pipe(retry(3));
   }
 
-  deleteModel(id: string): Observable<any> {
+  deleteModel(id: string): Observable<unknown> {
     return this.httpClient.delete(`${this.baseUrl}models/${id}`).pipe(retry(3));
   }
 

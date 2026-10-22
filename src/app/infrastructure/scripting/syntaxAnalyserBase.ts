@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LexicalAnalyser } from './lexicalAnalyser';
 import { Symbol } from './symbol';
 import { Tokens } from './tokens.enum';
@@ -47,7 +46,7 @@ export abstract class SyntaxAnalyserBase {
     return tokenSet.indexOf(token) !== -1;
   }
 
-  protected actualOptionalParameter(defaultRenamed: any) {
+  protected actualOptionalParameter(defaultRenamed: string | number) {
     const token = this._symbol.token;
 
     if (

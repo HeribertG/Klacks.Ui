@@ -6,16 +6,14 @@
  * Pure functions for number validation and manipulation.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
  * Checks if a value is numeric.
  *
  * @param value - Value to check
  * @returns true if numeric, false otherwise
  */
-export function isNumeric(value: any): boolean {
-  return !isNaN(parseFloat(value)) && isFinite(value);
+export function isNumeric(value: unknown): boolean {
+  return !isNaN(parseFloat(String(value))) && isFinite(Number(value));
 }
 
 /**

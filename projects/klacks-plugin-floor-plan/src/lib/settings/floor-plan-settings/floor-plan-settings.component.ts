@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
   OnInit,
@@ -15,7 +14,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { FloorPlanSettingsRowComponent } from './floor-plan-settings-row/floor-plan-settings-row.component';
 import { DataManagementFloorPlanService } from '@floor-plan-plugin/application/services/data-management-floor-plan.service';
@@ -77,7 +76,7 @@ import { FloorPlanPointEditorService } from '@floor-plan-plugin/services/floor-p
 })
 export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorModal', { read: TemplateRef })
-  editorModal!: TemplateRef<any>;
+  editorModal!: TemplateRef<unknown>;
 
   dataManagement = inject(DataManagementFloorPlanService);
   canvasService = inject(FloorPlanCanvasService);
@@ -163,7 +162,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  async onSaveInModal(modal: any, closeAfterSave = false): Promise<void> {
+  async onSaveInModal(modal: Pick<NgbActiveModal, 'close'>, closeAfterSave = false): Promise<void> {
     if (!this.editingPlan || !this.editingPlan.name) return;
 
     const saveTarget = new FloorPlan();

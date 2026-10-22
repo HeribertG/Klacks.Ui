@@ -19,6 +19,7 @@ import { SettingsListReaderService } from 'src/app/domain/services/settings/sett
 import { Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
+import { EmailTestConfig } from 'src/app/domain/interfaces/email-test-config.interface';
 import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { AppSetting } from 'src/app/domain/models/settings/app-setting-class';
 import { AppContactSettings } from 'src/app/domain/models/settings/app-settings.model';
@@ -689,7 +690,7 @@ export class AppSettingsManagementService {
     await new Promise<void>((resolve) => this.saveCompletionResolvers.push(resolve));
   }
 
-  testEmailConfiguration(config: unknown): Observable<EmailTestResult> {
+  testEmailConfiguration(config: EmailTestConfig): Observable<EmailTestResult> {
     return this.dataSettingsService.testEmailConfiguration(config);
   }
 

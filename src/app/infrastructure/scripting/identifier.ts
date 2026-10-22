@@ -8,5 +8,5 @@ export class Identifier {
   public value: ScriptValue = ScriptValue.Null;
   public idType: IdentifierTypes = IdentifierTypes.idNone;
   public address = -1;
-  public formalParameters: Identifier[] = [];
+  public formalParameters: string[] = [];
 }

@@ -125,8 +125,7 @@ export class DataManagementGridSettingsService {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private saveSetting_sub(value: any, dummy: any, type: string) {
+  private saveSetting_sub(value: string, dummy: string, type: string) {
     if (value !== dummy) {
       const c = this.settingList.find((x) => x.type === type);
       if (c) {

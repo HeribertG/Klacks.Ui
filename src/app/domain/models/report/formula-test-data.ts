@@ -27,26 +27,31 @@ export class ScheduleWorkTestData {
   };
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export function createFormulaTestData(sourceId: string, dataSetIds: string[]): any {
+export type FormulaTestData = Record<string, unknown>;
+
+function asFormulaTestData(data: object): FormulaTestData {
+  return data as FormulaTestData;
+}
+
+export function createFormulaTestData(sourceId: string, dataSetIds: string[]): FormulaTestData {
   switch (sourceId) {
     case 'schedule': {
-      if (dataSetIds.includes('expenses')) return new ScheduleExpensesTestData();
-      return new ScheduleWorkTestData();
+      if (dataSetIds.includes('expenses')) return asFormulaTestData(new ScheduleExpensesTestData());
+      return asFormulaTestData(new ScheduleWorkTestData());
     }
-    case 'absence-gantt': return new AbsenceTestData();
-    case 'all-address': return new ClientTestData();
-    case 'group': return new GroupTestData();
-    default: return new ScheduleWorkTestData();
+    case 'absence-gantt': return asFormulaTestData(new AbsenceTestData());
+    case 'all-address': return asFormulaTestData(new ClientTestData());
+    case 'group': return asFormulaTestData(new GroupTestData());
+    default: return asFormulaTestData(new ScheduleWorkTestData());
   }
 }
 
-export function createFooterFormulaTestData(sourceId: string): any {
+export function createFooterFormulaTestData(sourceId: string): FormulaTestData {
   switch (sourceId) {
-    case 'schedule': return new ScheduleFooterTestData();
-    case 'absence-gantt': return new AbsenceFooterTestData();
-    case 'all-address': return new ClientFooterTestData();
-    case 'group': return new GroupFooterTestData();
-    default: return new ScheduleFooterTestData();
+    case 'schedule': return asFormulaTestData(new ScheduleFooterTestData());
+    case 'absence-gantt': return asFormulaTestData(new AbsenceFooterTestData());
+    case 'all-address': return asFormulaTestData(new ClientFooterTestData());
+    case 'group': return asFormulaTestData(new GroupFooterTestData());
+    default: return asFormulaTestData(new ScheduleFooterTestData());
   }
 }

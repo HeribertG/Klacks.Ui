@@ -28,7 +28,7 @@ describe('MessagingProvidersComponent - assistant setup offer after save', () =>
   };
   let toastSpy: { showSuccess: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
   let offerSetupHelp: ReturnType<typeof vi.fn>;
-  let modal: { close: ReturnType<typeof vi.fn> };
+  let modal: { close: ReturnType<typeof vi.fn<() => void>> };
 
   const SAVED_PROVIDER: MessagingProvider = {
     id: 'p1',
@@ -70,7 +70,7 @@ describe('MessagingProvidersComponent - assistant setup offer after save', () =>
     };
     toastSpy = { showSuccess: vi.fn(), showError: vi.fn() };
     offerSetupHelp = vi.fn();
-    modal = { close: vi.fn() };
+    modal = { close: vi.fn<() => void>() };
 
     TestBed.configureTestingModule({
       providers: [

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Tokens } from './tokens.enum';
 import { Opcodes } from './code';
 import { parsErrors } from './pars-errors.enum';
@@ -38,7 +37,11 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
         const currentToken = this.getNextSymbol().token;
 
         if (currentToken === Tokens.tokNumber || currentToken === Tokens.tokString) {
-          this._symbolTable.allocate(ident, this._symbol.value, IdentifierTypes.idConst);
+          this._symbolTable.allocate(
+            ident,
+            ScriptValue.fromObject(this._symbol.value),
+            IdentifierTypes.idConst
+          );
           this._code!.add(Opcodes.AllocConst, [ident, this._symbol.value]);
           this.getNextSymbol();
         } else {
@@ -134,7 +137,7 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
   }
 
   private subFunctionDefinition(): { isOk: boolean; skipFunctionPC: number } {
-    const formalParameters: any[] = [];
+    const formalParameters: string[] = [];
     const isSub = this._symbol.token === Tokens.tokSUB;
     let definition: Identifier = new Identifier();
     let skipFunctionPC = -1;

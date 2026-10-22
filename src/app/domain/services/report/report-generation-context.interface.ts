@@ -10,8 +10,8 @@ export interface ReportGenerationContext {
   provider: ReportDataProvider;
   data: ReportData;
   groupName: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   imageCache?: Map<string, string>;
   parameterValues?: ReportParameterValues;
 }

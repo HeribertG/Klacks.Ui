@@ -1,7 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
 import { Contract } from 'src/app/domain/models/contract/contract-class';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
@@ -337,7 +335,7 @@ export class DataManagementContractService {
       }
 
       return false;
-    } catch (error: any) {
+    } catch {
       if (this.editContract?.id) {
         await this.readContract(this.editContract.id);
       }

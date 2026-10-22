@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
+import { ShiftWithTempId } from 'src/app/domain/models/shift/shift-with-temp-id.interface';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
@@ -84,8 +84,8 @@ export class DataManagementShiftCutService
   }
 
   addCutShift(shift: Shift): void {
-    if (!shift.id || (shift as any).isNew) {
-      (shift as any).__tempId = crypto.randomUUID();
+    if (!shift.id || shift.isNew) {
+      (shift as ShiftWithTempId).__tempId = crypto.randomUUID();
     }
     this.cutShifts = [...this.cutShifts, shift];
   }
@@ -150,13 +150,13 @@ export class DataManagementShiftCutService
       .subscribe({
         next: (savedShifts) => {
           savedShifts.forEach((savedShift) => {
-            const tempId = (savedShift as any).__tempId;
+            const tempId = (savedShift as ShiftWithTempId).__tempId;
             if (tempId && savedShift.id) {
               this.shiftIdToTempId.set(savedShift.id, tempId);
             }
 
             const index = this.cutShifts.findIndex((cut) => {
-              const cutTempId = (cut as any).__tempId;
+              const cutTempId = (cut as ShiftWithTempId).__tempId;
               if (cutTempId && cutTempId === tempId) {
                 return true;
               }
@@ -234,7 +234,7 @@ export class DataManagementShiftCutService
         (dummy) => dummy.id === cut.id
       );
 
-      if (!existsInOriginal || !cut.id || (cut as any).isNew) {
+      if (!existsInOriginal || !cut.id || cut.isNew) {
         cut.status = ShiftStatus.SplitShift;
 
         const parentId = this.determineParentIdForCut(cut);

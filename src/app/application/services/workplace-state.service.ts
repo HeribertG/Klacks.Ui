@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Injectable,
   effect,
@@ -24,16 +23,24 @@ import {
 } from 'src/app/domain/enums/entity-names.enum';
 import { environment } from 'src/environments/environment';
 
-function isResettable(manager: any): manager is IResettable {
+function isResettable(manager: unknown): manager is IResettable {
   return (
-    manager &&
+    typeof manager === 'object' &&
+    manager !== null &&
+    'resetData' in manager &&
     typeof manager.resetData === 'function' &&
+    'isReset' in manager &&
     manager.isReset !== undefined
   );
 }
 
-function isNavigable(manager: any): manager is INavigable {
-  return manager && typeof manager.goBack === 'function';
+function isNavigable(manager: unknown): manager is INavigable {
+  return (
+    typeof manager === 'object' &&
+    manager !== null &&
+    'goBack' in manager &&
+    typeof manager.goBack === 'function'
+  );
 }
 
 @Injectable({
@@ -234,9 +241,8 @@ export class WorkplaceStateService implements IEntityStateProvider {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
       if (isSaveable(manager)) {
-        const managerAny = manager as any;
-        if (managerAny.isSaveAndClose !== undefined) {
-          managerAny.isSaveAndClose = isSaveAndClose;
+        if ('isSaveAndClose' in manager && manager.isSaveAndClose !== undefined) {
+          manager.isSaveAndClose = isSaveAndClose;
         }
 
         const existingCallback = manager.onSaveCompleted;

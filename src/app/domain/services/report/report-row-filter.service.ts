@@ -15,9 +15,8 @@ import { ReportSection } from 'src/app/domain/models/report/report-section.model
 import { buildParameterVariables, interpretFilterResult } from 'src/app/domain/helpers/report-parameter.helper';
 import { ReportDataProvider } from './report-data-provider.interface';
 import { ReportParameterContext } from './report-parameter-context.interface';
+import { ReportRow } from './report-row.type';
 import { FormulaEvaluationService } from './formula-evaluation.service';
-
-type ReportRow = Record<string, unknown>;
 
 @Injectable({ providedIn: 'root' })
 export class ReportRowFilterService {

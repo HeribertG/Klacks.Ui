@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AccountValidationErrors } from 'src/app/domain/models/auth/account-validation-errors.interface';
 import { Subject, timer, of } from 'rxjs';
 import { takeUntil, retry, catchError, tap, finalize } from 'rxjs/operators';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
@@ -114,7 +115,7 @@ export class UserAdministrationManagementService {
       });
   }
 
-  private handleAddAccountError(error: any, account: IAuthentication): void {
+  private handleAddAccountError(error: HttpErrorResponse, account: IAuthentication): void {
     console.error('User creation error:', error);
 
     if (error.status === 500) {
@@ -315,7 +316,9 @@ export class UserAdministrationManagementService {
 
   public generatedUsername = signal<string>('');
 
-  private mapValidationErrorToI18nKey(errorMessage: string | any): string {
+  private mapValidationErrorToI18nKey(
+    errorMessage: string | { errors?: AccountValidationErrors } | null | undefined
+  ): string {
     let errorKey = 'INVALID_USER_DATA';
 
     if (typeof errorMessage === 'string') {

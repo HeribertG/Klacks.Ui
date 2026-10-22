@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { LOCALE_PROVIDER } from 'src/app/domain/interfaces/locale-provider.interface';
 import { TranslateService } from '@ngx-translate/core';
@@ -44,6 +43,12 @@ import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language
 import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 
 import { ReportHeaderContext } from './report-header-context.interface';
+import { GroupReportRow } from 'src/app/domain/models/report/group-report-row.interface';
+import { AbsenceReportRow } from 'src/app/domain/models/report/absence-report-row.interface';
+import { ClientAvailabilityReportRow } from 'src/app/domain/models/report/client-availability-report-row.interface';
+import { ContainerTemplateReportRow } from 'src/app/domain/models/report/container-template-report-row.interface';
+import { IAddress } from 'src/app/domain/models/client/i-address';
+import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ReportDataProvider } from './report-data-provider.interface';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
@@ -104,15 +109,16 @@ export class ReportDataProviderService {
     }
   }
 
-  private applyClientSelection(rows: any[], selection?: IClientExportSelection): any[] {
+  private applyClientSelection<T extends { id?: string }>(rows: T[], selection?: IClientExportSelection): T[] {
     if (!selection || selection.selection.length === 0) {
       return rows;
     }
+    const isSelected = (row: T): boolean => selection.selection.some(id => id === row.id);
     if (!selection.selectAll && !selection.invertedSelection) {
-      return rows.filter(r => selection.selection.includes(r.id));
+      return rows.filter(isSelected);
     }
     if (selection.invertedSelection) {
-      return rows.filter(r => !selection.selection.includes(r.id));
+      return rows.filter(r => !isSelected(r));
     }
     return rows;
   }
@@ -149,7 +155,7 @@ export class ReportDataProviderService {
     }
   }
 
-  private scheduleProvider(dataSetIds: string[]): ReportDataProvider {
+  private scheduleProvider(dataSetIds: string[]): ReportDataProvider<IScheduleCell> {
     const entryTypes = this.mapDataSetIdsToEntryTypes(dataSetIds);
     return {
       fetchData: async (params) => {
@@ -248,7 +254,7 @@ export class ReportDataProviderService {
     };
   }
 
-  private absenceProvider(): ReportDataProvider {
+  private absenceProvider(): ReportDataProvider<AbsenceReportRow> {
     return {
       fetchData: async (params) => {
         await this.absenceLookup.loadIfNeeded();
@@ -278,10 +284,10 @@ export class ReportDataProviderService {
           })
         );
         const clients = params.clientId
-          ? response.clients.filter((c: any) => c.id === params.clientId)
+          ? response.clients.filter(c => c.id === params.clientId)
           : response.clients;
         const rows = clients.flatMap(client =>
-          (client.breakPlaceholders ?? []).map((bp: any) => ({
+          (client.breakPlaceholders ?? []).map(bp => ({
             ...bp,
             clientName: client.name,
             clientFirstName: client.firstName,
@@ -316,7 +322,7 @@ export class ReportDataProviderService {
       resolveFooterValue: (field, rows) => {
         if (field.dataBinding === 'absence.totalCount') return rows.length.toString();
         if (field.dataBinding === 'absence.totalValue') {
-          const total = rows.reduce((sum: number, row: any) => {
+          const total = rows.reduce((sum: number, row) => {
             const absence = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
             const defaultValue = absence?.defaultValue ?? 0;
             if (defaultValue > 0 && row.from && row.until) {
@@ -329,7 +335,7 @@ export class ReportDataProviderService {
         }
         return '';
       },
-      buildFormulaVariables: (row: any) => ({
+      buildFormulaVariables: (row) => ({
         fromDate: row.from ?? '',
         untilDate: row.until ?? '',
         absenceName: this.absenceLookup.getNameForEntryId(row.absenceId, this.translate.currentLang || DomainMessages.DEFAULT_LANG),
@@ -337,9 +343,9 @@ export class ReportDataProviderService {
         clientName: row.clientName ?? '',
         clientFirstName: row.clientFirstName ?? '',
       }),
-      buildFooterFormulaVariables: (rows: any[]) => ({
+      buildFooterFormulaVariables: (rows) => ({
         totalRows: rows.length,
-        totalValue: rows.reduce((sum: number, row: any) => {
+        totalValue: rows.reduce((sum: number, row) => {
           const absence = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
           const defaultValue = absence?.defaultValue ?? 0;
           if (defaultValue > 0 && row.from && row.until) {
@@ -352,7 +358,7 @@ export class ReportDataProviderService {
     };
   }
 
-  private allAddressProvider(): ReportDataProvider {
+  private allAddressProvider(): ReportDataProvider<IClient> {
     return {
       fetchData: async (params) => {
         const filter = params.clientFilter
@@ -377,6 +383,7 @@ export class ReportDataProviderService {
             companyAddress: undefined,
             invoiceAddress: undefined,
             homeAddress: undefined,
+            withoutGroup: false,
             countriesHaveBeenReadIn: false,
             countries: [],
             activeMembership: undefined,
@@ -390,7 +397,7 @@ export class ReportDataProviderService {
             externEmp: true,
             customer: true,
           };
-        const response = await firstValueFrom(this.clientService.readClientList(filter as any));
+        const response = await firstValueFrom(this.clientService.readClientList(filter));
         const rows = this.applyClientSelection(response.clients, params.clientSelection);
         return { rows, metadata: { totalCount: rows.length } };
       },
@@ -413,7 +420,7 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'client.totalCount') return rows.length.toString();
         return '';
       },
-      buildFormulaVariables: (row: any) => ({
+      buildFormulaVariables: (row) => ({
         idNumber: row.idNumber ?? 0,
         name: row.name ?? '',
         firstName: row.firstName ?? '',
@@ -421,7 +428,7 @@ export class ReportDataProviderService {
         birthdate: row.birthdate ?? '',
         gender: row.gender ?? 0,
       }),
-      buildFooterFormulaVariables: (rows: any[]) => ({
+      buildFooterFormulaVariables: (rows) => ({
         totalRows: rows.length,
       }),
       collectResolvedLabelTexts: () =>
@@ -429,7 +436,7 @@ export class ReportDataProviderService {
     };
   }
 
-  private editAddressProvider(): ReportDataProvider {
+  private editAddressProvider(): ReportDataProvider<IAddress> {
     const isCardVisible = (cardVisibility: Record<string, boolean> | undefined, card: string): boolean =>
       cardVisibility?.[card] !== false;
 
@@ -484,14 +491,14 @@ export class ReportDataProviderService {
         }
       },
       resolveFooterValue: () => '',
-      buildFormulaVariables: (row: any) => ({
+      buildFormulaVariables: (row) => ({
         type: row.type ?? 0,
         zip: row.zip ?? '',
         city: row.city ?? '',
         country: row.country ?? '',
         validFrom: row.validFrom ?? '',
       }),
-      buildFooterFormulaVariables: (rows: any[]) => ({
+      buildFooterFormulaVariables: (rows) => ({
         totalRows: rows.length,
       }),
       collectResolvedLabelTexts: () =>
@@ -514,7 +521,7 @@ export class ReportDataProviderService {
     };
   }
 
-  private clientAvailabilityListProvider(): ReportDataProvider {
+  private clientAvailabilityListProvider(): ReportDataProvider<ClientAvailabilityReportRow> {
     return {
       fetchData: async (params) => {
         const filter: IClientAvailabilityClientFilter = params.clientAvailabilityFilter
@@ -565,20 +572,20 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'client.totalCount') return rows.length.toString();
         return '';
       },
-      buildFormulaVariables: (row: any) => ({
+      buildFormulaVariables: (row) => ({
         name: row.name ?? '',
         firstName: row.firstName ?? '',
         company: row.company ?? '',
         totalHours: row.totalHours ?? 0,
         daysWithAvailability: row.daysWithAvailability ?? 0,
       }),
-      buildFooterFormulaVariables: (rows: any[]) => ({
+      buildFooterFormulaVariables: (rows) => ({
         totalRows: rows.length,
       }),
     };
   }
 
-  private editClientAvailabilityProvider(): ReportDataProvider {
+  private editClientAvailabilityProvider(): ReportDataProvider<IClientAvailabilityRange> {
     return {
       fetchData: async (params) => {
         if (!params.clientId || !params.startDate || !params.endDate) return { rows: [] };
@@ -615,7 +622,7 @@ export class ReportDataProviderService {
     };
   }
 
-  private groupProvider(): ReportDataProvider {
+  private groupProvider(): ReportDataProvider<GroupReportRow> {
     return {
       fetchData: async (params) => {
         const filter = params.groupFilter
@@ -631,7 +638,7 @@ export class ReportDataProviderService {
             showDeleteEntries: false,
             selectedGroup: params.groupId,
           };
-        const response = await firstValueFrom(this.groupService.readGroupList(filter as any));
+        const response = await firstValueFrom(this.groupService.readGroupList(filter));
         return { rows: response.groups, metadata: { totalCount: response.maxItems } };
       },
       resolveFieldValue: (field, row) => {
@@ -652,17 +659,17 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'group.totalCount') return rows.length.toString();
         return '';
       },
-      buildFormulaVariables: (row: any) => ({
+      buildFormulaVariables: (row) => ({
         name: row.name ?? '',
         parentName: row.parentName ?? '',
       }),
-      buildFooterFormulaVariables: (rows: any[]) => ({
+      buildFooterFormulaVariables: (rows) => ({
         totalRows: rows.length,
       }),
     };
   }
 
-  private editGroupProvider(): ReportDataProvider {
+  private editGroupProvider(): ReportDataProvider<IGroupItem> {
     return {
       fetchData: async (params) => {
         const groupId = params.groupId ?? (await this.resolveFallbackGroupId());
@@ -766,7 +773,7 @@ export class ReportDataProviderService {
       selectedGroup: undefined,
     };
     try {
-      const response = await firstValueFrom(this.groupService.readGroupList(filter as any));
+      const response = await firstValueFrom(this.groupService.readGroupList(filter));
       return response.groups?.[0]?.id;
     } catch {
       return undefined;
@@ -824,7 +831,7 @@ export class ReportDataProviderService {
       .join('\n');
   }
 
-  private shiftProvider(filterType: ShiftFilterType): ReportDataProvider {
+  private shiftProvider(filterType: ShiftFilterType): ReportDataProvider<IShift> {
     return {
       fetchData: async (params) => {
         const filter = params.shiftFilter
@@ -840,7 +847,7 @@ export class ReportDataProviderService {
             showDeleteEntries: false,
             filterType,
           };
-        const response = await firstValueFrom(this.shiftService.readShiftList(filter as any));
+        const response = await firstValueFrom(this.shiftService.readShiftList(filter));
         return { rows: response.shifts, metadata: { totalCount: response.maxItems } };
       },
       resolveFieldValue: (field, row) => {
@@ -863,21 +870,21 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'shift.totalCount') return rows.length.toString();
         return '';
       },
-      buildFormulaVariables: (row: any) => ({
+      buildFormulaVariables: (row) => ({
         name: row.name ?? '',
         abbreviation: row.abbreviation ?? '',
         workTime: row.workTime ?? 0,
         startShift: row.startShift ?? '',
         endShift: row.endShift ?? '',
       }),
-      buildFooterFormulaVariables: (rows: any[]) => ({
+      buildFooterFormulaVariables: (rows) => ({
         totalRows: rows.length,
-        totalWorkTime: rows.reduce((s: number, r: any) => s + (r.workTime ?? 0), 0),
+        totalWorkTime: rows.reduce((s: number, r) => s + (r.workTime ?? 0), 0),
       }),
     };
   }
 
-  private containerTemplateProvider(): ReportDataProvider {
+  private containerTemplateProvider(): ReportDataProvider<ContainerTemplateReportRow> {
     return {
       fetchData: async (params) => {
         if (!params.containerId) return { rows: [] };
@@ -993,7 +1000,7 @@ export class ReportDataProviderService {
     }
   }
 
-  private resolveClientType(type: number): string {
+  private resolveClientType(type: number | string): string {
     switch (Number(type)) {
       case EntityTypeEnum.employee: return this.translate.instant('address.edit-address.membership.type.employee');
       case EntityTypeEnum.externEmp: return this.translate.instant('address.edit-address.membership.type.externEmp');

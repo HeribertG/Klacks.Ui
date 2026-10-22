@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import { GroupFilter } from 'src/app/domain/models/group/group-filter-class';
+import { IGroupFilter } from 'src/app/domain/models/group/group-filter.interface';
 import { IGroup } from 'src/app/domain/models/group/group.interface';
 import { IGroupTree } from 'src/app/domain/models/group/group-tree.interface';
 import { ITruncatedGroup } from 'src/app/domain/models/group/truncated-group.interface';
@@ -17,7 +17,7 @@ import { defer, Observable } from 'rxjs';
 export class DataGroupService {
   private httpClient = inject(HttpClient);
 
-  readGroupList(filter: GroupFilter): Observable<ITruncatedGroup> {
+  readGroupList(filter: IGroupFilter): Observable<ITruncatedGroup> {
     return this.httpClient
       .post<ITruncatedGroup>(
         `${environment.baseUrl}Groups/GetSimpleList/`,

@@ -6,13 +6,12 @@
  * @param pdfUnicodeText - Applies bidi order (Hebrew/Arabic) and Thai mark positions to every drawn text
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTable, { Cell, CellDef, CellHookData, CellInput, FontStyle, HAlignType, RowInput } from 'jspdf-autotable';
 import { environment } from 'src/environments/environment';
 
 import { ReportTemplate, PAGE_SIZE_FORMATS } from '../../models/report/report-template.model';
@@ -27,6 +26,7 @@ import { selectRowsForSection } from '../../helpers/report-section-rows.helper';
 import { ReportDataProvider } from './report-data-provider.interface';
 import { ReportHeaderContext } from './report-header-context.interface';
 import { ReportData } from './report-data.interface';
+import { ReportRow } from './report-row.type';
 import { PdfRenderContext } from './pdf-render-context.interface';
 import { BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
 import { BorderLineStyle } from '../../models/report/border-line-style.enum';
@@ -102,11 +102,11 @@ export class ReportPdfService {
 
       const client = clients[index];
       const clientRows = client
-        ? allRows.filter((r: any) => r.clientId === client.id)
+        ? allRows.filter(r => this.readRowClientId(r) === client.id)
         : allRows;
 
       const headerContext: ReportHeaderContext = {
-        client,
+        client: client ?? undefined,
         groupName: context.groupName,
         startDate: data.metadata?.['startDate'] ?? context.startDate,
         endDate: data.metadata?.['endDate'] ?? context.endDate,
@@ -166,7 +166,7 @@ export class ReportPdfService {
     doc: jsPDF,
     template: ReportTemplate,
     provider: ReportDataProvider,
-    rows: any[],
+    rows: ReportRow[],
     headerContext: ReportHeaderContext,
     imageCache: Map<string, string>,
     parameterContext: ReportParameterContext
@@ -213,9 +213,9 @@ export class ReportPdfService {
   private resolveSectionRows(
     template: ReportTemplate,
     section: ReportSection,
-    rows: any[],
+    rows: ReportRow[],
     headerContext: ReportHeaderContext
-  ): any[] {
+  ): ReportRow[] {
     if (template.sourceId !== 'schedule') return rows;
     const filtered = selectRowsForSection(section, rows, template.sourceId);
     const sectionFlag = section.showFullPeriod;
@@ -474,7 +474,7 @@ export class ReportPdfService {
       .map(([rowIndex, rowFields]) => ({ rowIndex, fields: rowFields }));
   }
 
-  private renderTable(ctx: PdfRenderContext, section: ReportSection, rows: any[], yPos: number): number {
+  private renderTable(ctx: PdfRenderContext, section: ReportSection, rows: ReportRow[], yPos: number): number {
     const widthPercent = this.clampWidthPercent(section.widthPercent);
     const tableWidth = ctx.contentWidth * (widthPercent / 100);
 
@@ -512,7 +512,7 @@ export class ReportPdfService {
       });
     }
 
-    const bodyData: any[] = [];
+    const bodyData: RowInput[] = [];
     this.buildFreeTextRows(section, fields, 'before', bodyData);
 
     const sectionShowFullPeriod = section.showFullPeriod ?? ctx.template.showFullPeriod;
@@ -559,7 +559,7 @@ export class ReportPdfService {
         fillColor: [245, 245, 245],
       },
       theme: 'grid',
-      didParseCell: (data: any) => {
+      didParseCell: (data: CellHookData) => {
         const content = Array.isArray(data.cell.text) ? data.cell.text.join(' ') : String(data.cell.text ?? '');
         data.cell.styles.font = this.fontService.resolveFontFamily(
           ctx.doc,
@@ -574,7 +574,7 @@ export class ReportPdfService {
         if (colIndex < 0 || colIndex >= fields.length) return;
         this.applyStyleConditions(fields[colIndex], data.row.raw, data.cell, ctx.provider, ctx.parameterContext);
       },
-      didDrawCell: hasBorders ? (data: any) => {
+      didDrawCell: hasBorders ? (data: CellHookData) => {
         if (data.section !== 'body') return;
         const colIndex = data.column.index;
         if (colIndex < 0 || colIndex >= fields.length) return;
@@ -626,12 +626,12 @@ export class ReportPdfService {
 
   private resolveTableRows(
     fields: ReportField[],
-    rows: any[],
+    rows: ReportRow[],
     provider: ReportDataProvider,
     compiledFormulas: Map<string, ICompiledScript>,
     parameterContext: ReportParameterContext | undefined
-  ): { row: Record<string, string>; sourceEntry: any }[] {
-    const resolvedRows: { row: Record<string, string>; sourceEntry: any }[] = [];
+  ): { row: Record<string, string>; sourceEntry: ReportRow }[] {
+    const resolvedRows: { row: Record<string, string>; sourceEntry: ReportRow }[] = [];
     const parameterVars = buildParameterVariables(parameterContext?.parameters, parameterContext?.values);
     for (const entry of rows) {
       const row: Record<string, string> = {};
@@ -676,14 +676,14 @@ export class ReportPdfService {
   private readonly DAY_HEADER_BINDINGS = new Set(['entry.date', 'entry.weekday', 'expense.date']);
 
   private buildMergedRows(
-    resolvedRows: { row: Record<string, string>; sourceEntry: any }[],
+    resolvedRows: { row: Record<string, string>; sourceEntry: ReportRow }[],
     fields: ReportField[],
-    bodyData: any[]
+    bodyData: RowInput[]
   ): void {
     const groups = new Map<string, Record<string, string>[]>();
     const groupOrder: string[] = [];
     for (const { row, sourceEntry } of resolvedRows) {
-      const key = calendarDateKey(sourceEntry.entryDate);
+      const key = calendarDateKey(this.asScheduleCell(sourceEntry).entryDate);
       if (!groups.has(key)) {
         groups.set(key, []);
         groupOrder.push(key);
@@ -717,12 +717,12 @@ export class ReportPdfService {
   private buildGroupedRows(
     section: ReportSection,
     fields: ReportField[],
-    resolvedRows: { row: any }[],
-    bodyData: any[]
+    resolvedRows: { row: Record<string, string> }[],
+    bodyData: RowInput[]
   ): void {
     const groupBinding = section.groupBy!;
     const groupField = fields.find(f => f.dataBinding === groupBinding);
-    const groups = new Map<string, any[]>();
+    const groups = new Map<string, Record<string, string>[]>();
 
     for (const { row } of resolvedRows) {
       const key = String(row[groupBinding] ?? '');
@@ -764,9 +764,9 @@ export class ReportPdfService {
     return `${caption}  (${count})`;
   }
 
-  private buildSubtotalRow(fields: ReportField[], numericFields: ReportField[], groupRows: any[]): any[] {
+  private buildSubtotalRow(fields: ReportField[], numericFields: ReportField[], groupRows: Record<string, string>[]): RowInput {
     const label = this.translate.instant('setting.report.designer.groupSubtotal');
-    const row: any[] = fields.map(() => ({ content: '', styles: { fillColor: GROUP_FOOTER_FILL } }));
+    const row: CellDef[] = fields.map(() => ({ content: '', styles: { fillColor: GROUP_FOOTER_FILL } }));
 
     row[0] = {
       content: label,
@@ -796,7 +796,7 @@ export class ReportPdfService {
     section: ReportSection,
     fields: ReportField[],
     position: 'before' | 'after',
-    bodyData: any[]
+    bodyData: RowInput[]
   ): void {
     const freeRows = (section.freeTextRows ?? []).filter(r => r.position === position);
     for (const freeRow of freeRows) {
@@ -816,14 +816,14 @@ export class ReportPdfService {
   private buildTableFooter(
     section: ReportSection,
     fields: ReportField[],
-    rows: any[],
+    rows: ReportRow[],
     provider: ReportDataProvider,
     template: ReportTemplate,
     parameterContext: ReportParameterContext | undefined
-  ): any[][] | undefined {
+  ): RowInput[] | undefined {
     if (!section.tableFooterFields || section.tableFooterFields.length === 0) return undefined;
 
-    const footRow: any[] = fields.map(() => '');
+    const footRow: CellInput[] = fields.map(() => '');
     const footerFormulaVars = provider.buildFooterFormulaVariables
       ? {
           ...provider.buildFooterFormulaVariables(rows),
@@ -859,7 +859,7 @@ export class ReportPdfService {
     return [footRow];
   }
 
-  private drawCellBorders(doc: jsPDF, field: ReportField, cell: any): void {
+  private drawCellBorders(doc: jsPDF, field: ReportField, cell: Cell): void {
     const border = field.style.cellBorder!;
     const x = cell.x;
     const y = cell.y;
@@ -886,9 +886,9 @@ export class ReportPdfService {
 
       if (sideStyle.lineStyle === BorderLineStyle.Dashed) {
         doc.setLineWidth(lineWidth);
-        (doc as any).setLineDashPattern([1, 1], 0);
+        doc.setLineDashPattern([1, 1], 0);
         doc.line(side.x1, side.y1, side.x2, side.y2);
-        (doc as any).setLineDashPattern([], 0);
+        doc.setLineDashPattern([], 0);
       } else if (sideStyle.lineStyle === BorderLineStyle.Double) {
         doc.setLineWidth(0.1);
         const offset = 0.4;
@@ -911,7 +911,7 @@ export class ReportPdfService {
     return [rgb.r, rgb.g, rgb.b];
   }
 
-  private renderFooter(ctx: PdfRenderContext, section: ReportSection, rows: any[], yPos: number): void {
+  private renderFooter(ctx: PdfRenderContext, section: ReportSection, rows: ReportRow[], yPos: number): void {
     yPos += 3;
     ctx.doc.setDrawColor(100);
     ctx.doc.line(ctx.marginLeft, yPos, ctx.marginLeft + ctx.contentWidth, yPos);
@@ -1037,8 +1037,8 @@ export class ReportPdfService {
    */
   private applyStyleConditions(
     field: ReportField,
-    row: any,
-    cell: any,
+    row: ReportRow,
+    cell: Cell,
     provider: ReportDataProvider,
     parameterContext: ReportParameterContext | undefined
   ): void {
@@ -1102,7 +1102,7 @@ export class ReportPdfService {
     doc.line(x, lineY, x + textWidth, lineY);
   }
 
-  private resolveHalign(alignment: number): string {
+  private resolveHalign(alignment: number): HAlignType {
     const ltr = alignment === 0 ? 'left' : alignment === 1 ? 'center' : 'right';
     if (this.isRtl && ltr !== 'center') {
       return ltr === 'left' ? 'right' : 'left';
@@ -1110,11 +1110,19 @@ export class ReportPdfService {
     return ltr;
   }
 
-  private getJsPdfFontStyle(bold: boolean, italic: boolean): string {
+  private getJsPdfFontStyle(bold: boolean, italic: boolean): FontStyle {
     if (bold && italic) return 'bolditalic';
     if (bold) return 'bold';
     if (italic) return 'italic';
     return 'normal';
+  }
+
+  private asScheduleCell(row: ReportRow): IScheduleCell {
+    return row as IScheduleCell;
+  }
+
+  private readRowClientId(row: ReportRow): unknown {
+    return 'clientId' in row ? row.clientId : undefined;
   }
 
   private parseDMY(dmy: string): number {
@@ -1123,19 +1131,19 @@ export class ReportPdfService {
     return new Date(+parts[2], +parts[1] - 1, +parts[0]).getTime();
   }
 
-  private fillFullPeriod(rows: any[], startDate: string, endDate: string): any[] {
+  private fillFullPeriod(rows: ReportRow[], startDate: string, endDate: string): ReportRow[] {
     const start = parseCalendarDate(startDate);
     const end = parseCalendarDate(endDate);
     if (!start || !end) return rows;
-    const rowsByDate = new Map<string, any[]>();
+    const rowsByDate = new Map<string, ReportRow[]>();
 
     for (const row of rows) {
-      const key = calendarDateKey(row.entryDate);
+      const key = calendarDateKey(this.asScheduleCell(row).entryDate);
       if (!rowsByDate.has(key)) rowsByDate.set(key, []);
       rowsByDate.get(key)!.push(row);
     }
 
-    const result: any[] = [];
+    const result: ReportRow[] = [];
     for (let current = start; current <= end; current = addDays(current, 1)) {
       const key = calendarDateKey(current);
       const dayRows = rowsByDate.get(key);

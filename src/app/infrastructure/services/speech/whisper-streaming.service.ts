@@ -5,8 +5,8 @@
  * audio and transcribes it either as a whole blob or chunk-wise on detected silence.
  * @param silenceDurationMs - Silence duration before a chunk is transcribed; fed from the shared speech settings
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, signal } from '@angular/core';
+import type { AutomaticSpeechRecognitionOutput, AutomaticSpeechRecognitionPipeline } from '@huggingface/transformers';
 import { Subject, Observable } from 'rxjs';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 
@@ -14,7 +14,7 @@ import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constan
   providedIn: 'root',
 })
 export class WhisperStreamingService {
-  private pipeline: any = null;
+  private pipeline: AutomaticSpeechRecognitionPipeline | null = null;
   private mediaRecorder: MediaRecorder | null = null;
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
@@ -22,7 +22,7 @@ export class WhisperStreamingService {
 
   private audioChunks: Blob[] = [];
   private accumulatedText = '';
-  private silenceTimeout: any = null;
+  private silenceTimeout: ReturnType<typeof setTimeout> | null = null;
   private isProcessingChunk = false;
 
   private readonly SILENCE_THRESHOLD = 15;
@@ -40,7 +40,7 @@ export class WhisperStreamingService {
   private errors$ = new Subject<string>();
   private currentLanguage = SpeechDefaults.Locale;
   private lastChunkTime = 0;
-  private vadCheckInterval: any = null;
+  private vadCheckInterval: ReturnType<typeof setInterval> | null = null;
 
   get results(): Observable<string> {
     return this.results$.asObservable();
@@ -75,17 +75,23 @@ export class WhisperStreamingService {
     const audioUrl = URL.createObjectURL(blob);
     try {
       const whisperLanguage = this.mapLanguageCode(language);
-      const result = await this.pipeline(audioUrl, {
+      const result = await this.pipeline!(audioUrl, {
         language: whisperLanguage,
         task: 'transcribe',
         chunk_length_s: 30,
         stride_length_s: 5,
       });
-      return result?.text?.trim() ?? '';
+      return this.readTranscript(result)?.trim() ?? '';
     } finally {
       URL.revokeObjectURL(audioUrl);
       this.isTranscribing.set(false);
     }
+  }
+
+  private readTranscript(
+    result: AutomaticSpeechRecognitionOutput | AutomaticSpeechRecognitionOutput[] | undefined
+  ): string | undefined {
+    return Array.isArray(result) ? undefined : result?.text;
   }
 
   async loadModel(): Promise<boolean> {
@@ -104,19 +110,20 @@ export class WhisperStreamingService {
       env.allowLocalModels = false;
       env.useBrowserCache = true;
 
-      this.pipeline = await pipelineFunc(
+      const createdPipeline = await pipelineFunc(
         'automatic-speech-recognition',
         'onnx-community/whisper-tiny',
         {
           dtype: 'fp32',
           device: 'wasm',
-          progress_callback: (progress: any) => {
-            if (progress && typeof progress.progress === 'number') {
+          progress_callback: (progress) => {
+            if (progress && 'progress' in progress && typeof progress.progress === 'number') {
               this.loadProgress.set(Math.round(progress.progress));
             }
           },
-        } as any
+        }
       );
+      this.pipeline = createdPipeline;
 
       this.isModelLoaded.set(true);
       this.isLoading.set(false);
@@ -240,15 +247,16 @@ export class WhisperStreamingService {
       try {
         const whisperLanguage = this.mapLanguageCode(this.currentLanguage);
 
-        const result = await this.pipeline(audioUrl, {
+        const result = await this.pipeline!(audioUrl, {
           language: whisperLanguage,
           task: 'transcribe',
           chunk_length_s: 30,
           stride_length_s: 5,
         });
 
-        if (result && result.text && result.text.trim()) {
-          const newText = result.text.trim();
+        const resultText = this.readTranscript(result);
+        if (resultText && resultText.trim()) {
+          const newText = resultText.trim();
           if (this.accumulatedText) {
             this.accumulatedText += ' ' + newText;
           } else {

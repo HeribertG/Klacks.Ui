@@ -49,10 +49,10 @@ function buildTemplate(fields: ReportField[], extra: Record<string, unknown> = {
 
 const provider: ReportDataProvider = {
   fetchData: () => Promise.resolve({ rows: [] }),
-  resolveFieldValue: (f, row) => String(row[f.dataBinding] ?? ''),
+  resolveFieldValue: (f, row) => String((row as Record<string, unknown>)[f.dataBinding] ?? ''),
   resolveHeaderValue: () => '',
   resolveFooterValue: () => '',
-  buildFormulaVariables: (row) => ({ hours: row['entry.hours'] }),
+  buildFormulaVariables: (row) => ({ hours: (row as Record<string, unknown>)['entry.hours'] }),
 };
 
 describe('ReportXlsxService', () => {

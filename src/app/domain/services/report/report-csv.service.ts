@@ -22,6 +22,7 @@ import { ReportData } from './report-data.interface';
 import { ReportDataProvider } from './report-data-provider.interface';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportRowFilterService } from './report-row-filter.service';
+import { ReportRow } from './report-row.type';
 import { ReportParameterContext } from './report-parameter-context.interface';
 import { buildParameterVariables } from 'src/app/domain/helpers/report-parameter.helper';
 import { CSV_LINE_BREAK, CSV_UTF8_BOM, buildCsvRow, escapeCsvValue } from 'src/app/domain/helpers/csv.helper';
@@ -30,8 +31,6 @@ const LINE_BREAK = CSV_LINE_BREAK;
 const UTF8_BOM = CSV_UTF8_BOM;
 const CSV_MIME_TYPE = 'text/csv;charset=utf-8';
 const FORMULA_ERROR = '#ERR';
-
-type ReportRow = Record<string, unknown>;
 
 @Injectable({ providedIn: 'root' })
 export class ReportCsvService {

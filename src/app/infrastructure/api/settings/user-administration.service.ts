@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IAuthentication } from 'src/app/domain/models/authentication.interface';
@@ -88,9 +87,9 @@ export class UserAdministrationService {
       .pipe();
   }
 
-  requestPasswordReset(email: string): Observable<any> {
+  requestPasswordReset(email: string): Observable<unknown> {
     return this.httpClient
-      .post<any>(`${environment.baseUrl}Accounts/RequestPasswordReset`, {
+      .post<unknown>(`${environment.baseUrl}Accounts/RequestPasswordReset`, {
         email,
       })
       .pipe();

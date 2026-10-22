@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs/operators';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { EmailTestRequest } from 'src/app/domain/interfaces/email-test.interface';
+import { EmailTestConfig } from 'src/app/domain/interfaces/email-test-config.interface';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test-result.interface';
 import { ImapTestRequest } from 'src/app/domain/interfaces/imap-test-request.interface';
 import { environment } from 'src/environments/environment';
@@ -39,7 +39,7 @@ export class DataSettingsVariousService {
       .pipe();
   }
 
-  testEmailConfiguration(config: any): Observable<EmailTestResult> {
+  testEmailConfiguration(config: EmailTestConfig): Observable<EmailTestResult> {
     const emailTestRequest: EmailTestRequest = {
       server: config.server?.trim() || '',
       port: config.port?.trim() || '',

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -19,7 +18,7 @@ export class LocalStorageService {
     localStorage.removeItem(key);
   }
 
-  getJson(key: string): any {
+  getJson(key: string): unknown {
     const item = this.get(key);
     if (item) {
       return JSON.parse(item);
@@ -27,7 +26,7 @@ export class LocalStorageService {
     return null;
   }
 
-  setJson(key: string, value: any): void {
+  setJson(key: string, value: unknown): void {
     this.set(key, JSON.stringify(value));
   }
 

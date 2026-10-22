@@ -27,6 +27,7 @@ import { ReportData } from './report-data.interface';
 import { ReportDataProvider } from './report-data-provider.interface';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { ReportRowFilterService } from './report-row-filter.service';
+import { ReportRow } from './report-row.type';
 import { ReportParameterContext } from './report-parameter-context.interface';
 import { ReportWorkbook } from './report-workbook.interface';
 import { DataReportExportService } from 'src/app/infrastructure/api/report/data-report-export.service';
@@ -35,8 +36,6 @@ const FALLBACK_NAME = 'report';
 const FALLBACK_SHEET_NAME = 'Report';
 const FORMULA_ERROR = '#ERR';
 const XLSX_EXTENSION = '.xlsx';
-
-type ReportRow = Record<string, unknown>;
 
 @Injectable({ providedIn: 'root' })
 export class ReportXlsxService {

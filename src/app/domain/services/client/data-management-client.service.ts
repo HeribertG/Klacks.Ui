@@ -1,13 +1,16 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import {
   Filter,
   IClient,
   IClientAttribute,
+  ITruncatedClient,
 } from 'src/app/domain/models/client/client-class';
+import { CheckBoxValue } from 'src/app/domain/models/client/check-box-value';
+import { IPostCodeCH } from 'src/app/domain/models/client/i-post-code-ch';
+import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { ISaveable } from 'src/app/domain/interfaces/manageable.interface';
 import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { IRefreshable } from 'src/app/domain/interfaces/refreshable.interface';
@@ -66,7 +69,7 @@ export class DataManagementClientService
   public startToReadPage = signal(false);
   public returnUrl: string | null = null;
 
-  public lastChangeListWrapper = signal<any>(undefined);
+  public lastChangeListWrapper = signal<ITruncatedClient | undefined>(undefined);
   public subTitleLastChanges = signal('');
   public lastChangeMaxItems = signal<number | undefined>(undefined);
   public subTitleLastChangesAllAddress = signal('');
@@ -109,8 +112,8 @@ export class DataManagementClientService
   );
 
   public editClientDeleted = signal(false);
-  public lastCountries = signal<any[]>([]);
-  public filteredStateList = signal<any[]>([]);
+  public lastCountries = signal<IPostCodeCH[]>([]);
+  public filteredStateList = signal<StateCountryToken[]>([]);
   public editClientLastMutation = signal('');
 
   private _showProgressSpinner = computed(
@@ -179,7 +182,7 @@ export class DataManagementClientService
   public exportExcel = (type = 0) =>
     this.clientListService.exportExcel(this.currentFilter);
   public clearCheckedArray = () => this.clientListService.clearCheckedArray();
-  public addCheckBoxValueToArray = (value: any) =>
+  public addCheckBoxValueToArray = (value: CheckBoxValue) =>
     this.clientListService.addCheckBoxValueToArray(value);
   public findCheckBoxValue = (key: string) =>
     this.clientListService.findCheckBoxValue(key);
