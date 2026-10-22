@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { serializedDateReviver } from './serialized-date.helper';
-import { calendarDateKey } from '../../domain/helpers/calendar-date.helper';
+import { calendarDateKey } from './calendar-date.helper';
 import {
   activeJanuaryOffsetMinutes,
   CALENDAR_TEST_ZONES,

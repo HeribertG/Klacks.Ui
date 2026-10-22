@@ -21,7 +21,8 @@ import { ReportDefaultsService } from './report-defaults.service';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 import { QuickPrintRequest } from './quick-print-request.interface';
 import { QuickPrintOutcome } from './quick-print-outcome.enum';
-import { openPendingBlobTab, PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+import { BLOB_FILE_OPENER } from 'src/app/domain/interfaces/blob-file-opener.interface';
+import { PendingBlobTab } from 'src/app/domain/interfaces/pending-blob-tab.interface';
 
 const FALLBACK_FILE_NAME = 'report.pdf';
 
@@ -30,6 +31,7 @@ export class QuickPrintService {
   private reportApi = inject(DataReportApiService);
   private parentInjector = inject(EnvironmentInjector);
   private reportDefaults = inject(ReportDefaultsService);
+  private blobFileOpener = inject(BLOB_FILE_OPENER);
 
   async ensureDefaultsLoaded(): Promise<void> {
     if (!this.reportDefaults.isLoaded()) {
@@ -42,7 +44,7 @@ export class QuickPrintService {
   }
 
   async print(request: QuickPrintRequest): Promise<QuickPrintOutcome> {
-    const pendingTab = openPendingBlobTab();
+    const pendingTab = this.blobFileOpener.openPendingBlobTab();
     let outcome = QuickPrintOutcome.Failed;
     try {
       outcome = await this.printInto(request, pendingTab);

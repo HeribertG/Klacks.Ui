@@ -9,7 +9,7 @@ import { Injectable, inject, TemplateRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
+import { resolveItemStartTime } from 'src/app/domain/helpers/container-template-format.helper';
 import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';

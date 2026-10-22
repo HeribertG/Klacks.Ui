@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
@@ -18,7 +18,7 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',

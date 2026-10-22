@@ -26,8 +26,8 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
 import {
   timeToString,
   timeToMinutes,
-} from 'src/app/shared/helpers/time-format.helper';
-import { convertShiftToContainerTemplateItem } from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/time-format.helper';
+import { convertShiftToContainerTemplateItem } from 'src/app/domain/helpers/container-template-format.helper';
 
 @Injectable()
 export class ContainerTemplateShiftOperationsService {

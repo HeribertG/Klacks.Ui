@@ -191,18 +191,10 @@ export function isTableViolation(edge: ILayerEdge): boolean {
   return !ALLOWED_LAYER_DEPENDENCIES[fromZone].includes(toZone);
 }
 
-/**
- * Edges the table allows but that stay frozen all the same: shared -> domain keeps domain and shared in a cycle
- * (domain imports shared helpers), so it is listed with the legacy violations until the two are untangled.
- */
-export function isFrozenAllowedEdge(edge: ILayerEdge): boolean {
-  return edge.fromZone === 'shared' && edge.toZone === 'domain';
-}
-
 export function legacyViolationMap(edges: readonly ILayerEdge[]): Record<string, Layer[]> {
   const map: Record<string, Set<Layer>> = {};
   for (const edge of edges) {
-    if ((isTableViolation(edge) || isFrozenAllowedEdge(edge)) && !isZeroToleranceViolation(edge)) {
+    if (isTableViolation(edge) && !isZeroToleranceViolation(edge)) {
       (map[edge.file] ??= new Set<Layer>()).add(edge.toZone as Layer);
     }
   }

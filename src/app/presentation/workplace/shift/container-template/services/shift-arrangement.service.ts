@@ -3,7 +3,7 @@
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
-import { formatTimeFromMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { formatTimeFromMinutes } from 'src/app/domain/helpers/time-format.helper';
 
 @Injectable()
 export class ShiftArrangementService {

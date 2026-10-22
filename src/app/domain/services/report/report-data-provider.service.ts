@@ -18,7 +18,7 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
-import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { hoursToHHMM, timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { daysBetweenDates } from 'src/app/domain/helpers/date.helper';
 import { calendarDateKey, companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
@@ -32,7 +32,7 @@ import { IGroupItem } from 'src/app/domain/models/group/group-item.interface';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection.interface';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
-import { htmlToPlainText } from 'src/app/shared/helpers/html-sanitizer.helper';
+import { HTML_TEXT_CONVERTER } from 'src/app/domain/interfaces/html-text-converter.interface';
 import { IClient, ICommunication, IClientContract } from 'src/app/domain/models/client/client-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
@@ -40,7 +40,7 @@ import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-av
 import { IClientAvailabilityRange } from 'src/app/domain/models/client-availability/client-availability-range.interface';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
-import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
+import { formatPhoneNumber } from 'src/app/domain/helpers/phone.helper';
 
 import { ReportHeaderContext } from './report-header-context.interface';
 import { GroupReportRow } from 'src/app/domain/models/report/group-report-row.interface';
@@ -76,6 +76,7 @@ const FULL_LIST_PAGINATION = {
 @Injectable()
 export class ReportDataProviderService {
   private translate = inject(TranslateService);
+  private htmlTextConverter = inject(HTML_TEXT_CONVERTER);
   private localeProvider = inject(LOCALE_PROVIDER);
   private workScheduleService = inject(DataWorkScheduleService);
   private breakPlaceholderService = inject(DataBreakPlaceholderService);
@@ -708,7 +709,7 @@ export class ReportDataProviderService {
         const treeNode = context.metadata?.['treeNode'] as IGroup | undefined;
         switch (field.dataBinding) {
           case 'group.name': return group?.name ?? '';
-          case 'group.description': return this.withSummaryLabel('setting.report.field.groupDescription', htmlToPlainText(group?.description ?? ''));
+          case 'group.description': return this.withSummaryLabel('setting.report.field.groupDescription', this.htmlTextConverter.htmlToPlainText(group?.description ?? ''));
           case 'group.validFrom': return this.withInlineLabel('setting.report.field.groupValidFrom', this.formatDate(group?.validFrom));
           case 'group.validUntil': return this.withInlineLabel('setting.report.field.groupValidUntil', this.formatDate(group?.validUntil));
           case 'group.path': return this.withInlineLabel('setting.report.field.groupPath', this.buildGroupPath(path, group));

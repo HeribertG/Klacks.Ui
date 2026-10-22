@@ -33,7 +33,7 @@ import { Break } from '../../models/break/break-class';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ErrorEvent } from 'src/app/domain/events/domain-events';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';

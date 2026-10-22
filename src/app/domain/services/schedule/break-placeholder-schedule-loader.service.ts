@@ -10,7 +10,7 @@ import { IWorkFilter } from 'src/app/domain/models/schedule/work-filter.interfac
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { addDays, formatDateOnly } from 'src/app/domain/helpers/date.helper';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',

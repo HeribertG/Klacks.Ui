@@ -54,8 +54,8 @@ import {
   isSupplementaryExport,
   parseExportPersonCount,
   parseSkippedEntryCount,
-  triggerBlobDownload,
-} from 'src/app/shared/helpers/file-download.helper';
+} from 'src/app/domain/helpers/download-response-header.helper';
+import { triggerBlobDownload } from 'src/app/shared/helpers/file-download.helper';
 import { OrderRangeExportSectionComponent } from './order-range-export-section/order-range-export-section.component';
 import { DEFAULT_EXPORT_FORMAT } from './export-format-options.constants';
 import { FORMAT_LABEL_PREFIX } from 'src/app/domain/constants/export-format-label.constants';

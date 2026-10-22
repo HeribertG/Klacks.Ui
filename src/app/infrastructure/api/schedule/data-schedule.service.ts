@@ -6,7 +6,7 @@ import { IWork } from 'src/app/domain/models/schedule/work.interface';
 import { environment } from 'src/environments/environment';
 import { defer, retry } from 'rxjs';
 import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
-import { retryTransientHttpErrors } from 'src/app/shared/helpers/http-retry.helper';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 import { HttpClient } from '@angular/common/http';
 import { BulkDeleteWorksRequest } from 'src/app/domain/models/dtos/bulk-delete-works-request.dto';
 import { BulkAddWorksRequest } from 'src/app/domain/models/dtos/bulk-add-works-request.dto';

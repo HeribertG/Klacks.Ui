@@ -13,7 +13,7 @@ import { IIndustryTemplateSchedulingRuleEntry } from 'src/app/domain/models/sett
 import { IIndustryTemplateRuleDetailRow } from 'src/app/domain/models/settings/industry-template-rule-detail-row.interface';
 import { IIndustryTemplateRuleDetailGroup } from 'src/app/domain/models/settings/industry-template-rule-detail-group.interface';
 import { IIndustryTemplateOvertimeLabels } from 'src/app/domain/models/settings/industry-template-overtime-labels.interface';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from './time-format.helper';
 
 const RATE_PERCENT_MULTIPLIER = 100;
 const OVERTIME_RATE_MODE_MULTIPLIER = 'Multiplier';

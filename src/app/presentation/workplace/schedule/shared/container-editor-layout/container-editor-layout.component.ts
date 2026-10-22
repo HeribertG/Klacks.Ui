@@ -49,11 +49,11 @@ import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicyc
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { DirectionService } from 'src/app/application/services/direction.service';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import {
   formatClientWithAddress,
   formatWorkTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/container-template-format.helper';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';

@@ -7,7 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { CalendarDatePipe } from 'src/app/shared/pipes/calendar-date/calendar-date.pipe';
 
 @Component({

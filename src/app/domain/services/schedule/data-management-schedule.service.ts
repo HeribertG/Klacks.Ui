@@ -33,7 +33,7 @@ import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.inte
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/shared/helpers/object.helper';
+} from 'src/app/domain/helpers/object.helper';
 import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';

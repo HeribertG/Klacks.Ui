@@ -6,7 +6,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { IBranch } from 'src/app/domain/models/settings/branch.interface';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 @Injectable({

@@ -10,7 +10,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from 'src/app/domain/helpers/date.helper';
-import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
+import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';

@@ -17,7 +17,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { formatTime, formatTimeFromMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime, formatTimeFromMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { IOpenTimeRangeWorkOptions } from './open-time-range-work-options.interface';
 import {
   defaultTimeRangePlacement,

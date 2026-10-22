@@ -22,7 +22,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchService } from 'src/app/application/services/search.service';
-import { isNumeric, isMultipleNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric, isMultipleNumeric } from 'src/app/domain/helpers/number.helper';
 
 const MIN_SEARCH_LENGTH = 3;
 const DEBOUNCE_DELAY_MS = 2000;

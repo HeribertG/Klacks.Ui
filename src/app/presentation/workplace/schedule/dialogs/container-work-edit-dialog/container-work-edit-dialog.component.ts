@@ -56,11 +56,11 @@ import {
   absenceDurationMinutes,
   formatTime,
   timeToMinutes,
-} from 'src/app/shared/helpers/time-format.helper';
+} from 'src/app/domain/helpers/time-format.helper';
 import {
   formatClientWithAddress,
   formatWorkTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/container-template-format.helper';
 import { ContainerTemplateShiftOperationsService } from '../../../shift/container-template/services/container-template-shift-operations.service';
 import { ContainerTemplateDragDropService } from '../../../shift/container-template/services/container-template-drag-drop.service';
 import { ContainerTemplatePropertiesService } from '../../../shift/container-template/services/container-template-properties.service';

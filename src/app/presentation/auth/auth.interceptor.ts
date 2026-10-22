@@ -14,7 +14,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { environment } from 'src/environments/environment';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
-import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
+import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {

@@ -5,11 +5,11 @@ import { DisplayRange } from './display-range.interface';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import {
   resolveItemEndTime,
   resolveItemStartTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/container-template-format.helper';
 
 @Injectable({
   providedIn: 'root',

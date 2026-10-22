@@ -26,7 +26,7 @@ import { ContainerTemplateRouteService } from 'src/app/presentation/workplace/sh
 import { ContainerTransportModeEnum, TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
-import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
+import { sortContainerItemsChronologically } from 'src/app/domain/helpers/container-template-sort.helper';
 import { HttpErrorResponse } from '@angular/common/http';
 import { WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
 import { IOpenContainerShiftOverrideOptions } from '../open-container-shift-override-options';

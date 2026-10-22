@@ -7,6 +7,7 @@ import { QuickPrintService } from './quick-print.service';
 import { QuickPrintOutcome } from './quick-print-outcome.enum';
 import { ReportDefaultsService } from './report-defaults.service';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('QuickPrintService', () => {
   let service: QuickPrintService;
@@ -29,6 +30,7 @@ describe('QuickPrintService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         { provide: DataReportApiService, useValue: reportApi },
         { provide: ReportDefaultsService, useValue: defaults },
       ],

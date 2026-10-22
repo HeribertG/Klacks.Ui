@@ -27,7 +27,7 @@ import {
   localeNumericDatePattern,
 } from 'src/app/domain/helpers/locale-date-format.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric } from 'src/app/domain/helpers/number.helper';
 
 type DateField = 'day' | 'month' | 'year';
 

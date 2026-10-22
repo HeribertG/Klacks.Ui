@@ -11,15 +11,15 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
-import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
+import { formatClientDisplayName } from 'src/app/domain/helpers/client-name.helper';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../enums/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { TranslateService } from '@ngx-translate/core';
 import { ILoadable } from 'src/app/domain/interfaces/loadable.interface';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { formatCalendarDate } from 'src/app/domain/helpers/locale-date-format.helper';
 

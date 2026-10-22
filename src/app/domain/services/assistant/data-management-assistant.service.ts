@@ -50,7 +50,7 @@ import { DataAssistantStreamService } from 'src/app/infrastructure/api/assistant
 import { StreamCallbacks } from 'src/app/domain/models/assistant/stream-callbacks.interface';
 import { StreamMetadata } from 'src/app/domain/models/assistant/stream-metadata.interface';
 import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
-import { decodeJwtPayload } from 'src/app/shared/helpers/jwt.helper';
+import { decodeJwtPayload } from 'src/app/domain/helpers/jwt.helper';
 import { ITurnOptionsRequest } from 'src/app/domain/models/assistant/turn-options.interface';
 import { IConversation } from './conversation.interface';
 import { ITurnOption } from 'src/app/domain/models/assistant/turn-option.interface';

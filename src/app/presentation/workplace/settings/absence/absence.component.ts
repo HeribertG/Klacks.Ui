@@ -29,7 +29,7 @@ import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService } from 'src/app/presentation/modal/modal.service';

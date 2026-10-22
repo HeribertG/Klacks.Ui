@@ -39,7 +39,7 @@ import { ReplacementRequestOutcome } from 'src/app/domain/enums/replacement-requ
 import { IReplacementCandidate } from 'src/app/domain/interfaces/replacement-candidate.interface';
 import { IReplacementRequest } from 'src/app/domain/interfaces/replacement-request.interface';
 import { isReplacementRequestApplied } from 'src/app/domain/helpers/replacement-request-applied.helper';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { RecoveryOutcomeButtonsComponent } from './recovery-outcome-buttons/recovery-outcome-buttons.component';
 import { RecoveryAlternativesStatus } from './recovery-alternatives-status.enum';
 import { IRecoveryAlternativesState } from './recovery-alternatives-state.interface';

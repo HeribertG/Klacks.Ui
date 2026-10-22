@@ -15,7 +15,7 @@ import { MacroManagementService } from './macro-management.service';
 import { CountryStateManagementService } from './country-state-management.service';
 import { BranchManagementService } from './branch-management.service';
 import { GridColorService } from './grid-color.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 const PERCENTAGE_FACTOR = 100;
 

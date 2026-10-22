@@ -23,7 +23,7 @@ import { ContainerTemplateSlotCalculationService } from './container-template-sl
 import { ContainerTemplateShiftService } from './container-template-shift.service';
 import { IWeekdayContainerTemplateItemsMap } from './weekday-container-template-items-map.interface';
 import { ContainerTaskService } from './container-task.service';
-import { sortContainerItemsChronologically } from '../../../shared/helpers/container-template-sort.helper';
+import { sortContainerItemsChronologically } from 'src/app/domain/helpers/container-template-sort.helper';
 import { ISaveable } from '../../interfaces/manageable.interface';
 import { IResettable } from '../../interfaces/resettable.interface';
 import { ILoadable } from '../../interfaces/loadable.interface';
@@ -33,8 +33,8 @@ import { RouteName } from '../../enums/entity-names.enum';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/shared/helpers/object.helper';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+} from 'src/app/domain/helpers/object.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',

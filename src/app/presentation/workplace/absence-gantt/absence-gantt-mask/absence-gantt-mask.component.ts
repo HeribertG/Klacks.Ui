@@ -29,7 +29,7 @@ import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/b
 import { addDays } from 'src/app/domain/helpers/date.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Language } from 'src/app/domain/models/settings/language.type';
 import { DomainMessages } from 'src/app/domain/constants/messages';

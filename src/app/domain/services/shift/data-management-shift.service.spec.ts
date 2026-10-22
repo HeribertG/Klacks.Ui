@@ -13,7 +13,7 @@ import { DataManagementCalendarSelectionService } from 'src/app/domain/services/
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { SessionStorageService } from 'src/app/infrastructure/storage/session-storage.service';
 import { environment } from 'src/environments/environment';

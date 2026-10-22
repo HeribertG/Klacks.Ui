@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.model';
 import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/restricted-time-window-rule.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 
 @Component({
   selector: 'app-restricted-time-window-rule-row',

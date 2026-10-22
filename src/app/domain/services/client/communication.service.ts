@@ -6,7 +6,7 @@ import {
   IClient,
   Communication,
 } from 'src/app/domain/models/client/client-class';
-import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
+import { formatPhoneNumber } from 'src/app/domain/helpers/phone.helper';
 import { ClientConfigService } from './client-config.service';
 
 @Injectable({

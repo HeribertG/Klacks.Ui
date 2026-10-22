@@ -11,7 +11,7 @@ import { ReportGenerationContext } from './report-generation-context.interface';
 import { ReportService } from './report.service';
 import { AbsenceLookupService } from '../schedule/absence-lookup.service';
 import { ReportDefaultsService } from './report-defaults.service';
-import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+import { BLOB_FILE_OPENER } from 'src/app/domain/interfaces/blob-file-opener.interface';
 
 const FALLBACK_FILE_NAME = 'report.pdf';
 
@@ -21,12 +21,13 @@ export class ScheduleReportContextService {
   private scheduleReportApi = inject(DataScheduleReportApiService);
   private parentInjector = inject(EnvironmentInjector);
   private reportDefaults = inject(ReportDefaultsService);
+  private blobFileOpener = inject(BLOB_FILE_OPENER);
 
   async generateForClient(clientId: string, clientName: string, startDate: string, endDate: string): Promise<void> {
     const templateId = this.reportDefaults.getDefaultTemplateId('schedule');
     if (!templateId) return;
 
-    const pendingTab = openPendingBlobTab();
+    const pendingTab = this.blobFileOpener.openPendingBlobTab();
     let childInjector: EnvironmentInjector | undefined;
     try {
       const template = await this.reportApi.getTemplateById(templateId);

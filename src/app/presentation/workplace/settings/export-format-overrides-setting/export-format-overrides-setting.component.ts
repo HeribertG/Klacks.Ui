@@ -34,8 +34,8 @@ import { VersionWarning } from './version-warning.interface';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
-  triggerBlobDownload,
-} from 'src/app/shared/helpers/file-download.helper';
+} from 'src/app/domain/helpers/download-response-header.helper';
+import { triggerBlobDownload } from 'src/app/shared/helpers/file-download.helper';
 
 const FAMILY_SORT_ORDER: ExportFormatFamily[] = [
   ExportFormatFamilies.Order,

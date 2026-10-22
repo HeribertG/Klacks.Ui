@@ -11,7 +11,7 @@
  * @param workTimeHours - The shift's engagement duration in hours
  */
 
-import { formatTimeFromMinutes, timeToMinutes, workingTimeDurationMinutes } from './time-format.helper';
+import { formatTimeFromMinutes, timeToMinutes, workingTimeDurationMinutes } from 'src/app/domain/helpers/time-format.helper';
 
 const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;

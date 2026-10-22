@@ -37,7 +37,7 @@ import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { deleteConfirmations } from 'src/app/presentation/shared/modal/delete-confirmation.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { IndividualPeriodFormModel } from './individual-period-form-model.interface';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
 

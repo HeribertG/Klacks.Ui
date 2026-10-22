@@ -5,7 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { AbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail.interface';
 import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',

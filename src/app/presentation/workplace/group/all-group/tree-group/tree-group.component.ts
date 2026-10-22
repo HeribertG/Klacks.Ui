@@ -32,7 +32,7 @@ import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refres
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';

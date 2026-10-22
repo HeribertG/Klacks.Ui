@@ -7,7 +7,7 @@
  */
 import { Injectable, signal } from '@angular/core';
 import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 const ALL_GROUPS_VIRTUAL_ID = 'all-groups-virtual';
 

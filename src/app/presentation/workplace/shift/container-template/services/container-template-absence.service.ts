@@ -18,9 +18,9 @@ import { ContainerTemplateShiftOperationsService } from './container-template-sh
 import {
   timeToString,
   timeToMinutes,
-} from 'src/app/shared/helpers/time-format.helper';
+} from 'src/app/domain/helpers/time-format.helper';
 
-import { resolveItemEndTime } from 'src/app/shared/helpers/container-template-format.helper';
+import { resolveItemEndTime } from 'src/app/domain/helpers/container-template-format.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 const ABSENCE_DEFAULT_DURATION_MINUTES = 15;

@@ -11,7 +11,7 @@ import { DataCountryStateService } from 'src/app/infrastructure/api/settings/dat
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric } from 'src/app/domain/helpers/number.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 

@@ -68,7 +68,7 @@ import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-s
 import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { SCHEDULING_DEFAULT_MIN_REST_HOURS } from 'src/app/domain/constants/scheduling-policy-defaults.constants';
 import { SettingsModels } from './settings-models.interface';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 
 const SAVE_SETTING_FAILED_MESSAGE = 'Failed to save app setting:';
 

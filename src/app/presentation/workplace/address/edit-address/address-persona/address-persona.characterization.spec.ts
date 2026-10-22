@@ -39,7 +39,7 @@ import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-s
 import { AddressTypeEnum, EntityTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { Address, ICommunication, IClient } from 'src/app/domain/models/client/client-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
+import { formatPhoneNumber } from 'src/app/domain/helpers/phone.helper';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,

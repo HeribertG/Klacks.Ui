@@ -5,12 +5,12 @@ import { Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GridThemeService } from './grid-theme.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 
 @Injectable({
   providedIn: 'root',

@@ -10,7 +10,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { environment } from 'src/environments/environment';
 import { DataAuthService } from '../api/data-auth.service';
-import { isJwtExpired } from 'src/app/shared/helpers/jwt.helper';
+import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
 
 export class SignalRTokenHelper {
   constructor(

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { inject, Injectable, signal } from '@angular/core';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { IMacro } from 'src/app/domain/models/settings/macro.interface';
 import { DataMacroService } from 'src/app/infrastructure/api/settings/data-macro.service';
@@ -35,7 +35,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({

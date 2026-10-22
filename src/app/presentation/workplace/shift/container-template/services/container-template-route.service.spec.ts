@@ -23,7 +23,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ContainerTemplateRouteService } from './container-template-route.service';
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { ITimeBlock } from 'src/app/domain/services/time-block.interface';
 import { ITimeBlockResult } from 'src/app/domain/services/time-block-result.interface';

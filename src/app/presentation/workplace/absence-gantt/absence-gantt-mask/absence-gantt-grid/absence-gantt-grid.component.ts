@@ -36,7 +36,7 @@ import { ReportGenerationContext } from 'src/app/domain/services/report/report-g
 import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { ReportData } from 'src/app/domain/services/report/report-data.interface';
 import { ReportService } from 'src/app/domain/services/report/report.service';
-import { PendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
+import { PendingBlobTab } from 'src/app/domain/interfaces/pending-blob-tab.interface';
 import { ReportType } from 'src/app/domain/models/report/report-type.enum';
 import { ReportTemplateResolverService } from 'src/app/domain/services/report/report-template-resolver.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';

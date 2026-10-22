@@ -7,32 +7,30 @@
  * @param url - Object URL created by createPreviewUrl and released again by revokePreviewUrl
  */
 
-import { Injectable } from '@angular/core';
-import {
-  openBlobInNewTab,
-  openPendingBlobTab,
-  PendingBlobTab,
-  triggerBlobDownload,
-} from 'src/app/shared/helpers/file-download.helper';
+import { inject, Injectable } from '@angular/core';
+import { BLOB_FILE_OPENER } from 'src/app/domain/interfaces/blob-file-opener.interface';
+import { PendingBlobTab } from 'src/app/domain/interfaces/pending-blob-tab.interface';
 
 const FALLBACK_FILE_NAME = 'report.pdf';
 
 @Injectable()
 export class ReportService {
+  private blobFileOpener = inject(BLOB_FILE_OPENER);
+
   downloadPdf(blob: Blob, fileName: string): void {
-    triggerBlobDownload(blob, fileName);
+    this.blobFileOpener.triggerBlobDownload(blob, fileName);
   }
 
   downloadJson(content: string, fileName: string): void {
-    triggerBlobDownload(new Blob([content], { type: 'application/json' }), fileName);
+    this.blobFileOpener.triggerBlobDownload(new Blob([content], { type: 'application/json' }), fileName);
   }
 
   downloadCsv(blob: Blob, fileName: string): void {
-    triggerBlobDownload(blob, fileName);
+    this.blobFileOpener.triggerBlobDownload(blob, fileName);
   }
 
   downloadXlsx(blob: Blob, fileName: string): void {
-    triggerBlobDownload(blob, fileName);
+    this.blobFileOpener.triggerBlobDownload(blob, fileName);
   }
 
   createPreviewUrl(blob: Blob): string {
@@ -46,10 +44,10 @@ export class ReportService {
   }
 
   openPendingPdfTab(): PendingBlobTab {
-    return openPendingBlobTab();
+    return this.blobFileOpener.openPendingBlobTab();
   }
 
   openPdfPreview(blob: Blob, fileName: string = FALLBACK_FILE_NAME): void {
-    openBlobInNewTab(blob, fileName);
+    this.blobFileOpener.openBlobInNewTab(blob, fileName);
   }
 }

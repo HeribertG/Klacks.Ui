@@ -40,11 +40,11 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 import {
   timeToString,
   timeToMinutes,
-} from 'src/app/shared/helpers/time-format.helper';
+} from 'src/app/domain/helpers/time-format.helper';
 import {
   convertShiftToContainerTemplateItem,
   resolveItemStartTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/container-template-format.helper';
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
 import { AutofillRequest } from './autofill-request.interface';

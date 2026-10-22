@@ -14,7 +14,7 @@ import { RouteOptimizationData } from './route-optimization-data.interface';
 import {
   formatTimeFromMinutes,
   timeToMinutes,
-} from 'src/app/shared/helpers/time-format.helper';
+} from 'src/app/domain/helpers/time-format.helper';
 
 @Injectable()
 export class ContainerTemplateItemManipulationService {

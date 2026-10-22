@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { AssetDownloadService } from './asset-download.service';
+import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 describe('AssetDownloadService', () => {
   let service: AssetDownloadService;
@@ -22,6 +23,7 @@ describe('AssetDownloadService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        ...APP_PORT_BINDINGS,
         AssetDownloadService,
         { provide: HttpClient, useValue: mockHttp },
       ],

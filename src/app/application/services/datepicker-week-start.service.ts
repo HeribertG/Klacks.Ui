@@ -14,7 +14,7 @@ import { NgbDatepickerConfig } from '@ng-bootstrap/ng-bootstrap';
 
 import { LocaleService } from './locale.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
-import { resolveNgbFirstDayOfWeek } from 'src/app/shared/helpers/week-start.helper';
+import { resolveNgbFirstDayOfWeek } from 'src/app/application/helpers/week-start.helper';
 
 @Injectable({ providedIn: 'root' })
 export class DatepickerWeekStartService {

@@ -56,8 +56,8 @@ import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.com
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
-import { formatClientWithAddress, formatWorkTime } from 'src/app/shared/helpers/container-template-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
+import { formatClientWithAddress, formatWorkTime } from 'src/app/domain/helpers/container-template-format.helper';
 import { CONTAINER_TEMPLATE_ROW_DRAG_MOUSE_START_DELAY_MS } from './container-template.constants';
 import { ContainerTemplateRouteService } from './services/container-template-route.service';
 import { ContainerTemplatePropertiesService } from './services/container-template-properties.service';

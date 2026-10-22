@@ -21,7 +21,7 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { ICellFormatter } from './cell-formatter.interface';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 

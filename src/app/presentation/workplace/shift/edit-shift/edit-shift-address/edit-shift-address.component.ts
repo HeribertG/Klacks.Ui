@@ -20,7 +20,7 @@ import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric } from 'src/app/domain/helpers/number.helper';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

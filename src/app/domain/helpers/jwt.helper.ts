@@ -6,7 +6,7 @@
  * Pure functions for inspecting JWT access tokens.
  */
 
-import { IJwtPayload } from './jwt-payload.interface';
+import { IJwtPayload } from 'src/app/domain/models/auth/jwt-payload.interface';
 
 export const DEFAULT_TOKEN_EXPIRY_BUFFER_MS = 30000;
 

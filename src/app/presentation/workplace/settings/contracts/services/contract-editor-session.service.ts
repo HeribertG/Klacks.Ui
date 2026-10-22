@@ -11,7 +11,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { IContract } from 'src/app/domain/models/contract/contract.interface';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { ContractEditorViews } from '../contract-editor-views.interface';
 import { CONTRACT_DIALOG_OPTIONS, CONTRACT_LIST_SCROLL_DELAY_MS } from '../contracts.constants';
 import { ContractEditorStateService } from './contract-editor-state.service';

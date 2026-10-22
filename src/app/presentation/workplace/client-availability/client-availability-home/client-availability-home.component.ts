@@ -43,7 +43,7 @@ import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
 import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
-import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
+import { formatClientDisplayName } from 'src/app/domain/helpers/client-name.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';

@@ -17,7 +17,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/shared/helpers/object.helper';
+} from 'src/app/domain/helpers/object.helper';
 import {
   transformNumberToOwnTime,
   transformOwnTimeToNumber,
@@ -25,7 +25,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule/own-time-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import {
   convertContractRates,

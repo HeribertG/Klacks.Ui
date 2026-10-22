@@ -32,8 +32,8 @@ import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
-  triggerBlobDownload,
-} from 'src/app/shared/helpers/file-download.helper';
+} from 'src/app/domain/helpers/download-response-header.helper';
+import { triggerBlobDownload } from 'src/app/shared/helpers/file-download.helper';
 import { DEFAULT_EXPORT_FORMAT } from '../export-format-options.constants';
 import { FORMAT_LABEL_PREFIX } from 'src/app/domain/constants/export-format-label.constants';
 import { ExportFormatOption } from 'src/app/domain/models/period-closing/export-format-option';

@@ -24,7 +24,7 @@ import { takeUntil } from 'rxjs/operators';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/shared/helpers/object.helper';
+} from 'src/app/domain/helpers/object.helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
@@ -43,7 +43,7 @@ import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({

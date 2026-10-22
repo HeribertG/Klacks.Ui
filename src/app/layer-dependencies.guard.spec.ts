@@ -33,8 +33,10 @@ const ADVICE_BY_TARGET_LAYER: Readonly<Record<Layer, string>> = {
     'not add pass-through wrappers without own logic. domain/services and application may only use ' +
     'infrastructure/api, storage and signalr; reach other infrastructure folders through a port in ' +
     'domain/interfaces bound in app.port-bindings.ts.',
-  shared: 'frozen, still to be untangled (domain and shared import each other): do not add new imports of shared.',
-  domain: 'frozen, still to be untangled (domain and shared import each other): do not add new imports of domain.',
+  shared:
+    'only presentation may import shared. Move a pure helper into domain/helpers, or reach DOM/browser code ' +
+    'through a port in domain/interfaces bound in app.port-bindings.ts.',
+  domain: 'invert the dependency or move the file.',
   application: 'invert the dependency or move the file.',
   presentation: 'invert the dependency or move the file.',
 };

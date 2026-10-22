@@ -11,7 +11,7 @@ import { EMPTY, Observable, Subject, debounceTime, switchMap, takeUntil } from '
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
-import { timeToString } from 'src/app/shared/helpers/time-format.helper';
+import { timeToString } from 'src/app/domain/helpers/time-format.helper';
 import { CONTAINER_TEMPLATE_TIME_CHANGE_DEBOUNCE_MS } from '../container-template.constants';
 import { ContainerTemplateEditorStateService } from './container-template-editor-state.service';
 import { ContainerTemplateLifecycleService } from './container-template-lifecycle.service';

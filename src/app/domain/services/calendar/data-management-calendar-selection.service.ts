@@ -10,7 +10,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 

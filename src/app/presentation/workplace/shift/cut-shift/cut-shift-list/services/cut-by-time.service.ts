@@ -11,7 +11,7 @@ import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { CutTimeParams } from './cut-time-params.interface';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { addDays } from 'src/app/domain/helpers/date.helper';

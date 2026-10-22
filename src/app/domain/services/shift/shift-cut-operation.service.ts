@@ -5,7 +5,7 @@ import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { CutByDateParams } from './cut-by-date-params.interface';
 import { CutByTimeParams } from './cut-by-time-params.interface';

@@ -37,7 +37,7 @@ import { IClientImportTemplateFile } from 'src/app/domain/models/client-import/i
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
-} from 'src/app/shared/helpers/file-download.helper';
+} from 'src/app/domain/helpers/download-response-header.helper';
 
 @Injectable({
   providedIn: 'root',

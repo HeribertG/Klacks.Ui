@@ -6,7 +6,7 @@ import { ISetting } from 'src/app/domain/models/settings/setting.interface';
 import { Setting } from 'src/app/domain/models/settings/settings-various-class';
 import { SettingUpsertService } from 'src/app/domain/services/settings/setting-upsert.service';
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { DEFAULT_GRID_FONT_STACK } from 'src/app/domain/constants/grid-font.constants';
 import { PixelToPtService } from './pixel-to-pt.service';

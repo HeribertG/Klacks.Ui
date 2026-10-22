@@ -19,7 +19,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays, formatDateOnly } from 'src/app/domain/helpers/date.helper';
-import { workingTimeDurationMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { workingTimeDurationMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { WorkEditValidation } from './work-edit-validation.interface';
 import { IOpenWorkEditOptions } from './open-work-edit-options.interface';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';

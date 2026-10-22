@@ -22,7 +22,7 @@ import {
   formatClientWithAddress,
   resolveItemEndTime,
   resolveItemStartTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/container-template-format.helper';
 import { openPendingBlobTab } from 'src/app/shared/helpers/file-download.helper';
 
 export type { RouteInfo } from './route-info.type';

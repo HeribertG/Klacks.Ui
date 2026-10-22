@@ -14,7 +14,7 @@
  * parseAvailabilityRanges('06:00-06:00')  // [{ 0, 1440 }]
  */
 
-import { timeToMinutes } from './time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 
 const MINUTES_PER_DAY = 24 * 60;
 

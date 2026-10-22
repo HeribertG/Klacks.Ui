@@ -10,7 +10,7 @@ import { toShiftGroupsWire } from './shift-groups-wire.mapper';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { ResetDateRangeResponse } from './reset-date-range-response.interface';
-import { calculateDurationInMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { calculateDurationInMinutes } from 'src/app/domain/helpers/time-format.helper';
 
 @Injectable({
   providedIn: 'root',

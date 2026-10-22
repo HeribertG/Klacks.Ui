@@ -39,8 +39,8 @@ import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
 import {
   CONTENT_DISPOSITION_HEADER,
   extractFileNameFromContentDisposition,
-  triggerBlobDownload,
-} from 'src/app/shared/helpers/file-download.helper';
+} from 'src/app/domain/helpers/download-response-header.helper';
+import { triggerBlobDownload } from 'src/app/shared/helpers/file-download.helper';
 import { CompanyDateTimePipe } from 'src/app/shared/pipes/company-date-time/company-date-time.pipe';
 import { AuditActionDisplay } from './audit-action-display.interface';
 import { AUTONOMOUS_ACTOR_LABEL_KEY, AUTONOMOUS_ACTOR_NAME } from './audit-actor.constants';

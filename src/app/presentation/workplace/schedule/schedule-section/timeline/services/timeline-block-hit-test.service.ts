@@ -11,7 +11,7 @@ import { Injectable, inject } from '@angular/core';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimelineHitResult } from './timeline-hit-result.interface';
 import { EntryRect } from './entry-rect.interface';

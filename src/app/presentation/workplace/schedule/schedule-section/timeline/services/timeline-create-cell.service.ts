@@ -21,7 +21,7 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.interface';
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';

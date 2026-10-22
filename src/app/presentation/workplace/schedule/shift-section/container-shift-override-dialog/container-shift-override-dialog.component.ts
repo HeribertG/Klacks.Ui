@@ -40,11 +40,11 @@ import {
   NgbModalRef,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import {
   formatClientWithAddress,
   formatWorkTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+} from 'src/app/domain/helpers/container-template-format.helper';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';

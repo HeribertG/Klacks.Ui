@@ -29,7 +29,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, getDayIndex } from 'src/app/domain/helpers/date.helper';
 import { calendarDateKey, companyToday } from 'src/app/domain/helpers/calendar-date.helper';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { CellBadge } from 'src/app/presentation/shared/grid/classes/cell-badge';
 import { CellIcon } from 'src/app/presentation/shared/grid/classes/cell-icon';

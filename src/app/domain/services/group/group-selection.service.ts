@@ -17,7 +17,7 @@ import { DataManagementShiftService } from '../shift/data-management-shift.servi
 import { DataManagementClientService } from '../client/data-management-client.service';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 

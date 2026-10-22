@@ -29,7 +29,7 @@ import { BreakBlockRendererService } from '../timeline/renderers/break-block-ren
 import { ScheduleDataService } from './schedule-data.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { TimelineClientBlock } from './timeline-client-block.interface';
 import { ScheduleTimelineRangeService } from '../../services/schedule-timeline-range.service';

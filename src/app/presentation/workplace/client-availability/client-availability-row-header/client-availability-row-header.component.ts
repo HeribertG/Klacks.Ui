@@ -33,7 +33,7 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
 import { RenderAvailabilityGridService, AvailabilityCalculationService } from '../services/render-availability-grid';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
-import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
+import { formatClientDisplayName } from 'src/app/domain/helpers/client-name.helper';
 import { firstValueFrom } from 'rxjs';
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { LongPressContextDirective } from 'src/app/presentation/directives/long-press-context.directive';

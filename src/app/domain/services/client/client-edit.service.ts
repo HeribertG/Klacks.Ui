@@ -17,7 +17,7 @@ import {
   Membership,
   Annotation,
 } from 'src/app/domain/models/client/client-class';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
@@ -31,7 +31,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
-import { resetSignalAfterDelay } from 'src/app/shared/helpers/signal-pulse.helper';
+import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Injectable({

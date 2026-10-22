@@ -28,9 +28,9 @@ import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.se
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helper';
-import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
-import { resolveItemEndTime, resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { sortContainerItemsChronologically } from 'src/app/domain/helpers/container-template-sort.helper';
+import { resolveItemEndTime, resolveItemStartTime } from 'src/app/domain/helpers/container-template-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerWorkOptions } from '../open-container-work-options';
 import { IContainerTemplateHolidayVariant } from 'src/app/domain/models/container/container-template-holiday-variant';

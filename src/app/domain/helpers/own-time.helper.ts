@@ -8,7 +8,7 @@
  */
 
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric } from './number.helper';
 
 /**
  * Validates if an OwnTime struct is valid.

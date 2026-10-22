@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';

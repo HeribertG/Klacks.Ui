@@ -12,7 +12,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { ICommunication } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
+import { formatPhoneNumber } from 'src/app/domain/helpers/phone.helper';
 import { AddressPersonaStateService } from './address-persona-state.service';
 
 @Injectable()

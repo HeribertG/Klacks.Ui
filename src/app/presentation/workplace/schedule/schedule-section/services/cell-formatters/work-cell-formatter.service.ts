@@ -15,7 +15,7 @@
 import { inject, Injectable } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { CellIcon } from 'src/app/presentation/shared/grid/classes/cell-icon';
 import {

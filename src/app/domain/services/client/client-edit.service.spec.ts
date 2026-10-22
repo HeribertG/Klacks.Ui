@@ -11,7 +11,7 @@ import {
 } from 'src/app/domain/models/client/client-class';
 import { ClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import {
   EVENT_BUS_TOKEN,
   IEventBus,

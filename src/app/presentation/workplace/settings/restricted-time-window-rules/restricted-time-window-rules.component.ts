@@ -32,8 +32,8 @@ import { IRestrictedTimeWindowRule } from 'src/app/domain/models/scheduling/rest
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
 import { RestrictedTimeWindowRuleFormModel } from './restricted-time-window-rule-form-model.interface';

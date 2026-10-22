@@ -10,7 +10,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';

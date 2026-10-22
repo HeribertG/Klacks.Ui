@@ -17,7 +17,7 @@ import { IGroupItem } from 'src/app/domain/models/group/group-item.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric } from 'src/app/domain/helpers/number.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';

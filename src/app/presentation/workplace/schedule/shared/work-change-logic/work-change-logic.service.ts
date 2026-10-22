@@ -6,7 +6,7 @@ import { WorkChangeValidation } from 'src/app/domain/models/workchange/work-chan
 import { WorkTimeContext } from 'src/app/domain/models/workchange/work-time-context.interface';
 import { CorrectionMode } from 'src/app/domain/enums/correction-mode.enum';
 import { TravelMode } from 'src/app/domain/enums/travel-mode.enum';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 
 @Injectable()
 export class WorkChangeLogicService {

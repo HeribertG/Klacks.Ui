@@ -12,7 +12,7 @@ import { ICreateIdentityProviderRequest } from 'src/app/domain/interfaces/create
 import { IUpdateIdentityProviderRequest } from 'src/app/domain/interfaces/update-identity-provider-request.interface';
 import { IdentityProviderType } from 'src/app/domain/enums/identity-provider-enum';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object.helper';
 
 @Injectable({
   providedIn: 'root',

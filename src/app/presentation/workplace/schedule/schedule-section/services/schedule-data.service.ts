@@ -26,7 +26,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, formatDateOnly, getDayIndex } from 'src/app/domain/helpers/date.helper';
 import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
-import { hoursToHHMM, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { hoursToHHMM, timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { defaultTimeRangePlacement, resolveTimeRangePlacement } from 'src/app/shared/helpers/time-range-placement.helper';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
@@ -47,7 +47,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { parseAvailabilityRanges } from 'src/app/shared/helpers/availability-range.helper';
 
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';

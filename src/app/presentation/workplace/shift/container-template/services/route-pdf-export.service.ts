@@ -18,7 +18,7 @@ import { IContainerTemplateItem } from 'src/app/domain/models/container/containe
 import { IRouteSegmentDirections } from 'src/app/domain/models/container/route-segment-directions.interface';
 import { MapRenderingService } from './map-rendering.service';
 import { PdfUnicodeTextService } from 'src/app/domain/services/report/pdf-unicode-text.service';
-import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
+import { formatClientWithAddress } from 'src/app/domain/helpers/container-template-format.helper';
 import { openBlobInNewTab } from 'src/app/shared/helpers/file-download.helper';
 import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
 import { RouteInfo } from './route-info.type';

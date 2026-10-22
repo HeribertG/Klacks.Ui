@@ -9,7 +9,7 @@
  */
 
 import { IFilterStorage } from 'src/app/domain/interfaces/filter-storage.interface';
-import { serializedDateReviver } from 'src/app/shared/helpers/serialized-date.helper';
+import { serializedDateReviver } from 'src/app/domain/helpers/serialized-date.helper';
 
 const STORAGE_KEY_PREFIX = 'klacks_filter_';
 

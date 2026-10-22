@@ -7,7 +7,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
-import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/shared/helpers/object.helper';
+import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/domain/helpers/object.helper';
 import { IBaseFilter } from 'src/app/domain/models/base-filter.interface';
 import { FILTER_STORAGE_TOKEN } from 'src/app/domain/interfaces/filter-storage.interface';
 import { IDataManagementService } from './data-management-service.interface';

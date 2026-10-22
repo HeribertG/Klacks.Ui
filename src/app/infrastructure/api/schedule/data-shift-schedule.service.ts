@@ -8,7 +8,7 @@ import { IShiftSchedulePartialFilter } from 'src/app/domain/models/schedule/shif
 import { IShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-filter.interface';
 import { IShiftScheduleResponse } from 'src/app/domain/models/schedule/shift-schedule-response.interface';
 import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
-import { retryTransientHttpErrors } from 'src/app/shared/helpers/http-retry.helper';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 @Injectable({
   providedIn: 'root',

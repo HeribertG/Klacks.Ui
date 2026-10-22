@@ -8,8 +8,8 @@
  * @param containerTimeUntil - Container end time in HH:mm or HH:mm:ss format
  */
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
-import { resolveItemStartTime } from 'src/app/shared/helpers/container-template-format.helper';
+import { timeToMinutes } from './time-format.helper';
+import { resolveItemStartTime } from './container-template-format.helper';
 
 function parseTimeToMinutes(time: string | undefined | null): number {
   return time ? timeToMinutes(time) : 0;

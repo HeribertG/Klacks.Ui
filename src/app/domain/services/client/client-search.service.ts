@@ -5,7 +5,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { IClientForReplacement } from 'src/app/domain/models/client/client-for-replacement.interface';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
-import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { lastValueFrom, Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
