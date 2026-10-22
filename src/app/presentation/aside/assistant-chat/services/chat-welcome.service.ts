@@ -24,6 +24,7 @@ import { ChatReplyToastService } from './chat-reply-toast.service';
 import { ChatOnboardingTourService } from './chat-onboarding-tour.service';
 import { ChatModelSelectionService } from './chat-model-selection.service';
 import { ChatAutoSpeakService } from './chat-auto-speak.service';
+import { toNavigationOptionValue } from 'src/app/domain/helpers/navigation-option-value.helper';
 
 const WELCOME_CONTENT_KEY = 'assistant-chat.welcome.content';
 const WELCOME_SUGGESTION_KEYS = [
@@ -195,11 +196,13 @@ export class ChatWelcomeService {
 
   private buildGreetingOptions(response: IWelcomeResponse): ISuggestedReply[] {
     const routes = response.suggestionRoutes ?? {};
+    const targets = response.suggestionTargets ?? {};
     return response.suggestionKeys
       .map((key) => {
         const label = this.translateService.instant(key) as string;
         if (!label || !label.length) return null;
-        return { label, value: routes[key] ?? label };
+        const route = routes[key];
+        return { label, value: route ? toNavigationOptionValue(route, targets[key]) : label };
       })
       .filter((o): o is ISuggestedReply => o !== null);
   }

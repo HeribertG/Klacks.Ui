@@ -28,6 +28,7 @@ import { ChatComposerService } from './chat-composer.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 import { SETUP_CONSULTATION_TRIGGER_PHRASE_KEY } from './chat-message-actions.service';
 import { SINGLE_SELECTION_MODE } from './chat-reply-toast.constants';
+import { parseNavigationOptionValue } from 'src/app/domain/helpers/navigation-option-value.helper';
 
 const REPLY_VALUES_SEPARATOR = ', ';
 const OPEN_ROUTE_ICON = '📍 ';
@@ -56,9 +57,11 @@ export class ChatReplyToastService {
   }
 
   onNavigateClick(navigateTo: string): void {
-    if (navigateTo.startsWith(WORKPLACE_ROUTE_PREFIX)) {
-      this.klacksyNavigation.navigateAndScroll(navigateTo);
+    if (!navigateTo.startsWith(WORKPLACE_ROUTE_PREFIX)) {
+      return;
     }
+    const destination = parseNavigationOptionValue(navigateTo);
+    void this.klacksyNavigation.navigateAndScroll(destination.route, destination.target);
   }
 
   showRepliesAsToast(config: ISuggestedRepliesConfig): void {

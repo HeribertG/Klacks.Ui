@@ -4101,7 +4101,7 @@ describe('AssistantChatComponent', () => {
 
             showSpy.mock.calls[0][1](['/workplace/client']);
 
-            expect(navigateSpy).toHaveBeenCalledWith('/workplace/client');
+            expect(navigateSpy).toHaveBeenCalledWith('/workplace/client', undefined);
         });
 
         // The six tests above drive showGreetingOptionsAsToast directly, so they never cover the
@@ -4175,6 +4175,78 @@ describe('AssistantChatComponent', () => {
             expect((replyToasts() as any).pendingGreetingPrompt).toBeNull();
             expect((replyToasts() as any).pendingGreetingFocus).toBeNull();
             expect((replyToasts() as any).pendingGreetingOptions).toEqual([]);
+        });
+    });
+
+    describe('welcome suggestion navigation', () => {
+        let showSpy: any;
+
+        const welcomeWithSettingsSuggestions = (): IWelcomeResponse => ({
+            greetingKey: 'assistant-chat.welcome.content',
+            greetingText: 'Hallo',
+            greetingVariantIndex: 0,
+            weekdayKey: '',
+            weatherKey: '',
+            displayName: 'Admin',
+            suggestionKeys: ['klacksy.welcome.suggestion.manage_providers', 'klacksy.welcome.suggestion.edit_settings'],
+            suggestionRoutes: {
+                'klacksy.welcome.suggestion.manage_providers': '/workplace/settings',
+                'klacksy.welcome.suggestion.edit_settings': '/workplace/settings',
+            },
+            suggestionTargets: { 'klacksy.welcome.suggestion.manage_providers': 'llm-provider' },
+            onboarding: null,
+            focus: null,
+        });
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            TestBed.inject(OnboardingService).applyWelcome(null);
+            showSpy = vi.spyOn(TestBed.inject(ToastShowService), 'showInteractiveReply');
+            showSpy.mockClear();
+            TestBed.inject(ConversationOrchestratorService).addMessage({
+                id: 'welcome-targets',
+                sender: 'assistant',
+                content: 'Hallo',
+                formattedContent: 'Hallo',
+                timestamp: new Date(),
+            } as any);
+            TestBed.inject(AsideService).show();
+            showSpy.mockClear();
+        });
+
+        function pick(index: number): void {
+            (welcome() as any).applyWelcomeResponse('welcome-targets', welcomeWithSettingsSuggestions(), 'de');
+            const config = showSpy.mock.calls[0][0];
+            showSpy.mock.calls[0][1]([config.options[index].value]);
+        }
+
+        it('gives two suggestions on the same route distinct option values', () => {
+            (welcome() as any).applyWelcomeResponse('welcome-targets', welcomeWithSettingsSuggestions(), 'de');
+
+            const values = showSpy.mock.calls[0][0].options.map((option: { value: string }) => option.value);
+            expect(new Set(values).size).toBe(values.length);
+        });
+
+        it('navigates the provider suggestion to the settings page and scrolls to the LLM provider section', () => {
+            const navigateSpy = vi
+                .spyOn(TestBed.inject(KlacksyNavigationService), 'navigateAndScroll')
+                .mockResolvedValue({ success: true });
+
+            pick(0);
+
+            expect(navigateSpy).toHaveBeenCalledWith('/workplace/settings', 'llm-provider');
+        });
+
+        it('navigates the settings suggestion to the settings page without a section', () => {
+            const navigateSpy = vi
+                .spyOn(TestBed.inject(KlacksyNavigationService), 'navigateAndScroll')
+                .mockResolvedValue({ success: true });
+
+            pick(1);
+
+            expect(navigateSpy).toHaveBeenCalledTimes(1);
+            expect(navigateSpy.mock.calls[0][0]).toBe('/workplace/settings');
+            expect(navigateSpy.mock.calls[0][1]).toBeUndefined();
         });
     });
 

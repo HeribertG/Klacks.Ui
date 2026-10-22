@@ -3,6 +3,7 @@
 /**
  * Welcome payload returned by GET /api/backend/assistant/chat/welcome.
  * Contains only i18n keys + slot values — the FE resolves all keys via TranslateService.
+ * suggestionTargets maps a navigation suggestion key to the data-klacksy-target scrolled to on its route.
  */
 import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
 import { IOnboardingState } from './onboarding-state.interface';
@@ -18,6 +19,7 @@ export interface IWelcomeResponse {
   displayName: string;
   suggestionKeys: string[];
   suggestionRoutes?: Record<string, string>;
+  suggestionTargets?: Record<string, string>;
   onboarding?: IOnboardingState | null;
   focus?: IWelcomeFocus | null;
 }

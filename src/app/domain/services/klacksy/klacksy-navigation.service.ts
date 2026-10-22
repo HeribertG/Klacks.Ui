@@ -44,6 +44,7 @@ export class KlacksyNavigationService {
   // with a digit or a lone hyphen followed by a digit.
   private static readonly SAFE_ID_PATTERN = /^-?[A-Za-z_][A-Za-z0-9_-]*$/;
   private static readonly HIGHLIGHT_MS = 5000;
+  private static readonly NAVIGATION_FAILED_LOG = '[klacksy] navigation rejected by the router:';
   private static readonly HIGHLIGHT_CLASS = 'klacksy-highlight';
   private static readonly ICON_HIGHLIGHT_CLASS = 'klacksy-highlight-icon';
   private static readonly FOCUSABLE_SELECTOR = 'input, select, textarea, button, [tabindex]:not([tabindex="-1"])';
@@ -77,7 +78,11 @@ export class KlacksyNavigationService {
     // regularly asked to point at a spot on the page the user is already looking at. Only the
     // router's own url tells the two apart: standing on the requested page is a success no matter
     // what the boolean said, and the scroll must still happen.
-    const navigated = await this.router.navigateByUrl(route);
+    const navigated = await this.tryNavigate(route);
+    if (navigated === null) {
+      this.telemetry.trackTargetMiss(route, target ?? '');
+      return { success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND };
+    }
     if (!navigated && !this.isOnRoute(route)) {
       this.telemetry.trackTargetMiss(route, target ?? '');
       // The guard recorded why it refused before it returned false, so the reason is already there
@@ -184,6 +189,18 @@ export class KlacksyNavigationService {
       KlacksyNavigationService.HIGHLIGHT_MS
     );
     return true;
+  }
+
+  // The router rejects (instead of resolving false) for a url no route matches - NG04002 for a dead
+  // route string - and for a lazy chunk that fails to load. Either way the page does not exist for
+  // this navigation; that is a miss to report, never an unhandled error. Null marks the rejection.
+  private async tryNavigate(route: string): Promise<boolean | null> {
+    try {
+      return await this.router.navigateByUrl(route);
+    } catch (error: unknown) {
+      console.error(KlacksyNavigationService.NAVIGATION_FAILED_LOG, route, error);
+      return null;
+    }
   }
 
   private isOnRoute(route: string): boolean {

@@ -14,6 +14,7 @@ import {
 import {
   NAVIGATION_REASON_FEATURE_DISABLED,
   NAVIGATION_REASON_PERMISSION_DENIED,
+  NAVIGATION_REASON_TARGET_NOT_FOUND,
 } from 'src/app/domain/constants/navigation-outcome.constants';
 
 describe('KlacksyNavigationService', () => {
@@ -44,6 +45,18 @@ describe('KlacksyNavigationService', () => {
     const result = await service.navigateAndScroll('/settings');
     expect(router.navigateByUrl).toHaveBeenCalledWith('/settings');
     expect(result.success).toBe(true);
+  });
+
+  it('resolves a failed result instead of throwing when the router knows no such route', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    router.navigateByUrl.mockRejectedValue(new Error("NG04002: 'workplace/settings/llm'"));
+
+    const result = await service.navigateAndScroll('/workplace/settings/llm', 'llm-provider');
+
+    expect(result).toEqual({ success: false, reason: NAVIGATION_REASON_TARGET_NOT_FOUND });
+    expect(telemetry.trackTargetMiss).toHaveBeenCalledWith('/workplace/settings/llm', 'llm-provider');
+    expect(consoleError).toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('does not navigate for a shell target on the global route, it only highlights it', async () => {
