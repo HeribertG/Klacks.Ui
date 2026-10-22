@@ -17,6 +17,8 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
 import { ChatTurnControlService } from '../services/chat-turn-control.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 
 describe('ChatMessageComponent', () => {
   let fixture: ComponentFixture<ChatMessageComponent>;
@@ -24,6 +26,7 @@ describe('ChatMessageComponent', () => {
   let stageStatus: ChatStageStatusService;
   let executingMessageIds: ReturnType<typeof signal<string[]>>;
   let feedbackLockedMessageIds: ReturnType<typeof signal<string[]>>;
+  let grantedPermissions: Set<string>;
   let turnControlMock: {
     stop: ReturnType<typeof vi.fn>;
     cancelRunningExecutions: ReturnType<typeof vi.fn>;
@@ -37,6 +40,10 @@ describe('ChatMessageComponent', () => {
     pendingMuteMessageId: ReturnType<typeof signal<string | null>>;
     pendingDelegateMessageId: ReturnType<typeof signal<string | null>>;
     pendingAcknowledgeMessageId: ReturnType<typeof signal<string | null>>;
+    pendingSnoozeMessageId: ReturnType<typeof signal<string | null>>;
+    sealOpenOrders: ReturnType<typeof vi.fn>;
+    openOpenOrdersList: ReturnType<typeof vi.fn>;
+    snoozeOpenOrders: ReturnType<typeof vi.fn>;
     isMuteSuggestion: ReturnType<typeof vi.fn>;
     isSetupNotice: ReturnType<typeof vi.fn>;
     startSetupConsultation: ReturnType<typeof vi.fn>;
@@ -90,6 +97,7 @@ describe('ChatMessageComponent', () => {
   beforeEach(async () => {
     executingMessageIds = signal<string[]>([]);
     feedbackLockedMessageIds = signal<string[]>([]);
+    grantedPermissions = new Set<string>();
     turnControlMock = {
       stop: vi.fn(() => Promise.resolve()),
       cancelRunningExecutions: vi.fn(),
@@ -103,6 +111,10 @@ describe('ChatMessageComponent', () => {
       pendingMuteMessageId: signal<string | null>(null),
       pendingDelegateMessageId: signal<string | null>(null),
       pendingAcknowledgeMessageId: signal<string | null>(null),
+      pendingSnoozeMessageId: signal<string | null>(null),
+      sealOpenOrders: vi.fn(),
+      openOpenOrdersList: vi.fn(),
+      snoozeOpenOrders: vi.fn(),
       isMuteSuggestion: vi.fn().mockReturnValue(false),
       isSetupNotice: vi.fn().mockReturnValue(false),
       startSetupConsultation: vi.fn(),
@@ -157,6 +169,10 @@ describe('ChatMessageComponent', () => {
         },
         { provide: OnboardingService, useValue: { isTourActive: signal(false) } },
         { provide: ChatTurnControlService, useValue: turnControlMock },
+        {
+          provide: AuthorizationService,
+          useValue: { hasPermission: (permission: string) => grantedPermissions.has(permission) },
+        },
       ],
     }).compileComponents();
 
@@ -243,6 +259,85 @@ describe('ChatMessageComponent', () => {
     expect(reportButton).toBeTruthy();
     reportButton.click();
     expect(actionsMock.openGroupingReport).toHaveBeenCalledWith(expect.objectContaining({ proactiveKind: 'grouping_feasibility' }));
+  });
+
+  describe('daily open-orders summary', () => {
+    const summaryMessage: ChatMessage = {
+      ...proactiveMessage,
+      id: 'msg-open-orders-1',
+      content: '3 offene Bestellungen sind noch nicht versiegelt.',
+      formattedContent: '3 offene Bestellungen sind noch nicht versiegelt.',
+      proactiveKind: 'open_order',
+      proactiveActionRoute: '/workplace/schedule',
+    };
+    const sealButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('.proactive-seal-orders-btn');
+    const listButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('.proactive-orders-list-btn');
+    const laterButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('.proactive-orders-later-btn');
+
+    it('renders the summary text', () => {
+      fixture.componentRef.setInput('message', summaryMessage);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.message-text').textContent).toContain(
+        '3 offene Bestellungen sind noch nicht versiegelt.',
+      );
+    });
+
+    it('offers seal, list and later to a user who may edit shifts, instead of the generic show button', () => {
+      grantedPermissions.add(PERMISSIONS.CanEditShifts);
+      fixture.componentRef.setInput('message', summaryMessage);
+      fixture.detectChanges();
+
+      expect(sealButton()?.textContent).toContain('klacksy.focus.no-shifts.action');
+      expect(listButton()?.textContent).toContain('assistant-chat.proactive.open-orders.view-list');
+      expect(laterButton()?.textContent).toContain('klacksy.focus.later');
+      expect(fixture.nativeElement.querySelector('.proactive-action-btn')).toBeNull();
+    });
+
+    it('hides seal and list without CanEditShifts but still offers later', () => {
+      fixture.componentRef.setInput('message', summaryMessage);
+      fixture.detectChanges();
+
+      expect(sealButton()).toBeNull();
+      expect(listButton()).toBeNull();
+      expect(laterButton()).toBeTruthy();
+    });
+
+    it('forwards the three clicks to the message actions', () => {
+      grantedPermissions.add(PERMISSIONS.CanEditShifts);
+      fixture.componentRef.setInput('message', summaryMessage);
+      fixture.detectChanges();
+
+      sealButton()!.click();
+      listButton()!.click();
+      laterButton()!.click();
+
+      expect(actionsMock.sealOpenOrders).toHaveBeenCalledWith(summaryMessage);
+      expect(actionsMock.openOpenOrdersList).toHaveBeenCalledWith(summaryMessage);
+      expect(actionsMock.snoozeOpenOrders).toHaveBeenCalledWith(summaryMessage);
+    });
+
+    it('disables later while a later request is in flight', () => {
+      actionsMock.pendingSnoozeMessageId.set(summaryMessage.id);
+      fixture.componentRef.setInput('message', summaryMessage);
+      fixture.detectChanges();
+
+      expect(laterButton()!.disabled).toBe(true);
+    });
+
+    it('shows none of the three buttons on other proactive messages', () => {
+      grantedPermissions.add(PERMISSIONS.CanEditShifts);
+      fixture.componentRef.setInput('message', proactiveMessage);
+      fixture.detectChanges();
+
+      expect(sealButton()).toBeNull();
+      expect(listButton()).toBeNull();
+      expect(laterButton()).toBeNull();
+      expect(fixture.nativeElement.querySelector('.proactive-action-btn')).toBeTruthy();
+    });
   });
 
   it('renders the delegate button only when the message can be delegated', () => {

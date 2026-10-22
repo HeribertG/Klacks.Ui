@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError, delay, firstValueFrom } from 'rxjs';
 
@@ -638,6 +638,20 @@ describe('DataManagementAssistantService', () => {
 
             // Assert
             expect(mockDataAssistantService.cancelTurn).toHaveBeenCalledWith('turn-123');
+        });
+    });
+
+    describe('snoozeTriggerKind', () => {
+        it('puts the snooze instant to trigger-preferences/{kind}', () => {
+            const untilUtc = '2026-10-22T22:00:00.000Z';
+            const httpMock = TestBed.inject(HttpTestingController);
+
+            service.snoozeTriggerKind('open_order', untilUtc).subscribe();
+
+            const request = httpMock.expectOne((req) => req.url.endsWith('trigger-preferences/open_order'));
+            expect(request.request.method).toBe('PUT');
+            expect(request.request.body).toEqual({ snoozedUntilUtc: untilUtc });
+            request.flush({ triggerKind: 'open_order', muted: false, snoozedUntilUtc: untilUtc, minimumSeverity: null });
         });
     });
 

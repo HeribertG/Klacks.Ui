@@ -437,6 +437,10 @@ export class DataManagementAssistantService {
     return this.dataTriggerPreferenceService.muteKind(triggerKind);
   }
 
+  snoozeTriggerKind(triggerKind: string, snoozedUntilUtc: string): Observable<ITriggerPreference> {
+    return this.dataTriggerPreferenceService.snoozeKind(triggerKind, snoozedUntilUtc);
+  }
+
   delegateCondition(messageId: string, maxAction: number): Observable<void> {
     return this.dataProactiveMessageService.delegateCondition(messageId, maxAction);
   }

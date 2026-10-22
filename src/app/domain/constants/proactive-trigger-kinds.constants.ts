@@ -9,6 +9,7 @@ export const PROACTIVE_TRIGGER_KIND = {
   NoScheduleYet: 'no_schedule_yet',
   GroupingFeasibility: 'grouping_feasibility',
   EscalationStageAlert: 'escalation_stage_alert',
+  OpenOrder: 'open_order',
 } as const;
 
 export const MUTE_SUGGESTION_KIND_PARAM = 'kind';

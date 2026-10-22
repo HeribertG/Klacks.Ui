@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { AllShiftListComponent } from './all-shift-list.component';
@@ -27,6 +27,8 @@ import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 const activatedRouteStub = (queryParams: Record<string, string> = {}) => ({
   snapshot: { queryParamMap: convertToParamMap(queryParams) },
 });
+
+const routerStub = () => ({ navigate: vi.fn(() => Promise.resolve(true)) });
 
 describe('AllShiftListComponent - onClickInfo', () => {
   let component: AllShiftListComponent;
@@ -55,6 +57,7 @@ describe('AllShiftListComponent - onClickInfo', () => {
         { provide: DataShiftService, useValue: {} },
         { provide: NavigationService, useValue: mockNavigationService },
         { provide: ActivatedRoute, useValue: activatedRouteStub() },
+        { provide: Router, useValue: routerStub() },
       ],
     }).overrideComponent(AllShiftListComponent, {
       set: {
@@ -132,6 +135,7 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
         { provide: DataShiftService, useValue: {} },
         { provide: NavigationService, useValue: mockNavigationService },
         { provide: ActivatedRoute, useValue: activatedRouteStub(queryParams) },
+        { provide: Router, useValue: routerStub() },
       ],
     }).overrideComponent(AllShiftListComponent, {
       set: {
@@ -210,6 +214,7 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
         { provide: NavigationService, useValue: {} },
         { provide: DataProactiveAttributionService, useValue: mockAttributionService },
         { provide: ActivatedRoute, useValue: activatedRouteStub() },
+        { provide: Router, useValue: routerStub() },
       ],
     }).overrideComponent(AllShiftListComponent, {
       set: {
@@ -292,5 +297,92 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
 
     expect(component.proactiveAttributions().has('container-2')).toBe(true);
     expect(component.proactiveAttributions().has('container-1')).toBe(false);
+  });
+});
+
+describe('AllShiftListComponent - applyOrdersViewIfRequested', () => {
+  let component: AllShiftListComponent;
+  let mockShiftService: any;
+  let router: { navigate: ReturnType<typeof vi.fn> };
+  let grantedPermissions: Set<string>;
+
+  const build = () => {
+    mockShiftService = {
+      pendingClientlessCreation: { set: vi.fn() },
+      currentFilter: { filterType: ShiftFilterType.Shift, isSealedOrder: true },
+    };
+    router = routerStub();
+
+    TestBed.configureTestingModule({
+      imports: [AllShiftListComponent, TranslateModule.forRoot()],
+      providers: [
+        ...APP_PORT_BINDINGS,
+        { provide: DataManagementShiftService, useValue: mockShiftService },
+        { provide: DataManagementShiftCutService, useValue: {} },
+        {
+          provide: AuthorizationService,
+          useValue: {
+            hasPermission: (p: string) => grantedPermissions.has(p),
+            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
+          },
+        },
+        { provide: LocalStorageService, useValue: {} },
+        { provide: ModalService, useValue: {} },
+        { provide: ToastShowService, useValue: {} },
+        { provide: DataShiftService, useValue: {} },
+        { provide: NavigationService, useValue: {} },
+        { provide: ActivatedRoute, useValue: activatedRouteStub() },
+        { provide: Router, useValue: router },
+      ],
+    }).overrideComponent(AllShiftListComponent, {
+      set: {
+        providers: [
+          { provide: AllShiftStateService, useValue: { saveCurrentFilter: vi.fn() } },
+          { provide: ShiftTableResizeService, useValue: {} },
+          { provide: TableSortingService, useValue: {} },
+        ],
+      },
+    });
+
+    component = TestBed.createComponent(AllShiftListComponent).componentInstance;
+  };
+
+  it('preselects the unsealed orders for a user who may edit shifts and clears the parameter', () => {
+    grantedPermissions = new Set([PERMISSIONS.CanEditShifts]);
+    build();
+    component.page = 4;
+
+    const applied = (component as any).applyOrdersViewIfRequested(convertToParamMap({ view: 'orders' }));
+
+    expect(applied).toBe(true);
+    expect(mockShiftService.currentFilter.filterType).toBe(ShiftFilterType.Original);
+    expect(mockShiftService.currentFilter.isSealedOrder).toBe(false);
+    expect(component.page).toBe(1);
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { view: null }, queryParamsHandling: 'merge', replaceUrl: true }),
+    );
+  });
+
+  it('leaves the filter alone for a user without CanEditShifts, whose order view stays disabled', () => {
+    grantedPermissions = new Set([PERMISSIONS.CanViewShifts]);
+    build();
+
+    const applied = (component as any).applyOrdersViewIfRequested(convertToParamMap({ view: 'orders' }));
+
+    expect(applied).toBe(false);
+    expect(mockShiftService.currentFilter.filterType).toBe(ShiftFilterType.Shift);
+    expect(mockShiftService.currentFilter.isSealedOrder).toBe(true);
+  });
+
+  it('ignores a navigation without the orders view', () => {
+    grantedPermissions = new Set([PERMISSIONS.CanEditShifts]);
+    build();
+
+    const applied = (component as any).applyOrdersViewIfRequested(convertToParamMap({ view: 'other' }));
+
+    expect(applied).toBe(false);
+    expect(mockShiftService.currentFilter.filterType).toBe(ShiftFilterType.Shift);
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

@@ -13,8 +13,8 @@ import {
   viewChild,
   signal
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { Subject, skip, takeUntil } from 'rxjs';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   NgbPaginationModule,
@@ -46,6 +46,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { QuickPrintActionService } from 'src/app/presentation/services/quick-print-action.service';
 import { SHIFT_FILTER_TYPE_TO_REPORT_SOURCE } from 'src/app/domain/models/report/report-data-source.model';
 import { SetupConsultationOfferService } from 'src/app/presentation/services/setup-consultation-offer.service';
+import { SHIFT_LIST_VIEW, SHIFT_LIST_VIEW_QUERY_PARAM } from 'src/app/domain/constants/shift-list-view.constants';
 
 // Read once on init from the "new-plannable-shift" Klacksy navigation target
 // (Application/Skills/Definitions/navigation-targets.json), whose route is
@@ -90,6 +91,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private proactiveShiftAttributionService = inject(ProactiveShiftAttributionService);
   private setupConsultationOffer = inject(SetupConsultationOfferService);
   private activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   selectedRowId?: string;
@@ -151,7 +153,9 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const wasRestored =
       await this.allShiftStateService.restoreFilterFromStorage();
-    if (wasRestored) {
+    const ordersViewRequested = this.applyOrdersViewIfRequested(this.activatedRoute.snapshot.queryParamMap);
+    this.listenForOrdersViewRequests();
+    if (wasRestored && !ordersViewRequested) {
       setTimeout(() => {
         this.page =
           this.dataManagementShiftService.currentFilter.requiredPage + 1;
@@ -186,6 +190,49 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (createMode === CLIENTLESS_CREATE_QUERY_VALUE && this.authorizationService.hasPermission(PERMISSIONS.CanCreateShifts)) {
       this.onAddPlannableShift();
     }
+  }
+
+  /**
+   * Lets "/workplace/shift?view=orders" (the "Liste ansehen" button of Klacksy's open-orders summary) open
+   * the order intake: original orders that are not sealed yet. Applied after the stored filter was restored,
+   * otherwise the restore would overwrite it. Only for users who may edit shifts: the nav keeps the order
+   * view disabled for everyone else and switches them to the plannable shifts. The parameter is removed again
+   * so that a later click on the same button is a new navigation the list reacts to.
+   * @param queryParamMap - Query parameters of the current navigation
+   * @returns Whether the order intake was selected
+   */
+  private applyOrdersViewIfRequested(queryParamMap: ParamMap): boolean {
+    if (queryParamMap.get(SHIFT_LIST_VIEW_QUERY_PARAM) !== SHIFT_LIST_VIEW.Orders) {
+      return false;
+    }
+    void this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { [SHIFT_LIST_VIEW_QUERY_PARAM]: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+    if (!this.authorizationService.hasPermission(PERMISSIONS.CanEditShifts)) {
+      return false;
+    }
+    this.dataManagementShiftService.currentFilter.filterType = ShiftFilterType.Original;
+    this.dataManagementShiftService.currentFilter.isSealedOrder = false;
+    this.page = 1;
+    return true;
+  }
+
+  /**
+   * The list component is reused while only the query string changes, so a "Liste ansehen" click while the
+   * list is already open arrives here instead of in ngOnInit.
+   */
+  private listenForOrdersViewRequests(): void {
+    this.activatedRoute.queryParamMap
+      .pipe(skip(1), takeUntil(this.destroy$))
+      .subscribe((queryParamMap) => {
+        if (this.applyOrdersViewIfRequested(queryParamMap)) {
+          this.readPage(true);
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   currentPrintSourceId(): string | undefined {

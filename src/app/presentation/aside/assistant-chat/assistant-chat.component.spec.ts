@@ -77,6 +77,7 @@ import {
     PROACTIVE_REJECT_REASON,
 } from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
+import { OPEN_ORDERS_SUMMARY_I18N } from 'src/app/domain/constants/open-orders-summary.constants';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { NavigationVerdictService } from './services/navigation-verdict.service';
 import { IWelcomeFocus } from 'src/app/domain/models/assistant/welcome-focus.interface';
@@ -273,6 +274,9 @@ describe('AssistantChatComponent', () => {
             warmupCache: vi.fn(),
             setProactiveReaction: vi.fn().mockReturnValue(of(void 0)),
             muteTriggerKind: vi.fn().mockReturnValue(of({ triggerKind: 'unstaffed_shift', muted: true })),
+            snoozeTriggerKind: vi.fn().mockReturnValue(
+                of({ triggerKind: 'open_order', muted: false, snoozedUntilUtc: null, minimumSeverity: null }),
+            ),
             delegateCondition: vi.fn().mockReturnValue(of(void 0)),
             submitHelpfulFeedback: vi.fn().mockReturnValue(of({ found: true, trajectoryId: 'traj-1' })),
             submitCorrection: vi.fn().mockReturnValue(of({ found: true, trajectoryId: 'traj-1' })),
@@ -3601,6 +3605,121 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockLlmService.muteTriggerKind).not.toHaveBeenCalled();
+        });
+
+        describe('daily open-orders summary', () => {
+            const summary = (count: string, soonCount: string, id = 'open-orders-1'): IProactiveInboxItem =>
+                proactiveWithAction({
+                    id,
+                    content: 'i18n:' + OPEN_ORDERS_SUMMARY_I18N.General,
+                    contentParams: { count, soonCount },
+                    severity: soonCount === '0' ? 'medium' : 'high',
+                    kind: PROACTIVE_TRIGGER_KIND.OpenOrder,
+                    actionRoute: '/workplace/schedule',
+                    actionParams: { date: '2026-10-23' },
+                });
+
+            it.each([
+                ['1', '0', OPEN_ORDERS_SUMMARY_I18N.OneNoneSoon],
+                ['1', '1', OPEN_ORDERS_SUMMARY_I18N.OneSoon],
+                ['5', '0', OPEN_ORDERS_SUMMARY_I18N.ManyNoneSoon],
+                ['5', '1', OPEN_ORDERS_SUMMARY_I18N.ManyOneSoon],
+                ['5', '3', OPEN_ORDERS_SUMMARY_I18N.General],
+            ])('renders count %s with soonCount %s from %s', (count, soonCount, expectedKey) => {
+                // Arrange
+                mockTranslateService.instant.mockClear();
+
+                // Act
+                deliver(summary(count, soonCount));
+
+                // Assert
+                expect(mockTranslateService.instant).toHaveBeenCalledWith(expectedKey, { count, soonCount });
+            });
+
+            it('sends the seal request in the user language for "Ja, versiegeln"', () => {
+                // Arrange
+                const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+                orchestrator.submitText.mockClear();
+                deliver(summary('5', '3'));
+                const message = component.messages.find((m) => m.id === 'open-orders-1')!;
+
+                // Act
+                messageActions.sealOpenOrders(message);
+
+                // Assert
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.setup.seal-open-orders.request');
+                expect(orchestrator.submitText).toHaveBeenCalledTimes(1);
+            });
+
+            it('opens the shift list with the order intake preselected for "Liste ansehen"', () => {
+                // Arrange
+                deliver(summary('5', '3'));
+                const message = component.messages.find((m) => m.id === 'open-orders-1')!;
+
+                // Act
+                messageActions.openOpenOrdersList(message);
+
+                // Assert
+                expect(navigationService.navigateAndScroll).toHaveBeenCalledWith('/workplace/shift?view=orders');
+            });
+
+            it('snoozes open_order until a future instant, hides the row and confirms for "Später"', async () => {
+                // Arrange
+                const toastService = TestBed.inject(ToastShowService);
+                const showInfoSpy = vi.spyOn(toastService, 'showInfo');
+                mockLlmService.snoozeTriggerKind.mockClear();
+                mockProactiveInboxService.markHidden.mockClear();
+                deliver(summary('5', '3'));
+                const message = component.messages.find((m) => m.id === 'open-orders-1')!;
+
+                // Act
+                await messageActions.snoozeOpenOrders(message);
+
+                // Assert
+                expect(mockLlmService.snoozeTriggerKind).toHaveBeenCalledTimes(1);
+                expect(mockLlmService.snoozeTriggerKind.mock.calls[0][0]).toBe('open_order');
+                expect(new Date(mockLlmService.snoozeTriggerKind.mock.calls[0][1]).getTime()).toBeGreaterThan(Date.now());
+                expect(mockProactiveInboxService.markHidden).toHaveBeenCalledWith(['open-orders-1']);
+                expect(showInfoSpy).toHaveBeenCalled();
+                expect(messageActions.pendingSnoozeMessageId()).toBeNull();
+            });
+
+            it('keeps the row and shows the error toast when "Später" fails', async () => {
+                // Arrange
+                const toastService = TestBed.inject(ToastShowService);
+                const showErrorSpy = vi.spyOn(toastService, 'showError');
+                mockLlmService.snoozeTriggerKind.mockReturnValueOnce(throwError(() => new Error('offline')));
+                mockProactiveInboxService.markHidden.mockClear();
+                deliver(summary('5', '3'));
+                const message = component.messages.find((m) => m.id === 'open-orders-1')!;
+
+                // Act
+                await messageActions.snoozeOpenOrders(message);
+
+                // Assert
+                expect(mockProactiveInboxService.markHidden).not.toHaveBeenCalledWith(['open-orders-1']);
+                expect(showErrorSpy).toHaveBeenCalled();
+                expect(messageActions.pendingSnoozeMessageId()).toBeNull();
+            });
+
+            it('does nothing for the three actions on another proactive kind', async () => {
+                // Arrange
+                const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
+                orchestrator.submitText.mockClear();
+                mockLlmService.snoozeTriggerKind.mockClear();
+                deliver(proactiveWithAction());
+                const message = component.messages.find((m) => m.id === 'proactive-action-1')!;
+
+                // Act
+                messageActions.sealOpenOrders(message);
+                messageActions.openOpenOrdersList(message);
+                await messageActions.snoozeOpenOrders(message);
+
+                // Assert
+                expect(orchestrator.submitText).not.toHaveBeenCalled();
+                expect(navigationService.navigateAndScroll).not.toHaveBeenCalled();
+                expect(mockLlmService.snoozeTriggerKind).not.toHaveBeenCalled();
+            });
         });
 
         describe('delegate ("mach du", Etappe 4e)', () => {

@@ -24,6 +24,7 @@
  * @param pendingMuteMessageId - Id of the mute-suggestion message with an in-flight mute request
  * @param pendingDelegateMessageId - Id of the proactive message with an in-flight delegate request
  * @param pendingAcknowledgeMessageId - Id of the proactive message with an in-flight acknowledge request
+ * @param pendingSnoozeMessageId - Id of the open-orders summary with an in-flight "later" request
  */
 import { Injectable, computed, effect, inject, signal, DestroyRef, NgZone } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -53,6 +54,14 @@ import {
 } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { PROACTIVE_MAX_ACTION } from 'src/app/domain/constants/proactive-max-action.constants';
 import { GROUPING_FEASIBILITY_TRIGGER_PHRASE_KEY } from 'src/app/domain/constants/grouping-feasibility.constants';
+import {
+  OPEN_ORDERS_SEAL_REQUEST_KEY,
+  OPEN_ORDERS_SNOOZED_KEY,
+  OPEN_ORDERS_SUMMARY_I18N,
+} from 'src/app/domain/constants/open-orders-summary.constants';
+import { SHIFT_LIST_ORDERS_VIEW_URL } from 'src/app/domain/constants/shift-list-view.constants';
+import { openOrdersSummaryKey } from 'src/app/domain/helpers/open-orders-summary-key.helper';
+import { WelcomeFocusToastService } from 'src/app/domain/services/assistant/welcome-focus-toast.service';
 import {
   PROACTIVE_REACTION,
   ProactiveReaction,
@@ -84,6 +93,7 @@ export class ChatMessageActionsService {
   private readonly asideService = inject(AsideService);
   private readonly onboardingService = inject(OnboardingService);
   private readonly assistantSignalR = inject(AssistantSignalRService);
+  private readonly welcomeFocusToast = inject(WelcomeFocusToastService);
 
   private inboxLoadRequested = false;
   private readonly inboxReloadRequests$ = new Subject<void>();
@@ -243,9 +253,14 @@ export class ChatMessageActionsService {
   private resolveProactiveContent(text: string, params?: Record<string, string>): string {
     const stripped = stripMetadataMarkers(text);
     if (stripped.startsWith(PROACTIVE_I18N_MARKER)) {
-      return this.translateService.instant(stripped.slice(PROACTIVE_I18N_MARKER.length), params);
+      const key = this.resolveProactiveKey(stripped.slice(PROACTIVE_I18N_MARKER.length), params);
+      return this.translateService.instant(key, params);
     }
     return stripped;
+  }
+
+  private resolveProactiveKey(key: string, params?: Record<string, string>): string {
+    return key === OPEN_ORDERS_SUMMARY_I18N.General ? openOrdersSummaryKey(params) : key;
   }
 
   private readonly _correctionMenuMessageId = signal<string | null>(null);
@@ -257,6 +272,7 @@ export class ChatMessageActionsService {
   private readonly _pendingMuteMessageId = signal<string | null>(null);
   private readonly _pendingDelegateMessageId = signal<string | null>(null);
   private readonly _pendingAcknowledgeMessageId = signal<string | null>(null);
+  private readonly _pendingSnoozeMessageId = signal<string | null>(null);
 
   readonly correctionMenuMessageId = this._correctionMenuMessageId.asReadonly();
   readonly expectedSkillMessageId = this._expectedSkillMessageId.asReadonly();
@@ -267,6 +283,7 @@ export class ChatMessageActionsService {
   readonly pendingMuteMessageId = this._pendingMuteMessageId.asReadonly();
   readonly pendingDelegateMessageId = this._pendingDelegateMessageId.asReadonly();
   readonly pendingAcknowledgeMessageId = this._pendingAcknowledgeMessageId.asReadonly();
+  readonly pendingSnoozeMessageId = this._pendingSnoozeMessageId.asReadonly();
 
   // The heading used to ride on the first row still showing in the chat's own message flow, so
   // hiding the row it sat above moved it down instead of taking the whole block with it. That
@@ -324,6 +341,57 @@ export class ChatMessageActionsService {
     void this.orchestrator.submitText(this.translateService.instant(GROUPING_FEASIBILITY_TRIGGER_PHRASE_KEY));
   }
 
+  /**
+   * "Ja, versiegeln" on the daily open-orders summary: sends the seal request in the user's language, so
+   * Klacksy answers with the seal_open_orders preview and seals only after the user confirms it there.
+   * @param message - The proactive message the button belongs to
+   */
+  sealOpenOrders(message: ChatMessage): void {
+    if (!this.isOpenOrdersSummary(message)) {
+      return;
+    }
+    void this.orchestrator.submitText(this.translateService.instant(OPEN_ORDERS_SEAL_REQUEST_KEY));
+  }
+
+  /**
+   * "Liste ansehen" on the daily open-orders summary: opens the shift list with the order intake (the
+   * orders that are not sealed yet) preselected.
+   * @param message - The proactive message the button belongs to
+   */
+  openOpenOrdersList(message: ChatMessage): void {
+    if (!this.isOpenOrdersSummary(message)) {
+      return;
+    }
+    void this.klacksyNavigation.navigateAndScroll(SHIFT_LIST_ORDERS_VIEW_URL);
+  }
+
+  /**
+   * "Später" on the daily open-orders summary: silences the open_order kind until the next local
+   * midnight through the same trigger preference the welcome focus "Später" sets, then hides the row
+   * for this session. A failed request leaves the row visible so the user can try again.
+   * @param message - The proactive message the button belongs to
+   */
+  async snoozeOpenOrders(message: ChatMessage): Promise<void> {
+    if (!this.isOpenOrdersSummary(message) || this._pendingSnoozeMessageId() !== null) {
+      return;
+    }
+    this._pendingSnoozeMessageId.set(message.id);
+    try {
+      await firstValueFrom(
+        this.assistantService.snoozeTriggerKind(
+          PROACTIVE_TRIGGER_KIND.OpenOrder,
+          this.welcomeFocusToast.nextLocalMidnightUtc(new Date()),
+        ),
+      );
+      this.proactiveInboxService.markHidden([message.id]);
+      this.toastShowService.showInfo(this.translateService.instant(OPEN_ORDERS_SNOOZED_KEY));
+    } catch {
+      this.toastShowService.showError(this.translateService.instant(PROACTIVE_REACTION_ERROR_KEY));
+    } finally {
+      this._pendingSnoozeMessageId.set(null);
+    }
+  }
+
   toggleDismissMenu(messageId: string): void {
     const current = this._dismissMenuMessageId();
     this._dismissMenuMessageId.set(current === messageId ? null : messageId);
@@ -356,6 +424,10 @@ export class ChatMessageActionsService {
     }
     const url = this.buildActionUrl(message.proactiveActionRoute, message.proactiveActionParams);
     void this.klacksyNavigation.navigateAndScroll(url);
+  }
+
+  private isOpenOrdersSummary(message: ChatMessage): boolean {
+    return message.proactiveKind === PROACTIVE_TRIGGER_KIND.OpenOrder;
   }
 
   private buildActionUrl(route: string, params?: Record<string, string>): string {

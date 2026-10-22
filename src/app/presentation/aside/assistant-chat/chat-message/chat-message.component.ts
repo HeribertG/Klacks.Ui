@@ -31,6 +31,13 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
+import { WELCOME_FOCUS_LATER_LABEL_KEY } from 'src/app/domain/constants/welcome-focus.constants';
+import {
+  OPEN_ORDERS_SEAL_LABEL_KEY,
+  OPEN_ORDERS_VIEW_LIST_LABEL_KEY,
+} from 'src/app/domain/constants/open-orders-summary.constants';
 import { TextToSpeechService } from '../services/text-to-speech.service';
 import { ChatMessageActionsService } from '../services/chat-message-actions.service';
 import { ChatStageStatusService } from '../services/chat-stage-status.service';
@@ -39,6 +46,7 @@ import { ChatMessage } from '../chat-message.interface';
 import { formatMessage } from 'src/app/shared/helpers/assistant-text.helper';
 import { PROACTIVE_REACTION, PROACTIVE_REJECT_REASON } from 'src/app/domain/constants/proactive-reaction.constants';
 import { PROACTIVE_SEVERITY } from 'src/app/domain/constants/proactive-severity.constants';
+import { PROACTIVE_TRIGGER_KIND } from 'src/app/domain/constants/proactive-trigger-kinds.constants';
 import { IconUserComponent } from '../../../icons/icon-user.component';
 import { IconMMLComponent } from '../../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../../icons/icon-logo.component';
@@ -65,6 +73,7 @@ export class ChatMessageComponent {
   private readonly assistantService = inject(DataManagementAssistantService);
   private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
   private readonly onboarding = inject(OnboardingService);
+  private readonly authorizationService = inject(AuthorizationService);
 
   protected readonly faArrowRight = faArrowRight;
   protected readonly faBell = faBell;
@@ -83,6 +92,17 @@ export class ChatMessageComponent {
   protected readonly proactiveRejectReasons = PROACTIVE_REJECT_REASON;
   protected readonly proactiveSeverities = PROACTIVE_SEVERITY;
   protected readonly expectedSkillMaxLength = EXPECTED_SKILL_MAX_LENGTH;
+  protected readonly openOrdersSealLabelKey = OPEN_ORDERS_SEAL_LABEL_KEY;
+  protected readonly openOrdersViewListLabelKey = OPEN_ORDERS_VIEW_LIST_LABEL_KEY;
+  protected readonly laterLabelKey = WELCOME_FOCUS_LATER_LABEL_KEY;
+
+  /**
+   * Sealing and the order intake list are for users who may edit shifts (Admin, Supervisor): the shift list
+   * keeps its order view disabled for everyone else, and the backend refuses the seal anyway. Cosmetic gate.
+   */
+  protected readonly canWorkOnOpenOrders = computed(() =>
+    this.authorizationService.hasPermission(PERMISSIONS.CanEditShifts),
+  );
 
   protected readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   protected readonly hasLogoImage = computed(() => !!this.logoImage());
@@ -151,6 +171,10 @@ export class ChatMessageComponent {
 
   protected isGroupingFeasibilityNotice(message: ChatMessage): boolean {
     return this.actions.isGroupingFeasibilityNotice(message);
+  }
+
+  protected isOpenOrdersSummary(message: ChatMessage): boolean {
+    return message.proactiveKind === PROACTIVE_TRIGGER_KIND.OpenOrder;
   }
 
   /**

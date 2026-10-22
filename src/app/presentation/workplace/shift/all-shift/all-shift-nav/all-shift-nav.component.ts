@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   inject,
   OnDestroy,
   OnInit,
@@ -45,6 +46,14 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   objectForUnsubscribe: Subscription | undefined;
 
   isComboBoxOpen = false;
+
+  constructor() {
+    effect(() => {
+      if (this.dataManagementShiftService.isRead()) {
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;

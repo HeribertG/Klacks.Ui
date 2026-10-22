@@ -259,7 +259,7 @@
         {{ "assistant-chat.proactive.reminder-badge" | translate : { count: message().proactiveReminderCount } }}
       </span>
       }
-      @if (message().proactiveActionRoute) {
+      @if (message().proactiveActionRoute && !isOpenOrdersSummary(message())) {
       <button
         type="button"
         class="proactive-reaction-btn proactive-action-btn"
@@ -277,6 +277,33 @@
         (click)="actions.startSetupConsultation(message())"
       >
         {{ "setupConsultation.startButton" | translate }}
+      </button>
+      }
+      @if (isOpenOrdersSummary(message())) {
+      @if (canWorkOnOpenOrders()) {
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-seal-orders-btn"
+        (click)="actions.sealOpenOrders(message())"
+      >
+        {{ openOrdersSealLabelKey | translate }}
+      </button>
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-orders-list-btn"
+        (click)="actions.openOpenOrdersList(message())"
+      >
+        <fa-icon [icon]="faArrowRight"></fa-icon>
+        {{ openOrdersViewListLabelKey | translate }}
+      </button>
+      }
+      <button
+        type="button"
+        class="proactive-reaction-btn proactive-orders-later-btn"
+        [disabled]="actions.pendingSnoozeMessageId() !== null"
+        (click)="actions.snoozeOpenOrders(message())"
+      >
+        {{ laterLabelKey | translate }}
       </button>
       }
       @if (isGroupingFeasibilityNotice(message())) {

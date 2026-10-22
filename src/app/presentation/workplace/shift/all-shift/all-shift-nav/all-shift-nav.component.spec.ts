@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { AllShiftNavComponent } from './all-shift-nav.component';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
@@ -11,10 +12,10 @@ import { TranslateService } from '@ngx-translate/core';
 
 describe('AllShiftNavComponent - filter locked to planbar for planers', () => {
   let held: Set<string>;
-  let dataManagementShiftService: { currentFilter: { filterType: number } };
+  let dataManagementShiftService: { currentFilter: { filterType: number }; isRead: ReturnType<typeof signal<boolean>> };
 
   const createComponent = (): AllShiftNavComponent => {
-    dataManagementShiftService = { currentFilter: { filterType: 0 } };
+    dataManagementShiftService = { currentFilter: { filterType: 0 }, isRead: signal(false) };
 
     TestBed.configureTestingModule({
       imports: [AllShiftNavComponent],
