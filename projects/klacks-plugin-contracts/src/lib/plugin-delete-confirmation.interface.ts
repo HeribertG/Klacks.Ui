@@ -3,7 +3,8 @@
 /**
  * Host delete confirmation dialog for plugins.
  * @param requestDelete - Opens the host delete dialog for the given subject; context identifies the caller
- * @param confirmedDeletes - Emits the subject id each time the user confirms a delete requested with this context
+ * @param confirmedDeletes - Emits the subject id each time the user confirms a delete requested with this context;
+ *   the first confirmation resets the dialog state, so subscribe once per context
  */
 
 import { Observable } from 'rxjs';

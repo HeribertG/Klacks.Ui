@@ -3,15 +3,23 @@
 import { firstValueFrom, of } from 'rxjs';
 import { providePluginHost, toShiftFilter } from './app.plugin-host';
 import {
+  IPluginClientDetailsReader,
+  IPluginShiftCatalog,
   IPluginWorkScheduleReader,
   PLUGIN_ASSISTANT_LAUNCHER,
   PLUGIN_BACKEND_API_URL,
+  PLUGIN_CLIENT_DETAILS_READER,
   PLUGIN_DELETE_CONFIRMATION,
+  PLUGIN_SHIFT_CATALOG,
   PLUGIN_WORK_SCHEDULE_READER,
 } from 'klacks-plugin-contracts';
 import { PluginSetupAssistantOfferService } from 'src/app/presentation/services/plugin-setup-assistant-offer.service';
 import { PluginDeleteConfirmationService } from 'src/app/presentation/services/plugin-delete-confirmation.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { IClient } from 'src/app/domain/models/client/i-client';
+import { ITruncatedShift } from 'src/app/domain/models/shift/truncated-shift.interface';
 import { IWorkScheduleResponse } from 'src/app/domain/models/schedule/work-schedule-response.interface';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { ShiftFilter } from 'src/app/domain/models/shift/shift-filter-class';
@@ -79,5 +87,39 @@ describe('providePluginHost', () => {
     expect(getWorkSchedule).toHaveBeenCalledWith(query);
     expect(result.works).toEqual([response.entries[0]]);
     expect(result.clients).toEqual(response.clients);
+  });
+
+  it('reads shifts with the host shift filter and hands plugins an empty list when none come back', async () => {
+    // Arrange
+    const readShiftList = vi.fn().mockReturnValue(of({ shifts: undefined } as unknown as ITruncatedShift));
+    const registration = registrationFor(PLUGIN_SHIFT_CATALOG) as {
+      useFactory: (service: Pick<DataShiftService, 'readShiftList'>) => IPluginShiftCatalog;
+    };
+    const catalog = registration.useFactory({ readShiftList });
+    const query = { kind: 'shift' as const, maxCount: 500, activeDateRange: true, futureDateRange: true };
+
+    // Act
+    const shifts = await firstValueFrom(catalog.readShifts(query));
+
+    // Assert
+    expect(readShiftList).toHaveBeenCalledWith(toShiftFilter(query));
+    expect(shifts).toEqual([]);
+  });
+
+  it('passes the client id through to the host client lookup', async () => {
+    // Arrange
+    const client = { communications: [], clientImage: undefined } as unknown as IClient;
+    const getClient = vi.fn().mockReturnValue(of(client));
+    const registration = registrationFor(PLUGIN_CLIENT_DETAILS_READER) as {
+      useFactory: (service: Pick<DataClientService, 'getClient'>) => IPluginClientDetailsReader;
+    };
+    const reader = registration.useFactory({ getClient });
+
+    // Act
+    const details = await firstValueFrom(reader.readClientDetails('c1'));
+
+    // Assert
+    expect(getClient).toHaveBeenCalledWith('c1');
+    expect(details).toBe(client);
   });
 });

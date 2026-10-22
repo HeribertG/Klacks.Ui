@@ -8,7 +8,7 @@
  */
 
 import { inject, Injectable } from '@angular/core';
-import { filter, map, Observable } from 'rxjs';
+import { filter, map, Observable, tap } from 'rxjs';
 import { IPluginDeleteConfirmation } from 'klacks-plugin-contracts';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
@@ -22,7 +22,6 @@ export class PluginDeleteConfirmationService implements IPluginDeleteConfirmatio
   private readonly modalService = inject(ModalService);
 
   requestDelete(context: string, subjectId: string): void {
-    this.modalService.Filing = NO_SUBJECT;
     this.modalService.componentContext = context;
     this.modalService.Filing = subjectId;
     this.modalService.deleteMessage = DomainMessages.DELETE_ENTRY;
@@ -33,11 +32,10 @@ export class PluginDeleteConfirmationService implements IPluginDeleteConfirmatio
   confirmedDeletes(context: string): Observable<string> {
     return this.modalService.resultEvent.pipe(
       filter((result: ModalType) => result === ModalType.Delete && this.modalService.componentContext === context),
-      map(() => {
-        const subjectId = this.modalService.Filing;
+      map(() => this.modalService.Filing),
+      tap(() => {
         this.modalService.componentContext = NO_CONTEXT;
         this.modalService.Filing = NO_SUBJECT;
-        return subjectId;
       }),
     );
   }
