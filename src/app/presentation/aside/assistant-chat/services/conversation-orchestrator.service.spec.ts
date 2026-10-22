@@ -4,6 +4,7 @@
  * Tests for ConversationOrchestratorService state machine.
  */
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Subject, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
@@ -23,6 +24,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
+import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
@@ -1221,6 +1223,47 @@ describe('ConversationOrchestratorService', () => {
     expect(mockDataStt.transcribe).toHaveBeenCalledTimes(2);
     expect(errorSpy).not.toHaveBeenCalled();
     expect(setInputText).toHaveBeenCalledWith('recovered partial');
+  });
+
+  it('explains an unsupported language of the local engine with a persistent hint', async () => {
+    mockDataStt.transcribe.mockRejectedValue(
+      new HttpErrorResponse({
+        status: HttpStatusCode.BadRequest,
+        error: { error: 'Language not supported', code: SttErrorCodes.UnsupportedLanguage },
+      }),
+    );
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('custom:7f3d2a10-0000-4000-8000-57705731a001', callbacks);
+    const hints: IVoiceShellErrorHint[] = [];
+    service.errors$.subscribe((hint) => hints.push(hint));
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(hints).toEqual([
+      {
+        kind: 'stt-connection',
+        i18nKey: 'klacksy.voice.errors.stt-unsupported-language',
+        persistent: true,
+      },
+    ]);
+  });
+
+  it('keeps the generic transcription failure hint for any other STT error', async () => {
+    mockDataStt.transcribe.mockRejectedValue(
+      new HttpErrorResponse({ status: HttpStatusCode.BadRequest, error: { error: 'Bad audio' } }),
+    );
+    const { callbacks } = makeSpyCallbacks();
+    await startListening('custom:7f3d2a10-0000-4000-8000-57705731a001', callbacks);
+    const hints: IVoiceShellErrorHint[] = [];
+    service.errors$.subscribe((hint) => hints.push(hint));
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(hints).toEqual([
+      { kind: 'stt-connection', i18nKey: 'klacksy.voice.errors.stt-failed', persistent: false },
+    ]);
   });
 
   it('ends a running voice session when the setup tour degrades the floating output mode', async () => {

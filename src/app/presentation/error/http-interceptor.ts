@@ -27,6 +27,7 @@ import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/cons
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
+import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
@@ -118,7 +119,11 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        if (!this.isQuietCallerHandledRequest(error) && !this.isGeoServicesPassThrough(error.url || '')) {
+        if (
+          !this.isQuietCallerHandledRequest(error) &&
+          !this.isGeoServicesPassThrough(error.url || '') &&
+          !this.isUnsupportedSttLanguage(error)
+        ) {
           this.resetUIState(error);
         }
         return this.handleSpecificErrors(error, req);
@@ -170,6 +175,11 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     // Background polls and page-handled user actions: the caller reports or ignores the failure itself.
     if (this.isQuietCallerHandledRequest(error)) {
+      return throwError(() => error);
+    }
+
+    // The voice flow explains an unsupported language of the local engine with its own persistent hint.
+    if (this.isUnsupportedSttLanguage(error)) {
       return throwError(() => error);
     }
 
@@ -315,6 +325,10 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private requestBody(req: HttpRequest<unknown>): Record<string, unknown> {
     return (req.body ?? {}) as Record<string, unknown>;
+  }
+
+  private isUnsupportedSttLanguage(error: HttpErrorResponse): boolean {
+    return error.status === HttpStatusCode.BadRequest && error.error?.code === SttErrorCodes.UnsupportedLanguage;
   }
 
   private isGeoServicesPassThrough(url: string): boolean {

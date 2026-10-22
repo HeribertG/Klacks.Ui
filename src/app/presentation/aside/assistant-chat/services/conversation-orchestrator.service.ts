@@ -14,6 +14,7 @@
  * @param interimText - Live transcription preview while user speaks
  */
 import { Injectable, OnDestroy, Signal, signal, computed, effect, inject, NgZone, untracked } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
@@ -26,7 +27,7 @@ import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.se
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TranscriptSanitizerService } from 'src/app/domain/services/speech/transcript-sanitizer.service';
-import { SttEngine } from 'src/app/domain/constants/speech-constants';
+import { SttEngine, SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
@@ -520,6 +521,10 @@ export class ConversationOrchestratorService implements OnDestroy {
     return engine === SttEngine.Browser || engine === SttEngine.GroqWhisper || SttEngine.isCustom(engine);
   }
 
+  private isUnsupportedSttLanguage(err: unknown): boolean {
+    return err instanceof HttpErrorResponse && err.error?.code === SttErrorCodes.UnsupportedLanguage;
+  }
+
   private async onSilenceDetected(): Promise<void> {
     if (this.state() !== ConversationState.Listening) return;
 
@@ -544,11 +549,19 @@ export class ConversationOrchestratorService implements OnDestroy {
         this.callbacks?.detectChanges();
       } catch (err) {
         console.error('[VS] blob STT transcription failed', err);
-        this.reportError({
-          kind: 'stt-connection',
-          i18nKey: 'klacksy.voice.errors.stt-failed',
-          persistent: false,
-        });
+        this.reportError(
+          this.isUnsupportedSttLanguage(err)
+            ? {
+                kind: 'stt-connection',
+                i18nKey: 'klacksy.voice.errors.stt-unsupported-language',
+                persistent: true,
+              }
+            : {
+                kind: 'stt-connection',
+                i18nKey: 'klacksy.voice.errors.stt-failed',
+                persistent: false,
+              },
+        );
         await this.transitionToListening();
         return;
       }

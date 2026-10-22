@@ -254,6 +254,31 @@ describe('ResponseInterceptor', () => {
     });
   });
 
+  describe('unsupported STT language pass-through (the voice flow shows its own persistent hint)', () => {
+    const STT_TRANSCRIBE_URL = '/api/backend/assistant/stt/transcribe?locale=ja';
+    const UNSUPPORTED_LANGUAGE_BODY = { error: 'Language not supported', code: 'unsupported_language' };
+
+    it('neither toasts nor clears the unsaved-changes flag but fails the request with the original 400', () => {
+      workplaceStateService.isDirty = true;
+      const captured = expectRequestToFail(STT_TRANSCRIBE_URL);
+
+      httpMock.expectOne(STT_TRANSCRIBE_URL).flush(UNSUPPORTED_LANGUAGE_BODY, BAD_REQUEST);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
+    it('keeps the generic toast for any other 400 on the transcribe endpoint', () => {
+      const captured = expectRequestToFail(STT_TRANSCRIBE_URL);
+
+      httpMock.expectOne(STT_TRANSCRIBE_URL).flush({ error: 'Bad audio' }, BAD_REQUEST);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+  });
+
   describe('scenario summary pass-through (the dialog shows its own unavailable state)', () => {
     const SUMMARY_URL = '/api/backend/AnalyseScenarios/scenario-1/Summary';
 
