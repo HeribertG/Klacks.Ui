@@ -4760,5 +4760,14 @@
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "No active contract",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "No employee works on this weekday (contract)",
   "scenarioSummary.reason.NO_AGENT_PERFORMS_SHIFT_WORK": "No employee with shift work in their contract",
-  "scenarioSummary.reason.CAPACITY_OR_RULES": "Capacity or planning rules"
+  "scenarioSummary.reason.CAPACITY_OR_RULES": "Capacity or planning rules",
+  "holisticHarmonizer.critic.title": "AI notes on the plan",
+  "holisticHarmonizer.critic.intro": "A vision model reviewed the finished plan. These notes are suggestions only – the plan was not changed.",
+  "holisticHarmonizer.critic.none": "Nothing noticeable found.",
+  "holisticHarmonizer.critic.failed": "The AI review of the plan could not be run.",
+  "holisticHarmonizer.critic.discarded": "{{count}} note(s) discarded because they did not match the plan.",
+  "holisticHarmonizer.critic.model": "Model: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Low",
+  "holisticHarmonizer.critic.severity-medium": "Medium",
+  "holisticHarmonizer.critic.severity-high": "High"
 }

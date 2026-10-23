@@ -112,6 +112,11 @@
 
             <app-planning-rule-warning-report [warnings]="planningRuleWarnings()" />
             <app-planning-rule-remaining-report [remaining]="planningRuleRemaining()" />
+            <app-plan-critic-report
+              [critic]="planCritic()"
+              [agentDisplayNames]="r.agentDisplayNames"
+              [periodStart]="periodStart()"
+            />
 
             @if (r.batches.length > 0) {
               <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.batches-section-title' | translate }}</h5>

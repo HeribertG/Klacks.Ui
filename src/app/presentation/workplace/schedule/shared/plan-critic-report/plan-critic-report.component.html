@@ -1,0 +1,51 @@
+@if (isVisible()) {
+  <section id="plan-critic-report" class="plan-critic-report">
+    <h5 class="plan-critic-title">{{ 'holisticHarmonizer.critic.title' | translate }}</h5>
+
+    @if (isFailed()) {
+      <p class="plan-critic-muted mb-0">{{ 'holisticHarmonizer.critic.failed' | translate }}</p>
+    } @else {
+      <p class="plan-critic-muted">{{ 'holisticHarmonizer.critic.intro' | translate }}</p>
+
+      @if (findings().length === 0) {
+        <p class="mb-0">{{ 'holisticHarmonizer.critic.none' | translate }}</p>
+      } @else {
+        <ul class="plan-critic-list">
+          @for (finding of findings(); track $index) {
+            <li [class]="'plan-critic-card plan-critic-card--' + finding.severity.toLowerCase()">
+              <header class="plan-critic-card-header">
+                <span class="plan-critic-severity">{{ finding.severityKey | translate }}</span>
+                <span class="plan-critic-pattern">{{ finding.pattern }}</span>
+              </header>
+              <p class="plan-critic-description">{{ finding.description }}</p>
+              @if (finding.agents.length > 0) {
+                <ul class="plan-critic-agents">
+                  @for (agent of finding.agents; track agent.name) {
+                    <li>
+                      <span class="plan-critic-agent-name">{{ agent.name }}</span>
+                      @for (date of agent.dates; track $index; let last = $last) {
+                        <span class="plan-critic-date">{{ date | calendarDate: 'weekdayDate' }}@if (!last) {,}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @if (discardedCount() > 0) {
+        <p class="plan-critic-muted mb-0">
+          {{ 'holisticHarmonizer.critic.discarded' | translate: { count: discardedCount() } }}
+        </p>
+      }
+    }
+
+    @if (modelId(); as model) {
+      <p class="plan-critic-muted plan-critic-model mb-0">
+        {{ 'holisticHarmonizer.critic.model' | translate: { model: model } }}
+      </p>
+    }
+  </section>
+}

@@ -4760,5 +4760,14 @@
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Kein aktiver Vertrag",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Kein Mitarbeiter arbeitet an diesem Wochentag (Vertrag)",
   "scenarioSummary.reason.NO_AGENT_PERFORMS_SHIFT_WORK": "Kein Mitarbeiter mit Schichtarbeit im Vertrag",
-  "scenarioSummary.reason.CAPACITY_OR_RULES": "Kapazität oder Planungsregeln"
+  "scenarioSummary.reason.CAPACITY_OR_RULES": "Kapazität oder Planungsregeln",
+  "holisticHarmonizer.critic.title": "KI-Hinweise zum Plan",
+  "holisticHarmonizer.critic.intro": "Ein Vision-Modell hat den fertigen Plan geprüft. Die Hinweise sind nur Vorschläge – der Plan wurde nicht verändert.",
+  "holisticHarmonizer.critic.none": "Keine Auffälligkeiten gefunden.",
+  "holisticHarmonizer.critic.failed": "Die KI-Prüfung des Plans konnte nicht ausgeführt werden.",
+  "holisticHarmonizer.critic.discarded": "{{count}} Hinweis(e) verworfen, weil sie nicht zum Plan passten.",
+  "holisticHarmonizer.critic.model": "Modell: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Gering",
+  "holisticHarmonizer.critic.severity-medium": "Mittel",
+  "holisticHarmonizer.critic.severity-high": "Hoch"
 }

@@ -6,6 +6,7 @@ import { HolisticHarmonizerBatchDto } from './holistic-harmonizer-batch-dto.inte
 import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
+import { PlanCriticResult } from './plan-critic-result.interface';
 
 export interface HolisticHarmonizerRunResponse {
   jobId: string;
@@ -21,4 +22,5 @@ export interface HolisticHarmonizerRunResponse {
   llmRawResponsePreview: string | null;
   planningRuleWarnings?: ScheduleErrorEntry[] | null;
   planningRuleRemaining?: PlanningRuleRemaining | null;
+  planCritic?: PlanCriticResult | null;
 }
