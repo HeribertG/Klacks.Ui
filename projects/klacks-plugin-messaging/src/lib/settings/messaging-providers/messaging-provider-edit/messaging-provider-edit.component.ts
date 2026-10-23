@@ -7,9 +7,9 @@
  * @param saved - Emitted with the form data when the user clicks Save
  * @param cancelled - Emitted when the user clicks Cancel
  */
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../../models/create-messaging-provider.model';
 
@@ -25,7 +25,12 @@ const VIBER_WEBHOOK_PATH = '/api/messaging/webhook/viber';
 const LINE_WEBHOOK_PATH = '/api/messaging/webhook/line';
 const WHATSAPP_WEBHOOK_PATH = '/api/messaging/webhook/whatsapp';
 
-const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string; labelEn: string; type: string; placeholder: string; readonly?: boolean; autoFill?: () => string }[]> = {
+type ProviderFieldDefinition = { key: string; labelDe: string; labelEn: string; type: string; placeholder: string; readonly?: boolean; autoFill?: () => string };
+
+const GERMAN_LANGUAGE_PREFIX = 'de';
+const DEFAULT_LABEL_LANGUAGE = 'de';
+
+const PROVIDER_FIELD_DEFINITIONS: Record<string, ProviderFieldDefinition[]> = {
   Telegram: [
     { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11' },
     { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: TELEGRAM_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${TELEGRAM_WEBHOOK_PATH}` },
@@ -108,6 +113,8 @@ export class MessagingProviderEditComponent implements OnInit {
 
   configFields: ProviderConfigFields = {};
 
+  private readonly translate = inject(TranslateService);
+
   readonly providerTypes = PROVIDER_TYPES;
   readonly telegramValidation = signal<TokenValidationState>({ state: 'idle' });
 
@@ -128,6 +135,11 @@ export class MessagingProviderEditComponent implements OnInit {
 
   getFieldDefinitions(): typeof PROVIDER_FIELD_DEFINITIONS[string] {
     return PROVIDER_FIELD_DEFINITIONS[this.providerType] ?? [];
+  }
+
+  getFieldLabel(field: ProviderFieldDefinition): string {
+    const lang = this.translate.currentLang || DEFAULT_LABEL_LANGUAGE;
+    return lang.startsWith(GERMAN_LANGUAGE_PREFIX) ? field.labelDe : field.labelEn;
   }
 
   onProviderTypeChange(): void {

@@ -51,7 +51,7 @@
     @for (field of getFieldDefinitions(); track field.key) {
       <div class="row-line-modal-inline">
         <div class="provider-field full-width">
-          <label [for]="'config-' + field.key">{{ field.labelDe }}</label>
+          <label [for]="'config-' + field.key">{{ getFieldLabel(field) }}</label>
           <input
             [id]="'messaging-provider-edit-config-' + field.key"
             [type]="field.type"
@@ -71,7 +71,7 @@
                 <span class="token-hint token-loading">{{ 'settings.messaging-providers.token.checking' | translate }}</span>
               }
               @case ('valid') {
-                <span class="token-hint token-valid">&#10003; Bot: @{{ $any(telegramValidation()).botName }}</span>
+                <span class="token-hint token-valid">&#10003; {{ 'settings.messaging-providers.token.valid' | translate: { botName: $any(telegramValidation()).botName } }}</span>
               }
               @case ('invalid') {
                 <span class="token-hint token-invalid">&#10007; {{ 'settings.messaging-providers.token.invalid' | translate }}</span>

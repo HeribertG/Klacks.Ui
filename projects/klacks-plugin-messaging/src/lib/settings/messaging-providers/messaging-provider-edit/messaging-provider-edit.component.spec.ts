@@ -262,4 +262,37 @@ describe('MessagingProviderEditComponent', () => {
     fixture.detectChanges();
     expect(element.querySelector('.token-invalid')?.textContent).toContain('settings.messaging-providers.token.invalid');
   });
+
+  it('passes the bot name to the translated valid-token hint', () => {
+    const fixture = TestBed.createComponent(MessagingProviderEditComponent);
+    const translate = TestBed.inject(TranslateService);
+    const getSpy = vi.spyOn(translate, 'get');
+    fixture.detectChanges();
+
+    fixture.componentInstance.telegramValidation.set({ state: 'valid', botName: 'klacks_bot' });
+    fixture.detectChanges();
+
+    const hint = (fixture.nativeElement as HTMLElement).querySelector('.token-valid');
+    expect(hint?.textContent).toContain('settings.messaging-providers.token.valid');
+    expect(hint?.textContent).not.toContain('Bot:');
+    expect(getSpy).toHaveBeenCalledWith('settings.messaging-providers.token.valid', { botName: 'klacks_bot' });
+  });
+
+  it.each([
+    ['en', 'Bot Token'],
+    ['fr', 'Bot Token'],
+    ['de', 'Bot-Token'],
+    ['de-CH', 'Bot-Token'],
+    [undefined, 'Bot-Token'],
+  ])('renders the field label for UI language %s as %s', (lang, expectedLabel) => {
+    const fixture = TestBed.createComponent(MessagingProviderEditComponent);
+    const translate = TestBed.inject(TranslateService);
+    (translate as { currentLang?: string }).currentLang = lang;
+
+    fixture.detectChanges();
+
+    const labels = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.config-section label'))
+      .map(label => label.textContent?.trim());
+    expect(labels).toContain(expectedLabel);
+  });
 });
