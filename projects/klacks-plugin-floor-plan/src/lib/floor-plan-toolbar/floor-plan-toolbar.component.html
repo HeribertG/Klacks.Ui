@@ -267,7 +267,7 @@
     <button
       class="toolbar-btn"
       (click)="onPaste()"
-      [disabled]="!canvasService.hasClipboard()"
+      [disabled]="!editService.hasClipboard()"
       [title]="'floor-plan.toolbar.paste' | translate"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">

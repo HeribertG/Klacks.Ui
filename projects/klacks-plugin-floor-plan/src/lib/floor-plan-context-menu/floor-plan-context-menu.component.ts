@@ -26,6 +26,7 @@ import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+import { FloorPlanObjectEditService } from '../services/floor-plan-object-edit.service';
 
 @Component({
   selector: 'lib-floor-plan-context-menu',
@@ -41,6 +42,7 @@ export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
   readonly joinService = inject(FloorPlanJoinService);
   readonly pointEditorService = inject(FloorPlanPointEditorService);
   private readonly canvasService = inject(FloorPlanCanvasService);
+  private readonly editService = inject(FloorPlanObjectEditService);
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly canClosePath = computed(() => {
@@ -61,7 +63,7 @@ export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
            obj instanceof Polygon || obj instanceof Path || obj instanceof Line;
   });
 
-  readonly canPaste = computed(() => this.canvasService.hasClipboard());
+  readonly canPaste = computed(() => this.editService.hasClipboard());
 
   readonly isOpen = signal(false);
   readonly x = signal(0);
@@ -109,27 +111,27 @@ export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
   }
 
   onClosePath(): void {
-    this.canvasService.closeSelectedPath();
+    this.editService.closeSelectedPath();
     this.close();
   }
 
   onCopy(): void {
-    this.canvasService.copySelected();
+    this.editService.copySelected();
     this.close();
   }
 
   async onPaste(): Promise<void> {
-    await this.canvasService.paste();
+    await this.editService.paste();
     this.close();
   }
 
   onFlipH(): void {
-    this.canvasService.flipHorizontal();
+    this.editService.flipHorizontal();
     this.close();
   }
 
   onFlipV(): void {
-    this.canvasService.flipVertical();
+    this.editService.flipVertical();
     this.close();
   }
 

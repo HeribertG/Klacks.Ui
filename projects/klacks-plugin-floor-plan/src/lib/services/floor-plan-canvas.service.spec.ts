@@ -27,6 +27,11 @@ import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
 import { FloorPlanToolService } from './floor-plan-tool.service';
 import { FloorPlanAnchorSnapService } from './floor-plan-anchor-snap.service';
+import { FloorPlanShapeService } from './floor-plan-shape.service';
+import { FloorPlanPolygonDrawingService } from './floor-plan-polygon-drawing.service';
+import { FloorPlanObjectEditService } from './floor-plan-object-edit.service';
+import { FloorPlanObjectStyleService } from './floor-plan-object-style.service';
+import { FloorPlanCanvasMarkerService } from './floor-plan-canvas-marker.service';
 import { FabricWithData } from './fabric-with-data.type';
 import { FloorPlanObjectData } from './floor-plan-object-data.interface';
 import { ILiveMarkerEntry } from './live-marker-entry.interface';
@@ -95,11 +100,11 @@ const anchorSnapMock = {
 };
 
 const core = (): FloorPlanCanvasService => TestBed.inject(FloorPlanCanvasService);
-const shapes = (): FloorPlanCanvasService => TestBed.inject(FloorPlanCanvasService);
-const drawing = (): FloorPlanCanvasService => TestBed.inject(FloorPlanCanvasService);
-const editing = (): FloorPlanCanvasService => TestBed.inject(FloorPlanCanvasService);
-const styling = (): FloorPlanCanvasService => TestBed.inject(FloorPlanCanvasService);
-const markers = (): FloorPlanCanvasService => TestBed.inject(FloorPlanCanvasService);
+const shapes = (): FloorPlanShapeService => TestBed.inject(FloorPlanShapeService);
+const drawing = (): FloorPlanPolygonDrawingService => TestBed.inject(FloorPlanPolygonDrawingService);
+const editing = (): FloorPlanObjectEditService => TestBed.inject(FloorPlanObjectEditService);
+const styling = (): FloorPlanObjectStyleService => TestBed.inject(FloorPlanObjectStyleService);
+const markers = (): FloorPlanCanvasMarkerService => TestBed.inject(FloorPlanCanvasMarkerService);
 const layers = (): FloorPlanLayerService => TestBed.inject(FloorPlanLayerService);
 const tools = (): FloorPlanToolService => TestBed.inject(FloorPlanToolService);
 
@@ -146,6 +151,11 @@ describe('FloorPlanCanvasService (characterization)', () => {
     TestBed.configureTestingModule({
       providers: [
         FloorPlanCanvasService,
+        FloorPlanShapeService,
+        FloorPlanPolygonDrawingService,
+        FloorPlanObjectEditService,
+        FloorPlanObjectStyleService,
+        FloorPlanCanvasMarkerService,
         FloorPlanLayerService,
         FloorPlanToolService,
         { provide: FloorPlanAnchorSnapService, useValue: anchorSnapMock },

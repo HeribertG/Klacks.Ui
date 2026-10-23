@@ -78,4 +78,11 @@ export class FloorPlanToolService {
     const clamped = Math.max(MIN_REGULAR_POLYGON_SIDES, Math.min(MAX_REGULAR_POLYGON_SIDES, sides));
     this._regularPolygonSides.set(clamped);
   }
+
+  snap(value: number): number {
+    if (!this._snapEnabled()) return value;
+    const size = this._snapSize();
+    if (size <= 0) return value;
+    return Math.round(value / size) * size;
+  }
 }

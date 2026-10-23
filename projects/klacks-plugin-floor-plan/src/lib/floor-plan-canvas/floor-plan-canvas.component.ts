@@ -21,6 +21,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+import { FloorPlanShapeService } from '../services/floor-plan-shape.service';
+import { FloorPlanPolygonDrawingService } from '../services/floor-plan-polygon-drawing.service';
+import { FloorPlanObjectEditService } from '../services/floor-plan-object-edit.service';
+import { FloorPlanObjectStyleService } from '../services/floor-plan-object-style.service';
+import { FloorPlanCanvasMarkerService } from '../services/floor-plan-canvas-marker.service';
 import { FabricObject, Line, Rect, Circle, Polygon, Path } from 'fabric';
 import { FloorPlanToolService } from '../services/floor-plan-tool.service';
 import { FloorPlanTool } from '../services/floor-plan-tool.enum';
@@ -50,6 +55,11 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   canvasService = inject(FloorPlanCanvasService);
+  private readonly shapeService = inject(FloorPlanShapeService);
+  private readonly polygonDrawingService = inject(FloorPlanPolygonDrawingService);
+  private readonly editService = inject(FloorPlanObjectEditService);
+  private readonly styleService = inject(FloorPlanObjectStyleService);
+  private readonly markerService = inject(FloorPlanCanvasMarkerService);
   private toolService = inject(FloorPlanToolService);
   private workDropService = inject(FloorPlanWorkDropService);
   private layerService = inject(FloorPlanLayerService);
@@ -119,12 +129,12 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       this.effects.push(toolEffect);
 
       const strokeEffect = effect(() => {
-        this.canvasService.applyStrokeColor(this.toolService.strokeColor());
+        this.styleService.applyStrokeColor(this.toolService.strokeColor());
       });
       this.effects.push(strokeEffect);
 
       const strokeWidthEffect = effect(() => {
-        this.canvasService.applyStrokeWidth(this.toolService.strokeWidth());
+        this.styleService.applyStrokeWidth(this.toolService.strokeWidth());
       });
       this.effects.push(strokeWidthEffect);
 
@@ -163,47 +173,47 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   private applyTool(tool: FloorPlanTool): void {
     this.teardownConnectorEvents();
     this.teardownRegularPolygonEvents();
-    this.canvasService.cancelPolygonDrawing();
+    this.polygonDrawingService.cancelPolygonDrawing();
 
     switch (tool) {
       case FloorPlanTool.FreeDrawing:
-        this.canvasService.enableFreeDrawing();
+        this.shapeService.enableFreeDrawing();
         break;
       case FloorPlanTool.Rectangle:
-        this.canvasService.disableFreeDrawing();
-        this.canvasService.addRect();
+        this.shapeService.disableFreeDrawing();
+        this.shapeService.addRect();
         this.toolService.setTool(FloorPlanTool.Select);
         break;
       case FloorPlanTool.Circle:
-        this.canvasService.disableFreeDrawing();
-        this.canvasService.addCircle();
+        this.shapeService.disableFreeDrawing();
+        this.shapeService.addCircle();
         this.toolService.setTool(FloorPlanTool.Select);
         break;
       case FloorPlanTool.Line:
-        this.canvasService.disableFreeDrawing();
-        this.canvasService.addLine();
+        this.shapeService.disableFreeDrawing();
+        this.shapeService.addLine();
         this.toolService.setTool(FloorPlanTool.Select);
         break;
       case FloorPlanTool.Polygon:
-        this.canvasService.disableFreeDrawing();
-        this.canvasService.startPolygonDrawing();
+        this.shapeService.disableFreeDrawing();
+        this.polygonDrawingService.startPolygonDrawing();
         this.setupPolygonEvents();
         break;
       case FloorPlanTool.RegularPolygon:
-        this.canvasService.disableFreeDrawing();
+        this.shapeService.disableFreeDrawing();
         this.setupRegularPolygonEvents();
         break;
       case FloorPlanTool.Text:
-        this.canvasService.disableFreeDrawing();
-        this.canvasService.addText('Text');
+        this.shapeService.disableFreeDrawing();
+        this.shapeService.addText('Text');
         this.toolService.setTool(FloorPlanTool.Select);
         break;
       case FloorPlanTool.Connector:
-        this.canvasService.disableFreeDrawing();
+        this.shapeService.disableFreeDrawing();
         this.setupConnectorEvents();
         break;
       default:
-        this.canvasService.disableFreeDrawing();
+        this.shapeService.disableFreeDrawing();
         break;
     }
   }
@@ -218,26 +228,26 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   private onPolygonMouseDown = (opt: { e: Event }) => {
-    if (!this.canvasService.isInPolygonDrawingMode()) return;
+    if (!this.polygonDrawingService.isInPolygonDrawingMode()) return;
     const e = opt.e as MouseEvent;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
     const pointer = canvas.getViewportPoint(e);
-    this.canvasService.addPolygonPoint(pointer.x, pointer.y);
+    this.polygonDrawingService.addPolygonPoint(pointer.x, pointer.y);
   };
 
   private onPolygonMouseMove = (opt: { e: Event }) => {
-    if (!this.canvasService.isInPolygonDrawingMode()) return;
+    if (!this.polygonDrawingService.isInPolygonDrawingMode()) return;
     const e = opt.e as MouseEvent;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
     const pointer = canvas.getViewportPoint(e);
-    this.canvasService.updatePolygonPreview(pointer.x, pointer.y);
+    this.polygonDrawingService.updatePolygonPreview(pointer.x, pointer.y);
   };
 
   private onPolygonDoubleClick = () => {
-    if (!this.canvasService.isInPolygonDrawingMode()) return;
-    this.canvasService.finishPolygonDrawing();
+    if (!this.polygonDrawingService.isInPolygonDrawingMode()) return;
+    this.polygonDrawingService.finishPolygonDrawing();
     this.toolService.setTool(FloorPlanTool.Select);
     const canvas = this.canvasService.getCanvas();
     if (canvas) {
@@ -268,7 +278,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const e = opt.e as MouseEvent;
     const pointer = canvas.getViewportPoint(e);
     const sides = this.toolService.regularPolygonSides();
-    this.canvasService.addRegularPolygonAt(sides, pointer.x, pointer.y);
+    this.shapeService.addRegularPolygonAt(sides, pointer.x, pointer.y);
     this.teardownRegularPolygonEvents();
     this.toolService.setTool(FloorPlanTool.Select);
   };
@@ -563,7 +573,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       height: 50,
       markerType: marker.shiftId ? FloorPlanMarkerType.Work : FloorPlanMarkerType.Custom,
     };
-    this.canvasService.addWorkMarker(workMarker);
+    this.markerService.addWorkMarker(workMarker);
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -589,12 +599,12 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
       event.preventDefault();
-      this.canvasService.copySelected();
+      this.editService.copySelected();
     }
 
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'v') {
       event.preventDefault();
-      void this.canvasService.paste();
+      void this.editService.paste();
     }
 
     if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -602,7 +612,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         if (this.pointEditorService.isInEditMode()) {
           this.pointEditorService.deleteSelectedNode();
         } else {
-          this.canvasService.deleteSelected();
+          this.editService.deleteSelected();
         }
       }
     }
@@ -610,9 +620,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'g') {
       event.preventDefault();
       if (event.shiftKey) {
-        this.canvasService.ungroupSelected();
+        this.editService.ungroupSelected();
       } else {
-        this.canvasService.groupSelected();
+        this.editService.groupSelected();
       }
     }
 
@@ -623,9 +633,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         const dx = event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0;
         const dy = event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0;
         if (event.shiftKey) {
-          this.canvasService.resizeSelectedByDelta(dx, -dy);
+          this.editService.resizeSelectedByDelta(dx, -dy);
         } else {
-          this.canvasService.moveSelectedByDelta(dx, dy);
+          this.editService.moveSelectedByDelta(dx, dy);
         }
       }
     }
@@ -634,8 +644,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       if (this.pointEditorService.isInEditMode()) {
         this.pointEditorService.exitEditMode();
       }
-      if (this.canvasService.isInPolygonDrawingMode()) {
-        this.canvasService.cancelPolygonDrawing();
+      if (this.polygonDrawingService.isInPolygonDrawingMode()) {
+        this.polygonDrawingService.cancelPolygonDrawing();
         this.toolService.setTool(FloorPlanTool.Select);
         const canvas = this.canvasService.getCanvas();
         if (canvas) {
