@@ -1,51 +1,28 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Service for drag-drop operations on the time ruler canvas with dynamic item displacement.
+ * Service holding the drag session state of the time ruler canvas and turning mouse moves into item positions.
  * @param timeRangeService - Calculates effective start/end minutes including pre/post shift times
+ * @param edgeSnapService - Snaps a single dragged item onto the edges of its neighbours
+ * @param displacementService - Pushes the neighbours of the dragged item or block aside
  */
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
 import { Rectangle } from 'src/app/domain/models/geometry/rectangle.model';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/domain/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';
-import { SnapDirection } from './snap-direction.interface';
 import { ItemPosition } from './item-position.interface';
 import { DragUpdateResult } from './drag-update-result.interface';
 import { DragState } from './drag-state.interface';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
-
-const SNAP_ABOVE: SnapDirection = {
-  getEffectiveEdge: (startMinutes, _endMinutes, timeRangeService, item) =>
-    startMinutes - timeRangeService.getTotalPreShiftMinutes(item),
-  aggregate: Math.min,
-  boundaryCheck: (effectiveStart, boundary) => effectiveStart < boundary,
-  computeCandidate: (edge, pre, post, duration) => {
-    const effectiveEnd = edge;
-    const end = effectiveEnd - post;
-    const start = end - duration;
-    const effectiveStart = start - pre;
-    return { start, end, effectiveStart, effectiveEnd };
-  },
-};
-
-const SNAP_BELOW: SnapDirection = {
-  getEffectiveEdge: (_startMinutes, endMinutes, timeRangeService, item) =>
-    endMinutes + timeRangeService.getTotalPostShiftMinutes(item),
-  aggregate: Math.max,
-  boundaryCheck: (effectiveEnd, boundary) => effectiveEnd > boundary,
-  computeCandidate: (edge, pre, post, duration) => {
-    const effectiveStart = edge;
-    const start = effectiveStart + pre;
-    const end = start + duration;
-    const effectiveEnd = end + post;
-    return { start, end, effectiveStart, effectiveEnd };
-  },
-};
+import { TimeRulerEdgeSnapService } from './time-ruler-edge-snap.service';
+import { TimeRulerNeighbourDisplacementService } from './time-ruler-neighbour-displacement.service';
 
 @Injectable()
 export class TimeRulerDragDropService {
   private timeRangeService = inject(TimeRangeService);
+  private edgeSnapService = inject(TimeRulerEdgeSnapService);
+  private displacementService = inject(TimeRulerNeighbourDisplacementService);
 
   private _dragState: DragState = {
     isDragging: false,
@@ -65,10 +42,6 @@ export class TimeRulerDragDropService {
     blockEffectiveStart: 0,
     blockEffectiveEnd: 0,
   };
-
-  private readonly MINUTES_PER_HOUR = 60;
-  private readonly MINUTES_PER_DAY = 24 * 60;
-  private readonly SNAP_THRESHOLD_PIXELS = 5;
 
   public get dragState(): DragState {
     return this._dragState;
@@ -215,17 +188,24 @@ export class TimeRulerDragDropService {
         displacements.set(blockItem, { startMinutes: newItemStart, endMinutes: newItemEnd });
       }
 
-      const blockDisplacements = this.calculateBlockDisplacements(
-        blockDelta, allShifts
+      const blockDisplacements = this.displacementService.displaceAroundBlock(
+        this._dragState.blockItems,
+        this._dragState.blockOriginalPositions,
+        blockDelta,
+        this._dragState.originalPositions,
+        allShifts
       );
       for (const [item, pos] of blockDisplacements) {
         displacements.set(item, pos);
       }
     } else {
-      const snappedToEdge = this.applySnapToEdge(
+      const snappedToEdge = this.edgeSnapService.snapToNeighbourEdge(
+        this._dragState.draggedShift,
         newStartMinutes,
         newEndMinutes,
-        allShifts
+        allShifts,
+        this._dragState.originalPositions,
+        this._dragState.pixelsPerMinute
       );
 
       if (snappedToEdge) {
@@ -233,9 +213,11 @@ export class TimeRulerDragDropService {
         newEndMinutes = snappedToEdge.newEndMinutes;
       }
 
-      displacements = this.calculateDisplacements(
+      displacements = this.displacementService.displaceAroundItem(
+        this._dragState.draggedShift,
         newStartMinutes,
         newEndMinutes,
+        this._dragState.originalPositions,
         allShifts
       );
     }
@@ -244,636 +226,6 @@ export class TimeRulerDragDropService {
       draggedPosition: { newStartMinutes, newEndMinutes },
       displacements,
     };
-  }
-
-  private applySnapToEdge(
-    startMinutes: number,
-    endMinutes: number,
-    allShifts: IContainerTemplateItem[]
-  ): { newStartMinutes: number; newEndMinutes: number } | null {
-    const draggedShift = this._dragState.draggedShift;
-    if (!draggedShift) return null;
-
-    const snapThresholdMinutes =
-      this.SNAP_THRESHOLD_PIXELS / this._dragState.pixelsPerMinute;
-    const preShiftTime =
-      this.timeRangeService.getTotalPreShiftMinutes(draggedShift);
-    const postShiftTime =
-      this.timeRangeService.getTotalPostShiftMinutes(draggedShift);
-    const duration = endMinutes - startMinutes;
-
-    const effectiveStart = startMinutes - preShiftTime;
-    const effectiveEnd = endMinutes + postShiftTime;
-
-    const otherItems = allShifts.filter(
-      (item) => item !== draggedShift && (item.shift?.isTimeRange || !!item.absenceId)
-    );
-
-    let closestSnap: {
-      newStartMinutes: number;
-      newEndMinutes: number;
-      distance: number;
-    } | null = null;
-
-    for (const other of otherItems) {
-      const origPos = this._dragState.originalPositions.get(other);
-      if (!origPos) continue;
-
-      const otherPre = this.timeRangeService.getTotalPreShiftMinutes(other);
-      const otherPost = this.timeRangeService.getTotalPostShiftMinutes(other);
-      const otherEffectiveStart = origPos.startMinutes - otherPre;
-      const otherEffectiveEnd = origPos.endMinutes + otherPost;
-
-      const distanceToTop = effectiveEnd - otherEffectiveStart;
-      if (
-        distanceToTop > 0 &&
-        distanceToTop <= snapThresholdMinutes &&
-        effectiveStart < otherEffectiveStart
-      ) {
-        const newEffectiveEnd = otherEffectiveStart;
-        const newEnd = newEffectiveEnd - postShiftTime;
-        const newStart = newEnd - duration;
-
-        if (
-          !closestSnap ||
-          Math.abs(distanceToTop) < Math.abs(closestSnap.distance)
-        ) {
-          closestSnap = {
-            newStartMinutes: newStart,
-            newEndMinutes: newEnd,
-            distance: distanceToTop,
-          };
-        }
-      }
-
-      const distanceToBottom = otherEffectiveEnd - effectiveStart;
-      if (
-        distanceToBottom > 0 &&
-        distanceToBottom <= snapThresholdMinutes &&
-        effectiveEnd > otherEffectiveEnd
-      ) {
-        const newEffectiveStart = otherEffectiveEnd;
-        const newStart = newEffectiveStart + preShiftTime;
-        const newEnd = newStart + duration;
-
-        if (
-          !closestSnap ||
-          Math.abs(distanceToBottom) < Math.abs(closestSnap.distance)
-        ) {
-          closestSnap = {
-            newStartMinutes: newStart,
-            newEndMinutes: newEnd,
-            distance: distanceToBottom,
-          };
-        }
-      }
-    }
-
-    if (closestSnap) {
-      return {
-        newStartMinutes: closestSnap.newStartMinutes,
-        newEndMinutes: closestSnap.newEndMinutes,
-      };
-    }
-
-    return null;
-  }
-
-  private calculateDisplacements(
-    draggedStartMinutes: number,
-    draggedEndMinutes: number,
-    allItems: IContainerTemplateItem[]
-  ): Map<IContainerTemplateItem, ItemPosition> {
-    const displacements = new Map<IContainerTemplateItem, ItemPosition>();
-    const draggedShift = this._dragState.draggedShift;
-    if (!draggedShift) return displacements;
-
-    const draggedOrigPos = this._dragState.originalPositions.get(draggedShift);
-    if (!draggedOrigPos) return displacements;
-
-    const draggedPre = this.timeRangeService.getTotalPreShiftMinutes(draggedShift);
-    const draggedPost = this.timeRangeService.getTotalPostShiftMinutes(draggedShift);
-    const draggedEffEnd = draggedEndMinutes + draggedPost;
-    const draggedEffStart = draggedStartMinutes - draggedPre;
-
-    const movableItems = allItems.filter(
-      (item) =>
-        item !== draggedShift &&
-        (item.shift?.isTimeRange || item.shift?.isSporadic || !!item.absenceId)
-    );
-
-    const isMovingDown = draggedStartMinutes > draggedOrigPos.startMinutes;
-    const isMovingUp = draggedStartMinutes < draggedOrigPos.startMinutes;
-
-    if (isMovingDown) {
-      const candidates = movableItems
-        .filter((item) => {
-          const orig = this._dragState.originalPositions.get(item);
-          if (!orig) return false;
-          const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
-          const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
-          const itemEffStart = orig.startMinutes - itemPre;
-          const itemEffEnd = orig.endMinutes + itemPost;
-          const itemEffMidpoint = (itemEffStart + itemEffEnd) / 2;
-          return itemEffMidpoint >= draggedEffStart;
-        })
-        .sort((a, b) => {
-          const origA = this._dragState.originalPositions.get(a)!;
-          const origB = this._dragState.originalPositions.get(b)!;
-          return origA.startMinutes - origB.startMinutes;
-        });
-
-      let cursor = draggedEffEnd;
-
-      for (const item of candidates) {
-        const orig = this._dragState.originalPositions.get(item)!;
-        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
-        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
-        const itemEffStart = orig.startMinutes - itemPre;
-        const itemDuration = orig.endMinutes - orig.startMinutes;
-
-        if (cursor > itemEffStart) {
-          const newStart = cursor + itemPre;
-          const newEnd = newStart + itemDuration;
-          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
-          cursor = newEnd + itemPost;
-        } else {
-          break;
-        }
-      }
-    } else if (isMovingUp) {
-      const candidates = movableItems
-        .filter((item) => {
-          const orig = this._dragState.originalPositions.get(item);
-          if (!orig) return false;
-          const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
-          const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
-          const itemEffStart = orig.startMinutes - itemPre;
-          const itemEffEnd = orig.endMinutes + itemPost;
-          const itemEffMidpoint = (itemEffStart + itemEffEnd) / 2;
-          return itemEffMidpoint <= draggedEffEnd;
-        })
-        .sort((a, b) => {
-          const origA = this._dragState.originalPositions.get(a)!;
-          const origB = this._dragState.originalPositions.get(b)!;
-          return origB.startMinutes - origA.startMinutes;
-        });
-
-      let cursor = draggedEffStart;
-
-      for (const item of candidates) {
-        const orig = this._dragState.originalPositions.get(item)!;
-        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
-        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
-        const itemEffEnd = orig.endMinutes + itemPost;
-        const itemDuration = orig.endMinutes - orig.startMinutes;
-
-        if (cursor < itemEffEnd) {
-          const newEnd = cursor - itemPost;
-          const newStart = newEnd - itemDuration;
-          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
-          cursor = newStart - itemPre;
-        } else {
-          break;
-        }
-      }
-    }
-
-    return displacements;
-  }
-
-  private calculateBlockDisplacements(
-    blockDelta: number,
-    allItems: IContainerTemplateItem[]
-  ): Map<IContainerTemplateItem, ItemPosition> {
-    const displacements = new Map<IContainerTemplateItem, ItemPosition>();
-    const blockItems = this._dragState.blockItems;
-
-    let blockEffStart = Infinity;
-    let blockEffEnd = -Infinity;
-
-    for (const item of blockItems) {
-      const origPos = this._dragState.blockOriginalPositions.get(item);
-      if (!origPos) continue;
-      const newStart = origPos.startMinutes + blockDelta;
-      const itemDuration = origPos.endMinutes - origPos.startMinutes;
-      const newEnd = newStart + itemDuration;
-      const pre = this.timeRangeService.getTotalPreShiftMinutes(item);
-      const post = this.timeRangeService.getTotalPostShiftMinutes(item);
-      blockEffStart = Math.min(blockEffStart, newStart - pre);
-      blockEffEnd = Math.max(blockEffEnd, newEnd + post);
-    }
-
-    const movableItems = allItems.filter(
-      item => !blockItems.has(item) &&
-        (item.shift?.isTimeRange || item.shift?.isSporadic || !!item.absenceId)
-    );
-
-    const isMovingDown = blockDelta > 0;
-    const isMovingUp = blockDelta < 0;
-
-    if (isMovingDown) {
-      const candidates = movableItems
-        .filter(item => {
-          const orig = this._dragState.originalPositions.get(item);
-          if (!orig) return false;
-          const pre = this.timeRangeService.getTotalPreShiftMinutes(item);
-          const post = this.timeRangeService.getTotalPostShiftMinutes(item);
-          const effStart = orig.startMinutes - pre;
-          const effEnd = orig.endMinutes + post;
-          const midpoint = (effStart + effEnd) / 2;
-          return midpoint >= blockEffStart;
-        })
-        .sort((a, b) => {
-          const origA = this._dragState.originalPositions.get(a)!;
-          const origB = this._dragState.originalPositions.get(b)!;
-          return origA.startMinutes - origB.startMinutes;
-        });
-
-      let cursor = blockEffEnd;
-
-      for (const item of candidates) {
-        const orig = this._dragState.originalPositions.get(item)!;
-        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
-        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
-        const itemEffStart = orig.startMinutes - itemPre;
-        const itemDuration = orig.endMinutes - orig.startMinutes;
-
-        if (cursor > itemEffStart) {
-          const newStart = cursor + itemPre;
-          const newEnd = newStart + itemDuration;
-          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
-          cursor = newEnd + itemPost;
-        } else {
-          break;
-        }
-      }
-    } else if (isMovingUp) {
-      const candidates = movableItems
-        .filter(item => {
-          const orig = this._dragState.originalPositions.get(item);
-          if (!orig) return false;
-          const pre = this.timeRangeService.getTotalPreShiftMinutes(item);
-          const post = this.timeRangeService.getTotalPostShiftMinutes(item);
-          const effStart = orig.startMinutes - pre;
-          const effEnd = orig.endMinutes + post;
-          const midpoint = (effStart + effEnd) / 2;
-          return midpoint <= blockEffEnd;
-        })
-        .sort((a, b) => {
-          const origA = this._dragState.originalPositions.get(a)!;
-          const origB = this._dragState.originalPositions.get(b)!;
-          return origB.startMinutes - origA.startMinutes;
-        });
-
-      let cursor = blockEffStart;
-
-      for (const item of candidates) {
-        const orig = this._dragState.originalPositions.get(item)!;
-        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
-        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
-        const itemEffEnd = orig.endMinutes + itemPost;
-        const itemDuration = orig.endMinutes - orig.startMinutes;
-
-        if (cursor < itemEffEnd) {
-          const newEnd = cursor - itemPost;
-          const newStart = newEnd - itemDuration;
-          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
-          cursor = newStart - itemPre;
-        } else {
-          break;
-        }
-      }
-    }
-
-    return displacements;
-  }
-
-  public resolveOverlapsForShift(
-    startMinutes: number,
-    endMinutes: number,
-    currentItem: IContainerTemplateItem,
-    allItems: IContainerTemplateItem[]
-  ): {
-    newStartMinutes: number;
-    newEndMinutes: number;
-  } {
-    const duration = endMinutes - startMinutes;
-    const preShiftTime =
-      this.timeRangeService.getTotalPreShiftMinutes(currentItem);
-    const postShiftTime =
-      this.timeRangeService.getTotalPostShiftMinutes(currentItem);
-
-    const otherItems = allItems.filter(
-      (item) => item !== currentItem && (item.shift?.isTimeRange || !!item.absenceId)
-    );
-
-    if (otherItems.length === 0) {
-      return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
-    }
-
-    const effectiveStart = startMinutes - preShiftTime;
-    const effectiveEnd = endMinutes + postShiftTime;
-
-    if (!this.hasEffectiveOverlap(effectiveStart, effectiveEnd, otherItems)) {
-      return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
-    }
-
-    const snapAbove = this.findSnapPositionAbove(
-      startMinutes,
-      endMinutes,
-      duration,
-      otherItems,
-      preShiftTime,
-      postShiftTime
-    );
-    const snapBelow = this.findSnapPositionBelow(
-      startMinutes,
-      endMinutes,
-      duration,
-      otherItems,
-      preShiftTime,
-      postShiftTime
-    );
-
-    const distanceAbove = snapAbove
-      ? Math.abs(snapAbove.newStartMinutes - startMinutes)
-      : Infinity;
-    const distanceBelow = snapBelow
-      ? Math.abs(snapBelow.newStartMinutes - startMinutes)
-      : Infinity;
-
-    if (distanceAbove < distanceBelow && snapAbove) {
-      return snapAbove;
-    } else if (snapBelow) {
-      return snapBelow;
-    } else if (snapAbove) {
-      return snapAbove;
-    }
-
-    return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
-  }
-
-  private resolveOverlaps(
-    startMinutes: number,
-    endMinutes: number,
-    allShifts: IContainerTemplateItem[]
-  ): {
-    newStartMinutes: number;
-    newEndMinutes: number;
-  } {
-    const draggedShift = this._dragState.draggedShift;
-    if (!draggedShift) {
-      return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
-    }
-    return this.resolveOverlapsForShift(
-      startMinutes,
-      endMinutes,
-      draggedShift,
-      allShifts
-    );
-  }
-
-  private findSnapPositionAbove(
-    startMinutes: number,
-    endMinutes: number,
-    duration: number,
-    otherShifts: IContainerTemplateItem[],
-    preShiftTime = 0,
-    postShiftTime = 0
-  ): { newStartMinutes: number; newEndMinutes: number } | null {
-    return this.findSnapPosition(
-      SNAP_ABOVE,
-      startMinutes,
-      endMinutes,
-      duration,
-      otherShifts,
-      preShiftTime,
-      postShiftTime
-    );
-  }
-
-  private findSnapPositionBelow(
-    startMinutes: number,
-    endMinutes: number,
-    duration: number,
-    otherShifts: IContainerTemplateItem[],
-    preShiftTime = 0,
-    postShiftTime = 0
-  ): { newStartMinutes: number; newEndMinutes: number } | null {
-    return this.findSnapPosition(
-      SNAP_BELOW,
-      startMinutes,
-      endMinutes,
-      duration,
-      otherShifts,
-      preShiftTime,
-      postShiftTime
-    );
-  }
-
-  private findSnapPosition(
-    direction: SnapDirection,
-    startMinutes: number,
-    endMinutes: number,
-    duration: number,
-    otherShifts: IContainerTemplateItem[],
-    preShiftTime: number,
-    postShiftTime: number
-  ): { newStartMinutes: number; newEndMinutes: number } | null {
-    const effectiveStart = startMinutes - preShiftTime;
-    const effectiveEnd = endMinutes + postShiftTime;
-
-    const conflictingShifts = otherShifts.filter((shift) =>
-      this.effectiveShiftsOverlapOriginal(effectiveStart, effectiveEnd, shift)
-    );
-
-    if (conflictingShifts.length === 0) {
-      return null;
-    }
-
-    const boundaryEdge = direction.aggregate(
-      ...conflictingShifts.map((s) => {
-        const orig = this._dragState.originalPositions.get(s);
-        if (orig) {
-          return direction.getEffectiveEdge(orig.startMinutes, orig.endMinutes, this.timeRangeService, s);
-        }
-        return direction.getEffectiveEdge(
-          this.timeRangeService.getShiftStartMinutes(s),
-          this.timeRangeService.getShiftEndMinutes(s),
-          this.timeRangeService,
-          s
-        );
-      })
-    );
-
-    let candidate = direction.computeCandidate(
-      boundaryEdge,
-      preShiftTime,
-      postShiftTime,
-      duration
-    );
-
-    const displayBoundary =
-      direction === SNAP_ABOVE
-        ? this._dragState.displayFromMinutes
-        : this._dragState.displayFromMinutes + this._dragState.totalMinutes;
-
-    const checkEdge =
-      direction === SNAP_ABOVE
-        ? candidate.effectiveStart
-        : candidate.effectiveEnd;
-
-    if (direction.boundaryCheck(checkEdge, displayBoundary)) {
-      return null;
-    }
-
-    let iterations = 0;
-    const maxIterations = 100;
-
-    while (
-      this.hasEffectiveOverlapOriginal(
-        candidate.effectiveStart,
-        candidate.effectiveEnd,
-        otherShifts
-      ) &&
-      iterations < maxIterations
-    ) {
-      const blockingShifts = otherShifts.filter((shift) =>
-        this.effectiveShiftsOverlapOriginal(
-          candidate.effectiveStart,
-          candidate.effectiveEnd,
-          shift
-        )
-      );
-
-      if (blockingShifts.length === 0) break;
-
-      const nextEdge = direction.aggregate(
-        ...blockingShifts.map((s) => {
-          const orig = this._dragState.originalPositions.get(s);
-          if (orig) {
-            return direction.getEffectiveEdge(orig.startMinutes, orig.endMinutes, this.timeRangeService, s);
-          }
-          return direction.getEffectiveEdge(
-            this.timeRangeService.getShiftStartMinutes(s),
-            this.timeRangeService.getShiftEndMinutes(s),
-            this.timeRangeService,
-            s
-          );
-        })
-      );
-
-      candidate = direction.computeCandidate(
-        nextEdge,
-        preShiftTime,
-        postShiftTime,
-        duration
-      );
-
-      const iterCheckEdge =
-        direction === SNAP_ABOVE
-          ? candidate.effectiveStart
-          : candidate.effectiveEnd;
-
-      if (direction.boundaryCheck(iterCheckEdge, displayBoundary)) {
-        return null;
-      }
-
-      iterations++;
-    }
-
-    if (iterations >= maxIterations) {
-      return null;
-    }
-
-    if (
-      !this.hasEffectiveOverlapOriginal(
-        candidate.effectiveStart,
-        candidate.effectiveEnd,
-        otherShifts
-      )
-    ) {
-      return {
-        newStartMinutes: candidate.start,
-        newEndMinutes: candidate.end,
-      };
-    }
-
-    return null;
-  }
-
-  private hasOverlap(
-    startMinutes: number,
-    endMinutes: number,
-    shifts: IContainerTemplateItem[]
-  ): boolean {
-    return shifts.some((shift) =>
-      this.shiftsOverlap(
-        startMinutes,
-        endMinutes,
-        this.timeRangeService.getShiftStartMinutes(shift),
-        this.timeRangeService.getShiftEndMinutes(shift)
-      )
-    );
-  }
-
-  private hasEffectiveOverlap(
-    effectiveStart: number,
-    effectiveEnd: number,
-    shifts: IContainerTemplateItem[]
-  ): boolean {
-    return shifts.some((shift) =>
-      this.effectiveShiftsOverlap(effectiveStart, effectiveEnd, shift)
-    );
-  }
-
-  private effectiveShiftsOverlap(
-    effectiveStart: number,
-    effectiveEnd: number,
-    otherShift: IContainerTemplateItem
-  ): boolean {
-    const otherEffectiveStart =
-      this.timeRangeService.getEffectiveStartMinutes(otherShift);
-    const otherEffectiveEnd =
-      this.timeRangeService.getEffectiveEndMinutes(otherShift);
-    return (
-      effectiveStart < otherEffectiveEnd && effectiveEnd > otherEffectiveStart
-    );
-  }
-
-  private shiftsOverlap(
-    start1: number,
-    end1: number,
-    start2: number,
-    end2: number
-  ): boolean {
-    return start1 < end2 && end1 > start2;
-  }
-
-  private hasEffectiveOverlapOriginal(
-    effectiveStart: number,
-    effectiveEnd: number,
-    shifts: IContainerTemplateItem[]
-  ): boolean {
-    return shifts.some((shift) =>
-      this.effectiveShiftsOverlapOriginal(effectiveStart, effectiveEnd, shift)
-    );
-  }
-
-  private effectiveShiftsOverlapOriginal(
-    effectiveStart: number,
-    effectiveEnd: number,
-    otherShift: IContainerTemplateItem
-  ): boolean {
-    const orig = this._dragState.originalPositions.get(otherShift);
-    const otherStart = orig ? orig.startMinutes : this.timeRangeService.getShiftStartMinutes(otherShift);
-    const otherEnd = orig ? orig.endMinutes : this.timeRangeService.getShiftEndMinutes(otherShift);
-    const otherPre = this.timeRangeService.getTotalPreShiftMinutes(otherShift);
-    const otherPost = this.timeRangeService.getTotalPostShiftMinutes(otherShift);
-    const otherEffectiveStart = otherStart - otherPre;
-    const otherEffectiveEnd = otherEnd + otherPost;
-    return effectiveStart < otherEffectiveEnd && effectiveEnd > otherEffectiveStart;
   }
 
   public endDrag(): {
