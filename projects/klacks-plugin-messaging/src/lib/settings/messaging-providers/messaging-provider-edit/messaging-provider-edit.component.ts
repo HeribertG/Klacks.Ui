@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../../models/create-messaging-provider.model';
+import { ProviderFieldDefinition } from './provider-field-definition.interface';
 
 const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
 
@@ -24,8 +25,6 @@ const SLACK_WEBHOOK_PATH = '/api/messaging/webhook/slack';
 const VIBER_WEBHOOK_PATH = '/api/messaging/webhook/viber';
 const LINE_WEBHOOK_PATH = '/api/messaging/webhook/line';
 const WHATSAPP_WEBHOOK_PATH = '/api/messaging/webhook/whatsapp';
-
-type ProviderFieldDefinition = { key: string; labelDe: string; labelEn: string; type: string; placeholder: string; readonly?: boolean; autoFill?: () => string };
 
 const GERMAN_LANGUAGE_PREFIX = 'de';
 const DEFAULT_LABEL_LANGUAGE = 'de';
