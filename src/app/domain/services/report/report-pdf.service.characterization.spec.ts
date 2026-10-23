@@ -655,7 +655,7 @@ describe('ReportPdfService (characterization)', () => {
       const footer = makeSection(ReportSectionType.Footer, [
         makeField({ type: ReportFieldType.PageNumber, sortOrder: 0 }),
         makeField({ name: 'Summe', dataBinding: 'sum.x', sortOrder: 1 }),
-        makeField({ type: ReportFieldType.Signature, name: ' Unterschrift ', sortOrder: 2 }),
+        makeField({ type: ReportFieldType.Signature, name: ' Unterschrift ', width: 0, sortOrder: 2 }),
       ]);
       const template = makeTemplate([header, table, footer]);
       const provider = makeProvider({ h: 'Kopf' });
