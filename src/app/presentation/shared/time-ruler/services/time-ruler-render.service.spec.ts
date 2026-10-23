@@ -10,6 +10,11 @@ import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from '../../../helpers/draw-helper';
 import { TimeRulerRenderService } from './time-ruler-render.service';
+import { TimeRulerScaleRenderService } from './time-ruler-scale-render.service';
+import { TimeRulerBoundaryRenderService } from './time-ruler-boundary-render.service';
+import { TimeRulerShiftBoxRenderService } from './time-ruler-shift-box-render.service';
+import { TimeRangeService } from './time-range.service';
+import { TIME_RULER_WIDTH } from './time-ruler.constants';
 import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 import { IShiftSceneContext } from './shift-scene-context.interface';
 
@@ -183,6 +188,10 @@ function recordRectangles(map: Map<IContainerTemplateItem, Rectangle>, items: Re
 
 describe('TimeRulerRenderService - characterization', () => {
   let service: TimeRulerRenderService;
+  let timeRange: TimeRangeService;
+  let scale: TimeRulerScaleRenderService;
+  let boundary: TimeRulerBoundaryRenderService;
+  let shiftBox: TimeRulerShiftBoxRenderService;
 
   const expectLog = (name: string): void => {
     expect(GOLDEN[name], `missing golden ${name}`).toBeDefined();
@@ -207,6 +216,10 @@ describe('TimeRulerRenderService - characterization', () => {
       ],
     });
     service = TestBed.inject(TimeRulerRenderService);
+    timeRange = TestBed.inject(TimeRangeService);
+    scale = TestBed.inject(TimeRulerScaleRenderService);
+    boundary = TestBed.inject(TimeRulerBoundaryRenderService);
+    shiftBox = TestBed.inject(TimeRulerShiftBoxRenderService);
   });
 
   afterEach(() => {
@@ -216,23 +229,23 @@ describe('TimeRulerRenderService - characterization', () => {
 
   describe('layout constants', () => {
     it('exposes the ruler width and the content offset per text direction', () => {
-      expect(service.RULER_WIDTH).toBe(70);
+      expect(TIME_RULER_WIDTH).toBe(70);
       expect(service.contentOffsetX).toBe(0);
       document.documentElement.dir = 'rtl';
       expect(service.contentOffsetX).toBe(70);
     });
 
     it('pads the display window by the duration of the time window', () => {
-      expect(service.calculatePaddingMinutes(FROM, UNTIL)).toBe(10);
-      expect(service.calculatePaddingMinutes(FROM, OwnTime.forTime('11', '00'))).toBe(10);
-      expect(service.calculatePaddingMinutes(FROM, OwnTime.forTime('14', '00'))).toBe(15);
-      expect(service.calculatePaddingMinutes(FROM, OwnTime.forTime('14', '01'))).toBe(30);
-      expect(service.calculatePaddingMinutes(OwnTime.forTime('22', '00'), OwnTime.forTime('02', '00'))).toBe(15);
-      expect(service.calculatePaddingMinutes(FROM, FROM)).toBe(30);
+      expect(timeRange.calculatePaddingMinutes(FROM, UNTIL)).toBe(10);
+      expect(timeRange.calculatePaddingMinutes(FROM, OwnTime.forTime('11', '00'))).toBe(10);
+      expect(timeRange.calculatePaddingMinutes(FROM, OwnTime.forTime('14', '00'))).toBe(15);
+      expect(timeRange.calculatePaddingMinutes(FROM, OwnTime.forTime('14', '01'))).toBe(30);
+      expect(timeRange.calculatePaddingMinutes(OwnTime.forTime('22', '00'), OwnTime.forTime('02', '00'))).toBe(15);
+      expect(timeRange.calculatePaddingMinutes(FROM, FROM)).toBe(30);
     });
 
     it('computes the shift box parameters from the padded display range', () => {
-      const params = service.calculateShiftBoxParameters(BOUNDARY_WIDTH, CONTAINER_HEIGHT, FROM, UNTIL);
+      const params = shiftBox.calculateShiftBoxParameters(BOUNDARY_WIDTH, CONTAINER_HEIGHT, FROM, UNTIL);
 
       expect(params).toEqual({
         range: { originalFromMinutes: 480, originalUntilMinutes: 600, displayFromMinutes: 470, displayUntilMinutes: 610,
@@ -245,7 +258,7 @@ describe('TimeRulerRenderService - characterization', () => {
 
   describe('drawTimeRuler', () => {
     it('draws a quarter-hour grid with edge labels left to right', () => {
-      service.drawTimeRuler(createContext('ruler'), 200, FROM, UNTIL, 0);
+      scale.drawTimeRuler(createContext('ruler'), 200, FROM, UNTIL, 0);
 
       expectLog('ruler-quarter-ltr');
     });
@@ -253,31 +266,31 @@ describe('TimeRulerRenderService - characterization', () => {
     it('mirrors the ticks and labels right to left with a ruler width override', () => {
       document.documentElement.dir = 'rtl';
 
-      service.drawTimeRuler(createContext('ruler'), 200, FROM, UNTIL, 0, false, 55);
+      scale.drawTimeRuler(createContext('ruler'), 200, FROM, UNTIL, 0, false, 55);
 
       expectLog('ruler-quarter-rtl');
     });
 
     it('skips the edge labels on request', () => {
-      service.drawTimeRuler(createContext('ruler'), 200, FROM, UNTIL, 0, true);
+      scale.drawTimeRuler(createContext('ruler'), 200, FROM, UNTIL, 0, true);
 
       expectLog('ruler-quarter-skip-edges');
     });
 
     it('draws minute ticks and labels the half hour', () => {
-      service.drawTimeRuler(createContext('ruler'), 8, OwnTime.forTime('08', '28'), OwnTime.forTime('08', '32'), 0);
+      scale.drawTimeRuler(createContext('ruler'), 8, OwnTime.forTime('08', '28'), OwnTime.forTime('08', '32'), 0);
 
       expectLog('ruler-minutes');
     });
 
     it('aligns multi-hour increments to the increment and draws ticks above the window', () => {
-      service.drawTimeRuler(createContext('ruler'), 90, FROM, OwnTime.forTime('12', '00'));
+      scale.drawTimeRuler(createContext('ruler'), 90, FROM, OwnTime.forTime('12', '00'));
 
       expectLog('ruler-two-hours');
     });
 
     it('draws no ticks when the default padding is off the quarter-hour grid', () => {
-      service.drawTimeRuler(createContext('ruler'), 260, FROM, UNTIL);
+      scale.drawTimeRuler(createContext('ruler'), 260, FROM, UNTIL);
 
       expectLog('ruler-misaligned');
     });
@@ -285,17 +298,17 @@ describe('TimeRulerRenderService - characterization', () => {
 
   describe('boundary lines', () => {
     it('draws the red window boundaries with fading gradients', () => {
-      service.drawRedBoundaryLines(createContext('inbox'), BOUNDARY_WIDTH, CONTAINER_HEIGHT, FROM, UNTIL);
+      boundary.drawRedBoundaryLines(createContext('inbox'), BOUNDARY_WIDTH, CONTAINER_HEIGHT, FROM, UNTIL);
 
       expectLog('red-boundaries');
     });
 
     it('converts a color through a 1x1 canvas and falls back to black without a context', () => {
-      expect(service.convertColorToRgba('#123456', 0.5)).toBe('rgba(12, 34, 56, 0.5)');
+      expect(boundary.convertColorToRgba('#123456', 0.5)).toBe('rgba(12, 34, 56, 0.5)');
 
       nullContexts = true;
 
-      expect(service.convertColorToRgba('#123456', 0.5)).toBe('rgba(0, 0, 0, 0.5)');
+      expect(boundary.convertColorToRgba('#123456', 0.5)).toBe('rgba(0, 0, 0, 0.5)');
       expectLog('rgba-conversion');
     });
   });
@@ -304,8 +317,8 @@ describe('TimeRulerRenderService - characterization', () => {
     const drawBox = (item: IContainerTemplateItem, isSelected: boolean, shifts: IContainerTemplateItem[],
       map: Map<IContainerTemplateItem, Rectangle>): Rectangle | null => {
       const { range, boxWidth, marginLeftRight } =
-        service.calculateShiftBoxParameters(BOUNDARY_WIDTH, CONTAINER_HEIGHT, FROM, UNTIL);
-      return service.drawSingleShiftBox(createContext('inbox'), item, range, boxWidth, marginLeftRight, CONTAINER_HEIGHT,
+        shiftBox.calculateShiftBoxParameters(BOUNDARY_WIDTH, CONTAINER_HEIGHT, FROM, UNTIL);
+      return shiftBox.drawSingleShiftBox(createContext('inbox'), item, range, boxWidth, marginLeftRight, CONTAINER_HEIGHT,
         isSelected, shifts, map);
     };
 
@@ -494,23 +507,23 @@ describe('TimeRulerRenderService - characterization', () => {
       const later = shiftItem('08:30', '09:30');
       const fixed = shiftItem('08:30', '09:30', { isTimeRange: false });
 
-      expect(service.checkTaskOverlap(later, 510, 570, [earlier, later])).toBe(true);
-      expect(service.checkTaskOverlap(earlier, 480, 540, [earlier, later])).toBe(false);
-      expect(service.checkTaskOverlap(fixed, 510, 570, [earlier, fixed])).toBe(false);
-      expect(service.checkTaskOverlap(later, 540, 570, [earlier, later])).toBe(false);
+      expect(shiftBox.checkTaskOverlap(later, 510, 570, [earlier, later])).toBe(true);
+      expect(shiftBox.checkTaskOverlap(earlier, 480, 540, [earlier, later])).toBe(false);
+      expect(shiftBox.checkTaskOverlap(fixed, 510, 570, [earlier, fixed])).toBe(false);
+      expect(shiftBox.checkTaskOverlap(later, 540, 570, [earlier, later])).toBe(false);
     });
 
     it('treats touching ranges as not overlapping', () => {
-      expect(service.timesOverlap(480, 540, 540, 600)).toBe(false);
-      expect(service.timesOverlap(480, 541, 540, 600)).toBe(true);
+      expect(shiftBox.timesOverlap(480, 540, 540, 600)).toBe(false);
+      expect(shiftBox.timesOverlap(480, 541, 540, 600)).toBe(true);
     });
 
     it('parses hh:mm travel times and ignores everything else', () => {
-      expect(service.parseTravelTimeToMinutes('')).toBe(0);
-      expect(service.parseTravelTimeToMinutes('01:30')).toBe(90);
-      expect(service.parseTravelTimeToMinutes('00:45:00')).toBe(45);
-      expect(service.parseTravelTimeToMinutes('5')).toBe(0);
-      expect(service.parseTravelTimeToMinutes('x:y')).toBe(0);
+      expect(shiftBox.parseTravelTimeToMinutes('')).toBe(0);
+      expect(shiftBox.parseTravelTimeToMinutes('01:30')).toBe(90);
+      expect(shiftBox.parseTravelTimeToMinutes('00:45:00')).toBe(45);
+      expect(shiftBox.parseTravelTimeToMinutes('5')).toBe(0);
+      expect(shiftBox.parseTravelTimeToMinutes('x:y')).toBe(0);
     });
   });
 });

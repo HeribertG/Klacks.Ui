@@ -28,6 +28,10 @@ import { DrawImageHelper } from '../../helpers/draw-image-helper';
 import { TimeRangeService } from './services/time-range.service';
 import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.service';
 import { TimeRulerRenderService } from './services/time-ruler-render.service';
+import { TimeRulerScaleRenderService } from './services/time-ruler-scale-render.service';
+import { TimeRulerBoundaryRenderService } from './services/time-ruler-boundary-render.service';
+import { TimeRulerShiftBoxRenderService } from './services/time-ruler-shift-box-render.service';
+import { TIME_RULER_WIDTH } from './services/time-ruler.constants';
 import { IShiftSceneContext } from './services/shift-scene-context.interface';
 import { TimeRulerInteractionService } from './services/time-ruler-interaction.service';
 import { TimeRulerBlockSelectionService } from './services/time-ruler-block-selection.service';
@@ -64,6 +68,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
   private gridColorService = inject(GridColorService);
   private shiftService = inject(ContainerTemplateShiftService);
   private renderService = inject(TimeRulerRenderService);
+  private scaleRenderService = inject(TimeRulerScaleRenderService);
+  private boundaryRenderService = inject(TimeRulerBoundaryRenderService);
+  private shiftBoxRenderService = inject(TimeRulerShiftBoxRenderService);
   private interactionService = inject(TimeRulerInteractionService);
   private blockSelectionService = inject(TimeRulerBlockSelectionService);
   private injector = inject(Injector);
@@ -146,7 +153,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
 
     const inboxCtx = DrawHelper.createHiDPICanvas(inboxCanvas, width, height);
 
-    const rulerWidth = this.renderService.RULER_WIDTH;
+    const rulerWidth = TIME_RULER_WIDTH;
     const boundaryWidth = width - rulerWidth;
     const rulerCtx = DrawHelper.createHiDPICanvas(
       rulerCanvas,
@@ -164,7 +171,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
     );
     DrawHelper.setAntiAliasing(this.renderCtx);
 
-    const paddingMinutes = this.renderService.calculatePaddingMinutes(
+    const paddingMinutes = this.timeRangeService.calculatePaddingMinutes(
       this.fromTime(),
       this.untilTime()
     );
@@ -193,11 +200,11 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
 
     const fromTime = this.fromTime();
     const untilTime = this.untilTime();
-    this.renderService.drawTimeRuler(rulerCtx, height, fromTime, untilTime);
+    this.scaleRenderService.drawTimeRuler(rulerCtx, height, fromTime, untilTime);
 
     inboxCtx.save();
     inboxCtx.translate(contentOffsetX, 0);
-    this.renderService.drawRedBoundaryLines(
+    this.boundaryRenderService.drawRedBoundaryLines(
       inboxCtx, boundaryWidth, height, fromTime, untilTime
     );
     inboxCtx.restore();
@@ -212,7 +219,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
         range: shiftRange,
         boxWidth,
         marginLeftRight,
-      } = this.renderService.calculateShiftBoxParameters(
+      } = this.shiftBoxRenderService.calculateShiftBoxParameters(
         boundaryWidth, height, fromTime, untilTime
       );
 
@@ -220,7 +227,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
       inboxCtx.translate(contentOffsetX, 0);
 
       for (const selectedItem of this.blockSelectionService.selectedItems()) {
-        const selectedRect = this.renderService.drawSingleShiftBox(
+        const selectedRect = this.shiftBoxRenderService.drawSingleShiftBox(
           inboxCtx,
           selectedItem,
           shiftRange,
@@ -421,7 +428,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy {
 
       const width = container.clientWidth;
       const height = container.clientHeight;
-      const rulerWidth = this.renderService.RULER_WIDTH;
+      const rulerWidth = TIME_RULER_WIDTH;
       const boundaryWidth = width - rulerWidth;
 
       if (this.renderCtx) {
