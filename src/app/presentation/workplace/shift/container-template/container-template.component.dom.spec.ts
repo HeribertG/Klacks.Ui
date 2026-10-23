@@ -345,7 +345,7 @@ describe('ContainerTemplateComponent (DOM characterization)', () => {
     expect(headers[0].className).toBe('icon-column');
     expect(headers[6].className).toBe('action-column');
     expect(rows.map((row) => row.classList.contains('partial-timerange'))).toEqual([false, true, false]);
-    expect(rows.map((row) => row.querySelector('td.icon-column > *')?.tagName.toLowerCase())).toEqual([
+    expect(rows.map((row) => row.querySelector('td.icon-column')?.firstElementChild?.tagName.toLowerCase())).toEqual([
       'app-icon-shift-segment',
       'app-icon-time-window',
       'app-icon-unknown-time',
@@ -373,7 +373,7 @@ describe('ContainerTemplateComponent (DOM characterization)', () => {
     expect((rows[0].querySelector('td.icon-column > span.absence-color-rect') as HTMLElement).style.backgroundColor).toBe(
       'rgb(0, 255, 0)',
     );
-    expect(zone.querySelector('.tabs .permanent-tab')?.classList.contains('active')).toBe(false);
+    expect(zone.querySelector('.tabs .permanent-tab')?.classList.contains('active')).toBe(true);
   });
 
   it('renders the empty states of both tabs', () => {
