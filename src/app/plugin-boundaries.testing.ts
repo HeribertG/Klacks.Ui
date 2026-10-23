@@ -6,7 +6,8 @@
  * src/... or projects/..., and the path aliases of the root tsconfig.json) to a path relative to the Klacks.Ui root
  * and judges it. A plugin may import its own files, klacks-plugin-contracts and third-party packages; it may not
  * import the host (src/) or another plugin. klacks-plugin-contracts may import only itself. Inside a plugin that has
- * its own domain/application/infrastructure folders, the same inward direction as in the host applies.
+ * its own domain/application/infrastructure folders, the same inward direction as in the host applies: components
+ * and services/ (the outer ring) reach infrastructure only through application.
  * Used by plugin-boundaries.guard.spec.ts.
  * @param uiRoot - Absolute path of the Klacks.Ui project root; reported paths are relative to it
  * @param pathAliases - The compilerOptions.paths of the root tsconfig.json (alias pattern -> target paths)
@@ -129,10 +130,11 @@ export function pluginLayerOf(uiRelativePath: string): PluginLayer {
 
 export function isInternalLayerViolation(edge: Pick<IPluginImportEdge, 'file' | 'target'>): boolean {
   const from = pluginLayerOf(edge.file);
+  const to = pluginLayerOf(edge.target);
   if (from === 'outer') {
-    return false;
+    return to === 'infrastructure';
   }
-  return !INNER_LAYER_DEPENDENCIES[from].includes(pluginLayerOf(edge.target));
+  return !INNER_LAYER_DEPENDENCIES[from].includes(to);
 }
 
 export function listPlugins(uiRoot: string): string[] {

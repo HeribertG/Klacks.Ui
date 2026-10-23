@@ -96,6 +96,8 @@ describe('plugin boundaries', () => {
       expect(isInternalLayerViolation(edge('application/a.ts', 'infrastructure/b.ts'))).toBe(false);
       expect(isInternalLayerViolation(edge('infrastructure/a.ts', 'domain/b.ts'))).toBe(false);
       expect(isInternalLayerViolation(edge('floor-plan-home/a.ts', 'application/b.ts'))).toBe(false);
+      expect(isInternalLayerViolation(edge('floor-plan-home/a.ts', 'domain/b.ts'))).toBe(false);
+      expect(isInternalLayerViolation(edge('floor-plan-home/a.ts', 'infrastructure/b.ts'))).toBe(true);
       expect(isInternalLayerViolation(edge('domain/a.ts', 'application/b.ts'))).toBe(true);
       expect(isInternalLayerViolation(edge('infrastructure/a.ts', 'application/b.ts'))).toBe(true);
       expect(isInternalLayerViolation(edge('application/a.ts', 'services/b.ts'))).toBe(true);
@@ -134,7 +136,8 @@ describe('plugin boundaries', () => {
     expect(
       violations,
       'Inside a plugin with domain/application/infrastructure folders, domain imports only domain, infrastructure ' +
-        'only domain, application only domain and infrastructure; none of them imports components or services/:\n' +
+        'only domain, application only domain and infrastructure; none of them imports components or services/, and ' +
+        'components and services/ reach infrastructure only through application:\n' +
         describeEdges(violations),
     ).toEqual([]);
   });
