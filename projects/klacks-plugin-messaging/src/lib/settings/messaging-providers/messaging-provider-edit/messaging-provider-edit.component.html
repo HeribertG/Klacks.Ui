@@ -68,13 +68,13 @@
           @if (providerType === 'Telegram' && field.key === 'BotToken') {
             @switch (telegramValidation().state) {
               @case ('loading') {
-                <span class="token-hint token-loading">Prüfe Token…</span>
+                <span class="token-hint token-loading">{{ 'settings.messaging-providers.token.checking' | translate }}</span>
               }
               @case ('valid') {
                 <span class="token-hint token-valid">&#10003; Bot: @{{ $any(telegramValidation()).botName }}</span>
               }
               @case ('invalid') {
-                <span class="token-hint token-invalid">&#10007; Ungültiger Token — vollständigen Token von BotFather kopieren</span>
+                <span class="token-hint token-invalid">&#10007; {{ 'settings.messaging-providers.token.invalid' | translate }}</span>
               }
             }
           }

@@ -247,4 +247,19 @@ describe('MessagingProviderEditComponent', () => {
 
     expect(component.telegramValidation()).toEqual({ state: 'loading' });
   });
+
+  it('renders the loading and invalid token hints through translation keys', () => {
+    const fixture = TestBed.createComponent(MessagingProviderEditComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    component.telegramValidation.set({ state: 'loading' });
+    fixture.detectChanges();
+    expect(element.querySelector('.token-loading')?.textContent).toContain('settings.messaging-providers.token.checking');
+
+    component.telegramValidation.set({ state: 'invalid' });
+    fixture.detectChanges();
+    expect(element.querySelector('.token-invalid')?.textContent).toContain('settings.messaging-providers.token.invalid');
+  });
 });
