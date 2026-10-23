@@ -29,6 +29,15 @@ Das Verhalten liegt in component-scoped Services unter `services/`:
 - `ContainerTemplateContextMenuService` - Kontextmenü und Eigenschafts-/Absenz-Dialog
 - Konstanten: `container-template.constants.ts`
 
+**Kind-Komponenten (seit 2026-10-23):** Sie holen die component-scoped Services oben über den Element-Injector
+(nie in eigenen `providers` aufführen) und sind OnPush mit `ngDoCheck() { markForCheck() }`: Der Editor-Zustand liegt in
+einfachen Service-Feldern und in-place mutierten Arrays, die nur `viewRefresh.markForCheck()` der Eltern-Komponente auffrischt,
+deshalb werden die Kinder bei jeder Prüfung der Eltern-View mitgeprüft (wie das frühere Inline-Template):
+- `ContainerTemplateAvailableZoneComponent` - Zone 3: Slot-Tabs, Anstellungs-Tab, verfügbare Tasks und Container-Absenzen (Drag-Quellen)
+- `ContainerTemplatePropertiesDialogComponent` - Inhalt des ng-templates `#propertiesModal` (Input `modal`)
+- `ContainerTemplateAbsenceTimeDialogComponent` - Inhalt des ng-templates `#absenceTimeModal` (Input `modal`)
+- Gemeinsame Dialog-Regeln: `_container-template-dialog.scss`
+
 **Features:**
 - Wochentagsauswahl (Monday bis Sunday) basierend auf Container-Konfiguration
 - Drag & Drop Zuweisung von verfügbaren Shifts

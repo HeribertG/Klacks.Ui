@@ -1,0 +1,65 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../container-template-dialog";
+
+:host {
+  display: contents;
+}
+
+.time-range-info-box {
+  background-color: var(--gridBackgroundColorInfo);
+  border: 1px solid var(--alertWarningBorder);
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-top: 10px;
+  font-size: var(--fontSizeLabel);
+  color: var(--gridColorText);
+}
+
+.modal-body {
+  .transport-mode-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 1rem;
+
+    label {
+      color: var(--colorLabel);
+      font-weight: 500;
+      font-size: var(--fontSizeSmall);
+    }
+
+    .transport-mode-buttons {
+      display: flex;
+      gap: 0.25rem;
+
+      .transport-mode-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid var(--paginationBorderColor);
+        border-radius: 4px;
+        background-color: var(--backgroundColoPagination);
+        color: var(--colorLabel);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        &.active {
+          border-color: var(--paginationBorderColorSelected);
+          background-color: var(--backgroundColoPaginationSelected);
+          color: var(--coloPaginationSelected);
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+  }
+}

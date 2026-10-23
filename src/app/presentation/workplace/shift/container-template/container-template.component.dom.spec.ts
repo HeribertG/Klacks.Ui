@@ -27,6 +27,9 @@ import { ContainerTemplateSelectionService } from './services/container-template
 import { ContainerTemplateSessionService } from './services/container-template-session.service';
 import { ContainerTemplateTaskActionsService } from './services/container-template-task-actions.service';
 import { ContainerTemplateContextMenuService } from './services/container-template-context-menu.service';
+import { ContainerTemplateAvailableZoneComponent } from './container-template-available-zone/container-template-available-zone.component';
+import { ContainerTemplatePropertiesDialogComponent } from './container-template-properties-dialog/container-template-properties-dialog.component';
+import { ContainerTemplateAbsenceTimeDialogComponent } from './container-template-absence-time-dialog/container-template-absence-time-dialog.component';
 
 const TRANSPARENT_HOSTS: ReadonlySet<string> = new Set([
   'app-container-template-available-zone',
@@ -236,6 +239,18 @@ describe('ContainerTemplateComponent (DOM characterization)', () => {
       ],
     });
     TestBed.overrideComponent(ContainerTemplateComponent, {
+      set: {
+        imports: [TranslateModule, FallbackPipe, ContainerTemplateAvailableZoneComponent, ContainerTemplatePropertiesDialogComponent, ContainerTemplateAbsenceTimeDialogComponent],
+        schemas: [NO_ERRORS_SCHEMA],
+      },
+    });
+    TestBed.overrideComponent(ContainerTemplateAvailableZoneComponent, {
+      set: { imports: [TranslateModule, FallbackPipe], schemas: [NO_ERRORS_SCHEMA] },
+    });
+    TestBed.overrideComponent(ContainerTemplatePropertiesDialogComponent, {
+      set: { imports: [TranslateModule, FallbackPipe], schemas: [NO_ERRORS_SCHEMA] },
+    });
+    TestBed.overrideComponent(ContainerTemplateAbsenceTimeDialogComponent, {
       set: { imports: [TranslateModule, FallbackPipe], schemas: [NO_ERRORS_SCHEMA] },
     });
     TestBed.overrideProvider(TableSortingService, {
