@@ -1,0 +1,16 @@
+<div
+  class="section-header first"
+  tabindex="0"
+  role="button"
+  (click)="toggled.emit()"
+  (keydown.enter)="toggled.emit()"
+>
+  <span>{{ titleKey() | translate }}</span>
+  <button class="section-toggle-button">
+    @if (expanded()) {
+      <app-icon-angle-down></app-icon-angle-down>
+    } @else {
+      <app-icon-angle-right></app-icon-angle-right>
+    }
+  </button>
+</div>

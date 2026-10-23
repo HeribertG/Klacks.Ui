@@ -18,6 +18,11 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { collectElementIds } from 'src/app/shared/testing/dom-structure.testing';
+import { SettingsSectionHeaderComponent } from './settings-section-header/settings-section-header.component';
+import { SettingsWorkSectionComponent } from './settings-work-section/settings-work-section.component';
+import { SettingsComplianceSectionComponent } from './settings-compliance-section/settings-compliance-section.component';
+import { SettingsKlacksySectionComponent } from './settings-klacksy-section/settings-klacksy-section.component';
+import { SettingsExternalServicesSectionComponent } from './settings-external-services-section/settings-external-services-section.component';
 
 type KlacksyTargetCard = readonly [string, string, string, string, string, string, string | null];
 
@@ -447,8 +452,26 @@ describe('SettingsHomeComponent (DOM characterization)', () => {
       ],
     })
       .overrideComponent(SettingsHomeComponent, {
-        set: { imports: [TranslateModule, FormsModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+        set: {
+          imports: [
+            TranslateModule,
+            FormsModule,
+            SettingsSectionHeaderComponent,
+            SettingsWorkSectionComponent,
+            SettingsComplianceSectionComponent,
+            SettingsKlacksySectionComponent,
+            SettingsExternalServicesSectionComponent,
+          ],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
       })
+      .overrideComponent(SettingsSectionHeaderComponent, {
+        set: { imports: [TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      })
+      .overrideComponent(SettingsWorkSectionComponent, { set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA] } })
+      .overrideComponent(SettingsComplianceSectionComponent, { set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA] } })
+      .overrideComponent(SettingsKlacksySectionComponent, { set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA] } })
+      .overrideComponent(SettingsExternalServicesSectionComponent, { set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA] } })
       .compileComponents();
   });
 

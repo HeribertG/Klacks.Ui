@@ -8,9 +8,8 @@
  * entry and never raise a ceiling: split the file instead. MAX_CEILING_ENTRIES caps the list size, so a new entry would
  * need a second, visible change; lower it whenever entries are deleted. The target state is an empty list.
  */
-export const MAX_CEILING_ENTRIES = 2;
+export const MAX_CEILING_ENTRIES = 1;
 
 export const FILE_SIZE_CEILINGS: Readonly<Record<string, number>> = {
-  'src/app/presentation/workplace/settings/settings-home/settings-home.component.html': 1118,
   'src/app/presentation/workplace/shift/container-template/container-template.component.html': 1104,
 };
