@@ -5,8 +5,11 @@
  * Klacks.Ui with the line count they had when the size guard was introduced (2026-10-23). source-file-size.guard.spec.ts
  * fails when a listed file grows, when a listed file is back at or under the limit, and when a ceiling is higher than the
  * current size of its file - so an entry must be deleted or lowered in the same change that shrinks the file. Never add an
- * entry and never raise a ceiling: split the file instead. The target state is an empty list.
+ * entry and never raise a ceiling: split the file instead. MAX_CEILING_ENTRIES caps the list size, so a new entry would
+ * need a second, visible change; lower it whenever entries are deleted. The target state is an empty list.
  */
+export const MAX_CEILING_ENTRIES = 10;
+
 export const FILE_SIZE_CEILINGS: Readonly<Record<string, number>> = {
   'projects/klacks-plugin-floor-plan/src/lib/services/floor-plan-canvas.service.ts': 1262,
   'src/app/domain/services/report/report-data-provider.service.ts': 1160,

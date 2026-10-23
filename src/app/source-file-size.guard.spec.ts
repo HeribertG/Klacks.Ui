@@ -2,8 +2,8 @@
 
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { FILE_SIZE_CEILINGS } from './source-file-size-ceilings.constants';
-import { countLines, isSizeScannedSource, scanLineCounts } from './source-file-size.testing';
+import { FILE_SIZE_CEILINGS, MAX_CEILING_ENTRIES } from './source-file-size-ceilings.constants';
+import { countLines, importsTestSupportFolder, isSizeScannedSource, scanFilesImportingTestSupport, scanLineCounts } from './source-file-size.testing';
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(APP_ROOT, '..', '..');
@@ -28,14 +28,16 @@ describe('source file size', () => {
       expect(countLines('a\n\n')).toBe(2);
     });
 
-    it('scans production .ts and .html but leaves specs, test support and declaration files out', () => {
+    it('scans production .ts and .html but leaves specs, declaration files and the shared/testing folder out', () => {
       // Arrange / Act / Assert
       expect(isSizeScannedSource('src/app/domain/x.service.ts')).toBe(true);
       expect(isSizeScannedSource('src/app/presentation/x/x.component.html')).toBe(true);
       expect(isSizeScannedSource('projects/lib/src/lib/x.service.ts')).toBe(true);
       expect(isSizeScannedSource('src/app/domain/x.service.spec.ts')).toBe(false);
       expect(isSizeScannedSource('src/app/shared/testing/time-zone.testing.ts')).toBe(false);
-      expect(isSizeScannedSource('src/app/testing/mock.ts')).toBe(false);
+      expect(isSizeScannedSource('src/app/layer-dependencies.testing.ts')).toBe(true);
+      expect(isSizeScannedSource('src/app/testing/mock.ts')).toBe(true);
+      expect(isSizeScannedSource('projects/lib/src/testing/mock.ts')).toBe(true);
       expect(isSizeScannedSource('projects/lib/src/typings.d.ts')).toBe(false);
       expect(isSizeScannedSource('src/app/x/styles.scss')).toBe(false);
       expect(isSizeScannedSource('src/assets/i18n/en.json')).toBe(false);
@@ -49,6 +51,29 @@ describe('source file size', () => {
       expect(files.length).toBeGreaterThan(MIN_EXPECTED_FILES);
       expect(files.some((file) => file.startsWith('projects/'))).toBe(true);
       expect(files.some((file) => file.endsWith('.html'))).toBe(true);
+    });
+  });
+
+  describe('excluded test support', () => {
+    it('detects imports of the shared/testing folder', () => {
+      // Arrange / Act / Assert
+      expect(importsTestSupportFolder("import { a } from '../../shared/testing/time-zone.testing';")).toBe(true);
+      expect(importsTestSupportFolder("import { a } from './testing/x';")).toBe(true);
+      expect(importsTestSupportFolder("const m = await import('src/app/shared/testing/x');")).toBe(true);
+      expect(importsTestSupportFolder("import { a } from './layer-dependencies.testing';")).toBe(false);
+    });
+
+    it('is not imported by any scanned production file, so excluded files cannot hide production code', () => {
+      // Act
+      const importers = scanFilesImportingTestSupport(UI_ROOT, Object.keys(counts));
+
+      // Assert
+      expect(
+        importers,
+        `Only specs may import src/app/shared/testing (it is excluded from the size scan):
+${importers.join('
+')}`,
+      ).toEqual([]);
     });
   });
 
@@ -85,6 +110,15 @@ describe('source file size', () => {
         stale,
         `These FILE_SIZE_CEILINGS entries are out of date - the list may only shrink:\n${stale.join('\n')}`,
       ).toEqual([]);
+    });
+
+    it('lists no more entries than MAX_CEILING_ENTRIES, which must equal the entry count so deleting entries lowers the cap', () => {
+      // Assert
+      expect(
+        Object.keys(FILE_SIZE_CEILINGS).length,
+        'FILE_SIZE_CEILINGS may not gain entries: lower MAX_CEILING_ENTRIES to the entry count when deleting entries, ' +
+          `never raise it. ${SHRINK_ONLY_HINT}`,
+      ).toBe(MAX_CEILING_ENTRIES);
     });
 
     it('keeps the ceilings sorted and every ceiling above the limit', () => {

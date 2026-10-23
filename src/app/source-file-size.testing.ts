@@ -12,10 +12,12 @@ import { join, relative } from 'path';
 export const SIZE_SCANNED_ROOTS: readonly string[] = ['src/app', 'projects'];
 
 const SCANNED_EXTENSIONS: readonly string[] = ['.ts', '.html'];
-const EXCLUDED_SUFFIXES: readonly string[] = ['.spec.ts', '.testing.ts', '.d.ts'];
-const TESTING_FOLDER = 'testing';
-const SKIPPED_FOLDERS: readonly string[] = ['node_modules', 'dist', '.angular', TESTING_FOLDER];
+const EXCLUDED_SUFFIXES: readonly string[] = ['.spec.ts', '.d.ts'];
+const SKIPPED_FOLDERS: readonly string[] = ['node_modules', 'dist', '.angular'];
 const LINE_BREAK = /\r\n|\r|\n/;
+const TEST_SUPPORT_IMPORT = /\b(?:from|import)\s*\(?\s*['"][^'"]*(?:\.\/|\/)testing\//;
+
+export const TEST_SUPPORT_FOLDER = 'src/app/shared/testing/';
 
 const toPosix = (value: string): string => value.split('\\').join('/');
 
@@ -24,8 +26,12 @@ export function isSizeScannedSource(relativePath: string): boolean {
   return (
     SCANNED_EXTENSIONS.some((extension) => lower.endsWith(extension)) &&
     !EXCLUDED_SUFFIXES.some((suffix) => lower.endsWith(suffix)) &&
-    !lower.split('/').includes(TESTING_FOLDER)
+    !lower.startsWith(TEST_SUPPORT_FOLDER)
   );
+}
+
+export function importsTestSupportFolder(source: string): boolean {
+  return TEST_SUPPORT_IMPORT.test(source);
 }
 
 export function countLines(source: string): number {
@@ -48,6 +54,10 @@ function listSources(directory: string, uiRoot: string, found: string[]): string
     }
   }
   return found;
+}
+
+export function scanFilesImportingTestSupport(uiRoot: string, files: readonly string[]): string[] {
+  return files.filter((file) => importsTestSupportFolder(readFileSync(join(uiRoot, file), 'utf8')));
 }
 
 export function scanLineCounts(uiRoot: string): Record<string, number> {
