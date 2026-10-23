@@ -1,18 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Generic grid events directive: keyboard navigation, mouse events, focus management.
+ * Generic grid events directive: keyboard dispatch, mouse events, focus management. The cell and viewport
+ * movement (keyboard navigation, drag edge auto-scroll) lives in GridViewportNavigationService and the hover
+ * and tooltip tracking in GridHoverTooltipService, both provided per canvas by this directive.
  * In touch mode the press-and-hold drags (shift drag, work move drag) stay disarmed: both arm on a
  * timer of 150 ms without a movement condition, which would start a drag long before the 500 ms of
  * the long-press context menu and cannot be cancelled afterwards. Cutting and pasting through the
  * context menu replaces them on a tablet.
  * @param gridSurface - GridSurfaceTemplateComponent for canvas access and scroll events
- * @param gridData - BaseDataService for grid data (rows, columns, cell status)
- * @param gridSettings - BaseSettingsService for grid configuration (header, cell size)
- * @param scrollGrid - ScrollService for scroll positions
+ * @param gridSettings - BaseSettingsService for grid configuration (selection mode)
  * @param cellManipulation - BaseCellManipulationService for cell editing and hover
  * @param fillHandleDrag - GridFillHandleDragService for fill handle drag-and-drop
  * @param scheduleEvents - GridScheduleEventsService for schedule-specific events
+ * @param navigation - GridViewportNavigationService for keyboard navigation and drag edge scrolling
+ * @param hoverTooltip - GridHoverTooltipService for the hovered cell and its tooltip
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
@@ -28,10 +30,10 @@ import { fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
-import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
-import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { GridViewportNavigationService } from 'src/app/presentation/shared/grid/services/body/grid-viewport-navigation.service';
+import { GridHoverTooltipService } from 'src/app/presentation/shared/grid/services/body/grid-hover-tooltip.service';
 import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surface-template.component';
 import { GridSelectionModeEnum } from '../../enums/divers';
 import { GridFillHandleDragService } from 'src/app/presentation/workplace/schedule/services/grid-fill-handle-drag.service';
@@ -39,7 +41,6 @@ import { GridScheduleEventsService } from 'src/app/presentation/workplace/schedu
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 import { GridRightClickEvent } from './grid-right-click-event.interface';
 import { GridDoubleClickEvent } from './grid-double-click-event.interface';
-import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 
 const CONTEXT_MENU_KEY = 'ContextMenu';
 const SHIFT_CONTEXT_MENU_KEY = 'F10';
@@ -48,17 +49,18 @@ const CELL_CENTER_DIVISOR = 2;
 @Directive({
   selector: '[appGridTemplateEvents]',
   standalone: true,
+  providers: [GridViewportNavigationService, GridHoverTooltipService],
 })
 export class GridTemplateEventsDirective {
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private gridSurface = inject(GridSurfaceTemplateComponent);
-  private gridData = inject(BaseDataService);
   private gridSettings = inject(BaseSettingsService);
-  private scrollGrid = inject(ScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
   private fillHandleDrag = inject(GridFillHandleDragService);
   private scheduleEvents = inject(GridScheduleEventsService);
   private inputModality = inject(InputModalityService);
+  private navigation = inject(GridViewportNavigationService);
+  private hoverTooltip = inject(GridHoverTooltipService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly rightClick = output<GridRightClickEvent>();
@@ -66,41 +68,23 @@ export class GridTemplateEventsDirective {
   readonly workDoubleClick = output<GridDoubleClickEvent>();
   readonly containerWorkDoubleClick = output<GridDoubleClickEvent>();
 
-  private readonly INDEX_CORRECTION = 1;
-  private readonly REPEAT_DELAY = 100;
-
-  private readonly DRAG_SCROLL_INITIAL_INTERVAL_MS = 220;
-  private readonly DRAG_SCROLL_MIN_INTERVAL_MS = 25;
-  private readonly DRAG_SCROLL_DECAY_TAU_MS = 700;
-
   private keyDown = false;
   private scrollByKey = false;
   private isDrawing = false;
   private hasCollection = false;
 
-  private edgeEnterTime: number | null = null;
-  private lastScrollEmitTime = 0;
-  private tooltipAutoHideTimer: ReturnType<typeof setTimeout> | null = null;
-
-  private lastGoRightTime = 0;
-  private lastGoLeftTime = 0;
-  private lastGoUpTime = 0;
-  private lastGoDownTime = 0;
-  private lastPageDownTime = 0;
-  private lastPageUpTime = 0;
-
   private readonly keyHandlers = new Map<string, (event: KeyboardEvent) => void>([
-    ['ArrowDown', (event) => this.handleArrowDown(event)],
-    ['PageDown', (event) => this.handlePageDown(event)],
-    ['ArrowUp', (event) => this.handleArrowUp(event)],
-    ['PageUp', (event) => this.handlePageUp(event)],
-    ['End', (event) => this.handleEnd(event)],
-    ['Home', (event) => this.handleHome(event)],
-    ['ArrowLeft', (event) => this.handleArrowLeftOrBackspace(event)],
-    ['Backspace', (event) => this.handleArrowLeftOrBackspace(event)],
-    ['ArrowRight', (event) => this.handleArrowRightOrTabOrEnter(event)],
-    ['Tab', (event) => this.handleArrowRightOrTabOrEnter(event)],
-    ['Enter', (event) => this.handleArrowRightOrTabOrEnter(event)],
+    ['ArrowDown', (event) => this.navigate(event, () => this.navigation.moveDown(event.repeat))],
+    ['PageDown', (event) => this.navigate(event, () => this.navigation.pageDown(event.repeat))],
+    ['ArrowUp', (event) => this.navigate(event, () => this.navigation.moveUp(event.repeat))],
+    ['PageUp', (event) => this.navigate(event, () => this.navigation.pageUp(event.repeat))],
+    ['End', (event) => this.navigateUnlessRepeated(event, () => this.navigation.moveToEnd())],
+    ['Home', (event) => this.navigateUnlessRepeated(event, () => this.navigation.moveToHome())],
+    ['ArrowLeft', (event) => this.navigate(event, () => this.navigation.moveLeft(event.repeat))],
+    ['Backspace', (event) => this.navigate(event, () => this.navigation.moveLeft(event.repeat))],
+    ['ArrowRight', (event) => this.navigate(event, () => this.navigation.moveRight(event.repeat))],
+    ['Tab', (event) => this.navigate(event, () => this.navigation.moveRight(event.repeat))],
+    ['Enter', (event) => this.navigate(event, () => this.navigation.moveRight(event.repeat))],
     ['Delete', (event) => this.handleDeleteKeyAction(event)],
     ['Ctrl+c', (event) => this.handleCopy(event)],
     ['Ctrl+v', (event) => this.handlePaste(event)],
@@ -121,7 +105,7 @@ export class GridTemplateEventsDirective {
       this.onMouseMove(event);
     });
 
-    this.destroyRef.onDestroy(() => this.cancelTooltipAutoHide());
+    this.destroyRef.onDestroy(() => this.hoverTooltip.cancelTooltipAutoHide());
   }
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
@@ -148,8 +132,7 @@ export class GridTemplateEventsDirective {
       return;
     }
     this.cellManipulation.hoveredCell.set(null);
-    this.cancelTooltipAutoHide();
-    this.gridSurface.destroyToolTip();
+    this.hoverTooltip.destroyToolTip();
   }
 
   @HostListener('mousewheel', ['$event']) onMouseWheel(event: Event): void {
@@ -179,8 +162,7 @@ export class GridTemplateEventsDirective {
   @HostListener('appClickOutside', ['$event']) onClickOutside(
     event: Event
   ): void {
-    this.cancelTooltipAutoHide();
-    this.gridSurface.destroyToolTip();
+    this.hoverTooltip.destroyToolTip();
   }
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
@@ -220,12 +202,7 @@ export class GridTemplateEventsDirective {
     }
 
     this.isDrawing = false;
-    this.lastGoRightTime = 0;
-    this.lastGoLeftTime = 0;
-    this.lastGoUpTime = 0;
-    this.lastGoDownTime = 0;
-    this.lastPageDownTime = 0;
-    this.lastPageUpTime = 0;
+    this.navigation.resetRepeatClocks();
 
     if (this.hasCollection && !this.isMultiselectBlocked()) {
       const pos: MyPosition =
@@ -263,14 +240,14 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    if (this.handleHeaderHover(event)) {
+    if (this.hoverTooltip.hoverHeader(event)) {
       return;
     }
 
     const pos: MyPosition =
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
-    this.updateHoveredCell(pos, event);
+    this.hoverTooltip.hoverCell(pos, event);
     this.fillHandleDrag.updateCursorForFillHandle(event);
 
     if (event.buttons === 1 && this.isDrawing) {
@@ -278,7 +255,7 @@ export class GridTemplateEventsDirective {
         return;
       }
 
-      this.scrollOnPoint(pos);
+      this.navigation.scrollOnPoint(pos);
       if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
         return;
       }
@@ -287,88 +264,6 @@ export class GridTemplateEventsDirective {
 
       this.hasCollection = true;
     }
-  }
-
-  private handleHeaderHover(event: MouseEvent): boolean {
-    if (!this.gridSettings.hasHeader) {
-      return false;
-    }
-
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    const relativeY = event.clientY - rect.top;
-
-    if (relativeY >= this.gridSettings.cellHeaderHeight) {
-      return false;
-    }
-
-    const relativeX = event.clientX - rect.left;
-    const column = Math.floor(relativeX / this.gridSettings.cellWidth) + this.scrollGrid.horizontalScrollPosition;
-
-    if (column < 0 || column >= this.gridData.columns) {
-      this.cellManipulation.hoveredCell.set(null);
-      return true;
-    }
-
-    this.cellManipulation.hoveredCell.set({
-      row: -1,
-      column,
-      isEmpty: true,
-      isHeader: true,
-      clientX: event.clientX,
-      clientY: event.clientY,
-    });
-
-    return true;
-  }
-
-  private updateHoveredCell(pos: MyPosition, event: MouseEvent): void {
-    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
-      this.cellManipulation.hoveredCell.set(null);
-      this.hideToolTipAndCancelAutoHide();
-      return;
-    }
-
-    const isEmpty = !this.gridData.isCellActive(pos.row, pos.column);
-    this.cellManipulation.hoveredCell.set({
-      row: pos.row,
-      column: pos.column,
-      isEmpty,
-      isHeader: false,
-      clientX: event.clientX,
-      clientY: event.clientY,
-    });
-
-    const cell = this.gridData.getCell(pos.row, pos.column);
-    if (cell && cell.tooltip) {
-      this.showToolTipForModality(cell.tooltip, event);
-    } else {
-      this.hideToolTipAndCancelAutoHide();
-    }
-  }
-
-  private showToolTipForModality(value: string, event: MouseEvent): void {
-    this.cancelTooltipAutoHide();
-    this.gridSurface.showToolTip({ value, event });
-    if (!this.inputModality.isTouchMode()) {
-      return;
-    }
-    this.tooltipAutoHideTimer = setTimeout(() => {
-      this.tooltipAutoHideTimer = null;
-      this.gridSurface.hideToolTip();
-    }, TouchInteraction.TooltipAutoHideMs);
-  }
-
-  private hideToolTipAndCancelAutoHide(): void {
-    this.cancelTooltipAutoHide();
-    this.gridSurface.hideToolTip();
-  }
-
-  private cancelTooltipAutoHide(): void {
-    if (this.tooltipAutoHideTimer === null) {
-      return;
-    }
-    clearTimeout(this.tooltipAutoHideTimer);
-    this.tooltipAutoHideTimer = null;
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(
@@ -418,121 +313,18 @@ export class GridTemplateEventsDirective {
     event.stopPropagation();
   }
 
-  private handleArrowDown(event: KeyboardEvent): void {
-    if (event.repeat) {
-      const now = Date.now();
-      if (now - this.lastGoDownTime < this.REPEAT_DELAY) {
-        this.stopEvent(event);
-        return;
-      }
-      this.lastGoDownTime = now;
-    }
-
-    this.goDown();
+  private navigate(event: KeyboardEvent, move: () => void): void {
+    move();
     this.stopEvent(event);
   }
 
-  private handlePageDown(event: KeyboardEvent): void {
-    if (event.repeat) {
-      const now = Date.now();
-      if (now - this.lastPageDownTime < this.REPEAT_DELAY) {
-        this.stopEvent(event);
-        return;
-      }
-      this.lastPageDownTime = now;
-    }
-
-    this.goPageDown();
-    this.stopEvent(event);
-  }
-
-  private handleArrowUp(event: KeyboardEvent): void {
-    if (event.repeat) {
-      const now = Date.now();
-      if (now - this.lastGoUpTime < this.REPEAT_DELAY) {
-        this.stopEvent(event);
-        return;
-      }
-      this.lastGoUpTime = now;
-    }
-
-    this.goUp();
-    this.stopEvent(event);
-  }
-
-  private handlePageUp(event: KeyboardEvent): void {
-    if (event.repeat) {
-      const now = Date.now();
-      if (now - this.lastPageUpTime < this.REPEAT_DELAY) {
-        this.stopEvent(event);
-        return;
-      }
-      this.lastPageUpTime = now;
-    }
-
-    this.goPageUp();
-    this.stopEvent(event);
-  }
-
-  private handleEnd(event: KeyboardEvent): void {
+  private navigateUnlessRepeated(event: KeyboardEvent, move: () => void): void {
     if (event.repeat) {
       event.preventDefault();
       return;
     }
 
-    let lastRow: number = this.scrollGrid.maxRows;
-
-    if (this.scrollGrid.maxRows <= 1) {
-      lastRow = 0;
-    }
-
-    if (this.gridSurface.drawSchedule.position) {
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        this.gridData.rows - 1,
-        this.gridSurface.drawSchedule.position.column
-      );
-    }
-
-    this.gridSurface.valueVScrollbar.emit(lastRow);
-    this.stopEvent(event);
-  }
-
-  private handleHome(event: KeyboardEvent): void {
-    if (event.repeat) {
-      event.preventDefault();
-      return;
-    }
-
-    const firstRow = 0;
-    this.gridSurface.valueVScrollbar.emit(firstRow);
-    this.stopEvent(event);
-  }
-
-  private handleArrowLeftOrBackspace(event: KeyboardEvent): void {
-    if (event.repeat) {
-      const now = Date.now();
-      if (now - this.lastGoLeftTime < this.REPEAT_DELAY) {
-        this.stopEvent(event);
-        return;
-      }
-      this.lastGoLeftTime = now;
-    }
-
-    this.goLeft();
-    this.stopEvent(event);
-  }
-
-  private handleArrowRightOrTabOrEnter(event: KeyboardEvent): void {
-    if (event.repeat) {
-      const now = Date.now();
-      if (now - this.lastGoRightTime < this.REPEAT_DELAY) {
-        this.stopEvent(event);
-        return;
-      }
-      this.lastGoRightTime = now;
-    }
-
-    this.goRight();
+    move();
     this.stopEvent(event);
   }
 
@@ -598,54 +390,6 @@ export class GridTemplateEventsDirective {
         this.gridSurface.drawSchedule.position
       );
       this.gridSurface.drawSchedule.drawGridSelectedCell();
-    }
-  }
-
-  scrollOnPoint(pos: MyPosition) {
-    const hScrollPos = this.scrollGrid.horizontalScrollPosition;
-    const vScrollPos = this.scrollGrid.verticalScrollPosition;
-    const lastVisibleColumn = hScrollPos + this.scrollGrid.visibleCols - 1;
-    const lastVisibleRow = vScrollPos + this.fullyVisibleBodyRows() - 1;
-
-    const atLeftEdge = hScrollPos > 0 && pos.column <= hScrollPos;
-    const atRightEdge = pos.column >= lastVisibleColumn;
-    const atTopEdge = vScrollPos > 0 && pos.row <= vScrollPos;
-    const atBottomEdge = pos.row >= lastVisibleRow;
-
-    if (!atLeftEdge && !atRightEdge && !atTopEdge && !atBottomEdge) {
-      this.edgeEnterTime = null;
-      return;
-    }
-
-    const now = Date.now();
-    if (this.edgeEnterTime === null) {
-      this.edgeEnterTime = now;
-      this.lastScrollEmitTime = 0;
-    }
-
-    const elapsed = now - this.edgeEnterTime;
-    const interval =
-      this.DRAG_SCROLL_MIN_INTERVAL_MS +
-      (this.DRAG_SCROLL_INITIAL_INTERVAL_MS -
-        this.DRAG_SCROLL_MIN_INTERVAL_MS) *
-        Math.exp(-elapsed / this.DRAG_SCROLL_DECAY_TAU_MS);
-
-    if (now - this.lastScrollEmitTime < interval) {
-      return;
-    }
-
-    this.lastScrollEmitTime = now;
-
-    if (atLeftEdge) {
-      this.gridSurface.valueHScrollbar.emit(hScrollPos - 1);
-    } else if (atRightEdge) {
-      this.gridSurface.valueHScrollbar.emit(hScrollPos + 1);
-    }
-
-    if (atTopEdge) {
-      this.gridSurface.valueVScrollbar.emit(vScrollPos - 1);
-    } else if (atBottomEdge) {
-      this.gridSurface.valueVScrollbar.emit(vScrollPos + 1);
     }
   }
 
@@ -780,155 +524,6 @@ export class GridTemplateEventsDirective {
     }
 
     return false;
-  }
-
-  private goRight() {
-    if (
-      this.gridSurface.drawSchedule.position &&
-      this.gridSurface.drawSchedule.position.column < this.gridData.columns - 1
-    ) {
-      const nextColumn: number =
-        this.gridSurface.drawSchedule.position.column + 1;
-
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        this.gridSurface.drawSchedule.position.row,
-        nextColumn
-      );
-
-      if (
-        this.gridSurface.drawSchedule.position.column >=
-        this.scrollGrid.horizontalScrollPosition +
-          this.scrollGrid.visibleCols -
-          1
-      ) {
-        this.gridSurface.valueHScrollbar.emit(
-          this.scrollGrid.horizontalScrollPosition + 1
-        );
-      }
-    }
-  }
-  private goLeft() {
-    if (
-      this.gridSurface.drawSchedule.position &&
-      this.gridSurface.drawSchedule.position.column > 0
-    ) {
-      const previousColumn: number =
-        this.gridSurface.drawSchedule.position.column - 1;
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        this.gridSurface.drawSchedule.position.row,
-        previousColumn
-      );
-
-      if (
-        this.gridSurface.drawSchedule.position.column <
-        this.scrollGrid.horizontalScrollPosition
-      ) {
-        this.gridSurface.valueHScrollbar.emit(previousColumn);
-        this.gridSurface.drawSchedule.drawGridSelectedCell();
-      }
-    }
-  }
-
-  private goUp() {
-    if (
-      this.gridSurface.drawSchedule.position &&
-      this.gridSurface.drawSchedule.position.row > 0
-    ) {
-      const previousRow = this.gridSurface.drawSchedule.position.row - 1;
-
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        previousRow,
-        this.gridSurface.drawSchedule.position.column
-      );
-
-      if (previousRow < this.scrollGrid.verticalScrollPosition) {
-        this.gridSurface.valueVScrollbar.emit(
-          this.scrollGrid.verticalScrollPosition - 1
-        );
-      }
-    }
-  }
-
-  private goDown() {
-    if (
-      this.gridSurface.drawSchedule.position &&
-      this.gridSurface.drawSchedule.position.row < this.gridData.rows
-    ) {
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        this.gridSurface.drawSchedule.position.row + this.INDEX_CORRECTION,
-        this.gridSurface.drawSchedule.position.column
-      );
-
-      const currentVerticalRow = this.gridSurface.drawSchedule.position.row;
-      const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
-      const lastFullyVisibleRow =
-        firstVisibleRow + this.fullyVisibleBodyRows() - 1;
-
-      if (lastFullyVisibleRow <= currentVerticalRow) {
-        this.gridSurface.valueVScrollbar.emit(firstVisibleRow + 1);
-      }
-    }
-  }
-
-  private fullyVisibleBodyRows(): number {
-    const cellHeight = this.gridSettings.cellHeight;
-    if (cellHeight <= 0) return 1;
-    const headerHeight = this.gridSettings.hasHeader
-      ? this.gridSettings.cellHeaderHeight
-      : 0;
-    const bodyHeight = this.gridSurface.drawSchedule.height - headerHeight;
-    return Math.max(1, Math.floor(bodyHeight / cellHeight));
-  }
-
-  private goPageDown() {
-    let nextVisibleRow: number =
-      this.scrollGrid.verticalScrollPosition + this.fullyVisibleBodyRows() - 1;
-
-    if (nextVisibleRow > this.gridData.rows) {
-      nextVisibleRow = this.gridData.rows - 2;
-    }
-
-    let nextRow = 0;
-    if (this.scrollGrid.maxRows <= 1) {
-      this.scrollGrid.verticalScrollPosition = 0;
-    } else if (this.scrollGrid.maxRows >= nextVisibleRow) {
-      nextRow = nextVisibleRow;
-    } else {
-      nextRow = this.scrollGrid.maxRows;
-    }
-
-    if (this.gridSurface.drawSchedule.position) {
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        nextVisibleRow,
-        this.gridSurface.drawSchedule.position.column
-      );
-    }
-
-    this.gridSurface.valueVScrollbar.emit(nextRow);
-    this.gridSurface.drawSchedule.drawGridSelectedCell();
-  }
-
-  private goPageUp() {
-    let previousRow: number =
-      this.scrollGrid.verticalScrollPosition - this.scrollGrid.visibleRows + 1;
-
-    if (previousRow < 0) {
-      previousRow = 0;
-    }
-
-    if (this.scrollGrid.maxRows <= 1) {
-      previousRow = 0;
-    }
-
-    if (this.gridSurface.drawSchedule.position) {
-      this.gridSurface.drawSchedule.position = new MyPosition(
-        previousRow,
-        this.gridSurface.drawSchedule.position.column
-      );
-    }
-
-    this.gridSurface.valueVScrollbar.emit(previousRow);
-    this.gridSurface.drawSchedule.drawGridSelectedCell();
   }
 
   private isMultiselectBlocked(): boolean {

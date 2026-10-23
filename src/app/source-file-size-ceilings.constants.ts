@@ -8,11 +8,10 @@
  * entry and never raise a ceiling: split the file instead. MAX_CEILING_ENTRIES caps the list size, so a new entry would
  * need a second, visible change; lower it whenever entries are deleted. The target state is an empty list.
  */
-export const MAX_CEILING_ENTRIES = 7;
+export const MAX_CEILING_ENTRIES = 6;
 
 export const FILE_SIZE_CEILINGS: Readonly<Record<string, number>> = {
   'projects/klacks-plugin-floor-plan/src/lib/services/floor-plan-canvas.service.ts': 1262,
-  'src/app/presentation/shared/grid/body/directives/grid-template-events.directive.ts': 940,
   'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service.ts': 965,
   'src/app/presentation/shared/time-ruler/services/time-ruler-render.service.ts': 1027,
   'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service.ts': 1047,
