@@ -4752,5 +4752,14 @@
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Nessun contratto attivo",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Nessun dipendente lavora in questo giorno della settimana (contratto)",
   "scenarioSummary.reason.NO_AGENT_PERFORMS_SHIFT_WORK": "Nessun dipendente con lavoro a turni nel contratto",
-  "scenarioSummary.reason.CAPACITY_OR_RULES": "Capacità o regole di pianificazione"
+  "scenarioSummary.reason.CAPACITY_OR_RULES": "Capacità o regole di pianificazione",
+  "holisticHarmonizer.critic.title": "Note dell'IA sul piano",
+  "holisticHarmonizer.critic.intro": "Un modello di visione ha esaminato il piano completato. Queste note sono solo suggerimenti – il piano non è stato modificato.",
+  "holisticHarmonizer.critic.none": "Nessuna anomalia trovata.",
+  "holisticHarmonizer.critic.failed": "Non è stato possibile eseguire l'esame del piano da parte dell'IA.",
+  "holisticHarmonizer.critic.discarded": "{{count}} nota/e scartata/e perché non corrispondevano al piano.",
+  "holisticHarmonizer.critic.model": "Modello: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Bassa",
+  "holisticHarmonizer.critic.severity-medium": "Media",
+  "holisticHarmonizer.critic.severity-high": "Alta"
 }

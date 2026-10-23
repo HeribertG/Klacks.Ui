@@ -4752,5 +4752,14 @@
   "scenarioSummary.reason.NO_ACTIVE_CONTRACT": "Aucun contrat actif",
   "scenarioSummary.reason.NO_AGENT_WORKS_ON_WEEKDAY": "Aucun employé ne travaille ce jour de la semaine (contrat)",
   "scenarioSummary.reason.NO_AGENT_PERFORMS_SHIFT_WORK": "Aucun employé avec travail par équipes dans son contrat",
-  "scenarioSummary.reason.CAPACITY_OR_RULES": "Capacité ou règles de planification"
+  "scenarioSummary.reason.CAPACITY_OR_RULES": "Capacité ou règles de planification",
+  "holisticHarmonizer.critic.title": "Remarques de l'IA sur le planning",
+  "holisticHarmonizer.critic.intro": "Un modèle de vision a examiné le planning terminé. Ces remarques ne sont que des suggestions – le planning n'a pas été modifié.",
+  "holisticHarmonizer.critic.none": "Aucune anomalie trouvée.",
+  "holisticHarmonizer.critic.failed": "L'examen du planning par l'IA n'a pas pu être exécuté.",
+  "holisticHarmonizer.critic.discarded": "{{count}} remarque(s) écartée(s) car elles ne correspondaient pas au planning.",
+  "holisticHarmonizer.critic.model": "Modèle\u00A0: {{model}}",
+  "holisticHarmonizer.critic.severity-low": "Faible",
+  "holisticHarmonizer.critic.severity-medium": "Moyenne",
+  "holisticHarmonizer.critic.severity-high": "Élevée"
 }

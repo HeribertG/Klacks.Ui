@@ -9,6 +9,7 @@
  * @param isLlmMode - True when the stage-3 method setting selects the LLM engine (model line + model gate)
  * @param progressPercent - Iteration progress as a percentage of MaxIterations
  * @param fitnessDeltaPercent - Fitness improvement after - before, in percent
+ * @param planCritic - Vision-critic review of the final plan, shown read-only below the result (never applied)
  */
 
 import { readStaleWizardResult } from 'src/app/domain/models/schedule/stale-wizard-result.model';
@@ -39,6 +40,7 @@ import { QualificationGapReportComponent } from 'src/app/presentation/workplace/
 import { ComplianceViolationReportComponent } from 'src/app/presentation/workplace/schedule/shared/compliance-violation-report/compliance-violation-report.component';
 import { PlanningRuleWarningReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-warning-report/planning-rule-warning-report.component';
 import { PlanningRuleRemainingReportComponent } from 'src/app/presentation/workplace/schedule/shared/planning-rule-remaining-report/planning-rule-remaining-report.component';
+import { PlanCriticReportComponent } from 'src/app/presentation/workplace/schedule/shared/plan-critic-report/plan-critic-report.component';
 import { PlanningRulePreExistingService } from 'src/app/domain/services/schedule/planning-rule-pre-existing.service';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import {
@@ -62,6 +64,7 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
     ComplianceViolationReportComponent,
     PlanningRuleWarningReportComponent,
     PlanningRuleRemainingReportComponent,
+    PlanCriticReportComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -92,6 +95,10 @@ export class HolisticHarmonizerDialogComponent {
   readonly planningRuleRemaining = computed(
     () => this.holisticHarmonizerService.result()?.planningRuleRemaining ?? null,
   );
+
+  readonly planCritic = computed(() => this.holisticHarmonizerService.result()?.planCritic ?? null);
+
+  readonly periodStart = signal<Date | null>(null);
 
   readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
 
@@ -225,6 +232,7 @@ export class HolisticHarmonizerDialogComponent {
       return;
     }
 
+    this.periodStart.set(this.dataManagementSchedule.periodStartDate);
     const request = this.buildRequest();
     if (!request) {
       this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noData'));
