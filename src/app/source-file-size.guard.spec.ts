@@ -70,9 +70,7 @@ describe('source file size', () => {
       // Assert
       expect(
         importers,
-        `Only specs may import src/app/shared/testing (it is excluded from the size scan):
-${importers.join('
-')}`,
+        `Only specs may import src/app/shared/testing (it is excluded from the size scan):\n${importers.join('\n')}`,
       ).toEqual([]);
     });
   });
