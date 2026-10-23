@@ -24,6 +24,8 @@ const COUNT = '{{count}}';
 const SOON_COUNT = '{{soonCount}}';
 const OLD_PER_ORDER_KEY = 'assistant.proactive.openOrder';
 const GOAL_RATIONALE_KEY = 'assistant-chat.goal-candidates.type.openOrder.rationale';
+const REVIEW_REQUEST_KEY = 'klacksy.orders.review.request';
+const RETIRED_SEAL_REQUEST_KEY = 'klacksy.setup.seal-open-orders.request';
 
 const load = (language: string): Record<string, string> =>
   JSON.parse(readFileSync(resolve(I18N_DIR, `${language}.json`), 'utf8'));
@@ -39,6 +41,14 @@ const REQUIRED_KEYS = [
 ];
 
 describe('open-orders summary translations', () => {
+  it('sends the review request, never a request to seal', () => {
+    expect(OPEN_ORDERS_SEAL_REQUEST_KEY).toBe(REVIEW_REQUEST_KEY);
+  });
+
+  it.each(CORE_LANGUAGES)('no longer carries the retired seal request in %s', (language) => {
+    expect(load(language)[RETIRED_SEAL_REQUEST_KEY]).toBeUndefined();
+  });
+
   it.each(CORE_LANGUAGES)('has every key filled in %s', (language) => {
     const translations = load(language);
 

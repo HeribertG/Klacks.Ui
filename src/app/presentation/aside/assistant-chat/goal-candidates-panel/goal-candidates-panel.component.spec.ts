@@ -158,7 +158,7 @@ describe('GoalCandidatesPanelComponent', () => {
       goalType: 'no_schedule_yet',
       titleKey: 'assistant-chat.goal-candidates.type.noScheduleYet.ordersButNoShifts.title',
       rationaleKey: 'assistant-chat.goal-candidates.type.noScheduleYet.ordersButNoShifts.rationale',
-      chatPromptKey: 'klacksy.setup.seal-open-orders.request',
+      chatPromptKey: 'klacksy.orders.review.request',
     };
 
     it('sends the seal request into the chat once the approval is recorded', () => {
@@ -166,7 +166,7 @@ describe('GoalCandidatesPanelComponent', () => {
 
       component.onApprove('candidate-seal');
 
-      expect(turnLauncherMock.openAndAsk).toHaveBeenCalledWith('klacksy.setup.seal-open-orders.request');
+      expect(turnLauncherMock.openAndAsk).toHaveBeenCalledWith('klacksy.orders.review.request');
     });
 
     it('hands the request to the user when the chat is busy and could not take it', () => {

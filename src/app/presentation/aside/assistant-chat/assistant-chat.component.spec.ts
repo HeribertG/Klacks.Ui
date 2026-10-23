@@ -3647,7 +3647,7 @@ describe('AssistantChatComponent', () => {
                 messageActions.sealOpenOrders(message);
 
                 // Assert
-                expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.setup.seal-open-orders.request');
+                expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.orders.review.request');
                 expect(orchestrator.submitText).toHaveBeenCalledTimes(1);
             });
 
@@ -4189,7 +4189,7 @@ describe('AssistantChatComponent', () => {
                 actionKind: WELCOME_FOCUS_ACTION_KIND.Prompt,
                 actionLabelKey: 'klacksy.focus.no-shifts.action',
                 actionRoute: null,
-                actionPromptKey: 'klacksy.setup.seal-open-orders.request',
+                actionPromptKey: 'klacksy.orders.review.request',
                 conditionId: null,
             };
             replyToasts().showGreetingOptionsAsToast(
@@ -4200,10 +4200,10 @@ describe('AssistantChatComponent', () => {
 
             showSpy.mock.calls[0][1]([WELCOME_FOCUS_ACTION]);
 
-            expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.setup.seal-open-orders.request');
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.orders.review.request');
             expect(orchestrator.submitText).toHaveBeenCalledTimes(1);
             expect(orchestrator.submitText).toHaveBeenCalledWith(
-                mockTranslateService.instant('klacksy.setup.seal-open-orders.request'),
+                mockTranslateService.instant('klacksy.orders.review.request'),
             );
         });
 
