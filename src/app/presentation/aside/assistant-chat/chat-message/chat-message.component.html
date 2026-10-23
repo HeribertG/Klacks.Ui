@@ -283,10 +283,10 @@
       @if (canWorkOnOpenOrders()) {
       <button
         type="button"
-        class="proactive-reaction-btn proactive-seal-orders-btn"
-        (click)="actions.sealOpenOrders(message())"
+        class="proactive-reaction-btn proactive-review-orders-btn"
+        (click)="actions.reviewOpenOrders(message())"
       >
-        {{ openOrdersSealLabelKey | translate }}
+        {{ openOrdersReviewLabelKey | translate }}
       </button>
       <button
         type="button"

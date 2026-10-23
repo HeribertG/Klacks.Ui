@@ -41,7 +41,7 @@ describe('ChatMessageComponent', () => {
     pendingDelegateMessageId: ReturnType<typeof signal<string | null>>;
     pendingAcknowledgeMessageId: ReturnType<typeof signal<string | null>>;
     pendingSnoozeMessageId: ReturnType<typeof signal<string | null>>;
-    sealOpenOrders: ReturnType<typeof vi.fn>;
+    reviewOpenOrders: ReturnType<typeof vi.fn>;
     openOpenOrdersList: ReturnType<typeof vi.fn>;
     snoozeOpenOrders: ReturnType<typeof vi.fn>;
     isMuteSuggestion: ReturnType<typeof vi.fn>;
@@ -112,7 +112,7 @@ describe('ChatMessageComponent', () => {
       pendingDelegateMessageId: signal<string | null>(null),
       pendingAcknowledgeMessageId: signal<string | null>(null),
       pendingSnoozeMessageId: signal<string | null>(null),
-      sealOpenOrders: vi.fn(),
+      reviewOpenOrders: vi.fn(),
       openOpenOrdersList: vi.fn(),
       snoozeOpenOrders: vi.fn(),
       isMuteSuggestion: vi.fn().mockReturnValue(false),
@@ -270,8 +270,8 @@ describe('ChatMessageComponent', () => {
       proactiveKind: 'open_order',
       proactiveActionRoute: '/workplace/schedule',
     };
-    const sealButton = (): HTMLButtonElement | null =>
-      fixture.nativeElement.querySelector('.proactive-seal-orders-btn');
+    const reviewButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('.proactive-review-orders-btn');
     const listButton = (): HTMLButtonElement | null =>
       fixture.nativeElement.querySelector('.proactive-orders-list-btn');
     const laterButton = (): HTMLButtonElement | null =>
@@ -286,22 +286,22 @@ describe('ChatMessageComponent', () => {
       );
     });
 
-    it('offers seal, list and later to a user who may edit shifts, instead of the generic show button', () => {
+    it('offers review, list and later to a user who may edit shifts, instead of the generic show button', () => {
       grantedPermissions.add(PERMISSIONS.CanEditShifts);
       fixture.componentRef.setInput('message', summaryMessage);
       fixture.detectChanges();
 
-      expect(sealButton()?.textContent).toContain('klacksy.focus.no-shifts.action');
+      expect(reviewButton()?.textContent).toContain('klacksy.focus.no-shifts.action');
       expect(listButton()?.textContent).toContain('assistant-chat.proactive.open-orders.view-list');
       expect(laterButton()?.textContent).toContain('klacksy.focus.later');
       expect(fixture.nativeElement.querySelector('.proactive-action-btn')).toBeNull();
     });
 
-    it('hides seal and list without CanEditShifts but still offers later', () => {
+    it('hides review and list without CanEditShifts but still offers later', () => {
       fixture.componentRef.setInput('message', summaryMessage);
       fixture.detectChanges();
 
-      expect(sealButton()).toBeNull();
+      expect(reviewButton()).toBeNull();
       expect(listButton()).toBeNull();
       expect(laterButton()).toBeTruthy();
     });
@@ -311,11 +311,11 @@ describe('ChatMessageComponent', () => {
       fixture.componentRef.setInput('message', summaryMessage);
       fixture.detectChanges();
 
-      sealButton()!.click();
+      reviewButton()!.click();
       listButton()!.click();
       laterButton()!.click();
 
-      expect(actionsMock.sealOpenOrders).toHaveBeenCalledWith(summaryMessage);
+      expect(actionsMock.reviewOpenOrders).toHaveBeenCalledWith(summaryMessage);
       expect(actionsMock.openOpenOrdersList).toHaveBeenCalledWith(summaryMessage);
       expect(actionsMock.snoozeOpenOrders).toHaveBeenCalledWith(summaryMessage);
     });
@@ -333,7 +333,7 @@ describe('ChatMessageComponent', () => {
       fixture.componentRef.setInput('message', proactiveMessage);
       fixture.detectChanges();
 
-      expect(sealButton()).toBeNull();
+      expect(reviewButton()).toBeNull();
       expect(listButton()).toBeNull();
       expect(laterButton()).toBeNull();
       expect(fixture.nativeElement.querySelector('.proactive-action-btn')).toBeTruthy();

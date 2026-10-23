@@ -19,9 +19,9 @@ export const OPEN_ORDERS_SUMMARY_PARAM = {
   SoonCount: 'soonCount',
 } as const;
 
-export const OPEN_ORDERS_SEAL_LABEL_KEY = 'klacksy.focus.no-shifts.action';
+export const OPEN_ORDERS_REVIEW_LABEL_KEY = 'klacksy.focus.no-shifts.action';
 
-export const OPEN_ORDERS_SEAL_REQUEST_KEY = 'klacksy.setup.seal-open-orders.request';
+export const OPEN_ORDERS_REVIEW_REQUEST_KEY = 'klacksy.orders.review.request';
 
 export const OPEN_ORDERS_VIEW_LIST_LABEL_KEY = 'assistant-chat.proactive.open-orders.view-list';
 

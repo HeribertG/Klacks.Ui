@@ -55,7 +55,7 @@ import {
 import { PROACTIVE_MAX_ACTION } from 'src/app/domain/constants/proactive-max-action.constants';
 import { GROUPING_FEASIBILITY_TRIGGER_PHRASE_KEY } from 'src/app/domain/constants/grouping-feasibility.constants';
 import {
-  OPEN_ORDERS_SEAL_REQUEST_KEY,
+  OPEN_ORDERS_REVIEW_REQUEST_KEY,
   OPEN_ORDERS_SNOOZED_KEY,
   OPEN_ORDERS_SUMMARY_I18N,
 } from 'src/app/domain/constants/open-orders-summary.constants';
@@ -342,15 +342,16 @@ export class ChatMessageActionsService {
   }
 
   /**
-   * "Ja, versiegeln" on the daily open-orders summary: sends the seal request in the user's language, so
-   * Klacksy answers with the seal_open_orders preview and seals only after the user confirms it there.
+   * "Bestellungen mit mir durchgehen" on the daily open-orders summary: sends the review request in the user's
+   * language. It never asks to seal: Klacksy goes through the open orders with the user, at most shows the
+   * seal_open_orders preview, and seals only as the confirmed replay of that preview after the user's explicit yes.
    * @param message - The proactive message the button belongs to
    */
-  sealOpenOrders(message: ChatMessage): void {
+  reviewOpenOrders(message: ChatMessage): void {
     if (!this.isOpenOrdersSummary(message)) {
       return;
     }
-    void this.orchestrator.submitText(this.translateService.instant(OPEN_ORDERS_SEAL_REQUEST_KEY));
+    void this.orchestrator.submitText(this.translateService.instant(OPEN_ORDERS_REVIEW_REQUEST_KEY));
   }
 
   /**

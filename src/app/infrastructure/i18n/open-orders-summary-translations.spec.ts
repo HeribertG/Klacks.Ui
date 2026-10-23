@@ -2,16 +2,17 @@
 
 /**
  * Guards the texts of the daily open-orders summary in the four core languages: every sentence variant the
- * client picks, the two new button and toast texts, the reused seal and later texts, and the placeholders each
- * variant must carry. The 21 language packs live in Klacks.Api and are checked there.
+ * client picks, the two new button and toast texts, the reused review and later texts, and the placeholders each
+ * variant must carry. The review request replaced the retired seal request, which must stay gone. The 21 language
+ * packs live in Klacks.Api and are checked there.
  */
 
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import {
-  OPEN_ORDERS_SEAL_LABEL_KEY,
-  OPEN_ORDERS_SEAL_REQUEST_KEY,
+  OPEN_ORDERS_REVIEW_LABEL_KEY,
+  OPEN_ORDERS_REVIEW_REQUEST_KEY,
   OPEN_ORDERS_SNOOZED_KEY,
   OPEN_ORDERS_SUMMARY_I18N,
   OPEN_ORDERS_VIEW_LIST_LABEL_KEY,
@@ -34,15 +35,15 @@ const REQUIRED_KEYS = [
   ...Object.values(OPEN_ORDERS_SUMMARY_I18N),
   OPEN_ORDERS_VIEW_LIST_LABEL_KEY,
   OPEN_ORDERS_SNOOZED_KEY,
-  OPEN_ORDERS_SEAL_LABEL_KEY,
-  OPEN_ORDERS_SEAL_REQUEST_KEY,
+  OPEN_ORDERS_REVIEW_LABEL_KEY,
+  OPEN_ORDERS_REVIEW_REQUEST_KEY,
   WELCOME_FOCUS_LATER_LABEL_KEY,
   OLD_PER_ORDER_KEY,
 ];
 
 describe('open-orders summary translations', () => {
   it('sends the review request, never a request to seal', () => {
-    expect(OPEN_ORDERS_SEAL_REQUEST_KEY).toBe(REVIEW_REQUEST_KEY);
+    expect(OPEN_ORDERS_REVIEW_REQUEST_KEY).toBe(REVIEW_REQUEST_KEY);
   });
 
   it.each(CORE_LANGUAGES)('no longer carries the retired seal request in %s', (language) => {

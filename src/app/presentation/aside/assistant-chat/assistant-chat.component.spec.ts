@@ -3636,7 +3636,7 @@ describe('AssistantChatComponent', () => {
                 expect(mockTranslateService.instant).toHaveBeenCalledWith(expectedKey, { count, soonCount });
             });
 
-            it('sends the seal request in the user language for "Ja, versiegeln"', () => {
+            it('sends the review request in the user language for "Bestellungen mit mir durchgehen"', () => {
                 // Arrange
                 const orchestrator = TestBed.inject(ConversationOrchestratorService) as any;
                 orchestrator.submitText.mockClear();
@@ -3644,7 +3644,7 @@ describe('AssistantChatComponent', () => {
                 const message = component.messages.find((m) => m.id === 'open-orders-1')!;
 
                 // Act
-                messageActions.sealOpenOrders(message);
+                messageActions.reviewOpenOrders(message);
 
                 // Assert
                 expect(mockTranslateService.instant).toHaveBeenCalledWith('klacksy.orders.review.request');
@@ -3711,7 +3711,7 @@ describe('AssistantChatComponent', () => {
                 const message = component.messages.find((m) => m.id === 'proactive-action-1')!;
 
                 // Act
-                messageActions.sealOpenOrders(message);
+                messageActions.reviewOpenOrders(message);
                 messageActions.openOpenOrdersList(message);
                 await messageActions.snoozeOpenOrders(message);
 

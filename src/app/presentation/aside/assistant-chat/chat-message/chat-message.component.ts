@@ -35,7 +35,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { WELCOME_FOCUS_LATER_LABEL_KEY } from 'src/app/domain/constants/welcome-focus.constants';
 import {
-  OPEN_ORDERS_SEAL_LABEL_KEY,
+  OPEN_ORDERS_REVIEW_LABEL_KEY,
   OPEN_ORDERS_VIEW_LIST_LABEL_KEY,
 } from 'src/app/domain/constants/open-orders-summary.constants';
 import { TextToSpeechService } from '../services/text-to-speech.service';
@@ -92,7 +92,7 @@ export class ChatMessageComponent {
   protected readonly proactiveRejectReasons = PROACTIVE_REJECT_REASON;
   protected readonly proactiveSeverities = PROACTIVE_SEVERITY;
   protected readonly expectedSkillMaxLength = EXPECTED_SKILL_MAX_LENGTH;
-  protected readonly openOrdersSealLabelKey = OPEN_ORDERS_SEAL_LABEL_KEY;
+  protected readonly openOrdersReviewLabelKey = OPEN_ORDERS_REVIEW_LABEL_KEY;
   protected readonly openOrdersViewListLabelKey = OPEN_ORDERS_VIEW_LIST_LABEL_KEY;
   protected readonly laterLabelKey = WELCOME_FOCUS_LATER_LABEL_KEY;
 
