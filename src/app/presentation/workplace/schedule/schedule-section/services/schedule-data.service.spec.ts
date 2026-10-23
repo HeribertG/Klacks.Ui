@@ -17,6 +17,7 @@ import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { ScheduleCommandCellFormatterService } from './cell-formatters/schedule-command-cell-formatter.service';
+import { WorkChangeCellFormatterService } from './cell-formatters/work-change-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -84,6 +85,7 @@ describe('ScheduleDataService', () => {
                 { provide: BreakCellFormatterService, useValue: { format: vi.fn() } },
                 { provide: ScheduleNoteCellFormatterService, useValue: { formatCell: vi.fn() } },
                 { provide: ScheduleCommandCellFormatterService, useValue: { formatCell: vi.fn() } },
+                WorkChangeCellFormatterService,
                 { provide: AbsenceLookupService, useValue: { getAbbreviationForEntryId: () => '' } },
                 { provide: GridColorService, useValue: {} },
                 { provide: TranslateService, useValue: { currentLang: 'de', instant: vi.fn().mockReturnValue(''), get: vi.fn().mockReturnValue(of('')), onTranslationChange: of(), onLangChange: of(), onDefaultLangChange: of() } },
