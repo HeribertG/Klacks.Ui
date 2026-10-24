@@ -7,6 +7,8 @@ import { IScheduleValidationNotification } from './schedule-validation-notificat
  * @param softConflicts - Rule notes that do not block the stand-in but should be read before calling
  * @param targetHoursDeficit - Hours the person is still below the target, a hint for fair distribution
  * @param phone - Mobile number before fixed line; null when none is stored
+ * @param rhythmDelta - How the cover changes the rhythm of the person's own row: negative = closes or extends a block of
+ *   the same kind, 0 = neutral, positive = a lonely shift, a mixed block or a backward rotation; absent on older servers
  * @param levelShortfall - Levels missing over the mandatory qualifications held below a non-binding minimum level; 0 = fully qualified
  */
 export interface IReplacementCandidate {
@@ -18,4 +20,5 @@ export interface IReplacementCandidate {
   isOnCall: boolean;
   phone?: string | null;
   levelShortfall: number;
+  rhythmDelta?: number;
 }

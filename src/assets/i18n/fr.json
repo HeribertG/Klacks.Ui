@@ -3023,6 +3023,8 @@
   "recovery.dialog.onCall": "De piquet",
   "recovery.dialog.conflicts": "{{count}} remarque(s)",
   "recovery.dialog.levelShortfall": "Niveau insuffisant",
+  "recovery.dialog.rhythmFits": "S’intègre au bloc",
+  "recovery.dialog.rhythmBreaks": "Rompt le rythme",
   "recovery.dialog.alternativeOutcomeHint": "Enregistre uniquement la tentative de contact – la proposition du scénario reste inchangée.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Couvrir l'absence",

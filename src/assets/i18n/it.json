@@ -3023,6 +3023,8 @@
   "recovery.dialog.onCall": "Di picchetto",
   "recovery.dialog.conflicts": "{{count}} avviso/i",
   "recovery.dialog.levelShortfall": "Livello troppo basso",
+  "recovery.dialog.rhythmFits": "Si inserisce nel blocco",
+  "recovery.dialog.rhythmBreaks": "Rompe il ritmo",
   "recovery.dialog.alternativeOutcomeHint": "Registra solo il tentativo di contatto – la proposta nello scenario resta invariata.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Copri assenza",
