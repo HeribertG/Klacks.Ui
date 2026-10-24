@@ -44,7 +44,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { KLACKSY_PAGE_KEYS } from 'src/app/domain/constants/klacksy-page-keys';
 import { ChatTurnControlService } from './chat-turn-control.service';
 import { RawFunctionCall } from './raw-function-call.interface';
-import { toNonEmptyString } from 'src/app/shared/helpers/type-guard.helper';
+import { toNonEmptyString } from 'src/app/domain/helpers/non-empty-string.helper';
 import { IAssistantFunctionResult } from 'src/app/domain/interfaces/assistant-function-result.interface';
 
 @Injectable()

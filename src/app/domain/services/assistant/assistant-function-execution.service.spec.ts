@@ -54,6 +54,72 @@ describe('AssistantFunctionExecutionService', () => {
     expect(result.error).toBe('target-not-found');
   });
 
+  it.each([
+    ['an object', { id: 'a' }],
+    ['an array', ['reports']],
+    ['a number', 7],
+    ['a boolean', true],
+  ])('treats %s as target as not given', async (_label, target) => {
+    navigateAndScroll.mockResolvedValue({ success: true });
+    const call: IAssistantFunctionCall = {
+      id: 'call-4',
+      name: 'navigate_to',
+      arguments: { page: 'settings', target },
+    };
+
+    await firstValueFrom(service.executeFunction(call));
+
+    expect(navigateAndScroll).toHaveBeenCalledWith('/workplace/settings', undefined);
+  });
+
+  it.each([
+    ['an object', { path: '/workplace/shift' }],
+    ['an array', ['/workplace', 'shift']],
+    ['a number', 7],
+  ])('treats %s as route as not given and falls back to the page route', async (_label, route) => {
+    navigateAndScroll.mockResolvedValue({ success: true });
+    const call: IAssistantFunctionCall = {
+      id: 'call-5',
+      name: 'navigate_to',
+      arguments: { page: 'settings', route },
+    };
+
+    await firstValueFrom(service.executeFunction(call));
+
+    expect(navigateAndScroll).toHaveBeenCalledWith('/workplace/settings', undefined);
+  });
+
+  it.each([
+    ['an object', { name: 'settings' }],
+    ['an array', ['settings']],
+    ['a number', 7],
+  ])('treats %s as page as not given and opens the dashboard', async (_label, page) => {
+    navigateAndScroll.mockResolvedValue({ success: true });
+    const withoutPage: IAssistantFunctionCall = { id: 'call-6', name: 'navigate_to', arguments: {} };
+    await firstValueFrom(service.executeFunction(withoutPage));
+    const expectedRoute = navigateAndScroll.mock.calls[0][0];
+    navigateAndScroll.mockClear();
+
+    const call: IAssistantFunctionCall = { id: 'call-7', name: 'navigate_to', arguments: { page } };
+    const result = await firstValueFrom(service.executeFunction(call));
+
+    expect(result.success).toBe(true);
+    expect(navigateAndScroll).toHaveBeenCalledWith(expectedRoute, undefined);
+  });
+
+  it('keeps using valid string route, target and page unchanged', async () => {
+    navigateAndScroll.mockResolvedValue({ success: true });
+    const call: IAssistantFunctionCall = {
+      id: 'call-8',
+      name: 'navigate_to',
+      arguments: { page: 'Settings', route: '/workplace/shift', Target: 'reports' },
+    };
+
+    await firstValueFrom(service.executeFunction(call));
+
+    expect(navigateAndScroll).toHaveBeenCalledWith('/workplace/shift', 'reports');
+  });
+
   it('sends the current app language when executing a single backend function', async () => {
     const call: IAssistantFunctionCall = { id: 'call-2', name: 'someBackendSkill', arguments: {} };
 

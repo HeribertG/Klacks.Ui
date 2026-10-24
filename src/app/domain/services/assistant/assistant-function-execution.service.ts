@@ -10,6 +10,7 @@ import { ILLMFunctionExecuteRequest } from '../../interfaces/llm-function-execut
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { KLACKSY_PAGE_KEYS_BY_KEY } from 'src/app/domain/constants/klacksy-page-keys';
+import { toNonEmptyString } from 'src/app/domain/helpers/non-empty-string.helper';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import {
   NAVIGATION_ROUTE_NOT_ALLOWED_ERROR,
@@ -42,15 +43,15 @@ export class AssistantFunctionExecutionService {
     call: IAssistantFunctionCall
   ): Observable<IAssistantFunctionResult> {
     try {
-      const page = ((call.arguments['page'] as string) || 'dashboard').toLowerCase();
+      const page = (toNonEmptyString(call.arguments['page']) ?? 'dashboard').toLowerCase();
       const entityId = call.arguments['entityId'] as string;
-      const scrollTarget = (call.arguments['target'] as string) || (call.arguments['Target'] as string) || undefined;
+      const scrollTarget = toNonEmptyString(call.arguments['target']) ?? toNonEmptyString(call.arguments['Target']);
       const pageEntry = KLACKSY_PAGE_KEYS_BY_KEY.get(page);
 
       let route =
-        call.arguments['route'] as string ||
-        call.arguments['Route'] as string ||
-        pageEntry?.route ||
+        toNonEmptyString(call.arguments['route']) ??
+        toNonEmptyString(call.arguments['Route']) ??
+        pageEntry?.route ??
         `/workplace/${page}`;
 
       let queryParams = (call.arguments['params'] as Record<string, unknown>) || {};
