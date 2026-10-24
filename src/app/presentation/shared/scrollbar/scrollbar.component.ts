@@ -16,7 +16,6 @@ import { Subject } from 'rxjs';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 import { ScrollbarService } from './scrollbar.service';
-import { SCROLLBAR_CONSTANTS } from './constants';
 import { maxScrollValue } from './scroll-range.helper';
 import { ScrollAnimationService } from './scroll-animation.service';
 import { AxisConfig } from './axis-config.interface';
@@ -222,7 +221,7 @@ export class ScrollbarComponent
   }
 
   private clampValue(value: number): number {
-    const upper = (this.renderer.imagesThumps.invisibleTicks ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+    const upper = maxScrollValue(this.maxValue ?? 0, this.visibleValue ?? 0);
     return Math.max(0, Math.min(value ?? 0, isFinite(upper) ? upper : 0));
   }
 
@@ -245,7 +244,7 @@ export class ScrollbarComponent
   }
 
   private isAtEnd(): boolean {
-    return this.value >= this.maxValue - this.visibleValue;
+    return this.value >= maxScrollValue(this.maxValue, this.visibleValue);
   }
 
   private updateArrowButtonsState(): void {

@@ -200,6 +200,9 @@ describe('ScrollbarComponent (vertical)', () => {
 
         component.value = 80;
         expect((component as any).isAtStart()).toBe(false);
+        expect((component as any).isAtEnd()).toBe(false);
+
+        component.value = 85;
         expect((component as any).isAtEnd()).toBe(true);
     });
 
@@ -226,9 +229,9 @@ describe('ScrollbarComponent (vertical)', () => {
         component.visibleValue = 20;
 
         component.value = 80;
-        expect((component as any).isAtEnd()).toBe(true);
+        expect((component as any).isAtEnd()).toBe(false);
 
-        component.value = 79;
+        component.value = 84;
         expect((component as any).isAtEnd()).toBe(false);
 
         component.value = 85;
@@ -363,7 +366,6 @@ describe('ScrollbarComponent (horizontal RTL)', () => {
         (renderer as any).imagesThumps = {
             imgThumb: { width: 100, height: 20 },
             imgSelectedThumb: undefined,
-            invisibleTicks: 80,
         };
 
         component.value = 0;

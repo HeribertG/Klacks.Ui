@@ -70,6 +70,10 @@ export function isPositionOnThumb(
   value: number,
   thumbSize: number | undefined
 ): boolean {
+  if (tickSize <= 0) {
+    return false;
+  }
+
   const correctedPos = Math.round(pos / tickSize);
 
   if (thumbSize !== undefined) {

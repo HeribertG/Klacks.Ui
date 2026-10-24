@@ -265,17 +265,17 @@ describe('ScrollbarComponent characterization', () => {
       expect(lastPut().x).toBe(141);
     });
 
-    it('disables the backward arrow at 0 and the forward arrow from max - visible (5 ticks before the drag limit)', () => {
+    it('disables the backward arrow at 0 and the forward arrow at the drag limit max - visible + 5', () => {
       expect(arrows()[0].classList.contains('disabled')).toBe(true);
       expect(arrows()[0].getAttribute('aria-disabled')).toBe('true');
       expect(arrows()[1].classList.contains('disabled')).toBe(false);
       expect(arrows()[1].getAttribute('disabled')).toBeNull();
 
-      setInputs({ value: 79 });
+      setInputs({ value: 84 });
       expect(arrows()[0].classList.contains('disabled')).toBe(false);
       expect(arrows()[1].classList.contains('disabled')).toBe(false);
 
-      setInputs({ value: 80 });
+      setInputs({ value: 85 });
       expect(arrows()[1].classList.contains('disabled')).toBe(true);
       expect(arrows()[1].getAttribute('disabled')).toBe('true');
     });
@@ -292,11 +292,11 @@ describe('ScrollbarComponent characterization', () => {
     it('hit-tests the thumb by ticks of the metric tick size (public isMouseOverThumb)', () => {
       const scrollbar = host.scrollbar();
       expect(scrollbar.isMouseOverThumb({ clientX: 0 } as MouseEvent)).toBe(true);
-      expect(scrollbar.isMouseOverThumb({ clientX: 100 } as MouseEvent)).toBe(true);
+      expect(scrollbar.isMouseOverThumb({ clientX: 99 } as MouseEvent)).toBe(true);
       expect(scrollbar.isMouseOverThumb({ clientX: 103 } as MouseEvent)).toBe(false);
       setInputs({ value: 10 });
-      expect(scrollbar.isMouseOverThumb({ clientX: 47 } as MouseEvent)).toBe(false);
-      expect(scrollbar.isMouseOverThumb({ clientX: 48 } as MouseEvent)).toBe(true);
+      expect(scrollbar.isMouseOverThumb({ clientX: 44 } as MouseEvent)).toBe(false);
+      expect(scrollbar.isMouseOverThumb({ clientX: 47 } as MouseEvent)).toBe(true);
     });
   });
 
@@ -321,21 +321,21 @@ describe('ScrollbarComponent characterization', () => {
       expect(lastPut().image.fill).toBe(TRACK_COLOR);
     });
 
-    it('drags the thumb by pointer: offset from grab point, value = pos / tickSize, clamped to invisible ticks + 5', () => {
+    it('drags the thumb by pointer: offset from grab point, value = pos / tickSize (free track / drag limit), clamped to max - visible + 5', () => {
       pointer('pointerdown', { clientX: 50, button: 0, buttons: 1 });
       expect(canvas().setPointerCapture).toHaveBeenCalledWith(7);
 
       pointer('pointermove', { clientX: 150 });
-      expect(host.log).toEqual(['value:20']);
-      expect(lastPut().x).toBe(94);
+      expect(host.log).toEqual(['value:21']);
+      expect(lastPut().x).toBe(99);
 
       pointer('pointermove', { clientX: 1000 });
-      expect(host.log).toEqual(['value:20', 'value:85']);
+      expect(host.log).toEqual(['value:21', 'value:85']);
 
       pointer('pointerup', { clientX: 1000 });
       expect(canvas().releasePointerCapture).toHaveBeenCalledWith(7);
       pointer('pointermove', { clientX: 150 });
-      expect(host.log).toEqual(['value:20', 'value:85']);
+      expect(host.log).toEqual(['value:21', 'value:85']);
     });
 
     it('does not start a drag when the pointer is down outside the thumb', () => {
@@ -348,7 +348,7 @@ describe('ScrollbarComponent characterization', () => {
     it('a pointerdown on the thumb without buttons=1 still drags, but without grab offset and capture', () => {
       pointer('pointerdown', { clientX: 50, button: 0, buttons: 0 });
       pointer('pointermove', { clientX: 150 });
-      expect(host.log).toEqual(['value:30']);
+      expect(host.log).toEqual(['value:32']);
       expect(canvas().setPointerCapture).not.toHaveBeenCalled();
     });
 
@@ -358,12 +358,12 @@ describe('ScrollbarComponent characterization', () => {
       expect(host.log).toEqual([]);
     });
 
-    it('drag clamps by the thumb image ticks from the last refresh, not by the current inputs (setter clamps by inputs)', () => {
+    it('drag clamps by the current inputs, like the setter', () => {
       const scrollbar = host.scrollbar();
       scrollbar.maxValue = 50;
       pointer('pointerdown', { clientX: 50, button: 0, buttons: 1 });
       pointer('pointermove', { clientX: 1000 });
-      expect(scrollbar.value).toBe(85);
+      expect(scrollbar.value).toBe(35);
 
       scrollbar.value = 200;
       expect(scrollbar.value).toBe(35);
@@ -373,7 +373,7 @@ describe('ScrollbarComponent characterization', () => {
       mouse('mousedown', { clientX: 400 });
       flushFrames();
 
-      expect(host.log).toEqual(pairs(3, 60, 3));
+      expect(host.log).toEqual(pairs(3, 66, 3));
       expect(rafQueue.size).toBe(0);
     });
 
@@ -478,6 +478,106 @@ describe('ScrollbarComponent characterization', () => {
     });
   });
 
+  describe('one end of range for thumb drag, arrows, track click and hold (max - visible + 5)', () => {
+    const forwardArrow = (): HTMLElement => arrows()[1];
+    const pressForward = (): void => {
+      forwardArrow().dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0, buttons: 1 }));
+    };
+    const releaseForward = (): void => {
+      forwardArrow().dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true }));
+    };
+
+    beforeEach(() => mount('horizontal'));
+
+    it('keeps the forward arrow enabled until the drag limit, a click reaches it, then disables it', () => {
+      setInputs({ value: 84 });
+      expect(forwardArrow().classList.contains('disabled')).toBe(false);
+
+      pressForward();
+      releaseForward();
+      fixture.detectChanges();
+
+      expect(host.scrollbar().value).toBe(85);
+      expect(forwardArrow().classList.contains('disabled')).toBe(true);
+    });
+
+    it('a held forward arrow runs up to the drag limit and stops there', () => {
+      setInputs({ value: 82 });
+      pressForward();
+      vi.advanceTimersByTime(300);
+      flushFrames();
+
+      expect(host.scrollbar().value).toBe(85);
+      expect(rafQueue.size).toBe(0);
+    });
+
+    it('a track click at the far end clamps the last step to the drag limit instead of stopping short', () => {
+      setInputs({ value: 83 });
+      mouse('mousedown', { clientX: 499 });
+      flushFrames();
+
+      expect(host.scrollbar().value).toBe(85);
+      expect(rafQueue.size).toBe(0);
+    });
+
+    it('hit-tests exactly the drawn thumb along the whole range', () => {
+      for (const value of [0, 10, 40, 85]) {
+        setInputs({ value });
+        const x = lastPut().x;
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x } as MouseEvent)).toBe(true);
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x + 99 } as MouseEvent)).toBe(true);
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x - 3 } as MouseEvent)).toBe(false);
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x + 103 } as MouseEvent)).toBe(false);
+      }
+    });
+
+    it('a dragged thumb stays under the pointer (within one tick) towards the end of the range', () => {
+      pointer('pointerdown', { clientX: 50, button: 0, buttons: 1 });
+      pointer('pointermove', { clientX: 400 });
+
+      const grabPointOnThumb = lastPut().x + 50;
+      expect(grabPointOnThumb).toBeGreaterThanOrEqual(397);
+      expect(grabPointOnThumb).toBeLessThanOrEqual(403);
+    });
+
+    it('keeps the overhang when the rounded-up visible count equals the content (last row may be clipped)', () => {
+      setInputs({ maxValue: 20, visibleValue: 20 });
+
+      expect(forwardArrow().classList.contains('disabled')).toBe(false);
+      host.scrollbar().value = 9;
+      expect(host.scrollbar().value).toBe(5);
+    });
+
+    it('has nothing to scroll when the content is far smaller than the viewport: arrows disabled, no thumb hit', () => {
+      setInputs({ maxValue: 10, visibleValue: 20 });
+
+      expect(arrows()[0].classList.contains('disabled')).toBe(true);
+      expect(forwardArrow().classList.contains('disabled')).toBe(true);
+
+      host.scrollbar().value = 3;
+      expect(host.scrollbar().value).toBe(0);
+      expect(host.scrollbar().isMouseOverThumb({ clientX: 50 } as MouseEvent)).toBe(false);
+    });
+  });
+
+  describe('horizontal RTL end of range', () => {
+    beforeEach(() => {
+      document.documentElement.dir = 'rtl';
+      mount('horizontal');
+    });
+
+    it('hit-tests exactly the drawn (mirrored) thumb along the whole range', () => {
+      for (const value of [0, 10, 40, 85]) {
+        setInputs({ value });
+        const x = lastPut().x;
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x + 1 } as MouseEvent)).toBe(true);
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x + 100 } as MouseEvent)).toBe(true);
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x - 3 } as MouseEvent)).toBe(false);
+        expect(host.scrollbar().isMouseOverThumb({ clientX: x + 103 } as MouseEvent)).toBe(false);
+      }
+    });
+  });
+
   describe('initial binding order', () => {
     it('clamps a large initial value against the default 365/180 range because value is bound before maxValue', () => {
       mount('horizontal', (h) => { h.value.set(300); h.maxValue.set(400); h.visibleValue.set(50); });
@@ -509,13 +609,13 @@ describe('ScrollbarComponent characterization', () => {
 
       pointer('pointerdown', { clientY: 80, button: 0, buttons: 1 });
       pointer('pointermove', { clientY: 180 });
-      expect(host.log).toEqual(['value:20']);
+      expect(host.log).toEqual(['value:21']);
     });
 
     it('animates a track click forward until the thumb reaches the pointer (offset-corrected)', () => {
       mouse('mousedown', { clientY: 430 });
       flushFrames();
-      expect(host.log).toEqual(pairs(3, 60, 3));
+      expect(host.log).toEqual(pairs(3, 66, 3));
     });
 
     it('re-measures on ResizeObserver entries (height minus 50 px padding)', () => {
@@ -561,7 +661,7 @@ describe('ScrollbarComponent characterization', () => {
     it('a track click left of the thumb animates forward (value grows), bounded by the mirrored pointer', () => {
       mouse('mousedown', { clientX: 100 });
       flushFrames();
-      expect(host.log).toEqual(pairs(3, 60, 3));
+      expect(host.log).toEqual(pairs(3, 66, 3));
     });
 
     it('a track click right of the thumb animates backward', () => {
@@ -615,9 +715,9 @@ describe('h-/v-scrollbar wrappers over ScrollbarComponent (characterization)', (
     vCanvas.dispatchEvent(new PointerEvent('pointerdown', { clientY: 10, button: 0, buttons: 1, pointerId: 2 }));
     vCanvas.dispatchEvent(new PointerEvent('pointermove', { clientY: 110 }));
 
-    expect(fixture.componentInstance.log).toEqual(['h:10', 'v:20']);
-    expect(fixture.componentInstance.h().value).toBe(10);
-    expect(fixture.componentInstance.v().value).toBe(20);
+    expect(fixture.componentInstance.log).toEqual(['h:11', 'v:21']);
+    expect(fixture.componentInstance.h().value).toBe(11);
+    expect(fixture.componentInstance.v().value).toBe(21);
   });
 
   it('wrapper refresh() re-measures the inner canvas', () => {

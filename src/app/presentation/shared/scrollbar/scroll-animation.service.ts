@@ -9,6 +9,7 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import { ScrollAnimationContext } from './scroll-animation-context.interface';
 import { SCROLLBAR_CONSTANTS } from './constants';
+import { maxScrollValue } from './scroll-range.helper';
 
 enum ArrowDirection {
   NONE = 0,
@@ -148,19 +149,11 @@ export class ScrollAnimationService {
   private updateScrollValue(steps: number): void {
     if (!this.context) return;
 
-    const IS_BACKWARD_LIMIT = -1;
     const currentValue = this.context.getValue();
-    const newValue = currentValue + steps * this.moveAnimationValue;
+    const upper = maxScrollValue(this.context.getMaxValue(), this.context.getVisibleValue());
+    const newValue = Math.max(0, Math.min(currentValue + steps * this.moveAnimationValue, upper));
 
-    const realMax =
-      this.context.getMaxValue() -
-      this.context.getVisibleValue() +
-      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-
-    if (
-      (this.moveAnimationValue > 0 && newValue >= realMax) ||
-      (this.moveAnimationValue < 0 && newValue <= IS_BACKWARD_LIMIT)
-    ) {
+    if (newValue === currentValue) {
       this.stopAnimation();
       return;
     }

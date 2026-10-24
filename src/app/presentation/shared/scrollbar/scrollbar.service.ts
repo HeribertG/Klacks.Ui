@@ -7,6 +7,7 @@ import { IImagesThumps } from './images-thumps.interface';
 import { IMetrics } from './metrics.interface';
 import { Metrics } from './metrics.model';
 import { SCROLLBAR_CONSTANTS } from './constants';
+import { maxScrollValue } from './scroll-range.helper';
 
 @Injectable()
 export class ScrollbarService {
@@ -85,9 +86,9 @@ export class ScrollbarService {
     }
 
     const invisibleWidth = width - res.thumbLength;
-    res.invisibleTicks = maxLine - visibleLine;
+    const rangeTicks = maxScrollValue(maxLine, visibleLine);
     res.visibleTicks = visibleLine;
-    res.tickSize = res.invisibleTicks > 0 ? invisibleWidth / res.invisibleTicks : 0;
+    res.tickSize = rangeTicks > 0 ? invisibleWidth / rangeTicks : 0;
 
     return res;
   }
@@ -111,7 +112,6 @@ export class ScrollbarService {
 
     images.imgThumb = undefined;
     images.imgSelectedThumb = undefined;
-    images.invisibleTicks = value.invisibleTicks;
 
     const canvas = document.createElement('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d', {

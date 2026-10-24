@@ -2,7 +2,6 @@
 
 export interface IMetrics {
   visibleTicks: number;
-  invisibleTicks: number;
   tickSize: number;
   thumbLength: number;
 }

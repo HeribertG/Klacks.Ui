@@ -4,7 +4,6 @@ import { IMetrics } from './metrics.interface';
 
 export class Metrics implements IMetrics {
   visibleTicks = 0;
-  invisibleTicks = 0;
   tickSize = 0;
   thumbLength = 0;
 }

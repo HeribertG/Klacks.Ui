@@ -3,7 +3,6 @@
 import { IImagesThumps } from './images-thumps.interface';
 
 export class ImagesThumps implements IImagesThumps {
-  invisibleTicks = 0;
   imgThumb: ImageData | undefined = undefined;
   imgSelectedThumb: ImageData | undefined = undefined;
 }
