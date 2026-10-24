@@ -2,6 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { Observable } from 'rxjs';
 
 import { DataAssistantService, IAssistantModel } from './data-assistant.service';
 import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
@@ -387,6 +388,50 @@ describe('DataAssistantService', () => {
                 .expectOne(`${baseUrl}chat/turns/turn-123/cancel`)
                 .flush(null, { status: 500, statusText: 'Server Error' });
             httpMock.expectNone(`${baseUrl}chat/turns/turn-123/cancel`);
+        });
+    });
+
+    describe.each([
+        {
+            name: 'reportNavigationOutcome',
+            path: 'eval/navigation-outcome',
+            call: (svc: DataAssistantService): Observable<unknown> =>
+                svc.reportNavigationOutcome({ route: '/workplace/shift', outcome: 'target-miss', locale: 'de' }),
+        },
+        {
+            name: 'reportUiActionResult',
+            path: 'eval/ui-action-result',
+            call: (svc: DataAssistantService): Observable<unknown> =>
+                svc.reportUiActionResult({ trackingId: 'track-1', status: 'completed' }),
+        },
+    ])('$name retry policy', ({ path, call }) => {
+        it('does not retry a request the server rejected with 400', () => {
+            call(service).subscribe({ error: () => undefined });
+
+            httpMock
+                .expectOne(`${baseUrl}${path}`)
+                .flush(null, { status: 400, statusText: 'Bad Request' });
+            httpMock.expectNone(`${baseUrl}${path}`);
+        });
+
+        it('retries a server error up to three times', () => {
+            call(service).subscribe({ error: () => undefined });
+
+            for (let attempt = 0; attempt < 4; attempt++) {
+                httpMock
+                    .expectOne(`${baseUrl}${path}`)
+                    .flush(null, { status: 500, statusText: 'Server Error' });
+            }
+            httpMock.expectNone(`${baseUrl}${path}`);
+        });
+
+        it('retries a network failure up to three times', () => {
+            call(service).subscribe({ error: () => undefined });
+
+            for (let attempt = 0; attempt < 4; attempt++) {
+                httpMock.expectOne(`${baseUrl}${path}`).error(new ProgressEvent('error'));
+            }
+            httpMock.expectNone(`${baseUrl}${path}`);
         });
     });
 

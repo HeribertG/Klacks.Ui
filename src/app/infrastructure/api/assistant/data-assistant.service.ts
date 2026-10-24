@@ -4,6 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
@@ -238,7 +239,7 @@ export class DataAssistantService {
 
   /**
    * Reports back what the browser actually did with a dispatched UI action (W1.4). Pure telemetry:
-   * it never blocks the chat, so it skips the loading indicator, and it retries because a lost
+   * it never blocks the chat, so it skips the loading indicator, and it retries transient failures because a lost
    * report leaves the usage row stuck on "dispatched" forever.
    * @param request - Tracking id from the dispatch plus the outcome the browser observed
    */
@@ -249,7 +250,7 @@ export class DataAssistantService {
       .post<IReportUiActionResultResponse>(`${this.baseUrl}eval/ui-action-result`, request, {
         context: new HttpContext().set(SKIP_LOADING, true),
       })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   /**
@@ -265,7 +266,7 @@ export class DataAssistantService {
       .post<IReportNavigationOutcomeResponse>(`${this.baseUrl}eval/navigation-outcome`, request, {
         context: new HttpContext().set(SKIP_LOADING, true),
       })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   /**
