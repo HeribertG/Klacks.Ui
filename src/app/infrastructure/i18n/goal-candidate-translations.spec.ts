@@ -78,7 +78,10 @@ describe('goal candidate translations', () => {
     expect(byLanguage.get(language)!['assistant-chat.goal-candidates.confidence.low']).toBeTruthy();
   });
 
-  it.each(Object.entries(HINT_OPEN_ORDER_PHRASES))('limits the never-sealed promise to existing open orders in %s', (language, phrase) => {
-    expect(byLanguage.get(language as (typeof CORE_LANGUAGES)[number])![HINT_KEY]).toContain(phrase);
-  });
+  it.each(Object.entries(HINT_OPEN_ORDER_PHRASES))(
+    'limits the never-sealed promise to existing open orders in %s',
+    (language, phrase) => {
+      expect(byLanguage.get(language as (typeof CORE_LANGUAGES)[number])![HINT_KEY]).toContain(phrase);
+    },
+  );
 });

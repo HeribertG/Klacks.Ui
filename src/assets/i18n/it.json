@@ -2892,7 +2892,7 @@
   "assistant-chat.autonomy-status.on": "Klacksy agisce in autonomia: ON",
   "assistant-chat.autonomy-status.off": "Klacksy agisce in autonomia: OFF",
   "assistant-chat.goal-candidates.heading": "Suggerimenti di obiettivi di Klacksy",
-  "assistant-chat.goal-candidates.hint": "Accettando, Klacksy redige una bozza di piano. Se Klacksy ritiene l'obiettivo chiaramente fondato ed è autorizzato ad agire autonomamente, esegue poi il piano da solo. I passaggi delicati attendono la tua approvazione; Klacksy non sigilla mai gli ordini in un piano, ma solo nella chat dopo che hai confermato l'anteprima.",
+  "assistant-chat.goal-candidates.hint": "Accettando, Klacksy redige una bozza di piano. Se Klacksy ritiene l'obiettivo chiaramente fondato ed è autorizzato ad agire autonomamente, esegue poi il piano da solo. I passaggi delicati attendono la tua approvazione; Klacksy non sigilla mai in un piano gli ordini aperti esistenti, ma solo nella chat dopo che hai confermato l'anteprima, e crea sempre i nuovi ordini come ordini aperti.",
   "assistant-chat.goal-candidates.chat-hint": "Accettando si prosegue nella chat – nulla viene modificato finché non confermi lì.",
   "assistant-chat.goal-candidates.chat-busy": "Obiettivo accettato. La chat è occupata in questo momento – invia la richiesta a Klacksy appena è libera: «{{request}}»",
   "assistant-chat.goal-candidates.approve-button": "Accetta",

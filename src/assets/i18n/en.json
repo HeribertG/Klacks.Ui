@@ -2893,7 +2893,7 @@
   "assistant-chat.autonomy-status.on": "Klacksy acts autonomously: ON",
   "assistant-chat.autonomy-status.off": "Klacksy acts autonomously: OFF",
   "assistant-chat.goal-candidates.heading": "Klacksy's goal suggestions",
-  "assistant-chat.goal-candidates.hint": "Approving lets Klacksy draft a plan. If Klacksy considers the goal clearly supported and is allowed to work on its own, it then runs the plan by itself. Sensitive steps wait for your approval; Klacksy never seals orders in a plan, only in the chat after you have confirmed the preview.",
+  "assistant-chat.goal-candidates.hint": "Approving lets Klacksy draft a plan. If Klacksy considers the goal clearly supported and is allowed to work on its own, it then runs the plan by itself. Sensitive steps wait for your approval; Klacksy never seals existing open orders in a plan, only in the chat after you have confirmed the preview, and it always creates new orders as open orders.",
   "assistant-chat.goal-candidates.chat-hint": "Approving continues in the chat – nothing is changed until you confirm it there.",
   "assistant-chat.goal-candidates.chat-busy": "Goal accepted. The chat is busy right now – send Klacksy the request once it is free: \"{{request}}\"",
   "assistant-chat.goal-candidates.approve-button": "Approve",

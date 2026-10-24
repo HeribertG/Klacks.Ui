@@ -2893,7 +2893,7 @@
   "assistant-chat.autonomy-status.on": "Klacksy handelt autonom: AN",
   "assistant-chat.autonomy-status.off": "Klacksy handelt autonom: AUS",
   "assistant-chat.goal-candidates.heading": "Zielvorschläge von Klacksy",
-  "assistant-chat.goal-candidates.hint": "Beim Annehmen erstellt Klacksy einen Plan-Entwurf. Wenn Klacksy das Ziel für klar belegt hält und selbstständiges Arbeiten erlaubt ist, führt Klacksy den Plan anschließend selbstständig aus. Heikle Schritte warten auf deine Freigabe; Bestellungen versiegelt Klacksy nie in einem Plan, sondern nur im Chat, nachdem du die Vorschau bestätigt hast.",
+  "assistant-chat.goal-candidates.hint": "Beim Annehmen erstellt Klacksy einen Plan-Entwurf. Wenn Klacksy das Ziel für klar belegt hält und selbstständiges Arbeiten erlaubt ist, führt Klacksy den Plan anschließend selbstständig aus. Heikle Schritte warten auf deine Freigabe; bestehende offene Bestellungen versiegelt Klacksy nie in einem Plan, sondern nur im Chat, nachdem du die Vorschau bestätigt hast, und neue Bestellungen legt Klacksy immer als offene Bestellung an.",
   "assistant-chat.goal-candidates.chat-hint": "Beim Annehmen geht es im Chat weiter – geändert wird erst, wenn du dort bestätigst.",
   "assistant-chat.goal-candidates.chat-busy": "Ziel angenommen. Der Chat ist gerade beschäftigt – sende Klacksy die Anfrage, sobald er frei ist: „{{request}}“",
   "assistant-chat.goal-candidates.approve-button": "Annehmen",
