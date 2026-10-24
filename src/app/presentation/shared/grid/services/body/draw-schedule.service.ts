@@ -8,6 +8,7 @@ import { BaseCanvasManagerService } from './canvas-manager.service';
 import { BaseCellRenderService } from './cell-render.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
+import { maxScrollValue } from 'src/app/presentation/shared/scrollbar/scroll-range.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -36,8 +37,6 @@ export class BaseDrawScheduleService {
   protected gridFonts = inject(GridFontsService);
 
   private readonly MAX_INCREMENTAL_SCROLL = 4;
-  private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
-  private readonly ADDITIONALLY_EMPTY_ROWS = 3;
 
   public startDate: Date = companyToday();
   public recFilterIcon: Rectangle = new Rectangle();
@@ -719,10 +718,8 @@ export class BaseDrawScheduleService {
   private setVisibleColRows(): void {
     const newVisibleCols = Math.ceil(this.width / this.settings.cellWidth);
     const newVisibleRows = Math.ceil(this.height / this.settings.cellHeight);
-    this.scroll.maxCols =
-      this.gridData.columns - newVisibleCols + this.ADDITIONALLY_EMPTY_COLUMNS;
-    this.scroll.maxRows =
-      this.gridData.rows - newVisibleRows + this.ADDITIONALLY_EMPTY_ROWS;
+    this.scroll.maxCols = maxScrollValue(this.gridData.columns, newVisibleCols);
+    this.scroll.maxRows = maxScrollValue(this.gridData.rows, newVisibleRows);
     this.scroll.visibleCols = newVisibleCols;
     this.scroll.visibleRows = newVisibleRows;
   }

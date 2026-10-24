@@ -16,6 +16,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { GridFontsService } from '../grid-fonts.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
+import { maxScrollValue } from 'src/app/presentation/shared/scrollbar/scroll-range.helper';
 
 describe('BaseDrawScheduleService selection overlay', () => {
   let service: BaseDrawScheduleService;
@@ -84,5 +85,36 @@ describe('BaseDrawScheduleService selection overlay', () => {
     service.drawGridSelectedCell();
 
     expectFreshBodyBeforeEveryOverlay();
+  });
+});
+
+describe('BaseDrawScheduleService scroll range', () => {
+  it('clamps grid scrolling to the same end of range as the scrollbars (maxScrollValue)', () => {
+    const scroll = { verticalScrollPosition: 0, horizontalScrollPosition: 0 } as Record<string, number>;
+    TestBed.configureTestingModule({
+      providers: [
+        BaseDrawScheduleService,
+        { provide: BaseGridRenderService, useValue: {} },
+        { provide: BaseCellManipulationService, useValue: {} },
+        { provide: BaseCanvasManagerService, useValue: { width: 500, height: 300 } },
+        { provide: BaseCellRenderService, useValue: {} },
+        { provide: BaseCreateCellService, useValue: {} },
+        { provide: BaseCreateHeaderService, useValue: {} },
+        { provide: BaseDataService, useValue: { rows: 40, columns: 31 } },
+        { provide: BaseSettingsService, useValue: { cellWidth: 90, cellHeight: 50 } },
+        { provide: GridCoordinateService, useValue: {} },
+        { provide: GridColorService, useValue: {} },
+        { provide: ScrollService, useValue: scroll },
+        { provide: GridFontsService, useValue: {} },
+      ],
+    });
+    const service = TestBed.inject(BaseDrawScheduleService);
+
+    (service as unknown as { setVisibleColRows(): void }).setVisibleColRows();
+
+    expect(scroll['visibleCols']).toBe(6);
+    expect(scroll['visibleRows']).toBe(6);
+    expect(scroll['maxCols']).toBe(maxScrollValue(31, 6));
+    expect(scroll['maxRows']).toBe(maxScrollValue(40, 6));
   });
 });
