@@ -9,6 +9,9 @@
  * @param isLlmMode - True when the stage-3 method setting selects the LLM engine (model line + model gate)
  * @param progressPercent - Iteration progress as a percentage of MaxIterations
  * @param fitnessDeltaPercent - Fitness improvement after - before, in percent
+ * @param harmonyBeforePercent - Global harmony (rhythm and fairness between the rows) of the input plan, in percent;
+ *   null when the engine did not measure it (LLM mode)
+ * @param harmonyDeltaPercent - Harmony change after - before, in percent; null when not measured
  * @param planCritic - Vision-critic review of the final plan, shown read-only below the result (never applied)
  */
 
@@ -158,6 +161,24 @@ export class HolisticHarmonizerDialogComponent {
     const r = this.holisticHarmonizerService.result();
     if (!r) return '0.0';
     return ((r.fitnessAfter - r.fitnessBefore) * 100).toFixed(1);
+  });
+
+  readonly harmonyBeforePercent = computed(() => {
+    const h = this.holisticHarmonizerService.result()?.harmonyBefore;
+    return h ? (h.total * 100).toFixed(1) : null;
+  });
+
+  readonly harmonyAfterPercent = computed(() => {
+    const h = this.holisticHarmonizerService.result()?.harmonyAfter;
+    return h ? (h.total * 100).toFixed(1) : null;
+  });
+
+  readonly harmonyDeltaPercent = computed(() => {
+    const r = this.holisticHarmonizerService.result();
+    if (!r?.harmonyBefore || !r.harmonyAfter) {
+      return null;
+    }
+    return ((r.harmonyAfter.total - r.harmonyBefore.total) * 100).toFixed(1);
   });
 
   readonly acceptedCount = computed(() => this.holisticHarmonizerService.result()?.acceptedSwaps.length ?? 0);

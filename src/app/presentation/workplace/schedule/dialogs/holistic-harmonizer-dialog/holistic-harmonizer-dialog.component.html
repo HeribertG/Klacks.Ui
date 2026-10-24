@@ -80,6 +80,24 @@
               <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.fitness-delta' | translate }}:</span>
               <span class="holisticHarmonizer-summary-value">{{ fitnessDeltaPercent() }}%</span>
             </div>
+            @if (harmonyBeforePercent(); as harmonyBefore) {
+              <div class="holisticHarmonizer-summary-row">
+                <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.harmony-before' | translate }}:</span>
+                <span class="holisticHarmonizer-summary-value">{{ harmonyBefore }}%</span>
+              </div>
+            }
+            @if (harmonyAfterPercent(); as harmonyAfter) {
+              <div class="holisticHarmonizer-summary-row">
+                <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.harmony-after' | translate }}:</span>
+                <span class="holisticHarmonizer-summary-value">{{ harmonyAfter }}%</span>
+              </div>
+            }
+            @if (harmonyDeltaPercent(); as harmonyDelta) {
+              <div class="holisticHarmonizer-summary-row holisticHarmonizer-summary-delta">
+                <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.harmony-delta' | translate }}:</span>
+                <span class="holisticHarmonizer-summary-value">{{ harmonyDelta }}%</span>
+              </div>
+            }
             <div class="holisticHarmonizer-summary-row">
               <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.accepted-count' | translate }}:</span>
               <span class="holisticHarmonizer-summary-value">{{ acceptedCount() }}</span>

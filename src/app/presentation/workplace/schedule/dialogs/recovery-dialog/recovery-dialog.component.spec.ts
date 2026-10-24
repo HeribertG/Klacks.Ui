@@ -339,6 +339,23 @@ describe('RecoveryDialogComponent', () => {
     }
   });
 
+  it('maps the rhythm change of the replacements to kept, improved or broken, and hides it when not reported', () => {
+    expect((component as any).harmonyKey(0)).toBe('recovery.dialog.harmony.kept');
+    expect((component as any).harmonyKey(-2)).toBe('recovery.dialog.harmony.improved');
+    expect((component as any).harmonyKey(3)).toBe('recovery.dialog.harmony.broken');
+    expect((component as any).harmonyKey(null)).toBeNull();
+    expect((component as any).harmonyKey(undefined)).toBeNull();
+  });
+
+  it('has a rhythm label in all four core catalogues', () => {
+    for (const language of CORE_LANGUAGES) {
+      const catalogue = JSON.parse(readFileSync(resolve(I18N_DIR, `${language}.json`), 'utf8')) as Record<string, string>;
+      for (const key of ['kept', 'improved', 'broken']) {
+        expect(catalogue[`recovery.dialog.harmony.${key}`], `${language} harmony ${key}`).toBeTruthy();
+      }
+    }
+  });
+
   it('has a response state label for every replacement-request outcome', () => {
     const keys = Object.values(ReplacementRequestOutcome).map((value) => (component as any).outcomeStateKey(value));
 

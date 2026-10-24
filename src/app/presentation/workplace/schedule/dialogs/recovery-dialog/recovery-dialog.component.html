@@ -17,6 +17,9 @@
       <p class="recovery-scenario text-muted">
         {{ 'recovery.dialog.scenarioCreated' | translate: { name: outcome.scenarioName } }}
       </p>
+      @if (harmonyKey(outcome.harmonyDelta); as harmonyKey) {
+        <p class="recovery-harmony text-muted" [attr.data-harmony]="outcome.harmonyDelta">{{ harmonyKey | translate }}</p>
+      }
 
       @if (outcome.covered.length > 0) {
         <h6 class="recovery-section-title">{{ 'recovery.dialog.coveredTitle' | translate }}</h6>
