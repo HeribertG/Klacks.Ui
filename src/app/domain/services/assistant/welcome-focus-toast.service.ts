@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Builds the welcome focus toast: the headline question and the option list around it. Pure logic,
+ * Builds the welcome focus toast: the headline question with only its focus action and "later". The ranked
+ * greeting suggestions stay chips in the chat message, never answers to the focus question. Pure logic,
  * so the ordering and the fallback are testable without a component.
  * @param focus - Backend focus payload; i18n keys plus slot values, date slots as yyyy-MM-dd
- * @param rankedOptions - The existing ranked greeting suggestions, kept behind the focus action
  * @param now - Reference instant for nextLocalMidnightUtc, injected so a test can drive it
  */
 import { inject, Injectable } from '@angular/core';
@@ -30,10 +30,10 @@ const ISO_DATE_RADIX = 10;
 export class WelcomeFocusToastService {
   private readonly translateService = inject(TranslateService);
 
-  build(focus: IWelcomeFocus, rankedOptions: ISuggestedReply[]): IWelcomeFocusToast {
+  build(focus: IWelcomeFocus): IWelcomeFocusToast {
     return {
       prompt: this.resolvePrompt(focus),
-      options: this.buildOptions(focus, rankedOptions),
+      options: this.buildOptions(focus),
     };
   }
 
@@ -78,26 +78,16 @@ export class WelcomeFocusToastService {
     );
   }
 
-  private buildOptions(focus: IWelcomeFocus, rankedOptions: ISuggestedReply[]): ISuggestedReply[] {
-    const options: ISuggestedReply[] = [
+  private buildOptions(focus: IWelcomeFocus): ISuggestedReply[] {
+    return [
       {
         label: this.translateService.instant(focus.actionLabelKey) as string,
         value: WELCOME_FOCUS_ACTION,
       },
+      {
+        label: this.translateService.instant(WELCOME_FOCUS_LATER_LABEL_KEY) as string,
+        value: WELCOME_FOCUS_LATER,
+      },
     ];
-
-    for (const option of rankedOptions) {
-      if (focus.actionRoute && option.value === focus.actionRoute) {
-        continue;
-      }
-      options.push(option);
-    }
-
-    options.push({
-      label: this.translateService.instant(WELCOME_FOCUS_LATER_LABEL_KEY) as string,
-      value: WELCOME_FOCUS_LATER,
-    });
-
-    return options;
   }
 }

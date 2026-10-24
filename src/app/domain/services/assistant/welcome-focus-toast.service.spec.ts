@@ -65,7 +65,7 @@ describe('WelcomeFocusToastService', () => {
   });
 
   it('resolves the prompt and formats date slots in dd.MM.yyyy', () => {
-    const result = service.build(periodOverdueFocus(), []);
+    const result = service.build(periodOverdueFocus());
 
     expect(result.prompt).toBe('Die Periode bis 31.08.2026 (Nord) ist seit 7 Tagen überfällig.');
   });
@@ -80,7 +80,7 @@ describe('WelcomeFocusToastService', () => {
       actionRoute: '/workplace/schedule',
     };
 
-    const result = service.build(focus, []);
+    const result = service.build(focus);
 
     expect(result.prompt).toBe('Die nächste Periode beginnt am 01.10.2026.');
   });
@@ -89,45 +89,20 @@ describe('WelcomeFocusToastService', () => {
     const focus = periodOverdueFocus();
     focus.promptKey = 'klacksy.focus.does-not-exist.prompt';
 
-    const result = service.build(focus, []);
+    const result = service.build(focus);
 
     expect(result.prompt).toBe('Was möchtest du tun?');
   });
 
-  it('puts the focus action first, the ranked options next and later last', () => {
-    const ranked = [
-      { label: 'Mitarbeiter anlegen', value: '/workplace/edit-address' },
-      { label: 'Person finden', value: '/workplace/client' },
-    ];
+  it('offers only the focus action and later', () => {
+    const result = service.build(periodOverdueFocus());
 
-    const result = service.build(periodOverdueFocus(), ranked);
-
-    expect(result.options.map((option) => option.value)).toEqual([
-      WELCOME_FOCUS_ACTION,
-      '/workplace/edit-address',
-      '/workplace/client',
-      WELCOME_FOCUS_LATER,
-    ]);
+    expect(result.options.map((option) => option.value)).toEqual([WELCOME_FOCUS_ACTION, WELCOME_FOCUS_LATER]);
     expect(result.options[0].label).toBe('Periode abschliessen');
-    expect(result.options[3].label).toBe('Später');
+    expect(result.options[1].label).toBe('Später');
   });
 
-  it('drops a ranked option that points at the focus route', () => {
-    const ranked = [
-      { label: 'Periodenabschluss', value: '/workplace/period-closing' },
-      { label: 'Person finden', value: '/workplace/client' },
-    ];
-
-    const result = service.build(periodOverdueFocus(), ranked);
-
-    expect(result.options.map((option) => option.value)).toEqual([
-      WELCOME_FOCUS_ACTION,
-      '/workplace/client',
-      WELCOME_FOCUS_LATER,
-    ]);
-  });
-
-  it('keeps every ranked option when the focus carries no route', () => {
+  it('offers only the consultation and later when the focus carries no route', () => {
     const focus: IWelcomeFocus = {
       kind: 'no_schedule_yet',
       promptKey: 'klacksy.focus.no-orders.prompt',
@@ -136,15 +111,10 @@ describe('WelcomeFocusToastService', () => {
       actionLabelKey: 'setupConsultation.startButton',
       actionRoute: null,
     };
-    const ranked = [{ label: 'Person finden', value: '/workplace/client' }];
 
-    const result = service.build(focus, ranked);
+    const result = service.build(focus);
 
-    expect(result.options.map((option) => option.value)).toEqual([
-      WELCOME_FOCUS_ACTION,
-      '/workplace/client',
-      WELCOME_FOCUS_LATER,
-    ]);
+    expect(result.options.map((option) => option.value)).toEqual([WELCOME_FOCUS_ACTION, WELCOME_FOCUS_LATER]);
     expect(result.options[0].label).toBe('Beratung starten');
   });
 
@@ -152,7 +122,7 @@ describe('WelcomeFocusToastService', () => {
     const focus = periodOverdueFocus();
     focus.promptParams = { group: 'Nord', periodEnd: 'irgendwann', days: '7' };
 
-    const result = service.build(focus, []);
+    const result = service.build(focus);
 
     expect(result.prompt).toBe('Die Periode bis irgendwann (Nord) ist seit 7 Tagen überfällig.');
   });

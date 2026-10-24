@@ -175,7 +175,7 @@ export class ChatWelcomeService {
     let toastPrompt: string | undefined;
     let toastOptions = greetingOptions;
     if (focus) {
-      const built = this.welcomeFocusToast.build(focus, greetingOptions);
+      const built = this.welcomeFocusToast.build(focus);
       toastPrompt = built.prompt;
       toastOptions = built.options;
     }

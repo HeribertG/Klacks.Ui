@@ -4133,7 +4133,7 @@ describe('AssistantChatComponent', () => {
         });
 
         it('shows the focus prompt as the toast headline and the focus action first', () => {
-            const built = TestBed.inject(WelcomeFocusToastService).build(navigateFocus, []);
+            const built = TestBed.inject(WelcomeFocusToastService).build(navigateFocus);
 
             replyToasts().showGreetingOptionsAsToast(built.options, built.prompt, navigateFocus);
 
@@ -4291,8 +4291,10 @@ describe('AssistantChatComponent', () => {
 
             expect(showSpy).toHaveBeenCalledTimes(1);
             expect(showSpy.mock.calls[0][0].prompt).toBe('T:klacksy.focus.period-overdue.prompt');
-            expect(showSpy.mock.calls[0][0].options[0].value).toBe(WELCOME_FOCUS_ACTION);
-            expect(showSpy.mock.calls[0][0].options.at(-1).value).toBe(WELCOME_FOCUS_LATER);
+            expect(showSpy.mock.calls[0][0].options.map((option: { value: string }) => option.value)).toEqual([
+                WELCOME_FOCUS_ACTION,
+                WELCOME_FOCUS_LATER,
+            ]);
         });
 
         it('stores prompt and focus while the aside is closed and replays them when it opens', () => {
@@ -4311,7 +4313,10 @@ describe('AssistantChatComponent', () => {
             expect(showSpy).not.toHaveBeenCalled();
             expect((replyToasts() as any).pendingGreetingFocus).toBe(navigateFocus);
             expect((replyToasts() as any).pendingGreetingPrompt).toBe('T:klacksy.focus.period-overdue.prompt');
-            expect((replyToasts() as any).pendingGreetingOptions[0].value).toBe(WELCOME_FOCUS_ACTION);
+            expect((replyToasts() as any).pendingGreetingOptions.map((option: { value: string }) => option.value)).toEqual([
+                WELCOME_FOCUS_ACTION,
+                WELCOME_FOCUS_LATER,
+            ]);
 
             asideService.show();
             fixture.detectChanges();
