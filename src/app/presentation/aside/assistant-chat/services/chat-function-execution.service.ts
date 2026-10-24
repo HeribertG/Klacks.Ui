@@ -44,6 +44,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { KLACKSY_PAGE_KEYS } from 'src/app/domain/constants/klacksy-page-keys';
 import { ChatTurnControlService } from './chat-turn-control.service';
 import { RawFunctionCall } from './raw-function-call.interface';
+import { toNonEmptyString } from 'src/app/shared/helpers/type-guard.helper';
 import { IAssistantFunctionResult } from 'src/app/domain/interfaces/assistant-function-result.interface';
 
 @Injectable()
@@ -178,7 +179,7 @@ export class ChatFunctionExecutionService {
         name: backendRoute && !this.NAVIGATION_FUNCTIONS.includes(functionName) ? 'navigate_to' : functionName,
         arguments: args,
       };
-      const target = (args['target'] as string) || (args['Target'] as string) || undefined;
+      const target = toNonEmptyString(args['target']) ?? toNonEmptyString(args['Target']);
       const isLastNavigation = index === navigationCalls.length - 1;
       try {
         const result = await firstValueFrom(
@@ -292,7 +293,7 @@ export class ChatFunctionExecutionService {
     utterance?: string,
   ): void {
     const outcome = this.toNavigationResult(result);
-    const route = this.readResultRoute(result?.result) || (args['route'] as string) || '';
+    const route = this.readResultRoute(result?.result) || toNonEmptyString(args['route']) || '';
 
     if (isLastNavigation && assistantMessageId) {
       this.navigationVerdict.apply(assistantMessageId, outcome, route, target, utterance);

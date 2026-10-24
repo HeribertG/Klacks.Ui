@@ -148,6 +148,54 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
     expect(verdictMock.apply.mock.calls[0][3]).toBe('shift-list');
   });
 
+  it.each([
+    ['an object', { id: 'a' }],
+    ['an array', ['erp-drop-points', 'shift-list']],
+    ['a number', 7],
+    ['a boolean', true],
+  ])('hands no target to the verdict when the model sent %s as target', async (_label, target) => {
+    await service.executeFunctionCalls(
+      [{ functionName: 'navigate_to', parameters: { page: 'settings', target } }],
+      MESSAGE_ID,
+      UTTERANCE,
+    );
+
+    expect(verdictMock.apply).toHaveBeenCalledTimes(1);
+    expect(verdictMock.apply.mock.calls[0][3]).toBeUndefined();
+  });
+
+  it.each([
+    ['an object', { path: '/workplace/shift' }],
+    ['an array', ['/workplace', 'shift']],
+    ['a number', 7],
+  ])('hands a string route to the verdict when the model sent %s as route', async (_label, route) => {
+    await service.executeFunctionCalls(
+      [{ functionName: 'navigate_to', parameters: { page: 'settings', route } }],
+      MESSAGE_ID,
+      UTTERANCE,
+    );
+
+    expect(verdictMock.apply).toHaveBeenCalledTimes(1);
+    expect(typeof verdictMock.apply.mock.calls[0][2]).toBe('string');
+  });
+
+  it('hands a string route to the verdict when the backend result carries a non-string route', async () => {
+    await service.executeFunctionCalls(
+      [
+        {
+          functionName: 'open_schedule',
+          parameters: {},
+          result: 'Open schedule. Data: {"Route":["/workplace","schedule"]}',
+        },
+      ],
+      MESSAGE_ID,
+      UTTERANCE,
+    );
+
+    expect(verdictMock.apply).toHaveBeenCalledTimes(1);
+    expect(typeof verdictMock.apply.mock.calls[0][2]).toBe('string');
+  });
+
   it('only reports when no message id was handed in', async () => {
     await service.executeFunctionCalls([
       { functionName: 'navigate_to', parameters: { page: 'settings', target: 'erp-drop-points' } },
