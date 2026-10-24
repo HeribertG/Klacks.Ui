@@ -3024,6 +3024,8 @@
   "recovery.dialog.onCall": "On call",
   "recovery.dialog.conflicts": "{{count}} note(s)",
   "recovery.dialog.levelShortfall": "Level too low",
+  "recovery.dialog.rhythmFits": "Fits the block",
+  "recovery.dialog.rhythmBreaks": "Breaks the rhythm",
   "recovery.dialog.alternativeOutcomeHint": "Only records the contact attempt – the proposal in the scenario stays unchanged.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Cover absence",

@@ -3024,6 +3024,8 @@
   "recovery.dialog.onCall": "Pikett",
   "recovery.dialog.conflicts": "{{count}} Hinweis(e)",
   "recovery.dialog.levelShortfall": "Stufe zu niedrig",
+  "recovery.dialog.rhythmFits": "Passt in den Block",
+  "recovery.dialog.rhythmBreaks": "Bricht den Takt",
   "recovery.dialog.alternativeOutcomeHint": "Hält nur den Kontaktversuch fest – der Vorschlag im Szenario bleibt unverändert.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Ausfall decken",

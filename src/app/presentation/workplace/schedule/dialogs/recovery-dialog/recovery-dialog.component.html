@@ -88,6 +88,12 @@
                                 @if (candidate.isOnCall) {
                                   <span class="badge text-bg-info">{{ 'recovery.dialog.onCall' | translate }}</span>
                                 }
+                                @if ((candidate.rhythmDelta ?? 0) < 0) {
+                                  <span class="badge text-bg-success recovery-rhythm-fits">{{ 'recovery.dialog.rhythmFits' | translate }}</span>
+                                }
+                                @if ((candidate.rhythmDelta ?? 0) > 0) {
+                                  <span class="badge text-bg-light recovery-rhythm-breaks">{{ 'recovery.dialog.rhythmBreaks' | translate }}</span>
+                                }
                                 @if (candidate.levelShortfall > 0) {
                                   <span class="badge text-bg-light recovery-level-shortfall">
                                     {{ 'recovery.dialog.levelShortfall' | translate }}

@@ -35,6 +35,8 @@ const COVERING_TIERS = [0, 1, 2, 3, 5, 6];
 const GROUP_ID = 'group-1';
 const SICK_ABSENCE_ID = 'absence-sick';
 const REVIEW_KEYS = [
+  'rhythmFits',
+  'rhythmBreaks',
   'outcome.accept',
   'outcome.decline',
   'outcome.notReached',
@@ -551,6 +553,28 @@ describe('RecoveryDialogComponent', () => {
         'recovery.dialog.levelShortfall',
       );
       expect(query('[data-candidate="client-8"] .recovery-level-shortfall')).toBeNull();
+    });
+
+    it('marks the alternatives whose own row the cover fits or breaks, and leaves neutral ones unmarked', async () => {
+      await submitWith([coveredSlot]);
+      getCandidates.mockReturnValue(
+        of({
+          eligible: [
+            candidate('client-7', 'Carla Cover', { rhythmDelta: -2 }),
+            candidate('client-8', 'Dora Dienst', { rhythmDelta: 2 }),
+            candidate('client-9', 'Ella Einspringer', { rhythmDelta: 0 }),
+          ],
+          excluded: [],
+        }),
+      );
+
+      (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+      await settle();
+
+      expect(query('[data-candidate="client-7"] .recovery-rhythm-fits')?.textContent?.trim()).toBe('recovery.dialog.rhythmFits');
+      expect(query('[data-candidate="client-8"] .recovery-rhythm-breaks')?.textContent?.trim()).toBe('recovery.dialog.rhythmBreaks');
+      expect(query('[data-candidate="client-9"] .recovery-rhythm-fits')).toBeNull();
+      expect(query('[data-candidate="client-9"] .recovery-rhythm-breaks')).toBeNull();
     });
 
     it('shows the failed state when the alternatives cannot be loaded', async () => {
