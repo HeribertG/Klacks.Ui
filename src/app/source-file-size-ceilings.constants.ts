@@ -18,7 +18,7 @@ export const FILE_SIZE_CEILINGS: Readonly<Record<string, number>> = {
   'src/app/presentation/shared/grid/body/directives/grid-template-events.directive.ts': 940,
   'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service.ts': 965,
   'src/app/presentation/shared/time-ruler/services/time-ruler-render.service.ts': 1027,
-  'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service.ts': 1047,
+  'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service.ts': 1046,
   'src/app/presentation/workplace/settings/settings-home/settings-home.component.html': 1118,
   'src/app/presentation/workplace/shift/container-template/container-template.component.html': 1104,
 };

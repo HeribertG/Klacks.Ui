@@ -23,6 +23,7 @@ const buildSource = (overrides: Partial<ScheduleCellDragSource> = {}): ScheduleC
   abbreviation: 'F',
   startTime: '06:00:00',
   endTime: '14:00:00',
+  workTime: 8,
   startX: 100,
   startY: 200,
   cellWidth: settings.cellWidth,

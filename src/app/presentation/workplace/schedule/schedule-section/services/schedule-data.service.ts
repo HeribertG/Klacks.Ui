@@ -49,9 +49,10 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { parseAvailabilityRanges } from 'src/app/shared/helpers/availability-range.helper';
-
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { breakWorkTimeToCarry } from 'src/app/domain/helpers/break-duration.helper';
 const GROUP_PERIOD_RESTRICTED_COLOR = 'rgba(70, 130, 180, 0.25)';
+const NO_TIME = '00:00';
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -616,17 +617,15 @@ export class ScheduleDataService extends BaseDataService {
         if (!date) continue;
 
         if (copiedEntry.entryType === WorkScheduleEntryType.Break) {
-          // Break/Absence: No availability check needed
           breakEntriesToAdd.push({
             clientId: client.id,
             absenceId: copiedEntry.entryId,
             date: date,
-            workTime: 0,
-            startTime: copiedEntry.startTime || '00:00',
-            endTime: copiedEntry.endTime || '00:00',
+            workTime: breakWorkTimeToCarry(copiedEntry.startTime, copiedEntry.endTime, copiedEntry.changeTime),
+            startTime: copiedEntry.startTime || NO_TIME,
+            endTime: copiedEntry.endTime || NO_TIME,
           });
         } else {
-          // Work/Shift: Requires availability check (handled by findShiftByIdAndDate)
           const matchingShift = this.findShiftByIdAndDate(copiedEntry.entryId, date);
           if (matchingShift) {
             workEntriesToAdd.push({

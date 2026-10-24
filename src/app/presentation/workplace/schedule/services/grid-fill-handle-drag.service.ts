@@ -30,6 +30,9 @@ import { isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper'
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
 import { FillHandleDragContext } from './fill-handle-drag-context.interface';
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
+import { breakWorkTimeToCarry } from 'src/app/domain/helpers/break-duration.helper';
+
+const NO_TIME = '00:00';
 
 @Injectable()
 export class GridFillHandleDragService {
@@ -340,9 +343,9 @@ export class GridFillHandleDragService {
         clientId: client.id,
         absenceId: result.entryId,
         date: date,
-        workTime: 0,
-        startTime: sourceEntry.startTime ?? '00:00',
-        endTime: sourceEntry.endTime ?? '00:00',
+        workTime: breakWorkTimeToCarry(sourceEntry.startTime, sourceEntry.endTime, sourceEntry.changeTime),
+        startTime: sourceEntry.startTime ?? NO_TIME,
+        endTime: sourceEntry.endTime ?? NO_TIME,
         description: sourceEntry.description ?? undefined,
       });
     }

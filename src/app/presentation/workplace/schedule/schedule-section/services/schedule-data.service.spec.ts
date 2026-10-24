@@ -33,6 +33,7 @@ import {
     buildHolidaysListHelper,
 } from 'src/app/shared/testing/holiday-list.testing';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
@@ -324,6 +325,77 @@ describe('ScheduleDataService', () => {
                 });
             });
         }
+    });
+
+    describe('paste of copied absences', () => {
+        const START_DATE = new Date(2026, 0, 1);
+        const SOURCE_COL = 0;
+        const TARGET_ROW = 0;
+        const TARGET_COL = 3;
+        const NO_TIMES_RECORDED = '00:00:00';
+        const FULL_DAY_START = '00:00:00';
+        const FULL_DAY_END = '23:59:00';
+        const DURATION_MODE_HOURS = 4.5;
+        const FULL_DAY_SOURCE_HOURS = 8.4;
+        const ABSENCE_ID = 'absence-1';
+        const CLIENT_ID = 'client-1';
+        let bulkAddBreaks: ReturnType<typeof vi.fn>;
+
+        function breakCell(startTime: string, endTime: string, changeTime: number | null): ScheduleCell {
+            return Object.assign(new ScheduleCell(), {
+                entryType: WorkScheduleEntryType.Break,
+                entryId: ABSENCE_ID,
+                startTime,
+                endTime,
+                changeTime,
+            });
+        }
+
+        function copyAndPaste(source: ScheduleCell): BreakCellParams[] {
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockImplementation((_row: number, col: number) =>
+                col === SOURCE_COL ? source : undefined);
+            service.onCopy(TARGET_ROW, SOURCE_COL, TARGET_ROW, SOURCE_COL);
+            service.handlePaste(TARGET_ROW, TARGET_COL, []);
+            return bulkAddBreaks.mock.calls[0][0] as BreakCellParams[];
+        }
+
+        beforeEach(() => {
+            bulkAddBreaks = vi.fn().mockResolvedValue(undefined);
+            Object.assign(dataManagement, { clients: [{ id: CLIENT_ID }], bulkAddBreakScheduleEntries: bulkAddBreaks });
+            service.startDate = START_DATE;
+            service.rowGroupIndex = [0];
+            vi.spyOn(service, 'isCellActive').mockReturnValue(false);
+        });
+
+        it('sends workTime 0 for a copied time-span absence so the target employee gets recomputed hours', () => {
+            const pasted = copyAndPaste(breakCell(FULL_DAY_START, FULL_DAY_END, FULL_DAY_SOURCE_HOURS));
+
+            expect(pasted).toHaveLength(1);
+            expect(pasted[0]).toMatchObject({
+                clientId: CLIENT_ID,
+                absenceId: ABSENCE_ID,
+                workTime: 0,
+                startTime: FULL_DAY_START,
+                endTime: FULL_DAY_END,
+            });
+        });
+
+        it('carries the recorded hours of a copied duration-mode absence', () => {
+            const pasted = copyAndPaste(breakCell(NO_TIMES_RECORDED, NO_TIMES_RECORDED, DURATION_MODE_HOURS));
+
+            expect(pasted).toHaveLength(1);
+            expect(pasted[0]).toMatchObject({
+                workTime: DURATION_MODE_HOURS,
+                startTime: NO_TIMES_RECORDED,
+                endTime: NO_TIMES_RECORDED,
+            });
+        });
+
+        it('sends workTime 0 for equal bounds without recorded hours', () => {
+            const pasted = copyAndPaste(breakCell(NO_TIMES_RECORDED, NO_TIMES_RECORDED, null));
+
+            expect(pasted[0].workTime).toBe(0);
+        });
     });
 
     describe('expense entry wording', () => {

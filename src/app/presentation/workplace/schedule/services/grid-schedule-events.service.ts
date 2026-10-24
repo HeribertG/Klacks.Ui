@@ -25,6 +25,9 @@ import {
 } from 'src/app/presentation/shared/grid/body/directives/grid-double-click-event.interface';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
+/** A schedule cell carries the hours of its Work or Break in changeTime; null means none were recorded. */
+const NO_WORK_TIME = 0;
+
 @Injectable()
 export class GridScheduleEventsService {
   private readonly gridData = inject(BaseDataService);
@@ -203,6 +206,7 @@ export class GridScheduleEventsService {
       abbreviation: entry.abbreviation ?? '',
       startTime: entry.startTime,
       endTime: entry.endTime,
+      workTime: entry.changeTime ?? NO_WORK_TIME,
       startX: event.clientX,
       startY: event.clientY,
       cellWidth,

@@ -18,6 +18,9 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
 
 const SOURCE_DATE = new Date(2026, 4, 11);
+const NO_TIMES_RECORDED = '00:00:00';
+const DURATION_MODE_HOURS = 4.5;
+const FULL_DAY_SOURCE_HOURS = 8.4;
 
 let workSource: ScheduleCellDragSource;
 let breakSource: ScheduleCellDragSource;
@@ -35,6 +38,7 @@ const buildSources = (settings: BaseSettingsService): void => {
     abbreviation: 'F',
     startTime: '06:00:00',
     endTime: '14:00:00',
+    workTime: 8,
     startX: 100,
     startY: 200,
     cellWidth: settings.cellWidth,
@@ -50,6 +54,7 @@ const buildSources = (settings: BaseSettingsService): void => {
     abbreviation: 'V',
     startTime: '00:00:00',
     endTime: '23:59:00',
+    workTime: FULL_DAY_SOURCE_HOURS,
   };
 };
 
@@ -198,6 +203,31 @@ describe('ScheduleCellDropHandlerService', () => {
       breakSource.entryId,
       breakSource.entryType,
     );
+  });
+
+  it('move Break of a time-span absence sends workTime 0 so the target employee gets recomputed hours', async () => {
+    service.handleDrop({ source: breakSource, action: 'move', targetClientId: 'client-target' });
+    await Promise.resolve();
+
+    const arg = scheduleEntryCrud.addBreakScheduleEntry.mock.calls[0][0];
+    expect(arg.workTime).toBe(0);
+  });
+
+  it('move Break of a duration-mode absence carries the recorded hours', async () => {
+    const durationSource: ScheduleCellDragSource = {
+      ...breakSource,
+      startTime: NO_TIMES_RECORDED,
+      endTime: NO_TIMES_RECORDED,
+      workTime: DURATION_MODE_HOURS,
+    };
+
+    service.handleDrop({ source: durationSource, action: 'move', targetClientId: 'client-target' });
+    await Promise.resolve();
+
+    const arg = scheduleEntryCrud.addBreakScheduleEntry.mock.calls[0][0];
+    expect(arg.startTime).toBe(NO_TIMES_RECORDED);
+    expect(arg.endTime).toBe(NO_TIMES_RECORDED);
+    expect(arg.workTime).toBe(DURATION_MODE_HOURS);
   });
 
   it('move Break skips delete if add rejects', async () => {

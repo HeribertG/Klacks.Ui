@@ -4,7 +4,8 @@
  * Executes the action chosen by ScheduleCellDragDropService when a drag ends:
  * delete (drop outside the table) or move (drop on another client row).
  * Work moves reassign the existing entity in place (preserves WorkChange/Expenses
- * children); Break moves are implemented as add-on-target + delete-source. A failed move shows its
+ * children); Break moves are implemented as add-on-target + delete-source, carrying the hours only for a
+ * break recorded in duration mode (breakWorkTimeToCarry) so a time-span break is recomputed for the target. A failed move shows its
  * own toast only for a failure that is no HTTP error: an HttpErrorResponse already got its toast
  * from ResponseInterceptor (refusal text, generic Works/Breaks text, or the outage overlay).
  * @param dataManagement - DataManagementScheduleService used for add/delete/reassign calls
@@ -22,6 +23,7 @@ import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language.interface';
 import { toLanguageKey } from 'src/app/domain/helpers/multi-language.helper';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
+import { breakWorkTimeToCarry } from 'src/app/domain/helpers/break-duration.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ScheduleCellDragSource } from './schedule-cell-drag-source.interface';
@@ -87,6 +89,7 @@ export class ScheduleCellDropHandlerService {
     breakEntry.currentDate = src.date;
     breakEntry.startTime = src.startTime;
     breakEntry.endTime = src.endTime;
+    breakEntry.workTime = breakWorkTimeToCarry(src.startTime, src.endTime, src.workTime);
 
     const periodStart = this.dataManagement.visibleStartDate
       ? formatDateOnly(this.dataManagement.visibleStartDate)

@@ -14,6 +14,7 @@ export interface ScheduleCellDragSource {
   abbreviation: string;
   startTime: string;
   endTime: string;
+  workTime: number;
   startX: number;
   startY: number;
   cellWidth: number;
