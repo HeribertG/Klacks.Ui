@@ -223,6 +223,17 @@ export class RecoveryDialogComponent {
   }
 
   /** Translation key for how far the engine had to search to fill a slot. */
+  /** Translation key for the rhythm the replacements left on the rows; null when the engine did not report it. */
+  protected harmonyKey(harmonyDelta: number | null | undefined): string | null {
+    if (harmonyDelta === null || harmonyDelta === undefined) {
+      return null;
+    }
+    if (harmonyDelta < 0) {
+      return 'recovery.dialog.harmony.improved';
+    }
+    return harmonyDelta === 0 ? 'recovery.dialog.harmony.kept' : 'recovery.dialog.harmony.broken';
+  }
+
   protected tierKey(tier: number): string {
     return `recovery.dialog.tier.${tier}`;
   }

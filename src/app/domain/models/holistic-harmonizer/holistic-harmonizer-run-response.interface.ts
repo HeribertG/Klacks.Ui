@@ -7,6 +7,7 @@ import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualifica
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { PlanningRuleRemaining } from 'src/app/domain/models/schedule/planning-rule-remaining.model';
 import { PlanCriticResult } from './plan-critic-result.interface';
+import { GlobalHarmony } from './global-harmony.interface';
 
 export interface HolisticHarmonizerRunResponse {
   jobId: string;
@@ -23,4 +24,6 @@ export interface HolisticHarmonizerRunResponse {
   planningRuleWarnings?: ScheduleErrorEntry[] | null;
   planningRuleRemaining?: PlanningRuleRemaining | null;
   planCritic?: PlanCriticResult | null;
+  harmonyBefore?: GlobalHarmony | null;
+  harmonyAfter?: GlobalHarmony | null;
 }

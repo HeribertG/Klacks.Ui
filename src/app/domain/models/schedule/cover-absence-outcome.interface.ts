@@ -12,4 +12,5 @@ export interface ICoverAbsenceOutcome {
   uncovered: IUncoveredSlot[];
   complianceWarnings: IScheduleValidationNotification[];
   highestTier: number;
+  harmonyDelta?: number | null;
 }

@@ -103,6 +103,24 @@ describe('HolisticHarmonizerDialogComponent', () => {
     expect(component.planningRuleRemaining()).toEqual({ hardBefore: 4, hardAfter: 4 });
   });
 
+  it('shows no harmony when the engine did not measure it', () => {
+    serviceMock.result.set(runResponse(null));
+    expect(component.harmonyBeforePercent()).toBeNull();
+    expect(component.harmonyAfterPercent()).toBeNull();
+    expect(component.harmonyDeltaPercent()).toBeNull();
+  });
+
+  it('exposes the global harmony before and after and its change in percent', () => {
+    serviceMock.result.set({
+      ...runResponse(null),
+      harmonyBefore: { total: 0.852, rhythm: 0.9, fairness: 0.78 },
+      harmonyAfter: { total: 0.854, rhythm: 0.87, fairness: 0.83 },
+    });
+    expect(component.harmonyBeforePercent()).toBe('85.2');
+    expect(component.harmonyAfterPercent()).toBe('85.4');
+    expect(component.harmonyDeltaPercent()).toBe('0.2');
+  });
+
   it('exposes the planning-rule warnings of the run response', () => {
     serviceMock.result.set(runResponse([planningRuleWarning]));
     expect(component.planningRuleWarnings()).toEqual([planningRuleWarning]);
