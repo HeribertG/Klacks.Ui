@@ -4,7 +4,8 @@
  * Guards the goal-proposal translations: the panel renders titles and rationales purely from these
  * keys, so a key present in one core language and missing in another shows the proposal in the
  * fallback language instead of the user's own. Also asserts that no proposal text carries a technical
- * identifier and that every rationale interpolates both parameters the server sends.
+ * identifier and that every rationale interpolates both parameters the server sends. The approval hint names only
+ * existing open orders as never sealed in a plan, because new orders are always created open (owner decision 2026-10-24).
  */
 
 import { readFileSync } from 'fs';
@@ -15,6 +16,11 @@ const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'] as const;
 const TYPE_KEY_PREFIX = 'assistant-chat.goal-candidates.type.';
 const TITLE_SUFFIX = '.title';
 const RATIONALE_SUFFIX = '.rationale';
+const HINT_KEY = 'assistant-chat.goal-candidates.hint';
+const HINT_OPEN_ORDER_PHRASES: Record<string, string> = {
+  de: 'bestehende offene Bestellungen',
+  en: 'existing open orders',
+};
 const I18N_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../../assets/i18n');
 
 const load = (language: string): Record<string, string> =>
@@ -70,5 +76,9 @@ describe('goal candidate translations', () => {
     expect(byLanguage.get(language)!['assistant-chat.goal-candidates.hint']).toBeTruthy();
     expect(byLanguage.get(language)!['assistant-chat.goal-candidates.confidence.high']).toBeTruthy();
     expect(byLanguage.get(language)!['assistant-chat.goal-candidates.confidence.low']).toBeTruthy();
+  });
+
+  it.each(Object.entries(HINT_OPEN_ORDER_PHRASES))('limits the never-sealed promise to existing open orders in %s', (language, phrase) => {
+    expect(byLanguage.get(language as (typeof CORE_LANGUAGES)[number])![HINT_KEY]).toContain(phrase);
   });
 });
