@@ -25,3 +25,20 @@
   flex-direction: column;
   gap: 2px;
 }
+
+#whisper-plugin-setting-models .form-group {
+  min-width: 0;
+  max-width: 880px;
+  padding-inline-end: 40px;
+}
+
+.model-option {
+  margin-bottom: 8px;
+}
+
+.model-option-hint {
+  display: block;
+  margin-inline-start: 20px;
+  font-style: italic;
+  opacity: 0.85;
+}

@@ -9,14 +9,19 @@
 }
 
 select {
-  min-width: 420px;
-  width: auto;
-  max-width: 100%;
+  width: 100%;
 }
 
 .row-line {
   margin-top: 5px;
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.form-group.firstColumn,
+.form-group.secondColumn {
+  flex: 0 0 420px;
+  min-width: 0;
 }
 
 .local-stt-block .row-line {

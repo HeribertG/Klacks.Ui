@@ -43,18 +43,20 @@
           "setting.speech.whisper-plugin.model-label" | translate
         }}</span>
         @for (option of modelOptions(); track option.value) {
-          <label class="checkbox-label">
-            <input
-              type="radio"
-              name="whisperModel"
-              [value]="option.value"
-              [ngModel]="selectedModel()"
-              (ngModelChange)="onModelSelected(option.value)"
-              [disabled]="localStt.actionsDisabled()"
-            />
-            {{ option.labelKey | translate: { name: engineNames[option.value] } }}
-          </label>
-          <small class="hint-text settings-hint">{{ option.hintKey | translate }}</small>
+          <div class="model-option">
+            <label class="checkbox-label">
+              <input
+                type="radio"
+                name="whisperModel"
+                [value]="option.value"
+                [ngModel]="selectedModel()"
+                (ngModelChange)="onModelSelected(option.value)"
+                [disabled]="localStt.actionsDisabled()"
+              />
+              {{ option.labelKey | translate: { name: engineNames[option.value] } }}
+            </label>
+            <small class="hint-text settings-hint model-option-hint">{{ option.hintKey | translate }}</small>
+          </div>
         }
       </div>
     </div>
