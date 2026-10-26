@@ -11,6 +11,7 @@ import { IUiActionExecutionOutcome } from '../../interfaces/ui-action-execution-
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';
+import { ISearchStrategyOptions } from '../../interfaces/search-strategy-options.interface';
 import { KlacksyNavigationService } from 'src/app/domain/services/klacksy/klacksy-navigation.service';
 import { GroupSelectionService } from '../group/group-selection.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
@@ -451,9 +452,25 @@ export class UiActionEngineService {
       ? (this.valueResolver.resolve(step.entityTypeFilterFrom, context) ?? undefined)
       : undefined;
 
+    const searchOptions = this.buildSearchOptions(step, context, typeFilter);
+
     await this.router.navigate([route]);
     await new Promise(r => setTimeout(r, SEARCH_DELAY));
-    this.searchStrategyService.globalSearch(searchValue, true, false, typeFilter ? { typeFilter } : undefined);
+    this.searchStrategyService.globalSearch(searchValue, true, false, searchOptions);
+  }
+
+  private buildSearchOptions(step: IUiActionStep, context: IUiActionContext, typeFilter: string | undefined): ISearchStrategyOptions | undefined {
+    const options: ISearchStrategyOptions = {};
+    if (typeFilter) {
+      options.typeFilter = typeFilter;
+    }
+    if (step.cityFrom) {
+      options.city = this.valueResolver.resolve(step.cityFrom, context) ?? '';
+    }
+    if (step.zipPrefixFrom) {
+      options.zipPrefix = this.valueResolver.resolve(step.zipPrefixFrom, context) ?? '';
+    }
+    return Object.keys(options).length > 0 ? options : undefined;
   }
 
   private async executeSelectGroup(step: IUiActionStep, context: IUiActionContext): Promise<void> {

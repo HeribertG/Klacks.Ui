@@ -4,5 +4,7 @@ export interface EntitySearchOptions {
   includeAddress?: boolean;
   includeClient?: boolean;
   typeFilter?: string;
+  city?: string;
+  zipPrefix?: string;
   [key: string]: unknown;
 }

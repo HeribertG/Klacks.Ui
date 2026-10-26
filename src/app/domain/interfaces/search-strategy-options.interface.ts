@@ -2,4 +2,6 @@
 
 export interface ISearchStrategyOptions {
   typeFilter?: string;
+  city?: string;
+  zipPrefix?: string;
 }

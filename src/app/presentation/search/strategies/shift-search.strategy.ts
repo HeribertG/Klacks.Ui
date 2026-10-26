@@ -16,6 +16,12 @@ export class ShiftSearchStrategy extends BaseEntitySearchStrategy {
   override search(value: string, options: EntitySearchOptions = {}): void {
     this.dataManagementService.currentFilter.searchString = value;
     this.dataManagementService.currentFilter.includeClientName = options.includeClient ?? false;
+    if (options.city !== undefined) {
+      this.dataManagementService.currentFilter.city = options.city.trim();
+    }
+    if (options.zipPrefix !== undefined) {
+      this.dataManagementService.currentFilter.zipPrefix = options.zipPrefix.trim();
+    }
     this.triggerExternalFilterChange();
     this.refreshData();
   }

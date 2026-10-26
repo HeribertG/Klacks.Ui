@@ -2,6 +2,7 @@
 
 import { IBaseFilter } from '../base-filter.interface';
 import { ShiftFilterType } from '../../enums/shift-filter-type.enum';
+import { IShiftFilterState } from './shift-filter-state.interface';
 
 export interface IShiftFilter extends IBaseFilter {
   scopeFromFlag?: boolean;
@@ -18,4 +19,10 @@ export interface IShiftFilter extends IBaseFilter {
   isSealedOrder: boolean;
   isTimeRange: boolean;
   isSporadic: boolean;
+  countries?: string[];
+  states?: IShiftFilterState[];
+  city?: string;
+  zipPrefix?: string;
+  validFrom?: Date;
+  validUntil?: Date;
 }

@@ -13,7 +13,7 @@ describe('ShiftSearchStrategy', () => {
     beforeEach(() => {
         const spy = {
             readPage: vi.fn(),
-            currentFilter: { searchString: '', includeClientName: false },
+            currentFilter: { searchString: '', includeClientName: false, city: 'Thun', zipPrefix: '30' },
             onExternalFilterChange: vi.fn()
         };
 
@@ -50,6 +50,31 @@ describe('ShiftSearchStrategy', () => {
 
         expect(mockShiftService.currentFilter.searchString).toBe('day shift');
         expect(mockShiftService.currentFilter.includeClientName).toBe(false);
+        expect(mockShiftService.readPage).toHaveBeenCalled();
+    });
+
+    it('should leave city and zip prefix alone when the options do not carry them', () => {
+        strategy.search('day shift');
+
+        expect(mockShiftService.currentFilter.city).toBe('Thun');
+        expect(mockShiftService.currentFilter.zipPrefix).toBe('30');
+    });
+
+    it('should set trimmed city and zip prefix and reload the list', () => {
+        strategy.search('', { city: ' Bern ', zipPrefix: '30' });
+
+        expect(mockShiftService.currentFilter.searchString).toBe('');
+        expect(mockShiftService.currentFilter.city).toBe('Bern');
+        expect(mockShiftService.currentFilter.zipPrefix).toBe('30');
+        expect(mockShiftService.onExternalFilterChange).toHaveBeenCalled();
+        expect(mockShiftService.readPage).toHaveBeenCalledTimes(1);
+    });
+
+    it('should clear city and zip prefix when the options carry empty strings', () => {
+        strategy.search('', { city: '', zipPrefix: '' });
+
+        expect(mockShiftService.currentFilter.city).toBe('');
+        expect(mockShiftService.currentFilter.zipPrefix).toBe('');
         expect(mockShiftService.readPage).toHaveBeenCalled();
     });
 
