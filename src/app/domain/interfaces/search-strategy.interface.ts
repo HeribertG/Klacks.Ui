@@ -3,6 +3,8 @@
 /**
  * Abstraction for the active-entity search strategy used by UiActionEngine and header search.
  * @param typeFilter - Optional address-type limiter for client lists: 'customer' | 'employee' | 'extern'
+ * @param city - Optional customer city for shift lists; undefined leaves the filter alone, an empty string clears it
+ * @param zipPrefix - Optional start of the customer postal code for shift lists; undefined leaves the filter alone, an empty string clears it
  */
 
 import { ISearchStrategyOptions } from './search-strategy-options.interface';

@@ -21,7 +21,7 @@ export class DataShiftService {
     return this.httpClient
       .post<ITruncatedShift>(
         `${environment.baseUrl}Shifts/GetSimpleList/`,
-        filter
+        this.toListWirePayload(filter)
       )
       .pipe();
   }
@@ -63,6 +63,14 @@ export class DataShiftService {
     return this.httpClient
       .delete<IShift>(`${environment.baseUrl}Shifts/` + id)
       .pipe(retry(3));
+  }
+
+  private toListWirePayload(filter: IShiftListFilter) {
+    return {
+      ...filter,
+      validFrom: filter.validFrom ? toCalendarDateWire(filter.validFrom) : undefined,
+      validUntil: filter.validUntil ? toCalendarDateWire(filter.validUntil) : undefined,
+    };
   }
 
   private toWirePayload(value: Omit<IShift, 'addressName'>) {

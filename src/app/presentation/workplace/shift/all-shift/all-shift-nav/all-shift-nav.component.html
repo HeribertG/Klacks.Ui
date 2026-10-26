@@ -1,6 +1,9 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <form #navGroupForm="ngForm" id="navShiftForm">
   <ul class="list-group">
     <!-- Gültigkeit -->
+    @if (!dataManagementShiftService.currentFilter.isUnsealedDraftView) {
     <li class="list-group-item-action">
       <div ngbDropdown>
         <button
@@ -21,7 +24,7 @@
                   "
                   name="activeDateRange"
                 />
-                {{ "active" | translate }}
+                {{ "shift.all-shift.nav.validity-valid" | translate }}
               </label>
 
               <label class="checkbox-label">
@@ -32,7 +35,7 @@
                   "
                   name="formerDateRange"
                 />
-                {{ "former" | translate }}
+                {{ "shift.all-shift.nav.validity-completed" | translate }}
               </label>
 
               <label class="checkbox-label">
@@ -43,13 +46,235 @@
                   "
                   name="futureDateRange"
                 />
-                {{ "future" | translate }}
+                {{ "shift.all-shift.nav.validity-future" | translate }}
               </label>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="form-group">
+            <div class="checkbox-container-default3">
+              <label for="filter-valid-from">{{
+                "shift.edit-shift.main.from" | translate
+              }}</label>
+              <div class="input-group my-datepicker">
+                <input
+                  id="filter-valid-from"
+                  class="form-control"
+                  name="validFrom"
+                  aria-label="validFrom"
+                  [ngModel]="validFromValue"
+                  (ngModelChange)="onValidFromChange($event)"
+                  ngbDatepicker
+                  #validFrom="ngbDatepicker"
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="validFrom.toggle()"
+                >
+                  <fa-icon
+                    [icon]="faCalendar"
+                    [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                  ></fa-icon>
+                </span>
+              </div>
+
+              <label for="filter-valid-until">{{
+                "shift.edit-shift.main.until" | translate
+              }}</label>
+              <div class="input-group my-datepicker">
+                <input
+                  id="filter-valid-until"
+                  class="form-control"
+                  name="validUntil"
+                  aria-label="validUntil"
+                  [ngModel]="validUntilValue"
+                  (ngModelChange)="onValidUntilChange($event)"
+                  ngbDatepicker
+                  #validUntil="ngbDatepicker"
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="validUntil.toggle()"
+                >
+                  <fa-icon
+                    [icon]="faCalendar"
+                    [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                  ></fa-icon>
+                </span>
+              </div>
             </div>
           </div>
           <div class="dropdown-divider"></div>
 
           <button ngbDropdownItem (click)="onClose()">
+            {{ "close" | translate }}
+          </button>
+        </div>
+      </div>
+    </li>
+    }
+
+    <!-- Länder -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onLocationDropdownChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-countries"
+          ngbDropdownToggle
+        >
+          {{
+            "address.all-address.all-address-nav.choose-countries" | translate
+          }}
+        </button>
+        <div ngbDropdownMenu>
+          <div class="px-4 py-3">
+            <div class="form-group">
+              <button
+                id="shift-filter-select-all-countries"
+                type="button"
+                class="btn btn-secondary btn-sm max-width2"
+                (click)="selectCountries(true)"
+              >
+                {{ "selecting" | translate }}
+              </button>
+              <p></p>
+              <button
+                id="shift-filter-deselect-all-countries"
+                type="button"
+                class="btn btn-secondary btn-sm max-width2"
+                (click)="selectCountries(false)"
+              >
+                {{ "deselecting" | translate }}
+              </button>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="form-group">
+            <div class="checkbox-container-default2">
+              @for (c of countries(); track c.abbreviation) {
+              <label class="checkbox-label">
+                <input
+                  #countryBox
+                  type="checkbox"
+                  [checked]="isCountrySelected(c.abbreviation)"
+                  (change)="onCountryToggle(c.abbreviation, countryBox.checked)"
+                />
+                {{ c.name | fallback : currentLang }}
+              </label>
+              }
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button id="shift-filter-close-countries" ngbDropdownItem>
+            {{ "close" | translate }}
+          </button>
+        </div>
+      </div>
+    </li>
+
+    <!-- Kantone -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onLocationDropdownChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-states"
+          ngbDropdownToggle
+        >
+          {{ "address.all-address.all-address-nav.choose-cantons" | translate }}
+        </button>
+        <div ngbDropdownMenu>
+          <div class="px-4 py-3">
+            <div class="form-group">
+              <button
+                id="shift-filter-select-all-states"
+                type="button"
+                class="btn btn-secondary btn-sm max-width"
+                (click)="selectStates(true)"
+              >
+                {{ "selecting" | translate }}
+              </button>
+              <p></p>
+              <button
+                id="shift-filter-deselect-all-states"
+                type="button"
+                class="btn btn-secondary btn-sm max-width"
+                (click)="selectStates(false)"
+              >
+                {{ "deselecting" | translate }}
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-container">
+              @for (item of visibleStates(); track item.id) {
+              <label
+                class="checkbox-label"
+                placement="right"
+                ngbTooltip="{{ item.stateName | fallback : currentLang }}"
+              >
+                <input
+                  #stateBox
+                  type="checkbox"
+                  [checked]="isStateSelected(item)"
+                  (change)="onStateToggle(item, stateBox.checked)"
+                />
+                {{ item.state }} ({{ item.country }})
+              </label>
+              }
+            </div>
+          </div>
+
+          <div class="dropdown-divider"></div>
+          <button id="shift-filter-close-states" ngbDropdownItem>
+            {{ "close" | translate }}
+          </button>
+        </div>
+      </div>
+    </li>
+
+    <!-- Ort / PLZ -->
+    <li class="list-group-item-action">
+      <div ngbDropdown #locationDropdown="ngbDropdown" autoClose="outside">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-location"
+          ngbDropdownToggle
+        >
+          {{ "shift.all-shift.nav.location" | translate }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownForm-location">
+          <div class="form-group location-fields">
+            <label class="location-label" for="shift-filter-city">
+              {{ "shift.all-shift.nav.location-city" | translate }}
+            </label>
+            <input
+              id="shift-filter-city"
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="dataManagementShiftService.currentFilter.city"
+              name="city"
+              autocomplete="off"
+              (change)="onSelect()"
+            />
+            <label class="location-label" for="shift-filter-zip-prefix">
+              {{ "shift.all-shift.nav.location-zip-prefix" | translate }}
+            </label>
+            <input
+              id="shift-filter-zip-prefix"
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="dataManagementShiftService.currentFilter.zipPrefix"
+              name="zipPrefix"
+              autocomplete="off"
+              (change)="onSelect()"
+            />
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <button ngbDropdownItem (click)="onClose(); locationDropdown.close()">
             {{ "close" | translate }}
           </button>
         </div>

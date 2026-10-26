@@ -17,6 +17,8 @@ export interface IUiActionStep {
   appendParamFrom?: string;
   queryParams?: Record<string, string>;
   entityTypeFilterFrom?: string;
+  cityFrom?: string;
+  zipPrefixFrom?: string;
   pollInterval?: number;
   pollMaxAttempts?: number;
   pollCondition?: { type: string; selector?: string; value?: string };

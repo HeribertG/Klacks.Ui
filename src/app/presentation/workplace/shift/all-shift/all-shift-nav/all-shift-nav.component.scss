@@ -101,3 +101,16 @@ ul li {
   color: var(--colorHeadline);
   background-color: var(--gridBackgroundColorInfo);
 }
+
+.location-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+  padding: 8px 16px;
+}
+
+.location-label {
+  font-size: 12px;
+  margin-bottom: 0;
+}
