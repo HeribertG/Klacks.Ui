@@ -1,0 +1,233 @@
+@if (state.isLoading) {
+  <div class="loading-indicator">
+    <p>{{ "common.loading" | translate }}</p>
+  </div>
+} @else if (state.templateGrid) {
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <div class="tabs">
+      @for (
+        row of viewRefresh.getFilteredRowsForSelectedWeekday();
+        track $index
+      ) {
+        <button
+          class="tab"
+          [class.active]="tabService.selectedTabIndex === $index"
+          (click)="selection.selectTab($index)"
+        >
+          {{ viewRefresh.getTabLabel($index) }}
+        </button>
+      }
+      <span class="filler"></span>
+      <button
+        class="tab permanent-tab"
+        [class.active]="tabService.isEmploymentTabActive"
+        (click)="selection.selectEmploymentTab()"
+      >
+        {{
+          "shift.container-template.tab.employment" | translate
+        }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Employment Tab: Container Absences -->
+  @if (tabService.isEmploymentTabActive) {
+    <div class="shifts-grid-container">
+      <div class="shifts-grid">
+        @if (tabService.containerAbsences.length > 0) {
+          <table class="shifts-table">
+            <thead>
+              <tr>
+                <th class="icon-column"></th>
+                <th>
+                  {{
+                    "shift.container-template.grid.name"
+                      | translate
+                  }}
+                </th>
+                <th>
+                  {{
+                    "shift.container-template.grid.abbreviation"
+                      | translate
+                  }}
+                </th>
+                <th>
+                  {{
+                    "setting.absence.modal.description"
+                      | translate
+                  }}
+                </th>
+              </tr>
+            </thead>
+            <tbody
+              cdkDropList
+              id="container-absences-list"
+              [cdkDropListData]="tabService.containerAbsences"
+              [cdkDropListConnectedTo]="['selected-tasks-list']"
+              [cdkDropListSortingDisabled]="true"
+            >
+              @for (
+                absence of tabService.containerAbsences;
+                track absence.id
+              ) {
+                <tr cdkDrag>
+                  <td class="icon-column">
+                    <span
+                      class="absence-color-rect"
+                      [style.background-color]="absence.color"
+                    ></span>
+                  </td>
+                  <td>
+                    {{ absence.name | fallback: translateService.currentLang }}
+                  </td>
+                  <td>
+                    {{ absence.abbreviation | fallback: translateService.currentLang }}
+                  </td>
+                  <td>
+                    {{ absence.description | fallback: translateService.currentLang }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="no-shifts">
+            <p>
+              {{
+                "shift.container-template.grid.no-container-absences"
+                  | translate
+              }}
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Shifts Grid -->
+  @if (!tabService.isEmploymentTabActive) {
+    <div class="shifts-grid-container">
+      <div class="shifts-grid">
+        @if (tabService.availableTasks.length > 0) {
+          <table id="available-tasks-table" class="shifts-table">
+            <thead>
+              <tr>
+                <th class="icon-column"></th>
+                <th
+                  (click)="viewRefresh.sortBy('name')"
+                  style="cursor: pointer"
+                >
+                  {{
+                    "shift.container-template.grid.name"
+                      | translate
+                  }}
+                  {{ sortingService.getArrow("name") }}
+                </th>
+                <th
+                  (click)="viewRefresh.sortBy('abbreviation')"
+                  style="cursor: pointer"
+                >
+                  {{
+                    "shift.container-template.grid.abbreviation"
+                      | translate
+                  }}
+                  {{ sortingService.getArrow("abbreviation") }}
+                </th>
+                <th
+                  (click)="viewRefresh.sortBy('startShift')"
+                  style="cursor: pointer"
+                >
+                  {{
+                    "shift.container-template.grid.time"
+                      | translate
+                  }}
+                  {{ sortingService.getArrow("startShift") }}
+                </th>
+                <th
+                  (click)="viewRefresh.sortBy('workTime')"
+                  style="cursor: pointer"
+                >
+                  {{
+                    "shift.container-template.grid.work-time"
+                      | translate
+                  }}
+                  {{ sortingService.getArrow("workTime") }}
+                </th>
+                <th
+                  (click)="viewRefresh.sortBy('client')"
+                  style="cursor: pointer"
+                >
+                  {{
+                    "shift.container-template.grid.client"
+                      | translate
+                  }}
+                  {{ sortingService.getArrow("client") }}
+                </th>
+                <th class="action-column"></th>
+              </tr>
+            </thead>
+            <tbody
+              cdkDropList
+              id="available-tasks-list"
+              [cdkDropListData]="tabService.availableTasks"
+              [cdkDropListConnectedTo]="['selected-tasks-list']"
+              [cdkDropListSortingDisabled]="true"
+              (cdkDropListDropped)="viewRefresh.markForCheck()"
+            >
+              @for (
+                shift of tabService.availableTasks;
+                track shift.id
+              ) {
+                <tr
+                  cdkDrag
+                  cdkDragLockAxis="y"
+                  [class.partial-timerange]="
+                    taskActions.isTimeRangePartial(shift)
+                  "
+                >
+                  <td class="icon-column">
+                    @if (shift.isSporadic) {
+                      <app-icon-unknown-time></app-icon-unknown-time>
+                    } @else if (shift.isTimeRange) {
+                      <app-icon-time-window></app-icon-time-window>
+                    } @else {
+                      <app-icon-shift-segment></app-icon-shift-segment>
+                    }
+                  </td>
+                  <td>{{ shift.name }}</td>
+                  <td>{{ shift.abbreviation }}</td>
+                  <td>
+                    {{ formatTime(shift.startShift) }} -
+                    {{ formatTime(shift.endShift) }}
+                  </td>
+                  <td>{{ formatWorkTime(shift.workTime) }}</td>
+                  <td>{{ formatClientWithAddress(shift) }}</td>
+                  <td class="action-column"></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="no-shifts">
+            <p>
+              {{
+                "shift.container-template.grid.no-shifts"
+                  | translate
+              }}
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+} @else {
+  <div class="no-data">
+    <p>
+      {{
+        "shift.container-template.no-container-selected"
+          | translate
+      }}
+    </p>
+  </div>
+}

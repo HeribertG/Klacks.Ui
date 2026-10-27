@@ -3,7 +3,8 @@
 /**
  * Container template component for weekly shift planning in containers. The behaviour lives in the
  * component-scoped services listed in providers; this class wires them to the template and bridges
- * the context menu and dialog templates of its own view.
+ * the context menu and dialog templates of its own view. The bottom zone and the two dialog bodies are child components
+ * that resolve the same component-scoped services.
  * @param state - Editor state: container, time window, weekday/holiday selection, grid, loading and read-only flags
  * @param session - Starts and ends the editing session (lock, routed load, teardown)
  * @param viewRefresh - Signal bridges and refreshes of tasks, slot and start/end base
@@ -28,7 +29,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-item.interface';
-import { ContainerTransportModeEnum, TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { TouchInteraction } from 'src/app/domain/constants/touch-interaction.constants';
@@ -78,6 +79,9 @@ import { ContainerTemplateSelectionService } from './services/container-template
 import { ContainerTemplateSessionService } from './services/container-template-session.service';
 import { ContainerTemplateTaskActionsService } from './services/container-template-task-actions.service';
 import { ContainerTemplateContextMenuService } from './services/container-template-context-menu.service';
+import { ContainerTemplateAvailableZoneComponent } from './container-template-available-zone/container-template-available-zone.component';
+import { ContainerTemplatePropertiesDialogComponent } from './container-template-properties-dialog/container-template-properties-dialog.component';
+import { ContainerTemplateAbsenceTimeDialogComponent } from './container-template-absence-time-dialog/container-template-absence-time-dialog.component';
 
 @Component({
   selector: 'app-container-template',
@@ -108,6 +112,9 @@ import { ContainerTemplateContextMenuService } from './services/container-templa
     NgxSliderModule,
     LongPressContextDirective,
     FallbackPipe,
+    ContainerTemplateAvailableZoneComponent,
+    ContainerTemplatePropertiesDialogComponent,
+    ContainerTemplateAbsenceTimeDialogComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -143,7 +150,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     touch: TouchInteraction.RowDragTouchStartDelayMs,
     mouse: CONTAINER_TEMPLATE_ROW_DRAG_MOUSE_START_DELAY_MS,
   };
-  protected readonly TransportModeEnum = TransportModeEnum;
   protected readonly ContainerTransportModeEnum = ContainerTransportModeEnum;
   protected readonly formatTime = formatTime;
   protected readonly formatWorkTime = formatWorkTime;
@@ -152,12 +158,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   protected readonly direction = inject(DirectionService).direction;
   protected readonly translateService = inject(TranslateService);
   protected readonly addressProvider = inject(AddressProviderService);
-  protected readonly sortingService = inject(TableSortingService);
   protected readonly shiftService = inject(ContainerTemplateShiftService);
   protected readonly routeService = inject(ContainerTemplateRouteService);
-  protected readonly propertiesService = inject(ContainerTemplatePropertiesService);
-  protected readonly tabService = inject(ContainerTemplateTabService);
-  protected readonly absenceService = inject(ContainerTemplateAbsenceService);
   protected readonly shiftOpsService = inject(ContainerTemplateShiftOperationsService);
   protected readonly dragDropService = inject(ContainerTemplateDragDropService);
   protected readonly state = inject(ContainerTemplateEditorStateService);

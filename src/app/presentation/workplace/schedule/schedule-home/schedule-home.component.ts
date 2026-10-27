@@ -44,6 +44,7 @@ import { ScheduleDataService } from '../schedule-section/services/schedule-data.
 import { EmptyCellFormatterService } from '../schedule-section/services/cell-formatters/empty-cell-formatter.service';
 import { WorkCellFormatterService } from '../schedule-section/services/cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from '../schedule-section/services/cell-formatters/break-cell-formatter.service';
+import { WorkChangeCellFormatterService } from '../schedule-section/services/cell-formatters/work-change-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from '../schedule-section/services/cell-formatters/schedule-note-cell-formatter.service';
 import { ScheduleCommandCellFormatterService } from '../schedule-section/services/cell-formatters/schedule-command-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
@@ -113,6 +114,7 @@ const MONTH_INDEX_OFFSET = 1;
     BreakCellFormatterService,
     ScheduleNoteCellFormatterService,
     ScheduleCommandCellFormatterService,
+    WorkChangeCellFormatterService,
     SchedulePdfExportService,
     SchedulePdfDrawingService,
     ShiftPdfExportService,

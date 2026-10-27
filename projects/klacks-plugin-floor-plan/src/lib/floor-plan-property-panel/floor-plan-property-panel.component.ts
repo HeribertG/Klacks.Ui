@@ -18,6 +18,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FabricObject, Rect, Polygon, Polyline, Textbox } from 'fabric';
 import { ObjectProperties } from './object-properties.interface';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+import { FloorPlanObjectEditService } from '../services/floor-plan-object-edit.service';
+import { FloorPlanObjectStyleService } from '../services/floor-plan-object-style.service';
 
 const FONT_FAMILIES = [
   'Arial',
@@ -82,6 +84,8 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
   readonly fontFamilies = FONT_FAMILIES;
 
   canvasService = inject(FloorPlanCanvasService);
+  private readonly editService = inject(FloorPlanObjectEditService);
+  private readonly styleService = inject(FloorPlanObjectStyleService);
   private injector = inject(Injector);
 
   readonly properties = signal<ObjectProperties>({ ...DEFAULT_PROPERTIES });
@@ -252,31 +256,31 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
 
   onStrokeChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.canvasService.applyStrokeColor(input.value);
+    this.styleService.applyStrokeColor(input.value);
     this.properties.update((p) => ({ ...p, stroke: input.value }));
   }
 
   onFillChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.canvasService.applyFillColor(input.value);
+    this.styleService.applyFillColor(input.value);
     this.properties.update((p) => ({ ...p, fill: input.value }));
   }
 
   onStrokeWidthChange(value: number): void {
-    this.canvasService.applyStrokeWidth(value);
+    this.styleService.applyStrokeWidth(value);
     this.properties.update((p) => ({ ...p, strokeWidth: value }));
   }
 
   onBringToFront(): void {
-    this.canvasService.bringToFront();
+    this.editService.bringToFront();
   }
 
   onSendToBack(): void {
-    this.canvasService.sendToBack();
+    this.editService.sendToBack();
   }
 
   onDelete(): void {
-    this.canvasService.deleteSelected();
+    this.editService.deleteSelected();
   }
 
   onLockToggle(): void {
@@ -381,54 +385,54 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
   }
 
   onFontFamilyChange(value: string): void {
-    this.canvasService.applyFontFamily(value);
+    this.styleService.applyFontFamily(value);
     this.properties.update((p) => ({ ...p, fontFamily: value }));
   }
 
   onFontSizeChange(value: number): void {
     const size = Math.max(1, value);
-    this.canvasService.applyFontSize(size);
+    this.styleService.applyFontSize(size);
     this.properties.update((p) => ({ ...p, fontSize: size }));
   }
 
   onBoldToggle(): void {
     const newVal = !this.properties().fontBold;
-    this.canvasService.applyBold(newVal);
+    this.styleService.applyBold(newVal);
     this.properties.update((p) => ({ ...p, fontBold: newVal }));
   }
 
   onItalicToggle(): void {
     const newVal = !this.properties().fontItalic;
-    this.canvasService.applyItalic(newVal);
+    this.styleService.applyItalic(newVal);
     this.properties.update((p) => ({ ...p, fontItalic: newVal }));
   }
 
   onUnderlineToggle(): void {
     const newVal = !this.properties().fontUnderline;
-    this.canvasService.applyUnderline(newVal);
+    this.styleService.applyUnderline(newVal);
     this.properties.update((p) => ({ ...p, fontUnderline: newVal }));
   }
 
   onLinethroughToggle(): void {
     const newVal = !this.properties().fontLinethrough;
-    this.canvasService.applyLinethrough(newVal);
+    this.styleService.applyLinethrough(newVal);
     this.properties.update((p) => ({ ...p, fontLinethrough: newVal }));
   }
 
   onTextAlignChange(align: string): void {
-    this.canvasService.applyTextAlign(align);
+    this.styleService.applyTextAlign(align);
     this.properties.update((p) => ({ ...p, textAlign: align }));
   }
 
   onTextColorChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.canvasService.applyTextColor(input.value);
+    this.styleService.applyTextColor(input.value);
     this.properties.update((p) => ({ ...p, fill: input.value }));
   }
 
   onShadowEnabledChange(enabled: boolean): void {
     const p = this.properties();
-    this.canvasService.applyObjectShadow(enabled, p.shadowColor, p.shadowBlur, p.shadowOffsetX, p.shadowOffsetY);
+    this.styleService.applyObjectShadow(enabled, p.shadowColor, p.shadowBlur, p.shadowOffsetX, p.shadowOffsetY);
     this.properties.update((prev) => ({ ...prev, shadowEnabled: enabled }));
   }
 
@@ -436,7 +440,7 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const p = this.properties();
     if (!p.shadowEnabled) return;
-    this.canvasService.applyObjectShadow(true, input.value, p.shadowBlur, p.shadowOffsetX, p.shadowOffsetY);
+    this.styleService.applyObjectShadow(true, input.value, p.shadowBlur, p.shadowOffsetX, p.shadowOffsetY);
     this.properties.update((prev) => ({ ...prev, shadowColor: input.value }));
   }
 
@@ -444,47 +448,47 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
     const p = this.properties();
     if (!p.shadowEnabled) return;
     const blur = Math.max(0, value);
-    this.canvasService.applyObjectShadow(true, p.shadowColor, blur, p.shadowOffsetX, p.shadowOffsetY);
+    this.styleService.applyObjectShadow(true, p.shadowColor, blur, p.shadowOffsetX, p.shadowOffsetY);
     this.properties.update((prev) => ({ ...prev, shadowBlur: blur }));
   }
 
   onShadowOffsetXChange(value: number): void {
     const p = this.properties();
     if (!p.shadowEnabled) return;
-    this.canvasService.applyObjectShadow(true, p.shadowColor, p.shadowBlur, value, p.shadowOffsetY);
+    this.styleService.applyObjectShadow(true, p.shadowColor, p.shadowBlur, value, p.shadowOffsetY);
     this.properties.update((prev) => ({ ...prev, shadowOffsetX: value }));
   }
 
   onShadowOffsetYChange(value: number): void {
     const p = this.properties();
     if (!p.shadowEnabled) return;
-    this.canvasService.applyObjectShadow(true, p.shadowColor, p.shadowBlur, p.shadowOffsetX, value);
+    this.styleService.applyObjectShadow(true, p.shadowColor, p.shadowBlur, p.shadowOffsetX, value);
     this.properties.update((prev) => ({ ...prev, shadowOffsetY: value }));
   }
 
   onGradientEnabledChange(enabled: boolean): void {
     const p = this.properties();
-    this.canvasService.applyGradientFill(enabled, p.gradientColor1, p.gradientColor2, p.gradientDirection);
+    this.styleService.applyGradientFill(enabled, p.gradientColor1, p.gradientColor2, p.gradientDirection);
     this.properties.update((prev) => ({ ...prev, gradientEnabled: enabled }));
   }
 
   onGradientColor1Change(event: Event): void {
     const input = event.target as HTMLInputElement;
     const p = this.properties();
-    this.canvasService.applyGradientFill(p.gradientEnabled, input.value, p.gradientColor2, p.gradientDirection);
+    this.styleService.applyGradientFill(p.gradientEnabled, input.value, p.gradientColor2, p.gradientDirection);
     this.properties.update((prev) => ({ ...prev, gradientColor1: input.value }));
   }
 
   onGradientColor2Change(event: Event): void {
     const input = event.target as HTMLInputElement;
     const p = this.properties();
-    this.canvasService.applyGradientFill(p.gradientEnabled, p.gradientColor1, input.value, p.gradientDirection);
+    this.styleService.applyGradientFill(p.gradientEnabled, p.gradientColor1, input.value, p.gradientDirection);
     this.properties.update((prev) => ({ ...prev, gradientColor2: input.value }));
   }
 
   onGradientDirectionChange(direction: string): void {
     const p = this.properties();
-    this.canvasService.applyGradientFill(p.gradientEnabled, p.gradientColor1, p.gradientColor2, direction);
+    this.styleService.applyGradientFill(p.gradientEnabled, p.gradientColor1, p.gradientColor2, direction);
     this.properties.update((prev) => ({ ...prev, gradientDirection: direction }));
   }
 

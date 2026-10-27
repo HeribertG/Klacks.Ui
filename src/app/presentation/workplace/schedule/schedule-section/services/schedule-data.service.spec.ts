@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import { Mock, vi } from 'vitest';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
@@ -17,6 +17,7 @@ import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { ScheduleCommandCellFormatterService } from './cell-formatters/schedule-command-cell-formatter.service';
+import { WorkChangeCellFormatterService } from './cell-formatters/work-change-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -34,6 +35,8 @@ import {
 } from 'src/app/shared/testing/holiday-list.testing';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
+import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
@@ -46,7 +49,7 @@ import {
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
-    let dataManagement: { clients: unknown[]; visibleStartDate: Date | null; visibleEndDate: Date | null };
+    let dataManagement: { clients: unknown[]; visibleStartDate: Date | null; visibleEndDate: Date | null; sealedDates: Set<string> };
     let holidayCollection: { holidays: HolidaysListHelper; currentYear: number };
 
     beforeEach(() => {
@@ -83,6 +86,7 @@ describe('ScheduleDataService', () => {
                 { provide: BreakCellFormatterService, useValue: { format: vi.fn() } },
                 { provide: ScheduleNoteCellFormatterService, useValue: { formatCell: vi.fn() } },
                 { provide: ScheduleCommandCellFormatterService, useValue: { formatCell: vi.fn() } },
+                WorkChangeCellFormatterService,
                 { provide: AbsenceLookupService, useValue: { getAbbreviationForEntryId: () => '' } },
                 { provide: GridColorService, useValue: {} },
                 { provide: TranslateService, useValue: { currentLang: 'de', instant: vi.fn().mockReturnValue(''), get: vi.fn().mockReturnValue(of('')), onTranslationChange: of(), onLangChange: of(), onDefaultLangChange: of() } },
@@ -436,6 +440,392 @@ describe('ScheduleDataService', () => {
 
             expect(cell.tooltip).toBe(ALLOWANCE_TOOLTIP_KEY);
             expect(cell.mainText).toBe(ALLOWANCE_ABBR_KEY);
+        });
+    });
+
+    describe('work change cell formatting', () => {
+        const WORK_CHANGE_COLOR = '#workchange';
+        const SURCHARGE_COLOR = '#surcharge';
+
+        function workChangeEntry(overrides: Partial<ScheduleCell>): ScheduleCell {
+            return Object.assign(new ScheduleCell(), {
+                entryType: WorkScheduleEntryType.WorkChange,
+                startTime: '08:00:00',
+                endTime: '09:30:00',
+                changeTime: 1.5,
+                workChangeType: 0,
+            }, overrides);
+        }
+
+        function cellFor(entry: ScheduleCell) {
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(entry);
+            return service.getCell(0, 0);
+        }
+
+        beforeEach(() => {
+            const translate = TestBed.inject(TranslateService);
+            vi.mocked(translate.instant).mockImplementation((key: string | string[]) => String(key));
+            Object.assign(TestBed.inject(GridColorService), { surchargeColor: SURCHARGE_COLOR, workChangeColor: WORK_CHANGE_COLOR });
+        });
+
+        it('formats a correction with change time, time range and work change color', () => {
+            const cell = cellFor(workChangeEntry({}));
+
+            expect(cell.mainText).toBe('workChange.abbr.correction');
+            expect(cell.tooltip).toBe('workChange.tooltip.correction');
+            expect(cell.firstSubText).toBe('1h 30m');
+            expect(cell.secondSubText).toBe('08:00 - 09:30');
+            expect(cell.backgroundColor).toBe(WORK_CHANGE_COLOR);
+            expect(cell.sealed).toBe(false);
+        });
+
+        it.each<[number, string, string]>([
+            [4, 'workChange.abbr.travelStart', 'workChange.tooltip.travel'],
+            [5, 'workChange.abbr.travelEnd', 'workChange.tooltip.travel'],
+            [6, 'workChange.abbr.travelWithin', 'workChange.tooltip.travel'],
+            [7, 'workChange.abbr.briefing', 'workChange.tooltip.briefing'],
+            [8, 'workChange.abbr.debriefing', 'workChange.tooltip.briefing'],
+            [1, 'workChange.abbr.correction', 'workChange.tooltip.correction'],
+            [9, 'workChange.abbr.correction', 'workChange.tooltip.correction'],
+        ])('maps work change type %s to its abbreviation and tooltip', (type, abbr, tooltip) => {
+            const cell = cellFor(workChangeEntry({ workChangeType: type }));
+
+            expect(cell.mainText).toBe(abbr);
+            expect(cell.tooltip).toBe(tooltip);
+        });
+
+        it('labels a replacement regardless of its work change type', () => {
+            const cell = cellFor(workChangeEntry({ workChangeType: 4, replaceClientId: 'other-client' }));
+
+            expect(cell.mainText).toBe('workChange.abbr.replacement');
+            expect(cell.tooltip).toBe('workChange.tooltip.replacement');
+        });
+
+        it.each<[number | null, string]>([
+            [2, '2h'],
+            [0.25, '15m'],
+            [-0.25, '-15m'],
+            [-1.75, '-1h 45m'],
+            [0, ''],
+            [null, ''],
+        ])('formats change time %s as "%s"', (changeTime, expected) => {
+            const cell = cellFor(workChangeEntry({ changeTime }));
+
+            expect(cell.firstSubText).toBe(expected);
+        });
+
+        it('seals a locked or group restricted work change', () => {
+            expect(cellFor(workChangeEntry({ lockLevel: 1 })).sealed).toBe(true);
+            expect(cellFor(workChangeEntry({ isGroupRestricted: true })).sealed).toBe(true);
+        });
+
+        it.each<[number | null, string]>([
+            [12.5, '12.50'],
+            [0, ''],
+            [null, ''],
+        ])('formats an expense amount %s as "%s" without first sub text', (amount, expected) => {
+            const cell = cellFor(workChangeEntry({ entryType: WorkScheduleEntryType.Expenses, taxable: false, amount }));
+
+            expect(cell.firstSubText).toBe('');
+            expect(cell.secondSubText).toBe(expected);
+            expect(cell.backgroundColor).toBe(SURCHARGE_COLOR);
+        });
+    });
+
+    describe('availability', () => {
+        const HIGHLIGHT_COLOR = '#available';
+        const START = '2026-03-02';
+        let availabilities: Map<string, Map<string, string>>;
+        let showAvailability: Mock;
+
+        beforeEach(() => {
+            const translate = TestBed.inject(TranslateService);
+            vi.mocked(translate.instant).mockImplementation((key: string | string[]) => String(key));
+            Object.assign(TestBed.inject(GridColorService), { availabilityHighlightColor: HIGHLIGHT_COLOR });
+            Object.assign(TestBed.inject(EmptyCellFormatterService), { formatCell: () => new GridCell() });
+            showAvailability = vi.fn().mockReturnValue(true);
+            availabilities = new Map([['c1', new Map([['2026-03-03', '08:00-12:00, 22:00-06:00']])]]);
+            Object.assign(dataManagement, { showAvailability, clientAvailabilities: availabilities });
+            dataManagement.clients = [{ id: 'c1' }];
+            service.rowGroupIndex = [0];
+            service.startDate = parseCalendarDate(START) as Date;
+        });
+
+        it('builds the tooltip from the label and one line per range', () => {
+            expect(service.getAvailabilityTooltipForCell(0, 1))
+                .toBe('schedule.availability.times:\n08:00 – 12:00\n22:00 – 06:00');
+        });
+
+        it('returns no tooltip and no ranges when availability is hidden', () => {
+            showAvailability.mockReturnValue(false);
+
+            expect(service.getAvailabilityTooltipForCell(0, 1)).toBeUndefined();
+            expect(service.getAvailabilityRangesForCell(0, 1)).toEqual([]);
+        });
+
+        it('returns no tooltip for a day without availability or a row without client', () => {
+            expect(service.getAvailabilityTooltipForCell(0, 0)).toBeUndefined();
+            expect(service.getAvailabilityTooltipForCell(5, 1)).toBeUndefined();
+        });
+
+        it('returns the parsed minute ranges of the day', () => {
+            expect(service.getAvailabilityRangesForCell(0, 1)).toEqual([
+                { startMinutes: 480, endMinutes: 720 },
+                { startMinutes: 1320, endMinutes: 1440 },
+                { startMinutes: 0, endMinutes: 360 },
+            ]);
+            expect(service.getAvailabilityRangesForCell(0, 0)).toEqual([]);
+        });
+
+        it('highlights an empty cell and puts the availability into its tooltip', () => {
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(undefined);
+
+            const cell = service.getCell(0, 1);
+
+            expect(cell.backgroundColor).toBe(HIGHLIGHT_COLOR);
+            expect(cell.tooltip).toBe('schedule.availability.times:\n08:00 – 12:00\n22:00 – 06:00');
+        });
+
+        it('keeps the color and tooltip of a filled cell', () => {
+            Object.assign(TestBed.inject(GridColorService), { workChangeColor: '#workchange' });
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(Object.assign(new ScheduleCell(), {
+                entryType: WorkScheduleEntryType.WorkChange,
+                workChangeType: 0,
+            }));
+
+            const cell = service.getCell(0, 1);
+
+            expect(cell.backgroundColor).toBe('#workchange');
+            expect(cell.tooltip).toBe('workChange.tooltip.correction');
+        });
+
+        it('leaves a cell untouched on a day without availability', () => {
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(undefined);
+
+            const cell = service.getCell(0, 0);
+
+            expect(cell.backgroundColor).toBeUndefined();
+            expect(cell.tooltip).toBe('');
+        });
+    });
+
+    describe('paste', () => {
+        const START = '2026-03-02';
+        let bulkWork: Mock;
+        let bulkBreak: Mock;
+        let activeCells: Set<string>;
+
+        function shift(overrides: Partial<IShiftSchedule>): IShiftSchedule {
+            return {
+                shiftId: 'shift-early',
+                date: parseCalendarDate('2026-03-04') as Date,
+                abbreviation: 'Fr',
+                startShift: '06:00:00',
+                endShift: '14:00:00',
+                workTime: 8,
+                isTimeRange: false,
+                ...overrides,
+            } as IShiftSchedule;
+        }
+
+        function entry(overrides: Partial<ScheduleCell>): ScheduleCell {
+            return Object.assign(new ScheduleCell(), overrides);
+        }
+
+        function copyEntries(cells: Record<string, ScheduleCell | undefined>, maxRow: number, maxCol: number): void {
+            const spy = vi.spyOn(service, 'getWorkScheduleEntryForCell')
+                .mockImplementation((row: number, col: number) => cells[`${row}:${col}`]);
+            service.onCopy(0, 0, maxRow, maxCol);
+            spy.mockRestore();
+        }
+
+        function dateAt(col: number): Date {
+            return service.getDateForColumn(col) as Date;
+        }
+
+        beforeEach(() => {
+            bulkWork = vi.fn();
+            bulkBreak = vi.fn();
+            activeCells = new Set<string>();
+            Object.assign(dataManagement, {
+                bulkAddWorkScheduleEntries: bulkWork,
+                bulkAddBreakScheduleEntries: bulkBreak,
+                shiftSchedules: [
+                    shift({}),
+                    shift({ shiftId: 'shift-late', abbreviation: 'Sp', startShift: '14:00:00', endShift: '22:00:00' }),
+                    shift({ shiftId: 'shift-early', date: parseCalendarDate('2026-03-05') as Date }),
+                    shift({
+                        shiftId: 'shift-range', abbreviation: 'Fl', startShift: '06:00:00', endShift: '18:00:00',
+                        workTime: 4, isTimeRange: true,
+                    }),
+                ],
+            });
+            dataManagement.clients = [{ id: 'c1' }, { id: 'c2' }, { id: '' }];
+            service.rowGroupIndex = [0, 1, 2];
+            service.startDate = parseCalendarDate(START) as Date;
+            vi.spyOn(service, 'isCellActive').mockImplementation((row: number, col: number) => activeCells.has(`${row}:${col}`));
+        });
+
+        it('pastes copied work and break entries onto the target client and days', () => {
+            copyEntries({
+                '0:0': entry({ entryType: WorkScheduleEntryType.Work, entryId: 'shift-early', startTime: '06:00:00', endTime: '14:00:00' }),
+                '0:1': entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1', startTime: '', endTime: '' }),
+                '0:2': entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-2', startTime: '10:00:00', endTime: '12:00:00' }),
+            }, 0, 2);
+
+            service.handlePaste(1, 2, [['ignored']]);
+
+            expect(bulkWork).toHaveBeenCalledTimes(1);
+            expect(bulkWork).toHaveBeenCalledWith([
+                { clientId: 'c2', date: dateAt(2), shiftId: 'shift-early', workTime: 8, startTime: '06:00:00', endTime: '14:00:00' },
+            ]);
+            expect(bulkBreak).toHaveBeenCalledTimes(1);
+            expect(bulkBreak).toHaveBeenCalledWith([
+                { clientId: 'c2', absenceId: 'absence-1', date: dateAt(3), workTime: 0, startTime: '00:00', endTime: '00:00' },
+                { clientId: 'c2', absenceId: 'absence-2', date: dateAt(4), workTime: 0, startTime: '10:00:00', endTime: '12:00:00' },
+            ]);
+        });
+
+        it('drops copied work whose shift does not exist on the target day and calls no bulk add when nothing is left', () => {
+            copyEntries({ '0:0': entry({ entryType: WorkScheduleEntryType.Work, entryId: 'shift-early' }) }, 0, 0);
+
+            service.handlePaste(0, 0, []);
+
+            expect(bulkWork).not.toHaveBeenCalled();
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('keeps the copied span of a time range shift when it fits the window', () => {
+            copyEntries({ '0:0': entry({ entryType: WorkScheduleEntryType.Work, entryId: 'shift-range', startTime: '09:00:00', endTime: '12:00:00' }) }, 0, 0);
+
+            service.handlePaste(0, 2, []);
+
+            expect(bulkWork).toHaveBeenCalledWith([
+                { clientId: 'c1', date: dateAt(2), shiftId: 'shift-range', workTime: 3, startTime: '09:00:00', endTime: '12:00:00' },
+            ]);
+        });
+
+        it('books the default placement of a time range shift when the copied span does not fit', () => {
+            copyEntries({ '0:0': entry({ entryType: WorkScheduleEntryType.Work, entryId: 'shift-range', startTime: '17:00:00', endTime: '20:00:00' }) }, 0, 0);
+
+            service.handlePaste(0, 2, []);
+
+            expect(bulkWork).toHaveBeenCalledWith([
+                { clientId: 'c1', date: dateAt(2), shiftId: 'shift-range', workTime: 4, startTime: '06:00:00', endTime: '10:00:00' },
+            ]);
+        });
+
+        function pasteCopiedBreakAt(row: number): void {
+            copyEntries({ '0:0': entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1' }) }, 0, 0);
+            service.handlePaste(row, 2, []);
+        }
+
+        it('skips a sealed target day', () => {
+            dataManagement.sealedDates = new Set([formatDateOnly(dateAt(2))]);
+
+            pasteCopiedBreakAt(0);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('skips a target day outside the membership period', () => {
+            dataManagement.clients = [{ id: 'c1', memberSince: '2026-03-05' }];
+
+            pasteCopiedBreakAt(0);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('skips a target day outside the group period', () => {
+            dataManagement.clients = [{ id: 'c1', groupItemValidUntil: '2026-03-03' }];
+
+            pasteCopiedBreakAt(0);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('skips an already filled target cell', () => {
+            activeCells.add('0:2');
+
+            pasteCopiedBreakAt(0);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('skips a target row whose client has no id', () => {
+            pasteCopiedBreakAt(2);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('skips a target row outside the visible rows', () => {
+            pasteCopiedBreakAt(7);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('keeps the other cells of a block when single targets are skipped', () => {
+            const absence = entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1' });
+            copyEntries({ '0:0': absence, '0:1': absence, '0:2': absence }, 0, 2);
+            activeCells.add('0:3');
+
+            service.handlePaste(0, 2, []);
+
+            expect(bulkBreak).toHaveBeenCalledWith([
+                { clientId: 'c1', absenceId: 'absence-1', date: dateAt(2), workTime: 0, startTime: '00:00', endTime: '00:00' },
+                { clientId: 'c1', absenceId: 'absence-1', date: dateAt(4), workTime: 0, startTime: '00:00', endTime: '00:00' },
+            ]);
+        });
+
+        it('pastes external text by trimmed, case-insensitive abbreviation on the same day only', () => {
+            service.handlePaste(0, 2, [[' fr ', 'SP', ''], ['sp', '   ', 'Fr']]);
+
+            expect(bulkWork).toHaveBeenCalledTimes(1);
+            expect(bulkWork).toHaveBeenCalledWith([
+                { clientId: 'c1', date: dateAt(2), shiftId: 'shift-early', workTime: 8, startTime: '06:00:00', endTime: '14:00:00' },
+                { clientId: 'c2', date: dateAt(2), shiftId: 'shift-late', workTime: 8, startTime: '14:00:00', endTime: '22:00:00' },
+            ]);
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('books the default placement for an external time range abbreviation', () => {
+            service.handlePaste(1, 2, [['FL']]);
+
+            expect(bulkWork).toHaveBeenCalledWith([
+                { clientId: 'c2', date: dateAt(2), shiftId: 'shift-range', workTime: 4, startTime: '06:00:00', endTime: '10:00:00' },
+            ]);
+        });
+
+        it('applies the same target checks to external text', () => {
+            dataManagement.sealedDates = new Set([formatDateOnly(dateAt(2))]);
+
+            service.handlePaste(0, 2, [['Fr']]);
+
+            expect(bulkWork).not.toHaveBeenCalled();
+        });
+
+        it('falls back to the external text after the copy was cleared', () => {
+            copyEntries({ '0:0': entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1' }) }, 0, 0);
+            service.onClearCopy();
+
+            service.handlePaste(0, 2, [['Fr']]);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+            expect(bulkWork).toHaveBeenCalledWith([
+                { clientId: 'c1', date: dateAt(2), shiftId: 'shift-early', workTime: 8, startTime: '06:00:00', endTime: '14:00:00' },
+            ]);
+        });
+
+        it('pastes a snapshot of the copied entries', () => {
+            const copied = entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1' });
+            copyEntries({ '0:0': copied }, 0, 0);
+            copied.entryId = 'changed-after-copy';
+
+            service.handlePaste(0, 2, []);
+
+            expect(bulkBreak).toHaveBeenCalledWith([
+                { clientId: 'c1', absenceId: 'absence-1', date: dateAt(2), workTime: 0, startTime: '00:00', endTime: '00:00' },
+            ]);
         });
     });
 });

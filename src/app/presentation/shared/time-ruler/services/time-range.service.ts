@@ -29,6 +29,11 @@ export class TimeRangeService {
   private readonly PADDING_WIDTH = 2;
   private readonly PADDING_CHAR = '0';
   private readonly TIME_SEPARATOR_INDEX = 2;
+  private readonly PADDING_MINUTES_DEFAULT = 30;
+  private readonly PADDING_MINUTES_SHORT = 15;
+  private readonly PADDING_MINUTES_VERY_SHORT = 10;
+  private readonly DURATION_THRESHOLD_SHORT = 6 * 60;
+  private readonly DURATION_THRESHOLD_VERY_SHORT = 3 * 60;
 
   toMinutes(time: OwnTime): number {
     return parseInt(time.hours) * this.MINUTES_PER_HOUR + parseInt(time.minutes);
@@ -54,6 +59,25 @@ export class TimeRangeService {
       hours.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR),
       minutes.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR)
     );
+  }
+
+  calculatePaddingMinutes(fromTime: OwnTime, untilTime: OwnTime): number {
+    const fromMinutes = this.toMinutes(fromTime);
+    let untilMinutes = this.toMinutes(untilTime);
+
+    if (untilMinutes <= fromMinutes) {
+      untilMinutes += this.MINUTES_PER_DAY;
+    }
+
+    const durationMinutes = untilMinutes - fromMinutes;
+
+    if (durationMinutes <= this.DURATION_THRESHOLD_VERY_SHORT) {
+      return this.PADDING_MINUTES_VERY_SHORT;
+    } else if (durationMinutes <= this.DURATION_THRESHOLD_SHORT) {
+      return this.PADDING_MINUTES_SHORT;
+    } else {
+      return this.PADDING_MINUTES_DEFAULT;
+    }
   }
 
   calculateDisplayRange(

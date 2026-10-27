@@ -23,6 +23,11 @@ import { FloorPlanCanvasComponent } from '../floor-plan-canvas/floor-plan-canvas
 import { FloorPlanListComponent } from '../floor-plan-list/floor-plan-list.component';
 import { FloorPlanPrintPreviewComponent } from '../floor-plan-print-preview/floor-plan-print-preview.component';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+import { FloorPlanCanvasMarkerService } from '../services/floor-plan-canvas-marker.service';
+import { FloorPlanShapeService } from '../services/floor-plan-shape.service';
+import { FloorPlanPolygonDrawingService } from '../services/floor-plan-polygon-drawing.service';
+import { FloorPlanObjectEditService } from '../services/floor-plan-object-edit.service';
+import { FloorPlanObjectStyleService } from '../services/floor-plan-object-style.service';
 import { ILiveMarkerDisplay } from '../services/live-marker-display.interface';
 import { ILiveMarkerEntry } from '../services/live-marker-entry.interface';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
@@ -70,6 +75,11 @@ const ZOOM_PERCENT_DIVISOR = 100;
   styleUrls: ['./floor-plan-home.component.scss'],
   providers: [
     FloorPlanCanvasService,
+    FloorPlanShapeService,
+    FloorPlanPolygonDrawingService,
+    FloorPlanObjectEditService,
+    FloorPlanObjectStyleService,
+    FloorPlanCanvasMarkerService,
     FloorPlanLayerService,
     FloorPlanToolService,
     FloorPlanImportService,
@@ -86,6 +96,7 @@ const ZOOM_PERCENT_DIVISOR = 100;
 export class FloorPlanHomeComponent implements OnInit {
   dataManagement = inject(DataManagementFloorPlanService);
   canvasService = inject(FloorPlanCanvasService);
+  private readonly markerService = inject(FloorPlanCanvasMarkerService);
   private workplaceHost = inject(PLUGIN_WORKPLACE_HOST);
   private workScheduleReader = inject(PLUGIN_WORK_SCHEDULE_READER);
   private enrichmentService = inject(FloorPlanMarkerEnrichmentService);
@@ -217,9 +228,9 @@ export class FloorPlanHomeComponent implements OnInit {
         };
       });
 
-      this.canvasService.renderLiveMarkers(liveMarkers);
+      this.markerService.renderLiveMarkers(liveMarkers);
     } catch {
-      this.canvasService.clearLiveMarkers();
+      this.markerService.clearLiveMarkers();
     } finally {
       this.isLoadingWorks.set(false);
       if (this.viewMode() === 'print') {

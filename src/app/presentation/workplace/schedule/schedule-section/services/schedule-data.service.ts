@@ -13,6 +13,7 @@
  * - Used by: ScheduleSectionComponent, ScheduleContextMenuService
  * - Uses: DataManagementScheduleService for raw schedule data
  * - Uses: Cell formatter services for display formatting
+ * - Uses: schedule-paste.helper for the copy/paste rules
  */
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -25,10 +26,8 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, formatDateOnly, getDayIndex } from 'src/app/domain/helpers/date.helper';
-import { calendarDateKey, companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
-import { hoursToHHMM, timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
-import { defaultTimeRangePlacement, resolveTimeRangePlacement } from 'src/app/shared/helpers/time-range-placement.helper';
-import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule.interface';
+import { calendarDateKey, companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { hoursToHHMM } from 'src/app/domain/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -42,17 +41,17 @@ import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { ScheduleCommandCellFormatterService } from './cell-formatters/schedule-command-cell-formatter.service';
-import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
+import { WorkChangeCellFormatterService } from './cell-formatters/work-change-cell-formatter.service';
+import { collectCopiedCellsPaste, collectTextPaste } from './schedule-paste.helper';
+import { ISchedulePasteTarget } from './schedule-paste-target.interface';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-placeholder.interface';
-import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
-import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { parseAvailabilityRanges } from 'src/app/shared/helpers/availability-range.helper';
+import { formatAvailabilityTooltip } from 'src/app/domain/helpers/availability-tooltip.helper';
+
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { breakWorkTimeToCarry } from 'src/app/domain/helpers/break-duration.helper';
 const GROUP_PERIOD_RESTRICTED_COLOR = 'rgba(70, 130, 180, 0.25)';
-const NO_TIME = '00:00';
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -66,6 +65,7 @@ export class ScheduleDataService extends BaseDataService {
   private breakFormatter = inject(BreakCellFormatterService);
   private scheduleNoteFormatter = inject(ScheduleNoteCellFormatterService);
   private scheduleCommandFormatter = inject(ScheduleCommandCellFormatterService);
+  private workChangeFormatter = inject(WorkChangeCellFormatterService);
   private gridColorService = inject(GridColorService);
   private absenceLookup = inject(AbsenceLookupService);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
@@ -108,7 +108,7 @@ export class ScheduleDataService extends BaseDataService {
           break;
         case WorkScheduleEntryType.WorkChange:
         case WorkScheduleEntryType.Expenses:
-          cell = this.formatWorkChangeCell(entry);
+          cell = this.workChangeFormatter.formatCell(entry);
           break;
         case WorkScheduleEntryType.ScheduleNote:
           cell = this.scheduleNoteFormatter.formatCell(entry);
@@ -564,242 +564,44 @@ export class ScheduleDataService extends BaseDataService {
     startCol: number,
     data: string[][],
   ): void {
+    const resolveTarget = (row: number, col: number) => this.resolvePasteTarget(row, col);
+    const shiftSchedules = this.dataManagementSchedule.shiftSchedules;
+
     if (this.copiedCells.length > 0) {
-      this.handlePasteFromCopiedCells(startRow, startCol);
+      const { workEntries, breakEntries } = collectCopiedCellsPaste(
+        this.copiedCells, startRow, startCol, shiftSchedules, resolveTarget,
+      );
+      if (workEntries.length > 0) {
+        this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntries);
+      }
+      if (breakEntries.length > 0) {
+        this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntries);
+      }
       return;
     }
 
-    this.handleExternalTextPaste(startRow, startCol, data);
-  }
-
-  /**
-   * Handles paste operation using internally stored copied cells.
-   *
-   * IMPORTANT - Availability check differences:
-   * - Work/Shift: REQUIRES availability check (quantity * sumEmployees limit)
-   *   The shift must have remaining capacity before a work entry can be created.
-   * - Break/Absence: NO availability check needed.
-   *   Breaks can be created without any capacity restrictions.
-   */
-  private handlePasteFromCopiedCells(startRow: number, startCol: number): void {
-    const workEntriesToAdd: {
-      clientId: string;
-      date: Date;
-      shiftId: string;
-      workTime: number;
-      startTime: string;
-      endTime: string;
-    }[] = [];
-
-    const breakEntriesToAdd: BreakCellParams[] = [];
-
-    for (let rowOffset = 0; rowOffset < this.copiedCells.length; rowOffset++) {
-      const rowData = this.copiedCells[rowOffset];
-      for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
-        const copiedEntry = rowData[colOffset];
-        if (!copiedEntry) continue;
-
-        const targetRow = startRow + rowOffset;
-        const targetCol = startCol + colOffset;
-
-        if (this.isColumnSealed(targetCol)) continue;
-        if (this.isCellOutsideMembershipPeriod(targetRow, targetCol)) continue;
-        if (this.isCellOutsideGroupPeriod(targetRow, targetCol)) continue;
-        if (this.isCellActive(targetRow, targetCol)) continue;
-
-        const clientIndex = this.rowGroupIndex[targetRow];
-        if (clientIndex === undefined) continue;
-
-        const client = this.dataManagementSchedule.clients[clientIndex];
-        if (!client || !client.id) continue;
-
-        const date = this.getDateForColumn(targetCol);
-        if (!date) continue;
-
-        if (copiedEntry.entryType === WorkScheduleEntryType.Break) {
-          breakEntriesToAdd.push({
-            clientId: client.id,
-            absenceId: copiedEntry.entryId,
-            date: date,
-            workTime: breakWorkTimeToCarry(copiedEntry.startTime, copiedEntry.endTime, copiedEntry.changeTime),
-            startTime: copiedEntry.startTime || NO_TIME,
-            endTime: copiedEntry.endTime || NO_TIME,
-          });
-        } else {
-          const matchingShift = this.findShiftByIdAndDate(copiedEntry.entryId, date);
-          if (matchingShift) {
-            workEntriesToAdd.push({
-              clientId: client.id,
-              date: date,
-              shiftId: matchingShift.shiftId,
-              ...this.bulkWorkTimes(matchingShift, copiedEntry),
-            });
-          }
-        }
-      }
-    }
-
-    if (workEntriesToAdd.length > 0) {
-      this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntriesToAdd);
-    }
-
-    if (breakEntriesToAdd.length > 0) {
-      this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntriesToAdd);
+    const workEntries = collectTextPaste(data, startRow, startCol, shiftSchedules, resolveTarget);
+    if (workEntries.length > 0) {
+      this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntries);
     }
   }
 
-  /**
-   * Handles paste from external sources (Excel, text).
-   * Only supports Work/Shift entries (by abbreviation).
-   * Break/Absence paste is NOT supported here - use internal copy/paste instead.
-   */
-  private handleExternalTextPaste(
-    startRow: number,
-    startCol: number,
-    data: string[][],
-  ): void {
-    const workEntriesToAdd: {
-      clientId: string;
-      date: Date;
-      shiftId: string;
-      workTime: number;
-      startTime: string;
-      endTime: string;
-    }[] = [];
+  private resolvePasteTarget(row: number, col: number): ISchedulePasteTarget | undefined {
+    if (this.isColumnSealed(col)) return undefined;
+    if (this.isCellOutsideMembershipPeriod(row, col)) return undefined;
+    if (this.isCellOutsideGroupPeriod(row, col)) return undefined;
+    if (this.isCellActive(row, col)) return undefined;
 
-    for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
-      const rowData = data[rowOffset];
-      for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
-        const abbreviation = rowData[colOffset].trim();
-        if (!abbreviation) continue;
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return undefined;
 
-        const targetRow = startRow + rowOffset;
-        const targetCol = startCol + colOffset;
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client || !client.id) return undefined;
 
-        if (this.isColumnSealed(targetCol)) continue;
-        if (this.isCellOutsideMembershipPeriod(targetRow, targetCol)) continue;
-        if (this.isCellOutsideGroupPeriod(targetRow, targetCol)) continue;
-        if (this.isCellActive(targetRow, targetCol)) continue;
+    const date = this.getDateForColumn(col);
+    if (!date) return undefined;
 
-        const clientIndex = this.rowGroupIndex[targetRow];
-        if (clientIndex === undefined) continue;
-
-        const client = this.dataManagementSchedule.clients[clientIndex];
-        if (!client || !client.id) continue;
-
-        const date = this.getDateForColumn(targetCol);
-        if (!date) continue;
-
-        const matchingShift = this.findShiftByAbbreviationAndDate(abbreviation, date);
-        if (matchingShift) {
-          workEntriesToAdd.push({
-            clientId: client.id,
-            date: date,
-            shiftId: matchingShift.shiftId,
-            ...this.bulkWorkTimes(matchingShift),
-          });
-        }
-      }
-    }
-
-    if (workEntriesToAdd.length > 0) {
-      this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntriesToAdd);
-    }
-  }
-
-  private findShiftByAbbreviationAndDate(abbreviation: string, date: Date): IShiftSchedule | undefined {
-    const upperAbbr = abbreviation.toUpperCase();
-    return this.dataManagementSchedule.shiftSchedules.find(
-      (shift) =>
-        shift.abbreviation.toUpperCase() === upperAbbr &&
-        isSameCalendarDate(shift.date, date),
-    );
-  }
-
-  private findShiftByIdAndDate(shiftId: string, date: Date): IShiftSchedule | undefined {
-    return this.dataManagementSchedule.shiftSchedules.find(
-      (shift) => shift.shiftId === shiftId && isSameCalendarDate(shift.date, date),
-    );
-  }
-
-  /**
-   * Times for a pasted shift. A fixed shift books its own times. A TimeRange shift never books its window:
-   * a copied work keeps the span it was given, anything else gets the engagement duration at the window
-   * start - a bulk paste cannot ask per cell.
-   * @param shift - The shift schedule row for the target day
-   * @param copiedEntry - The copied cell, when the paste comes from inside the schedule
-   */
-  private bulkWorkTimes(
-    shift: IShiftSchedule,
-    copiedEntry?: IScheduleCell,
-  ): { workTime: number; startTime: string; endTime: string } {
-    if (!shift.isTimeRange) {
-      return { workTime: shift.workTime, startTime: shift.startShift, endTime: shift.endShift };
-    }
-
-    if (copiedEntry?.startTime && copiedEntry.endTime) {
-      const copiedPlacement = resolveTimeRangePlacement(
-        shift.startShift,
-        shift.endShift,
-        timeToMinutes(copiedEntry.startTime),
-        timeToMinutes(copiedEntry.endTime),
-      );
-      if (copiedPlacement) {
-        return {
-          workTime: copiedPlacement.workTime,
-          startTime: copiedPlacement.startTime,
-          endTime: copiedPlacement.endTime,
-        };
-      }
-    }
-
-    const { workTime, startTime, endTime } = defaultTimeRangePlacement(
-      shift.startShift,
-      shift.endShift,
-      shift.workTime,
-    );
-    return { workTime, startTime, endTime };
-  }
-
-  private findAbsenceByAbbreviation(
-    abbreviation: string,
-  ): { absenceId: string; startTime?: string; endTime?: string } | undefined {
-    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
-    const upperAbbr = abbreviation.toUpperCase();
-    const absences = this.absenceLookup.absences();
-    const details = this.absenceLookup.absenceDetails();
-
-    for (const detail of details) {
-      if (!detail.id || !detail.absenceId) continue;
-      const absence = absences.find((a) => a.id === detail.absenceId);
-      if (!absence?.abbreviation) continue;
-
-      const detailAbbr = this.getLocalizedAbbreviation(absence.abbreviation, language);
-      if (detailAbbr.toUpperCase() === upperAbbr) {
-        return {
-          absenceId: detail.absenceId,
-          startTime: detail.startTime,
-          endTime: detail.endTime,
-        };
-      }
-    }
-
-    for (const absence of absences) {
-      if (!absence.id || !absence.abbreviation) continue;
-      const abbrValue = this.getLocalizedAbbreviation(absence.abbreviation, language);
-      if (abbrValue.toUpperCase() === upperAbbr) {
-        return { absenceId: absence.id };
-      }
-    }
-
-    return undefined;
-  }
-
-  private getLocalizedAbbreviation(
-    abbreviation: { de?: string; en?: string; fr?: string; it?: string } | undefined,
-    language: string,
-  ): string {
-    return getLocalizedValue(abbreviation, language);
+    return { clientId: client.id, date };
   }
 
   findFirstRowByShiftIdAndColumn(shiftId: string, column: number): number {
@@ -848,91 +650,6 @@ export class ScheduleDataService extends BaseDataService {
   }
 
 
-  private formatWorkChangeCell(entry: IScheduleCell): GridCell {
-    const cell = new GridCell();
-    cell.cellType = CellTypeEnum.Standard;
-    cell.mainText = this.getWorkChangeAbbreviation(entry);
-
-    if (entry.entryType === WorkScheduleEntryType.Expenses) {
-      cell.firstSubText = '';
-      cell.secondSubText = this.formatAmount(entry.amount);
-      cell.backgroundColor = this.gridColorService.surchargeColor;
-      cell.tooltip = entry.taxable
-        ? this.translateService.instant('workChange.tooltip.reimbursement')
-        : this.translateService.instant('workChange.tooltip.expenses');
-    } else {
-      cell.firstSubText = this.formatWorkChangeTime(entry.changeTime);
-      cell.secondSubText = formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
-      cell.backgroundColor = this.gridColorService.workChangeColor;
-      cell.tooltip = this.resolveWorkChangeTooltip(entry);
-    }
-
-    cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
-
-    return cell;
-  }
-
-  private resolveWorkChangeTooltip(entry: IScheduleCell): string {
-    if (entry.replaceClientId) {
-      return this.translateService.instant('workChange.tooltip.replacement');
-    }
-    const type = entry.workChangeType;
-    if (type === 4 || type === 5 || type === 6) {
-      return this.translateService.instant('workChange.tooltip.travel');
-    }
-    if (type === 7 || type === 8) {
-      return this.translateService.instant('workChange.tooltip.briefing');
-    }
-    return this.translateService.instant('workChange.tooltip.correction');
-  }
-
-  private getWorkChangeAbbreviation(entry: IScheduleCell): string {
-    if (entry.entryType === WorkScheduleEntryType.Expenses) {
-      return entry.taxable
-        ? this.translateService.instant('workChange.abbr.reimbursement')
-        : this.translateService.instant('workChange.abbr.expenses');
-    }
-
-    if (entry.replaceClientId) {
-      return this.translateService.instant('workChange.abbr.replacement');
-    }
-
-    const key = this.getWorkChangeAbbreviationKey(entry.workChangeType);
-    return this.translateService.instant(key);
-  }
-
-  private getWorkChangeAbbreviationKey(workChangeType: number | null | undefined): string {
-    switch (workChangeType) {
-      case 4:
-        return 'workChange.abbr.travelStart';
-      case 5:
-        return 'workChange.abbr.travelEnd';
-      case 6:
-        return 'workChange.abbr.travelWithin';
-      case 7:
-        return 'workChange.abbr.briefing';
-      case 8:
-        return 'workChange.abbr.debriefing';
-      default:
-        return 'workChange.abbr.correction';
-    }
-  }
-
-  private formatAmount(amount: number | null): string {
-    if (amount === null || amount === 0) return '';
-    return amount.toFixed(2);
-  }
-
-  private formatWorkChangeTime(hours: number | null): string {
-    if (hours === null || hours === 0) return '';
-    const wholeHours = Math.floor(Math.abs(hours));
-    const mins = Math.round((Math.abs(hours) - wholeHours) * 60);
-    const sign = hours < 0 ? '-' : '';
-    if (wholeHours === 0) return `${sign}${mins}m`;
-    if (mins === 0) return `${sign}${wholeHours}h`;
-    return `${sign}${wholeHours}h ${mins}m`;
-  }
-
   private applyNoteColSpan(cell: GridCell, row: number, startCol: number): void {
     const maxCol = this.columns;
     let emptySpan = 1;
@@ -963,15 +680,7 @@ export class ScheduleDataService extends BaseDataService {
     if (!this.dataManagementSchedule.showAvailability()) {
       return undefined;
     }
-    const clientIndex = this.rowGroupIndex[row];
-    if (clientIndex === undefined) return undefined;
-    const client = this.dataManagementSchedule.clients[clientIndex];
-    if (!client?.id) return undefined;
-    const date = this.getDateForColumn(col);
-    if (!date) return undefined;
-    const availability = this.dataManagementSchedule.clientAvailabilities
-      .get(client.id)
-      ?.get(formatDateOnly(date));
+    const availability = this.getAvailabilityForCell(row, col);
     if (!availability) return undefined;
     return this.formatAvailabilityTooltip(availability);
   }
@@ -983,15 +692,7 @@ export class ScheduleDataService extends BaseDataService {
     if (!this.dataManagementSchedule.showAvailability()) {
       return [];
     }
-    const clientIndex = this.rowGroupIndex[row];
-    if (clientIndex === undefined) return [];
-    const client = this.dataManagementSchedule.clients[clientIndex];
-    if (!client?.id) return [];
-    const date = this.getDateForColumn(col);
-    if (!date) return [];
-    const availability = this.dataManagementSchedule.clientAvailabilities
-      .get(client.id)
-      ?.get(formatDateOnly(date));
+    const availability = this.getAvailabilityForCell(row, col);
     if (!availability) return [];
 
     return parseAvailabilityRanges(availability);
@@ -1003,20 +704,7 @@ export class ScheduleDataService extends BaseDataService {
     col: number,
     isEmpty: boolean,
   ): void {
-    const clientIndex = this.rowGroupIndex[row];
-    if (clientIndex === undefined) return;
-
-    const client = this.dataManagementSchedule.clients[clientIndex];
-    if (!client?.id) return;
-
-    const date = this.getDateForColumn(col);
-    if (!date) return;
-
-    const dateKey = formatDateOnly(date);
-    const availability = this.dataManagementSchedule.clientAvailabilities
-      .get(client.id)
-      ?.get(dateKey);
-
+    const availability = this.getAvailabilityForCell(row, col);
     if (!availability) return;
 
     if (!cell.backgroundColor) {
@@ -1028,19 +716,22 @@ export class ScheduleDataService extends BaseDataService {
     }
   }
 
-  private formatAvailabilityTooltip(rangesString: string): string {
-    const ranges = rangesString.split(',');
-    const formattedRanges = ranges
-      .map(range => {
-        const parts = range.trim().split('-');
-        if (parts.length === 2) {
-          return `${parts[0]} – ${parts[1]}`;
-        }
-        return range;
-      })
-      .join('\n');
+  private getAvailabilityForCell(row: number, col: number): string | undefined {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return undefined;
 
-    const label = this.translateService.instant('schedule.availability.times');
-    return `${label}:\n${formattedRanges}`;
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client?.id) return undefined;
+
+    const date = this.getDateForColumn(col);
+    if (!date) return undefined;
+
+    return this.dataManagementSchedule.clientAvailabilities
+      .get(client.id)
+      ?.get(formatDateOnly(date));
+  }
+
+  private formatAvailabilityTooltip(rangesString: string): string {
+    return formatAvailabilityTooltip(rangesString, this.translateService.instant('schedule.availability.times'));
   }
 }

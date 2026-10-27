@@ -14,8 +14,6 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { SettingsExpertModeService } from 'src/app/domain/services/settings/settings-expert-mode.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
-import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
-import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
@@ -36,31 +34,15 @@ import { LLMModelsComponent } from '../llm-models/llm-models.component';
 import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
 import { LlmSyncLogComponent } from '../llm-sync-log/llm-sync-log.component';
 import { KlacksyModelCheckComponent } from '../klacksy-model-check/klacksy-model-check.component';
-import { OpenrouteComponent } from '../openroute/openroute.component';
-import { GeoServicesStatusComponent } from '../geo-services-status/geo-services-status.component';
-import { DeeplComponent } from '../deepl/deepl.component';
-import { WebSearchComponent } from '../web-search/web-search.component';
-import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
 import { ErpDropPointsComponent } from '../erp-drop-points/erp-drop-points.component';
 import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
 import { ReportsComponent } from '../reports/reports.component';
 import { ReportDefaultsComponent } from '../reports/report-defaults/report-defaults.component';
-import { SchedulingRulesComponent } from '../scheduling-rules/scheduling-rules.component';
-import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setting/scheduling-defaults-setting.component';
 import { ImapSettingComponent } from '../imap-setting/imap-setting.component';
 import { SpamRulesComponent } from '../spam-rules/spam-rules.component';
 import { LanguagePluginsComponent } from '../language-plugins/language-plugins.component';
-import { MessagingProvidersComponent, OwnerMessengersComponent } from 'klacks-plugin-messaging';
 import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.component';
-import { AssistantSpeechSettingsComponent } from '../assistant-speech-settings/assistant-speech-settings.component';
-import { WhisperPluginSettingComponent } from '../whisper-plugin-setting/whisper-plugin-setting.component';
-import { AssistantPersonalitySettingsComponent } from '../assistant-personality-settings/assistant-personality-settings.component';
-import { AssistantLearningComponent } from '../assistant-learning/assistant-learning.component';
-import { AssistantSkillRelationsComponent } from '../assistant-skill-relations/assistant-skill-relations.component';
-import { KlacksyAutonomySettingsComponent } from '../klacksy-autonomy-settings/klacksy-autonomy-settings.component';
-import { KlacksyProactiveGovernanceComponent } from '../klacksy-proactive-governance/klacksy-proactive-governance.component';
-import { WizardSettingsComponent } from '../wizard-settings/wizard-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
 import { ExportFormatsSettingComponent } from '../export-formats-setting/export-formats-setting.component';
@@ -68,26 +50,18 @@ import { ExportFormatOverridesSettingComponent } from '../export-format-override
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { ClientImportCardComponent } from '../client-import-card/client-import-card.component';
-import { IndividualPeriodsComponent } from '../individual-periods/individual-periods.component';
-import { MonthlyTargetHoursComponent } from '../monthly-target-hours/monthly-target-hours.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
-import { CompensatoryRestSettingsComponent } from '../compensatory-rest-settings/compensatory-rest-settings.component';
-import { SurchargeModeSettingsComponent } from '../surcharge-mode-settings/surcharge-mode-settings.component';
-import { OvertimeSettingsComponent } from '../overtime-settings/overtime-settings.component';
-import { ComplianceEnforcementSettingsComponent } from '../compliance-enforcement-settings/compliance-enforcement-settings.component';
-import { CounterRulesComponent } from '../counter-rules/counter-rules.component';
-import { PeriodCapRulesComponent } from '../period-cap-rules/period-cap-rules.component';
-import { RestrictedTimeWindowRulesComponent } from '../restricted-time-window-rules/restricted-time-window-rules.component';
-import { HolidayWorkExemptionsComponent } from '../holiday-work-exemptions/holiday-work-exemptions.component';
-import { ActiveIndustriesSettingsComponent } from '../active-industries-settings/active-industries-settings.component';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
-import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
 import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { SETTINGS_TARGET_SECTIONS } from './settings-target-sections.constants';
+import { SettingsSectionHeaderComponent } from './settings-section-header/settings-section-header.component';
+import { SettingsWorkSectionComponent } from './settings-work-section/settings-work-section.component';
+import { SettingsComplianceSectionComponent } from './settings-compliance-section/settings-compliance-section.component';
+import { SettingsKlacksySectionComponent } from './settings-klacksy-section/settings-klacksy-section.component';
+import { SettingsExternalServicesSectionComponent } from './settings-external-services-section/settings-external-services-section.component';
 import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from './settings-expert-mode.constants';
 
 @Component({
@@ -100,10 +74,13 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     FormsModule,
     NgbModule,
     SpinnerModule,
-    IconAngleDownComponent,
-    IconAngleRightComponent,
     IconCollapseAllGreyComponent,
     IconExpandAllGreyComponent,
+    SettingsSectionHeaderComponent,
+    SettingsWorkSectionComponent,
+    SettingsComplianceSectionComponent,
+    SettingsKlacksySectionComponent,
+    SettingsExternalServicesSectionComponent,
     SettingsGeneralComponent,
     OwnerAddressComponent,
     CountriesComponent,
@@ -122,32 +99,15 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     LLMProvidersComponent,
     LlmSyncLogComponent,
     KlacksyModelCheckComponent,
-    OpenrouteComponent,
-    GeoServicesStatusComponent,
-    DeeplComponent,
-    WebSearchComponent,
-    WorkSettingComponent,
     IdentityProvidersComponent,
     ErpDropPointsComponent,
     AbsenceDetailComponent,
     ReportsComponent,
     ReportDefaultsComponent,
-    SchedulingRulesComponent,
-    SchedulingDefaultsSettingComponent,
     ImapSettingComponent,
     SpamRulesComponent,
     LanguagePluginsComponent,
-    MessagingProvidersComponent,
-    OwnerMessengersComponent,
     FeaturePluginsComponent,
-    AssistantSpeechSettingsComponent,
-    WhisperPluginSettingComponent,
-    AssistantPersonalitySettingsComponent,
-    AssistantLearningComponent,
-    AssistantSkillRelationsComponent,
-    KlacksyAutonomySettingsComponent,
-    KlacksyProactiveGovernanceComponent,
-    WizardSettingsComponent,
     CalendarSelectionComponent,
     DataRetentionSettingComponent,
     ExportFormatsSettingComponent,
@@ -155,18 +115,7 @@ import { SETTINGS_EXPERT_MODE_CARD_TARGETS, SETTINGS_EXPERT_MODE_SECTIONS } from
     UpdatesSettingComponent,
     QualificationsComponent,
     ClientImportCardComponent,
-    IndividualPeriodsComponent,
-    MonthlyTargetHoursComponent,
     PersonalAccessTokensComponent,
-    CompensatoryRestSettingsComponent,
-    SurchargeModeSettingsComponent,
-    OvertimeSettingsComponent,
-    ComplianceEnforcementSettingsComponent,
-    CounterRulesComponent,
-    PeriodCapRulesComponent,
-    RestrictedTimeWindowRulesComponent,
-    HolidayWorkExemptionsComponent,
-    ActiveIndustriesSettingsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -180,9 +129,7 @@ export class SettingsHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
-  public featurePluginState = inject(FeaturePluginStateService);
   public authorizationService = inject(AuthorizationService);
-  public messagingPluginName = MESSAGING_PLUGIN_NAME;
 
   private eventBus = inject(EVENT_BUS_TOKEN);
   private readonly destroyRef = inject(DestroyRef);

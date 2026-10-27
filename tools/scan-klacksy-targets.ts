@@ -34,7 +34,8 @@
  * their actionPermission may differ (new-group vs edit-group).
  *
  * Settings section-coverage guard (design spec section 3.7): every target
- * scanned from settings-home.component.html must be reachable through a
+ * scanned from settings-home.component.html or from one of its section templates
+ * (SETTINGS_HOME_SOURCE_FILES) must be reachable through a
  * collapsible section, i.e. present in SETTINGS_TARGET_SECTIONS, or be
  * explicitly listed in SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST below
  * with a reason. Otherwise Klacksy would ask the page to auto-expand a
@@ -114,8 +115,14 @@ const SETTINGS_TARGET_SECTIONS_FILE = resolve(
   UI_ROOT,
   'src/app/presentation/workplace/settings/settings-home/settings-target-sections.constants.ts',
 );
-const SETTINGS_HOME_SOURCE_FILE =
-  'src/app/presentation/workplace/settings/settings-home/settings-home.component.html';
+const SETTINGS_HOME_DIR = 'src/app/presentation/workplace/settings/settings-home';
+const SETTINGS_HOME_SOURCE_FILES: ReadonlySet<string> = new Set([
+  `${SETTINGS_HOME_DIR}/settings-home.component.html`,
+  `${SETTINGS_HOME_DIR}/settings-work-section/settings-work-section.component.html`,
+  `${SETTINGS_HOME_DIR}/settings-compliance-section/settings-compliance-section.component.html`,
+  `${SETTINGS_HOME_DIR}/settings-klacksy-section/settings-klacksy-section.component.html`,
+  `${SETTINGS_HOME_DIR}/settings-external-services-section/settings-external-services-section.component.html`,
+]);
 const SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST: ReadonlySet<string> = new Set([]);
 const ROUTE_QUERY_STRING_SEPARATOR = '?';
 // Kept short and stable on purpose: SkillSeedDescriptionQualityTests caps skill descriptions at
@@ -425,7 +432,7 @@ function readSettingsTargetSections(): Record<string, string> {
 function checkSettingsSectionCoverage(targets: TargetEntry[]): void {
   const sections = readSettingsTargetSections();
   const missing = targets
-    .filter((t) => !t.obsolete && t.sourceFile === SETTINGS_HOME_SOURCE_FILE)
+    .filter((t) => !t.obsolete && SETTINGS_HOME_SOURCE_FILES.has(t.sourceFile))
     .map((t) => t.targetId)
     .filter((id) => !(id in sections) && !SETTINGS_HOME_NON_COLLAPSIBLE_TARGET_ALLOWLIST.has(id));
   if (missing.length > 0) {

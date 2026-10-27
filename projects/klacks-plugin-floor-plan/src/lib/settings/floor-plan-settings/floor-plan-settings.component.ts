@@ -28,6 +28,11 @@ import { FloorPlanLayerPanelComponent } from '@floor-plan-plugin/floor-plan-laye
 import { FloorPlanWorkPanelComponent } from '@floor-plan-plugin/floor-plan-work-panel/floor-plan-work-panel.component';
 import { FloorPlanPropertyPanelComponent } from '@floor-plan-plugin/floor-plan-property-panel/floor-plan-property-panel.component';
 import { FloorPlanCanvasService } from '@floor-plan-plugin/services/floor-plan-canvas.service';
+import { FloorPlanCanvasMarkerService } from '@floor-plan-plugin/services/floor-plan-canvas-marker.service';
+import { FloorPlanShapeService } from '@floor-plan-plugin/services/floor-plan-shape.service';
+import { FloorPlanPolygonDrawingService } from '@floor-plan-plugin/services/floor-plan-polygon-drawing.service';
+import { FloorPlanObjectEditService } from '@floor-plan-plugin/services/floor-plan-object-edit.service';
+import { FloorPlanObjectStyleService } from '@floor-plan-plugin/services/floor-plan-object-style.service';
 import { FloorPlanLayerService } from '@floor-plan-plugin/services/floor-plan-layer.service';
 import { FloorPlanToolService } from '@floor-plan-plugin/services/floor-plan-tool.service';
 import { FloorPlanImportService } from '@floor-plan-plugin/services/floor-plan-import.service';
@@ -60,6 +65,11 @@ const DELETE_CONFIRMATION_CONTEXT = 'floor-plan-settings';
   styleUrls: ['./floor-plan-settings.component.scss'],
   providers: [
     FloorPlanCanvasService,
+    FloorPlanShapeService,
+    FloorPlanPolygonDrawingService,
+    FloorPlanObjectEditService,
+    FloorPlanObjectStyleService,
+    FloorPlanCanvasMarkerService,
     FloorPlanLayerService,
     FloorPlanToolService,
     FloorPlanImportService,
@@ -79,6 +89,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
 
   dataManagement = inject(DataManagementFloorPlanService);
   canvasService = inject(FloorPlanCanvasService);
+  private readonly markerService = inject(FloorPlanCanvasMarkerService);
   connectorService = inject(FloorPlanConnectorService);
   private ngbModal = inject(NgbModal);
   private deleteConfirmation = inject(PLUGIN_DELETE_CONFIRMATION);
@@ -158,7 +169,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     saveTarget.canvasJson = this.canvasService.toJSON();
     saveTarget.thumbnailData = this.canvasService.toDataURL();
 
-    const canvasMarkers = this.canvasService.extractWorkMarkers(saveTarget.id || '');
+    const canvasMarkers = this.markerService.extractWorkMarkers(saveTarget.id || '');
     saveTarget.workMarkers = this.mergeMarkersWithCanvasPositions(
       this.editingPlan.workMarkers ?? [],
       canvasMarkers
@@ -229,7 +240,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
           this.connectorService.rebuildAfterLoad();
         }
         if (this.editingPlan?.workMarkers) {
-          this.canvasService.renderWorkMarkers(this.editingPlan.workMarkers);
+          this.markerService.renderWorkMarkers(this.editingPlan.workMarkers);
         }
       }, 100);
     }, 0);

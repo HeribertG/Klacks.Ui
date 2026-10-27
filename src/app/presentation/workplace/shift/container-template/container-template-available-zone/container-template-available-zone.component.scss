@@ -1,0 +1,191 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+
+:host {
+  display: contents;
+}
+
+p {
+  color: var(--colorInactive);
+  line-height: 1.6;
+}
+
+.loading-indicator,
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--colorLabel);
+  font-weight: 500;
+  font-size: var(--fontSizeLabel);
+}
+
+.tabs-container {
+  border-bottom: 1px solid var(--colorLine);
+  background-color: var(--backgroundColorCard);
+  padding: 0.5rem 1rem 0;
+
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+
+    .tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--paginationBorderColor);
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      background-color: var(--backgroundColoPagination);
+      color: var(--colorLabel);
+      cursor: pointer;
+      font-size: var(--fontSizeLabel);
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      position: relative;
+      bottom: -1px;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &.active {
+        background-color: var(--backgroundColoPaginationSelected);
+        color: var(--coloPaginationSelected);
+        border-color: var(--paginationBorderColorSelected);
+        border-bottom: 1px solid var(--backgroundColoPaginationSelected);
+      }
+    }
+  }
+}
+
+.shifts-grid-container {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .shifts-grid {
+    flex: 1;
+    overflow: auto;
+
+    .shifts-table {
+      width: auto;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 100%;
+
+      th,
+      td {
+        min-width: 120px;
+        white-space: nowrap;
+
+        &.icon-column {
+          min-width: 28px;
+          width: 28px;
+        }
+
+        &.action-column {
+          min-width: 50px;
+          width: 50px;
+          max-width: 50px;
+        }
+      }
+
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+
+        th {
+          @extend .table-header;
+          padding: 0.75rem 1rem;
+          text-align: start;
+          white-space: nowrap;
+          text-transform: uppercase;
+          background-color: var(--backgroundColorCard);
+          border-bottom: 1px solid var(--colorLine);
+
+          &.icon-column {
+            width: 28px;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          @extend .table-row;
+          cursor: move;
+
+          &.cdk-drag-placeholder {
+            opacity: 0.3;
+          }
+
+          &.selected {
+            background-color: var(
+              --backgroundColoPaginationSelected
+            ) !important;
+            border-inline-start: 3px solid
+              var(--paginationBorderColorSelected);
+
+            &:hover {
+              background-color: var(
+                --backgroundColoPaginationSelected
+              ) !important;
+            }
+          }
+
+          td {
+            @extend .table-cell;
+            padding: 0.75rem 1rem;
+
+            &.icon-column {
+              width: 28px;
+              padding: 0.75rem 0.5rem;
+              text-align: center;
+            }
+
+            &:first-child {
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+
+    .no-shifts {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      color: var(--colorLabel);
+      font-weight: 500;
+      font-size: var(--fontSizeLabel);
+    }
+
+    .absence-color-rect {
+      display: inline-block;
+      width: 17px;
+      height: 18px;
+      min-width: 17px;
+      min-height: 18px;
+      vertical-align: middle;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.filler {
+  flex: 1;
+}
+
+tr.partial-timerange {
+  background-color: var(--taskRowPossibleBackground);
+
+  td {
+    color: rgba(var(--colorTextRgb, 0, 0, 0), 0.6);
+  }
+}

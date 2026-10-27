@@ -29,22 +29,11 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('general')"
-    (keydown.enter)="toggleSection('general')"
-  >
-    <span>{{ "setting.section.general" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["general"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
+  <app-settings-section-header
+    titleKey="setting.section.general"
+    [expanded]="sections['general']"
+    (toggled)="toggleSection('general')"
+  />
 
   @if (sections["general"]) {
     <div id="settings-home-general-row" class="container-profilline">
@@ -110,22 +99,11 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('users')"
-    (keydown.enter)="toggleSection('users')"
-  >
-    <span>{{ "setting.section.users" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["users"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
+  <app-settings-section-header
+    titleKey="setting.section.users"
+    [expanded]="sections['users']"
+    (toggled)="toggleSection('users')"
+  />
 
   @if (sections["users"]) {
     <div id="settings-home-user-admin-row" class="container-profilline">
@@ -166,22 +144,11 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('organization')"
-    (keydown.enter)="toggleSection('organization')"
-  >
-    <span>{{ "setting.section.organization" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["organization"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
+  <app-settings-section-header
+    titleKey="setting.section.organization"
+    [expanded]="sections['organization']"
+    (toggled)="toggleSection('organization')"
+  />
 
   @if (sections["organization"]) {
     <div id="settings-home-branches-contracts-row" class="container-profilline">
@@ -258,251 +225,36 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('work')"
-      (keydown.enter)="toggleSection('work')"
-    >
-      <span>{{ "setting.section.work" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["work"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.work"
+      [expanded]="sections['work']"
+      (toggled)="toggleSection('work')"
+    />
 
     @if (sections["work"]) {
-      <div id="settings-home-work-row" class="container-profilline">
-        <app-work-setting
-          id="settings-work-setting"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-work-setting')"
-          data-klacksy-target="work-setting"
-          data-klacksy-label-key="settings.workSetting"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-work-setting>
-      </div>
-
-      <div
-        id="settings-home-scheduling-defaults-row"
-        class="container-profilline"
-      >
-        <app-scheduling-defaults-setting
-          id="settings-scheduling-defaults"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-scheduling-defaults-setting')"
-          data-klacksy-target="scheduling-defaults"
-          data-klacksy-label-key="settings.schedulingDefaults"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-scheduling-defaults-setting>
-      </div>
-
-      <div id="settings-home-scheduling-rules-row" class="container-profilline">
-        <app-scheduling-rules
-          id="settings-scheduling-rules"
-          class="container-setting-small first border-right-card border-bottom-card"
-          (click)="isfocused('app-scheduling-rules')"
-          data-klacksy-target="scheduling-rules"
-          data-klacksy-label-key="settings.schedulingRules"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-scheduling-rules>
-
-        <app-wizard-settings
-          id="settings-wizard"
-          class="container-setting-small border-bottom-card"
-          (click)="isfocused('app-wizard-settings')"
-          data-klacksy-target="wizard"
-          data-klacksy-label-key="setting.holisticHarmonizer.menu"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-wizard-settings>
-      </div>
-
-      <div id="settings-home-individual-periods-row" class="container-profilline">
-        <app-individual-periods
-          id="settings-individual-periods"
-          class="container-setting-small first border-right-card border-bottom-card"
-          (click)="isfocused('app-individual-periods')"
-          data-klacksy-target="individual-periods"
-          data-klacksy-label-key="settings.individualPeriods"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-individual-periods>
-
-        <app-monthly-target-hours
-          id="settings-monthly-target-hours"
-          class="container-setting-small border-right-card border-bottom-card"
-          (click)="isfocused('app-monthly-target-hours')"
-          data-klacksy-target="monthly-target-hours"
-          data-klacksy-label-key="settings.monthlyTargetHours"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-monthly-target-hours>
-      </div>
+      <app-settings-work-section />
     }
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('compliance')"
-      (keydown.enter)="toggleSection('compliance')"
-    >
-      <span>{{ "setting.section.compliance" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["compliance"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.compliance"
+      [expanded]="sections['compliance']"
+      (toggled)="toggleSection('compliance')"
+    />
 
     @if (sections["compliance"]) {
-      <div id="settings-home-active-industries-row" class="container-profilline">
-        <app-active-industries-settings
-          id="settings-active-industries"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-active-industries-settings')"
-          data-klacksy-target="active-industries"
-          data-klacksy-label-key="settings.activeIndustries"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-active-industries-settings>
-      </div>
-
-      <div id="settings-home-compensatory-rest-row" class="container-profilline">
-        <app-compensatory-rest-settings
-          id="settings-compensatory-rest"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-compensatory-rest-settings')"
-          data-klacksy-target="compensatory-rest"
-          data-klacksy-label-key="settings.compensatoryRest"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-compensatory-rest-settings>
-      </div>
-
-      <div id="settings-home-surcharge-mode-row" class="container-profilline">
-        <app-surcharge-mode-settings
-          id="settings-surcharge-mode"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-surcharge-mode-settings')"
-          data-klacksy-target="surcharge-mode"
-          data-klacksy-label-key="settings.surchargeMode"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-surcharge-mode-settings>
-      </div>
-
-      <div id="settings-home-overtime-row" class="container-profilline">
-        <app-overtime-settings
-          id="settings-overtime"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-overtime-settings')"
-          data-klacksy-target="overtime"
-          data-klacksy-label-key="settings.overtime"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-overtime-settings>
-      </div>
-
-      <div id="settings-home-compliance-enforcement-row" class="container-profilline">
-        <app-compliance-enforcement-settings
-          id="settings-compliance-enforcement"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-compliance-enforcement-settings')"
-          data-klacksy-target="compliance-enforcement"
-          data-klacksy-label-key="settings.complianceEnforcement"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-compliance-enforcement-settings>
-      </div>
-
-      <div id="settings-home-counter-rules-row" class="container-profilline">
-        <app-counter-rules
-          id="settings-counter-rules"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-counter-rules')"
-          data-klacksy-target="counter-rules"
-          data-klacksy-label-key="settings.counterRule"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-counter-rules>
-      </div>
-
-      <div id="settings-home-period-cap-rules-row" class="container-profilline">
-        <app-period-cap-rules
-          id="settings-period-cap-rules"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-period-cap-rules')"
-          data-klacksy-target="period-cap-rules"
-          data-klacksy-label-key="settings.periodCapRule"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-period-cap-rules>
-      </div>
-
-      <div id="settings-home-restricted-time-window-rules-row" class="container-profilline">
-        <app-restricted-time-window-rules
-          id="settings-restricted-time-window-rules"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-restricted-time-window-rules')"
-          data-klacksy-target="restricted-time-window-rules"
-          data-klacksy-label-key="settings.restrictedTimeWindowRule"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-restricted-time-window-rules>
-      </div>
-
-      <div id="settings-home-holiday-work-exemptions-row" class="container-profilline">
-        <app-holiday-work-exemptions
-          id="settings-holiday-work-exemptions"
-          class="container-profile first border-right-card border-bottom-card"
-          (click)="isfocused('app-holiday-work-exemptions')"
-          data-klacksy-target="holiday-work-exemptions"
-          data-klacksy-label-key="settings.holidayWorkExemption"
-          data-klacksy-category="settings.scheduling"
-          data-klacksy-route="/workplace/settings"
-        ></app-holiday-work-exemptions>
-      </div>
+      <app-settings-compliance-section />
     }
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('absence')"
-    (keydown.enter)="toggleSection('absence')"
-  >
-    <span>{{ "setting.section.absence" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["absence"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
+  <app-settings-section-header
+    titleKey="setting.section.absence"
+    [expanded]="sections['absence']"
+    (toggled)="toggleSection('absence')"
+  />
 
   @if (sections["absence"]) {
     <div id="settings-home-absence-row" class="container-profilline">
@@ -559,22 +311,11 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('communication')"
-    (keydown.enter)="toggleSection('communication')"
-  >
-    <span>{{ "setting.section.communication" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["communication"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
+  <app-settings-section-header
+    titleKey="setting.section.communication"
+    [expanded]="sections['communication']"
+    (toggled)="toggleSection('communication')"
+  />
 
   @if (sections["communication"]) {
     @if (isChecked) {
@@ -642,22 +383,11 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('appearance')"
-    (keydown.enter)="toggleSection('appearance')"
-  >
-    <span>{{ "setting.section.appearance" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["appearance"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
+  <app-settings-section-header
+    titleKey="setting.section.appearance"
+    [expanded]="sections['appearance']"
+    (toggled)="toggleSection('appearance')"
+  />
 
   @if (sections["appearance"]) {
     <div id="settings-home-grid-macros-row" class="container-profilline">
@@ -688,22 +418,11 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('llm')"
-      (keydown.enter)="toggleSection('llm')"
-    >
-      <span>{{ "setting.section.llm" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["llm"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.llm"
+      [expanded]="sections['llm']"
+      (toggled)="toggleSection('llm')"
+    />
 
     @if (sections["llm"]) {
       <div id="settings-home-llm-row" class="container-profilline">
@@ -758,237 +477,37 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('klacksy')"
-      (keydown.enter)="toggleSection('klacksy')"
-    >
-      <span>{{ "setting.section.klacksy" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["klacksy"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.klacksy"
+      [expanded]="sections['klacksy']"
+      (toggled)="toggleSection('klacksy')"
+    />
 
     @if (sections["klacksy"]) {
-      <div id="settings-home-assistant-speech-row" class="container-profilline">
-        <app-assistant-speech-settings
-          id="settings-assistant-speech"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-assistant-speech-settings')"
-          data-klacksy-target="assistant-speech"
-          data-klacksy-label-key="settings.assistantSpeech"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-assistant-speech-settings>
-      </div>
-      <div id="settings-home-whisper-plugin-row" class="container-profilline">
-        <app-whisper-plugin-setting
-          id="settings-whisper-plugin"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-whisper-plugin-setting')"
-          data-klacksy-target="whisper-plugin"
-          data-klacksy-label-key="settings.whisperPlugin"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-whisper-plugin-setting>
-      </div>
-      <div
-        id="settings-home-assistant-personality-row"
-        class="container-profilline"
-      >
-        <app-assistant-personality-settings
-          id="settings-assistant-personality"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-assistant-personality-settings')"
-          data-klacksy-target="assistant-personality"
-          data-klacksy-label-key="settings.assistantPersonality"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-assistant-personality-settings>
-      </div>
-      <div
-        id="settings-home-assistant-learning-row"
-        class="container-profilline"
-      >
-        <app-assistant-learning
-          id="settings-assistant-learning"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-assistant-learning')"
-          data-klacksy-target="assistant-learning"
-          data-klacksy-label-key="settings.assistantLearning"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-assistant-learning>
-      </div>
-      <div
-        id="settings-home-assistant-skill-relations-row"
-        class="container-profilline"
-      >
-        <app-assistant-skill-relations
-          id="settings-assistant-skill-relations"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-assistant-skill-relations')"
-          data-klacksy-target="assistant-skill-relations"
-          data-klacksy-label-key="settings.assistantSkillRelations"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-assistant-skill-relations>
-      </div>
-      <div id="settings-home-klacksy-autonomy-row" class="container-profilline">
-        <app-klacksy-autonomy-settings
-          id="settings-klacksy-autonomy"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-klacksy-autonomy-settings')"
-          data-klacksy-target="klacksy-autonomy"
-          data-klacksy-label-key="settings.klacksyAutonomy"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-klacksy-autonomy-settings>
-      </div>
-      <div id="settings-home-klacksy-proactive-governance-row" class="container-profilline">
-        <app-klacksy-proactive-governance
-          id="settings-klacksy-proactive-governance"
-          class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-          (click)="isfocused('app-klacksy-proactive-governance')"
-          data-klacksy-target="klacksy-proactive-governance"
-          data-klacksy-label-key="settings.klacksyProactiveGovernance"
-          data-klacksy-category="settings.ai"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-klacksy-proactive-governance>
-      </div>
+      <app-settings-klacksy-section />
     }
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('externalServices')"
-      (keydown.enter)="toggleSection('externalServices')"
-    >
-      <span>{{ "setting.section.externalServices" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["externalServices"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.externalServices"
+      [expanded]="sections['externalServices']"
+      (toggled)="toggleSection('externalServices')"
+    />
 
     @if (sections["externalServices"]) {
-      <div id="settings-home-openroute-deepl-row" class="container-profilline">
-        <app-openroute
-          id="settings-openroute"
-          class="container-setting-small first border-right-card border-bottom-card"
-          (click)="isfocused('app-openroute')"
-          data-klacksy-target="openroute"
-          data-klacksy-label-key="settings.openroute"
-          data-klacksy-category="settings.integrations"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-openroute>
-
-        <app-deepl
-          id="settings-deepl"
-          class="container-setting-small border-right-card border-bottom-card"
-          (click)="isfocused('app-deepl')"
-          data-klacksy-target="deepl"
-          data-klacksy-label-key="settings.deepl"
-          data-klacksy-category="settings.integrations"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-deepl>
-      </div>
-
-      @if (authorizationService.isAdmin) {
-        <div id="settings-home-geo-services-row" class="container-profilline">
-          <app-geo-services-status
-            id="settings-geo-services-status"
-            class="container-setting-small first border-right-card border-bottom-card"
-          >
-          </app-geo-services-status>
-        </div>
-      }
-
-      <div id="settings-home-web-search-row" class="container-profilline">
-        <app-web-search
-          id="settings-web-search"
-          class="container-setting-small first border-right-card border-bottom-card"
-          (click)="isfocused('app-web-search')"
-          data-klacksy-target="web-search"
-          data-klacksy-label-key="settings.web-search"
-          data-klacksy-category="settings.integrations"
-          data-klacksy-route="/workplace/settings"
-        >
-        </app-web-search>
-      </div>
-
-      @if (featurePluginState.isPluginEnabled(messagingPluginName)) {
-        <div
-          id="settings-home-messaging-providers-row"
-          class="container-profilline"
-        >
-          <lib-messaging-providers
-            id="settings-messaging-providers"
-            class="container-profile first border-right-card border-bottom-card"
-            (click)="isfocused('lib-messaging-providers')"
-            data-klacksy-target="messaging-providers"
-            data-klacksy-label-key="settings.messagingProviders"
-            data-klacksy-category="settings.integrations"
-            data-klacksy-route="/workplace/settings"
-          >
-          </lib-messaging-providers>
-        </div>
-        <div id="settings-home-owner-messengers-row" class="container-profilline">
-          <lib-owner-messengers
-            id="settings-owner-messengers"
-            class="container-profile first border-right-card border-bottom-card"
-            (click)="isfocused('lib-owner-messengers')"
-            data-klacksy-target="owner-messengers"
-            data-klacksy-label-key="settings.ownerMessengers"
-            data-klacksy-category="settings.integrations"
-            data-klacksy-route="/workplace/settings"
-          >
-          </lib-owner-messengers>
-        </div>
-      }
+      <app-settings-external-services-section />
     }
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('import')"
-      (keydown.enter)="toggleSection('import')"
-    >
-      <span>{{ "setting.section.import" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["import"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.import"
+      [expanded]="sections['import']"
+      (toggled)="toggleSection('import')"
+    />
 
     @if (sections["import"]) {
       @if (authorizationService.isAdmin) {
@@ -1022,22 +541,11 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('plugins')"
-      (keydown.enter)="toggleSection('plugins')"
-    >
-      <span>{{ "setting.section.plugins" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["plugins"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.plugins"
+      [expanded]="sections['plugins']"
+      (toggled)="toggleSection('plugins')"
+    />
 
     @if (sections["plugins"]) {
       <div id="settings-home-language-plugins-row" class="container-profilline">
@@ -1069,22 +577,11 @@
   }
 
   @if (isChecked) {
-    <div
-      class="section-header first"
-      tabindex="0"
-      role="button"
-      (click)="toggleSection('system')"
-      (keydown.enter)="toggleSection('system')"
-    >
-      <span>{{ "setting.section.system" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections["system"]) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
+    <app-settings-section-header
+      titleKey="setting.section.system"
+      [expanded]="sections['system']"
+      (toggled)="toggleSection('system')"
+    />
 
     @if (sections["system"]) {
       <div id="settings-home-updates-row" class="container-profilline">

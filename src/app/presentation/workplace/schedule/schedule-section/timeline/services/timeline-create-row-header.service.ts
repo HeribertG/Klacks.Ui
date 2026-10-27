@@ -13,7 +13,7 @@ import { BaseCreateRowHeaderService } from '../../services/create-row-header.ser
 import { GridRowHeader } from '../../../classes/grid-row-header';
 import { ClientWork } from 'src/app/domain/models/schedule/client-work-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
+import { TimeRulerScaleRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-scale-render.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -21,7 +21,7 @@ import { ScheduleTimelineRangeService } from '../../../services/schedule-timelin
 
 @Injectable()
 export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
-  private timeRulerRender = inject(TimeRulerRenderService);
+  private timeRulerRender = inject(TimeRulerScaleRenderService);
   private tSettings = inject(BaseSettingsService);
   private tData = inject(BaseDataService);
   private tColors = inject(GridColorService);

@@ -22,7 +22,16 @@ const CLIENT_IMPORT_TARGET = 'client-import';
 const IMPORT_SECTION = 'import';
 const SETTINGS_ROUTE = '/workplace/settings';
 const SPEC_DIR = dirname(fileURLToPath(import.meta.url));
-const SETTINGS_HOME_TEMPLATE = readFileSync(resolve(SPEC_DIR, 'settings-home.component.html'), 'utf8');
+const SETTINGS_HOME_TEMPLATE_FILES = [
+  'settings-home.component.html',
+  'settings-work-section/settings-work-section.component.html',
+  'settings-compliance-section/settings-compliance-section.component.html',
+  'settings-klacksy-section/settings-klacksy-section.component.html',
+  'settings-external-services-section/settings-external-services-section.component.html',
+];
+const SETTINGS_HOME_TEMPLATE = SETTINGS_HOME_TEMPLATE_FILES.map((file) =>
+  readFileSync(resolve(SPEC_DIR, file), 'utf8'),
+).join('\n');
 
 function settingsExplainTargets(): [string, string][] {
   return Object.entries(PAGE_EXPLAIN_TARGETS).filter(([skill]) => PAGE_EXPLAIN_ROUTES[skill] === SETTINGS_ROUTE);

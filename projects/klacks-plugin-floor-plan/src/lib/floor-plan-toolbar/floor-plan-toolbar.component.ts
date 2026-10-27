@@ -16,6 +16,9 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+import { FloorPlanObjectEditService } from '../services/floor-plan-object-edit.service';
+import { FloorPlanShapeService } from '../services/floor-plan-shape.service';
+import { FloorPlanObjectStyleService } from '../services/floor-plan-object-style.service';
 import {
   FloorPlanToolService,
   MIN_REGULAR_POLYGON_SIDES,
@@ -88,6 +91,9 @@ export class FloorPlanToolbarComponent {
   }
 
   canvasService = inject(FloorPlanCanvasService);
+  readonly editService = inject(FloorPlanObjectEditService);
+  private readonly shapeService = inject(FloorPlanShapeService);
+  private readonly styleService = inject(FloorPlanObjectStyleService);
   toolService = inject(FloorPlanToolService);
   private exportService = inject(FloorPlanExportService);
   private importService = inject(FloorPlanImportService);
@@ -127,11 +133,11 @@ export class FloorPlanToolbarComponent {
   onZoomReset(): void { this.canvasService.resetZoom(); }
   onUndo(): void { this.canvasService.undo(); }
   onRedo(): void { this.canvasService.redo(); }
-  onBringToFront(): void { this.canvasService.bringToFront(); }
-  onSendToBack(): void { this.canvasService.sendToBack(); }
-  onDeleteSelected(): void { this.canvasService.deleteSelected(); }
-  onGroupSelected(): void { this.canvasService.groupSelected(); }
-  onUngroupSelected(): void { this.canvasService.ungroupSelected(); }
+  onBringToFront(): void { this.editService.bringToFront(); }
+  onSendToBack(): void { this.editService.sendToBack(); }
+  onDeleteSelected(): void { this.editService.deleteSelected(); }
+  onGroupSelected(): void { this.editService.groupSelected(); }
+  onUngroupSelected(): void { this.editService.ungroupSelected(); }
   onMerge(): void { this.mergeService.mergeSelected(); }
   onJoin(): void {
     this.joinService.joinSelected();
@@ -145,10 +151,10 @@ export class FloorPlanToolbarComponent {
     }
   }
 
-  onCopy(): void { this.canvasService.copySelected(); }
-  async onPaste(): Promise<void> { await this.canvasService.paste(); }
-  onFlipH(): void { this.canvasService.flipHorizontal(); }
-  onFlipV(): void { this.canvasService.flipVertical(); }
+  onCopy(): void { this.editService.copySelected(); }
+  async onPaste(): Promise<void> { await this.editService.paste(); }
+  onFlipH(): void { this.editService.flipHorizontal(); }
+  onFlipV(): void { this.editService.flipVertical(); }
 
   onExportSVG(): void { this.exportService.exportSVG(); }
   onExportPNG(): void { this.exportService.exportPNG(); }
@@ -167,7 +173,7 @@ export class FloorPlanToolbarComponent {
       if (result.type === 'svg' || result.type === 'dxf') {
         await this.canvasService.loadFromSVG(result.data);
       } else {
-        await this.canvasService.addImage(result.data);
+        await this.shapeService.addImage(result.data);
       }
     } finally {
       input.value = '';
@@ -177,19 +183,19 @@ export class FloorPlanToolbarComponent {
   onStrokeColorChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.toolService.setStrokeColor(input.value);
-    this.canvasService.applyStrokeColor(input.value);
+    this.styleService.applyStrokeColor(input.value);
   }
 
   onFillColorChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.toolService.setFillColor(input.value);
-    this.canvasService.applyFillColor(input.value);
+    this.styleService.applyFillColor(input.value);
   }
 
   onStrokeWidthChange(width: number): void {
     const w = Number(width);
     this.toolService.setStrokeWidth(w);
-    this.canvasService.applyStrokeWidth(w);
+    this.styleService.applyStrokeWidth(w);
   }
 
   onToggleSnap(): void {
