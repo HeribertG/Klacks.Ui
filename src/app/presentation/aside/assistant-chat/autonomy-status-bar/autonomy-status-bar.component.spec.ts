@@ -9,6 +9,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { DataProactiveGovernanceService } from 'src/app/infrastructure/api/assistant/data-proactive-governance.service';
 import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IProactiveGovernance } from 'src/app/domain/models/assistant/proactive-governance.interface';
 
@@ -84,6 +85,25 @@ describe('AutonomyStatusBarComponent', () => {
 
     expect(mockDataGovernanceService.get).not.toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('#klacksy-autonomy-switch')).toBeNull();
+  });
+
+  it('hides the switch and asks the endpoint nothing for an administrator on the public playground', async () => {
+    await setup();
+    TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: 'token' });
+    await settle();
+
+    expect(component.canRender()).toBe(false);
+    expect(mockDataGovernanceService.get).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('#klacksy-autonomy-switch')).toBeNull();
+  });
+
+  it('shows the switch for an administrator when the playground limit is off', async () => {
+    await setup();
+    TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: false, deviceToken: null });
+    await settle();
+
+    expect(component.canRender()).toBe(true);
+    expect(fixture.nativeElement.querySelector('#klacksy-autonomy-switch')).not.toBeNull();
   });
 
   it('reads the stored kill switch inverted: kill switch set means autonomy off', async () => {

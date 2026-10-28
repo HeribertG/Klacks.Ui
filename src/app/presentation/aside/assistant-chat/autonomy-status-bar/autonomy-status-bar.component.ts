@@ -7,14 +7,16 @@
  * running state stays a single quiet line that does not push the conversation aside.
  * The bar renders for administrators only: the governance endpoint is admin-only in both directions,
  * so a non-administrator cannot even read the switch state, and a control drawn over a state that was
- * never received would be a lie rather than a gate.
+ * never received would be a lie rather than a gate. On the public playground it is hidden as well,
+ * because every visitor is the shared demo administrator and one visitor's switch would change the
+ * autonomy for all others.
  * Wording for the stopped state and for both failure toasts comes from the governance settings keys
  * rather than from new ones: one fact must not be phrased twice in four languages and then drift.
  * The switch is shown inverted to the stored value on purpose: the user decides about autonomy, the
  * server stores the emergency stop, therefore switching the bar off writes the kill switch on.
  * @param autonomyEnabled - True while Klacksy may act on its own, meaning the stored kill switch is off
  * @param isSaving - True while a flip of the switch is on its way to the server
- * @param canRender - True only for administrators, who alone may read and write the governance state
+ * @param canRender - True only for administrators outside the public playground, who alone may read and write the governance state
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, OnInit, signal } from '@angular/core';
@@ -23,6 +25,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { ProactiveGovernanceService } from 'src/app/domain/services/assistant/proactive-governance.service';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 const LOAD_FAILED_I18N_KEY = 'setting.proactiveGovernance.load-failed';
@@ -42,8 +45,11 @@ export class AutonomyStatusBarComponent implements OnInit {
   private authorizationService = inject(AuthorizationService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private playgroundDevice = inject(PlaygroundDeviceService);
 
-  readonly canRender = computed(() => this.authorizationService.hasPermission(ROLE_ADMIN));
+  readonly canRender = computed(
+    () => this.authorizationService.hasPermission(ROLE_ADMIN) && !this.playgroundDevice.limitActive()
+  );
   readonly isSaving = signal(false);
   readonly autonomyEnabled = linkedSignal(
     () => !this.proactiveGovernanceService.killSwitchActive()
