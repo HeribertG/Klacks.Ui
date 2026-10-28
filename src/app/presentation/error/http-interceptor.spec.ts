@@ -16,6 +16,14 @@ import { WorkConflictMessageService } from './work-conflict-message.service';
 import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
+  PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE,
+  PLAYGROUND_FEATURE_BLOCKED_I18N_KEY,
+  PLAYGROUND_PROMPT_REJECTED_I18N_KEY,
+  PLAYGROUND_PROMPT_TOO_LONG_ERROR_CODE,
+  PLAYGROUND_TOKEN_LIMIT_ERROR_CODE,
+  PLAYGROUND_TOKEN_LIMIT_I18N_KEY,
+} from 'src/app/domain/constants/playground.constants';
+import {
   ACCOUNT_REGISTRATION_REASONS,
   ACCOUNT_REGISTRATION_REJECTED_ERROR_CODE,
 } from 'src/app/domain/constants/account-registration.constants';
@@ -809,6 +817,100 @@ describe('ResponseInterceptor', () => {
       httpMock.expectOne(REGISTER_USER_URL).flush({ title: 'Bad Request' }, BAD_REQUEST);
 
       expect(toastShowService.showInfo).toHaveBeenCalledWith(DomainMessages.NOT_REGISTER, REGISTRATION_TOAST_NAME);
+    });
+  });
+
+  describe('playground token limit', () => {
+    const CHAT_URL = '/api/backend/assistant/chat/execute-function';
+    const STATUS_URL = '/api/backend/Playground/Status';
+    const LIMIT_PROBLEM = { title: 'Too Many Requests', status: 429, errorCode: PLAYGROUND_TOKEN_LIMIT_ERROR_CODE };
+
+    it('shows the friendly limit message once and no generic error for a 429 with the limit code', () => {
+      // Arrange
+      const captured = expectRequestToFail(CHAT_URL);
+
+      // Act
+      httpMock.expectOne(CHAT_URL).flush(LIMIT_PROBLEM, TOO_MANY_REQUESTS);
+
+      // Assert
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith(
+        PLAYGROUND_TOKEN_LIMIT_I18N_KEY,
+        PLAYGROUND_TOKEN_LIMIT_ERROR_CODE
+      );
+      expect(captured.status).toBe(TOO_MANY_REQUESTS.status);
+    });
+
+    it('keeps the unsaved-changes flag and the spinner state for a 429 with the limit code', () => {
+      // Arrange
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(CHAT_URL);
+
+      // Act
+      httpMock.expectOne(CHAT_URL).flush(LIMIT_PROBLEM, TOO_MANY_REQUESTS);
+
+      // Assert
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(workplaceStateService.showProgressSpinner).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [FORBIDDEN, PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE, PLAYGROUND_FEATURE_BLOCKED_I18N_KEY],
+      [BAD_REQUEST, PLAYGROUND_PROMPT_TOO_LONG_ERROR_CODE, PLAYGROUND_PROMPT_REJECTED_I18N_KEY],
+    ])('shows the translated message and keeps the UI state for a %j problem with %s', (response, errorCode, i18nKey) => {
+      // Arrange
+      workplaceStateService.isDirty = true;
+      const captured = expectRequestToFail(CHAT_URL);
+
+      // Act
+      httpMock.expectOne(CHAT_URL).flush({ status: response.status, errorCode }, response);
+
+      // Assert
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith(i18nKey, errorCode);
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(workplaceStateService.showProgressSpinner).not.toHaveBeenCalled();
+      expect(captured.status).toBe(response.status);
+    });
+
+    it('resets the UI state when the playground code arrives with a different status', () => {
+      // Arrange
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(CHAT_URL);
+
+      // Act
+      httpMock.expectOne(CHAT_URL).flush({ errorCode: PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE }, BAD_REQUEST);
+
+      // Assert
+      expect(workplaceStateService.isDirty).toBe(false);
+    });
+
+    it('does not mistake a 429 without the limit code for the playground limit', () => {
+      // Arrange
+      expectRequestToFail(CHAT_URL);
+
+      // Act
+      httpMock.expectOne(CHAT_URL).flush({ title: 'Too Many Requests' }, TOO_MANY_REQUESTS);
+
+      // Assert
+      expect(toastShowService.showError).not.toHaveBeenCalledWith(
+        PLAYGROUND_TOKEN_LIMIT_I18N_KEY,
+        PLAYGROUND_TOKEN_LIMIT_ERROR_CODE
+      );
+    });
+
+    it.each([NOT_FOUND, SERVER_ERROR])('keeps the startup status read quiet for a $status', (response) => {
+      // Arrange
+      workplaceStateService.isDirty = true;
+      const captured = expectRequestToFail(STATUS_URL);
+
+      // Act
+      httpMock.expectOne(STATUS_URL).flush(null, response);
+
+      // Assert
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(captured.status).toBe(response.status);
     });
   });
 });

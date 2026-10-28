@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, input, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OverlayRailComponent } from './overlay-rail.component';
 import { AsideService } from '../aside/aside.service';
@@ -27,6 +27,12 @@ class StubVoiceShellInputComponent {}
 
 @Component({ selector: 'app-transcript-overlay', standalone: true, template: '' })
 class StubTranscriptOverlayComponent {}
+
+@Component({ selector: 'app-playground-notice', standalone: true, template: '' })
+class StubPlaygroundNoticeComponent {
+  readonly compact = input(false);
+  readonly pendingOnly = input(false);
+}
 
 describe('OverlayRailComponent', () => {
   let fixture: ComponentFixture<OverlayRailComponent>;
@@ -75,6 +81,7 @@ describe('OverlayRailComponent', () => {
             StubVoiceShellComponent,
             StubVoiceShellInputComponent,
             StubTranscriptOverlayComponent,
+            StubPlaygroundNoticeComponent,
           ],
         },
       })
@@ -267,6 +274,24 @@ describe('OverlayRailComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('app-voice-shell-input')).toBeNull();
+    });
+  });
+
+  describe('playground notice', () => {
+    it('stands in the voice lane in audio-only mode, where no input bar carries it', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.Audio);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.lane-voice app-playground-notice')).not.toBeNull();
+    });
+
+    it('is left to the floating input bar in both-auto mode', () => {
+      isVisible.set(true);
+      applyOutputMode(OutputMode.BothAuto);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('app-playground-notice')).toBeNull();
     });
   });
 

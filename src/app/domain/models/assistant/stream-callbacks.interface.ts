@@ -13,5 +13,6 @@ export interface StreamCallbacks {
   /** turnId is null and executedCount is null when the event omits them; executedCount may exceed the label count when a label is unavailable. */
   onTurnStopped?: (turnId: string | null, executedSkillLabels: string[], executedCount: number | null) => void;
   onDone?: () => void;
-  onError?: (message: string) => void;
+  /** errorCode is set when the server tagged the failure with a machine-readable code (e.g. the playground token limit). */
+  onError?: (message: string, errorCode?: string) => void;
 }

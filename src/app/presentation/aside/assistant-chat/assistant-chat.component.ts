@@ -30,6 +30,9 @@ import { AssistantFunctionExecutionService } from 'src/app/domain/services/assis
 import { DataManagementProactiveInboxService } from 'src/app/domain/services/assistant/data-management-proactive-inbox.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { PlaygroundPromptGateService } from 'src/app/domain/services/playground/playground-prompt-gate.service';
+import { PlaygroundNoticeComponent } from 'src/app/presentation/playground/playground-notice/playground-notice.component';
+import { PlaygroundPromptCounterComponent } from 'src/app/presentation/playground/playground-prompt-counter/playground-prompt-counter.component';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 import { AssistantPanelsComponent } from './assistant-panels/assistant-panels.component';
 import { AutonomyStatusBarComponent } from './autonomy-status-bar/autonomy-status-bar.component';
@@ -70,6 +73,8 @@ const SCROLL_BEHAVIOR_INSTANT = 'instant';
     ChatMessageComponent,
     ChatModelSelectorComponent,
     ChatOnboardingCardComponent,
+    PlaygroundNoticeComponent,
+    PlaygroundPromptCounterComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],
@@ -106,6 +111,7 @@ export class AssistantChatComponent {
   private readonly turnControl = inject(ChatTurnControlService);
   private readonly ttsService = inject(TextToSpeechService);
   private readonly outputModes = inject(SpeechOutputModeService);
+  private readonly playgroundGate = inject(PlaygroundPromptGateService);
   readonly orchestrator = inject(ConversationOrchestratorService);
   readonly speechService = inject(SpeechRecognitionService);
   readonly proactiveInboxService = inject(DataManagementProactiveInboxService);
@@ -127,6 +133,9 @@ export class AssistantChatComponent {
   readonly inputText = this.composer.inputText;
   /** Backed by ChatTurnControlService: flips false the instant a stop begins, not only when the turn fully completes. */
   readonly isProcessing = this.turnControl.isTurnRunning;
+
+  readonly maxPromptChars = this.playgroundGate.maxPromptChars;
+  readonly playgroundConfirmationPending = this.playgroundGate.confirmationPending;
 
   readonly isInitializing = this.modelSelection.isInitializing;
   readonly hasNoApiKey = this.modelSelection.hasNoApiKey;

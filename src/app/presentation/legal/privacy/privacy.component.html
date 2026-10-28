@@ -2,6 +2,9 @@
   <div class="legal-container">
     <h1>{{ "legal.privacy.title" | translate }}</h1>
     <div class="legal-content" [innerHTML]="'legal.privacy.content' | translate"></div>
+    @if (playgroundLimitActive()) {
+      <div class="legal-content legal-playground" [innerHTML]="'legal.privacy.playground' | translate"></div>
+    }
     <div class="legal-back">
       <app-legal-back-button></app-legal-back-button>
     </div>

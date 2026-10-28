@@ -50,6 +50,15 @@ import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.inter
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
+    PLAYGROUND_CONFIRMATION_HINT,
+    PLAYGROUND_MAX_PROMPT_CHARS,
+    PLAYGROUND_VOICE_TOO_LONG_HINT,
+} from 'src/app/domain/constants/playground.constants';
+import { PlaygroundStatusGateService } from 'src/app/domain/services/playground/playground-status-gate.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
+import { PlaygroundPromptGateService } from 'src/app/domain/services/playground/playground-prompt-gate.service';
+import {
   INTRO_MORE_REQUEST_KEY,
   INTRO_STATION,
   ONBOARDING_KIND,
@@ -4564,8 +4573,7 @@ describe('AssistantChatComponent', () => {
             });
 
             (tour() as any).handleStationChoice(station, ONBOARDING_TOUR_CHOICE.More);
-            await Promise.resolve();
-            await Promise.resolve();
+            await vi.waitFor(() => expect(mockLlmService.sendMessageStream).toHaveBeenCalledTimes(1));
 
             expect(mockTranslateService.instant).toHaveBeenCalledWith(INTRO_MORE_REQUEST_KEY, expect.any(Object));
             expect(mockLlmService.sendMessageStream).toHaveBeenCalledTimes(1);
@@ -4671,6 +4679,22 @@ describe('AssistantChatComponent', () => {
             expect(errorSpy).toHaveBeenCalledTimes(1);
         });
 
+        it('shows the playground confirmation request as info, not as an error, and keeps other playground hints as errors', () => {
+            // Arrange
+            const toast = TestBed.inject(ToastShowService);
+            const infoSpy = vi.spyOn(toast, 'showInfo').mockImplementation(() => undefined as any);
+            const errorSpy = vi.spyOn(toast, 'showError').mockImplementation(() => undefined as any);
+            const errors$ = component.orchestrator.errors$ as unknown as Subject<any>;
+
+            // Act
+            errors$.next(PLAYGROUND_CONFIRMATION_HINT);
+            errors$.next(PLAYGROUND_VOICE_TOO_LONG_HINT);
+
+            // Assert
+            expect(infoSpy).toHaveBeenCalledTimes(1);
+            expect(errorSpy).toHaveBeenCalledTimes(1);
+        });
+
         it('leaves voice hints to the voice shell in a floating output mode', () => {
             // Arrange
             const toast = TestBed.inject(ToastShowService);
@@ -4763,6 +4787,96 @@ describe('AssistantChatComponent', () => {
             expect((component.orchestrator as any).endSession).toHaveBeenCalledTimes(1);
             expect(interruptSpy).toHaveBeenCalled();
             expect(component.orchestrator.stopAutoSpeak).toHaveBeenCalled();
+        });
+    });
+
+    describe('playground limit', () => {
+        const activateLimit = (): void =>
+            TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: 'token' });
+
+        afterEach(() => {
+            localStorage.removeItem(StorageKeys.PLAYGROUND_DEVICE_TOKEN);
+            localStorage.removeItem(StorageKeys.PLAYGROUND_NOTICE_ACKNOWLEDGED);
+        });
+
+        it('sends without any confirmation and writes nothing while the limit is inactive', async () => {
+            const setItem = vi.spyOn(Storage.prototype, 'setItem');
+            component.inputText.set('x'.repeat(PLAYGROUND_MAX_PROMPT_CHARS + 1));
+
+            await component.sendMessage();
+
+            expect(mockLlmService.sendMessageStream).toHaveBeenCalledOnce();
+            expect(setItem).not.toHaveBeenCalled();
+            expect(component.maxPromptChars()).toBeNull();
+            setItem.mockRestore();
+        });
+
+        it('holds the send back until the status is known and then asks for the confirmation', async () => {
+            const statusGate = TestBed.inject(PlaygroundStatusGateService);
+            statusGate.begin();
+            component.inputText.set('Hello');
+
+            const sending = component.sendMessage();
+            await Promise.resolve();
+            expect(mockLlmService.sendMessageStream).not.toHaveBeenCalled();
+
+            activateLimit();
+            statusGate.end();
+            await sending;
+
+            expect(mockLlmService.sendMessageStream).not.toHaveBeenCalled();
+            expect(component.inputText()).toBe('Hello');
+            expect(component.playgroundConfirmationPending()).toBe(true);
+        });
+
+        it('holds the send back until the status is known and then sends when no limit is active', async () => {
+            const statusGate = TestBed.inject(PlaygroundStatusGateService);
+            statusGate.begin();
+            component.inputText.set('Hello');
+
+            const sending = component.sendMessage();
+            await Promise.resolve();
+            expect(mockLlmService.sendMessageStream).not.toHaveBeenCalled();
+
+            statusGate.end();
+            await sending;
+
+            expect(mockLlmService.sendMessageStream).toHaveBeenCalledOnce();
+        });
+
+        it('blocks sending and keeps the text until the notice is confirmed', async () => {
+            activateLimit();
+            component.inputText.set('Hello');
+
+            await component.sendMessage();
+
+            expect(mockLlmService.sendMessageStream).not.toHaveBeenCalled();
+            expect(component.inputText()).toBe('Hello');
+            expect(component.playgroundConfirmationPending()).toBe(true);
+        });
+
+        it('sends once the notice is confirmed', async () => {
+            activateLimit();
+            TestBed.inject(PlaygroundPromptGateService).acknowledge();
+            component.inputText.set('Hello');
+
+            await component.sendMessage();
+
+            expect(mockLlmService.sendMessageStream).toHaveBeenCalledOnce();
+        });
+
+        it('refuses a text over the limit and still sends one of exactly the limit', async () => {
+            activateLimit();
+            TestBed.inject(PlaygroundPromptGateService).acknowledge();
+            component.inputText.set('x'.repeat(PLAYGROUND_MAX_PROMPT_CHARS + 1));
+
+            await component.sendMessage();
+            expect(mockLlmService.sendMessageStream).not.toHaveBeenCalled();
+
+            component.inputText.set('x'.repeat(PLAYGROUND_MAX_PROMPT_CHARS));
+            await component.sendMessage();
+            expect(mockLlmService.sendMessageStream).toHaveBeenCalledOnce();
+            expect(component.maxPromptChars()).toBe(PLAYGROUND_MAX_PROMPT_CHARS);
         });
     });
 });

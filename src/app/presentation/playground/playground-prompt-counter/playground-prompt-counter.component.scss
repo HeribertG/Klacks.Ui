@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.playground-counter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 2px 12px;
+  font-size: var(--fontSizeSmall);
+
+  &.at-limit {
+    color: var(--colorWarning);
+    font-weight: 500;
+  }
+}

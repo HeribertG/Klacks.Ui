@@ -22,6 +22,8 @@ import {
   WORKPLACE_ROUTE_PREFIX,
 } from 'src/app/domain/constants/navigation-outcome.constants';
 import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
+import { playgroundErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
+import { PlaygroundSendGuardService } from 'src/app/presentation/playground/playground-send-guard.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { formatMessage, stripMetadataMarkers } from 'src/app/shared/helpers/assistant-text.helper';
 import { AsideService } from '../../aside.service';
@@ -73,6 +75,7 @@ export class ChatTurnStreamService {
   private readonly tour = inject(ChatOnboardingTourService);
   private readonly replyToasts = inject(ChatReplyToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly playgroundSendGuard = inject(PlaygroundSendGuardService);
 
   private currentStreamController: AbortController | null = null;
   private sawFunctionCall = false;
@@ -111,6 +114,10 @@ export class ChatTurnStreamService {
 
   async sendMessage(): Promise<void> {
     if (!this.composer.inputText().trim()) {
+      return;
+    }
+
+    if (!(await this.playgroundSendGuard.allowSendWhenReady(() => this.composer.inputText()))) {
       return;
     }
 
@@ -190,7 +197,8 @@ export class ChatTurnStreamService {
       onTurnStopped: (turnId: string | null, executedSkillLabels: string[], executedCount: number | null) =>
         this.ngZone.run(() => this.onTurnStopped(turnId, executedSkillLabels, executedCount)),
       onDone: () => this.ngZone.run(() => this.onDone(turn)),
-      onError: (message: string) => this.ngZone.run(() => this.onError(turn, message)),
+      onError: (message: string, errorCode?: string) =>
+        this.ngZone.run(() => this.onError(turn, message, errorCode)),
     };
   }
 
@@ -321,8 +329,10 @@ export class ChatTurnStreamService {
     this.transcript.focusInputSoon();
   }
 
-  private onError(turn: IChatStreamTurn, message: string): void {
+  private onError(turn: IChatStreamTurn, rawMessage: string, errorCode?: string): void {
     this.buffer.drain(turn.assistantMessageId);
+    const playgroundKey = playgroundErrorI18nKey(errorCode);
+    const message = playgroundKey ? this.translateService.instant(playgroundKey) : rawMessage;
     const existing = this.findMessage(turn.assistantMessageId)?.content ?? '';
     const merged = existing ? `${existing}${ERROR_SEPARATOR}${message}` : message;
     this.orchestrator.updateMessage(turn.assistantMessageId, {
@@ -331,7 +341,7 @@ export class ChatTurnStreamService {
       formattedContent: formatMessage(merged),
     });
     this.finishTurn();
-    this.orchestrator.onStreamError();
+    this.orchestrator.onStreamError(errorCode);
   }
 
   private finishTurn(): void {

@@ -3,9 +3,11 @@
 /**
  * Standalone page component for the privacy policy (Datenschutzerklarung).
  * Accessible without authentication from the login page and main menu.
+ * Appends the playground passage only while the public playground token limit is active.
  */
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 import { LegalBackButtonComponent } from '../legal-back-button/legal-back-button.component';
 
 @Component({
@@ -16,4 +18,6 @@ import { LegalBackButtonComponent } from '../legal-back-button/legal-back-button
   imports: [TranslateModule, LegalBackButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrivacyComponent {}
+export class PrivacyComponent {
+  readonly playgroundLimitActive = inject(PlaygroundDeviceService).limitActive;
+}

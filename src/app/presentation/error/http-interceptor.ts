@@ -28,6 +28,8 @@ import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
 import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-file.constants';
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
+import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.constants';
+import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { STT_TRANSCRIBE_ENDPOINT } from 'src/app/domain/constants/stt-endpoints.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
@@ -64,6 +66,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     AUTOFILL_RUNS_ACTIVE_PATH,
     EXPLAIN_OFFERS_PATH,
     ERP_DROP_POINT_FILES_PATH,
+    PLAYGROUND_STATUS_PATH,
   ];
   private static readonly KLACKSY_LEARNING_PASS_THROUGH_STATUS_CODES = [
     HttpStatusCode.BadRequest,
@@ -123,7 +126,8 @@ export class ResponseInterceptor implements HttpInterceptor {
         if (
           !this.isQuietCallerHandledRequest(error) &&
           !this.isGeoServicesPassThrough(error.url || '') &&
-          !this.isUnsupportedSttLanguage(error, req)
+          !this.isUnsupportedSttLanguage(error, req) &&
+          !this.playgroundErrorKey(error)
         ) {
           this.resetUIState(error);
         }
@@ -144,6 +148,13 @@ export class ResponseInterceptor implements HttpInterceptor {
   private isQuietCallerHandledRequest(error: HttpErrorResponse): boolean {
     const url = error.url || '';
     return ResponseInterceptor.QUIET_CALLER_HANDLED_PATHS.some((path) => url.includes(path));
+  }
+
+  // The public playground answers a spent budget (429), a blocked function (403) and an over-long prompt (400) with
+  // a coded problem. Each gets its own translated toast; none of them says anything about the page the user is
+  // editing, so they must not clear the unsaved-changes flag or the spinner, and none is a reason to log out.
+  private playgroundErrorKey(error: HttpErrorResponse): string | null {
+    return playgroundHttpErrorI18nKey(error.status, error.error?.errorCode);
   }
 
   private resetUIState(error: HttpErrorResponse): void {
@@ -176,6 +187,12 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     // Background polls and page-handled user actions: the caller reports or ignores the failure itself.
     if (this.isQuietCallerHandledRequest(error)) {
+      return throwError(() => error);
+    }
+
+    const playgroundKey = this.playgroundErrorKey(error);
+    if (playgroundKey) {
+      this.toastShowService.showError(this.translateService.instant(playgroundKey), error.error.errorCode);
       return throwError(() => error);
     }
 

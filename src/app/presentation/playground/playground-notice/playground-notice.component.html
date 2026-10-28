@@ -1,0 +1,18 @@
+@if (visible()) {
+  <div
+    class="playground-notice"
+    [class.compact]="compact()"
+    [class.pending]="confirmationPending()"
+    [attr.role]="confirmationPending() ? 'alert' : 'note'"
+  >
+    <p class="playground-notice-text">
+      {{ textKey() | translate }}
+      <a [routerLink]="privacyRoute" target="_blank" rel="noopener">{{ linkKey | translate }}</a>
+    </p>
+    @if (confirmationPending()) {
+      <button type="button" class="playground-notice-ack" (click)="acknowledge()">
+        {{ acknowledgeKey | translate }}
+      </button>
+    }
+  </div>
+}

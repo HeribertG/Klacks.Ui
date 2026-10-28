@@ -1,0 +1,44 @@
+:host {
+  display: block;
+}
+
+.playground-notice {
+  margin: 0 12px 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--colorWarning);
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  font-size: var(--fontSizeSmall);
+  line-height: 1.4;
+
+  &.pending {
+    border-width: 2px;
+    padding: 10px 12px;
+  }
+
+  &.compact {
+    margin: 6px 0 0;
+    max-width: 280px;
+  }
+}
+
+.playground-notice-text {
+  margin: 0;
+}
+
+.playground-notice-text a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.playground-notice-ack {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  background: var(--accentColor);
+  color: var(--onAccent);
+  font-weight: 500;
+  cursor: pointer;
+}

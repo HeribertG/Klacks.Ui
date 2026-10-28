@@ -21,11 +21,28 @@ import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/d
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import {
+  PLAYGROUND_CONFIRMATION_HINT,
+  PLAYGROUND_MAX_PROMPT_CHARS,
+  PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE,
+  PLAYGROUND_FEATURE_BLOCKED_I18N_KEY,
+  PLAYGROUND_PROMPT_REJECTED_I18N_KEY,
+  PLAYGROUND_PROMPT_TOO_LONG_ERROR_CODE,
+  PLAYGROUND_TOKEN_LIMIT_ERROR_CODE,
+  PLAYGROUND_TOKEN_LIMIT_I18N_KEY,
+  PLAYGROUND_VOICE_TOO_LONG_HINT,
+} from 'src/app/domain/constants/playground.constants';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import { OutputMode } from 'src/app/domain/constants/output-mode.constants';
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { TtsProvider } from 'src/app/domain/constants/tts-provider.constants';
+import { VoiceId } from 'src/app/domain/constants/voice-id.constants';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
+import { PlaygroundPromptGateService } from 'src/app/domain/services/playground/playground-prompt-gate.service';
+import { PlaygroundStatusGateService } from 'src/app/domain/services/playground/playground-status-gate.service';
 
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -805,6 +822,27 @@ describe('ConversationOrchestratorService', () => {
     expect(service.isPlanning()).toBe(false);
   });
 
+  it('onStreamError keeps the network hint for an untagged stream failure', async () => {
+    const next = firstValueFrom(service.errors$);
+    service.onStreamError();
+    expect(await next).toEqual({ kind: 'network', i18nKey: 'klacksy.voice.errors.network-failed', persistent: false });
+  });
+
+  it('onStreamError reports the playground limit message for the token limit code', async () => {
+    const next = firstValueFrom(service.errors$);
+    service.onStreamError(PLAYGROUND_TOKEN_LIMIT_ERROR_CODE);
+    expect(await next).toEqual({ kind: 'network', i18nKey: PLAYGROUND_TOKEN_LIMIT_I18N_KEY, persistent: false });
+  });
+
+  it.each([
+    [PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE, PLAYGROUND_FEATURE_BLOCKED_I18N_KEY],
+    [PLAYGROUND_PROMPT_TOO_LONG_ERROR_CODE, PLAYGROUND_PROMPT_REJECTED_I18N_KEY],
+  ])('onStreamError reports the playground message for %s', async (errorCode, i18nKey) => {
+    const next = firstValueFrom(service.errors$);
+    service.onStreamError(errorCode);
+    expect(await next).toEqual({ kind: 'network', i18nKey, persistent: false });
+  });
+
   it('planning signal: endSession clears a stuck planning flag on abort', () => {
     service.onStreamFunctionCall();
     expect(service.isPlanning()).toBe(true);
@@ -1305,6 +1343,44 @@ describe('ConversationOrchestratorService', () => {
     expect(mockAudioQueue.stop).toHaveBeenCalled();
   });
 
+  // --- Playground: cost-free engines are forced regardless of the stored speech settings ---
+
+  describe('playground token limit', () => {
+    beforeEach(() => {
+      currentSettings = { ...currentSettings, ttsProvider: 'elevenlabs', ttsVoice: 'stored-paid-voice' };
+      TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: 'token' });
+      TestBed.inject(PlaygroundPromptGateService).acknowledge();
+    });
+
+    afterEach(() => {
+      localStorage.removeItem(StorageKeys.PLAYGROUND_DEVICE_TOKEN);
+      localStorage.removeItem(StorageKeys.PLAYGROUND_NOTICE_ACKNOWLEDGED);
+    });
+
+    it('transcribes with the in-browser engine although a server STT engine is stored', async () => {
+      mockWhisper.transcribeBlob.mockResolvedValue('hello');
+      const { callbacks } = makeSpyCallbacks();
+      await startListening('groq-whisper', callbacks);
+
+      mockAudioCapture.silenceDetected$.next();
+      await flushPromises();
+
+      expect(mockWhisper.transcribeBlob).toHaveBeenCalled();
+      expect(mockDataStt.transcribe).not.toHaveBeenCalled();
+    });
+
+    it('synthesizes with Edge and the automatic voice although a paid TTS provider is stored', async () => {
+      await service.toggleVoiceMode();
+
+      service.speakFollowUpSentence(FOLLOW_UP_SENTENCE);
+      await flushPromises();
+
+      expect(mockDataTts.synthesize).toHaveBeenCalledWith(
+        expect.objectContaining({ providerId: TtsProvider.Edge, voiceId: VoiceId.Auto }),
+      );
+    });
+  });
+
   // --- speakFollowUpSentence: the honest navigation correction arrives after the answer was read out ---
 
   it('speaks a follow-up sentence in voice mode and takes the floor back', async () => {
@@ -1397,6 +1473,206 @@ describe('ConversationOrchestratorService', () => {
 class HostHarnessComponent {
   readonly orchestrator = inject(ConversationOrchestratorService);
 }
+
+describe('ConversationOrchestratorService - playground prompt rules', () => {
+  let service: ConversationOrchestratorService;
+  let mockAudioCapture: { silenceDetected$: Subject<void>; speechStarted$: Subject<void>; audioChunk$: Subject<ArrayBuffer> };
+  let mockDataStt: { transcribe: ReturnType<typeof vi.fn> };
+
+  const makeCallbacks = () => {
+    let inputText = '';
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => inputText,
+      setInputText: vi.fn((text: string) => { inputText = text; }),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+      stop: vi.fn(),
+    };
+    return callbacks;
+  };
+
+  beforeEach(() => {
+    mockAudioCapture = { silenceDetected$: new Subject(), speechStarted$: new Subject(), audioChunk$: new Subject() };
+    mockDataStt = { transcribe: vi.fn() };
+    const settings = {
+      sttEngine: 'groq-whisper',
+      sttApiKeys: {},
+      ttsVoice: 'auto',
+      ttsProvider: 'edge',
+      transcriptionModel: 'deepseek-chat',
+      enhancementEnabled: false,
+      outputMode: 'both',
+      silenceThresholdMs: 1000,
+      bargeInEnabled: false,
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        ...APP_PORT_BINDINGS,
+        ConversationOrchestratorService,
+        {
+          provide: AudioCaptureService,
+          useValue: {
+            start: vi.fn().mockResolvedValue(undefined),
+            stop: vi.fn(),
+            setSilenceThresholdMs: vi.fn(),
+            setVadThresholdMultiplier: vi.fn(),
+            clearRecording: vi.fn(),
+            isCapturing: vi.fn(() => false),
+            isSpeechDetected: vi.fn(() => false),
+            takeRecordedBlob: vi.fn(() => new Blob([new Uint8Array(4000)])),
+            peekRecordedBlob: vi.fn(() => new Blob([new Uint8Array(4000)])),
+            getRecordedDurationMs: vi.fn(() => 5000),
+            ...mockAudioCapture,
+          },
+        },
+        { provide: SttStreamService, useValue: { connect: vi.fn(), disconnect: vi.fn(), sendAudio: vi.fn(), isConnected: vi.fn(() => false), transcript$: new Subject(), error$: new Subject() } },
+        { provide: DataSttService, useValue: mockDataStt },
+        { provide: DataTranscriptionService, useValue: { enhance: vi.fn() } },
+        { provide: DataTtsService, useValue: { synthesize: vi.fn().mockResolvedValue(new Blob()) } },
+        { provide: AudioQueueService, useValue: { enqueue: vi.fn(), stop: vi.fn(), isPlaying: vi.fn(() => false), queueLength: vi.fn(() => 0), playbackFinished$: new Subject() } },
+        { provide: WhisperStreamingService, useValue: { setSilenceDurationMs: vi.fn(), transcribeBlob: mockDataStt.transcribe } },
+        { provide: EarconService, useValue: { playProcessingEarcon: vi.fn() } },
+        { provide: AppSettingsManagementService, useValue: { speechSettings: vi.fn(() => settings) } },
+        { provide: OnboardingService, useValue: { isTourActive: signal(false) } },
+        {
+          provide: SpeechOutputModeService,
+          useValue: {
+            mode: () => OutputMode.Both,
+            isFloatingMode: () => false,
+            isAutoSpeakMode: () => false,
+            isAudioOnlyMode: () => false,
+            isTextOnlyMode: () => false,
+          },
+        },
+      ],
+    });
+    service = TestBed.inject(ConversationOrchestratorService);
+  });
+
+  afterEach(() => {
+    localStorage.removeItem(StorageKeys.PLAYGROUND_DEVICE_TOKEN);
+    localStorage.removeItem(StorageKeys.PLAYGROUND_NOTICE_ACKNOWLEDGED);
+    vi.restoreAllMocks();
+  });
+
+  const activateLimit = (confirmed: boolean): void => {
+    TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: 'token' });
+    if (confirmed) {
+      TestBed.inject(PlaygroundPromptGateService).acknowledge();
+    }
+  };
+
+  const speak = async (callbacks: ConversationCallbacks, length: number): Promise<void> => {
+    mockDataStt.transcribe.mockResolvedValue('x'.repeat(length));
+    service.initialize(callbacks, 'de');
+    await service.toggleVoiceMode();
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+  };
+
+  it('does not start voice mode while the notice is unconfirmed and reports why', async () => {
+    activateLimit(false);
+    const hints: IVoiceShellErrorHint[] = [];
+    service.errors$.subscribe((hint) => hints.push(hint));
+    service.initialize(makeCallbacks(), 'de');
+
+    await service.toggleVoiceMode();
+
+    expect(service.voiceModeEnabled()).toBe(false);
+    expect(service.state()).toBe(ConversationState.Idle);
+    expect(hints).toEqual([PLAYGROUND_CONFIRMATION_HINT]);
+  });
+
+  it('does not decide on a voice start before the status answer arrived', async () => {
+    const statusGate = TestBed.inject(PlaygroundStatusGateService);
+    statusGate.begin();
+    const hints: IVoiceShellErrorHint[] = [];
+    service.errors$.subscribe((hint) => hints.push(hint));
+    service.initialize(makeCallbacks(), 'de');
+
+    const starting = service.toggleVoiceMode();
+    await flushPromises();
+
+    expect(service.voiceModeEnabled()).toBe(false);
+    expect(hints).toEqual([]);
+
+    activateLimit(false);
+    statusGate.end();
+    await starting;
+
+    expect(service.voiceModeEnabled()).toBe(false);
+    expect(hints).toEqual([PLAYGROUND_CONFIRMATION_HINT]);
+  });
+
+  it('starts voice mode once the status answer says there is no limit', async () => {
+    const statusGate = TestBed.inject(PlaygroundStatusGateService);
+    statusGate.begin();
+    const hints: IVoiceShellErrorHint[] = [];
+    service.errors$.subscribe((hint) => hints.push(hint));
+    service.initialize(makeCallbacks(), 'de');
+
+    const starting = service.toggleVoiceMode();
+    statusGate.end();
+    await starting;
+
+    expect(service.voiceModeEnabled()).toBe(true);
+    expect(hints).toEqual([]);
+  });
+
+  it('starts voice mode only once when it is toggled twice during the status wait', async () => {
+    const statusGate = TestBed.inject(PlaygroundStatusGateService);
+    statusGate.begin();
+    service.initialize(makeCallbacks(), 'de');
+
+    const first = service.toggleVoiceMode();
+    const second = service.toggleVoiceMode();
+    statusGate.end();
+    await Promise.all([first, second]);
+
+    expect(TestBed.inject(AudioCaptureService).start).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts voice mode without any confirmation while the limit is inactive', async () => {
+    service.initialize(makeCallbacks(), 'de');
+
+    await service.toggleVoiceMode();
+
+    expect(service.voiceModeEnabled()).toBe(true);
+  });
+
+  it('refuses a transcript over the limit: nothing is sent, the hint is emitted and listening resumes', async () => {
+    activateLimit(true);
+    const hints: IVoiceShellErrorHint[] = [];
+    service.errors$.subscribe((hint) => hints.push(hint));
+    const callbacks = makeCallbacks();
+
+    await speak(callbacks, PLAYGROUND_MAX_PROMPT_CHARS + 1);
+
+    expect(callbacks.sendMessage).not.toHaveBeenCalled();
+    expect(hints).toContainEqual(PLAYGROUND_VOICE_TOO_LONG_HINT);
+    expect(callbacks.getInputText()).toBe('');
+    expect(service.state()).toBe(ConversationState.Listening);
+  });
+
+  it('sends a transcript of exactly the limit', async () => {
+    activateLimit(true);
+    const callbacks = makeCallbacks();
+
+    await speak(callbacks, PLAYGROUND_MAX_PROMPT_CHARS);
+
+    expect(callbacks.sendMessage).toHaveBeenCalledOnce();
+  });
+
+  it('sends an arbitrarily long transcript while the limit is inactive', async () => {
+    const callbacks = makeCallbacks();
+
+    await speak(callbacks, PLAYGROUND_MAX_PROMPT_CHARS * 3);
+
+    expect(callbacks.sendMessage).toHaveBeenCalledOnce();
+  });
+});
 
 describe('ConversationOrchestratorService — root provider guarantee', () => {
   it('state survives host-component destroy (root singleton invariant)', () => {

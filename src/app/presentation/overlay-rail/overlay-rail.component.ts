@@ -19,6 +19,7 @@ import { VoiceShellComponent } from '../voice-shell/voice-shell.component';
 import { VoiceShellInputComponent } from '../voice-shell/voice-shell-input/voice-shell-input.component';
 import { TranscriptOverlayComponent } from '../voice-shell/transcript-overlay/transcript-overlay.component';
 import { TranscriptOverlayService } from '../voice-shell/transcript-overlay/transcript-overlay.service';
+import { PlaygroundNoticeComponent } from '../playground/playground-notice/playground-notice.component';
 import { AsideService } from '../aside/aside.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 
@@ -31,6 +32,7 @@ import { SpeechOutputModeService } from 'src/app/application/services/speech-out
     VoiceShellComponent,
     VoiceShellInputComponent,
     TranscriptOverlayComponent,
+    PlaygroundNoticeComponent,
   ],
   templateUrl: './overlay-rail.component.html',
   styleUrls: ['./overlay-rail.component.scss'],

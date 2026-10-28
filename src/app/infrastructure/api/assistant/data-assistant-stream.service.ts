@@ -6,7 +6,9 @@
  * @param baseUrl - Backend assistant API URL from environment configuration
  */
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
+import { playgroundErrorI18nKey, playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { environment } from 'src/environments/environment';
 import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -18,6 +20,7 @@ import { toAssistantStatusStage } from 'src/app/domain/constants/assistant-statu
 @Injectable({ providedIn: 'root' })
 export class DataAssistantStreamService {
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
+  private readonly playground = inject(PlaygroundDeviceService);
 
   chatStream(request: IAssistantChatRequest, callbacks: StreamCallbacks): AbortController {
     const controller = new AbortController();
@@ -38,13 +41,17 @@ export class DataAssistantStreamService {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...this.playground.deviceHeaders(),
         },
         body: JSON.stringify(request),
         signal,
       });
 
       if (!response.ok) {
-        callbacks.onError?.(`HTTP ${response.status}: ${response.statusText}`);
+        callbacks.onError?.(
+          `HTTP ${response.status}: ${response.statusText}`,
+          await this.readPlaygroundErrorCode(response),
+        );
         return;
       }
 
@@ -80,6 +87,15 @@ export class DataAssistantStreamService {
     } catch (err: unknown) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       callbacks.onError?.(err instanceof Error ? err.message : 'Stream failed');
+    }
+  }
+
+  private async readPlaygroundErrorCode(response: Response): Promise<string | undefined> {
+    try {
+      const problem = await response.json();
+      return playgroundHttpErrorI18nKey(response.status, problem?.errorCode) ? problem.errorCode : undefined;
+    } catch {
+      return undefined;
     }
   }
 
@@ -157,7 +173,10 @@ export class DataAssistantStreamService {
         callbacks.onDone?.();
         break;
       case 'error':
-        callbacks.onError?.((data['errorMessage'] as string) || 'Unknown error');
+        callbacks.onError?.(
+          (data['errorMessage'] as string) || 'Unknown error',
+          playgroundErrorI18nKey(data['errorCode']) ? (data['errorCode'] as string) : undefined,
+        );
         break;
     }
   }

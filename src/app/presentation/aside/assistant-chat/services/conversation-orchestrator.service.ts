@@ -25,10 +25,16 @@ import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.se
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { PlaygroundSpeechOverrideService } from 'src/app/domain/services/speech/playground-speech-override.service';
 import { TranscriptSanitizerService } from 'src/app/domain/services/speech/transcript-sanitizer.service';
 import { SttEngine, SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-defaults.constants';
+import {
+  PLAYGROUND_CONFIRMATION_HINT,
+  PLAYGROUND_VOICE_TOO_LONG_HINT,
+} from 'src/app/domain/constants/playground.constants';
+import { PlaygroundPromptGateService } from 'src/app/domain/services/playground/playground-prompt-gate.service';
+import { playgroundErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
@@ -46,10 +52,11 @@ export class ConversationOrchestratorService implements OnDestroy {
   private readonly dataTts = inject(DataTtsService);
   private readonly audioQueue = inject(AudioQueueService);
   private readonly earcon = inject(EarconService);
-  private readonly settings = inject(AppSettingsManagementService);
+  private readonly settings = inject(PlaygroundSpeechOverrideService);
   private readonly outputModes = inject(SpeechOutputModeService);
   private readonly transcriptSanitizer = inject(TranscriptSanitizerService);
   private readonly ngZone = inject(NgZone);
+  private readonly playgroundGate = inject(PlaygroundPromptGateService);
 
   readonly state = signal(ConversationState.Idle);
   readonly voiceModeEnabled = signal(false);
@@ -383,11 +390,11 @@ export class ConversationOrchestratorService implements OnDestroy {
    * chatStreamService exposes callbacks instead of observables, so the component
    * forwards the SSE network error here to keep all error-hint emission centralized.
    */
-  onStreamError(): void {
+  onStreamError(errorCode?: string): void {
     this.isPlanningSignal.set(false);
     this.reportError({
       kind: 'network',
-      i18nKey: 'klacksy.voice.errors.network-failed',
+      i18nKey: playgroundErrorI18nKey(errorCode) ?? 'klacksy.voice.errors.network-failed',
       persistent: false,
     });
   }
@@ -433,6 +440,8 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async enable(): Promise<void> {
+    if (!(await this.playgroundGate.waitForStatus())) return;
+    if (this.playgroundGate.confirmationPending()) return this.reportError(PLAYGROUND_CONFIRMATION_HINT);
     this.voiceModeEnabled.set(true);
     await this.transitionToListening();
   }
@@ -483,7 +492,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
     const speechSettings = this.settings.speechSettings();
 
-    if (!this.usesBlobStt(speechSettings.sttEngine)) {
+    if (!SttEngine.usesBlobTranscription(speechSettings.sttEngine)) {
       try {
         this.sttStream.connect(this.locale);
       } catch (err) {
@@ -511,16 +520,6 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
   }
 
-  /**
-   * Engines that capture the full utterance and transcribe a single blob (local Whisper
-   * or a buffered server REST provider, including custom self-hosted providers)
-   * instead of streaming over a WebSocket.
-   * @param engine - The configured STT engine identifier
-   */
-  private usesBlobStt(engine: string): boolean {
-    return engine === SttEngine.Browser || engine === SttEngine.GroqWhisper || SttEngine.isCustom(engine);
-  }
-
   private isUnsupportedSttLanguage(err: unknown): boolean {
     return err instanceof HttpErrorResponse && err.error?.code === SttErrorCodes.UnsupportedLanguage;
   }
@@ -532,7 +531,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
     const speechSettings = this.settings.speechSettings();
 
-    if (this.usesBlobStt(speechSettings.sttEngine)) {
+    if (SttEngine.usesBlobTranscription(speechSettings.sttEngine)) {
       const blob = this.audioCapture.takeRecordedBlob();
       this.audioCapture.stop();
       if (blob.size < SpeechDefaults.MinBlobBytes) {
@@ -591,6 +590,13 @@ export class ConversationOrchestratorService implements OnDestroy {
       } catch {
         // Keep raw text on failure
       }
+    }
+
+    if (this.playgroundGate.exceedsLimit(this.callbacks?.getInputText() ?? '')) {
+      this.callbacks?.setInputText('');
+      this.reportError(PLAYGROUND_VOICE_TOO_LONG_HINT);
+      await this.transitionToListening();
+      return;
     }
 
     this.state.set(ConversationState.Processing);

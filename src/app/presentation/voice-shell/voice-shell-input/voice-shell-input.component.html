@@ -5,6 +5,7 @@
     (ngModelChange)="inputText.set($event)"
     (keydown)="onKeyDown($event)"
     [attr.disabled]="isDisabled() || null"
+    [attr.maxlength]="maxPromptChars()"
     placeholder="{{ 'assistant-chat.placeholder.voice-input' | translate }}"
     rows="1"
     [attr.aria-label]="'assistant-chat.placeholder.voice-input' | translate"
@@ -12,10 +13,12 @@
   <button
     type="button"
     class="floating-send-btn"
-    [disabled]="!inputText().trim() || isDisabled()"
+    [disabled]="!inputText().trim() || isSendBlocked()"
     (click)="send()"
     [attr.aria-label]="'assistant-chat.send-message' | translate"
   >
     <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
   </button>
 </div>
+<app-playground-prompt-counter [length]="inputText().length" />
+<app-playground-notice [compact]="true" />

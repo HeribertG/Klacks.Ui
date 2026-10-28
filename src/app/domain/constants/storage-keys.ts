@@ -31,4 +31,6 @@ export class StorageKeys {
   public static readonly COMPANY_CLOCK_UTC_WARNING_DISMISSED = 'klacks.companyClock.utcWarningDismissedSession';
   public static readonly AUTO_WIZARD_ACTIVE_JOB = 'klacks.autoWizard.activeJobSession';
   public static readonly AUTO_WIZARD_PENDING_SCENARIO = 'klacks.autoWizard.pendingScenarioSession';
+  public static readonly PLAYGROUND_DEVICE_TOKEN = 'klacks.playground.deviceToken';
+  public static readonly PLAYGROUND_NOTICE_ACKNOWLEDGED = 'klacks.playground.noticeAcknowledged';
 }

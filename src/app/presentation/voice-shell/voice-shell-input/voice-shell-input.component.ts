@@ -22,12 +22,16 @@ import { ConversationOrchestratorService } from '../../aside/assistant-chat/serv
 import { TextToSpeechService } from '../../aside/assistant-chat/services/text-to-speech.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { PlaygroundPromptGateService } from 'src/app/domain/services/playground/playground-prompt-gate.service';
+import { PlaygroundNoticeComponent } from 'src/app/presentation/playground/playground-notice/playground-notice.component';
+import { PlaygroundPromptCounterComponent } from 'src/app/presentation/playground/playground-prompt-counter/playground-prompt-counter.component';
+import { PlaygroundSendGuardService } from 'src/app/presentation/playground/playground-send-guard.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 
 @Component({
   selector: 'app-voice-shell-input',
   standalone: true,
-  imports: [FormsModule, FontAwesomeModule, TranslateModule],
+  imports: [FormsModule, FontAwesomeModule, TranslateModule, PlaygroundNoticeComponent, PlaygroundPromptCounterComponent],
   templateUrl: './voice-shell-input.component.html',
   styleUrl: './voice-shell-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +41,8 @@ export class VoiceShellInputComponent {
   private readonly ttsService = inject(TextToSpeechService);
   private readonly assistantService = inject(DataManagementAssistantService);
   private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
+  private readonly playgroundGate = inject(PlaygroundPromptGateService);
+  private readonly sendGuard = inject(PlaygroundSendGuardService);
 
   readonly faPaperPlane = faPaperPlane;
   readonly inputText = signal('');
@@ -55,10 +61,13 @@ export class VoiceShellInputComponent {
   });
 
   readonly isDisabled = computed(() => this.isInitializing() || this.hasNoApiKey());
+  readonly isSendBlocked = computed(() => this.isDisabled() || this.playgroundGate.confirmationPending());
+  readonly maxPromptChars = this.playgroundGate.maxPromptChars;
 
   async send(): Promise<void> {
+    if (!this.inputText().trim() || this.isDisabled()) return;
+    if (!(await this.sendGuard.allowSendWhenReady(() => this.inputText().trim()))) return;
     const text = this.inputText().trim();
-    if (!text || this.isDisabled()) return;
     this.inputText.set('');
     await this.orchestrator.submitText(text);
   }

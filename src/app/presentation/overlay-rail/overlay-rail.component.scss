@@ -81,7 +81,8 @@ $lane-flank-min-viewport: $content-container + 816px;
 }
 
 app-voice-shell,
-app-voice-shell-input {
+app-voice-shell-input,
+app-playground-notice {
   flex-shrink: 0;
   pointer-events: auto;
 }

@@ -6,6 +6,14 @@ import { StreamCallbacks } from '../../../domain/models/assistant/stream-callbac
 import { StreamStatus } from '../../../domain/models/assistant/stream-status.interface';
 import { IAssistantChatRequest } from '../../../domain/models/assistant/assistant-chat-request.interface';
 import { ASSISTANT_STATUS_STAGE } from 'src/app/domain/constants/assistant-status-stage.constants';
+import {
+  PLAYGROUND_DEVICE_HEADER,
+  PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE,
+  PLAYGROUND_PROMPT_TOO_LONG_ERROR_CODE,
+  PLAYGROUND_TOKEN_LIMIT_ERROR_CODE,
+} from 'src/app/domain/constants/playground.constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 
 function sseStreamFromEvents(events: readonly { event: string; data: unknown }[]): ReadableStream<Uint8Array> {
   const text = events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('');
@@ -254,5 +262,151 @@ describe('DataAssistantStreamService', () => {
       'status:calling_model',
       'content',
     ]);
+  });
+
+  describe('playground token limit', () => {
+    const DEVICE_TOKEN = 'signedDeviceToken1234567890';
+    const LIMIT_PROBLEM = { status: 429, errorCode: PLAYGROUND_TOKEN_LIMIT_ERROR_CODE };
+
+    const sentHeaders = (): Record<string, string> => {
+      const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+      return fetchMock.mock.calls[0][1].headers;
+    };
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      localStorage.removeItem(StorageKeys.PLAYGROUND_DEVICE_TOKEN);
+    });
+
+    it('sends no device header and writes nothing to storage while the limit is inactive', async () => {
+      // Arrange
+      const setItem = vi.spyOn(Storage.prototype, 'setItem');
+      mockFetchWithEvents([{ event: 'done', data: {} }]);
+      const done: boolean[] = [];
+
+      // Act
+      service.chatStream(request, { onDone: () => done.push(true) });
+      await vi.waitFor(() => expect(done.length).toBe(1));
+
+      // Assert
+      expect(PLAYGROUND_DEVICE_HEADER in sentHeaders()).toBe(false);
+      expect(setItem).not.toHaveBeenCalled();
+    });
+
+    it('sends the device header on the fetch path while the limit is active', async () => {
+      // Arrange
+      TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: DEVICE_TOKEN });
+      mockFetchWithEvents([{ event: 'done', data: {} }]);
+      const done: boolean[] = [];
+
+      // Act
+      service.chatStream(request, { onDone: () => done.push(true) });
+      await vi.waitFor(() => expect(done.length).toBe(1));
+
+      // Assert
+      expect(sentHeaders()[PLAYGROUND_DEVICE_HEADER]).toBe(DEVICE_TOKEN);
+    });
+
+    it('reports the limit code of a 429 problem before the stream starts', async () => {
+      // Arrange
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status: 429,
+          statusText: 'Too Many Requests',
+          json: () => Promise.resolve(LIMIT_PROBLEM),
+        } as unknown as Response),
+      );
+      const errors: (string | undefined)[] = [];
+
+      // Act
+      service.chatStream(request, { onError: (_message, code) => errors.push(code) });
+      await vi.waitFor(() => expect(errors.length).toBe(1));
+
+      // Assert
+      expect(errors[0]).toBe(PLAYGROUND_TOKEN_LIMIT_ERROR_CODE);
+    });
+
+    it.each([
+      { status: 403, errorCode: PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE },
+      { status: 400, errorCode: PLAYGROUND_PROMPT_TOO_LONG_ERROR_CODE },
+    ])('reports the $errorCode of a $status problem before the stream starts', async ({ status, errorCode }) => {
+      // Arrange
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status,
+          statusText: 'Rejected',
+          json: () => Promise.resolve({ status, errorCode }),
+        } as unknown as Response),
+      );
+      const errors: (string | undefined)[] = [];
+
+      // Act
+      service.chatStream(request, { onError: (_message, code) => errors.push(code) });
+      await vi.waitFor(() => expect(errors.length).toBe(1));
+
+      // Assert
+      expect(errors[0]).toBe(errorCode);
+    });
+
+    it('reports no code when the status does not belong to the playground code', async () => {
+      // Arrange
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status: 500,
+          statusText: 'Server Error',
+          json: () => Promise.resolve({ status: 500, errorCode: PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE }),
+        } as unknown as Response),
+      );
+      const errors: (string | undefined)[] = [];
+
+      // Act
+      service.chatStream(request, { onError: (_message, code) => errors.push(code) });
+      await vi.waitFor(() => expect(errors.length).toBe(1));
+
+      // Assert
+      expect(errors[0]).toBeUndefined();
+    });
+
+    it('reports no code for a 429 whose body carries none', async () => {
+      // Arrange
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status: 429,
+          statusText: 'Too Many Requests',
+          json: () => Promise.resolve({ status: 429 }),
+        } as unknown as Response),
+      );
+      const errors: (string | undefined)[] = [];
+
+      // Act
+      service.chatStream(request, { onError: (_message, code) => errors.push(code) });
+      await vi.waitFor(() => expect(errors.length).toBe(1));
+
+      // Assert
+      expect(errors[0]).toBeUndefined();
+    });
+
+    it('forwards the limit code of an SSE error chunk sent mid-turn', async () => {
+      // Arrange
+      mockFetchWithEvents([
+        { event: 'error', data: { errorMessage: 'limit', errorCode: PLAYGROUND_TOKEN_LIMIT_ERROR_CODE } },
+      ]);
+      const errors: (string | undefined)[] = [];
+
+      // Act
+      service.chatStream(request, { onError: (_message, code) => errors.push(code) });
+      await vi.waitFor(() => expect(errors.length).toBe(1));
+
+      // Assert
+      expect(errors[0]).toBe(PLAYGROUND_TOKEN_LIMIT_ERROR_CODE);
+    });
   });
 });

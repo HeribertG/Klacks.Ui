@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageMappingService } from 'src/app/application/services/language-mapping.service';
 import { SpeechOutputModeService } from 'src/app/application/services/speech-output-mode.service';
+import { VOICE_HINT_SEVERITY_INFO } from 'src/app/domain/constants/voice-shell-error-hint.constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
@@ -71,7 +72,7 @@ export class ChatVoiceBridgeService {
       return;
     }
     const message = this.translateService.instant(hint.i18nKey);
-    if (hint.kind === STT_EMPTY_HINT_KIND) {
+    if (hint.kind === STT_EMPTY_HINT_KIND || hint.severity === VOICE_HINT_SEVERITY_INFO) {
       this.toastShowService.showInfo(message);
     } else {
       this.toastShowService.showError(message);

@@ -67,6 +67,9 @@
     </div>
   </div>
 
+  <!-- Playground privacy notice: stays visible during the setup tour, whose messages are gated by the same confirmation -->
+  <app-playground-notice />
+
   <!-- Input Area (hidden for the entire setup tour: tour answers are captured on the real settings forms) -->
   @if (!isInputHiddenByTour()) {
   <div class="input-container" [class.disabled]="isInitializing() || hasNoApiKey()">
@@ -133,6 +136,7 @@
         (ngModelChange)="inputText.set($event)"
         (keydown)="onInputKeyPress($event)"
         [attr.disabled]="(isInitializing() || hasNoApiKey()) || null"
+        [attr.maxlength]="maxPromptChars()"
         placeholder="{{ 'assistant-chat.placeholder' | translate }}"
         rows="1"
       >
@@ -143,13 +147,14 @@
         id="assistant-chat-send-btn"
         type="button"
         class="btn-send"
-        [disabled]="!inputText().trim() || isInitializing() || hasNoApiKey()"
+        [disabled]="!inputText().trim() || isInitializing() || hasNoApiKey() || playgroundConfirmationPending()"
         (click)="sendMessage()"
         [attr.aria-label]="'assistant-chat.send-message' | translate"
       >
         <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
       </button>
     </div>
+    <app-playground-prompt-counter [length]="inputText().length" />
   </div>
   }
 </div>

@@ -1,0 +1,8 @@
+@if (visible()) {
+  <div class="playground-counter" [class.at-limit]="atLimit()" aria-live="polite">
+    <span>{{ length() }} / {{ max() }}</span>
+    @if (exceeded()) {
+      <span class="playground-counter-message">{{ tooLongKey | translate: { max: max() } }}</span>
+    }
+  </div>
+}

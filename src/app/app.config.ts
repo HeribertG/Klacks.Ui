@@ -74,6 +74,8 @@ import { DataAppVersionService } from './infrastructure/api/data-app-version.ser
 import { REALTIME_CONNECTION_STATUS } from './domain/interfaces/realtime-connection-status.interface';
 import { SignalRConnectionStatusService } from './infrastructure/signalr/signalr-connection-status.service';
 import { APP_PORT_BINDINGS } from './app.port-bindings';
+import { PlaygroundDeviceInterceptor } from './presentation/playground/playground-device.interceptor';
+import { PlaygroundStatusService } from './domain/services/playground/playground-status.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -102,6 +104,10 @@ export function initializeLocaleData(): Promise<void> {
   return localeDataLoader.ensureLoaded(localeService.getLocale());
 }
 
+export function initializePlaygroundStatus(): void {
+  void inject(PlaygroundStatusService).load();
+}
+
 export function initializeDatepickerWeekStart(): void {
   inject(DatepickerWeekStartService);
 }
@@ -116,6 +122,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
     provideAppInitializer(initializeLocaleData),
     provideAppInitializer(initializeDatepickerWeekStart),
+    provideAppInitializer(initializePlaygroundStatus),
     {
       provide: APP_INITIALIZER,
       useFactory: initializeAuthStartup,
@@ -135,6 +142,7 @@ export const appConfig: ApplicationConfig = {
       multi: true,
     },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: PlaygroundDeviceInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     {

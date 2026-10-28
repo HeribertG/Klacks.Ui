@@ -22,5 +22,8 @@
     @if (showFloatingInput()) {
       <app-voice-shell-input />
     }
+    @if (showVoiceShell() && !showFloatingInput()) {
+      <app-playground-notice [compact]="true" [pendingOnly]="true" />
+    }
   </div>
 </div>

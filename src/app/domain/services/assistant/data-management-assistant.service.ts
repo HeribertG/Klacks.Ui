@@ -246,9 +246,9 @@ export class DataManagementAssistantService {
         this.isLoading.set(false);
         callbacks.onDone?.();
       },
-      onError: (msg: string) => {
+      onError: (msg: string, errorCode?: string) => {
         this.isLoading.set(false);
-        callbacks.onError?.(msg);
+        callbacks.onError?.(msg, errorCode);
       },
     };
 

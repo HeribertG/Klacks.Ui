@@ -9,7 +9,8 @@
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { PlaygroundStatusGateService } from 'src/app/domain/services/playground/playground-status-gate.service';
+import { PlaygroundSpeechOverrideService } from 'src/app/domain/services/speech/playground-speech-override.service';
 
 const TTS_ENDPOINT = 'tts/synthesize';
 
@@ -19,7 +20,8 @@ export class TextToSpeechService implements OnDestroy {
   readonly isLoading = signal(false);
   readonly playingMessageId = signal<string | null>(null);
 
-  private readonly settings = inject(AppSettingsManagementService);
+  private readonly settings = inject(PlaygroundSpeechOverrideService);
+  private readonly statusGate = inject(PlaygroundStatusGateService);
   private audio: HTMLAudioElement | null = null;
   private objectUrl: string | null = null;
   private abortController: AbortController | null = null;
@@ -39,6 +41,11 @@ export class TextToSpeechService implements OnDestroy {
     this.abortController = controller;
 
     try {
+      await this.statusGate.whenResolved();
+      if (controller.signal.aborted) {
+        return;
+      }
+
       const token = localStorage.getItem(StorageKeys.TOKEN);
       const speechSettings = this.settings.speechSettings();
 

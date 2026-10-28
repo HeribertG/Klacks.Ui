@@ -23,6 +23,10 @@ export class SttEngine {
     return engine.startsWith(SttEngine.CustomPrefix);
   }
 
+  static usesBlobTranscription(engine: string): boolean {
+    return engine === SttEngine.Browser || engine === SttEngine.GroqWhisper || SttEngine.isCustom(engine);
+  }
+
   static isLocalPlugin(engine: string): boolean {
     return engine.toLowerCase() === SttEngine.LocalPluginEngine;
   }
