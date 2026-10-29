@@ -15,6 +15,7 @@ import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { environment } from 'src/environments/environment';
 import { getApiRootUrl } from 'src/app/infrastructure/helpers/api-root-url.helper';
 import { isJwtExpired } from 'src/app/domain/helpers/jwt.helper';
+import { INSTANCE_ID_HEADER } from 'src/app/domain/helpers/instance-id.helper';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -34,7 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const connectionId = this.signalRService.connectionId;
     const instanceId = this.getOrCreateInstanceId();
 
-    let headers = req.headers.set('X-Instance-Id', instanceId);
+    let headers = req.headers.set(INSTANCE_ID_HEADER, instanceId);
 
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);

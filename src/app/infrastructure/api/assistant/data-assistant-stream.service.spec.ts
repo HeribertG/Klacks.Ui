@@ -14,6 +14,7 @@ import {
 } from 'src/app/domain/constants/playground.constants';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
+import { INSTANCE_ID_HEADER } from 'src/app/domain/helpers/instance-id.helper';
 
 function sseStreamFromEvents(events: readonly { event: string; data: unknown }[]): ReadableStream<Uint8Array> {
   const text = events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('');
@@ -262,6 +263,48 @@ describe('DataAssistantStreamService', () => {
       'status:calling_model',
       'content',
     ]);
+  });
+
+  describe('tab instance id', () => {
+    const INSTANCE_ID = 'tab-instance-1';
+
+    const sentHeaders = (): Record<string, string> => {
+      const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+      return fetchMock.mock.calls[0][1].headers;
+    };
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      sessionStorage.removeItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID);
+    });
+
+    it('sends the tab instance id so a skill shares the lock of the open container page', async () => {
+      // Arrange
+      sessionStorage.setItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID, INSTANCE_ID);
+      mockFetchWithEvents([{ event: 'done', data: {} }]);
+      const done: boolean[] = [];
+
+      // Act
+      service.chatStream(request, { onDone: () => done.push(true) });
+      await vi.waitFor(() => expect(done.length).toBe(1));
+
+      // Assert
+      expect(sentHeaders()[INSTANCE_ID_HEADER]).toBe(INSTANCE_ID);
+    });
+
+    it('sends no instance id and creates none while the tab has none', async () => {
+      // Arrange
+      mockFetchWithEvents([{ event: 'done', data: {} }]);
+      const done: boolean[] = [];
+
+      // Act
+      service.chatStream(request, { onDone: () => done.push(true) });
+      await vi.waitFor(() => expect(done.length).toBe(1));
+
+      // Assert
+      expect(INSTANCE_ID_HEADER in sentHeaders()).toBe(false);
+      expect(sessionStorage.getItem(StorageKeys.CONTAINER_LOCK_INSTANCE_ID)).toBeNull();
+    });
   });
 
   describe('playground token limit', () => {

@@ -16,6 +16,7 @@ import { StreamCallbacks } from '../../../domain/models/assistant/stream-callbac
 import { StreamMetadata } from '../../../domain/models/assistant/stream-metadata.interface';
 import { SseEvent } from '../../../domain/models/assistant/sse-event.interface';
 import { toAssistantStatusStage } from 'src/app/domain/constants/assistant-status-stage.constants';
+import { INSTANCE_ID_HEADER, readInstanceId } from 'src/app/domain/helpers/instance-id.helper';
 
 @Injectable({ providedIn: 'root' })
 export class DataAssistantStreamService {
@@ -35,12 +36,14 @@ export class DataAssistantStreamService {
   ): Promise<void> {
     try {
       const token = localStorage.getItem(StorageKeys.TOKEN);
+      const instanceId = readInstanceId();
 
       const response = await fetch(`${this.baseUrl}chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(instanceId ? { [INSTANCE_ID_HEADER]: instanceId } : {}),
           ...this.playground.deviceHeaders(),
         },
         body: JSON.stringify(request),
