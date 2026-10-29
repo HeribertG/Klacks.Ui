@@ -79,6 +79,8 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
   private mapElement: HTMLElement | null = null;
   private mapTiles: IMapTileConfig | null = null;
   private routeLayer: Leaflet.LayerGroup | null = null;
+  private routeBounds: Leaflet.LatLngTuple[] = [];
+  private fitPendingUntilSized = false;
   private resizeObserver: ResizeObserver | null = null;
 
   constructor() {
@@ -130,7 +132,7 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
     this.mapElement = container;
     this.mapTiles = mapTiles;
     this.routeLayer = L.layerGroup().addTo(map);
-    this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
+    this.resizeObserver = new ResizeObserver(() => this.onResize(container));
     this.resizeObserver.observe(container);
   }
 
@@ -142,6 +144,7 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
     }
 
     layer.clearLayers();
+    this.routeBounds = [];
     if (!routeMap) {
       return;
     }
@@ -162,9 +165,26 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
       bounds.push(position);
     }
 
-    if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: ROUTE_MAP_FIT_PADDING, maxZoom: ROUTE_MAP_FIT_MAX_ZOOM });
+    this.routeBounds = bounds;
+    this.fitToRoute(this.mapElement);
+  }
+
+  private onResize(container: HTMLElement): void {
+    this.map?.invalidateSize();
+    if (this.fitPendingUntilSized) {
+      this.fitToRoute(container);
     }
+  }
+
+  private fitToRoute(container: HTMLElement | null): void {
+    if (!this.map || !container || this.routeBounds.length === 0) {
+      return;
+    }
+    this.fitPendingUntilSized = container.clientWidth === 0 || container.clientHeight === 0;
+    if (this.fitPendingUntilSized) {
+      return;
+    }
+    this.map.fitBounds(this.routeBounds, { padding: ROUTE_MAP_FIT_PADDING, maxZoom: ROUTE_MAP_FIT_MAX_ZOOM });
   }
 
   private createIcon(marker: IRouteMapMarker): Leaflet.DivIcon {
@@ -203,5 +223,7 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
     this.mapElement = null;
     this.mapTiles = null;
     this.routeLayer = null;
+    this.routeBounds = [];
+    this.fitPendingUntilSized = false;
   }
 }

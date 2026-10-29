@@ -3,7 +3,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ContainerTemplateSessionService } from './container-template-session.service';
 import { ContainerTemplateEditorStateService } from './container-template-editor-state.service';
 import { ContainerTemplateLifecycleService } from './container-template-lifecycle.service';
@@ -236,6 +236,22 @@ describe('ContainerTemplateSessionService', () => {
       // Assert
       expect(notifier.showInteractiveReply).not.toHaveBeenCalled();
       expect(loadCount()).toBe(loadsAfterReload + 1);
+    });
+  });
+
+  describe('failed reload', () => {
+    it('ends the loading state instead of leaving an unhandled error', () => {
+      // Arrange
+      session.start();
+      containerService['loadTasksForWeekday'].mockReturnValue(throwError(() => new Error('offline')));
+      state.isLoading = true;
+
+      // Act
+      pushContainerChange();
+
+      // Assert
+      expect(state.isLoading).toBe(false);
+      expect(viewRefresh['refreshSelection']).not.toHaveBeenCalled();
     });
   });
 

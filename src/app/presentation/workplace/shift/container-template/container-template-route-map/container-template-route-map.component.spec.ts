@@ -68,6 +68,7 @@ describe('ContainerTemplateRouteMapComponent', () => {
   let leafletMap: { remove: ReturnType<typeof vi.fn>; fitBounds: ReturnType<typeof vi.fn>; invalidateSize: ReturnType<typeof vi.fn> };
   let leaflet: Record<string, ReturnType<typeof vi.fn>>;
   let observerDisconnect: ReturnType<typeof vi.fn>;
+  let resizeCallback: (() => void) | null;
 
   const stubLeaflet = (): void => {
     markers = [];
@@ -97,10 +98,14 @@ describe('ContainerTemplateRouteMapComponent', () => {
       }),
     };
     observerDisconnect = vi.fn();
+    resizeCallback = null;
     vi.stubGlobal('L', leaflet);
     vi.stubGlobal(
       'ResizeObserver',
       class {
+        constructor(callback: () => void) {
+          resizeCallback = callback;
+        }
         observe = vi.fn();
         disconnect = observerDisconnect;
       },
@@ -159,8 +164,24 @@ describe('ContainerTemplateRouteMapComponent', () => {
     expect(polylines).toHaveLength(1);
     expect(polylines[0].points).toEqual(ROAD_MAP.path.map((p) => [p.lat, p.lon]));
     expect(polylines[0].options).toBe(ROUTE_MAP_ROAD_LINE_STYLE);
-    expect(leafletMap.fitBounds).toHaveBeenCalledTimes(1);
     expect(hint()).toBeNull();
+  });
+
+  it('fits the view to the route once the map area has a real size', async () => {
+    // Arrange
+    await render(ROAD_MAP);
+    const canvas: HTMLElement = fixture.nativeElement.querySelector('.route-map-canvas');
+    expect(leafletMap.fitBounds).not.toHaveBeenCalled();
+
+    // Act
+    Object.defineProperty(canvas, 'clientWidth', { configurable: true, value: 400 });
+    Object.defineProperty(canvas, 'clientHeight', { configurable: true, value: 300 });
+    resizeCallback?.();
+    resizeCallback?.();
+
+    // Assert
+    expect(leafletMap.invalidateSize).toHaveBeenCalledTimes(2);
+    expect(leafletMap.fitBounds).toHaveBeenCalledTimes(1);
   });
 
   it('falls back to a dashed straight line with the estimated hint when no road geometry came back', async () => {

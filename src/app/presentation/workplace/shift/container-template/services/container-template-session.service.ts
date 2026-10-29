@@ -162,7 +162,10 @@ export class ContainerTemplateSessionService {
     this.reloadSubscription?.unsubscribe();
     this.reloadSubscription = this.loadTasksAndTemplatesForWeekday()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.onReloaded());
+      .subscribe({
+        next: () => this.onReloaded(),
+        error: () => this.onShiftLoadFailed(),
+      });
   }
 
   private onReloaded(): void {
