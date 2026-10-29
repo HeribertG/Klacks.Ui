@@ -83,7 +83,6 @@ export function extractModuleSpecifiers(source: string): string[] {
   return ts.preProcessFile(source, true, true).importedFiles.map((imported) => imported.fileName);
 }
 
-
 function resolveSpecifier(specifier: string, importer: string, appRoot: string): string | null {
   let base: string;
   if (specifier.startsWith('.')) {
@@ -101,7 +100,9 @@ function resolveSpecifier(specifier: string, importer: string, appRoot: string):
 }
 
 export function scanProductionSources(appRoot: string): { files: string[]; edges: ILayerEdge[] } {
-  const files = collectFiles(appRoot, (path) => isProductionSource(toPosix(relative(appRoot, path))), SKIPPED_FOLDERS).map((file) => toPosix(relative(appRoot, file))).sort();
+  const files = collectFiles(appRoot, (path) => isProductionSource(toPosix(relative(appRoot, path))), SKIPPED_FOLDERS)
+    .map((file) => toPosix(relative(appRoot, file)))
+    .sort();
   const edges: ILayerEdge[] = [];
   for (const file of files) {
     const absolute = join(appRoot, file);

@@ -2,6 +2,7 @@
 
 /**
  * Shared directory walker for the guard and translation specs that scan the Ui sources.
+ * Symlinked or junctioned folders are not followed, so a scanned tree must not rely on them.
  * @param directory - Absolute folder to walk recursively
  * @param isWanted - Decides per absolute file path whether the file is returned
  * @param skippedFolders - Folder names (compared case-insensitively) that are not entered
