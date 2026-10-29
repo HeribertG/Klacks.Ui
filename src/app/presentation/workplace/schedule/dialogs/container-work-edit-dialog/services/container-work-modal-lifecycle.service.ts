@@ -31,6 +31,7 @@ import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/domain/helpers/date.helpe
 import { sortContainerItemsChronologically } from 'src/app/domain/helpers/container-template-sort.helper';
 import { resolveItemEndTime, resolveItemStartTime } from 'src/app/domain/helpers/container-template-format.helper';
 import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
+import { EMPTY_GUID } from 'src/app/domain/constants/empty-guid.constants';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerWorkOptions } from '../open-container-work-options';
 import { IContainerTemplateHolidayVariant } from 'src/app/domain/models/container/container-template-holiday-variant';
@@ -48,7 +49,6 @@ const WORK_CHANGE_TYPE_CORRECTION_END = 0;
 const WORK_CHANGE_TYPE_CORRECTION_START = 1;
 const MINUTES_PER_HOUR = 60;
 const EMPTY_TIME = '00:00';
-const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
 @Injectable()
 export class ContainerWorkModalLifecycleService {

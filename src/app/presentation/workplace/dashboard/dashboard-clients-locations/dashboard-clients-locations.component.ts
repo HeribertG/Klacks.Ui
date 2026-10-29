@@ -32,6 +32,7 @@ import { GeoServiceNoticeComponent } from 'src/app/presentation/shared/geo-servi
 import { STREET_VIEW_LINK_TEMPLATE } from 'src/app/domain/constants/external-map-link.constants';
 import { LocationData } from 'src/app/domain/models/dashboard/location-data.interface';
 import { buildExternalMapLink } from 'src/app/shared/helpers/external-map-link.helper';
+import { escapeHtml } from 'src/app/domain/helpers/html-escape.helper';
 import type * as Leaflet from 'leaflet';
 
 declare let L: typeof Leaflet & {
@@ -252,7 +253,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     const mapTiles = this.geoServicesConfig.mapTiles();
     if (mapTiles?.urlTemplate) {
       L.tileLayer(mapTiles.urlTemplate, {
-        attribution: this.escapeHtml(mapTiles.attribution),
+        attribution: escapeHtml(mapTiles.attribution),
         maxZoom: mapTiles.maxZoom,
         ...(mapTiles.subdomains.length > 0 ? { subdomains: mapTiles.subdomains } : {}),
       }).addTo(this.map);
@@ -297,7 +298,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
         const popupContent = `
           <div style="min-width: 200px;">
-            <h4 style="margin: 0 0 10px 0;">${this.escapeHtml(location.city)}, ${this.escapeHtml(location.country)}</h4>
+            <h4 style="margin: 0 0 10px 0;">${escapeHtml(location.city)}, ${escapeHtml(location.country)}</h4>
             <p style="margin: 5px 0;"><strong>${totalLabel}:</strong> ${location.count} ${clientsLabel}</p>
             ${location.employeeCount > 0 ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>${employeeLabel}:</strong> ${location.employeeCount}</p>` : ''}
             ${location.externEmpCount > 0 ? `<p style="margin: 5px 0; color: #6993ff;"><strong>${externEmpLabel}:</strong> ${location.externEmpCount}</p>` : ''}
@@ -386,7 +387,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
     const popupContent = `
       <div style="min-width: 200px;">
-        <strong>${this.escapeHtml(displayName)}</strong>
+        <strong>${escapeHtml(displayName)}</strong>
         ${this.buildStreetViewLinkHtml(lat, lon)}
       </div>
     `;
@@ -420,13 +421,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   }
 
   private translateEscaped(key: string): string {
-    return this.escapeHtml(this.translateService.instant(key));
-  }
-
-  private escapeHtml(text: string): string {
-    const element = document.createElement('span');
-    element.textContent = text;
-    return element.innerHTML;
+    return escapeHtml(this.translateService.instant(key));
   }
 
   public onOpenStreetView(location: LocationData, event: Event): void {

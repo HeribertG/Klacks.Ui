@@ -3,7 +3,8 @@
 /**
  * Defaults and fixed keys of the container template editor: the Monday-first weekday list shown before a
  * container is loaded, the default time window, the grid-rebuild debounce, the tolerance slider, the sorting
- * of the available tasks, the context menu entry and the container lock messages.
+ * of the available tasks, the context menu entry, the container lock messages and the split sizes with and without
+ * the tour map.
  */
 import { Options } from '@angular-slider/ngx-slider';
 import { TableSortingConfig } from 'src/app/presentation/services/table-sorting-config.interface';
@@ -48,3 +49,9 @@ export const CONTAINER_TEMPLATE_PROPERTIES_MENU_LABEL_KEY = 'shift.container-tem
 
 export const CONTAINER_LOCK_LOCKED_BY_SELF_KEY = 'container.lock.lockedBySelf';
 export const CONTAINER_LOCK_LOCKED_BY_OTHER_KEY = 'container.lock.lockedByOther';
+
+export const CONTAINER_TEMPLATE_SPLIT_SIZES = {
+  withoutMap: 50,
+  withMap: 35,
+  map: 30,
+} as const;

@@ -520,6 +520,22 @@
     padding-inline-end: 30px;
   }
 
+  .route-map-toggle {
+    border: none;
+    background: none;
+    color: var(--colorLabel);
+    cursor: pointer;
+
+    &.active {
+      color: var(--primaryActionColor);
+    }
+  }
+
+  .zone-route-map {
+    padding: 0;
+    overflow: hidden;
+  }
+
   .tolerance-slider {
     display: flex;
     align-items: center;

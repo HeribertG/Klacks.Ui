@@ -16,6 +16,7 @@ import { DataRoutingService } from './data-routing.service';
 import { RouteCoordinate } from './route-coordinate.interface';
 import { RouteCoordinateWithName } from './route-coordinate-with-name.interface';
 import { environment } from 'src/environments/environment';
+import { IRoadRouteGeometry } from 'src/app/domain/models/geo/road-route-geometry.interface';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
 
@@ -154,5 +155,46 @@ describe('DataRoutingService', () => {
 
     httpMock.expectNone(() => true);
     expect(result.value).toEqual([{ lat: 47.3769, lon: 8.5417 }]);
+  });
+
+  describe('getRouteGeometry', () => {
+    const geometry = async (): Promise<{ value?: IRoadRouteGeometry }> => {
+      const captured: { value?: IRoadRouteGeometry } = {};
+      service.getRouteGeometry(WAYPOINTS).subscribe((g) => (captured.value = g));
+      await settle();
+      return captured;
+    };
+
+    it('reports a road geometry when a routing proxy returns a route', async () => {
+      // Arrange
+      const result = await geometry();
+
+      // Act
+      httpMock.expectOne(DIRECTIONS_URL).flush([
+        { lat: 47.3, lon: 8.5 },
+        { lat: 47.1, lon: 8.0 },
+      ]);
+
+      // Assert
+      expect(result.value).toEqual({
+        points: [
+          { lat: 47.3, lon: 8.5 },
+          { lat: 47.1, lon: 8.0 },
+        ],
+        isRoadGeometry: true,
+      });
+    });
+
+    it('reports the straight-line fallback when no routing proxy returns a route', async () => {
+      // Arrange
+      const result = await geometry();
+
+      // Act
+      httpMock.expectOne(DIRECTIONS_URL).flush(null, { status: 500, statusText: 'Server Error' });
+      httpMock.expectOne(OSRM_ROUTE_URL).flush({ status: 'NoRoute', points: [] });
+
+      // Assert
+      expect(result.value).toEqual({ points: RAW_WAYPOINTS, isRoadGeometry: false });
+    });
   });
 });

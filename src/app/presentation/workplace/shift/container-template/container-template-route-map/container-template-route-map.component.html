@@ -1,0 +1,10 @@
+<div class="route-map">
+  @if (mapTilesEnabled()) {
+    <div #mapContainer class="route-map-canvas"></div>
+    @if (isEstimated()) {
+      <div class="route-map-hint" role="status">{{ estimatedHintKey | translate }}</div>
+    }
+  } @else {
+    <app-geo-service-notice service="map"></app-geo-service-notice>
+  }
+</div>

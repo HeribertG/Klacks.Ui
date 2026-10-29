@@ -286,7 +286,8 @@ export class ContainerTemplateShiftOperationsService {
       return;
     }
 
-    if (!this.routeService.lastRouteInfo) {
+    const routeInfo = this.routeService.lastRouteInfo();
+    if (!routeInfo) {
       this.toastService.showInfo(
         this.translateService.instant(
           'shift.container-template.toast.optimize-first',
@@ -304,7 +305,7 @@ export class ContainerTemplateShiftOperationsService {
 
     this.pdfExportService.exportRouteToPdf(
       items,
-      this.routeService.lastRouteInfo,
+      routeInfo,
       containerName,
       weekday,
       timeFromStr,

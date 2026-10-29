@@ -5,7 +5,8 @@
  * OpenRouteService (Routing/Directions, holds the API key) is asked first when the installation enables it;
  * when it reports no route, the backend OSRM proxy (Routing/OsrmRoute) is asked when routing is enabled.
  * Whatever is switched off is not requested at all, and when no route can be obtained the raw waypoints are
- * returned, so the map shows straight lines instead of failing.
+ * returned, so the map shows straight lines instead of failing. getRouteGeometry additionally reports whether the
+ * points are a real road geometry or only that straight-line fallback.
  * @param coordinates - List of coordinates with name, lat/lon
  */
 import { inject, Injectable } from '@angular/core';
@@ -21,6 +22,7 @@ import { IRouteGeometryResult } from 'src/app/domain/models/geo/route-geometry-r
 import { RouteCoordinate } from './route-coordinate.interface';
 import { RouteCoordinateWithName } from './route-coordinate-with-name.interface';
 import { RouteGeometryStatus } from 'src/app/domain/models/geo/route-geometry-status.model';
+import { IRoadRouteGeometry } from 'src/app/domain/models/geo/road-route-geometry.interface';
 
 const MIN_ROUTE_WAYPOINTS = 2;
 
@@ -32,16 +34,21 @@ export class DataRoutingService {
   private geoServicesConfig = inject(GeoServicesConfigService);
 
   getRoute(coordinates: RouteCoordinateWithName[]): Observable<RouteCoordinate[]> {
+    return this.getRouteGeometry(coordinates).pipe(map((geometry) => geometry.points));
+  }
+
+  getRouteGeometry(coordinates: RouteCoordinateWithName[]): Observable<IRoadRouteGeometry> {
     const waypoints = this.toWaypoints(coordinates);
+    const straightLine: IRoadRouteGeometry = { points: waypoints, isRoadGeometry: false };
     if (coordinates.length < MIN_ROUTE_WAYPOINTS) {
-      return of(waypoints);
+      return of(straightLine);
     }
 
     return from(this.geoServicesConfig.ensureLoaded()).pipe(
       switchMap(() => this.getOpenRouteServiceRoute(waypoints)),
       switchMap((route) => (route.length > 0 ? of(route) : this.getOsrmRoute(waypoints))),
-      map((route) => (route.length > 0 ? route : waypoints)),
-      catchError(() => of(waypoints)),
+      map((route) => (route.length > 0 ? { points: route, isRoadGeometry: true } : straightLine)),
+      catchError(() => of(straightLine)),
     );
   }
 

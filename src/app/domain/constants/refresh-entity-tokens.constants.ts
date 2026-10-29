@@ -5,10 +5,11 @@
  * SignalR notifications. Each IRefreshable data source declares which tokens it reacts to so the
  * DataRefreshCoordinator can reload the right page after a Klacksy mutation.
  *
- * These must stay in sync with the backend EntityChangeNotifier, which derives the token from
- * SkillEntityMap (PascalCase entity names lower-cased) or, when absent, from the skill name
- * (prefix stripped, underscores removed). Schedule-domain tokens are intentionally absent here
- * because the work-notifications hub already pushes those live.
+ * These must stay in sync with the backend EntityChangeNotifier, which takes the tokens from
+ * SkillRefreshEntityMap (e.g. the container skills emit 'containertemplate' and 'shift'), else from
+ * SkillEntityMap (PascalCase entity names lower-cased), else from the skill name (prefix stripped,
+ * underscores removed). Schedule-domain tokens are intentionally absent here because the
+ * work-notifications hub already pushes those live.
  */
 export const RefreshEntityTokens = {
   CLIENT: ['client', 'address', 'communication', 'annotation', 'membership', 'contract', 'groupitem'],
@@ -16,6 +17,7 @@ export const RefreshEntityTokens = {
   GROUP: ['group', 'groupitem'],
   ABSENCE: ['absence'],
   CLIENT_AVAILABILITY: ['client', 'clientavailability'],
+  CONTAINER_TEMPLATE: ['containertemplate'],
 
   // Settings sub-lists (registered per-component via DataRefreshRegistry)
   MACRO: ['macro'],
