@@ -6,6 +6,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { buildShiftListPlannableViewUrl } from 'src/app/domain/helpers/shift-list-view-url.helper';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { AllShiftStateService } from './all-shift-state.service';
 import { ShiftListViewRequestService } from './shift-list-view-request.service';
 
@@ -13,6 +14,7 @@ describe('ShiftListViewRequestService', () => {
   let service: ShiftListViewRequestService;
   let state: { applyTransientOverride: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn> };
+  let sorting: { restoreSortState: ReturnType<typeof vi.fn> };
   let granted: Set<string>;
 
   const request = (params: Record<string, string>) => service.apply(convertToParamMap(params));
@@ -22,12 +24,14 @@ describe('ShiftListViewRequestService', () => {
     granted = new Set([PERMISSIONS.CanEditShifts]);
     state = { applyTransientOverride: vi.fn() };
     router = { navigate: vi.fn(() => Promise.resolve(true)) };
+    sorting = { restoreSortState: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
         ShiftListViewRequestService,
         { provide: AllShiftStateService, useValue: state },
         { provide: AuthorizationService, useValue: { hasPermission: (p: string) => granted.has(p) } },
+        { provide: TableSortingService, useValue: sorting },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: {} },
       ],
@@ -105,6 +109,30 @@ describe('ShiftListViewRequestService', () => {
         validFrom: undefined,
         validUntil: new Date(2026, 10, 30),
       });
+    });
+
+    it('sorts the newest shifts first with a window so that freshly cut shifts lead the list', () => {
+      // Arrange / Act
+      request({ view: 'plannable', from: '2026-11-02', until: '2026-11-08' });
+
+      // Assert
+      expect(sorting.restoreSortState).toHaveBeenCalledExactlyOnceWith('valid_from', 'desc');
+    });
+
+    it('keeps the current sorting without a window', () => {
+      // Arrange / Act
+      request({ view: 'plannable' });
+
+      // Assert
+      expect(sorting.restoreSortState).not.toHaveBeenCalled();
+    });
+
+    it('keeps the current sorting for the orders view', () => {
+      // Arrange / Act
+      request({ view: 'orders' });
+
+      // Assert
+      expect(sorting.restoreSortState).not.toHaveBeenCalled();
     });
 
     it('falls back to the default active shifts without a window', () => {

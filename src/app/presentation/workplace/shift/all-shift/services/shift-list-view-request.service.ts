@@ -2,9 +2,11 @@
 
 /**
  * Applies the "view" request of the shift list URL (orders intake or plannable shifts with an optional validity window)
- * to the list filter as a transient override and removes the request parameters from the URL again.
+ * to the list filter as a transient override and removes the request parameters from the URL again. A plannable
+ * request with a window also sorts the list newest first.
  * @param allShiftStateService - Applies the override to the filter and keeps it out of the stored filter
  * @param authorizationService - Decides whether the user may open the order intake
+ * @param sortingService - Sorting of the list the request opens, switched to newest first for a plannable window
  * @param router - Removes the request parameters from the URL
  * @param activatedRoute - Route the parameters are removed from
  */
@@ -15,6 +17,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import {
   SHIFT_LIST_FROM_QUERY_PARAM,
+  SHIFT_LIST_PLANNABLE_WINDOW_SORT,
   SHIFT_LIST_UNTIL_QUERY_PARAM,
   SHIFT_LIST_VIEW,
   SHIFT_LIST_VIEW_QUERY_PARAM,
@@ -22,12 +25,14 @@ import {
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { IShiftFilter } from 'src/app/domain/models/shift/shift-filter.interface';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { AllShiftStateService } from './all-shift-state.service';
 
 @Injectable()
 export class ShiftListViewRequestService {
   private readonly allShiftStateService = inject(AllShiftStateService);
   private readonly authorizationService = inject(AuthorizationService);
+  private readonly sortingService = inject(TableSortingService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
 
@@ -51,6 +56,9 @@ export class ShiftListViewRequestService {
     }
 
     this.allShiftStateService.applyTransientOverride(changes);
+    if (this.hasValidityWindow(changes)) {
+      this.sortingService.restoreSortState(SHIFT_LIST_PLANNABLE_WINDOW_SORT.orderBy, SHIFT_LIST_PLANNABLE_WINDOW_SORT.sortOrder);
+    }
     return true;
   }
 
@@ -88,6 +96,10 @@ export class ShiftListViewRequestService {
       validFrom,
       validUntil,
     };
+  }
+
+  private hasValidityWindow(changes: Partial<IShiftFilter>): boolean {
+    return changes.validFrom !== undefined || changes.validUntil !== undefined;
   }
 
   private removeRequestParams(): void {
