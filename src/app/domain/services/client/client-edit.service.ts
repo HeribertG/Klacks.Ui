@@ -9,6 +9,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import {
   IClient,
@@ -33,6 +34,13 @@ import { takeUntil } from 'rxjs/operators';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { WORKPLACE_ROUTE_PREFIX } from 'src/app/domain/constants/navigation-outcome.constants';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+
+const EDIT_ADDRESS_ROUTE = `${WORKPLACE_ROUTE_PREFIX}${RouteName.EDIT_ADDRESS}`;
+const URL_SYNC_DELAY_MS = 100;
+const QUERY_SEPARATOR = '?';
+const PATH_SEPARATOR = '/';
 
 @Injectable({
   providedIn: 'root',
@@ -46,6 +54,7 @@ export class ClientEditService {
   public clientConfigService = inject(ClientConfigService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
+  private location = inject(Location);
   private destroy$ = new Subject<void>();
   private _skipAddressValidation = false;
 
@@ -84,7 +93,7 @@ export class ClientEditService {
     this.editClientDummy = cloneObject<IClient>(this.editClient()!);
 
     if (this.editClient()!.id) {
-      setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
+      setTimeout(() => this.syncEditAddressUrl(), URL_SYNC_DELAY_MS);
     }
 
     this._showProgressSpinner.set(false);
@@ -108,7 +117,22 @@ export class ClientEditService {
   }
 
   private createUrl(): string {
-    return '/workplace/edit-address/' + this.editClient()!.id;
+    return `${EDIT_ADDRESS_ROUTE}${PATH_SEPARATOR}${this.editClient()!.id}`;
+  }
+
+  // The service outlives the edit-address page: a client read that is still in flight when the user
+  // (or Klacksy) leaves the page lands here on the next page. The browser path is the only reliable
+  // signal - urlUpdateStrategy 'eager' switches it at NavigationStart, router.url only at activation -
+  // and writing the address URL onto another page would desync the browser URL from the rendered page.
+  private syncEditAddressUrl(): void {
+    const currentPath = this.location.path().split(QUERY_SEPARATOR)[0];
+    const isOnEditAddress =
+      currentPath === EDIT_ADDRESS_ROUTE || currentPath.startsWith(`${EDIT_ADDRESS_ROUTE}${PATH_SEPARATOR}`);
+    if (!isOnEditAddress || !this.editClient()?.id) {
+      return;
+    }
+
+    this.location.go(this.createUrl());
   }
 
   public readClient(id: string) {

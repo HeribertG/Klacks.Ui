@@ -18,6 +18,10 @@ import {
 } from 'src/app/domain/interfaces/event-bus.interface';
 import { ClientConfigService } from './client-config.service';
 import { of } from 'rxjs';
+import { APP_BASE_HREF, Location } from '@angular/common';
+import { provideLocationMocks, SpyLocation } from '@angular/common/testing';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { CommunicationService } from './communication.service';
 
 class MockEventBus implements IEventBus {
   emit<_T>(_eventType: string, _payload: _T): void {}
@@ -523,5 +527,109 @@ describe('ClientEditService', () => {
 
       expect(result).toBe(false);
     });
+  });
+});
+
+describe('ClientEditService edit-address URL sync', () => {
+  const CLIENT_ID = 'client-5020';
+  const URL_SYNC_DELAY_MS = 100;
+  let service: ClientEditService;
+  let location: SpyLocation;
+
+  const readClientAfterLeavingTo = (path: string): void => {
+    location.go(path);
+    location.urlChanges.length = 0;
+    service.readClient(CLIENT_ID);
+    vi.advanceTimersByTime(URL_SYNC_DELAY_MS);
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    const client = new Client();
+    client.id = CLIENT_ID;
+
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
+      providers: [
+        provideLocationMocks(),
+        ClientEditService,
+        { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
+        { provide: ClientConfigService, useClass: MockClientConfigService },
+        { provide: DataClientService, useValue: { getClient: () => of(client) } },
+        { provide: CommunicationService, useValue: { setCommunication: () => undefined } },
+      ],
+    });
+    service = TestBed.inject(ClientEditService);
+    location = TestBed.inject(Location) as SpyLocation;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('leaves the browser URL alone when the read completes after the user left edit-address', () => {
+    readClientAfterLeavingTo(`/workplace/schedule?clientId=${CLIENT_ID}&date=2026-11-05`);
+
+    expect(location.urlChanges).toEqual([]);
+    expect(location.path()).toBe(`/workplace/schedule?clientId=${CLIENT_ID}&date=2026-11-05`);
+  });
+
+  it('writes the client id into the URL of the new-client form', () => {
+    readClientAfterLeavingTo('/workplace/edit-address');
+
+    expect(location.path()).toBe(`/workplace/edit-address/${CLIENT_ID}`);
+  });
+
+  it('replaces the previous client id when edit-address switches to another client', () => {
+    readClientAfterLeavingTo('/workplace/edit-address/other-client');
+
+    expect(location.path()).toBe(`/workplace/edit-address/${CLIENT_ID}`);
+  });
+
+  it('does not treat a route that only shares the edit-address prefix as edit-address', () => {
+    readClientAfterLeavingTo('/workplace/edit-address-archive');
+
+    expect(location.urlChanges).toEqual([]);
+  });
+});
+
+describe('ClientEditService edit-address URL sync against the browser history', () => {
+  const CLIENT_ID = 'client-5020';
+  const URL_SYNC_DELAY_MS = 100;
+  const SCHEDULE_PATH = '/workplace/schedule';
+  let originalPath: string;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    originalPath = window.location.pathname + window.location.search;
+    const client = new Client();
+    client.id = CLIENT_ID;
+
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
+      providers: [
+        { provide: APP_BASE_HREF, useValue: '/' },
+        ClientEditService,
+        { provide: EVENT_BUS_TOKEN, useValue: new MockEventBus() },
+        { provide: ClientConfigService, useClass: MockClientConfigService },
+        { provide: DataClientService, useValue: { getClient: () => of(client) } },
+        { provide: CommunicationService, useValue: { setCommunication: () => undefined } },
+      ],
+    });
+  });
+
+  afterEach(() => {
+    window.history.replaceState(null, '', originalPath);
+    vi.useRealTimers();
+  });
+
+  it('keeps the schedule URL when a client read from the left address page completes late', () => {
+    const service = TestBed.inject(ClientEditService);
+    window.history.pushState(null, '', `${SCHEDULE_PATH}?clientId=${CLIENT_ID}`);
+
+    service.readClient(CLIENT_ID);
+    vi.advanceTimersByTime(URL_SYNC_DELAY_MS);
+
+    expect(window.location.pathname).toBe(SCHEDULE_PATH);
   });
 });
