@@ -120,7 +120,8 @@ describe('BranchesComponent', () => {
             fixture.detectChanges();
 
             // Assert
-            expect(mockToastService.showError).toHaveBeenCalledWith('setting.branches.error.load-branches');
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('setting.branches.error.load-branches');
+            expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
             expect(component.branches.length).toBe(0);
             expect(component.isLoading).toBe(false);
         });
@@ -229,7 +230,8 @@ describe('BranchesComponent', () => {
             await new Promise((resolve) => setTimeout(resolve, 50));
 
             // Assert
-            expect(mockToastService.showError).toHaveBeenCalledWith('setting.branches.error.delete');
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('setting.branches.error.delete');
+            expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
         });
     });
 
@@ -317,7 +319,8 @@ describe('BranchesComponent', () => {
             await component.onSaveModal(mockModal);
 
             // Assert
-            expect(mockToastService.showError).toHaveBeenCalledWith('setting.branches.error.save');
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('setting.branches.error.save');
+            expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
             expect(mockModal.close).not.toHaveBeenCalled();
         });
 

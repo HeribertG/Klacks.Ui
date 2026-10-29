@@ -54,7 +54,7 @@ export class FeaturePluginMarketplaceBrowseComponent {
       this.currentPage = 1;
       this.updatePage();
     } catch {
-      this.toastService.showError('settings.feature-plugins.marketplace.error.search');
+      this.toastService.showError(this.translate.instant('settings.feature-plugins.marketplace.error.search'));
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();

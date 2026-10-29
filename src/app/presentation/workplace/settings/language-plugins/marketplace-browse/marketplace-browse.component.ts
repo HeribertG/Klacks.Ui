@@ -50,7 +50,7 @@ export class MarketplaceBrowseComponent {
       this.packages = result.items;
       this.totalCount = result.totalCount;
     } catch {
-      this.toastService.showError('settings.language-plugins.marketplace.error.search');
+      this.toastService.showError(this.translate.instant('settings.language-plugins.marketplace.error.search'));
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();

@@ -127,7 +127,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
         },
         error: (error) => {
           console.error('Error loading branches:', error);
-          this.toastService.showError('setting.branches.error.load-branches');
+          this.toastService.showError(this.translate.instant('setting.branches.error.load-branches'));
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -219,7 +219,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error deleting branch:', error);
-      this.toastService.showError('setting.branches.error.delete');
+      this.toastService.showError(this.translate.instant('setting.branches.error.delete'));
       this.cdr.markForCheck();
     }
   }
@@ -253,7 +253,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
       return true;
     } catch (error) {
       console.error('Error saving branch:', error);
-      this.toastService.showError('setting.branches.error.save');
+      this.toastService.showError(this.translate.instant('setting.branches.error.save'));
       this.loadBranches();
       return false;
     } finally {

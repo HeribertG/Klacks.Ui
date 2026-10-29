@@ -362,7 +362,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       this.cdr.markForCheck();
       return true;
     } catch {
-      this.toastService.showError('setting.qualifications.error.save');
+      this.toastService.showError(this.translate.instant('setting.qualifications.error.save'));
       return false;
     } finally {
       this.isSaving = false;
@@ -376,7 +376,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       this.qualifications.update(list => list.filter(q => q.id !== id));
       this.cdr.markForCheck();
     } catch {
-      this.toastService.showError('setting.qualifications.error.delete');
+      this.toastService.showError(this.translate.instant('setting.qualifications.error.delete'));
       this.cdr.markForCheck();
     }
   }

@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbActiveModal, NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PluginSettingsListCardComponent } from '../../shared/settings-list-card/settings-list-card.component';
@@ -94,6 +94,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
   private ngbModal = inject(NgbModal);
   private deleteConfirmation = inject(PLUGIN_DELETE_CONFIRMATION);
   private toastService = inject(PLUGIN_TOAST_SERVICE);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -177,12 +178,12 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
 
     try {
       await this.dataManagement.save(saveTarget);
-      this.toastService.showSuccess('floor-plan.save.success', 'floor-plan.save.header');
+      this.toastService.showSuccess(this.translate.instant('floor-plan.save.success'), this.translate.instant('floor-plan.save.header'));
       if (closeAfterSave) {
         modal.close();
       }
     } catch {
-      this.toastService.showError('floor-plan.save.error');
+      this.toastService.showError(this.translate.instant('floor-plan.save.error'));
     } finally {
       this.cdr.markForCheck();
     }
@@ -221,7 +222,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     try {
       await this.dataManagement.delete(id);
     } catch {
-      this.toastService.showError('floor-plan.delete.error');
+      this.toastService.showError(this.translate.instant('floor-plan.delete.error'));
     }
   }
 

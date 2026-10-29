@@ -82,7 +82,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: () => {
-          this.toastService.showError('settings.feature-plugins.error.load');
+          this.toastService.showError(this.translate.instant('settings.feature-plugins.error.load'));
           this.isLoading = false;
           this.cdr.markForCheck();
         },

@@ -72,7 +72,7 @@ export class OwnerMessengersComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: () => {
-        this.toastService.showError('settings.owner-messengers.error.load');
+        this.toastService.showError(this.translate.instant('settings.owner-messengers.error.load'));
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -120,7 +120,7 @@ export class OwnerMessengersComponent implements OnInit {
         this.translate.instant('TOAST_SUCCESS'),
       );
     } catch {
-      this.toastService.showError('settings.owner-messengers.error.save');
+      this.toastService.showError(this.translate.instant('settings.owner-messengers.error.save'));
     } finally {
       this.cdr.markForCheck();
     }

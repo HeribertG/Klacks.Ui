@@ -95,7 +95,7 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: () => {
-          this.toastService.showError('settings.messaging-providers.error.load');
+          this.toastService.showError(this.translate.instant('settings.messaging-providers.error.load'));
           this.isLoading = false;
           this.cdr.markForCheck();
         },

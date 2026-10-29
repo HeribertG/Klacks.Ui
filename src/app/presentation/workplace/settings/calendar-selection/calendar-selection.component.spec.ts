@@ -176,9 +176,8 @@ describe('CalendarSelectionComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(mockToastService.showError).toHaveBeenCalledWith(
-        'setting.calendar-selection.error.load'
-      );
+      expect(TestBed.inject(TranslateService).instant).toHaveBeenCalledWith('setting.calendar-selection.error.load');
+      expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
     });
   });
 
@@ -377,9 +376,8 @@ describe('CalendarSelectionComponent', () => {
       const modal = { close: vi.fn() };
       await component.onSaveModal(modal);
 
-      expect(mockToastService.showError).toHaveBeenCalledWith(
-        'setting.calendar-selection.error.save'
-      );
+      expect(TestBed.inject(TranslateService).instant).toHaveBeenCalledWith('setting.calendar-selection.error.save');
+      expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
       expect(modal.close).not.toHaveBeenCalled();
     });
   });

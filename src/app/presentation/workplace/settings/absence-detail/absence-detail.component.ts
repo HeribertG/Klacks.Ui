@@ -144,7 +144,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
         },
         error: (error) => {
           console.error('Error loading absence details:', error);
-          this.toastService.showError('setting.absence-detail.error.load');
+          this.toastService.showError(this.translate.instant('setting.absence-detail.error.load'));
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -270,7 +270,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error deleting absence detail:', error);
-      this.toastService.showError('setting.absence-detail.error.delete');
+      this.toastService.showError(this.translate.instant('setting.absence-detail.error.delete'));
       this.cdr.markForCheck();
     }
   }
@@ -304,7 +304,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       return true;
     } catch (error) {
       console.error('Error saving absence detail:', error);
-      this.toastService.showError('setting.absence-detail.error.save');
+      this.toastService.showError(this.translate.instant('setting.absence-detail.error.save'));
       this.loadAbsenceDetails();
       return false;
     } finally {

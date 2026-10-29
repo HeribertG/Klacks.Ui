@@ -367,7 +367,7 @@ export class CalendarSelectionComponent
       );
     } catch (error) {
       console.error('Error loading calendar selections:', error);
-      this.toastService.showError('setting.calendar-selection.error.load');
+      this.toastService.showError(this.translate.instant('setting.calendar-selection.error.load'));
     } finally {
       this.cdr.markForCheck();
     }
@@ -383,7 +383,7 @@ export class CalendarSelectionComponent
       }
     } catch (error) {
       console.error('Error loading rule tokens:', error);
-      this.toastService.showError('setting.calendar-selection.error.load');
+      this.toastService.showError(this.translate.instant('setting.calendar-selection.error.load'));
     } finally {
       this.cdr.markForCheck();
     }
@@ -414,7 +414,7 @@ export class CalendarSelectionComponent
       return true;
     } catch (error) {
       console.error('Error saving calendar selection:', error);
-      this.toastService.showError('setting.calendar-selection.error.save');
+      this.toastService.showError(this.translate.instant('setting.calendar-selection.error.save'));
       return false;
     } finally {
       this.isSaving = false;
@@ -432,7 +432,7 @@ export class CalendarSelectionComponent
       );
     } catch (error) {
       console.error('Error deleting calendar selection:', error);
-      this.toastService.showError('setting.calendar-selection.error.delete');
+      this.toastService.showError(this.translate.instant('setting.calendar-selection.error.delete'));
     } finally {
       this.cdr.markForCheck();
     }

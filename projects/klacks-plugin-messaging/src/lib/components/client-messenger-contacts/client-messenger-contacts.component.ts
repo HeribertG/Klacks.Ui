@@ -79,7 +79,7 @@ export class ClientMessengerContactsComponent implements OnChanges {
         this.cdr.markForCheck();
       },
       error: () => {
-        this.toastService.showError('client.messenger-contacts.error.load');
+        this.toastService.showError(this.translate.instant('client.messenger-contacts.error.load'));
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -108,7 +108,7 @@ export class ClientMessengerContactsComponent implements OnChanges {
         this.translate.instant('TOAST_SUCCESS'),
       );
     } catch {
-      this.toastService.showError('client.messenger-contacts.error.delete');
+      this.toastService.showError(this.translate.instant('client.messenger-contacts.error.delete'));
     } finally {
       this.cdr.markForCheck();
     }
@@ -118,7 +118,7 @@ export class ClientMessengerContactsComponent implements OnChanges {
     if (!this.clientId) return;
     const entry = this.contacts()[index];
     if (!entry.value.trim()) {
-      this.toastService.showError('client.messenger-contacts.error.value-required');
+      this.toastService.showError(this.translate.instant('client.messenger-contacts.error.value-required'));
       return;
     }
 
@@ -150,7 +150,7 @@ export class ClientMessengerContactsComponent implements OnChanges {
         this.translate.instant('TOAST_SUCCESS'),
       );
     } catch {
-      this.toastService.showError('client.messenger-contacts.error.save');
+      this.toastService.showError(this.translate.instant('client.messenger-contacts.error.save'));
     } finally {
       this.cdr.markForCheck();
     }
