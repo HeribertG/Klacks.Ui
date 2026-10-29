@@ -99,14 +99,20 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
     const filter = this.dataManagementShiftService.currentFilter;
     this.countrySelection.set(selectionFromWire(filter.countries));
     this.stateSelection.set(selectionFromWire(filter.states?.map((pair) => pair.country + STATE_KEY_SEPARATOR + pair.state)));
-    this.validFromValue = transformDateToNgbDateStruct(filter.validFrom);
-    this.validUntilValue = transformDateToNgbDateStruct(filter.validUntil);
+    this.syncValidityPeriodFromFilter();
 
     effect(() => {
       if (this.dataManagementShiftService.isRead()) {
+        this.syncValidityPeriodFromFilter();
         this.cdr.markForCheck();
       }
     });
+  }
+
+  private syncValidityPeriodFromFilter(): void {
+    const filter = this.dataManagementShiftService.currentFilter;
+    this.validFromValue = transformDateToNgbDateStruct(filter.validFrom);
+    this.validUntilValue = transformDateToNgbDateStruct(filter.validUntil);
   }
 
   ngOnInit(): void {
