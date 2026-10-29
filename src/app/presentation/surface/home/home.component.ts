@@ -21,6 +21,8 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { ONBOARDING_KIND } from 'src/app/domain/constants/onboarding-stations';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
+import { PlaygroundStatusGateService } from 'src/app/domain/services/playground/playground-status-gate.service';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 
@@ -48,17 +50,24 @@ export class HomeComponent implements OnInit {
   private onboardingService = inject(OnboardingService);
   private asideService = inject(AsideService);
   private authorizationService = inject(AuthorizationService);
+  private playgroundDevice = inject(PlaygroundDeviceService);
+  private playgroundStatusGate = inject(PlaygroundStatusGateService);
 
   public layoutService = inject(LayoutService);
 
   ngOnInit(): void {
     this.spinnerService.interceptorSuppressed = true;
     this.applicationInitService.initialize();
-    this.openAsideOnFreshDatabase();
+    void this.openAsideOnFreshDatabase();
   }
 
-  private openAsideOnFreshDatabase(): void {
+  private async openAsideOnFreshDatabase(): Promise<void> {
     if (!this.authorizationService.isAdmin) {
+      return;
+    }
+
+    await this.playgroundStatusGate.whenResolved();
+    if (this.playgroundDevice.limitActive()) {
       return;
     }
 

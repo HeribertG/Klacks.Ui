@@ -20,6 +20,7 @@
   >
   </app-whisper-plugin-setting>
 </div>
+@if (!playground.limitActive()) {
 <div
   id="settings-home-assistant-personality-row"
   class="container-profilline"
@@ -62,6 +63,7 @@
   >
   </app-assistant-skill-relations>
 </div>
+}
 <div id="settings-home-klacksy-autonomy-row" class="container-profilline">
   <app-klacksy-autonomy-settings
     id="settings-klacksy-autonomy"
@@ -73,6 +75,7 @@
   >
   </app-klacksy-autonomy-settings>
 </div>
+@if (!playground.limitActive()) {
 <div id="settings-home-klacksy-proactive-governance-row" class="container-profilline">
   <app-klacksy-proactive-governance
     id="settings-klacksy-proactive-governance"
@@ -84,3 +87,4 @@
   >
   </app-klacksy-proactive-governance>
 </div>
+}

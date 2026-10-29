@@ -4,7 +4,8 @@
  * Klacksy section of the expert settings page: the rows with the speech, whisper plugin, personality, learning,
  * skill-relation, autonomy and proactive-governance cards of the assistant.
  */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 import { AssistantSpeechSettingsComponent } from '../../assistant-speech-settings/assistant-speech-settings.component';
 import { WhisperPluginSettingComponent } from '../../whisper-plugin-setting/whisper-plugin-setting.component';
 import { AssistantPersonalitySettingsComponent } from '../../assistant-personality-settings/assistant-personality-settings.component';
@@ -29,4 +30,6 @@ import { KlacksyProactiveGovernanceComponent } from '../../klacksy-proactive-gov
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SettingsKlacksySectionComponent {}
+export class SettingsKlacksySectionComponent {
+  protected readonly playground = inject(PlaygroundDeviceService);
+}

@@ -2,6 +2,7 @@
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { PlaygroundDeviceService } from 'src/app/domain/services/playground/playground-device.service';
 import { SettingsKlacksySectionComponent } from './settings-klacksy-section.component';
 
 const EXPECTED_IDS = [
@@ -38,5 +39,21 @@ describe('SettingsKlacksySectionComponent', () => {
       expect(card.getAttribute('data-klacksy-route')).toBe('/workplace/settings');
       expect(card.getAttribute('data-klacksy-target')).toBeTruthy();
     });
+  });
+
+  it('hides the cards whose endpoints the playground blocks while the playground limit is active', () => {
+    TestBed.inject(PlaygroundDeviceService).applyStatus({ limitActive: true, deviceToken: null });
+    const fixture = TestBed.createComponent(SettingsKlacksySectionComponent);
+    fixture.detectChanges();
+    const ids = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('[id]')).map((element) => element.id);
+
+    expect(ids).toEqual([
+      'settings-home-assistant-speech-row',
+      'settings-assistant-speech',
+      'settings-home-whisper-plugin-row',
+      'settings-whisper-plugin',
+      'settings-home-klacksy-autonomy-row',
+      'settings-klacksy-autonomy',
+    ]);
   });
 });
