@@ -6,10 +6,11 @@
  * core languages (the manifest scan copies the label key verbatim).
  */
 
-import { readdirSync, readFileSync, statSync } from 'fs';
+import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join, resolve } from 'path';
+import { dirname, resolve } from 'path';
 import { EXPORTS_TAB_TARGETS, PERIOD_CLOSING_ISSUES_TARGET } from './period-closing-target.constants';
+import { collectFiles } from 'src/app/source-files.testing';
 
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'] as const;
 const PAGE_TARGET = 'period-closing';
@@ -19,15 +20,7 @@ const I18N_DIR = resolve(HERE, '../../../../assets/i18n');
 const TARGET_REGEX = /data-klacksy-target="([^"]+)"/g;
 const LABEL_KEY_REGEX = /data-klacksy-label-key="([^"]+)"/g;
 
-function collectTemplates(dir: string): string[] {
-  return readdirSync(dir).flatMap((entry) => {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      return collectTemplates(full);
-    }
-    return full.endsWith('.html') ? [full] : [];
-  });
-}
+const collectTemplates = (dir: string): string[] => collectFiles(dir, (path) => path.endsWith('.html'));
 
 const templates = collectTemplates(HERE).map((file) => readFileSync(file, 'utf8'));
 const targetIds = templates.flatMap((html) => [...html.matchAll(TARGET_REGEX)].map((m) => m[1]));

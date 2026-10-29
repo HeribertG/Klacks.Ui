@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync } from 'fs';
 import { dirname, join, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { BUILD_OUTPUT_FOLDERS, collectFiles } from './source-files.testing';
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(APP_ROOT, '..', '..');
 const SCANNED_ROOTS: readonly string[] = ['src', 'projects'];
-const SKIPPED_FOLDERS: readonly string[] = ['node_modules', 'dist', '.angular'];
 const TYPESCRIPT_EXTENSION = '.ts';
 const SPEC_SUFFIX = '.spec.ts';
 const MIN_EXPECTED_FILES = 2000;
@@ -22,21 +22,18 @@ const RULE =
 
 const toPosix = (value: string): string => value.split('\\').join('/');
 
-function collectProductionFiles(directory: string, found: string[]): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (SKIPPED_FOLDERS.includes(entry.name)) continue;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) collectProductionFiles(path, found);
-    else if (entry.name.endsWith(TYPESCRIPT_EXTENSION) && !entry.name.endsWith(SPEC_SUFFIX)) found.push(path);
-  }
-  return found;
-}
+const collectProductionFiles = (directory: string): string[] =>
+  collectFiles(
+    directory,
+    (path) => path.endsWith(TYPESCRIPT_EXTENSION) && !path.endsWith(SPEC_SUFFIX),
+    BUILD_OUTPUT_FOLDERS,
+  );
 
 const hasUntranslatedToastText = (source: string): boolean =>
   QUOTED_TEXT_TOAST_CALL.test(source) || BACKTICK_KEY_OR_EMPTY_TOAST_CALL.test(source);
 
 describe('toast text is translated', () => {
-  const files = SCANNED_ROOTS.flatMap((root) => collectProductionFiles(join(UI_ROOT, root), []));
+  const files = SCANNED_ROOTS.flatMap((root) => collectProductionFiles(join(UI_ROOT, root)));
 
   describe('rule', () => {
     it('flags an i18n key passed directly to a toast service, also across line breaks', () => {

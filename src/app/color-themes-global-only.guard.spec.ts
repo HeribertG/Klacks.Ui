@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { readdirSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { dirname, join, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { collectFiles } from './source-files.testing';
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(APP_ROOT, '..', '..');
@@ -29,18 +30,13 @@ const toPosix = (value: string): string => value.split('\\').join('/');
 const partialPath = (name: string): string => `${STANDARD_STYLES}/${name}${STYLESHEET_EXTENSION}`;
 const moduleUsePattern = (name: string): RegExp => new RegExp(`@(use|forward|import)\\s+["'](?:[^"']*/)?${name}(\\.scss)?["']`);
 
-function collectStylesheets(directory: string, found: string[]): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (SKIPPED_FOLDERS.includes(entry.name)) continue;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) collectStylesheets(path, found);
-    else if (entry.name.endsWith(STYLESHEET_EXTENSION)) found.push(toPosix(relative(UI_ROOT, path)));
-  }
-  return found;
-}
+const collectStylesheets = (directory: string): string[] =>
+  collectFiles(directory, (path) => path.endsWith(STYLESHEET_EXTENSION), SKIPPED_FOLDERS).map((path) =>
+    toPosix(relative(UI_ROOT, path)),
+  );
 
 describe('root and theme rules are emitted by the global stylesheet only', () => {
-  const stylesheets = SCANNED_ROOTS.flatMap((root) => collectStylesheets(join(UI_ROOT, root), []));
+  const stylesheets = SCANNED_ROOTS.flatMap((root) => collectStylesheets(join(UI_ROOT, root)));
   const source = (file: string): string => readFileSync(join(UI_ROOT, file), 'utf8');
   const exempt = new Set([GLOBAL_STYLESHEET, ...GLOBAL_ONLY_PARTIALS.map(partialPath), ...LEGACY_ROOT_SELECTOR_FILES]);
 

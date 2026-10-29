@@ -10,9 +10,10 @@
  * order rejection message) are listed in ORDER_LEVEL_REASONS and excluded from the comparison.
  */
 
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join, resolve } from 'path';
+import { dirname, resolve } from 'path';
+import { collectFiles } from 'src/app/source-files.testing';
 import {
   ERP_IMPORT_FILE_FAILURE_REASONS,
   ERP_IMPORT_FILES_I18N,
@@ -42,15 +43,8 @@ const RETIRED_KEYS = [
 const load = (language: string): Record<string, string> =>
   JSON.parse(readFileSync(resolve(I18N_DIR, `${language}.json`), 'utf8'));
 
-function sourceFiles(path: string): string[] {
-  return readdirSync(path).flatMap((entry) => {
-    const child = join(path, entry);
-    if (statSync(child).isDirectory()) {
-      return sourceFiles(child);
-    }
-    return SOURCE_FILE_PATTERN.test(entry) && !entry.endsWith(SPEC_FILE_SUFFIX) ? [child] : [];
-  });
-}
+const sourceFiles = (path: string): string[] =>
+  collectFiles(path, (file) => SOURCE_FILE_PATTERN.test(file) && !file.endsWith(SPEC_FILE_SUFFIX));
 
 function keysUsedInCode(): string[] {
   const keys = new Set<string>(Object.values(ERP_IMPORT_FILES_I18N));

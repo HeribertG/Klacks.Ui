@@ -9,9 +9,10 @@
  * infrastructure/api, infrastructure/storage and infrastructure/signalr; presentation -> infrastructure stays forbidden and is frozen in the legacy list.
  * @param appRoot - Absolute path of src/app
  */
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
+import { existsSync, readFileSync, statSync } from 'fs';
 import { dirname, join, relative, resolve } from 'path';
 import * as ts from 'typescript';
+import { collectFiles } from './source-files.testing';
 
 export type Layer = 'domain' | 'application' | 'infrastructure' | 'shared' | 'presentation';
 
@@ -82,19 +83,6 @@ export function extractModuleSpecifiers(source: string): string[] {
   return ts.preProcessFile(source, true, true).importedFiles.map((imported) => imported.fileName);
 }
 
-function listSources(directory: string, appRoot: string, found: string[]): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      if (!SKIPPED_FOLDERS.includes(entry.name.toLowerCase())) {
-        listSources(fullPath, appRoot, found);
-      }
-    } else if (isProductionSource(toPosix(relative(appRoot, fullPath)))) {
-      found.push(fullPath);
-    }
-  }
-  return found;
-}
 
 function resolveSpecifier(specifier: string, importer: string, appRoot: string): string | null {
   let base: string;
@@ -113,7 +101,7 @@ function resolveSpecifier(specifier: string, importer: string, appRoot: string):
 }
 
 export function scanProductionSources(appRoot: string): { files: string[]; edges: ILayerEdge[] } {
-  const files = listSources(appRoot, appRoot, []).map((file) => toPosix(relative(appRoot, file))).sort();
+  const files = collectFiles(appRoot, (path) => isProductionSource(toPosix(relative(appRoot, path))), SKIPPED_FOLDERS).map((file) => toPosix(relative(appRoot, file))).sort();
   const edges: ILayerEdge[] = [];
   for (const file of files) {
     const absolute = join(appRoot, file);

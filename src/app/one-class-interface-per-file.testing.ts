@@ -7,9 +7,10 @@
  * Used by one-class-interface-per-file.guard.spec.ts.
  * @param uiRoot - Absolute path of the Klacks.Ui project root; scanned roots and reported keys are relative to it
  */
-import { readdirSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join, relative } from 'path';
 import * as ts from 'typescript';
+import { collectFiles } from './source-files.testing';
 
 export const SCANNED_ROOTS: readonly string[] = ['src/app', 'projects'];
 
@@ -47,22 +48,13 @@ export function topLevelClassAndInterfaceNames(fileName: string, source: string)
   return names;
 }
 
-function listSources(directory: string, uiRoot: string, found: string[]): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      if (!SKIPPED_FOLDERS.includes(entry.name.toLowerCase())) {
-        listSources(fullPath, uiRoot, found);
-      }
-    } else if (isScannedSource(relative(uiRoot, fullPath))) {
-      found.push(toPosix(relative(uiRoot, fullPath)));
-    }
-  }
-  return found;
-}
+const listSources = (directory: string, uiRoot: string): string[] =>
+  collectFiles(directory, (path) => isScannedSource(relative(uiRoot, path)), SKIPPED_FOLDERS).map((path) =>
+    toPosix(relative(uiRoot, path)),
+  );
 
 export function scanDeclarationCounts(uiRoot: string): { files: string[]; counts: Record<string, string[]> } {
-  const files = SCANNED_ROOTS.flatMap((root) => listSources(join(uiRoot, root), uiRoot, [])).sort();
+  const files = SCANNED_ROOTS.flatMap((root) => listSources(join(uiRoot, root), uiRoot)).sort();
   const counts: Record<string, string[]> = {};
   for (const file of files) {
     counts[file] = topLevelClassAndInterfaceNames(file, readFileSync(join(uiRoot, file), 'utf8'));

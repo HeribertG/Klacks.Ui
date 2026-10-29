@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-import { closeSync, openSync, readSync, readdirSync } from 'fs';
+import { closeSync, openSync, readSync } from 'fs';
 import { dirname, join, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { BUILD_OUTPUT_FOLDERS, collectFiles } from './source-files.testing';
 
 const APP_ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(APP_ROOT, '..', '..');
@@ -11,7 +12,6 @@ const HEADER_BYTES = Buffer.from(HEADER_LINE, 'utf8');
 const LINE_FEED = 0x0a;
 const CARRIAGE_RETURN = 0x0d;
 const SCANNED_ROOTS: readonly string[] = ['src', 'projects'];
-const SKIPPED_FOLDERS: readonly string[] = ['node_modules', 'dist', '.angular'];
 const TYPESCRIPT_EXTENSION = '.ts';
 const MIN_EXPECTED_FILES = 3000;
 const ALLOWED_FILES: readonly string[] = [];
@@ -22,15 +22,8 @@ const RULE =
 
 const toPosix = (value: string): string => value.split('\\').join('/');
 
-function collectTypeScriptFiles(directory: string, found: string[]): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (SKIPPED_FOLDERS.includes(entry.name)) continue;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) collectTypeScriptFiles(path, found);
-    else if (entry.name.endsWith(TYPESCRIPT_EXTENSION)) found.push(path);
-  }
-  return found;
-}
+const collectTypeScriptFiles = (directory: string): string[] =>
+  collectFiles(directory, (path) => path.endsWith(TYPESCRIPT_EXTENSION), BUILD_OUTPUT_FOLDERS);
 
 function readLeadingBytes(path: string): Buffer {
   const buffer = Buffer.alloc(HEADER_BYTES.length + 1);
@@ -51,7 +44,7 @@ function startsWithHeaderLine(leading: Buffer): boolean {
 }
 
 describe('copyright header', () => {
-  const files = SCANNED_ROOTS.flatMap((root) => collectTypeScriptFiles(join(UI_ROOT, root), []));
+  const files = SCANNED_ROOTS.flatMap((root) => collectTypeScriptFiles(join(UI_ROOT, root)));
 
   describe('rule', () => {
     it('accepts the exact first line followed by a line break or the end of the file', () => {
