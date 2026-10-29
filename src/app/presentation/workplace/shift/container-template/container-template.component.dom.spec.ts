@@ -157,6 +157,7 @@ describe('ContainerTemplateComponent (DOM characterization)', () => {
       isAutofillRunning: false,
       isOptimizing: false,
       hasRouteInfo: true,
+      lastRouteInfo: signal(null),
       isTransportModeMix: true,
       onStartBaseChange: vi.fn(),
       onEndBaseChange: vi.fn(),

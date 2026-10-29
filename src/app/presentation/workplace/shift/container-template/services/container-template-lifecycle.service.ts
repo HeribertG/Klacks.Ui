@@ -90,6 +90,10 @@ export class ContainerTemplateLifecycleService {
     };
   }
 
+  clearSaveCompletedCallback(): void {
+    this.containerService.onSaveCompleted = undefined;
+  }
+
   markDirty(): void {
     this.workplaceStateService.areObjectsDirty();
   }

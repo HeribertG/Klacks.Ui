@@ -638,11 +638,14 @@ export interface IRouteInfo {
 
 **Workflow:**
 
-1. User führt `optimizeRoute()` aus → `lastRouteInfo` wird gesetzt
+1. User führt `optimizeRoute()` aus → Signal `lastRouteInfo` wird gesetzt (`lastRouteInfo.set(...)`)
 2. `saveRouteInfoToTemplate()` speichert RouteInfo ins lokale Template
 3. Beim Speichern wird `routeInfo` als JSONB in PostgreSQL gespeichert
 4. Beim Laden wird `routeInfo` aus der DB geladen und `lastRouteInfo` wiederhergestellt
 5. PDF-Export funktioniert sofort ohne erneute Route-Optimierung
+6. Die Tour-Karte (`container-template-route-map`, Umschalter im Kopf der Einsatzliste) liest `lastRouteInfo()` und zeichnet
+   die echte Strassenführung über `ContainerRouteMapService` → `DataRoutingService.getRouteGeometry` (Routing/Directions,
+   OSRM-Fallback); nur ohne Geometrie gestrichelte Luftlinie mit Hinweis "geschätzt"
 
 **Npgsql Konfiguration:**
 
@@ -718,7 +721,7 @@ Das PDF-Export Icon (`app-icon-route-file`) ist nur sichtbar, wenn eine RouteInf
 
 ```typescript
 get hasRouteInfo(): boolean {
-  return this.lastRouteInfo !== null;
+  return this.lastRouteInfo() !== null;
 }
 
 ### Backend-Services

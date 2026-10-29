@@ -11,7 +11,7 @@
  * @param geoServicesConfig - Tells whether the installation allows OpenRouteService at all; the transport
  *   modes that need it are only offered when it is enabled and an API key is stored
  */
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Subject, TimeoutError } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs';
 import { ShiftPoolCompletionService } from 'src/app/domain/services/shift/shift-pool-completion.service';
@@ -76,7 +76,7 @@ export class ContainerTemplateRouteService {
   public selectedEndBase = '';
   public selectedTransportMode: ContainerTransportModeEnum =
     ContainerTransportModeEnum.byCar;
-  public lastRouteInfo: IRouteInfo | null = null;
+  public readonly lastRouteInfo = signal<IRouteInfo | null>(null);
   public isAutofillRunning = false;
   public isOptimizing = false;
   public isOverrideMode = false;
@@ -86,7 +86,7 @@ export class ContainerTemplateRouteService {
   }
 
   get hasRouteInfo(): boolean {
-    return this.lastRouteInfo !== null;
+    return this.lastRouteInfo() !== null;
   }
 
   get hasOpenRouteServiceApiKey(): boolean {
@@ -209,7 +209,7 @@ export class ContainerTemplateRouteService {
     isHoliday: boolean,
     onStateChanged?: () => void,
   ): void {
-    this.lastRouteInfo = {
+    this.lastRouteInfo.set({
       startBase: this.selectedStartBase,
       endBase: this.selectedEndBase,
       totalDistanceKm: result.totalDistanceKm,
@@ -220,7 +220,7 @@ export class ContainerTemplateRouteService {
       travelTimeToEndBase: result.travelTimeToEndBase,
       optimizedRoute: result.optimizedRoute,
       segmentDirections: result.segmentDirections,
-    };
+    });
 
     this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
     const existingAbsences = this.shiftService
@@ -331,7 +331,7 @@ export class ContainerTemplateRouteService {
         next: (result) => {
           this.isOptimizing = false;
 
-          this.lastRouteInfo = {
+          this.lastRouteInfo.set({
             startBase: this.selectedStartBase,
             endBase: this.selectedEndBase,
             totalDistanceKm: result.totalDistanceKm,
@@ -342,7 +342,7 @@ export class ContainerTemplateRouteService {
             travelTimeToEndBase: result.travelTimeToEndBase,
             optimizedRoute: result.optimizedRoute,
             segmentDirections: result.segmentDirections,
-          };
+          });
 
           this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
           if (selectedWeekday) {
@@ -430,7 +430,8 @@ export class ContainerTemplateRouteService {
     selectedWeekday: string | null,
     isHoliday: boolean,
   ): void {
-    if (!selectedWeekday || !this.lastRouteInfo || this.isOverrideMode) {
+    const routeInfo = this.lastRouteInfo();
+    if (!selectedWeekday || !routeInfo || this.isOverrideMode) {
       return;
     }
 
@@ -438,7 +439,7 @@ export class ContainerTemplateRouteService {
     this.containerService.updateRouteInfo(
       weekdayNumber,
       isHoliday,
-      this.lastRouteInfo,
+      routeInfo,
     );
     this.workplaceStateService.areObjectsDirty();
   }
@@ -477,12 +478,12 @@ export class ContainerTemplateRouteService {
         this.selectedTransportMode =
           template.transportMode ?? ContainerTransportModeEnum.byCar;
 
-        this.lastRouteInfo = template.routeInfo || null;
+        this.lastRouteInfo.set(template.routeInfo || null);
       } else {
         this.selectedStartBase = '';
         this.selectedEndBase = '';
         this.selectedTransportMode = ContainerTransportModeEnum.byCar;
-        this.lastRouteInfo = null;
+        this.lastRouteInfo.set(null);
       }
     }
   }

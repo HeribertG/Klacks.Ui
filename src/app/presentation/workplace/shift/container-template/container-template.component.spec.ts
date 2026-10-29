@@ -173,6 +173,7 @@ describe('ContainerTemplateComponent (characterization)', () => {
       selectedShiftSignal: signal<IContainerTemplateItem | null>(null),
       setSelectedShift: recorder('setSelectedShift'),
       setCurrentWeekday: recorder('setCurrentWeekday'),
+      getAllWeekdayTasks: vi.fn(() => ({})),
     };
     lockService = {
       acquire: vi.fn((..._args: unknown[]) => {
@@ -188,6 +189,7 @@ describe('ContainerTemplateComponent (characterization)', () => {
       getArrow: vi.fn(() => ''),
     };
     routeService = {
+      lastRouteInfo: signal(null),
       selectedStartBase: '',
       selectedEndBase: '',
       autofill: recorder('autofill'),
@@ -218,6 +220,7 @@ describe('ContainerTemplateComponent (characterization)', () => {
       workplaceStateService: { areObjectsDirty: vi.fn(() => false) },
       initialize: recorder('lifecycle.initialize'),
       registerSaveCompletedCallback: recorder('registerSaveCompletedCallback'),
+      clearSaveCompletedCallback: vi.fn(),
       observeRouteParams: vi.fn((destroy$: Subject<void>) => {
         calls.push('observeRouteParams');
         return new Observable<string>((subscriber) =>

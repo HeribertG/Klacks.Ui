@@ -19,6 +19,9 @@ export const ROUTING_DIRECTIONS_PATH = 'Routing/Directions';
 
 export const ROUTING_OSRM_ROUTE_PATH = 'Routing/OsrmRoute';
 
+/** Optional query parameter of both routing proxies; the backend routes by car when it is missing. */
+export const ROUTING_TRANSPORT_MODE_PARAM = 'transportMode';
+
 export const GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS: readonly string[] = [
   GEO_SERVICES_CONFIG_PATH,
   GEOCODING_SEARCH_PATH,

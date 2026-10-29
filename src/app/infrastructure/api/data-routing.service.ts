@@ -5,22 +5,29 @@
  * OpenRouteService (Routing/Directions, holds the API key) is asked first when the installation enables it;
  * when it reports no route, the backend OSRM proxy (Routing/OsrmRoute) is asked when routing is enabled.
  * Whatever is switched off is not requested at all, and when no route can be obtained the raw waypoints are
- * returned, so the map shows straight lines instead of failing.
+ * returned, so the map shows straight lines instead of failing. getRouteGeometry additionally reports whether the
+ * points are a real road geometry or only that straight-line fallback.
+ * Both proxies route with the profile of the given container transport mode (bicycle, foot; car and mix as car); the
+ * mode is sent only when it is not car, so a car request is the same request as before.
  * @param coordinates - List of coordinates with name, lat/lon
+ * @param transportMode - Container transport mode whose routing profile is used; car when omitted
  */
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, switchMap, catchError, of, from } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   ROUTING_DIRECTIONS_PATH,
   ROUTING_OSRM_ROUTE_PATH,
+  ROUTING_TRANSPORT_MODE_PARAM,
 } from 'src/app/domain/constants/geo-services-api.constants';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { IRouteGeometryResult } from 'src/app/domain/models/geo/route-geometry-result.interface';
 import { RouteCoordinate } from './route-coordinate.interface';
 import { RouteCoordinateWithName } from './route-coordinate-with-name.interface';
 import { RouteGeometryStatus } from 'src/app/domain/models/geo/route-geometry-status.model';
+import { IRoadRouteGeometry } from 'src/app/domain/models/geo/road-route-geometry.interface';
 
 const MIN_ROUTE_WAYPOINTS = 2;
 
@@ -32,39 +39,48 @@ export class DataRoutingService {
   private geoServicesConfig = inject(GeoServicesConfigService);
 
   getRoute(coordinates: RouteCoordinateWithName[]): Observable<RouteCoordinate[]> {
+    return this.getRouteGeometry(coordinates).pipe(map((geometry) => geometry.points));
+  }
+
+  getRouteGeometry(
+    coordinates: RouteCoordinateWithName[],
+    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar,
+  ): Observable<IRoadRouteGeometry> {
     const waypoints = this.toWaypoints(coordinates);
+    const params = this.toRoutingParams(transportMode);
+    const straightLine: IRoadRouteGeometry = { points: waypoints, isRoadGeometry: false };
     if (coordinates.length < MIN_ROUTE_WAYPOINTS) {
-      return of(waypoints);
+      return of(straightLine);
     }
 
     return from(this.geoServicesConfig.ensureLoaded()).pipe(
-      switchMap(() => this.getOpenRouteServiceRoute(waypoints)),
-      switchMap((route) => (route.length > 0 ? of(route) : this.getOsrmRoute(waypoints))),
-      map((route) => (route.length > 0 ? route : waypoints)),
-      catchError(() => of(waypoints)),
+      switchMap(() => this.getOpenRouteServiceRoute(waypoints, params)),
+      switchMap((route) => (route.length > 0 ? of(route) : this.getOsrmRoute(waypoints, params))),
+      map((route) => (route.length > 0 ? { points: route, isRoadGeometry: true } : straightLine)),
+      catchError(() => of(straightLine)),
     );
   }
 
-  private getOpenRouteServiceRoute(waypoints: RouteCoordinate[]): Observable<RouteCoordinate[]> {
+  private getOpenRouteServiceRoute(waypoints: RouteCoordinate[], params: HttpParams): Observable<RouteCoordinate[]> {
     if (!this.geoServicesConfig.openRouteServiceEnabled()) {
       return of([]);
     }
 
     return this.httpClient
-      .post<RouteCoordinate[] | null>(`${environment.baseUrl}${ROUTING_DIRECTIONS_PATH}`, waypoints)
+      .post<RouteCoordinate[] | null>(`${environment.baseUrl}${ROUTING_DIRECTIONS_PATH}`, waypoints, { params })
       .pipe(
         map((route) => route ?? []),
         catchError(() => of([])),
       );
   }
 
-  private getOsrmRoute(waypoints: RouteCoordinate[]): Observable<RouteCoordinate[]> {
+  private getOsrmRoute(waypoints: RouteCoordinate[], params: HttpParams): Observable<RouteCoordinate[]> {
     if (!this.geoServicesConfig.routingEnabled()) {
       return of([]);
     }
 
     return this.httpClient
-      .post<IRouteGeometryResult>(`${environment.baseUrl}${ROUTING_OSRM_ROUTE_PATH}`, waypoints)
+      .post<IRouteGeometryResult>(`${environment.baseUrl}${ROUTING_OSRM_ROUTE_PATH}`, waypoints, { params })
       .pipe(
         map((result) =>
           result?.status === RouteGeometryStatus.Ok
@@ -73,6 +89,12 @@ export class DataRoutingService {
         ),
         catchError(() => of([])),
       );
+  }
+
+  private toRoutingParams(transportMode: ContainerTransportModeEnum): HttpParams {
+    return transportMode === ContainerTransportModeEnum.byCar
+      ? new HttpParams()
+      : new HttpParams().set(ROUTING_TRANSPORT_MODE_PARAM, transportMode);
   }
 
   private toWaypoints(coordinates: RouteCoordinateWithName[]): RouteCoordinate[] {

@@ -12,16 +12,21 @@
  * @param timeWindow - Time window edits and the debounced grid rebuild
  * @param taskActions - Drop, remove, autofill, route, compaction and PDF export of the selected tasks
  * @param contextMenuActions - Context menu and the properties/absence dialogs
+ * @param routeMapVisible - Whether the user toggled the tour map on; it is only shown while a route exists
  */
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -59,7 +64,10 @@ import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-trans
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { formatTime } from 'src/app/domain/helpers/time-format.helper';
 import { formatClientWithAddress, formatWorkTime } from 'src/app/domain/helpers/container-template-format.helper';
-import { CONTAINER_TEMPLATE_ROW_DRAG_MOUSE_START_DELAY_MS } from './container-template.constants';
+import {
+  CONTAINER_TEMPLATE_ROW_DRAG_MOUSE_START_DELAY_MS,
+  CONTAINER_TEMPLATE_SPLIT_SIZES,
+} from './container-template.constants';
 import { ContainerTemplateRouteService } from './services/container-template-route.service';
 import { ContainerTemplatePropertiesService } from './services/container-template-properties.service';
 import { ContainerTemplateTabService } from './services/container-template-tab.service';
@@ -82,6 +90,7 @@ import { ContainerTemplateContextMenuService } from './services/container-templa
 import { ContainerTemplateAvailableZoneComponent } from './container-template-available-zone/container-template-available-zone.component';
 import { ContainerTemplatePropertiesDialogComponent } from './container-template-properties-dialog/container-template-properties-dialog.component';
 import { ContainerTemplateAbsenceTimeDialogComponent } from './container-template-absence-time-dialog/container-template-absence-time-dialog.component';
+import { ContainerTemplateRouteMapComponent } from './container-template-route-map/container-template-route-map.component';
 
 @Component({
   selector: 'app-container-template',
@@ -115,6 +124,8 @@ import { ContainerTemplateAbsenceTimeDialogComponent } from './container-templat
     ContainerTemplateAvailableZoneComponent,
     ContainerTemplatePropertiesDialogComponent,
     ContainerTemplateAbsenceTimeDialogComponent,
+    ContainerTemplateRouteMapComponent,
+    FontAwesomeModule,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -154,6 +165,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   protected readonly formatTime = formatTime;
   protected readonly formatWorkTime = formatWorkTime;
   protected readonly formatClientWithAddress = formatClientWithAddress;
+  protected readonly routeMapIcon = faMapLocationDot;
+  protected readonly splitSizes = CONTAINER_TEMPLATE_SPLIT_SIZES;
 
   protected readonly direction = inject(DirectionService).direction;
   protected readonly translateService = inject(TranslateService);
@@ -173,6 +186,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
   private readonly propertiesModal = viewChild.required<TemplateRef<unknown>>('propertiesModal');
   private readonly absenceTimeModal = viewChild.required<TemplateRef<unknown>>('absenceTimeModal');
+
+  private readonly routeMapVisible = signal(false);
+  protected readonly routeMapShown = computed(
+    () => this.routeMapVisible() && this.routeService.lastRouteInfo() !== null,
+  );
 
   constructor() {
     this.viewRefresh.connect();
@@ -196,6 +214,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   onContextMenuClick(keys: string[]): void {
     this.contextMenuActions.onMenuClick(keys, this.contextMenu(), this.propertiesModal(), this.absenceTimeModal());
+  }
+
+  toggleRouteMap(): void {
+    this.routeMapVisible.update((visible) => !visible);
   }
 
   onAbsenceRowDblClick(item: IContainerTemplateItem): void {

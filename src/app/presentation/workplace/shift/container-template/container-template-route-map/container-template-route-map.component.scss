@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.route-map {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.route-map-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.route-map-hint {
+  padding: 4px 8px;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  border-top: 1px solid var(--alertWarningBorder);
+  font-size: 12px;
+}
+
+:host ::ng-deep .route-map-stop-marker,
+:host ::ng-deep .route-map-base-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primaryActionTextColor);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+:host ::ng-deep .route-map-stop-marker {
+  background: var(--primaryActionColor);
+  color: var(--primaryActionTextColor);
+}
+
+:host ::ng-deep .route-map-base-marker {
+  background: var(--colorLabel);
+  border-radius: 4px;
+}
