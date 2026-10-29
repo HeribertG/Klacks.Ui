@@ -6,7 +6,8 @@
  * @param containerService - Manages container template data (weekday numbers, template updates)
  * @param shiftService - Manages selected shifts and container template items
  * @param itemManipulationService - Applies optimized route data to template items
- * @param addressProvider - Provides address lookup for start/end base resolution
+ * @param addressProvider - Provides address lookup for start/end base resolution; a stored base that matches no known
+ *   address (e.g. the city a Klacksy bundle stored) is kept as free text and offered as an extra option
  * @param appSettingsService - Provides OpenRouteService API key availability
  * @param geoServicesConfig - Tells whether the installation allows OpenRouteService at all; the transport
  *   modes that need it are only offered when it is enabled and an API key is stored
@@ -48,6 +49,10 @@ import {
 import { OwnTime } from 'src/app/domain/models/schedule/own-time-class';
 import { calculateRouteDrivingMinutes } from 'src/app/shared/helpers/route-info.helper';
 import { AutofillRequest } from './autofill-request.interface';
+import {
+  resolveContainerBaseAddress,
+  unlistedContainerBases,
+} from 'src/app/domain/helpers/container-base-address.helper';
 import { formatSecondsAsHHMM } from 'src/app/shared/helpers/time-span-format.helper';
 
 const MIDNIGHT_TIME = '00:00';
@@ -83,6 +88,13 @@ export class ContainerTemplateRouteService {
 
   constructor() {
     void this.geoServicesConfig.ensureLoaded();
+  }
+
+  get unlistedBases(): string[] {
+    return unlistedContainerBases(
+      [this.selectedStartBase, this.selectedEndBase],
+      this.addressProvider.allAddresses(),
+    );
   }
 
   get hasRouteInfo(): boolean {
@@ -455,26 +467,9 @@ export class ContainerTemplateRouteService {
         isHoliday,
       );
       if (template) {
-        let startBaseAddress = this.addressProvider
-          .allAddresses()
-          .find((a) => a.name === template.startBase);
-        if (!startBaseAddress) {
-          startBaseAddress = this.addressProvider
-            .allAddresses()
-            .find((a) => a.address === template.startBase);
-        }
-
-        let endBaseAddress = this.addressProvider
-          .allAddresses()
-          .find((a) => a.name === template.endBase);
-        if (!endBaseAddress) {
-          endBaseAddress = this.addressProvider
-            .allAddresses()
-            .find((a) => a.address === template.endBase);
-        }
-
-        this.selectedStartBase = startBaseAddress?.address || '';
-        this.selectedEndBase = endBaseAddress?.address || '';
+        const addresses = this.addressProvider.allAddresses();
+        this.selectedStartBase = resolveContainerBaseAddress(template.startBase, addresses);
+        this.selectedEndBase = resolveContainerBaseAddress(template.endBase, addresses);
         this.selectedTransportMode =
           template.transportMode ?? ContainerTransportModeEnum.byCar;
 

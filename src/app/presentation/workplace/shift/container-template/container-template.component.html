@@ -109,7 +109,10 @@
         }
       </div>
 
-      @if (addressProvider.allAddresses().length > 0) {
+      @if (
+        addressProvider.allAddresses().length > 0 ||
+        routeService.unlistedBases.length > 0
+      ) {
         <div class="address-selects">
           <div class="address-select-group">
             <label for="start-base">
@@ -127,6 +130,9 @@
               "
             >
               <option [value]="''">-</option>
+              @for (base of routeService.unlistedBases; track base) {
+                <option [value]="base">{{ base }}</option>
+              }
               @for (
                 address of addressProvider.allAddresses();
                 track address.name
@@ -154,6 +160,9 @@
               "
             >
               <option [value]="''">-</option>
+              @for (base of routeService.unlistedBases; track base) {
+                <option [value]="base">{{ base }}</option>
+              }
               @for (
                 address of addressProvider.allAddresses();
                 track address.name
