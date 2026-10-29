@@ -20,7 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { RouterModule } from '@angular/router';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { SOURCE_CODE_API_REPOSITORY_URL } from 'src/app/domain/constants/source-code.constants';
@@ -67,6 +67,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private modalService = inject(NgbModal);
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
+  private translate = inject(TranslateService);
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
   private dataOAuth2Service = inject(DataOAuth2Service);
@@ -120,7 +121,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           window.location.href = response.authorizationUrl;
         },
         error: () => {
-          this.toastService.showError('', 'login.oauth2.error');
+          this.toastService.showError(this.translate.instant('login.oauth2.error'), 'login.oauth2.error');
           this.oauth2Loading.set(false);
         },
       });
@@ -133,7 +134,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   async onSave(): Promise<void> {
     const { username, password } = this.loginFormModel();
     if (!username || !password) {
-      this.toastService.showError('', 'common.form-validation-errors');
+      this.toastService.showError(this.translate.instant('common.form-validation-errors'), 'common.form-validation-errors');
       return;
     }
 
@@ -187,7 +188,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         next: () => {
           this.resetEmailSending.set(false);
           this.resetEmailSent.set(true);
-          this.toastService.showInfo('', 'auth.forgot-password.success');
+          this.toastService.showInfo(this.translate.instant('auth.forgot-password.success'), 'auth.forgot-password.success');
 
           setTimeout(() => {
             this.modalService.dismissAll();
@@ -197,7 +198,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         error: () => {
           this.resetEmailSending.set(false);
           this.resetEmailError.set(true);
-          this.toastService.showInfo('', 'auth.forgot-password.error');
+          this.toastService.showError(this.translate.instant('auth.forgot-password.error'), 'auth.forgot-password.error');
         },
       });
   }

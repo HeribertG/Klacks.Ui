@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -202,6 +202,26 @@ describe('LoginComponent', () => {
         await savePromise;
         expect(component.isClicked()).toBe(false);
     });
+    it('should show the translated validation error when username or password is missing', async () => {
+        translateService.instant.mockImplementation((key: string) => `T:${key}`);
+
+        await component.onSave();
+
+        expect(authService.logIn).not.toHaveBeenCalled();
+        expect(toastService.showError).toHaveBeenCalledWith('T:common.form-validation-errors', 'common.form-validation-errors');
+    });
+
+    it('should show the translated reset error as an error toast when the reset request fails', () => {
+        translateService.instant.mockImplementation((key: string) => `T:${key}`);
+        userAdministrationService.requestPasswordReset = vi.fn().mockReturnValue(throwError(() => new Error('fail')));
+        component.resetEmail.set('user@test.com');
+
+        component.sendResetEmail();
+
+        expect(component.resetEmailError()).toBe(true);
+        expect(toastService.showError).toHaveBeenCalledWith('T:auth.forgot-password.error', 'auth.forgot-password.error');
+    });
+
     describe('title', () => {
         it('should render the login title as the page heading using the themed title class', () => {
             fixture.detectChanges();
