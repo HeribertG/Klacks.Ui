@@ -2,7 +2,8 @@
 
 /**
  * Filter persistence of the shift list, including filter changes requested by a navigation that must not outlive it.
- * @param transientOverride - Fields a view request overrode, reverted again when the filter is written to storage
+ * @param transientOverride - Fields a view request overrode, reverted again when the filter is written to storage unless
+ *   the user changed one of them (then the whole override is kept)
  */
 
 import { Injectable, inject } from '@angular/core';
@@ -49,11 +50,21 @@ export class AllShiftStateService extends BaseStateService<
     this.transientOverride.apply(this.dataManagementService.currentFilter, changes);
   }
 
+  /**
+   * Accepts the current view request as the user's own filter. The list calls it before it opens a shift for edit or
+   * info: coming back from the editor must show the same view the user left (the plannable window), not the filter
+   * from before the navigation, so that view becomes the stored filter from then on.
+   */
   commitTransientOverride(): void {
     this.transientOverride.commit();
   }
 
+  /** Commits the override as a side effect once the user changed one of its fields, so the takeover sticks. */
   protected override filterToPersist(): IShiftFilter {
-    return this.transientOverride.revertedCopy(this.dataManagementService.currentFilter);
+    const current = this.dataManagementService.currentFilter;
+    if (this.transientOverride.isTakenOver(current)) {
+      this.transientOverride.commit();
+    }
+    return this.transientOverride.revertedCopy(current);
   }
 }

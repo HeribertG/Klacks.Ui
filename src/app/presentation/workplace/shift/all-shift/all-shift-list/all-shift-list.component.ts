@@ -41,6 +41,7 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';
 import { ShiftListViewRequestService } from '../services/shift-list-view-request.service';
+import { SHIFT_LIST_VALID_FROM_SORT_KEY } from 'src/app/domain/constants/shift-list-view.constants';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
@@ -128,7 +129,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
         'abbreviation',
         'name',
         'description',
-        'valid_from',
+        SHIFT_LIST_VALID_FROM_SORT_KEY,
         'valid_until',
       ],
       defaultOrderBy: 'name',
@@ -252,6 +253,10 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onLostFocus(): void {}
 
+  /**
+   * Opens the shift in the editor. A pending view request (view=plannable window) is committed first, so coming back
+   * from the editor shows the same view; see AllShiftStateService.commitTransientOverride. onClickInfo does the same.
+   */
   onClickEdit(data: Shift): void {
     if (data && data.id) {
       this.allShiftStateService.commitTransientOverride();

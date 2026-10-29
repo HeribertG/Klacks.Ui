@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
-import { buildShiftListPlannableViewUrl } from 'src/app/domain/helpers/shift-list-view-url.helper';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { AllShiftStateService } from './all-shift-state.service';
 import { ShiftListViewRequestService } from './shift-list-view-request.service';
@@ -173,16 +172,15 @@ describe('ShiftListViewRequestService', () => {
       expect(appliedChanges()).toMatchObject({ futureDateRange: false, validFrom: undefined, validUntil: undefined });
     });
 
-    it('parses the URL built by buildShiftListPlannableViewUrl', () => {
+    it('parses the URL the Api builds for a confirmed order review', () => {
       // Arrange
-      const url = buildShiftListPlannableViewUrl('2026-11-01', '2026-11-30');
+      const url = '/workplace/shift?view=plannable&from=2026-11-01&until=2026-11-30';
       const query = new URL(url, 'http://localhost').searchParams;
 
       // Act
       request(Object.fromEntries(query.entries()));
 
       // Assert
-      expect(url).toBe('/workplace/shift?view=plannable&from=2026-11-01&until=2026-11-30');
       expect(appliedChanges()).toMatchObject({ validFrom: new Date(2026, 10, 1), validUntil: new Date(2026, 10, 30) });
     });
   });
@@ -198,11 +196,3 @@ describe('ShiftListViewRequestService', () => {
   });
 });
 
-describe('buildShiftListPlannableViewUrl', () => {
-  it('leaves out the bounds that are not given', () => {
-    // Arrange / Act / Assert
-    expect(buildShiftListPlannableViewUrl()).toBe('/workplace/shift?view=plannable');
-    expect(buildShiftListPlannableViewUrl('2026-11-01')).toBe('/workplace/shift?view=plannable&from=2026-11-01');
-    expect(buildShiftListPlannableViewUrl(undefined, '2026-11-30')).toBe('/workplace/shift?view=plannable&until=2026-11-30');
-  });
-});

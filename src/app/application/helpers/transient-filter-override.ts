@@ -2,8 +2,10 @@
 
 /**
  * Remembers which filter fields a navigation request overrode and what they held before, so that the filter
- * written to storage can carry the user's own values instead of the request's. A field the user changed after the
- * override is not reverted: it keeps the user's value.
+ * written to storage carries the user's own values instead of the request's. The override is all or nothing: as long
+ * as every overridden field still holds the request's value, all of them are reverted; once the user changed any one
+ * of them (typically the validity date of the window), the user has taken the view over and every overridden field is
+ * kept, so the stored filter is never a mix of the request's and the user's values.
  * @param baseline - Value each overridden field held before the request
  * @param applied - Value each overridden field was set to by the request
  */
@@ -19,11 +21,13 @@ export class TransientFilterOverride<F extends object> {
   }
 
   apply(filter: F, changes: Partial<F>): void {
+    if (this.isTakenOver(filter)) {
+      this.commit();
+    }
+
     for (const key of keysOf(changes)) {
-      const current = filter[key];
-      const baselineStillValid = Object.hasOwn(this.baseline, key) && sameValue(current, this.applied[key]);
-      if (!baselineStillValid) {
-        this.baseline[key] = current;
+      if (!Object.hasOwn(this.baseline, key)) {
+        this.baseline[key] = filter[key];
       }
       const next = changes[key] as F[typeof key];
       this.applied[key] = next;
@@ -31,16 +35,18 @@ export class TransientFilterOverride<F extends object> {
     }
   }
 
+  isTakenOver(current: F): boolean {
+    return keysOf(this.applied).some(key => !sameValue(current[key], this.applied[key]));
+  }
+
   revertedCopy(current: F): F {
-    if (!this.isActive) {
+    if (!this.isActive || this.isTakenOver(current)) {
       return current;
     }
 
     const copy = cloneObject(current);
     for (const key of keysOf(this.baseline)) {
-      if (sameValue(current[key], this.applied[key])) {
-        copy[key] = this.baseline[key] as F[typeof key];
-      }
+      copy[key] = this.baseline[key] as F[typeof key];
     }
     return copy;
   }
@@ -60,6 +66,9 @@ function keysOf<T extends object>(value: Partial<T>): (keyof T)[] {
 function sameValue(first: unknown, second: unknown): boolean {
   if (first instanceof Date && second instanceof Date) {
     return first.getTime() === second.getTime();
+  }
+  if (first == null && second == null) {
+    return true;
   }
   return first === second;
 }

@@ -67,7 +67,7 @@ describe('AllShiftStateService - transient view override', () => {
     expect(saved().searchString).toBe('kept');
   });
 
-  it('keeps a field the user changed after the override', async () => {
+  it('keeps the whole override once the user changed one overridden field', async () => {
     // Arrange
     service.applyTransientOverride(plannableWindow);
     filter.validUntil = new Date(2026, 11, 31);
@@ -76,9 +76,57 @@ describe('AllShiftStateService - transient view override', () => {
     await service.saveCurrentFilter();
 
     // Assert
-    expect(saved().filterType).toBe(ShiftFilterType.Original);
-    expect(saved().validFrom).toBeUndefined();
+    expect(saved().filterType).toBe(ShiftFilterType.Shift);
+    expect(saved().futureDateRange).toBe(true);
+    expect(saved().validFrom).toEqual(new Date(2026, 10, 1));
     expect(saved().validUntil).toEqual(new Date(2026, 11, 31));
+  });
+
+  it('stores every overridden field when the user changed only validFrom', async () => {
+    // Arrange
+    service.applyTransientOverride(plannableWindow);
+    filter.validFrom = new Date(2026, 9, 15);
+
+    // Act
+    await service.saveCurrentFilter();
+
+    // Assert
+    expect(saved().filterType).toBe(ShiftFilterType.Shift);
+    expect(saved().activeDateRange).toBe(true);
+    expect(saved().formerDateRange).toBe(true);
+    expect(saved().futureDateRange).toBe(true);
+    expect(saved().validFrom).toEqual(new Date(2026, 9, 15));
+    expect(saved().validUntil).toEqual(new Date(2026, 10, 30));
+  });
+
+  it('stays taken over when the user later sets the changed field back to the requested value', async () => {
+    // Arrange
+    service.applyTransientOverride(plannableWindow);
+    filter.validFrom = new Date(2026, 9, 15);
+    await service.saveCurrentFilter();
+    filter.validFrom = new Date(2026, 10, 1);
+
+    // Act
+    await service.saveCurrentFilter();
+
+    // Assert
+    expect(saved().filterType).toBe(ShiftFilterType.Shift);
+    expect(saved().validFrom).toEqual(new Date(2026, 10, 1));
+  });
+
+  it('takes the user values as the new baseline when a request arrives after a takeover', async () => {
+    // Arrange
+    service.applyTransientOverride(plannableWindow);
+    filter.validFrom = new Date(2026, 9, 15);
+    service.applyTransientOverride({ filterType: ShiftFilterType.Original, isSealedOrder: false });
+
+    // Act
+    await service.saveCurrentFilter();
+
+    // Assert
+    expect(filter.filterType).toBe(ShiftFilterType.Original);
+    expect(saved().filterType).toBe(ShiftFilterType.Shift);
+    expect(saved().validFrom).toEqual(new Date(2026, 9, 15));
   });
 
   it('keeps the original baseline when a second request arrives while the first one is still untouched', async () => {
