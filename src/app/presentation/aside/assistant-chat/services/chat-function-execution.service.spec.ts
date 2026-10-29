@@ -316,4 +316,35 @@ describe('ChatFunctionExecutionService', () => {
 
     expect(mockCaptureCancellation).not.toHaveBeenCalled();
   });
+
+  it('navigates to the Route a writing skill puts into its result data, although the skill is no navigation skill', async () => {
+    // Arrange
+    const route = '/workplace/container-template/0c0e0000-0000-0000-0000-000000000001';
+    const calls = [
+      {
+        functionName: 'bundle_nearby_timerange_shifts_into_container',
+        success: true,
+        result: `Container created (verified).\nData: {"ContainerId":"x","Route":"${route}","Verified":true}`,
+      },
+    ];
+
+    // Act
+    await service.executeFunctionCalls(calls);
+
+    // Assert
+    expect(mockExecuteFunction).toHaveBeenCalledTimes(1);
+    expect(mockExecuteFunction).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'navigate_to', arguments: expect.objectContaining({ route }) }),
+    );
+  });
+
+  it('does not navigate for a writing skill whose result data carries no Route', async () => {
+    // Act
+    await service.executeFunctionCalls([
+      { functionName: 'add_container_template_task', success: true, result: 'Done.\nData: {"ContainerId":"x"}' },
+    ]);
+
+    // Assert
+    expect(mockExecuteFunction).not.toHaveBeenCalled();
+  });
 });

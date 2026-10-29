@@ -3,8 +3,9 @@
 /**
  * Tests for DataRoutingService.
  * Verifies that route requests only ever go to the own backend (OpenRouteService proxy first, then the
- * OSRM proxy), that switched-off services are not requested at all, and that the raw waypoints come back
- * when no route can be obtained.
+ * OSRM proxy), that switched-off services are not requested at all, that the raw waypoints come back
+ * when no route can be obtained, and that a non-car transport mode reaches both proxies as query parameter while a
+ * car request carries none.
  */
 
 import { TestBed } from '@angular/core/testing';
@@ -19,6 +20,7 @@ import { environment } from 'src/environments/environment';
 import { IRoadRouteGeometry } from 'src/app/domain/models/geo/road-route-geometry.interface';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { createGeoServicesConfigMock, GeoServicesConfigMock } from 'src/app/shared/testing/geo-services-config.testing';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 
 const DIRECTIONS_URL = `${environment.baseUrl}Routing/Directions`;
 const OSRM_ROUTE_URL = `${environment.baseUrl}Routing/OsrmRoute`;
@@ -195,6 +197,41 @@ describe('DataRoutingService', () => {
 
       // Assert
       expect(result.value).toEqual({ points: RAW_WAYPOINTS, isRoadGeometry: false });
+    });
+
+    it.each([
+      [ContainerTransportModeEnum.byBicycle, '1'],
+      [ContainerTransportModeEnum.byFoot, '2'],
+      [ContainerTransportModeEnum.mix, '3'],
+    ])('sends transport mode %s as query parameter to both routing proxies', async (transportMode, expected) => {
+      // Arrange
+      service.getRouteGeometry(WAYPOINTS, transportMode).subscribe();
+      await settle();
+
+      // Act
+      const directions = httpMock.expectOne((req) => req.url === DIRECTIONS_URL);
+      directions.flush(null, { status: 204, statusText: 'No Content' });
+      const osrm = httpMock.expectOne((req) => req.url === OSRM_ROUTE_URL);
+      osrm.flush({ status: 'NoRoute', points: [] });
+
+      // Assert
+      expect(directions.request.params.get('transportMode')).toBe(expected);
+      expect(osrm.request.params.get('transportMode')).toBe(expected);
+      expect(directions.request.urlWithParams).toBe(`${DIRECTIONS_URL}?transportMode=${expected}`);
+    });
+
+    it('sends no transport mode parameter for a car tour', async () => {
+      // Arrange
+      service.getRouteGeometry(WAYPOINTS, ContainerTransportModeEnum.byCar).subscribe();
+      await settle();
+
+      // Act
+      const directions = httpMock.expectOne((req) => req.url === DIRECTIONS_URL);
+      directions.flush([{ lat: 47.3, lon: 8.5 }]);
+
+      // Assert
+      expect(directions.request.params.keys()).toEqual([]);
+      expect(directions.request.urlWithParams).toBe(DIRECTIONS_URL);
     });
   });
 });

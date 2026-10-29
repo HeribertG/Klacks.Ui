@@ -8,6 +8,7 @@ import { ContainerRouteMapService } from 'src/app/domain/services/container/cont
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { IContainerRouteMap } from 'src/app/domain/models/container/container-route-map.interface';
 import { IRouteInfo } from 'src/app/domain/models/container/route-info.interface';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import {
   createGeoServicesConfigMock,
   GeoServicesConfigMock,
@@ -112,10 +113,16 @@ describe('ContainerTemplateRouteMapComponent', () => {
     );
   };
 
-  const render = async (routeMap: IContainerRouteMap): Promise<void> => {
+  const render = async (
+    routeMap: IContainerRouteMap,
+    transportMode?: ContainerTransportModeEnum,
+  ): Promise<void> => {
     loadRouteMap.mockReturnValue(of(routeMap));
     fixture = TestBed.createComponent(ContainerTemplateRouteMapComponent);
     fixture.componentRef.setInput('routeInfo', ROUTE_INFO);
+    if (transportMode !== undefined) {
+      fixture.componentRef.setInput('transportMode', transportMode);
+    }
     fixture.detectChanges();
     TestBed.tick();
     fixture.detectChanges();
@@ -146,7 +153,7 @@ describe('ContainerTemplateRouteMapComponent', () => {
     await render(ROAD_MAP);
 
     // Assert
-    expect(loadRouteMap).toHaveBeenCalledWith(ROUTE_INFO);
+    expect(loadRouteMap).toHaveBeenCalledWith(ROUTE_INFO, ContainerTransportModeEnum.byCar);
     expect(markers.map((m) => m.position)).toEqual([
       [47.5, 8.7],
       [47.51, 8.71],
@@ -154,6 +161,30 @@ describe('ContainerTemplateRouteMapComponent', () => {
     ]);
     expect(markers.map((m) => m.icon.html)).toEqual(['', '1', '2']);
     expect(markers[1].icon.className).toBe(ROUTE_MAP_STOP_MARKER_CLASS);
+  });
+
+  it('loads the road geometry with the transport mode of the container', async () => {
+    // Arrange / Act
+    await render(ROAD_MAP, ContainerTransportModeEnum.byBicycle);
+
+    // Assert
+    expect(loadRouteMap).toHaveBeenCalledTimes(1);
+    expect(loadRouteMap).toHaveBeenCalledWith(ROUTE_INFO, ContainerTransportModeEnum.byBicycle);
+  });
+
+  it('loads the road geometry again when the transport mode changes', async () => {
+    // Arrange
+    await render(ROAD_MAP);
+
+    // Act
+    fixture.componentRef.setInput('transportMode', ContainerTransportModeEnum.byFoot);
+    fixture.detectChanges();
+    TestBed.tick();
+    await fixture.whenStable();
+
+    // Assert
+    expect(loadRouteMap).toHaveBeenLastCalledWith(ROUTE_INFO, ContainerTransportModeEnum.byFoot);
+    expect(loadRouteMap).toHaveBeenCalledTimes(2);
   });
 
   it('draws the road geometry as a solid line and shows no estimated hint', async () => {

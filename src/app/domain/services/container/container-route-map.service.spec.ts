@@ -7,6 +7,7 @@ import { DataRoutingService } from 'src/app/infrastructure/api/data-routing.serv
 import { EMPTY_GUID } from 'src/app/domain/constants/empty-guid.constants';
 import { IRouteInfo } from 'src/app/domain/models/container/route-info.interface';
 import { IRouteLocation } from 'src/app/domain/models/container/route-location.interface';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 
 const step = (name: string, shiftId: string, latitude: number, longitude: number): IRouteLocation => ({
   name,
@@ -56,11 +57,14 @@ describe('ContainerRouteMapService', () => {
     const map = await firstValueFrom(service.loadRouteMap(routeInfo(route)));
 
     // Assert
-    expect(getRouteGeometry).toHaveBeenCalledWith([
-      { name: 'Base', lat: 47.5, lon: 8.7 },
-      { name: 'Anna', lat: 47.51, lon: 8.71 },
-      { name: 'Base', lat: 47.5, lon: 8.7 },
-    ]);
+    expect(getRouteGeometry).toHaveBeenCalledWith(
+      [
+        { name: 'Base', lat: 47.5, lon: 8.7 },
+        { name: 'Anna', lat: 47.51, lon: 8.71 },
+        { name: 'Base', lat: 47.5, lon: 8.7 },
+      ],
+      ContainerTransportModeEnum.byCar,
+    );
     expect(map.markers).toHaveLength(2);
     expect(map.path).toEqual([{ lat: 1, lon: 2 }, { lat: 3, lon: 4 }]);
     expect(map.isRoadGeometry).toBe(true);
@@ -79,6 +83,18 @@ describe('ContainerRouteMapService', () => {
     // Assert
     expect(map.path).toEqual(straight);
     expect(map.isRoadGeometry).toBe(false);
+  });
+
+  it('routes the road geometry with the transport mode of the container', async () => {
+    // Arrange
+    getRouteGeometry.mockReturnValue(of({ points: [], isRoadGeometry: false }));
+    const route = [step('Base', EMPTY_GUID, 47.5, 8.7), step('Anna', 'shift-a', 47.51, 8.71)];
+
+    // Act
+    await firstValueFrom(service.loadRouteMap(routeInfo(route), ContainerTransportModeEnum.byFoot));
+
+    // Assert
+    expect(getRouteGeometry).toHaveBeenCalledWith(expect.any(Array), ContainerTransportModeEnum.byFoot);
   });
 
   it('draws no line and asks no routing service for fewer than two located steps', async () => {

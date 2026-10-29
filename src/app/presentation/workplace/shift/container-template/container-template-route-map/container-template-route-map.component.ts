@@ -6,6 +6,8 @@
  * by a dashed straight line and an "estimated" hint is shown. The tile source is the one the installation
  * configured; when map tiles are off the geo service notice replaces the map.
  * @param routeInfo - Stored route info of the edited weekday, null when the route was never optimized
+ * @param transportMode - Transport mode of the edited container template; the road geometry is routed with its profile
+ * (mix as car) and is loaded again when the mode changes
  */
 import {
   ChangeDetectionStrategy,
@@ -31,6 +33,7 @@ import { IMapTileConfig } from 'src/app/domain/models/settings/map-tile-config.i
 import { ContainerRouteMapService } from 'src/app/domain/services/container/container-route-map.service';
 import { GeoServicesConfigService } from 'src/app/domain/services/settings/geo-services-config.service';
 import { escapeHtml } from 'src/app/domain/helpers/html-escape.helper';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { GeoServiceNoticeComponent } from 'src/app/presentation/shared/geo-service-notice/geo-service-notice.component';
 import {
   ROUTE_MAP_BASE_LABEL_KEY,
@@ -64,6 +67,9 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
   private readonly translateService = inject(TranslateService);
 
   readonly routeInfo = input<IRouteInfo | null>(null);
+  readonly transportMode = input<ContainerTransportModeEnum>(ContainerTransportModeEnum.byCar);
+
+  private readonly routeRequest = computed(() => ({ routeInfo: this.routeInfo(), transportMode: this.transportMode() }));
 
   private readonly mapContainer = viewChild<ElementRef<HTMLDivElement>>('mapContainer');
 
@@ -86,9 +92,11 @@ export class ContainerTemplateRouteMapComponent implements OnDestroy {
   constructor() {
     void this.geoServicesConfig.ensureLoaded();
 
-    toObservable(this.routeInfo)
+    toObservable(this.routeRequest)
       .pipe(
-        switchMap((routeInfo) => (routeInfo ? this.routeMapService.loadRouteMap(routeInfo) : of(null))),
+        switchMap(({ routeInfo, transportMode }) =>
+          routeInfo ? this.routeMapService.loadRouteMap(routeInfo, transportMode) : of(null),
+        ),
         takeUntilDestroyed(),
       )
       .subscribe((routeMap) => this.routeMap.set(routeMap));

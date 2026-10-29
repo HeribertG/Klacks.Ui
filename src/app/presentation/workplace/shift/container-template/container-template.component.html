@@ -584,7 +584,10 @@
           <as-split-area [size]="splitSizes.map" [minSize]="15" [visible]="routeMapShown()">
             <div class="zone zone-route-map">
               @if (routeMapShown()) {
-                <app-container-template-route-map [routeInfo]="routeService.lastRouteInfo()" />
+                <app-container-template-route-map
+                  [routeInfo]="routeService.lastRouteInfo()"
+                  [transportMode]="routeService.selectedTransportMode"
+                />
               }
             </div>
           </as-split-area>
