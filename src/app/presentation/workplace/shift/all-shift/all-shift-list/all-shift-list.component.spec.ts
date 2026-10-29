@@ -2,9 +2,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, convertToParamMap } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { AllShiftListComponent } from './all-shift-list.component';
 import { DataProactiveAttributionService } from 'src/app/infrastructure/api/assistant/data-proactive-attribution.service';
 import { IProactiveShiftAttribution } from 'src/app/domain/models/assistant/proactive-shift-attribution.interface';
@@ -19,6 +19,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';
+import { ShiftListViewRequestService } from '../services/shift-list-view-request.service';
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
@@ -42,6 +43,7 @@ describe('AllShiftListComponent - onClickInfo', () => {
     };
     mockAllShiftStateService = {
       saveCurrentFilter: vi.fn(),
+      commitTransientOverride: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -65,6 +67,7 @@ describe('AllShiftListComponent - onClickInfo', () => {
           { provide: AllShiftStateService, useValue: mockAllShiftStateService },
           { provide: ShiftTableResizeService, useValue: {} },
           { provide: TableSortingService, useValue: {} },
+          { provide: ShiftListViewRequestService, useValue: {} },
         ],
       },
     });
@@ -143,6 +146,7 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
           { provide: AllShiftStateService, useValue: { saveCurrentFilter: vi.fn() } },
           { provide: ShiftTableResizeService, useValue: {} },
           { provide: TableSortingService, useValue: {} },
+          { provide: ShiftListViewRequestService, useValue: {} },
         ],
       },
     });
@@ -222,6 +226,7 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
           { provide: AllShiftStateService, useValue: { saveCurrentFilter: vi.fn() } },
           { provide: ShiftTableResizeService, useValue: {} },
           { provide: TableSortingService, useValue: {} },
+          { provide: ShiftListViewRequestService, useValue: {} },
         ],
       },
     });
@@ -300,44 +305,42 @@ describe('AllShiftListComponent - readProactiveAttributions', () => {
   });
 });
 
-describe('AllShiftListComponent - applyOrdersViewIfRequested', () => {
+describe('AllShiftListComponent - view requests', () => {
   let component: AllShiftListComponent;
-  let mockShiftService: any;
-  let router: { navigate: ReturnType<typeof vi.fn> };
-  let grantedPermissions: Set<string>;
+  let queryParamMap$: BehaviorSubject<ParamMap>;
+  let viewRequest: { apply: ReturnType<typeof vi.fn> };
+  let stateService: { saveCurrentFilter: ReturnType<typeof vi.fn>; commitTransientOverride: ReturnType<typeof vi.fn> };
+  let navigationService: { navigateToEditShift: ReturnType<typeof vi.fn> };
 
-  const build = () => {
-    mockShiftService = {
-      pendingClientlessCreation: { set: vi.fn() },
-      currentFilter: { filterType: ShiftFilterType.Shift, isSealedOrder: true },
-    };
-    router = routerStub();
+  beforeEach(() => {
+    queryParamMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+    viewRequest = { apply: vi.fn(() => false) };
+    stateService = { saveCurrentFilter: vi.fn(), commitTransientOverride: vi.fn() };
+    navigationService = { navigateToEditShift: vi.fn() };
 
     TestBed.configureTestingModule({
       imports: [AllShiftListComponent, TranslateModule.forRoot()],
       providers: [
         ...APP_PORT_BINDINGS,
-        { provide: DataManagementShiftService, useValue: mockShiftService },
+        { provide: DataManagementShiftService, useValue: {} },
         { provide: DataManagementShiftCutService, useValue: {} },
-        {
-          provide: AuthorizationService,
-          useValue: {
-            hasPermission: (p: string) => grantedPermissions.has(p),
-            hasAnyPermission: (...p: string[]) => p.some((x) => grantedPermissions.has(x)),
-          },
-        },
+        { provide: AuthorizationService, useValue: {} },
         { provide: LocalStorageService, useValue: {} },
         { provide: ModalService, useValue: {} },
         { provide: ToastShowService, useValue: {} },
         { provide: DataShiftService, useValue: {} },
-        { provide: NavigationService, useValue: {} },
-        { provide: ActivatedRoute, useValue: activatedRouteStub() },
-        { provide: Router, useValue: router },
+        { provide: NavigationService, useValue: navigationService },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) }, queryParamMap: queryParamMap$ },
+        },
+        { provide: Router, useValue: routerStub() },
       ],
     }).overrideComponent(AllShiftListComponent, {
       set: {
         providers: [
-          { provide: AllShiftStateService, useValue: { saveCurrentFilter: vi.fn() } },
+          { provide: AllShiftStateService, useValue: stateService },
+          { provide: ShiftListViewRequestService, useValue: viewRequest },
           { provide: ShiftTableResizeService, useValue: {} },
           { provide: TableSortingService, useValue: {} },
         ],
@@ -345,44 +348,58 @@ describe('AllShiftListComponent - applyOrdersViewIfRequested', () => {
     });
 
     component = TestBed.createComponent(AllShiftListComponent).componentInstance;
-  };
+  });
 
-  it('preselects the unsealed orders for a user who may edit shifts and clears the parameter', () => {
-    grantedPermissions = new Set([PERMISSIONS.CanEditShifts]);
-    build();
+  it('resets to the first page when a view request changed the filter', () => {
+    viewRequest.apply.mockReturnValue(true);
     component.page = 4;
 
-    const applied = (component as any).applyOrdersViewIfRequested(convertToParamMap({ view: 'orders' }));
+    const applied = (component as any).applyViewRequest(convertToParamMap({ view: 'plannable' }));
 
     expect(applied).toBe(true);
-    expect(mockShiftService.currentFilter.filterType).toBe(ShiftFilterType.Original);
-    expect(mockShiftService.currentFilter.isSealedOrder).toBe(false);
     expect(component.page).toBe(1);
-    expect(router.navigate).toHaveBeenCalledWith(
-      [],
-      expect.objectContaining({ queryParams: { view: null }, queryParamsHandling: 'merge', replaceUrl: true }),
-    );
   });
 
-  it('leaves the filter alone for a user without CanEditShifts, whose order view stays disabled', () => {
-    grantedPermissions = new Set([PERMISSIONS.CanViewShifts]);
-    build();
+  it('keeps the page when no view request changed the filter', () => {
+    component.page = 4;
 
-    const applied = (component as any).applyOrdersViewIfRequested(convertToParamMap({ view: 'orders' }));
+    const applied = (component as any).applyViewRequest(convertToParamMap({}));
 
     expect(applied).toBe(false);
-    expect(mockShiftService.currentFilter.filterType).toBe(ShiftFilterType.Shift);
-    expect(mockShiftService.currentFilter.isSealedOrder).toBe(true);
+    expect(component.page).toBe(4);
   });
 
-  it('ignores a navigation without the orders view', () => {
-    grantedPermissions = new Set([PERMISSIONS.CanEditShifts]);
-    build();
+  it('reads the list again when a later navigation brings a view request to the reused list', () => {
+    const readPage = vi.spyOn(component as any, 'readPage').mockImplementation(() => undefined);
+    (component as any).listenForViewRequests();
+    expect(readPage).not.toHaveBeenCalled();
 
-    const applied = (component as any).applyOrdersViewIfRequested(convertToParamMap({ view: 'other' }));
+    viewRequest.apply.mockReturnValueOnce(true);
+    queryParamMap$.next(convertToParamMap({ view: 'plannable', from: '2026-11-01' }));
 
-    expect(applied).toBe(false);
-    expect(mockShiftService.currentFilter.filterType).toBe(ShiftFilterType.Shift);
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(readPage).toHaveBeenCalledWith(true);
+    expect(component.page).toBe(1);
+  });
+
+  it('does not read again for a navigation without a view request', () => {
+    const readPage = vi.spyOn(component as any, 'readPage').mockImplementation(() => undefined);
+    (component as any).listenForViewRequests();
+
+    queryParamMap$.next(convertToParamMap({}));
+
+    expect(readPage).not.toHaveBeenCalled();
+  });
+
+  it('turns the transient view override into the real filter before leaving for an edit page', () => {
+    const order: string[] = [];
+    stateService.commitTransientOverride.mockImplementation(() => order.push('commit'));
+    stateService.saveCurrentFilter.mockImplementation(() => order.push('save'));
+    const shift = new Shift();
+    shift.id = 'shift-1';
+
+    component.onClickEdit(shift);
+
+    expect(order).toEqual(['commit', 'save']);
+    expect(navigationService.navigateToEditShift).toHaveBeenCalledWith('shift-1');
   });
 });
