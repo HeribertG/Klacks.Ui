@@ -742,6 +742,23 @@ describe('ResponseInterceptor', () => {
     });
   });
 
+  describe('validation errors', () => {
+    it('shows the translated field error with all its messages as the toast text', () => {
+      const translateService = TestBed.inject(TranslateService) as unknown as { instant: ReturnType<typeof vi.fn> };
+      expectRequestToFail(API_REQUEST_URL);
+
+      httpMock
+        .expectOne(API_REQUEST_URL)
+        .flush({ title: 'Bad Request', errors: { FirstName: ['required', 'too short'] } }, BAD_REQUEST);
+
+      expect(translateService.instant).toHaveBeenCalledWith('HTTP_ERROR_VALIDATION', {
+        field: 'FirstName',
+        messages: 'required too short',
+      });
+      expect(toastShowService.showError).toHaveBeenCalledWith('HTTP_ERROR_VALIDATION', 'HTTP_ERROR_VALIDATION');
+    });
+  });
+
   describe('own-admin setup pass-through (the setup page shows its errors inline)', () => {
     it.each([
       { body: registrationRejection([ACCOUNT_REGISTRATION_REASONS.PASSWORD_TOO_SHORT]), ...BAD_REQUEST },
