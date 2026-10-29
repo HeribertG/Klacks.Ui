@@ -6,9 +6,10 @@
  * modal and step templates, components and constants, must resolve to a real text instead of a raw key.
  */
 
-import { readdirSync, readFileSync, statSync } from 'fs';
+import { readFileSync, statSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join, resolve } from 'path';
+import { dirname, resolve } from 'path';
+import { collectFiles } from 'src/app/source-files.testing';
 import {
   CLIENT_IMPORT_CLIENT_TYPE_KEY_PREFIX,
   CLIENT_IMPORT_COUNT_KEYS,
@@ -54,18 +55,9 @@ const SPEC_FILE_SUFFIX = '.spec.ts';
 const load = (language: string): Record<string, string> =>
   JSON.parse(readFileSync(resolve(I18N_DIR, `${language}.json`), 'utf8'));
 
-function sourceFiles(path: string): string[] {
-  if (!statSync(path).isDirectory()) {
-    return [path];
-  }
-  return readdirSync(path).flatMap((entry) => {
-    const child = join(path, entry);
-    if (statSync(child).isDirectory()) {
-      return sourceFiles(child);
-    }
-    return SOURCE_FILE_PATTERN.test(entry) && !entry.endsWith(SPEC_FILE_SUFFIX) ? [child] : [];
-  });
-}
+const isSourceFile = (path: string): boolean => SOURCE_FILE_PATTERN.test(path) && !path.endsWith(SPEC_FILE_SUFFIX);
+
+const sourceFiles = (path: string): string[] => (statSync(path).isDirectory() ? collectFiles(path, isSourceFile) : [path]);
 
 function literalKeys(): string[] {
   const keys = new Set<string>();

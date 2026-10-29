@@ -126,7 +126,7 @@ export class AuditTabComponent implements OnInit {
       next: (res) => {
         const blob = res.body;
         if (!blob) {
-          this.toastShowService.showError('Empty response body');
+          this.toastShowService.showError(this.translate.instant('periodClosing.error.emptyDownload'));
           this.downloadingId.set(null);
           return;
         }

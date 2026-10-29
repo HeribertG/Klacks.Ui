@@ -37,6 +37,7 @@ import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/servi
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TranslateService } from '@ngx-translate/core';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { Subject, takeUntil } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
@@ -120,6 +121,7 @@ export class ScheduleScheduleRowHeaderComponent
   private cdr = inject(ChangeDetectorRef);
   private readonly clientSortPreference = inject(ClientSortPreferenceService);
   private readonly toastShow = inject(ToastShowService);
+  private readonly translate = inject(TranslateService);
   private readonly canvasManager = inject(BaseCanvasManagerService);
 
   private ngUnsubscribe = new Subject<void>();
@@ -439,7 +441,7 @@ export class ScheduleScheduleRowHeaderComponent
       this.sortedClients = previousOrder;
       this.cdr.markForCheck();
       this.drawRowHeader.redraw();
-      this.toastShow.showError('Failed to save client order. Please try again.');
+      this.toastShow.showError(this.translate.instant('schedule.row-header.client-order-save-error'));
     });
 
     this.drawRowHeader.redraw();

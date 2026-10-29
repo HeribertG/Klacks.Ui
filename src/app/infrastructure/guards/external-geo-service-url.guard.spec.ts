@@ -9,15 +9,15 @@
  * scanned because they assert on these hosts by name.
  */
 
-import { readdirSync, readFileSync, statSync } from 'fs';
+import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join, relative, resolve, sep } from 'path';
+import { BUILD_OUTPUT_FOLDERS, collectFiles } from 'src/app/source-files.testing';
 
 const UI_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
 const SCAN_ROOTS = ['src', 'projects'];
 const SCANNED_EXTENSIONS = ['.ts', '.html'];
 const EXCLUDED_SUFFIX = '.spec.ts';
-const EXCLUDED_DIRECTORIES = new Set(['node_modules', 'dist', '.angular']);
 const MINIMUM_SCANNED_FILES = 1000;
 
 const FORBIDDEN_HOSTS = [
@@ -33,20 +33,13 @@ const FORBIDDEN_HOSTS = [
 const EXTERNAL_LINK_HOSTS = ['www.openstreetmap.org', 'google.com/maps'];
 const EXTERNAL_LINK_ALLOWLIST = ['src/app/domain/constants/external-map-link.constants.ts'];
 
-const collectFiles = (directory: string): string[] =>
-  readdirSync(directory).flatMap((entry) => {
-    const path = join(directory, entry);
-    if (statSync(path).isDirectory()) {
-      return EXCLUDED_DIRECTORIES.has(entry) ? [] : collectFiles(path);
-    }
-    const scanned = SCANNED_EXTENSIONS.some((extension) => entry.endsWith(extension)) && !entry.endsWith(EXCLUDED_SUFFIX);
-    return scanned ? [path] : [];
-  });
+const isScanned = (path: string): boolean =>
+  SCANNED_EXTENSIONS.some((extension) => path.endsWith(extension)) && !path.endsWith(EXCLUDED_SUFFIX);
 
 const toRepoPath = (path: string): string => relative(UI_ROOT, path).split(sep).join('/');
 
 describe('external geo service url guard', () => {
-  const files = SCAN_ROOTS.flatMap((root) => collectFiles(join(UI_ROOT, root)));
+  const files = SCAN_ROOTS.flatMap((root) => collectFiles(join(UI_ROOT, root), isScanned, BUILD_OUTPUT_FOLDERS));
   const contents = new Map(files.map((file) => [toRepoPath(file), readFileSync(file, 'utf8').toLowerCase()]));
 
   it('scans the whole UI source tree', () => {

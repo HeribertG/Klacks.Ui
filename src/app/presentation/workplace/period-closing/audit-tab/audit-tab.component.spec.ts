@@ -196,5 +196,14 @@ describe('AuditTabComponent', () => {
       expect(toast.showError).toHaveBeenCalledWith('gone');
       expect(component.downloadingId()).toBeNull();
     });
+
+    it('reports an empty download with the translated message instead of English text', () => {
+      api.downloadStoredPayrollExport.mockReturnValue(of(new HttpResponse<Blob>({ body: null })));
+
+      component.downloadExport(exportEntry());
+
+      expect(toast.showError).toHaveBeenCalledWith('periodClosing.error.emptyDownload');
+      expect(component.downloadingId()).toBeNull();
+    });
   });
 });

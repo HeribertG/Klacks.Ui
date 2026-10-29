@@ -46,7 +46,6 @@ const RANGE_EXPORT_CURRENCY_CODE = 'EUR';
 const FALLBACK_LANGUAGE = DomainMessages.DEFAULT_LANG;
 const SEALED_LOCK_LEVEL = 3;
 const EMPTY_VALUE_PLACEHOLDER = '—';
-const EMPTY_RESPONSE_BODY_MESSAGE = 'Empty response body';
 const GENERIC_ERROR_MESSAGE = 'Error';
 const ORDERS_PAGE_SIZE = 10;
 const FIRST_PAGE = 1;
@@ -208,7 +207,7 @@ export class OrderRangeExportSectionComponent implements OnInit {
       next: (res) => {
         const blob = res.body;
         if (!blob) {
-          this.toastShowService.showError(EMPTY_RESPONSE_BODY_MESSAGE);
+          this.toastShowService.showError(this.translate.instant('periodClosing.error.emptyDownload'));
           this.exporting.set(false);
           return;
         }

@@ -27,19 +27,12 @@ import { NavigationSpinnerCoordinator } from './presentation/spinner/navigation-
 import * as fs from 'fs';
 import * as path from 'path';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
+import { collectFiles } from './source-files.testing';
 
 const fileMap = new Map<string, string>();
-function buildFileMap(dir: string): void {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory() && entry.name !== 'node_modules') {
-      buildFileMap(fullPath);
-    } else if (entry.isFile() && /\.(html|scss|css)$/.test(entry.name)) {
-      fileMap.set(entry.name, fullPath);
-    }
-  }
+for (const file of collectFiles(path.resolve(__dirname), (candidate) => /\.(html|scss|css)$/.test(candidate), ['node_modules'])) {
+  fileMap.set(path.basename(file), file);
 }
-buildFileMap(path.resolve(__dirname));
 
 function localFetch(url: string): Promise<Response> {
   const fileName = path.basename(url);

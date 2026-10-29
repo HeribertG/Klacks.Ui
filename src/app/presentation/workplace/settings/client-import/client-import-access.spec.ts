@@ -7,13 +7,14 @@
  * whose page key only asks for CanViewSettings. The employee list no longer offers the import.
  */
 
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { dirname, join, resolve } from 'path';
+import { readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { Route } from '@angular/router';
 import { routes } from 'src/app/app-routing.module';
 import { ROLE_ADMIN } from 'src/app/domain/constants/permissions.constants';
 import { KLACKSY_PAGE_KEYS } from 'src/app/domain/constants/klacksy-page-keys';
+import { collectFiles } from 'src/app/source-files.testing';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LIST_TEMPLATE = resolve(
@@ -43,15 +44,7 @@ function findRoute(candidates: Route[], path: string): Route | undefined {
   return undefined;
 }
 
-function templates(dir: string): string[] {
-  return readdirSync(dir).flatMap((entry) => {
-    const child = join(dir, entry);
-    if (statSync(child).isDirectory()) {
-      return templates(child);
-    }
-    return entry.endsWith(HTML_SUFFIX) ? [child] : [];
-  });
-}
+const templates = (dir: string): string[] => collectFiles(dir, (path) => path.endsWith(HTML_SUFFIX));
 
 function importMarkers(): { target: string; tag: string }[] {
   const sources = [...IMPORT_TEMPLATE_DIRS.flatMap(templates), SETTINGS_TEMPLATE];

@@ -16,6 +16,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { dirname, join, relative, resolve } from 'path';
 import * as ts from 'typescript';
 import { extractModuleSpecifiers } from './layer-dependencies.testing';
+import { collectFiles } from './source-files.testing';
 
 export type PluginLayer = 'domain' | 'application' | 'infrastructure' | 'outer';
 
@@ -149,26 +150,17 @@ export function isLayeredPlugin(uiRoot: string, plugin: string): boolean {
   return existsSync(marker) && statSync(marker).isDirectory();
 }
 
-function listSources(directory: string, uiRoot: string, found: string[]): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      if (!SKIPPED_FOLDERS.includes(entry.name.toLowerCase())) {
-        listSources(fullPath, uiRoot, found);
-      }
-    } else if (entry.name.toLowerCase().endsWith(SOURCE_EXTENSION)) {
-      found.push(toPosix(relative(uiRoot, fullPath)));
-    }
-  }
-  return found;
-}
+const listSources = (directory: string, uiRoot: string): string[] =>
+  collectFiles(directory, (path) => path.toLowerCase().endsWith(SOURCE_EXTENSION), SKIPPED_FOLDERS).map((path) =>
+    toPosix(relative(uiRoot, path)),
+  );
 
 export function scanPluginSources(uiRoot: string): { filesByPlugin: Record<string, string[]>; edges: IPluginImportEdge[] } {
   const pathAliases = readPathAliases(uiRoot);
   const filesByPlugin: Record<string, string[]> = {};
   const edges: IPluginImportEdge[] = [];
   for (const plugin of listPlugins(uiRoot)) {
-    const files = listSources(join(uiRoot, PROJECTS_FOLDER, plugin, PLUGIN_SOURCE_FOLDER), uiRoot, []).sort();
+    const files = listSources(join(uiRoot, PROJECTS_FOLDER, plugin, PLUGIN_SOURCE_FOLDER), uiRoot).sort();
     filesByPlugin[plugin] = files;
     for (const file of files) {
       for (const specifier of extractModuleSpecifiers(readFileSync(join(uiRoot, file), 'utf8'))) {

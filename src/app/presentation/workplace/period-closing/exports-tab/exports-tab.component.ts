@@ -267,7 +267,7 @@ export class ExportsTabComponent implements OnInit {
       next: (res) => {
         const blob = res.body;
         if (!blob) {
-          this.toastShowService.showError('Empty response body');
+          this.toastShowService.showError(this.translate.instant('periodClosing.error.emptyDownload'));
           this.busy.set(false);
           return;
         }
@@ -328,7 +328,7 @@ export class ExportsTabComponent implements OnInit {
       next: (res) => {
         const blob = res.body;
         if (!blob) {
-          this.toastShowService.showError('Empty response body');
+          this.toastShowService.showError(this.translate.instant('periodClosing.error.emptyDownload'));
           this.clientExportBusy.set(false);
           return;
         }
@@ -373,7 +373,7 @@ export class ExportsTabComponent implements OnInit {
       next: (res) => {
         const blob = res.body;
         if (!blob) {
-          this.toastShowService.showError('Empty response body');
+          this.toastShowService.showError(this.translate.instant('periodClosing.error.emptyDownload'));
           this.clientExportBusy.set(false);
           return;
         }

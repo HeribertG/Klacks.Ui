@@ -66,20 +66,19 @@ export abstract class BaseStateService<
     );
 
     try {
+      const filterToPersist = this.filterToPersist();
       if (isAutoMode) {
-        const filterToSave = cloneObject(
-          this.dataManagementService.currentFilter
-        );
-        await this.filterStorage.saveFilter(key, filterToSave);
+        await this.filterStorage.saveFilter(key, cloneObject(filterToPersist));
       } else {
-        await this.filterStorage.saveFilter(
-          key,
-          this.dataManagementService.currentFilter
-        );
+        await this.filterStorage.saveFilter(key, filterToPersist);
       }
     } catch (error) {
       console.error('Failed to save filter:', error);
     }
+  }
+
+  protected filterToPersist(): T {
+    return this.dataManagementService.currentFilter;
   }
 
   async restoreFilterFromStorage(key = this.editRouteName): Promise<boolean> {
