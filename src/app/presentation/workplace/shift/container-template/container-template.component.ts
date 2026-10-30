@@ -25,8 +25,6 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { FormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -57,6 +55,7 @@ import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.co
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
 import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
+import { IconRouteMapComponent } from 'src/app/presentation/icons/icon-route-map.component';
 import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
@@ -112,6 +111,7 @@ import { ContainerTemplateRouteMapComponent } from './container-template-route-m
     PdfIconComponent,
     IconRouteComponent,
     IconRouteFileComponent,
+    IconRouteMapComponent,
     ContextMenuComponent,
     IconByCarComponent,
     IconByFootComponent,
@@ -125,7 +125,6 @@ import { ContainerTemplateRouteMapComponent } from './container-template-route-m
     ContainerTemplatePropertiesDialogComponent,
     ContainerTemplateAbsenceTimeDialogComponent,
     ContainerTemplateRouteMapComponent,
-    FontAwesomeModule,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -165,7 +164,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   protected readonly formatTime = formatTime;
   protected readonly formatWorkTime = formatWorkTime;
   protected readonly formatClientWithAddress = formatClientWithAddress;
-  protected readonly routeMapIcon = faMapLocationDot;
   protected readonly splitSizes = CONTAINER_TEMPLATE_SPLIT_SIZES;
 
   protected readonly direction = inject(DirectionService).direction;
