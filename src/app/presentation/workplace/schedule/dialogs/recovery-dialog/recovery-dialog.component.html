@@ -24,7 +24,7 @@
       @if (outcome.covered.length > 0) {
         <h6 class="recovery-section-title">{{ 'recovery.dialog.coveredTitle' | translate }}</h6>
         <ul class="recovery-list recovery-list-covered">
-          @for (slot of outcome.covered; track slotKey(slot)) {
+          @for (slot of coveredSlots(); track slotKey(slot)) {
             <li class="recovery-list-item recovery-covered" [attr.data-slot]="slotKey(slot)">
               <div class="recovery-covered-head">
                 <span class="recovery-date">{{ slot.date | calendarDate: 'numericDate' }}</span>

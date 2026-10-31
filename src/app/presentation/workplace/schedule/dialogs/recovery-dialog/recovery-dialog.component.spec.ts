@@ -440,7 +440,7 @@ describe('RecoveryDialogComponent', () => {
       await settle();
 
       // Assert
-      expect(updateRequestOutcome).toHaveBeenCalledWith('request-1', ReplacementRequestOutcome.Accepted);
+      expect(updateRequestOutcome).toHaveBeenCalledWith('request-1', ReplacementRequestOutcome.Accepted, false);
       expect(outcomeButton('[data-slot]', ReplacementRequestOutcome.Declined).getAttribute('aria-pressed')).toBe('true');
       expect(outcomeButton('[data-slot]', ReplacementRequestOutcome.Accepted).getAttribute('aria-pressed')).toBe('false');
       expect(query('[data-slot] .recovery-outcome-state')?.textContent?.trim()).toBe('recovery.dialog.outcomeState.Declined');
@@ -534,6 +534,136 @@ describe('RecoveryDialogComponent', () => {
       ).toBe('true');
     });
 
+    describe('accepted alternative', () => {
+      const luc = candidate('client-9', 'Berta Beispiel');
+      const tanja = candidate('client-7', 'Tanja Moser', { phone: '079 000 00 00' });
+
+      const openAlternatives = async (): Promise<void> => {
+        await submitWith([coveredSlot]);
+        getCandidates.mockReturnValue(of({ eligible: [luc, tanja], excluded: [] }));
+        getRequests.mockReturnValue(of([]));
+        (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+        await settle();
+      };
+
+      const acceptTanja = async (isScenarioReplacement: boolean): Promise<void> => {
+        recordRequest.mockReturnValue(
+          of({ id: 'request-7', outcome: ReplacementRequestOutcome.Accepted, isScenarioReplacement }),
+        );
+        outcomeButton('[data-candidate="client-7"]', ReplacementRequestOutcome.Accepted).click();
+        await settle();
+      };
+
+      it('makes the accepted alternative the stand-in of the slot and offers the former one as alternative', async () => {
+        // Arrange
+        await openAlternatives();
+        readDatas.mockClear();
+        getCandidates.mockClear();
+        getCandidates.mockReturnValue(of({ eligible: [luc, tanja], excluded: [] }));
+
+        // Act
+        await acceptTanja(true);
+
+        // Assert
+        expect(query('[data-slot] .recovery-covered-head .recovery-name')?.textContent?.trim()).toBe('Tanja Moser');
+        expect((query('[data-slot] > .recovery-covered-contact a.recovery-phone') as HTMLAnchorElement).getAttribute('href')).toBe('tel:0790000000');
+        expect(query('[data-slot] > .recovery-covered-contact .recovery-outcome-state')?.textContent?.trim()).toBe(
+          'recovery.dialog.outcomeState.Accepted',
+        );
+        expect(query('[data-slot] .recovery-tier')?.textContent?.trim()).toBe('recovery.dialog.tier.0');
+        const rendered = Array.from(host.querySelectorAll('[data-candidate]')).map((el) => el.getAttribute('data-candidate'));
+        expect(rendered).toEqual(['client-9']);
+        expect(getCandidates).toHaveBeenCalledTimes(1);
+        expect(readDatas).toHaveBeenCalledTimes(1);
+      });
+
+      it('labels an accepted on-call alternative with the on-call tier', async () => {
+        // Arrange
+        await submitWith([coveredSlot]);
+        getRequests.mockReturnValue(of([]));
+        getCandidates.mockReturnValue(of({ eligible: [candidate('client-7', 'Tanja Moser', { isOnCall: true })], excluded: [] }));
+        (query('.recovery-alternatives-toggle') as HTMLButtonElement).click();
+        await settle();
+
+        // Act
+        await acceptTanja(true);
+
+        // Assert
+        expect(query('[data-slot] .recovery-tier')?.textContent?.trim()).toBe('recovery.dialog.tier.5');
+      });
+
+      it('saves the next answer on the row of the new stand-in', async () => {
+        // Arrange
+        await openAlternatives();
+        await acceptTanja(true);
+        updateRequestOutcome.mockReturnValue(of({ id: 'request-7', outcome: ReplacementRequestOutcome.Declined }));
+
+        // Act
+        host.querySelector<HTMLButtonElement>(
+          `[data-slot] .recovery-covered-actions button[data-outcome="${ReplacementRequestOutcome.Declined}"]`,
+        )!.click();
+        await settle();
+
+        // Assert
+        expect(updateRequestOutcome).toHaveBeenCalledWith('request-7', ReplacementRequestOutcome.Declined, false);
+      });
+
+      it('sends the rule override of the submission with the answer', async () => {
+        // Arrange
+        await openAlternatives();
+        (component as any).submission = { ...(component as any).submission, overrideBlock: true };
+
+        // Act
+        await acceptTanja(true);
+
+        // Assert
+        expect(recordRequest).toHaveBeenCalledWith(expect.objectContaining({ overrideBlock: true }));
+      });
+
+      it('keeps the stand-in when the server did not switch the slot', async () => {
+        // Arrange
+        await openAlternatives();
+        readDatas.mockClear();
+
+        // Act
+        await acceptTanja(false);
+
+        // Assert
+        expect(query('[data-slot] .recovery-covered-head .recovery-name')?.textContent?.trim()).toBe('Berta Beispiel');
+        expect(readDatas).not.toHaveBeenCalled();
+      });
+
+      it('keeps the stand-in on a declined answer', async () => {
+        // Arrange
+        await openAlternatives();
+        readDatas.mockClear();
+        recordRequest.mockReturnValue(
+          of({ id: 'request-7', outcome: ReplacementRequestOutcome.Declined, isScenarioReplacement: false }),
+        );
+
+        // Act
+        outcomeButton('[data-candidate="client-7"]', ReplacementRequestOutcome.Declined).click();
+        await settle();
+
+        // Assert
+        expect(query('[data-slot] .recovery-covered-head .recovery-name')?.textContent?.trim()).toBe('Berta Beispiel');
+        expect(readDatas).not.toHaveBeenCalled();
+      });
+
+      it('forgets the new stand-in when a new cover starts', async () => {
+        // Arrange
+        await openAlternatives();
+        await acceptTanja(true);
+
+        // Act
+        (component as any).onBackToForm();
+        await submitWith([coveredSlot]);
+
+        // Assert
+        expect(query('[data-slot] .recovery-covered-head .recovery-name')?.textContent?.trim()).toBe('Berta Beispiel');
+      });
+    });
+
     it('marks only an alternative held below a non-binding minimum level with the level hint', async () => {
       await submitWith([coveredSlot]);
       getCandidates.mockReturnValue(
@@ -618,6 +748,7 @@ describe('RecoveryDialogComponent', () => {
         workChangeId: null,
         appliedAtUtc: null,
         isShortNotice: true,
+        isScenarioReplacement: false,
         ...extra,
       });
 

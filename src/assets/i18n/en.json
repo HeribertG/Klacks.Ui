@@ -3034,7 +3034,7 @@
   "recovery.dialog.levelShortfall": "Level too low",
   "recovery.dialog.rhythmFits": "Fits the block",
   "recovery.dialog.rhythmBreaks": "Breaks the rhythm",
-  "recovery.dialog.alternativeOutcomeHint": "Only records the contact attempt – the proposal in the scenario stays unchanged.",
+  "recovery.dialog.alternativeOutcomeHint": "Records the answer. \"Accepted\" makes this person the replacement for this slot in the scenario. Nobody is contacted automatically.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Cover absence",
   "recovery.toolbar.tooltip": "Employee out? Let the engine propose a rule-compliant replacement (right-click on the cell works too)",

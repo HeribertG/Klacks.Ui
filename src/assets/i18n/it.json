@@ -3033,7 +3033,7 @@
   "recovery.dialog.levelShortfall": "Livello troppo basso",
   "recovery.dialog.rhythmFits": "Si inserisce nel blocco",
   "recovery.dialog.rhythmBreaks": "Rompe il ritmo",
-  "recovery.dialog.alternativeOutcomeHint": "Registra solo il tentativo di contatto – la proposta nello scenario resta invariata.",
+  "recovery.dialog.alternativeOutcomeHint": "Registra la risposta. «Accettato» rende questa persona il sostituto per questo turno nello scenario. Nessuno viene contattato automaticamente.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Copri assenza",
   "recovery.toolbar.tooltip": "Collaboratore assente? Lascia proporre al motore una sostituzione conforme alle regole (funziona anche con clic destro sulla cella)",

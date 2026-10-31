@@ -37,10 +37,14 @@ export class DataRecoveryService {
     });
   }
 
-  updateRequestOutcome(requestId: string, outcome: ReplacementRequestOutcome): Observable<IReplacementRequest> {
+  updateRequestOutcome(
+    requestId: string,
+    outcome: ReplacementRequestOutcome,
+    overrideBlock = false,
+  ): Observable<IReplacementRequest> {
     return this.httpClient.put<IReplacementRequest>(
       `${this.apiBase}/Requests/${encodeURIComponent(requestId)}/Outcome`,
-      { outcome },
+      { outcome, overrideBlock },
     );
   }
 

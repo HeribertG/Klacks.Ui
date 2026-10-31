@@ -8,8 +8,9 @@
  * never accepts the scenario; a person decides. It opens either from the toolbar or, pre-filled with the
  * employee and day, from a right-click on a work cell or an employee row (RecoveryDialogLauncherService).
  * In the review step the planner calls the proposed stand-in and records the response (Ablösung/Einsprung
- * request book); alternatives per slot can be listed and their contact attempts recorded as well, without
- * changing the proposal. An alternative held below a non-binding minimum level (levelShortfall > 0) carries a
+ * request book); alternatives per slot can be listed and their contact attempts recorded as well. An alternative who
+ * accepts becomes the slot's stand-in in the scenario (the server switches it, the dialog and the schedule follow);
+ * nobody is contacted automatically. An alternative held below a non-binding minimum level (levelShortfall > 0) carries a
  * "level too low" hint. Submitted inside a scenario, the cover is built on that scenario (its token is sent), so the new
  * scenario keeps everything the planner already changed there.
  * @param clients - Visible schedule employees, used to show the name of the preselected absent employee
@@ -19,6 +20,7 @@
  * @param alternativeOutcomes - Recorded contact attempts on alternatives, keyed by slot and candidate
  * @param storedRequests - Request rows stored for the reviewed scenario, keyed by slot and candidate; local
  *   responses of this session always win over them
+ * @param standIns - Slots whose stand-in changed during this review, keyed by slot; they replace the proposed slot
  */
 import { ChangeDetectionStrategy, Component, DestroyRef, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -65,6 +67,8 @@ const KEY_SEPARATOR = '|';
 const TEL_SCHEME = 'tel:';
 const PHONE_WHITESPACE = /\s+/g;
 const OUTCOME_STATE_KEY_PREFIX = 'recovery.dialog.outcomeState.';
+const TIER_IN_GROUP_FREE = 0;
+const TIER_IN_GROUP_ON_CALL = 5;
 const ALTERNATIVES_LOADING: IRecoveryAlternativesState = {
   status: RecoveryAlternativesStatus.Loading,
   candidates: [],
@@ -126,6 +130,14 @@ export class RecoveryDialogComponent {
   protected readonly alternatives = signal<Record<string, IRecoveryAlternativesState>>({});
   protected readonly alternativeOutcomes = signal<Record<string, ReplacementRequestOutcome>>({});
   protected readonly storedRequests = signal<Record<string, IReplacementRequest>>({});
+  private readonly standIns = signal<Record<string, ICoveredSlot>>({});
+
+  /** The covered slots as they stand now: an accepted alternative replaces the engine's proposal. */
+  protected readonly coveredSlots = computed<ICoveredSlot[]>(() => {
+    const standIns = this.standIns();
+    return (this.result()?.covered ?? []).map((slot) => standIns[this.slotKey(slot)] ?? slot);
+  });
+
   private storedRequestsToken: string | null = null;
   private readonly savingKeys = signal<ReadonlySet<string>>(new Set());
   private readonly expandedSlots = signal<ReadonlySet<string>>(new Set());
@@ -391,7 +403,9 @@ export class RecoveryDialogComponent {
     const reviewed = this.result();
     this.setSaving(key, true);
     try {
-      const saved = await firstValueFrom(this.recoveryService.updateRequestOutcome(requestId, outcome));
+      const saved = await firstValueFrom(
+        this.recoveryService.updateRequestOutcome(requestId, outcome, !!this.submission?.overrideBlock),
+      );
       if (this.result() === reviewed) {
         this.slotOutcomes.update((map) => ({ ...map, [requestId]: saved.outcome }));
       }
@@ -421,7 +435,7 @@ export class RecoveryDialogComponent {
     await this.loadAlternatives(slot, key);
   }
 
-  /** Records a contact attempt on an alternative; the proposal in the scenario is not swapped. */
+  /** Records a contact attempt on an alternative; an acceptance the server applied makes the person the stand-in. */
   async onAlternativeOutcome(
     slot: ICoveredSlot,
     candidate: IReplacementCandidate,
@@ -448,16 +462,39 @@ export class RecoveryDialogComponent {
           absenceId: submission.absenceId,
           analyseToken: reviewed.token,
           outcome,
+          overrideBlock: submission.overrideBlock || undefined,
         }),
       );
       if (this.result() === reviewed) {
         this.alternativeOutcomes.update((map) => ({ ...map, [key]: saved.outcome }));
+        if (saved.outcome === ReplacementRequestOutcome.Accepted && saved.isScenarioReplacement) {
+          this.adoptStandIn(slot, candidate, saved);
+        }
       }
     } catch {
       this.showOutcomeSaveError();
     } finally {
       this.setSaving(key, false);
     }
+  }
+
+  /** The slot follows the server: new person, their row, the plan behind the dialog and the list of the others. */
+  private adoptStandIn(slot: ICoveredSlot, candidate: IReplacementCandidate, saved: IReplacementRequest): void {
+    const key = this.slotKey(slot);
+    const standIn: ICoveredSlot = {
+      ...slot,
+      replacementClientId: candidate.clientId,
+      replacementName: candidate.name,
+      tier: candidate.isOnCall ? TIER_IN_GROUP_ON_CALL : TIER_IN_GROUP_FREE,
+      requestId: saved.id,
+      phone: candidate.phone ?? null,
+      outcome: saved.outcome,
+    };
+    this.standIns.update((map) => ({ ...map, [key]: standIn }));
+    this.slotOutcomes.update((map) => ({ ...map, [saved.id]: saved.outcome }));
+    this.storedRequestsToken = null;
+    this.dataManagementSchedule.readDatas();
+    void this.loadAlternatives(standIn, key);
   }
 
   private async loadAlternatives(slot: ICoveredSlot, key: string): Promise<void> {
@@ -511,7 +548,7 @@ export class RecoveryDialogComponent {
         }),
       );
       if (this.result() === reviewed) {
-        this.storedRequests.set(this.indexStoredRequests(reviewed.covered, rows ?? []));
+        this.storedRequests.set(this.indexStoredRequests(this.coveredSlots(), rows ?? []));
       }
     } catch {
       if (this.result() === reviewed) {
@@ -584,6 +621,7 @@ export class RecoveryDialogComponent {
     this.alternatives.set({});
     this.alternativeOutcomes.set({});
     this.storedRequests.set({});
+    this.standIns.set({});
     this.storedRequestsToken = null;
     this.savingKeys.set(new Set());
     this.expandedSlots.set(new Set());

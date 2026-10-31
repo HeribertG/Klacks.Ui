@@ -9,6 +9,7 @@ import { ReplacementRequestSource } from '../enums/replacement-request-source.en
  * @param startTime - Slot start "HH:mm:ss"
  * @param endTime - Slot end "HH:mm:ss"
  * @param isShortNotice - The request was reported shortly before the shift start
+ * @param isScenarioReplacement - The recorded acceptance leaves the candidate as the slot's replacement in the scenario
  */
 export interface IReplacementRequest {
   id: string;
@@ -30,4 +31,5 @@ export interface IReplacementRequest {
   workChangeId: string | null;
   appliedAtUtc: string | null;
   isShortNotice: boolean;
+  isScenarioReplacement: boolean;
 }

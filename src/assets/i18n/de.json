@@ -3034,7 +3034,7 @@
   "recovery.dialog.levelShortfall": "Stufe zu niedrig",
   "recovery.dialog.rhythmFits": "Passt in den Block",
   "recovery.dialog.rhythmBreaks": "Bricht den Takt",
-  "recovery.dialog.alternativeOutcomeHint": "Hält nur den Kontaktversuch fest – der Vorschlag im Szenario bleibt unverändert.",
+  "recovery.dialog.alternativeOutcomeHint": "Hält die Antwort fest. „Zugesagt“ macht diese Person im Szenario zum Ersatz für diesen Dienst. Niemand wird automatisch kontaktiert.",
   "recovery.dialog.slotTime": "{{start}}–{{end}}",
   "recovery.toolbar.label": "Ausfall decken",
   "recovery.toolbar.tooltip": "Mitarbeiter ausgefallen? Regelkonformen Ersatz vorschlagen lassen (Rechtsklick auf die Zelle geht auch)",

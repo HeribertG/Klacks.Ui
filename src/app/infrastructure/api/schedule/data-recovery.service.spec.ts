@@ -87,7 +87,7 @@ describe('DataRecoveryService', () => {
 
     const request = httpMock.expectOne((req) => req.url.endsWith('Recovery/Requests/request-1/Outcome'));
     expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toEqual({ outcome: 'Accepted' });
+    expect(request.request.body).toEqual({ outcome: 'Accepted', overrideBlock: false });
     request.flush({ id: 'request-1', outcome: 'Accepted' });
     expect((await promise).outcome).toBe(ReplacementRequestOutcome.Accepted);
   });
