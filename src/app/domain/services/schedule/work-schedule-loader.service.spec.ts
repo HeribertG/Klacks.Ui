@@ -148,6 +148,33 @@ describe('WorkScheduleLoaderService calendar dates', () => {
     httpTestingController.verify();
   });
 
+  describe('planning period of the open plan', () => {
+    const WEEK_50 = 50;
+
+    beforeEach(() => {
+      const calendar = new CalendarUtilService();
+      Object.assign(TestBed.inject(CalendarUtilService), {
+        getWeekStartDate: calendar.getWeekStartDate.bind(calendar),
+        getWeekEndDate: calendar.getWeekEndDate.bind(calendar),
+        getBiweeklyStartDate: calendar.getBiweeklyStartDate.bind(calendar),
+        getBiweeklyEndDate: calendar.getBiweeklyEndDate.bind(calendar),
+      });
+    });
+
+    it.each([
+      [0, '2026-12-07', '2026-12-13'],
+      [1, '2026-11-30', '2026-12-13'],
+      [2, '2026-12-01', '2026-12-31'],
+      [3, '2026-12-01', '2026-12-31'],
+      [4, '2026-12-01', '2026-12-31'],
+    ])('payment interval %i runs from %s to %s', (paymentInterval, from, until) => {
+      const filter = { ...createWorkFilter(), currentYear: 2026, currentMonth: 12, currentWeek: WEEK_50, paymentInterval };
+
+      expect(formatDateOnly(service.getPeriodStartDate(filter))).toBe(from);
+      expect(formatDateOnly(service.getPeriodEndDate(filter))).toBe(until);
+    });
+  });
+
   for (const zone of CALENDAR_TEST_ZONES) {
     describe(zone, () => {
       useTimeZone(zone);

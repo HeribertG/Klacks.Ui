@@ -170,7 +170,7 @@ export class GridScheduleEventsService {
     }
 
     const scheduleDataService = this.gridData as ScheduleDataService;
-    if (scheduleDataService.isColumnSealed(pos.column)) {
+    if (scheduleDataService.isColumnSealed(pos.column) || scheduleDataService.isColumnOutsideScenario(pos.column)) {
       return;
     }
 
@@ -316,6 +316,10 @@ export class GridScheduleEventsService {
     row: number,
     column: number
   ): { id: string; sourceId: string; clientId: string; date: Date; entryId: string; entryType: number } | null {
+    if (scheduleDataService.isColumnOutsideScenario(column)) {
+      return null;
+    }
+
     const entry = scheduleDataService.getWorkScheduleEntryForCell(row, column);
     if (!entry) {
       return null;

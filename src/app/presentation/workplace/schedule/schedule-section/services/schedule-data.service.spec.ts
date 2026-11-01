@@ -2,6 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { Mock, vi } from 'vitest';
+import { signal, WritableSignal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
@@ -10,6 +11,8 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
@@ -51,8 +54,13 @@ describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
     let dataManagement: { clients: unknown[]; visibleStartDate: Date | null; visibleEndDate: Date | null; sealedDates: Set<string> };
     let holidayCollection: { holidays: HolidaysListHelper; currentYear: number };
+    let activeScenario: WritableSignal<IAnalyseScenario | null>;
+
+    const scenarioFor = (fromDate: string, untilDate: string): IAnalyseScenario =>
+        ({ id: 'scenario-1', fromDate, untilDate, token: 'token-1' }) as IAnalyseScenario;
 
     beforeEach(() => {
+        activeScenario = signal<IAnalyseScenario | null>(null);
         holidayCollection = { holidays: new HolidaysListHelper(), currentYear: SAME_DATE_HOLIDAY_YEAR };
         const dm = {
             workFilter: { currentYear: 2024, currentMonth: 1, paymentInterval: 2 },
@@ -74,6 +82,7 @@ describe('ScheduleDataService', () => {
                 { provide: HolidayCollectionService, useValue: holidayCollection },
                 { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
                 { provide: DataManagementScheduleService, useValue: dataManagement },
+                { provide: AnalyseScenarioService, useValue: { activeScenario } },
                 { provide: AppSettingsManagementService, useValue: {
                         workSettings: () => ({ dayVisibleBefore: 3, dayVisibleAfter: 3, paymentInterval: 2 })
                     } },
@@ -204,6 +213,82 @@ describe('ScheduleDataService', () => {
             dataManagement.clients = [{ memberSince: undefined, memberUntil: '2026-01-25' }];
             expect(service.isCellOutsideMembershipPeriod(0, 0)).toBe(false);
         });
+    });
+
+    describe('days outside the active scenario', () => {
+        const FIRST_VISIBLE_DAY = 0;
+        const FIRST_SCENARIO_DAY = 3;
+        const LAST_SCENARIO_DAY = 33;
+        const FIRST_DAY_AFTER_SCENARIO = 34;
+
+        for (const zone of CALENDAR_TEST_ZONES) {
+            describe(zone, () => {
+                useTimeZone(zone);
+
+                beforeEach(() => {
+                    service.startDate = new Date(2026, 10, 28);
+                    service.rowGroupIndex = [0];
+                    service.indexGroupRow = [0];
+                    dataManagement.clients = [{ id: 'c1' }];
+                    vi.spyOn(service, 'isCellActive').mockReturnValue(false);
+                    vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(undefined);
+                    activeScenario.set(scenarioFor('2026-12-01', '2026-12-31'));
+                });
+
+                it.each([
+                    [FIRST_VISIBLE_DAY, false],
+                    [FIRST_SCENARIO_DAY - 1, false],
+                    [FIRST_SCENARIO_DAY, true],
+                    [LAST_SCENARIO_DAY, true],
+                    [FIRST_DAY_AFTER_SCENARIO, false],
+                ])('column %i is editable: %s', (column, editable) => {
+                    expect(service.isCellEditable(0, column)).toBe(editable);
+                });
+
+                it('keeps every visible day editable for a scenario spanning the padded days', () => {
+                    activeScenario.set(scenarioFor('2026-11-28', '2027-01-03'));
+
+                    expect(service.isCellEditable(0, FIRST_VISIBLE_DAY)).toBe(true);
+                    expect(service.isCellEditable(0, FIRST_DAY_AFTER_SCENARIO)).toBe(true);
+                });
+
+                it('locks a month the planner navigated to inside the scenario', () => {
+                    service.startDate = new Date(2027, 0, 29);
+
+                    expect(service.isCellEditable(0, FIRST_SCENARIO_DAY)).toBe(false);
+                });
+
+                it('does not restrict the real plan', () => {
+                    activeScenario.set(null);
+
+                    expect(service.isCellEditable(0, FIRST_VISIBLE_DAY)).toBe(true);
+                    expect(service.isColumnOutsideScenario(FIRST_VISIBLE_DAY)).toBe(false);
+                });
+
+                it.each([WorkScheduleEntryType.ScheduleNote, WorkScheduleEntryType.ScheduleCommand])(
+                    'locks a note or command (entry type %s) on such a day',
+                    (entryType) => {
+                        const cell = Object.assign(new ScheduleCell(), { entryType, lockLevel: 0, isGroupRestricted: false });
+                        vi.spyOn(service, 'getWorkScheduleEntryForCell').mockReturnValue(cell);
+
+                        expect(service.isCellEditable(0, FIRST_VISIBLE_DAY)).toBe(false);
+                        expect(service.isCellEditable(0, FIRST_SCENARIO_DAY)).toBe(true);
+                    },
+                );
+
+                it('treats such a day like a day that cannot be planned', () => {
+                    expect(service.isCellOutsideGroupPeriod(0, FIRST_VISIBLE_DAY)).toBe(true);
+                    expect(service.isCellOutsideGroupPeriod(0, FIRST_SCENARIO_DAY)).toBe(false);
+                });
+
+                it('answers for a calendar date as well', () => {
+                    expect(service.isDateOutsideScenario(new Date(2026, 10, 30))).toBe(true);
+                    expect(service.isDateOutsideScenario(new Date(2026, 11, 1))).toBe(false);
+                    expect(service.isDateOutsideScenario(new Date(2026, 11, 31))).toBe(false);
+                    expect(service.isDateOutsideScenario(new Date(2027, 0, 1))).toBe(true);
+                });
+            });
+        }
     });
 
     describe('isCellOutsideGroupPeriod', () => {
@@ -722,6 +807,14 @@ describe('ScheduleDataService', () => {
 
         it('skips a sealed target day', () => {
             dataManagement.sealedDates = new Set([formatDateOnly(dateAt(2))]);
+
+            pasteCopiedBreakAt(0);
+
+            expect(bulkBreak).not.toHaveBeenCalled();
+        });
+
+        it('skips a target day outside the active scenario', () => {
+            activeScenario.set(scenarioFor('2026-03-05', '2026-03-31'));
 
             pasteCopiedBreakAt(0);
 

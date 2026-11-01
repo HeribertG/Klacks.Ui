@@ -150,6 +150,9 @@ export class ScheduleDragDropService {
     event: CellValueChangeEvent,
     dataService: ScheduleDataService,
   ): CellValueContext | null {
+    if (dataService.isColumnOutsideScenario(event.column)) {
+      return null;
+    }
     const clientIndex = dataService.rowGroupIndex[event.row];
     if (clientIndex === undefined) {
       return null;

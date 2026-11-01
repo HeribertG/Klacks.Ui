@@ -497,7 +497,7 @@ export class ScheduleSectionComponent
     const bp = this.facade.breakBarRender.getBreakPlaceholderAt(event.row, event.column);
     if (bp) {
       this.contextMenuBreakPlaceholder = bp;
-      contextMenu.menuData = this.facade.contextMenu.createBreakPlaceholderContextMenu(bp);
+      contextMenu.menuData = this.facade.contextMenu.createBreakPlaceholderContextMenu(bp, this.scheduleService);
     } else {
       this.contextMenuBreakPlaceholder = null;
       this.createContextMenu(event.row, event.column, event.entry);
@@ -576,6 +576,8 @@ export class ScheduleSectionComponent
 
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleService;
+    if (dataService.isColumnOutsideScenario(event.column)) return;
+
     this.facade.dialog.editWorkChange(event.row, event.column, dataService, event.entry ?? undefined);
   }
 
@@ -610,11 +612,15 @@ export class ScheduleSectionComponent
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleService;
+    if (dataService.isColumnOutsideScenario(event.column)) return;
+
     this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService, event.entry ?? undefined);
   }
 
   onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleService;
+    if (dataService.isColumnOutsideScenario(event.column)) return;
+
     const clickedDate = dataService.getDateForColumn(event.column);
     const availableShifts = this.mapShiftsToAvailable(
       this.dataManagement.shiftSchedules,
@@ -627,6 +633,7 @@ export class ScheduleSectionComponent
     if (!event.entry) return;
     const entry = event.entry;
     if (entry.lockLevel > 0 || entry.isGroupRestricted) return;
+    if (this.scheduleService.isColumnOutsideScenario(event.column)) return;
 
     const date = this.scheduleService.getDateForColumn(event.column);
     if (!date) return;

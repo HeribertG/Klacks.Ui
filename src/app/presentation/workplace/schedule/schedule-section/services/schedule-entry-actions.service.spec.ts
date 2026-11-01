@@ -81,6 +81,7 @@ describe('ScheduleEntryActionsService', () => {
       rowGroupIndex: [0],
       isCellOutsideMembershipPeriod: () => false,
       isCellOutsideGroupPeriod: () => false,
+      isColumnOutsideScenario: () => false,
       getGroupIndex: () => ({ id: 'client-1' }),
     } as unknown as ScheduleDataService;
   }
@@ -131,6 +132,24 @@ describe('ScheduleEntryActionsService', () => {
       getWorkScheduleEntryForCell: () => (entryType === null ? undefined : { id: 'entry-1', entryType }),
     } as unknown as ScheduleDataService;
   }
+
+  describe('deleting on a day outside the active scenario', () => {
+    const grid = (outsideScenario: boolean): ScheduleDataService =>
+      ({
+        rowGroupIndex: [0],
+        getWorkScheduleEntryForCell: () => ({ id: 'work-1', sourceId: 'work-1', entryId: 'shift-1', entryType: 0 }),
+        getDateForColumn: () => new Date(2026, 10, 30),
+        isColumnOutsideScenario: () => outsideScenario,
+      }) as unknown as ScheduleDataService;
+
+    it('resolves nothing to delete', () => {
+      expect(service.getDeleteInfoForPosition(grid(true), 0, 0)).toBeNull();
+    });
+
+    it('resolves the entry inside the scenario', () => {
+      expect(service.getDeleteInfoForPosition(grid(false), 0, 0)?.id).toBe('work-1');
+    });
+  });
 
   describe('confirm and unconfirm', () => {
     it('confirms a work entry through the work service and re-reads the schedule', () => {

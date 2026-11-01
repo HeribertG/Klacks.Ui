@@ -23,6 +23,7 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, formatDateOnly, getDayIndex } from 'src/app/domain/helpers/date.helper';
@@ -58,6 +59,7 @@ export class ScheduleDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private appSettingsService = inject(AppSettingsManagementService);
   private weekConfiguration = inject(WeekConfigurationService);
   private emptyFormatter = inject(EmptyCellFormatterService);
@@ -356,7 +358,30 @@ export class ScheduleDataService extends BaseDataService {
     return false;
   }
 
+  /**
+   * A day of the active scenario's context that accept would discard. Scenario rows outside
+   * fromDate/untilDate are soft-deleted on accept, so nothing may be written there.
+   */
+  public isColumnOutsideScenario(col: number): boolean {
+    const date = this.getDateForColumn(col);
+    return date !== undefined && this.isDateOutsideScenario(date);
+  }
+
+  public isDateOutsideScenario(date: Date): boolean {
+    const scenario = this.analyseScenarioService.activeScenario();
+    if (!scenario) return false;
+
+    const dateKey = calendarDateKey(date);
+    return dateKey < calendarDateKey(scenario.fromDate) || dateKey > calendarDateKey(scenario.untilDate);
+  }
+
+  /**
+   * Whether the day cannot be planned for this row: outside the group membership's validity, or outside
+   * the active scenario. Every planning write path checks this, so both rules hold for all of them.
+   */
   public isCellOutsideGroupPeriod(row: number, col: number): boolean {
+    if (this.isColumnOutsideScenario(col)) return true;
+
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) return false;
 

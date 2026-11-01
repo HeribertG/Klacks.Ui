@@ -12,6 +12,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { ScheduleDataService } from './schedule-data.service';
 
 describe('ScheduleContextMenuService - role seniority gates unconfirm', () => {
@@ -56,7 +57,7 @@ describe('ScheduleContextMenuService - role seniority gates unconfirm', () => {
       row: 0,
       column: 0,
       entry,
-      dataService: {} as ScheduleDataService,
+      dataService: { isColumnOutsideScenario: () => false } as unknown as ScheduleDataService,
     };
   };
 
@@ -86,9 +87,13 @@ describe('ScheduleContextMenuService - role seniority gates unconfirm', () => {
 describe('ScheduleContextMenuService - cover absence entry', () => {
   let service: ScheduleContextMenuService;
   let held: Set<string>;
+  let outsideScenario: boolean;
+  let canUnconfirm: boolean;
 
   beforeEach(() => {
     held = new Set<string>();
+    outsideScenario = false;
+    canUnconfirm = false;
     const hasPermission = (permission: string): boolean => held.has(permission);
 
     TestBed.configureTestingModule({
@@ -98,7 +103,7 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
         { provide: BaseCellManipulationService, useValue: { hasClipboardData: () => false } },
         { provide: DataManagementScheduleService, useValue: { shiftSchedules: [] } },
         { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [] } },
-        { provide: WorkLockLevelService, useValue: { canUnconfirm: () => false, canConfirm: () => false } },
+        { provide: WorkLockLevelService, useValue: { canUnconfirm: () => canUnconfirm, canConfirm: () => false } },
         {
           provide: AuthorizationService,
           useValue: {
@@ -126,8 +131,9 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
       entry,
       dataService: {
         isCellOutsideMembershipPeriod: () => false,
-        isCellOutsideGroupPeriod: () => false,
+        isCellOutsideGroupPeriod: () => outsideScenario,
         isColumnSealed: () => false,
+        isColumnOutsideScenario: () => outsideScenario,
         getAllEntriesForClientAndColumn: () => [],
       } as unknown as ScheduleDataService,
     };
@@ -135,6 +141,54 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
 
   const keysOf = (context: ContextMenuContext): string[] =>
     service.createContextMenu(context).list.map((item) => item.key);
+
+  it('offers no write action on a work cell outside the active scenario', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+    outsideScenario = true;
+
+    const keys = keysOf(buildContext(WorkScheduleEntryType.Work));
+
+    for (const key of ['coverAbsence', 'replacement', 'del', 'cut', 'correction', 'expenses', 'confirm']) {
+      expect(keys).not.toContain(key);
+    }
+  });
+
+  it('offers no unconfirm on a confirmed entry outside the active scenario', () => {
+    canUnconfirm = true;
+    outsideScenario = true;
+
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work, 1))).not.toContain('unconfirm');
+  });
+
+  it('still offers unconfirm on a confirmed entry inside the scenario', () => {
+    canUnconfirm = true;
+
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work, 1))).toContain('unconfirm');
+  });
+
+  it('offers no shift or absence on an empty cell outside the active scenario', () => {
+    outsideScenario = true;
+
+    const context = buildContext(WorkScheduleEntryType.Work);
+    context.entry = null;
+
+    expect(service.createContextMenu(context).list).toEqual([]);
+  });
+
+  it.each([
+    [false, true],
+    [true, false],
+  ])('adopting a break placeholder with a day outside the scenario (%s) is offered: %s', (outside, offered) => {
+    const placeholder = new BreakPlaceholder();
+    placeholder.from = new Date(2026, 10, 30);
+    placeholder.until = new Date(2026, 11, 2);
+    const dataService = { isDateOutsideScenario: () => outside } as unknown as ScheduleDataService;
+
+    const keys = service.createBreakPlaceholderContextMenu(placeholder, dataService).list.map((item) => item.key);
+
+    expect(keys.includes('adoptAbsence')).toBe(offered);
+    expect(keys).toContain('deleteBreakPlaceholder');
+  });
 
   it('offers "cover absence" on an unlocked work cell to anyone who may edit the schedule (planner floor)', () => {
     held.add(PERMISSIONS.CanEditSchedule);

@@ -2,7 +2,7 @@
 
 /**
  * Modal dialog for creating a new what-if scenario. The period and group
- * are taken implicitly from the currently visible schedule - the user
+ * are taken implicitly from the open plan (its planning period, without the padded days) - the user
  * only supplies a name and optional description.
  * @param scenarioName - Name of the new scenario
  * @param description - Optional description of the new scenario
@@ -16,6 +16,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { formatDateOnly } from 'src/app/domain/helpers/calendar-date.helper';
 
 @Component({
   selector: 'app-create-scenario-dialog',
@@ -59,16 +60,16 @@ export class CreateScenarioDialogComponent {
     if (!this.isValid() || this.isSaving()) return;
     this.errorMessage.set(null);
 
-    const start = this.dataManagement.visibleStartDate;
-    const end = this.dataManagement.visibleEndDate;
+    const start = this.dataManagement.periodStartDate;
+    const end = this.dataManagement.periodEndDate;
     if (!start || !end) {
       this.errorMessage.set(this.translate.instant('scenario.error.noDateRange'));
       return;
     }
 
     const groupId = this.groupSelection.selectedGroup?.id;
-    const fromDate = this.toIsoDate(start);
-    const untilDate = this.toIsoDate(end);
+    const fromDate = formatDateOnly(start);
+    const untilDate = formatDateOnly(end);
 
     this.isSaving.set(true);
 
@@ -98,12 +99,5 @@ export class CreateScenarioDialogComponent {
 
   onCancel(): void {
     this.modalRef?.close();
-  }
-
-  private toIsoDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
   }
 }

@@ -51,9 +51,15 @@ export class ScheduleContextMenuService {
   private lockLevelService = inject(WorkLockLevelService);
   private authService = inject(AuthorizationService);
 
-  createBreakPlaceholderContextMenu(bp: IBreakPlaceholder): Menu {
+  createBreakPlaceholderContextMenu(bp: IBreakPlaceholder, dataService: ScheduleDataService): Menu {
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.deleteBreakPlaceholder());
+
+    const reachesOutsideScenario = [bp.from, bp.until].some((date) => date && dataService.isDateOutsideScenario(date));
+    if (reachesOutsideScenario) {
+      return menuData;
+    }
+
     menuData.list.push(...MenuDataTemplate.divider());
 
     const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
@@ -116,7 +122,7 @@ export class ScheduleContextMenuService {
         }
       } else if (isLocked) {
         if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {
-          if (!entry.isGroupRestricted && this.canUnconfirmEntry(entry)) {
+          if (!entry.isGroupRestricted && !context.dataService.isColumnOutsideScenario(context.column) && this.canUnconfirmEntry(entry)) {
             menuData.list.push(...MenuDataTemplate.unconfirm());
             menuData.list.push(...MenuDataTemplate.divider());
           }

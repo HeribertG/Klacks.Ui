@@ -177,6 +177,8 @@ export class ScheduleEntryActionsService {
     row: number,
     column: number
   ): DeleteWorkScheduleEntryParams | null {
+    if (dataService.isColumnOutsideScenario(column)) return null;
+
     const entry = dataService.getWorkScheduleEntryForCell(row, column);
     if (!entry) return null;
 
