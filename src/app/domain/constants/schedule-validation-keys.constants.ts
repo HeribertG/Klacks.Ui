@@ -8,6 +8,9 @@
  * retract them by week rather than by exact date.
  * SCHEDULE_VALIDATION_KEY_REST_VIOLATION is dated with the day of the PREVIOUS block's owner, so the pair
  * (X-1 -> X) sits on X-1; a re-check of day X therefore also retracts that key on X-1.
+ * SCHEDULE_VALIDATION_KEY_UNCOVERED_ABSENCE is dated with the day of the work, which a night shift or an absence of the
+ * next day leaves one day before the day that is checked; the re-check of day X sends it again for X-1 and X, so it is
+ * retracted on X-1 as well. PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS lists those keys.
  */
 export const SCHEDULE_VALIDATION_KEY_WEEKLY_OVERTIME =
   'schedule.error-list.weekly-overtime';
@@ -17,6 +20,8 @@ export const SCHEDULE_VALIDATION_KEY_REST_VIOLATION =
   'schedule.error-list.rest-violation';
 export const SCHEDULE_VALIDATION_KEY_CONSECUTIVE_DAYS =
   'schedule.error-list.consecutive-days';
+export const SCHEDULE_VALIDATION_KEY_UNCOVERED_ABSENCE =
+  'schedule.error-list.uncovered-absence';
 
 export const SCHEDULE_VALIDATION_KEY_PLANNING_RULE =
   'schedule.error-list.planning-rule';
@@ -56,6 +61,11 @@ export const WEEK_SCOPED_VALIDATION_KEYS: readonly string[] = [
   SCHEDULE_VALIDATION_KEY_WEEKLY_OVERTIME,
   SCHEDULE_VALIDATION_KEY_MIN_REST_DAYS,
   SCHEDULE_VALIDATION_KEY_CONSECUTIVE_DAYS,
+];
+
+export const PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS: readonly string[] = [
+  SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
+  SCHEDULE_VALIDATION_KEY_UNCOVERED_ABSENCE,
 ];
 
 export const SCHEDULE_ERROR_LIST_PRE_EXISTING_KEY = 'schedule.error-list.pre-existing';
