@@ -72,6 +72,13 @@
         rows="3"
       ></textarea>
     </div>
+
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" [formField]="briefingForm.toInvoice" />
+        {{ "dialog.briefing.toInvoice" | translate }}
+      </label>
+    </div>
   </div>
 
   <div class="modal-footer">

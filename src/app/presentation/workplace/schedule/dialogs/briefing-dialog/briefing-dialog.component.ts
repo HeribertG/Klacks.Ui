@@ -27,6 +27,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays } from 'src/app/domain/helpers/date.helper';
+import { WORK_CHANGE_TO_INVOICE_DEFAULT } from 'src/app/domain/constants/work-change-defaults.constants';
 
 @Component({
   selector: 'app-briefing-dialog',
@@ -57,7 +58,7 @@ export class BriefingDialogComponent {
 
   private formModel = signal<{ description: string; toInvoice: boolean }>({
     description: '',
-    toInvoice: false,
+    toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT,
   });
   protected briefingForm = form(this.formModel);
 
@@ -95,7 +96,7 @@ export class BriefingDialogComponent {
         this.clientId = data.work?.clientId || '';
         this.formModel.set({
           description: data.description || '',
-          toInvoice: false,
+          toInvoice: data.toInvoice,
         });
         this.correctionMode.set(
           data.type === WorkChangeType.Debriefing
@@ -125,7 +126,7 @@ export class BriefingDialogComponent {
   private reset(): void {
     this.correctionMode.set(CorrectionMode.AtStart);
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.formModel.set({ description: '', toInvoice: false });
+    this.formModel.set({ description: '', toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT });
     this.recalculate();
   }
 

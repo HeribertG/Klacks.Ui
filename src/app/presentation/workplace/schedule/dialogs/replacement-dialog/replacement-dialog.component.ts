@@ -34,6 +34,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays } from 'src/app/domain/helpers/date.helper';
+import { WORK_CHANGE_TO_INVOICE_DEFAULT } from 'src/app/domain/constants/work-change-defaults.constants';
 
 @Component({
   selector: 'app-replacement-dialog',
@@ -72,7 +73,7 @@ export class ReplacementDialogComponent {
   private formModel = signal<{ searchText: string; description: string; toInvoice: boolean }>({
     searchText: '',
     description: '',
-    toInvoice: false,
+    toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT,
   });
   protected replacementForm = form(this.formModel);
 
@@ -205,7 +206,7 @@ export class ReplacementDialogComponent {
     this.replaceClientId = null;
     this.searchResults = [];
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.formModel.set({ searchText: '', description: '', toInvoice: false });
+    this.formModel.set({ searchText: '', description: '', toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT });
     this.isOpenedFromReplaceClient = false;
     this.workClientName = '';
     this.onModeChange(CorrectionMode.AtStart);

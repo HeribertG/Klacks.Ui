@@ -61,4 +61,11 @@ describe('ReplacementDialogComponent', () => {
     expect(component.clients).toEqual([]);
     expect(open).toHaveBeenCalledTimes(1);
   });
+
+  it('starts a new replacement as billable', () => {
+    component.open('work-1', 'client-1', new Date(2026, 7, 15), '08:00:00', '16:00:00');
+
+    const model = (component as unknown as { formModel: () => { toInvoice: boolean } }).formModel();
+    expect(model.toInvoice).toBe(true);
+  });
 });
