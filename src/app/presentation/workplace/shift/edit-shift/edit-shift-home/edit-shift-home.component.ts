@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NavToggleComponent } from 'src/app/presentation/shared/nav-toggle/nav-toggle.component';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -37,6 +37,13 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { ShiftFormService } from '../services/shift-form.service';
 import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { ModalType } from 'src/app/presentation/modal/modal-type.enum';
+import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
+import { CanComponentDeactivate } from 'src/app/application/helpers/can-component-deactivate.interface';
+
+const LEAVE_WITHOUT_ASKING_ROUTES: readonly string[] = ['/error', '/no-access'];
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -59,7 +66,7 @@ import { DraftRecoveryService } from 'src/app/presentation/services/draft-recove
     VariantModeBarComponent,
 ],
 })
-export class EditShiftHomeComponent implements OnInit, OnDestroy {
+export class EditShiftHomeComponent implements OnInit, OnDestroy, CanComponentDeactivate {
 
   readonly navOpen = signal(false);
   private workplaceStateService = inject(WorkplaceStateService);
@@ -73,12 +80,17 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   private searchService = inject(SearchService);
   private shiftFormService = inject(ShiftFormService);
   private draftRecoveryService = inject(DraftRecoveryService);
+  private modalService = inject(ModalService);
+  private translateService = inject(TranslateService);
+  private authService = inject(AuthService);
+  private shiftEditPermission = inject(ShiftEditPermissionService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   isComplex = false;
   isReadOnly = false;
   private returnUrl: string | null = null;
+  private openLeaveQuestion: Promise<boolean> | null = null;
 
   private readonly beforeSaveCallback = (): void => {
     this.shiftFormService.applyFormToShift();
@@ -190,5 +202,48 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
   onIsChangingMode(): void {
     this.isComplex = this.shiftEditModeService.isComplex();
+  }
+
+  /**
+   * Asks before unsaved changes are lost, also those of an invalid form. A second navigation while the question is open
+   * waits for the same answer.
+   * @param nextUrl - Where the navigation goes
+   */
+  canDeactivate(nextUrl?: string): boolean | Promise<boolean> {
+    if (this.leavesWithoutAsking(nextUrl) || !this.dataManagementShiftService.hasChangesToLose()) {
+      return true;
+    }
+
+    this.openLeaveQuestion ??= this.askToDiscardChanges().finally(() => {
+      this.openLeaveQuestion = null;
+    });
+    return this.openLeaveQuestion;
+  }
+
+  /** A viewer has nothing to lose, and neither a lost session nor the error pages are the user's decision to leave. */
+  private leavesWithoutAsking(nextUrl?: string): boolean {
+    return (
+      this.isReadOnly ||
+      !this.shiftEditPermission.canWriteCurrentShift() ||
+      !this.authService.authenticated() ||
+      (nextUrl !== undefined && LEAVE_WITHOUT_ASKING_ROUTES.includes(nextUrl.split('?')[0]))
+    );
+  }
+
+  private askToDiscardChanges(): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.modalService.openModal({
+        type: ModalType.Confirmation,
+        title: this.translateService.instant('shift.edit-shift.leave.title'),
+        message: this.translateService.instant('shift.edit-shift.leave.message'),
+        confirmText: this.translateService.instant('setting.report.discardConfirm'),
+        cancelText: this.translateService.instant('setting.report.discardCancel'),
+        onConfirm: () => {
+          this.dataManagementShiftService.resetData();
+          resolve(true);
+        },
+        onDismiss: () => resolve(false),
+      });
+    });
   }
 }

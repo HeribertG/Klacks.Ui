@@ -219,16 +219,18 @@ describe('shift form dirty flow', () => {
     ['a sealed order', ShiftStatus.SealedOrder],
     ['a plannable copy', ShiftStatus.OriginalShift],
     ['a cut piece', ShiftStatus.SplitShift],
-  ])('on %s of the real plan, whose family a single save would tear apart', (_name, status) => {
+  ])('on %s of the real plan, whose family the server ends as a whole', (_name, status) => {
     const SET_UNTIL: NgbDateStruct = { year: 2026, month: 12, day: 20 };
 
     beforeEach(() => {
       load({ ...LOADED_SHIFT, untilDate: null, status });
     });
 
-    it('does not count setting the until date', () => {
+    it('counts setting the until date, and is clean again when it is cleared', () => {
       form().internalUntilDate = SET_UNTIL;
+      expect(service.areObjectsDirty()).toBe(true);
 
+      form().internalUntilDate = undefined;
       expect(service.areObjectsDirty()).toBe(false);
     });
 
@@ -238,10 +240,75 @@ describe('shift form dirty flow', () => {
       expect(service.areObjectsDirty()).toBe(false);
     });
 
-    it('captures no draft for a change of date alone', () => {
+    it('does not count a changed start date', () => {
+      form().internalFromDate = { year: 2026, month: 12, day: 2 };
+
+      expect(service.areObjectsDirty()).toBe(false);
+    });
+
+    it('captures a draft for the until date, not for a changed time', () => {
+      form().internalStartShift = new OwnTime('08', '30', false);
+      expect(service.captureDraft()).toBeNull();
+
+      form().internalUntilDate = SET_UNTIL;
+      expect(service.captureDraft()).not.toBeNull();
+    });
+
+    it('sends the until date with the stored dates and times, whatever the form holds', () => {
+      form().internalUntilDate = SET_UNTIL;
+      form().internalStartShift = new OwnTime('08', '30', false);
+      form().internalFromDate = { year: 2026, month: 12, day: 2 };
+
+      service.save();
+
+      const request = http.expectOne(SHIFT_URL);
+      const body = request.request.body as Record<string, unknown>;
+      expect(calendarDateKey(body['untilDate'] as string)).toBe('2026-12-20');
+      expect(calendarDateKey(body['fromDate'] as string)).toBe('2026-12-01');
+      expect(body['startShift']).toBe('07:00:00');
+      expect(body['workTime']).toBe(7.33);
+      request.flush({ ...LOADED_SHIFT, untilDate: '2026-12-20T00:00:00', status });
+    });
+
+    it('keeps the typed until date when the server refuses it', () => {
+      const onRefused = vi.fn();
+      service.onSaveRefused = onRefused;
       form().internalUntilDate = SET_UNTIL;
 
-      expect(service.captureDraft()).toBeNull();
+      service.save();
+      http.expectOne(SHIFT_URL).flush({ errorCode: 'SHIFT_END_DATE_REFUSED' }, { status: 409, statusText: 'Conflict' });
+      settle();
+
+      expect(onRefused).toHaveBeenCalledTimes(1);
+      expect(form().internalUntilDate).toEqual(SET_UNTIL);
+      expect(service.areObjectsDirty()).toBe(true);
+      expect(service.isEndDateOpen()).toBe(true);
+    });
+
+    it('has nothing left to save right after a successful save, before the form is rebuilt', () => {
+      form().internalUntilDate = SET_UNTIL;
+
+      service.save();
+      http.expectOne(SHIFT_URL).flush({ ...LOADED_SHIFT, untilDate: '2026-12-20T00:00:00', status });
+
+      expect(service.hasChangesToLose()).toBe(false);
+    });
+
+    it('offers the end date until it is saved, and locks it afterwards', () => {
+      expect(service.isEndDateOpen()).toBe(true);
+      expect(service.hasStoredUntilDate()).toBe(false);
+
+      load({ ...LOADED_SHIFT, status });
+
+      expect(service.isEndDateOpen()).toBe(false);
+      expect(service.hasStoredUntilDate()).toBe(true);
+    });
+
+    it('does not count a changed stored until date, the server keeps it', () => {
+      load({ ...LOADED_SHIFT, status });
+      form().internalUntilDate = SET_UNTIL;
+
+      expect(service.areObjectsDirty()).toBe(false);
     });
 
     it('still counts a change of another field', () => {
@@ -280,6 +347,22 @@ describe('shift form dirty flow', () => {
 
       expect(service.captureDraft()).not.toBeNull();
     });
+  });
+
+  it('reports unsaved changes for leaving without turning on the validation display', () => {
+    load();
+    service.editShift!.name = 'Renamed';
+
+    expect(service.hasChangesToLose()).toBe(true);
+    expect(service.makeValidation()).toBe(false);
+  });
+
+  it('also reports a change the save button would not offer, so an invalid form is not lost silently', () => {
+    load();
+    service.editShift!.name = '';
+
+    expect(service.areObjectsDirty()).toBe(false);
+    expect(service.hasChangesToLose()).toBe(true);
   });
 
   it('is clean for an untouched new shift', () => {

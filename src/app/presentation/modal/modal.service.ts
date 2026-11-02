@@ -41,6 +41,7 @@ export class ModalService {
   Filing = '';
   componentContext = '';
   private onConfirmCallback: (() => void) | null = null;
+  private onDismissCallback: (() => void) | null = null;
 
   openModal(options: {
     type: ModalType;
@@ -49,13 +50,24 @@ export class ModalService {
     confirmText: string;
     cancelText: string;
     onConfirm: () => void;
+    onDismiss?: () => void;
   }) {
+    this.dismissOpenDialog();
+
     this.deleteMessageTitle = options.title;
     this.deleteMessage = options.message;
     this.deleteMessageOkButton = options.confirmText;
     this.onConfirmCallback = options.onConfirm;
+    this.onDismissCallback = options.onDismiss ?? null;
 
     this.openModel(options.type);
+  }
+
+  /** A dialog replaced by a newer one is answered as dismissed, so a caller waiting for its answer never hangs. */
+  private dismissOpenDialog(): void {
+    const onDismiss = this.onDismissCallback;
+    this.onDismissCallback = null;
+    onDismiss?.();
   }
 
   openModel(kind: ModalType) {
@@ -70,12 +82,20 @@ export class ModalService {
     if ((kind === ModalType.Confirmation || kind === ModalType.Delete) && this.onConfirmCallback) {
       this.onConfirmCallback();
       this.onConfirmCallback = null;
+      this.onDismissCallback = null;
     }
   }
 
   failedReason(kind: ModalType) {
     this.openModelSignal.set(null);
     this.reasonSignal.set(kind);
+
+    const onDismiss = this.onDismissCallback;
+    this.onDismissCallback = null;
+    if (onDismiss) {
+      this.onConfirmCallback = null;
+      onDismiss();
+    }
   }
 
   setDefault(kind: ModalType) {

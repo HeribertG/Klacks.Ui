@@ -41,10 +41,12 @@ import {
   hasShiftScheduleChange,
   SHIFT_DATE_FIELDS,
   SHIFT_TIME_FIELDS,
+  keepStoredDatesAndTimes,
 } from 'src/app/domain/helpers/shift-schedule-change.helper';
 import { readScenarioVariantRefusalKey } from 'src/app/domain/models/schedule/scenario-variant-refusal.model';
 import { reportUnseenFailure } from 'src/app/domain/services/shared/report-unseen-failure.helper';
 import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
+import { isShiftEndDateRefusal } from 'src/app/domain/helpers/shift-end-date-refusal.helper';
 import { environment } from 'src/environments/environment';
 import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import {
@@ -484,6 +486,10 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   private saveEditShift() {
     if (this.editShift) {
+      if (this.editShiftDummy && this.setsFirstEndDate()) {
+        keepStoredDatesAndTimes(this.editShift, this.editShiftDummy);
+      }
+
       const action = this.editShift.id
         ? this.dataShiftService.updateShift(this.editShift)
         : this.dataShiftService.addShift(this.editShift);
@@ -510,7 +516,11 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
           },
           error: (error) => {
             reportUnseenFailure(this.eventBus, error, 'ShiftError', 'DataManagementShiftService.saveEditShift');
-            if (readScenarioVariantRefusalKey(error) !== null || isBackendUnreachableError(error, environment.baseUrl)) {
+            if (
+              isShiftEndDateRefusal(error) ||
+              readScenarioVariantRefusalKey(error) !== null ||
+              isBackendUnreachableError(error, environment.baseUrl)
+            ) {
               this.isSaveAndClose = false;
               this.onSaveRefused?.();
               return;
@@ -546,15 +556,37 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         this.editShift as IShift,
         this.editShiftDummy as IShift,
         DataManagementShiftService.DIRTY_EXCLUDE_FIELDS
-      ) || (!this.isCurrentShiftStatusLocked() && hasShiftScheduleChange(this.editShift, this.editShiftDummy))
+      ) || this.hasUnsavedDateOrTime(this.editShift, this.editShiftDummy)
     );
+  }
+
+  /** A locked shift counts only its first end date, which the server writes on the whole family. */
+  private hasUnsavedDateOrTime(shift: Shift, baseline: Shift): boolean {
+    return this.isCurrentShiftStatusLocked()
+      ? this.setsFirstEndDate()
+      : hasShiftScheduleChange(shift, baseline);
+  }
+
+  private setsFirstEndDate(): boolean {
+    return this.isEndDateOpen() && parseCalendarDate(this.editShift?.untilDate) !== null;
+  }
+
+  /** Whether the saved shift has an end date, which then stays locked. */
+  hasStoredUntilDate(): boolean {
+    return parseCalendarDate(this.editShiftDummy?.untilDate) !== null;
+  }
+
+  /** Whether the open shift is a locked shift of the real plan whose end date can still be set once. */
+  isEndDateOpen(): boolean {
+    return this.isCurrentShiftStatusLocked() && !this.editShift?.analyseToken && !this.hasStoredUntilDate();
   }
 
   /**
    * Whether the status of the open shift freezes its fields. A new shift never is, because a clientless duty is prepared as
    * SealedOrder before its first save, and neither is the sealed order of the key being edited, because a key shift is
    * always sealed and stays editable until a scenario takes it over. A locked shift does not count a date or time as a
-   * change: the save writes one row, and the rows of a real family would run apart.
+   * change, because the save writes one row and the rows of a real family would run apart; the one exception is its first
+   * end date, which the server writes on the whole family.
    */
   isCurrentShiftStatusLocked(): boolean {
     const shift = this.editShift;
@@ -622,6 +654,12 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
       return true;
     }
     return false;
+  }
+
+  /** Whether leaving would lose a change, also one the save button does not offer because the form is invalid. */
+  hasChangesToLose(): boolean {
+    this.onBeforeSave?.();
+    return this.hasUnsavedChanges();
   }
 
   resetData() {

@@ -3,5 +3,5 @@
 import { Observable } from 'rxjs';
 
 export interface CanComponentDeactivate {
-  canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
+  canDeactivate: (nextUrl?: string) => Observable<boolean> | Promise<boolean> | boolean;
 }

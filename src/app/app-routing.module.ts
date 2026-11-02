@@ -184,6 +184,7 @@ export const routes: Routes = [
             (m) => m.EditShiftHomeComponent,
           ),
         canActivate: [permissionGuard],
+        canDeactivate: [CanDeactivateGuard],
         data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanCreateShifts },
       },
       {
@@ -193,6 +194,7 @@ export const routes: Routes = [
             (m) => m.EditShiftHomeComponent,
           ),
         canActivate: [permissionGuard],
+        canDeactivate: [CanDeactivateGuard],
         data: { [ROUTE_DATA_REQUIRED_PERMISSION]: PERMISSIONS.CanViewShifts },
       },
       {

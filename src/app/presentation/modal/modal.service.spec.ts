@@ -15,6 +15,62 @@ describe('ModalService', () => {
     modalService = TestBed.inject(ModalService);
   });
 
+  describe('openModal with onDismiss', () => {
+    const options = (onConfirm: () => void, onDismiss: () => void) => ({
+      type: ModalType.Confirmation,
+      title: 'Title',
+      message: 'Message',
+      confirmText: 'Yes',
+      cancelText: 'No',
+      onConfirm,
+      onDismiss,
+    });
+
+    it('answers a dismissed dialog and forgets the confirm, so it cannot fire later', () => {
+      const onConfirm = vi.fn();
+      const onDismiss = vi.fn();
+      modalService.openModal(options(onConfirm, onDismiss));
+
+      modalService.failedReason(ModalType.Confirmation);
+      modalService.result(ModalType.Confirmation);
+
+      expect(onDismiss).toHaveBeenCalledTimes(1);
+      expect(onConfirm).not.toHaveBeenCalled();
+    });
+
+    it('answers a dialog replaced by a newer one as dismissed, exactly once', () => {
+      const firstDismiss = vi.fn();
+      const secondConfirm = vi.fn();
+      modalService.openModal(options(vi.fn(), firstDismiss));
+
+      modalService.openModal(options(secondConfirm, vi.fn()));
+      modalService.result(ModalType.Confirmation);
+
+      expect(firstDismiss).toHaveBeenCalledTimes(1);
+      expect(secondConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not answer a dismiss after the dialog was confirmed', () => {
+      const onDismiss = vi.fn();
+      modalService.openModal(options(vi.fn(), onDismiss));
+
+      modalService.result(ModalType.Confirmation);
+      modalService.failedReason(ModalType.Confirmation);
+
+      expect(onDismiss).not.toHaveBeenCalled();
+    });
+
+    it('keeps the confirm of a dialog opened without onDismiss across an unrelated dismiss', () => {
+      const onConfirm = vi.fn();
+      modalService.openModal({ ...options(onConfirm, vi.fn()), onDismiss: undefined });
+
+      modalService.failedReason(ModalType.Input);
+      modalService.result(ModalType.Confirmation);
+
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('should be created', () => {
     // Arrange & Act & Assert
     expect(modalService).toBeTruthy();

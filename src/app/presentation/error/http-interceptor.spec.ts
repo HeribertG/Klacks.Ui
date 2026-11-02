@@ -448,6 +448,18 @@ describe('ResponseInterceptor', () => {
       expect(captured.status).toBe(CONFLICT.status);
     });
 
+    it('explains a refused end date once and keeps the unsaved changes', () => {
+      const SHIFT_URL = '/api/backend/Shifts/';
+      workplaceStateService.isDirty = true;
+      httpClient.put(SHIFT_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(SHIFT_URL).flush({ detail: 'English detail', errorCode: 'SHIFT_END_DATE_REFUSED' }, CONFLICT);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith('shift.edit-shift.main.until-refused', 'shift-end-date-refused');
+      expect(workplaceStateService.isDirty).toBe(true);
+    });
+
     it('keeps the unsaved changes when a key refuses a shift save, the user may still save them elsewhere', () => {
       const SHIFT_URL = '/api/backend/Shifts/';
       workplaceStateService.isDirty = true;
