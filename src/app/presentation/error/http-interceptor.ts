@@ -28,6 +28,11 @@ import {
   SCENARIO_VARIANT_SHIFT_REFUSED_KEY,
 } from 'src/app/domain/constants/scenario-variant.constants';
 import { readScenarioVariantConflictKey } from 'src/app/domain/models/schedule/scenario-variant-refusal.model';
+import {
+  isShiftEndDateRefusal,
+  SHIFT_END_DATE_REFUSED_KEY,
+  SHIFT_END_DATE_REFUSED_TOAST_NAME,
+} from 'src/app/domain/helpers/shift-end-date-refusal.helper';
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
@@ -169,9 +174,9 @@ export class ResponseInterceptor implements HttpInterceptor {
     return playgroundHttpErrorI18nKey(error.status, error.error?.errorCode);
   }
 
-  // A refusal of a key says nothing about what the user typed, so the form stays dirty; the spinner still ends.
+  // A refusal of a key or of an end date says nothing about what the user typed, so the form stays dirty; the spinner still ends.
   private resetUIState(error: HttpErrorResponse, req: HttpRequest<unknown>): void {
-    if (!this.isBackendUnreachable(error) && !this.isScenarioVariantRefusal(error, req)) {
+    if (!this.isBackendUnreachable(error) && !this.isScenarioVariantRefusal(error, req) && !isShiftEndDateRefusal(error)) {
       this.workplaceStateService.isDirty = false;
     }
     this.workplaceStateService.showProgressSpinner(false);
@@ -267,6 +272,15 @@ export class ResponseInterceptor implements HttpInterceptor {
       this.toastShowService.showError(
         this.translateService.instant(scenarioVariantConflictKey),
         SCENARIO_VARIANT_REFUSAL_TOAST_NAME,
+      );
+      return throwError(() => error);
+    }
+
+    // An end date of a real locked shift the server refused: the form keeps what was typed.
+    if (isShiftEndDateRefusal(error)) {
+      this.toastShowService.showError(
+        this.translateService.instant(SHIFT_END_DATE_REFUSED_KEY),
+        SHIFT_END_DATE_REFUSED_TOAST_NAME,
       );
       return throwError(() => error);
     }

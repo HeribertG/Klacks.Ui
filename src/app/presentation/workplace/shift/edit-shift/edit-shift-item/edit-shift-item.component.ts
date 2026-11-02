@@ -302,17 +302,18 @@ export class EditShiftItemComponent
     return this.shiftEditPermission.isCurrentShiftStatusLocked();
   }
 
+  /**
+   * Decided by the saved end date, not the typed one, so a wrong pick can be corrected until it is saved. A locked shift
+   * keeps a saved end date for good.
+   */
   get isValidUntilDisabled(): boolean {
-    const shift = this.dataManagementShiftService.editShift;
-    const shiftForm = this.shiftFormService.shiftForm();
-    if (!shift) return false;
+    if (this.isReadOnly() || !this.shiftEditPermission.canWriteCurrentShift()) return true;
 
-    const hasValidUntil =
-      shiftForm?.internalUntilDate !== undefined &&
-      shiftForm?.internalUntilDate !== null &&
-      Object.keys(shiftForm?.internalUntilDate ?? {}).length > 0;
+    return this.shiftEditPermission.isCurrentShiftStatusLocked() && this.dataManagementShiftService.hasStoredUntilDate();
+  }
 
-    return this.isFieldsDisabled && hasValidUntil;
+  get isEndDateHintVisible(): boolean {
+    return !this.isValidUntilDisabled && this.dataManagementShiftService.isEndDateOpen();
   }
 
   get isContainerVisible(): boolean {

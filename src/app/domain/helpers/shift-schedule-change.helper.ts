@@ -33,3 +33,12 @@ export function hasShiftScheduleChange(shift: IShift, baseline: IShift): boolean
     SHIFT_TIME_FIELDS.some((field) => timeInHours(shift[field]) !== timeInHours(baseline[field]))
   );
 }
+
+/** The other dates and times of a locked shift stay as saved: the form writes them back in its own format and minutes. */
+export function keepStoredDatesAndTimes(shift: IShift, baseline: IShift): void {
+  shift.fromDate = baseline.fromDate;
+  shift.workTime = baseline.workTime;
+  SHIFT_TIME_FIELDS.forEach((field) => {
+    shift[field] = baseline[field];
+  });
+}

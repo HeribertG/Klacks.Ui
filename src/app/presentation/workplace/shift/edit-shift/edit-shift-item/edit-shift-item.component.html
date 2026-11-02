@@ -196,6 +196,9 @@
                   ></fa-icon>
                 </span>
               </div>
+              @if (isEndDateHintVisible) {
+                <div class="form-text">{{ "shift.edit-shift.main.until-hint" | translate }}</div>
+              }
             </div>
           </div>
         </div>

@@ -26,6 +26,8 @@ describe('EditShiftItemComponent status control', () => {
             isRead: signal(false),
             makeValidation: signal(false),
             isCurrentShiftStatusLocked: () => false,
+            hasStoredUntilDate: () => false,
+            isEndDateOpen: () => false,
           },
         },
         { provide: AuthorizationService, useValue: { hasPermission: () => true } },
@@ -100,5 +102,83 @@ describe('EditShiftItemComponent isFieldsDisabled', () => {
     fixture.componentRef.setInput('isReadOnly', true);
 
     expect(fixture.componentInstance.isFieldsDisabled).toBe(true);
+  });
+});
+
+describe('EditShiftItemComponent until date field', () => {
+  let writeAllowed: boolean;
+  let statusLocked: boolean;
+  let storedUntilDate: boolean;
+  let endDateOpen: boolean;
+
+  const createFixture = () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: DataManagementShiftService,
+          useValue: {
+            editShift: {},
+            isReset: signal(false),
+            isRead: signal(false),
+            isCurrentShiftStatusLocked: () => statusLocked,
+            hasStoredUntilDate: () => storedUntilDate,
+            isEndDateOpen: () => endDateOpen,
+          },
+        },
+        { provide: AuthorizationService, useValue: { hasPermission: () => writeAllowed } },
+        { provide: ShiftFormService, useValue: {} },
+        { provide: LocalStorageService, useValue: {} },
+      ],
+    });
+    TestBed.overrideComponent(EditShiftItemComponent, { set: { template: '', imports: [] } });
+
+    return TestBed.createComponent(EditShiftItemComponent);
+  };
+
+  beforeEach(() => {
+    writeAllowed = true;
+    statusLocked = true;
+    storedUntilDate = false;
+    endDateOpen = true;
+  });
+
+  it('stays open on a locked shift without a stored end date, and shows the hint', () => {
+    const component = createFixture().componentInstance;
+
+    expect(component.isValidUntilDisabled).toBe(false);
+    expect(component.isEndDateHintVisible).toBe(true);
+  });
+
+  it('locks a stored end date on a locked shift', () => {
+    storedUntilDate = true;
+    endDateOpen = false;
+    const component = createFixture().componentInstance;
+
+    expect(component.isValidUntilDisabled).toBe(true);
+    expect(component.isEndDateHintVisible).toBe(false);
+  });
+
+  it('keeps a stored end date editable on a draft order', () => {
+    statusLocked = false;
+    storedUntilDate = true;
+    endDateOpen = false;
+
+    expect(createFixture().componentInstance.isValidUntilDisabled).toBe(false);
+  });
+
+  it('disables the field and hides the hint without the write right', () => {
+    writeAllowed = false;
+    const component = createFixture().componentInstance;
+
+    expect(component.isValidUntilDisabled).toBe(true);
+    expect(component.isEndDateHintVisible).toBe(false);
+  });
+
+  it('disables the field and hides the hint on a read-only link', () => {
+    const fixture = createFixture();
+    fixture.componentRef.setInput('isReadOnly', true);
+
+    expect(fixture.componentInstance.isValidUntilDisabled).toBe(true);
+    expect(fixture.componentInstance.isEndDateHintVisible).toBe(false);
   });
 });
