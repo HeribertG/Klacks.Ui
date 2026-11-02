@@ -136,6 +136,7 @@
   "dialog.briefing.endTime": "Bis",
   "dialog.briefing.duration": "Dauer",
   "dialog.briefing.description": "Beschreibung",
+  "dialog.briefing.toInvoice": "Abrechnen",
   "dialog.replacement.title": "Ablösung",
   "dialog.replacement.position": "Position",
   "dialog.replacement.atStart": "Am Anfang",

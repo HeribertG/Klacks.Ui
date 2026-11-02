@@ -32,6 +32,7 @@ import { sortContainerItemsChronologically } from 'src/app/domain/helpers/contai
 import { resolveItemEndTime, resolveItemStartTime } from 'src/app/domain/helpers/container-template-format.helper';
 import { timeToMinutes } from 'src/app/domain/helpers/time-format.helper';
 import { EMPTY_GUID } from 'src/app/domain/constants/empty-guid.constants';
+import { WORK_CHANGE_TO_INVOICE_DEFAULT } from 'src/app/domain/constants/work-change-defaults.constants';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { IOpenContainerWorkOptions } from '../open-container-work-options';
 import { IContainerTemplateHolidayVariant } from 'src/app/domain/models/container/container-template-holiday-variant';
@@ -535,7 +536,7 @@ export class ContainerWorkModalLifecycleService {
       type,
       replaceClientId: null,
       description,
-      toInvoice: false,
+      toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT,
     };
   }
 

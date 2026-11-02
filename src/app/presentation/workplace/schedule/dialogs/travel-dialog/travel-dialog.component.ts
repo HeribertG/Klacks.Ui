@@ -28,6 +28,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays } from 'src/app/domain/helpers/date.helper';
+import { WORK_CHANGE_TO_INVOICE_DEFAULT } from 'src/app/domain/constants/work-change-defaults.constants';
 
 @Component({
   selector: 'app-travel-dialog',
@@ -60,7 +61,7 @@ export class TravelDialogComponent {
 
   private formModel = signal<{ description: string; toInvoice: boolean }>({
     description: '',
-    toInvoice: true,
+    toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT,
   });
   protected travelForm = form(this.formModel);
 
@@ -134,7 +135,7 @@ export class TravelDialogComponent {
 
   private reset(): void {
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.formModel.set({ description: '', toInvoice: true });
+    this.formModel.set({ description: '', toInvoice: WORK_CHANGE_TO_INVOICE_DEFAULT });
     this.onModeChange(TravelMode.AtEnd);
   }
 

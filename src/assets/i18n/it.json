@@ -136,6 +136,7 @@
   "dialog.briefing.endTime": "A",
   "dialog.briefing.duration": "Durata",
   "dialog.briefing.description": "Descrizione",
+  "dialog.briefing.toInvoice": "Da fatturare",
   "dialog.replacement.title": "Sostituzione",
   "dialog.replacement.position": "Posizione",
   "dialog.replacement.atStart": "All'inizio",
