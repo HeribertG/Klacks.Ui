@@ -817,9 +817,10 @@ describe('CollisionDetectionService', () => {
     });
   });
 
-  describe('previous-day retraction (rest violation, uncovered absence) across browser time zones', () => {
+  describe('previous-day retraction (rest violation, uncovered absence, on-call overlap) across browser time zones', () => {
     const REST_KEY = 'schedule.error-list.rest-violation';
     const UNCOVERED_KEY = 'schedule.error-list.uncovered-absence';
+    const ON_CALL_KEY = 'schedule.error-list.on-call-overlap';
 
     function seed(entries: IScheduleValidationNotification[]): void {
       scheduleValidationsDetected$.next({ isFullRefresh: true, entries });
@@ -934,6 +935,30 @@ describe('CollisionDetectionService', () => {
           recheck('client-1', checkedDate);
 
           expect(dates()).toEqual([]);
+        });
+
+        it('retracts an on-call overlap dated the day before the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: ON_CALL_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('keeps an on-call overlap dated the day after the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-12', comment: ON_CALL_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-12']);
+        });
+
+        it('keeps an on-call overlap of another client dated the day before', () => {
+          seed([createValidation({ clientId: 'client-2', date: '2026-03-10', comment: ON_CALL_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-10']);
         });
 
         it('replaces entries dated the re-checked day with the pushed entries', () => {

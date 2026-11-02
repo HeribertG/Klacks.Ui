@@ -367,7 +367,8 @@ export class CollisionDetectionService implements OnDestroy {
     // behind as stale entries once the violation is resolved. Deliberately not filtered by type: after
     // the compliance escalation the same violation can arrive as warning or as error.
     // Rest violations are dated with the previous block's owner day, so the pair (X-1 -> X) sits on X-1. An uncovered
-    // absence is dated with its work's day; the check of day X sends it again for X-1 and X, so it is retracted on X-1.
+    // absence and an on-call overlap are dated with their work's day; the check of day X sends them again for X-1 and X,
+    // so they are retracted on X-1.
     const weekMonday = isoWeekMondayOf(date);
     const previousDay = this.previousCalendarDay(date);
     const keysToRemove: string[] = [];
