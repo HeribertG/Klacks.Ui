@@ -35,8 +35,8 @@ import {
 import {
   DAY_DIRECTIVE_KIND_KEY_PREFIX,
   DAY_DIRECTIVE_PARAM,
+  PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS,
   SCHEDULE_ERROR_LIST_TEAM_ENTRY_KEY,
-  SCHEDULE_VALIDATION_KEY_REST_VIOLATION,
   TEAM_SCOPED_VALIDATION_KEYS,
   WEEK_SCOPED_VALIDATION_KEYS,
 } from 'src/app/domain/constants/schedule-validation-keys.constants';
@@ -366,7 +366,9 @@ export class CollisionDetectionService implements OnDestroy {
     // Those entries can carry any date of the week, so matching the checked day alone would leave them
     // behind as stale entries once the violation is resolved. Deliberately not filtered by type: after
     // the compliance escalation the same violation can arrive as warning or as error.
-    // Rest violations are dated with the previous block's owner day, so the pair (X-1 -> X) sits on X-1.
+    // Rest violations are dated with the previous block's owner day, so the pair (X-1 -> X) sits on X-1. An uncovered
+    // absence and an on-call overlap are dated with their work's day; the check of day X sends them again for X-1 and X,
+    // so they are retracted on X-1.
     const weekMonday = isoWeekMondayOf(date);
     const previousDay = this.previousCalendarDay(date);
     const keysToRemove: string[] = [];
@@ -378,11 +380,11 @@ export class CollisionDetectionService implements OnDestroy {
       const matchesCheckedWeek =
         WEEK_SCOPED_VALIDATION_KEYS.includes(validation.comment) &&
         isoWeekMondayOf(validation.date) === weekMonday;
-      const matchesRestViolationPair =
-        validation.comment === SCHEDULE_VALIDATION_KEY_REST_VIOLATION &&
+      const matchesPreviousDayEntry =
+        PREVIOUS_DAY_RETRACTED_VALIDATION_KEYS.includes(validation.comment) &&
         previousDay !== null &&
         validation.date === previousDay;
-      if (matchesCheckedDay || matchesCheckedWeek || matchesRestViolationPair) {
+      if (matchesCheckedDay || matchesCheckedWeek || matchesPreviousDayEntry) {
         keysToRemove.push(key);
       }
     }

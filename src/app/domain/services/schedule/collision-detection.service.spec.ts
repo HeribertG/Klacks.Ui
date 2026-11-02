@@ -817,8 +817,10 @@ describe('CollisionDetectionService', () => {
     });
   });
 
-  describe('rest-violation retraction across browser time zones', () => {
+  describe('previous-day retraction (rest violation, uncovered absence, on-call overlap) across browser time zones', () => {
     const REST_KEY = 'schedule.error-list.rest-violation';
+    const UNCOVERED_KEY = 'schedule.error-list.uncovered-absence';
+    const ON_CALL_KEY = 'schedule.error-list.on-call-overlap';
 
     function seed(entries: IScheduleValidationNotification[]): void {
       scheduleValidationsDetected$.next({ isFullRefresh: true, entries });
@@ -874,6 +876,85 @@ describe('CollisionDetectionService', () => {
 
         it('keeps a non rest-violation entry dated the day before', () => {
           seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: 'schedule.error-list.understaffed' })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-10']);
+        });
+
+        it('retracts an uncovered absence dated the day before the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('keeps an uncovered absence dated the day after the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-12', comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-12']);
+        });
+
+        it('keeps an uncovered absence of another client dated the day before', () => {
+          seed([createValidation({ clientId: 'client-2', date: '2026-03-10', comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-10']);
+        });
+
+        it('keeps an uncovered absence dated two days before the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-09', comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-09']);
+        });
+
+        it('takes the uncovered absence of the day before from the pushed entries', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', '2026-03-11', [
+            createValidation({ clientId: 'client-1', date: '2026-03-10', comment: UNCOVERED_KEY, commentParams: { shifts: 'FD' } }),
+          ]);
+
+          expect(service.errorEntries().length).toBe(1);
+          expect(service.errorEntries()[0].commentParams).toEqual({ shifts: 'FD' });
+        });
+
+        it.each([
+          ['month boundary', '2026-03-01', '2026-02-28'],
+          ['year boundary', '2026-01-01', '2025-12-31'],
+          ['spring DST change (Europe)', '2026-03-30', '2026-03-29'],
+        ])('retracts the previous-day uncovered absence across a %s', (_label, checkedDate, previousDate) => {
+          seed([createValidation({ clientId: 'client-1', date: previousDate, comment: UNCOVERED_KEY })]);
+
+          recheck('client-1', checkedDate);
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('retracts an on-call overlap dated the day before the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-10', comment: ON_CALL_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual([]);
+        });
+
+        it('keeps an on-call overlap dated the day after the re-checked day', () => {
+          seed([createValidation({ clientId: 'client-1', date: '2026-03-12', comment: ON_CALL_KEY })]);
+
+          recheck('client-1', '2026-03-11');
+
+          expect(dates()).toEqual(['2026-03-12']);
+        });
+
+        it('keeps an on-call overlap of another client dated the day before', () => {
+          seed([createValidation({ clientId: 'client-2', date: '2026-03-10', comment: ON_CALL_KEY })]);
 
           recheck('client-1', '2026-03-11');
 
