@@ -259,6 +259,7 @@ export class ShiftDataService extends BaseDataService {
           isTimeRange: schedule.isTimeRange,
           shiftType: schedule.shiftType,
           qualifications: schedule.qualifications ?? [],
+          isVariantShift: schedule.isVariantShift,
         });
       }
 
@@ -472,6 +473,13 @@ export class ShiftDataService extends BaseDataService {
   getShiftIsTimeRange(row: number): boolean {
     if (row < this.shiftRows.length) {
       return this.shiftRows[row].isTimeRange;
+    }
+    return false;
+  }
+
+  getShiftIsVariant(row: number): boolean {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].isVariantShift;
     }
     return false;
   }

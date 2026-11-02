@@ -40,6 +40,47 @@
         (ngModelChange)="description.set($event)"
       />
     </div>
+
+    @if (groupId()) {
+      <div id="scenario-variant-section" class="form-group">
+        <span class="variant-section-title">{{ 'scenarioVariant.select.title' | translate }}</span>
+        <div class="variant-section-hint">{{ 'scenarioVariant.select.hint' | translate }}</div>
+
+        @if (variantsLoadFailed()) {
+          <div id="scenario-variant-choices-failed" class="variant-state variant-state-error">
+            {{ 'scenarioVariant.loadFailed' | translate }}
+          </div>
+        } @else if (variantChoices().length === 0) {
+          <div id="scenario-variant-choices-empty" class="variant-state">
+            {{ 'scenarioVariant.select.empty' | translate }}
+          </div>
+        } @else {
+          <div id="scenario-variant-choices" class="variant-choices" role="group">
+            @for (variant of variantChoices(); track variant.id) {
+              <div
+                class="variant-choice"
+                [attr.title]="variant.isExpired ? ('scenarioVariant.select.expiredHint' | translate) : null"
+              >
+                <input
+                  type="checkbox"
+                  class="variant-choice-box"
+                  [id]="'scenario-variant-choice-' + variant.id"
+                  [checked]="isChosen(variant.id)"
+                  (change)="onToggleVariant(variant.id)"
+                />
+                <label class="variant-choice-label" [attr.for]="'scenario-variant-choice-' + variant.id">
+                  <span class="variant-choice-name">{{ variant.name }}</span>
+                  <span class="variant-choice-period">{{ periodOf(variant) }}</span>
+                  @if (variant.isExpired) {
+                    <span class="variant-choice-expired">{{ 'scenarioVariant.expired' | translate }}</span>
+                  }
+                </label>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <div class="modal-footer">

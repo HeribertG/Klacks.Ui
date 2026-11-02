@@ -1,0 +1,46 @@
+$indicator-size: 10px;
+$gap: 8px;
+$padding-inline: 12px;
+
+:host {
+  display: block;
+}
+
+.variant-bar {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding-inline: $padding-inline;
+  background-color: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  border-block: 1px solid var(--alertWarningBorder);
+  border-inline-start: 4px solid var(--colorWarning);
+  font-size: var(--fontSizeSmall);
+}
+
+.variant-bar-indicator {
+  flex-shrink: 0;
+  width: $indicator-size;
+  height: $indicator-size;
+  border-radius: 50%;
+  background-color: var(--colorWarning);
+}
+
+.variant-bar-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.variant-bar-label {
+  margin-inline-end: 4px;
+}
+
+.variant-bar-name {
+  font-weight: 700;
+  margin-inline-end: $gap;
+}

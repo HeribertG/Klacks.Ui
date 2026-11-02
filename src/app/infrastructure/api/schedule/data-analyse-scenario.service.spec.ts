@@ -30,6 +30,20 @@ describe('DataAnalyseScenarioService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('create', () => {
+    it.each([400, 404, 409, 0, 500, 503])('sends exactly one POST on %s', (status) => {
+      let received = false;
+      service.create({ name: 'New', fromDate: '2026-01-01', untilDate: '2026-01-31' }).subscribe({
+        error: () => (received = true),
+      });
+
+      httpMock.expectOne(baseUrl).flush(null, { status, statusText: 'Failed' });
+
+      httpMock.expectNone(baseUrl);
+      expect(received).toBe(true);
+    });
+  });
+
   describe('accept', () => {
     it('should not retry on 409 Conflict and pass the error through immediately', () => {
       let receivedError: unknown;

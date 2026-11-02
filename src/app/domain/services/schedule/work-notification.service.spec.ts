@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
+import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker.interface';
 import { Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WorkNotificationService } from './work-notification.service';
@@ -91,6 +92,7 @@ describe('WorkNotificationService', () => {
         { provide: DataManagementScheduleService, useValue: dataManagementMock },
         { provide: ShiftScheduleLoaderService, useValue: shiftScheduleLoaderMock },
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },
+        { provide: PERMISSION_CHECKER, useValue: { hasPermission: () => false, isAdmin: false } },
       ],
     });
 

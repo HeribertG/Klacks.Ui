@@ -133,6 +133,23 @@ describe('DomainEventHandler', () => {
                 'GroupTreeError'
             );
         });
+
+        it('should pass an error through the outage silence when the event asks for it', () => {
+            const errorEvents = new Subject<ErrorEvent>();
+            mockEventBus.on.mockImplementation((type: string) =>
+                type === DomainEventType.ERROR ? errorEvents.asObservable() : of()
+            );
+
+            handler = TestBed.inject(DomainEventHandler);
+
+            errorEvents.next({ message: 'save.error.backendUnreachable', code: 'SaveUnreachable', showDuringOutage: true });
+
+            expect(mockToastService.showError).toHaveBeenCalledWith(
+                expect.anything(),
+                'SaveUnreachable',
+                { showDuringOutage: true }
+            );
+        });
     });
 
     describe('undo offers', () => {

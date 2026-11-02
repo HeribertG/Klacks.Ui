@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import type { Mock } from 'vitest';
 import { EmbeddedViewRef, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -48,7 +49,10 @@ describe('HarmonizerDialogComponent', () => {
     status: WritableSignal<HarmonizerStatus>;
     failureReason: WritableSignal<string | null>;
     currentJobId: WritableSignal<string | null>;
+    applyAsScenario: Mock;
   };
+  let openCreatedScenario: Mock;
+  let readDatas: Mock;
 
   beforeEach(async () => {
     harmonizerServiceMock = {
@@ -57,7 +61,10 @@ describe('HarmonizerDialogComponent', () => {
       status: signal<HarmonizerStatus>('idle'),
       failureReason: signal<string | null>(null),
       currentJobId: signal<string | null>(null),
+      applyAsScenario: vi.fn().mockResolvedValue({ scenarioId: 'scenario-1', scenarioName: 'Harmonized', scenarioToken: 'token-1' }),
     };
+    openCreatedScenario = vi.fn().mockResolvedValue(true);
+    readDatas = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [HarmonizerDialogComponent, TranslateModule.forRoot()],
@@ -65,14 +72,32 @@ describe('HarmonizerDialogComponent', () => {
         ...APP_PORT_BINDINGS,
         { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataHarmonizerService, useValue: harmonizerServiceMock },
-        { provide: DataManagementScheduleService, useValue: { clients: [], readDatas: vi.fn() } },
-        { provide: AnalyseScenarioService, useValue: { activeToken: () => null } },
+        { provide: DataManagementScheduleService, useValue: { clients: [], readDatas, workFilter: {} } },
+        { provide: AnalyseScenarioService, useValue: { activeToken: () => null, openCreatedScenario } },
         { provide: NgbModal, useValue: { open: vi.fn() } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HarmonizerDialogComponent);
     component = fixture.componentInstance;
+  });
+
+  it('opens the applied scenario from the server, because only the server knows its inherited keys', async () => {
+    harmonizerServiceMock.currentJobId.set('job-1');
+
+    await component.onApply();
+
+    expect(openCreatedScenario).toHaveBeenCalledWith('scenario-1');
+    expect(readDatas).toHaveBeenCalled();
+  });
+
+  it('opens nothing when the apply is refused', async () => {
+    harmonizerServiceMock.currentJobId.set('job-1');
+    harmonizerServiceMock.applyAsScenario.mockRejectedValue(new Error('refused'));
+
+    await component.onApply();
+
+    expect(openCreatedScenario).not.toHaveBeenCalled();
   });
 
   it('has no planning-rule warnings when the result carries none', () => {

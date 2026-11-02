@@ -358,7 +358,7 @@ export class ContainerTemplateRouteService {
 
           this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
           if (selectedWeekday) {
-            this.applyOptimizedRoute(result, items, timeFrom, selectedWeekday, isHoliday);
+            this.applyOptimizedRoute(result, items, timeFrom, selectedWeekday, isHoliday, true);
           }
           this.toastService.showSuccess(
             this.translateService.instant(
@@ -399,6 +399,7 @@ export class ContainerTemplateRouteService {
     timeFrom: OwnTime,
     selectedWeekday: string,
     isHoliday: boolean,
+    keepUnroutedItems = false,
   ): void {
     const startTimeString = timeToString(
       parseInt(timeFrom.hours),
@@ -420,9 +421,11 @@ export class ContainerTemplateRouteService {
       absenceItems,
     );
 
+    const routedShiftIds = new Set(reorderedShiftItems.map((item) => item.shiftId));
+    const unroutedItems = keepUnroutedItems ? shiftItems.filter((item) => !routedShiftIds.has(item.shiftId)) : [];
     const reorderedItems = this.interleaveAbsencesWithShifts(
       absenceItems,
-      reorderedShiftItems,
+      [...reorderedShiftItems, ...unroutedItems],
     );
 
     if (reorderedItems.length > 0) {

@@ -5,12 +5,13 @@ import { IWizard4CandidateNotification } from 'src/app/domain/interfaces/wizard4
 import { IAutofillRunPresence } from 'src/app/domain/interfaces/autofill-run-presence.interface';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';
+import { ScenarioVariantService } from './scenario-variant.service';
 
 function createScenario(overrides: Partial<IAnalyseScenario> = {}): IAnalyseScenario {
   return {
@@ -22,6 +23,7 @@ function createScenario(overrides: Partial<IAnalyseScenario> = {}): IAnalyseScen
     untilDate: '2026-01-31',
     token: 'token-abc-123',
     createdByUser: 'user-1',
+    variantIds: [],
     status: AnalyseScenarioStatus.Active,
     ...overrides,
   };
@@ -29,6 +31,10 @@ function createScenario(overrides: Partial<IAnalyseScenario> = {}): IAnalyseScen
 
 describe('AnalyseScenarioService', () => {
   let service: AnalyseScenarioService;
+  let leaveVariantMode: ReturnType<typeof vi.fn>;
+  let createRequest: ReturnType<typeof vi.fn>;
+  let getRequest: ReturnType<typeof vi.fn>;
+  let getByGroupRequest: ReturnType<typeof vi.fn>;
 
   let wizard4CandidatesChanged$: Subject<IWizard4CandidateNotification>;
   let autofillRunEnded$: Subject<IAutofillRunPresence>;
@@ -36,11 +42,16 @@ describe('AnalyseScenarioService', () => {
   beforeEach(() => {
     wizard4CandidatesChanged$ = new Subject<IWizard4CandidateNotification>();
     autofillRunEnded$ = new Subject<IAutofillRunPresence>();
+    leaveVariantMode = vi.fn();
+    createRequest = vi.fn();
+    getRequest = vi.fn();
+    getByGroupRequest = vi.fn().mockReturnValue(of([]));
     // Arrange
     TestBed.configureTestingModule({
       providers: [
         AnalyseScenarioService,
-        { provide: DataAnalyseScenarioService, useValue: { getByGroup: () => of([]) } },
+        { provide: DataAnalyseScenarioService, useValue: { getByGroup: getByGroupRequest, create: createRequest, get: getRequest } },
+        { provide: ScenarioVariantService, useValue: { leave: leaveVariantMode } },
         {
           provide: SCHEDULE_SIGNALR,
           useValue: { wizard4CandidatesChanged$, autofillRunEnded$ },
@@ -74,6 +85,58 @@ describe('AnalyseScenarioService', () => {
       // Assert
       expect(service.isScenarioMode()).toBe(true);
       expect(service.activeScenario()).toEqual(scenario);
+    });
+
+    it('should end variant mode so scenario mode and variant mode are never active together', () => {
+      // Act
+      service.selectScenario(createScenario());
+
+      // Assert
+      expect(leaveVariantMode).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('createScenario', () => {
+    it('should end variant mode when the created scenario becomes the active one', () => {
+      // Arrange
+      const created = createScenario({ id: 'scenario-new' });
+      createRequest.mockReturnValue(of(created));
+
+      // Act
+      service.createScenario({ name: 'New', fromDate: '2026-01-01', untilDate: '2026-01-31' }).subscribe();
+
+      // Assert
+      expect(leaveVariantMode).toHaveBeenCalledTimes(1);
+      expect(service.activeScenario()).toEqual(created);
+    });
+  });
+
+  describe('openCreatedScenario', () => {
+    it('should read the scenario from the server, so the keys it inherited are known', async () => {
+      // Arrange
+      getRequest.mockReturnValue(of(createScenario({ id: 'child', variantIds: ['key-1'] })));
+
+      // Act
+      const opened = await service.openCreatedScenario('child');
+
+      // Assert
+      expect(opened).toBe(true);
+      expect(service.activeScenario()?.variantIds).toEqual(['key-1']);
+      expect(service.scenarios().map((s) => s.id)).toEqual(['child']);
+      expect(leaveVariantMode).toHaveBeenCalled();
+    });
+
+    it('should keep the view and reload the list when the read fails', async () => {
+      // Arrange
+      getRequest.mockReturnValue(throwError(() => new Error('offline')));
+
+      // Act
+      const opened = await service.openCreatedScenario('child');
+
+      // Assert
+      expect(opened).toBe(false);
+      expect(service.activeScenario()).toBeNull();
+      expect(getByGroupRequest).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -236,6 +299,7 @@ describe('AnalyseScenarioService', () => {
       untilDate: '2026-08-31',
       token: 'token',
       createdByUser: 'anna',
+      variantIds: [],
       status: AnalyseScenarioStatus.Active,
       ...overrides,
     };

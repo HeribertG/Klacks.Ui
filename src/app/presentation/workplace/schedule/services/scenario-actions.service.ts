@@ -12,7 +12,15 @@
  * reloaded and the view returns to the original plan instead of offering an override that cannot succeed.
  * After a successful accept, entries the backend did not take over because they fall on a locked day are reported
  * in a toast with a warning icon and their number.
+ * A scenario that carries variants (keys) turns them into real shifts when accepted, so accepting it also needs the
+ * right to edit shifts. Before the confirmation such a scenario loads its summary and the confirmation names the
+ * slots of its keys that are still open and warns about copies: a copy is a template, so after the accept original and
+ * copy both count; a summary that cannot be loaded never blocks, the generic text is shown. A 409
+ * with the "variant consumed" code (another accepted scenario already used a key) names the keys in a toast and offers
+ * to discard the scenario, never an override; a 403 shows a toast and offers nothing.
  * @param canDecide - Whether the signed-in user may accept or reject (schedule edit right)
+ * @param canAccept - Whether the signed-in user may accept the open scenario (canDecide, plus the shift edit right when
+ *   the scenario carries keys)
  */
 
 import { computed, inject, Injectable } from '@angular/core';
@@ -27,6 +35,15 @@ import { LocaleService } from 'src/app/application/services/locale.service';
 import { PERMISSIONS, ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { isScenarioNotActiveError } from 'src/app/domain/models/schedule/scenario-not-active.model';
+import {
+  isScenarioVariantConsumedError,
+  readConsumedVariantNames,
+} from 'src/app/domain/models/schedule/scenario-variant-consumed.model';
+import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { IScenarioVariantCoverage } from 'src/app/domain/models/schedule/scenario-variant-coverage.interface';
+import { SCENARIO_VARIANT_ACCEPT_COPIED_SHIFTS_KEYS } from 'src/app/domain/constants/scenario-variant.constants';
+import { scenarioVariantCountKey } from 'src/app/domain/helpers/scenario-variant-count-key.helper';
+import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import {
   NO_SCENARIO_ACCEPT_OVERRIDES,
   readScenarioStaleness,
@@ -53,6 +70,13 @@ export class ScenarioActionsService {
 
   readonly canDecide = computed(() => this.authorizationService.hasPermission(PERMISSIONS.CanEditSchedule));
 
+  readonly canAccept = computed(() => {
+    if (!this.canDecide()) return false;
+
+    return !this.carriesVariants(this.analyseScenarioService.activeScenario()) ||
+      this.authorizationService.hasPermission(PERMISSIONS.CanEditShifts);
+  });
+
   exit(): void {
     this.analyseScenarioService.exitScenario();
   }
@@ -61,13 +85,67 @@ export class ScenarioActionsService {
     const scenario = this.analyseScenarioService.activeScenario();
     if (!scenario) return;
 
+    if (!this.carriesVariants(scenario)) {
+      this.openAcceptConfirmation(scenario, this.plainAcceptMessage(scenario));
+      return;
+    }
+
+    this.analyseScenarioService.loadSummary(scenario.id).subscribe({
+      next: (summary) => this.openAcceptConfirmation(scenario, this.variantAcceptMessage(scenario, summary)),
+      error: () => this.openAcceptConfirmation(scenario, this.plainAcceptMessage(scenario)),
+    });
+  }
+
+  private openAcceptConfirmation(scenario: IAnalyseScenario, message: string): void {
     this.modalService.openModal({
       type: ModalType.Confirmation,
       title: this.translateService.instant('scenario.accept'),
-      message: this.translateService.instant('scenario.accept.confirm', { name: scenario.name }),
+      message,
       confirmText: this.translateService.instant('scenario.accept'),
       cancelText: this.translateService.instant('cancel'),
       onConfirm: () => this.accept(scenario.id, NO_SCENARIO_ACCEPT_OVERRIDES),
+    });
+  }
+
+  private carriesVariants(scenario: IAnalyseScenario | null): boolean {
+    return (scenario?.variantIds?.length ?? 0) > 0;
+  }
+
+  private plainAcceptMessage(scenario: IAnalyseScenario): string {
+    return this.translateService.instant('scenario.accept.confirm', { name: scenario.name });
+  }
+
+  private variantAcceptMessage(scenario: IAnalyseScenario, summary: ScenarioSummary): string {
+    const variants = summary.variants ?? [];
+    const message = this.openSlotsMessage(scenario, variants);
+    const copiesWarning = this.copiedShiftsWarning(variants);
+
+    return copiesWarning ? `${message} ${copiesWarning}` : message;
+  }
+
+  private openSlotsMessage(scenario: IAnalyseScenario, variants: IScenarioVariantCoverage[]): string {
+    const openVariants = variants.filter((variant) => variant.openSlots > 0);
+    if (openVariants.length === 0) {
+      return this.plainAcceptMessage(scenario);
+    }
+
+    return this.translateService.instant('scenarioVariant.accept.confirmOpenSlots', {
+      name: scenario.name,
+      count: openVariants.reduce((sum, variant) => sum + variant.openSlots, 0),
+      keys: openVariants.map((variant) => `${variant.name} (${variant.openSlots})`).join(SCENARIO_NAME_SEPARATOR),
+    });
+  }
+
+  private copiedShiftsWarning(variants: IScenarioVariantCoverage[]): string | null {
+    const copyingVariants = variants.filter((variant) => variant.copiedShiftCount > 0);
+    if (copyingVariants.length === 0) {
+      return null;
+    }
+
+    const count = copyingVariants.reduce((sum, variant) => sum + variant.copiedShiftCount, 0);
+    return this.translateService.instant(scenarioVariantCountKey(SCENARIO_VARIANT_ACCEPT_COPIED_SHIFTS_KEYS, count), {
+      count,
+      keys: copyingVariants.map((variant) => `${variant.name} (${variant.copiedShiftCount})`).join(SCENARIO_NAME_SEPARATOR),
     });
   }
 
@@ -118,6 +196,16 @@ export class ScenarioActionsService {
   private handleAcceptError(id: string, overrides: IScenarioAcceptOverrides, err: HttpErrorResponse): void {
     if (isScenarioNotActiveError(err)) {
       this.handleNotActive();
+      return;
+    }
+
+    if (isScenarioVariantConsumedError(err)) {
+      this.handleVariantConsumed(err);
+      return;
+    }
+
+    if (err.status === HttpStatusCode.Forbidden) {
+      this.toastShowService.showError(this.translateService.instant('scenarioVariant.accept.forbidden'));
       return;
     }
 
@@ -193,6 +281,16 @@ export class ScenarioActionsService {
         : ((err.error as { detail?: string } | null)?.detail ??
             this.translateService.instant('schedule.scenario.accept.overrideRejected'));
     this.toastShowService.showError(message);
+  }
+
+  private handleVariantConsumed(err: HttpErrorResponse): void {
+    const names = readConsumedVariantNames(err) ?? [];
+    const message =
+      names.length > 0
+        ? this.translateService.instant('scenarioVariant.accept.consumed', { names: names.join(SCENARIO_NAME_SEPARATOR) })
+        : this.translateService.instant('scenarioVariant.accept.consumedUnnamed');
+    this.toastShowService.showError(message);
+    this.confirmReject();
   }
 
   private handleNotActive(): void {

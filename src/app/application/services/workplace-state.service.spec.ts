@@ -33,6 +33,131 @@ describe('WorkplaceStateService', () => {
         expect(service).toBeTruthy();
     });
 
+    describe('a save the server refused', () => {
+        const stubManager = (dirty = true) => ({
+            areObjectsDirty: vi.fn().mockReturnValue(dirty),
+            save: vi.fn(),
+            isSaveAndClose: false,
+            onSaveCompleted: undefined as (() => void) | undefined,
+            onSaveRefused: undefined as (() => void) | undefined,
+        });
+
+        const activate = (manager: ReturnType<typeof stubManager>) => {
+            service.activeManager.set(manager as never);
+        };
+
+        it('does not navigate away on save and close, and frees the save button', () => {
+            const manager = stubManager();
+            activate(manager);
+            const navigateBack = vi.fn();
+
+            service.onClickSaveAndClose(navigateBack);
+            manager.onSaveRefused?.();
+
+            expect(navigateBack).not.toHaveBeenCalled();
+            expect(service.isDisabled).toBe(false);
+        });
+
+        it('keeps the form dirty, whatever the interceptor did to the flag', () => {
+            const manager = stubManager();
+            activate(manager);
+            service.onClickSave();
+            service.isDirty = false;
+
+            manager.onSaveRefused?.();
+
+            expect(service.isDirty).toBe(true);
+        });
+
+        it('forgets the close of the refused save, so a later plain save stays on the page', () => {
+            const manager = stubManager();
+            activate(manager);
+            const navigateBack = vi.fn();
+            service.onClickSaveAndClose(navigateBack);
+            manager.onSaveRefused?.();
+
+            service.onClickSave();
+            manager.onSaveCompleted?.();
+
+            expect(navigateBack).not.toHaveBeenCalled();
+        });
+
+        it('still navigates after a save that went through', () => {
+            const manager = stubManager();
+            activate(manager);
+            const navigateBack = vi.fn();
+
+            service.onClickSaveAndClose(navigateBack);
+            manager.onSaveCompleted?.();
+
+            expect(navigateBack).toHaveBeenCalledTimes(1);
+        });
+
+        it('forgets the refusal hook of a refused save', () => {
+            const manager = stubManager();
+            activate(manager);
+
+            service.onClickSave();
+            manager.onSaveRefused?.();
+
+            expect(manager.onSaveRefused).toBeUndefined();
+        });
+    });
+
+    describe('two saves in a row on a root manager', () => {
+        const stubManager = () => ({
+            areObjectsDirty: vi.fn().mockReturnValue(true),
+            save: vi.fn(),
+            isSaveAndClose: false,
+            onSaveCompleted: undefined as (() => void) | undefined,
+            onSaveRefused: undefined as (() => void) | undefined,
+        });
+
+        const activate = (manager: ReturnType<typeof stubManager>) => {
+            service.activeManager.set(manager as never);
+        };
+
+        it('stays on the page on a plain save after save and close', () => {
+            const manager = stubManager();
+            activate(manager);
+            const navigateBack = vi.fn();
+            service.onClickSaveAndClose(navigateBack);
+            manager.onSaveCompleted?.();
+
+            service.onClickSave();
+            manager.onSaveCompleted?.();
+
+            expect(navigateBack).toHaveBeenCalledTimes(1);
+        });
+
+        it('calls the callback of the page once per save, the wrappers do not stack', () => {
+            const manager = stubManager();
+            const pageCallback = vi.fn();
+            manager.onSaveCompleted = pageCallback;
+            activate(manager);
+
+            service.onClickSave();
+            manager.onSaveCompleted?.();
+            service.onClickSave();
+            manager.onSaveCompleted?.();
+
+            expect(pageCallback).toHaveBeenCalledTimes(2);
+        });
+
+        it('hands the slots back to the page after a finished save', () => {
+            const manager = stubManager();
+            const pageCallback = vi.fn();
+            manager.onSaveCompleted = pageCallback;
+            activate(manager);
+
+            service.onClickSaveAndClose(vi.fn());
+            manager.onSaveCompleted?.();
+
+            expect(manager.onSaveCompleted).toBe(pageCallback);
+            expect(manager.onSaveRefused).toBeUndefined();
+        });
+    });
+
     describe('isDirty', () => {
         it('should return false initially', () => {
             expect(service.isDirty).toBe(false);

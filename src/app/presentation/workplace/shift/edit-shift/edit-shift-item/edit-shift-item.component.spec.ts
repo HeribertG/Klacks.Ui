@@ -2,6 +2,7 @@
 
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
@@ -10,16 +11,58 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { ShiftFormService } from '../services/shift-form.service';
 import { EditShiftItemComponent } from './edit-shift-item.component';
 
+describe('EditShiftItemComponent status control', () => {
+  const KEY_TOKEN = 'key-token';
+
+  const renderLockButton = (editShift: Partial<IShift>): Element | null => {
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        {
+          provide: DataManagementShiftService,
+          useValue: {
+            editShift,
+            isReset: signal(false),
+            isRead: signal(false),
+            makeValidation: signal(false),
+            isCurrentShiftStatusLocked: () => false,
+          },
+        },
+        { provide: AuthorizationService, useValue: { hasPermission: () => true } },
+        { provide: ShiftFormService, useValue: { shiftForm: () => undefined } },
+        { provide: LocalStorageService, useValue: { get: () => null, set: () => undefined } },
+      ],
+    });
+    const fixture = TestBed.createComponent(EditShiftItemComponent);
+    fixture.detectChanges();
+
+    return (fixture.nativeElement as HTMLElement).querySelector('#shift-lock-btn');
+  };
+
+  it('offers no status change on the sealed order of the active key, the server refuses one', () => {
+    expect(renderLockButton({ id: 'shift-1', status: ShiftStatus.SealedOrder, analyseToken: KEY_TOKEN })).toBeNull();
+  });
+
+  it('offers sealing on an OriginalOrder, so the check above looks at the real button', () => {
+    expect(renderLockButton({ id: 'shift-1', status: ShiftStatus.OriginalOrder })).not.toBeNull();
+  });
+});
+
 describe('EditShiftItemComponent isFieldsDisabled', () => {
   let writeAllowed: boolean;
-  let editShift: Partial<IShift>;
+  let statusLocked: boolean;
 
-  const createComponent = (): EditShiftItemComponent => {
+  const createFixture = () => {
     TestBed.configureTestingModule({
       providers: [
         {
           provide: DataManagementShiftService,
-          useValue: { editShift, isReset: signal(false), isRead: signal(false) },
+          useValue: {
+            editShift: {},
+            isReset: signal(false),
+            isRead: signal(false),
+            isCurrentShiftStatusLocked: () => statusLocked,
+          },
         },
         { provide: AuthorizationService, useValue: { hasPermission: () => writeAllowed } },
         { provide: ShiftFormService, useValue: {} },
@@ -28,29 +71,34 @@ describe('EditShiftItemComponent isFieldsDisabled', () => {
     });
     TestBed.overrideComponent(EditShiftItemComponent, { set: { template: '', imports: [] } });
 
-    return TestBed.createComponent(EditShiftItemComponent).componentInstance;
+    return TestBed.createComponent(EditShiftItemComponent);
   };
 
   beforeEach(() => {
     writeAllowed = true;
-    editShift = {};
+    statusLocked = false;
   });
 
-  it('keeps the fields enabled on a new clientless shift prepared as SealedOrder', () => {
-    editShift = { id: undefined, status: ShiftStatus.SealedOrder, isClientless: true };
-
-    expect(createComponent().isFieldsDisabled).toBe(false);
+  it('keeps the fields enabled with the write right on a shift without a status lock', () => {
+    expect(createFixture().componentInstance.isFieldsDisabled).toBe(false);
   });
 
-  it('disables the fields on a saved SealedOrder shift', () => {
-    editShift = { id: 'shift-1', status: ShiftStatus.SealedOrder };
+  it('disables the fields on a status lock', () => {
+    statusLocked = true;
 
-    expect(createComponent().isFieldsDisabled).toBe(true);
+    expect(createFixture().componentInstance.isFieldsDisabled).toBe(true);
   });
 
-  it('keeps the fields of an OriginalOrder shift enabled', () => {
-    editShift = { id: 'shift-1', status: ShiftStatus.OriginalOrder };
+  it('keeps them disabled for a planner without the write right', () => {
+    writeAllowed = false;
 
-    expect(createComponent().isFieldsDisabled).toBe(false);
+    expect(createFixture().componentInstance.isFieldsDisabled).toBe(true);
+  });
+
+  it('keeps them disabled on a read-only link', () => {
+    const fixture = createFixture();
+    fixture.componentRef.setInput('isReadOnly', true);
+
+    expect(fixture.componentInstance.isFieldsDisabled).toBe(true);
   });
 });

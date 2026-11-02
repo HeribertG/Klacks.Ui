@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { defer, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { retryTransientHttpErrors } from 'src/app/infrastructure/helpers/http-retry.helper';
 
 import { companyToday, toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper';
 import { toShiftGroupsWire } from './shift-groups-wire.mapper';
@@ -45,7 +46,7 @@ export class DataShiftService {
       const { addressName: _addressName, ...rest } = value;
       return this.httpClient
         .put<IShift>(`${environment.baseUrl}Shifts/`, this.toWirePayload(rest))
-        .pipe(retry(3));
+        .pipe(retryTransientHttpErrors());
     });
   }
 
@@ -53,9 +54,7 @@ export class DataShiftService {
     return defer(() => {
       const { addressName: _addressName, ...rest } = value;
       const { id: _id, ...payload } = this.toWirePayload(rest);
-      return this.httpClient
-        .post<IShift>(`${environment.baseUrl}Shifts/`, payload)
-        .pipe(retry(3));
+      return this.httpClient.post<IShift>(`${environment.baseUrl}Shifts/`, payload);
     });
   }
 

@@ -52,8 +52,6 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { IClientWork } from 'src/app/domain/models/schedule/client-work.interface';
 import { IAbsence } from 'src/app/domain/models/absence/absence.interface';
-import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
-import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { companyToday, formatDateOnly, isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ROLE_ADMIN, ROLE_AUTHORISED } from 'src/app/domain/constants/permissions.constants';
@@ -62,7 +60,6 @@ import { IRecoveryFormModel } from './recovery-form-model.interface';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 import { IRecoveryDialogPreset } from '../../services/recovery-dialog-preset.interface';
 
-const RECOVERY_CREATOR = 'recovery';
 const KEY_SEPARATOR = '|';
 const TEL_SCHEME = 'tel:';
 const PHONE_WHITESPACE = /\s+/g;
@@ -287,20 +284,7 @@ export class RecoveryDialogComponent {
       );
       this.lastAbsenceId = selectedAbsenceId;
 
-      const newScenario: IAnalyseScenario = {
-        id: outcome.scenarioId,
-        name: outcome.scenarioName,
-        token: outcome.token,
-        fromDate: '',
-        untilDate: '',
-        createdByUser: RECOVERY_CREATOR,
-        status: AnalyseScenarioStatus.Active,
-      };
-
-      this.analyseScenarioService.scenarios.update((list) =>
-        list.some((s) => s.id === newScenario.id) ? list : [...list, newScenario],
-      );
-      this.analyseScenarioService.selectScenario(newScenario);
+      await this.analyseScenarioService.openCreatedScenario(outcome.scenarioId);
       this.dataManagementSchedule.readDatas();
 
       // Stay open and show what was proposed. Closing on a toast with two numbers left the dispatcher

@@ -32,7 +32,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataHolisticHarmonizerService } from 'src/app/application/services/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import {
@@ -285,25 +284,14 @@ export class HolisticHarmonizerDialogComponent {
     const jobId = this.holisticHarmonizerService.currentJobId();
     if (!jobId) return;
     this._applyPhase.set('applying');
+    let scenarioId: string;
     try {
       const groupId = this.dataManagementSchedule.workFilter.selectedGroup ?? null;
       const response = await this.holisticHarmonizerService.applyAsScenario(jobId, groupId, this.translate.currentLang ?? null);
-      const newScenario = {
-        id: response.scenarioId,
-        name: response.scenarioName,
-        token: response.scenarioToken,
-        runGroupId: response.runGroupId,
-        fromDate: '',
-        untilDate: '',
-        createdByUser: '',
-        status: AnalyseScenarioStatus.Active,
-      };
-      this.analyseScenarioService.scenarios.update((list) => [...list, newScenario]);
-      this.analyseScenarioService.selectScenario(newScenario);
+      scenarioId = response.scenarioId;
       this.appliedScenarioName.set(response.scenarioName);
       this._appliedComplianceReport.set(response.complianceReport ?? null);
       this._applyPhase.set('applied');
-      this.dataManagementSchedule.readDatas();
     } catch (err: unknown) {
       // The plan moved while the run was going; applying anyway would overwrite those edits.
       const stale = readStaleWizardResult(err);
@@ -314,7 +302,11 @@ export class HolisticHarmonizerDialogComponent {
           : String(err);
       this._localError.set(message);
       this._applyPhase.set(null);
+      return;
     }
+
+    await this.analyseScenarioService.openCreatedScenario(scenarioId);
+    this.dataManagementSchedule.readDatas();
   }
 
   private cancelIfRunning(): void {

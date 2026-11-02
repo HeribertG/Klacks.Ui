@@ -142,6 +142,33 @@ describe('ShiftDataService', () => {
         });
     });
 
+    describe('key shifts in the row header', () => {
+        const load = (variantFlags: boolean[]): void => {
+            dataManagement.visibleStartDate = parseCalendarDate('2026-08-01');
+            dataManagement.visibleEndDate = parseCalendarDate('2026-08-10');
+            dataManagement.shiftSchedules = variantFlags.map((isVariantShift, index) => {
+                const schedule = createShiftSchedule('2026-08-03');
+                schedule.shiftId = `shift-${index}`;
+                schedule.isVariantShift = isVariantShift;
+                return schedule;
+            });
+            service.setMetrics();
+        };
+
+        it('reports the rows of key shifts as variant rows', () => {
+            load([false, true]);
+
+            expect(service.getShiftIsVariant(0)).toBe(false);
+            expect(service.getShiftIsVariant(1)).toBe(true);
+        });
+
+        it('reports a row beyond the loaded shifts as no variant row', () => {
+            load([true]);
+
+            expect(service.getShiftIsVariant(5)).toBe(false);
+        });
+    });
+
     describe('shift section calendar dates across browser time zones', () => {
         for (const zone of CALENDAR_TEST_ZONES) {
             describe(zone, () => {

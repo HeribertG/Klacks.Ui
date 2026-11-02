@@ -2,6 +2,7 @@
 
 import { ScenarioOpenSlotReason } from './scenario-open-slot-reason.model';
 import { ScenarioShiftCoverage } from './scenario-shift-coverage.model';
+import { IScenarioVariantCoverage } from './scenario-variant-coverage.interface';
 
 export interface ScenarioSummary {
   token: string;
@@ -15,4 +16,5 @@ export interface ScenarioSummary {
   shifts: ScenarioShiftCoverage[];
   openSlotReasons: ScenarioOpenSlotReason[];
   expensesWithChangedEmployee?: number;
+  variants?: IScenarioVariantCoverage[];
 }

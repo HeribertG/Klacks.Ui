@@ -17,8 +17,6 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
-import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
-import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-status.enum';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { formatDateOnly } from 'src/app/domain/helpers/date.helper';
@@ -71,7 +69,7 @@ export class AutoWizardJobTrackerService {
           return;
         }
         this.storePending(pendings.filter((p) => p !== pending));
-        this.showScenario(pending);
+        void this.showScenario(pending);
       });
     });
   }
@@ -138,22 +136,10 @@ export class AutoWizardJobTrackerService {
     ]);
   }
 
-  showScenario(pending: AutoWizardPendingScenario): void {
-    const scenario: IAnalyseScenario = {
-      id: pending.scenarioId,
-      name: pending.name,
-      token: pending.token,
-      groupId: pending.groupId ?? undefined,
-      fromDate: '',
-      untilDate: '',
-      createdByUser: '',
-      status: AnalyseScenarioStatus.Active,
-    };
-    this.analyseScenarioService.scenarios.update((list) =>
-      list.some((s) => s.id === scenario.id) ? list : [...list, scenario],
-    );
-    this.analyseScenarioService.selectScenario(scenario);
-    this.dataManagementSchedule.readDatas();
+  async showScenario(pending: AutoWizardPendingScenario): Promise<void> {
+    if (await this.analyseScenarioService.openCreatedScenario(pending.scenarioId)) {
+      this.dataManagementSchedule.readDatas();
+    }
   }
 
   private storePending(pendings: AutoWizardPendingScenario[]): void {

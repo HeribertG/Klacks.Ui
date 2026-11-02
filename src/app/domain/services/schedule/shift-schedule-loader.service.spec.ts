@@ -37,6 +37,7 @@ function row(overrides: Partial<IShiftSchedule>): IShiftSchedule {
     sporadicStatus: SporadicStatus.None,
     periodBookedDays: 0,
     qualifications: [{ qualificationId: 'q-1', emoji: null, name: { de: 'Q' }, level: 1 } as never],
+    isVariantShift: false,
     ...overrides,
   };
 }

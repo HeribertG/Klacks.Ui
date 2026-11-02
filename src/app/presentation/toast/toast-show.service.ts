@@ -18,7 +18,8 @@
  *
  * Error toasts are swallowed while the backend is known to be down: every pending request fails at
  * once there, and a stack of identical failures tells the user nothing the outage overlay does not
- * say better.
+ * say better. An error with showDuringOutage is the exception while the outage is only suspected,
+ * because the overlay is not up yet and may never come; once the overlay is up it is swallowed too.
  */
 
 import { inject, Injectable } from '@angular/core';
@@ -74,7 +75,7 @@ export class ToastShowService implements IInteractiveReplyNotifier {
     additionalMessageOrOptions: string | IErrorToastOptions = '',
     icon = '',
   ): void {
-    if (this.backendAvailability.isOutageSuspected()) {
+    if (this.isSilencedByOutage(additionalMessageOrOptions)) {
       return;
     }
 
@@ -103,6 +104,15 @@ export class ToastShowService implements IInteractiveReplyNotifier {
       assertive: !!actions,
       closable: !!actions,
     });
+  }
+
+  private isSilencedByOutage(additionalMessageOrOptions: string | IErrorToastOptions): boolean {
+    if (!this.backendAvailability.isOutageSuspected()) {
+      return false;
+    }
+
+    const passesSuspicion = typeof additionalMessageOrOptions !== 'string' && additionalMessageOrOptions.showDuringOutage === true;
+    return !passesSuspicion || this.backendAvailability.isUnavailable();
   }
 
   showSuccess(message: string, header: string, additionalMessage = '', icon = ''): void {

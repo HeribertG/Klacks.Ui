@@ -1,0 +1,90 @@
+$cell-padding-block: 6px;
+$cell-padding-inline: 8px;
+$section-gap: 12px;
+$candidate-list-max-height: 280px;
+
+:host {
+  display: block;
+}
+
+.panel-head {
+  margin-block-end: $section-gap;
+}
+
+.panel-title {
+  font-weight: 600;
+  color: var(--colorHeadline);
+}
+
+.copy-warning {
+  margin-block-end: $section-gap;
+  padding: $cell-padding-block $cell-padding-inline;
+  border: 1px solid var(--alertWarningBorder);
+  border-inline-start: 4px solid var(--colorWarning);
+  border-radius: 4px;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+}
+
+.panel-note,
+.panel-state {
+  margin-block-end: $section-gap;
+  color: var(--standartTextColor);
+}
+
+.panel-state-error,
+.error-message {
+  color: var(--standartRedColor);
+}
+
+.error-message {
+  margin-block-end: $section-gap;
+}
+
+.mode-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $section-gap;
+  margin-block-end: $section-gap;
+}
+
+.mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.candidate-list {
+  max-height: $candidate-list-max-height;
+  overflow-y: auto;
+  margin-block-end: $section-gap;
+  border: 1px solid var(--colorLine);
+  border-radius: 4px;
+}
+
+.candidate-row {
+  display: flex;
+  align-items: center;
+  gap: $section-gap;
+  padding: $cell-padding-block $cell-padding-inline;
+  border-bottom: 1px solid var(--colorLine);
+  color: var(--standartTextColor);
+  cursor: pointer;
+}
+
+.candidate-name {
+  flex: 1 1 auto;
+  font-weight: 600;
+}
+
+.panel-foot {
+  display: flex;
+  align-items: center;
+  gap: $section-gap;
+  margin-block-start: $section-gap;
+}
+
+.filler {
+  flex: 1 1 auto;
+}

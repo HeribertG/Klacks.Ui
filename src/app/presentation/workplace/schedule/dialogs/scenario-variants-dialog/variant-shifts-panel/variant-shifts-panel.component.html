@@ -1,0 +1,77 @@
+<div id="variant-shifts-panel">
+  <div class="panel-head">
+    <span id="variant-shifts-title" class="panel-title">
+      {{ 'scenarioVariant.shifts.title' | translate: { name: variant().name } }}
+    </span>
+    <span class="filler"></span>
+    @if (canEdit()) {
+      <button id="variant-shifts-new-btn" type="button" class="btn btn-sm save-btn" (click)="newShift.emit()">
+        + {{ 'scenarioVariant.shifts.new' | translate }}
+      </button>
+    }
+  </div>
+
+  @if (!canEdit()) {
+    <div id="variant-shifts-readonly" class="panel-note">{{ 'scenarioVariant.readOnly' | translate }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div id="variant-shifts-error" class="error-message" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @switch (loadState()) {
+    @case (states.Loading) {
+      <div id="variant-shifts-loading" class="panel-state">
+        <span class="spinner-border spinner-border-sm me-2"></span>{{ 'scenarioVariant.loading' | translate }}
+      </div>
+    }
+    @case (states.Failed) {
+      <div id="variant-shifts-failed" class="panel-state panel-state-error">
+        {{ 'scenarioVariant.shifts.loadFailed' | translate }}
+      </div>
+    }
+    @case (states.Loaded) {
+      @if (orders().length === 0) {
+        <div id="variant-shifts-empty" class="panel-state">{{ 'scenarioVariant.shifts.empty' | translate }}</div>
+      } @else {
+        <table class="panel-table">
+          <tbody>
+            @for (shift of orders(); track shift.id) {
+              <tr class="shift-row" [attr.data-shift-id]="shift.id">
+                <td class="shift-name">{{ shift.name }}</td>
+                <td>{{ shift.abbreviation }}</td>
+                <td>{{ timeRange(shift) }}</td>
+                @if (canEdit()) {
+                  <td class="shift-actions">
+                    <button type="button" class="btn btn-sm btn-outline-secondary shift-edit-btn" (click)="onEdit(shift)">
+                      {{ 'scenarioVariant.shifts.edit' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary shift-cut-btn" (click)="onCut(shift)">
+                      {{ 'scenarioVariant.shifts.cut' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger shift-delete-btn" (click)="onDelete(shift)">
+                      {{ 'scenarioVariant.shifts.delete' | translate }}
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    }
+  }
+
+  <div class="panel-foot">
+    <span
+      id="variant-shifts-back-btn"
+      class="link-button blue-font"
+      role="button"
+      tabindex="0"
+      (click)="back.emit()"
+      (keydown.enter)="back.emit()"
+    >
+      {{ 'scenarioVariant.back' | translate }}
+    </span>
+  </div>
+</div>

@@ -3,6 +3,7 @@
 import {
   addDays,
   CalendarDateToStringShort,
+  CalendarPeriodToStringShort,
   DateToString,
   DateToStringShort,
   getDateKeysBetween,
@@ -111,6 +112,10 @@ describe('Date Helper Functions', () => {
 
         it('returns a value that is not a calendar date unchanged', () => {
           expect(CalendarDateToStringShort('not-a-date', 'de')).toBe('not-a-date');
+        });
+
+        it('formats a period as its two own days', () => {
+          expect(CalendarPeriodToStringShort('2026-08-03', '2026-08-30T00:00:00Z', 'de')).toBe('03.08.2026 – 30.08.2026');
         });
 
         it('corrects a local Date to UTC midnight of its local day', () => {

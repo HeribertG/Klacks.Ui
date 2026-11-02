@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -8,6 +9,7 @@ import { CreateScenarioDialogComponent } from './create-scenario-dialog.componen
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import { ICreateAnalyseScenarioRequest } from 'src/app/domain/models/schedule/create-analyse-scenario-request.interface';
 import { CALENDAR_TEST_ZONES, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 
@@ -56,6 +58,10 @@ describe.each(CALENDAR_TEST_ZONES)('CreateScenarioDialogComponent scenario perio
               return selectedGroup;
             },
           },
+        },
+        {
+          provide: ScenarioVariantService,
+          useValue: { variants: signal([]), loadFailed: signal(false), loadVariants: vi.fn() },
         },
         { provide: NgbModal, useValue: { open: vi.fn() } },
       ],

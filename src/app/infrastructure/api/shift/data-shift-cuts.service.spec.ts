@@ -36,6 +36,30 @@ describe('DataShiftCutsService', () => {
         httpTestingController.verify();
     });
 
+    describe('a failed write', () => {
+        it.each([400, 404, 409, 0, 500, 503])('batchCuts sends exactly one POST on %s', (status) => {
+            let failed = false;
+            service.batchCuts([]).subscribe({ error: () => (failed = true) });
+            const url = `${environment.baseUrl}Shifts/Cuts/Batch`;
+
+            httpTestingController.expectOne(url).flush(null, { status, statusText: 'Failed' });
+
+            httpTestingController.expectNone(url);
+            expect(failed).toBe(true);
+        });
+
+        it.each([400, 404, 409, 0, 500, 503])('resetCuts sends exactly one POST on %s', (status) => {
+            let failed = false;
+            service.resetCuts('shift-1', new Date(2026, 0, 1)).subscribe({ error: () => (failed = true) });
+            const url = `${environment.baseUrl}Shifts/Cuts/Reset`;
+
+            httpTestingController.expectOne(url).flush(null, { status, statusText: 'Failed' });
+
+            httpTestingController.expectNone(url);
+            expect(failed).toBe(true);
+        });
+    });
+
     it('should be created', () => {
         expect(service).toBeTruthy();
     });

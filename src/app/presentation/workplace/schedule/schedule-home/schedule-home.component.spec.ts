@@ -23,6 +23,7 @@ import { ScheduleViewModeService } from '../services/schedule-view-mode.service'
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchStateService } from 'src/app/domain/services/search-state.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import { CALENDAR_TEST_ZONES, currentTimeZone, useTimeZone } from 'src/app/shared/testing/time-zone.testing';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 
@@ -79,6 +80,7 @@ describe('ScheduleHomeComponent', () => {
         { provide: TimelinePdfExportService, useValue: {} },
         { provide: ScheduleViewModeService, useValue: {} },
         { provide: AnalyseScenarioService, useValue: { isScenarioMode: () => false } },
+        { provide: ScenarioVariantService, useValue: { isVariantMode: () => false } },
       ],
     });
 

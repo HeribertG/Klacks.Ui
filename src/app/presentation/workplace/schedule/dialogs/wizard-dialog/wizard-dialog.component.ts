@@ -382,6 +382,7 @@ export class WizardDialogComponent {
           fromDate: '',
           untilDate: '',
           createdByUser: '',
+          variantIds: [],
           status: AnalyseScenarioStatus.Active,
         };
         this.analyseScenarioService.scenarios.update(list => [...list, newScenario]);

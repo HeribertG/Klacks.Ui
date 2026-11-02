@@ -23,7 +23,6 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { RecoveryDialogLauncherService } from '../../services/recovery-dialog-launcher.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { companyToday, formatDateOnly } from 'src/app/domain/helpers/calendar-date.helper';
 import { addDays } from 'src/app/domain/helpers/date.helper';
 import { APP_PORT_BINDINGS } from 'src/app/app.port-bindings';
@@ -76,11 +75,10 @@ describe('RecoveryDialogComponent', () => {
   let modalOpen: ReturnType<typeof vi.fn>;
   let modalClose: ReturnType<typeof vi.fn>;
   let coverAbsence: ReturnType<typeof vi.fn>;
-  let selectScenario: ReturnType<typeof vi.fn>;
+  let openCreatedScenario: ReturnType<typeof vi.fn>;
   let activeToken: ReturnType<typeof signal<string | null>>;
   let readDatas: ReturnType<typeof vi.fn>;
-  let scenarios: ReturnType<typeof signal<IAnalyseScenario[]>>;
-  let schedule: { clients: unknown[]; periodStartDate: Date | null; periodEndDate: Date | null; workFilter: { selectedGroup: string }; readDatas: ReturnType<typeof vi.fn> };
+    let schedule: { clients: unknown[]; periodStartDate: Date | null; periodEndDate: Date | null; workFilter: { selectedGroup: string }; readDatas: ReturnType<typeof vi.fn> };
   let launcher: RecoveryDialogLauncherService;
   let isSupervisor: boolean;
   let updateRequestOutcome: ReturnType<typeof vi.fn>;
@@ -111,11 +109,10 @@ describe('RecoveryDialogComponent', () => {
     getRequests = vi.fn().mockReturnValue(of([]));
     showError = vi.fn();
     coverAbsence = vi.fn().mockReturnValue(of(outcome));
-    selectScenario = vi.fn();
+    openCreatedScenario = vi.fn().mockResolvedValue(true);
     activeToken = signal<string | null>(null);
     readDatas = vi.fn();
-    scenarios = signal<IAnalyseScenario[]>([]);
-    isSupervisor = true;
+        isSupervisor = true;
     const today = companyToday();
     schedule = {
       clients: [{ id: 'client-1', firstName: 'Anna', name: 'Muster' }],
@@ -134,7 +131,7 @@ describe('RecoveryDialogComponent', () => {
           provide: DataRecoveryService,
           useValue: { coverAbsence, updateRequestOutcome, getCandidates, recordRequest, getRequests },
         },
-        { provide: AnalyseScenarioService, useValue: { scenarios, selectScenario, activeToken } },
+        { provide: AnalyseScenarioService, useValue: { openCreatedScenario, activeToken } },
         { provide: DataManagementScheduleService, useValue: schedule },
         { provide: ToastShowService, useValue: { showError } },
         {
@@ -261,8 +258,7 @@ describe('RecoveryDialogComponent', () => {
         notifyEscalationRoster: false,
       }),
     );
-    expect(selectScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 'scenario-1', token: 'token-1' }));
-    expect(scenarios().map((s) => s.id)).toEqual(['scenario-1']);
+    expect(openCreatedScenario).toHaveBeenCalledWith('scenario-1');
     expect(readDatas).toHaveBeenCalled();
     expect((component as any).result()).toEqual(outcome);
   });

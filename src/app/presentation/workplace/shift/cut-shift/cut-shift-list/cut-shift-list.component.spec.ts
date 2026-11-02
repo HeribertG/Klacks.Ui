@@ -4,6 +4,7 @@
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { Subject } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker.interface';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CutShiftListComponent } from './cut-shift-list.component';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
@@ -38,6 +39,7 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
                 provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: NgbModal, useValue: mockModalService },
+                { provide: PERMISSION_CHECKER, useValue: { hasPermission: () => false, isAdmin: false } },
                 { provide: DataManagementShiftCutService, useValue: mockDataService },
                 {
                     provide: TranslateService,

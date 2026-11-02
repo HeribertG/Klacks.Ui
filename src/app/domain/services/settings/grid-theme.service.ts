@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Reads grid header/container colors from CSS variables (set by the color-themes.scss themes).
+ * Reads grid header/container colors and the colour of the key marker (the warning colour) from CSS variables (set by
+ * the color-themes.scss themes).
  * @param themeSource - Provides the current theme signal to trigger re-reads on theme change
  */
 import { Injectable, inject, signal, effect, untracked } from '@angular/core';
+import { SCENARIO_VARIANT_MARKER_FALLBACK_COLOR } from 'src/app/domain/constants/scenario-variant.constants';
 import { THEME_SOURCE } from 'src/app/domain/interfaces/theme-source.interface';
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +18,7 @@ export class GridThemeService {
   readonly headerColor = signal<string>('#4d4d4d');
   readonly headerBorderColor = signal<string>('#d5dbdb');
   readonly rowHeaderColor = signal<string>('#000000');
+  readonly variantMarkerColor = signal<string>(SCENARIO_VARIANT_MARKER_FALLBACK_COLOR);
 
   constructor() {
     effect(() => {
@@ -39,5 +42,6 @@ export class GridThemeService {
     this.headerColor.set(read('--gridHeaderColor', '#4d4d4d'));
     this.headerBorderColor.set(read('--gridHeaderBorderColor', '#d5dbdb'));
     this.rowHeaderColor.set(read('--gridRowHeaderColor', '#000000'));
+    this.variantMarkerColor.set(read('--colorWarning', SCENARIO_VARIANT_MARKER_FALLBACK_COLOR));
   }
 }

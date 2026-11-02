@@ -75,6 +75,8 @@ import { BreakBlockRendererService } from '../schedule-section/timeline/renderer
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { ScenarioBannerComponent } from '../scenario-banner/scenario-banner.component';
+import { VariantModeBarComponent } from '../variant-mode-bar/variant-mode-bar.component';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/payment-interval.enum';
 import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
@@ -94,7 +96,7 @@ const MONTH_INDEX_OFFSET = 1;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [FullViewportDirective],
-  imports: [ScheduleHeaderComponent, ScheduleContainerComponent, ScenarioBannerComponent],
+  imports: [ScheduleHeaderComponent, ScheduleContainerComponent, ScenarioBannerComponent, VariantModeBarComponent],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },
     { provide: ScheduleDataService, useExisting: BaseDataService },
@@ -146,8 +148,10 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private calendarUtil = inject(CalendarUtilService);
   private destroyRef = inject(DestroyRef);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private scenarioVariantService = inject(ScenarioVariantService);
 
   public readonly isScenarioMode = this.analyseScenarioService.isScenarioMode;
+  public readonly isVariantMode = this.scenarioVariantService.isVariantMode;
 
   public currentZoom = 1.0;
   public refreshTrigger = false;

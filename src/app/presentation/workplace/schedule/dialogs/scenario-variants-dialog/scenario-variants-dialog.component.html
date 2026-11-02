@@ -1,0 +1,186 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #scenarioVariantsModal>
+  <div class="modal-header">
+    <div id="scenario-variants-title" class="container-header-modal modal-title">
+      {{ 'scenarioVariant.title' | translate }}
+      @if (groupName()) {
+        <span class="group-name">– {{ groupName() }}</span>
+      }
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" aria-label="Close" (click)="onClose()">
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    @if (errorMessage() && view() !== views.Shifts && view() !== views.Copy) {
+      <div id="scenario-variants-error" class="error-message" role="alert">{{ errorMessage() }}</div>
+    }
+
+    @switch (view()) {
+      @case (views.List) {
+        @if (!groupId()) {
+          <div id="scenario-variants-no-group" class="dialog-state">{{ 'scenarioVariant.noGroup' | translate }}</div>
+        } @else {
+          <div class="list-head">
+            <span class="list-hint">{{ 'scenarioVariant.hint' | translate }}</span>
+            <span class="filler"></span>
+            @if (canManage()) {
+              <button id="scenario-variants-create-btn" type="button" class="btn btn-sm save-btn" (click)="onCreate()">
+                + {{ 'scenarioVariant.create' | translate }}
+              </button>
+            }
+          </div>
+
+          @if (!canManage()) {
+            <div id="scenario-variants-readonly" class="dialog-note">{{ 'scenarioVariant.readOnly' | translate }}</div>
+          }
+
+          @if (loadFailed()) {
+            <div id="scenario-variants-load-failed" class="dialog-state dialog-state-error">
+              {{ 'scenarioVariant.loadFailed' | translate }}
+            </div>
+          } @else if (groupVariants().length === 0) {
+            <div id="scenario-variants-empty" class="dialog-state">{{ 'scenarioVariant.empty' | translate }}</div>
+          } @else {
+            <table class="variant-table">
+              <thead>
+                <tr>
+                  <th>{{ 'scenarioVariant.column.name' | translate }}</th>
+                  <th>{{ 'scenarioVariant.column.period' | translate }}</th>
+                  <th class="number-column">{{ 'scenarioVariant.column.shifts' | translate }}</th>
+                  <th>{{ 'scenarioVariant.column.status' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (variant of groupVariants(); track variant.id) {
+                  <tr class="variant-row" [attr.data-variant-id]="variant.id">
+                    <td class="variant-name">
+                      {{ variant.name }}
+                      @if (variant.isExpired) {
+                        <span class="variant-expired-badge">{{ 'scenarioVariant.expired' | translate }}</span>
+                      }
+                    </td>
+                    <td>{{ periodText(variant) }}</td>
+                    <td class="number-column">{{ variant.shiftCount }}</td>
+                    <td>{{ statusKey(variant) | translate }}</td>
+                    <td class="variant-actions">
+                      @if (canEditVariant(variant)) {
+                        <button type="button" class="btn btn-sm btn-outline-secondary variant-edit-shifts-btn" (click)="onEditShifts(variant)">
+                          {{ 'scenarioVariant.editShifts' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary variant-copy-btn" (click)="onCopyShifts(variant)">
+                          {{ 'scenarioVariant.copyShifts' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary variant-edit-btn" (click)="onEdit(variant)">
+                          {{ 'scenarioVariant.edit' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger variant-delete-btn" (click)="onDelete(variant)">
+                          {{ 'scenarioVariant.delete.title' | translate }}
+                        </button>
+                      } @else {
+                        <button type="button" class="btn btn-sm btn-outline-secondary variant-view-shifts-btn" (click)="onViewShifts(variant)">
+                          {{ 'scenarioVariant.viewShifts' | translate }}
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        }
+      }
+
+      @case (views.Form) {
+        <div class="form-group">
+          <label for="scenario-variant-name-input">{{ 'scenarioVariant.form.name' | translate }}</label>
+          <input
+            id="scenario-variant-name-input"
+            type="text"
+            class="form-control"
+            [ngModel]="formName()"
+            (ngModelChange)="formName.set($event)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="scenario-variant-description-input">{{ 'scenarioVariant.form.description' | translate }}</label>
+          <input
+            id="scenario-variant-description-input"
+            type="text"
+            class="form-control"
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="scenario-variant-from-input">{{ 'scenarioVariant.form.from' | translate }}</label>
+            <input
+              id="scenario-variant-from-input"
+              type="date"
+              class="form-control"
+              [ngModel]="fromDate()"
+              (ngModelChange)="fromDate.set($event)"
+            />
+          </div>
+          <div class="form-group">
+            <label for="scenario-variant-until-input">{{ 'scenarioVariant.form.until' | translate }}</label>
+            <input
+              id="scenario-variant-until-input"
+              type="date"
+              class="form-control"
+              [ngModel]="untilDate()"
+              (ngModelChange)="untilDate.set($event)"
+            />
+          </div>
+        </div>
+
+        @if (!isPeriodValid()) {
+          <div id="scenario-variant-form-invalid" class="dialog-note">{{ 'scenarioVariant.form.invalid' | translate }}</div>
+        }
+      }
+
+      @case (views.Shifts) {
+        @if (selectedVariant(); as variant) {
+          <app-variant-shifts-panel
+            [variant]="variant"
+            [canEdit]="canEditSelected()"
+            (newShift)="onNewShift()"
+            (editShift)="onEditShift($event)"
+            (cutShift)="onCutShift($event)"
+            (back)="onBackToList()"
+          />
+        }
+      }
+
+      @case (views.Copy) {
+        @if (selectedVariant(); as variant) {
+          <app-variant-copy-panel [variant]="variant" (copied)="onBackToList()" (back)="onBackToList()" />
+        }
+      }
+    }
+  </div>
+
+  @if (view() === views.Form) {
+    <div class="modal-footer">
+      <span id="scenario-variant-form-cancel" class="link-button red-font" (click)="onBackToList()">
+        {{ 'common.cancel' | translate }}
+      </span>
+      <button id="scenario-variant-form-save" type="button" class="btn save-btn" [disabled]="!isFormValid() || isSaving()" (click)="onSave()">
+        @if (isSaving()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ 'scenarioVariant.form.save' | translate }}
+      </button>
+    </div>
+  }
+</ng-template>

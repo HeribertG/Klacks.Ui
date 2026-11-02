@@ -262,6 +262,21 @@ describe('ToastShowService', () => {
       expect(toastService.toasts().length).toBe(0);
     });
 
+    it('should show an error toast that asks to pass the suspicion', () => {
+      service.showError('Not saved', 'ERROR_NAME', { showDuringOutage: true });
+
+      expect(toastService.toasts().length).toBe(1);
+    });
+
+    it('should leave it to the overlay once the overlay is up', () => {
+      const backendAvailability = TestBed.inject(BackendAvailabilityService);
+      vi.spyOn(backendAvailability, 'isUnavailable').mockReturnValue(true);
+
+      service.showError('Not saved', 'ERROR_NAME', { showDuringOutage: true });
+
+      expect(toastService.toasts().length).toBe(0);
+    });
+
     it('should still show info toasts', () => {
       service.showInfo('Information message', 'INFO_NAME');
 

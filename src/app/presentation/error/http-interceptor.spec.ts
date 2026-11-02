@@ -14,6 +14,7 @@ import { BackendAvailabilityService } from 'src/app/application/services/backend
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WorkConflictMessageService } from './work-conflict-message.service';
 import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   PLAYGROUND_FEATURE_BLOCKED_ERROR_CODE,
@@ -91,6 +92,7 @@ describe('ResponseInterceptor', () => {
   let httpMock: HttpTestingController;
   let toastShowService: any;
   let backendAvailabilityService: any;
+  let variantMode: boolean;
   let workplaceStateService: {
     isDirty: boolean;
     isSavedOrReset: boolean;
@@ -114,6 +116,7 @@ describe('ResponseInterceptor', () => {
   };
 
   beforeEach(() => {
+    variantMode = false;
     workplaceStateService = {
       isDirty: false,
       isSavedOrReset: false,
@@ -161,6 +164,7 @@ describe('ResponseInterceptor', () => {
         { provide: BackendAvailabilityService, useValue: backendAvailabilityServiceSpy },
         { provide: WorkConflictMessageService, useValue: workConflictMessageServiceSpy },
         { provide: WorkRefusalExplainService, useValue: workRefusalExplainServiceSpy },
+        { provide: ScenarioVariantService, useValue: { isVariantMode: () => variantMode } },
       ],
     });
 
@@ -309,10 +313,276 @@ describe('ResponseInterceptor', () => {
       expect(captured.status).toBe(NOT_FOUND.status);
     });
 
-    it('still shows the generic toast for a 500 on the summary endpoint', () => {
+    it('neither toasts nor leaves the page for a 500 on the summary endpoint, the callers show their own failure', () => {
       const captured = expectRequestToFail(SUMMARY_URL);
+      const navigationService = TestBed.inject(NavigationService) as any;
 
       httpMock.expectOne(SUMMARY_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+  });
+
+  describe('scenario accept pass-through (the scenario actions explain the answer themselves)', () => {
+    const ACCEPT_URL = '/api/backend/AnalyseScenarios/scenario-1/Accept';
+
+    it.each([CONFLICT, FORBIDDEN])('does not show a generic toast for a $status on the accept endpoint', (response) => {
+      const captured = expectRequestToFail(ACCEPT_URL);
+
+      httpMock.expectOne(ACCEPT_URL).flush(null, response);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(response.status);
+    });
+
+    it('still shows the generic toast for a 500 on the accept endpoint', () => {
+      const captured = expectRequestToFail(ACCEPT_URL);
+
+      httpMock.expectOne(ACCEPT_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+  });
+
+  describe('scenario variant pass-through (the key dialog explains refusals itself)', () => {
+    const VARIANT_URL = '/api/backend/ScenarioVariants/variant-1';
+    const VARIANT_COPY_URL = '/api/backend/ScenarioVariants/variant-1/CopyShifts';
+
+    it.each([BAD_REQUEST, NOT_FOUND, CONFLICT])('does not show a generic toast for a $status on a variant endpoint', (response) => {
+      const captured = expectRequestToFail(VARIANT_URL);
+
+      httpMock.expectOne(VARIANT_URL).flush(null, response);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(response.status);
+    });
+
+    it('does not show a generic toast for a 400 on the copy endpoint', () => {
+      const captured = expectRequestToFail(VARIANT_COPY_URL);
+
+      httpMock.expectOne(VARIANT_COPY_URL).flush(null, BAD_REQUEST);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
+    it('passes a 500 of the key list through, so the dialog shows its failed state and stays open', () => {
+      const VARIANT_LIST_URL = '/api/backend/ScenarioVariants?groupId=group-1';
+      const navigationService = TestBed.inject(NavigationService) as any;
+      const captured = expectRequestToFail(VARIANT_LIST_URL);
+
+      httpMock.expectOne(VARIANT_LIST_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+
+    it('passes a 500 of the shifts of a key through, so the panel shows its failed state and the dialog stays open', () => {
+      const VARIANT_SHIFTS_URL = '/api/backend/ScenarioVariants/variant-1/Shifts';
+      const navigationService = TestBed.inject(NavigationService) as any;
+      const captured = expectRequestToFail(VARIANT_SHIFTS_URL);
+      workplaceStateService.isDirty = true;
+
+      httpMock.expectOne(VARIANT_SHIFTS_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(navigationService.navigateToError).not.toHaveBeenCalled();
+      expect(workplaceStateService.isDirty).toBe(true);
+      expect(captured.status).toBe(SERVER_ERROR.status);
+    });
+
+    it.each([BAD_REQUEST, NOT_FOUND, CONFLICT])('leaves a $status on a new scenario to the dialog, which explains it inline', (response) => {
+      const SCENARIOS_URL = '/api/backend/AnalyseScenarios';
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(SCENARIOS_URL, {}).subscribe({
+        error: (error: HttpErrorResponse) => {
+          captured.status = error.status;
+        },
+      });
+
+      httpMock.expectOne(SCENARIOS_URL).flush(null, response);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(response.status);
+    });
+
+    it('still reports a server failure of a new scenario', () => {
+      const SCENARIOS_URL = '/api/backend/AnalyseScenarios';
+      httpClient.post(SCENARIOS_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(SCENARIOS_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not take the pass-through of a new scenario to other scenario writes', () => {
+      const REJECT_URL = '/api/backend/AnalyseScenarios/scenario-1/Reject';
+      httpClient.post(REJECT_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(REJECT_URL).flush(null, BAD_REQUEST);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+    });
+
+    it('explains a frozen key on a shift save in the language of the user, not with the English detail', () => {
+      const SHIFT_URL = '/api/backend/Shifts/';
+      const captured: { status: number | null } = { status: null };
+      httpClient.put(SHIFT_URL, {}).subscribe({
+        error: (error: HttpErrorResponse) => {
+          captured.status = error.status;
+        },
+      });
+
+      httpMock
+        .expectOne(SHIFT_URL)
+        .flush({ detail: 'English detail', errorCode: 'SCENARIO_VARIANT_IN_USE' }, CONFLICT);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith('scenarioVariant.error.inUse', 'scenario-variant-refused');
+      expect(captured.status).toBe(CONFLICT.status);
+    });
+
+    it('keeps the unsaved changes when a key refuses a shift save, the user may still save them elsewhere', () => {
+      const SHIFT_URL = '/api/backend/Shifts/';
+      workplaceStateService.isDirty = true;
+      httpClient.put(SHIFT_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(SHIFT_URL).flush({ errorCode: 'SCENARIO_VARIANT_IN_USE' }, CONFLICT);
+
+      expect(workplaceStateService.isDirty).toBe(true);
+    });
+
+    it.each([BAD_REQUEST, NOT_FOUND, CONFLICT])('keeps the unsaved changes on a $status of a variant endpoint', (response) => {
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(VARIANT_URL);
+
+      httpMock.expectOne(VARIANT_URL).flush(null, response);
+
+      expect(workplaceStateService.isDirty).toBe(true);
+    });
+
+    describe('a cut of a key the server refuses as invalid', () => {
+      const BATCH_URL = '/api/backend/Shifts/Cuts/Batch';
+      const RESET_URL = '/api/backend/Shifts/Cuts/Reset';
+      const REFUSAL = { detail: "A shift in a variant must lie inside the variant's period" };
+      const SHIFT_REFUSED_KEY = 'scenarioVariant.error.shiftRefused';
+      const batchOf = (analyseToken?: string) => ({ operations: [{ type: 'CREATE', data: { analyseToken } }] });
+
+      it('explains a refused batch by the token of its operations, also after variant mode ended', () => {
+        workplaceStateService.isDirty = true;
+        httpClient.post(BATCH_URL, batchOf('key-token')).subscribe({ error: () => undefined });
+
+        httpMock.expectOne(BATCH_URL).flush(REFUSAL, BAD_REQUEST);
+
+        expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+        expect(toastShowService.showError).toHaveBeenCalledWith(SHIFT_REFUSED_KEY, 'scenario-variant-refused');
+        expect(workplaceStateService.isDirty).toBe(true);
+      });
+
+      it('explains a refused reset in variant mode, its body carries no token', () => {
+        variantMode = true;
+        workplaceStateService.isDirty = true;
+        httpClient.post(RESET_URL, { originalId: 'shift-1' }).subscribe({ error: () => undefined });
+
+        httpMock.expectOne(RESET_URL).flush(REFUSAL, BAD_REQUEST);
+
+        expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+        expect(toastShowService.showError).toHaveBeenCalledWith(SHIFT_REFUSED_KEY, 'scenario-variant-refused');
+        expect(workplaceStateService.isDirty).toBe(true);
+      });
+
+      it.each([
+        ['batch', BATCH_URL, batchOf()],
+        ['reset', RESET_URL, { originalId: 'shift-1' }],
+      ])('leaves a refused %s of a real shift to the generic handling', (_name, url, body) => {
+        workplaceStateService.isDirty = true;
+        httpClient.post(url, body).subscribe({ error: () => undefined });
+
+        httpMock.expectOne(url).flush(REFUSAL, BAD_REQUEST);
+
+        expect(toastShowService.showError).not.toHaveBeenCalledWith(SHIFT_REFUSED_KEY, 'scenario-variant-refused');
+        expect(workplaceStateService.isDirty).toBe(false);
+      });
+    });
+
+    describe('a shift of a key the server refuses as invalid', () => {
+      const SHIFT_URL = '/api/backend/Shifts/';
+      const SHIFT_REFUSED_KEY = 'scenarioVariant.error.shiftRefused';
+      const KEY_SHIFT = { name: 'Night care', analyseToken: 'key-token' };
+      const REFUSAL = { detail: "A shift in a variant must lie inside the variant's period" };
+
+      it.each(['post', 'put'] as const)('explains a refused %s in the language of the user', async (method) => {
+        const captured: { status?: number } = {};
+        httpClient[method](SHIFT_URL, KEY_SHIFT).subscribe({
+          error: (error: HttpErrorResponse) => {
+            captured.status = error.status;
+          },
+        });
+
+        httpMock.expectOne(SHIFT_URL).flush(REFUSAL, BAD_REQUEST);
+        await Promise.resolve();
+
+        expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+        expect(toastShowService.showError).toHaveBeenCalledWith(SHIFT_REFUSED_KEY, 'scenario-variant-refused');
+        expect(captured.status).toBe(BAD_REQUEST.status);
+      });
+
+      it('keeps the unsaved changes, what the user typed is still on the form', () => {
+        workplaceStateService.isDirty = true;
+        httpClient.post(SHIFT_URL, KEY_SHIFT).subscribe({ error: () => undefined });
+
+        httpMock.expectOne(SHIFT_URL).flush(REFUSAL, BAD_REQUEST);
+
+        expect(workplaceStateService.isDirty).toBe(true);
+      });
+
+      it('leaves a refused real shift to the generic handling', () => {
+        workplaceStateService.isDirty = true;
+        httpClient.post(SHIFT_URL, { name: 'Night care' }).subscribe({ error: () => undefined });
+
+        httpMock.expectOne(SHIFT_URL).flush(REFUSAL, BAD_REQUEST);
+
+        expect(toastShowService.showError).not.toHaveBeenCalledWith(SHIFT_REFUSED_KEY, 'scenario-variant-refused');
+        expect(workplaceStateService.isDirty).toBe(false);
+      });
+
+      it('leaves a server failure of a key shift to the generic handling', () => {
+        workplaceStateService.isDirty = true;
+        httpClient.post(SHIFT_URL, KEY_SHIFT).subscribe({ error: () => undefined });
+
+        httpMock.expectOne(SHIFT_URL).flush(REFUSAL, SERVER_ERROR);
+
+        expect(toastShowService.showError).not.toHaveBeenCalledWith(SHIFT_REFUSED_KEY, 'scenario-variant-refused');
+        expect(workplaceStateService.isDirty).toBe(false);
+      });
+    });
+
+    it('still turns the spinner off when a key refuses a save', () => {
+      const SHIFT_URL = '/api/backend/Shifts/';
+      httpClient.put(SHIFT_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(SHIFT_URL).flush({ errorCode: 'SCENARIO_VARIANT_IN_USE' }, CONFLICT);
+
+      expect(workplaceStateService.showProgressSpinner).toHaveBeenCalledWith(false);
+    });
+
+    it('still drops the unsaved changes on a 500 of a variant endpoint', () => {
+      workplaceStateService.isDirty = true;
+      expectRequestToFail(VARIANT_URL);
+
+      httpMock.expectOne(VARIANT_URL).flush(null, SERVER_ERROR);
+
+      expect(workplaceStateService.isDirty).toBe(false);
+    });
+
+    it('still shows the generic toast for a 500 on a variant endpoint', () => {
+      const captured = expectRequestToFail(VARIANT_URL);
+
+      httpMock.expectOne(VARIANT_URL).flush(null, SERVER_ERROR);
 
       expect(toastShowService.showError).toHaveBeenCalledTimes(1);
       expect(captured.status).toBe(SERVER_ERROR.status);

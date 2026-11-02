@@ -78,6 +78,37 @@
             </table>
           }
 
+          @if ((data.variants?.length ?? 0) > 0) {
+            <h5 class="summary-section-title">{{ 'scenarioVariant.summary.title' | translate }}</h5>
+            <ul id="scenario-summary-variants" class="summary-variants">
+              @for (variant of data.variants ?? []; track variant.variantId) {
+                <li class="summary-variant">
+                  <div class="summary-variant-head">
+                    <span class="summary-variant-name">{{ variant.name }}</span>
+                    <span class="summary-variant-covered">
+                      {{ 'scenarioVariant.summary.covered' | translate: { filled: variant.filledSlots, demanded: variant.demandedSlots } }}
+                    </span>
+                  </div>
+                  <div class="summary-variant-detail">
+                    <span class="summary-variant-open" [class.summary-open]="variant.openSlots > 0">
+                      {{ 'scenarioVariant.summary.open' | translate: { count: variant.openSlots } }}
+                    </span>
+                    @if (variant.peakDate && variant.peakOpenSlots > 0) {
+                      <span class="summary-variant-peak">
+                        {{ 'scenarioVariant.summary.peak' | translate: { count: variant.peakOpenSlots, date: peakDateText(variant.peakDate) } }}
+                      </span>
+                    }
+                  </div>
+                  @if (variant.copiedShiftCount > 0) {
+                    <div class="summary-warning summary-variant-copied" role="alert">
+                      {{ copiedShiftsKey(variant.copiedShiftCount) | translate: { count: variant.copiedShiftCount } }}
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+
           @if (data.openSlotReasons.length > 0) {
             <h5 class="summary-section-title">{{ 'scenarioSummary.reasonsTitle' | translate }}</h5>
             <ul id="scenario-summary-reasons" class="summary-reasons">

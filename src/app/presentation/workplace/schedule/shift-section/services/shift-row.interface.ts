@@ -15,4 +15,5 @@ export interface ShiftRow {
   isTimeRange: boolean;
   shiftType: number;
   qualifications: IScheduleQualification[];
+  isVariantShift: boolean;
 }

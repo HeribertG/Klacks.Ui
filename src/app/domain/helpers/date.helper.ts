@@ -78,6 +78,24 @@ export function CalendarDateToStringShort(
   return formatCalendarDate(value, locale, 'numericDate') ?? value;
 }
 
+const CALENDAR_PERIOD_SEPARATOR = ' – ';
+
+/**
+ * Formats the two bounds of a period (calendar dates from the backend) for display.
+ *
+ * @param from - Calendar-date wire value of the first day
+ * @param until - Calendar-date wire value of the last day
+ * @param locale - Locale code (default: DomainMessages.DEFAULT_LANG)
+ * @returns Both days joined by a dash (e.g., "15.03.2025 – 31.03.2025")
+ */
+export function CalendarPeriodToStringShort(
+  from: string,
+  until: string,
+  locale: string = DomainMessages.DEFAULT_LANG
+): string {
+  return [from, until].map((value) => CalendarDateToStringShort(value, locale)).join(CALENDAR_PERIOD_SEPARATOR);
+}
+
 /**
  * Adds months to a date.
  *

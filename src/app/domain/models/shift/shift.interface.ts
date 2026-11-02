@@ -55,4 +55,5 @@ export interface IShift {
   isClientless?: boolean;
   defaultExpenses: IShiftExpense[];
   requiredQualifications: IShiftRequiredQualification[];
+  analyseToken?: string;
 }

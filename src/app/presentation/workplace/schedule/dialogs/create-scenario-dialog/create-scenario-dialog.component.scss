@@ -1,2 +1,66 @@
 @use "../../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+$choice-gap: 8px;
+$choice-padding-block: 4px;
+$choices-max-height: 200px;
+
+.variant-section-title {
+  display: block;
+  font-weight: 600;
+  color: var(--colorHeadline);
+}
+
+.variant-section-hint {
+  margin-block-end: $choice-gap;
+  color: var(--colorLabel);
+  font-size: 13px;
+}
+
+.variant-state {
+  color: var(--standartTextColor);
+}
+
+.variant-state-error {
+  color: var(--standartRedColor);
+}
+
+.variant-choices {
+  max-height: $choices-max-height;
+  overflow-y: auto;
+}
+
+.variant-choice {
+  display: flex;
+  align-items: center;
+  gap: $choice-gap;
+  padding-block: $choice-padding-block;
+}
+
+.variant-choice-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px $choice-gap;
+  margin: 0;
+  color: var(--standartTextColor);
+  cursor: pointer;
+}
+
+.variant-choice-name {
+  font-weight: 500;
+}
+
+.variant-choice-period {
+  color: var(--colorLabel);
+  font-size: 13px;
+}
+
+.variant-choice-expired {
+  padding: 1px 6px;
+  border: 1px solid var(--alertWarningBorder);
+  border-radius: 4px;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  font-size: 12px;
+}

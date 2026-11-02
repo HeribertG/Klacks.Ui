@@ -24,6 +24,7 @@ import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/
 import { IScenarioAcceptOverrides } from 'src/app/domain/interfaces/scenario-accept-overrides.interface';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
 import { NO_SCENARIO_ACCEPT_OVERRIDES } from 'src/app/domain/models/schedule/scenario-stale.model';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,7 @@ export class AnalyseScenarioService {
   private dataService = inject(DataAnalyseScenarioService);
   private signalRService = inject(SCHEDULE_SIGNALR);
   private destroyRef = inject(DestroyRef);
+  private scenarioVariantService = inject(ScenarioVariantService);
 
   private _lastLoadedGroupId: string | undefined;
 
@@ -65,6 +67,7 @@ export class AnalyseScenarioService {
   }
 
   selectScenario(scenario: IAnalyseScenario): void {
+    this.leaveVariantMode();
     this.activeScenario.set(scenario);
   }
 
@@ -91,6 +94,25 @@ export class AnalyseScenarioService {
     return true;
   }
 
+  /**
+   * Enters a scenario the server has just made (harmonizer, recovery, auto wizard). It is always read from the server,
+   * because only the server knows the keys it inherited from its source. A failed read is no failed run: the scenario
+   * exists, so the list is reloaded to show it, and the caller stays on what it shows.
+   * @returns True when the scenario is now active
+   */
+  async openCreatedScenario(id: string): Promise<boolean> {
+    try {
+      if (await this.openScenarioById(id)) {
+        return true;
+      }
+    } catch {
+      // The HTTP interceptor has reported the failure; the scenario still exists.
+    }
+
+    this.loadScenarios(this._lastLoadedGroupId);
+    return false;
+  }
+
   loadSummary(id: string): Observable<ScenarioSummary> {
     return this.dataService.getSummary(id);
   }
@@ -99,6 +121,7 @@ export class AnalyseScenarioService {
     return this.dataService.create(request).pipe(
       tap(scenario => {
         this.scenarios.update(list => [...list, scenario]);
+        this.leaveVariantMode();
         this.activeScenario.set(scenario);
       })
     );
@@ -143,6 +166,14 @@ export class AnalyseScenarioService {
         this.activeScenario.set(null);
       })
     );
+  }
+
+  /**
+   * Scenario mode and variant mode are never active together. Every way into a scenario ends variant mode here, so the
+   * callers (selector, wizards, deep link, creation) need no rule of their own.
+   */
+  private leaveVariantMode(): void {
+    this.scenarioVariantService.leave();
   }
 
   renameScenario(id: string, name: string): Observable<void> {

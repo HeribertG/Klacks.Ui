@@ -270,7 +270,7 @@ export class AutoWizardOrchestratorService {
 
     if (!job || this.isShowingJob(job)) {
       if (scenario) {
-        this.tracker.showScenario(scenario);
+        void this.tracker.showScenario(scenario);
       }
       this.showInfo(
         this.translateService.instant('autoWizard.toast.completed', {

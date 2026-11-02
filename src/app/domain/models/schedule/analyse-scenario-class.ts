@@ -24,6 +24,8 @@ export interface IAnalyseScenario {
   churnRatio?: number | null;
   /** Hard-constraint violations the produced plan still carries. */
   stage0Violations?: number | null;
+  /** Variants (keys) the scenario was created with; empty for a scenario without keys. */
+  variantIds: string[];
 }
 
 /** Author the background optimiser records on the scenarios it creates. */

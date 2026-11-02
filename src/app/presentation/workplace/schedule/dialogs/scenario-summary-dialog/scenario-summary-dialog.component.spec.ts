@@ -9,6 +9,8 @@ import { ScenarioSummaryDialogComponent } from './scenario-summary-dialog.compon
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
+import { IScenarioVariantCoverage } from 'src/app/domain/models/schedule/scenario-variant-coverage.interface';
+import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
 
 const TEST_LANGUAGE = 'en';
 const EXPENSES_NOTICE_KEY = 'scenarioSummary.expensesWithChangedEmployee';
@@ -156,6 +158,129 @@ describe('ScenarioSummaryDialogComponent', () => {
     // Assert
     expect(modal('#scenario-summary-total')).not.toBeNull();
     expect(modal(EXPENSES_NOTICE_SELECTOR)).toBeNull();
+  });
+
+  describe('coverage per key', () => {
+    const translations = {
+      'scenarioVariant.summary.covered': '{{filled}} of {{demanded}} filled',
+      'scenarioVariant.summary.open': 'Open: {{count}}',
+      'scenarioVariant.summary.peak': 'Peak: {{count}} open on {{date}}',
+      'scenarioVariant.summary.copiedShifts.one': '{{count}} shift is a copy',
+      'scenarioVariant.summary.copiedShifts.other': '{{count}} shifts are copies',
+    };
+
+    const winter: IScenarioVariantCoverage = {
+      variantId: 'v-1',
+      name: 'Winter key',
+      demandedSlots: 12,
+      filledSlots: 9,
+      openSlots: 3,
+      peakOpenSlots: 2,
+      peakDate: '2026-11-09',
+      copiedShiftCount: 3,
+    };
+
+    const complete: IScenarioVariantCoverage = {
+      variantId: 'v-2',
+      name: 'Spring key',
+      demandedSlots: 4,
+      filledSlots: 4,
+      openSlots: 0,
+      peakOpenSlots: 0,
+      peakDate: null,
+      copiedShiftCount: 0,
+    };
+
+    const openWith = (variants: IScenarioVariantCoverage[] | undefined): void => {
+      const translate = TestBed.inject(TranslateService);
+      translate.setTranslation(TEST_LANGUAGE, translations);
+      translate.use(TEST_LANGUAGE);
+      const pending = new Subject<ScenarioSummary>();
+      loadSummary.mockReturnValue(pending);
+      dialog.open(scenario);
+      pending.next({ ...summary, variants });
+      TestBed.tick();
+    };
+
+    const sections = (): HTMLElement[] =>
+      Array.from(document.querySelectorAll<HTMLElement>('#scenario-summary-variants .summary-variant'));
+
+    it('shows one section per key with its name, filled of demanded and open slots', () => {
+      openWith([winter, complete]);
+
+      const rows = sections();
+      expect(rows).toHaveLength(2);
+      expect(rows[0].querySelector('.summary-variant-name')?.textContent?.trim()).toBe('Winter key');
+      expect(rows[0].querySelector('.summary-variant-covered')?.textContent?.trim()).toBe('9 of 12 filled');
+      expect(rows[0].querySelector('.summary-variant-open')?.textContent?.trim()).toBe('Open: 3');
+      expect(rows[1].querySelector('.summary-variant-name')?.textContent?.trim()).toBe('Spring key');
+      expect(rows[1].querySelector('.summary-variant-covered')?.textContent?.trim()).toBe('4 of 4 filled');
+    });
+
+    it('shows the worst day of a key with its open slots and the date in the display format of the period', () => {
+      openWith([winter]);
+
+      const peak = sections()[0].querySelector('.summary-variant-peak')?.textContent?.trim();
+      expect(peak).toBe(`Peak: 2 open on ${CalendarDateToStringShort('2026-11-09', TEST_LANGUAGE)}`);
+    });
+
+    it('warns on a key holding copies that original and copy both count', () => {
+      openWith([winter]);
+
+      const warning = sections()[0].querySelector('.summary-warning');
+      expect(warning?.textContent?.trim()).toBe('3 shifts are copies');
+      expect(warning?.getAttribute('role')).toBe('alert');
+    });
+
+    it('shows a key nothing was planned for with nothing open, and still warns about its copies', () => {
+      openWith([{ ...complete, demandedSlots: 0, filledSlots: 0, copiedShiftCount: 2 }]);
+
+      const row = sections()[0];
+      expect(row.querySelector('.summary-variant-covered')?.textContent?.trim()).toBe('0 of 0 filled');
+      expect(row.querySelector('.summary-variant-open')?.textContent?.trim()).toBe('Open: 0');
+      expect(row.querySelector('.summary-variant-open')?.classList.contains('summary-open')).toBe(false);
+      expect(row.querySelector('.summary-variant-peak')).toBeNull();
+      expect(row.querySelector('.summary-warning')?.textContent?.trim()).toBe('2 shifts are copies');
+    });
+
+    it('uses the singular text for one copy', () => {
+      openWith([{ ...winter, copiedShiftCount: 1 }]);
+
+      expect(sections()[0].querySelector('.summary-warning')?.textContent?.trim()).toBe('1 shift is a copy');
+    });
+
+    it('shows no warning for a key without copies', () => {
+      openWith([complete]);
+
+      expect(sections()[0].querySelector('.summary-warning')).toBeNull();
+    });
+
+    it('shows no peak line for a key without open slots', () => {
+      openWith([complete]);
+
+      expect(sections()[0].querySelector('.summary-variant-peak')).toBeNull();
+      expect(sections()[0].querySelector('.summary-variant-open')?.classList.contains('summary-open')).toBe(false);
+    });
+
+    it('marks the open slots of a key in the warning colour', () => {
+      openWith([winter]);
+
+      expect(sections()[0].querySelector('.summary-variant-open')?.classList.contains('summary-open')).toBe(true);
+    });
+
+    it('hides the section when the summary carries no keys', () => {
+      openWith(undefined);
+
+      expect(modal('#scenario-summary-total')).not.toBeNull();
+      expect(modal('#scenario-summary-variants')).toBeNull();
+    });
+
+    it('hides the section when the list of keys is empty', () => {
+      openWith([]);
+
+      expect(modal('#scenario-summary-total')).not.toBeNull();
+      expect(modal('#scenario-summary-variants')).toBeNull();
+    });
   });
 
   it('says that no summary exists when the backend does not know the scenario', () => {

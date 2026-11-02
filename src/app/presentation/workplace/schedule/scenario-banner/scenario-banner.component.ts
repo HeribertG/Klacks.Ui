@@ -7,6 +7,7 @@
  * supervisor override), so the banner holds no decision logic of its own.
  * @param activeScenario - The open scenario, or null when the original plan is shown
  * @param canDecide - Whether accept and reject are offered to the signed-in user
+ * @param canAccept - Whether accept is enabled; a user who may decide but not accept sees it disabled with a reason
  * @param summaryDialog - Dialog that loads and shows the coverage summary of the open scenario
  */
 
@@ -31,6 +32,7 @@ export class ScenarioBannerComponent {
 
   readonly activeScenario = this.analyseScenarioService.activeScenario;
   readonly canDecide = this.scenarioActions.canDecide;
+  readonly canAccept = this.scenarioActions.canAccept;
   readonly summaryDialog = viewChild.required<ScenarioSummaryDialogComponent>('summaryDialog');
 
   onShowSummary(): void {

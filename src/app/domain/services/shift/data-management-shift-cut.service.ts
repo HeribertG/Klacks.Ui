@@ -19,6 +19,15 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
+import { readScenarioVariantRefusalKey } from 'src/app/domain/models/schedule/scenario-variant-refusal.model';
+import { reportUnseenFailure } from 'src/app/domain/services/shared/report-unseen-failure.helper';
+import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
+import { environment } from 'src/environments/environment';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
+import {
+  SCENARIO_VARIANT_LEFT_FOR_FOREIGN_SHIFT_KEY,
+  SCENARIO_VARIANT_RETURN_ROUTE,
+} from 'src/app/domain/constants/scenario-variant.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +37,7 @@ export class DataManagementShiftCutService
 {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftCutsService = inject(DataShiftCutsService);
+  private scenarioVariantService = inject(ScenarioVariantService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -52,6 +62,7 @@ export class DataManagementShiftCutService
   public cutShiftsDummy: Shift[] = [];
 
   public onSaveCompleted?: () => void;
+  public onSaveRefused?: () => void;
   public onResetCompleted?: () => void;
   public onReadCompleted?: () => void;
 
@@ -65,6 +76,7 @@ export class DataManagementShiftCutService
         .getCutShiftList(id)
         .pipe(takeUntil(this.destroy$))
         .subscribe((x) => {
+          this.leaveVariantModeForForeignShifts(x);
           this.cutShifts = x;
           this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
@@ -99,6 +111,15 @@ export class DataManagementShiftCutService
 
   resetCutData(): void {
     this.cutShifts = cloneObject<Shift[]>(this.cutShiftsDummy);
+  }
+
+  private leaveVariantModeForForeignShifts(loaded: Shift[]): void {
+    if (this.scenarioVariantService.releaseWhenForeign(loaded)) {
+      this.eventBus.emit(DomainEventType.INFO, {
+        message: SCENARIO_VARIANT_LEFT_FOR_FOREIGN_SHIFT_KEY,
+        context: 'DataManagementShiftCutService.readCutShiftList',
+      });
+    }
   }
 
   private createCutShiftUrl(id: string): string {
@@ -179,12 +200,13 @@ export class DataManagementShiftCutService
           }
         },
         error: (error) => {
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'Batch Cut Error',
-            context: 'DataManagementShiftCutService.saveCuts',
-          });
           this._showProgressSpinner.set(false);
+          reportUnseenFailure(this.eventBus, error, 'Batch Cut Error', 'DataManagementShiftCutService.saveCuts');
+          if (readScenarioVariantRefusalKey(error) !== null || isBackendUnreachableError(error, environment.baseUrl)) {
+            this.onSaveRefused?.();
+            return;
+          }
+
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
@@ -216,11 +238,7 @@ export class DataManagementShiftCutService
           }
         },
         error: (error) => {
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'Reset Cut Error',
-            context: 'DataManagementShiftCutService.resetCuts',
-          });
+          reportUnseenFailure(this.eventBus, error, 'Reset Cut Error', 'DataManagementShiftCutService.resetCuts');
           this._showProgressSpinner.set(false);
         },
       });
@@ -294,6 +312,9 @@ export class DataManagementShiftCutService
   }
 
   goBack(): string {
+    if (this.scenarioVariantService.isVariantMode() || this.cutShifts.some((cut) => cut.analyseToken)) {
+      return SCENARIO_VARIANT_RETURN_ROUTE;
+    }
     return '/workplace/shift';
   }
 

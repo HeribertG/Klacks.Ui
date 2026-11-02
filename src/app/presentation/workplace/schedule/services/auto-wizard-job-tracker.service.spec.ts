@@ -36,7 +36,7 @@ describe('AutoWizardJobTrackerService', () => {
   const isRead = signal({ count: 0, resetScroll: false });
   let schedule: { periodStartDate: Date | null; periodEndDate: Date | null; isRead: typeof isRead; readDatas: ReturnType<typeof vi.fn> };
   let tracker: AutoWizardJobTrackerService;
-  let selectScenario: ReturnType<typeof vi.fn>;
+  let openCreatedScenario: ReturnType<typeof vi.fn>;
 
   function storedPending(): unknown {
     return JSON.parse(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO) ?? 'null');
@@ -57,7 +57,7 @@ describe('AutoWizardJobTrackerService', () => {
     sessionStorage.clear();
     selectedGroupId.set(undefined);
     visibleEntity.set(EntityName.SCHEDULE);
-    selectScenario = vi.fn();
+    openCreatedScenario = vi.fn().mockResolvedValue(true);
     schedule = {
       periodStartDate: new Date(2026, 5, 1),
       periodEndDate: new Date(2026, 5, 7),
@@ -78,7 +78,7 @@ describe('AutoWizardJobTrackerService', () => {
           },
         },
         { provide: ENTITY_STATE_PROVIDER_TOKEN, useValue: { nameOfVisibleEntity: visibleEntity } },
-        { provide: AnalyseScenarioService, useValue: { scenarios: signal([]), selectScenario } },
+        { provide: AnalyseScenarioService, useValue: { openCreatedScenario } },
         { provide: DataManagementScheduleService, useValue: schedule },
         { provide: TranslateService, useValue: { instant: (key: string) => key } },
       ],
@@ -161,7 +161,7 @@ describe('AutoWizardJobTrackerService', () => {
     TestBed.tick();
 
     // Assert
-    expect(selectScenario).toHaveBeenCalledTimes(1);
+    expect(openCreatedScenario).toHaveBeenCalledTimes(1);
     expect(tracker.pendingScenarios()).toEqual([]);
   });
 
@@ -195,7 +195,7 @@ describe('AutoWizardJobTrackerService', () => {
     TestBed.tick();
 
     // Assert
-    expect(selectScenario.mock.calls.map(([s]) => s.id)).toEqual(['s-9', 's-2']);
+    expect(openCreatedScenario.mock.calls.map(([id]) => id)).toEqual(['s-9', 's-2']);
     expect(storedPending()).toBeNull();
   });
 
@@ -206,14 +206,14 @@ describe('AutoWizardJobTrackerService', () => {
     schedule.periodEndDate = new Date(2026, 6, 7);
     tracker.setPending(PENDING_G1);
     TestBed.tick();
-    const selectedOnOtherPeriod = selectScenario.mock.calls.length;
+    const selectedOnOtherPeriod = openCreatedScenario.mock.calls.length;
 
     // Act
     showPeriod(new Date(2026, 5, 1), new Date(2026, 5, 7));
 
     // Assert
     expect(selectedOnOtherPeriod).toBe(0);
-    expect(selectScenario).toHaveBeenCalledTimes(1);
+    expect(openCreatedScenario).toHaveBeenCalledTimes(1);
     expect(tracker.pendingScenarios()).toEqual([]);
   });
 
@@ -255,7 +255,7 @@ describe('AutoWizardJobTrackerService', () => {
       // Act
       const reloaded = reload();
       TestBed.tick();
-      const selectedOnOtherGroup = selectScenario.mock.calls.length;
+      const selectedOnOtherGroup = openCreatedScenario.mock.calls.length;
       selectedGroupId.set('g1');
       TestBed.tick();
       selectedGroupId.set('g2');
@@ -265,8 +265,8 @@ describe('AutoWizardJobTrackerService', () => {
 
       // Assert
       expect(selectedOnOtherGroup).toBe(0);
-      expect(selectScenario).toHaveBeenCalledTimes(1);
-      expect(selectScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 's-9', token: 't-9' }));
+      expect(openCreatedScenario).toHaveBeenCalledTimes(1);
+      expect(openCreatedScenario).toHaveBeenCalledWith('s-9');
       expect(reloaded.pendingScenarios()).toEqual([]);
       expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO)).toBeNull();
     });
@@ -281,7 +281,7 @@ describe('AutoWizardJobTrackerService', () => {
 
       // Assert
       expect(reloaded.pendingScenarios()).toEqual([]);
-      expect(selectScenario).not.toHaveBeenCalled();
+      expect(openCreatedScenario).not.toHaveBeenCalled();
       expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_PENDING_SCENARIO)).toBeNull();
     });
   });

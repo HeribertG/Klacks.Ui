@@ -23,6 +23,11 @@ import { BackendAvailabilityService } from 'src/app/application/services/backend
 import { environment } from 'src/environments/environment';
 import { KLACKSY_LEARNING_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/klacksy-learning.constants';
 import { CLIENT_IMPORT_API_SEGMENT } from 'src/app/domain/constants/client-import.constants';
+import {
+  SCENARIO_VARIANT_REFUSAL_TOAST_NAME,
+  SCENARIO_VARIANT_SHIFT_REFUSED_KEY,
+} from 'src/app/domain/constants/scenario-variant.constants';
+import { readScenarioVariantConflictKey } from 'src/app/domain/models/schedule/scenario-variant-refusal.model';
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
@@ -30,11 +35,19 @@ import { ERP_DROP_POINT_FILES_PATH } from 'src/app/domain/constants/erp-import-f
 import { SttErrorCodes } from 'src/app/domain/constants/speech-constants';
 import { PLAYGROUND_STATUS_PATH } from 'src/app/domain/constants/playground.constants';
 import { playgroundHttpErrorI18nKey } from 'src/app/domain/helpers/playground-token-limit.helper';
+import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
 import { STT_TRANSCRIBE_ENDPOINT } from 'src/app/domain/constants/stt-endpoints.constants';
 import { WORK_CONFLICT } from 'src/app/domain/constants/work-conflict.constants';
 import { WORK_REFUSAL_EXPLAIN } from 'src/app/domain/constants/work-refusal-explain.constants';
 import { WorkConflictMessageService, readWorkConflictProblem } from './work-conflict-message.service';
 import { WorkConflictTarget } from './work-conflict-target.interface';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
+import {
+  isScenarioCreateRefusal,
+  isScenarioVariantEndpointRefusal,
+  isScenarioVariantPanelRead,
+  isVariantShiftSaveRefusal,
+} from './scenario-variant-pass-through.helper';
 import { WorkRefusalExplainService } from 'src/app/presentation/services/work-refusal-explain.service';
 import { IToastAction } from '../toast/toast-action.interface';
 import {
@@ -58,8 +71,6 @@ export class ResponseInterceptor implements HttpInterceptor {
   private backendAvailabilityService = inject(BackendAvailabilityService);
   private injector = inject(Injector);
 
-  private static readonly GATEWAY_FAILURE_STATUS_CODES = [502, 504];
-  private static readonly API_PATH_PREFIX = '/api/';
   private static readonly KNOWLEDGE_INDEX_SYNC_STATUS_PATH = 'knowledge-index/sync-status';
   private static readonly QUIET_CALLER_HANDLED_PATHS: readonly string[] = [
     ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH,
@@ -127,9 +138,10 @@ export class ResponseInterceptor implements HttpInterceptor {
           !this.isQuietCallerHandledRequest(error) &&
           !this.isGeoServicesPassThrough(error.url || '') &&
           !this.isUnsupportedSttLanguage(error, req) &&
-          !this.playgroundErrorKey(error)
+          !this.playgroundErrorKey(error) &&
+          !isScenarioVariantPanelRead(req)
         ) {
-          this.resetUIState(error);
+          this.resetUIState(error, req);
         }
         return this.handleSpecificErrors(error, req);
       })
@@ -157,8 +169,9 @@ export class ResponseInterceptor implements HttpInterceptor {
     return playgroundHttpErrorI18nKey(error.status, error.error?.errorCode);
   }
 
-  private resetUIState(error: HttpErrorResponse): void {
-    if (!this.isBackendUnreachable(error)) {
+  // A refusal of a key says nothing about what the user typed, so the form stays dirty; the spinner still ends.
+  private resetUIState(error: HttpErrorResponse, req: HttpRequest<unknown>): void {
+    if (!this.isBackendUnreachable(error) && !this.isScenarioVariantRefusal(error, req)) {
       this.workplaceStateService.isDirty = false;
     }
     this.workplaceStateService.showProgressSpinner(false);
@@ -215,11 +228,55 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    if (url.includes('AnalyseScenarios/') && url.includes('/Accept') && error.status === 409) {
+    // Accept explains a conflict (stale plan, compliance block, key already consumed) and a missing right (403 for a
+    // scenario with keys) with its own dialogs and toasts.
+    if (
+      url.includes('AnalyseScenarios/') &&
+      url.includes('/Accept') &&
+      (error.status === HttpStatusCode.Conflict || error.status === HttpStatusCode.Forbidden)
+    ) {
       return throwError(() => error);
     }
 
-    if (url.includes('AnalyseScenarios/') && url.includes('/Summary') && error.status === 404) {
+    // The summary dialog shows its own unavailable or failed state and the accept confirmation falls back to its plain
+    // text, so no failure of the summary may toast or navigate to the error page.
+    if (url.includes('AnalyseScenarios/') && url.includes('/Summary')) {
+      return throwError(() => error);
+    }
+
+    // The variant (key) dialog explains refused input, a vanished key and a key still used by a scenario itself.
+    if (isScenarioVariantEndpointRefusal(error)) {
+      return throwError(() => error);
+    }
+
+    // The dialog for a new scenario explains every failed create in its own error line, with or without chosen keys, so a
+    // refusal needs no second message. A server failure keeps the generic handling.
+    if (isScenarioCreateRefusal(error, req)) {
+      return throwError(() => error);
+    }
+
+    // Every dialog that reads the key list and the shift panel of a key show their own failed state whatever the status,
+    // so a failed read must neither toast nor navigate to the error page and throw the open dialog away.
+    if (isScenarioVariantPanelRead(req)) {
+      return throwError(() => error);
+    }
+
+    // A shift screen saving into a key that is frozen, consumed or has cuts: explained in the user's language.
+    const scenarioVariantConflictKey = readScenarioVariantConflictKey(error);
+    if (scenarioVariantConflictKey) {
+      this.toastShowService.showError(
+        this.translateService.instant(scenarioVariantConflictKey),
+        SCENARIO_VARIANT_REFUSAL_TOAST_NAME,
+      );
+      return throwError(() => error);
+    }
+
+    // A key shift the server refused as invalid (period, customer, group), saved or cut: the form keeps what was typed.
+    if (this.isVariantShiftRefusal(error, req)) {
+      this.toastShowService.showError(
+        this.translateService.instant(SCENARIO_VARIANT_SHIFT_REFUSED_KEY),
+        SCENARIO_VARIANT_REFUSAL_TOAST_NAME,
+      );
       return throwError(() => error);
     }
 
@@ -351,6 +408,18 @@ export class ResponseInterceptor implements HttpInterceptor {
       error.error?.code === SttErrorCodes.UnsupportedLanguage &&
       req.url.split('?')[0].endsWith(STT_TRANSCRIBE_ENDPOINT)
     );
+  }
+
+  private isScenarioVariantRefusal(error: HttpErrorResponse, req: HttpRequest<unknown>): boolean {
+    return (
+      isScenarioVariantEndpointRefusal(error) ||
+      readScenarioVariantConflictKey(error) !== null ||
+      this.isVariantShiftRefusal(error, req)
+    );
+  }
+
+  private isVariantShiftRefusal(error: HttpErrorResponse, req: HttpRequest<unknown>): boolean {
+    return isVariantShiftSaveRefusal(error, req, () => this.injector.get(ScenarioVariantService).isVariantMode());
   }
 
   private isGeoServicesPassThrough(url: string): boolean {
@@ -694,32 +763,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   // marketplace is unavailable, and treating that as a dead backend would hide the real error and
   // reload the page in a loop.
   private isBackendUnreachable(error: HttpErrorResponse): boolean {
-    return error.status === 0 || this.isGatewayFailure(error);
-  }
-
-  private isGatewayFailure(error: HttpErrorResponse): boolean {
-    return (
-      ResponseInterceptor.GATEWAY_FAILURE_STATUS_CODES.includes(error.status) &&
-      this.isOwnApiUrl(error.url || '')
-    );
-  }
-
-  private isOwnApiUrl(url: string): boolean {
-    if (!url) {
-      return false;
-    }
-    if (url.startsWith(environment.baseUrl)) {
-      return true;
-    }
-    try {
-      const target = new URL(url, window.location.origin);
-      return (
-        target.origin === window.location.origin &&
-        target.pathname.startsWith(ResponseInterceptor.API_PATH_PREFIX)
-      );
-    } catch {
-      return false;
-    }
+    return isBackendUnreachableError(error, environment.baseUrl);
   }
 
   private isSpecific500Error(url: string): boolean {

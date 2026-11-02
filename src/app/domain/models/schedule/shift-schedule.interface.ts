@@ -24,4 +24,5 @@ export interface IShiftSchedule {
   sporadicStatus: SporadicStatus;
   periodBookedDays: number;
   qualifications: IScheduleQualification[];
+  isVariantShift: boolean;
 }

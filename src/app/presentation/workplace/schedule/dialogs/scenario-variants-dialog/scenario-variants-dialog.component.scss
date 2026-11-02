@@ -1,0 +1,99 @@
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+$cell-padding-block: 6px;
+$cell-padding-inline: 8px;
+$section-gap: 12px;
+
+:host {
+  display: none;
+}
+
+.group-name {
+  font-weight: 400;
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  gap: $section-gap;
+  margin-block-end: $section-gap;
+}
+
+.filler {
+  flex: 1 1 auto;
+}
+
+.list-hint {
+  color: var(--colorLabel);
+  font-size: 13px;
+}
+
+.dialog-state,
+.dialog-note {
+  margin-block-end: $section-gap;
+  color: var(--standartTextColor);
+}
+
+.dialog-state-error,
+.error-message {
+  color: var(--standartRedColor);
+}
+
+.error-message {
+  margin-block-end: $section-gap;
+}
+
+.variant-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: $cell-padding-block $cell-padding-inline;
+    border-bottom: 1px solid var(--colorLine);
+    text-align: start;
+    color: var(--standartTextColor);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--colorLabel);
+  }
+}
+
+.number-column {
+  text-align: end;
+}
+
+.variant-name {
+  font-weight: 600;
+}
+
+.variant-expired-badge {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--alertWarningBorder);
+  border-radius: 4px;
+  background: var(--alertWarningBackground);
+  color: var(--alertWarningText);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.variant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.form-row {
+  display: flex;
+  gap: $section-gap;
+
+  .form-group {
+    flex: 1 1 0;
+  }
+}

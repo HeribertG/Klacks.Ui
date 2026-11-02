@@ -25,4 +25,5 @@ export class ShiftSchedule implements IShiftSchedule {
   sporadicStatus = SporadicStatus.None;
   periodBookedDays = 0;
   qualifications: IScheduleQualification[] = [];
+  isVariantShift = false;
 }

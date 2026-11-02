@@ -79,6 +79,7 @@ function createMockShiftSchedule(overrides: Partial<IShiftSchedule> = {}): IShif
     periodBookedDays: 0,
     engaged: 2,
     qualifications: [],
+    isVariantShift: false,
     ...overrides,
   };
 }

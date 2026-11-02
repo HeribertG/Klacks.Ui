@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { EmbeddedViewRef, signal, ViewContainerRef, WritableSignal } from '@angular/core';
+import type { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -59,7 +60,10 @@ describe('HolisticHarmonizerDialogComponent', () => {
     status: WritableSignal<HolisticHarmonizerStatus>;
     failureReason: WritableSignal<string | null>;
     currentJobId: WritableSignal<string | null>;
+    applyAsScenario: Mock;
   };
+  let openCreatedScenario: Mock;
+  let readDatas: Mock;
 
   beforeEach(async () => {
     serviceMock = {
@@ -68,7 +72,10 @@ describe('HolisticHarmonizerDialogComponent', () => {
       status: signal<HolisticHarmonizerStatus>('idle'),
       failureReason: signal<string | null>(null),
       currentJobId: signal<string | null>(null),
+      applyAsScenario: vi.fn().mockResolvedValue({ scenarioId: 'scenario-1', scenarioName: 'Harmonized', scenarioToken: 'token-1' }),
     };
+    openCreatedScenario = vi.fn().mockResolvedValue(true);
+    readDatas = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [HolisticHarmonizerDialogComponent, TranslateModule.forRoot()],
@@ -76,8 +83,8 @@ describe('HolisticHarmonizerDialogComponent', () => {
         ...APP_PORT_BINDINGS,
         { provide: CollisionDetectionService, useValue: { errorEntries: signal([]) } },
         { provide: DataHolisticHarmonizerService, useValue: serviceMock },
-        { provide: DataManagementScheduleService, useValue: { clients: [], readDatas: vi.fn() } },
-        { provide: AnalyseScenarioService, useValue: { activeToken: () => null } },
+        { provide: DataManagementScheduleService, useValue: { clients: [], readDatas, workFilter: {} } },
+        { provide: AnalyseScenarioService, useValue: { activeToken: () => null, openCreatedScenario } },
         {
           provide: AppSettingsManagementService,
           useValue: {

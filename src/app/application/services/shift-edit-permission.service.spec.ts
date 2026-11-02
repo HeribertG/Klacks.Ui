@@ -10,7 +10,7 @@ import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 
 describe('ShiftEditPermissionService', () => {
   let held: Set<string>;
-  let shiftService: { editShift: Partial<IShift> | undefined };
+  let shiftService: { editShift: Partial<IShift> | undefined; isCurrentShiftStatusLocked: () => boolean };
 
   const createService = (): ShiftEditPermissionService => {
     TestBed.configureTestingModule({
@@ -28,7 +28,7 @@ describe('ShiftEditPermissionService', () => {
 
   beforeEach(() => {
     held = new Set<string>();
-    shiftService = { editShift: undefined };
+    shiftService = { editShift: undefined, isCurrentShiftStatusLocked: () => false };
   });
 
   it('demands CanCreateShifts for a shift that has no id yet, which is the new-shift route', () => {
@@ -67,35 +67,16 @@ describe('ShiftEditPermissionService', () => {
     expect(createService().canWriteCurrentShift()).toBe(false);
   });
 
-  describe('isCurrentShiftStatusLocked', () => {
-    it('does not lock a new clientless shift that is prepared as SealedOrder', () => {
-      shiftService.editShift = { id: undefined, status: ShiftStatus.SealedOrder, isClientless: true };
+  it.each([true, false])('hands on the status lock of the shift service (%s)', (locked) => {
+    shiftService.isCurrentShiftStatusLocked = () => locked;
 
-      expect(createService().isCurrentShiftStatusLocked()).toBe(false);
-    });
+    expect(createService().isCurrentShiftStatusLocked()).toBe(locked);
+  });
 
-    it('locks a saved SealedOrder shift', () => {
-      shiftService.editShift = { id: 'shift-1', status: ShiftStatus.SealedOrder };
+  it('keeps the write right apart: a planner without it may not write the shift of a key', () => {
+    shiftService.editShift = { id: 'shift-1', status: ShiftStatus.SealedOrder, analyseToken: 'key-token' };
+    shiftService.isCurrentShiftStatusLocked = () => false;
 
-      expect(createService().isCurrentShiftStatusLocked()).toBe(true);
-    });
-
-    it('locks a saved cut shift', () => {
-      shiftService.editShift = { id: 'shift-1', status: ShiftStatus.SplitShift };
-
-      expect(createService().isCurrentShiftStatusLocked()).toBe(true);
-    });
-
-    it('does not lock an OriginalOrder shift', () => {
-      shiftService.editShift = { id: 'shift-1', status: ShiftStatus.OriginalOrder };
-
-      expect(createService().isCurrentShiftStatusLocked()).toBe(false);
-    });
-
-    it('does not lock while no shift is loaded', () => {
-      shiftService.editShift = undefined;
-
-      expect(createService().isCurrentShiftStatusLocked()).toBe(false);
-    });
+    expect(createService().canWriteCurrentShift()).toBe(false);
   });
 });

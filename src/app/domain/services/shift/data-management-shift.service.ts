@@ -37,6 +37,21 @@ import { takeUntil } from 'rxjs';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import {
+  hasShiftScheduleChange,
+  SHIFT_DATE_FIELDS,
+  SHIFT_TIME_FIELDS,
+} from 'src/app/domain/helpers/shift-schedule-change.helper';
+import { readScenarioVariantRefusalKey } from 'src/app/domain/models/schedule/scenario-variant-refusal.model';
+import { reportUnseenFailure } from 'src/app/domain/services/shared/report-unseen-failure.helper';
+import { isBackendUnreachableError } from 'src/app/domain/helpers/backend-unreachable.helper';
+import { environment } from 'src/environments/environment';
+import { ScenarioVariantService } from 'src/app/domain/services/schedule/scenario-variant.service';
+import {
+  SCENARIO_VARIANT_LEFT_FOR_FOREIGN_SHIFT_KEY,
+  SCENARIO_VARIANT_RETURN_ROUTE,
+} from 'src/app/domain/constants/scenario-variant.constants';
+import { Group } from 'src/app/domain/models/group/group-class';
 
 @Injectable({
   providedIn: 'root',
@@ -54,6 +69,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
   private dataManagementGroupService = inject(DataManagementGroupService);
+  private scenarioVariantService = inject(ScenarioVariantService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
   private checkboxState = new CheckboxStateService();
@@ -91,6 +107,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public editGroup: IShift | undefined;
 
   public onSaveCompleted?: () => void;
+  public onSaveRefused?: () => void;
   public onBeforeSave?: () => void;
   public onReadCompleted?: () => void;
   public onExternalFilterChange?: () => void;
@@ -293,7 +310,30 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     value.isClientless = clientless;
     this.pendingClientlessCreation.set(false);
 
+    this.assignActiveVariant(value);
+
     return value;
+  }
+
+  /**
+   * A shift of a key must have a group of the key's group hierarchy, lie inside the key's period with a set end, and carry
+   * the key's token, or the backend refuses it or makes it a real draft. A new shift in variant mode therefore starts in
+   * the key's group and period with the key's token, set together when the form opens, so ending variant mode before the
+   * save cannot leave a real shift in the key's group. All of it is part of the baseline, so it is not an unsaved change.
+   */
+  private assignActiveVariant(shift: Shift): void {
+    const variant = this.scenarioVariantService.activeVariant();
+    if (!variant) {
+      return;
+    }
+
+    const group =
+      this.dataManagementGroupService.flatNodeList.find((node) => node.id === variant.groupId) ??
+      new Group({ id: variant.groupId });
+    shift.groups = [group];
+    shift.fromDate = parseCalendarDate(variant.fromDate) ?? shift.fromDate;
+    shift.untilDate = parseCalendarDate(variant.untilDate) ?? undefined;
+    shift.analyseToken = variant.token;
   }
 
   prepareShift(value: Shift) {
@@ -314,11 +354,21 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     return '/workplace/edit-shift/' + this.editShift!.id;
   }
 
+  private leaveVariantModeForForeignShift(loaded: IShift): void {
+    if (this.scenarioVariantService.releaseWhenForeign([loaded])) {
+      this.eventBus.emit(DomainEventType.INFO, {
+        message: SCENARIO_VARIANT_LEFT_FOR_FOREIGN_SHIFT_KEY,
+        context: 'DataManagementShiftService.readShift',
+      });
+    }
+  }
+
   readShift(id: string) {
     if (id !== '') {
       this.dataShiftService.getShift(id)
         .pipe(takeUntil(this.destroy$))
         .subscribe((x) => {
+          this.leaveVariantModeForForeignShift(x);
           const shift = this.createShiftFromPlainObject(x);
           if (shift.fromDate && x.client) {
             const index = this.setCurrentAddressIndex(x.client, shift.fromDate);
@@ -459,17 +509,19 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
             this.isSaveAndClose = false;
           },
           error: (error) => {
+            reportUnseenFailure(this.eventBus, error, 'ShiftError', 'DataManagementShiftService.saveEditShift');
+            if (readScenarioVariantRefusalKey(error) !== null || isBackendUnreachableError(error, environment.baseUrl)) {
+              this.isSaveAndClose = false;
+              this.onSaveRefused?.();
+              return;
+            }
+
             if (this.editShift?.id) {
               this.readShift(this.editShift.id);
             } else {
               this.createShift();
             }
 
-            this.eventBus.emit(DomainEventType.ERROR, {
-              message: error,
-              code: 'ShiftError',
-              context: 'DataManagementShiftService.saveEditShift'
-            });
             if (this.onSaveCompleted) {
               this.onSaveCompleted();
             }
@@ -479,27 +531,37 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     }
   }
 
-  private static readonly DIRTY_EXCLUDE_FIELDS = [
-    'startShift',
-    'endShift',
-    'beforeShift',
-    'afterShift',
-    'fromDate',
-    'untilDate',
-    'travelTimeAfter',
-    'travelTimeBefore',
-    'workTime',
-  ];
+  /**
+   * Compared by meaning in hasShiftScheduleChange, because the form writes them back in another format; workTime follows
+   * from start and end and does not survive the form's minutes exactly.
+   */
+  private static readonly DIRTY_EXCLUDE_FIELDS = [...SHIFT_DATE_FIELDS, ...SHIFT_TIME_FIELDS, 'workTime'];
 
   private hasUnsavedChanges(): boolean {
     if (!this.editShift || !this.editShiftDummy) {
       return false;
     }
-    return !compareComplexObjects(
-      this.editShift as IShift,
-      this.editShiftDummy as IShift,
-      DataManagementShiftService.DIRTY_EXCLUDE_FIELDS
+    return (
+      !compareComplexObjects(
+        this.editShift as IShift,
+        this.editShiftDummy as IShift,
+        DataManagementShiftService.DIRTY_EXCLUDE_FIELDS
+      ) || (!this.isCurrentShiftStatusLocked() && hasShiftScheduleChange(this.editShift, this.editShiftDummy))
     );
+  }
+
+  /**
+   * Whether the status of the open shift freezes its fields. A new shift never is, because a clientless duty is prepared as
+   * SealedOrder before its first save, and neither is the sealed order of the key being edited, because a key shift is
+   * always sealed and stays editable until a scenario takes it over. A locked shift does not count a date or time as a
+   * change: the save writes one row, and the rows of a real family would run apart.
+   */
+  isCurrentShiftStatusLocked(): boolean {
+    const shift = this.editShift;
+    if (!shift?.id) return false;
+    if (shift.status === undefined || shift.status === ShiftStatus.OriginalOrder) return false;
+
+    return shift.status !== ShiftStatus.SealedOrder || !this.scenarioVariantService.ownsShift(shift);
   }
 
   private isEditShift_Dirty(): boolean {
@@ -555,6 +617,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   }
 
   areObjectsDirty(): boolean {
+    this.onBeforeSave?.();
     if (this.isEditShift_Dirty()) {
       return true;
     }
@@ -682,6 +745,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   goBack(): string {
     if (this.returnUrl) {
       return this.returnUrl;
+    }
+    if (this.scenarioVariantService.isVariantMode() || this.editShift?.analyseToken) {
+      return SCENARIO_VARIANT_RETURN_ROUTE;
     }
     return '/workplace/shift';
   }

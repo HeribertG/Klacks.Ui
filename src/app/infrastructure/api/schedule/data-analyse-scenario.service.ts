@@ -58,9 +58,7 @@ export class DataAnalyseScenarioService {
   }
 
   create(request: ICreateAnalyseScenarioRequest): Observable<IAnalyseScenario> {
-    return this.httpClient
-      .post<IAnalyseScenario>(this.baseUrl, request)
-      .pipe(retry(3));
+    return this.httpClient.post<IAnalyseScenario>(this.baseUrl, request);
   }
 
   accept(id: string, overrides: IScenarioAcceptOverrides = NO_SCENARIO_ACCEPT_OVERRIDES): Observable<IScenarioAcceptResult | null> {

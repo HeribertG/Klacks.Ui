@@ -19,9 +19,20 @@
       </button>
       <div class="dropdown-divider"></div>
       @if (canDecide()) {
-        <button id="scenario-selector-accept-item" ngbDropdownItem class="text-success" (click)="onAccept()">
-          {{ "scenario.accept" | translate }}
-        </button>
+        <div
+          id="scenario-selector-accept-wrap"
+          [attr.title]="canAccept() ? null : ('scenarioVariant.accept.needsShiftRight' | translate)"
+        >
+          <button
+            id="scenario-selector-accept-item"
+            ngbDropdownItem
+            class="text-success"
+            [disabled]="!canAccept()"
+            (click)="onAccept()"
+          >
+            {{ "scenario.accept" | translate }}
+          </button>
+        </div>
         <button id="scenario-selector-reject-item" ngbDropdownItem class="text-danger" (click)="onReject()">
           {{ "scenario.reject" | translate }}
         </button>
@@ -47,6 +58,9 @@
     <button id="scenario-selector-create-item" class="new-btn" ngbDropdownItem (click)="onCreateNew()">
       + {{ "scenario.create" | translate }}
     </button>
+    <button id="scenario-selector-variants-item" ngbDropdownItem (click)="onManageVariants()">
+      {{ "scenarioVariant.menu" | translate }}
+    </button>
     @if (analyseScenarioService.scenarios().length > 0) {
       <div class="dropdown-divider"></div>
       <button id="scenario-selector-delete-all-item" ngbDropdownItem class="text-danger" (click)="onDeleteAll()">
@@ -58,3 +72,4 @@
 <app-create-scenario-dialog #createScenarioDialog />
 <app-rename-scenario-dialog #renameScenarioDialog />
 <app-delete-all-scenarios-dialog #deleteAllScenariosDialog />
+<app-scenario-variants-dialog #scenarioVariantsDialog />

@@ -5,4 +5,6 @@ export interface ISaveable {
   canSave?(): boolean;
   save(): void;
   onSaveCompleted?: () => void;
+  /** The server refused the input: the form and what was typed stay, so the save is neither finished nor closed. */
+  onSaveRefused?: () => void;
 }

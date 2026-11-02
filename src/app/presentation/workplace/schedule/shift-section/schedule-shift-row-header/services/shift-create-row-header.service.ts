@@ -5,7 +5,7 @@
  *
  * @description
  * Service responsible for creating and rendering shift row header content.
- * Draws shift information including name, abbreviation, and type icons.
+ * Draws shift information including name, abbreviation, and type icons, and a corner marker on shifts of a key.
  * Creates cached canvas images for performance optimization.
  *
  * @relations
@@ -34,6 +34,7 @@ import {
   computeShiftQualificationBubbleLayout,
 } from './shift-qualification-bubble-layout';
 import { drawQualificationBubbles } from '../../../shared/qualification-bubbles/qualification-bubble-renderer';
+import { computeShiftVariantMarkerBounds, drawShiftVariantMarker } from './shift-variant-marker';
 
 @Injectable()
 export class ShiftCreateRowHeaderService {
@@ -100,6 +101,7 @@ export class ShiftCreateRowHeaderService {
       this.drawShiftName(ctx, row, rec);
       this.drawSporadicBubble(ctx, row, rec);
       this.drawQualificationBubbles(ctx, row, rec);
+      this.drawVariantMarker(ctx, row, rec);
     } else {
       this.fillEmptyBackground(ctx, rec);
     }
@@ -211,6 +213,16 @@ export class ShiftCreateRowHeaderService {
     ctx.textBaseline = 'middle';
     ctx.fillText(char, cx, cy);
     ctx.restore();
+  }
+
+  private drawVariantMarker(ctx: CanvasRenderingContext2D, row: number, rec: Rectangle): void {
+    if (!this.shiftData.getShiftIsVariant(row)) {
+      return;
+    }
+
+    const isRtl = document.documentElement.dir === 'rtl';
+    const bounds = computeShiftVariantMarkerBounds(rec.left, rec.top, rec.width, this.settings.zoom, isRtl);
+    drawShiftVariantMarker(ctx, bounds, isRtl, this.gridColors.variantMarkerColor);
   }
 
   private drawQualificationBubbles(

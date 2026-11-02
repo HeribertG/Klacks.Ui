@@ -49,6 +49,40 @@ describe('DataShiftService', () => {
         return shift;
     };
 
+    describe('a refused write', () => {
+        it.each([400, 404, 409])('is not repeated on %s', (status) => {
+            service.updateShift(mockShift() as IShift).subscribe({ error: () => undefined });
+            httpTestingController.expectOne(`${environment.baseUrl}Shifts/`).flush(null, { status, statusText: 'Refused' });
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/`);
+
+            service.addShift(mockShift() as IShift).subscribe({ error: () => undefined });
+            httpTestingController.expectOne(`${environment.baseUrl}Shifts/`).flush(null, { status, statusText: 'Refused' });
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/`);
+        });
+
+        it.each([0, 500, 503])('addShift sends exactly one POST on a transient failure (%s)', (status) => {
+            let failed = false;
+            service.addShift(mockShift() as IShift).subscribe({ error: () => (failed = true) });
+
+            httpTestingController
+                .expectOne(`${environment.baseUrl}Shifts/`)
+                .flush(null, { status, statusText: 'Unavailable' });
+
+            httpTestingController.expectNone(`${environment.baseUrl}Shifts/`);
+            expect(failed).toBe(true);
+        });
+
+        it('is repeated on a server failure', () => {
+            service.updateShift(mockShift() as IShift).subscribe({ error: () => undefined });
+
+            for (let attempt = 0; attempt < 4; attempt++) {
+                httpTestingController
+                    .expectOne(`${environment.baseUrl}Shifts/`)
+                    .flush(null, { status: 503, statusText: 'Unavailable' });
+            }
+        });
+    });
+
     describe('calendar date wire format', () => {
         const ZONES = ['Asia/Kolkata', 'America/New_York'] as const;
 

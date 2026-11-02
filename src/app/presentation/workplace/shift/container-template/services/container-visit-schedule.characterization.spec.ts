@@ -3,7 +3,10 @@
 /**
  * Characterization of the container visit schedule against the production services. The cases live in
  * container-visit-schedule-cases.json, a byte-identical copy of which drives the Klacks.Api port in Klacks.UnitTest;
- * both sides pin the same SHA-256, so a case edited on one side only fails on both.
+ * both sides pin the same SHA-256, so a case edited on one side only fails on both. The cases run applyOptimizedRoute with
+ * keepUnroutedItems = false, the variant of the autofill (applyAutofillResult), which writes only what the route holds. The
+ * optimize button passes true and keeps unrouted items: container-template-route.service.unrouted.spec.ts pins that, so a
+ * case note "an item missing from the route is dropped" holds for the autofill only.
  */
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
@@ -141,7 +144,7 @@ function runCase(testCase: VisitScheduleCase): CaseOutput {
   return { items: written, timeBlocks };
 }
 
-describe('container visit schedule characterization', () => {
+describe('container visit schedule characterization (autofill variant, keepUnroutedItems = false)', () => {
   const actuals: Record<string, CaseOutput> = {};
 
   beforeAll(() => {
@@ -168,7 +171,7 @@ describe('container visit schedule characterization', () => {
   });
 
   for (const testCase of caseFile.cases) {
-    it(`matches the oracle: ${testCase.name}`, () => {
+    it(`matches the autofill oracle: ${testCase.name}`, () => {
       // Act
       const actual = actuals[testCase.name];
 

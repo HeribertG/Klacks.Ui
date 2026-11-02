@@ -5,4 +5,5 @@ export interface ErrorEvent {
   messageParams?: Record<string, unknown>;
   code?: string;
   context?: string;
+  showDuringOutage?: boolean;
 }

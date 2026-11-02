@@ -7,8 +7,12 @@
 <div class="schedule-scenario-banner">
   <app-scenario-banner />
 </div>
+} @else if (isVariantMode()) {
+<div class="schedule-scenario-banner">
+  <app-variant-mode-bar />
+</div>
 }
-<div id="schedule-body" class="schedule-body" [class.with-scenario-banner]="isScenarioMode()">
+<div id="schedule-body" class="schedule-body" [class.with-scenario-banner]="isScenarioMode() || isVariantMode()">
   <app-schedule-container [zoom]="currentZoom" [refreshTrigger]="refreshTrigger"></app-schedule-container>
 </div>
 }

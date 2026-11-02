@@ -1,0 +1,13 @@
+@if (activeVariant(); as variant) {
+  <div id="variant-mode-bar" class="variant-bar" role="status" aria-live="polite">
+    <span class="variant-bar-indicator" aria-hidden="true"></span>
+    <div class="variant-bar-text" [title]="variant.name + ' - ' + ('scenarioVariant.bar.hint' | translate)">
+      <span class="variant-bar-label">{{ "scenarioVariant.bar.label" | translate }}</span>
+      <span id="variant-mode-bar-name" class="variant-bar-name">{{ variant.name }}</span>
+      <span class="variant-bar-hint">{{ "scenarioVariant.bar.hint" | translate }}</span>
+    </div>
+    <button id="variant-mode-bar-end-btn" type="button" class="btn btn-sm btn-outline-secondary" (click)="onEnd()">
+      {{ "scenarioVariant.bar.end" | translate }}
+    </button>
+  </div>
+}

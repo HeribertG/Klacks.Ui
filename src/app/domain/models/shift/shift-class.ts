@@ -56,4 +56,5 @@ export class Shift implements IShift {
   isNew?: boolean = false;
   defaultExpenses: IShiftExpense[] = [];
   requiredQualifications: IShiftRequiredQualification[] = [];
+  analyseToken?: string;
 }

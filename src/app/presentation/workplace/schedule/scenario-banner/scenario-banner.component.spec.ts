@@ -30,8 +30,10 @@ describe('ScenarioBannerComponent', () => {
   let activeScenario: WritableSignal<IAnalyseScenario | null>;
   let loadSummary: ReturnType<typeof vi.fn>;
   let canDecide: WritableSignal<boolean>;
+  let canAccept: WritableSignal<boolean>;
   let actions: {
     canDecide: WritableSignal<boolean>;
+    canAccept: WritableSignal<boolean>;
     confirmAccept: ReturnType<typeof vi.fn>;
     confirmReject: ReturnType<typeof vi.fn>;
     exit: ReturnType<typeof vi.fn>;
@@ -49,8 +51,9 @@ describe('ScenarioBannerComponent', () => {
   beforeEach(() => {
     activeScenario = signal<IAnalyseScenario | null>(scenario);
     canDecide = signal(true);
+    canAccept = signal(true);
     loadSummary = vi.fn().mockReturnValue(of(summary));
-    actions = { canDecide, confirmAccept: vi.fn(), confirmReject: vi.fn(), exit: vi.fn() };
+    actions = { canDecide, canAccept, confirmAccept: vi.fn(), confirmReject: vi.fn(), exit: vi.fn() };
 
     TestBed.configureTestingModule({
       imports: [ScenarioBannerComponent, TranslateModule.forRoot()],
@@ -124,6 +127,44 @@ describe('ScenarioBannerComponent', () => {
     expect(button(host, 'scenario-banner-accept-btn')).toBeNull();
     expect(button(host, 'scenario-banner-reject-btn')).toBeNull();
     expect(button(host, 'scenario-banner-exit-btn')).not.toBeNull();
+  });
+
+  it('enables accept when the user may accept and gives it no explaining title', () => {
+    // Act
+    const host = render();
+    const acceptButton = button(host, 'scenario-banner-accept-btn')!;
+
+    // Assert
+    expect(acceptButton.disabled).toBe(false);
+    expect(host.querySelector('#scenario-banner-accept-wrap')!.hasAttribute('title')).toBe(false);
+  });
+
+  it('disables accept and explains why in the title of its wrapper when only the decision right is held, but keeps reject', () => {
+    // Arrange
+    canAccept.set(false);
+
+    // Act
+    const host = render();
+    const acceptButton = button(host, 'scenario-banner-accept-btn')!;
+
+    // Assert
+    expect(acceptButton.disabled).toBe(true);
+    expect(host.querySelector('#scenario-banner-accept-wrap')!.getAttribute('title')).toBe(
+      'scenarioVariant.accept.needsShiftRight',
+    );
+    expect(button(host, 'scenario-banner-reject-btn')).not.toBeNull();
+  });
+
+  it('does not start the accept flow from a disabled accept button', () => {
+    // Arrange
+    canAccept.set(false);
+    const host = render();
+
+    // Act
+    button(host, 'scenario-banner-accept-btn')!.click();
+
+    // Assert
+    expect(actions.confirmAccept).not.toHaveBeenCalled();
   });
 
   it('loads the summary of the active scenario by its id and shows it in a dialog', () => {

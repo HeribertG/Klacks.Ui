@@ -2,7 +2,10 @@
 
 /**
  * Modal dialog that shows how completely a what-if scenario covers the demanded shift slots: the total, the coverage
- * per shift and why slots stayed open. The summary is loaded live from the backend each time the dialog opens.
+ * per shift and why slots stayed open. For a scenario with variants (keys) it adds a section per key: filled of demanded
+ * slots, open slots, the worst day with its open slots and a warning when the key holds copies of existing shifts; the
+ * section is left out when the summary has no keys. The
+ * summary is loaded live from the backend each time the dialog opens.
  * @param scenario - The scenario to summarise, passed via open()
  * @param summary - The loaded summary, null until it arrived or when it is unavailable
  * @param loadState - Whether the summary is loading, loaded, unknown to the backend (404) or failed to load
@@ -25,7 +28,9 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
 import { scenarioOpenSlotReasonKey } from 'src/app/domain/helpers/scenario-summary-reason.helper';
-import { CalendarDateToStringShort } from 'src/app/domain/helpers/date.helper';
+import { SCENARIO_VARIANT_SUMMARY_COPIED_SHIFTS_KEYS } from 'src/app/domain/constants/scenario-variant.constants';
+import { scenarioVariantCountKey } from 'src/app/domain/helpers/scenario-variant-count-key.helper';
+import { CalendarDateToStringShort, CalendarPeriodToStringShort } from 'src/app/domain/helpers/date.helper';
 
 export const SCENARIO_SUMMARY_LOAD_STATE = {
   Loading: 'loading',
@@ -38,7 +43,6 @@ export type ScenarioSummaryLoadState =
   (typeof SCENARIO_SUMMARY_LOAD_STATE)[keyof typeof SCENARIO_SUMMARY_LOAD_STATE];
 
 const SHIFT_NAME_SEPARATOR = ', ';
-const PERIOD_SEPARATOR = ' – ';
 
 @Component({
   selector: 'app-scenario-summary-dialog',
@@ -65,10 +69,7 @@ export class ScenarioSummaryDialogComponent {
   readonly periodText = computed(() => {
     const summary = this.summary();
     if (!summary) return '';
-    const locale = this.translate.currentLang;
-    return [summary.fromDate, summary.untilDate]
-      .map((value) => CalendarDateToStringShort(value, locale))
-      .join(PERIOD_SEPARATOR);
+    return CalendarPeriodToStringShort(summary.fromDate, summary.untilDate, this.translate.currentLang);
   });
 
   open(scenario: IAnalyseScenario): void {
@@ -104,6 +105,14 @@ export class ScenarioSummaryDialogComponent {
 
   shiftNames(names: string[]): string {
     return names.join(SHIFT_NAME_SEPARATOR);
+  }
+
+  copiedShiftsKey(count: number): string {
+    return scenarioVariantCountKey(SCENARIO_VARIANT_SUMMARY_COPIED_SHIFTS_KEYS, count);
+  }
+
+  peakDateText(peakDate: string): string {
+    return CalendarDateToStringShort(peakDate, this.translate.currentLang);
   }
 
   onClose(): void {

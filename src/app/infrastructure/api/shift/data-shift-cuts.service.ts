@@ -39,21 +39,19 @@ export class DataShiftCutsService {
         };
       });
 
-      return this.httpClient
-        .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Batch`, {
-          operations: processedOperations,
-        })
-        .pipe(retry(3));
+      return this.httpClient.post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Batch`, {
+        operations: processedOperations,
+      });
     });
   }
 
   resetCuts(originalId: string, newStartDate: Date) {
-    return defer(() => this.httpClient
-      .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Reset`, {
+    return defer(() =>
+      this.httpClient.post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Reset`, {
         originalId: originalId,
         newStartDate: toCalendarDateWire(newStartDate),
-      })
-      .pipe(retry(3)));
+      }),
+    );
   }
 
   getResetDateRange(originalId: string) {

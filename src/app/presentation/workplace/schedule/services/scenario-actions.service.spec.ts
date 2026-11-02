@@ -15,6 +15,9 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { SCENARIO_NOT_ACTIVE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-not-active.model';
 import { SCENARIO_STALE_ERROR_CODE } from 'src/app/domain/models/schedule/scenario-stale.model';
+import { SCENARIO_VARIANT_ERROR_CODES } from 'src/app/domain/constants/scenario-variant.constants';
+import { ScenarioSummary } from 'src/app/domain/models/schedule/scenario-summary.model';
+import { IScenarioVariantCoverage } from 'src/app/domain/models/schedule/scenario-variant-coverage.interface';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 import { IScenarioAcceptResult } from 'src/app/domain/interfaces/scenario-accept-result.interface';
@@ -34,12 +37,40 @@ describe('ScenarioActionsService', () => {
   let held: Set<string>;
   let modalService: { openModal: ReturnType<typeof vi.fn> };
   let toastShowService: { showError: ReturnType<typeof vi.fn>; showInfo: ReturnType<typeof vi.fn> };
+  const keyScenario = { ...scenario, variantIds: ['variant-1', 'variant-2'] } as IAnalyseScenario;
+
+  const coverage = (name: string, openSlots: number, copiedShiftCount = 0): IScenarioVariantCoverage => ({
+    variantId: `id-${name}`,
+    name,
+    demandedSlots: 10,
+    filledSlots: 10 - openSlots,
+    openSlots,
+    peakOpenSlots: openSlots,
+    peakDate: openSlots > 0 ? '2026-11-09' : null,
+    copiedShiftCount,
+  });
+
+  const summaryOf = (variants: IScenarioVariantCoverage[] | undefined): ScenarioSummary => ({
+    token: 'token-1',
+    fromDate: '2026-11-01',
+    untilDate: '2026-11-30',
+    agentCount: 3,
+    workCount: 10,
+    demandedSlots: 20,
+    filledSlots: 20,
+    openSlots: 0,
+    shifts: [],
+    openSlotReasons: [],
+    variants,
+  });
+
   let scenarioService: {
     activeScenario: () => IAnalyseScenario | null;
     acceptScenario: ReturnType<typeof vi.fn>;
     rejectScenario: ReturnType<typeof vi.fn>;
     exitScenario: ReturnType<typeof vi.fn>;
     loadScenarios: ReturnType<typeof vi.fn>;
+    loadSummary: ReturnType<typeof vi.fn>;
   };
 
   const conflict = (body: Record<string, unknown>): HttpErrorResponse =>
@@ -85,6 +116,7 @@ describe('ScenarioActionsService', () => {
       rejectScenario: vi.fn().mockReturnValue(of(undefined)),
       exitScenario: vi.fn(),
       loadScenarios: vi.fn(),
+      loadSummary: vi.fn().mockReturnValue(of(summaryOf(undefined))),
     };
   });
 
@@ -408,6 +440,250 @@ describe('ScenarioActionsService', () => {
     });
   });
 
+  describe('accepting a scenario that carries keys', () => {
+    beforeEach(() => {
+      scenarioService.activeScenario = () => keyScenario;
+    });
+
+    it('loads the summary by scenario id and names the open slots of the keys before asking', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([coverage('Winter', 3), coverage('Summer', 0), coverage('Spring', 2)])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(scenarioService.loadSummary).toHaveBeenCalledWith('scenario-1');
+      expect(modalService.openModal).toHaveBeenCalledTimes(1);
+      expect(lastModal().message).toBe('scenarioVariant.accept.confirmOpenSlots:Plan A|5|Winter (3), Spring (2)');
+      expect(scenarioService.acceptScenario).not.toHaveBeenCalled();
+    });
+
+    it('still accepts once the extended confirmation is confirmed', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([coverage('Winter', 3)])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(scenarioService.acceptScenario).toHaveBeenCalledWith('scenario-1', NO_OVERRIDES);
+    });
+
+    it('keeps the plain confirmation text when no slot of any key is open', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([coverage('Winter', 0)])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(lastModal().message).toBe('scenario.accept.confirm:Plan A');
+    });
+
+    it('warns that the demand counts twice when a key holds copies, even with every slot filled', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([coverage('Winter', 0, 3), coverage('Summer', 0, 2)])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(lastModal().message).toBe(
+        'scenario.accept.confirm:Plan A scenarioVariant.accept.copiedShifts.other:5|Winter (3), Summer (2)',
+      );
+    });
+
+    it('adds the warning about copies after the open slots and names only the keys holding copies', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([coverage('Winter', 3, 2), coverage('Summer', 1, 0)])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(lastModal().message).toBe(
+        'scenarioVariant.accept.confirmOpenSlots:Plan A|4|Winter (3), Summer (1) scenarioVariant.accept.copiedShifts.other:2|Winter (2)',
+      );
+    });
+
+    it('warns about copies of a key nothing was planned for, and names no open slots for it', () => {
+      // Arrange
+      const unplanned = { ...coverage('Winter', 0, 2), demandedSlots: 0, filledSlots: 0 };
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([unplanned])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(lastModal().message).toBe('scenario.accept.confirm:Plan A scenarioVariant.accept.copiedShifts.other:2|Winter (2)');
+    });
+
+    it('uses the singular text for one copy', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf([coverage('Winter', 0, 1)])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(lastModal().message).toBe('scenario.accept.confirm:Plan A scenarioVariant.accept.copiedShifts.one:1|Winter (1)');
+    });
+
+    it('keeps the plain confirmation text when the summary carries no key coverage', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(of(summaryOf(undefined)));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(lastModal().message).toBe('scenario.accept.confirm:Plan A');
+    });
+
+    it('does not block accepting when the summary cannot be loaded, and shows the generic text', () => {
+      // Arrange
+      scenarioService.loadSummary.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(modalService.openModal).toHaveBeenCalledTimes(1);
+      expect(lastModal().message).toBe('scenario.accept.confirm:Plan A');
+      lastModal().onConfirm();
+      expect(scenarioService.acceptScenario).toHaveBeenCalledWith('scenario-1', NO_OVERRIDES);
+    });
+
+    it('does not log the failure of the summary request', () => {
+      // Arrange
+      const log = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      scenarioService.loadSummary.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500, error: 'Winter key of Anna Muster' })));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(log).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
+      log.mockRestore();
+      warn.mockRestore();
+    });
+
+    it('does not load a summary for a scenario without keys', () => {
+      // Arrange
+      scenarioService.activeScenario = () => scenario;
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+
+      // Assert
+      expect(scenarioService.loadSummary).not.toHaveBeenCalled();
+      expect(lastModal().message).toBe('scenario.accept.confirm:Plan A');
+    });
+  });
+
+  describe('a scenario whose key was already consumed', () => {
+    const consumed = (variantNames: string[] | undefined = ['Winter', 'Spring']): HttpErrorResponse =>
+      conflict({ detail: 'consumed', errorCode: SCENARIO_VARIANT_ERROR_CODES.Consumed, variantNames });
+
+    beforeEach(() => {
+      scenarioService.activeScenario = () => keyScenario;
+    });
+
+    it('names the consumed keys in a translated toast and offers to discard, never an override', () => {
+      // Arrange
+      held.add(ROLE_ADMIN);
+      scenarioService.acceptScenario.mockReturnValue(throwError(() => consumed()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(toastShowService.showError).toHaveBeenCalledWith('scenarioVariant.accept.consumed:Winter, Spring');
+      expect(modalService.openModal).toHaveBeenCalledTimes(2);
+      expect(lastModal().message).toBe('scenario.reject.confirm:Plan A');
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(1);
+    });
+
+    it('rejects the scenario once the offered discard is confirmed', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValue(throwError(() => consumed()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(scenarioService.rejectScenario).toHaveBeenCalledWith('scenario-1');
+    });
+
+    it('says so without names when the server sent none', () => {
+      // Arrange
+      scenarioService.acceptScenario.mockReturnValue(throwError(() => consumed([])));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(toastShowService.showError).toHaveBeenCalledWith('scenarioVariant.accept.consumedUnnamed');
+    });
+
+    it('is not mistaken for the compliance block that offers an override', () => {
+      // Arrange
+      held.add(ROLE_AUTHORISED);
+      scenarioService.acceptScenario.mockReturnValue(throwError(() => consumed()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(lastModal().message).not.toBe('consumed');
+      expect(scenarioService.acceptScenario).not.toHaveBeenCalledWith('scenario-1', { overrideBlock: true, overrideStale: false });
+    });
+  });
+
+  describe('accepting without the right to do so', () => {
+    const forbidden = (): HttpErrorResponse => new HttpErrorResponse({ status: 403 });
+
+    it('shows a translated toast for a 403 and offers no override and no second attempt', () => {
+      // Arrange
+      held.add(ROLE_ADMIN);
+      scenarioService.acceptScenario.mockReturnValue(throwError(() => forbidden()));
+      const service = createService();
+
+      // Act
+      service.confirmAccept();
+      lastModal().onConfirm();
+
+      // Assert
+      expect(toastShowService.showError).toHaveBeenCalledWith('scenarioVariant.accept.forbidden');
+      expect(modalService.openModal).toHaveBeenCalledTimes(1);
+      expect(scenarioService.acceptScenario).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('rights', () => {
     it('lets a user with the schedule edit right decide', () => {
       held.add(PERMISSIONS.CanEditSchedule);
@@ -423,5 +699,42 @@ describe('ScenarioActionsService', () => {
       held.add(PERMISSIONS.CanViewSchedule);
       expect(createService().canDecide()).toBe(false);
     });
-  });
+
+    it('lets a planner accept a scenario without keys', () => {
+      held.add(PERMISSIONS.CanEditSchedule);
+      expect(createService().canAccept()).toBe(true);
+    });
+
+    it('does not let a planner accept a scenario that carries keys, but lets them reject it', () => {
+      held.add(PERMISSIONS.CanEditSchedule);
+      scenarioService.activeScenario = () => keyScenario;
+      const service = createService();
+
+      expect(service.canAccept()).toBe(false);
+      expect(service.canDecide()).toBe(true);
+    });
+
+    it('lets a user with the schedule and the shift edit right accept a scenario that carries keys', () => {
+      held.add(PERMISSIONS.CanEditSchedule);
+      held.add(PERMISSIONS.CanEditShifts);
+      scenarioService.activeScenario = () => keyScenario;
+      expect(createService().canAccept()).toBe(true);
+    });
+
+    it('lets an admin accept a scenario that carries keys', () => {
+      held.add(ROLE_ADMIN);
+      scenarioService.activeScenario = () => keyScenario;
+      expect(createService().canAccept()).toBe(true);
+    });
+
+    it('treats a scenario with an empty key list like one without keys', () => {
+      held.add(PERMISSIONS.CanEditSchedule);
+      scenarioService.activeScenario = () => ({ ...scenario, variantIds: [] }) as IAnalyseScenario;
+      expect(createService().canAccept()).toBe(true);
+    });
+
+    it('does not let a user without the schedule edit right accept anything', () => {
+      held.add(PERMISSIONS.CanViewSchedule);
+      expect(createService().canAccept()).toBe(false);
+    });  });
 });

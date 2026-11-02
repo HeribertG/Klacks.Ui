@@ -7,6 +7,7 @@
  * @param event.message - Translation key (or plain text) shown as the toast body
  * @param event.messageParams - Interpolation parameters of the message key
  * @param event.code / event.context - Toast name respectively header text
+ * @param event.showDuringOutage - The error passes the silence of a suspected backend outage
  * @param UNDO_OFFERED - Carries the undo callback the domain layer provides; only rendering happens here
  */
 
@@ -45,7 +46,12 @@ export class DomainEventHandler {
 
   private setupErrorHandler(): void {
     this.eventBus.on<ErrorEvent>(DomainEventType.ERROR).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
-      this.toastService.showError(this.translateMessage(event.message, event.messageParams), event.code || 'Error');
+      const message = this.translateMessage(event.message, event.messageParams);
+      if (event.showDuringOutage) {
+        this.toastService.showError(message, event.code || 'Error', { showDuringOutage: true });
+        return;
+      }
+      this.toastService.showError(message, event.code || 'Error');
     });
   }
 

@@ -6,4 +6,6 @@ export interface ICreateAnalyseScenarioRequest {
   groupId?: string;
   fromDate: string;
   untilDate: string;
+  /** Variants (keys) whose shifts the scenario carries; absent or empty for a scenario without keys. */
+  variantIds?: string[];
 }

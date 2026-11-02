@@ -127,3 +127,41 @@ $section-gap: 16px;
   font-size: 12px;
   color: var(--colorLabel);
 }
+
+.summary-variants {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summary-variant {
+  padding: $cell-padding-block $cell-padding-inline;
+  border-block-end: 1px solid var(--cardBorderColor);
+  color: var(--standartTextColor);
+}
+
+.summary-variant-head,
+.summary-variant-detail {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.summary-variant-copied {
+  margin-block: 4px 0;
+}
+
+.summary-variant-name {
+  font-weight: 500;
+}
+
+.summary-variant-covered {
+  white-space: nowrap;
+}
+
+.summary-variant-detail {
+  margin-block-start: 2px;
+  font-size: 12px;
+  color: var(--colorLabel);
+}

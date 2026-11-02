@@ -11,12 +11,14 @@ import { DataManagementShiftService } from '../shift/data-management-shift.servi
 import { DataManagementClientService } from '../client/data-management-client.service';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
+import { ScenarioVariantService } from '../schedule/scenario-variant.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { Group } from 'src/app/domain/models/group/group-class';
 
 describe('GroupSelectionService', () => {
   let service: GroupSelectionService;
   let getGroup: ReturnType<typeof vi.fn>;
+  let leaveIfGroupChanged: ReturnType<typeof vi.fn>;
 
   function group(id: string): Group {
     const value = new Group();
@@ -27,6 +29,7 @@ describe('GroupSelectionService', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     getGroup = vi.fn();
+    leaveIfGroupChanged = vi.fn();
     TestBed.configureTestingModule({
       providers: [
         { provide: ENTITY_STATE_PROVIDER_TOKEN, useValue: { nameOfVisibleEntity: () => 'none' } },
@@ -36,6 +39,7 @@ describe('GroupSelectionService', () => {
         { provide: DataManagementClientService, useValue: {} },
         { provide: AppSettingsManagementService, useValue: {} },
         { provide: AnalyseScenarioService, useValue: {} },
+        { provide: ScenarioVariantService, useValue: { leaveIfGroupChanged } },
         { provide: DataGroupService, useValue: { getGroup } },
       ],
     });
@@ -44,6 +48,36 @@ describe('GroupSelectionService', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  describe('variant mode on group change', () => {
+    it('hands the newly selected group to the variant service so a key of another group is left', () => {
+      // Act
+      service.selectGroup(group('group-2'));
+
+      // Assert
+      expect(leaveIfGroupChanged).toHaveBeenCalledWith('group-2');
+    });
+
+    it('hands over no group when the selection is cleared', () => {
+      // Arrange
+      service.selectGroup(group('group-2'));
+      leaveIfGroupChanged.mockClear();
+
+      // Act
+      service.clearSelection();
+
+      // Assert
+      expect(leaveIfGroupChanged).toHaveBeenCalledWith(undefined);
+    });
+
+    it('hands over no group when the selection switches to "without group"', () => {
+      // Act
+      service.selectWithoutGroup();
+
+      // Assert
+      expect(leaveIfGroupChanged).toHaveBeenCalledWith(undefined);
+    });
   });
 
   describe('selectGroupById', () => {

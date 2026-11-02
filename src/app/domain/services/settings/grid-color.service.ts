@@ -7,6 +7,7 @@ import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/
 import { SettingsListReaderService } from 'src/app/domain/services/settings/settings-list-reader.service';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
+import { SCENARIO_VARIANT_MARKER_FALLBACK_COLOR } from 'src/app/domain/constants/scenario-variant.constants';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { GridThemeService } from './grid-theme.service';
@@ -53,6 +54,7 @@ export class GridColorService {
   surchargeColor = '#FFFF00';
   availableShiftsHeaderColor = 'red';
   availabilityHighlightColor = 'rgba(76, 175, 80, 0.15)';
+  variantMarkerColor = SCENARIO_VARIANT_MARKER_FALLBACK_COLOR;
 
   private readonly colorSettingDefinitions: { key: string; property: keyof GridColorService & string }[] = [
     { key: ConstantKeys.BACKGROUND_COLOR_HOLIDAY_KEY, property: 'backGroundColorHolyday' },
@@ -90,8 +92,12 @@ export class GridColorService {
       const containerBg = this.gridTheme.containerBackground();
       const rowColor = this.gridTheme.rowHeaderColor();
       const borderColor = this.gridTheme.headerBorderColor();
+      const markerColor = this.gridTheme.variantMarkerColor();
 
-      untracked(() => this.applyThemeDefaults(headerBg, headerColor, containerBg, rowColor, borderColor));
+      untracked(() => {
+        this.variantMarkerColor = markerColor;
+        this.applyThemeDefaults(headerBg, headerColor, containerBg, rowColor, borderColor);
+      });
     });
   }
 

@@ -17,6 +17,7 @@ import { DataManagementShiftService } from '../shift/data-management-shift.servi
 import { DataManagementClientService } from '../client/data-management-client.service';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
+import { ScenarioVariantService } from '../schedule/scenario-variant.service';
 import { resetSignalAfterDelay } from 'src/app/domain/services/shared/signal-pulse.helper';
 import { companyToday } from 'src/app/domain/helpers/calendar-date.helper';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
@@ -32,6 +33,7 @@ export class GroupSelectionService {
   private dataManagementClientService = inject(DataManagementClientService);
   private appSettingsService = inject(AppSettingsManagementService);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private scenarioVariantService = inject(ScenarioVariantService);
   private dataGroupService = inject(DataGroupService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
@@ -93,6 +95,7 @@ export class GroupSelectionService {
   private triggerSelectedGroupChanged(): void {
     this.selectedGroupChanged.set(true);
     resetSignalAfterDelay(this.selectedGroupChanged);
+    this.scenarioVariantService.leaveIfGroupChanged(this.selectedGroupId);
 
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity() as EntityName) {
       case EntityName.CLIENT:

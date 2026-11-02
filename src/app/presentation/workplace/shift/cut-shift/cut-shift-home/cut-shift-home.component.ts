@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 import { CutShiftListComponent } from '../cut-shift-list/cut-shift-list.component';
+import { VariantModeBarComponent } from 'src/app/presentation/workplace/schedule/variant-mode-bar/variant-mode-bar.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -21,7 +22,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 @Component({
   selector: 'app-cut-shift-home',
   standalone: true,
-  imports: [TranslateModule, CutShiftListComponent],
+  imports: [TranslateModule, CutShiftListComponent, VariantModeBarComponent],
   templateUrl: './cut-shift-home.component.html',
   styleUrl: './cut-shift-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -11,9 +11,21 @@
         {{ "scenarioSummary.button" | translate }}
       </button>
       @if (canDecide()) {
-        <button id="scenario-banner-accept-btn" type="button" class="btn btn-sm btn-success" (click)="onAccept()">
-          {{ "scenario.accept" | translate }}
-        </button>
+        <span
+          id="scenario-banner-accept-wrap"
+          class="scenario-banner-accept"
+          [attr.title]="canAccept() ? null : ('scenarioVariant.accept.needsShiftRight' | translate)"
+        >
+          <button
+            id="scenario-banner-accept-btn"
+            type="button"
+            class="btn btn-sm btn-success"
+            [disabled]="!canAccept()"
+            (click)="onAccept()"
+          >
+            {{ "scenario.accept" | translate }}
+          </button>
+        </span>
         <button
           id="scenario-banner-reject-btn"
           type="button"

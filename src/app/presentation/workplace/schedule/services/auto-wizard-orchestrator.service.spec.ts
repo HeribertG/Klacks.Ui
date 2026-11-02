@@ -4,6 +4,7 @@ import { signal, WritableSignal } from '@angular/core';
 import type { Mock } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { AutoWizardJobTrackerService } from './auto-wizard-job-tracker.service';
 import { AutoWizardOrchestratorService } from './auto-wizard-orchestrator.service';
 import { DataAutoWizardService } from 'src/app/application/services/auto-wizard/data-auto-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -208,7 +209,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     orchestrator: AutoWizardOrchestratorService;
     schedule: ScheduleStub;
     wizard: WizardStub;
-    selectScenario: Mock;
+    openCreatedScenario: Mock;
     showInfo: Mock;
     showError: Mock;
     instant: Mock;
@@ -236,7 +237,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       start: vi.fn().mockResolvedValue('job-1'),
       resume: options.resume ?? vi.fn().mockResolvedValue(false),
     };
-    const selectScenario = vi.fn();
+    const openCreatedScenario = vi.fn().mockResolvedValue(true);
     const showInfo = vi.fn();
     const showError = vi.fn();
     const instant = vi.fn((key: string, _params?: object) => key);
@@ -252,7 +253,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
         { provide: DataManagementScheduleService, useValue: schedule },
         {
           provide: AnalyseScenarioService,
-          useValue: { activeToken: () => null, scenarios: signal([]), selectScenario },
+          useValue: { activeToken: () => null, openCreatedScenario },
         },
         { provide: ToastShowService, useValue: { showError, showInfo } },
         { provide: TranslateService, useValue: buildTranslateStub(instant) },
@@ -265,7 +266,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       ],
     });
     const orchestrator = TestBed.inject(AutoWizardOrchestratorService);
-    return { orchestrator, schedule, wizard, selectScenario, showInfo, showError, instant, refreshPresence };
+    return { orchestrator, schedule, wizard, openCreatedScenario, showInfo, showError, instant, refreshPresence };
   }
 
   function deferredLoad(): { awaitFullyLoaded: () => Promise<unknown>; resolve: (outcome: string) => void } {
@@ -433,8 +434,8 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     complete(h);
 
     // Assert
-    expect(h.selectScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 'scenario-1', groupId: JOB_GROUP }));
-    expect(h.schedule.readDatas).toHaveBeenCalled();
+    expect(h.openCreatedScenario).toHaveBeenCalledWith('scenario-1');
+    await vi.waitFor(() => expect(h.schedule.readDatas).toHaveBeenCalled());
     expect(h.showInfo).toHaveBeenCalledWith('autoWizard.toast.completed', 'auto-wizard', '', expect.anything());
     expect(h.orchestrator.isRunning()).toBe(false);
     expect(sessionStorage.getItem(StorageKeys.AUTO_WIZARD_ACTIVE_JOB)).toBeNull();
@@ -675,7 +676,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
 
     // Act
     complete(h);
-    const selectedWhileAway = h.selectScenario.mock.calls.length;
+    const selectedWhileAway = h.openCreatedScenario.mock.calls.length;
     const reloadsWhileAway = h.schedule.readDatas.mock.calls.length;
     selectedGroupId.set(JOB_GROUP);
     TestBed.tick();
@@ -688,9 +689,9 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     expect(selectedWhileAway).toBe(0);
     expect(reloadsWhileAway).toBe(0);
     expect(paramsOf(h, 'autoWizard.toast.completedForGroup')).toEqual({ group: 'Name-g1', scenario: 'Auto Plan' });
-    expect(h.selectScenario).toHaveBeenCalledTimes(1);
-    expect(h.selectScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 'scenario-1', token: 'token-1' }));
-    expect(h.schedule.readDatas).toHaveBeenCalledTimes(1);
+    expect(h.openCreatedScenario).toHaveBeenCalledTimes(1);
+    expect(h.openCreatedScenario).toHaveBeenCalledWith('scenario-1');
+    await vi.waitFor(() => expect(h.schedule.readDatas).toHaveBeenCalledTimes(1));
   });
 
   it('opens a result that ended while another page was shown once the schedule is visible again', async () => {
@@ -701,14 +702,14 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
 
     // Act
     complete(h);
-    const selectedWhileAway = h.selectScenario.mock.calls.length;
+    const selectedWhileAway = h.openCreatedScenario.mock.calls.length;
     visibleEntity.set(EntityName.SCHEDULE);
     TestBed.tick();
 
     // Assert
     expect(selectedWhileAway).toBe(0);
     expect(paramsOf(h, 'autoWizard.toast.completedForGroup')).toEqual({ group: 'Name-g1', scenario: 'Auto Plan' });
-    expect(h.selectScenario).toHaveBeenCalledTimes(1);
+    expect(h.openCreatedScenario).toHaveBeenCalledTimes(1);
   });
 
   it('reports a failure for another group by name without reloading the shown schedule', async () => {
@@ -737,7 +738,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     expect(paramsOf(h, 'autoWizard.toast.failedForGroup')).toEqual({ group: 'Name-g1', reason: 'model unreachable' });
     expect(reloadsWhileAway).toBe(0);
     expect(h.orchestrator.isRunning()).toBe(false);
-    expect(h.selectScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 'scenario-2' }));
+    expect(h.openCreatedScenario).toHaveBeenCalledWith('scenario-2');
   });
 
   it('keeps the failure and the surviving partial scenario in one toast', async () => {
@@ -769,7 +770,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
     // Arrange
     const h = setup();
     await h.orchestrator.start();
-    h.selectScenario.mockImplementation(() => {
+    vi.spyOn(TestBed.inject(AutoWizardJobTrackerService), 'showScenario').mockImplementation(() => {
       throw new Error('render failure');
     });
 
@@ -862,7 +863,7 @@ describe('AutoWizardOrchestratorService bound to the group and period of the cli
       // Assert
       expect(paramsOf(harness, 'autoWizard.toast.completedForGroup')).toEqual({ group: 'Stored group', scenario: 'Auto Plan' });
       expect(storedAfterCompletion).toBeNull();
-      expect(harness.selectScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 'scenario-7' }));
+      expect(harness.openCreatedScenario).toHaveBeenCalledWith('scenario-7');
     });
 
     it('forgets a job the server no longer knows without a toast', async () => {

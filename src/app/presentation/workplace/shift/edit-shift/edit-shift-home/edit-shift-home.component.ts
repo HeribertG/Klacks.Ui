@@ -28,6 +28,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { EditShiftExpensesComponent } from '../edit-shift-expenses/edit-shift-expenses.component';
 import { ShiftQualificationsComponent } from '../edit-shift-qualifications/shift-qualifications.component';
+import { VariantModeBarComponent } from 'src/app/presentation/workplace/schedule/variant-mode-bar/variant-mode-bar.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PERMISSIONS } from 'src/app/domain/constants/permissions.constants';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
@@ -55,6 +56,7 @@ import { DraftRecoveryService } from 'src/app/presentation/services/draft-recove
     EditShiftGroupComponent,
     EditShiftExpensesComponent,
     ShiftQualificationsComponent,
+    VariantModeBarComponent,
 ],
 })
 export class EditShiftHomeComponent implements OnInit, OnDestroy {

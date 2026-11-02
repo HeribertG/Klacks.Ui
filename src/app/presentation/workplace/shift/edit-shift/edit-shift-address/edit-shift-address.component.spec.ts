@@ -3,22 +3,25 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { IShift } from 'src/app/domain/models/shift/shift.interface';
-import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { EditShiftAddressComponent } from './edit-shift-address.component';
 
 describe('EditShiftAddressComponent isFieldsDisabled', () => {
   let writeAllowed: boolean;
-  let editShift: Partial<IShift>;
+  let statusLocked: boolean;
 
   const createComponent = (): EditShiftAddressComponent => {
     TestBed.configureTestingModule({
       providers: [
         {
           provide: DataManagementShiftService,
-          useValue: { editShift, isReset: signal(false), isRead: signal(false) },
+          useValue: {
+            editShift: {},
+            isReset: signal(false),
+            isRead: signal(false),
+            isCurrentShiftStatusLocked: () => statusLocked,
+          },
         },
         { provide: AuthorizationService, useValue: { hasPermission: () => writeAllowed } },
         { provide: DataClientService, useValue: {} },
@@ -31,24 +34,21 @@ describe('EditShiftAddressComponent isFieldsDisabled', () => {
 
   beforeEach(() => {
     writeAllowed = true;
-    editShift = {};
+    statusLocked = false;
   });
 
-  it('keeps the fields enabled on a new clientless shift prepared as SealedOrder', () => {
-    editShift = { id: undefined, status: ShiftStatus.SealedOrder, isClientless: true };
-
+  it('keeps the fields enabled with the write right on a shift without a status lock', () => {
     expect(createComponent().isFieldsDisabled).toBe(false);
   });
 
-  it('disables the fields on a saved SealedOrder shift', () => {
-    editShift = { id: 'shift-1', status: ShiftStatus.SealedOrder };
+  it('disables the fields on a status lock', () => {
+    statusLocked = true;
 
     expect(createComponent().isFieldsDisabled).toBe(true);
   });
 
-  it('still disables the fields on a new shift when the write right is missing', () => {
+  it('still disables the fields when the write right is missing', () => {
     writeAllowed = false;
-    editShift = { id: undefined, status: ShiftStatus.SealedOrder, isClientless: true };
 
     expect(createComponent().isFieldsDisabled).toBe(true);
   });

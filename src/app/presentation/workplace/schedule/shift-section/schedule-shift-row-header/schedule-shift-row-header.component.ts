@@ -114,7 +114,10 @@ export class ScheduleShiftRowHeaderComponent
     const rect = canvas.getBoundingClientRect();
     const pos = { x: event.clientX - rect.left, y: event.clientY - rect.top };
 
-    if (!this.tooltipHelper.checkQualificationTooltip(event, pos, canvas)) {
+    if (
+      !this.tooltipHelper.checkQualificationTooltip(event, pos, canvas) &&
+      !this.tooltipHelper.checkVariantMarkerTooltip(event, pos, canvas)
+    ) {
       this.tooltipHelper.hide();
     }
   }

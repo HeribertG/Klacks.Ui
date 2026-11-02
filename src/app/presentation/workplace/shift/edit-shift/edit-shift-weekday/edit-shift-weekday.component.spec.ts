@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
+import { ShiftFormModel } from 'src/app/presentation/view-models/shift-form.model';
 import { ShiftEditPermissionService } from 'src/app/application/services/shift-edit-permission.service';
 import { HolidayOptionExplainOfferService } from 'src/app/presentation/services/holiday-option-explain-offer.service';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
@@ -31,6 +34,44 @@ const ALL_WEEKDAYS: Partial<IShift> = {
   isSaturday: true,
   isSunday: true,
 };
+
+describe('EditShiftWeekdayComponent template while a saved shift loads', () => {
+  it('shows the time fields once the shift arrived, with the real template and without a further render', () => {
+    const loaded: { shift?: IShift } = {};
+    const shiftForm = signal<ShiftFormModel | undefined>(undefined);
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        {
+          provide: DataManagementShiftService,
+          useValue: {
+            get editShift() {
+              return loaded.shift;
+            },
+            makeValidation: () => undefined,
+          },
+        },
+        {
+          provide: ShiftEditPermissionService,
+          useValue: { canWriteCurrentShift: () => true, isCurrentShiftStatusLocked: () => false },
+        },
+        { provide: ShiftFormService, useValue: { shiftForm } },
+        { provide: HolidayOptionExplainOfferService, useValue: { offerOnce: vi.fn() } },
+        { provide: WorkTimeCalculationService, useValue: {} },
+      ],
+    });
+    const fixture = TestBed.createComponent(EditShiftWeekdayComponent);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('#start-hours')).toBeNull();
+
+    loaded.shift = { ...NO_WEEKDAYS, startShift: '07:00:00', endShift: '15:00:00', workTime: 8 } as IShift;
+    shiftForm.set(new ShiftFormModel(loaded.shift));
+    fixture.detectChanges();
+
+    expect(host.querySelector('#start-hours')).not.toBeNull();
+  });
+});
 
 describe('EditShiftWeekdayComponent holiday options', () => {
   let editShift: Partial<IShift> | undefined;

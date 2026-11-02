@@ -247,6 +247,8 @@ export class WorkplaceStateService implements IEntityStateProvider {
 
         const existingCallback = manager.onSaveCompleted;
         manager.onSaveCompleted = () => {
+          manager.onSaveCompleted = existingCallback;
+          manager.onSaveRefused = undefined;
           this._isDisabled.set(false);
           this._isSavedOrReset.set(true);
           if (existingCallback) {
@@ -255,6 +257,12 @@ export class WorkplaceStateService implements IEntityStateProvider {
           if (isSaveAndClose && onNavigateBack) {
             onNavigateBack();
           }
+        };
+        manager.onSaveRefused = () => {
+          manager.onSaveCompleted = existingCallback;
+          manager.onSaveRefused = undefined;
+          this._isDisabled.set(false);
+          this.checkObjectDirty();
         };
         this._isDisabled.set(true);
         manager.save();

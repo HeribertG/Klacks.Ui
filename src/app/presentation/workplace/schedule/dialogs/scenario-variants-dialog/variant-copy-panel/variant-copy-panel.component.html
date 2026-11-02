@@ -1,0 +1,112 @@
+<div id="variant-copy-panel">
+  <div class="panel-head">
+    <span id="variant-copy-title" class="panel-title">
+      {{ 'scenarioVariant.copy.panelTitle' | translate: { name: variant().name } }}
+    </span>
+  </div>
+
+  <div id="variant-copy-warning" class="copy-warning" role="note">
+    {{ 'scenarioVariant.copy.warning' | translate }}
+  </div>
+
+  @if (variant().shiftCount > 0) {
+    <div id="variant-copy-existing" class="panel-note">
+      {{ 'scenarioVariant.copy.existingNote' | translate: { count: variant().shiftCount } }}
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div id="variant-copy-error" class="error-message" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="mode-choice" role="radiogroup" [attr.aria-label]="'scenarioVariant.copy.modeLabel' | translate">
+    <label class="mode-option">
+      <input
+        id="variant-copy-mode-selection"
+        type="radio"
+        name="variant-copy-mode"
+        [checked]="mode() === modes.Selection"
+        (change)="mode.set(modes.Selection)"
+      />
+      {{ 'scenarioVariant.copy.modeSelection' | translate }}
+    </label>
+    <label class="mode-option">
+      <input
+        id="variant-copy-mode-group"
+        type="radio"
+        name="variant-copy-mode"
+        [checked]="mode() === modes.Group"
+        (change)="mode.set(modes.Group)"
+      />
+      {{ 'scenarioVariant.copy.modeGroup' | translate }}
+    </label>
+  </div>
+
+  @if (mode() === modes.Selection) {
+    @switch (loadState()) {
+      @case (states.Loading) {
+        <div id="variant-copy-loading" class="panel-state">
+          <span class="spinner-border spinner-border-sm me-2"></span>{{ 'scenarioVariant.loading' | translate }}
+        </div>
+      }
+      @case (states.Failed) {
+        <div id="variant-copy-load-failed" class="panel-state panel-state-error">
+          {{ 'scenarioVariant.copy.loadFailed' | translate }}
+        </div>
+      }
+      @case (states.Loaded) {
+        @if (candidates().length === 0) {
+          <div id="variant-copy-no-candidates" class="panel-state">{{ 'scenarioVariant.copy.noCandidates' | translate }}</div>
+        } @else {
+          <div class="candidate-list">
+            @for (shift of candidates(); track shift.id) {
+              <label class="candidate-row" [attr.data-shift-id]="shift.id">
+                <input type="checkbox" [checked]="isSelected(shift)" (change)="onToggle(shift)" />
+                <span class="candidate-name">{{ shift.name }}</span>
+                <span>{{ shift.abbreviation }}</span>
+                <span>{{ timeRange(shift) }}</span>
+              </label>
+            }
+          </div>
+          <div id="variant-copy-selected-count" class="panel-note">
+            {{ 'scenarioVariant.copy.selectedCount' | translate: { count: selectedIds().size } }}
+          </div>
+        }
+      }
+    }
+  } @else {
+    <div class="form-group">
+      <label for="variant-copy-group-select">{{ 'scenarioVariant.copy.group' | translate }}</label>
+      <select
+        id="variant-copy-group-select"
+        class="form-control"
+        [ngModel]="sourceGroupId()"
+        (ngModelChange)="sourceGroupId.set($event)"
+      >
+        @for (option of groupOptions(); track option.id) {
+          <option [value]="option.id">{{ option.name }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <div class="panel-foot">
+    <span
+      id="variant-copy-back-btn"
+      class="link-button blue-font"
+      role="button"
+      tabindex="0"
+      (click)="back.emit()"
+      (keydown.enter)="back.emit()"
+    >
+      {{ 'scenarioVariant.back' | translate }}
+    </span>
+    <span class="filler"></span>
+    <button id="variant-copy-start-btn" type="button" class="btn save-btn" [disabled]="!canCopy()" (click)="onCopy()">
+      @if (isCopying()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'scenarioVariant.copy.start' | translate }}
+    </button>
+  </div>
+</div>

@@ -6,4 +6,5 @@ export interface IErrorToastOptions {
   additionalMessage?: string;
   icon?: string;
   actions?: IToastAction[];
+  showDuringOutage?: boolean;
 }

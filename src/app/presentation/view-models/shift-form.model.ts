@@ -51,11 +51,11 @@ export class ShiftFormModel {
   }
 
   applyToShift(): IShift {
-    if (this.internalFromDate) {
-      this._shift.fromDate = transformNgbDateStructToDate(this.internalFromDate);
-    }
-    if (this.internalUntilDate) {
-      this._shift.untilDate = transformNgbDateStructToDate(this.internalUntilDate);
+    this._shift.fromDate = transformNgbDateStructToDate(this.internalFromDate) ?? this._shift.fromDate;
+
+    const untilDate = transformNgbDateStructToDate(this.internalUntilDate);
+    if (untilDate || !this.internalUntilDate) {
+      this._shift.untilDate = untilDate;
     }
 
     this._shift.startShift = transformOwnTimeToString(this.internalStartShift);

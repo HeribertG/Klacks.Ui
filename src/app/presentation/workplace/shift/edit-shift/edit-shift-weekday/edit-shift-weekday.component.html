@@ -20,7 +20,8 @@
   <div class="container-line"></div>
 
   <div class="container-bank" [ngStyle]="{ display: visibleTable }">
-    @if (dataManagementShiftService.editShift !== undefined && shiftFormService.shiftForm() !== undefined) {
+    <!-- The signal stays first: behind an undefined editShift it would not be read and the card never redraws on load. -->
+    @if (shiftFormService.shiftForm() !== undefined && dataManagementShiftService.editShift !== undefined) {
     <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">
