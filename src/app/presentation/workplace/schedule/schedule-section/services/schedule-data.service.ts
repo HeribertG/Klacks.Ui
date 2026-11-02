@@ -16,6 +16,8 @@
  * - Uses: schedule-paste.helper for the copy/paste rules
  */
 import { inject, Injectable, signal } from '@angular/core';
+import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { HolidayDate } from 'src/app/domain/models/calendar/holiday-date-class';
@@ -59,6 +61,7 @@ export class ScheduleDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private takenWorksConfirm = inject(AbsenceTakenWorksConfirmService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private appSettingsService = inject(AppSettingsManagementService);
   private weekConfiguration = inject(WeekConfigurationService);
@@ -600,7 +603,7 @@ export class ScheduleDataService extends BaseDataService {
         this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntries);
       }
       if (breakEntries.length > 0) {
-        this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntries);
+        void this.pasteBreaks(breakEntries);
       }
       return;
     }
@@ -608,6 +611,12 @@ export class ScheduleDataService extends BaseDataService {
     const workEntries = collectTextPaste(data, startRow, startCol, shiftSchedules, resolveTarget);
     if (workEntries.length > 0) {
       this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntries);
+    }
+  }
+
+  private async pasteBreaks(entries: BreakCellParams[]): Promise<void> {
+    if (await this.takenWorksConfirm.confirm(entries)) {
+      await this.dataManagementSchedule.bulkAddBreakScheduleEntries(entries);
     }
   }
 

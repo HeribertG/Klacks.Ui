@@ -40,6 +40,8 @@ import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { UndoOfferedEvent } from 'src/app/domain/events/undo-offered-event.interface';
 import { SCHEDULE_UNDO } from 'src/app/domain/constants/schedule-undo.constants';
 import { ScheduleCellParams } from './schedule-cell-params.interface';
+import { BulkAddBreaksRequest } from 'src/app/domain/models/dtos/bulk-add-breaks-request.dto';
+import { RemovableWork } from 'src/app/domain/models/dtos/removable-work.dto';
 import { BreakCellParams } from './break-cell-params.interface';
 import { DeleteWorkScheduleEntryParams } from './delete-work-schedule-entry-params.interface';
 import { companyToday, isSameCalendarDate, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
@@ -81,9 +83,12 @@ export class ScheduleEntryCrudService {
     }
   }
 
-  async bulkAddBreakScheduleEntries(entries: BreakCellParams[]): Promise<void> {
-    if (entries.length === 0) return;
+  async previewTakenWorks(entries: BreakCellParams[]): Promise<RemovableWork[]> {
+    if (entries.length === 0) return [];
+    return firstValueFrom(this.breakService.previewTakenWorks(this.toBulkBreaksRequest(entries)));
+  }
 
+  private toBulkBreaksRequest(entries: BreakCellParams[]): BulkAddBreaksRequest {
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
       : formatDateOnly(companyToday());
@@ -91,7 +96,7 @@ export class ScheduleEntryCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(companyToday());
 
-    const request = {
+    return {
       breaks: entries.map(e => ({
         clientId: e.clientId,
         absenceId: e.absenceId,
@@ -107,8 +112,12 @@ export class ScheduleEntryCrudService {
       paymentInterval: this.injector.get(GroupSelectionService).selectedGroup?.paymentInterval
         ?? this.appSettingsService.workSettings().paymentInterval,
     };
+  }
 
-    const response = await firstValueFrom(this.breakService.bulkAddBreaks(request));
+  async bulkAddBreakScheduleEntries(entries: BreakCellParams[]): Promise<void> {
+    if (entries.length === 0) return;
+
+    const response = await firstValueFrom(this.breakService.bulkAddBreaks(this.toBulkBreaksRequest(entries)));
 
     if (response.periodHours) {
       for (const [clientId, hours] of Object.entries(response.periodHours)) {

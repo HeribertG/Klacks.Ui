@@ -14,6 +14,7 @@
  * @param cellManipulation - Current cell position and selection
  */
 import { inject, Injectable } from '@angular/core';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -43,6 +44,7 @@ export class GridFillHandleDragService {
   private fillHandleService = inject(FillHandleService);
   private gridFonts = inject(GridFontsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private takenWorksConfirm = inject(AbsenceTakenWorksConfirmService);
   private inputModality = inject(InputModalityService);
 
   private readonly AUTO_SCROLL_INITIAL_DELAY = 400;
@@ -350,7 +352,7 @@ export class GridFillHandleDragService {
       });
     }
 
-    if (breakEntriesToAdd.length > 0) {
+    if (breakEntriesToAdd.length > 0 && await this.takenWorksConfirm.confirm(breakEntriesToAdd)) {
       await this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntriesToAdd);
     }
   }

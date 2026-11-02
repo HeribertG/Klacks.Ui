@@ -14,6 +14,7 @@ import { InputModalityService } from 'src/app/presentation/services/input-modali
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 
 const ABSENCE_ID = 'absence-1';
 const CLIENT_ID = 'client-1';
@@ -27,6 +28,8 @@ const FULL_DAY_SOURCE_HOURS = 8.4;
 
 const dateForColumn = (col: number): Date =>
   new Date(FIRST_DAY.getFullYear(), FIRST_DAY.getMonth(), FIRST_DAY.getDate() + col);
+
+const takenWorksConfirm = { confirm: vi.fn() };
 
 describe('GridFillHandleDragService - fill handle carries the hours of a duration-mode absence', () => {
   let service: GridFillHandleDragService;
@@ -51,6 +54,7 @@ describe('GridFillHandleDragService - fill handle carries the hours of a duratio
       getWorkScheduleEntryForCell: vi.fn(() => sourceEntry),
     };
 
+    takenWorksConfirm.confirm.mockReset().mockResolvedValue(true);
     TestBed.configureTestingModule({
       providers: [
         GridFillHandleDragService,
@@ -70,6 +74,7 @@ describe('GridFillHandleDragService - fill handle carries the hours of a duratio
           },
         },
         { provide: InputModalityService, useValue: { isTouchMode: () => false } },
+        { provide: AbsenceTakenWorksConfirmService, useValue: takenWorksConfirm },
       ],
     });
 
@@ -81,6 +86,15 @@ describe('GridFillHandleDragService - fill handle carries the hours of a duratio
   });
 
   const filledBreaks = (): BreakCellParams[] => bulkAddBreaks.mock.calls[0][0] as BreakCellParams[];
+
+  it('fills nothing when the planner keeps the services', async () => {
+    takenWorksConfirm.confirm.mockResolvedValue(false);
+
+    await service.endDrag();
+
+    expect(takenWorksConfirm.confirm).toHaveBeenCalledTimes(1);
+    expect(bulkAddBreaks).not.toHaveBeenCalled();
+  });
 
   it('sends workTime 0 for a time-span absence so the backend recomputes the hours per day', async () => {
     await service.endDrag();

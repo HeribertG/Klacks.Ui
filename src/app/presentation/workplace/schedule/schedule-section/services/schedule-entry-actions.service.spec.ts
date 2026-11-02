@@ -19,6 +19,7 @@ import { DataManagementBreakService } from 'src/app/domain/services/break/data-m
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 import { Break } from 'src/app/domain/models/break/break-class';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { ShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
@@ -72,6 +73,7 @@ describe('ScheduleEntryActionsService', () => {
     confirmBreak: ReturnType<typeof vi.fn>;
     unconfirmBreak: ReturnType<typeof vi.fn>;
   };
+  let takenWorksConfirm: { confirm: ReturnType<typeof vi.fn>; confirmBreak: ReturnType<typeof vi.fn> };
   let scheduleEntryCrud: {
     addBreakScheduleEntry: ReturnType<typeof vi.fn>;
     bulkAddBreakScheduleEntries: ReturnType<typeof vi.fn>;
@@ -106,6 +108,10 @@ describe('ScheduleEntryActionsService', () => {
       confirmBreak: vi.fn().mockReturnValue(of({})),
       unconfirmBreak: vi.fn().mockReturnValue(of({})),
     };
+    takenWorksConfirm = {
+      confirm: vi.fn().mockResolvedValue(true),
+      confirmBreak: vi.fn().mockResolvedValue(true),
+    };
     scheduleEntryCrud = {
       addBreakScheduleEntry: vi.fn(),
       bulkAddBreakScheduleEntries: vi.fn().mockResolvedValue(undefined),
@@ -121,6 +127,7 @@ describe('ScheduleEntryActionsService', () => {
         { provide: ToastShowService, useValue: toastShowService },
         { provide: DataManagementScheduleService, useValue: dataManagement },
         { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [ABSENCE_ITEM] } },
+        { provide: AbsenceTakenWorksConfirmService, useValue: takenWorksConfirm },
         { provide: ScheduleEntryCrudService, useValue: scheduleEntryCrud },
         { provide: BaseCellManipulationService, useValue: {} },
         { provide: DataManagementWorkService, useValue: workService },
@@ -236,16 +243,39 @@ describe('ScheduleEntryActionsService', () => {
         },
       );
 
-      it('books a break for column k on the visible start date plus k', () => {
+      it('books a break for column k on the visible start date plus k', async () => {
         dataManagement.visibleStartDate = parseCalendarDate('2026-08-01');
         dataManagement.visibleEndDate = parseCalendarDate('2026-09-06');
 
-        service.addBreakFromAbsenceMenu(ABSENCE_ITEM.id, 0, 2, createGrid(parseCalendarDate('2026-08-01') as Date));
+        await service.addBreakFromAbsenceMenu(ABSENCE_ITEM.id, 0, 2, createGrid(parseCalendarDate('2026-08-01') as Date));
 
         const breakEntry = scheduleEntryCrud.addBreakScheduleEntry.mock.calls[0][0] as Break;
         expect(formatDateOnly(breakEntry.currentDate)).toBe('2026-08-03');
         expect(breakEntry.periodStart).toBe('2026-08-01');
         expect(breakEntry.periodEnd).toBe('2026-09-06');
+      });
+
+      it('writes no break when the planner keeps the service', async () => {
+        takenWorksConfirm.confirmBreak.mockResolvedValue(false);
+
+        await service.addBreakFromAbsenceMenu(ABSENCE_ITEM.id, 0, 2, createGrid(parseCalendarDate('2026-08-01') as Date));
+
+        expect(takenWorksConfirm.confirmBreak).toHaveBeenCalledTimes(1);
+        expect(scheduleEntryCrud.addBreakScheduleEntry).not.toHaveBeenCalled();
+      });
+
+      it('adopts no placeholder when the planner keeps the services', async () => {
+        takenWorksConfirm.confirm.mockResolvedValue(false);
+        const placeholder = new BreakPlaceholder();
+        placeholder.clientId = 'client-1';
+        placeholder.absenceId = ABSENCE_ITEM.absenceId;
+        placeholder.from = '2026-08-03T00:00:00Z' as unknown as Date;
+        placeholder.until = '2026-08-05T00:00:00Z' as unknown as Date;
+
+        await service.adoptBreakPlaceholder(placeholder, undefined);
+
+        expect(takenWorksConfirm.confirm).toHaveBeenCalledTimes(1);
+        expect(scheduleEntryCrud.bulkAddBreakScheduleEntries).not.toHaveBeenCalled();
       });
 
       it('adopts a UTC-midnight break placeholder on its own calendar days', async () => {

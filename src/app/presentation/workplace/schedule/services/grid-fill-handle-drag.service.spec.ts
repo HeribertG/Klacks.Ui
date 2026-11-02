@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ElementRef } from '@angular/core';
+import { AbsenceTakenWorksConfirmService } from './absence-taken-works-confirm.service';
 import { TestBed } from '@angular/core/testing';
 import { GridFillHandleDragService } from './grid-fill-handle-drag.service';
 import { FillHandleService } from './fill-handle.service';
@@ -51,6 +52,7 @@ describe('GridFillHandleDragService - fill handle hit area per input modality', 
         { provide: FillHandleService, useValue: { isDragging: vi.fn().mockReturnValue(false) } },
         { provide: GridFontsService, useValue: {} },
         { provide: DataManagementScheduleService, useValue: { shiftSchedules: [] } },
+        { provide: AbsenceTakenWorksConfirmService, useValue: { confirm: vi.fn() } },
         { provide: InputModalityService, useValue: { isTouchMode: () => isTouchMode } },
       ],
     });

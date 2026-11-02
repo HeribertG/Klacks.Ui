@@ -10,6 +10,7 @@ import { toCalendarDateWire } from 'src/app/domain/helpers/calendar-date.helper'
 import { BulkAddBreaksRequest } from 'src/app/domain/models/dtos/bulk-add-breaks-request.dto';
 import { BulkDeleteBreaksRequest } from 'src/app/domain/models/dtos/bulk-delete-breaks-request.dto';
 import { BulkBreaksResponse } from 'src/app/domain/models/dtos/bulk-breaks-response.dto';
+import { RemovableWork } from 'src/app/domain/models/dtos/removable-work.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +39,12 @@ export class DataBreakService {
   deleteBreak(id: string, periodStart: string, periodEnd: string) {
     return this.httpClient
       .delete<IBreak>(`${environment.baseUrl}Breaks/${id}?periodStart=${periodStart}&periodEnd=${periodEnd}`)
+      .pipe(retry(3));
+  }
+
+  previewTakenWorks(request: BulkAddBreaksRequest) {
+    return this.httpClient
+      .post<RemovableWork[]>(`${environment.baseUrl}Breaks/Bulk/Preview`, request)
       .pipe(retry(3));
   }
 

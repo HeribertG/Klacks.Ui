@@ -17,6 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 import { Break } from 'src/app/domain/models/break/break-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
@@ -36,6 +37,7 @@ const MOVE_BREAK_FAILED_KEY = 'schedule.moveBreak.moveFailed';
 export class ScheduleCellDropHandlerService {
   private dataManagement = inject(DataManagementScheduleService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
+  private takenWorksConfirm = inject(AbsenceTakenWorksConfirmService);
   private translateService = inject(TranslateService);
   private toastShowService = inject(ToastShowService);
 
@@ -102,9 +104,13 @@ export class ScheduleCellDropHandlerService {
     breakEntry.paymentInterval = this.dataManagement.currentFilter.paymentInterval;
     breakEntry.description = this.buildBreakDescription(src.abbreviation);
 
-    this.scheduleEntryCrud
-      .addBreakScheduleEntry(breakEntry)
-      .then(() => this.deleteEntry(src))
+    this.takenWorksConfirm
+      .confirmBreak(breakEntry)
+      .then(async (agreed) => {
+        if (!agreed) return;
+        await this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
+        this.deleteEntry(src);
+      })
       .catch((error: unknown) => this.showMoveFailed(error, MOVE_BREAK_FAILED_KEY));
   }
 

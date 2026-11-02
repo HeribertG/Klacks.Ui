@@ -22,6 +22,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu-item.interface';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 import { BreakCellParams } from 'src/app/domain/services/schedule/break-cell-params.interface';
 import {
   DeleteWorkScheduleEntryParams,
@@ -54,6 +55,7 @@ export class ScheduleEntryActionsService {
   private dataManagement = inject(DataManagementScheduleService);
   private absenceMenuService = inject(AbsenceMenuService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
+  private takenWorksConfirm = inject(AbsenceTakenWorksConfirmService);
   private cellManipulation = inject(BaseCellManipulationService);
   private workService = inject(DataManagementWorkService);
   private breakService = inject(DataManagementBreakService);
@@ -88,12 +90,12 @@ export class ScheduleEntryActionsService {
     void this.shiftPlacement.placeShift(shift, client.id, targetDate);
   }
 
-  addBreakFromAbsenceMenu(
+  async addBreakFromAbsenceMenu(
     absenceItemId: string,
     row: number,
     column: number,
     dataService: ScheduleDataService
-  ): void {
+  ): Promise<void> {
     if (!absenceItemId) return;
     if (!dataService.startDate) return;
     if (dataService.isCellOutsideMembershipPeriod(row, column)) return;
@@ -136,7 +138,9 @@ export class ScheduleEntryActionsService {
       breakEntry.description = { ...selectedItem.description };
     }
 
-    this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
+    if (await this.takenWorksConfirm.confirmBreak(breakEntry)) {
+      await this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
+    }
   }
 
   deleteSelectedEntries(dataService: ScheduleDataService): void {
@@ -315,7 +319,9 @@ export class ScheduleEntryActionsService {
       });
     }
 
-    await this.scheduleEntryCrud.bulkAddBreakScheduleEntries(entries);
+    if (await this.takenWorksConfirm.confirm(entries)) {
+      await this.scheduleEntryCrud.bulkAddBreakScheduleEntries(entries);
+    }
   }
 
   deleteScheduleNote(row: number, column: number, dataService: ScheduleDataService): void {

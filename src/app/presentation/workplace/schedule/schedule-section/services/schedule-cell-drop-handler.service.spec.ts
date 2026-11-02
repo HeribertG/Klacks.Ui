@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 import { ScheduleCellDropHandlerService } from './schedule-cell-drop-handler.service';
 import { ScheduleCellDragSource } from './schedule-cell-drag-source.interface';
 import { ScheduleCellDropResult } from './schedule-cell-drop-result.interface';
@@ -61,6 +62,8 @@ const buildSources = (settings: BaseSettingsService): void => {
 const visibleStart = new Date(2026, 4, 1);
 const visibleEnd = new Date(2026, 4, 31);
 
+const flushPromises = () => new Promise(resolve => setTimeout(resolve));
+
 describe('ScheduleCellDropHandlerService', () => {
   let service: ScheduleCellDropHandlerService;
   let dataManagement: {
@@ -72,6 +75,7 @@ describe('ScheduleCellDropHandlerService', () => {
     currentFilter: { paymentInterval: number };
   };
   let scheduleEntryCrud: { addBreakScheduleEntry: ReturnType<typeof vi.fn> };
+  let takenWorksConfirm: { confirmBreak: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     dataManagement = {
@@ -86,6 +90,7 @@ describe('ScheduleCellDropHandlerService', () => {
     scheduleEntryCrud = {
       addBreakScheduleEntry: vi.fn().mockResolvedValue(undefined),
     };
+    takenWorksConfirm = { confirmBreak: vi.fn().mockResolvedValue(true) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -95,6 +100,7 @@ describe('ScheduleCellDropHandlerService', () => {
         ScheduleCellDropHandlerService,
         BaseSettingsService,
         { provide: DataManagementScheduleService, useValue: dataManagement },
+        { provide: AbsenceTakenWorksConfirmService, useValue: takenWorksConfirm },
         { provide: ScheduleEntryCrudService, useValue: scheduleEntryCrud },
         {
           provide: TranslateService,
@@ -146,8 +152,7 @@ describe('ScheduleCellDropHandlerService', () => {
     };
 
     service.handleDrop(result);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushPromises();
 
     expect(dataManagement.reassignWorkScheduleEntry).toHaveBeenCalledWith(
       workSource.sourceId,
@@ -170,11 +175,25 @@ describe('ScheduleCellDropHandlerService', () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     service.handleDrop({ source: workSource, action: 'move', targetClientId: 'client-target' });
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushPromises();
 
     expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
     errSpy.mockRestore();
+  });
+
+  it('moves no break when the planner keeps the service of the target', async () => {
+    takenWorksConfirm.confirmBreak.mockResolvedValue(false);
+
+    service.handleDrop({
+      source: breakSource,
+      action: 'move',
+      targetClientId: 'client-target',
+    });
+    await flushPromises();
+
+    expect(takenWorksConfirm.confirmBreak).toHaveBeenCalledTimes(1);
+    expect(scheduleEntryCrud.addBreakScheduleEntry).not.toHaveBeenCalled();
+    expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
   });
 
   it('move Break calls addBreakScheduleEntry on target client first, then delete on source', async () => {
@@ -183,8 +202,7 @@ describe('ScheduleCellDropHandlerService', () => {
       action: 'move',
       targetClientId: 'client-target',
     });
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushPromises();
 
     expect(scheduleEntryCrud.addBreakScheduleEntry).toHaveBeenCalledTimes(1);
     const arg = scheduleEntryCrud.addBreakScheduleEntry.mock.calls[0][0];
@@ -235,8 +253,7 @@ describe('ScheduleCellDropHandlerService', () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     service.handleDrop({ source: breakSource, action: 'move', targetClientId: 'client-target' });
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushPromises();
 
     expect(dataManagement.deleteWorkScheduleEntry).not.toHaveBeenCalled();
     errSpy.mockRestore();
@@ -251,8 +268,7 @@ describe('ScheduleCellDropHandlerService', () => {
     });
 
     const settle = async (): Promise<void> => {
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushPromises();
     };
 
     it('is not shown for a Work move refused over HTTP, which the interceptor already reported', async () => {

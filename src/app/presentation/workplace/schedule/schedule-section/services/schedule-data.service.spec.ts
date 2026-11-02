@@ -49,6 +49,9 @@ import {
     expectedJanuaryOffsetMinutes,
     useTimeZone,
 } from 'src/app/shared/testing/time-zone.testing';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
+
+const takenWorksConfirm = { confirm: vi.fn().mockResolvedValue(true) };
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
@@ -81,6 +84,7 @@ describe('ScheduleDataService', () => {
                 { provide: ScrollService, useValue: { maxRows: 0, maxCols: 0 } },
                 { provide: HolidayCollectionService, useValue: holidayCollection },
                 { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
+                { provide: AbsenceTakenWorksConfirmService, useValue: takenWorksConfirm },
                 { provide: DataManagementScheduleService, useValue: dataManagement },
                 { provide: AnalyseScenarioService, useValue: { activeScenario } },
                 { provide: AppSettingsManagementService, useValue: {
@@ -440,11 +444,12 @@ describe('ScheduleDataService', () => {
             });
         }
 
-        function copyAndPaste(source: ScheduleCell): BreakCellParams[] {
+        async function copyAndPaste(source: ScheduleCell): Promise<BreakCellParams[]> {
             vi.spyOn(service, 'getWorkScheduleEntryForCell').mockImplementation((_row: number, col: number) =>
                 col === SOURCE_COL ? source : undefined);
             service.onCopy(TARGET_ROW, SOURCE_COL, TARGET_ROW, SOURCE_COL);
             service.handlePaste(TARGET_ROW, TARGET_COL, []);
+            await vi.waitFor(() => expect(bulkAddBreaks).toHaveBeenCalled());
             return bulkAddBreaks.mock.calls[0][0] as BreakCellParams[];
         }
 
@@ -456,8 +461,22 @@ describe('ScheduleDataService', () => {
             vi.spyOn(service, 'isCellActive').mockReturnValue(false);
         });
 
-        it('sends workTime 0 for a copied time-span absence so the target employee gets recomputed hours', () => {
-            const pasted = copyAndPaste(breakCell(FULL_DAY_START, FULL_DAY_END, FULL_DAY_SOURCE_HOURS));
+        it('pastes nothing when the planner keeps the services', async () => {
+            takenWorksConfirm.confirm.mockResolvedValueOnce(false);
+            const source = breakCell(FULL_DAY_START, FULL_DAY_END, FULL_DAY_SOURCE_HOURS);
+            vi.spyOn(service, 'getWorkScheduleEntryForCell').mockImplementation((_row: number, col: number) =>
+                col === SOURCE_COL ? source : undefined);
+            service.onCopy(TARGET_ROW, SOURCE_COL, TARGET_ROW, SOURCE_COL);
+
+            service.handlePaste(TARGET_ROW, TARGET_COL, []);
+
+            await vi.waitFor(() => expect(takenWorksConfirm.confirm).toHaveBeenCalledTimes(1));
+            await Promise.resolve();
+            expect(bulkAddBreaks).not.toHaveBeenCalled();
+        });
+
+        it('sends workTime 0 for a copied time-span absence so the target employee gets recomputed hours', async () => {
+            const pasted = await copyAndPaste(breakCell(FULL_DAY_START, FULL_DAY_END, FULL_DAY_SOURCE_HOURS));
 
             expect(pasted).toHaveLength(1);
             expect(pasted[0]).toMatchObject({
@@ -469,8 +488,8 @@ describe('ScheduleDataService', () => {
             });
         });
 
-        it('carries the recorded hours of a copied duration-mode absence', () => {
-            const pasted = copyAndPaste(breakCell(NO_TIMES_RECORDED, NO_TIMES_RECORDED, DURATION_MODE_HOURS));
+        it('carries the recorded hours of a copied duration-mode absence', async () => {
+            const pasted = await copyAndPaste(breakCell(NO_TIMES_RECORDED, NO_TIMES_RECORDED, DURATION_MODE_HOURS));
 
             expect(pasted).toHaveLength(1);
             expect(pasted[0]).toMatchObject({
@@ -480,8 +499,8 @@ describe('ScheduleDataService', () => {
             });
         });
 
-        it('sends workTime 0 for equal bounds without recorded hours', () => {
-            const pasted = copyAndPaste(breakCell(NO_TIMES_RECORDED, NO_TIMES_RECORDED, null));
+        it('sends workTime 0 for equal bounds without recorded hours', async () => {
+            const pasted = await copyAndPaste(breakCell(NO_TIMES_RECORDED, NO_TIMES_RECORDED, null));
 
             expect(pasted[0].workTime).toBe(0);
         });
@@ -751,7 +770,7 @@ describe('ScheduleDataService', () => {
             vi.spyOn(service, 'isCellActive').mockImplementation((row: number, col: number) => activeCells.has(`${row}:${col}`));
         });
 
-        it('pastes copied work and break entries onto the target client and days', () => {
+        it('pastes copied work and break entries onto the target client and days', async () => {
             copyEntries({
                 '0:0': entry({ entryType: WorkScheduleEntryType.Work, entryId: 'shift-early', startTime: '06:00:00', endTime: '14:00:00' }),
                 '0:1': entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1', startTime: '', endTime: '' }),
@@ -764,6 +783,7 @@ describe('ScheduleDataService', () => {
             expect(bulkWork).toHaveBeenCalledWith([
                 { clientId: 'c2', date: dateAt(2), shiftId: 'shift-early', workTime: 8, startTime: '06:00:00', endTime: '14:00:00' },
             ]);
+            await vi.waitFor(() => expect(bulkBreak).toHaveBeenCalled());
             expect(bulkBreak).toHaveBeenCalledTimes(1);
             expect(bulkBreak).toHaveBeenCalledWith([
                 { clientId: 'c2', absenceId: 'absence-1', date: dateAt(3), workTime: 0, startTime: '00:00', endTime: '00:00' },
@@ -857,13 +877,14 @@ describe('ScheduleDataService', () => {
             expect(bulkBreak).not.toHaveBeenCalled();
         });
 
-        it('keeps the other cells of a block when single targets are skipped', () => {
+        it('keeps the other cells of a block when single targets are skipped', async () => {
             const absence = entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1' });
             copyEntries({ '0:0': absence, '0:1': absence, '0:2': absence }, 0, 2);
             activeCells.add('0:3');
 
             service.handlePaste(0, 2, []);
 
+            await vi.waitFor(() => expect(bulkBreak).toHaveBeenCalled());
             expect(bulkBreak).toHaveBeenCalledWith([
                 { clientId: 'c1', absenceId: 'absence-1', date: dateAt(2), workTime: 0, startTime: '00:00', endTime: '00:00' },
                 { clientId: 'c1', absenceId: 'absence-1', date: dateAt(4), workTime: 0, startTime: '00:00', endTime: '00:00' },
@@ -909,13 +930,14 @@ describe('ScheduleDataService', () => {
             ]);
         });
 
-        it('pastes a snapshot of the copied entries', () => {
+        it('pastes a snapshot of the copied entries', async () => {
             const copied = entry({ entryType: WorkScheduleEntryType.Break, entryId: 'absence-1' });
             copyEntries({ '0:0': copied }, 0, 0);
             copied.entryId = 'changed-after-copy';
 
             service.handlePaste(0, 2, []);
 
+            await vi.waitFor(() => expect(bulkBreak).toHaveBeenCalled());
             expect(bulkBreak).toHaveBeenCalledWith([
                 { clientId: 'c1', absenceId: 'absence-1', date: dateAt(2), workTime: 0, startTime: '00:00', endTime: '00:00' },
             ]);

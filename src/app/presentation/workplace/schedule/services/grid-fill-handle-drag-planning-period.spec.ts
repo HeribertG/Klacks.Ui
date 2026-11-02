@@ -13,6 +13,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { InputModalityService } from 'src/app/presentation/services/input-modality.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
+import { AbsenceTakenWorksConfirmService } from 'src/app/presentation/workplace/schedule/services/absence-taken-works-confirm.service';
 
 const SHIFT_ID = 'shift-1';
 const ABSENCE_ID = 'absence-1';
@@ -24,6 +25,8 @@ const MEMBERSHIP_ENDED_COLUMN = 3;
 
 const dateForColumn = (col: number): Date =>
   new Date(FIRST_DAY.getFullYear(), FIRST_DAY.getMonth(), FIRST_DAY.getDate() + col);
+
+const takenWorksConfirm = { confirm: vi.fn() };
 
 describe('GridFillHandleDragService - fill handle respects the planning period', () => {
   let service: GridFillHandleDragService;
@@ -53,6 +56,7 @@ describe('GridFillHandleDragService - fill handle respects the planning period',
       startShift: '08:00', endShift: '16:00',
     }));
 
+    takenWorksConfirm.confirm.mockReset().mockResolvedValue(true);
     TestBed.configureTestingModule({
       providers: [
         GridFillHandleDragService,
@@ -72,6 +76,7 @@ describe('GridFillHandleDragService - fill handle respects the planning period',
           },
         },
         { provide: InputModalityService, useValue: { isTouchMode: () => false } },
+        { provide: AbsenceTakenWorksConfirmService, useValue: takenWorksConfirm },
       ],
     });
 

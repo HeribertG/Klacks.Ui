@@ -7,6 +7,7 @@ import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.se
 import { BulkAddBreaksRequest } from 'src/app/domain/models/dtos/bulk-add-breaks-request.dto';
 import { BulkDeleteBreaksRequest } from 'src/app/domain/models/dtos/bulk-delete-breaks-request.dto';
 import { BulkBreaksResponse } from 'src/app/domain/models/dtos/bulk-breaks-response.dto';
+import { RemovableWork } from 'src/app/domain/models/dtos/removable-work.dto';
 import { Observable } from 'rxjs';
 import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
@@ -60,12 +61,23 @@ export class DataManagementBreakService {
     return this.dataBreakService.unconfirmBreak(breakId);
   }
 
-  bulkAddBreaks(request: BulkAddBreaksRequest): Observable<BulkBreaksResponse> {
+  previewTakenWorks(request: BulkAddBreaksRequest): Observable<RemovableWork[]> {
+    return this.dataBreakService.previewTakenWorks(this.withActiveToken(request));
+  }
+
+  private withActiveToken(request: BulkAddBreaksRequest): BulkAddBreaksRequest {
     const analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
-    request.breaks = request.breaks.map(b => ({ ...b, analyseToken: b.analyseToken ?? analyseToken }));
+    return {
+      ...request,
+      breaks: request.breaks.map(b => ({ ...b, analyseToken: b.analyseToken ?? analyseToken })),
+    };
+  }
+
+  bulkAddBreaks(request: BulkAddBreaksRequest): Observable<BulkBreaksResponse> {
+    const tokened = this.withActiveToken(request);
     this.isCreating.set(true);
     return new Observable(observer => {
-      this.dataBreakService.bulkAddBreaks(request).subscribe({
+      this.dataBreakService.bulkAddBreaks(tokened).subscribe({
         next: (result) => {
           this.isCreating.set(false);
           observer.next(result);

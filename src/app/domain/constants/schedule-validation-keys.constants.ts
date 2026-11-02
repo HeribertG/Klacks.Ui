@@ -23,6 +23,8 @@ export const SCHEDULE_VALIDATION_KEY_CONSECUTIVE_DAYS =
   'schedule.error-list.consecutive-days';
 export const SCHEDULE_VALIDATION_KEY_UNCOVERED_ABSENCE =
   'schedule.error-list.uncovered-absence';
+export const SCHEDULE_VALIDATION_KEY_COVER_RELOCATION_KEEPS_EXTRAS =
+  'schedule.error-list.cover-relocation-keeps-extras';
 export const SCHEDULE_VALIDATION_KEY_ON_CALL_OVERLAP =
   'schedule.error-list.on-call-overlap';
 
