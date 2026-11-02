@@ -14,6 +14,7 @@ import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-placeholder-class';
 import { ScheduleDataService } from './schedule-data.service';
+import { setCompanyTimeZone } from 'src/app/domain/helpers/calendar-date.helper';
 
 describe('ScheduleContextMenuService - role seniority gates unconfirm', () => {
   let service: ScheduleContextMenuService;
@@ -284,5 +285,90 @@ describe('ScheduleContextMenuService - expenses entry', () => {
     held.add(PERMISSIONS.CanEditSchedule);
 
     expect(keysOf(WorkScheduleEntryType.WorkChange)).toContain('del');
+  });
+});
+describe('ScheduleContextMenuService - confirm only after the service has ended', () => {
+  let service: ScheduleContextMenuService;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-02T13:00:00Z'));
+    setCompanyTimeZone('UTC');
+
+    TestBed.configureTestingModule({
+      providers: [
+        ScheduleContextMenuService,
+        WorkLockLevelService,
+        { provide: TranslateService, useValue: { currentLang: 'en', instant: (key: string) => key } },
+        { provide: BaseCellManipulationService, useValue: { hasClipboardData: () => false } },
+        { provide: DataManagementScheduleService, useValue: { shiftSchedules: [] } },
+        { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [] } },
+        {
+          provide: AuthorizationService,
+          useValue: { hasPermission: () => false, hasAnyPermission: () => false },
+        },
+      ],
+    });
+
+    service = TestBed.inject(ScheduleContextMenuService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    setCompanyTimeZone(null);
+  });
+
+  const confirmItem = (entryType: WorkScheduleEntryType, day: Date, start: string, end: string) => {
+    const entry = new ScheduleCell();
+    entry.entryType = entryType;
+    entry.entryDate = day;
+    entry.startTime = start;
+    entry.endTime = end;
+    entry.lockLevel = 0;
+    entry.isGroupRestricted = false;
+    entry.entryId = 'shift-1';
+    entry.sourceId = 'work-1';
+
+    return service
+      .createContextMenu({
+        row: 0,
+        column: 0,
+        entry,
+        dataService: {
+          isCellOutsideMembershipPeriod: () => false,
+          isCellOutsideGroupPeriod: () => false,
+          isColumnSealed: () => false,
+          isColumnOutsideScenario: () => false,
+          getAllEntriesForClientAndColumn: () => [],
+        } as unknown as ScheduleDataService,
+      })
+      .list.find((item) => item.key === 'confirm');
+  };
+
+  it('keeps "confirm" in the menu but disabled, with the reason, while the service has not ended', () => {
+    const item = confirmItem(WorkScheduleEntryType.Work, new Date(2026, 10, 2), '08:00:00', '16:00:00');
+
+    expect(item).toBeDefined();
+    expect(item?.disabled).toBe(true);
+    expect(item?.subText).toBe('contextMenu.confirmNotEnded');
+  });
+
+  it('offers "confirm" for a service of an earlier day', () => {
+    const item = confirmItem(WorkScheduleEntryType.Work, new Date(2026, 10, 1), '08:00:00', '16:00:00');
+
+    expect(item?.disabled).toBe(false);
+    expect(item?.subText).toBeUndefined();
+  });
+
+  it('keeps a night shift of yesterday disabled until it ends on the company clock', () => {
+    const item = confirmItem(WorkScheduleEntryType.Work, new Date(2026, 10, 1), '22:00:00', '14:00:00');
+
+    expect(item?.disabled).toBe(true);
+  });
+
+  it('does not hold back the confirmation of an absence', () => {
+    const item = confirmItem(WorkScheduleEntryType.Break, new Date(2026, 10, 5), '00:00:00', '23:59:00');
+
+    expect(item?.disabled).toBe(false);
   });
 });

@@ -164,7 +164,7 @@ export class ScheduleContextMenuService {
         if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {
           menuData.list.push(...MenuDataTemplate.divider());
           if (this.lockLevelService.canConfirm(entry)) {
-            menuData.list.push(...MenuDataTemplate.confirm());
+            menuData.list.push(...this.confirmItems(entry));
           }
           if (this.canUnconfirmEntry(entry)) {
             menuData.list.push(...MenuDataTemplate.unconfirm());
@@ -222,6 +222,18 @@ export class ScheduleContextMenuService {
   /** Whoever may edit the schedule may ask for a cover proposal; the backend endpoint is open to every authenticated user. */
   private canCoverAbsence(): boolean {
     return this.authService.hasPermission(PERMISSIONS.CanEditSchedule);
+  }
+
+  /** A service that has not ended yet stays visible but cannot be confirmed; the item says why. */
+  private confirmItems(entry: IScheduleCell): MenuItem[] {
+    const items = MenuDataTemplate.confirm();
+    if (this.lockLevelService.isServiceOpen(entry)) {
+      for (const item of items) {
+        item.disabled = true;
+        item.subText = this.translateService.instant(DomainMessages.CONFIRM_NOT_ENDED);
+      }
+    }
+    return items;
   }
 
   private canUnconfirmEntry(entry: IScheduleCell): boolean {

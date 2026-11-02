@@ -67,7 +67,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { EXPORTS_TAB_TARGETS, ExportsTabKey } from '../period-closing-target.constants';
-import { errorCountToReconfirm } from '../period-seal-conflict';
+import { errorCountToReconfirm, sealErrorMessage } from '../period-seal-conflict';
 import { parsePayrollExportConflict } from './payroll-export-conflict.parser';
 import { PAYROLL_BLOCK_REASON_KEYS, PAYROLL_EMPTY_PLACEHOLDER } from './payroll-export.constants';
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
@@ -556,7 +556,7 @@ export class ExportsTabComponent implements OnInit {
             this.openViolationConfirmation(() => this.closePeriodGlobally(fromDate, untilDate, true, retryCount));
             return;
           }
-          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.toastShowService.showError(sealErrorMessage(err, this.translate));
         },
       });
   }

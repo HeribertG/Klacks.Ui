@@ -47,7 +47,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-event-type.enum';
 import { KlacksyTargetRequestedEvent } from 'src/app/domain/events/klacksy-target-requested-event.interface';
 import { PERIOD_CLOSING_ISSUES_TARGET } from '../period-closing-target.constants';
 import { PeriodGroup } from './period-group.interface';
-import { errorCountToReconfirm } from '../period-seal-conflict';
+import { errorCountToReconfirm, sealErrorMessage } from '../period-seal-conflict';
 
 const BULK_UNSEAL_KEY = '__bulk__';
 const ISO_DATE_LENGTH = 10;
@@ -421,7 +421,7 @@ export class PeriodsTabComponent implements OnInit {
             this.openViolationConfirmation(() => this.executeBulkSeal(period, true, retryCount));
             return;
           }
-          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.toastShowService.showError(sealErrorMessage(err, this.translate));
         },
       });
   }
@@ -494,7 +494,7 @@ export class PeriodsTabComponent implements OnInit {
             this.openViolationConfirmation(() => this.sealDay(date, true, retryCount));
             return;
           }
-          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.toastShowService.showError(sealErrorMessage(err, this.translate));
         },
       });
   }
