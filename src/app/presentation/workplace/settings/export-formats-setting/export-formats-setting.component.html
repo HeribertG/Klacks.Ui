@@ -74,6 +74,43 @@
     </div>
     }
     }
+    @if (datevEnabled()) {
+    <div id="export-formats-setting-datev-hint" class="info-text settings-hint">
+      {{ 'settings.exportFormats.datev.hint' | translate }}
+    </div>
+    @for (field of datevFields; track field) {
+    <div class="row-line-single">
+      <div class="form-group firstColumn">
+        <label [for]="'export-formats-setting-datev-' + field">{{ datevLabelKey(field) | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          inputmode="numeric"
+          class="form-control datev-number-input"
+          [class.is-invalid]="datevNumbers()[field].errorKey"
+          [id]="'export-formats-setting-datev-' + field"
+          [attr.min]="datevRange(field).min"
+          [attr.max]="datevRange(field).max"
+          [value]="datevNumbers()[field].draft"
+          [attr.aria-invalid]="datevNumbers()[field].errorKey ? 'true' : null"
+          [attr.aria-describedby]="datevDescribedBy(field)"
+          (input)="onDatevInput(field, $event)"
+          (blur)="onDatevCommit(field)"
+          (keydown.enter)="onDatevCommit(field)"
+        />
+        @if (datevNumbers()[field].errorKey; as errorKey) {
+        <div
+          class="invalid-feedback"
+          role="alert"
+          [id]="datevErrorId(field)"
+        >
+          {{ errorKey | translate: datevRange(field) }}
+        </div>
+        }
+      </div>
+    </div>
+    }
+    }
   </div>
 </app-settings-list-card>
 }

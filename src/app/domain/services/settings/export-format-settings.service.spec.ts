@@ -69,6 +69,82 @@ describe('ExportFormatSettingsService', () => {
     });
   });
 
+  describe('readDatevNumberSetting', () => {
+    it('returns id and parsed number of the stored setting', async () => {
+      settingsApi.readSetting.mockReturnValue(of({ id: 'n-1', type: 'DATEV_CLIENT_NUMBER', value: '4711' }));
+
+      await expect(firstValueFrom(service.readDatevNumberSetting('DATEV_CLIENT_NUMBER'))).resolves.toEqual({
+        id: 'n-1',
+        value: 4711,
+      });
+      expect(settingsApi.readSetting).toHaveBeenCalledWith('DATEV_CLIENT_NUMBER');
+    });
+
+    it('returns a null value for an empty stored value', async () => {
+      settingsApi.readSetting.mockReturnValue(of({ id: 'n-1', type: 'DATEV_CLIENT_NUMBER', value: '' }));
+
+      await expect(firstValueFrom(service.readDatevNumberSetting('DATEV_CLIENT_NUMBER'))).resolves.toEqual({
+        id: 'n-1',
+        value: null,
+      });
+    });
+
+    it('returns an empty state when the setting does not exist yet', async () => {
+      settingsApi.readSetting.mockReturnValue(of(null));
+
+      await expect(firstValueFrom(service.readDatevNumberSetting('DATEV_CLIENT_NUMBER'))).resolves.toEqual({
+        id: undefined,
+        value: null,
+      });
+    });
+
+    it('returns an empty state when reading fails', async () => {
+      settingsApi.readSetting.mockReturnValue(throwError(() => new Error('offline')));
+
+      await expect(firstValueFrom(service.readDatevNumberSetting('DATEV_CLIENT_NUMBER'))).resolves.toEqual({
+        id: undefined,
+        value: null,
+      });
+    });
+  });
+
+  describe('saveNumberSetting', () => {
+    it('updates an existing setting with the number as text', async () => {
+      const saved = await firstValueFrom(service.saveNumberSetting('DATEV_CONSULTANT_NUMBER', 'n-1', 1234567));
+
+      expect(settingsApi.updateSetting).toHaveBeenCalledWith({
+        id: 'n-1',
+        type: 'DATEV_CONSULTANT_NUMBER',
+        value: '1234567',
+      });
+      expect(saved.id).toBe('stored');
+    });
+
+    it('creates the setting when none exists yet', async () => {
+      const saved = await firstValueFrom(service.saveNumberSetting('DATEV_CONSULTANT_NUMBER', undefined, 1001));
+
+      expect(settingsApi.addSetting).toHaveBeenCalledWith({
+        id: undefined,
+        type: 'DATEV_CONSULTANT_NUMBER',
+        value: '1001',
+      });
+      expect(saved.id).toBe('created');
+    });
+
+    it('clears an existing setting with an empty value', async () => {
+      await firstValueFrom(service.saveNumberSetting('DATEV_CLIENT_NUMBER', 'n-2', null));
+
+      expect(settingsApi.updateSetting).toHaveBeenCalledWith({ id: 'n-2', type: 'DATEV_CLIENT_NUMBER', value: '' });
+    });
+
+    it('does not call the API when clearing a setting that was never stored', async () => {
+      await firstValueFrom(service.saveNumberSetting('DATEV_CLIENT_NUMBER', undefined, null));
+
+      expect(settingsApi.addSetting).not.toHaveBeenCalled();
+      expect(settingsApi.updateSetting).not.toHaveBeenCalled();
+    });
+  });
+
   describe('saveEnabledFormats', () => {
     const formats = [
       format('csv', true, true),
