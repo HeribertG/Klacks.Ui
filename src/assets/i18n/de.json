@@ -3870,6 +3870,8 @@
   "periodClosing.format.merit-palk-ee": "Merit Palk (EE)",
   "periodClosing.format.paxml-se": "PAXml (SE)",
   "periodClosing.format.abaconnect-ch": "AbaConnect (CH)",
+  "periodClosing.format.banana-ch": "Banana (CH)",
+  "periodClosing.format.klara-ch": "KLARA (CH)",
   "periodClosing.format.pohoda-cz": "POHODA (CZ)",
   "periodClosing.format.winmentor-ro": "WinMENTOR (RO)",
   "periodClosing.format.brightpay-ie-uk": "BrightPay (IE/UK)",
