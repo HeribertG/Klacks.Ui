@@ -117,6 +117,7 @@ export class DomainMessages {
   public static OPEN_CONTAINER = 'contextMenu.openContainer';
   public static EXPENSES = 'contextMenu.expenses';
   public static CONFIRM = 'contextMenu.confirm';
+  public static CONFIRM_NOT_ENDED = 'contextMenu.confirmNotEnded';
   public static UNCONFIRM = 'contextMenu.unconfirm';
   public static readonly STAFF_SCHEDULE = 'contextMenu.staffSchedule';
   public static readonly SEND_STAFF_SCHEDULE = 'contextMenu.sendStaffSchedule';

@@ -2,9 +2,10 @@
 
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { ShiftPlacementService } from './shift-placement.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -53,6 +54,7 @@ function createShift(wireDate: string): IShiftSchedule {
 
 describe('ScheduleEntryActionsService', () => {
   let service: ScheduleEntryActionsService;
+  let toastShowService: { showError: ReturnType<typeof vi.fn> };
   let dataManagement: {
     shiftSchedules: IShiftSchedule[];
     clients: { id: string }[];
@@ -109,11 +111,14 @@ describe('ScheduleEntryActionsService', () => {
       bulkAddBreakScheduleEntries: vi.fn().mockResolvedValue(undefined),
     };
 
+    toastShowService = { showError: vi.fn() };
+
     TestBed.configureTestingModule({
       providers: [
         ScheduleEntryActionsService,
         ShiftPlacementService,
-        { provide: TranslateService, useValue: { currentLang: 'de' } },
+        { provide: TranslateService, useValue: { currentLang: 'de', instant: (key: string) => key } },
+        { provide: ToastShowService, useValue: toastShowService },
         { provide: DataManagementScheduleService, useValue: dataManagement },
         { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [ABSENCE_ITEM] } },
         { provide: ScheduleEntryCrudService, useValue: scheduleEntryCrud },
@@ -166,6 +171,18 @@ describe('ScheduleEntryActionsService', () => {
       expect(breakService.confirmBreak).toHaveBeenCalledWith('entry-1');
       expect(workService.confirmWork).not.toHaveBeenCalled();
       expect(dataManagement.readDatas).toHaveBeenCalledWith(false);
+    });
+
+    it('shows the reason the backend gave when it refuses to confirm a service that has not ended', () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      workService.confirmWork.mockReturnValue(
+        throwError(() => ({ status: 400, error: { detail: 'The service has not ended yet' } })),
+      );
+
+      service.confirmWork(0, 0, gridWithEntry(WorkScheduleEntryType.Work));
+
+      expect(toastShowService.showError).toHaveBeenCalledWith('The service has not ended yet');
+      expect(dataManagement.readDatas).not.toHaveBeenCalled();
     });
 
     it('unconfirms a work entry through the work service and re-reads the schedule', () => {

@@ -72,6 +72,8 @@ export class ResponseInterceptor implements HttpInterceptor {
   private injector = inject(Injector);
 
   private static readonly KNOWLEDGE_INDEX_SYNC_STATUS_PATH = 'knowledge-index/sync-status';
+  private static readonly SEAL_PERIOD_PATH = 'PeriodClosing/Seal';
+  private static readonly CONFIRM_WORK_PATH_PATTERN = /Works\/[^/]+\/Confirm(\?|$)/;
   private static readonly QUIET_CALLER_HANDLED_PATHS: readonly string[] = [
     ResponseInterceptor.KNOWLEDGE_INDEX_SYNC_STATUS_PATH,
     AUTOFILL_RUNS_ACTIVE_PATH,
@@ -280,6 +282,12 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    // The period close page shows the refusal of a seal itself (unresolved errors to confirm, or services that are not
+    // confirmed yet, with their list); the schedule shows the refusal to confirm a service that has not ended.
+    if (this.isCallerHandledSealRefusal(url, error.status)) {
+      return throwError(() => error);
+    }
+
     if (this.isKlacksyLearningPassThroughError(url, error.status)) {
       return throwError(() => error);
     }
@@ -424,6 +432,13 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private isGeoServicesPassThrough(url: string): boolean {
     return GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS.some((path) => url.includes(path));
+  }
+
+  private isCallerHandledSealRefusal(url: string, status: number): boolean {
+    return (
+      (url.includes(ResponseInterceptor.SEAL_PERIOD_PATH) && status === HttpStatusCode.Conflict) ||
+      (ResponseInterceptor.CONFIRM_WORK_PATH_PATTERN.test(url) && status === HttpStatusCode.BadRequest)
+    );
   }
 
   private isSetupOwnAdminPassThroughError(url: string, status: number): boolean {

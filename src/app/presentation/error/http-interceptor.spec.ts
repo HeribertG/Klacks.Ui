@@ -64,6 +64,8 @@ const KNOWLEDGE_INDEX_SYNC_STATUS_URL = '/api/config/knowledge-index/sync-status
 const AUTOFILL_RUNS_ACTIVE_URL = '/api/backend/AutofillRuns/Active';
 const ERP_IMPORT_FILES_URL = '/api/backend/ErpDropPoints/files';
 const ERP_IMPORT_FILE_RETRY_URL = '/api/backend/ErpDropPoints/files/3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b/retry';
+const SEAL_PERIOD_URL = '/api/backend/PeriodClosing/Seal';
+const CONFIRM_WORK_URL = '/api/backend/Works/3f2b8c1e-0d4a-4b6e-9f1a-2c3d4e5f6a7b/Confirm';
 const EXPLAIN_OFFER_STATE_URL = '/api/backend/assistant/explain-offers/shift-holiday-options';
 const FORBIDDEN = { status: 403, statusText: 'Forbidden' };
 const QUIET_POLL_FAILURE_RESPONSES = [NOT_FOUND, FORBIDDEN, SERVER_ERROR];
@@ -958,6 +960,44 @@ describe('ResponseInterceptor', () => {
       // Assert
       expect(toastShowService.showError).not.toHaveBeenCalled();
       expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+  });
+
+  describe('seal and confirm refusals (the page shows the backend reason itself)', () => {
+    it('leaves a refused period seal (409) to the page instead of adding a second toast', () => {
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(SEAL_PERIOD_URL, {}).subscribe({ error: (error: HttpErrorResponse) => (captured.status = error.status) });
+
+      httpMock.expectOne(SEAL_PERIOD_URL).flush({ errorCode: 'PERIOD_UNSEALED_WORKS' }, CONFLICT);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(CONFLICT.status);
+    });
+
+    it('still shows the generic toast for a 500 on the seal endpoint', () => {
+      httpClient.post(SEAL_PERIOD_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(SEAL_PERIOD_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).toHaveBeenCalled();
+    });
+
+    it('leaves a refused confirmation of a service that has not ended (400) to the schedule', () => {
+      const captured: { status: number | null } = { status: null };
+      httpClient.post(CONFIRM_WORK_URL, {}).subscribe({ error: (error: HttpErrorResponse) => (captured.status = error.status) });
+
+      httpMock.expectOne(CONFIRM_WORK_URL).flush({ detail: 'The service has not ended yet' }, BAD_REQUEST);
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+      expect(captured.status).toBe(BAD_REQUEST.status);
+    });
+
+    it('keeps the generic toast for a server error on the confirmation', () => {
+      httpClient.post(CONFIRM_WORK_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(CONFIRM_WORK_URL).flush(null, SERVER_ERROR);
+
+      expect(toastShowService.showError).toHaveBeenCalled();
     });
   });
 

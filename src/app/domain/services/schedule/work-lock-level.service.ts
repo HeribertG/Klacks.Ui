@@ -3,6 +3,8 @@
 import { Injectable } from '@angular/core';
 import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
+import { hasServiceEnded } from 'src/app/domain/helpers/service-end.helper';
 
 @Injectable({ providedIn: 'root' })
 export class WorkLockLevelService {
@@ -16,6 +18,16 @@ export class WorkLockLevelService {
 
   canConfirm(entry: IScheduleCell): boolean {
     return entry.lockLevel === WorkLockLevel.None && !entry.isGroupRestricted;
+  }
+
+  /**
+   * A work can only be confirmed once its service has ended on the company clock; an absence has no service to wait for.
+   */
+  isServiceOpen(entry: IScheduleCell, now: Date = new Date()): boolean {
+    return (
+      entry.entryType === WorkScheduleEntryType.Work &&
+      !hasServiceEnded(entry.entryDate, entry.startTime, entry.endTime, now)
+    );
   }
 
   canUnconfirm(entry: IScheduleCell, isAdmin: boolean, isAuthorised = false): boolean {

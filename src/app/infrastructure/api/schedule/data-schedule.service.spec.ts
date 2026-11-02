@@ -165,6 +165,22 @@ describe('DataScheduleService', () => {
         req.flush(mockWorkInstance);
     });
 
+    it('should not repeat a confirmation the server refused on its merits (400)', () => {
+        // Arrange
+        const workId = 'work-123';
+        const errors: number[] = [];
+
+        // Act
+        service.confirmWork(workId).subscribe({ error: (error) => errors.push(error.status) });
+        httpTestingController
+            .expectOne(`${environment.baseUrl}Works/${workId}/Confirm`)
+            .flush({ detail: 'The service has not ended yet' }, { status: 400, statusText: 'Bad Request' });
+
+        // Assert
+        httpTestingController.expectNone(`${environment.baseUrl}Works/${workId}/Confirm`);
+        expect(errors).toEqual([400]);
+    });
+
     it('should unconfirm a work item', () => {
         // Arrange
         const workId = 'work-123';

@@ -71,31 +71,31 @@ export class DataScheduleService {
   confirmWork(workId: string) {
     return this.httpClient
       .post<IWork>(`${environment.baseUrl}Works/${workId}/Confirm`, {})
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   unconfirmWork(workId: string) {
     return this.httpClient
       .post<IWork>(`${environment.baseUrl}Works/${workId}/Unconfirm`, {})
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   approveDay(date: string, groupId: string) {
     return this.httpClient
       .post<number>(`${environment.baseUrl}Works/ApproveDay`, { date, groupId })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   revokeDayApproval(date: string, groupId: string) {
     return this.httpClient
       .post<number>(`${environment.baseUrl}Works/RevokeDayApproval`, { date, groupId })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   closePeriod(startDate: string, endDate: string) {
     return this.httpClient
       .post<number>(`${environment.baseUrl}Works/ClosePeriod`, { startDate, endDate })
-      .pipe(retry(3));
+      .pipe(retryTransientHttpErrors());
   }
 
   reopenPeriod(startDate: string, endDate: string) {

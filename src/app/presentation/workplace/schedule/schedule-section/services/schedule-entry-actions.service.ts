@@ -16,6 +16,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
@@ -49,6 +50,7 @@ const FULL_DAY_END = '23:59:00';
 @Injectable()
 export class ScheduleEntryActionsService {
   private translateService = inject(TranslateService);
+  private toastShowService = inject(ToastShowService);
   private dataManagement = inject(DataManagementScheduleService);
   private absenceMenuService = inject(AbsenceMenuService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
@@ -242,14 +244,21 @@ export class ScheduleEntryActionsService {
     if (entry.entryType === WorkScheduleEntryType.Work) {
       this.workService.confirmWork(entry.id).subscribe({
         next: () => this.dataManagement.readDatas(false),
-        error: (err) => console.error('Error confirming work:', err),
+        error: (err) => this.reportConfirmError('Error confirming work:', err),
       });
     } else if (entry.entryType === WorkScheduleEntryType.Break) {
       this.breakService.confirmBreak(entry.id).subscribe({
         next: () => this.dataManagement.readDatas(false),
-        error: (err) => console.error('Error confirming break:', err),
+        error: (err) => this.reportConfirmError('Error confirming break:', err),
       });
     }
+  }
+
+  private reportConfirmError(logText: string, err: { status?: number; error?: { detail?: string } } | null): void {
+    console.error(logText, err);
+    this.toastShowService.showError(
+      err?.error?.detail ?? this.translateService.instant('HTTP_ERROR_UNKNOWN', { status: err?.status }),
+    );
   }
 
   unconfirmWork(row: number, column: number, dataService: ScheduleDataService): void {
