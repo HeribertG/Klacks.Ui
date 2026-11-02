@@ -44,7 +44,7 @@ import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { transformNgbDateStructToDate } from 'src/app/presentation/helpers/ngb-date.helper';
-import { companyToday, parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
+import { parseCalendarDate } from 'src/app/domain/helpers/calendar-date.helper';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
@@ -543,23 +543,7 @@ export class CutShiftListComponent implements OnInit, OnDestroy {
             this.maxDate = this.calendar.getNext(earliestNgbDate, 'y', 1);
           }
 
-          const today = companyToday();
-          const todayNgbDate = new NgbDate(
-            today.getFullYear(),
-            today.getMonth() + 1,
-            today.getDate()
-          );
-
-          const todayCompare = todayNgbDate.after(this.minDate) || todayNgbDate.equals(this.minDate);
-          const todayInRange = todayCompare && (todayNgbDate.before(this.maxDate) || todayNgbDate.equals(this.maxDate));
-
-          if (todayInRange) {
-            this.resetDate = todayNgbDate;
-          } else if (todayNgbDate.before(this.minDate)) {
-            this.resetDate = this.minDate;
-          } else {
-            this.resetDate = this.maxDate;
-          }
+          this.resetDate = this.maxDate.before(this.minDate) ? null : this.minDate;
 
           this.cdr.markForCheck();
 

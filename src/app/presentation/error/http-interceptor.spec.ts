@@ -458,6 +458,16 @@ describe('ResponseInterceptor', () => {
       expect(workplaceStateService.isDirty).toBe(true);
     });
 
+    it('explains a refused reset once in the user language', () => {
+      const RESET_URL = '/api/backend/Shifts/Cuts/Reset';
+      httpClient.post(RESET_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(RESET_URL).flush({ detail: 'English detail', errorCode: 'SHIFT_RESET_REFUSED' }, CONFLICT);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith('shift.cut-shift.reset-refused', 'shift-reset-refused');
+    });
+
     it('keeps the unsaved changes when a key refuses a shift save, the user may still save them elsewhere', () => {
       const SHIFT_URL = '/api/backend/Shifts/';
       workplaceStateService.isDirty = true;
