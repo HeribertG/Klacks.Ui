@@ -26,8 +26,7 @@ export class DataBreakService {
 
   addBreak(value: Break) {
     return defer(() => this.httpClient
-      .post<IBreak>(`${environment.baseUrl}Breaks/`, this.toWirePayload(value))
-      .pipe(retry(3)));
+      .post<IBreak>(`${environment.baseUrl}Breaks/`, this.toWirePayload(value)));
   }
 
   updateBreak(value: Break) {
@@ -50,8 +49,7 @@ export class DataBreakService {
 
   bulkAddBreaks(request: BulkAddBreaksRequest) {
     return this.httpClient
-      .post<BulkBreaksResponse>(`${environment.baseUrl}Breaks/Bulk`, request)
-      .pipe(retry(3));
+      .post<BulkBreaksResponse>(`${environment.baseUrl}Breaks/Bulk`, request);
   }
 
   bulkDeleteBreaks(request: BulkDeleteBreaksRequest) {

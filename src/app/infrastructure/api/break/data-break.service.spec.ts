@@ -35,6 +35,36 @@ describe('DataBreakService', () => {
         return breakEntry;
     };
 
+    describe('a write that fails', () => {
+        const fail = (url: string): void => {
+            httpTestingController.expectOne(url).flush('failed', { status: 500, statusText: 'Server Error' });
+        };
+
+        it('is not sent again on a single add, the server may have written it', () => {
+            service.addBreak(mockBreak()).subscribe({ error: () => undefined });
+
+            fail(`${environment.baseUrl}Breaks/`);
+        });
+
+        it('is not sent again on a bulk add, the server may have written it', () => {
+            service.bulkAddBreaks({ breaks: [], periodStart: '2026-11-01', periodEnd: '2026-11-30' })
+                .subscribe({ error: () => undefined });
+
+            fail(`${environment.baseUrl}Breaks/Bulk`);
+        });
+
+        it('retries the read-only preview', () => {
+            service.previewTakenWorks({ breaks: [], periodStart: '2026-11-01', periodEnd: '2026-11-30' })
+                .subscribe({ error: () => undefined });
+
+            const url = `${environment.baseUrl}Breaks/Bulk/Preview`;
+            fail(url);
+            fail(url);
+            fail(url);
+            fail(url);
+        });
+    });
+
     describe('calendar date wire format', () => {
         const ZONES = ['Asia/Kolkata', 'America/New_York'] as const;
 
