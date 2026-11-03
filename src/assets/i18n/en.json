@@ -946,6 +946,8 @@
   "schedule.move-reversal.already-reversed": "This move was already taken back.",
   "schedule.move-reversal.origin-busy": "The person this service came from is not free at that time: another service or an absence is in the way.",
   "schedule.move-reversal.not-found": "The service was not found.",
+  "schedule.container-work-change.correction-refused": "A container is not corrected itself; correct its inner services instead.",
+  "schedule.container-work-change.replacement-refused": "A container is not replaced itself; split it to hand part of it to another person.",
   "schedule.error-list.rest-violation": "Rest period only {{actualHours}}h instead of {{requiredHours}}h ({{endTime}} to {{startTime}})",
   "schedule.error-list.overtime": "Daily work time {{actualHours}}h exceeds maximum of {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} consecutive working days (max. {{maxDays}})",

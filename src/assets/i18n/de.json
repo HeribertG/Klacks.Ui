@@ -946,6 +946,8 @@
   "schedule.move-reversal.already-reversed": "Diese Verschiebung wurde schon zurückgenommen.",
   "schedule.move-reversal.origin-busy": "Die Person, von der der Dienst kam, ist zu dieser Zeit nicht frei: ein anderer Dienst oder eine Abwesenheit steht im Weg.",
   "schedule.move-reversal.not-found": "Der Dienst wurde nicht gefunden.",
+  "schedule.container-work-change.correction-refused": "Ein Container wird nicht selbst korrigiert; korrigiere seine inneren Dienste.",
+  "schedule.container-work-change.replacement-refused": "Ein Container wird nicht selbst abgelöst; teile ihn, um einen Teil an eine andere Person zu geben.",
   "schedule.error-list.rest-violation": "Ruhezeit nur {{actualHours}}h statt {{requiredHours}}h ({{endTime}} bis {{startTime}})",
   "schedule.error-list.overtime": "Tagesarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} aufeinanderfolgende Arbeitstage (max. {{maxDays}})",
