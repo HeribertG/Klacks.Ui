@@ -102,7 +102,10 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
         ScheduleContextMenuService,
         { provide: TranslateService, useValue: { currentLang: 'en', instant: (key: string) => key } },
         { provide: BaseCellManipulationService, useValue: { hasClipboardData: () => false } },
-        { provide: DataManagementScheduleService, useValue: { shiftSchedules: [] } },
+        {
+          provide: DataManagementScheduleService,
+          useValue: { shiftSchedules: [], clients: [{ id: 'origin-1', firstName: 'Elsa', name: 'Meier' }] },
+        },
         { provide: AbsenceMenuService, useValue: { getAbsenceMenuItems: () => [] } },
         { provide: WorkLockLevelService, useValue: { canUnconfirm: () => canUnconfirm, canConfirm: () => false } },
         {
@@ -214,6 +217,14 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
 
     expect(keysOf(moved)).toContain('reverseMove');
     expect(keysOf(buildContext(WorkScheduleEntryType.Work))).not.toContain('reverseMove');
+  });
+
+  it('offers no take-back when the person the work came from is not among the loaded clients', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+    const hiddenOrigin = buildContext(WorkScheduleEntryType.Work);
+    hiddenOrigin.entry!.movedFromClientId = 'hidden-1';
+
+    expect(keysOf(hiddenOrigin)).not.toContain('reverseMove');
   });
 
   it('offers no take-back on a locked moved work or to a read-only user', () => {

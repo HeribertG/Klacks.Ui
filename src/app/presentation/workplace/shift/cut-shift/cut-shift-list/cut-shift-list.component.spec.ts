@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PERMISSION_CHECKER } from 'src/app/domain/interfaces/permission-checker.interface';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -3511,6 +3511,35 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
             // Assert
             expect(mockDataService.onResetCompleted).toBe(newerResetCallback);
             expect(mockDataService.onReadCompleted).toBe(newerReadCallback);
+        });
+    });
+
+    describe('Reset dialog date', () => {
+        const openResetDialog = (response: { earliestResetDate: string; untilDate: string | null }): void => {
+            mockDataService.cutShifts = [{ originalId: 'order-1' }];
+            mockModalService.open.mockReturnValue({ result: new Promise(() => undefined) });
+            TestBed.inject(NgbCalendar).getNext = vi.fn((date: NgbDate) => date);
+            vi.spyOn(component['dataShiftCutsService'], 'getResetDateRange').mockReturnValue(of(response));
+            (component as any).resetCutsModal = () => ({});
+
+            component.onResetCuts();
+        };
+
+        it('should preselect the earliest allowed date, not today', () => {
+            // Act
+            openResetDialog({ earliestResetDate: '2020-02-11', untilDate: null });
+
+            // Assert
+            expect(component.resetDate).toEqual(new NgbDate(2020, 2, 11));
+            expect(component.minDate).toEqual(new NgbDate(2020, 2, 11));
+        });
+
+        it('should offer no day when the earliest allowed date lies behind the end of the order', () => {
+            // Act
+            openResetDialog({ earliestResetDate: '2020-03-02', untilDate: '2020-03-01' });
+
+            // Assert
+            expect(component.resetDate).toBeNull();
         });
     });
 });

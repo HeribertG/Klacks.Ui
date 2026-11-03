@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { TranslateService } from '@ngx-translate/core';
@@ -167,6 +168,15 @@ describe('ScheduleEntryActionsService', () => {
   });
 
   describe('taking back a move', () => {
+    const movedEntry = (): ScheduleCell => {
+      const entry = new ScheduleCell();
+      entry.sourceId = 'work-1';
+      entry.clientId = 'stand-in';
+      entry.movedFromClientId = 'origin';
+      entry.entryDate = '2026-11-04' as unknown as Date;
+      return entry;
+    };
+
     it('gives the service back to the person it came from', () => {
       const entry = new ScheduleCell();
       entry.sourceId = 'work-1';
@@ -178,6 +188,28 @@ describe('ScheduleEntryActionsService', () => {
 
       expect(dataManagement.reverseMovedWorkScheduleEntry).toHaveBeenCalledWith(
         'work-1', 'stand-in', 'origin', parseCalendarDate('2026-11-04'));
+    });
+
+    it('leaves a refused take-back to the HTTP interceptor and shows no second toast', async () => {
+      dataManagement.reverseMovedWorkScheduleEntry.mockRejectedValue(new HttpErrorResponse({ status: 400 }));
+
+      service.reverseMove(movedEntry());
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(toastShowService.showError).not.toHaveBeenCalled();
+    });
+
+    it('reports a failure that is no HTTP response instead of swallowing it', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      dataManagement.reverseMovedWorkScheduleEntry.mockRejectedValue(new Error('refresh failed'));
+
+      service.reverseMove(movedEntry());
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(toastShowService.showError).toHaveBeenCalledWith('schedule.moveWork.moveFailed');
+      consoleError.mockRestore();
     });
 
     it('does nothing for a service that was not moved', () => {

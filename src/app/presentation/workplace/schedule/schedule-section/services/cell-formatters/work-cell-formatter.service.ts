@@ -14,7 +14,6 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { formatTime } from 'src/app/domain/helpers/time-format.helper';
@@ -26,6 +25,7 @@ import {
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { ICellFormatter } from './cell-formatter.interface';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
+import { MovedFromNoteService } from '../moved-from-note.service';
 
 const LOCK_ICON_SIZE = 12;
 const MOVED_ICON = 'fa-solid fa-right-left';
@@ -36,7 +36,7 @@ export class WorkCellFormatterService implements ICellFormatter {
   private emptyFormatter = inject(EmptyCellFormatterService);
   private lockLevelService = inject(WorkLockLevelService);
   private translateService = inject(TranslateService);
-  private dataManagement = inject(DataManagementScheduleService);
+  private movedFromNote = inject(MovedFromNoteService);
 
   formatCell(entry: IScheduleCell | undefined): GridCell {
     if (!entry) {
@@ -66,7 +66,7 @@ export class WorkCellFormatterService implements ICellFormatter {
       entry.lockLevel,
       entry.isGroupRestricted,
     );
-    const tooltip = [lockTooltip ? this.translateService.instant(lockTooltip) : '', this.movedFromText(entry)]
+    const tooltip = [lockTooltip ? this.translateService.instant(lockTooltip) : '', this.movedFromNote.noteFor(entry)]
       .filter((part) => part !== '')
       .join(TOOLTIP_SEPARATOR);
     if (tooltip) {
@@ -76,15 +76,6 @@ export class WorkCellFormatterService implements ICellFormatter {
     cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
 
     return cell;
-  }
-
-  private movedFromText(entry: IScheduleCell): string {
-    if (!entry.movedFromClientId) return '';
-    const origin = this.dataManagement.clients.find((client) => client.id === entry.movedFromClientId);
-    const name = [origin?.firstName, origin?.name].filter(Boolean).join(' ');
-    return name
-      ? this.translateService.instant('schedule.moved-from', { name })
-      : this.translateService.instant('schedule.moved-from-hidden');
   }
 
   protected formatWorkTime(hours: number | null): string {

@@ -265,7 +265,7 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    // A frozen or consumed key, a refused move reversal or a refused end date, explained in the user's language.
+    // A frozen or consumed key, a refused move reversal, or a refused end date or reset of a shift, explained in the user's language.
     const refusal = codedRefusalToast(error);
     if (refusal) {
       this.toastShowService.showError(this.translateService.instant(refusal.key), refusal.name);

@@ -17,6 +17,7 @@ describe('moveReversalRefusalKey', () => {
     ['MOVE_HELD', 'schedule.move-reversal.held'],
     ['MOVE_NOT_APPLIED', 'schedule.move-reversal.not-applied'],
     ['MOVE_ALREADY_REVERSED', 'schedule.move-reversal.already-reversed'],
+    ['MOVE_ORIGIN_BUSY', 'schedule.move-reversal.origin-busy'],
   ])('explains the code %s', (code, key) => {
     expect(moveReversalRefusalKey(failure(HttpStatusCode.BadRequest, code))).toBe(key);
   });

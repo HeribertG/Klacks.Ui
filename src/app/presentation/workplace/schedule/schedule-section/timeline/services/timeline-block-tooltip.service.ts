@@ -7,6 +7,7 @@
  * @param workRenderer - Supplies the Work-entry abbreviation
  * @param workChangeRenderer - Supplies the WorkChange-entry abbreviation
  * @param breakRenderer - Supplies the Break/absence abbreviation
+ * @param movedFromNote - Supplies the "taken over from" note of a moved work, as in the grid
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -17,6 +18,7 @@ import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.int
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
+import { MovedFromNoteService } from '../../services/moved-from-note.service';
 
 const DAY_TOTAL_MINUTES = 24 * 60;
 const MINUTES_PER_HOUR = 60;
@@ -27,6 +29,7 @@ export class TimelineBlockTooltipService {
   private workChangeRenderer = inject(WorkChangeBlockRendererService);
   private breakRenderer = inject(BreakBlockRendererService);
   private translate = inject(TranslateService);
+  private movedFromNote = inject(MovedFromNoteService);
 
   public buildBlockTooltip(entry: IScheduleCell): string | undefined {
     if (!entry.startTime || !entry.endTime) {
@@ -35,7 +38,8 @@ export class TimelineBlockTooltipService {
     const label = this.resolveLabel(entry);
     const timeLine = `${formatTime(entry.startTime)} - ${formatTime(entry.endTime)}`;
     const duration = this.formatDuration(entry.startTime, entry.endTime);
-    const lines = [label, timeLine, duration].filter((l) => l.length > 0);
+    const movedFrom = entry.entryType === WorkScheduleEntryType.Work ? this.movedFromNote.noteFor(entry) : '';
+    const lines = [label, timeLine, duration, movedFrom].filter((l) => l.length > 0);
     return lines.join('\n');
   }
 

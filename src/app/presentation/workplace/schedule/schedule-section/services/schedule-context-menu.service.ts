@@ -41,6 +41,7 @@ import { isSameCalendarDate } from 'src/app/domain/helpers/calendar-date.helper'
 import { sanitizeCssColor } from 'src/app/shared/helpers/color.helper';
 import { ContextMenuContext } from './context-menu-context.interface';
 import { ScheduleDataService } from './schedule-data.service';
+import { MovedFromNoteService } from './moved-from-note.service';
 
 @Injectable()
 export class ScheduleContextMenuService {
@@ -50,6 +51,7 @@ export class ScheduleContextMenuService {
   private absenceMenuService = inject(AbsenceMenuService);
   private lockLevelService = inject(WorkLockLevelService);
   private authService = inject(AuthorizationService);
+  private movedFromNote = inject(MovedFromNoteService);
 
   createBreakPlaceholderContextMenu(bp: IBreakPlaceholder, dataService: ScheduleDataService): Menu {
     const menuData = new Menu();
@@ -159,7 +161,7 @@ export class ScheduleContextMenuService {
         if (entry?.entryType === WorkScheduleEntryType.Work && this.canCoverAbsence()) {
           menuData.list.push(...MenuDataTemplate.divider());
           menuData.list.push(...MenuDataTemplate.coverAbsence());
-          if (entry.movedFromClientId) {
+          if (this.movedFromNote.isOriginVisible(entry)) {
             menuData.list.push(...MenuDataTemplate.reverseMove());
           }
         }

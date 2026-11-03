@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /**
- * Explains a refused move reversal in the user's language. The server answers a coded 400 (already back, moved on, held)
+ * Explains a refused move reversal in the user's language. The server answers a coded 400 (already back, moved on, held, origin busy)
  * or 404 for a missing or hidden service; anything else keeps the generic handling.
  * @param error - The failed response
  */
@@ -18,6 +18,7 @@ const MOVE_REVERSAL_KEYS: Readonly<Record<string, string>> = {
   MOVE_HELD: 'schedule.move-reversal.held',
   MOVE_NOT_APPLIED: 'schedule.move-reversal.not-applied',
   MOVE_ALREADY_REVERSED: 'schedule.move-reversal.already-reversed',
+  MOVE_ORIGIN_BUSY: 'schedule.move-reversal.origin-busy',
 };
 
 export function moveReversalRefusalKey(error: unknown): string | null {

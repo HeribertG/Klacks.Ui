@@ -14,6 +14,7 @@
  * - Uses: ScheduleEntryCrudService for break operations
  * - Uses: AbsenceMenuService for absence data
  */
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -44,6 +45,7 @@ import { ShiftPlacementService } from './shift-placement.service';
 
 /** Both bounds equal means no times were recorded; the duration carries the truth instead. */
 const NO_TIMES_RECORDED = '00:00:00';
+const REVERSE_MOVE_FAILED_KEY = 'schedule.moveWork.moveFailed';
 
 /** A whole day is booked as this exact pair, never as equal bounds. */
 const FULL_DAY_START = '00:00:00';
@@ -150,7 +152,7 @@ export class ScheduleEntryActionsService {
 
     void this.dataManagement
       .reverseMovedWorkScheduleEntry(entry.sourceId, entry.clientId, entry.movedFromClientId, date)
-      .catch(() => undefined);
+      .catch((error: unknown) => this.reportReverseMoveError(error));
   }
 
   deleteSelectedEntries(dataService: ScheduleDataService): void {
@@ -266,6 +268,12 @@ export class ScheduleEntryActionsService {
         error: (err) => this.reportConfirmError('Error confirming break:', err),
       });
     }
+  }
+
+  private reportReverseMoveError(error: unknown): void {
+    if (error instanceof HttpErrorResponse) return;
+    console.error('Error taking back a move:', error);
+    this.toastShowService.showError(this.translateService.instant(REVERSE_MOVE_FAILED_KEY));
   }
 
   private reportConfirmError(logText: string, err: { status?: number; error?: { detail?: string } } | null): void {
