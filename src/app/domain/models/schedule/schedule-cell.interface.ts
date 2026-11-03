@@ -23,4 +23,5 @@ export interface IScheduleCell {
   isReplacementEntry: boolean;
   lockLevel: number;
   isGroupRestricted: boolean;
+  movedFromClientId?: string | null;
 }

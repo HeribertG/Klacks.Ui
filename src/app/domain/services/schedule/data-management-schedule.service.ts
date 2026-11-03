@@ -481,6 +481,10 @@ export class DataManagementScheduleService implements ILoadable {
     return this.scheduleEntryCrud.reassignWorkScheduleEntry(workId, sourceClientId, targetClientId, date);
   }
 
+  reverseMovedWorkScheduleEntry(workId: string, ownerClientId: string, originClientId: string, date: Date): Promise<void> {
+    return this.scheduleEntryCrud.reverseMovedWorkScheduleEntry(workId, ownerClientId, originClientId, date);
+  }
+
   deleteWorkScheduleEntry(
     id: string,
     sourceId: string,

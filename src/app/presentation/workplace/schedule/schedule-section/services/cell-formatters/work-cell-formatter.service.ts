@@ -13,6 +13,8 @@
  * - Used by: ScheduleDataService
  */
 import { inject, Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { formatTime } from 'src/app/domain/helpers/time-format.helper';
@@ -25,10 +27,16 @@ import {
 import { ICellFormatter } from './cell-formatter.interface';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 
+const LOCK_ICON_SIZE = 12;
+const MOVED_ICON = 'fa-solid fa-right-left';
+const TOOLTIP_SEPARATOR = ' · ';
+
 @Injectable()
 export class WorkCellFormatterService implements ICellFormatter {
   private emptyFormatter = inject(EmptyCellFormatterService);
   private lockLevelService = inject(WorkLockLevelService);
+  private translateService = inject(TranslateService);
+  private dataManagement = inject(DataManagementScheduleService);
 
   formatCell(entry: IScheduleCell | undefined): GridCell {
     if (!entry) {
@@ -42,15 +50,25 @@ export class WorkCellFormatterService implements ICellFormatter {
     cell.secondSubText =
       formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
 
+    const icons: CellIcon[] = [];
     const lockIcon = this.lockLevelService.getLockIcon(entry.lockLevel);
     if (lockIcon) {
-      cell.icons = [new CellIcon(lockIcon, IconCornerEnum.TopRight, 12)];
+      icons.push(new CellIcon(lockIcon, IconCornerEnum.TopRight, LOCK_ICON_SIZE));
+    }
+    if (entry.movedFromClientId) {
+      icons.push(new CellIcon(MOVED_ICON, IconCornerEnum.TopLeft, LOCK_ICON_SIZE));
+    }
+    if (icons.length > 0) {
+      cell.icons = icons;
     }
 
-    const tooltip = this.lockLevelService.getLockTooltip(
+    const lockTooltip = this.lockLevelService.getLockTooltip(
       entry.lockLevel,
       entry.isGroupRestricted,
     );
+    const tooltip = [lockTooltip ? this.translateService.instant(lockTooltip) : '', this.movedFromText(entry)]
+      .filter((part) => part !== '')
+      .join(TOOLTIP_SEPARATOR);
     if (tooltip) {
       cell.tooltip = tooltip;
     }
@@ -58,6 +76,15 @@ export class WorkCellFormatterService implements ICellFormatter {
     cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
 
     return cell;
+  }
+
+  private movedFromText(entry: IScheduleCell): string {
+    if (!entry.movedFromClientId) return '';
+    const origin = this.dataManagement.clients.find((client) => client.id === entry.movedFromClientId);
+    const name = [origin?.firstName, origin?.name].filter(Boolean).join(' ');
+    return name
+      ? this.translateService.instant('schedule.moved-from', { name })
+      : this.translateService.instant('schedule.moved-from-hidden');
   }
 
   protected formatWorkTime(hours: number | null): string {

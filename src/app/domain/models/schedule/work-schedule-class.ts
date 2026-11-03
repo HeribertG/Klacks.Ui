@@ -25,4 +25,5 @@ export class ScheduleCell implements IScheduleCell {
   isReplacementEntry = false;
   lockLevel = 0;
   isGroupRestricted = false;
+  movedFromClientId: string | null = null;
 }

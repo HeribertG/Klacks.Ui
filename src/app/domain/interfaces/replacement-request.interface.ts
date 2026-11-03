@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+import { ReplacementRequestKind } from '../enums/replacement-request-kind.enum';
 import { ReplacementRequestOutcome } from '../enums/replacement-request-outcome.enum';
 import { ReplacementRequestSource } from '../enums/replacement-request-source.enum';
 
@@ -10,6 +11,8 @@ import { ReplacementRequestSource } from '../enums/replacement-request-source.en
  * @param endTime - Slot end "HH:mm:ss"
  * @param isShortNotice - The request was reported shortly before the shift start
  * @param isScenarioReplacement - The recorded acceptance leaves the candidate as the slot's replacement in the scenario
+ * @param kind - Replacement, or Move when the whole service went to the candidate
+ * @param reversedAtUtc - When the applied move was taken back; the recorded answer stays
  */
 export interface IReplacementRequest {
   id: string;
@@ -32,4 +35,6 @@ export interface IReplacementRequest {
   appliedAtUtc: string | null;
   isShortNotice: boolean;
   isScenarioReplacement: boolean;
+  kind: ReplacementRequestKind;
+  reversedAtUtc: string | null;
 }

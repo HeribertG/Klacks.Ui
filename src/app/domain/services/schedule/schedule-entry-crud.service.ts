@@ -11,6 +11,8 @@
  */
 
 import { HttpErrorResponse } from '@angular/common/http';
+import { ReassignWorkClientResponse } from 'src/app/domain/models/dtos/reassign-work-client-response.dto';
+import { DataRecoveryService } from 'src/app/infrastructure/api/schedule/data-recovery.service';
 import { inject, Injectable, Injector, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-entry-type.enum';
@@ -66,6 +68,7 @@ export class ScheduleEntryCrudService {
   private analyseScenarioService = inject(AnalyseScenarioService);
   private injector = inject(Injector);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private recoveryService = inject(DataRecoveryService);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -206,7 +209,20 @@ export class ScheduleEntryCrudService {
 
   async reassignWorkScheduleEntry(workId: string, sourceClientId: string, targetClientId: string, date: Date): Promise<void> {
     const response = await this.workCrud.reassignWorkClient(workId, targetClientId);
+    this.applyReassignResponse(response, sourceClientId, targetClientId, date);
+  }
 
+  async reverseMovedWorkScheduleEntry(workId: string, ownerClientId: string, originClientId: string, date: Date): Promise<void> {
+    const response = await firstValueFrom(this.recoveryService.reverseMovedWork(workId));
+    this.applyReassignResponse(response, ownerClientId, originClientId, date);
+  }
+
+  private applyReassignResponse(
+    response: ReassignWorkClientResponse,
+    sourceClientId: string,
+    targetClientId: string,
+    date: Date,
+  ): void {
     if (response.work.periodHours) {
       this.workScheduleLoader.periodHours.set(targetClientId, response.work.periodHours);
     }

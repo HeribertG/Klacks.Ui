@@ -19,6 +19,8 @@ import { IRecordReplacementRequest } from 'src/app/domain/interfaces/record-repl
 import { ICoverAbsenceRequest } from '../../../domain/models/schedule/cover-absence-request.interface';
 import { ICoverAbsenceOutcome } from '../../../domain/models/schedule/cover-absence-outcome.interface';
 import { IReplacementRequestsQuery } from 'src/app/domain/interfaces/replacement-requests-query.interface';
+import { MOVE_REVERSAL_PATH } from 'src/app/domain/helpers/move-reversal-refusal.helper';
+import { ReassignWorkClientResponse } from 'src/app/domain/models/dtos/reassign-work-client-response.dto';
 
 type QueryValue = string | boolean | null | undefined;
 
@@ -56,6 +58,13 @@ export class DataRecoveryService {
     return this.httpClient.get<IReplacementRequest[]>(`${this.apiBase}/Requests`, {
       params: this.toParams({ ...query }),
     });
+  }
+
+  reverseMovedWork(workId: string): Observable<ReassignWorkClientResponse> {
+    return this.httpClient.post<ReassignWorkClientResponse>(
+      `${this.apiBase}/Works/${encodeURIComponent(workId)}${MOVE_REVERSAL_PATH}`,
+      {},
+    );
   }
 
   private toParams(values: Record<string, QueryValue>): HttpParams {

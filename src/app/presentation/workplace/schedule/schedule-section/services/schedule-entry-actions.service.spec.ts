@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 import { TestBed } from '@angular/core/testing';
+import { ScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
@@ -64,6 +65,7 @@ describe('ScheduleEntryActionsService', () => {
     currentFilter: { paymentInterval: number };
     addWorkScheduleEntry: ReturnType<typeof vi.fn>;
     readDatas: ReturnType<typeof vi.fn>;
+    reverseMovedWorkScheduleEntry: ReturnType<typeof vi.fn>;
   };
   let workService: {
     confirmWork: ReturnType<typeof vi.fn>;
@@ -99,6 +101,7 @@ describe('ScheduleEntryActionsService', () => {
       currentFilter: { paymentInterval: 2 },
       addWorkScheduleEntry: vi.fn(),
       readDatas: vi.fn(),
+      reverseMovedWorkScheduleEntry: vi.fn().mockResolvedValue(undefined),
     };
     workService = {
       confirmWork: vi.fn().mockReturnValue(of({})),
@@ -160,6 +163,31 @@ describe('ScheduleEntryActionsService', () => {
 
     it('resolves the entry inside the scenario', () => {
       expect(service.getDeleteInfoForPosition(grid(false), 0, 0)?.id).toBe('work-1');
+    });
+  });
+
+  describe('taking back a move', () => {
+    it('gives the service back to the person it came from', () => {
+      const entry = new ScheduleCell();
+      entry.sourceId = 'work-1';
+      entry.clientId = 'stand-in';
+      entry.movedFromClientId = 'origin';
+      entry.entryDate = '2026-11-04' as unknown as Date;
+
+      service.reverseMove(entry);
+
+      expect(dataManagement.reverseMovedWorkScheduleEntry).toHaveBeenCalledWith(
+        'work-1', 'stand-in', 'origin', parseCalendarDate('2026-11-04'));
+    });
+
+    it('does nothing for a service that was not moved', () => {
+      const entry = new ScheduleCell();
+      entry.sourceId = 'work-1';
+      entry.entryDate = new Date(2026, 10, 4);
+
+      service.reverseMove(entry);
+
+      expect(dataManagement.reverseMovedWorkScheduleEntry).not.toHaveBeenCalled();
     });
   });
 

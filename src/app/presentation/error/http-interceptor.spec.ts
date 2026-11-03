@@ -460,6 +460,16 @@ describe('ResponseInterceptor', () => {
       expect(workplaceStateService.isDirty).toBe(true);
     });
 
+    it('explains a refused move reversal in the user\'s language', () => {
+      const REVERSE_URL = '/api/backend/Recovery/Works/work-1/ReverseMove';
+      httpClient.post(REVERSE_URL, {}).subscribe({ error: () => undefined });
+
+      httpMock.expectOne(REVERSE_URL).flush({ detail: 'English detail', errorCode: 'MOVE_MOVED_ON' }, BAD_REQUEST);
+
+      expect(toastShowService.showError).toHaveBeenCalledTimes(1);
+      expect(toastShowService.showError).toHaveBeenCalledWith('schedule.move-reversal.moved-on', 'move-reversal-refused');
+    });
+
     it('keeps the unsaved changes when a key refuses a shift save, the user may still save them elsewhere', () => {
       const SHIFT_URL = '/api/backend/Shifts/';
       workplaceStateService.isDirty = true;

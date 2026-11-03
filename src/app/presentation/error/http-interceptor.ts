@@ -28,11 +28,8 @@ import {
   SCENARIO_VARIANT_SHIFT_REFUSED_KEY,
 } from 'src/app/domain/constants/scenario-variant.constants';
 import { readScenarioVariantConflictKey } from 'src/app/domain/models/schedule/scenario-variant-refusal.model';
-import {
-  isShiftEndDateRefusal,
-  SHIFT_END_DATE_REFUSED_KEY,
-  SHIFT_END_DATE_REFUSED_TOAST_NAME,
-} from 'src/app/domain/helpers/shift-end-date-refusal.helper';
+import { isShiftEndDateRefusal } from 'src/app/domain/helpers/shift-end-date-refusal.helper';
+import { codedRefusalToast } from 'src/app/domain/helpers/coded-refusal-toast.helper';
 import { GEO_SERVICES_INTERCEPTOR_PASS_THROUGH_PATHS } from 'src/app/domain/constants/geo-services-api.constants';
 import { AUTOFILL_RUNS_ACTIVE_PATH } from 'src/app/domain/constants/autofill-run-presence.constants';
 import { EXPLAIN_OFFERS_PATH } from 'src/app/domain/constants/explain-offer.constants';
@@ -268,22 +265,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    // A shift screen saving into a key that is frozen, consumed or has cuts: explained in the user's language.
-    const scenarioVariantConflictKey = readScenarioVariantConflictKey(error);
-    if (scenarioVariantConflictKey) {
-      this.toastShowService.showError(
-        this.translateService.instant(scenarioVariantConflictKey),
-        SCENARIO_VARIANT_REFUSAL_TOAST_NAME,
-      );
-      return throwError(() => error);
-    }
-
-    // An end date of a real locked shift the server refused: the form keeps what was typed.
-    if (isShiftEndDateRefusal(error)) {
-      this.toastShowService.showError(
-        this.translateService.instant(SHIFT_END_DATE_REFUSED_KEY),
-        SHIFT_END_DATE_REFUSED_TOAST_NAME,
-      );
+    // A frozen or consumed key, a refused move reversal or a refused end date, explained in the user's language.
+    const refusal = codedRefusalToast(error);
+    if (refusal) {
+      this.toastShowService.showError(this.translateService.instant(refusal.key), refusal.name);
       return throwError(() => error);
     }
 

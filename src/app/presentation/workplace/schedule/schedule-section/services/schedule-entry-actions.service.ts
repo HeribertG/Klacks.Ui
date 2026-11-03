@@ -18,6 +18,7 @@ import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { IScheduleCell } from 'src/app/domain/models/schedule/schedule-cell.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu-item.interface';
@@ -141,6 +142,15 @@ export class ScheduleEntryActionsService {
     if (await this.takenWorksConfirm.confirmBreak(breakEntry)) {
       await this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
     }
+  }
+
+  reverseMove(entry: IScheduleCell | null | undefined): void {
+    const date = parseCalendarDate(entry?.entryDate);
+    if (!entry?.movedFromClientId || !date) return;
+
+    void this.dataManagement
+      .reverseMovedWorkScheduleEntry(entry.sourceId, entry.clientId, entry.movedFromClientId, date)
+      .catch(() => undefined);
   }
 
   deleteSelectedEntries(dataService: ScheduleDataService): void {

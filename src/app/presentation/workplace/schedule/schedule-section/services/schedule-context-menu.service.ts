@@ -159,6 +159,9 @@ export class ScheduleContextMenuService {
         if (entry?.entryType === WorkScheduleEntryType.Work && this.canCoverAbsence()) {
           menuData.list.push(...MenuDataTemplate.divider());
           menuData.list.push(...MenuDataTemplate.coverAbsence());
+          if (entry.movedFromClientId) {
+            menuData.list.push(...MenuDataTemplate.reverseMove());
+          }
         }
 
         if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {

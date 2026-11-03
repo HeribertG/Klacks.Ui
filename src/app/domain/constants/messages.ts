@@ -112,6 +112,7 @@ export class DomainMessages {
   public static BRIEFING_DEBRIEFING = 'contextMenu.briefingDebriefing';
   public static REPLACEMENT = 'contextMenu.replacement';
   public static COVER_ABSENCE = 'contextMenu.coverAbsence';
+  public static REVERSE_MOVE = 'contextMenu.reverseMove';
   public static SPLIT_CONTAINER = 'contextMenu.splitContainer';
   public static EDIT_WORK = 'contextMenu.editWork';
   public static OPEN_CONTAINER = 'contextMenu.openContainer';

@@ -87,6 +87,7 @@ export class ScheduleMenuDispatcherService {
         dataService,
         host.contextMenuEntry ?? undefined,
       ),
+    reverseMove: (_dataService, _k, host) => this.facade.entryActions.reverseMove(host.contextMenuEntry),
     coverAbsence: (dataService, _k, host) =>
       this.facade.dialog.openRecoveryDialog(
         host.contextMenuRow,

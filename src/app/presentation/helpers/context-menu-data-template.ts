@@ -202,6 +202,18 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static reverseMove(): MenuItem[] {
+    return [
+      new MenuItem(
+        'reverseMove',
+        DomainMessages.REVERSE_MOVE,
+        false,
+        '',
+        'fa-solid fa-rotate-left',
+      ),
+    ];
+  }
+
   public static coverAbsence(): MenuItem[] {
     return [
       new MenuItem(

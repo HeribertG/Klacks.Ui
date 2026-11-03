@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { readFileSync } from 'fs';
+import { ReplacementRequestKind } from 'src/app/domain/enums/replacement-request-kind.enum';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { TestBed } from '@angular/core/testing';
@@ -743,6 +744,8 @@ describe('RecoveryDialogComponent', () => {
         analyseToken: 'token-1',
         workChangeId: null,
         appliedAtUtc: null,
+        kind: ReplacementRequestKind.Replacement,
+        reversedAtUtc: null,
         isShortNotice: true,
         isScenarioReplacement: false,
         ...extra,

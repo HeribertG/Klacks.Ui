@@ -207,6 +207,27 @@ describe('ScheduleContextMenuService - cover absence entry', () => {
     expect(keysOf(buildContext(WorkScheduleEntryType.Break))).not.toContain('coverAbsence');
   });
 
+  it('offers taking back a move only on a moved work', () => {
+    held.add(PERMISSIONS.CanEditSchedule);
+    const moved = buildContext(WorkScheduleEntryType.Work);
+    moved.entry!.movedFromClientId = 'origin-1';
+
+    expect(keysOf(moved)).toContain('reverseMove');
+    expect(keysOf(buildContext(WorkScheduleEntryType.Work))).not.toContain('reverseMove');
+  });
+
+  it('offers no take-back on a locked moved work or to a read-only user', () => {
+    const lockedMoved = buildContext(WorkScheduleEntryType.Work, 1);
+    lockedMoved.entry!.movedFromClientId = 'origin-1';
+    held.add(PERMISSIONS.CanEditSchedule);
+    expect(keysOf(lockedMoved)).not.toContain('reverseMove');
+
+    held.clear();
+    const readOnly = buildContext(WorkScheduleEntryType.Work);
+    readOnly.entry!.movedFromClientId = 'origin-1';
+    expect(keysOf(readOnly)).not.toContain('reverseMove');
+  });
+
   it('hides "cover absence" on a locked work cell, which the engine could only report as locked', () => {
     held.add(PERMISSIONS.CanEditSchedule);
 
