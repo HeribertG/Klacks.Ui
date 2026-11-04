@@ -13,6 +13,7 @@ import { of, Subject } from 'rxjs';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
 import { cloneObject } from 'src/app/domain/helpers/object.helper';
@@ -426,6 +427,36 @@ describe('DataManagementShiftService', () => {
             expect(req.request.body.analyseToken).toBe('variant-token-1');
             expect(req.request.body.groups.map((group: Group) => group.id)).toEqual([GROUP_ID]);
             req.flush(new Shift());
+        });
+    });
+
+    describe('a new container', () => {
+        const MACRO_URL = `${environment.baseUrl}Macros/Macros/DefaultShift`;
+
+        afterEach(() => {
+            TestBed.inject(HttpTestingController).match(MACRO_URL);
+        });
+
+        it('opens as a draft container without customer, address or time range', () => {
+            service.pendingContainerCreation.set(true);
+
+            service.createShift();
+
+            expect(service.editShift!.shiftType).toBe(ShiftType.IsContainer);
+            expect(service.editShift!.status).toBe(ShiftStatus.OriginalOrder);
+            expect(service.editShift!.isClientless).toBe(false);
+            expect(service.editShift!.clientId).toBeUndefined();
+            expect(service.editShift!.isTimeRange).toBe(false);
+        });
+
+        it('applies only once, so the next new shift is an order again', () => {
+            service.pendingContainerCreation.set(true);
+            service.createShift();
+
+            service.createShift();
+
+            expect(service.pendingContainerCreation()).toBe(false);
+            expect(service.editShift!.shiftType).not.toBe(ShiftType.IsContainer);
         });
     });
 

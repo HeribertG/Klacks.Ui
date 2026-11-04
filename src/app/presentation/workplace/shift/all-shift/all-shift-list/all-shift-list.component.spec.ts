@@ -117,7 +117,10 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
 
   const build = (queryParams: Record<string, string>) => {
     mockNavigationService = { navigateToNewShift: vi.fn() };
-    mockShiftService = { pendingClientlessCreation: { set: vi.fn() } };
+    mockShiftService = {
+      pendingClientlessCreation: { set: vi.fn() },
+      pendingContainerCreation: { set: vi.fn() },
+    };
 
     TestBed.configureTestingModule({
       imports: [AllShiftListComponent, TranslateModule.forRoot()],
@@ -172,6 +175,32 @@ describe('AllShiftListComponent - openPlannableCreateFormIfRequested', () => {
     (component as any).openPlannableCreateFormIfRequested();
 
     expect(mockNavigationService.navigateToNewShift).not.toHaveBeenCalled();
+  });
+
+  it('names the list after the chosen view', () => {
+    grantedPermissions = new Set();
+    build({});
+
+    const titleFor = (filterType: ShiftFilterType) => {
+      mockShiftService.currentFilter = { filterType };
+      return component.listTitleKey;
+    };
+
+    expect(titleFor(ShiftFilterType.Original)).toBe('shift.all-shift.nav.original');
+    expect(titleFor(ShiftFilterType.Shift)).toBe('shift.all-shift.nav.planbar');
+    expect(titleFor(ShiftFilterType.Container)).toBe('shift.all-shift.nav.container');
+    expect(titleFor(ShiftFilterType.Absence)).toBe('shift.all-shift.nav.absence');
+  });
+
+  it('opens the creation form as a container from the container button', () => {
+    grantedPermissions = new Set([PERMISSIONS.CanCreateShifts]);
+    build({});
+
+    component.onAddContainer();
+
+    expect(mockShiftService.pendingContainerCreation.set).toHaveBeenCalledWith(true);
+    expect(mockShiftService.pendingClientlessCreation.set).not.toHaveBeenCalled();
+    expect(mockNavigationService.navigateToNewShift).toHaveBeenCalled();
   });
 });
 

@@ -1,6 +1,6 @@
 <form id="allShiftForm">
   <div id="all-shift-header" class="container-header header-container">
-    {{ "shift.all-shift.list.title" | translate }}
+    {{ listTitleKey | translate }}
 
     <span class="filler"></span>
     @if (authorizationService.hasPermission(PERMISSIONS.CanCreateShifts) &&
@@ -26,6 +26,19 @@
         [ngbTooltip]="'new-plannable-work-tooltip' | translate"
       >
         {{ "new-plannable-work" | translate }}
+      </button>
+    </div>
+    }
+    @if (authorizationService.hasPermission(PERMISSIONS.CanCreateShifts) &&
+    dataManagementShiftService.currentFilter.filterType === ShiftFilterType.Container){
+    <div class="actions">
+      <button
+        id="shift-create-container-btn"
+        class="btn new-btn"
+        (click)="onAddContainer()"
+        [ngbTooltip]="'new-container-tooltip' | translate"
+      >
+        {{ "new-container" | translate }}
       </button>
     </div>
     }

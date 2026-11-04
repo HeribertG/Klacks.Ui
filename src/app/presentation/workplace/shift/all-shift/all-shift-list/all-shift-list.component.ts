@@ -56,6 +56,14 @@ import { SetupConsultationOfferService } from 'src/app/presentation/services/set
 const CLIENTLESS_CREATE_QUERY_PARAM = 'create';
 const CLIENTLESS_CREATE_QUERY_VALUE = 'plannable';
 
+const DEFAULT_LIST_TITLE_KEY = 'shift.all-shift.list.title';
+const LIST_TITLE_KEYS: Readonly<Record<ShiftFilterType, string>> = {
+  [ShiftFilterType.Original]: 'shift.all-shift.nav.original',
+  [ShiftFilterType.Shift]: 'shift.all-shift.nav.planbar',
+  [ShiftFilterType.Container]: 'shift.all-shift.nav.container',
+  [ShiftFilterType.Absence]: 'shift.all-shift.nav.absence',
+};
+
 @Component({
   selector: 'app-all-shift-list',
   templateUrl: './all-shift-list.component.html',
@@ -81,6 +89,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
   public readonly PERMISSIONS = PERMISSIONS;
+  public readonly ShiftFilterType = ShiftFilterType;
   public sortingService = inject(TableSortingService);
   public quickPrintAction = inject(QuickPrintActionService);
   private tableResizeService = inject(ShiftTableResizeService);
@@ -176,6 +185,16 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAddPlannableShift(): void {
     this.dataManagementShiftService.pendingClientlessCreation.set(true);
+    this.navigationService.navigateToNewShift();
+  }
+
+  /** Names the kind of row the chosen view lists, so orders, containers and absences are not all called "shifts". */
+  get listTitleKey(): string {
+    return LIST_TITLE_KEYS[this.dataManagementShiftService.currentFilter.filterType] ?? DEFAULT_LIST_TITLE_KEY;
+  }
+
+  onAddContainer(): void {
+    this.dataManagementShiftService.pendingContainerCreation.set(true);
     this.navigationService.navigateToNewShift();
   }
 

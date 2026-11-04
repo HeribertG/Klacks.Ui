@@ -19,6 +19,7 @@ import {
 import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { IShift } from 'src/app/domain/models/shift/shift.interface';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-status.enum';
+import { ShiftType } from 'src/app/domain/models/shift/shift-type.enum';
 import { StateCountryToken } from 'src/app/domain/models/calendar/state-country-token-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
@@ -101,6 +102,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public pendingClientlessCreation = signal(false);
+  public pendingContainerCreation = signal(false);
   public defaultMacroPreselected = signal(false);
 
   public listWrapper: ITruncatedShift | undefined;
@@ -311,6 +313,18 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     value.status = clientless ? ShiftStatus.SealedOrder : ShiftStatus.OriginalOrder;
     value.isClientless = clientless;
     this.pendingClientlessCreation.set(false);
+
+    // A container is a template, not an order: it never names a customer or an address and has no time range. It starts
+    // as a draft like an order and becomes its one-row shape when sealed (ContainerShiftRules in the backend).
+    if (this.pendingContainerCreation()) {
+      value.shiftType = ShiftType.IsContainer;
+      value.status = ShiftStatus.OriginalOrder;
+      value.isClientless = false;
+      value.clientId = undefined;
+      value.addressName = undefined;
+      value.isTimeRange = false;
+    }
+    this.pendingContainerCreation.set(false);
 
     this.assignActiveVariant(value);
 
