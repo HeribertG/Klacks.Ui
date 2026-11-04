@@ -7,7 +7,8 @@
  * @param error - The failed response
  */
 
-import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { HttpStatusCode } from '@angular/common/http';
+import { readRefusalCode } from './read-refusal-code.helper';
 
 export const SHIFT_END_DATE_REFUSED_KEY = 'shift.edit-shift.main.until-refused';
 export const SHIFT_END_DATE_REFUSED_TOAST_NAME = 'shift-end-date-refused';
@@ -15,9 +16,5 @@ export const SHIFT_END_DATE_REFUSED_TOAST_NAME = 'shift-end-date-refused';
 const SHIFT_END_DATE_REFUSED_CODE = 'SHIFT_END_DATE_REFUSED';
 
 export function isShiftEndDateRefusal(error: unknown): boolean {
-  return (
-    error instanceof HttpErrorResponse &&
-    error.status === HttpStatusCode.Conflict &&
-    (error.error as { errorCode?: unknown } | null)?.errorCode === SHIFT_END_DATE_REFUSED_CODE
-  );
+  return readRefusalCode(error, HttpStatusCode.Conflict) === SHIFT_END_DATE_REFUSED_CODE;
 }

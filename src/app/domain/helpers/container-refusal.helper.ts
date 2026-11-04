@@ -3,8 +3,9 @@
 /**
  * Coded 400 refusals around containers that the interceptor explains in the user's language: a container (schedule) or
  * container template whose service, absence or travel, briefing or debriefing time reaches outside the container, and an
- * expense on a service inside a container (expenses belong to the container), and confirming a service inside a container
- * on its own (the container confirms its services). The open dialog keeps what was entered.
+ * expense on a service inside a container (expenses belong to the container), confirming a service inside a container
+ * on its own (the container confirms its services) and splitting a sealed container. The open dialog keeps what was
+ * entered.
  * @param error - The failed response
  */
 
@@ -16,6 +17,7 @@ const CONTAINER_REFUSAL_KEYS: Readonly<Record<string, string>> = {
   CONTAINER_ITEM_OUTSIDE: 'schedule.container-fit.outside',
   EXPENSE_ON_CONTAINER_SERVICE: 'schedule.container-expense.refused',
   CONTAINER_CHILD_CONFIRM_REFUSED: 'schedule.container-child.confirm-refused',
+  CONTAINER_SPLIT_SEALED_REFUSED: 'schedule.container-split.sealed-refused',
 };
 
 export function containerRefusalKey(error: unknown): string | null {

@@ -947,6 +947,7 @@
   "schedule.container-fit.outside": "A service, an absence or a travel, briefing or debriefing time lies outside the container. Adjust the times, then it can be saved.",
   "schedule.container-expense.refused": "Expenses and allowances are recorded on the container only, not on a service inside it.",
   "schedule.container-child.confirm-refused": "A service inside a container is confirmed together with the container, not on its own. Confirm the container.",
+  "schedule.container-split.sealed-refused": "A confirmed container cannot be split. Remove the confirmation first; afterwards each part can be confirmed on its own.",
   "schedule.move-reversal.not-applied": "Only a move that reached the plan can be taken back.",
   "schedule.move-reversal.already-reversed": "This move was already taken back.",
   "schedule.move-reversal.origin-busy": "The person this service came from is not free at that time: another service or an absence is in the way.",

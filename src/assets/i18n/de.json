@@ -947,6 +947,7 @@
   "schedule.container-fit.outside": "Ein Dienst, eine Abwesenheit oder eine Weg-, Briefing- oder Debriefingzeit liegt ausserhalb des Containers. Passe die Zeiten an, dann lässt sich speichern.",
   "schedule.container-expense.refused": "Spesen und Vergütungen werden nur am Container erfasst, nicht an einem Dienst darin.",
   "schedule.container-child.confirm-refused": "Ein Dienst in einem Container wird zusammen mit dem Container bestätigt, nicht einzeln. Bestätige den Container.",
+  "schedule.container-split.sealed-refused": "Ein bestätigter Container kann nicht geteilt werden. Hebe die Bestätigung zuerst auf; danach lassen sich beide Teile einzeln bestätigen.",
   "schedule.move-reversal.not-applied": "Nur eine übernommene Verschiebung kann zurückgenommen werden.",
   "schedule.move-reversal.already-reversed": "Diese Verschiebung wurde schon zurückgenommen.",
   "schedule.move-reversal.origin-busy": "Die Person, von der der Dienst kam, ist zu dieser Zeit nicht frei: ein anderer Dienst oder eine Abwesenheit steht im Weg.",

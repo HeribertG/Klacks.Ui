@@ -13,11 +13,12 @@ import {
   SCENARIO_VARIANT_REFUSAL_KEY_BY_CODE,
   SCENARIO_VARIANT_REFUSAL_KEY_BY_STATUS,
 } from 'src/app/domain/constants/scenario-variant.constants';
+import { readErrorCode } from 'src/app/domain/helpers/read-refusal-code.helper';
 
 /** The i18n key of a coded variant conflict from any endpoint, otherwise null. */
 export function readScenarioVariantConflictKey(error: HttpErrorResponse): string | null {
-  const code = (error.error as { errorCode?: unknown } | null)?.errorCode;
-  return typeof code === 'string' ? (SCENARIO_VARIANT_REFUSAL_KEY_BY_CODE[code] ?? null) : null;
+  const code = readErrorCode(error);
+  return code ? (SCENARIO_VARIANT_REFUSAL_KEY_BY_CODE[code] ?? null) : null;
 }
 
 /** The i18n key that explains the error when it is a refusal the caller must show, otherwise null. */

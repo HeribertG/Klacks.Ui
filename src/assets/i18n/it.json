@@ -946,6 +946,7 @@
   "schedule.container-fit.outside": "Un servizio, un'assenza o un tempo di viaggio, di briefing o di debriefing si trova fuori dal contenitore. Adatta gli orari, poi si potrà salvare.",
   "schedule.container-expense.refused": "Spese e indennità si registrano solo sul contenitore, non su un servizio al suo interno.",
   "schedule.container-child.confirm-refused": "Un servizio all'interno di un contenitore viene confermato insieme al contenitore, non da solo. Conferma il contenitore.",
+  "schedule.container-split.sealed-refused": "Un contenitore confermato non può essere diviso. Annulla prima la conferma; dopo, ogni parte può essere confermata singolarmente.",
   "schedule.move-reversal.not-applied": "Si può annullare solo uno spostamento applicato al piano.",
   "schedule.move-reversal.already-reversed": "Questo spostamento è già stato annullato.",
   "schedule.move-reversal.origin-busy": "La persona da cui proviene questo turno non è libera in quel momento: un altro turno o un'assenza lo impedisce.",

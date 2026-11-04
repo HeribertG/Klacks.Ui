@@ -7,6 +7,7 @@
  */
 
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { readRefusalCode } from './read-refusal-code.helper';
 
 export const MOVE_REVERSAL_PATH = '/ReverseMove';
 export const MOVE_REVERSAL_TOAST_NAME = 'move-reversal-refused';
@@ -30,6 +31,6 @@ export function moveReversalRefusalKey(error: unknown): string | null {
     return MOVE_REVERSAL_NOT_FOUND_KEY;
   }
 
-  const code = (error.error as { errorCode?: unknown } | null)?.errorCode;
-  return error.status === HttpStatusCode.BadRequest && typeof code === 'string' ? (MOVE_REVERSAL_KEYS[code] ?? null) : null;
+  const code = readRefusalCode(error);
+  return code ? (MOVE_REVERSAL_KEYS[code] ?? null) : null;
 }

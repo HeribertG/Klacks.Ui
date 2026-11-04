@@ -21,6 +21,12 @@ describe('containerRefusalKey', () => {
     );
   });
 
+  it('explains splitting a sealed container', () => {
+    expect(containerRefusalKey(refusal(400, 'CONTAINER_SPLIT_SEALED_REFUSED'))).toBe(
+      'schedule.container-split.sealed-refused',
+    );
+  });
+
   it('leaves another 400 and the same code on another status alone', () => {
     expect(containerRefusalKey(refusal(400, 'DAY_SEALED'))).toBeNull();
     expect(containerRefusalKey(refusal(409, 'CONTAINER_ITEM_OUTSIDE'))).toBeNull();
